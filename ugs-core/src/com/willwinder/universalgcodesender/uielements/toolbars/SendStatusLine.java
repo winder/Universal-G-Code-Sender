@@ -29,6 +29,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
 import javax.swing.JLabel;
 import javax.swing.Timer;
@@ -111,7 +112,7 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
     private void setRows() {
         if (backend.getProcessedGcodeFile() != null) {
             try {
-                try (GcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
+                try (IGcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
                     setText(String.format(ROWS_FORMAT, gsr.getNumRows()));
                 }
             } catch (GcodeStreamReader.NotGcodeStreamFile | IOException ex){}

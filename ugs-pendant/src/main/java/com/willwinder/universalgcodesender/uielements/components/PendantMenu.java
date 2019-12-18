@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -66,7 +66,6 @@ public class PendantMenu extends JMenu {
         }
         startServer.setEnabled(false);
         stopServer.setEnabled(true);
-        this.backend.addControllerListener(pendantUI);
     }
 
     private void stopPendantServerButtonActionPerformed() {

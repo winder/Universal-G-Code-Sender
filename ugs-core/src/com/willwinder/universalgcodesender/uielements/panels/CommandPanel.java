@@ -29,7 +29,12 @@ import com.willwinder.universalgcodesender.uielements.components.LengthLimitedDo
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.text.DefaultCaret;
 
 /**
@@ -57,6 +62,7 @@ public class CommandPanel extends JPanel implements UGSEventListener, MessageLis
 
     /**
      * No-Arg constructor to make this control work in the UI builder tools
+     *
      * @deprecated Use constructor with BackendAPI.
      */
     @Deprecated
@@ -120,7 +126,9 @@ public class CommandPanel extends JPanel implements UGSEventListener, MessageLis
     public void onMessage(MessageType messageType, String message) {
         java.awt.EventQueue.invokeLater(() -> {
             boolean verbose = MessageType.VERBOSE.equals(messageType);
-            if (!verbose || showVerboseMenuItem.isSelected()) {
+            if (messageType.equals(MessageType.ERROR)) {
+                consoleTextArea.append("[" +  messageType.getLocalizedString() + "] " + message);
+            } else if (!verbose || showVerboseMenuItem.isSelected()) {
                 if (verbose) {
                     consoleTextArea.append("[" + messageType.getLocalizedString() + "] ");
                 }
@@ -135,7 +143,7 @@ public class CommandPanel extends JPanel implements UGSEventListener, MessageLis
 
     private void checkScrollWindow() {
         // Console output.
-        DefaultCaret caret = (DefaultCaret)consoleTextArea.getCaret();
+        DefaultCaret caret = (DefaultCaret) consoleTextArea.getCaret();
         if (scrollWindowMenuItem.isSelected()) {
             caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
             consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());

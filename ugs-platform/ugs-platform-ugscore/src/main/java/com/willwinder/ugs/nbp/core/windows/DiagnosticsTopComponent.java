@@ -21,7 +21,9 @@ package com.willwinder.ugs.nbp.core.windows;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.AbstractCommunicator;
+import com.willwinder.universalgcodesender.ICommunicator;
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -146,11 +148,19 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
         labels.get("controller:getStatusUpdatesEnabled").setText(String.valueOf(controller.getStatusUpdatesEnabled()));
         labels.get("controller:getStatusUpdateRate").setText(String.valueOf(controller.getStatusUpdateRate()));
 
-        labels.get("settings:isHomingEnabled").setText(String.valueOf(controller.getFirmwareSettings().isHomingEnabled()));
-        labels.get("settings:getReportingUnits").setText(controller.getFirmwareSettings().getReportingUnits().toString());
+        IFirmwareSettings firmwareSettings = controller.getFirmwareSettings();
+        if(firmwareSettings != null) {
+          labels.get("settings:isHomingEnabled").setText(String.valueOf(firmwareSettings.isHomingEnabled()));
 
-        AbstractCommunicator communicator = controller.getCommunicator();
-        if ( communicator != null) {
+          if (firmwareSettings.getReportingUnits() != null) {
+            labels.get("settings:getReportingUnits").setText(controller.getFirmwareSettings().getReportingUnits().toString());
+          } else {
+            labels.get("settings:getReportingUnits").setText("?");
+          }
+        }
+
+        ICommunicator communicator = controller.getCommunicator();
+        if (communicator != null) {
           labels.get("communicator:numActiveCommands").setText(String.valueOf(communicator.numActiveCommands()));
           labels.get("communicator:isPaused").setText(String.valueOf(communicator.isPaused()));
           labels.get("communicator:getSingleStepMode").setText(String.valueOf(communicator.getSingleStepMode()));

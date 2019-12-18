@@ -19,8 +19,6 @@
 
 package com.willwinder.universalgcodesender.connection;
 
-import com.willwinder.universalgcodesender.AbstractCommunicator;
-
 import java.util.List;
 
 /**
@@ -30,7 +28,12 @@ import java.util.List;
  */
 public interface Connection {
 
-    void setCommunicator(AbstractCommunicator ac);
+    /**
+     * Adds a listener for events from the connection
+     *
+     * @param connectionListener a connection listener
+     */
+    void addListener(IConnectionListener connectionListener);
 
     /**
      * Sets the connection URI for the hardware and driver to connect with.

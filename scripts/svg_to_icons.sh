@@ -1,6 +1,8 @@
 #!/bin/bash
-
-# ./scripts/svg_to_icons.sh ./ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons
+#
+# Note: On MacOSX you need core utils: brew install coreutils
+#
+# Usage: ./scripts/svg_to_icons.sh ./ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons
 
 if [ "$#" -ne 1 ] || ! [ -d "$1" ]; then
   echo "Usage: $0 DIRECTORY" >&2
@@ -11,7 +13,7 @@ cd "$( realpath "$1" )"
 
 # Try to find inkscape on mac and linux
 INKSCAPE=`which inkscape`
-if [ ! -f $INKSCAPE ]; then
+if [ -z $INKSCAPE ]; then
 	INKSCAPE="/Applications/Inkscape.app/Contents/Resources/bin/inkscape"
 fi
 
@@ -32,9 +34,6 @@ for INPUT in *.svg ; do
   sed -e "s/$TRUE_BLACK/$BLACKISH/g" "${PWD}/${INPUT}" > "${PWD}/temp"
   mv "${PWD}/temp" "${PWD}/${INPUT}"
 done
-
-# Delete generated ..._dark.svg files
-rm ${PWD}/*_dark.svg 2> /dev/null
 
 # Generate _dark and _disabled_dark vectors
 for INPUT in *.svg ; do
@@ -59,3 +58,6 @@ for INPUT in *.svg ; do
 	$INKSCAPE --export-area-page --file "${PWD}/${INPUT}" -w 24 -h 24 --export-png "${PWD}/${FILENAME}24${SUFFIX}"
 	$INKSCAPE --export-area-page --file "${PWD}/${INPUT}" -w 32 -h 32 --export-png "${PWD}/${FILENAME}32${SUFFIX}"
 done
+
+# Delete generated ..._dark.svg files
+rm ${PWD}/*_dark.svg 2> /dev/null

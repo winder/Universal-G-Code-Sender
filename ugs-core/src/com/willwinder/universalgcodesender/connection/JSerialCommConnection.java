@@ -35,7 +35,6 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
 
     private final byte[] buffer = new byte[1024];
     private SerialPort serialPort;
-    private ResponseMessageHandler responseMessageHandler;
 
     @Override
     public void setUri(String uri) {
@@ -50,7 +49,6 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
 
     @Override
     public boolean openPort() throws Exception {
-        responseMessageHandler = new ResponseMessageHandler();
         if (serialPort == null) {
             throw new ConnectionException("The connection wasn't initialized");
         }
@@ -121,6 +119,6 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
         int bytesRead = serialPort.readBytes(buffer, Math.min(buffer.length, bytesAvailable));
         String response = new String(buffer, 0, bytesRead);
 
-        responseMessageHandler.handleResponse(response, comm);
+        responseMessageHandler.handleResponse(response);
     }
 }

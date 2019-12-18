@@ -22,7 +22,7 @@ import com.willwinder.universalgcodesender.uielements.panels.SendStatusPanel;
 import com.willwinder.universalgcodesender.uielements.toolbars.*;
 import com.willwinder.universalgcodesender.uielements.panels.OverridesPanel;
 import com.willwinder.universalgcodesender.uielements.components.CommandTextArea;
-import com.willwinder.universalgcodesender.uielements.macros.MacroPanel;
+import com.willwinder.universalgcodesender.uielements.macros.MacroSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.macros.MacroActionPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
@@ -82,7 +82,7 @@ public class WidgetPreviewer {
                         frame,
                         true)));
         panel.add(frameLauncherButton("MacroActionPanel", new MacroActionPanel(backend)));
-        panel.add(frameLauncherButton("MacroPanel", new MacroPanel(backend)));
+        panel.add(frameLauncherButton("MacroSettingsPanel", new MacroSettingsPanel(backend)));
         panel.add(frameLauncherButton("OverridesPanel", new OverridesPanel(backend)));
         panel.add(frameLauncherButton("SendStatusLine", new SendStatusLine(backend)));
         panel.add(frameLauncherButton("SendStatusPanel", new SendStatusPanel(backend)));

@@ -24,8 +24,8 @@ For stable releases visit the [downloads page](http://winder.github.io/ugs_websi
 
 | Version | Description |
 |-|-|
-| [UGS Classic](http://bit.ly/2GGgNF7)  | The nightly build of the classic version with a clean and lightweight user interface |
-| [UGS Platform](http://bit.ly/2XANF7B) | The nightly build of the next generation, feature packed version based on the Netbeans Platform |
+| [UGS Classic](http://bit.ly/2HhJIir)  | The nightly build of the classic version with a clean and lightweight user interface |
+| [UGS Platform](http://bit.ly/2L2v9k6) | The nightly build of the next generation, feature packed version based on the Netbeans Platform |
 
 ## Running 
 
@@ -60,6 +60,10 @@ Menu with plugins
 One of many plugins
 
 ![Dowel Maker](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_dowel_maker_plugin.png "Dowel maker plugin")
+
+Basic gcode editor
+
+![Basic gcode editor](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_editor.png "Basic gcode editor")
 
 ### UGS Classic
 

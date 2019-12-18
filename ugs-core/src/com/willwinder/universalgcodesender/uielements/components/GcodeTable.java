@@ -1,8 +1,4 @@
 /*
- * Customized JTable with helpers to coordinate common operations.
- */
-
-/*
     Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
@@ -22,58 +18,26 @@
  */
 package com.willwinder.universalgcodesender.uielements.components;
 
-import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 /**
+ * Customized JTable with helpers to coordinate common operations.
  *
  * @author wwinder
  */
 public class GcodeTable extends JTable {
-    private static final Logger logger = Logger.getLogger(GcodeTable.class.getName());
-
-    private DefaultTableModel model = null;
+    private GCodeTableModel model = null;
 
     private boolean autoWindowScroll = false;
     private int offset = 0;
     private boolean first = true;
-    
-    final private static int COL_INDEX_COMMAND       = 0;
-    final private static int COL_INDEX_ORIG_COMMAND  = 1;
-    final private static int COL_INDEX_SENT          = 2;
-    final private static int COL_INDEX_DONE          = 3;
-    final private static int COL_INDEX_RESPONSE      = 4;
 
-    private static String[] columnNames = {
-        Localization.getString("gcodeTable.command"),
-        Localization.getString("gcodeTable.originalCommand"),
-        Localization.getString("gcodeTable.sent"),
-        Localization.getString("gcodeTable.done"),
-        Localization.getString("gcodeTable.response")
-    };
-    private static Class[] columnTypes =  {
-        String.class,
-        String.class,
-        Boolean.class,
-        Boolean.class,
-        String.class
-    };
-    
     public GcodeTable() {
-        //model = new GcodeTableModel(null, columnNames, columnTypes);
-        model = new DefaultTableModel(null, columnNames) {
-            @Override
-            public Class<?> getColumnClass(int idx) {
-                return columnTypes[idx];
-            }
-        };
+        model = new GCodeTableModel();
 
         this.setModel(model);
         getTableHeader().setReorderingAllowed(false);
@@ -86,12 +50,12 @@ public class GcodeTable extends JTable {
 
         // This is totally bogus, but they look alright when I throw in a max
         // width for the boolean columns.
-        setPreferredColumnWidths(new double[] {0.25, 0.3, 0.2, 0.2, 0.2} );
+        setPreferredColumnWidths(new double[] {0.25, 0.3, 0.2, 0.2, 0.2, 0.2, 0.2} );
 
-        getColumnModel().getColumn(COL_INDEX_SENT).setResizable(false);
-        getColumnModel().getColumn(COL_INDEX_SENT).setMaxWidth(50);
-        getColumnModel().getColumn(COL_INDEX_DONE).setResizable(false);
-        getColumnModel().getColumn(COL_INDEX_DONE).setMaxWidth(50);
+        getColumnModel().getColumn(GCodeTableModel.COL_INDEX_SENT).setResizable(false);
+        getColumnModel().getColumn(GCodeTableModel.COL_INDEX_SENT).setMaxWidth(50);
+        getColumnModel().getColumn(GCodeTableModel.COL_INDEX_DONE).setResizable(false);
+        getColumnModel().getColumn(GCodeTableModel.COL_INDEX_DONE).setMaxWidth(50);
     }
     
     public void setAutoWindowScroll(boolean autoWindowScroll) {
@@ -115,15 +79,10 @@ public class GcodeTable extends JTable {
      */
     public void addRow(final GcodeCommand command) {
         if (first) {
-            offset = command.getCommandNumber() * -1;
+            offset = command.getId() * -1;
             first = false;
         }
-        model.addRow(new Object[]{
-            command.getCommandString(),
-            command.getOriginalCommandString(),
-            command.isSent(),
-            command.isDone(),
-            command.getResponse()});
+        model.add(command);
         
         scrollTable(this.getRowCount());
     }
@@ -132,23 +91,7 @@ public class GcodeTable extends JTable {
      * Update table with a GcodeCommand.
      */
     public void updateRow(final GcodeCommand command) {
-        String commandString = command.getCommandString();
-        int row = command.getCommandNumber() + offset;
-        
-        // Check for modified command string
-        if (!command.isComment() && commandString != model.getValueAt(row, COL_INDEX_COMMAND)) {
-            String message = String.format(
-                    "Row mismatch [%s] does not match row %d [%s].]\n",
-                    commandString,
-                    row,
-                    model.getValueAt(row, COL_INDEX_COMMAND));
-            logger.log(Level.WARNING, message) ;
-        }
-
-        model.setValueAt(command.isSent(),      row, COL_INDEX_SENT);
-        model.setValueAt(command.isDone(),      row, COL_INDEX_DONE);
-        model.setValueAt(command.getResponse(), row, COL_INDEX_RESPONSE);
-        
+        int row = command.getId() + offset;
         scrollTable(row);
     }
     
@@ -190,14 +133,6 @@ public class GcodeTable extends JTable {
     private void scrollToVisible(int rowIndex) {
         getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
         scrollRectToVisible(new Rectangle(getCellRect(rowIndex, 0, true)));
-    }
-
-    public void setOffset() {
-        setOffset(this.getRowCount());
-    }
-
-    public void setOffset(int offset) {
-        this.offset = offset;
     }
 
     @Override

@@ -68,23 +68,27 @@ public class UGSEvent {
     }
 
     public boolean isStateChangeEvent() {
-        return evt == EventType.STATE_EVENT;
+        return EventType.STATE_EVENT.equals(evt);
     }
 
     public boolean isFileChangeEvent() {
-        return evt == EventType.FILE_EVENT;
+        return EventType.FILE_EVENT.equals(evt);
     }
 
     public boolean isSettingChangeEvent() {
-        return evt == EventType.SETTING_EVENT;
+        return EventType.SETTING_EVENT.equals(evt);
+    }
+
+    public boolean isFirmwareSettingEvent() {
+        return EventType.FIRMWARE_SETTING_EVENT.equals(evt);
     }
 
     public boolean isProbeEvent() {
-        return evt == EventType.PROBE_EVENT;
+        return EventType.PROBE_EVENT.equals(evt);
     }
 
     public boolean isControllerStatusEvent() {
-        return evt == EventType.CONTROLLER_STATUS_EVENT;
+        return EventType.CONTROLLER_STATUS_EVENT.equals(evt);
     }
 
     /**

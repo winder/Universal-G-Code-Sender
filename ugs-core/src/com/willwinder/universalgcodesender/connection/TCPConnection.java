@@ -46,7 +46,6 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 	private OutputStream bufOut;
 	private InputStreamReader inStream;
 	private Thread replyThread;
-	private ResponseMessageHandler responseMessageHandler;
 
 	@Override
 	public void setUri(String uri) {
@@ -67,8 +66,6 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 
 	@Override
 	public boolean openPort() throws Exception {
-		responseMessageHandler = new ResponseMessageHandler();
-
 		try {
 			client = new Socket(host, port);
 		} catch( BindException e) {
@@ -159,7 +156,7 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		{
 			try {
 				if(inStream.ready() && (resp = bufIn.readLine()) != null) {
-					responseMessageHandler.handleResponse(resp + "\n", comm);
+					responseMessageHandler.handleResponse(resp + "\n");
 				}
 			} catch (SocketException e) {
 				e.printStackTrace();
