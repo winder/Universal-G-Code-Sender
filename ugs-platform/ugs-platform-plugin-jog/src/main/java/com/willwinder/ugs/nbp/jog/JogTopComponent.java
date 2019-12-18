@@ -166,12 +166,12 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
                 }
                 break;
             case BUTTON_LARGER_STEP:
-                jogService.setStepSizeXY(jogService.getStepSizeXY() * 10);
-                jogService.setStepSizeZ(jogService.getStepSizeZ() * 5);
+                jogService.multiplyXYStepSize();
+                jogService.multiplyZStepSize();
                 break;
             case BUTTON_SMALLER_STEP:
-                jogService.setStepSizeXY(jogService.getStepSizeXY() / 10);
-                jogService.setStepSizeZ(jogService.getStepSizeZ() / 5);
+                jogService.divideXYStepSize();
+                jogService.divideZStepSize();
                 break;
             default:
         }
