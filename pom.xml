@@ -40,7 +40,7 @@
     <gluegen.version>2.3.2</gluegen.version>
     <jogl.version>2.3.2</jogl.version>
     <miglayout.version>3.7.4</miglayout.version>
-    <guava.version>28.1</guava.version>
+    <guava.version>28.1-jre</guava.version>
     <jssc.version>2.8.0</jssc.version>
     <jserialcomm.version>2.5.3</jserialcomm.version>
     <commons-lang3.version>3.9</commons-lang3.version>
