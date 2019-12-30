@@ -16,7 +16,7 @@
 
     <properties>
       <maven.build.timestamp.format>yyyy.MM.dd.HH.mm</maven.build.timestamp.format>
-      <netbeans.version>RELEASE110</netbeans.version>
+      <netbeans.version>RELEASE112</netbeans.version>
       <ugs.app.title>Universal Gcode Platform ${project.version}</ugs.app.title>
       <ugs.appbundle.name>Universal Gcode Platform</ugs.appbundle.name>
 
@@ -45,15 +45,13 @@
       <all.clusters>${project.build.directory}/${brandingToken}</all.clusters>
 
       <!--==== Plugin Versions ====-->
-      <ugs.maven-surefire-plugin.version>2.20</ugs.maven-surefire-plugin.version>
-
-      <ugs.maven-jar-plugin.version>3.0.2</ugs.maven-jar-plugin.version>
+      <ugs.maven-jar-plugin.version>3.2.0</ugs.maven-jar-plugin.version>
 
       <ugs.maven-antrun-plugin.version>1.8</ugs.maven-antrun-plugin.version>
 
-      <ugs.nbm-maven-plugin.version>4.2</ugs.nbm-maven-plugin.version>
+      <ugs.nbm-maven-plugin.version>4.4</ugs.nbm-maven-plugin.version>
 
-      <ugs.maven-resources-plugin.version>3.0.2</ugs.maven-resources-plugin.version>
+      <ugs.maven-resources-plugin.version>3.1.0</ugs.maven-resources-plugin.version>
     </properties>
 
     <build>
