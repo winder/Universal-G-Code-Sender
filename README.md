@@ -23,7 +23,10 @@ For stable releases visit the [downloads page](http://winder.github.io/ugs_websi
 [![Codebeat badge](https://codebeat.co/badges/48cc1265-2f6b-4163-8a8a-964acc073100)](https://codebeat.co/projects/github-com-winder-universal-g-code-sender-master)
 
 **UGS Platform**<br>
-The nightly build of the next generation, feature packed version based on the Netbeans Platform. Unpack and start the program ```bin/ugsplatform```.<br>
+The nightly build of the next generation, feature packed version based on the Netbeans Platform.
+
+Unpack and start the program ```bin/ugsplatform```
+
 [![Windows](pictures/os_windows.png) Windows](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-2.0-SNAPSHOT-win.zip) <br>
 [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-2.0-SNAPSHOT.dmg) <br>
 [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-2.0-SNAPSHOT-linux.tar.gz) <br>
@@ -31,7 +34,10 @@ The nightly build of the next generation, feature packed version based on the Ne
 [![Zip](pictures/zip.png) All platforms](http://bit.ly/2L2v9k6) (requires [Java](https://java.com/en/download/manual.jsp))<br>
 
 **UGS Classic**<br>
-The nightly build of the classic version with a clean and lightweight user interface. Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. <br>
+The nightly build of the classic version with a clean and lightweight user interface.
+
+Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. <br>
+
 [![Zip](pictures/zip.png) All platforms](http://bit.ly/2HhJIir) (requires [Java](https://java.com/en/download/manual.jsp))
 
 ## Screenshots
