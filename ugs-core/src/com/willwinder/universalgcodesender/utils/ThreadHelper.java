@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
-import com.willwinder.universalgcodesender.AbstractController;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -37,7 +36,7 @@ import java.util.logging.Logger;
  * @author Joacim Breiler
  */
 public class ThreadHelper {
-    private static final Logger logger = Logger.getLogger(AbstractController.class.getName());
+    private static final Logger logger = Logger.getLogger(ThreadHelper.class.getName());
     private static final int THREAD_POOL_SIZE = 1024;
 
     private static final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);

@@ -38,12 +38,10 @@ import java.util.Comparator;
  */
 public class VisualizerPopupMenu extends JPopupMenu {
     private final BackendAPI backend;
-    private final GcodeRenderer gcodeRenderer;
     private final Position position;
 
-    public VisualizerPopupMenu(BackendAPI backend, GcodeRenderer gcodeRenderer, Position clickedWorkPosition) {
+    public VisualizerPopupMenu(BackendAPI backend, Position clickedWorkPosition) {
         this.backend = backend;
-        this.gcodeRenderer = gcodeRenderer;
         this.position = clickedWorkPosition;
     }
 
