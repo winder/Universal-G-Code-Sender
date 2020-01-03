@@ -1,18 +1,20 @@
 /*
- * Copyright (C) 2019 will
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    Copyright 2020 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.ugs.nbp;
 
@@ -22,10 +24,7 @@ import io.minio.messages.Bucket;
 import io.minio.messages.Item;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,19 +51,15 @@ public class S3FileSystemView extends FileSystemView {
     
     final String id;
     final String secret;
-    final String defaultBucket;
     final MinioClient minioClient;
             
-    public S3FileSystemView(final String id, final String secret) {
+    public S3FileSystemView(final String id, final String secret) throws Exception {
         this.id = id;
         this.secret = secret;
-        // TODO: Lookup one of the buckets.
-        this.defaultBucket = "winder";
-        try {
-            minioClient = new MinioClient("https://s3.amazonaws.com", id, secret);
-        } catch (Exception ex) {
-            throw new RuntimeException("Unable to create S3 Client.");
-        }
+        this.minioClient = new MinioClient("https://s3.amazonaws.com", id, secret);
+        
+        // Make sure it works with a simple call.
+        this.minioClient.listBuckets();
     }
 	
     @Override
@@ -104,6 +99,7 @@ public class S3FileSystemView extends FileSystemView {
 
     @Override
     public File getParentDirectory(final File dir) {
+        if (dir == null) return getDefaultDirectory();
         return dir.getParentFile();
     }
 
@@ -132,37 +128,32 @@ public class S3FileSystemView extends FileSystemView {
         Matcher m = parseURI(dir);
         
         try {
-            System.out.println(m.matches());
-            System.out.println(m.group(0));
-            System.out.println(m.group(1));
-            System.out.println(m.group(2));
-            System.out.println(m.group("bucket"));
-            System.out.println(m.group("path"));
-            
-            String bucket = m.group("bucket");
-            // Path should start with a slash unless it's empty
-            String path = m.group("path");
-            if (! "".equals(path)) {
-                path += "/";
-            }
+            if (m.matches()) {
+                String bucket = m.group("bucket");
+                // Path should start with a slash unless it's empty
+                String path = m.group("path");
+                if (! "".equals(path)) {
+                    path += "/";
+                }
 
-            Iterable<Result<Item>> objects = minioClient.listObjects(bucket, path, false);
-            
-            String prefix = "s3:/" + bucket + "/";
-            String dirMatch = dir.toString() + "/";
-            for (Result<Item> res : objects) {
-                Item i = res.get();
-                String name = prefix + i.objectName();
-                
-                // listObjects matches the current directory, filter it out.
-                if (name.equals(dirMatch)) {
-                    continue;
+                Iterable<Result<Item>> objects = minioClient.listObjects(bucket, path, false);
+
+                String prefix = "s3:/" + bucket + "/";
+                String dirMatch = dir.toString() + "/";
+                for (Result<Item> res : objects) {
+                    Item i = res.get();
+                    String name = prefix + i.objectName();
+
+                    // listObjects matches the current directory, filter it out.
+                    if (name.equals(dirMatch)) {
+                        continue;
+                    }
+                    VirtualFile f = new VirtualFile(name, i.objectSize());
+                    if (!f.isDir) {
+                        f.setLastModified(i.lastModified().getTime());
+                    }
+                    ret.add(f);
                 }
-                VirtualFile f = new VirtualFile(name, i.objectSize());
-                if (!f.isDir) {
-                    f.setLastModified(i.lastModified().getTime());
-                }
-                ret.add(f);
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
@@ -178,6 +169,9 @@ public class S3FileSystemView extends FileSystemView {
 
     @Override
     public File createFileObject(final File dir, final String filename) {
+        throw new UnsupportedOperationException("Sorry, no support for creating files in S3.");
+        
+        /*
         Path fileObject;
 
         if (dir != null) {
@@ -187,11 +181,12 @@ public class S3FileSystemView extends FileSystemView {
         }
         
         return new VirtualFile(fileObject.toFile(), 1);
+        */
     }
 
     @Override
     public File getDefaultDirectory() {
-        return new VirtualFile("s3:/" + defaultBucket, 1);
+        return new VirtualFile("s3:/", 1);
     }
 
     @Override
@@ -224,7 +219,6 @@ public class S3FileSystemView extends FileSystemView {
     @Override
     public File getChild(final File parent, final String fileName) {
         throw new UnsupportedOperationException("Not sure when this would make sense. Call getFiles instead.");
-        //return new VirtualFile(parent, fileName);
     }
 
     @Override
@@ -239,15 +233,14 @@ public class S3FileSystemView extends FileSystemView {
 
     @Override
     public boolean isRoot(final File f) {
+        // Root should just be "s3:/" or "s3:", so check that there is no bucket.
         boolean hasBucket = hasBucket(f);
-        // Root should just be "s3:/"
         return hasBucket == false;
     }
 
     @Override
     public File createNewFolder(final File containingDir) throws IOException {
-        throw new UnsupportedOperationException("Sorry, we don't support editing S3.");
-        //return new VirtualFile(containingDir);
+        throw new UnsupportedOperationException("Sorry, no support for editing S3.");
     }
 
 

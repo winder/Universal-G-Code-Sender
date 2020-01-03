@@ -1,24 +1,30 @@
 /*
- * Copyright (C) 2019 will
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    Copyright 2020 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.ugs.nbp;
 
+import static com.willwinder.ugs.nbp.CloudStorageSettingsPanel.S3_ID;
+import static com.willwinder.ugs.nbp.CloudStorageSettingsPanel.S3_SECRET;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.prefs.Preferences;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import org.openide.awt.ActionID;
@@ -26,6 +32,7 @@ import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.NbPreferences;
 
 @ActionID(
 	category = "File",
@@ -42,20 +49,25 @@ import org.openide.util.NbBundle.Messages;
 @Messages("CTL_CloudStorageOpenAction=Open cloud file")
 public final class CloudStorageOpenAction implements ActionListener {
 
-    final static String access = "acess-token-here";
-    final static String secret = "secret-key-here";
-
-    final static S3FileSystemView viewer = new S3FileSystemView(access, secret);
-
     @Override
     public void actionPerformed(ActionEvent e) {
-        JFileChooser chooser = new JFileChooser("s3:///", viewer);
-        int returnVal = chooser.showOpenDialog(new JFrame());
-        if (returnVal == JFileChooser.APPROVE_OPTION) {    
-            File f = chooser.getSelectedFile();
-            System.out.println("Found a file! It is " + f);
-        } else {
-            System.out.println("No file selected...");
+        Preferences prefs = NbPreferences.forModule(CloudStorageSettingsPanel.class);
+        String id = prefs.get(S3_ID, "");
+        String secret = prefs.get(S3_SECRET, "");
+        
+        try {
+            S3FileSystemView viewer = new S3FileSystemView(id, secret);
+            JFileChooser chooser = new JFileChooser("", viewer);
+            int returnVal = chooser.showOpenDialog(new JFrame());
+            if (returnVal == JFileChooser.APPROVE_OPTION) {    
+                File f = chooser.getSelectedFile();
+                System.out.println("Found a file! It is " + f);
+            } else {
+                System.out.println("No file selected...");
+            }
+        } catch (Exception ex) {
+            GUIHelpers.displayErrorDialog("There was a problem setting up the S3 viewer, check your settings.");
+            //Exceptions.printStackTrace(e);
         }
     }
 }

@@ -2,7 +2,7 @@
  * Abstract settings class with helper widgets, and change detection.
  */
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import javax.swing.JButton;
@@ -33,6 +34,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerModel;
 import javax.swing.event.ChangeEvent;
 import net.miginfocom.swing.MigLayout;
@@ -73,6 +75,11 @@ public abstract class AbstractUGSSettings extends JPanel {
             }
             else if (clazz == Checkbox.class) {
                 ((Checkbox)c).box.addActionListener((ActionEvent e) -> {
+                    change();
+                });
+            }
+            else if (clazz == Textfield.class) {
+                ((Textfield)c).text.addPropertyChangeListener("value", (PropertyChangeEvent e) -> {
                     change();
                 });
             }
@@ -151,5 +158,29 @@ public abstract class AbstractUGSSettings extends JPanel {
 
         public void setSelected(Boolean s) {box.setSelected(s); }
         public boolean getValue() { return box.isSelected(); }
+    }
+    
+    protected class Textfield extends JPanel {
+        JLabel label;
+        public JTextField text;
+        public Textfield(String labelText) {
+            this(labelText, false);
+        }
+        
+        public Textfield(String labelText, boolean labelFirst) {
+            label = new JLabel(labelText);
+            text = new JTextField();
+            setLayout(new MigLayout("insets 0, wrap 2"));
+            if (labelFirst) {
+                add(label, "w 70");
+                add(text);                
+            } else {
+                add(text, "w 70");
+                add(label);
+            }
+        }
+        
+        public void setValue(String t) { label.setText(t); }
+        public String getValue() { return label.getText(); }
     }
 }
