@@ -57,14 +57,15 @@ public class S3FileSystemView extends FileSystemView {
     final String id;
     final String secret;
     final MinioClient minioClient;
+    final List<Bucket> buckets;
             
     public S3FileSystemView(final String id, final String secret) throws Exception {
         this.id = id;
         this.secret = secret;
         this.minioClient = new MinioClient("https://s3.amazonaws.com", id, secret);
         
-        // Make sure it works with a simple call.
-        this.minioClient.listBuckets();
+        // Make sure it works with a simple call, cache buckets for fast init.
+        buckets = this.minioClient.listBuckets();
     }
 
     // Given an S3 URI, downloads the file to the target.
@@ -128,8 +129,7 @@ public class S3FileSystemView extends FileSystemView {
             try {
                 final List<File> files = new ArrayList<>(1);
 
-                List<Bucket> bucketList = minioClient.listBuckets();
-                for (Bucket bucket : bucketList) {
+                for (Bucket bucket : buckets) {
                     System.out.println(bucket.creationDate() + ", " + bucket.name());
                     files.add(new VirtualFile("s3:/" + bucket.name() + "/", 0));
                 }
@@ -236,7 +236,7 @@ public class S3FileSystemView extends FileSystemView {
 
     @Override
     public File getChild(final File parent, final String fileName) {
-        throw new UnsupportedOperationException("Not sure when this would make sense. Call getFiles instead.");
+        return new VirtualFile(parent, fileName, 1);
     }
 
     @Override
