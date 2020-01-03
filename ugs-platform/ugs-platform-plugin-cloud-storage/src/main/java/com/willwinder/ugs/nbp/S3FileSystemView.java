@@ -24,12 +24,16 @@ import io.minio.messages.Bucket;
 import io.minio.messages.Item;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.Icon;
 import javax.swing.filechooser.FileSystemView;
+import org.apache.commons.io.FileUtils;
 import org.openide.util.Exceptions;
 
 /**
@@ -37,16 +41,17 @@ import org.openide.util.Exceptions;
  * @author will
  */
 public class S3FileSystemView extends FileSystemView {
+    private static final Logger logger = Logger.getLogger(S3FileSystemView.class.getName());
+    
     // Must match "s3://<bucket>" or "s3://<bucket>/"
     // Must match "s3:/<bucket>"  or "s3:/<bucket>/"
     final static Pattern parseURI = Pattern.compile("^s3://?(?<bucket>[^/]+)/?(?<path>.*)$");
-    private static boolean hasBucket(File f) {
+    private static boolean hasBucket(String f) {
         return parseURI(f).matches();
     }
     
-    private static Matcher parseURI(File f) {
-        String path = f.toString();
-        return parseURI.matcher(path);
+    private static Matcher parseURI(String f) {
+        return parseURI.matcher(f);
     }
     
     final String id;
@@ -61,7 +66,20 @@ public class S3FileSystemView extends FileSystemView {
         // Make sure it works with a simple call.
         this.minioClient.listBuckets();
     }
-	
+
+    // Given an S3 URI, downloads the file to the target.
+    public void downloadFile(String uri, File target) {
+        Matcher m = parseURI(uri);
+        if (m.matches()) {
+            try {
+                InputStream s = minioClient.getObject(m.group("bucket"), m.group("path"));
+                FileUtils.copyInputStreamToFile(s, target);
+            } catch (Exception ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+    }
+    
     @Override
     protected File createFileSystemRoot(File f) {
         return new VirtualFile(f, 1);
@@ -106,7 +124,7 @@ public class S3FileSystemView extends FileSystemView {
     @Override
     public File[] getFiles(final File dir, boolean useFileHiding) {
         // If there is no bucket (i.e. just "s3:/"), add the buckets.
-        if (!hasBucket(dir)) {
+        if (!hasBucket(dir.toString())) {
             try {
                 final List<File> files = new ArrayList<>(1);
 
@@ -118,14 +136,14 @@ public class S3FileSystemView extends FileSystemView {
 
                 return files.toArray(new File[files.size()]);
             } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
+                logger.log(Level.WARNING, "An error occurred listing buckets on S3.", ex);                
             }
 
             return new VirtualFile[0];
         }
                 
         ArrayList<VirtualFile> ret = new ArrayList<>();
-        Matcher m = parseURI(dir);
+        Matcher m = parseURI(dir.toString());
         
         try {
             if (m.matches()) {
@@ -156,7 +174,7 @@ public class S3FileSystemView extends FileSystemView {
                 }
             }
         } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);
+            logger.log(Level.WARNING, "An error occurred listing files on S3.", ex);
         }
         
         return ret.toArray(new VirtualFile[0]);
@@ -203,7 +221,7 @@ public class S3FileSystemView extends FileSystemView {
 
     @Override
     public boolean isFileSystemRoot(final File dir) {
-        return !hasBucket(dir);
+        return !hasBucket(dir.toString());
     }
 
     @Override
@@ -234,7 +252,7 @@ public class S3FileSystemView extends FileSystemView {
     @Override
     public boolean isRoot(final File f) {
         // Root should just be "s3:/" or "s3:", so check that there is no bucket.
-        boolean hasBucket = hasBucket(f);
+        boolean hasBucket = hasBucket(f.toString());
         return hasBucket == false;
     }
 
@@ -271,6 +289,13 @@ public class S3FileSystemView extends FileSystemView {
             super(parent, child);
             isDir = child.endsWith("/");
             this.length = length;
+        }
+        
+        @Override
+        public String getName() {
+            int idx = this.toString().lastIndexOf("/");
+            if (idx == -1) return this.toString();
+            return this.toString().substring(idx + 1);
         }
         
         @Override

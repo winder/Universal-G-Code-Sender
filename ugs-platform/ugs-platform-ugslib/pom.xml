@@ -139,6 +139,7 @@
                         <package>net.miginfocom.swing</package>
                         <package>net.miginfocom.swt</package>
                         <package>org.apache.commons.lang3</package>
+                        <package>org.apache.commons.io</package>
                         <package>javax.xml.bind</package>
                     </publicPackages>
                 </configuration>

@@ -20,7 +20,11 @@ package com.willwinder.ugs.nbp;
 
 import static com.willwinder.ugs.nbp.CloudStorageSettingsPanel.S3_ID;
 import static com.willwinder.ugs.nbp.CloudStorageSettingsPanel.S3_SECRET;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -48,7 +52,12 @@ import org.openide.util.NbPreferences;
 })
 @Messages("CTL_CloudStorageOpenAction=Open cloud file")
 public final class CloudStorageOpenAction implements ActionListener {
+    private final BackendAPI backend;
 
+    public CloudStorageOpenAction() {
+        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+    }
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         Preferences prefs = NbPreferences.forModule(CloudStorageSettingsPanel.class);
@@ -62,6 +71,7 @@ public final class CloudStorageOpenAction implements ActionListener {
             if (returnVal == JFileChooser.APPROVE_OPTION) {    
                 File f = chooser.getSelectedFile();
                 System.out.println("Found a file! It is " + f);
+                copyAndOpenFile(viewer, f);
             } else {
                 System.out.println("No file selected...");
             }
@@ -69,5 +79,15 @@ public final class CloudStorageOpenAction implements ActionListener {
             GUIHelpers.displayErrorDialog("There was a problem setting up the S3 viewer, check your settings.");
             //Exceptions.printStackTrace(e);
         }
+    }
+    
+    public void copyAndOpenFile(S3FileSystemView viewer, File f) throws Exception {
+        File settingsDir = SettingsFactory.getSettingsDirectory();
+        File cloudDir = new File(settingsDir, "cloud_files");
+        cloudDir.mkdir();
+        
+        File target = new File(cloudDir, f.getName());
+        viewer.downloadFile(f.toString(), target);
+        backend.setGcodeFile(target);
     }
 }
