@@ -66,6 +66,10 @@
     <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
     <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
     -->
+    <!-- cloud storage plugin -->
+    <ugs.s3-filesystem.version>2.2.2</ugs.s3-filesystem.version>
+    <ugs.aws-client.version>1.11.699</ugs.aws-client.version>
+    <ugs.jackson.version>2.10.1</ugs.jackson.version>
   </properties>
 
   <modules>

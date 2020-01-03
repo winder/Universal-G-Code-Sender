@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Localizing-Bundle: com/willwinder/Bundle.properties
+OpenIDE-Module-Specification-Version: ${ugs.modules.specification.version}
