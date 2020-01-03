@@ -22,20 +22,23 @@ For stable releases visit the [downloads page](http://winder.github.io/ugs_websi
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2941c34531f749a2b7fbcd1737f71000)](https://www.codacy.com/app/winder/Universal-G-Code-Sender?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=winder/Universal-G-Code-Sender&amp;utm_campaign=Badge_Grade)
 [![Codebeat badge](https://codebeat.co/badges/48cc1265-2f6b-4163-8a8a-964acc073100)](https://codebeat.co/projects/github-com-winder-universal-g-code-sender-master)
 
-| Version | Description |
-|-|-|
-| [UGS Classic](http://bit.ly/2HhJIir)  | The nightly build of the classic version with a clean and lightweight user interface |
-| [UGS Platform](http://bit.ly/2L2v9k6) | The nightly build of the next generation, feature packed version based on the Netbeans Platform |
+**UGS Platform**<br>
+The nightly build of the next generation, feature packed version based on the Netbeans Platform.
 
-## Running 
+Unpack and start the program ```bin/ugsplatform```
 
-Make sure you have [Java 8](https://java.com/en/download/manual.jsp) installed. 
+[![Windows](pictures/os_windows.png) Windows](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-2.0-SNAPSHOT-win.zip) <br>
+[![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-2.0-SNAPSHOT.dmg) <br>
+[![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-2.0-SNAPSHOT-linux.tar.gz) <br>
+[![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-2.0-SNAPSHOT-pi.tar.gz) <br>
+[![Zip](pictures/zip.png) All platforms](http://bit.ly/2L2v9k6) (requires [Java](https://java.com/en/download/manual.jsp))<br>
 
-Download either **UGS Classic** or **UGS Platform** and unzip the .zip file.
+**UGS Classic**<br>
+The nightly build of the classic version with a clean and lightweight user interface.
 
-* For **UGS Classic** simply double click the jar file. On some platforms you may need to run the included start script.
-* For **UGS Platform** run the start script: ```bin/ugsplatform``` 
+Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. <br>
 
+[![Zip](pictures/zip.png) All platforms](http://bit.ly/2HhJIir) (requires [Java](https://java.com/en/download/manual.jsp))
 
 ## Screenshots
 
