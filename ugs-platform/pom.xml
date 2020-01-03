@@ -16,7 +16,7 @@
 
     <properties>
       <maven.build.timestamp.format>yyyy.MM.dd.HH.mm</maven.build.timestamp.format>
-      <netbeans.version>RELEASE110</netbeans.version>
+      <netbeans.version>RELEASE112</netbeans.version>
       <ugs.app.title>Universal Gcode Platform ${project.version}</ugs.app.title>
       <ugs.appbundle.name>Universal Gcode Platform</ugs.appbundle.name>
 
@@ -32,10 +32,10 @@
 
       <!--==== JRE Bundle Properties ====-->
       <!-- JVMS can be found here: https://adoptopenjdk.net/archive.html?variant=openjdk12&jvmVariant=hotspot -->
-      <ugs.bundle.java.mac.url>https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10/OpenJDK12U-jre_x64_mac_hotspot_12.0.2_10.tar.gz</ugs.bundle.java.mac.url>
-      <ugs.bundle.java.win.url>https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10/OpenJDK12U-jre_x64_windows_hotspot_12.0.2_10.zip</ugs.bundle.java.win.url>
-      <ugs.bundle.java.rpi.url>https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10/OpenJDK12U-jdk_arm_linux_hotspot_12.0.2_10.tar.gz</ugs.bundle.java.rpi.url>
-      <ugs.bundle.java.linux.url>https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10/OpenJDK12U-jre_x64_linux_hotspot_12.0.2_10.tar.gz</ugs.bundle.java.linux.url>
+      <ugs.bundle.java.mac.url>https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jre_x64_mac_hotspot_13.0.1_9.tar.gz</ugs.bundle.java.mac.url>
+      <ugs.bundle.java.win.url>https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jre_x64_windows_hotspot_13.0.1_9.zip</ugs.bundle.java.win.url>
+      <ugs.bundle.java.rpi.url>https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jdk_arm_linux_hotspot_13.0.1_9.tar.gz</ugs.bundle.java.rpi.url>
+      <ugs.bundle.java.linux.url>https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jre_x64_linux_hotspot_13.0.1_9.tar.gz</ugs.bundle.java.linux.url>
 
       <!-- Mac OS X signing identity - must match with a verified Apple developer certificate in the keychain -->
       <ugs.codesign.identity>Developer ID Application</ugs.codesign.identity>
@@ -45,15 +45,13 @@
       <all.clusters>${project.build.directory}/${brandingToken}</all.clusters>
 
       <!--==== Plugin Versions ====-->
-      <ugs.maven-surefire-plugin.version>2.20</ugs.maven-surefire-plugin.version>
-
-      <ugs.maven-jar-plugin.version>3.0.2</ugs.maven-jar-plugin.version>
+      <ugs.maven-jar-plugin.version>3.2.0</ugs.maven-jar-plugin.version>
 
       <ugs.maven-antrun-plugin.version>1.8</ugs.maven-antrun-plugin.version>
 
-      <ugs.nbm-maven-plugin.version>4.2</ugs.nbm-maven-plugin.version>
+      <ugs.nbm-maven-plugin.version>4.4</ugs.nbm-maven-plugin.version>
 
-      <ugs.maven-resources-plugin.version>3.0.2</ugs.maven-resources-plugin.version>
+      <ugs.maven-resources-plugin.version>3.1.0</ugs.maven-resources-plugin.version>
     </properties>
 
     <build>
