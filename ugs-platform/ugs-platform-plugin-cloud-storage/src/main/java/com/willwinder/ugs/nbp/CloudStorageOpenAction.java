@@ -28,6 +28,8 @@ import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -52,6 +54,8 @@ import org.openide.util.NbPreferences;
 })
 @Messages("CTL_CloudStorageOpenAction=Open cloud file")
 public final class CloudStorageOpenAction implements ActionListener {
+    private static final Logger logger = Logger.getLogger(CloudStorageOpenAction.class.getName());
+
     private final BackendAPI backend;
 
     public CloudStorageOpenAction() {
@@ -77,7 +81,7 @@ public final class CloudStorageOpenAction implements ActionListener {
             }
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog("There was a problem setting up the S3 viewer, check your settings.");
-            //Exceptions.printStackTrace(e);
+            logger.log(Level.WARNING, "Problem working with S3.", ex);
         }
     }
     

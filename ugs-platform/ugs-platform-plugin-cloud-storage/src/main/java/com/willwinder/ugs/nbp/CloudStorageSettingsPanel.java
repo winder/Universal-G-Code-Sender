@@ -27,13 +27,17 @@ import net.miginfocom.swing.MigLayout;
 import org.openide.util.NbPreferences;
 
 /**
- *
- * @author will
+ * Cloud Storage plugin settings.
+ * 
+ * @author Will Winder
  */
 public class CloudStorageSettingsPanel extends AbstractUGSSettings {
-    // TODO: Localize settings
-    private final AbstractUGSSettings.Textfield s3Id = new AbstractUGSSettings.Textfield("AWS Access Key ID");
-    private final AbstractUGSSettings.Textfield s3Secret = new AbstractUGSSettings.Textfield("AWS Secret Access Key");
+    private final AbstractUGSSettings.Textfield s3Id =
+            new AbstractUGSSettings.Textfield(
+                    Localization.getString("cloud.storage.s3Id"));
+    private final AbstractUGSSettings.Textfield s3Secret =
+            new AbstractUGSSettings.Textfield(
+                    Localization.getString("cloud.storage.s3Secret"));
 
     public static String S3_ID = "s3Id";
     public static String S3_SECRET = "s3Secret";

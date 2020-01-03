@@ -37,8 +37,10 @@ import org.apache.commons.io.FileUtils;
 import org.openide.util.Exceptions;
 
 /**
- *
- * @author will
+ * An S3 implementation of the FileSystemView interface to allow creation of
+ * JFileChoosers which view files from S3.
+ * 
+ * @author Will Winder
  */
 public class S3FileSystemView extends FileSystemView {
     private static final Logger logger = Logger.getLogger(S3FileSystemView.class.getName());
@@ -188,18 +190,6 @@ public class S3FileSystemView extends FileSystemView {
     @Override
     public File createFileObject(final File dir, final String filename) {
         throw new UnsupportedOperationException("Sorry, no support for creating files in S3.");
-        
-        /*
-        Path fileObject;
-
-        if (dir != null) {
-            fileObject = Paths.get(dir.toPath().toString(), filename);
-        } else {
-            fileObject = Paths.get(filename);
-        }
-        
-        return new VirtualFile(fileObject.toFile(), 1);
-        */
     }
 
     @Override
