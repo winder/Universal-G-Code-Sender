@@ -74,8 +74,7 @@ public class S3FileSystemView extends FileSystemView {
     public void downloadFile(String uri, File target) {
         Matcher m = parseURI(uri);
         if (m.matches()) {
-            try {
-                InputStream s = minioClient.getObject(m.group("bucket"), m.group("path"));
+            try (InputStream s = minioClient.getObject(m.group("bucket"), m.group("path"))) {
                 FileUtils.copyInputStreamToFile(s, target);
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);

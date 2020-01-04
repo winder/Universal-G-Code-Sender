@@ -50,7 +50,6 @@ import org.openide.util.NbPreferences;
 )
 @ActionReferences({
 	@ActionReference(path = "Menu/File", position = 1300),
-	@ActionReference(path = "Toolbars/File", position = 300)
 })
 @Messages("CTL_CloudStorageOpenAction=Open cloud file")
 public final class CloudStorageOpenAction implements ActionListener {
@@ -72,12 +71,10 @@ public final class CloudStorageOpenAction implements ActionListener {
             S3FileSystemView viewer = new S3FileSystemView(id, secret);
             JFileChooser chooser = new JFileChooser("", viewer);
             int returnVal = chooser.showOpenDialog(new JFrame());
-            if (returnVal == JFileChooser.APPROVE_OPTION) {    
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File f = chooser.getSelectedFile();
-                System.out.println("Found a file! It is " + f);
+                logger.log(Level.INFO, "Opened S3 file", f);
                 copyAndOpenFile(viewer, f);
-            } else {
-                System.out.println("No file selected...");
             }
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog("There was a problem setting up the S3 viewer, check your settings.");
@@ -91,6 +88,7 @@ public final class CloudStorageOpenAction implements ActionListener {
         cloudDir.mkdir();
         
         File target = new File(cloudDir, f.getName());
+        logger.log(Level.INFO, "Downloading S3 file '" + f.toString() + "' to '" + cloudDir.getAbsolutePath());
         viewer.downloadFile(f.toString(), target);
         backend.setGcodeFile(target);
     }
