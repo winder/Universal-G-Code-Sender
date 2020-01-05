@@ -61,15 +61,13 @@
     <ugs.jvm.version>1.8</ugs.jvm.version>
     <ugs.kotlin.version>1.3.61</ugs.kotlin.version>
 
-    <!-- supposidly this was needed for the kotlin plugin -->
-    <!--
-    <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
-    <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
-    -->
     <!-- cloud storage plugin -->
     <ugs.s3-filesystem.version>2.2.2</ugs.s3-filesystem.version>
-    <ugs.aws-client.version>1.11.699</ugs.aws-client.version>
     <ugs.jackson.version>2.10.1</ugs.jackson.version>
+    <ugs.minio.version>6.0.11</ugs.minio.version>
+    <ugs.s3mock.version>0.2.4</ugs.s3mock.version>
+    <!-- sub-dependency of s3 mocking library -->
+    <ugs.commons-logging.version>1.2</ugs.commons-logging.version>
   </properties>
 
   <modules>
