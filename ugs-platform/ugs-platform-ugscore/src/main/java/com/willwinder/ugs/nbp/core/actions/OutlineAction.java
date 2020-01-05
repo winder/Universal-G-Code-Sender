@@ -29,7 +29,13 @@ import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.*;
+import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.MathUtils;
+import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
@@ -39,14 +45,15 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 
 /**
  * An action that will parse the loaded gcode file and generate a movement path for outlining
@@ -71,6 +78,7 @@ public final class OutlineAction extends AbstractAction implements UGSEventListe
 
     public static final String ICON_BASE = "resources/icons/outline.png";
     public static final double ARC_SEGMENT_LENGTH = 0.5;
+    private static final Logger LOGGER = Logger.getLogger(OutlineAction.class.getSimpleName());
     private BackendAPI backend;
 
     public OutlineAction() {
@@ -96,14 +104,21 @@ public final class OutlineAction extends AbstractAction implements UGSEventListe
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        try {
-            File gcodeFile = backend.getGcodeFile();
-            List<GcodeCommand> gcodeCommands = generateOutlineCommands(gcodeFile);
-            backend.getController().queueStream(new SimpleGcodeStreamReader(gcodeCommands));
-            backend.getController().beginStreaming();
-        } catch (Exception ex) {
-            GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
-        }
+        ThreadHelper.invokeLater(() -> {
+            try {
+                LOGGER.finest("Generating the outline of the gcode model");
+                LoaderDialogHelper.showDialog("Generating outline", 1500, (Component) e.getSource());
+                File gcodeFile = backend.getGcodeFile();
+                List<GcodeCommand> gcodeCommands = generateOutlineCommands(gcodeFile);
+                LoaderDialogHelper.closeDialog();
+
+                LOGGER.finest("Sending the outline to the controller");
+                backend.getController().queueStream(new SimpleGcodeStreamReader(gcodeCommands));
+                backend.getController().beginStreaming();
+            } catch (Exception ex) {
+                GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
+            }
+        });
     }
 
     public List<GcodeCommand> generateOutlineCommands(File gcodeFile) throws IOException, GcodeParserException {
