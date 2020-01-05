@@ -20,11 +20,21 @@ package com.willwinder.ugs.nbp;
 
 import io.minio.MinioClient;
 import io.minio.Result;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidBucketNameException;
+import io.minio.errors.InvalidResponseException;
+import io.minio.errors.NoResponseException;
+import io.minio.errors.RegionConflictException;
 import io.minio.messages.Bucket;
 import io.minio.messages.Item;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -35,6 +45,7 @@ import javax.swing.Icon;
 import javax.swing.filechooser.FileSystemView;
 import org.apache.commons.io.FileUtils;
 import org.openide.util.Exceptions;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * An S3 implementation of the FileSystemView interface to allow creation of
@@ -60,18 +71,30 @@ public class S3FileSystemView extends FileSystemView {
     final String secret;
     final MinioClient minioClient;
     final List<Bucket> buckets;
-            
+
     public S3FileSystemView(final String id, final String secret) throws Exception {
+        this("https://s3.amazonaws.com", id, secret);
+    }
+
+    public S3FileSystemView(final String endpoint, final String id, final String secret) throws Exception {
         this.id = id;
         this.secret = secret;
-        this.minioClient = new MinioClient("https://s3.amazonaws.com", id, secret);
+        this.minioClient = new MinioClient(endpoint, id, secret);
         
         // Make sure it works with a simple call, cache buckets for fast init.
         buckets = this.minioClient.listBuckets();
     }
 
+    protected void createBucket(String bucket) {
+        try {
+            minioClient.makeBucket(bucket);
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+    
     // Given an S3 URI, downloads the file to the target.
-    public void downloadFile(String uri, File target) {
+    protected void downloadFile(String uri, File target) {
         Matcher m = parseURI(uri);
         if (m.matches()) {
             try (InputStream s = minioClient.getObject(m.group("bucket"), m.group("path"))) {
@@ -82,9 +105,21 @@ public class S3FileSystemView extends FileSystemView {
         }
     }
     
+    // Given an S3 URI, uploads a file to the uri.
+    protected void uploadFile(File source, String uri) {
+        Matcher m = parseURI(uri);
+        if (m.matches()) {
+            try (FileInputStream s = FileUtils.openInputStream(source)) {
+                minioClient.putObject(m.group("bucket"), m.group("path"), s, source.length(), null, null, null);
+            } catch (Exception ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+    }
+    
     @Override
     protected File createFileSystemRoot(File f) {
-        return new VirtualFile(f, 1);
+        return new S3VirtualFile(f, 1);
     }
 
     @Override
@@ -131,19 +166,19 @@ public class S3FileSystemView extends FileSystemView {
                 final List<File> files = new ArrayList<>(1);
 
                 for (Bucket bucket : buckets) {
-                    System.out.println(bucket.creationDate() + ", " + bucket.name());
-                    files.add(new VirtualFile("s3:/" + bucket.name() + "/", 0));
+                    files.add(new S3VirtualFile("s3:/" + bucket.name() + "/", 0));
                 }
 
                 return files.toArray(new File[files.size()]);
             } catch (Exception ex) {
+                ex.printStackTrace();
                 logger.log(Level.WARNING, "An error occurred listing buckets on S3.", ex);                
             }
 
-            return new VirtualFile[0];
+            return new S3VirtualFile[0];
         }
                 
-        ArrayList<VirtualFile> ret = new ArrayList<>();
+        ArrayList<S3VirtualFile> ret = new ArrayList<>();
         Matcher m = parseURI(dir.toString());
         
         try {
@@ -167,9 +202,13 @@ public class S3FileSystemView extends FileSystemView {
                     if (name.equals(dirMatch)) {
                         continue;
                     }
-                    VirtualFile f = new VirtualFile(name, i.objectSize());
-                    if (!f.isDir) {
-                        f.setLastModified(i.lastModified().getTime());
+                    S3VirtualFile f = new S3VirtualFile(name, i.objectSize());
+                    if (!f.isDirectory()) {
+                        try {
+                            f.setLastModified(i.lastModified().getTime());
+                        } catch (Exception e) {
+                            // The mock server doesn't play well with the lastModified field.
+                        }
                     }
                     ret.add(f);
                 }
@@ -178,12 +217,12 @@ public class S3FileSystemView extends FileSystemView {
             logger.log(Level.WARNING, "An error occurred listing files on S3.", ex);
         }
         
-        return ret.toArray(new VirtualFile[0]);
+        return ret.toArray(new S3VirtualFile[0]);
     }
 
     @Override
     public File createFileObject(final String path) {
-        return new VirtualFile(path, 1);
+        return new S3VirtualFile(path, 1);
     }
 
     @Override
@@ -193,7 +232,7 @@ public class S3FileSystemView extends FileSystemView {
 
     @Override
     public File getDefaultDirectory() {
-        return new VirtualFile("s3:/", 1);
+        return new S3VirtualFile("s3:/", 1);
     }
 
     @Override
@@ -204,8 +243,8 @@ public class S3FileSystemView extends FileSystemView {
     @Override
     public File[] getRoots() {
         final List<File> files = new ArrayList<>(1);
-        files.add(new VirtualFile("s3:/", 1));
-        return files.toArray(new VirtualFile[0]);
+        files.add(new S3VirtualFile("s3:/", 1));
+        return files.toArray(new S3VirtualFile[0]);
     }
 
     @Override
@@ -225,7 +264,7 @@ public class S3FileSystemView extends FileSystemView {
 
     @Override
     public File getChild(final File parent, final String fileName) {
-        return new VirtualFile(parent, fileName, 1);
+        return new S3VirtualFile(parent, fileName, 1);
     }
 
     @Override
@@ -249,91 +288,4 @@ public class S3FileSystemView extends FileSystemView {
     public File createNewFolder(final File containingDir) throws IOException {
         throw new UnsupportedOperationException("Sorry, no support for editing S3.");
     }
-
-
-    private class VirtualFile extends File {
-
-        private static final long serialVersionUID = -1752685357864733168L;
-        private final boolean isDir;
-        private final long length;
-        private long lastModified = 0;
-
-        private VirtualFile(final File file, long length) {
-            this(file.toString(), length);
-        }
-
-        private VirtualFile(String pathname, long length) {
-            super(pathname);
-            isDir = pathname.endsWith("/");
-            this.length = length;
-        }
-
-        private VirtualFile(String parent, String child, long length) {
-            super(parent, child);
-            isDir = child.endsWith("/");
-            this.length = length;
-        }
-
-        private VirtualFile(File parent, String child, long length) {
-            super(parent, child);
-            isDir = child.endsWith("/");
-            this.length = length;
-        }
-        
-        @Override
-        public String getName() {
-            int idx = this.toString().lastIndexOf("/");
-            if (idx == -1) return this.toString();
-            return this.toString().substring(idx + 1);
-        }
-        
-        @Override
-        public boolean setLastModified(long t) {
-            this.lastModified = t;
-            return true;
-        }
-        
-        @Override
-        public long lastModified() {
-            return lastModified;
-        }
-
-        @Override
-        public long length() {
-            return length;
-        }
-        
-        @Override
-        public boolean exists() {
-            return true;
-        }
-
-        @Override
-        public boolean isDirectory() {
-            return isDir;
-        }
-
-        @Override
-        public File getCanonicalFile() throws IOException {
-            return this;
-        }
-
-        @Override
-        public File getAbsoluteFile() {
-            return this;
-        }
-
-        @Override
-        public File getParentFile() {
-            final int lastIndex = this.toString().lastIndexOf('/');
-            
-            if (lastIndex == -1) return null;
-            
-            String parent = this.toString().substring(0, lastIndex + 1);
-
-            return new VirtualFile(parent, 1);
-        }
-
-    }
-
 }

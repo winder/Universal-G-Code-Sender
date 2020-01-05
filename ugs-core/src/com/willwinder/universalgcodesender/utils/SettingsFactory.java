@@ -1,5 +1,5 @@
 /*
-    Copywrite 2013-2016 Christian Moll, Will Winder, Bob Jones
+    Copyrite 2013-2016 Christian Moll, Will Winder, Bob Jones
 
     This file is part of Universal Gcode Sender (UGS).
 

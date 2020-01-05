@@ -79,28 +79,12 @@
       <artifactId>org-netbeans-modules-settings</artifactId>  
       <version>${netbeans.version}</version> 
     </dependency>
-    <dependency>
-      <groupId>com.upplication</groupId>
-      <artifactId>s3fs</artifactId>
-      <version>${ugs.s3-filesystem.version}</version>
-    </dependency>
 
     <!-- AWS S3 Client -->
     <dependency>
       <groupId>io.minio</groupId>
       <artifactId>minio</artifactId>
-      <version>6.0.11</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>${ugs.jackson.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${ugs.jackson.version}</version>
+      <version>${ugs.minio.version}</version>
     </dependency>
 
     <dependency> 
@@ -122,5 +106,18 @@
       <version>1.3</version>  
       <scope>test</scope> 
     </dependency>  
+    <dependency>
+        <groupId>io.findify</groupId>
+        <artifactId>s3mock_2.12</artifactId>
+        <version>${ugs.s3mock.version}</version>
+        <scope>test</scope>
+    </dependency>
+    <!-- needed by findify -->
+    <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>${ugs.commons-logging.version}</version>
+        <scope>test</scope>
+    </dependency>
   </dependencies> 
 </project>
