@@ -61,9 +61,7 @@ public class MoveCameraAction extends AbstractAction {
      * A constructor for creating the action with some defaults
      *
      * @param gcodeRenderer the renderer to be used
-     * @param position      the position of the camera
      * @param rotation      the rotation in which direction the camera should be rotate against
-     * @param zoom          the zoom level
      */
     public MoveCameraAction(GcodeRenderer gcodeRenderer, Point3d rotation) {
         this(gcodeRenderer, CAMERA_POSITION, rotation, 1);

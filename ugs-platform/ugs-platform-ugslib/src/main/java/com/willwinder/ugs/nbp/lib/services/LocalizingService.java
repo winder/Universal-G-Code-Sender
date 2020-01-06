@@ -1,9 +1,5 @@
-/**
- * LocalizingService for core module top components.
- * Modules should use TopComponentLocalizer and @OnStart instead of this.
- */
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -30,6 +26,7 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
+ * LocalizingService for core module top components.
  *
  * @author wwinder
  */
@@ -205,6 +202,12 @@ public class LocalizingService {
     public final static String GetStateWindowPath = MENU_MACHINE_ACTIONS;
     public final static String GetStateActionId = "com.willwinder.ugs.nbp.core.actions.GetStateAction";
     public final static String GetStateCategory = CATEGORY_MACHINE;
+
+    public final static String OutlineTitleKey = "platform.action.outline";
+    public final static String OutlineTitle = Localization.getString(OutlineTitleKey, lang);
+    public final static String OutlineWindowPath = MENU_MACHINE_ACTIONS;
+    public final static String OutlineActionId = "com.willwinder.ugs.nbp.core.actions.OutlineAction";
+    public final static String OutlineCategory = CATEGORY_MACHINE;
 
     public final static String ConnectDisconnectTitleConnect = Localization.getString("mainWindow.ui.connect", lang);
     public final static String ConnectDisconnectTitleDisconnect = Localization.getString("mainWindow.ui.disconnect", lang);

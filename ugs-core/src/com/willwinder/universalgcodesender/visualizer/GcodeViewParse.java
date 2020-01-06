@@ -45,18 +45,11 @@ import java.util.List;
 
 public class GcodeViewParse {
 
-    // false = incremental; true = absolute
-    boolean absoluteMode = true;
-    static boolean absoluteIJK = false;
-
     // Parsed object
     private final Position min;
     private final Position max;
     private final List<LineSegment> lines;
-    
-    // Debug
-    private final boolean debug = true;
-    
+
     public GcodeViewParse()
     {
         min = new Position();
@@ -124,7 +117,7 @@ public class GcodeViewParse {
      * toObjFromReader and toObjRedux adds more complexity than having these two
      * methods.
      * 
-     * @param gcode commands to visualize.
+     * @param reader a stream with commands to parse.
      * @param arcSegmentLength length of line segments when expanding an arc.
      */
     public List<LineSegment> toObjFromReader(IGcodeStreamReader reader,
@@ -154,6 +147,7 @@ public class GcodeViewParse {
     
     /**
      * The original (working) gcode to LineSegment collection code.
+     *
      * @param gcode commands to visualize.
      * @param arcSegmentLength length of line segments when expanding an arc.
      */
