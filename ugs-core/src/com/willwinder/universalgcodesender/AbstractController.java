@@ -629,29 +629,16 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     @Override
     public void cancelSend() throws Exception {
         this.dispatchConsoleMessage(MessageType.INFO, "\n**** Canceling file transfer. ****\n\n");
-
         cancelSendBeforeEvent();
-        
-        // Don't clear the command queue, there might be a situation where a
-        // send is in progress while the next queue is being built. In which
-        // case a cancel would only be expected to cancel the current action
-        // to make way for the queued commands.
-        //this.prepQueue.clear();
-        
         cancelCommands();
-        
-        // If there are no active commands, done streaming. Otherwise wait for
-        // them to finish.
-        if (!comm.areActiveCommands()) {
-            this.isStreaming = false;
-        }
-
         cancelSendAfterEvent();
     }
 
     @Override
     public void cancelCommands() {
         this.comm.cancelSend();
+        this.isStreaming = false;
+        if (this.streamStopWatch.isStarted()) this.streamStopWatch.stop();
     }
 
     @Override
