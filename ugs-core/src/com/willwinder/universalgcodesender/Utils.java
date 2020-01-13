@@ -38,7 +38,9 @@ import java.text.NumberFormat;
  */
 public class Utils {
 
-    public static NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
+    public static NumberFormat mmFormatter = new DecimalFormat("#.###", Localization.dfs);
+    public static NumberFormat inchFormatter = new DecimalFormat("#.#####", Localization.dfs); // 5 decimals in inches gives similar precision to mm w/ 3
+    public static NumberFormat formatter = mmFormatter;
 
     public static String formattedMillis(long millis) {
         String format = String.format("%%0%dd", 2);  

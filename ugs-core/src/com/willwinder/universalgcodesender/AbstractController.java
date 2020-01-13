@@ -172,7 +172,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
      */
     @Override
     public void resetCoordinatesToZero() throws Exception {
-        setWorkPosition(new PartialPosition(0.0, 0.0, 0.0));
+        setWorkPosition(new PartialPosition(0.0, 0.0, 0.0, UnitUtils.Units.getUnits(getCurrentGcodeState().units)));
     }
     
     /**
@@ -180,7 +180,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
      */
     @Override
     public void resetCoordinateToZero(final Axis axis) throws Exception {
-        setWorkPosition(PartialPosition.from(axis, 0.0));
+        setWorkPosition(PartialPosition.from(axis, 0.0, UnitUtils.Units.getUnits(getCurrentGcodeState().units)));
     }
 
     @Override

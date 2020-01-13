@@ -59,6 +59,10 @@ public class PartialPosition {
         return new Builder().setValue(axis, value).build();
     }
 
+    public static PartialPosition from(Axis axis, Double value, UnitUtils.Units units) {
+        return new Builder().setValue(axis, value).setUnits(units).build();
+    }
+
     public static PartialPosition from(Position position) {
         return new PartialPosition(position.getX(), position.getY(), position.getZ(), position.getUnits());
     }
@@ -206,8 +210,7 @@ public class PartialPosition {
     }
 
     public String getFormattedGCode() {
-        return getFormattedGCode(Utils.formatter);
-
+        return getFormattedGCode(this.units == UnitUtils.Units.MM ? Utils.mmFormatter : Utils.inchFormatter);
     }
 
     public String getFormattedGCode(NumberFormat formatter) {

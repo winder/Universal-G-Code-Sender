@@ -169,7 +169,7 @@ public class GrblUtils {
     /**
      * Generate a command to set the work coordinate position for multiple axis.
      *
-     * @param offsets the new work position to use (one ore more axis)
+     * @param offsets the new work position to use (one ore more axis) (Note: must already be converted to gcode state units)
      * @param grblVersion the GRBL version
      * @param grblVersionLetter the GRBL build version
      * @return a string with the gcode command

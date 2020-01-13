@@ -300,7 +300,7 @@ public class G2CoreControllerTest {
         orderVerifier.verify(communicator).streamCommands();
 
         GcodeCommand command = queueCommandArgumentCaptor.getAllValues().get(0);
-        assertEquals("G20G90G1X0.039Y0.079Z0.118F39.37", command.getCommandString());
+        assertEquals("G20G90G1X0.03937Y0.07874Z0.11811F39.37", command.getCommandString());
         assertTrue(command.isGenerated());
         assertTrue(command.isTemporaryParserModalChange());
     }

@@ -305,7 +305,7 @@ public class TinyGUtils {
      *
      * @param controllerStatus the current controller status
      * @param gcodeState       the current gcode state
-     * @param positions        the position to set
+     * @param positions        the position to set (Note: must already be converted to gcode state units)
      * @return a command for setting the position
      */
     public static String generateSetWorkPositionCommand(ControllerStatus controllerStatus, GcodeState gcodeState, PartialPosition positions) {

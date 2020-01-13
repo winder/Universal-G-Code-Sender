@@ -358,7 +358,11 @@ public class TinyGController extends AbstractController {
 
     @Override
     public void setWorkPosition(PartialPosition axisPosition) throws Exception {
-        String command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, getCurrentGcodeState(), axisPosition);
+        if (axisPosition.getUnits() == UnitUtils.Units.UNKNOWN) {
+            throw new Exception("axisPosition must have units specified");
+        }
+        String command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, getCurrentGcodeState(),
+                axisPosition.getPositionIn(UnitUtils.Units.getUnits(getCurrentGcodeState().units)));
         sendCommandImmediately(new GcodeCommand(command));
     }
 

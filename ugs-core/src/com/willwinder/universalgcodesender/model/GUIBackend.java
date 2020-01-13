@@ -767,12 +767,13 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void setWorkPositionUsingExpression(final Axis axis, final String expression) throws Exception {
         String expr = StringUtils.trimToEmpty(expression);
-        expr = expr.replaceAll("#", String.valueOf(getWorkPosition().get(axis)));
+        UnitUtils.Units units = getSettings().getPreferredUnits();
+        double curpos = getWorkPosition().getPositionIn(units).get(axis); // current axis position, in DRO/Jog units
+        expr = expr.replaceAll("#", String.valueOf(curpos));
 
         // If the expression starts with a mathimatical operation add the original position
         if (StringUtils.startsWithAny(expr, "/", "*")) {
-            double value = getWorkPosition().get(axis);
-            expr = value + " " + expr;
+            expr = curpos + " " + expr;
         }
 
         // Start a script engine and evaluate the expression
@@ -780,7 +781,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         ScriptEngine engine = mgr.getEngineByName("JavaScript");
         try {
             double position = Double.valueOf(engine.eval(expr).toString());
-            setWorkPosition(PartialPosition.from(axis, position));
+            setWorkPosition(PartialPosition.from(axis, position, units));
         } catch (ScriptException e) {
             throw new Exception("Invalid expression", e);
         }
