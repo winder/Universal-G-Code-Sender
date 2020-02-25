@@ -507,9 +507,9 @@ public class GrblUtils {
         return Units.UNKNOWN;
     }
 
-    static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\..\\d*),(-?\\d*\\..\\d*),(-?\\d*\\..\\d*)");
-    static Pattern workPattern = Pattern.compile("(?<=WPos:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)");
-    static Pattern wcoPattern = Pattern.compile("(?<=WCO:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)");
+    static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)");
+    static Pattern workPattern = Pattern.compile("(?<=WPos:)(\\-?\\d*\\.?\\d*),(\\-?\\d*\\.?\\d*),(\\-?\\d*\\.?\\d*)");
+    static Pattern wcoPattern = Pattern.compile("(?<=WCO:)(\\-?\\d*\\.?\\d*),(\\-?\\d*\\.?\\d*),(\\-?\\d*\\.?\\d*)");
     static protected Position getMachinePositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
         if (version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             return GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
