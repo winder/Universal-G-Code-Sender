@@ -36,23 +36,25 @@ import java.io.File;
 import java.util.Optional;
 
 /**
- *
  * @author wwinder
  */
 public class ConnectionSettingsPanel extends AbstractUGSSettings {
     private final Checkbox verboseConsoleOutput = new Checkbox(
-                Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
+            Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
     private final Checkbox useZStepSize = new Checkbox(
-                Localization.getString("sender.step.separateZ"));
+            Localization.getString("sender.step.separateZ"));
     private final Checkbox singleStepMode = new Checkbox(
-                Localization.getString("sender.singlestep"));
+            Localization.getString("sender.singlestep"));
     private final Checkbox statusPollingEnabled = new Checkbox(
-                Localization.getString("sender.status"));
+            Localization.getString("sender.status"));
     private final Spinner statusPollRate = new Spinner(
-                Localization.getString("sender.status.rate"),
-                new SpinnerNumberModel(1, 1, null, 100));
+            Localization.getString("sender.status.rate"),
+            new SpinnerNumberModel(1, 1, null, 100));
+    private final Spinner safetyHeight = new Spinner(
+            Localization.getString("sender.safety-height"),
+            new SpinnerNumberModel(1, 1, null, 1));
     private final Checkbox showNightlyWarning = new Checkbox(
-                Localization.getString("sender.nightly-warning"));
+            Localization.getString("sender.nightly-warning"));
     private final Checkbox autoStartPendant = new Checkbox(
             Localization.getString("sender.autostartpendant"));
     private final JComboBox<Language> languageCombo = new JComboBox<>(AvailableLanguages.getAvailableLanguages().toArray(new Language[0]));
@@ -87,12 +89,13 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         settings.setVerboseOutputEnabled(verboseConsoleOutput.getValue());
         settings.setUseZStepSize(useZStepSize.getValue());
         settings.setSingleStepMode(singleStepMode.getValue());
+        settings.setSafetyHeight((int) safetyHeight.getValue());
         settings.setStatusUpdatesEnabled(statusPollingEnabled.getValue());
-        settings.setStatusUpdateRate((int)statusPollRate.getValue());
+        settings.setStatusUpdateRate((int) statusPollRate.getValue());
         //settings.setAutoConnectEnabled(autoConnect.getValue());
         settings.setShowNightlyWarning(showNightlyWarning.getValue());
         settings.setAutoStartPendant(autoStartPendant.getValue());
-        settings.setLanguage(((Language)languageCombo.getSelectedItem()).getLanguageCode());
+        settings.setLanguage(((Language) languageCombo.getSelectedItem()).getLanguageCode());
         if (connectionDriver.getSelectedItem().equals(ConnectionDriver.JSERIALCOMM.getPrettyName())) {
             settings.setConnectionDriver(ConnectionDriver.JSERIALCOMM);
         } else if (connectionDriver.getSelectedItem().equals(ConnectionDriver.TCP.getPrettyName())) {
@@ -131,6 +134,9 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         statusPollRate.setValue(s.getStatusUpdateRate());
         add(statusPollRate, "spanx, wrap");
 
+        safetyHeight.setValue((int) s.getSafetyHeight());
+        add(safetyHeight, "spanx, wrap");
+
         showNightlyWarning.setSelected(s.isShowNightlyWarning());
         add(showNightlyWarning, "spanx, wrap");
 
@@ -168,7 +174,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
             @Override
             public void actionPerformed(ActionEvent e) {
                 File directory = new File(".");
-                if(StringUtils.isNotEmpty(workspaceDirectory.getText())) {
+                if (StringUtils.isNotEmpty(workspaceDirectory.getText())) {
                     directory = new File(workspaceDirectory.getText());
                 }
 

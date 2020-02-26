@@ -630,7 +630,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void returnToZero() throws Exception {
-        this.controller.returnToHome();
+        double safetyHeightInMm = settings.getSafetyHeight();
+        this.controller.returnToHome(safetyHeightInMm);
     }
 
     @Override
