@@ -72,7 +72,8 @@ public final class ReturnToZeroAction extends AbstractAction implements UGSEvent
 
     @Override
     public boolean isEnabled() {
-        return backend.isIdle();
+        return backend.isIdle() &&
+                backend.getController().getCapabilities().hasReturnToZero();
     }
 
     @Override

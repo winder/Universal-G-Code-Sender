@@ -69,4 +69,9 @@ public class CapabilitiesConstants {
      * A key for identifying if the firmware has support for settings
      */
     public static final String FIRMWARE_SETTINGS = "FIRMWARE_SETTINGS";
+
+    /**
+     * A key for identifying if the firmware supports returning to zero
+     */
+    public static final String RETURN_TO_ZERO = "RETURN_TO_ZERO";
 }

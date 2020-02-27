@@ -119,35 +119,6 @@ public class GrblUtilsTest {
     }
 
     @Test
-    public void testGetReturnToHomeCommand() {
-        System.out.println("getReturnToHomeCommands");
-        double version;
-        Character letter;
-        ArrayList<String> result;
-        String expResult;
-
-        version = 0.8;
-        letter = null;
-        expResult = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8;
-        String expResult2 = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8;
-        result = GrblUtils.getReturnToHomeCommands(version, letter, 0);
-        assertEquals(2, result.size());
-        assertEquals(expResult, result.get(0));
-        assertEquals(expResult2, result.get(1));
-
-        // Check the z-raise command is sent first
-        version = 0.8;
-        letter = 'c';
-        expResult = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8;
-        expResult2 = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8;
-        result = GrblUtils.getReturnToHomeCommands(version, letter, -10);
-        assertEquals(3, result.size());
-        assertEquals(expResult2, result.get(0));
-        assertEquals(expResult, result.get(1));
-        assertEquals(expResult2, result.get(2));
-    }
-
-    @Test
     public void testGetKillAlarmLockCommand() {
         System.out.println("getKillAlarmLockCommand");
         double version;

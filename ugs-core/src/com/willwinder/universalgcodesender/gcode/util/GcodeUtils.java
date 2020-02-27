@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,6 +26,8 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
  * @author wwinder
  */
 public class GcodeUtils {
+    public static final String GCODE_RETURN_TO_XY_ZERO_LOCATION = "G90 G0 X0 Y0";
+    public static final String GCODE_RETURN_TO_Z_ZERO_LOCATION = "G90 G0 Z0";
 
     /**
      * Generates a gcode command for switching units.
@@ -61,7 +63,6 @@ public class GcodeUtils {
 
         // Scale the feed rate and distance to the current coordinate units
         String convertedDistance = Utils.formatter.format(distance);
-        String convertedFeedRate = Utils.formatter.format(feedRate);
 
         // Set command.
         sb.append(GcodeUtils.unitCommand(units));
@@ -91,8 +92,11 @@ public class GcodeUtils {
             sb.append(convertedDistance);
         }
 
-        if (convertedFeedRate != null) {
-            sb.append("F").append(convertedFeedRate);
+        if (feedRate > 0) {
+            String convertedFeedRate = Utils.formatter.format(feedRate);
+            if (convertedFeedRate != null) {
+                sb.append("F").append(convertedFeedRate);
+            }
         }
 
         return sb.toString();

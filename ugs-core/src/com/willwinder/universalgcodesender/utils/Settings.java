@@ -37,9 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class Settings {
     private static final Logger logger = Logger.getLogger(Settings.class.getName());
@@ -100,6 +98,11 @@ public class Settings {
      * A directory with gcode files for easy access through pendant
      */
     private String workspaceDirectory;
+
+    /**
+     * The safety height to clear when returning to home given in mm.
+     */
+    private Double safetyHeight = 5d;
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
@@ -469,6 +472,14 @@ public class Settings {
         this.macros.clear();
         macros.forEach(this::addMacro);
         changed();
+    }
+
+    public double getSafetyHeight() {
+        return this.safetyHeight;
+    }
+
+    public void setSafetyHeight(double safetyHeight) {
+        this.safetyHeight = safetyHeight;
     }
 
     public static class AutoLevelSettings {
