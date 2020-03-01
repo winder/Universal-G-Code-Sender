@@ -484,6 +484,7 @@ public class GcodePreprocessorUtils {
 
     /**
      * Helper method for to convert IJK syntax to center point.
+     *
      * @return the center of rotation between two points with IJK codes.
      */
     static private Position convertRToCenter(
@@ -530,8 +531,9 @@ public class GcodePreprocessorUtils {
         return center;
     }
 
-    /** 
+    /**
      * Helper method for arc calculation
+     *
      * @return angle in radians of a line going from start to end.
      */
     static private double getAngle(final Position start, final Position end, PlaneFormatter plane) {

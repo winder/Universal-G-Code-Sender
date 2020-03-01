@@ -1,15 +1,5 @@
-/**
- * Object to parse gcode one command at a time in a way that can be used by any
- * other class which needs to know about the current state at a given command.
- * 
- * This object can be extended by adding in any number of ICommandProcessor
- * objects which are applied to each command in the order they were inserted
- * into the parser. These processors can be as simple as removing whitespace to
- * as complex as expanding a canned cycle or applying an leveling plane.
- */
-
 /*
-    Copyright 2013-2017 Will Winder
+    Copyright 2013-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -49,6 +39,13 @@ import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
 
 /**
+ * Object to parse gcode one command at a time in a way that can be used by any
+ * other class which needs to know about the current state at a given command.
+ *
+ * This object can be extended by adding in any number of ICommandProcessor
+ * objects which are applied to each command in the order they were inserted
+ * into the parser. These processors can be as simple as removing whitespace to
+ * as complex as expanding a canned cycle or applying an leveling plane.
  *
  * @author wwinder
  */
@@ -187,7 +184,7 @@ public class GcodeParser implements IGcodeParser {
     }
     
     /**
-     * Process commend given an initial state. This method will not modify its
+     * Process command given an initial state. This method will not modify its
      * input parameters.
      * 
      * @param includeNonMotionStates Create gcode meta responses even if there is no motion, for example "F100" will not

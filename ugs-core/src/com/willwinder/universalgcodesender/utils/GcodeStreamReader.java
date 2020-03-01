@@ -1,13 +1,5 @@
 /*
- * GcodeStreamReader.java
- *
- * Reads a 'GcodeStream' file containing command processing information, actual
- * command to send and other metadata like total number of commands.
- *
- * Created on Jan 7, 2016
- */
-/*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
