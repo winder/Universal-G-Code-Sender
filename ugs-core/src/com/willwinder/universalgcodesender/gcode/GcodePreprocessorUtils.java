@@ -470,14 +470,13 @@ public class GcodePreprocessorUtils {
             boolean absoluteIJK,
             boolean clockwise,
             PlaneFormatter plane) {
-        double R = radius;
         Position center = new Position();
         
         // This math is copied from GRBL in gcode.c
         double x = plane.axis0(end) - plane.axis0(start);
         double y = plane.axis1(end) - plane.axis1(start);
 
-        double h_x2_div_d = 4 * R*R - x*x - y*y;
+        double h_x2_div_d = 4 * radius * radius - x * x - y * y;
         //if (h_x2_div_d < 0) { System.out.println("Error computing arc radius."); }
         h_x2_div_d = (-Math.sqrt(h_x2_div_d)) / Math.hypot(x, y);
 
@@ -487,10 +486,8 @@ public class GcodePreprocessorUtils {
 
         // Special message from gcoder to software for which radius
         // should be used.
-        if (R < 0) {
+        if (radius < 0) {
             h_x2_div_d = -h_x2_div_d;
-            // TODO: Places that use this need to run ABS on radius.
-            radius = -radius;
         }
 
         double offsetX = 0.5*(x-(y*h_x2_div_d));
