@@ -950,7 +950,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
 
         try {
           parser.addCommand(command.getCommandString());
-          //System.out.println(parser.getCurrentState());
         } catch (Exception e) {
           logger.log(Level.SEVERE, "Problem parsing command.", e);
         }
