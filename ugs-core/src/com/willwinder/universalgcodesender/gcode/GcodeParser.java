@@ -55,7 +55,7 @@ public class GcodeParser implements IGcodeParser {
     // Current state
     private GcodeState state;
 
-    private final ArrayList<CommandProcessor> processors = new ArrayList<>();
+    private final List<CommandProcessor> processors = new ArrayList<>();
 
     private Stats statsProcessor;
 
@@ -230,7 +230,7 @@ public class GcodeParser implements IGcodeParser {
 
         // Error to mix group 1 (Motion) and certain group 0 (NonModal) codes (G10, G28, G30, G92)
         Collection<Code> motionCodes = gCodes.stream()
-                .filter(c -> c.consumesMotion())
+                .filter(Code::consumesMotion)
                 .collect(Collectors.toList());
 
         // 1 motion code per line.
@@ -250,7 +250,7 @@ public class GcodeParser implements IGcodeParser {
             if (i == UNKNOWN) {
                 logger.warning("An unknown gcode command was detected in: " + command);
             } else {
-                GcodeMeta meta = handleGCode(i, args, line, state, hasAxisWords);
+                GcodeMeta meta = handleGCode(i, args, line, state);
                 meta.command = command;
                 // Commands like 'G21' don't return a point segment.
                 if (meta.point != null) {
@@ -348,7 +348,7 @@ public class GcodeParser implements IGcodeParser {
      * 
      * A copy of the state object should go in the resulting GcodeMeta object.
      */
-    private static GcodeMeta handleGCode(final Code code, List<String> args, int line, GcodeState state, boolean hasAxisWords)
+    private static GcodeMeta handleGCode(final Code code, List<String> args, int line, GcodeState state)
             throws GcodeParserException {
         GcodeMeta meta = new GcodeMeta();
 
@@ -482,7 +482,7 @@ public class GcodeParser implements IGcodeParser {
     public List<String> preprocessCommand(String command, final GcodeState initialState) throws GcodeParserException {
         List<String> ret = new ArrayList<>();
         ret.add(command);
-        GcodeState tempState = null;
+        GcodeState tempState;
         for (CommandProcessor p : processors) {
             // Reset point segments after each pass. The final pass is what we will return.
             tempState = initialState.copy();

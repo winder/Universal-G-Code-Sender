@@ -60,12 +60,12 @@ public class GcodePreprocessorUtils {
         // Check if command sets feed speed.
         Pattern pattern = Pattern.compile("F([0-9.]+)", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(command);
-        if (matcher.find()){
-            Double originalFeedRate = Double.parseDouble(matcher.group(1));
+        if (matcher.find()) {
+            double originalFeedRate = Double.parseDouble(matcher.group(1));
             //System.out.println( "Found feed     " + originalFeedRate.toString() );
-            Double newFeedRate      = originalFeedRate * speed / 100.0;
+            double newFeedRate = originalFeedRate * speed / 100.0;
             //System.out.println( "Change to feed " + newFeedRate.toString() );
-            returnString = matcher.replaceAll( "F" + newFeedRate.toString() );
+            returnString = matcher.replaceAll("F" + newFeedRate);
         }
 
         return returnString;
@@ -104,7 +104,7 @@ public class GcodePreprocessorUtils {
         Matcher matcher = decimalPattern.matcher(command);
 
         // Build up the truncated command.
-        Double d;
+        double d;
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             d = Double.parseDouble(matcher.group());
@@ -151,32 +151,8 @@ public class GcodePreprocessorUtils {
                 l.add(s.substring(1));
             }
         }
-        
+
         return l;
-    }
-    
-
-    static public List<Integer> parseGCodes(String command) {
-        Matcher matcher = GCODE_PATTERN.matcher(command);
-        List<Integer> codes = new ArrayList<>();
-        
-        while (matcher.find()) {
-            codes.add(Integer.parseInt(matcher.group(1)));
-        }
-        
-        return codes;
-    }
-
-    static private Pattern mPattern = Pattern.compile("[Mm]0*(\\d+)");
-    static public List<Integer> parseMCodes(String command) {
-        Matcher matcher = GCODE_PATTERN.matcher(command);
-        List<Integer> codes = new ArrayList<>();
-        
-        while (matcher.find()) {
-            codes.add(Integer.parseInt(matcher.group(1)));
-        }
-        
-        return codes;
     }
 
     /**
@@ -184,11 +160,11 @@ public class GcodePreprocessorUtils {
      */
     static public Position updatePointWithCommand(List<String> commandArgs, Position initial, boolean absoluteMode) {
 
-        Double x = parseCoord(commandArgs, 'X');
-        Double y = parseCoord(commandArgs, 'Y');
-        Double z = parseCoord(commandArgs, 'Z');
+        double x = parseCoord(commandArgs, 'X');
+        double y = parseCoord(commandArgs, 'Y');
+        double z = parseCoord(commandArgs, 'Z');
 
-        if (x.isNaN() && y.isNaN() && z.isNaN()) {
+        if (Double.isNaN(x) && Double.isNaN(y) && Double.isNaN(z)) {
             return null;
         }
 
