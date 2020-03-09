@@ -39,10 +39,9 @@ import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Mot
  */
 public class GcodePreprocessorUtils {
 
+    public static final Pattern COMMENT = Pattern.compile("\\(.*\\)|\\s*;.*|%.*$");
     private static final String EMPTY = "";
-    public static final Pattern COMMENT = Pattern.compile("\\(.*\\)|\\s*;.*|%$");
-    private static final Pattern COMMENTPARSE = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*|%");
-    private static final Pattern GCODE_PATTERN = Pattern.compile("[Gg]0*(\\d+)");
+    private static final Pattern COMMENTPARSE = Pattern.compile("(?<=\\()[^()]*|(?<=;).*|%");
 
     private static int decimalLength = -1;
     private static Pattern decimalPattern;
@@ -278,15 +277,46 @@ public class GcodePreprocessorUtils {
 
         List<String> l = new ArrayList<>();
         boolean readNumeric = false;
+        boolean readLineComment = false;
+        boolean readBlockComment = false;
         StringBuilder sb = new StringBuilder();
         
         for (int i = 0; i < command.length(); i++){
             char c = command.charAt(i);
-            if (Character.isWhitespace(c)) continue;
-                        
+
+            if (c == '(' && !readLineComment && !readBlockComment) {
+                if( sb.length() > 0 ){
+                    l.add(sb.toString());
+                    sb = new StringBuilder();
+                }
+                sb.append(c);
+                readBlockComment = true;
+                continue;
+            } else if (readBlockComment && c == ')') {
+                readBlockComment = false;
+                sb.append(c);
+                l.add(sb.toString());
+                sb = new StringBuilder();
+                continue;
+            } else if (c == ';' && !readLineComment && !readBlockComment) {
+                if( sb.length() > 0 ){
+                    l.add(sb.toString());
+                    sb = new StringBuilder();
+                }
+                sb.append(c);
+                readLineComment = true;
+                continue;
+            }
+
+
+            if (readLineComment || readBlockComment) {
+                sb.append(c);
+            } else if (Character.isWhitespace(c)) {
+                continue;
+            }
             // If the last character was numeric (readNumeric is true) and this
             // character is a letter or whitespace, then we hit a boundary.
-            if (readNumeric && !Character.isDigit(c) && c != '.') {
+            else if (readNumeric && !Character.isDigit(c) && c != '.') {
                 readNumeric = false; // reset flag.
                 
                 l.add(sb.toString());
