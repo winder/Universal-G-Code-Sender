@@ -91,7 +91,7 @@ public class GUIBackendPreprocessorTest {
          
         backend.preprocessAndExportToFile(gcp, inputFile.toFile(), outputFile.toFile());
 
-        List<String> expectedResults = Arrays.asList("line one", "line one", "", "line two", "line two");
+        List<String> expectedResults = Arrays.asList("line one", "line one", "", "", "line two", "line two");
 
         try (IGcodeStreamReader reader = new GcodeStreamReader(outputFile.toFile())) {
             Assert.assertEquals(expectedResults.size(), reader.getNumRows());
