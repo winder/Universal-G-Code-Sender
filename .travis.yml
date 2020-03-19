@@ -26,7 +26,10 @@ script:
 # Make sure artifacts can be built
 - mvn package -pl ugs-classic assembly:assembly -DskipTests=true
 - mvn package -pl ugs-platform/application -P create-autoupdate -DskipTests=true
-- mvn package -pl ugs-platform/application -P create-dmg -DskipTests=true
+- mvn package -pl ugs-platform/application -P create-macosx-package -DskipTests=true
+- mvn package -pl ugs-platform/application -P create-win-package -DskipTests=true
+- mvn package -pl ugs-platform/application -P create-linux-package -DskipTests=true
+- mvn package -pl ugs-platform/application -P create-pi-package -DskipTests=true
 
 deploy:
   # Only deploy to a specific branch.

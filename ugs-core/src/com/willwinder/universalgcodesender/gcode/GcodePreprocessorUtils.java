@@ -39,10 +39,9 @@ import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Mot
  */
 public class GcodePreprocessorUtils {
 
+    public static final Pattern COMMENT = Pattern.compile("\\(.*\\)|\\s*;.*|%.*$");
     private static final String EMPTY = "";
-    public static final Pattern COMMENT = Pattern.compile("\\(.*\\)|\\s*;.*|%$");
-    private static final Pattern COMMENTPARSE = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*|%");
-    private static final Pattern GCODE_PATTERN = Pattern.compile("[Gg]0*(\\d+)");
+    private static final Pattern COMMENTPARSE = Pattern.compile("(?<=\\()[^()]*|(?<=;).*|%");
 
     private static int decimalLength = -1;
     private static Pattern decimalPattern;
@@ -60,12 +59,12 @@ public class GcodePreprocessorUtils {
         // Check if command sets feed speed.
         Pattern pattern = Pattern.compile("F([0-9.]+)", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(command);
-        if (matcher.find()){
-            Double originalFeedRate = Double.parseDouble(matcher.group(1));
+        if (matcher.find()) {
+            double originalFeedRate = Double.parseDouble(matcher.group(1));
             //System.out.println( "Found feed     " + originalFeedRate.toString() );
-            Double newFeedRate      = originalFeedRate * speed / 100.0;
+            double newFeedRate = originalFeedRate * speed / 100.0;
             //System.out.println( "Change to feed " + newFeedRate.toString() );
-            returnString = matcher.replaceAll( "F" + newFeedRate.toString() );
+            returnString = matcher.replaceAll("F" + newFeedRate);
         }
 
         return returnString;
@@ -104,7 +103,7 @@ public class GcodePreprocessorUtils {
         Matcher matcher = decimalPattern.matcher(command);
 
         // Build up the truncated command.
-        Double d;
+        double d;
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             d = Double.parseDouble(matcher.group());
@@ -151,32 +150,8 @@ public class GcodePreprocessorUtils {
                 l.add(s.substring(1));
             }
         }
-        
+
         return l;
-    }
-    
-
-    static public List<Integer> parseGCodes(String command) {
-        Matcher matcher = GCODE_PATTERN.matcher(command);
-        List<Integer> codes = new ArrayList<>();
-        
-        while (matcher.find()) {
-            codes.add(Integer.parseInt(matcher.group(1)));
-        }
-        
-        return codes;
-    }
-
-    static private Pattern mPattern = Pattern.compile("[Mm]0*(\\d+)");
-    static public List<Integer> parseMCodes(String command) {
-        Matcher matcher = GCODE_PATTERN.matcher(command);
-        List<Integer> codes = new ArrayList<>();
-        
-        while (matcher.find()) {
-            codes.add(Integer.parseInt(matcher.group(1)));
-        }
-        
-        return codes;
     }
 
     /**
@@ -184,11 +159,11 @@ public class GcodePreprocessorUtils {
      */
     static public Position updatePointWithCommand(List<String> commandArgs, Position initial, boolean absoluteMode) {
 
-        Double x = parseCoord(commandArgs, 'X');
-        Double y = parseCoord(commandArgs, 'Y');
-        Double z = parseCoord(commandArgs, 'Z');
+        double x = parseCoord(commandArgs, 'X');
+        double y = parseCoord(commandArgs, 'Y');
+        double z = parseCoord(commandArgs, 'Z');
 
-        if (x.isNaN() && y.isNaN() && z.isNaN()) {
+        if (Double.isNaN(x) && Double.isNaN(y) && Double.isNaN(z)) {
             return null;
         }
 
@@ -302,15 +277,46 @@ public class GcodePreprocessorUtils {
 
         List<String> l = new ArrayList<>();
         boolean readNumeric = false;
+        boolean readLineComment = false;
+        boolean readBlockComment = false;
         StringBuilder sb = new StringBuilder();
         
         for (int i = 0; i < command.length(); i++){
             char c = command.charAt(i);
-            if (Character.isWhitespace(c)) continue;
-                        
+
+            if (c == '(' && !readLineComment && !readBlockComment) {
+                if( sb.length() > 0 ){
+                    l.add(sb.toString());
+                    sb = new StringBuilder();
+                }
+                sb.append(c);
+                readBlockComment = true;
+                continue;
+            } else if (readBlockComment && c == ')') {
+                readBlockComment = false;
+                sb.append(c);
+                l.add(sb.toString());
+                sb = new StringBuilder();
+                continue;
+            } else if (c == ';' && !readLineComment && !readBlockComment) {
+                if( sb.length() > 0 ){
+                    l.add(sb.toString());
+                    sb = new StringBuilder();
+                }
+                sb.append(c);
+                readLineComment = true;
+                continue;
+            }
+
+
+            if (readLineComment || readBlockComment) {
+                sb.append(c);
+            } else if (Character.isWhitespace(c)) {
+                continue;
+            }
             // If the last character was numeric (readNumeric is true) and this
             // character is a letter or whitespace, then we hit a boundary.
-            if (readNumeric && !Character.isDigit(c) && c != '.') {
+            else if (readNumeric && !Character.isDigit(c) && c != '.') {
                 readNumeric = false; // reset flag.
                 
                 l.add(sb.toString());
@@ -484,6 +490,7 @@ public class GcodePreprocessorUtils {
 
     /**
      * Helper method for to convert IJK syntax to center point.
+     *
      * @return the center of rotation between two points with IJK codes.
      */
     static private Position convertRToCenter(
@@ -493,14 +500,13 @@ public class GcodePreprocessorUtils {
             boolean absoluteIJK,
             boolean clockwise,
             PlaneFormatter plane) {
-        double R = radius;
         Position center = new Position();
         
         // This math is copied from GRBL in gcode.c
         double x = plane.axis0(end) - plane.axis0(start);
         double y = plane.axis1(end) - plane.axis1(start);
 
-        double h_x2_div_d = 4 * R*R - x*x - y*y;
+        double h_x2_div_d = 4 * radius * radius - x * x - y * y;
         //if (h_x2_div_d < 0) { System.out.println("Error computing arc radius."); }
         h_x2_div_d = (-Math.sqrt(h_x2_div_d)) / Math.hypot(x, y);
 
@@ -510,10 +516,8 @@ public class GcodePreprocessorUtils {
 
         // Special message from gcoder to software for which radius
         // should be used.
-        if (R < 0) {
+        if (radius < 0) {
             h_x2_div_d = -h_x2_div_d;
-            // TODO: Places that use this need to run ABS on radius.
-            radius = -radius;
         }
 
         double offsetX = 0.5*(x-(y*h_x2_div_d));
@@ -530,8 +534,9 @@ public class GcodePreprocessorUtils {
         return center;
     }
 
-    /** 
+    /**
      * Helper method for arc calculation
+     *
      * @return angle in radians of a line going from start to end.
      */
     static private double getAngle(final Position start, final Position end, PlaneFormatter plane) {

@@ -19,12 +19,12 @@
 package com.willwinder.ugs.nbp.editor.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
+import org.apache.commons.lang3.StringUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -47,6 +47,7 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * Opens an editor and connects a listener.
@@ -64,6 +65,7 @@ import java.util.Optional;
         @ActionReference(path = "Shortcuts", name = "M-E")
 })
 public final class EditGcodeFile extends AbstractAction implements ContextAwareAction, UGSEventListener {
+    private static final Logger LOGGER = Logger.getLogger(EditGcodeFile.class.getSimpleName());
     private final BackendAPI backend;
 
     public EditGcodeFile() {
@@ -132,9 +134,10 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
         Collection<TopComponent> editors = getCurrentlyOpenedEditors();
         for (TopComponent editor : editors) {
             Optional<String> editorFilename = getEditorFilename(editor);
-            if(editorFilename.isPresent() && editorFilename.get().equals(backend.getGcodeFile().getPath())) {
-                // Never mind...
-            } else {
+            String loadedFilename = StringUtils.replace(editorFilename.orElse(""), "\\", "/");
+            String newFilename = StringUtils.replace(backend.getGcodeFile().getPath(), "\\", "/");
+            if(!loadedFilename.equalsIgnoreCase(newFilename)) {
+                LOGGER.info("Closing the previously opened file: " + loadedFilename + " and opens " + backend.getGcodeFile().getPath());
                 editor.close();
             }
         }

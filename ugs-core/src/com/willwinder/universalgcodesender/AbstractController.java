@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2019 Will Winder
+    Copyright 2013-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -53,7 +53,7 @@ import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
  *
  * @author wwinder
  */
-public abstract class AbstractController implements CommunicatorListener, IController {;
+public abstract class AbstractController implements CommunicatorListener, IController {
     private static final Logger logger = Logger.getLogger(AbstractController.class.getName());
     private final GcodeParser parser = new GcodeParser();
 
@@ -158,13 +158,19 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     public void performHomingCycle() throws Exception {
         throw new Exception(Localization.getString("controller.exception.homing"));
     }
-    
-    /**
-     * Returns machine to home location, throw an exception if not supported.
-     */
+
     @Override
-    public void returnToHome() throws Exception {
-        throw new Exception(Localization.getString("controller.exception.gohome"));
+    public void returnToHome(double safetyHeightInMm) throws Exception {
+        if (isIdle()) {
+            // If Z is less than zero, raise it before further movement.
+            double currentZPosition = getControllerStatus().getWorkCoord().getPositionIn(UnitUtils.Units.MM).get(Axis.Z);
+            if (currentZPosition < safetyHeightInMm) {
+                String moveToSafetyHeightCommand = GcodeUtils.generateMoveCommand("G90 G0", safetyHeightInMm, 0, 0, 0, 1, UnitUtils.Units.MM);
+                sendCommandImmediately(createCommand(moveToSafetyHeightCommand));
+            }
+            sendCommandImmediately(createCommand(GcodeUtils.GCODE_RETURN_TO_XY_ZERO_LOCATION));
+            sendCommandImmediately(createCommand(GcodeUtils.GCODE_RETURN_TO_Z_ZERO_LOCATION));
+        }
     }
         
     /**
@@ -944,7 +950,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
 
         try {
           parser.addCommand(command.getCommandString());
-          //System.out.println(parser.getCurrentState());
         } catch (Exception e) {
           logger.log(Level.SEVERE, "Problem parsing command.", e);
         }

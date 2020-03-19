@@ -60,20 +60,20 @@ public class GcodeParserUtils {
     /**
      * Common logic in processAndExport* methods.
      */
-    private static void write(GcodeParser gcp, GcodeStreamWriter gsw, String original, String command, String comment, int idx) throws GcodeParserException {
+    private static void write(GcodeParser gcp, GcodeStreamWriter gsw, String command, String comment, int idx) throws GcodeParserException {
         if (idx % 100000 == 0) {
             logger.log(Level.FINE, "gcode processing line: " + idx);
         }
 
         if (StringUtils.isEmpty(command)) {
-            gsw.addLine(original, command, comment, idx);
+            gsw.addLine(command, command, comment, idx);
         }
         else {
             // Parse the gcode for the buffer.
             Collection<String> lines = gcp.preprocessCommand(command, gcp.getCurrentState());
 
             for(String processedLine : lines) {
-                gsw.addLine(original, processedLine, comment, idx);
+                gsw.addLine(command, processedLine, comment, idx);
             }
 
             gcp.addCommand(command);
@@ -95,7 +95,7 @@ public class GcodeParserUtils {
                 while (gsr.getNumRowsRemaining() > 0) {
                     i++;
                     GcodeCommand gc = gsr.getNextCommand();
-                    write(gcp, gsw, gc.getOriginalCommandString(), gc.getCommandString(), gc.getComment(), i);
+                    write(gcp, gsw, gc.getCommandString(), gc.getComment(), i);
                 }
 
                 // Done processing GcodeStream file.
@@ -121,9 +121,7 @@ public class GcodeParserUtils {
                     i++;
 
                     String comment = GcodePreprocessorUtils.parseComment(line);
-                    String commentRemoved = GcodePreprocessorUtils.removeComment(line);
-
-                    write(gcp, gsw, line, commentRemoved, comment, i);
+                    write(gcp, gsw, line, comment, i);
                 }
             }
         }

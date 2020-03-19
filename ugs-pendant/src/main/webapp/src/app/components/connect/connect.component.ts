@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MachineService } from '../../services/machine.service'
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-connect',

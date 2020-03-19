@@ -27,7 +27,9 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 /**
- * An action that will jog to a coordinate
+ * An action for setting the work position for X/Y axis to given position
+ *
+ * @author Daniel Weigl
  */
 public class SetWorkingCoordinatesHereAction extends AbstractAction {
     private final BackendAPI backend;
@@ -40,7 +42,6 @@ public class SetWorkingCoordinatesHereAction extends AbstractAction {
             setEnabled(false);
         }
     }
-
 
     @Override
     public void actionPerformed(ActionEvent e) {

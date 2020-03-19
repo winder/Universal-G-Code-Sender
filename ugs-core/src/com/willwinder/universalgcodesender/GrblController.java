@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2019 Will Winder
+    Copyright 2013-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -40,7 +40,6 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -356,7 +355,7 @@ public class GrblController extends AbstractController {
     }
     
     @Override
-    protected void cancelSendAfterEvent() throws Exception {
+    protected void cancelSendAfterEvent() {
         if (this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME) && this.getStatusUpdatesEnabled()) {
             // Trigger the position listener to watch for the machine to stop.
             this.attemptsRemaining = 50;
@@ -471,27 +470,6 @@ public class GrblController extends AbstractController {
             GcodeCommand command = createCommand(gcode);
             this.sendCommandImmediately(command);
         }
-    }
-
-    @Override
-    public void returnToHome() throws Exception {
-        if (this.isCommOpen()) {
-            ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter, this.controllerStatus.getWorkCoord().z);
-            if (!commands.isEmpty()) {
-                Iterator<String> iter = commands.iterator();
-                // Perform the homing commands
-                while(iter.hasNext()){
-                    String gcode = iter.next();
-                    GcodeCommand command = createCommand(gcode);
-                    this.sendCommandImmediately(command);
-                }
-                return;
-            }
-
-            restoreParserModalState();
-        }
-        // Throw exception
-        super.returnToHome();
     }
     
     @Override

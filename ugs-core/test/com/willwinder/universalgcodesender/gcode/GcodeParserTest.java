@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -328,18 +328,14 @@ public class GcodeParserTest {
     }
 
     @Test
-    public void doubleParenCommentTest() throws Exception {
-        GcodeParser gcp = new GcodeParser();
-        gcp.addCommandProcessor(new CommentProcessor());
-
-
-
+    public void doubleParenCommentWithCommentProcessorTest() throws Exception {
         String command = "(comment (with subcomment) still in the comment) G01 X10";
         GcodeParser instance = new GcodeParser();
         instance.addCommandProcessor(new CommentProcessor());
         List<String> result = instance.preprocessCommand(command, instance.getCurrentState());
         assertEquals(1, result.size());
         assertEquals(" G01 X10", result.get(0));
+
     }
 
     @Test
@@ -398,6 +394,15 @@ public class GcodeParserTest {
         GcodeMeta meta = Iterables.getOnlyElement(metaList);
         assertThat(meta.code).isEqualTo(G3);
         assertThat(meta.state.currentPoint).isEqualTo(new Position(0, 0, 0, MM));
+    }
+
+    @Test
+    public void processCommandWithBlockComment() throws Exception {
+        List<GcodeMeta> metaList = GcodeParser.processCommand("(hello world)G3", 0, new GcodeState());
+        assertThat(metaList.size()).isEqualTo(1);
+
+        metaList = GcodeParser.processCommand("(1)(2)G3(3)", 0, new GcodeState());
+        assertThat(metaList.size()).isEqualTo(1);
     }
 
     @Test

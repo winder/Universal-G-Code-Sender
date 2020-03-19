@@ -1,5 +1,5 @@
 /*
-    Copyright 2012-2018 Will Winder
+    Copyright 2012-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
@@ -76,11 +77,7 @@ public class GrblUtils {
      */
     private static final String GCODE_SET_COORDINATE_V9 = "G10 P0 L20";
     private static final String GCODE_SET_COORDINATE_V8 = "G92";
-    
-    public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8 = "G90 G0 X0 Y0";
-    public static final String GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8 = "G90 G0 Z0";
-    public static final String GCODE_RETURN_TO_MAX_Z_LOCATION_V8 = "G90 G0 Z";
-    
+
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8 = "G28 X0 Y0 Z0";
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8C = "$H";
 
@@ -118,7 +115,6 @@ public class GrblUtils {
         Matcher matcher = VERSION_LETTER_PATTERN.matcher(response);
         if (matcher.find()) {
             retValue = matcher.group(0).charAt(0);
-            //retValue = Double.parseDouble(matcher.group(0));
         }
         
         return retValue;
@@ -193,18 +189,6 @@ public class GrblUtils {
 
     }
 
-    static protected ArrayList<String> getReturnToHomeCommands(final double version, final Character letter, final double zHeight) {
-        ArrayList<String> commands = new ArrayList<>();    
-        // If Z is less than zero, raise it before further movement.
-        if (zHeight < 0) {
-            commands.add(GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8);
-        }
-        commands.add(GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8);
-        commands.add(GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8);
-        
-        return commands;
-    }
-    
     static protected String getKillAlarmLockCommand(final double version, final Character letter) {
         if ((version >= 0.8 && (letter != null) && letter >= 'c')
                 || version >= 0.9) {
@@ -243,6 +227,7 @@ public class GrblUtils {
         ret.addCapability(CapabilitiesConstants.JOGGING);
         ret.addCapability(CapabilitiesConstants.CHECK_MODE);
         ret.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
+        ret.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);
 
         if (version >= 0.8) {
             ret.addCapability(CapabilitiesConstants.HOMING);
@@ -494,22 +479,9 @@ public class GrblUtils {
         }
     }
 
-    static Pattern mmPattern = Pattern.compile(".*:\\d+\\.\\d\\d\\d,.*");
-    static protected Units getUnitsFromStatusString(final String status, final Capabilities version) {
-        if (version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
-            if (mmPattern.matcher(status).find()) {
-                return Units.MM;
-            } else {
-                return Units.INCH;
-            }
-        }
-        
-        return Units.UNKNOWN;
-    }
-
-    static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\..\\d*),(-?\\d*\\..\\d*),(-?\\d*\\..\\d*)");
-    static Pattern workPattern = Pattern.compile("(?<=WPos:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)");
-    static Pattern wcoPattern = Pattern.compile("(?<=WCO:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)");
+    static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)");
+    static Pattern workPattern = Pattern.compile("(?<=WPos:)(\\-?\\d*\\.?\\d*),(\\-?\\d*\\.?\\d*),(\\-?\\d*\\.?\\d*)");
+    static Pattern wcoPattern = Pattern.compile("(?<=WCO:)(\\-?\\d*\\.?\\d*),(\\-?\\d*\\.?\\d*),(\\-?\\d*\\.?\\d*)");
     static protected Position getMachinePositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
         if (version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             return GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);

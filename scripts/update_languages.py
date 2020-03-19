@@ -27,6 +27,8 @@ any new languages to include it in the update script.
 """
 LANGUAGES = {
         'af': 'af_ZA',
+        'ca': 'ca_AD',
+        'cs': 'cs_CZ',
         'de': 'de_DE',
         'el': 'el_EL',
         'en': 'en_US',
@@ -44,6 +46,7 @@ LANGUAGES = {
         'sk': 'sk_SK',
         'sv': 'sv_SE',
         'tr': 'tr_TR',
+        'uk': 'uk_UA',
         'zh-CN': 'zh_CN'
         }
 

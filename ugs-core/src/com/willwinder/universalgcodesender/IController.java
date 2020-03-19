@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2018 Will Winder
+    Copyright 2015-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -67,7 +67,13 @@ public interface IController {
     Actions
     */
     void performHomingCycle() throws Exception;
-    void returnToHome() throws Exception;
+
+    /**
+     * Returns machine to home location, throw an exception if not supported.
+     *
+     * @param safetyHeightInMm the safety height to clear when returning to home
+     */
+    void returnToHome(double safetyHeightInMm) throws Exception;
     void resetCoordinatesToZero() throws Exception;
     void resetCoordinateToZero(final Axis coord) throws Exception;
 

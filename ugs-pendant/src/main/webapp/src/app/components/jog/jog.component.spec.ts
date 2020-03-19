@@ -1,4 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FaIconComponent } from "@fortawesome/angular-fontawesome";
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { JogComponent } from './jog.component';
 
@@ -8,7 +10,8 @@ describe('JogComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ JogComponent ]
+      declarations: [ JogComponent, FaIconComponent ],
+      imports: [ HttpClientTestingModule ]
     })
     .compileComponents();
   }));

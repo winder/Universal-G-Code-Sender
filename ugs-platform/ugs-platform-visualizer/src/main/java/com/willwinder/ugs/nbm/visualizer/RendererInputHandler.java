@@ -228,7 +228,7 @@ public class RendererInputHandler implements
             Position position = new Position(coords.getX(), coords.getY(), coords.getZ(), Units.MM)
                     .getPositionIn(settings.getPreferredUnits());
 
-            VisualizerPopupMenu visualizerPopupMenu = new VisualizerPopupMenu(backend, gcodeRenderer, position);
+            VisualizerPopupMenu visualizerPopupMenu = new VisualizerPopupMenu(backend, position);
             visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
         }
     }

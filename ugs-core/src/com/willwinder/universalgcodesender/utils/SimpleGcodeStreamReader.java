@@ -67,7 +67,7 @@ public class SimpleGcodeStreamReader implements IGcodeStreamReader {
 
     @Override
     public boolean ready() {
-        return true;
+        return currentLine <= commands.size();
     }
 
     @Override
@@ -82,7 +82,7 @@ public class SimpleGcodeStreamReader implements IGcodeStreamReader {
 
     @Override
     public GcodeCommand getNextCommand() {
-        if (currentLine > commands.size()) {
+        if (currentLine >= commands.size()) {
             return null;
         }
 

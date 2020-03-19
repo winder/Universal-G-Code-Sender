@@ -49,6 +49,9 @@ public class GcodeUtilsTest {
 
         result = GcodeUtils.generateMoveCommand("G1", 1.1, 11.1, 1, 0, -1, UnitUtils.Units.MM);
         assertEquals("G21G1X1.1Z-1.1F11.1", result);
+
+        result = GcodeUtils.generateMoveCommand("G1", 1.1, 0, 1, 0, -1, UnitUtils.Units.MM);
+        assertEquals("G21G1X1.1Z-1.1", result);
     }
 
     @Test

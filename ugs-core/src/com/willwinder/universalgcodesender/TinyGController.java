@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2019 Will Winder
+    Copyright 2013-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,11 +28,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.PartialPosition;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import org.apache.commons.lang3.StringUtils;
@@ -235,6 +231,7 @@ public class TinyGController extends AbstractController {
             return;
         }
 
+        capabilities.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);
         capabilities.addCapability(CapabilitiesConstants.JOGGING);
         capabilities.removeCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
         capabilities.addCapability(CapabilitiesConstants.HOMING);
@@ -314,15 +311,6 @@ public class TinyGController extends AbstractController {
     public void resetCoordinatesToZero() throws Exception {
         String command = TinyGUtils.generateResetCoordinatesToZeroCommand(controllerStatus, getCurrentGcodeState());
         sendCommandImmediately(new GcodeCommand(command));
-    }
-
-    @Override
-    public void returnToHome() throws Exception {
-        if (controllerStatus.getWorkCoord().getZ() < 0) {
-            sendCommandImmediately(new GcodeCommand("G90 G0 Z0"));
-        }
-        sendCommandImmediately(new GcodeCommand("G90 G0 X0 Y0"));
-        sendCommandImmediately(new GcodeCommand("G90 G0 Z0"));
     }
 
     @Override

@@ -30,7 +30,9 @@ public class AvailableLanguages {
     
     static {
         availableLanguages.add(new Language("af", "ZA", "Afrikaans"));
+        availableLanguages.add(new Language("ca", "AD", "Catalan"));
         availableLanguages.add(new Language("zh", "CHS", "Chinese (Simplified)"));
+        availableLanguages.add(new Language("cs", "CZ", "Czech"));
         availableLanguages.add(new Language("nl", "NL", "Dutch"));
         availableLanguages.add(new Language("en", "US", "English"));
         availableLanguages.add(new Language("fr", "FR", "French"));
@@ -48,6 +50,7 @@ public class AvailableLanguages {
         availableLanguages.add(new Language("es", "ES", "Spanish"));
         availableLanguages.add(new Language("sv", "SE", "Swedish"));
         availableLanguages.add(new Language("tr", "TR", "Turkish"));
+        availableLanguages.add(new Language("uk", "UA", "Ukrainian"));
     }
 
     public static Collection<Language> getAvailableLanguages() {

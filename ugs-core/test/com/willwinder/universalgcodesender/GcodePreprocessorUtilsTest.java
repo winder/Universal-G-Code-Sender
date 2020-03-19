@@ -1,5 +1,5 @@
 /*
-    Copywrite 2018 Will Winder
+    Copyright 2018-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,7 +19,9 @@
 package com.willwinder.universalgcodesender;
 
 import com.google.common.collect.ImmutableList;
+import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -268,5 +270,26 @@ public class GcodePreprocessorUtilsTest {
         assertEquals(4, splitted.size());
         assertEquals("G90", splitted.get(1));
         assertEquals("1", splitted.get(2));
+    }
+
+    @Test
+    public void splitCommandWithComments() {
+        List<String> splitted = GcodePreprocessorUtils.splitCommand("(comment)G1X10");
+        assertEquals(3, splitted.size());
+
+        splitted = GcodePreprocessorUtils.splitCommand("(comment)G1X10(comment)");
+        assertEquals(4, splitted.size());
+
+        splitted = GcodePreprocessorUtils.splitCommand(";commentG1X10(comment)");
+        assertEquals(1, splitted.size());
+    }
+
+    @Test
+    public void processCommandWithBlockComments() throws Exception {
+        List<String> splitted = GcodePreprocessorUtils.splitCommand("(hello world)G3");
+        assertThat(splitted.size()).isEqualTo(2);
+
+        splitted = GcodePreprocessorUtils.splitCommand("(1)(2)G3(3)");
+        assertThat(splitted.size()).isEqualTo(4);
     }
 }
