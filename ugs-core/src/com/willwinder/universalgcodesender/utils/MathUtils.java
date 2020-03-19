@@ -120,4 +120,9 @@ public class MathUtils {
         }
         return leftMostPoint;
     }
+
+    public static double round(double value, int decimals) {
+        double power = Math.pow(10, decimals);
+        return Math.round(value * power) / power;
+    }
 }
