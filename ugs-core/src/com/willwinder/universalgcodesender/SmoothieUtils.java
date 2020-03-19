@@ -1,11 +1,12 @@
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.*;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +24,9 @@ public class SmoothieUtils {
 
     private static final Pattern STATUS_PATTERN = Pattern.compile("\\<.*\\>");
     private static final Pattern PARSER_STATE_PATTERN = Pattern.compile("\\[.*\\]");
+
+    public static final byte CANCEL_COMMAND = 0x18;
+
 
 
     protected static ControllerStatus getStatusFromStatusString(ControllerStatus lastStatus, final String status, UnitUtils.Units reportingUnits) {
@@ -195,4 +199,17 @@ public class SmoothieUtils {
     public static boolean isParserStateResponse(final String response) {
         return PARSER_STATE_PATTERN.matcher(response).find();
     }
+
+    public static String generateSetWorkPositionCommand(ControllerStatus controllerStatus, GcodeState gcodeState, PartialPosition positions) {
+        int offsetCode = WorkCoordinateSystem.fromGCode(gcodeState.offset).getPValue();
+        Position machineCoord = controllerStatus.getMachineCoord();
+
+
+        PartialPosition.Builder offsets = new PartialPosition.Builder();
+        for (Map.Entry<Axis, Double> position : positions.getAll().entrySet()) {
+            double axisOffset = -(position.getValue() - machineCoord.get(position.getKey()));
+            offsets.setValue(position.getKey(), axisOffset);
+
+        }
+        return "G10 L2 P" + offsetCode + " " + offsets.build().getFormattedGCode();    }
 }

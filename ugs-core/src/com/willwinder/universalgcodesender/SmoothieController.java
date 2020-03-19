@@ -35,8 +35,8 @@ import javax.swing.*;
 
 import java.awt.event.ActionListener;
 
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.SmoothieUtils.CANCEL_COMMAND;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
 
 /**
  * Controller implementation for Smoothieware
@@ -67,7 +67,6 @@ public class SmoothieController extends AbstractController {
         firmwareSettings = new DefaultFirmwareSettings();
         controllerStatus = new ControllerStatus(StringUtils.EMPTY, ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
         commandCreator = new GcodeCommandCreator();
-        positionPollTimer = createPositionPollTimer();
     }
 
     /**
@@ -76,6 +75,10 @@ public class SmoothieController extends AbstractController {
     private void beginPollingPosition() {
         // Start sending '?' commands if supported and enabled.
         if (this.isReady && this.capabilities != null && this.getStatusUpdatesEnabled()) {
+            if (this.positionPollTimer == null) {
+                this.positionPollTimer = createPositionPollTimer();
+            }
+
             if (!this.positionPollTimer.isRunning()) {
                 this.outstandingPolls = 0;
                 this.positionPollTimer.start();
@@ -114,6 +117,7 @@ public class SmoothieController extends AbstractController {
                 dispatchConsoleMessage(MessageType.INFO, Localization.getString("controller.exception.sendingstatus")
                         + " (" + ex.getMessage() + ")\n");
                 ex.printStackTrace();
+                stopPollingPosition();
             }
         });
 
@@ -137,16 +141,12 @@ public class SmoothieController extends AbstractController {
 
     @Override
     protected void cancelSendBeforeEvent() throws Exception {
-        pauseStreaming();
+        comm.cancelSend();
+        comm.sendByteImmediately(CANCEL_COMMAND);
     }
 
     @Override
     protected void cancelSendAfterEvent() throws Exception {
-        comm.queueCommand(new GcodeCommand("abort"));
-        comm.streamCommands();
-
-        // Work around for clearing the sent buffer size
-        comm.cancelSend();
     }
 
     @Override
@@ -207,10 +207,11 @@ public class SmoothieController extends AbstractController {
                 return;
             } else if (isSmoothieReady && !isReady && response.startsWith("Build version:")) {
                 dispatchConsoleMessage(MessageType.INFO, response + "\n");
-                firmwareVersion = StringUtils.substringBetween(response, "Build version:", ",").trim();
+                firmwareVersion = "Smoothie " + StringUtils.substringBetween(response, "Build date:", ",").trim();
                 commandComplete(response);
 
                 capabilities.addCapability(CapabilitiesConstants.JOGGING);
+                capabilities.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);
                 controllerStatus = ControllerStatusBuilder.newInstance(controllerStatus).setState(ControllerState.IDLE).build();
                 dispatchStatusString(controllerStatus);
                 setCurrentState(COMM_IDLE);
@@ -290,18 +291,15 @@ public class SmoothieController extends AbstractController {
     }
 
     @Override
-    public void returnToHome() throws Exception {
-        if (controllerStatus.getWorkCoord().getZ() < 0) {
-            sendCommandImmediately(new GcodeCommand("G90 G0 Z0"));
-        }
-        sendCommandImmediately(new GcodeCommand("G90 G0 X0 Y0"));
-        sendCommandImmediately(new GcodeCommand("G90 G0 Z0"));
-    }
-
-    @Override
     public void resetCoordinateToZero(final Axis axis) throws Exception {
         // Throw exception
         super.resetCoordinatesToZero();
+    }
+
+    @Override
+    public void setWorkPosition(PartialPosition axisPosition) throws Exception {
+        String command = SmoothieUtils.generateSetWorkPositionCommand(controllerStatus, getCurrentGcodeState(), axisPosition);
+        sendCommandImmediately(new GcodeCommand(command));
     }
 
     @Override
