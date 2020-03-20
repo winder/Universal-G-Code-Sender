@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.utils.MathUtils;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
@@ -170,9 +171,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         labelEstimatedStepsX = new JLabel("0 steps/mm");
         labelEstimatedStepsX.setFont(labelEstimatedFont);
         labelPositionX = new JLabel("  0.0 mm", JLabel.RIGHT);
-        textFieldMeasuredX = new JTextField("0");
+        textFieldMeasuredX = new JTextField("0.0");
         textFieldMeasuredX.addKeyListener(createKeyListener(Axis.X, labelEstimatedStepsX));
-        textFieldSettingStepsX = new JTextField("0");
+        textFieldSettingStepsX = new JTextField("0.0");
         textFieldSettingStepsX.addKeyListener(createKeyListenerChangeSetting());
         buttonUpdateSettingsX.setEnabled(false);
         buttonUpdateSettingsX.addActionListener(createListenerUpdateSetting(Axis.X, textFieldSettingStepsX));
@@ -181,9 +182,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         labelEstimatedStepsY = new JLabel(Localization.getString("platform.plugin.setupwizard.calibration.setting"));
         labelEstimatedStepsY.setFont(labelEstimatedFont);
         labelPositionY = new JLabel("  0.0 mm", JLabel.RIGHT);
-        textFieldMeasuredY = new JTextField("0");
+        textFieldMeasuredY = new JTextField("0.0");
         textFieldMeasuredY.addKeyListener(createKeyListener(Axis.Y, labelEstimatedStepsY));
-        textFieldSettingStepsY = new JTextField("0");
+        textFieldSettingStepsY = new JTextField("0.0");
         textFieldSettingStepsY.addKeyListener(createKeyListenerChangeSetting());
         buttonUpdateSettingsY.setEnabled(false);
         buttonUpdateSettingsY.addActionListener(createListenerUpdateSetting(Axis.Y, textFieldSettingStepsY));
@@ -192,9 +193,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         labelEstimatedStepsZ = new JLabel("0 steps/mm");
         labelEstimatedStepsZ.setFont(labelEstimatedFont);
         labelPositionZ = new JLabel("  0.0 mm", JLabel.RIGHT);
-        textFieldMeasuredZ = new JTextField("0");
+        textFieldMeasuredZ = new JTextField("0.0");
         textFieldMeasuredZ.addKeyListener(createKeyListener(Axis.Z, labelEstimatedStepsZ));
-        textFieldSettingStepsZ = new JTextField("0");
+        textFieldSettingStepsZ = new JTextField("0.0");
         textFieldSettingStepsZ.addKeyListener(createKeyListenerChangeSetting());
         buttonUpdateSettingsZ.setEnabled(false);
         buttonUpdateSettingsZ.addActionListener(createListenerUpdateSetting(Axis.Z, textFieldSettingStepsZ));
@@ -204,7 +205,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         return event -> {
             try {
                 IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
-                Integer value = Integer.valueOf(textFieldSetting.getText());
+                double value = Double.parseDouble(textFieldSetting.getText());
                 firmwareSettings.setStepsPerMillimeter(axis, value);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -259,13 +260,13 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
             try {
                 double measured = decimalFormat.parse(textFieldMesurement.getText()).doubleValue();
                 double real = getBackend().getWorkPosition().get(axis);
-                int stepsPerMM = getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(axis);
+                double stepsPerMM = getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(axis);
 
-                double computed = (real / measured) * ((double) stepsPerMM);
+                double computed = (real / measured) * stepsPerMM;
                 if (measured == 0 || real == 0) {
                     computed = 0;
                 }
-                label.setText(Math.abs(Math.round(computed)) + " steps/mm est.");
+                label.setText(decimalFormat.format(Math.abs(computed)) + " steps/mm est.");
             } catch (FirmwareSettingsException | ParseException ignored) {
                 // Never mind
             }
@@ -354,19 +355,22 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
                 IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
 
                 for (Axis axis : Axis.values()) {
-                    int stepsPerMillimeter = firmwareSettings.getStepsPerMillimeter(axis);
+                    double stepsPerMillimeter = MathUtils.round(firmwareSettings.getStepsPerMillimeter(axis), 3);
                     JTextField textField = getSettingsTextField(axis);
                     JButton buttonUpdateSettings = getUpdateSettingsButton(axis);
 
-                    if(textField == null || buttonUpdateSettings == null) {
+                    if (textField == null || buttonUpdateSettings == null) {
                         continue;
                     }
 
-                    if (!StringUtils.isNumeric(textField.getText()) ||
-                            textField.getText().trim().equalsIgnoreCase(String.valueOf(stepsPerMillimeter))) {
-                        buttonUpdateSettings.setEnabled(false);
-                    } else if (StringUtils.isNumeric(textField.getText())) {
-                        buttonUpdateSettings.setEnabled(true);
+                    buttonUpdateSettings.setEnabled(false);
+                    try {
+                        double newValue = decimalFormat.parse(textField.getText()).doubleValue();
+                        if (stepsPerMillimeter != newValue) {
+                            buttonUpdateSettings.setEnabled(true);
+                        }
+                    } catch (ParseException ignored) {
+                        // Never mind
                     }
                 }
             } catch (FirmwareSettingsException e) {
@@ -420,7 +424,12 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
                 double maxFeedRate = firmwareSettings.getMaximumRate(axis);
 
                 // Fetch the current steps per mm setting
-                double newStepsPerMMSetting = parseDouble(getSettingsTextField(axis).getText());
+                JTextField settingsTextField = getSettingsTextField(axis);
+                if (settingsTextField == null) {
+                    continue;
+                }
+
+                double newStepsPerMMSetting = parseDouble(settingsTextField.getText());
                 double currentStepsPerMMSetting = firmwareSettings.getStepsPerMillimeter(axis);
                 double stepsPerMMSetting = Math.max(newStepsPerMMSetting, currentStepsPerMMSetting);
 
@@ -460,9 +469,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     private void updateSettingFieldsFromFirmware() {
         if (getBackend().getController() != null && getBackend().getController().getFirmwareSettings() != null) {
             try {
-                textFieldSettingStepsX.setText(String.valueOf(getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(Axis.X)));
-                textFieldSettingStepsY.setText(String.valueOf(getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(Axis.Y)));
-                textFieldSettingStepsZ.setText(String.valueOf(getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(Axis.Z)));
+                textFieldSettingStepsX.setText(decimalFormat.format(getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(Axis.X)));
+                textFieldSettingStepsY.setText(decimalFormat.format(getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(Axis.Y)));
+                textFieldSettingStepsZ.setText(decimalFormat.format(getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(Axis.Z)));
             } catch (FirmwareSettingsException e) {
                 e.printStackTrace();
             }

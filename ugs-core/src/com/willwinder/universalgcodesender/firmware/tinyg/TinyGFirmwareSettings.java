@@ -136,12 +136,12 @@ public class TinyGFirmwareSettings implements CommunicatorListener, IFirmwareSet
     }
 
     @Override
-    public void setStepsPerMillimeter(Axis axis, int stepsPerMillimeter) throws FirmwareSettingsException {
+    public void setStepsPerMillimeter(Axis axis, double stepsPerMillimeter) throws FirmwareSettingsException {
 
     }
 
     @Override
-    public int getStepsPerMillimeter(Axis axis) throws FirmwareSettingsException {
+    public double getStepsPerMillimeter(Axis axis) throws FirmwareSettingsException {
         return 0;
     }
 
