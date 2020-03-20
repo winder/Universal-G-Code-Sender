@@ -93,6 +93,14 @@ public interface IController {
     void issueSoftReset() throws Exception;
 
     /**
+     * Requests a status report from the controller with position and current state.
+     * This is usually used for updating the GUI with the live state of the machine.
+     *
+     * @throws Exception if the request couldn't be made
+     */
+    void requestStatusReport() throws Exception;
+
+    /**
      * Jogs the machine in the direction specified by vector dirX,
      * dirY, dirZ given the direction as 1, 0 or -1. The distance is specified by stepSize in the given units.
      *

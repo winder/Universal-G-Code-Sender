@@ -23,6 +23,11 @@ package com.willwinder.universalgcodesender;
  */
 public class SmoothieCommunicator extends BufferedCommunicator {
 
+    public SmoothieCommunicator() {
+        super();
+        setSingleStepMode(true);
+    }
+
     @Override
     public int getBufferSize() {
         return 255;
@@ -43,9 +48,9 @@ public class SmoothieCommunicator extends BufferedCommunicator {
         return GrblUtils.isErrorResponse(response);
     }
 
+
     @Override
-    public boolean allowMoreCommands() {
-        // Force single step
-        return this.activeCommandList.isEmpty();
+    public void setSingleStepMode(boolean enable) {
+        // Never mind this
     }
 }

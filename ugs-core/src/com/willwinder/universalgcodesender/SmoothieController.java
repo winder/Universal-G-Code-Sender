@@ -31,11 +31,6 @@ import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.swing.*;
-
-import java.awt.event.ActionListener;
-
-import static com.willwinder.universalgcodesender.SmoothieUtils.CANCEL_COMMAND;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
 
 /**
@@ -54,8 +49,7 @@ public class SmoothieController extends AbstractController {
     private boolean isSmoothieReady = false;
     private boolean isReady;
 
-    private int outstandingPolls = 0;
-    private Timer positionPollTimer = null;
+    private StatusPollTimer statusPollTimer;
 
     public SmoothieController() {
         this(new SmoothieCommunicator());
@@ -67,61 +61,7 @@ public class SmoothieController extends AbstractController {
         firmwareSettings = new DefaultFirmwareSettings();
         controllerStatus = new ControllerStatus(StringUtils.EMPTY, ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
         commandCreator = new GcodeCommandCreator();
-    }
-
-    /**
-     * Begin issuing GRBL status request commands.
-     */
-    private void beginPollingPosition() {
-        // Start sending '?' commands if supported and enabled.
-        if (this.isReady && this.capabilities != null && this.getStatusUpdatesEnabled()) {
-            if (this.positionPollTimer == null) {
-                this.positionPollTimer = createPositionPollTimer();
-            }
-
-            if (!this.positionPollTimer.isRunning()) {
-                this.outstandingPolls = 0;
-                this.positionPollTimer.start();
-            }
-        }
-    }
-
-    /**
-     * Stop issuing GRBL status request commands.
-     */
-    private void stopPollingPosition() {
-        if (this.positionPollTimer.isRunning()) {
-            this.positionPollTimer.stop();
-        }
-    }
-
-    /**
-     * Create a timer which will execute GRBL's position polling mechanism.
-     */
-    private Timer createPositionPollTimer() {
-        // Action Listener for GRBL's polling mechanism.
-        ActionListener actionListener = actionEvent -> java.awt.EventQueue.invokeLater(() -> {
-            try {
-                if (outstandingPolls == 0) {
-                    outstandingPolls++;
-                    comm.sendByteImmediately(GrblUtils.GRBL_STATUS_COMMAND);
-                } else {
-                    // If a poll is somehow lost after 20 intervals,
-                    // reset for sending another.
-                    outstandingPolls++;
-                    if (outstandingPolls >= 20) {
-                        outstandingPolls = 0;
-                    }
-                }
-            } catch (Exception ex) {
-                dispatchConsoleMessage(MessageType.INFO, Localization.getString("controller.exception.sendingstatus")
-                        + " (" + ex.getMessage() + ")\n");
-                ex.printStackTrace();
-                stopPollingPosition();
-            }
-        });
-
-        return new Timer(this.getStatusUpdateRate(), actionListener);
+        statusPollTimer = new StatusPollTimer(this);
     }
 
     @Override
@@ -142,11 +82,11 @@ public class SmoothieController extends AbstractController {
     @Override
     protected void cancelSendBeforeEvent() throws Exception {
         comm.cancelSend();
-        comm.sendByteImmediately(CANCEL_COMMAND);
+        comm.sendByteImmediately(SmoothieUtils.RESET_COMMAND);
     }
 
     @Override
-    protected void cancelSendAfterEvent() throws Exception {
+    protected void cancelSendAfterEvent() {
     }
 
     @Override
@@ -162,7 +102,7 @@ public class SmoothieController extends AbstractController {
     @Override
     public void softReset() throws Exception {
         comm.cancelSend();
-        comm.sendByteImmediately(SmoothieUtils.COMMAND_RESET);
+        comm.sendByteImmediately(SmoothieUtils.RESET_COMMAND);
 
         setCurrentState(UGSEvent.ControlState.COMM_DISCONNECTED);
         controllerStatus = ControllerStatusBuilder.newInstance(controllerStatus)
@@ -189,9 +129,14 @@ public class SmoothieController extends AbstractController {
     }
 
     @Override
-    public void viewParserState() throws Exception {
+    public void viewParserState() {
         comm.queueCommand(new GcodeCommand("$G"));
         comm.streamCommands();
+    }
+
+    @Override
+    public void requestStatusReport() throws Exception {
+        comm.sendByteImmediately(SmoothieUtils.STATUS_COMMAND);
     }
 
     @Override
@@ -218,7 +163,7 @@ public class SmoothieController extends AbstractController {
                 isReady = true;
 
                 viewParserState();
-                beginPollingPosition();
+                statusPollTimer.start();
                 return;
             }
 
@@ -226,11 +171,12 @@ public class SmoothieController extends AbstractController {
                 dispatchConsoleMessage(MessageType.INFO, response + "\n");
                 commandComplete(response);
             } else if(SmoothieUtils.isStatusResponse(response)) {
-                outstandingPolls = 0;
+                statusPollTimer.receivedStatus();
                 handleStatusResponse(response);
                 checkStreamFinished();
             } else if(SmoothieUtils.isParserStateResponse(response)) {
                 String parserStateCode = StringUtils.substringBetween(response, "[", "]");
+                dispatchConsoleMessage(MessageType.INFO, response + "\n");
                 updateParserModalState(new GcodeCommand(parserStateCode));
             } else {
                 dispatchConsoleMessage(MessageType.INFO, response + "\n");
@@ -251,17 +197,23 @@ public class SmoothieController extends AbstractController {
     }
 
     @Override
-    protected void statusUpdatesEnabledValueChanged(boolean enabled) {
-
+    protected void statusUpdatesEnabledValueChanged() {
+        if (getStatusUpdatesEnabled()) {
+            statusPollTimer.stop();
+            statusPollTimer.start();
+        } else {
+            statusPollTimer.stop();
+        }
     }
 
     @Override
-    protected void statusUpdatesRateValueChanged(int rate) {
-
+    protected void statusUpdatesRateValueChanged() {
+        statusPollTimer.stop();
+        statusPollTimer.start();
     }
 
     @Override
-    public void sendOverrideCommand(Overrides command) throws Exception {
+    public void sendOverrideCommand(Overrides command) {
 
     }
 
@@ -292,8 +244,8 @@ public class SmoothieController extends AbstractController {
 
     @Override
     public void resetCoordinateToZero(final Axis axis) throws Exception {
-        // Throw exception
-        super.resetCoordinatesToZero();
+        GcodeCommand command = createCommand(SmoothieUtils.RESET_COORDINATE_TO_ZERO_COMMAND);
+        sendCommandImmediately(command);
     }
 
     @Override
