@@ -220,10 +220,8 @@ public class TinyGUtils {
             }
 
             ControllerState state = lastControllerStatus.getState();
-            String stateString = lastControllerStatus.getStateString();
             if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_STATUS)) {
                 state = getState(statusResultObject.get(FIELD_STATUS_REPORT_STATUS).getAsInt());
-                stateString = getStateAsString(statusResultObject.get(FIELD_STATUS_REPORT_STATUS).getAsInt());
             }
 
             Double spindleSpeed = lastControllerStatus.getSpindleSpeed();
@@ -232,7 +230,7 @@ public class TinyGUtils {
             ControllerStatus.AccessoryStates accessoryStates = lastControllerStatus.getAccessoryStates();
 
             ControllerStatus.OverridePercents overrides = new ControllerStatus.OverridePercents(overrideFeed, overrideRapid, overrideSpindle);
-            return new ControllerStatus(stateString, state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, enabledPins, accessoryStates);
+            return new ControllerStatus(state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, enabledPins, accessoryStates);
         }
 
         return lastControllerStatus;
@@ -277,11 +275,6 @@ public class TinyGUtils {
             default:
                 return ControllerState.UNKNOWN;
         }
-    }
-
-    private static String getStateAsString(int state) {
-        ControllerState controllerState = getState(state);
-        return controllerState.name();
     }
 
     /**

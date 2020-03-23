@@ -26,7 +26,6 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
  * @author wwinder
  */
 public class ControllerStatus {
-    private final String stateString;
     private final Position machineCoord;
     private final Position workCoord;
     private final Position workCoordinateOffset;
@@ -42,23 +41,21 @@ public class ControllerStatus {
      * Baseline constructor. This data should always be present. Represents the
      * controller status.
      * 
-     * @param stateString controller state, i.e. idle/hold/running
      * @param state controller state, i.e. {@link ControllerState#IDLE}/{@link ControllerState#HOLD}/{@link ControllerState#RUN}
      * @param machineCoord controller machine coordinates
      * @param workCoord controller work coordinates
      */
-    public ControllerStatus(String stateString, ControllerState state, Position machineCoord, Position workCoord) {
-        this(stateString, state, machineCoord, workCoord, 0d, UnitUtils.Units.MM, 0d, null, null, null, null);
+    public ControllerStatus(ControllerState state, Position machineCoord, Position workCoord) {
+        this(state, machineCoord, workCoord, 0d, UnitUtils.Units.MM, 0d, null, null, null, null);
     }
 
     /**
      * Additional parameters
      */
-    public ControllerStatus(String stateString, ControllerState state, Position machineCoord,
+    public ControllerStatus(ControllerState state, Position machineCoord,
                             Position workCoord, Double feedSpeed, UnitUtils.Units feedSpeedUnits, Double spindleSpeed,
                             OverridePercents overrides, Position workCoordinateOffset,
                             EnabledPins pins, AccessoryStates states) {
-        this.stateString = stateString;
         this.state = state;
         this.machineCoord = machineCoord;
         this.workCoord = workCoord;
@@ -69,16 +66,6 @@ public class ControllerStatus {
         this.overrides = overrides;
         this.pins = pins;
         this.accessoryStates = states;
-    }
-
-    /**
-     * Returns the controller state as a string.
-     *
-     * @deprecated because different controllers have different state strings it's unsafe to build logic using these strings. Use {@link ControllerStatus#getState()} instead.
-     * @return the state as a string
-     */
-    public String getStateString() {
-        return stateString;
     }
 
     public ControllerState getState() {

@@ -59,7 +59,7 @@ public class SmoothieController extends AbstractController {
         super(communicator);
         capabilities = new Capabilities();
         firmwareSettings = new DefaultFirmwareSettings();
-        controllerStatus = new ControllerStatus(StringUtils.EMPTY, ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+        controllerStatus = new ControllerStatus(ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
         commandCreator = new GcodeCommandCreator();
         statusPollTimer = new StatusPollTimer(this);
     }
