@@ -297,10 +297,16 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     }
     
     /**
-     * Listener event for status update values;
+     * Notifies that the status update has been enabled or disabled.
+     * The rate can be retrieved from {@link #getStatusUpdatesEnabled()}
      */
-    abstract protected void statusUpdatesEnabledValueChanged(boolean enabled);
-    abstract protected void statusUpdatesRateValueChanged(int rate);
+    abstract protected void statusUpdatesEnabledValueChanged();
+
+    /**
+     * Notifies that the status update rate has changed.
+     * The rate can be retrieved from {@link #getStatusUpdateRate()}
+     */
+    abstract protected void statusUpdatesRateValueChanged();
 
     /**
      * Accessible so that it can be configured.
@@ -340,7 +346,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     public void setStatusUpdatesEnabled(boolean enabled) {
         if (this.statusUpdatesEnabled != enabled) {
             this.statusUpdatesEnabled = enabled;
-            statusUpdatesEnabledValueChanged(enabled);
+            statusUpdatesEnabledValueChanged();
         }
     }
     
@@ -353,7 +359,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     public void setStatusUpdateRate(int rate) {
         if (this.statusUpdateRate != rate) {
             this.statusUpdateRate = rate;
-            statusUpdatesRateValueChanged(rate);
+            statusUpdatesRateValueChanged();
         }
     }
     

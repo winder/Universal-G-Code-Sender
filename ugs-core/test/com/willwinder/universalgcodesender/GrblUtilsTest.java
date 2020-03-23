@@ -512,6 +512,30 @@ public class GrblUtilsTest {
     }
 
     @Test
+    public void getStatusFromStringVersion1WhereFeedRateIsGivenAsTwoValuesStatusString() {
+        String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|F:12345.6,1000.0>";
+        Capabilities version = new Capabilities();
+        version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
+        UnitUtils.Units unit = UnitUtils.Units.MM;
+
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+
+        assertEquals(Double.valueOf(0), controllerStatus.getFeedSpeed());
+    }
+
+    @Test
+    public void getStatusFromStringVersion1WhereFeedRateIsGivenAsThreeValuesStatusString() {
+        String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|F:12345.6,1000.0,2000.0>";
+        Capabilities version = new Capabilities();
+        version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
+        UnitUtils.Units unit = UnitUtils.Units.MM;
+
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+
+        assertEquals(Double.valueOf(12345.6), controllerStatus.getFeedSpeed());
+    }
+
+    @Test
     public void getStatusFromStringVersion1WithoutPinsStatusString() {
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|FS:12345.7,65432.1|F:12345.6|A:SFMC>";
         Capabilities version = new Capabilities();

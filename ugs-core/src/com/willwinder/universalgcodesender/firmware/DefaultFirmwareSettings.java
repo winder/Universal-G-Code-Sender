@@ -78,18 +78,17 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
-    public boolean isInvertDirection(Axis axis) throws FirmwareSettingsException {
+    public boolean isInvertDirection(Axis axis) {
         return false;
     }
 
     @Override
-    public void setInvertDirection(Axis axis, boolean inverted) throws FirmwareSettingsException {
+    public void setInvertDirection(Axis axis, boolean inverted) {
 
     }
 
     @Override
-    public void setStepsPerMillimeter(Axis axis, double stepsPerMillimeter) throws FirmwareSettingsException {
-
+    public void setStepsPerMillimeter(Axis axis, double stepsPerMillimeter) {
     }
 
     @Override
@@ -98,7 +97,7 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
-    public void setSoftLimit(Axis axis, double limit) throws FirmwareSettingsException {
+    public void setSoftLimit(Axis axis, double limit) {
     }
 
     @Override
@@ -127,12 +126,12 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
-    public void setSettings(List<FirmwareSetting> settings) throws FirmwareSettingsException {
+    public void setSettings(List<FirmwareSetting> settings) {
 
     }
 
     @Override
-    public double getMaximumRate(Axis axis) throws FirmwareSettingsException {
+    public double getMaximumRate(Axis axis) {
         return 0;
     }
 

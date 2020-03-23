@@ -331,6 +331,11 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
+    public void requestStatusReport() throws Exception {
+        viewParserState();
+    }
+
+    @Override
     public void softReset() throws Exception {
         comm.cancelSend();
         comm.sendByteImmediately(TinyGUtils.COMMAND_RESET);
@@ -361,14 +366,14 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    protected void statusUpdatesEnabledValueChanged(boolean enabled) {
+    protected void statusUpdatesEnabledValueChanged() {
         // We don't care about this
     }
 
     @Override
-    protected void statusUpdatesRateValueChanged(int rate) {
+    protected void statusUpdatesRateValueChanged() {
         // Status report interval in milliseconds (50ms minimum interval)
-        comm.queueCommand(new GcodeCommand("{si:" + rate + "}"));
+        comm.queueCommand(new GcodeCommand("{si:" + getStatusUpdateRate() + "}"));
     }
 
     @Override
