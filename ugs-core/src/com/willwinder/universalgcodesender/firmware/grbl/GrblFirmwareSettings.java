@@ -223,7 +223,7 @@ public class GrblFirmwareSettings implements CommunicatorListener, IFirmwareSett
     }
 
     @Override
-    public void setStepsPerMillimeter(Axis axis, int stepsPerMillimeter) throws FirmwareSettingsException {
+    public void setStepsPerMillimeter(Axis axis, double stepsPerMillimeter) throws FirmwareSettingsException {
         switch (axis) {
             case X:
                 setValue(KEY_STEPS_PER_MM_X, stepsPerMillimeter);
@@ -240,14 +240,14 @@ public class GrblFirmwareSettings implements CommunicatorListener, IFirmwareSett
     }
 
     @Override
-    public int getStepsPerMillimeter(Axis axis) throws FirmwareSettingsException {
+    public double getStepsPerMillimeter(Axis axis) throws FirmwareSettingsException {
         switch (axis) {
             case X:
-                return getValueAsInteger(KEY_STEPS_PER_MM_X);
+                return getValueAsDouble(KEY_STEPS_PER_MM_X);
             case Y:
-                return getValueAsInteger(KEY_STEPS_PER_MM_Y);
+                return getValueAsDouble(KEY_STEPS_PER_MM_Y);
             case Z:
-                return getValueAsInteger(KEY_STEPS_PER_MM_Z);
+                return getValueAsDouble(KEY_STEPS_PER_MM_Z);
             default:
                 return 0;
         }

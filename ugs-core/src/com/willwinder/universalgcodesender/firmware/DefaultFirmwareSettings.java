@@ -88,12 +88,11 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
-    public void setStepsPerMillimeter(Axis axis, int stepsPerMillimeter) {
-
+    public void setStepsPerMillimeter(Axis axis, double stepsPerMillimeter) {
     }
 
     @Override
-    public int getStepsPerMillimeter(Axis axis) {
+    public double getStepsPerMillimeter(Axis axis) {
         return 0;
     }
 

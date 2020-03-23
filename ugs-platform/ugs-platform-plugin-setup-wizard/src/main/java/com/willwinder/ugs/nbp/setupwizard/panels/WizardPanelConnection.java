@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,6 +26,8 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.ImageUtilities;
@@ -36,8 +38,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledFuture;
 
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 
@@ -63,7 +64,7 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
      * A timer that will check the version of the controller after its connected with a delay
      * defined in {@link #CONNECT_TIME}
      */
-    private Timer finishedConnectingTimer;
+    private ScheduledFuture<?> finishedConnectingFuture;
 
     private JComboBox<String> firmwareCombo;
     private JComboBox<String> baudCombo;
@@ -123,7 +124,8 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
         connectButton = new JButton(Localization.getString("platform.plugin.setupwizard.connect"));
         connectButton.addActionListener((e) -> {
             try {
-                getBackend().connect(getBackend().getSettings().getFirmwareVersion(), getBackend().getSettings().getPort(), Integer.valueOf(getBackend().getSettings().getPortRate()));
+                Settings settings = getBackend().getSettings();
+                getBackend().connect(settings.getFirmwareVersion(), settings.getPort(), Integer.parseInt(settings.getPortRate()));
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -144,12 +146,14 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
     }
 
     private void setBaudRate() {
-        String baudRate = baudCombo.getSelectedItem().toString();
-        getBackend().getSettings().setPortRate(baudRate);
+        if (getBackend().getSettings() != null && baudCombo.getSelectedItem() != null) {
+            String baudRate = baudCombo.getSelectedItem().toString();
+            getBackend().getSettings().setPortRate(baudRate);
+        }
     }
 
     private void setFirmware() {
-        if (firmwareCombo.getSelectedItem() != null) {
+        if (getBackend().getSettings() != null && firmwareCombo.getSelectedItem() != null) {
             String firmware = firmwareCombo.getSelectedItem().toString();
             getBackend().getSettings().setFirmwareVersion(firmware);
         }
@@ -172,7 +176,12 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
                     portCombo.addItem(port);
                 }
             }
-            portCombo.setSelectedIndex(0);
+            if (StringUtils.isNotEmpty(getBackend().getSettings().getPort())) {
+                portCombo.setSelectedItem(getBackend().getSettings().getPort());
+            } else {
+                portCombo.setSelectedIndex(0);
+            }
+
             portCombo.repaint();
         }
     }
@@ -205,33 +214,34 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
         FirmwareUtils.getFirmwareList().forEach(firmwareCombo::addItem);
         firmwareCombo.setSelectedItem(selectedFirmware);
 
-        setValid(getBackend().isConnected() && getBackend().getController().getCapabilities().hasSetupWizardSupport());
-        labelPort.setVisible(!getBackend().isConnected());
+        boolean isConnected = getBackend().isConnected();
+        setValid(isConnected && getBackend().getController().getCapabilities().hasSetupWizardSupport());
+        labelPort.setVisible(!isConnected);
 
-        portCombo.setVisible(!getBackend().isConnected());
+        portCombo.setVisible(!isConnected);
         portCombo.setSelectedItem(getBackend().getSettings().getPort());
 
-        labelBaud.setVisible(!getBackend().isConnected());
-        baudCombo.setVisible(!getBackend().isConnected());
+        labelBaud.setVisible(!isConnected);
+        baudCombo.setVisible(!isConnected);
         baudCombo.setSelectedItem(getBackend().getSettings().getPortRate());
 
-        labelFirmware.setVisible(!getBackend().isConnected());
-        firmwareCombo.setVisible(!getBackend().isConnected());
-        connectButton.setVisible(!getBackend().isConnected());
+        labelFirmware.setVisible(!isConnected);
+        firmwareCombo.setVisible(!isConnected);
+        connectButton.setVisible(!isConnected);
 
-        if (getBackend().isConnected() && StringUtils.isNotEmpty(getBackend().getController().getFirmwareVersion()) && getBackend().getController().getCapabilities().hasSetupWizardSupport() && finishedConnecting) {
+        if (isConnected && StringUtils.isNotEmpty(getBackend().getController().getFirmwareVersion()) && getBackend().getController().getCapabilities().hasSetupWizardSupport() && finishedConnecting) {
             labelVersion.setVisible(true);
             labelVersion.setText("<html><body><h2> " + Localization.getString("platform.plugin.setupwizard.connection.connected-to") + " " + getBackend().getController().getFirmwareVersion() + "</h2></body></html>");
             labelVersion.setIcon(ImageUtilities.loadImageIcon("icons/checked24.png", false));
             labelNotSupported.setVisible(false);
             setFinishPanel(false);
-        } else if (getBackend().isConnected() && !getBackend().getController().getCapabilities().hasSetupWizardSupport() && finishedConnecting) {
+        } else if (isConnected && !getBackend().getController().getCapabilities().hasSetupWizardSupport() && finishedConnecting) {
             labelVersion.setVisible(true);
             labelVersion.setText("<html><body><h2>" + Localization.getString("platform.plugin.setupwizard.connection.connected-to") + " " + getBackend().getController().getFirmwareVersion() + "</h2></body></html>");
             labelVersion.setIcon(null);
             labelNotSupported.setVisible(true);
             setFinishPanel(true);
-        } else if (getBackend().isConnected() && !finishedConnecting) {
+        } else if (isConnected && !finishedConnecting) {
             labelVersion.setVisible(true);
             labelVersion.setText("<html><body><h2>" + Localization.getString("platform.plugin.setupwizard.connection.connecting") + "</h2></body></html>");
             labelVersion.setIcon(null);
@@ -259,15 +269,11 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
     }
 
     private void startConnectTimer() {
-        if (!finishedConnecting && finishedConnectingTimer == null) {
-            finishedConnectingTimer = new Timer();
-            finishedConnectingTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    finishedConnecting = true;
-                    finishedConnectingTimer = null;
-                    refreshComponents();
-                }
+        if (!finishedConnecting && finishedConnectingFuture == null) {
+            finishedConnectingFuture = ThreadHelper.invokeLater(() -> {
+                finishedConnecting = true;
+                finishedConnectingFuture = null;
+                refreshComponents();
             }, CONNECT_TIME);
         }
     }
