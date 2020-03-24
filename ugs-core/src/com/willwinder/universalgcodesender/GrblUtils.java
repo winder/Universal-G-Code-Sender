@@ -334,7 +334,6 @@ public class GrblUtils {
         String stateString = StringUtils.defaultString(getStateFromStatusString(status, version), "unknown");
         ControllerState state = getControllerStateFromStateString(stateString);
         return new ControllerStatus(
-                stateString,
                 state,
                 getMachinePositionFromStatusString(status, version, reportingUnits),
                 getWorkPositionFromStatusString(status, version, reportingUnits));
@@ -448,7 +447,7 @@ public class GrblUtils {
         }
 
         ControllerState state = getControllerStateFromStateString(stateString);
-        return new ControllerStatus(stateString, state, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates);
+        return new ControllerStatus(state, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates);
     }
 
     /**

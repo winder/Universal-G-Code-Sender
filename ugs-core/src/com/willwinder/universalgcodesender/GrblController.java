@@ -63,7 +63,7 @@ public class GrblController extends AbstractController {
     private final GrblFirmwareSettings firmwareSettings;
 
     // Polling state
-    private ControllerStatus controllerStatus = new ControllerStatus("Disconnected", ControllerState.DISCONNECTED, new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
+    private ControllerStatus controllerStatus = new ControllerStatus(ControllerState.DISCONNECTED, new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
 
     // Canceling state
     private Boolean isCanceling = false;     // Set for the position polling thread.
@@ -156,11 +156,9 @@ public class GrblController extends AbstractController {
             else if (GrblUtils.isOkErrorAlarmResponse(response)) {
                 if (GrblUtils.isAlarmResponse(response)) {
                     //this is not updating the state to Alarm in the GUI, and the alarm is no longer being processed
-                    String stateString = lookupCode(response, true);
                     controllerStatus = ControllerStatusBuilder
                             .newInstance(controllerStatus)
                             .setState(ControllerState.ALARM)
-                            .setStateString(stateString)
                             .build();
 
                     Alarm alarm = GrblUtils.parseAlarmResponse(response);
@@ -373,24 +371,23 @@ public class GrblController extends AbstractController {
             return super.getControlState();
         }
 
-        String state = this.controllerStatus == null ? "" : StringUtils.defaultString(this.controllerStatus.getStateString());
-        switch(state.toLowerCase()) {
-            case "jog":
-            case "run":
+        ControllerState state = this.controllerStatus == null ? ControllerState.UNKNOWN : this.controllerStatus.getState();
+        switch(state) {
+            case JOG:
+            case RUN:
                 return ControlState.COMM_SENDING;
-            case "hold":
-            case "door":
-            case "queue":
+            case HOLD:
+            case DOOR:
                 return ControlState.COMM_SENDING_PAUSED;
-            case "idle":
+            case IDLE:
                 if (isStreaming()){
                     return ControlState.COMM_SENDING_PAUSED;
                 } else {
                     return ControlState.COMM_IDLE;
                 }
-            case "alarm":
+            case ALARM:
                 return ControlState.COMM_IDLE;
-            case "check":
+            case CHECK:
                 if (isStreaming() && comm.isPaused()) {
                     return ControlState.COMM_SENDING_PAUSED;
                 } else if (isStreaming() && !comm.isPaused()) {
@@ -594,7 +591,7 @@ public class GrblController extends AbstractController {
         }
 
         ControlState before = getControlState();
-        String beforeState = controllerStatus == null ? "" : controllerStatus.getStateString();
+        ControllerState beforeState = controllerStatus == null ? ControllerState.UNKNOWN : controllerStatus.getState();
 
         controllerStatus = GrblUtils.getStatusFromStatusString(
                 controllerStatus, string, capabilities, getFirmwareSettings().getReportingUnits());
@@ -605,7 +602,7 @@ public class GrblController extends AbstractController {
         }
 
         // GRBL 1.1 jog complete transition
-        if (StringUtils.equals(beforeState, "Jog") && controllerStatus.getStateString().equals("Idle")) {
+        if (beforeState == ControllerState.JOG && controllerStatus.getState() == ControllerState.IDLE) {
             this.comm.cancelSend();
         }
 
@@ -624,16 +621,14 @@ public class GrblController extends AbstractController {
             if (attemptsRemaining > 0 && lastLocation != null) {
                 attemptsRemaining--;
                 // If the machine goes into idle, we no longer need to cancel.
-                if (this.controllerStatus.getStateString().equals("Idle") || this.controllerStatus.getStateString().equalsIgnoreCase("Check")) {
+                if (controllerStatus.getState() == ControllerState.IDLE || controllerStatus.getState() == ControllerState.CHECK) {
                     isCanceling = false;
 
                     // Make sure the GUI gets updated
                     this.dispatchStateChange(getControlState());
                 }
                 // Otherwise check if the machine is Hold/Queue and stopped.
-                else if ((this.controllerStatus.getStateString().equals("Hold")
-                        || this.controllerStatus.getStateString().equals("Queue"))
-                        && lastLocation.equals(this.controllerStatus.getMachineCoord())) {
+                else if (controllerStatus.getState() == ControllerState.HOLD && lastLocation.equals(this.controllerStatus.getMachineCoord())) {
                     try {
                         this.issueSoftReset();
                     } catch(Exception e) {

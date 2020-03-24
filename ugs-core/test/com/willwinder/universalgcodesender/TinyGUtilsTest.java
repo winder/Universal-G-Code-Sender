@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -42,7 +42,7 @@ public class TinyGUtilsTest {
 
     @Test
     public void generateSetWorkPositionCommandShouldGenerateGcode() {
-        ControllerStatus controllerStatus = new ControllerStatus("", ControllerState.UNKNOWN, new Position(10, 10, 10, UnitUtils.Units.MM), new Position(10, 10, 10, UnitUtils.Units.MM));
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.UNKNOWN, new Position(10, 10, 10, UnitUtils.Units.MM), new Position(10, 10, 10, UnitUtils.Units.MM));
         GcodeState gcodeState = new GcodeState();
 
         gcodeState.offset = Code.G54;
@@ -80,7 +80,7 @@ public class TinyGUtilsTest {
 
     @Test
     public void generateResetCoordinatesToZeroCommandShouldGenerateGcode() {
-        ControllerStatus controllerStatus = new ControllerStatus("", ControllerState.UNKNOWN, new Position(10, 20, 30, UnitUtils.Units.MM), new Position(10, 10, 10, UnitUtils.Units.MM));
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.UNKNOWN, new Position(10, 20, 30, UnitUtils.Units.MM), new Position(10, 10, 10, UnitUtils.Units.MM));
         GcodeState gcodeState = new GcodeState();
 
         gcodeState.offset = Code.G54;
@@ -235,7 +235,7 @@ public class TinyGUtilsTest {
 
     @Test
     public void updateControllerStatusShouldHandleFeedOverrides() {
-        ControllerStatus lastControllerStatus = new ControllerStatus("Idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+        ControllerStatus lastControllerStatus = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
 
         JsonObject response = TinyGUtils.jsonToObject("{sr:{mfo:1.4}}");
         ControllerStatus controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);
@@ -248,7 +248,7 @@ public class TinyGUtilsTest {
 
     @Test
     public void updateControllerStatusShouldHandleSpindleverrides() {
-        ControllerStatus lastControllerStatus = new ControllerStatus("Idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+        ControllerStatus lastControllerStatus = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
 
         JsonObject response = TinyGUtils.jsonToObject("{sr:{sso:1.4}}");
         ControllerStatus controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);

@@ -73,7 +73,7 @@ public class TinyGController extends AbstractController {
         firmwareSettings = new TinyGFirmwareSettings(this);
         communicator.addListener(firmwareSettings);
 
-        controllerStatus = new ControllerStatus(StringUtils.EMPTY, ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+        controllerStatus = new ControllerStatus(ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
         firmwareVersion = "TinyG unknown version";
     }
 

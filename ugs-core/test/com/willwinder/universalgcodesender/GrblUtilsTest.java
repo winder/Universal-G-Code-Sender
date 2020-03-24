@@ -24,8 +24,6 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.junit.Test;
 
-import java.util.ArrayList;
-
 import static com.willwinder.universalgcodesender.model.Axis.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -427,7 +425,6 @@ public class GrblUtilsTest {
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
-        assertEquals("Idle", controllerStatus.getStateString());
         assertEquals(ControllerState.IDLE, controllerStatus.getState());
 
         assertEquals(new Position(1.1, 2.2, 3.3, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
