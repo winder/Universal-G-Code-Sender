@@ -53,16 +53,13 @@ public class GcodeUtils {
      *
      * @param command  the base command to use, ie: G91G1 or G1
      * @param distance the distance to move in the currently selected unit (G20 or G21)
-     * @param dirX     1 for positive movement, 0 for no movement, -1 for negative movement
-     * @param dirY     1 for positive movement, 0 for no movement, -1 for negative movement
-     * @param dirZ     1 for positive movement, 0 for no movement, -1 for negative movement
+     * @param dirX     1.0 for positive movement, 0 for no movement, -1.0 for negative movement
+     * @param dirY     1.0 for positive movement, 0 for no movement, -1.0 for negative movement
+     * @param dirZ     1.0 for positive movement, 0 for no movement, -1.0 for negative movement
      * @param units    the units to use for movement
      */
-    public static String generateMoveCommand(String command, double distance, double feedRate, int dirX, int dirY, int dirZ, Units units) {
+    public static String generateMoveCommand(String command, double distance, double feedRate, float dirX, float dirY, float dirZ, Units units) {
         StringBuilder sb = new StringBuilder();
-
-        // Scale the feed rate and distance to the current coordinate units
-        String convertedDistance = Utils.formatter.format(distance);
 
         // Set command.
         sb.append(GcodeUtils.unitCommand(units));
@@ -73,7 +70,7 @@ public class GcodeUtils {
             if (dirX < 0) {
                 sb.append("-");
             }
-            sb.append(convertedDistance);
+            sb.append(Utils.formatter.format(distance * Math.min(Math.abs(dirX), 1f)));
         }
 
         if (dirY != 0) {
@@ -81,7 +78,7 @@ public class GcodeUtils {
             if (dirY < 0) {
                 sb.append("-");
             }
-            sb.append(convertedDistance);
+            sb.append(Utils.formatter.format(distance * Math.min(Math.abs(dirY), 1f)));
         }
 
         if (dirZ != 0) {
@@ -89,7 +86,7 @@ public class GcodeUtils {
             if (dirZ < 0) {
                 sb.append("-");
             }
-            sb.append(convertedDistance);
+            sb.append(Utils.formatter.format(distance * Math.min(Math.abs(dirZ), 1f)));
         }
 
         if (feedRate > 0) {

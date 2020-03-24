@@ -354,8 +354,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
      * Direction is specified by the direction param being positive or negative.
      */
     @Override
-    public void adjustManualLocation(int dirX, int dirY, int dirZ,
-            double stepSize, double feedRate, Units units) throws Exception {
+    public void adjustManualLocation(float dirX, float dirY, float dirZ,
+                                     double stepSize, double feedRate, Units units) throws Exception {
         // Don't send empty commands.
         if ((dirX == 0) && (dirY == 0) && (dirZ == 0)) {
             return;

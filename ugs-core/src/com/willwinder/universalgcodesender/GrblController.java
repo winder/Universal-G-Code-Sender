@@ -527,8 +527,8 @@ public class GrblController extends AbstractController {
     }
 
     @Override
-    public void jogMachine(int dirX, int dirY, int dirZ, double stepSize, 
-            double feedRate, Units units) throws Exception {
+    public void jogMachine(float dirX, float dirY, float dirZ, double stepSize,
+                           double feedRate, Units units) throws Exception {
         if (capabilities.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)) {
             String commandString = GcodeUtils.generateMoveCommand( "G91",
                     stepSize, feedRate, dirX, dirY, dirZ, units);
