@@ -234,8 +234,8 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     }
 
     @Override
-    public void jogMachine(int dirX, int dirY, int dirZ, double stepSize,
-            double feedRate, UnitUtils.Units units) throws Exception {
+    public void jogMachine(float dirX, float dirY, float dirZ, double stepSize,
+                           double feedRate, UnitUtils.Units units) throws Exception {
         logger.log(Level.INFO, "Adjusting manual location.");
 
         String commandString = GcodeUtils.generateMoveCommand("G91G1",

@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.JogService;
+import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -65,12 +66,12 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     private final BackendAPI backend;
     private final JogPanel jogPanel;
     private final JogService jogService;
-    private final ContinuousJogHandler continuousJogHandler;
+    private final ContinuousJogWorker continuousJogWorker;
 
     public JogTopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         jogService = CentralLookup.getDefault().lookup(JogService.class);
-        continuousJogHandler = new ContinuousJogHandler(backend, jogService);
+        continuousJogWorker = new ContinuousJogWorker(backend, jogService);
         UseSeparateStepSizeAction separateStepSizeAction = Lookup.getDefault().lookup(UseSeparateStepSizeAction.class);
 
         jogPanel = new JogPanel();
@@ -83,7 +84,6 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         jogPanel.addListener(this);
 
         backend.addUGSEventListener(this);
-        backend.addControllerListener(continuousJogHandler);
 
         setLayout(new BorderLayout());
         setName(LocalizingService.JogControlTitle);
@@ -105,8 +105,8 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         super.componentClosed();
         backend.removeUGSEventListener(this);
 
-        continuousJogHandler.stop();
-        backend.removeControllerListener(continuousJogHandler);
+        continuousJogWorker.stop();
+        backend.removeControllerListener(continuousJogWorker);
     }
 
     @Override
@@ -180,13 +180,14 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     @Override
     public void onButtonLongPressed(JogPanelButtonEnum button) {
         if (backend.getController().getCapabilities().hasContinuousJogging()) {
-            continuousJogHandler.start(button);
+            continuousJogWorker.setDirection(button.getX(), button.getY(), button.getZ());
+            continuousJogWorker.start();
         }
     }
 
     @Override
     public void onButtonLongReleased(JogPanelButtonEnum button) {
-        continuousJogHandler.stop();
+        continuousJogWorker.stop();
     }
 
     @Override

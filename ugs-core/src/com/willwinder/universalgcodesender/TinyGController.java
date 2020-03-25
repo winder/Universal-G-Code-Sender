@@ -31,7 +31,6 @@ import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -117,7 +116,7 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public void jogMachine(int dirX, int dirY, int dirZ, double stepSize, double feedRate, UnitUtils.Units units) throws Exception {
+    public void jogMachine(float dirX, float dirY, float dirZ, double stepSize, double feedRate, UnitUtils.Units units) throws Exception {
         // Fetch the current coordinate units in which the machine is running
         UnitUtils.Units targetUnits = UnitUtils.Units.getUnits(getCurrentGcodeState().units);
 
