@@ -34,7 +34,7 @@ public class Startup implements Runnable {
         JoystickService joystickService = CentralLookup.getDefault().lookup(JoystickService.class);
         if (joystickService == null) {
             joystickService = new JoystickServiceImpl();
-            joystickService.start();
+            joystickService.initialize();
             CentralLookup.getDefault().add(joystickService);
         }
 

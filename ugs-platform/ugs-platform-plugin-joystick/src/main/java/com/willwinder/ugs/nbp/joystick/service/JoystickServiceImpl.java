@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 @ServiceProvider(service = JoystickService.class)
 public class JoystickServiceImpl implements JoystickService {
     /**
-     * Milliseconds to wait before reading joystick/gamepad again
+     * Milliseconds to wait between reading joystick/gamepad values
      */
     private static final int READ_DELAY_MILLISECONDS = 10;
     private static final Logger LOGGER = Logger.getLogger(JoystickServiceImpl.class.getSimpleName());
@@ -61,7 +61,7 @@ public class JoystickServiceImpl implements JoystickService {
     }
 
     @Override
-    public void start() {
+    public void initialize() {
         if (isRunning) {
             return;
         }
@@ -70,7 +70,7 @@ public class JoystickServiceImpl implements JoystickService {
     }
 
     @Override
-    public void stop() {
+    public void destroy() {
         isRunning = false;
         controllerManager.quitSDLGamepad();
     }
@@ -135,6 +135,7 @@ public class JoystickServiceImpl implements JoystickService {
 
     private void updateJoystickAxisState(ControllerAxis controllerAxis) {
         try {
+            // Round values, got issues with the controller having 0.01 as zero-value
             float value = Math.round(currentController.getAxisState(controllerAxis) * 10) / 10f;
             JoystickAxis axis = Utils.getJoystickAxisFromControllerAxis(controllerAxis);
             joystickState.setAxis(axis, value);

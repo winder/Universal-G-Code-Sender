@@ -58,9 +58,9 @@ public class JoystickOptionsPanel extends AbstractOptionsPanel implements Joysti
     @Override
     public void store() {
         if (activeCheckbox.getState()) {
-            joystickService.start();
+            joystickService.initialize();
         } else {
-            joystickService.stop();
+            joystickService.destroy();
         }
 
         Settings.setActive(activeCheckbox.getState());

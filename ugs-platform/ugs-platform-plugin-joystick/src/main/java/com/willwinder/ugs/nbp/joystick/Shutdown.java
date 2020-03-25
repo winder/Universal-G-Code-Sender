@@ -31,7 +31,7 @@ public class Shutdown implements Runnable {
     public void run() {
         JoystickService joystickService = CentralLookup.getDefault().lookup(JoystickService.class);
         if (joystickService != null) {
-            joystickService.stop();
+            joystickService.destroy();
             joystickService.removeAllListeners();
         }
     }

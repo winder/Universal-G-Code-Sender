@@ -11,12 +11,12 @@ public interface JoystickService {
      * Starts the service by initializing the gamepad/joystick and starts to listen to
      * controller data. Any state change will be notified to registered listeners.
      */
-    void start();
+    void initialize();
 
     /**
      * Stops the service and releases any gamepad/joystick.
      */
-    void stop();
+    void destroy();
 
     /**
      * Adds a listener for any joystick state changes

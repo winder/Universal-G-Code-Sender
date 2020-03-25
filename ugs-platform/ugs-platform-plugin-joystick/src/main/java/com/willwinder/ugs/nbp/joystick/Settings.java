@@ -46,8 +46,9 @@ public class Settings {
     }
 
     /**
-     * If the
-     * @param active
+     * Sets if the joystick service should be started
+     *
+     * @param active set to true to active the joystick service
      */
     public static void setActive(boolean active) {
         preferences.putBoolean(SETTINGS_ACTIVE, active);

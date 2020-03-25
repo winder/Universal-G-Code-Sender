@@ -22,26 +22,17 @@ import com.willwinder.ugs.nbp.joystick.model.JoystickAxis;
 import com.willwinder.ugs.nbp.joystick.model.JoystickButton;
 import com.willwinder.ugs.nbp.joystick.model.JoystickState;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.services.JogService;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
+import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
 
-public class JoystickJogService implements JoystickServiceListener, ControllerListener {
-    private static final long JOG_COMMAND_INTERVAL = 100;
+/**
+ * A jog service that binds to a joystick handling continuous jogging and it's jogging speed.
+ */
+public class JoystickJogService implements JoystickServiceListener {
     private final JogService jogService;
     private final BackendAPI backendAPI;
-    private boolean isRunning;
-    private boolean isWaitingForCommandComplete;
-    private float x;
-    private float y;
-    private float z;
+    private final ContinuousJogWorker continousJogWorker;
 
     public JoystickJogService() {
         JoystickService joystickService = CentralLookup.getDefault().lookup(JoystickService.class);
@@ -49,7 +40,8 @@ public class JoystickJogService implements JoystickServiceListener, ControllerLi
 
         jogService = CentralLookup.getDefault().lookup(JogService.class);
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backendAPI.addControllerListener(this);
+
+        continousJogWorker = new ContinuousJogWorker(backendAPI, jogService);
     }
 
     @Override
@@ -62,22 +54,25 @@ public class JoystickJogService implements JoystickServiceListener, ControllerLi
             jogService.divideFeedRate();
         } else if (state.getButton(JoystickButton.RIGHT_BUMPER)) {
             jogService.multiplyFeedRate();
-        } else if (jogService.canJog()) {
-            x = readValue(state, JoystickAxis.LEFT_X, JoystickButton.DPAD_LEFT, JoystickButton.DPAD_RIGHT);
-            y = readValue(state, JoystickAxis.LEFT_Y, JoystickButton.DPAD_DOWN, JoystickButton.DPAD_UP);
-            z = readValue(state, JoystickAxis.RIGHT_Y, JoystickButton.A, JoystickButton.Y);
+        } else if (jogService.canJog() && backendAPI.getController().getCapabilities().hasContinuousJogging()) {
+            float x = readValue(state, JoystickAxis.LEFT_X, JoystickButton.DPAD_LEFT, JoystickButton.DPAD_RIGHT);
+            float y = readValue(state, JoystickAxis.LEFT_Y, JoystickButton.DPAD_DOWN, JoystickButton.DPAD_UP);
+            float z = readValue(state, JoystickAxis.RIGHT_Y, JoystickButton.A, JoystickButton.Y);
+            continousJogWorker.setDirection(x, y, z);
 
             if (x != 0 || y != 0 || z != 0) {
-                start();
+                continousJogWorker.start();
             } else {
-                stop();
+                continousJogWorker.stop();
             }
         }
     }
 
     private void cancelSend() {
         try {
-            backendAPI.cancel();
+            if (backendAPI.canCancel()) {
+                backendAPI.cancel();
+            }
         } catch (Exception e) {
             // Never mind
         }
@@ -85,12 +80,23 @@ public class JoystickJogService implements JoystickServiceListener, ControllerLi
 
     private void sendFile() {
         try {
-            backendAPI.send();
+            if (backendAPI.canSend()) {
+                backendAPI.send();
+            }
         } catch (Exception e) {
             // Never mind
         }
     }
 
+    /**
+     * Reads a joystick value
+     *
+     * @param state
+     * @param axis
+     * @param negativeButton
+     * @param positiveButton
+     * @return
+     */
     private float readValue(JoystickState state, JoystickAxis axis, JoystickButton negativeButton, JoystickButton positiveButton) {
         // Start reading the analog value
         float result = state.getAxis(axis);
@@ -103,115 +109,5 @@ public class JoystickJogService implements JoystickServiceListener, ControllerLi
         }
 
         return result;
-    }
-
-    /**
-     * Calculates how long we could theoretically move within the defined jog command interval.
-     * The step size is given using the current units of {@link Settings#getJogFeedRate()}.
-     *
-     * @return the step size in the units of {@link Settings#getJogFeedRate()}
-     */
-    private double calculateStepSize() {
-        double feedRate = jogService.getFeedRate();
-
-        // Calculate how long we should be able to move at the given interval and add 10%
-        return (feedRate / 60) * (JOG_COMMAND_INTERVAL / 1000.0) * 1.1;
-    }
-
-    /**
-     * Starts sending continuous jogging commands
-     */
-    private void start() {
-        if (!isRunning) {
-            ThreadHelper.invokeLater(this::sendContinuousJogCommands);
-        }
-    }
-
-    /**
-     * Stops sending continuous jogging commands
-     */
-    private void stop() {
-        isRunning = false;
-    }
-
-    private void sendContinuousJogCommands() {
-        // Make sure we are not already running
-        if (isRunning) {
-            return;
-        }
-
-        try {
-            isRunning = true;
-            final double stepSize = calculateStepSize();
-            while (isRunning) {
-                // Ensure that we only send one command at the time, waiting for it to complete
-                if (!isWaitingForCommandComplete) {
-                    isWaitingForCommandComplete = true;
-                    jogService.adjustManualLocation(x, y, z, stepSize);
-                } else {
-                    Thread.sleep(JOG_COMMAND_INTERVAL);
-                }
-            }
-
-            waitForCommandToComplete();
-        } catch (InterruptedException e) {
-            // The timers got interrupted, never mind...
-        }
-
-        jogService.cancelJog();
-    }
-
-    private void waitForCommandToComplete() throws InterruptedException {
-        while (isWaitingForCommandComplete && isRunning) {
-            Thread.sleep(10);
-        }
-    }
-
-    @Override
-    public void controlStateChange(UGSEvent.ControlState state) {
-
-    }
-
-    @Override
-    public void fileStreamComplete(String filename, boolean success) {
-
-    }
-
-    @Override
-    public void receivedAlarm(Alarm alarm) {
-
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-
-    }
-
-    @Override
-    public void commandSent(GcodeCommand command) {
-
-    }
-
-    @Override
-    public void commandComplete(GcodeCommand command) {
-        isWaitingForCommandComplete = false;
-        if (command.isError() && isRunning) {
-            stop();
-        }
-    }
-
-    @Override
-    public void commandComment(String comment) {
-
-    }
-
-    @Override
-    public void probeCoordinates(Position p) {
-
-    }
-
-    @Override
-    public void statusStringListener(ControllerStatus status) {
-
     }
 }
