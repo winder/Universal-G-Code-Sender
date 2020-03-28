@@ -55,7 +55,7 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.*;
 public class GcodeModel extends Renderable {
     private static final Logger logger = Logger.getLogger(GcodeModel.class.getName());
 
-    private boolean colorArrayDirty, vertexArrayDirty;
+    private boolean colorArrayDirty, vertexArrayDirty, vertexBufferDirty;
 
     // Gcode file data
     private String gcodeFile = null;
@@ -94,7 +94,7 @@ public class GcodeModel extends Renderable {
         arcColor = vo.getOptionForKey(VISUALIZER_OPTION_ARC).value;
         plungeColor = vo.getOptionForKey(VISUALIZER_OPTION_PLUNGE).value;
         completedColor = vo.getOptionForKey(VISUALIZER_OPTION_COMPLETE).value;
-        updateVertexBuffers();
+        vertexBufferDirty = true;
         colorArrayDirty = true;
     }
 
@@ -120,7 +120,8 @@ public class GcodeModel extends Renderable {
      */
     public void setCurrentCommandNumber(int num) {
         currentCommandNumber = num;
-        vertexArrayDirty = true;
+        vertexBufferDirty = true;
+        colorArrayDirty = true;
     }
 
     public List<LineSegment> getLineList() {
@@ -162,6 +163,10 @@ public class GcodeModel extends Renderable {
                 && gl.isFunctionAvailable( "glDeleteBuffers" ) ) {
             
             // Initialize OpenGL arrays if required.
+            if (this.vertexBufferDirty) {
+                updateVertexBuffers();
+                this.vertexBufferDirty = false;
+            }
             if (this.colorArrayDirty) {
                 this.updateGLColorArray(drawable);
                 this.colorArrayDirty = false;
