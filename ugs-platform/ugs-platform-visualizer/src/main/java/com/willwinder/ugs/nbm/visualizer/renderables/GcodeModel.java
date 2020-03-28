@@ -82,8 +82,6 @@ public class GcodeModel extends Renderable {
     private Color plungeColor;
     private Color completedColor;
 
-    private boolean isUpdatingVertexBuffers = false;
-
     public GcodeModel(String title) {
         super(10, title);
         objectSize = new Point3d();
@@ -115,7 +113,6 @@ public class GcodeModel extends Renderable {
         //forceRedraw();
 
         logger.log(Level.INFO, "Done setting gcode file.");
-        isUpdatingVertexBuffers = false;
         return result;
     }
 
@@ -124,8 +121,7 @@ public class GcodeModel extends Renderable {
      */
     public void setCurrentCommandNumber(int num) {
         currentCommandNumber = num;
-        updateVertexBuffers();
-        colorArrayDirty = true;
+        vertexArrayDirty = true;
     }
 
     public List<LineSegment> getLineList() {
@@ -288,73 +284,62 @@ public class GcodeModel extends Renderable {
      * Convert the gcodeLineList into vertex and color arrays.
      */
     private void updateVertexBuffers() {
-        // Prevent concurrent updates which will queue events
-        if(isUpdatingVertexBuffers) {
-            return;
-        }
-
-        // Start the update in it's own thread so we aren't blocking anything.
-        ThreadHelper.invokeLater(()-> {
-            isUpdatingVertexBuffers = true;
-            if (this.isDrawable) {
-                Color color;
-                int vertIndex = 0;
-                int colorIndex = 0;
-                byte[] c = new byte[3];
-                for (LineSegment ls : gcodeLineList) {
-                    // Find the lines color.
-                    if (ls.isArc()) {
-                        color = arcColor;
-                    } else if (ls.isFastTraverse()) {
-                        color = rapidColor;
-                    } else if (ls.isZMovement()) {
-                        color = plungeColor;
-                    } else {
-                        color = linearColor;
-                    }
-
-                    // Override color if it is cutoff
-                    if (ls.getLineNumber() < this.currentCommandNumber) {
-                        color = completedColor;
-                    }
-
-                    // Draw it.
-                    {
-                        Point3d p1 = ls.getStart();
-                        Point3d p2 = ls.getEnd();
-
-                        c[0] = (byte) color.getRed();
-                        c[1] = (byte) color.getGreen();
-                        c[2] = (byte) color.getBlue();
-
-                        // colors
-                        //p1
-                        lineColorData[colorIndex++] = c[0];
-                        lineColorData[colorIndex++] = c[1];
-                        lineColorData[colorIndex++] = c[2];
-
-                        //p2
-                        lineColorData[colorIndex++] = c[0];
-                        lineColorData[colorIndex++] = c[1];
-                        lineColorData[colorIndex++] = c[2];
-
-                        // p1 location
-                        lineVertexData[vertIndex++] = (float) p1.x;
-                        lineVertexData[vertIndex++] = (float) p1.y;
-                        lineVertexData[vertIndex++] = (float) p1.z;
-                        //p2
-                        lineVertexData[vertIndex++] = (float) p2.x;
-                        lineVertexData[vertIndex++] = (float) p2.y;
-                        lineVertexData[vertIndex++] = (float) p2.z;
-                    }
+        if (this.isDrawable) {
+            Color color;
+            int vertIndex = 0;
+            int colorIndex = 0;
+            byte[] c = new byte[3];
+            for (LineSegment ls : gcodeLineList) {
+                // Find the lines color.
+                if (ls.isArc()) {
+                    color = arcColor;
+                } else if (ls.isFastTraverse()) {
+                    color = rapidColor;
+                } else if (ls.isZMovement()) {
+                    color = plungeColor;
+                } else {
+                    color = linearColor;
                 }
 
-                this.colorArrayDirty = true;
-                this.vertexArrayDirty = true;
+                // Override color if it is cutoff
+                if (ls.getLineNumber() < this.currentCommandNumber) {
+                    color = completedColor;
+                }
+
+                // Draw it.
+                {
+                    Point3d p1 = ls.getStart();
+                    Point3d p2 = ls.getEnd();
+
+                    c[0] = (byte) color.getRed();
+                    c[1] = (byte) color.getGreen();
+                    c[2] = (byte) color.getBlue();
+
+                    // colors
+                    //p1
+                    lineColorData[colorIndex++] = c[0];
+                    lineColorData[colorIndex++] = c[1];
+                    lineColorData[colorIndex++] = c[2];
+
+                    //p2
+                    lineColorData[colorIndex++] = c[0];
+                    lineColorData[colorIndex++] = c[1];
+                    lineColorData[colorIndex++] = c[2];
+
+                    // p1 location
+                    lineVertexData[vertIndex++] = (float) p1.x;
+                    lineVertexData[vertIndex++] = (float) p1.y;
+                    lineVertexData[vertIndex++] = (float) p1.z;
+                    //p2
+                    lineVertexData[vertIndex++] = (float) p2.x;
+                    lineVertexData[vertIndex++] = (float) p2.y;
+                    lineVertexData[vertIndex++] = (float) p2.z;
+                }
             }
 
-            isUpdatingVertexBuffers = false;
-        });
+            this.colorArrayDirty = true;
+            this.vertexArrayDirty = true;
+        }
     }
     
     /**
