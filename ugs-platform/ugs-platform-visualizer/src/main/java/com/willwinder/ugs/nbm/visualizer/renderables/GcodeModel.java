@@ -95,7 +95,6 @@ public class GcodeModel extends Renderable {
         plungeColor = vo.getOptionForKey(VISUALIZER_OPTION_PLUNGE).value;
         completedColor = vo.getOptionForKey(VISUALIZER_OPTION_COMPLETE).value;
         vertexBufferDirty = true;
-        colorArrayDirty = true;
     }
 
     /**
@@ -121,7 +120,6 @@ public class GcodeModel extends Renderable {
     public void setCurrentCommandNumber(int num) {
         currentCommandNumber = num;
         vertexBufferDirty = true;
-        colorArrayDirty = true;
     }
 
     public List<LineSegment> getLineList() {
@@ -163,7 +161,7 @@ public class GcodeModel extends Renderable {
                 && gl.isFunctionAvailable( "glDeleteBuffers" ) ) {
             
             // Initialize OpenGL arrays if required.
-            if (this.vertexBufferDirty) {
+            if (this.vertexBufferDirty && !vertexArrayDirty && !colorArrayDirty) {
                 updateVertexBuffers();
                 this.vertexBufferDirty = false;
             }
