@@ -49,7 +49,7 @@ public class MeshLeveler implements CommandProcessor {
     public final static String ERROR_MESH_SHAPE= "Surface mesh must be a rectangular 2D array.";
     public final static String ERROR_NOT_ENOUGH_SAMPLES = "Need at least 2 samples along each axis.";
     public final static String ERROR_X_ALIGNMENT = "Unaligned x coordinate in surface grid.";
-    public final static String ERROR_Y_ALIGNMENT = "Unaligned x coordinate in surface grid.";
+    public final static String ERROR_Y_ALIGNMENT = "Unaligned y coordinate in surface grid.";
     public final static String ERROR_Y_ASCENTION = "Found a y coordinate that isn't ascending.";
     public final static String ERROR_X_ASCENTION = "Found a x coordinate that isn't ascending.";
 
