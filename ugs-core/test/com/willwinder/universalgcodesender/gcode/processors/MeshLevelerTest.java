@@ -92,8 +92,8 @@ public class MeshLevelerTest {
         expectedEx.expectMessage(MeshLeveler.ERROR_X_ALIGNMENT);
 
         Position[][] grid = {
-            {new Position(0,0,0, MM), new Position(0, 10, 0, MM)},
-            {new Position(10,1,0, MM), new Position(10, 10, 0, MM)}
+            {new Position(0,0,0, MM), new Position(1, 0, 0, MM)},
+            {new Position(10,1,0, MM), new Position(1, 1, 0, MM)}
         };
 
         new MeshLeveler(0.0, grid, Units.MM);
@@ -105,8 +105,8 @@ public class MeshLevelerTest {
         expectedEx.expectMessage(MeshLeveler.ERROR_Y_ALIGNMENT);
 
         Position[][] grid = {
-            {new Position(0,0,0, MM), new Position(1, 10, 0, MM)},
-            {new Position(10,0,0, MM), new Position(10, 10, 0, MM)}
+            {new Position(0,0,0, MM), new Position(0, 0, 0, MM)},
+            {new Position(1,0,0, MM), new Position(1, 1, 0, MM)}
         };
 
         new MeshLeveler(0.0, grid, Units.MM);

@@ -82,28 +82,34 @@ public class MeshLeveler implements CommandProcessor {
         // Verify that x points are aligned and y points are ascending.
         for (int xIdx = 0; xIdx < xLen; xIdx++) {
             double xCoord = surfaceMesh[xIdx][0].x;
-            double yCoord = surfaceMesh[xIdx][0].y - 1;
+            double yCoord = surfaceMesh[xIdx][0].y;
             for (int yIdx = 0; yIdx < yLen; yIdx++) {
                 if (surfaceMesh[xIdx][yIdx].x != xCoord) {
-                    throw new IllegalArgumentException(ERROR_X_ALIGNMENT);
+                    String err = "@ " + xIdx + ", " + yIdx + ": ("+xCoord+" != "+surfaceMesh[xIdx][yIdx].x+")";
+                    throw new IllegalArgumentException(ERROR_X_ALIGNMENT + err);
                 }
-                if (surfaceMesh[xIdx][yIdx].y <= yCoord) {
-                    throw new IllegalArgumentException(ERROR_Y_ASCENTION);
+                if (yCoord > surfaceMesh[xIdx][yIdx].y) {
+                    String err = "@ " + xIdx + ", " + yIdx + ": ("+yCoord+" !<= "+surfaceMesh[xIdx][yIdx].y+")";
+                    throw new IllegalArgumentException(ERROR_Y_ASCENTION + err);
                 }
+                yCoord = surfaceMesh[xIdx][yIdx].y;
             }
         }
 
         // Verify that y points are aligned and x points are ascending.
         for (int yIdx = 0; yIdx < yLen; yIdx++) {
-            double xCoord = surfaceMesh[0][yIdx].x - 1;
+            double xCoord = surfaceMesh[0][yIdx].x;
             double yCoord = surfaceMesh[0][yIdx].y;
             for (int xIdx = 0; xIdx < xLen; xIdx++) {
                 if (surfaceMesh[xIdx][yIdx].y != yCoord) {
-                    throw new IllegalArgumentException(ERROR_Y_ALIGNMENT);
+                    String err = "@ " + xIdx + ", " + yIdx + ": ("+yCoord+" != "+surfaceMesh[xIdx][yIdx].y+")";
+                    throw new IllegalArgumentException(ERROR_Y_ALIGNMENT + err);
                 }
-                if (surfaceMesh[xIdx][yIdx].x <= xCoord) {
-                    throw new IllegalArgumentException(ERROR_X_ASCENTION);
+                if (xCoord > surfaceMesh[xIdx][yIdx].x) {
+                    String err = "@ " + xIdx + ", " + yIdx + ": ("+xCoord+" !<= "+surfaceMesh[xIdx][yIdx].x+")";
+                    throw new IllegalArgumentException(ERROR_X_ASCENTION + err);
                 }
+                xCoord = surfaceMesh[xIdx][yIdx].x;
             }
         }
 
