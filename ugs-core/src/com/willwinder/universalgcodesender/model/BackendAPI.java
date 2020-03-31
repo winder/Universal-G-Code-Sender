@@ -75,7 +75,19 @@ public interface BackendAPI extends BackendAPIReadOnly {
     void sendGcodeCommand(String commandText) throws Exception;
     void sendGcodeCommand(boolean restoreParserState, String commandText) throws Exception;
     void sendGcodeCommand(GcodeCommand command) throws Exception;
-    void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, double feedRate, Units units) throws Exception;
+
+    /**
+     * Jogs the machine by a specified direction given distanceX, distanceY, distanceZ.
+     * The distance is specified by the given units and can be a positive or negative value.
+     *
+     * @param distanceX how long to jog on the X axis.
+     * @param distanceY how long to jog on the Y axis.
+     * @param distanceZ how long to jog on the Z axis.
+     * @param feedRate how fast should we jog in the given direction
+     * @param units the units of the distance and feed rate
+     * @throws Exception if something went wrong when jogging
+     */
+    void adjustManualLocation(double distanceX, double distanceY, double distanceZ, double feedRate, Units units) throws Exception;
 
     void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception;
     void offsetTool(String axis, double offset, UnitUtils.Units units) throws Exception;

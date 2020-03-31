@@ -566,8 +566,8 @@ public class AbstractControllerTest {
         niceInstance.setDistanceModeCode("G90");
         niceInstance.setUnitsCode("G21");
 
-        niceInstance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
-        niceInstance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
+        niceInstance.jogMachine(-10, 0, 10, 11, UnitUtils.Units.INCH);
+        niceInstance.jogMachine(0, 10, 0, 11, UnitUtils.Units.MM);
 
         assertEquals(4, gcodeCommandCapture.getValues().size());
         assertEquals("G20G91G1X-10Z10F11", gcodeCommandCapture.getValues().get(0).getCommandString());

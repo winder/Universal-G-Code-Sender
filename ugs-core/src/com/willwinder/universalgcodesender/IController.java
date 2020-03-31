@@ -101,19 +101,17 @@ public interface IController {
     void requestStatusReport() throws Exception;
 
     /**
-     * Jogs the machine in the direction specified by vector dirX,
-     * dirY, dirZ given the direction as 1, 0 or -1. The distance is specified by stepSize in the given units.
+     * Jogs the machine by a specified direction given distanceX, distanceY, distanceZ.
+     * The distance is specified by the given units and can be a positive or negative value.
      *
-     * @param dirX if the jogging should happen in X-direction, possible values are 1, 0 or -1
-     * @param dirY if the jogging should happen in Y-direction, possible values are 1, 0 or -1
-     * @param dirZ if the jogging should happen in Z-direction, possible values are 1, 0 or -1
-     * @param stepSize how long should we jog and is given in mm or inches
-     * @param feedRate how fast should we jog in the direction
-     * @param units the units of the stepSize and feed rate
+     * @param distanceX how long to jog on the X axis.
+     * @param distanceY how long to jog on the Y axis.
+     * @param distanceZ how long to jog on the Z axis.
+     * @param feedRate how fast should we jog in the given direction
+     * @param units the units of the distance and feed rate
      * @throws Exception if something went wrong when jogging
      */
-    void jogMachine(int dirX, int dirY, int dirZ,
-                    double stepSize, double feedRate, Units units) throws Exception;
+    void jogMachine(double distanceX, double distanceY, double distanceZ, double feedRate, Units units) throws Exception;
 
 
     /**

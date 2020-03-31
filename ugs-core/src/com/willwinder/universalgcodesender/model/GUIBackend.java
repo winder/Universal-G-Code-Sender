@@ -347,21 +347,14 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         }
     }
 
-    /**
-     * Sends a G91 command in some combination of x, y, and z directions with a
-     * step size of stepDirection.
-     * 
-     * Direction is specified by the direction param being positive or negative.
-     */
     @Override
-    public void adjustManualLocation(int dirX, int dirY, int dirZ,
-            double stepSize, double feedRate, Units units) throws Exception {
+    public void adjustManualLocation(double distanceX, double distanceY, double distanceZ, double feedRate, Units units) throws Exception {
         // Don't send empty commands.
-        if ((dirX == 0) && (dirY == 0) && (dirZ == 0)) {
+        if ((distanceX == 0) && (distanceY == 0) && (distanceZ == 0)) {
             return;
         }
 
-        controller.jogMachine(dirX, dirY, dirZ, stepSize, feedRate, units);
+        controller.jogMachine(distanceX, distanceY, distanceZ, feedRate, units);
     }
 
     @Override

@@ -1,8 +1,5 @@
-/**
- * POJO Object representation of a controller JSON file.
- */
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -36,6 +33,7 @@ import java.util.List;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 
 /**
+ * POJO Object representation of a controller JSON file.
  *
  * @author wwinder
  */

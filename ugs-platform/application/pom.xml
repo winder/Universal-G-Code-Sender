@@ -101,6 +101,11 @@
             <artifactId>ugs-platform-welcome-page</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ugs-platform-plugin-joystick</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
