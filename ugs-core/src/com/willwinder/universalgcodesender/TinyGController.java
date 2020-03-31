@@ -199,7 +199,7 @@ public class TinyGController extends AbstractController {
             if (jo.get("r").getAsJsonObject().has(TinyGUtils.FIELD_STATUS_REPORT)) {
                 updateControllerStatus(jo.get("r").getAsJsonObject());
                 checkStreamFinished();
-            } else if (rowsRemaining() > 0) {
+            } else if (getActiveCommand().isPresent()) {
                 try {
                     commandComplete(response);
                 } catch (Exception e) {

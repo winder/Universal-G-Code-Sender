@@ -37,7 +37,6 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@ServiceProvider(service = JoystickService.class)
 public class JoystickServiceImpl implements JoystickService {
     /**
      * Milliseconds to wait between reading joystick/gamepad values
