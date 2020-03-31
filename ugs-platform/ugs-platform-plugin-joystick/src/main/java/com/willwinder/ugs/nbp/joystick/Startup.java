@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbp.joystick;
 
-import com.willwinder.ugs.nbp.joystick.service.JoystickJogService;
 import com.willwinder.ugs.nbp.joystick.service.JoystickService;
 import com.willwinder.ugs.nbp.joystick.service.JoystickServiceImpl;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
@@ -34,14 +33,10 @@ public class Startup implements Runnable {
         JoystickService joystickService = CentralLookup.getDefault().lookup(JoystickService.class);
         if (joystickService == null) {
             joystickService = new JoystickServiceImpl();
-            joystickService.initialize();
+            if (Settings.isActive()) {
+                joystickService.initialize();
+            }
             CentralLookup.getDefault().add(joystickService);
-        }
-
-        JoystickJogService joystickJogService = CentralLookup.getDefault().lookup(JoystickJogService.class);
-        if (joystickJogService == null) {
-            joystickJogService = new JoystickJogService();
-            CentralLookup.getDefault().add(joystickJogService);
         }
     }
 }

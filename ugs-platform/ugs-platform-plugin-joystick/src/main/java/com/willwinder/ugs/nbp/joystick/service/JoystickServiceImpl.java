@@ -27,7 +27,6 @@ import com.willwinder.ugs.nbp.joystick.Utils;
 import com.willwinder.ugs.nbp.joystick.model.JoystickAxis;
 import com.willwinder.ugs.nbp.joystick.model.JoystickButton;
 import com.willwinder.ugs.nbp.joystick.model.JoystickState;
-import org.openide.util.lookup.ServiceProvider;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -57,6 +56,9 @@ public class JoystickServiceImpl implements JoystickService {
         controllerManager = new ControllerManager();
         joystickState = new JoystickState();
         listeners = new HashSet<>();
+
+        JoystickJogService joystickJogService = new JoystickJogService();
+        addListener(joystickJogService);
     }
 
     @Override

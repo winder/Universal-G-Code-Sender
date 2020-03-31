@@ -35,9 +35,6 @@ public class JoystickJogService implements JoystickServiceListener {
     private final ContinuousJogWorker continousJogWorker;
 
     public JoystickJogService() {
-        JoystickService joystickService = CentralLookup.getDefault().lookup(JoystickService.class);
-        joystickService.addListener(this);
-
         jogService = CentralLookup.getDefault().lookup(JogService.class);
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
 

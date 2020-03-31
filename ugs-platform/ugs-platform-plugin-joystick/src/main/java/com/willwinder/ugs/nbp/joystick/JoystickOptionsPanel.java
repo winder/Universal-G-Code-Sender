@@ -19,7 +19,7 @@
 package com.willwinder.ugs.nbp.joystick;
 
 import com.willwinder.ugs.nbp.joystick.model.JoystickState;
-import com.willwinder.ugs.nbp.joystick.service.JoystickServiceImpl;
+import com.willwinder.ugs.nbp.joystick.service.JoystickService;
 import com.willwinder.ugs.nbp.joystick.service.JoystickServiceListener;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
@@ -29,13 +29,13 @@ import java.awt.*;
 
 public class JoystickOptionsPanel extends AbstractOptionsPanel implements JoystickServiceListener {
 
-    private final JoystickServiceImpl joystickService;
+    private final JoystickService joystickService;
     private JPanel panel;
     private Checkbox activeCheckbox;
 
     JoystickOptionsPanel(JoystickOptionsPanelController controller) {
         super(controller);
-        joystickService = CentralLookup.getDefault().lookup(JoystickServiceImpl.class);
+        joystickService = CentralLookup.getDefault().lookup(JoystickService.class);
         joystickService.addListener(this);
 
         super.setLayout(new BorderLayout());
