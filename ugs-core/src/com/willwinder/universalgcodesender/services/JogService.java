@@ -185,11 +185,11 @@ public class JogService {
     /**
      * Adjusts the location for each axises.
      */
-    public void adjustManualLocation(float x, float y, float z, double stepSize) {
+    public void adjustManualLocation(double distanceX, double distanceY, double distanceZ) {
         try {
             double feedRate = getSettings().getJogFeedRate();
             Units units = getSettings().getPreferredUnits();
-            backend.adjustManualLocation(x, y, z, stepSize, feedRate, units);
+            backend.adjustManualLocation(distanceX, distanceY, distanceZ, feedRate, units);
         } catch (Exception e) {
             // Not much we can do
         }
@@ -207,7 +207,7 @@ public class JogService {
             }
             double feedRate = getSettings().getJogFeedRate();
             Units preferredUnits = getSettings().getPreferredUnits();
-            backend.adjustManualLocation(0, 0, z, stepSize, feedRate, preferredUnits);
+            backend.adjustManualLocation(0, 0, z * stepSize, feedRate, preferredUnits);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             //DialogDisplayer.getDefault().notify(nd);
@@ -228,7 +228,7 @@ public class JogService {
             double feedRate = getFeedRate();
             double stepSize = getStepSizeXY();
             Units preferredUnits = getUnits();
-            backend.adjustManualLocation(x, y, 0, stepSize, feedRate, preferredUnits);
+            backend.adjustManualLocation(x * stepSize, y * stepSize, 0, feedRate, preferredUnits);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             //DialogDisplayer.getDefault().notify(nd);

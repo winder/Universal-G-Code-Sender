@@ -116,13 +116,13 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public void jogMachine(float dirX, float dirY, float dirZ, double stepSize, double feedRate, UnitUtils.Units units) throws Exception {
+    public void jogMachine(double distanceX, double distanceY, double distanceZ, double feedRate, UnitUtils.Units units) throws Exception {
         // Fetch the current coordinate units in which the machine is running
         UnitUtils.Units targetUnits = UnitUtils.Units.getUnits(getCurrentGcodeState().units);
 
         // We need to convert to these units as we can not change the units in one command in TinyG
         double scale = UnitUtils.scaleUnits(units, targetUnits);
-        String commandString = GcodeUtils.generateMoveCommand("G91G1", stepSize * scale, feedRate * scale, dirX, dirY, dirZ, targetUnits);
+        String commandString = GcodeUtils.generateMoveCommand("G91G1", feedRate * scale, distanceX * scale, distanceY * scale, distanceZ * scale, targetUnits);
 
         GcodeCommand command = createCommand(commandString);
         command.setTemporaryParserModalChange(true);

@@ -77,18 +77,17 @@ public interface BackendAPI extends BackendAPIReadOnly {
     void sendGcodeCommand(GcodeCommand command) throws Exception;
 
     /**
-     * Jogs the machine in the direction specified by vector dirX, dirY, dirZ. The direction is a float
-     * value between 1.0 to -1.0. The distance is specified by stepSize in the given units.
+     * Jogs the machine by a specified direction given distanceX, distanceY, distanceZ.
+     * The distance is specified by the given units and can be a positive or negative value.
      *
-     * @param dirX if the jogging should happen in X-direction, possible values are between 1.0 to -1.0
-     * @param dirY if the jogging should happen in Y-direction, possible values are between 1.0 to -1.0
-     * @param dirZ if the jogging should happen in Z-direction, possible values are between 1.0 to -1.0
-     * @param stepSize how long should we jog in the given units per step
-     * @param feedRate how fast should we jog in the direction
-     * @param units the units of the stepSize and feed rate
+     * @param distanceX how long to jog on the X axis.
+     * @param distanceY how long to jog on the Y axis.
+     * @param distanceZ how long to jog on the Z axis.
+     * @param feedRate how fast should we jog in the given direction
+     * @param units the units of the distance and feed rate
      * @throws Exception if something went wrong when jogging
      */
-    void adjustManualLocation(float dirX, float dirY, float dirZ, double stepSize, double feedRate, Units units) throws Exception;
+    void adjustManualLocation(double distanceX, double distanceY, double distanceZ, double feedRate, Units units) throws Exception;
 
     void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception;
     void offsetTool(String axis, double offset, UnitUtils.Units units) throws Exception;
