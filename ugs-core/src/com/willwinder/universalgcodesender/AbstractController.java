@@ -165,7 +165,10 @@ public abstract class AbstractController implements CommunicatorListener, IContr
             // If Z is less than zero, raise it before further movement.
             double currentZPosition = getControllerStatus().getWorkCoord().getPositionIn(UnitUtils.Units.MM).get(Axis.Z);
             if (currentZPosition < safetyHeightInMm) {
-                String moveToSafetyHeightCommand = GcodeUtils.generateMoveCommand("G90 G0", 0, 0, 0, safetyHeightInMm, UnitUtils.Units.MM);
+                String moveToSafetyHeightCommand = GcodeUtils.GCODE_RETURN_TO_Z_ZERO_LOCATION;
+                if (safetyHeightInMm > 0) {
+                    moveToSafetyHeightCommand = GcodeUtils.generateMoveCommand("G90 G0", 0, 0, 0, safetyHeightInMm, UnitUtils.Units.MM);
+                }
                 sendCommandImmediately(createCommand(moveToSafetyHeightCommand));
             }
             sendCommandImmediately(createCommand(GcodeUtils.GCODE_RETURN_TO_XY_ZERO_LOCATION));
