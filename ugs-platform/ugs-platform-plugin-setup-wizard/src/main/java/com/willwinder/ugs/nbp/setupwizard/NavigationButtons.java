@@ -112,7 +112,7 @@ public class NavigationButtons {
             if (controller.getControllerStatus().getState() == ControllerState.ALARM) {
                 WizardUtils.killAlarm(backendAPI);
             } else {
-                controller.jogMachine(x, y, z, stepSize, feedRate, UnitUtils.Units.MM);
+                controller.jogMachine(x * stepSize, y * stepSize, z * stepSize, feedRate, UnitUtils.Units.MM);
             }
         } catch (Exception e) {
             NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while moving the machine: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);

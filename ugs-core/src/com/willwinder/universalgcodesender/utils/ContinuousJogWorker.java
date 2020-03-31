@@ -109,7 +109,7 @@ public class ContinuousJogWorker implements ControllerListener {
         double maxFeedRate = jogService.getFeedRate();
 
         // Calculate how long we should be able to move at the given interval and add 20%
-        return (maxFeedRate / 60) * (JOG_COMMAND_INTERVAL / 1000.0) * 1.2;
+        return (maxFeedRate / 60.0) * (JOG_COMMAND_INTERVAL / 1000.0) * 1.2;
     }
 
     private void sendContinuousJogCommands() {
@@ -120,7 +120,7 @@ public class ContinuousJogWorker implements ControllerListener {
                 // Ensure that we only send one command at the time, waiting for it to complete
                 if (!isWaitingForCommandComplete) {
                     isWaitingForCommandComplete = true;
-                    jogService.adjustManualLocation(x, y, z, stepSize);
+                    jogService.adjustManualLocation(x * stepSize, y * stepSize, z * stepSize);
                 } else {
                     Thread.sleep(JOG_COMMAND_INTERVAL);
                 }
