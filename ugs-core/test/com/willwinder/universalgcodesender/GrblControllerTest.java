@@ -1199,7 +1199,7 @@ public class GrblControllerTest {
         assertEquals(5, mgc.queuedStrings.size());
         assertEquals("View all grbl settings", "$$", mgc.queuedStrings.get(0));
         assertEquals("View gcode parser state", "$G", mgc.queuedStrings.get(1));
-        assertEquals("The machine is in the material, go to zero with the Z axis first", "G21G90 G0Z0", mgc.queuedStrings.get(2));
+        assertEquals("The machine is in the material, go to zero with the Z axis first", "G90 G0 Z0", mgc.queuedStrings.get(2));
         assertEquals("Go to XY-zero", "G90 G0 X0 Y0", mgc.queuedStrings.get(3));
         assertEquals("Go to Z-zero", "G90 G0 Z0", mgc.queuedStrings.get(4));
     }
