@@ -55,12 +55,6 @@ public class LocalizationTest {
     }
 
     @Test
-    public void loadLocalizationWithSpecialCharactersShouldLoad() {
-        Localization.initialize("sv", "SE");
-        assertEquals("Stäng", Localization.getString(CLOSE_KEY));
-    }
-
-    @Test
     public void minusSignsShouldBeConvertedWithRightCharacter() {
         NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
         assertEquals("-1", formatter.format(-1));

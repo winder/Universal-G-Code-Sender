@@ -109,7 +109,8 @@ public class Localization {
     public static String getString(String id) {
         String result = "";
         try {
-            result = bundle.getString(id);
+            String val = bundle.getString(id);
+            result = new String(val.getBytes("ISO-8859-1"), "UTF-8");
         } catch (Exception e) {
             // Ignore this error, we will later try to fetch the string from the english bundle
         }
@@ -119,7 +120,8 @@ public class Localization {
                 if (english == null) {
                     english = ResourceBundle.getBundle("resources.MessagesBundle", new Locale("en", "US"));
                 }
-                result = english.getString(id);
+                String val = english.getString(id);
+                result = new String(val.getBytes("ISO-8859-1"), "UTF-8");
             } catch (Exception e) {
                 result = "<" + id + ">";
             }
