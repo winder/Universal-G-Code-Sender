@@ -18,9 +18,10 @@
  */
 package com.willwinder.universalgcodesender.i18n;
 
-
 import org.junit.Test;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
@@ -50,5 +51,17 @@ public class LocalizationTest {
         assertEquals("Beskrivning", Localization.getString(DESCRIPTION_KEY));
         assertEquals("sv", Locale.getDefault().getLanguage());
         assertEquals("SE", Locale.getDefault().getCountry());
+    }
+
+    @Test
+    public void minusSignsShouldBeConvertedWithRightCharacter() {
+        NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
+        assertEquals("-1", formatter.format(-1));
+    }
+
+    @Test
+    public void commasShouldBeConvertedWithRightCharacter() {
+        NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
+        assertEquals("1.111", formatter.format(1.111));
     }
 }
