@@ -18,9 +18,10 @@
  */
 package com.willwinder.universalgcodesender.i18n;
 
-
 import org.junit.Test;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
@@ -34,6 +35,7 @@ import static org.junit.Assert.assertTrue;
 public class LocalizationTest {
 
     private static final String DESCRIPTION_KEY = "description";
+    private static final String CLOSE_KEY = "close";
 
     @Test
     public void loadLocalizationThatDoesNotExistShouldRevertToEnglish() {
@@ -50,5 +52,23 @@ public class LocalizationTest {
         assertEquals("Beskrivning", Localization.getString(DESCRIPTION_KEY));
         assertEquals("sv", Locale.getDefault().getLanguage());
         assertEquals("SE", Locale.getDefault().getCountry());
+    }
+
+    @Test
+    public void loadLocalizationWithSpecialCharactersShouldLoad() {
+        Localization.initialize("sv", "SE");
+        assertEquals("Stäng", Localization.getString(CLOSE_KEY));
+    }
+
+    @Test
+    public void minusSignsShouldBeConvertedWithRightCharacter() {
+        NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
+        assertEquals("-1", formatter.format(-1));
+    }
+
+    @Test
+    public void commasShouldBeConvertedWithRightCharacter() {
+        NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
+        assertEquals("1.111", formatter.format(1.111));
     }
 }

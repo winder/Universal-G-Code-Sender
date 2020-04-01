@@ -38,7 +38,10 @@ import java.util.logging.Logger;
 public class Localization {
     private static final Logger logger = Logger.getLogger(Localization.class.getName());
     public final static DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
-    static {dfs.setDecimalSeparator('.');}
+    static {
+        dfs.setDecimalSeparator('.');
+        dfs.setMinusSign('-');
+    }
 
     private static ResourceBundle bundle = null;
     private static ResourceBundle english = null;
@@ -106,8 +109,7 @@ public class Localization {
     public static String getString(String id) {
         String result = "";
         try {
-            String val = bundle.getString(id);
-            result = new String(val.getBytes("ISO-8859-1"), "UTF-8");
+            result = bundle.getString(id);
         } catch (Exception e) {
             // Ignore this error, we will later try to fetch the string from the english bundle
         }
@@ -117,8 +119,7 @@ public class Localization {
                 if (english == null) {
                     english = ResourceBundle.getBundle("resources.MessagesBundle", new Locale("en", "US"));
                 }
-                String val = english.getString(id);
-                result = new String(val.getBytes("ISO-8859-1"), "UTF-8");
+                result = english.getString(id);
             } catch (Exception e) {
                 result = "<" + id + ">";
             }
