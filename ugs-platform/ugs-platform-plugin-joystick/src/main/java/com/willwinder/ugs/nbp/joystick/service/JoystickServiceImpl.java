@@ -73,7 +73,9 @@ public class JoystickServiceImpl implements JoystickService {
     @Override
     public void destroy() {
         isRunning = false;
-        controllerManager.quitSDLGamepad();
+        if (controllerManager != null) {
+            controllerManager.quitSDLGamepad();
+        }
     }
 
     @Override
