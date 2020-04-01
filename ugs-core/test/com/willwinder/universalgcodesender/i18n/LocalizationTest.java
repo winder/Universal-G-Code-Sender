@@ -35,7 +35,6 @@ import static org.junit.Assert.assertTrue;
 public class LocalizationTest {
 
     private static final String DESCRIPTION_KEY = "description";
-    private static final String CLOSE_KEY = "close";
 
     @Test
     public void loadLocalizationThatDoesNotExistShouldRevertToEnglish() {
