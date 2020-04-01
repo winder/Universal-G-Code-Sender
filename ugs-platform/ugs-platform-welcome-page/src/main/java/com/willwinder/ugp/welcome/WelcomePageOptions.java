@@ -32,7 +32,9 @@ public class WelcomePageOptions {
 
     private static WelcomePageOptions theInstance;
     
+    private static final String PROP_SHOW_ON_STARTUP = "showOnStartup";
     private static final String PROP_LAST_ACTIVE_TAB = "lastActiveTab";
+    private static final String PROP_START_COUNTER = "startCounter";
 
     private PropertyChangeSupport propSupport;
     
@@ -50,6 +52,20 @@ public class WelcomePageOptions {
         return theInstance;
     }
 
+    public void setShowOnStartup( boolean show ) {
+        boolean oldVal = isShowOnStartup();
+        if( oldVal == show ) {
+            return;
+        }
+        prefs().putBoolean(PROP_SHOW_ON_STARTUP, show);
+        if( null != propSupport )
+            propSupport.firePropertyChange( PROP_SHOW_ON_STARTUP, oldVal, show );
+    }
+
+    public boolean isShowOnStartup() {
+        return prefs().getBoolean(PROP_SHOW_ON_STARTUP, !Boolean.getBoolean("netbeans.full.hack"));
+    }
+
     public void setLastActiveTab( int tabIndex ) {
         int oldVal = getLastActiveTab();
         prefs().putInt(PROP_LAST_ACTIVE_TAB, tabIndex);
@@ -60,6 +76,17 @@ public class WelcomePageOptions {
 
     public int getLastActiveTab() {
         return prefs().getInt(PROP_LAST_ACTIVE_TAB, -1);
+    }
+
+    public boolean isSecondStart() {
+        return prefs().getInt(PROP_START_COUNTER, -1) == 2;
+    }
+
+    public void incrementStartCounter() {
+        int count = prefs().getInt(PROP_START_COUNTER, 0) + 1;
+        if( count > 3 )
+            return; //we're just interested in the first and second start so don't bother any more then
+        prefs().putInt( PROP_START_COUNTER, count );
     }
 
     public void addPropertyChangeListener( PropertyChangeListener l ) {

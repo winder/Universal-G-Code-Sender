@@ -47,6 +47,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import org.openide.util.ImageUtilities;
 
@@ -102,10 +103,14 @@ public class TabbedPane extends JPanel implements Constants {// , Scrollable {
         JComponent tabHeader = new TabHeader(buttons);
         add( tabHeader, BorderLayout.NORTH );
         
-        tabContent = new TabContentPane();
+        tabContent = new TabContentPane();//JPanel( new GridBagLayout() );
 
         add( tabContent, BorderLayout.CENTER );
         int activeTabIndex = WelcomePageOptions.getDefault().getLastActiveTab();
+        if( WelcomePageOptions.getDefault().isSecondStart() && activeTabIndex < 0 ) {
+            activeTabIndex = 1;
+            WelcomePageOptions.getDefault().setLastActiveTab( 1 );
+        }
         activeTabIndex = Math.max(0, activeTabIndex);
         activeTabIndex = Math.min(activeTabIndex, tabs.size()-1);
         switchTab( activeTabIndex );
@@ -251,6 +256,7 @@ public class TabbedPane extends JPanel implements Constants {// , Scrollable {
 
     private class TabHeader extends JPanel {
 
+        private final ShowNextTime showNextTime = new ShowNextTime();
         private final JComponent appLogo = new JPanel(new BorderLayout());
 
 
@@ -272,6 +278,7 @@ public class TabbedPane extends JPanel implements Constants {// , Scrollable {
             add( new JLabel(), new GridBagConstraints( 1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0,0,0,0), 0, 0) );
             add( panelButtons, new GridBagConstraints( 2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(0,0,0,0), 0, 0) );
             add( new JLabel(), new GridBagConstraints( 3, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0,0,0,0), 0, 0) );
+            add( showNextTime, new GridBagConstraints( 4, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(15,12,15,12), 0, 0) );
         }
 
         @Override
@@ -282,6 +289,12 @@ public class TabbedPane extends JPanel implements Constants {// , Scrollable {
             g2d.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
             g2d.setPaint( colBackground );
             g2d.fillRoundRect( 0, 0, getWidth(), getHeight(), 8, 8 );
+        }
+
+        @Override
+        public void addNotify() {
+            super.addNotify();
+            SwingUtilities.invokeLater(showNextTime::requestFocusInWindow);
         }
     }
 
