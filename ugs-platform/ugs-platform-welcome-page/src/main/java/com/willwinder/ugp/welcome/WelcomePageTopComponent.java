@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -36,9 +36,7 @@ import org.openide.windows.TopComponent;
  * Top component which displays something.
  */
 @TopComponent.Description(
-        preferredID = "WelcomePageTopComponent",
-        //iconBase="SET/PATH/TO/ICON/HERE", 
-        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED
+        preferredID = "WelcomePageTopComponent"
 )
 @TopComponent.Registration(mode = "editor", openAtStartup = true)
 @ActionID(category = WelcomePageTopComponent.Category, id = WelcomePageTopComponent.ActionId)
@@ -48,9 +46,6 @@ import org.openide.windows.TopComponent;
         preferredID = "WelcomePageTopComponent"
 )
 public final class WelcomePageTopComponent extends TopComponent {
-  // Flag to prevent opening the start page once, allowing it to be opened manually.
-  private static boolean firstTimeOpen = true;
-
   protected final static String Category = "Help";
   protected final static String ActionId = "com.willwinder.ugp.welcome.WelcomePageTopComponent";
   protected final static String Path = "Menu/Help";
@@ -95,21 +90,6 @@ public final class WelcomePageTopComponent extends TopComponent {
             // TODO: Populate a features tab with data from github.
             //new FeaturesTab("What's New", downloadedFeatureList)
     );
-  }
-
-  @Override
-  public void componentOpened() {
-    if( firstTimeOpen ) {
-      firstTimeOpen = false;
-      if( !WelcomePageOptions.getDefault().isShowOnStartup() ) {
-        close();
-      }
-    }
-  }
-
-  @Override
-  public void componentClosed() {
-    // No special component close logic needed.
   }
 
   public void writeProperties(java.util.Properties p) {

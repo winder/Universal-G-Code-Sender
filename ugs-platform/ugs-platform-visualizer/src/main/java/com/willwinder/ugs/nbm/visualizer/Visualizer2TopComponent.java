@@ -50,9 +50,7 @@ import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
  * Setup JOGL canvas, GcodeRenderer and RendererInputHandler.
  */
 @TopComponent.Description(
-        preferredID = "VisualizerTopComponent",
-        //iconBase="SET/PATH/TO/ICON/HERE", 
-        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED
+        preferredID = "VisualizerTopComponent"
 )
 @TopComponent.Registration(mode = "editor", openAtStartup = true)
 @ActionID(category = Visualizer2TopComponent.VisualizerCategory, id = Visualizer2TopComponent.VisualizerActionId)
