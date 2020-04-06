@@ -58,10 +58,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
     private final Checkbox autoStartPendant = new Checkbox(
             Localization.getString("sender.autostartpendant"));
     private final JComboBox<Language> languageCombo = new JComboBox<>(AvailableLanguages.getAvailableLanguages().toArray(new Language[0]));
-    private final JComboBox<String> connectionDriver = new JComboBox<>(new String[]{
-            ConnectionDriver.JSSC.getPrettyName(),
-            ConnectionDriver.JSERIALCOMM.getPrettyName(),
-            ConnectionDriver.TCP.getPrettyName()});
+    private final JComboBox<String> connectionDriver = new JComboBox<>(ConnectionDriver.getPrettyNames());
     private final JTextField workspaceDirectory = new JTextField();
     private final JButton workspaceDirectoryBrowseButton = new JButton("Browse");
 
@@ -96,13 +93,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         settings.setShowNightlyWarning(showNightlyWarning.getValue());
         settings.setAutoStartPendant(autoStartPendant.getValue());
         settings.setLanguage(((Language) languageCombo.getSelectedItem()).getLanguageCode());
-        if (connectionDriver.getSelectedItem().equals(ConnectionDriver.JSERIALCOMM.getPrettyName())) {
-            settings.setConnectionDriver(ConnectionDriver.JSERIALCOMM);
-        } else if (connectionDriver.getSelectedItem().equals(ConnectionDriver.TCP.getPrettyName())) {
-            settings.setConnectionDriver(ConnectionDriver.TCP);
-        } else {
-            settings.setConnectionDriver(ConnectionDriver.JSSC);
-        }
+        settings.setConnectionDriver(ConnectionDriver.prettyNameToEnum(connectionDriver.getSelectedItem().toString()));
         settings.setWorkspaceDirectory(workspaceDirectory.getText());
         SettingsFactory.saveSettings(settings);
     }

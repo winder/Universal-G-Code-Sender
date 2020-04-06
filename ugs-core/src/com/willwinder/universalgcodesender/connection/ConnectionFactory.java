@@ -59,12 +59,15 @@ public class ConnectionFactory {
     }
 
     public static Optional<Connection> getConnection(ConnectionDriver connectionDriver) {
-        if (connectionDriver == ConnectionDriver.JSERIALCOMM) {
-            return Optional.of(new JSerialCommConnection());
-        } else if (connectionDriver == ConnectionDriver.JSSC) {
-            return Optional.of(new JSSCConnection());
-        } else if (connectionDriver == ConnectionDriver.TCP) {
-            return Optional.of(new TCPConnection());
+        switch (connectionDriver) {
+            case JSERIALCOMM:
+                return Optional.of(new JSerialCommConnection());
+            case JSSC:
+                return Optional.of(new JSSCConnection());
+            case TCP:
+                return Optional.of(new TCPConnection());
+            case WS:
+                return Optional.of(new WSConnection());
         }
         return Optional.empty();
     }
