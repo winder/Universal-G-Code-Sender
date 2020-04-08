@@ -59,12 +59,22 @@ import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_Z_DOWN;
 import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_Z_UP;
 
 public class JoystickServiceImpl implements JoystickService {
+
+    private static final Logger LOGGER = Logger.getLogger(JoystickServiceImpl.class.getSimpleName());
+
+    /**
+     * Treat value as zero if between 0.03 and -0.03.
+     */
     public static final float AXIS_THRESHOLD = 0.03f;
+
     /**
      * Milliseconds to wait between reading joystick/gamepad values
      */
     private static final int READ_DELAY_MILLISECONDS = 1;
-    private static final Logger LOGGER = Logger.getLogger(JoystickServiceImpl.class.getSimpleName());
+
+    /**
+     * A version number for the settings so that we can handle version changes
+     */
     private static final int SETTINGS_VERSION = 1;
 
     private final ControllerManager controllerManager;

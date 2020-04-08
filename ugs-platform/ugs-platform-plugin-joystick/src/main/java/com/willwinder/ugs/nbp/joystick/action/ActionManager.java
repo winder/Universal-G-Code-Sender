@@ -49,6 +49,10 @@ public class ActionManager {
         this.actionRegistrationService = Lookup.getDefault().lookup(ActionRegistrationService.class);
     }
 
+    public ActionManager(ActionRegistrationService actionRegistrationService) {
+        this.actionRegistrationService = actionRegistrationService;
+    }
+
     public Optional<ActionReference> getActionById(String actionId) {
         Optional<ActionReference> actionById = actionRegistrationService.getActionById(actionId);
         if (!actionById.isPresent()) {
