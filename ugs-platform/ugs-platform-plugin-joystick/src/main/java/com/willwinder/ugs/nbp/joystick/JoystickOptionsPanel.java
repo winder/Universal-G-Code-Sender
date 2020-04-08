@@ -18,18 +18,26 @@
  */
 package com.willwinder.ugs.nbp.joystick;
 
+import com.willwinder.ugs.nbp.joystick.model.JoystickControl;
 import com.willwinder.ugs.nbp.joystick.model.JoystickState;
 import com.willwinder.ugs.nbp.joystick.service.JoystickService;
 import com.willwinder.ugs.nbp.joystick.service.JoystickServiceListener;
+import com.willwinder.ugs.nbp.joystick.ui.BindActionButton;
+import com.willwinder.ugs.nbp.joystick.ui.StatusLabel;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
+import com.willwinder.universalgcodesender.i18n.Localization;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JoystickOptionsPanel extends AbstractOptionsPanel implements JoystickServiceListener {
-
     private final JoystickService joystickService;
+
+    private final Map<JoystickControl, StatusLabel> statusLabelMap = new HashMap<>();
     private JPanel panel;
     private Checkbox activeCheckbox;
 
@@ -38,7 +46,8 @@ public class JoystickOptionsPanel extends AbstractOptionsPanel implements Joysti
         joystickService = CentralLookup.getDefault().lookup(JoystickService.class);
         joystickService.addListener(this);
 
-        super.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
+        clear();
     }
 
     @Override
@@ -46,17 +55,46 @@ public class JoystickOptionsPanel extends AbstractOptionsPanel implements Joysti
         if (panel != null) {
             this.remove(panel);
         }
+        joystickService.setActivateActionDispatcher(false);
 
-        panel = new JPanel();
-        activeCheckbox = new Checkbox("Active", Settings.isActive());
-        panel.add(activeCheckbox);
+        panel = new JPanel(new MigLayout("inset 5"));
+
+        activeCheckbox = new Checkbox(Localization.getString("platform.plugin.joystick.activate"), Settings.isActive());
+        panel.add(activeCheckbox, "wrap, spanx");
+
+        panel.add(new JSeparator(SwingConstants.HORIZONTAL), "wrap, spanx");
+        panel.add(new JLabel(Localization.getString("platform.plugin.joystick.buttonControls")), "wrap, spanx, hmin 24");
+
+        for (JoystickControl joystickControl : JoystickControl.getDigitalControls()) {
+            String name = Localization.getString(joystickControl.getLocalization());
+            StatusLabel label = new StatusLabel(name);
+            statusLabelMap.put(joystickControl, label);
+            panel.add(label, "wmin 100, hmin 24");
+            panel.add(new BindActionButton(joystickService, joystickControl), "wmin 150, hmin 24, wrap");
+        }
+
+        panel.add(new JSeparator(SwingConstants.HORIZONTAL), "wrap, spanx");
+        panel.add(new JLabel(Localization.getString("platform.plugin.joystick.analogControls")), "wrap, spanx, hmin 24");
+        for (JoystickControl joystickControl : JoystickControl.getAnalogControls()) {
+            String name = Localization.getString(joystickControl.getLocalization());
+            StatusLabel label = new StatusLabel(name);
+            statusLabelMap.put(joystickControl, label);
+            panel.add(label, "wmin 100, hmin 24");
+            panel.add(createPanel(joystickControl), "wmin 150, hmin 24, wrap");
+        }
 
         add(panel, BorderLayout.CENTER);
         SwingUtilities.invokeLater(changer::changed);
     }
 
+    private JComponent createPanel(JoystickControl joystickButton) {
+        return new BindActionButton(joystickService, joystickButton);
+    }
+
     @Override
     public void store() {
+        joystickService.setActivateActionDispatcher(true);
+
         if (activeCheckbox.getState()) {
             joystickService.initialize();
         } else {
@@ -73,6 +111,16 @@ public class JoystickOptionsPanel extends AbstractOptionsPanel implements Joysti
 
     @Override
     public void onUpdate(JoystickState state) {
+        for (JoystickControl control : JoystickControl.getDigitalControls()) {
+            StatusLabel label = statusLabelMap.get(control);
+            boolean isPressed = state.getButton(control);
+            label.setActive(isPressed);
+        }
 
+        for (JoystickControl control : JoystickControl.getAnalogControls()) {
+            StatusLabel label = statusLabelMap.get(control);
+            float value = state.getAxis(control);
+            label.setActive(value != 0);
+        }
     }
 }

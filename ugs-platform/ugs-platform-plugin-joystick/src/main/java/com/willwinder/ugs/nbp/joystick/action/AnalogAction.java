@@ -16,27 +16,16 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.joystick.model;
+package com.willwinder.ugs.nbp.joystick.action;
+
+import javax.swing.*;
 
 /**
- * The available buttons that can be read by the service
+ * An action that supports setting analog values
  *
  * @author Joacim Breiler
  */
-public enum JoystickButton {
-    A,
-    B,
-    X,
-    Y,
-    BACK,
-    GUIDE,
-    START,
-    LEFT_STICK,
-    RIGHT_STICK,
-    LEFT_BUMPER,
-    RIGHT_BUMPER,
-    DPAD_UP,
-    DPAD_DOWN,
-    DPAD_LEFT,
-    DPAD_RIGHT
+public interface AnalogAction extends Action {
+
+    void setValue(float value);
 }

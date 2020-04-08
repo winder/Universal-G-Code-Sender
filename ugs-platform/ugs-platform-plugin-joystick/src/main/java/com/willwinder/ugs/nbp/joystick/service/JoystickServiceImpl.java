@@ -23,10 +23,18 @@ import com.studiohartman.jamepad.ControllerButton;
 import com.studiohartman.jamepad.ControllerIndex;
 import com.studiohartman.jamepad.ControllerManager;
 import com.studiohartman.jamepad.ControllerUnpluggedException;
+import com.willwinder.ugs.nbp.joystick.Settings;
 import com.willwinder.ugs.nbp.joystick.Utils;
-import com.willwinder.ugs.nbp.joystick.model.JoystickAxis;
-import com.willwinder.ugs.nbp.joystick.model.JoystickButton;
+import com.willwinder.ugs.nbp.joystick.action.ActionDispatcher;
+import com.willwinder.ugs.nbp.joystick.action.ActionManager;
+import com.willwinder.ugs.nbp.joystick.action.AnalogJogAction;
+import com.willwinder.ugs.nbp.joystick.model.JoystickControl;
 import com.willwinder.ugs.nbp.joystick.model.JoystickState;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.JogService;
+import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -36,20 +44,39 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_DIVIDE_FEED;
+import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_JOG_X;
+import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_JOG_X_MINUS;
+import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_JOG_X_PLUS;
+import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_JOG_Y;
+import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_JOG_Y_MINUS;
+import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_JOG_Y_PLUS;
+import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_JOG_Z;
+import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_MULTIPLY_FEED;
+import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_START;
+import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_STOP;
+import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_Z_DOWN;
+import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_Z_UP;
+
 public class JoystickServiceImpl implements JoystickService {
+    public static final float AXIS_THRESHOLD = 0.03f;
     /**
      * Milliseconds to wait between reading joystick/gamepad values
      */
-    private static final int READ_DELAY_MILLISECONDS = 10;
+    private static final int READ_DELAY_MILLISECONDS = 1;
     private static final Logger LOGGER = Logger.getLogger(JoystickServiceImpl.class.getSimpleName());
+    private static final int SETTINGS_VERSION = 1;
 
     private final ControllerManager controllerManager;
     private final JoystickState joystickState;
     private final ExecutorService joystickReadThread;
+    private final ActionDispatcher joystickActionDispatcher;
+    private final ActionManager actionManager;
 
     private ControllerIndex currentController;
     private Set<JoystickServiceListener> listeners;
     private boolean isRunning;
+    private boolean isActionDispatcherActive = true;
 
     public JoystickServiceImpl() {
         joystickReadThread = Executors.newSingleThreadExecutor();
@@ -57,8 +84,38 @@ public class JoystickServiceImpl implements JoystickService {
         joystickState = new JoystickState();
         listeners = new HashSet<>();
 
-        JoystickJogService joystickJogService = new JoystickJogService();
-        addListener(joystickJogService);
+        JogService jogService = CentralLookup.getDefault().lookup(JogService.class);
+        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        ContinuousJogWorker continuousJogWorker = new ContinuousJogWorker(backendAPI, jogService);
+
+        actionManager = new ActionManager();
+        actionManager.registerAction("continuousJogXAction", "Actions/Machine", new AnalogJogAction(continuousJogWorker, Axis.X));
+        actionManager.registerAction("continuousJogYAction", "Actions/Machine", new AnalogJogAction(continuousJogWorker, Axis.Y));
+        actionManager.registerAction("continuousJogZAction", "Actions/Machine", new AnalogJogAction(continuousJogWorker, Axis.Z));
+
+        joystickActionDispatcher = new ActionDispatcher(actionManager, continuousJogWorker);
+        addListener(joystickActionDispatcher);
+
+        if (Settings.getVersion() == 0) {
+            initDefaultSettings();
+        }
+    }
+
+    private void initDefaultSettings() {
+        actionManager.getActionById(ACTION_Z_DOWN).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.A, actionReference));
+        actionManager.getActionById(ACTION_Z_UP).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.Y, actionReference));
+        actionManager.getActionById(ACTION_JOG_Z).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.RIGHT_Y, actionReference));
+        actionManager.getActionById(ACTION_JOG_X).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.LEFT_X, actionReference));
+        actionManager.getActionById(ACTION_JOG_Y).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.LEFT_Y, actionReference));
+        actionManager.getActionById(ACTION_DIVIDE_FEED).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.LEFT_BUMPER, actionReference));
+        actionManager.getActionById(ACTION_MULTIPLY_FEED).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.RIGHT_BUMPER, actionReference));
+        actionManager.getActionById(ACTION_START).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.START, actionReference));
+        actionManager.getActionById(ACTION_JOG_Y_PLUS).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.DPAD_UP, actionReference));
+        actionManager.getActionById(ACTION_JOG_X_PLUS).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.DPAD_RIGHT, actionReference));
+        actionManager.getActionById(ACTION_JOG_X_MINUS).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.DPAD_LEFT, actionReference));
+        actionManager.getActionById(ACTION_JOG_Y_MINUS).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.DPAD_DOWN, actionReference));
+        actionManager.getActionById(ACTION_STOP).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.BACK, actionReference));
+        Settings.setVersion(SETTINGS_VERSION);
     }
 
     @Override
@@ -79,6 +136,11 @@ public class JoystickServiceImpl implements JoystickService {
     }
 
     @Override
+    public void setActivateActionDispatcher(boolean isActionDispatcherActive) {
+        this.isActionDispatcherActive = isActionDispatcherActive;
+    }
+
+    @Override
     public void addListener(JoystickServiceListener listener) {
         listeners.add(listener);
     }
@@ -91,6 +153,11 @@ public class JoystickServiceImpl implements JoystickService {
     @Override
     public void removeAllListeners() {
         listeners.clear();
+    }
+
+    @Override
+    public ActionManager getActionManager() {
+        return actionManager;
     }
 
     private void mainLoop() {
@@ -112,12 +179,11 @@ public class JoystickServiceImpl implements JoystickService {
     private void readDataLoop() {
         currentController = controllerManager.getControllerIndex(0);
         try {
-            joystickState.setName(currentController.getName());
             while (isRunning && currentController.isConnected()) {
                 readData();
                 Thread.sleep(READ_DELAY_MILLISECONDS);
             }
-        } catch (ControllerUnpluggedException | InterruptedException e) {
+        } catch (InterruptedException e) {
             LOGGER.log(Level.WARNING, "Controller unplugged or interrupted", e);
         }
     }
@@ -133,14 +199,24 @@ public class JoystickServiceImpl implements JoystickService {
     }
 
     private void notifyListeners() {
-        listeners.forEach(listener -> listener.onUpdate(joystickState));
+        listeners.forEach(listener -> {
+            if (listener == joystickActionDispatcher && !isActionDispatcherActive) {
+                return;
+            }
+
+            listener.onUpdate(joystickState);
+        });
     }
 
     private void updateJoystickAxisState(ControllerAxis controllerAxis) {
         try {
-            // Round values, got issues with the controller having 0.01 as zero-value
-            float value = Math.round(currentController.getAxisState(controllerAxis) * 10) / 10f;
-            JoystickAxis axis = Utils.getJoystickAxisFromControllerAxis(controllerAxis);
+            // We might have rounding errors from the controller, ignore the low value range
+            float value = currentController.getAxisState(controllerAxis);
+            if (value < AXIS_THRESHOLD && value > -AXIS_THRESHOLD) {
+                value = 0;
+            }
+
+            JoystickControl axis = Utils.getJoystickAxisFromControllerAxis(controllerAxis);
             joystickState.setAxis(axis, value);
         } catch (ControllerUnpluggedException e) {
             throw new JoystickException("Couldn't read value from joystick axis", e);
@@ -150,7 +226,7 @@ public class JoystickServiceImpl implements JoystickService {
     private void updateJoystickButtonState(ControllerButton controllerButton) {
         try {
             boolean value = currentController.isButtonPressed(controllerButton);
-            JoystickButton button = Utils.getJoystickButtonFromControllerButton(controllerButton);
+            JoystickControl button = Utils.getJoystickButtonFromControllerButton(controllerButton);
             joystickState.setButton(button, value);
         } catch (ControllerUnpluggedException e) {
             throw new JoystickException("Couldn't read value from joystick button", e);

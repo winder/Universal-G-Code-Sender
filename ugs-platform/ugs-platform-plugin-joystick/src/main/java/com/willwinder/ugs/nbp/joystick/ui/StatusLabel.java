@@ -16,18 +16,30 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.joystick.model;
+package com.willwinder.ugs.nbp.joystick.ui;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
- * The available axises that can be read by the service
+ * A label that can display a green background if set to active.
  *
  * @author Joacim Breiler
  */
-public enum JoystickAxis {
-    LEFT_X,
-    LEFT_Y,
-    RIGHT_X,
-    RIGHT_Y,
-    TRIGGER_LEFT,
-    TRIGGER_RIGHT;
+public class StatusLabel extends JLabel {
+    public StatusLabel(String text) {
+        super(text);
+    }
+
+    public void setActive(boolean isActive) {
+        if (isActive) {
+            setBackground(Color.GREEN);
+            setOpaque(true);
+        } else {
+            setBackground(null);
+            setOpaque(false);
+        }
+        invalidate();
+        repaint();
+    }
 }

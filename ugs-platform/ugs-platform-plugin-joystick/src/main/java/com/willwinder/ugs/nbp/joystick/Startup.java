@@ -21,7 +21,19 @@ package com.willwinder.ugs.nbp.joystick;
 import com.willwinder.ugs.nbp.joystick.service.JoystickService;
 import com.willwinder.ugs.nbp.joystick.service.JoystickServiceImpl;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import org.openide.cookies.InstanceCookie;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.modules.OnStart;
+import org.openide.util.actions.SystemAction;
+
+import javax.swing.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Initializes, starts and adds the JoystickService to the central lookup when UGS starts.
@@ -31,12 +43,15 @@ public class Startup implements Runnable {
     @Override
     public void run() {
         JoystickService joystickService = CentralLookup.getDefault().lookup(JoystickService.class);
-        if (joystickService == null) {
-            joystickService = new JoystickServiceImpl();
-            if (Settings.isActive()) {
-                joystickService.initialize();
-            }
-            CentralLookup.getDefault().add(joystickService);
+        if (joystickService != null) {
+            return;
         }
+
+        joystickService = new JoystickServiceImpl();
+        if (Settings.isActive()) {
+            joystickService.initialize();
+        }
+        CentralLookup.getDefault().add(joystickService);
+
     }
 }

@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.joystick;
 
+import com.willwinder.ugs.nbp.joystick.model.JoystickControl;
 import com.willwinder.ugs.nbp.joystick.service.JoystickService;
 import org.openide.util.NbPreferences;
 
@@ -30,10 +31,29 @@ import java.util.prefs.Preferences;
  */
 public class Settings {
     public static final String SETTINGS_ACTIVE = "active";
+    public static final String SETTINGS_VERSION = "version";
 
     private static Preferences preferences = NbPreferences.forModule(JoystickService.class);
 
     protected Settings() {
+    }
+
+    /**
+     * Gets the current version of the settings. If 0 the settings hasn't been initialized yet.
+     *
+     * @return the version number of the settings
+     */
+    public static int getVersion() {
+        return preferences.getInt(SETTINGS_VERSION, 0);
+    }
+
+    /**
+     * Sets the current settings version
+     *
+     * @param version the version of the settings
+     */
+    public static void setVersion(int version) {
+        preferences.putInt(SETTINGS_VERSION, version);
     }
 
     /**
@@ -52,5 +72,28 @@ public class Settings {
      */
     public static void setActive(boolean active) {
         preferences.putBoolean(SETTINGS_ACTIVE, active);
+    }
+
+    /**
+     * Sets the action id of the action to be mapped with the given control.
+     * The action id can be fetched from the @{link ActionManager}.
+     * To unbind an action set an empty string or null.
+     *
+     * @param joystickControl the joystick control to map with action
+     * @param actionId        the action id to bind with joystick control.
+     */
+    public static void setActionMapping(JoystickControl joystickControl, String actionId) {
+        preferences.put(joystickControl.name(), actionId);
+    }
+
+    /**
+     * Returns the action id of the action to be mapped with the given control.
+     * The action id can be fetched from the @{link ActionManager}
+     *
+     * @param joystickControl the joystick control to map with action
+     * @return the action id to bind with joystick control. If no action was bound an empty string will be returned.
+     */
+    public static String getActionMapping(JoystickControl joystickControl) {
+        return preferences.get(joystickControl.name(), "");
     }
 }
