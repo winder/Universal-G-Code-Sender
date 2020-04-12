@@ -34,10 +34,10 @@ import org.openide.util.NbPreferences;
 public class CloudStorageSettingsPanel extends AbstractUGSSettings {
     private final AbstractUGSSettings.Textfield s3Id =
             new AbstractUGSSettings.Textfield(
-                    Localization.getString("cloud.storage.s3Id"));
+                    Localization.getString("platform.plugin.cloud.s3Id"));
     private final AbstractUGSSettings.Textfield s3Secret =
             new AbstractUGSSettings.Textfield(
-                    Localization.getString("cloud.storage.s3Secret"));
+                    Localization.getString("platform.plugin.cloud.s3Secret"));
 
     public static String S3_ID = "s3Id";
     public static String S3_SECRET = "s3Secret";

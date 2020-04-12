@@ -21,9 +21,11 @@ package com.willwinder.ugs.nbp;
 import static com.willwinder.ugs.nbp.CloudStorageSettingsPanel.S3_ID;
 import static com.willwinder.ugs.nbp.CloudStorageSettingsPanel.S3_SECRET;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,28 +39,41 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
-import org.openide.util.NbBundle.Messages;
+import org.openide.util.Lookup;
 import org.openide.util.NbPreferences;
 
 @ActionID(
-	category = "File",
-	id = "com.willwinder.ugs.nbp.CloudStorageOpenAction"
+	category = CloudStorageOpenAction.CATEGORY,
+	id = CloudStorageOpenAction.ID
 )
 @ActionRegistration(
-	iconBase = "icons/cloud-folder.png",
-	displayName = "#CTL_CloudStorageOpenAction"
+    iconBase = CloudStorageOpenAction.ICON_BASE,
+    displayName = "Open cloud file"
 )
 @ActionReferences({
-	@ActionReference(path = "Menu/File", position = 1300),
+    @ActionReference(
+            path = LocalizingService.OpenWindowPath,
+            position = 11)
 })
-@Messages("CTL_CloudStorageOpenAction=Open cloud file")
+
 public final class CloudStorageOpenAction implements ActionListener {
+    // Localization
+    public static final String CATEGORY = "File";
+    public static final String ID = "com.willwinder.ugs.nbp.CloudStorageOpenAction";
+    public static final String ICON_BASE = "icons/cloud-folder.png";
+    public static final String LOCALIZATION_KEY = "platform.plugin.cloud.open";
+
     private static final Logger logger = Logger.getLogger(CloudStorageOpenAction.class.getName());
 
     private final BackendAPI backend;
 
     public CloudStorageOpenAction() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+
+        ActionRegistrationService ars = Lookup.getDefault().lookup(ActionRegistrationService.class);
+        if (ars != null) {
+            ars.overrideActionName(CATEGORY, ID, Localization.getString(LOCALIZATION_KEY));
+        }
     }
     
     @Override
