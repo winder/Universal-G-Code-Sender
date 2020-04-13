@@ -96,4 +96,43 @@ public class Settings {
     public static String getActionMapping(JoystickControl joystickControl) {
         return preferences.get(joystickControl.name(), "");
     }
+
+    /**
+     * Sets if the axis values should be inverted
+     *
+     * @param joystickControl the axis we wish change settings for
+     * @param reversed if the axis should be inverted
+     */
+    public static void setReverseAxis(JoystickControl joystickControl, boolean reversed) {
+        preferences.putBoolean(joystickControl.name() + "_reverse", reversed);
+    }
+
+    /**
+     * Returns if the given axis control should be inverted
+     *
+     * @param joystickControl the axis we want to get settings for
+     * @return if the axis should be inverted
+     */
+    public static boolean isReverseAxis(JoystickControl joystickControl) {
+        return preferences.getBoolean(joystickControl.name() + "_reverse", false);
+    }
+
+    /**
+     * Returns the axis threshold value that is required before we activate any action. This is needed as
+     * some controllers doesn't return a zero value for a analog controllers.
+     *
+     * @return a float value between 0.0 and 1.0
+     */
+    public static float getAxisThreshold() {
+        return preferences.getFloat("axisThreshold", 0.03f);
+    }
+
+    /**
+     * Sets the axis threshold value that is considered as zero.
+     *
+     * @param threshold the threshold value between 0.0 and 1.0
+     */
+    public static void setAxisThreshold(float threshold) {
+        preferences.putFloat("axisThreshold", threshold);
+    }
 }

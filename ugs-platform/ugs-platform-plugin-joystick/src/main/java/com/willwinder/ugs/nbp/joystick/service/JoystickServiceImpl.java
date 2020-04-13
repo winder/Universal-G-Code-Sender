@@ -58,14 +58,14 @@ import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_STOP;
 import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_Z_DOWN;
 import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_Z_UP;
 
+/**
+ * A joystick service ties action managers, game controllers and event threads together.
+ *
+ * @author Joacim Breiler
+ */
 public class JoystickServiceImpl implements JoystickService {
 
     private static final Logger LOGGER = Logger.getLogger(JoystickServiceImpl.class.getSimpleName());
-
-    /**
-     * Treat value as zero if between 0.03 and -0.03.
-     */
-    public static final float AXIS_THRESHOLD = 0.03f;
 
     /**
      * Milliseconds to wait between reading joystick/gamepad values
@@ -106,9 +106,18 @@ public class JoystickServiceImpl implements JoystickService {
         joystickActionDispatcher = new ActionDispatcher(actionManager, continuousJogWorker);
         addListener(joystickActionDispatcher);
 
-        if (Settings.getVersion() == 0) {
+        if (!hasSettingsBeenInitialized()) {
             initDefaultSettings();
         }
+    }
+
+    /**
+     * Checks the settings version if they have been initialized
+     *
+     * @return true if settings has been initialized.
+     */
+    private boolean hasSettingsBeenInitialized() {
+        return Settings.getVersion() > 0;
     }
 
     private void initDefaultSettings() {
@@ -140,7 +149,7 @@ public class JoystickServiceImpl implements JoystickService {
     @Override
     public void destroy() {
         isRunning = false;
-        if (controllerManager != null) {
+        if (controllerManager != null && controllerManager.getNumControllers() > 0) {
             controllerManager.quitSDLGamepad();
         }
     }
@@ -222,12 +231,14 @@ public class JoystickServiceImpl implements JoystickService {
         try {
             // We might have rounding errors from the controller, ignore the low value range
             float value = currentController.getAxisState(controllerAxis);
-            if (value < AXIS_THRESHOLD && value > -AXIS_THRESHOLD) {
+            float axisThreshold = Settings.getAxisThreshold();
+            if (value < axisThreshold && value > -axisThreshold) {
                 value = 0;
             }
 
             JoystickControl axis = Utils.getJoystickAxisFromControllerAxis(controllerAxis);
-            joystickState.setAxis(axis, value);
+            boolean reverseAxis = Settings.isReverseAxis(axis);
+            joystickState.setAxis(axis, reverseAxis ? -value : value);
         } catch (ControllerUnpluggedException e) {
             throw new JoystickException("Couldn't read value from joystick axis", e);
         }

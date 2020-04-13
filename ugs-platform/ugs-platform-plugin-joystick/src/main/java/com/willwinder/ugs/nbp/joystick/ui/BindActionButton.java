@@ -56,13 +56,13 @@ public class BindActionButton extends JButton {
     private final JPopupMenu popupMenu;
     private final JoystickService joystickService;
 
-    public BindActionButton(JoystickService joystickService, JoystickControl joystickButton) {
+    public BindActionButton(JoystickService joystickService, JoystickControl joystickControl) {
         this.joystickService = joystickService;
-        this.popupMenu = createPopupMenu(joystickButton);
+        this.popupMenu = createPopupMenu(joystickControl);
 
         addActionListener(this::showPopupMenu);
 
-        joystickService.getActionManager().getMappedAction(joystickButton)
+        joystickService.getActionManager().getMappedAction(joystickControl)
                 .ifPresent(actionReference -> setText(actionReference.getName()));
     }
 
@@ -73,36 +73,36 @@ public class BindActionButton extends JButton {
         popupMenu.setLocation(p.x, p.y + b.getHeight());
     }
 
-    private JPopupMenu createPopupMenu(JoystickControl joystickButton) {
+    private JPopupMenu createPopupMenu(JoystickControl joystickControl) {
         ActionManager actionManager = joystickService.getActionManager();
         JPopupMenu popupMenu = new JPopupMenu();
 
-        popupMenu.add(createClearActionMenuItem(joystickButton, actionManager));
+        popupMenu.add(createClearActionMenuItem(joystickControl, actionManager));
         popupMenu.add(new JSeparator());
         actionManager.getCategories().stream()
                 .filter(category -> !EXCLUDED_CATEGORIES.contains(category)) // Remove categories
-                .map(category -> createActionsCategoryMenu(joystickButton, category)) // Map to a category menu item
+                .map(category -> createActionsCategoryMenu(joystickControl, category)) // Map to a category menu item
                 .flatMap(optionalMenu -> optionalMenu.map(Stream::of).orElseGet(Stream::empty)) // Remove empty optionals
                 .forEach(popupMenu::add); // Add to popup menu
 
         return popupMenu;
     }
 
-    private JMenuItem createClearActionMenuItem(JoystickControl joystickButton, ActionManager actionManager) {
+    private JMenuItem createClearActionMenuItem(JoystickControl joystickControl, ActionManager actionManager) {
         JMenuItem clear = new JMenuItem(Localization.getString("platform.plugin.joystick.clear"));
         clear.addActionListener((item) -> {
             setText("");
-            actionManager.clearMappedAction(joystickButton);
+            actionManager.clearMappedAction(joystickControl);
         });
         return clear;
     }
 
-    private Optional<JMenu> createActionsCategoryMenu(JoystickControl joystickButton, String category) {
+    private Optional<JMenu> createActionsCategoryMenu(JoystickControl joystickControl, String category) {
         JMenu categoryMenuItem = new JMenu(category);
         joystickService.getActionManager()
                 .getActionsByCategory(category).stream()
-                .filter(actionReference -> !(actionReference.getAction() instanceof AnalogAction && !joystickButton.isAnalog())) // Analog actions doesn't work with digital buttons, do not add those actions
-                .forEach(actionReference -> categoryMenuItem.add(createSelectActionMenuItem(joystickButton, actionReference)));
+                .filter(actionReference -> !(actionReference.getAction() instanceof AnalogAction && !joystickControl.isAnalog())) // Analog actions doesn't work with digital buttons, do not add those actions
+                .forEach(actionReference -> categoryMenuItem.add(createSelectActionMenuItem(joystickControl, actionReference)));
 
         if (categoryMenuItem.getItemCount() > 0) {
             return Optional.of(categoryMenuItem);
@@ -110,11 +110,11 @@ public class BindActionButton extends JButton {
         return Optional.empty();
     }
 
-    private JMenuItem createSelectActionMenuItem(JoystickControl joystickButton, ActionReference actionReference) {
+    private JMenuItem createSelectActionMenuItem(JoystickControl joystickControl, ActionReference actionReference) {
         JMenuItem jMenuItem = new JMenuItem(actionReference.getName());
         jMenuItem.addActionListener((item) -> {
             setText(actionReference.getName());
-            joystickService.getActionManager().setMappedAction(joystickButton, actionReference);
+            joystickService.getActionManager().setMappedAction(joystickControl, actionReference);
         });
         return jMenuItem;
     }
