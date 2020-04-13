@@ -61,17 +61,17 @@ public class Utils {
             case BACK:
                 return JoystickControl.BACK;
             case GUIDE:
-                return JoystickControl.GUIDE;
+                return JoystickControl.SELECT;
             case START:
                 return JoystickControl.START;
             case LEFTSTICK:
-                return JoystickControl.LEFT_STICK;
+                return JoystickControl.L3;
             case RIGHTSTICK:
-                return JoystickControl.RIGHT_STICK;
+                return JoystickControl.R3;
             case LEFTBUMPER:
-                return JoystickControl.LEFT_BUMPER;
+                return JoystickControl.L;
             case RIGHTBUMPER:
-                return JoystickControl.RIGHT_BUMPER;
+                return JoystickControl.R;
             case DPAD_UP:
                 return JoystickControl.DPAD_UP;
             case DPAD_DOWN:
@@ -102,9 +102,9 @@ public class Utils {
             case RIGHTY:
                 return JoystickControl.RIGHT_Y;
             case TRIGGERLEFT:
-                return JoystickControl.TRIGGER_LEFT;
+                return JoystickControl.L2;
             case TRIGGERRIGHT:
-                return JoystickControl.TRIGGER_RIGHT;
+                return JoystickControl.R2;
             default:
                 throw new IllegalArgumentException("Unknown axis type: " + controllerAxis);
         }
