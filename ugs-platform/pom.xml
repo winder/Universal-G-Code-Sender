@@ -153,5 +153,6 @@
     <module>GcodeTools</module>
     <module>ugs-platform-welcome-page</module>
     <module>ugs-platform-plugin-joystick</module>
+    <module>ugs-platform-plugin-cloud-storage</module>
   </modules>
 </project>
