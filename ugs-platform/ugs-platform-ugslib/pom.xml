@@ -143,6 +143,8 @@
                         <package>org.apache.commons.io</package>
                         <package>org.apache.commons.lang3</package>
                         <package>javax.xml.bind</package>
+                        <package>javax.xml.bind.annotation</package>
+                        <package>javax.xml.bind.annotation.adapters</package>
                     </publicPackages>
                 </configuration>
             </plugin>
@@ -198,6 +200,18 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-windows</artifactId>
             <version>${netbeans.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-loaders</artifactId>
+            <version>${netbeans.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-nodes</artifactId>
+            <version>${netbeans.version}</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
 </project>

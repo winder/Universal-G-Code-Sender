@@ -20,8 +20,7 @@ package com.willwinder.ugs.nbp.joystick;
 
 import com.studiohartman.jamepad.ControllerAxis;
 import com.studiohartman.jamepad.ControllerButton;
-import com.willwinder.ugs.nbp.joystick.model.JoystickAxis;
-import com.willwinder.ugs.nbp.joystick.model.JoystickButton;
+import com.willwinder.ugs.nbp.joystick.model.JoystickControl;
 
 /**
  * Common utils to be used for the Joystick implementation
@@ -29,6 +28,19 @@ import com.willwinder.ugs.nbp.joystick.model.JoystickButton;
  * @author Joacim Breiler
  */
 public class Utils {
+    public static final String ACTION_Z_DOWN = "Actions/Machine/com.willwinder.ugs.nbp.core.services.JogActionService.zMinus.instance";
+    public static final String ACTION_Z_UP = "Actions/Machine/com.willwinder.ugs.nbp.core.services.JogActionService.zPlus.instance" ;
+    public static final String ACTION_JOG_Z = "continuousJogZAction";
+    public static final String ACTION_JOG_X = "continuousJogXAction";
+    public static final String ACTION_JOG_Y = "continuousJogYAction";
+    public static final String ACTION_DIVIDE_FEED = "Actions/Machine/com.willwinder.ugs.nbp.core.services.JogActionService.JogSizeAction.divide.feed.instance";
+    public static final String ACTION_MULTIPLY_FEED = "Actions/Machine/com.willwinder.ugs.nbp.core.services.JogActionService.JogSizeAction.multiply.feed.instance";
+    public static final String ACTION_START = "Actions/Machine/com-willwinder-ugs-nbp-core-actions-StartAction.instance";
+    public static final String ACTION_JOG_Y_PLUS = "Actions/Machine/com.willwinder.ugs.nbp.core.services.JogActionService.yPlus.instance";
+    public static final String ACTION_JOG_X_PLUS = "Actions/Machine/com.willwinder.ugs.nbp.core.services.JogActionService.xPlus.instance";
+    public static final String ACTION_JOG_X_MINUS = "Actions/Machine/com.willwinder.ugs.nbp.core.services.JogActionService.xMinus.instance";
+    public static final String ACTION_JOG_Y_MINUS = "Actions/Machine/com.willwinder.ugs.nbp.core.services.JogActionService.yMinus.instance";
+    public static final String ACTION_STOP = "Actions/Machine/com-willwinder-ugs-nbp-core-actions-StopAction.instance";
 
     /**
      * Translates from Jamepad controller button to a JoystickButton.
@@ -36,38 +48,38 @@ public class Utils {
      * @param controllerButton the controller button to translate from
      * @return a joystick button if it could be translated, or throws an illegalargumentexception
      */
-    public static JoystickButton getJoystickButtonFromControllerButton(ControllerButton controllerButton) {
+    public static JoystickControl getJoystickButtonFromControllerButton(ControllerButton controllerButton) {
         switch (controllerButton) {
             case A:
-                return JoystickButton.A;
+                return JoystickControl.A;
             case B:
-                return JoystickButton.B;
+                return JoystickControl.B;
             case X:
-                return JoystickButton.X;
+                return JoystickControl.X;
             case Y:
-                return JoystickButton.Y;
+                return JoystickControl.Y;
             case BACK:
-                return JoystickButton.BACK;
+                return JoystickControl.BACK;
             case GUIDE:
-                return JoystickButton.GUIDE;
+                return JoystickControl.SELECT;
             case START:
-                return JoystickButton.START;
+                return JoystickControl.START;
             case LEFTSTICK:
-                return JoystickButton.LEFT_STICK;
+                return JoystickControl.L3;
             case RIGHTSTICK:
-                return JoystickButton.RIGHT_STICK;
+                return JoystickControl.R3;
             case LEFTBUMPER:
-                return JoystickButton.LEFT_BUMPER;
+                return JoystickControl.L;
             case RIGHTBUMPER:
-                return JoystickButton.RIGHT_BUMPER;
+                return JoystickControl.R;
             case DPAD_UP:
-                return JoystickButton.DPAD_UP;
+                return JoystickControl.DPAD_UP;
             case DPAD_DOWN:
-                return JoystickButton.DPAD_DOWN;
+                return JoystickControl.DPAD_DOWN;
             case DPAD_LEFT:
-                return JoystickButton.DPAD_LEFT;
+                return JoystickControl.DPAD_LEFT;
             case DPAD_RIGHT:
-                return JoystickButton.DPAD_RIGHT;
+                return JoystickControl.DPAD_RIGHT;
             default:
                 throw new IllegalArgumentException("Unknown button type: " + controllerButton);
         }
@@ -79,20 +91,20 @@ public class Utils {
      * @param controllerAxis the controller axis to translate from
      * @return a joystick axis if it could be translated, or throws an illegalargumentexception
      */
-    public static JoystickAxis getJoystickAxisFromControllerAxis(ControllerAxis controllerAxis) {
+    public static JoystickControl getJoystickAxisFromControllerAxis(ControllerAxis controllerAxis) {
         switch (controllerAxis) {
             case LEFTX:
-                return JoystickAxis.LEFT_X;
+                return JoystickControl.LEFT_X;
             case LEFTY:
-                return JoystickAxis.LEFT_Y;
+                return JoystickControl.LEFT_Y;
             case RIGHTX:
-                return JoystickAxis.RIGHT_X;
+                return JoystickControl.RIGHT_X;
             case RIGHTY:
-                return JoystickAxis.RIGHT_Y;
+                return JoystickControl.RIGHT_Y;
             case TRIGGERLEFT:
-                return JoystickAxis.TRIGGER_LEFT;
+                return JoystickControl.L2;
             case TRIGGERRIGHT:
-                return JoystickAxis.TRIGGER_RIGHT;
+                return JoystickControl.R2;
             default:
                 throw new IllegalArgumentException("Unknown axis type: " + controllerAxis);
         }

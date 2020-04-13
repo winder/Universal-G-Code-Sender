@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.utils;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -203,5 +204,27 @@ public class ContinuousJogWorker implements ControllerListener {
     @Override
     public void statusStringListener(ControllerStatus status) {
 
+    }
+
+    public void setDirection(Axis axis, float value) {
+        switch (axis) {
+            case X:
+                x = value;
+                break;
+            case Y:
+                y = value;
+                break;
+            case Z:
+                z = value;
+                break;
+        }
+    }
+
+    public void update() {
+        if (x != 0 || y != 0 || z != 0) {
+            start();
+        } else {
+            stop();
+        }
     }
 }
