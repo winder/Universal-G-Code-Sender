@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
+import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Spindle;
 
 /**
  * Object to parse gcode one command at a time in a way that can be used by any
@@ -122,8 +123,7 @@ public class GcodeParser implements IGcodeParser {
      */
     public void reset() {
         this.statsProcessor = new Stats();
-        this.state.currentPoint = new Position();
-        this.state.commandNumber = -1;
+        this.state = new GcodeState();
     }
     
     /**
@@ -202,8 +202,19 @@ public class GcodeParser implements IGcodeParser {
         state.commandNumber = line;
         
         // handle M codes.
-        //codes = GcodePreprocessorUtils.parseCodes(args, 'M');
-        //handleMCode(for each codes);
+        Set<Code> mCodes = GcodePreprocessorUtils.getMCodes(args);
+        for (Code c : mCodes) {
+            switch(c.getType()) {
+                case Spindle:
+                    state.spindle = c;
+                    break;
+                case Coolant:
+                    state.coolant = c;
+                    break;
+                default:
+                    break;
+            }
+        }
 
         List<String> fCodes = GcodePreprocessorUtils.parseCodes(args, 'F');
         if (!fCodes.isEmpty()) {

@@ -2,10 +2,7 @@ package com.willwinder.universalgcodesender.gcode.fixtures;
 
 import com.google.common.base.Joiner;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
-import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
-import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
-import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
+import com.willwinder.universalgcodesender.gcode.processors.*;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -42,8 +39,6 @@ import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
  *  - Run the test once to generate out{...}/ files and commit them to the repo
  */
 public class FixturesTest {
-
-
     @Test
     public void testArcFixtures() throws Exception {
         runAllFixturesInPath("./gcode/fixtures/arc/", "Arc", () -> {
@@ -54,7 +49,6 @@ public class FixturesTest {
             return gcp;
         });
     }
-
 
     @Test
     public void testArcFixturesCoarse() throws Exception {
@@ -68,8 +62,6 @@ public class FixturesTest {
 
     @Test
     public void testArcWithMeshLevelerFixtures() throws Exception {
-
-
         runAllFixturesInPath("./gcode/fixtures/arc/", "ArcMesh", ()->{
             GcodeParser gcp = new GcodeParser();
 
@@ -84,6 +76,15 @@ public class FixturesTest {
             return gcp;
         });
 
+    }
+
+    @Test
+    public void testRunFromFixtures() throws Exception {
+        runAllFixturesInPath("./gcode/fixtures/run-from/", "RunFrom", () -> {
+            GcodeParser gcp = new GcodeParser();
+            gcp.addCommandProcessor(new RunFromProcessor(17));
+            return gcp;
+        });
     }
 
     private void runAllFixturesInPath(String basePath, String parserName, Callable<GcodeParser> initGcp) throws Exception {

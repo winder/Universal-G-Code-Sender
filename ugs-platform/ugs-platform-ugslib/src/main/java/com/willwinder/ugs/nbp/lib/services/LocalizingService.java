@@ -254,6 +254,12 @@ public class LocalizingService {
     public final static String DiagnosticsActionId = "com.willwinder.ugs.nbp.core.windows.DiagnosticsTopComponent";
     public final static String DiagnosticsCategory = CATEGORY_WINDOW;
 
+    public final static String RunFromTitleKey = "platform.menu.runFrom";
+    public final static String RunFromTitle = Localization.getString(RunFromTitleKey, lang);
+    public final static String RunFromWindowPath = MENU_MACHINE;
+    public final static String RunFromActionId = "com.willwinder.ugs.nbp.core.actions.RunFromAction";
+    public final static String RunFromCategory = CATEGORY_MACHINE;
+
     public LocalizingService() throws IOException {
         ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
 

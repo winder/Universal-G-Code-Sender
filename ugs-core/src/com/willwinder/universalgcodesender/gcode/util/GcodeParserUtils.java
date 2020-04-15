@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,16 +18,18 @@
  */
 package com.willwinder.universalgcodesender.gcode.util;
 
+import com.google.common.collect.Iterables;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+
+import java.io.*;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +42,26 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class GcodeParserUtils {
     private static final Logger logger = Logger.getLogger(GcodeParserUtils.class.getName());
+
+    /**
+     * Compute the gcode state at a specific line by reading a GcodeStream file.
+     */
+    public static Optional<GcodeState> computeStateAtLine(GcodeParser gcp, File input, int line) throws IOException, GcodeParserException{
+        try(BufferedReader br = new BufferedReader(new FileReader(input));
+                IGcodeStreamReader gsr = new GcodeStreamReader(br)) {
+            while (gsr.getNumRowsRemaining() > 0) {
+                GcodeCommand gc = gsr.getNextCommand();
+                List<GcodeParser.GcodeMeta> metaList = gcp.addCommand(gc.getCommandString(), gc.getCommandNumber());
+                if (gc.getCommandNumber() >= line) {
+                    return Optional.of(Iterables.getLast(metaList).state);
+                }
+            }
+        } catch (GcodeStreamReader.NotGcodeStreamFile ex) {
+            // File exists, but isn't a stream reader. So go ahead and try parsing it as a raw gcode file.
+        }
+
+        return Optional.empty();
+    }
 
     /**
      * Helper method to apply processors to gcode.
@@ -60,7 +82,7 @@ public class GcodeParserUtils {
     /**
      * Common logic in processAndExport* methods.
      */
-    private static void write(GcodeParser gcp, GcodeStreamWriter gsw, String command, String comment, int idx) throws GcodeParserException {
+    private static void preprocessAndWrite(GcodeParser gcp, GcodeStreamWriter gsw, String command, String comment, int idx) throws GcodeParserException {
         if (idx % 100000 == 0) {
             logger.log(Level.FINE, "gcode processing line: " + idx);
         }
@@ -88,14 +110,13 @@ public class GcodeParserUtils {
             throws IOException, GcodeParserException {
 
         // Preprocess a GcodeStream file.
-        try {
-            IGcodeStreamReader gsr = new GcodeStreamReader(input);
+        try (IGcodeStreamReader gsr = new GcodeStreamReader(input)) {
             try (GcodeStreamWriter gsw = new GcodeStreamWriter(output)) {
                 int i = 0;
                 while (gsr.getNumRowsRemaining() > 0) {
                     i++;
                     GcodeCommand gc = gsr.getNextCommand();
-                    write(gcp, gsw, gc.getCommandString(), gc.getComment(), i);
+                    preprocessAndWrite(gcp, gsw, gc.getCommandString(), gc.getComment(), i);
                 }
 
                 // Done processing GcodeStream file.
@@ -114,15 +135,13 @@ public class GcodeParserUtils {
     private static void processAndExportText(GcodeParser gcp, BufferedReader input, File output)
             throws IOException, GcodeParserException {
         // Preprocess a regular gcode file.
-        try(BufferedReader br = input) {
-            try (GcodeStreamWriter gsw = new GcodeStreamWriter(output)) {
-                int i = 0;
-                for(String line; (line = br.readLine()) != null; ) {
-                    i++;
+        try(BufferedReader br = input; GcodeStreamWriter gsw = new GcodeStreamWriter(output)) {
+            int i = 0;
+            for(String line; (line = br.readLine()) != null; ) {
+                i++;
 
-                    String comment = GcodePreprocessorUtils.parseComment(line);
-                    write(gcp, gsw, line, comment, i);
-                }
+                String comment = GcodePreprocessorUtils.parseComment(line);
+                preprocessAndWrite(gcp, gsw, line, comment, i);
             }
         }
     }
