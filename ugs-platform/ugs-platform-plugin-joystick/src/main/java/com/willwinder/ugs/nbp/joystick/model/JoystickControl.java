@@ -38,10 +38,12 @@ public enum JoystickControl {
     BACK("platform.plugin.joystick.back", false),
     SELECT("platform.plugin.joystick.select", false),
     START("platform.plugin.joystick.start", false),
+    L1("platform.plugin.joystick.l1", false),
+    L2("platform.plugin.joystick.l2", true),
     L3("platform.plugin.joystick.l3", false),
+    R1("platform.plugin.joystick.r1", false),
+    R2("platform.plugin.joystick.r2", true),
     R3("platform.plugin.joystick.r3", false),
-    L("platform.plugin.joystick.l", false),
-    R("platform.plugin.joystick.r", false),
     DPAD_UP("platform.plugin.joystick.padUp", false),
     DPAD_DOWN("platform.plugin.joystick.padDown", false),
     DPAD_LEFT("platform.plugin.joystick.padLeft", false),
@@ -49,9 +51,7 @@ public enum JoystickControl {
     LEFT_X("platform.plugin.joystick.leftX", true),
     LEFT_Y("platform.plugin.joystick.leftY", true),
     RIGHT_X("platform.plugin.joystick.rightX", true),
-    RIGHT_Y("platform.plugin.joystick.rightY", true),
-    L2("platform.plugin.joystick.l2", true),
-    R2("platform.plugin.joystick.r2", true);
+    RIGHT_Y("platform.plugin.joystick.rightY", true);
 
     private final String localization;
 
