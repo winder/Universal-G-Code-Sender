@@ -7,6 +7,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="23.43"
+   inkscape:export-xdpi="23.43"
+   inkscape:export-filename="/Users/joacim/Projekt/Universal-G-Code-Sender/pictures/gamepad.png"
    inkscape:version="1.0beta1 (32d4812, 2019-09-19)"
    sodipodi:docname="gamepad.svg"
    id="svg879"
@@ -481,13 +484,13 @@
   <text
      xml:space="preserve"
      style="font-style:normal;font-weight:normal;font-size:42.6667px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.73936"
-     x="1196.5934"
+     x="1183.0275"
      y="1058.5253"
      id="text989"
      transform="scale(1.0320088,0.96898398)"><tspan
        sodipodi:role="line"
        id="tspan987"
-       x="1196.5934"
+       x="1183.0275"
        y="1058.5253"
        style="stroke-width:1.73936">RIGHT STICK</tspan></text>
   <g
@@ -599,25 +602,27 @@
   <text
      xml:space="preserve"
      style="font-style:normal;font-weight:normal;font-size:42.6667px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.73936"
-     x="663.83618"
+     x="652.20825"
      y="1305.8685"
      id="text887-6"
      transform="scale(1.0320088,0.96898398)"><tspan
        sodipodi:role="line"
        id="tspan885-0"
-       x="663.83618"
+       x="652.20825"
        y="1305.8685"
-       style="stroke-width:1.73936">L</tspan></text>
+       style="stroke-width:1.73936">L3</tspan></text>
   <text
+     inkscape:export-ydpi="23.43"
+     inkscape:export-xdpi="23.43"
      transform="scale(1.0320088,0.96898398)"
      id="text1059"
      y="1307.9325"
-     x="1297.5514"
+     x="1287.8615"
      style="font-style:normal;font-weight:normal;font-size:42.6667px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.73936"
      xml:space="preserve"><tspan
        style="stroke-width:1.73936"
        y="1307.9325"
-       x="1297.5514"
+       x="1287.8615"
        id="tspan1057"
-       sodipodi:role="line">R</tspan></text>
+       sodipodi:role="line">R3</tspan></text>
 </svg>

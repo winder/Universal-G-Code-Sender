@@ -69,9 +69,9 @@ public class Utils {
             case RIGHTSTICK:
                 return JoystickControl.R3;
             case LEFTBUMPER:
-                return JoystickControl.L;
+                return JoystickControl.L1;
             case RIGHTBUMPER:
-                return JoystickControl.R;
+                return JoystickControl.R1;
             case DPAD_UP:
                 return JoystickControl.DPAD_UP;
             case DPAD_DOWN:
