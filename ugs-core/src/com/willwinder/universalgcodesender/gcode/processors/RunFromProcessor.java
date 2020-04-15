@@ -62,11 +62,14 @@ public class RunFromProcessor implements CommandProcessor {
             String normalized = normalizeCommand(command, s);
             return ImmutableList.of(
                     // Initialize state
-                    s.toGcode(),
+                    s.machineStateCode(),
 
                     // Move to start location
                     moveToClearanceHeight,
                     moveToXY,
+
+                    // Start spindle and set feed/speed before plunging into the work.
+                    s.toAccessoriesCode(),
                     plunge,
 
                     // Append normalized command

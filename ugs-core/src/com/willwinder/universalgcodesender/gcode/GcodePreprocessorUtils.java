@@ -706,7 +706,6 @@ public class GcodePreprocessorUtils {
             throw new GcodeParserException("Invalid state attached to command, please notify the developers.");
         }
 
-
         StringBuilder result = new StringBuilder();
 
         // Don't add the state
@@ -717,11 +716,11 @@ public class GcodePreprocessorUtils {
             result.append(state.currentMotionMode.toString());
         }
 
-        // Add the motion command
-        result.append(split.extracted);
-
         result.append("F" + state.speed);
         result.append("S" + state.spindleSpeed);
+
+        // Add the motion command
+        result.append(split.extracted);
 
         return result.toString();
     }

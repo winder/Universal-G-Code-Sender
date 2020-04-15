@@ -120,7 +120,32 @@ public class GcodeState {
         return ret;
     }
 
-    public String toGcode() {
+    /**
+     * Generate gcode to initialize spindle, coolant, and speeds.
+     * @return a string of valid gcode like "F300.0S10000.0M3"
+     */
+    public String toAccessoriesCode() {
+        StringBuilder result = new StringBuilder();
+
+        if (spindle != M5) {
+            result.append(spindle.toString());
+        }
+        result.append("S").append(this.spindleSpeed);
+
+        if (coolant != M9) {
+            result.append(coolant.toString());
+        }
+
+        result.append("F").append(this.speed);
+
+        return result.toString();
+    }
+
+    /**
+     * Generates gcode for the current state of the machine. G-Codes only.
+     * @return a string of valid gcode like "G20G91G90.1G93G58G17.1"
+     */
+    public String machineStateCode() {
         StringBuilder result = new StringBuilder();
         result.append(this.units);
         result.append(this.distanceMode);
@@ -128,17 +153,6 @@ public class GcodeState {
         result.append(this.feedMode);
         result.append(this.offset);
         result.append(this.plane.code);
-        result.append("F").append(this.speed);
-        result.append("S").append(this.spindleSpeed);
-
-        if (spindle != M5) {
-            result.append(spindle.toString());
-        }
-
-        if (coolant != M9) {
-            result.append(coolant.toString());
-        }
-
         return result.toString();
     }
 
