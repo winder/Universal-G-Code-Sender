@@ -19,15 +19,16 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+
+import java.io.*;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.BeforeClass;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  *
@@ -76,6 +77,7 @@ public class GcodeStreamTest {
     }
 
     /**
+     * Make sure all the metadata is written when using a {@link GcodeStreamWriter}.
      * Writes 1,000,000 rows to a file then reads it back out.
      */
     @Test
@@ -106,6 +108,40 @@ public class GcodeStreamTest {
             }
         } finally {
             FileUtils.forceDelete(f);
+        }
+    }
+
+    /**
+     * Make sure all the gcode stream metadata is removed when using a {@link GcodeFileWriter}.
+     */
+    @Test
+    public void gcodeWriterTest() throws IOException {
+        File f = new File(tempDir,"gcodeFile");
+        int rows = 1000;
+        String comment = "some comment";
+        try (IGcodeWriter gcw = new GcodeFileWriter(f)) {
+            for (int i = 0; i < rows; i++) {
+                String c = "";
+                if (i%2 == 0) {
+                    c = comment;
+                }
+                gcw.addLine("xxxxxxxxxxxxxxxxxxxxx", "Line " + i + " after", c, i);
+            }
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
+            int i = 0;
+            while (reader.ready()) {
+                String c = "";
+                if (i%2 == 0) {
+                    c = " (" + comment + ")";
+                }
+
+                String line = reader.readLine();
+                assertThat(line).isEqualTo("Line " + i + " after" + c);
+                i++;
+            }
+            assertThat(i).isEqualTo(rows);
         }
     }
 }

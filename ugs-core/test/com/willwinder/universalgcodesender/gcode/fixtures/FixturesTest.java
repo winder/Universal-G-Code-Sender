@@ -8,7 +8,9 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeWriter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -116,7 +118,9 @@ public class FixturesTest {
         IOUtils.copy(file.openStream(), FileUtils.openOutputStream(tempFile));
 
         // process the input file and write it to the output temp file
-        GcodeParserUtils.processAndExport(gcp, tempFile, output.toFile());
+        try (IGcodeWriter gcw = new GcodeStreamWriter(output.toFile())) {
+            GcodeParserUtils.processAndExport(gcp, tempFile, gcw);
+        }
 
         // read the output back in and compare it to the fixture
         //GcodeStreamReader reader = new GcodeStreamReader(output.toFile());

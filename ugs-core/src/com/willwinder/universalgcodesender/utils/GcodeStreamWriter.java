@@ -35,14 +35,15 @@ import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 
 /**
- *
+ * Writes a "GcodeStream" file in a machine readable format.
  * @author wwinder
  */
-public class GcodeStreamWriter extends GcodeStream implements Closeable {
-    File file;
-    PrintWriter fileWriter;
-    Integer lineCount = 0;
-    String metadataReservedSize = "                                                  ";
+public class GcodeStreamWriter extends GcodeStream implements IGcodeWriter {
+    private final File file;
+    private final PrintWriter fileWriter;
+    private final String metadataReservedSize = "                                                  ";
+
+    private Integer lineCount = 0;
 
     public GcodeStreamWriter(File f) throws FileNotFoundException {
         file = f;
@@ -54,6 +55,11 @@ public class GcodeStreamWriter extends GcodeStream implements Closeable {
 
     private String getString(String str) {
         return str == null ? "" : str.trim();
+    }
+
+    @Override
+    public String getCanonicalPath() throws IOException {
+        return file.getCanonicalPath();
     }
 
     public void addLine(GcodeCommand command) {

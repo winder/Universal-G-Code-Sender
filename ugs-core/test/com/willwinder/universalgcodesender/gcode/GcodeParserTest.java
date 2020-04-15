@@ -31,7 +31,9 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeWriter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.Assertions;
@@ -295,7 +297,9 @@ public class GcodeParserTest {
         File tempFile = File.createTempFile("temp", "file");
         IOUtils.copy(file.openStream(), FileUtils.openOutputStream(tempFile));
 
-        GcodeParserUtils.processAndExport(gcp, tempFile, output.toFile());
+        try (IGcodeWriter gcw = new GcodeStreamWriter(output.toFile())) {
+            GcodeParserUtils.processAndExport(gcp, tempFile, gcw);
+        }
 
         IGcodeStreamReader reader = new GcodeStreamReader(output.toFile());
 
