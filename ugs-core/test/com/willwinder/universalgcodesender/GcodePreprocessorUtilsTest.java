@@ -309,13 +309,13 @@ public class GcodePreprocessorUtilsTest {
 
         // Add state to a complete command, ignoring stale motion mode.
         assertThat(GcodePreprocessorUtils.normalizeCommand("G1X0Y0", state))
-                .isEqualTo("G1X0Y0F0.0S0.0");
+                .isEqualTo("F0.0S0.0G1X0Y0");
 
         state.currentMotionMode = Code.G1;
         state.speed = 12.5;
 
         // Add state and insert implicit motion mode.
         assertThat(GcodePreprocessorUtils.normalizeCommand("X0Y0", state))
-                .isEqualTo("G1X0Y0F12.5S0.0");
+                .isEqualTo("F12.5S0.0G1X0Y0");
     }
 }

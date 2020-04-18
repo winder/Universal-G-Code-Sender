@@ -472,7 +472,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         File applyDir = new File(settingsDir, "apply_parser_files");
         applyDir.mkdir();
 
-        File target = new File(applyDir, this.processedGcodeFile.getName() + ".apply");
+        File target = new File(applyDir, this.processedGcodeFile.getName() + ".apply.gcode");
         java.nio.file.Files.deleteIfExists(target.toPath());
 
         // Using a GcodeFileWriter instead of a GcodeStreamWriter so that the user can review a standard gcode file.

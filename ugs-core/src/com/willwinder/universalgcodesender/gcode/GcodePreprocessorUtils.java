@@ -711,13 +711,13 @@ public class GcodePreprocessorUtils {
         // Don't add the state
         //result.append(state.toGcode());
 
+        result.append("F" + state.speed);
+        result.append("S" + state.spindleSpeed);
+
         // Check if we need to add the motion command back in.
         if (!gCodes.contains(code)) {
             result.append(state.currentMotionMode.toString());
         }
-
-        result.append("F" + state.speed);
-        result.append("S" + state.spindleSpeed);
 
         // Add the motion command
         result.append(split.extracted);
