@@ -124,6 +124,7 @@ public class GcodeParser implements IGcodeParser {
     public void reset() {
         this.statsProcessor = new Stats();
         this.state = new GcodeState();
+        this.state.commandNumber = -1;
     }
     
     /**

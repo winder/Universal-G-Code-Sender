@@ -118,7 +118,7 @@ public class GUIBackendPreprocessorTest {
         // Create GcodeStream input file by putting it through the preprocessor.
         List<String> lines = Arrays.asList("line one", "line two");
         Files.write(outputFile, lines, Charset.defaultCharset(), StandardOpenOption.WRITE);
-        try (IGcodeWriter gcw = new GcodeStreamWriter(outputFile.toFile())) {
+        try (IGcodeWriter gcw = new GcodeStreamWriter(inputFile.toFile())) {
             backend.preprocessAndExportToFile(gcp, outputFile.toFile(), gcw);
         }
 
