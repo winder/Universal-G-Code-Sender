@@ -82,11 +82,11 @@ public final class RunFromAction extends AbstractAction implements UGSEventListe
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        try {
-            if (!isEnabled()) {
-                return;
-            }
+        if (!isEnabled()) {
+            return;
+        }
 
+        try {
             Integer result = Integer.parseInt(
                     JOptionPane.showInputDialog(
                         new JFrame(),
@@ -97,7 +97,6 @@ public final class RunFromAction extends AbstractAction implements UGSEventListe
 
             GcodeParser gcp = new GcodeParser();
             gcp.addCommandProcessor(new RunFromProcessor(result));
-
             backend.applyGcodeParser(gcp);
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
