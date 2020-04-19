@@ -126,8 +126,8 @@ public class JoystickServiceImpl implements JoystickService {
         actionManager.getActionById(ACTION_JOG_Z).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.RIGHT_Y, actionReference));
         actionManager.getActionById(ACTION_JOG_X).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.LEFT_X, actionReference));
         actionManager.getActionById(ACTION_JOG_Y).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.LEFT_Y, actionReference));
-        actionManager.getActionById(ACTION_DIVIDE_FEED).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.L, actionReference));
-        actionManager.getActionById(ACTION_MULTIPLY_FEED).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.R, actionReference));
+        actionManager.getActionById(ACTION_DIVIDE_FEED).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.L1, actionReference));
+        actionManager.getActionById(ACTION_MULTIPLY_FEED).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.R1, actionReference));
         actionManager.getActionById(ACTION_START).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.START, actionReference));
         actionManager.getActionById(ACTION_JOG_Y_PLUS).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.DPAD_UP, actionReference));
         actionManager.getActionById(ACTION_JOG_X_PLUS).ifPresent(actionReference -> actionManager.setMappedAction(JoystickControl.DPAD_RIGHT, actionReference));

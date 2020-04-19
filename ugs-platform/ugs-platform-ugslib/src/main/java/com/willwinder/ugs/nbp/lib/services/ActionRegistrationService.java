@@ -82,6 +82,22 @@ public class ActionRegistrationService {
     }
 
     /**
+     * Update an {@link ActionReference} already registered with the platform along with optional shortcuts and
+     * menu items.
+     *
+     * @param reference    Name and ID of the action.
+     * @param category     Category in the Keymap tool.
+     * @param shortcut     Default shortcut, use an empty string or null for none.
+     * @param menuPath     Menu location starting with "Menu", like "Menu/Head/Hats"
+     * @param menuPosition Defines how the menu item should be ordered
+     * @param localMenu    Localized menu location starting with "Menu", like "Menu/Cabeza/Sombreros"
+     * @throws IOException if the action couldn't be registered
+     */
+    public void updateAction(ActionReference reference, String category, String shortcut, String menuPath, int menuPosition, String localMenu) throws IOException {
+        registerAction(reference.getId(), reference.getName(), category, shortcut, menuPath, menuPosition, localMenu, reference.getAction());
+    }
+
+    /**
      * Registers an action with the platform along with optional shortcuts and
      * menu items.
      *
