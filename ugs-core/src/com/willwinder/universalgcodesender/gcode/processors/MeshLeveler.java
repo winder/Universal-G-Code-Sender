@@ -1,5 +1,5 @@
 /*
-    Copyright 2017-2018 Will Winder
+    Copyright 2017-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -123,7 +123,7 @@ public class MeshLeveler implements CommandProcessor {
         this.lowerLeft = surfaceMesh[0][0];
     }
 
-    private boolean hasJustLines(List<GcodeMeta> commands) throws GcodeParserException {
+    private boolean ensureJustLines(List<GcodeMeta> commands) throws GcodeParserException {
         if (commands == null) return false;
         boolean hasLine = false;
         for (GcodeMeta command : commands) {
@@ -145,7 +145,7 @@ public class MeshLeveler implements CommandProcessor {
         List<GcodeMeta> commands = GcodeParser.processCommand(commandString, 0, state);
 
         // If there are no lines, return unmodified input.
-        if (!hasJustLines(commands)) {
+        if (!ensureJustLines(commands)) {
             return Collections.singletonList(commandString);
         }
 

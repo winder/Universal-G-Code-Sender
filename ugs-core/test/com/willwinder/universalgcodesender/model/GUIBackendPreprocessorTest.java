@@ -32,7 +32,9 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 
+import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeWriter;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -88,8 +90,10 @@ public class GUIBackendPreprocessorTest {
         // Create input file, comment-only line shouldn't be processed twice.
         List<String> lines = Arrays.asList("line one", "; comment", "line two");
         Files.write(inputFile, lines, Charset.defaultCharset(), StandardOpenOption.WRITE);
-         
-        backend.preprocessAndExportToFile(gcp, inputFile.toFile(), outputFile.toFile());
+
+        try (IGcodeWriter gcw = new GcodeStreamWriter(outputFile.toFile())) {
+            backend.preprocessAndExportToFile(gcp, inputFile.toFile(), gcw);
+        }
 
         List<String> expectedResults = Arrays.asList("line one", "line one", "", "", "line two", "line two");
 
@@ -114,11 +118,15 @@ public class GUIBackendPreprocessorTest {
         // Create GcodeStream input file by putting it through the preprocessor.
         List<String> lines = Arrays.asList("line one", "line two");
         Files.write(outputFile, lines, Charset.defaultCharset(), StandardOpenOption.WRITE);
-        backend.preprocessAndExportToFile(gcp, outputFile.toFile(), inputFile.toFile());
+        try (IGcodeWriter gcw = new GcodeStreamWriter(inputFile.toFile())) {
+            backend.preprocessAndExportToFile(gcp, outputFile.toFile(), gcw);
+        }
 
          
-        // Pass a gcodestream into 
-        backend.preprocessAndExportToFile(gcp, inputFile.toFile(), outputFile.toFile());
+        // Pass a gcodestream into the function
+        try (IGcodeWriter gcw = new GcodeStreamWriter(outputFile.toFile())) {
+            backend.preprocessAndExportToFile(gcp, inputFile.toFile(), gcw);
+        }
 
         List<String> expectedResults = Arrays.asList(
                 "line one", "line one", "line one", "line one", 

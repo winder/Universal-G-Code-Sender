@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2018 Will Winder
+    Copyright 2013-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.gcode.util.Code;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
@@ -600,10 +601,18 @@ public class GcodePreprocessorUtils {
         return sweep;
     }
 
+    static public Set<Code> getMCodes(List<String> args) {
+        return getCodes(args, 'M');
+    }
+
     static public Set<Code> getGCodes(List<String> args) {
-        List<String> gCodeStrings = parseCodes(args, 'G');
+        return getCodes(args, 'G');
+    }
+
+    static public Set<Code> getCodes(List<String> args, Character letter) {
+        List<String> gCodeStrings = parseCodes(args, letter);
         return gCodeStrings.stream()
-                .map(c -> 'G' + c)
+                .map(c -> letter + c)
                 .map(Code::lookupCode)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -626,6 +635,8 @@ public class GcodePreprocessorUtils {
 
     /**
      * Return extracted motion words and remainder words.
+     *
+     * If the code is implicit, like the command "X0Y0", we'll still extract "X0Y0".
      * If the code is G0 or G1 and G53 is found, it will also be extracted:
      * http://linuxcnc.org/docs/html/gcode/g-code.html#gcode:g53
      */
@@ -655,5 +666,62 @@ public class GcodePreprocessorUtils {
         sc.remainder = remainder.toString();
 
         return sc;
+    }
+
+    /**
+     * Normalize a command by adding in implicit state.
+     *
+     * For example given the following program:
+     *     G20
+     *     G0 X10 F25
+     *     Y10
+     *
+     * The third command would be normalized to:
+     *     G0 Y10 F25
+     *
+     * @param command a command string to normalize.
+     * @param state the machine state before the command.
+     * @return normalized command.
+     */
+    public static String normalizeCommand(String command, GcodeState state) throws GcodeParserException {
+        List<String> args = GcodePreprocessorUtils.splitCommand(command);
+        Set<Code> gCodes = getGCodes(args);
+
+        Code code = null;
+        for (Code c : gCodes) {
+            if (c.getType() == Motion) {
+                code = c;
+            }
+        }
+
+        // Fallback to current motion mode if the motion cannot be detected from command.
+        if (code == null) {
+            code = state.currentMotionMode;
+        }
+
+        SplitCommand split = extractMotion(code, command);
+
+        // This could happen if the currentMotionMode is wrong.
+        if (split == null) {
+            throw new GcodeParserException("Invalid state attached to command, please notify the developers.");
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        // Don't add the state
+        //result.append(state.toGcode());
+
+        result.append("F" + state.speed);
+        result.append("S" + state.spindleSpeed);
+
+        // Check if we need to add the motion command back in.
+        if (!gCodes.contains(code)) {
+            result.append(state.currentMotionMode.toString());
+        }
+
+        // Add the motion command
+        result.append(split.extracted);
+
+        return result.toString();
     }
 }

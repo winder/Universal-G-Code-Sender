@@ -244,6 +244,10 @@ public class GcodePreprocessorUtilsTest {
         assertThat(GcodePreprocessorUtils.extractMotion(G3, "G53 G03 X0 F100 S1300"))
                 .hasFieldOrPropertyWithValue("extracted", "G03X0")
                 .hasFieldOrPropertyWithValue("remainder", "G53F100S1300");
+
+        assertThat(GcodePreprocessorUtils.extractMotion(G1, "X0  Y0 Z1 F100 S1300"))
+                .hasFieldOrPropertyWithValue("extracted", "X0Y0Z1")
+                .hasFieldOrPropertyWithValue("remainder", "F100S1300");
     }
 
     @Test
@@ -257,6 +261,12 @@ public class GcodePreprocessorUtilsTest {
     @Test
     public void testSplitCommand() {
         List<String> splitted = GcodePreprocessorUtils.splitCommand("G53F100S1300");
+        assertEquals(3, splitted.size());
+        assertEquals("G53", splitted.get(0));
+        assertEquals("F100", splitted.get(1));
+        assertEquals("S1300", splitted.get(2));
+
+        splitted = GcodePreprocessorUtils.splitCommand("G53 F 100 S 1300");
         assertEquals(3, splitted.size());
         assertEquals("G53", splitted.get(0));
         assertEquals("F100", splitted.get(1));
@@ -291,5 +301,21 @@ public class GcodePreprocessorUtilsTest {
 
         splitted = GcodePreprocessorUtils.splitCommand("(1)(2)G3(3)");
         assertThat(splitted.size()).isEqualTo(4);
+    }
+
+    @Test
+    public void normalizeCommand() throws Exception {
+        GcodeState state = new GcodeState();
+
+        // Add state to a complete command, ignoring stale motion mode.
+        assertThat(GcodePreprocessorUtils.normalizeCommand("G1X0Y0", state))
+                .isEqualTo("F0.0S0.0G1X0Y0");
+
+        state.currentMotionMode = Code.G1;
+        state.speed = 12.5;
+
+        // Add state and insert implicit motion mode.
+        assertThat(GcodePreprocessorUtils.normalizeCommand("X0Y0", state))
+                .isEqualTo("F12.5S0.0G1X0Y0");
     }
 }

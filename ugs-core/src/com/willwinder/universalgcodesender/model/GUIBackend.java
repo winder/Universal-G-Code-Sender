@@ -151,13 +151,15 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.messageService.removeListener(listener);
     }
 
-    //////////////////
-    // GUI API
-    //////////////////
+    /////////////
+    // GUI API //
+    /////////////
 
     @Override
     public void preprocessAndExportToFile(File f) throws Exception {
-        preprocessAndExportToFile(this.gcp, this.getGcodeFile(), f);
+        try (IGcodeWriter gcw = new GcodeFileWriter(this.processedGcodeFile)) {
+            preprocessAndExportToFile(this.gcp, this.getGcodeFile(), gcw);
+        }
     }
     
     /**
@@ -166,9 +168,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
      * Additional rules:
      * * Comment lines are left
      */
-    protected void preprocessAndExportToFile(GcodeParser gcp, File input, File output) throws Exception {
-        logger.log(Level.INFO, "Preprocessing {0} to {1}", new Object[]{input.getCanonicalPath(), output.getCanonicalPath()});
-        GcodeParserUtils.processAndExport(gcp, input, output);
+    protected void preprocessAndExportToFile(GcodeParser gcp, File input, IGcodeWriter gcw) throws Exception {
+        logger.log(Level.INFO, "Preprocessing {0} to {1}", new Object[]{input.getCanonicalPath(), gcw.getCanonicalPath()});
+        GcodeParserUtils.processAndExport(gcp, input, gcw);
     }
 
     private void initGcodeParser() {
@@ -466,11 +468,19 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             return;
         }
 
-        // re-initialize starting with the already processed file.
-        initializeProcessedLines(true, this.processedGcodeFile, parser);
+        File settingsDir = SettingsFactory.getSettingsDirectory();
+        File applyDir = new File(settingsDir, "apply_parser_files");
+        applyDir.mkdir();
 
-        this.sendUGSEvent(new UGSEvent(FileState.FILE_LOADED,
-                processedGcodeFile.getAbsolutePath()), false);
+        File target = new File(applyDir, this.processedGcodeFile.getName() + ".apply.gcode");
+        java.nio.file.Files.deleteIfExists(target.toPath());
+
+        // Using a GcodeFileWriter instead of a GcodeStreamWriter so that the user can review a standard gcode file.
+        try (IGcodeWriter gcw = new GcodeFileWriter(target)) {
+            preprocessAndExportToFile(parser, this.processedGcodeFile, gcw);
+        }
+
+        this.setGcodeFile(target);
     }
     
     @Override
@@ -662,9 +672,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.controller.viewParserState();
     }
 
-    //////////////////
-    // Controller Listener
-    //////////////////
+    /////////////////////////
+    // Controller Listener //
+    /////////////////////////
     @Override
     public void controlStateChange(ControlState state) {
         // This comes from the boss, force the event change.
@@ -710,9 +720,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.sendControllerStateEvent(new UGSEvent(status));
     }
     
-    ////////////////////
-    // Utility functions
-    ////////////////////
+    ///////////////////////
+    // Utility functions //
+    ///////////////////////
     
     /**
      * This would be static but I want to define it in the interface.
@@ -780,9 +790,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         }
     }
 
-    /////////////////////
-    // Private functions.
-    /////////////////////
+    ////////////////////////
+    // Private functions. //
+    ////////////////////////
     
     private boolean openCommConnection(String port, int baudRate) throws Exception {
         boolean connected;
@@ -819,7 +829,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                 }
                 this.processedGcodeFile =
                         new File(this.getTempDir(), name + "_ugs_" + System.currentTimeMillis());
-                this.preprocessAndExportToFile(gcodeParser, startFile, this.processedGcodeFile);
+                try (IGcodeWriter gcw = new GcodeStreamWriter(this.processedGcodeFile)) {
+                    this.preprocessAndExportToFile(gcodeParser, startFile, gcw);
+                }
 
                 // Store gcode file stats.
                 GcodeStats gs = gcp.getCurrentStats();
