@@ -57,7 +57,7 @@ import java.util.logging.Logger;
         id = "com.willwinder.ugs.nbp.editor.EditGcodeFile"
 )
 @ActionRegistration(
-        displayName = "resources#platform.menu.edit",
+        displayName = "Edit Gcode File...",
         lazy = false
 )
 @ActionReferences({
@@ -66,10 +66,11 @@ import java.util.logging.Logger;
 })
 public final class EditGcodeFile extends AbstractAction implements ContextAwareAction, UGSEventListener {
     private static final Logger LOGGER = Logger.getLogger(EditGcodeFile.class.getSimpleName());
+    public static final String NAME = Localization.getString("platform.menu.edit");
     private final BackendAPI backend;
 
     public EditGcodeFile() {
-        putValue(Action.NAME, Localization.getString("platform.menu.edit")); // NOI18N
+        putValue(Action.NAME, NAME);
 
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this);

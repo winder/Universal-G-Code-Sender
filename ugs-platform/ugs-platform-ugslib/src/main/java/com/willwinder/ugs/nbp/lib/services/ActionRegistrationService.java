@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,12 +28,7 @@ import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -46,6 +41,45 @@ public class ActionRegistrationService {
 
     private static final String SHADOW = "shadow";
     private static final Logger LOGGER = Logger.getLogger(ActionRegistrationService.class.getSimpleName());
+
+    private Map<String, List<ActionReference>> actionCache = initCategoryActions();
+
+    /**
+     * Extract action ID from the instance file path. For example 'com-willwinder-ugs-nbp-editor-actions-RunFromHere' from 'Action/Machine/com-willwinder-ugs-nbp-editor-actions-RunFromHere.instance'.
+     * @param path full path to the action instance file.
+     */
+    private String extractId(String path) {
+        return path.substring(
+                path.lastIndexOf('/') + 1,
+                path.lastIndexOf('.')
+        );
+    }
+
+    /**
+     * Extract the action path from the instance file path. For example 'Machine/Jog' from 'Action/Machine/Jog/com-willwinder-ugs-nbp-editor-actions-RunFromHere.instance'.
+     * @param path full path to the action instance file.
+     */
+    private String extractCategory(String path) {
+        return path.substring(
+                path.indexOf('/') + 1,
+                path.lastIndexOf('/')
+        );
+    }
+
+    /**
+     * Update an {@link ActionReference} already registered with the platform along with optional shortcuts and
+     * menu items.
+     *
+     * @param reference    Name and ID of the action.
+     * @param shortcut     Default shortcut, use an empty string or null for none.
+     * @param menuPath     Menu location starting with "Menu", like "Menu/Head/Hats"
+     * @param menuPosition Defines how the menu item should be ordered
+     * @param localMenu    Localized menu location starting with "Menu", like "Menu/Cabeza/Sombreros"
+     * @throws IOException if the action couldn't be registered
+     */
+    public void updateAction(ActionReference reference, String newName, String shortcut, String menuPath, int menuPosition, String localMenu) throws IOException {
+        registerAction(extractId(reference.getId()), newName, extractCategory(reference.getId()), shortcut, menuPath, menuPosition, localMenu, reference.getAction());
+    }
 
     /**
      * Update an {@link ActionReference} already registered with the platform along with optional shortcuts and
@@ -123,7 +157,7 @@ public class ActionRegistrationService {
     }
 
     /**
-     * Creates a folder path in the netbeans filesystem and sets a localized
+     * Creates a folder path in the netbeans filesystem and sets a localized.
      * display name or each level of the path.
      */
     public FileObject createAndLocalizeFullMenu(String path, String localizedPath) throws IOException {
@@ -152,6 +186,16 @@ public class ActionRegistrationService {
     }
 
     /**
+     * Set the display name of an action for a given action reference.
+     *
+     * @param ref  the action reference to update.
+     * @param name display name to set.
+     */
+    public void overrideActionName(ActionReference ref, String name) {
+        overrideActionName(extractCategory(ref.getId()), extractId(ref.getId()), name);
+    }
+
+    /**
      * Set the display name of an action for a given category.
      *
      * @param category which category the key is in.
@@ -167,18 +211,47 @@ public class ActionRegistrationService {
             if (obj != null) {
                 obj.setAttribute("displayName", name);
             }
+
+            in.refresh();
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
     }
 
+    public Optional<ActionReference> lookupAction(String category, String name) {
+        String key = "Actions/" + category;
+        if (key != null) {
+            if(actionCache.containsKey(key)) {
+                return actionCache.get(key).stream()
+                        .filter(action -> action.getId().contains(name))
+                        .findFirst();
+            }
+            return Optional.empty();
+        }
+
+        return actionCache.values().stream().flatMap(Collection::stream)
+                .filter(action -> action.getId().contains(name))
+                .findFirst();
+    }
+
     /**
-     * Returns a map with all action categories together with their list of actions
+     * Returns a map with all action categories together with their list of actions.
      *
-     * @return a map with all actions
+     * @return a map with all actions.
+     */
+    private Map<String, List<ActionReference>> initCategoryActions() {
+        FileObject rootFileObject = FileUtil.getConfigFile("Actions/");
+        return getCategoryActions(rootFileObject);
+    }
+
+    /**
+     * Get actions organized by category.
      */
     public Map<String, List<ActionReference>> getCategoryActions() {
-        FileObject rootFileObject = FileUtil.getConfigFile("Actions/");
+        return actionCache;
+    }
+
+    private Map<String, List<ActionReference>> getCategoryActions(final FileObject rootFileObject) {
         return recursiveAddCategoryActions(rootFileObject, new HashMap<>());
     }
 
@@ -243,7 +316,7 @@ public class ActionRegistrationService {
     /**
      * Returns a action reference by a given file id.
      *
-     * @param id a id for a action (ie. Action/UndoAction.instance
+     * @param id a id for a action (ie. Action/UndoAction.instance).
      * @return an optional with an action if found or else an empty optional.
      */
     public Optional<ActionReference> getActionById(String id) {

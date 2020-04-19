@@ -116,6 +116,13 @@
             <version>${netbeans.version}</version>
         </dependency>
 
+        <!-- For editor actions (Run from...) -->
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-editor-lib2</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+
         <!-- Language configuration -->
         <dependency>
             <groupId>org.netbeans.api</groupId>
