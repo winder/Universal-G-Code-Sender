@@ -13,7 +13,7 @@ Configuration:
 * **LANGUAGES** dict - inside the script is a dictionary to map the POEditor language code to the UGS MessagesBundle file.
 
 Running:
-Ensure you're **POEDITOR_API_KEY** environment variable is set then run `./update_languages.py` from the scripts directory.
+Ensure you're **POEDITOR_API_KEY** environment variable is set then run `./update_languages.py --upload --download` from the scripts directory.
 
 Adding a new language:
 Update the **LANGUAGES** dictionary inside the script.

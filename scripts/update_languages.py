@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
 
-import requests
+import argparse
+import json
 import os
 import os.path
-import json
 import pprint
+import requests
 import sys
 
 API_ENDPOINT = 'https://api.poeditor.com/v2'
 PROJECT_ID = '52743'
 """ relative path and root of MessagesBundle property files """
-RESOURCE_ROOT = '../ugs-core/src/resources/MessagesBundle_'
+DEFAULT_RESOURCE_ROOT = '../ugs-core/src/resources/MessagesBundle_'
 REFERENCE_LANGUAGE = 'en'
 pp = pprint.PrettyPrinter(indent=4)
+
+parser = argparse.ArgumentParser(description='Change prefix of files matching a pattern')
+parser.add_argument('--upload', action='store_true', help='Upload new terms to POEditor using the reference language (%s).' % REFERENCE_LANGUAGE)
+parser.add_argument('--download', action='store_true', help='Download terms from POEditor and update message bundle files."')
+parser.add_argument('root', default=DEFAULT_RESOURCE_ROOT, nargs='?', help='Path to message bundle file root.')
 
 try:
     API_KEY = os.environ['POEDITOR_API_KEY']
@@ -115,8 +121,8 @@ def checkForMissingMapping():
         os._exit(1)
 
 
-def updateTerms():
-    filepath = '%s%s.properties' % (RESOURCE_ROOT, LANGUAGES[REFERENCE_LANGUAGE])
+def updateTerms(root):
+    filepath = '%s%s.properties' % (root, LANGUAGES[REFERENCE_LANGUAGE])
     print('Synchronizing terms file %s' % filepath)
 
     files = {
@@ -134,24 +140,26 @@ def updateTerms():
 
 
 if __name__ == '__main__':
+    args = parser.parse_args()
+
     checkForMissingMapping()
 
-    if 'upload' not in sys.argv and 'download' not in sys.argv:
+    if not args.upload and not args.download:
         print("Usage: run with 'upload' and/or 'download' argument to upload terms and/or download translations.")
         sys.exit(0)
 
     # Upload new terms.
-    if 'upload' in sys.argv:
-        updateTerms()
+    if args.upload:
+        updateTerms(args.root)
 
     # Download new translations.
-    if 'download' in sys.argv:
+    if args.download:
         for key, value in LANGUAGES.items():
             if key is REFERENCE_LANGUAGE:
                 print('Skipping reference language "%s".' % key)
                 continue
             try:
-                filename = RESOURCE_ROOT + value + '.properties'
+                filename = args.root + value + '.properties'
                 print('Updating %s: %s' % (key, filename))
                 url = getLanguageFileURL(key)
                 print('   url: %s' % url)
