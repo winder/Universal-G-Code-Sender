@@ -66,6 +66,8 @@ public class ConnectionFactory {
                 return Optional.of(new JSSCConnection());
             case TCP:
                 return Optional.of(new TCPConnection());
+            case UDP:
+                return Optional.of(new UDPConnection());
             case WS:
                 return Optional.of(new WSConnection());
         }
