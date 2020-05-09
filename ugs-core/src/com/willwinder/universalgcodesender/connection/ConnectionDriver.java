@@ -30,6 +30,7 @@ public enum ConnectionDriver {
     JSERIALCOMM("JSerialComm", "jserialcomm://"),
     JSSC("JSSC", "jssc://"),
     TCP("TCP", "tcp://"),
+    UDP("UDP", "udp://"),
     WS("WebSocket", "ws://");
 
     private final String prettyName;
