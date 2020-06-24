@@ -75,6 +75,7 @@
     <module>ugs-classic</module>
     <module>ugs-platform</module>
     <module>ugs-cli</module>
+    <module>ugs-designer</module>
   </modules>
 
   <!-- global dependencies -->
