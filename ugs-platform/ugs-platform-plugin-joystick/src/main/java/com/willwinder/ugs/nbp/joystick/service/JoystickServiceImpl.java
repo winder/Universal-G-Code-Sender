@@ -149,8 +149,12 @@ public class JoystickServiceImpl implements JoystickService {
     @Override
     public void destroy() {
         isRunning = false;
-        if (controllerManager != null && controllerManager.getNumControllers() > 0) {
-            controllerManager.quitSDLGamepad();
+        try {
+            if (controllerManager != null && controllerManager.getNumControllers() > 0) {
+                controllerManager.quitSDLGamepad();
+            }
+        } catch (IllegalStateException e) {
+            LOGGER.fine("Couldn't release the joystick manager: " + e.getMessage());
         }
     }
 
