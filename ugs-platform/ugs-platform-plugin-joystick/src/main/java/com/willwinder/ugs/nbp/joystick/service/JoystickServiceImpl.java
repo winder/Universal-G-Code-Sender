@@ -142,7 +142,19 @@ public class JoystickServiceImpl implements JoystickService {
         if (isRunning) {
             return;
         }
+
         controllerManager.initSDLGamepad();
+        int numControllers = controllerManager.getNumControllers();
+        if (numControllers > 0) {
+            try {
+                LOGGER.info(String.format("Found %d gamepad controllers, will use the first one with the name \"%s\"", numControllers, controllerManager.getControllerIndex(0).getName()));
+            } catch (ControllerUnpluggedException e) {
+                LOGGER.severe("Couldn't get the name of the first gamepad controller");
+            }
+        } else {
+            LOGGER.info("Couldn't find any gamepad controllers");
+        }
+
         joystickReadThread.execute(this::mainLoop);
     }
 
