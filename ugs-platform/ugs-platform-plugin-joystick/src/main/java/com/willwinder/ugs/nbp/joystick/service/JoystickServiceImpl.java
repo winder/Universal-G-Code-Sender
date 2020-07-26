@@ -76,6 +76,7 @@ public class JoystickServiceImpl implements JoystickService {
      * A version number for the settings so that we can handle version changes
      */
     private static final int SETTINGS_VERSION = 1;
+    private static final int MAX_NUM_CONTROLLERS = 4;
 
     private final ControllerManager controllerManager;
     private final JoystickState joystickState;
@@ -90,7 +91,7 @@ public class JoystickServiceImpl implements JoystickService {
 
     public JoystickServiceImpl() {
         joystickReadThread = Executors.newSingleThreadExecutor();
-        controllerManager = new ControllerManager();
+        controllerManager = new ControllerManager(MAX_NUM_CONTROLLERS, "/com/willwinder/ugs/nbp/joystick/gamecontrollerdb.txt");
         joystickState = new JoystickState();
         listeners = new HashSet<>();
 
