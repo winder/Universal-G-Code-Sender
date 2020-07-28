@@ -49,7 +49,7 @@ import java.awt.event.ActionEvent;
 })
 public final class ResetZCoordinateToZeroAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/resetzero_z.png";
+    public static final String ICON_BASE = "resources/icons/resetzero_z.svg";
 
     private BackendAPI backend;
 

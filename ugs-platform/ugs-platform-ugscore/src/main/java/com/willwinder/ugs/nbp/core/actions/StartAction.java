@@ -50,7 +50,7 @@ import java.awt.event.ActionEvent;
 })
 public final class StartAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/start.png";
+    public static final String ICON_BASE = "resources/icons/start.svg";
 
     private BackendAPI backend;
 

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   width="24px"
+   height="24px"
+   viewBox="0 0 24 24"
+   enable-background="new 0 0 24 24"
+   xml:space="preserve"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="macro.svg"><metadata
+     id="metadata13"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+     id="defs11" /><sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1015"
+     inkscape:window-height="625"
+     id="namedview9"
+     showgrid="false"
+     inkscape:zoom="9.8333333"
+     inkscape:cx="5.1864406"
+     inkscape:cy="12"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="Layer_1" /><path
+     inkscape:connector-curvature="0"
+     id="path5"
+     d="M 14.599,0 9.514,0 C 8.242,0 7.211,1.031 7.211,2.303 l 0,5.085 c 0,1.272 1.031,2.303 2.303,2.303 l 5.085,0 c 1.272,0 2.304,-1.031 2.304,-2.303 l 0,-5.085 C 16.902,1.031 15.871,0 14.599,0 Z m -4.48,7.908 -1,0 0,-2.958 1,0 0,2.958 z M 9.735,3.969 c -0.57,0 -1.031,-0.461 -1.031,-1.031 0,-0.57 0.461,-1.031 1.031,-1.031 0.569,0 1.031,0.461 1.031,1.031 0,0.57 -0.461,1.031 -1.031,1.031 z m 2.009,3.939 -1,0 0,-2.958 1,0 0,2.958 z m 1.625,0 -1,0 0,-2.958 1,0 0,2.958 z m 1.625,0 -1,0 0,-2.958 1,0 0,2.958 z M 14.378,3.969 c -0.57,0 -1.031,-0.461 -1.031,-1.031 0,-0.57 0.461,-1.031 1.031,-1.031 0.569,0 1.031,0.461 1.031,1.031 0,0.57 -0.462,1.031 -1.031,1.031 z"
+     style="fill:#0ac9f1;fill-opacity:1;fill-rule:evenodd;stroke:#0ac9f1;stroke-width:0pt;stroke-opacity:1" /><path
+     inkscape:connector-curvature="0"
+     id="path7"
+     d="m 21.992,20.603 c 0.006,-0.033 -0.007,-0.062 -0.007,-0.095 0,-0.031 0.007,-0.063 0.007,-0.094 0,-0.499 -0.464,-0.914 -1.035,-0.91 l -0.165,0 0,-1.433 0.026,0 0.004,-0.408 c 0.016,-1.498 0.041,-3.76 -1.504,-5.322 -1.014,-1.025 -2.524,-1.544 -4.489,-1.544 l 0,0.01 c -0.076,-0.011 -0.151,-0.032 -0.23,-0.032 l -5.085,0 c -0.057,0 -0.111,0.018 -0.167,0.023 -2.018,0.004 -3.563,0.532 -4.592,1.573 -1.146,1.159 -1.427,2.691 -1.489,4.011 l -0.036,0.027 0,3.094 -0.145,0 c -0.587,0 -1.059,0.408 -1.059,0.909 l 0,0.015 c -0.012,0.057 -0.024,0.113 -0.024,0.17 l 0,1.103 c 0,0.404 0.382,0.73 0.853,0.73 0.466,0 0.854,-0.326 0.854,-0.73 l 0,-0.383 1.387,-0.005 0,0.388 c 0,0.399 0.38,0.725 0.846,0.725 0.471,0 0.853,-0.326 0.853,-0.725 L 6.789,20.593 C 6.795,20.56 6.782,20.531 6.782,20.498 c 0,-0.031 0.007,-0.062 0.007,-0.093 0,-0.495 -0.472,-0.907 -1.054,-0.902 l -0.17,0 0,-3.048 C 5.612,15.531 5.784,14.601 6.389,13.989 6.61,13.766 6.908,13.599 7.244,13.459 7.227,13.61 7.21,13.761 7.21,13.918 l 0,6.939 C 7.211,22.593 8.242,24 9.514,24 l 5.085,0 c 1.272,0 2.304,-1.407 2.304,-3.143 l 0,-6.939 c 0,-0.161 -0.018,-0.315 -0.035,-0.469 0.32,0.134 0.604,0.295 0.815,0.509 0.592,0.598 0.771,1.508 0.821,2.421 l -0.008,0.006 0,3.119 -0.142,0 c -0.577,0 -1.041,0.411 -1.041,0.917 l 0,0.015 c -0.011,0.058 -0.023,0.114 -0.023,0.172 l 0,1.112 c 0,0.407 0.376,0.736 0.838,0.736 0.458,0 0.839,-0.329 0.839,-0.736 l 0,-0.387 1.362,-0.005 0,0.392 c 0,0.402 0.373,0.731 0.831,0.731 0.462,0 0.838,-0.329 0.838,-0.731 z"
+     style="fill:#0ac9f1;fill-opacity:1;fill-rule:evenodd;stroke:#0ac9f1;stroke-width:0pt;stroke-opacity:1"
+     sodipodi:nodetypes="cssccccccccsscccccsscssssccssccsscccccscsssscccccsscssssccsscc" /></svg>

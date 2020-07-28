@@ -46,7 +46,7 @@ import org.openide.util.ImageUtilities;
                 separatorBefore = 1999)
 })
 public class ConfigureFirmwareAction extends com.willwinder.universalgcodesender.actions.ConfigureFirmwareAction {
-    public static final String ICON_BASE = "resources/icons/firmware.png";
+    public static final String ICON_BASE = "resources/icons/firmware.svg";
 
     public ConfigureFirmwareAction() {
         super(CentralLookup.getDefault().lookup(BackendAPI.class));

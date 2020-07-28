@@ -52,7 +52,7 @@ import java.awt.event.ActionEvent;
 })
 public final class OpenAction extends AbstractAction {
 
-    public static final String ICON_BASE = "resources/icons/open.png";
+    public static final String ICON_BASE = "resources/icons/open.svg";
     private BackendAPI backend;
 
     public OpenAction() {
