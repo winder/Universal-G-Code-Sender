@@ -25,7 +25,9 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
+
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.util.List;
@@ -34,6 +36,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
 import org.apache.commons.lang3.StringUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -45,7 +48,6 @@ import org.openide.util.ImageUtilities;
 import org.openide.util.actions.CallableSystemAction;
 
 /**
- *
  * @author wwinder
  */
 @ActionID(
@@ -61,44 +63,19 @@ import org.openide.util.actions.CallableSystemAction;
                 position = 990)
 })
 public class PortAction extends CallableSystemAction implements UGSEventListener {
-    static final String ICON_BASE = "resources/icons/serialport.png";
-    static private final String REFRESH_ICON = "resources/icons/refresh.gif";
-
-    private ImageIcon refreshIcon = null;
-
+    protected static final String ICON_BASE = "resources/icons/serialport.svg";
+    private static final String REFRESH_ICON = "resources/icons/refresh.svg";
 
     private final BackendAPI backend;
-    private final Component c;
-    private final JButton refreshButton = new JButton();
-    private final JComboBox<String> portCombo = new JComboBox<>();
+    private JComboBox<String> portCombo;
+    private Component c;
 
-    public PortAction(){
+    public PortAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
 
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue(NAME, LocalizingService.ConnectionSerialPortToolbarTitle);
-
-        try {
-            refreshIcon = new ImageIcon(this.getClass().getClassLoader().getResource(REFRESH_ICON));
-        } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);
-        }
-
-
-        portCombo.setEditable(true);
-        refreshButton.setIcon(refreshIcon);
-
-        JPanel panel = new JPanel(new FlowLayout());
-        panel.add(new JLabel(Localization.getString("mainWindow.swing.portLabel")));
-        panel.add(refreshButton);
-        panel.add(portCombo);
-        c = panel;
-
-        updatePort();
-
-        portCombo.addActionListener(e ->this.performAction());
-        refreshButton.addActionListener(e -> loadPortSelector());
     }
 
     private void updatePort() {
@@ -120,8 +97,13 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
         return null; // new HelpCtx("...ID") if you have a help set
     }
 
+
     @Override
     public void UGSEvent(UGSEvent evt) {
+        if(c == null) {
+            return;
+        }
+
         // If a setting has changed elsewhere, update the combo boxes.
         if (evt.isSettingChangeEvent()) {
             updatePort();
@@ -132,9 +114,34 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
             c.setVisible(!backend.isConnected());
         }
     }
-    
+
     @Override
     public Component getToolbarPresenter() {
+        if (c == null) {
+            ImageIcon refreshIcon = null;
+            try {
+                refreshIcon = ImageUtilities.loadImageIcon(REFRESH_ICON, false);
+            } catch (Exception ex) {
+                Exceptions.printStackTrace(ex);
+            }
+
+            portCombo = new JComboBox<>();
+            portCombo.setEditable(true);
+            portCombo.addActionListener(e -> this.performAction());
+
+            JButton refreshButton = new JButton();
+            refreshButton.setIcon(refreshIcon);
+            refreshButton.addActionListener(e -> loadPortSelector());
+
+            JPanel panel = new JPanel(new FlowLayout());
+            panel.add(new JLabel(Localization.getString("mainWindow.swing.portLabel")));
+            panel.add(refreshButton);
+            panel.add(portCombo);
+            c = panel;
+
+            updatePort();
+        }
+
         return c;
     }
 

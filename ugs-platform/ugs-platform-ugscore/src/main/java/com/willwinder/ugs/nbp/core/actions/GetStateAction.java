@@ -48,7 +48,7 @@ import java.awt.event.ActionEvent;
 })
 public final class GetStateAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/state.png";
+    public static final String ICON_BASE = "resources/icons/state.svg";
 
     private BackendAPI backend;
 

@@ -76,7 +76,7 @@ import java.util.stream.Stream;
 })
 public final class OutlineAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/outline.png";
+    public static final String ICON_BASE = "resources/icons/outline.svg";
     public static final double ARC_SEGMENT_LENGTH = 0.5;
     private static final Logger LOGGER = Logger.getLogger(OutlineAction.class.getSimpleName());
     private BackendAPI backend;

@@ -53,7 +53,7 @@ import java.awt.event.ActionEvent;
 })
 public final class RunFromAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/fast-forward.png";
+    public static final String ICON_BASE = "resources/icons/fast-forward.svg";
 
     private BackendAPI backend;
 

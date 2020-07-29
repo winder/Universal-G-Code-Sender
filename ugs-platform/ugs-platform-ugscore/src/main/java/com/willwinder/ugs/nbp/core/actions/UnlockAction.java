@@ -48,7 +48,7 @@ import java.awt.event.ActionEvent;
 })
 public final class UnlockAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/lock.png";
+    public static final String ICON_BASE = "resources/icons/lock.svg";
 
     private BackendAPI backend;
 
