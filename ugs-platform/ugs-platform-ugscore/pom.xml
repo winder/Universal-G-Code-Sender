@@ -19,7 +19,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
-                        com.willwinder.ugs.nbp.core.actions
+                        <publicPackage>com.willwinder.ugs.nbp.core.actions</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
