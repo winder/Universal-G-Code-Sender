@@ -1,6 +1,6 @@
 ![Universal G-Code Sender](https://raw.githubusercontent.com/winder/Universal-G-Code-Sender/master/ugs-platform/branding/src/main/nbm-branding/core/core.jar/org/netbeans/core/startup/splash.gif "UGS Splash Image")
 
-Universal G-Code Sender is a Java based, cross platform G-Code sender, compatible with [GRBL](https://github.com/gnea/grbl/) and [TinyG](https://github.com/synthetos/TinyG)/[g2core](https://github.com/synthetos/g2). Use this program to run a GRBL or TinyG/g2core controlled CNC machine. 
+Universal G-Code Sender is a Java based, cross platform G-Code sender, compatible with [GRBL](https://github.com/gnea/grbl/), [TinyG](https://github.com/synthetos/TinyG), [g2core](https://github.com/synthetos/g2), [Smoothieware](http://smoothieware.org/).
 
 Online documentation and releases: http://winder.github.io/ugs_website/<br/>
 Discussion forum: https://groups.google.com/forum/#!forum/universal-gcode-sender
