@@ -2,7 +2,7 @@
  * Used by the gcode parser to preprocess commands.
  */
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 

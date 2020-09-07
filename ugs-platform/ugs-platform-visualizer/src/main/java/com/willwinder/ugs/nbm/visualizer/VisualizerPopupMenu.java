@@ -18,8 +18,10 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.willwinder.ugs.nbm.visualizer.actions.MoveCameraAction;
-import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
+import com.willwinder.ugs.nbm.visualizer.actions.CameraResetPreset;
+import com.willwinder.ugs.nbm.visualizer.actions.CameraXPreset;
+import com.willwinder.ugs.nbm.visualizer.actions.CameraYPreset;
+import com.willwinder.ugs.nbm.visualizer.actions.CameraZPreset;
 import com.willwinder.ugs.nbm.visualizer.shared.IRenderableRegistrationService;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableCheckBox;
@@ -32,18 +34,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author wwinder
  */
 public class VisualizerPopupMenu extends JPopupMenu {
     private final BackendAPI backend;
-    private final GcodeRenderer gcodeRenderer;
     private final Position position;
 
-    public VisualizerPopupMenu(BackendAPI backend, GcodeRenderer gcodeRenderer, Position clickedWorkPosition) {
+    public VisualizerPopupMenu(BackendAPI backend, Position clickedWorkPosition) {
         this.backend = backend;
-        this.gcodeRenderer = gcodeRenderer;
         this.position = clickedWorkPosition;
     }
 
@@ -55,9 +56,19 @@ public class VisualizerPopupMenu extends JPopupMenu {
         createShowRenderablesSubmenu();
 
         CoordinatesSubMenu coordSubMenu = new CoordinatesSubMenu(backend, position);
-
         add(coordSubMenu);
+
+        addActions();
+
         super.show(invoker, x, y);
+    }
+
+    private void addActions() {
+        List<Action> actionList = VisualizerPopupActionsManager.getActionList();
+        if (!actionList.isEmpty()) {
+            addSeparator();
+            actionList.forEach(action -> add(new JMenuItem(action)));
+        }
     }
 
     private void createShowRenderablesSubmenu() {
@@ -78,21 +89,20 @@ public class VisualizerPopupMenu extends JPopupMenu {
         JMenu menu = new JMenu(Localization.getString("platform.visualizer.popup.viewPresets"));
         add(menu);
 
-        JMenuItem menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.ROTATION_ISOMETRIC));
+        JMenuItem menuItem = new JMenuItem(new CameraResetPreset());
         menuItem.setText(Localization.getString("platform.visualizer.popup.presets.reset"));
         menu.add(menuItem);
 
-        menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.ROTATION_TOP));
+        menuItem = new JMenuItem(new CameraZPreset());
         menuItem.setText(Localization.getString("platform.visualizer.popup.presets.top"));
         menu.add(menuItem);
 
-        menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.ROTATION_LEFT));
+        menuItem = new JMenuItem(new CameraXPreset());
         menuItem.setText(Localization.getString("platform.visualizer.popup.presets.left"));
         menu.add(menuItem);
 
-        menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.ROTATION_FRONT));
+        menuItem = new JMenuItem(new CameraYPreset());
         menuItem.setText(Localization.getString("platform.visualizer.popup.presets.front"));
         menu.add(menuItem);
     }
-
- }
+}

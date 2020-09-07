@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2019 Will Winder
+    Copyright 2013-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -36,11 +36,6 @@ import com.willwinder.universalgcodesender.types.GrblSettingMessage;
 import com.willwinder.universalgcodesender.utils.GrblLookups;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,6 +53,7 @@ public class GrblController extends AbstractController {
 
     private static final GrblLookups ALARMS = new GrblLookups("alarm_codes");
     private static final GrblLookups ERRORS = new GrblLookups("error_codes");
+    private StatusPollTimer positionPollTimer;
 
     // Grbl state
     private double grblVersion = 0.0;           // The 0.8 in 'Grbl 0.8c'
@@ -67,9 +63,7 @@ public class GrblController extends AbstractController {
     private final GrblFirmwareSettings firmwareSettings;
 
     // Polling state
-    private int outstandingPolls = 0;
-    private Timer positionPollTimer = null;  
-    private ControllerStatus controllerStatus = new ControllerStatus("Disconnected", ControllerState.DISCONNECTED, new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
+    private ControllerStatus controllerStatus = new ControllerStatus(ControllerState.DISCONNECTED, new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
 
     // Canceling state
     private Boolean isCanceling = false;     // Set for the position polling thread.
@@ -86,7 +80,7 @@ public class GrblController extends AbstractController {
         super(comm);
         
         this.commandCreator = new GcodeCommandCreator();
-        this.positionPollTimer = createPositionPollTimer();
+        this.positionPollTimer = new StatusPollTimer(this);
 
         // Add our controller settings manager
         this.firmwareSettings = new GrblFirmwareSettings(this);
@@ -162,11 +156,9 @@ public class GrblController extends AbstractController {
             else if (GrblUtils.isOkErrorAlarmResponse(response)) {
                 if (GrblUtils.isAlarmResponse(response)) {
                     //this is not updating the state to Alarm in the GUI, and the alarm is no longer being processed
-                    String stateString = lookupCode(response, true);
                     controllerStatus = ControllerStatusBuilder
                             .newInstance(controllerStatus)
                             .setState(ControllerState.ALARM)
-                            .setStateString(stateString)
                             .build();
 
                     Alarm alarm = GrblUtils.parseAlarmResponse(response);
@@ -205,9 +197,8 @@ public class GrblController extends AbstractController {
                     this.controllerStatus = null;
                 }
 
-                this.stopPollingPosition();
-                positionPollTimer = createPositionPollTimer();
-                this.beginPollingPosition();
+                positionPollTimer.stop();
+                positionPollTimer.start();
 
                 // In case a reset occurred while streaming.
                 if (this.isStreaming()) {
@@ -240,7 +231,7 @@ public class GrblController extends AbstractController {
 
             else if (GrblUtils.isGrblStatusString(response)) {
                 // Only 1 poll is sent at a time so don't decrement, reset to zero.
-                this.outstandingPolls = 0;
+                positionPollTimer.receivedStatus();
 
                 // Status string goes to verbose console
                 verbose = true;
@@ -300,7 +291,7 @@ public class GrblController extends AbstractController {
     
     @Override
     protected void closeCommBeforeEvent() {
-        this.stopPollingPosition();
+        positionPollTimer.stop();
     }
     
     @Override
@@ -356,7 +347,7 @@ public class GrblController extends AbstractController {
     }
     
     @Override
-    protected void cancelSendAfterEvent() throws Exception {
+    protected void cancelSendAfterEvent() {
         if (this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME) && this.getStatusUpdatesEnabled()) {
             // Trigger the position listener to watch for the machine to stop.
             this.attemptsRemaining = 50;
@@ -380,24 +371,23 @@ public class GrblController extends AbstractController {
             return super.getControlState();
         }
 
-        String state = this.controllerStatus == null ? "" : StringUtils.defaultString(this.controllerStatus.getStateString());
-        switch(state.toLowerCase()) {
-            case "jog":
-            case "run":
+        ControllerState state = this.controllerStatus == null ? ControllerState.UNKNOWN : this.controllerStatus.getState();
+        switch(state) {
+            case JOG:
+            case RUN:
                 return ControlState.COMM_SENDING;
-            case "hold":
-            case "door":
-            case "queue":
+            case HOLD:
+            case DOOR:
                 return ControlState.COMM_SENDING_PAUSED;
-            case "idle":
+            case IDLE:
                 if (isStreaming()){
                     return ControlState.COMM_SENDING_PAUSED;
                 } else {
                     return ControlState.COMM_IDLE;
                 }
-            case "alarm":
+            case ALARM:
                 return ControlState.COMM_IDLE;
-            case "check":
+            case CHECK:
                 if (isStreaming() && comm.isPaused()) {
                     return ControlState.COMM_SENDING_PAUSED;
                 } else if (isStreaming() && !comm.isPaused()) {
@@ -472,27 +462,6 @@ public class GrblController extends AbstractController {
             this.sendCommandImmediately(command);
         }
     }
-
-    @Override
-    public void returnToHome() throws Exception {
-        if (this.isCommOpen()) {
-            ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter, this.controllerStatus.getWorkCoord().z);
-            if (!commands.isEmpty()) {
-                Iterator<String> iter = commands.iterator();
-                // Perform the homing commands
-                while(iter.hasNext()){
-                    String gcode = iter.next();
-                    GcodeCommand command = createCommand(gcode);
-                    this.sendCommandImmediately(command);
-                }
-                return;
-            }
-
-            restoreParserModalState();
-        }
-        // Throw exception
-        super.returnToHome();
-    }
     
     @Override
     public void killAlarmLock() throws Exception {
@@ -535,7 +504,16 @@ public class GrblController extends AbstractController {
         // Throw exception
         super.viewParserState();
     }
-    
+
+    @Override
+    public void requestStatusReport() throws Exception {
+        if (!this.isCommOpen()) {
+            throw new RuntimeException("Not connected to the controller");
+        }
+
+        comm.sendByteImmediately(GrblUtils.GRBL_STATUS_COMMAND);
+    }
+
     /**
      * If it is supported, a soft reset real-time command will be issued.
      */
@@ -549,18 +527,17 @@ public class GrblController extends AbstractController {
     }
 
     @Override
-    public void jogMachine(int dirX, int dirY, int dirZ, double stepSize, 
-            double feedRate, Units units) throws Exception {
+    public void jogMachine(double distanceX, double distanceY, double distanceZ, double feedRate, Units units) throws Exception {
         if (capabilities.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)) {
             String commandString = GcodeUtils.generateMoveCommand( "G91",
-                    stepSize, feedRate, dirX, dirY, dirZ, units);
+                     feedRate, distanceX, distanceY, distanceZ, units);
             GcodeCommand command = createCommand("$J=" + commandString);
             sendCommandImmediately(command);
         } else {
-            super.jogMachine(dirX, dirY, dirZ, stepSize, feedRate, units);
+            super.jogMachine(distanceX, distanceY, distanceZ, feedRate, units);
         }
     }
-    
+
     @Override
     public void jogMachineTo(PartialPosition position, double feedRate) throws Exception {
         if (capabilities.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)) {
@@ -606,66 +583,6 @@ public class GrblController extends AbstractController {
         return controllerStatus;
     }
 
-    /**
-     * Create a timer which will execute GRBL's position polling mechanism.
-     */
-    private Timer createPositionPollTimer() {
-        // Action Listener for GRBL's polling mechanism.
-        ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                java.awt.EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (outstandingPolls == 0) {
-                                outstandingPolls++;
-                                comm.sendByteImmediately(GrblUtils.GRBL_STATUS_COMMAND);
-                            } else {
-                                // If a poll is somehow lost after 20 intervals,
-                                // reset for sending another.
-                                outstandingPolls++;
-                                if (outstandingPolls >= 20) {
-                                    outstandingPolls = 0;
-                                }
-                            }
-                        } catch (Exception ex) {
-                            dispatchConsoleMessage(MessageType.INFO,Localization.getString("controller.exception.sendingstatus")
-                                    + " (" + ex.getMessage() + ")\n");
-                            ex.printStackTrace();
-                        }
-                    }
-                });
-                
-            }
-        };
-        
-        return new Timer(this.getStatusUpdateRate(), actionListener);
-    }
-
-    /**
-     * Begin issuing GRBL status request commands.
-     */
-    private void beginPollingPosition() {
-        // Start sending '?' commands if supported and enabled.
-        if (this.isReady && this.capabilities != null && this.getStatusUpdatesEnabled()) {
-            if (!this.positionPollTimer.isRunning()) {
-                this.outstandingPolls = 0;
-                this.positionPollTimer.start();
-            }
-        }
-    }
-
-    /**
-     * Stop issuing GRBL status request commands.
-     */
-    private void stopPollingPosition() {
-        if (this.positionPollTimer.isRunning()) {
-            this.positionPollTimer.stop();
-        }
-    }
-
-    
     // No longer a listener event
     private void handleStatusString(final String string) {
         if (this.capabilities == null) {
@@ -673,7 +590,7 @@ public class GrblController extends AbstractController {
         }
 
         ControlState before = getControlState();
-        String beforeState = controllerStatus == null ? "" : controllerStatus.getStateString();
+        ControllerState beforeState = controllerStatus == null ? ControllerState.UNKNOWN : controllerStatus.getState();
 
         controllerStatus = GrblUtils.getStatusFromStatusString(
                 controllerStatus, string, capabilities, getFirmwareSettings().getReportingUnits());
@@ -684,7 +601,7 @@ public class GrblController extends AbstractController {
         }
 
         // GRBL 1.1 jog complete transition
-        if (StringUtils.equals(beforeState, "Jog") && controllerStatus.getStateString().equals("Idle")) {
+        if (beforeState == ControllerState.JOG && controllerStatus.getState() == ControllerState.IDLE) {
             this.comm.cancelSend();
         }
 
@@ -703,16 +620,14 @@ public class GrblController extends AbstractController {
             if (attemptsRemaining > 0 && lastLocation != null) {
                 attemptsRemaining--;
                 // If the machine goes into idle, we no longer need to cancel.
-                if (this.controllerStatus.getStateString().equals("Idle") || this.controllerStatus.getStateString().equalsIgnoreCase("Check")) {
+                if (controllerStatus.getState() == ControllerState.IDLE || controllerStatus.getState() == ControllerState.CHECK) {
                     isCanceling = false;
 
                     // Make sure the GUI gets updated
                     this.dispatchStateChange(getControlState());
                 }
                 // Otherwise check if the machine is Hold/Queue and stopped.
-                else if ((this.controllerStatus.getStateString().equals("Hold")
-                        || this.controllerStatus.getStateString().equals("Queue"))
-                        && lastLocation.equals(this.controllerStatus.getMachineCoord())) {
+                else if (controllerStatus.getState() == ControllerState.HOLD && lastLocation.equals(this.controllerStatus.getMachineCoord())) {
                     try {
                         this.issueSoftReset();
                     } catch(Exception e) {
@@ -731,21 +646,19 @@ public class GrblController extends AbstractController {
     }
     
     @Override
-    protected void statusUpdatesEnabledValueChanged(boolean enabled) {
-        if (enabled) {
-            beginPollingPosition();
+    protected void statusUpdatesEnabledValueChanged() {
+        if (getStatusUpdatesEnabled()) {
+            positionPollTimer.stop();
+            positionPollTimer.start();
         } else {
-            stopPollingPosition();
+            positionPollTimer.stop();
         }
     }
     
     @Override
-    protected void statusUpdatesRateValueChanged(int rate) {
-        this.stopPollingPosition();
-        this.positionPollTimer = this.createPositionPollTimer();
-        
-        // This will start the timer up again if it is supported and enabled.
-        this.beginPollingPosition();
+    protected void statusUpdatesRateValueChanged() {
+        positionPollTimer.stop();
+        positionPollTimer.start();
     }
 
     @Override

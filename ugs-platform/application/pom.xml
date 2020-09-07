@@ -101,6 +101,16 @@
             <artifactId>ugs-platform-welcome-page</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ugs-platform-plugin-joystick</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ugs-platform-plugin-cloud-storage</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -136,7 +146,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${ugs.maven-surefire-plugin.version}</version>
+                <version>${ugs.surefire.version}</version>
                 <configuration>
                     <systemPropertyVariables>
                         <all.clusters>${all.clusters}</all.clusters>

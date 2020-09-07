@@ -99,7 +99,10 @@ public class CommandPanel extends JPanel implements UGSEventListener, MessageLis
         add(commandLabel, "gapleft 5, al left, split 2");
         add(commandTextField, "gapright 5, r, grow");
 
+        showVerboseMenuItem.addChangeListener((e) ->backend.getSettings().setVerboseOutputEnabled(showVerboseMenuItem.isSelected()));
         menu.add(showVerboseMenuItem);
+
+        scrollWindowMenuItem.addChangeListener((e) -> backend.getSettings().setScrollWindowEnabled(scrollWindowMenuItem.isSelected()));
         menu.add(scrollWindowMenuItem);
         SwingHelpers.traverse(this, (comp) -> comp.setComponentPopupMenu(menu));
     }

@@ -1101,19 +1101,19 @@ public class GrblControllerTest {
 
         // Abstract controller should be used when grbl jog mode is disabled.
         instance.rawResponseHandler("Grbl 0.8c");
-        instance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
+        instance.jogMachine(-10, 0, 10, 11, UnitUtils.Units.INCH);
         assertEquals(mgc.queuedStrings.get(2), "G20G91G1X-10Z10F11");
         assertEquals(mgc.queuedStrings.get(3), "G90 G21 ");
 
-        instance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
+        instance.jogMachine(0, 10, 0, 11, UnitUtils.Units.MM);
         assertEquals(mgc.queuedStrings.get(4), "G21G91G1Y10F11");
         assertEquals(mgc.queuedStrings.get(5), "G90 G21 ");
 
         instance.rawResponseHandler("Grbl 1.1a");
-        instance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
+        instance.jogMachine(-10, 0, 10, 11, UnitUtils.Units.INCH);
         assertEquals(mgc.queuedStrings.get(8), "$J=G20G91X-10Z10F11");
 
-        instance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
+        instance.jogMachine(0, 10, 0, 11, UnitUtils.Units.MM);
         assertEquals(mgc.queuedStrings.get(9), "$J=G21G91Y10F11");
     }
 
@@ -1173,7 +1173,7 @@ public class GrblControllerTest {
         instance.rawResponseHandler("<Idle,MPos:1.000,1.000,1.000,WPos:0.0,0.0,0.0>");
 
         // Test the function for going home
-        instance.returnToHome();
+        instance.returnToHome(0);
 
         assertEquals(4, mgc.queuedStrings.size());
         assertEquals("View all grbl settings", "$$", mgc.queuedStrings.get(0));
@@ -1194,7 +1194,7 @@ public class GrblControllerTest {
         instance.rawResponseHandler("<Idle,MPos:1.000,1.000,1.000,WPos:0.0,0.0,-1.0>");
 
         // Test the function for going home
-        instance.returnToHome();
+        instance.returnToHome(0);
 
         assertEquals(5, mgc.queuedStrings.size());
         assertEquals("View all grbl settings", "$$", mgc.queuedStrings.get(0));
@@ -1202,6 +1202,49 @@ public class GrblControllerTest {
         assertEquals("The machine is in the material, go to zero with the Z axis first", "G90 G0 Z0", mgc.queuedStrings.get(2));
         assertEquals("Go to XY-zero", "G90 G0 X0 Y0", mgc.queuedStrings.get(3));
         assertEquals("Go to Z-zero", "G90 G0 Z0", mgc.queuedStrings.get(4));
+    }
+
+    @Test
+    public void testReturnToHomeWhenWorkPositionZIsNegativeAndWithSafetyHeightEnabled() throws Exception {
+        // Set up
+        GrblController instance = new GrblController(mgc);
+        instance.setDistanceModeCode("G90");
+        instance.setUnitsCode("G20");
+        instance.openCommPort(getSettings().getConnectionDriver(), "foo", 2400);
+
+        instance.rawResponseHandler("Grbl 0.8c");
+        instance.rawResponseHandler("<Idle,MPos:1.000,1.000,1.000,WPos:0.0,0.0,-1.0>");
+
+        // Test the function for going home
+        instance.returnToHome(10);
+
+        assertEquals(5, mgc.queuedStrings.size());
+        assertEquals("View all grbl settings", "$$", mgc.queuedStrings.get(0));
+        assertEquals("View gcode parser state", "$G", mgc.queuedStrings.get(1));
+        assertEquals("The machine is in the material, go to safety height with the Z axis first", "G21G90 G0Z10", mgc.queuedStrings.get(2));
+        assertEquals("Go to XY-zero", "G90 G0 X0 Y0", mgc.queuedStrings.get(3));
+        assertEquals("Go to Z-zero", "G90 G0 Z0", mgc.queuedStrings.get(4));
+    }
+
+    @Test
+    public void testReturnToHomeWhenWorkPositionZIsOverSafetyHeightEnabled() throws Exception {
+        // Set up
+        GrblController instance = new GrblController(mgc);
+        instance.setDistanceModeCode("G90");
+        instance.setUnitsCode("G20");
+        instance.openCommPort(getSettings().getConnectionDriver(), "foo", 2400);
+
+        instance.rawResponseHandler("Grbl 0.8c");
+        instance.rawResponseHandler("<Idle,MPos:1.000,1.000,1.000,WPos:0.0,0.0,11.0>");
+
+        // Test the function for going home
+        instance.returnToHome(10);
+
+        assertEquals(4, mgc.queuedStrings.size());
+        assertEquals("View all grbl settings", "$$", mgc.queuedStrings.get(0));
+        assertEquals("View gcode parser state", "$G", mgc.queuedStrings.get(1));
+        assertEquals("Go to XY-zero", "G90 G0 X0 Y0", mgc.queuedStrings.get(2));
+        assertEquals("Go to Z-zero", "G90 G0 Z0", mgc.queuedStrings.get(3));
     }
 
     @Test
@@ -1385,7 +1428,7 @@ public class GrblControllerTest {
     }
 
     @Test
-    public void errorInCheckModeNotSending() throws Exception {
+    public void errorInCheckModeNotSending() {
         // Given
         AbstractCommunicator communicator = mock(AbstractCommunicator.class);
         when(communicator.isConnected()).thenReturn(true);

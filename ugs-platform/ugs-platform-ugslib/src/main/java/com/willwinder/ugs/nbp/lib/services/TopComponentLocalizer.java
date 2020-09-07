@@ -12,7 +12,7 @@
   
  */
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -31,15 +31,11 @@
  */
 package com.willwinder.ugs.nbp.lib.services;
 
-import org.openide.util.Lookup;
-
 /**
  *
  * @author wwinder
  */
-public class TopComponentLocalizer implements Runnable {
-  static ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
-
+public class TopComponentLocalizer extends Localizer {
   private final String category;
   private final String key;
   private final String name;

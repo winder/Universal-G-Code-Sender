@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -37,7 +37,7 @@ import org.openide.windows.TopComponent;
  */
 @TopComponent.Description(
         preferredID = "WelcomePageTopComponent",
-        //iconBase="SET/PATH/TO/ICON/HERE", 
+        //iconBase="SET/PATH/TO/ICON/HERE",
         persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED
 )
 @TopComponent.Registration(mode = "editor", openAtStartup = true)

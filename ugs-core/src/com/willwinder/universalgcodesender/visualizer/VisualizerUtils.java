@@ -112,12 +112,13 @@ public class VisualizerUtils {
     public static ArrayList<String> readFiletoArrayList(String gCode) throws IOException {
         ArrayList<String> vect = new ArrayList<>();
         File gCodeFile = new File(gCode);
-        FileInputStream fstream = new FileInputStream(gCodeFile);
-        DataInputStream dis = new DataInputStream(fstream);
-        BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
-        String line;
-        while ((line = fileStream.readLine()) != null) {
-            vect.add(line);
+        try(FileInputStream fstream = new FileInputStream(gCodeFile)) {
+            DataInputStream dis = new DataInputStream(fstream);
+            BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
+            String line;
+            while ((line = fileStream.readLine()) != null) {
+                vect.add(line);
+            }
         }
 
         return vect;

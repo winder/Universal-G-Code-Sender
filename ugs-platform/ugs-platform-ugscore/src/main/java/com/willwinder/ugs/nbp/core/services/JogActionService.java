@@ -228,14 +228,20 @@ public class JogActionService {
                         js.decreaseZStepSize();
                         break;
                     case FEED_PLUS:
-                      js.increaseFeedRate();
-                      break;
+                        js.increaseFeedRate();
+                        break;
                     case FEED_MINUS:
-                      js.decreaseFeedRate();
-                      break;
+                        js.decreaseFeedRate();
+                        break;
+                    case FEED_MULTIPLY:
+                        js.multiplyFeedRate();
+                        break;
+                    case FEED_DIVIDE:
+                        js.divideFeedRate();
+                        break;
                     case UNITS_TOGGLE:
-                      js.setUnits(js.getUnits() == Units.MM ? Units.INCH : Units.MM);
-                      break;
+                        js.setUnits(js.getUnits() == Units.MM ? Units.INCH : Units.MM);
+                        break;
                     default:
                         break;
                 }

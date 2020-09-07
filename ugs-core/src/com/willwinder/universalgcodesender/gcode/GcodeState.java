@@ -19,16 +19,12 @@
 package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.gcode.util.Code;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G0;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G21;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G54;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G90;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G91_1;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G94;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+
+import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 
 /**
  * The current state of a gcode program.
@@ -62,6 +58,12 @@ public class GcodeState {
 
     // group 12
     public Code offset = G54;
+
+    // spindle state
+    public Code spindle = M5;
+
+    // coolant state
+    public Code coolant = M9;
 
     // Misc
     public double spindleSpeed = 0;
@@ -107,6 +109,10 @@ public class GcodeState {
 
         ret.offset = offset;
 
+        ret.spindle = spindle;
+
+        ret.coolant = coolant;
+
         if (currentPoint != null) {
             ret.currentPoint = new Position(currentPoint.x, currentPoint.y, currentPoint.z, UnitUtils.Units.getUnits(units));
         }
@@ -114,11 +120,47 @@ public class GcodeState {
         return ret;
     }
 
+    /**
+     * Generate gcode to initialize spindle, coolant, and speeds.
+     * @return a string of valid gcode like "F300.0S10000.0M3"
+     */
+    public String toAccessoriesCode() {
+        StringBuilder result = new StringBuilder();
+
+        if (spindle != M5) {
+            result.append(spindle.toString());
+        }
+        result.append("S").append(this.spindleSpeed);
+
+        if (coolant != M9) {
+            result.append(coolant.toString());
+        }
+
+        result.append("F").append(this.speed);
+
+        return result.toString();
+    }
+
+    /**
+     * Generates gcode for the current state of the machine. G-Codes only.
+     * @return a string of valid gcode like "G20G91G90.1G93G58G17.1"
+     */
+    public String machineStateCode() {
+        StringBuilder result = new StringBuilder();
+        result.append(this.units);
+        result.append(this.distanceMode);
+        result.append(this.arcDistanceMode);
+        result.append(this.feedMode);
+        result.append(this.offset);
+        result.append(this.plane.code);
+        return result.toString();
+    }
+
     @Override
     public String toString() {
-      String pattern = "metric: %b, motionMode: %s, plane: %s, absoluteMode: %b, ijkMode: %b, feed: %f, spindle: %f, point: %s";
+      String pattern = "metric: %b, motionMode: %s, plane: %s, absoluteMode: %b, ijkMode: %b, feed: %f, spindle speed: %f, spindle state: %s, coolant state: %s, point: %s";
       return String.format(pattern,
-              isMetric, currentMotionMode, plane, inAbsoluteMode, inAbsoluteIJKMode, speed, spindleSpeed, currentPoint);
+              isMetric, currentMotionMode, plane, inAbsoluteMode, inAbsoluteIJKMode, speed, spindleSpeed, spindle, coolant, currentPoint);
 
     }
 }

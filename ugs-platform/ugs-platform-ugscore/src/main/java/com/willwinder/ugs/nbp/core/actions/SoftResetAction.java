@@ -48,7 +48,7 @@ import java.awt.event.ActionEvent;
 })
 public final class SoftResetAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/reset.png";
+    public static final String ICON_BASE = "resources/icons/reset.svg";
 
     private BackendAPI backend;
 

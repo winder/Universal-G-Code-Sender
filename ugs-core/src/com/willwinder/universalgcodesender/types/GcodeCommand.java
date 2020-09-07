@@ -43,7 +43,6 @@ public class GcodeCommand {
     private Boolean isError = false;
     private Integer commandNum = -1;
     private Boolean isSkipped = false;
-    private boolean isComment = false;
 
     /**
      * If this is a generated command not apart of any program such as jog or settings commands
@@ -61,11 +60,6 @@ public class GcodeCommand {
         this.command = command;
         this.commandNum = num;
         this.comment = GcodePreprocessorUtils.parseComment(command);
-        if (this.hasComment()) {
-            this.command = GcodePreprocessorUtils.removeComment(command);
-            if (this.command.trim().length() == 0)
-                this.isComment = true;
-        }
     }
 
     /**
@@ -141,10 +135,6 @@ public class GcodeCommand {
     
     public Boolean isSkipped() {
         return this.isSkipped;
-    }
-
-    public boolean isComment() {
-        return this.isComment;
     }
 
     public boolean hasComment() {

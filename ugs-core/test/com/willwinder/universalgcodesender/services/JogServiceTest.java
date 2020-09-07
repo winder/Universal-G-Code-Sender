@@ -50,7 +50,7 @@ public class JogServiceTest {
     @Test
     public void testJogTo3D() throws Exception {
         // Given
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
 
         // when
         instance.jogTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM));
@@ -62,7 +62,7 @@ public class JogServiceTest {
     @Test
     public void testJogTo2D() throws Exception {
         // Given
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
 
         // when
         instance.jogTo(new PartialPosition(1.0, 2.0, UnitUtils.Units.MM));

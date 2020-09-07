@@ -70,6 +70,7 @@ public class G2CoreController extends TinyGController {
             firmwareVersion = "G2Core " + firmwareVersionNumber;
         }
 
+        capabilities.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);
         capabilities.addCapability(CapabilitiesConstants.JOGGING);
         capabilities.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
         capabilities.addCapability(CapabilitiesConstants.HOMING);

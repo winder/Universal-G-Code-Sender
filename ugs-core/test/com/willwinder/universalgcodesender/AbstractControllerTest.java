@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2018 Will Winder
+    Copyright 2015-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -45,7 +45,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -65,7 +64,6 @@ import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  *
@@ -213,7 +211,7 @@ public class AbstractControllerTest {
         startStreamExpectation(port, rate);
         expect(mockCommunicator.numActiveCommands()).andReturn(1);
         expect(mockCommunicator.numActiveCommands()).andReturn(0);
-        expect(instance.getControllerStatus()).andReturn(new ControllerStatus("Idle", ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
+        expect(instance.getControllerStatus()).andReturn(new ControllerStatus(ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
         replay(instance, mockCommunicator);
 
         // Time starts at zero when nothing has been sent.
@@ -435,7 +433,7 @@ public class AbstractControllerTest {
         mockListener.controlStateChange(UGSEvent.ControlState.COMM_IDLE);
         expect(expectLastCall());
 
-        expect(instance.getControllerStatus()).andReturn(new ControllerStatus("Idle", ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
+        expect(instance.getControllerStatus()).andReturn(new ControllerStatus(ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
         expect(mockCommunicator.areActiveCommands()).andReturn(true);
         expect(mockCommunicator.areActiveCommands()).andReturn(false);
         expect(mockCommunicator.numActiveCommands()).andReturn(0);
@@ -568,8 +566,8 @@ public class AbstractControllerTest {
         niceInstance.setDistanceModeCode("G90");
         niceInstance.setUnitsCode("G21");
 
-        niceInstance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
-        niceInstance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
+        niceInstance.jogMachine(-10, 0, 10, 11, UnitUtils.Units.INCH);
+        niceInstance.jogMachine(0, 10, 0, 11, UnitUtils.Units.MM);
 
         assertEquals(4, gcodeCommandCapture.getValues().size());
         assertEquals("G20G91G1X-10Z10F11", gcodeCommandCapture.getValues().get(0).getCommandString());

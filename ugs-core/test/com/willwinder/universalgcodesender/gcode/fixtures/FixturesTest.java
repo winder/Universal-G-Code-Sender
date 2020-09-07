@@ -2,16 +2,15 @@ package com.willwinder.universalgcodesender.gcode.fixtures;
 
 import com.google.common.base.Joiner;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
-import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
-import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
-import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
+import com.willwinder.universalgcodesender.gcode.processors.*;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeWriter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -42,8 +41,6 @@ import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
  *  - Run the test once to generate out{...}/ files and commit them to the repo
  */
 public class FixturesTest {
-
-
     @Test
     public void testArcFixtures() throws Exception {
         runAllFixturesInPath("./gcode/fixtures/arc/", "Arc", () -> {
@@ -54,7 +51,6 @@ public class FixturesTest {
             return gcp;
         });
     }
-
 
     @Test
     public void testArcFixturesCoarse() throws Exception {
@@ -68,8 +64,6 @@ public class FixturesTest {
 
     @Test
     public void testArcWithMeshLevelerFixtures() throws Exception {
-
-
         runAllFixturesInPath("./gcode/fixtures/arc/", "ArcMesh", ()->{
             GcodeParser gcp = new GcodeParser();
 
@@ -84,6 +78,15 @@ public class FixturesTest {
             return gcp;
         });
 
+    }
+
+    @Test
+    public void testRunFromFixtures() throws Exception {
+        runAllFixturesInPath("./gcode/fixtures/run-from/", "RunFrom", () -> {
+            GcodeParser gcp = new GcodeParser();
+            gcp.addCommandProcessor(new RunFromProcessor(17));
+            return gcp;
+        });
     }
 
     private void runAllFixturesInPath(String basePath, String parserName, Callable<GcodeParser> initGcp) throws Exception {
@@ -115,7 +118,9 @@ public class FixturesTest {
         IOUtils.copy(file.openStream(), FileUtils.openOutputStream(tempFile));
 
         // process the input file and write it to the output temp file
-        GcodeParserUtils.processAndExport(gcp, tempFile, output.toFile());
+        try (IGcodeWriter gcw = new GcodeStreamWriter(output.toFile())) {
+            GcodeParserUtils.processAndExport(gcp, tempFile, gcw);
+        }
 
         // read the output back in and compare it to the fixture
         //GcodeStreamReader reader = new GcodeStreamReader(output.toFile());

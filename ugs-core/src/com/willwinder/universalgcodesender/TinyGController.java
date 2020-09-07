@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2019 Will Winder
+    Copyright 2013-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,14 +28,9 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.PartialPosition;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -77,7 +72,7 @@ public class TinyGController extends AbstractController {
         firmwareSettings = new TinyGFirmwareSettings(this);
         communicator.addListener(firmwareSettings);
 
-        controllerStatus = new ControllerStatus(StringUtils.EMPTY, ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+        controllerStatus = new ControllerStatus(ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
         firmwareVersion = "TinyG unknown version";
     }
 
@@ -121,13 +116,13 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public void jogMachine(int dirX, int dirY, int dirZ, double stepSize, double feedRate, UnitUtils.Units units) throws Exception {
+    public void jogMachine(double distanceX, double distanceY, double distanceZ, double feedRate, UnitUtils.Units units) throws Exception {
         // Fetch the current coordinate units in which the machine is running
         UnitUtils.Units targetUnits = UnitUtils.Units.getUnits(getCurrentGcodeState().units);
 
         // We need to convert to these units as we can not change the units in one command in TinyG
         double scale = UnitUtils.scaleUnits(units, targetUnits);
-        String commandString = GcodeUtils.generateMoveCommand("G91G1", stepSize * scale, feedRate * scale, dirX, dirY, dirZ, targetUnits);
+        String commandString = GcodeUtils.generateMoveCommand("G91G1", feedRate * scale, distanceX * scale, distanceY * scale, distanceZ * scale, targetUnits);
 
         GcodeCommand command = createCommand(commandString);
         command.setTemporaryParserModalChange(true);
@@ -204,7 +199,7 @@ public class TinyGController extends AbstractController {
             if (jo.get("r").getAsJsonObject().has(TinyGUtils.FIELD_STATUS_REPORT)) {
                 updateControllerStatus(jo.get("r").getAsJsonObject());
                 checkStreamFinished();
-            } else if (rowsRemaining() > 0) {
+            } else if (getActiveCommand().isPresent()) {
                 try {
                     commandComplete(response);
                 } catch (Exception e) {
@@ -235,6 +230,7 @@ public class TinyGController extends AbstractController {
             return;
         }
 
+        capabilities.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);
         capabilities.addCapability(CapabilitiesConstants.JOGGING);
         capabilities.removeCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
         capabilities.addCapability(CapabilitiesConstants.HOMING);
@@ -317,15 +313,6 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public void returnToHome() throws Exception {
-        if (controllerStatus.getWorkCoord().getZ() < 0) {
-            sendCommandImmediately(new GcodeCommand("G90 G0 Z0"));
-        }
-        sendCommandImmediately(new GcodeCommand("G90 G0 X0 Y0"));
-        sendCommandImmediately(new GcodeCommand("G90 G0 Z0"));
-    }
-
-    @Override
     public void killAlarmLock() throws Exception {
         sendCommandImmediately(new GcodeCommand(TinyGUtils.COMMAND_KILL_ALARM_LOCK));
     }
@@ -340,6 +327,11 @@ public class TinyGController extends AbstractController {
         if (this.isCommOpen()) {
             sendCommandImmediately(new GcodeCommand(TinyGUtils.COMMAND_STATUS_REPORT));
         }
+    }
+
+    @Override
+    public void requestStatusReport() throws Exception {
+        viewParserState();
     }
 
     @Override
@@ -373,14 +365,14 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    protected void statusUpdatesEnabledValueChanged(boolean enabled) {
+    protected void statusUpdatesEnabledValueChanged() {
         // We don't care about this
     }
 
     @Override
-    protected void statusUpdatesRateValueChanged(int rate) {
+    protected void statusUpdatesRateValueChanged() {
         // Status report interval in milliseconds (50ms minimum interval)
-        comm.queueCommand(new GcodeCommand("{si:" + rate + "}"));
+        comm.queueCommand(new GcodeCommand("{si:" + getStatusUpdateRate() + "}"));
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
-    Copyright 2017-2018 Will Winder
+    Copyright 2017-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -49,7 +49,7 @@ public class MeshLeveler implements CommandProcessor {
     public final static String ERROR_MESH_SHAPE= "Surface mesh must be a rectangular 2D array.";
     public final static String ERROR_NOT_ENOUGH_SAMPLES = "Need at least 2 samples along each axis.";
     public final static String ERROR_X_ALIGNMENT = "Unaligned x coordinate in surface grid.";
-    public final static String ERROR_Y_ALIGNMENT = "Unaligned x coordinate in surface grid.";
+    public final static String ERROR_Y_ALIGNMENT = "Unaligned y coordinate in surface grid.";
     public final static String ERROR_Y_ASCENTION = "Found a y coordinate that isn't ascending.";
     public final static String ERROR_X_ASCENTION = "Found a x coordinate that isn't ascending.";
 
@@ -82,28 +82,34 @@ public class MeshLeveler implements CommandProcessor {
         // Verify that x points are aligned and y points are ascending.
         for (int xIdx = 0; xIdx < xLen; xIdx++) {
             double xCoord = surfaceMesh[xIdx][0].x;
-            double yCoord = surfaceMesh[xIdx][0].y - 1;
+            double yCoord = surfaceMesh[xIdx][0].y;
             for (int yIdx = 0; yIdx < yLen; yIdx++) {
                 if (surfaceMesh[xIdx][yIdx].x != xCoord) {
-                    throw new IllegalArgumentException(ERROR_X_ALIGNMENT);
+                    String err = "@ " + xIdx + ", " + yIdx + ": ("+xCoord+" != "+surfaceMesh[xIdx][yIdx].x+")";
+                    throw new IllegalArgumentException(ERROR_X_ALIGNMENT + err);
                 }
-                if (surfaceMesh[xIdx][yIdx].y <= yCoord) {
-                    throw new IllegalArgumentException(ERROR_Y_ASCENTION);
+                if (yCoord > surfaceMesh[xIdx][yIdx].y) {
+                    String err = "@ " + xIdx + ", " + yIdx + ": ("+yCoord+" !<= "+surfaceMesh[xIdx][yIdx].y+")";
+                    throw new IllegalArgumentException(ERROR_Y_ASCENTION + err);
                 }
+                yCoord = surfaceMesh[xIdx][yIdx].y;
             }
         }
 
         // Verify that y points are aligned and x points are ascending.
         for (int yIdx = 0; yIdx < yLen; yIdx++) {
-            double xCoord = surfaceMesh[0][yIdx].x - 1;
+            double xCoord = surfaceMesh[0][yIdx].x;
             double yCoord = surfaceMesh[0][yIdx].y;
             for (int xIdx = 0; xIdx < xLen; xIdx++) {
                 if (surfaceMesh[xIdx][yIdx].y != yCoord) {
-                    throw new IllegalArgumentException(ERROR_Y_ALIGNMENT);
+                    String err = "@ " + xIdx + ", " + yIdx + ": ("+yCoord+" != "+surfaceMesh[xIdx][yIdx].y+")";
+                    throw new IllegalArgumentException(ERROR_Y_ALIGNMENT + err);
                 }
-                if (surfaceMesh[xIdx][yIdx].x <= xCoord) {
-                    throw new IllegalArgumentException(ERROR_X_ASCENTION);
+                if (xCoord > surfaceMesh[xIdx][yIdx].x) {
+                    String err = "@ " + xIdx + ", " + yIdx + ": ("+xCoord+" !<= "+surfaceMesh[xIdx][yIdx].x+")";
+                    throw new IllegalArgumentException(ERROR_X_ASCENTION + err);
                 }
+                xCoord = surfaceMesh[xIdx][yIdx].x;
             }
         }
 
@@ -117,7 +123,7 @@ public class MeshLeveler implements CommandProcessor {
         this.lowerLeft = surfaceMesh[0][0];
     }
 
-    private boolean hasJustLines(List<GcodeMeta> commands) throws GcodeParserException {
+    private boolean ensureJustLines(List<GcodeMeta> commands) throws GcodeParserException {
         if (commands == null) return false;
         boolean hasLine = false;
         for (GcodeMeta command : commands) {
@@ -139,7 +145,7 @@ public class MeshLeveler implements CommandProcessor {
         List<GcodeMeta> commands = GcodeParser.processCommand(commandString, 0, state);
 
         // If there are no lines, return unmodified input.
-        if (!hasJustLines(commands)) {
+        if (!ensureJustLines(commands)) {
             return Collections.singletonList(commandString);
         }
 

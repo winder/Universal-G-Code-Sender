@@ -56,13 +56,12 @@ import org.openide.util.Lookup;
                 position = 980),
         @ActionReference(
                 path = LocalizingService.PendantWindowPath,
-                position = 1015)})
+                position = 1025)})
 public class PendantAction extends AbstractAction {
 
-    public static final String ICON_BASE = "resources/icons/pendant.png";
+    public static final String ICON_BASE = "resources/icons/pendant.svg";
 
     private final BackendAPI backend;
-    private PendantUI pendantUI = null;
 
     public PendantAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);

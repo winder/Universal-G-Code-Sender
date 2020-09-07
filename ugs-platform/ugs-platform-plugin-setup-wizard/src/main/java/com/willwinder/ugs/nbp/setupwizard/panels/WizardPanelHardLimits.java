@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -51,7 +51,7 @@ import java.awt.Font;
 public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEventListener, ControllerStateListener {
     private static final int TIME_BEFORE_RESET_ON_ALARM = 600;
     private JCheckBox checkboxEnableHardLimits;
-    private JLabel labelHardLimitssNotSupported;
+    private JLabel labelHardLimitsNotSupported;
     private JLabel labelDescription;
     private JLabel labelInstructions;
     private JLabel labelLimitX;
@@ -71,7 +71,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         JPanel panel = new JPanel(new MigLayout("fillx, inset 0, gap 5, hidemode 3"));
         panel.add(labelDescription, "growx, wrap, gapbottom 10, spanx");
         panel.add(checkboxEnableHardLimits, "wrap, gapbottom 10, spanx");
-        panel.add(labelHardLimitssNotSupported, "wrap, spanx");
+        panel.add(labelHardLimitsNotSupported, "wrap, spanx");
 
         panel.add(labelInstructions, "spanx, gapbottom 10, wrap");
         panel.add(labelLimitX, "wmin 56, hmin 36, gapleft 5");
@@ -95,8 +95,8 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         checkboxEnableHardLimits = new JCheckBox("Enable limit switches");
         checkboxEnableHardLimits.addActionListener(event -> onHardLimitsClicked());
 
-        labelHardLimitssNotSupported = new JLabel("<html><body>" + Localization.getString("platform.plugin.setupwizard.limit-switches.not-available") + "</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
-        labelHardLimitssNotSupported.setVisible(false);
+        labelHardLimitsNotSupported = new JLabel("<html><body>" + Localization.getString("platform.plugin.setupwizard.limit-switches.not-available") + "</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
+        labelHardLimitsNotSupported.setVisible(false);
 
         labelLimitX = createLimitLabel("X");
         labelLimitX.setVisible(false);
@@ -191,7 +191,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
                     labelLimitX.setVisible(firmwareSettings.isHardLimitsEnabled());
                     labelLimitY.setVisible(firmwareSettings.isHardLimitsEnabled());
                     labelLimitZ.setVisible(firmwareSettings.isHardLimitsEnabled());
-                    labelHardLimitssNotSupported.setVisible(false);
+                    labelHardLimitsNotSupported.setVisible(false);
                 } else {
                     checkboxEnableHardLimits.setVisible(false);
                     checkboxInvertLimitPins.setVisible(false);
@@ -199,7 +199,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
                     labelLimitX.setVisible(false);
                     labelLimitY.setVisible(false);
                     labelLimitZ.setVisible(false);
-                    labelHardLimitssNotSupported.setVisible(true);
+                    labelHardLimitsNotSupported.setVisible(true);
                 }
             } catch (FirmwareSettingsException e) {
                 NotifyDescriptor nd = new NotifyDescriptor.Message("Couldn't fetch the hard limits settings: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);

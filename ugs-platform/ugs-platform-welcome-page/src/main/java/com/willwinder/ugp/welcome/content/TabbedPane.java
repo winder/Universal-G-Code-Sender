@@ -292,16 +292,9 @@ public class TabbedPane extends JPanel implements Constants {// , Scrollable {
         }
 
         @Override
-
         public void addNotify() {
             super.addNotify();
-            SwingUtilities.invokeLater( new Runnable() {
-
-                @Override
-                public void run() {
-                    showNextTime.requestFocusInWindow();
-                }
-            });
+            SwingUtilities.invokeLater(showNextTime::requestFocusInWindow);
         }
     }
 

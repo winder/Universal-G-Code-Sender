@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,17 +18,203 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.firmware.DefaultFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
+import com.willwinder.universalgcodesender.listeners.MessageType;
+import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+import org.apache.commons.lang3.StringUtils;
+
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
 
 /**
+ * Controller implementation for Smoothieware
  *
  * @author wwinder
+ * @author Joacim Breiler
  */
-final public class SmoothieController extends GrblController {
+public class SmoothieController extends AbstractController {
+
+    private final Capabilities capabilities;
+    private final IFirmwareSettings firmwareSettings;
+    private String firmwareVersion = "Unknown";
+    private ControllerStatus controllerStatus;
+
+    private boolean isSmoothieReady = false;
+    private boolean isReady;
+
+    private StatusPollTimer statusPollTimer;
 
     public SmoothieController() {
-        super(new SmoothieCommunicator());
-        setSingleStepMode(true);
+        this(new SmoothieCommunicator());
+    }
+
+    public SmoothieController(ICommunicator communicator) {
+        super(communicator);
+        capabilities = new Capabilities();
+        firmwareSettings = new DefaultFirmwareSettings();
+        controllerStatus = new ControllerStatus(ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+        commandCreator = new GcodeCommandCreator();
+        statusPollTimer = new StatusPollTimer(this);
+    }
+
+    @Override
+    protected Boolean isIdleEvent() {
+        return getControlState() == COMM_IDLE || getControlState() == COMM_CHECK;
+    }
+
+    @Override
+    protected void closeCommBeforeEvent() {
+
+    }
+
+    @Override
+    protected void closeCommAfterEvent() {
+
+    }
+
+    @Override
+    protected void cancelSendBeforeEvent() throws Exception {
+        comm.cancelSend();
+        comm.sendByteImmediately(SmoothieUtils.RESET_COMMAND);
+    }
+
+    @Override
+    protected void cancelSendAfterEvent() {
+    }
+
+    @Override
+    protected void pauseStreamingEvent() throws Exception {
+        this.comm.sendByteImmediately(GrblUtils.GRBL_PAUSE_COMMAND);
+    }
+
+    @Override
+    protected void resumeStreamingEvent() throws Exception {
+        this.comm.sendByteImmediately(GrblUtils.GRBL_RESUME_COMMAND);
+    }
+
+    @Override
+    public void softReset() throws Exception {
+        comm.cancelSend();
+        comm.sendByteImmediately(SmoothieUtils.RESET_COMMAND);
+
+        setCurrentState(UGSEvent.ControlState.COMM_DISCONNECTED);
+        controllerStatus = ControllerStatusBuilder.newInstance(controllerStatus)
+                .setState(ControllerState.DISCONNECTED)
+                .build();
+
+        dispatchStatusString(controllerStatus);
+    }
+
+
+    @Override
+    protected void isReadyToStreamCommandsEvent() throws Exception {
+        isReadyToSendCommandsEvent();
+        if (this.controllerStatus != null && this.controllerStatus.getState() == ControllerState.ALARM) {
+            throw new Exception(Localization.getString("grbl.exception.Alarm"));
+        }
+    }
+
+    @Override
+    protected void isReadyToSendCommandsEvent() throws Exception {
+        if (!this.isReady && !isSmoothieReady) {
+            throw new Exception(Localization.getString("controller.exception.booting"));
+        }
+    }
+
+    @Override
+    public void viewParserState() {
+        comm.queueCommand(new GcodeCommand("$G"));
+        comm.streamCommands();
+    }
+
+    @Override
+    public void requestStatusReport() throws Exception {
+        comm.sendByteImmediately(SmoothieUtils.STATUS_COMMAND);
+    }
+
+    @Override
+    protected void rawResponseHandler(String response) {
+        try {
+            if (!isSmoothieReady && response.equalsIgnoreCase("smoothie")) {
+                isSmoothieReady = true;
+                dispatchConsoleMessage(MessageType.INFO, response + "\n");
+                return;
+            } else if (isSmoothieReady && !isReady && response.equalsIgnoreCase("ok")) {
+                comm.queueCommand(new GcodeCommand("version"));
+                comm.streamCommands();
+                return;
+            } else if (isSmoothieReady && !isReady && response.startsWith("Build version:")) {
+                dispatchConsoleMessage(MessageType.INFO, response + "\n");
+                firmwareVersion = "Smoothie " + StringUtils.substringBetween(response, "Build date:", ",").trim();
+                commandComplete(response);
+
+                capabilities.addCapability(CapabilitiesConstants.JOGGING);
+                capabilities.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);
+                controllerStatus = ControllerStatusBuilder.newInstance(controllerStatus).setState(ControllerState.IDLE).build();
+                dispatchStatusString(controllerStatus);
+                setCurrentState(COMM_IDLE);
+                isReady = true;
+
+                viewParserState();
+                statusPollTimer.start();
+                return;
+            }
+
+            if(SmoothieUtils.isOkErrorAlarmResponse(response)) {
+                dispatchConsoleMessage(MessageType.INFO, response + "\n");
+                commandComplete(response);
+            } else if(SmoothieUtils.isStatusResponse(response)) {
+                statusPollTimer.receivedStatus();
+                handleStatusResponse(response);
+                checkStreamFinished();
+            } else if(SmoothieUtils.isParserStateResponse(response)) {
+                String parserStateCode = StringUtils.substringBetween(response, "[", "]");
+                dispatchConsoleMessage(MessageType.INFO, response + "\n");
+                updateParserModalState(new GcodeCommand(parserStateCode));
+            } else {
+                dispatchConsoleMessage(MessageType.INFO, response + "\n");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleStatusResponse(String response) {
+        dispatchConsoleMessage(MessageType.VERBOSE, response + "\n");
+
+        UnitUtils.Units currentUnits = getCurrentGcodeState().units.equals(Code.G20) ? UnitUtils.Units.INCH : UnitUtils.Units.MM;
+        controllerStatus = SmoothieUtils.getStatusFromStatusString(controllerStatus, response, currentUnits);
+        dispatchStateChange(getControlState());
+        dispatchStatusString(controllerStatus);
+    }
+
+    @Override
+    protected void statusUpdatesEnabledValueChanged() {
+        if (getStatusUpdatesEnabled()) {
+            statusPollTimer.stop();
+            statusPollTimer.start();
+        } else {
+            statusPollTimer.stop();
+        }
+    }
+
+    @Override
+    protected void statusUpdatesRateValueChanged() {
+        statusPollTimer.stop();
+        statusPollTimer.start();
+    }
+
+    @Override
+    public void sendOverrideCommand(Overrides command) {
+
     }
 
     @Override
@@ -37,35 +223,74 @@ final public class SmoothieController extends GrblController {
     }
 
     @Override
-    public void setSingleStepMode(boolean ignored) {
-        super.setSingleStepMode(true);
+    public Capabilities getCapabilities() {
+        return capabilities;
     }
 
     @Override
-    protected void openCommAfterEvent() throws Exception {
-        //this.sendCommandImmediately(createCommand("version"));
+    public IFirmwareSettings getFirmwareSettings() {
+        return firmwareSettings;
     }
 
     @Override
-    protected void isReadyToSendCommandsEvent() throws Exception {
-        if (this.isReady == false) {
-            throw new Exception(Localization.getString("controller.smoothie.exception.booting"));
+    public String getFirmwareVersion() {
+        return firmwareVersion;
+    }
+
+    @Override
+    public ControllerStatus getControllerStatus() {
+        return controllerStatus;
+    }
+
+    @Override
+    public void resetCoordinateToZero(final Axis axis) throws Exception {
+        GcodeCommand command = createCommand(SmoothieUtils.RESET_COORDINATE_TO_ZERO_COMMAND);
+        sendCommandImmediately(command);
+    }
+
+    @Override
+    public void setWorkPosition(PartialPosition axisPosition) throws Exception {
+        String command = SmoothieUtils.generateSetWorkPositionCommand(controllerStatus, getCurrentGcodeState(), axisPosition);
+        sendCommandImmediately(new GcodeCommand(command));
+    }
+
+    @Override
+    public void killAlarmLock() throws Exception {
+        if(controllerStatus.getState().equals(ControllerState.ALARM)) {
+            GcodeCommand command = createCommand(GrblUtils.GRBL_KILL_ALARM_LOCK_COMMAND);
+            sendCommandImmediately(command);
+        } else {
+            throw new IllegalStateException("We may only send the unlock command when in " + ControllerState.ALARM + " state");
         }
     }
 
     @Override
-    protected void rawResponseHandler(String response) {
-        if (response.contains("Smoothie")){
-              this.isReady = true;
+    public UGSEvent.ControlState getControlState() {
+        ControllerState state = controllerStatus.getState();
+        switch(state) {
+            case JOG:
+            case RUN:
+                return UGSEvent.ControlState.COMM_SENDING;
+            case HOLD:
+            case DOOR:
+                return UGSEvent.ControlState.COMM_SENDING_PAUSED;
+            case IDLE:
+                if (isStreaming()){
+                    return UGSEvent.ControlState.COMM_SENDING_PAUSED;
+                } else {
+                    return UGSEvent.ControlState.COMM_IDLE;
+                }
+            case CHECK:
+                if (isStreaming() && comm.isPaused()) {
+                    return UGSEvent.ControlState.COMM_SENDING_PAUSED;
+                } else if (isStreaming() && !comm.isPaused()) {
+                    return UGSEvent.ControlState.COMM_SENDING;
+                } else {
+                    return COMM_CHECK;
+                }
+            case ALARM:
+            default:
+                return UGSEvent.ControlState.COMM_IDLE;
         }
-        else {
-            super.rawResponseHandler(response);
-        }
-    }
-
-    @Override
-    protected Boolean isIdleEvent() {
-        // Let abstract controller decide
-        return true;
     }
 }

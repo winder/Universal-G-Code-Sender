@@ -27,7 +27,6 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
  * @author Joacim Breiler
  */
 public class ControllerStatusBuilder {
-    private String stateString = "";
     private ControllerState state = ControllerState.UNKNOWN;
     private Position machineCoord = Position.ZERO;
     private Position workCoord = Position.ZERO;
@@ -39,10 +38,14 @@ public class ControllerStatusBuilder {
     private ControllerStatus.EnabledPins pins = null;
     private ControllerStatus.AccessoryStates states = null;
 
+    public static ControllerStatusBuilder newInstance() {
+        return new ControllerStatusBuilder();
+    }
+
     public static ControllerStatusBuilder newInstance(ControllerStatus controllerStatus) {
         ControllerStatusBuilder controllerStatusBuilder = new ControllerStatusBuilder();
         if(controllerStatus != null) {
-            controllerStatusBuilder.setStateString(controllerStatus.getStateString())
+            controllerStatusBuilder
                 .setState(controllerStatus.getState())
                 .setMachineCoord(controllerStatus.getMachineCoord())
                 .setWorkCoord(controllerStatus.getWorkCoord())
@@ -55,11 +58,6 @@ public class ControllerStatusBuilder {
                 .setStates(controllerStatus.getAccessoryStates());
         }
         return controllerStatusBuilder;
-    }
-
-    public ControllerStatusBuilder setStateString(String stateString) {
-        this.stateString = stateString;
-        return this;
     }
 
     public ControllerStatusBuilder setState(ControllerState state) {
@@ -113,6 +111,6 @@ public class ControllerStatusBuilder {
     }
 
     public ControllerStatus build() {
-        return new ControllerStatus(stateString, state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, pins, states);
+        return new ControllerStatus(state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, pins, states);
     }
 }

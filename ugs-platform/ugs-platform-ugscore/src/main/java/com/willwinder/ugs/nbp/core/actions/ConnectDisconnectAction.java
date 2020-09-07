@@ -60,8 +60,8 @@ import java.util.logging.Logger;
                 position = 975)
 })
 public class ConnectDisconnectAction extends AbstractAction implements UGSEventListener {
-    public static final String ICON_BASE = "resources/icons/connect.png";
-    public static final String ICON_BASE_DISCONNECT = "resources/icons/disconnect.png";
+    public static final String ICON_BASE = "resources/icons/connect.svg";
+    public static final String ICON_BASE_DISCONNECT = "resources/icons/disconnect.svg";
 
     private static final Logger logger = Logger.getLogger(ConnectDisconnectAction.class.getName());
     private BackendAPI backend;

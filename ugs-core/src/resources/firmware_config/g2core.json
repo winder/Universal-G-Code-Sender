@@ -1,6 +1,6 @@
 {
     "Name": "g2core",
-    "Version": 6,
+    "Version": 7,
     "Controller": {
         "name": "g2core",
         "args": null
@@ -10,7 +10,7 @@
             {
                 "name": "CommentProcessor",
                 "enabled": true,
-                "optional": false
+                "optional": true
             },{
                 "name": "FeedOverrideProcessor",
                 "enabled": false,

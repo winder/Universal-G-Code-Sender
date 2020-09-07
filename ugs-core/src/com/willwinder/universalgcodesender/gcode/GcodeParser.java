@@ -1,15 +1,5 @@
-/**
- * Object to parse gcode one command at a time in a way that can be used by any
- * other class which needs to know about the current state at a given command.
- * 
- * This object can be extended by adding in any number of ICommandProcessor
- * objects which are applied to each command in the order they were inserted
- * into the parser. These processors can be as simple as removing whitespace to
- * as complex as expanding a canned cycle or applying an leveling plane.
- */
-
 /*
-    Copyright 2013-2017 Will Winder
+    Copyright 2013-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -47,8 +37,16 @@ import java.util.stream.Collectors;
 
 import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
+import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Spindle;
 
 /**
+ * Object to parse gcode one command at a time in a way that can be used by any
+ * other class which needs to know about the current state at a given command.
+ *
+ * This object can be extended by adding in any number of ICommandProcessor
+ * objects which are applied to each command in the order they were inserted
+ * into the parser. These processors can be as simple as removing whitespace to
+ * as complex as expanding a canned cycle or applying an leveling plane.
  *
  * @author wwinder
  */
@@ -58,7 +56,7 @@ public class GcodeParser implements IGcodeParser {
     // Current state
     private GcodeState state;
 
-    private final ArrayList<CommandProcessor> processors = new ArrayList<>();
+    private final List<CommandProcessor> processors = new ArrayList<>();
 
     private Stats statsProcessor;
 
@@ -125,7 +123,7 @@ public class GcodeParser implements IGcodeParser {
      */
     public void reset() {
         this.statsProcessor = new Stats();
-        this.state.currentPoint = new Position();
+        this.state = new GcodeState();
         this.state.commandNumber = -1;
     }
     
@@ -187,7 +185,7 @@ public class GcodeParser implements IGcodeParser {
     }
     
     /**
-     * Process commend given an initial state. This method will not modify its
+     * Process command given an initial state. This method will not modify its
      * input parameters.
      * 
      * @param includeNonMotionStates Create gcode meta responses even if there is no motion, for example "F100" will not
@@ -205,8 +203,19 @@ public class GcodeParser implements IGcodeParser {
         state.commandNumber = line;
         
         // handle M codes.
-        //codes = GcodePreprocessorUtils.parseCodes(args, 'M');
-        //handleMCode(for each codes);
+        Set<Code> mCodes = GcodePreprocessorUtils.getMCodes(args);
+        for (Code c : mCodes) {
+            switch(c.getType()) {
+                case Spindle:
+                    state.spindle = c;
+                    break;
+                case Coolant:
+                    state.coolant = c;
+                    break;
+                default:
+                    break;
+            }
+        }
 
         List<String> fCodes = GcodePreprocessorUtils.parseCodes(args, 'F');
         if (!fCodes.isEmpty()) {
@@ -233,7 +242,7 @@ public class GcodeParser implements IGcodeParser {
 
         // Error to mix group 1 (Motion) and certain group 0 (NonModal) codes (G10, G28, G30, G92)
         Collection<Code> motionCodes = gCodes.stream()
-                .filter(c -> c.consumesMotion())
+                .filter(Code::consumesMotion)
                 .collect(Collectors.toList());
 
         // 1 motion code per line.
@@ -253,7 +262,7 @@ public class GcodeParser implements IGcodeParser {
             if (i == UNKNOWN) {
                 logger.warning("An unknown gcode command was detected in: " + command);
             } else {
-                GcodeMeta meta = handleGCode(i, args, line, state, hasAxisWords);
+                GcodeMeta meta = handleGCode(i, args, line, state);
                 meta.command = command;
                 // Commands like 'G21' don't return a point segment.
                 if (meta.point != null) {
@@ -351,7 +360,7 @@ public class GcodeParser implements IGcodeParser {
      * 
      * A copy of the state object should go in the resulting GcodeMeta object.
      */
-    private static GcodeMeta handleGCode(final Code code, List<String> args, int line, GcodeState state, boolean hasAxisWords)
+    private static GcodeMeta handleGCode(final Code code, List<String> args, int line, GcodeState state)
             throws GcodeParserException {
         GcodeMeta meta = new GcodeMeta();
 
@@ -485,7 +494,7 @@ public class GcodeParser implements IGcodeParser {
     public List<String> preprocessCommand(String command, final GcodeState initialState) throws GcodeParserException {
         List<String> ret = new ArrayList<>();
         ret.add(command);
-        GcodeState tempState = null;
+        GcodeState tempState;
         for (CommandProcessor p : processors) {
             // Reset point segments after each pass. The final pass is what we will return.
             tempState = initialState.copy();
