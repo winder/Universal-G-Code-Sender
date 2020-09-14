@@ -106,13 +106,13 @@ public class MarlinFirmwareSettings implements CommunicatorListener, IFirmwareSe
 	}
 
 	@Override
-	public void setStepsPerMillimeter(Axis axis, int stepsPerMillimeter) throws FirmwareSettingsException {
+	public void setStepsPerMillimeter(Axis axis, double stepsPerMillimeter) throws FirmwareSettingsException {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public int getStepsPerMillimeter(Axis axis) throws FirmwareSettingsException {
+	public double getStepsPerMillimeter(Axis axis) throws FirmwareSettingsException {
 		// TODO Auto-generated method stub
 		return 0;
 	}

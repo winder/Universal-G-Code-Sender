@@ -34,7 +34,7 @@ public class MarlinController extends AbstractController {
 	// Polling state
 	private int outstandingPolls = 0;
 	private Timer positionPollTimer = null;
-	private ControllerStatus controllerStatus = new ControllerStatus("Disconnected", ControllerState.DISCONNECTED, new Position(0, 0, 0, Units.MM),
+	private ControllerStatus controllerStatus = new ControllerStatus(ControllerState.DISCONNECTED, new Position(0, 0, 0, Units.MM),
 			new Position(0, 0, 0, Units.MM));
 
 	private MarlinCommunicator marlinComm;
@@ -230,35 +230,28 @@ public class MarlinController extends AbstractController {
 	}
 
 	private void updateControllerState(String str, ControllerState state) {
-		controllerStatus = new ControllerStatus(str, state, controllerStatus.getMachineCoord(), controllerStatus.getWorkCoord());
+		controllerStatus = new ControllerStatus(state, controllerStatus.getMachineCoord(), controllerStatus.getWorkCoord());
 		dispatchStatusString(controllerStatus);
 	}
 
 	@Override
-	protected void statusUpdatesEnabledValueChanged(boolean enabled) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected void statusUpdatesRateValueChanged(int rate) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void jogMachine(int dirX, int dirY, int dirZ, double stepSize,
-			double feedRate, UnitUtils.Units units) throws Exception {
+	public void jogMachine(double distanceX, double distanceY, double distanceZ, double feedRate, Units units) throws Exception {
 		logger.log(Level.INFO, "Adjusting manual location.");
 
-		// G91 must be a separate command
+		// G91 must be a separate command...
 		GcodeCommand relCommand = createCommand("G91");
 		relCommand.setTemporaryParserModalChange(true);
 		sendCommandImmediately(relCommand);
 
-		// clobber G20/G21 because Marlin doesn't like it
+		// ...as must the unit command
+		String unitCommandStr = GcodeUtils.unitCommand(units);
+		GcodeCommand unitCommand = createCommand(unitCommandStr);
+		unitCommand.setTemporaryParserModalChange(true);
+		sendCommandImmediately(unitCommand);
+
+		// don't send units with G1 line - Marlin doesnt like it
 		String commandString = GcodeUtils.generateMoveCommand("G1",
-				stepSize, feedRate, dirX, dirY, dirZ, Units.UNKNOWN);
+				feedRate, distanceX, distanceY, distanceZ, Units.UNKNOWN);
 
 		GcodeCommand command = createCommand(commandString);
 		command.setTemporaryParserModalChange(true);
@@ -329,17 +322,22 @@ public class MarlinController extends AbstractController {
 
 	@Override
 	public ControlState getControlState() {
-		String state = this.controllerStatus == null ? "" : StringUtils.defaultString(this.controllerStatus.getStateString());
-		switch (state.toLowerCase()) {
-		// case "jog":
-		case "run":
+		ControllerState state = this.controllerStatus == null ? ControllerState.UNKNOWN : this.controllerStatus.getState();
+		switch (state) {
+		// case JOG:
+		case RUN:
 			return ControlState.COMM_SENDING;
+		/* TODO: check this...
 		case "paused":
 			// case "hold":
 			// case "door":
 			// case "queue":
 			return ControlState.COMM_SENDING_PAUSED;
-		case "idle":
+			*/
+        case HOLD:
+        case DOOR:
+            return ControlState.COMM_SENDING_PAUSED;
+		case IDLE:
 			if (isStreaming()) {
 				return ControlState.COMM_SENDING_PAUSED;
 			} else {
@@ -352,6 +350,24 @@ public class MarlinController extends AbstractController {
 		default:
 			return ControlState.COMM_IDLE;
 		}
+	}
+
+	@Override
+	public void requestStatusReport() throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	protected void statusUpdatesEnabledValueChanged() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	protected void statusUpdatesRateValueChanged() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

@@ -44,7 +44,7 @@ public class MarlinUtils {
 			Double ypos = getCoord(matcher, 2);
 			Double zpos = getCoord(matcher, 3);
 			Position pos = new Position(xpos, ypos, zpos, Units.MM);
-			return new ControllerStatus(lastStatus.getStateString(), lastStatus.getState(), pos, pos);
+			return new ControllerStatus(lastStatus.getState(), pos, pos);
 		}
 
 		return lastStatus;
