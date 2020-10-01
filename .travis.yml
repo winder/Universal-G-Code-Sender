@@ -27,7 +27,7 @@ stages:
   - name: deploy_snapshot
     if: branch = master AND tag IS blank
   - name: deploy_release
-    if: branch = master AND tag IS present
+    if: tag IS present
 
 jobs:
   include:
