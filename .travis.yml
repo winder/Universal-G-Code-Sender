@@ -24,10 +24,9 @@ before_script:
 
 stages:
   - name: build
-  - name: package
-    if: branch = master
   - name: deploy
     if: branch = master
+
 
 jobs:
   include:
@@ -36,8 +35,8 @@ jobs:
       script:
         - mvn test install -B -Djava.util.logging.config.file=scripts/logging.config
         - codecov
-    - stage: package
-      name: "Package binaries"
+    - stage: deploy
+      name: "Package and deploy"
       script:
         - mvn package -pl ugs-classic assembly:assembly -DskipTests=true
         - mvn package -pl ugs-platform/application -P create-autoupdate -DskipTests=true
@@ -45,7 +44,6 @@ jobs:
         - mvn package -pl ugs-platform/application -P create-win-package -DskipTests=true
         - mvn package -pl ugs-platform/application -P create-linux-package -DskipTests=true
         - mvn package -pl ugs-platform/application -P create-pi-package -DskipTests=true
-    - stage: deploy
       deploy:
         # Only deploy to a specific branch.
         - provider: script
@@ -53,7 +51,6 @@ jobs:
           skip_cleanup: true
           on:
             tags: false
-
         - provider: script
           script: bash scripts/deploy.sh $TRAVIS_TAG
           skip_cleanup: true
