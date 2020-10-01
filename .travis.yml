@@ -48,12 +48,14 @@ deploy:
   # Only deploy to a specific branch.
  - provider: script
    script: bash scripts/deploy.sh nightly
+   skip_cleanup: true
    on:
      tags: false
      branch: master
 
  - provider: script
    script: bash scripts/deploy.sh $TRAVIS_TAG
+   skip_cleanup: true
    on:
      tags: true
 
