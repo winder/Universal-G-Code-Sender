@@ -10,10 +10,6 @@ cache:
 jdk:
 - oraclejdk8
 
-# Skip automatic java build command
-install:
-  -
-
 before_script:
 - sudo apt-get update -qq
 - pip install --user codecov
@@ -39,7 +35,13 @@ deploy:
    script: bash scripts/deploy.sh nightly
    skip_cleanup: true
    on:
+     tags: false
      branch: master
+ - provider: script
+   script: bash scripts/deploy.sh $TRAVIS_TAG
+   skip_cleanup: true
+   on:
+     tags: true
 
 env:
   global:
