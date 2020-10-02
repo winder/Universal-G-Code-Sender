@@ -18,10 +18,10 @@ Technical details:
 * Developed with NetBeans 8.0.2 or later
 
 ## Downloads
-Below you will find the latest release of UGS Platform and UGS Classic, for older releases please visit the [releases page](https://github.com/winder/Universal-G-Code-Sender/releases).
+Below you will find the latest release of UGS.<br/> For older releases please visit the [releases page](https://github.com/winder/Universal-G-Code-Sender/releases).
 
 **UGS Platform**<br>
-This variant is the next generation, feature packed version based on the Netbeans Platform.
+The next generation, feature packed variant based on the Netbeans Platform.<br>
 Unpack and start the program ```bin/ugsplatform```
 
 | Latest release (v2.0.6) | Nightly build  |
@@ -33,12 +33,12 @@ Unpack and start the program ```bin/ugsplatform```
 | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.6/ugs-platform-app.zip)                    | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app.zip) |
 
 **UGS Classic**<br>
-This variant provides a clean and lightweight user interface for controlling your machine.
-Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. (requires [Java](https://java.com/en/download/manual.jsp)<br>
+A clean and lightweight variant of UGS (requires [Java](https://java.com/en/download/manual.jsp)). <br>
+Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. <br>
 
 | Latest release (v2.0.6) | Nightly build  |
 |:---------------|:--------------|
-| [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v.2.0.6/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](http://bit.ly/2HhJIir))
+| [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v.2.0.6/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](http://bit.ly/2HhJIir) |
 
 
 ## Screenshots
