@@ -14,8 +14,25 @@ Technical details:
 
 ## Downloads
 
-These are the nightly builds of the most recent code with the latest features and bug fixes. <br/>
-For stable releases visit the [downloads page](http://winder.github.io/ugs_website/download/).
+This is the latest release of UGS, for older releases please visit the [releases page](https://github.com/winder/Universal-G-Code-Sender/releases).
+
+**UGS Platform**<br>
+Unpack and start the program ```bin/ugsplatform```
+
+[![Windows](pictures/os_windows.png) Windows](https://ugs.jfrog.io/ugs/UGS/v.2.0.6/ugs-platform-app-win.zip) <br>
+[![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/v.2.0.6/ugs-platform-app-ios.dmg) <br>
+[![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/v.2.0.6/ugs-platform-app-linux.tar.gz) <br>
+[![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/v.2.0.6/ugs-platform-app-pi.tar.gz) <br>
+[![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v.2.0.6/ugs-platform-app.zip) (requires [Java](https://java.com/en/download/manual.jsp))<br>
+
+**UGS Classic**<br>
+Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. <br>
+
+[![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v.2.0.6/UniversalGcodeSender.zip) (requires [Java](https://java.com/en/download/manual.jsp))
+
+
+### Nightly build
+Below you can find the nightly builds with the most recent code, the latest features and bug fixes. <br/>
 
 [![Last commit](https://img.shields.io/github/last-commit/winder/Universal-G-Code-Sender.svg?maxAge=1800)](https://github.com/winder/Universal-G-Code-Sender/commits/master)
 [![Build Status](https://travis-ci.org/winder/Universal-G-Code-Sender.svg?branch=master)](https://travis-ci.org/winder/Universal-G-Code-Sender)
@@ -23,19 +40,15 @@ For stable releases visit the [downloads page](http://winder.github.io/ugs_websi
 [![Codebeat badge](https://codebeat.co/badges/48cc1265-2f6b-4163-8a8a-964acc073100)](https://codebeat.co/projects/github-com-winder-universal-g-code-sender-master)
 
 **UGS Platform**<br>
-The nightly build of the next generation, feature packed version based on the Netbeans Platform.
-
 Unpack and start the program ```bin/ugsplatform```
 
-[![Windows](pictures/os_windows.png) Windows](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-2.0-SNAPSHOT-win.zip) <br>
-[![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-2.0-SNAPSHOT.dmg) <br>
-[![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-2.0-SNAPSHOT-linux.tar.gz) <br>
-[![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-2.0-SNAPSHOT-pi.tar.gz) <br>
-[![Zip](pictures/zip.png) All platforms](http://bit.ly/2L2v9k6) (requires [Java](https://java.com/en/download/manual.jsp))<br>
+[![Windows](pictures/os_windows.png) Windows](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-win.zip) <br>
+[![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-ios.dmg) <br>
+[![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-linux.tar.gz) <br>
+[![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-pi.tar.gz) <br>
+[![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app.zip) (requires [Java](https://java.com/en/download/manual.jsp))<br>
 
 **UGS Classic**<br>
-The nightly build of the classic version with a clean and lightweight user interface.
-
 Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. <br>
 
 [![Zip](pictures/zip.png) All platforms](http://bit.ly/2HhJIir) (requires [Java](https://java.com/en/download/manual.jsp))
