@@ -11,9 +11,9 @@ import java.util.logging.Logger;
 
 public class Version {
     private static final Logger LOGGER = Logger.getLogger(Version.class.getName());
-    private static final String VERSION = "2.0 [nightly] ";
     private static final String BUILD_DATE_FORMAT = "MMM dd, yyyy";
     private static final String BUILD_DATE_NUMBER_FORMAT = "yyyyMMdd";
+    private static String VERSION = "2.0 [nightly] ";
     private static String BUILD_DATE = "";
 
     private static boolean initialized = false;
@@ -63,6 +63,7 @@ public class Version {
 
     private static void initialize() {
         String buildDate = "";
+        String version = "";
         try {
             Class clazz = Version.class;
             String className = clazz.getSimpleName() + ".class";
@@ -75,11 +76,13 @@ public class Version {
                     props.load(is);
                 }
                 buildDate = props.getProperty("Build-Date");
+                version = props.getProperty("Version");
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Couldn't parse the build date from the properties file: " + e.getMessage());
         }
         BUILD_DATE = buildDate;
+        VERSION = version;
         initialized = true;
     }
 }
