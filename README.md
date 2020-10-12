@@ -119,10 +119,10 @@ mvn package -pl ugs-core
 mvn package assembly:assembly
 ```
 
-#### Develop via Intellij
+#### Develop via IntelliJ
 
-If you are more used to Intellij, you can also build, run and debug it there:
-
+If you are more used to IntelliJ, you can also build, run and debug it there:
+- Because we are running `jgitver` for handling our versioning a special flag needs to be set: https://github.com/jgitver/jgitver-maven-plugin/wiki/Intellij-IDEA-configuration 
 - Run  `mvn nbm:run-platform -pl ugs-platform/application` once via terminal to build everything
 - Import the Source, `File` -> `New` -> `Project from existing Sources`
 - Setup a new "Run Configuration", `Java Application`, with following settings:
