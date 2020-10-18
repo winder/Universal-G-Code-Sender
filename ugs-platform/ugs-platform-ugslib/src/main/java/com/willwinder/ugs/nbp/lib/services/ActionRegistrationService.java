@@ -30,11 +30,14 @@ import javax.swing.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -251,6 +254,15 @@ public class ActionRegistrationService {
     }
 
     /**
+     * Returns a list of all categories
+     *
+     * @return a set with all categories
+     */
+    public Set<String> getCategories() {
+        return new HashSet<>(getCategoryActions().keySet());
+    }
+
+    /**
      * A recursive method that walks through all children of a file object and tries to find all actions.
      *
      * @param category        the file object for a category or directory
@@ -328,5 +340,14 @@ public class ActionRegistrationService {
      */
     private void invalidateCache() {
         actionCache = new HashMap<>();
+    }
+
+    /**
+     * Returns all actions by the given category
+     * @param category the name of the category to fetch
+     * @return a list of actions
+     */
+    public List<ActionReference> getActionsByCategory(String category) {
+        return new ArrayList<>(getCategoryActions().getOrDefault(category, Collections.emptyList()));
     }
 }

@@ -42,12 +42,9 @@ public abstract class AbstractOptionPanelController<T extends AbstractOptionsPan
 
     @Override
     public void applyChanges() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                getPanel().store();
-                changed = false;
-            }
+        SwingUtilities.invokeLater(() -> {
+            getPanel().store();
+            changed = false;
         });
     }
 
@@ -87,14 +84,6 @@ public abstract class AbstractOptionPanelController<T extends AbstractOptionsPan
     }
 
     public abstract T getPanel();
-    /*
-    {
-        if (panel == null) {
-            panel = new SenderOptionsPanel(this);
-        }
-        return panel;
-    }
-    */
 
     public void changed() {
         if (!changed) {
