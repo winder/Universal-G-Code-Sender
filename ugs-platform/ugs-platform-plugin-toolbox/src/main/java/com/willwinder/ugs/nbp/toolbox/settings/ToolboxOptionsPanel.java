@@ -116,7 +116,7 @@ public class ToolboxOptionsPanel extends AbstractOptionsPanel {
         selectedActionsList.setCellRenderer(new ActionReferenceRenderer());
 
         JScrollPane jScrollPane = new JScrollPane(selectedActionsList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        jScrollPane.setPreferredSize(new Dimension(200, 400));
+        jScrollPane.setPreferredSize(new Dimension(200, 340));
         panel.add(jScrollPane, "grow");
 
         Settings.getActions().forEach(actionId -> controller.getActionRegistrationService().getActionById(actionId)
@@ -125,7 +125,7 @@ public class ToolboxOptionsPanel extends AbstractOptionsPanel {
         availableActionsList = new JList<>(availableActionsListModel);
         availableActionsList.setCellRenderer(new ActionReferenceRenderer());
         jScrollPane = new JScrollPane(availableActionsList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        jScrollPane.setPreferredSize(new Dimension(200, 400));
+        jScrollPane.setPreferredSize(new Dimension(200, 340));
         panel.add(jScrollPane, "grow, wrap");
 
         JPanel buttons = new JPanel();
