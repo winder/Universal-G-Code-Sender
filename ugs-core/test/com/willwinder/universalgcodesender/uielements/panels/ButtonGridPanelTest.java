@@ -1,11 +1,13 @@
 package com.willwinder.universalgcodesender.uielements.panels;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.*;
 
 import static org.junit.Assert.assertEquals;
 
+@Ignore("Can not be run with a headless Java therefore disabled")
 public class ButtonGridPanelTest {
     @Test
     public void shouldChooseOneColumnWhenBelowMinWidth() throws InterruptedException {
