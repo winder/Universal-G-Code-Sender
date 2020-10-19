@@ -18,6 +18,8 @@
  */
 package com.willwinder.universalgcodesender.uielements.helpers;
 
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
+
 import javax.swing.JComponent;
 import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
@@ -66,7 +68,9 @@ public class SteppedSizeManager {
     }
 
     private void fireSizeChanged(int size) {
-        listeners.forEach(l -> l.onSizeChange(size));
+        listeners.forEach(l ->
+                ThreadHelper.invokeLater(() ->
+                        l.onSizeChange(size)));
     }
 
     public void addListener(SteppedSizeChangeListener listener) {

@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender.uielements.components;
 
-import com.willwinder.universalgcodesender.uielements.components.CommandTextArea;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.event.KeyEvent;

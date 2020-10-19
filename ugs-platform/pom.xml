@@ -154,5 +154,6 @@
     <module>ugs-platform-welcome-page</module>
     <module>ugs-platform-plugin-joystick</module>
     <module>ugs-platform-plugin-cloud-storage</module>
+    <module>ugs-platform-plugin-toolbox</module>
   </modules>
 </project>
