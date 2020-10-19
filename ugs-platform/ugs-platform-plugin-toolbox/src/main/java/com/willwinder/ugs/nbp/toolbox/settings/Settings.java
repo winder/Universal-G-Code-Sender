@@ -18,14 +18,12 @@
  */
 package com.willwinder.ugs.nbp.toolbox.settings;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.willwinder.ugs.nbp.toolbox.ToolboxTopComponent;
 import org.openide.util.NbPreferences;
 
-import java.io.IOException;
-import java.util.Collections;
+import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,17 +68,12 @@ public class Settings {
      * @return a list of actions
      */
     public static List<String> getActions() {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
+        String defaultValue = "[\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-ResetCoordinatesToZeroAction.instance\",\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-ReturnToZeroAction.instance\",\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-SoftResetAction.instance\",\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-HomeAction.instance\",\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-UnlockAction.instance\",\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-GetStateAction.instance\",\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-CheckModeAction.instance\"]";
+        String value = preferences.get("actionIdList", defaultValue);
 
-            String defaultValue = "[\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-ResetCoordinatesToZeroAction.instance\",\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-ReturnToZeroAction.instance\",\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-SoftResetAction.instance\",\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-HomeAction.instance\",\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-UnlockAction.instance\",\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-GetStateAction.instance\",\"Actions/Machine/com-willwinder-ugs-nbp-core-actions-CheckModeAction.instance\"]";
-            String value = preferences.get("actionIdList", defaultValue);
-            return objectMapper.readValue(value, new TypeReference<List<String>>() {
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return Collections.emptyList();
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<String>>() {}.getType();
+        return gson.fromJson(value, listType);
     }
 
     /**
@@ -89,14 +82,10 @@ public class Settings {
      * @param actionIdList a list of action ids
      */
     public static void setActions(List<String> actionIdList) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String value = objectMapper.writeValueAsString(actionIdList);
-            preferences.put("actionIdList", value);
-            settingListeners.forEach(ISettingsListener::settingsChanged);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        Gson gson = new Gson();
+        String value = gson.toJson(actionIdList);
+        preferences.put("actionIdList", value);
+        settingListeners.forEach(ISettingsListener::settingsChanged);
     }
 
     /**

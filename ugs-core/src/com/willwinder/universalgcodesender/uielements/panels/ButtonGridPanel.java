@@ -1,16 +1,11 @@
 package com.willwinder.universalgcodesender.uielements.panels;
 
 import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
 
 import javax.swing.JPanel;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ComponentEvent;
 import java.util.Arrays;
-
-import static java.awt.event.ComponentEvent.COMPONENT_RESIZED;
-
 
 public class ButtonGridPanel extends JPanel {
 
@@ -27,7 +22,9 @@ public class ButtonGridPanel extends JPanel {
     private void onSizeChanged(int sizeIndex) {
         SizeEnum sizeEnum = SizeEnum.valueFromIndex(sizeIndex - 1);
         int columns = Math.min(sizeEnum.getNumberOfColumns(), this.getComponentCount());
-        ThreadHelper.invokeLater(() -> this.setLayout(new GridLayout(0, columns)));
+
+        GridLayout layout = (GridLayout) this.getLayout();
+        layout.setColumns(columns);
     }
 
     public enum SizeEnum {
