@@ -133,7 +133,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         }
         MigLayout layout = new MigLayout("fillx, wrap " + columns + ", inset " + INSET, columnConstraint.toString());
         macroPanel.setLayout(layout);
-        
+
         // Put buttons in grid.
         int x = 0;
         int y = 0;
@@ -143,7 +143,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
             if (y == rows) {
                 x++;
                 y = 0;
-            }             
+            }
         }
         revalidate();
         super.doLayout();
@@ -161,9 +161,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
     }
 
     private void updateCustomGcodeControls(boolean enabled) {
-        for (JButton button : customGcodeButtons) {
-            button.setEnabled(enabled);
-        }
+        customGcodeButtons.forEach((button -> button.setEnabled(enabled)));
     }
 
     @Override

@@ -290,11 +290,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     @Override
-    public void doLayout() {
-        super.doLayout();
-    }
-
-    @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt.isStateChangeEvent()) {
             updateControls();
