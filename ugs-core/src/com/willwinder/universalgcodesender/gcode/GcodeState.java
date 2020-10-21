@@ -76,11 +76,6 @@ public class GcodeState {
         // TODO: Add WCS
         this.plane = Plane.XY;
 
-        this.isMetric = true;
-        this.units = G21;
-
-        this.inAbsoluteMode = true;
-        this.distanceMode = G90;
         // TODO: Feed mode
         this.speed = 0;
         this.spindleSpeed = 0;
