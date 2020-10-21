@@ -37,6 +37,7 @@ import javax.vecmath.Point3d;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.List;
@@ -106,7 +107,7 @@ public class GcodeModel extends Renderable {
         this.currentCommandNumber = 0;
 
         boolean result = generateObject();
-        
+
         // Force a display in case an animator isn't running.
         //forceRedraw();
 
@@ -151,15 +152,15 @@ public class GcodeModel extends Renderable {
         if (!isDrawable) return;
 
         GL2 gl = drawable.getGL().getGL2();
-        
-        // Batch mode if available 
+
+        // Batch mode if available
         boolean forceOldStyle = false;
         if(!forceOldStyle
                 && gl.isFunctionAvailable( "glGenBuffers" )
                 && gl.isFunctionAvailable( "glBindBuffer" )
                 && gl.isFunctionAvailable( "glBufferData" )
                 && gl.isFunctionAvailable( "glDeleteBuffers" ) ) {
-            
+
             // Initialize OpenGL arrays if required.
             if (this.vertexBufferDirty && !vertexArrayDirty && !colorArrayDirty) {
                 updateVertexBuffers();
@@ -205,7 +206,7 @@ public class GcodeModel extends Renderable {
         // makes the gui stay on top of elements
         // drawn before.
     }
-    
+
     public Point3d getMin() {
         return this.objectMin;
     }
@@ -221,7 +222,7 @@ public class GcodeModel extends Renderable {
     {
         isDrawable = false;
         if (this.gcodeFile == null){ return false; }
-        
+
         try {
             GcodeViewParse gcvp = new GcodeViewParse();
             logger.log(Level.INFO, "About to process {}", gcodeFile);
@@ -259,8 +260,8 @@ public class GcodeModel extends Renderable {
             this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
             this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
 
-            this.dimensionsLabel = Localization.getString("VisualizerCanvas.dimensions") + ": " 
-                    + Localization.getString("VisualizerCanvas.width") + "=" + format.format(objectWidth) + " " 
+            this.dimensionsLabel = Localization.getString("VisualizerCanvas.dimensions") + ": "
+                    + Localization.getString("VisualizerCanvas.width") + "=" + format.format(objectWidth) + " "
                     + Localization.getString("VisualizerCanvas.height") + "=" + format.format(objectHeight);
             */
 
@@ -270,7 +271,7 @@ public class GcodeModel extends Renderable {
             this.numberOfVertices = gcodeLineList.size() * 2;
             this.lineVertexData = new float[numberOfVertices * 3];
             this.lineColorData = new byte[numberOfVertices * 3];
-            
+
             this.updateVertexBuffers();
         } catch (GcodeParserException | IOException e) {
             String error = Localization.getString("mainWindow.error.openingFile") + " : " + e.getLocalizedMessage();
@@ -343,13 +344,13 @@ public class GcodeModel extends Renderable {
             this.vertexArrayDirty = true;
         }
     }
-    
+
     /**
      * Initialize or update open gl geometry array in native buffer objects.
      */
     private void updateGLGeometryArray(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-        
+
         // Reset buffer and set to null of new geometry doesn't fit.
         if (lineVertexBuffer != null) {
             lineVertexBuffer.clear();
@@ -357,38 +358,38 @@ public class GcodeModel extends Renderable {
                 lineVertexBuffer = null;
             }
         }
-        
+
         if (lineVertexBuffer == null) {
             lineVertexBuffer = Buffers.newDirectFloatBuffer(lineVertexData.length);
         }
-        
+
         lineVertexBuffer.put(lineVertexData);
         lineVertexBuffer.flip();
         gl.glVertexPointer( 3, GL.GL_FLOAT, 0, lineVertexBuffer );
     }
-    
+
     /**
      * Initialize or update open gl color array in native buffer objects.
      */
     private void updateGLColorArray(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-        
+
         // Reset buffer and set to null of new colors don't fit.
         if (lineColorBuffer != null) {
-            lineColorBuffer.clear();
+            ((Buffer)lineColorBuffer).clear();
 
             if (lineColorBuffer.remaining() < lineColorData.length) {
                 lineColorBuffer = null;
             }
         }
-        
+
         if (lineColorBuffer == null) {
             if (lineColorData == null) {
                 updateVertexBuffers();
             }
             lineColorBuffer = Buffers.newDirectByteBuffer(this.lineColorData.length);
         }
-        
+
         lineColorBuffer.put(lineColorData);
         lineColorBuffer.flip();
         gl.glColorPointer( 3, GL.GL_UNSIGNED_BYTE, 0, lineColorBuffer );
