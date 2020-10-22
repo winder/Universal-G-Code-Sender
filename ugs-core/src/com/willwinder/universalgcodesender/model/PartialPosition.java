@@ -18,25 +18,11 @@ public class PartialPosition {
     private final Double z;
     private final UnitUtils.Units units;
 
-    public PartialPosition(Double x, Double y) {
-        this.x = x;
-        this.y = y;
-        this.z = null;
-        this.units = UnitUtils.Units.UNKNOWN;
-    }
-
     public PartialPosition(Double x, Double y, UnitUtils.Units units) {
         this.x = x;
         this.y = y;
         this.z = null;
         this.units = units;
-    }
-
-    public PartialPosition(Double x, Double y, Double z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.units = UnitUtils.Units.UNKNOWN;
     }
 
     public PartialPosition(Double x, Double y, Double z, UnitUtils.Units units) {
@@ -46,18 +32,29 @@ public class PartialPosition {
         this.units = units;
     }
 
-    public PartialPosition() {
-        this.x = null;
-        this.y = null;
-        this.z = null;
-        this.units = UnitUtils.Units.UNKNOWN;
-    }
-
-
-    // a shortcut to builder (needed, because of final coords)
+    /**
+     * Creates a partial position with only one axis
+     * @param axis the axis to set
+     * @param value the position
+     * @return a partial position
+     * @deprecated a position without a unit is very uncertain and dangerous, use {@link PartialPosition#from(Axis, Double, UnitUtils.Units)} instead
+     */
+    @Deprecated
     public static PartialPosition from(Axis axis, Double value) {
         return new Builder().setValue(axis, value).build();
     }
+
+    /**
+     * Creates a partial position with only one axis
+     * @param axis the axis to set
+     * @param value the position
+     * @param units the units of the position
+     * @return a partial position
+     */
+    public static PartialPosition from(Axis axis, Double value, UnitUtils.Units units) {
+        return new Builder().setValue(axis, value).setUnits(units).build();
+    }
+
 
     public static PartialPosition from(Position position) {
         return new PartialPosition(position.getX(), position.getY(), position.getZ(), position.getUnits());

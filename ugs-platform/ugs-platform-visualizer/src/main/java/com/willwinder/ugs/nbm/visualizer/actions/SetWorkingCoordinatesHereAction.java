@@ -46,7 +46,7 @@ public class SetWorkingCoordinatesHereAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            backend.setWorkPosition(new PartialPosition(position.getX(), position.getY()));
+            backend.setWorkPosition(new PartialPosition(position.getX(), position.getY(), position.getUnits()));
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
         }

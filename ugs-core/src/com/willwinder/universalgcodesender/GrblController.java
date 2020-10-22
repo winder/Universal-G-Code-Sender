@@ -456,7 +456,9 @@ public class GrblController extends AbstractController {
             throw new Exception("Must be connected to set work position");
         }
 
-        String gcode = GrblUtils.getSetCoordCommand(axisPosition, this.grblVersion, this.grblVersionLetter);
+        Units currentUnits = Units.getUnits(getCurrentGcodeState().units);
+        PartialPosition position = axisPosition.getPositionIn(currentUnits);
+        String gcode = GrblUtils.getSetCoordCommand(position, this.grblVersion, this.grblVersionLetter);
         if (StringUtils.isNotEmpty(gcode)) {
             GcodeCommand command = createCommand(gcode);
             this.sendCommandImmediately(command);

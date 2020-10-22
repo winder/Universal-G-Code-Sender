@@ -8,37 +8,40 @@ public class PartialPositionTest {
 
     @Test
     public void testFormatted() {
-        assertEquals("Y0Z0", new PartialPosition(null, 0.0, 0.0).getFormattedGCode());
-        assertEquals("X0Z0", new PartialPosition(0.0, null, 0.0).getFormattedGCode());
-        assertEquals("X0Y0", new PartialPosition(0.0, 0.0).getFormattedGCode());
+        assertEquals("Y0Z0", new PartialPosition(null, 0.0, 0.0, UnitUtils.Units.MM).getFormattedGCode());
+        assertEquals("X0Z0", new PartialPosition(0.0, null, 0.0, UnitUtils.Units.MM).getFormattedGCode());
+        assertEquals("X0Y0", new PartialPosition(0.0, 0.0, UnitUtils.Units.MM).getFormattedGCode());
 
-        assertEquals("Y10Z0", new PartialPosition(null, 10.0, 0.0).getFormattedGCode());
-        assertEquals("X10Z0", new PartialPosition(10.0, null, 0.0).getFormattedGCode());
-        assertEquals("X0Y10", new PartialPosition(0.0, 10.0).getFormattedGCode());
+        assertEquals("Y10Z0", new PartialPosition(null, 10.0, 0.0, UnitUtils.Units.MM).getFormattedGCode());
+        assertEquals("X10Z0", new PartialPosition(10.0, null, 0.0, UnitUtils.Units.MM).getFormattedGCode());
+        assertEquals("X0Y10", new PartialPosition(0.0, 10.0, UnitUtils.Units.MM).getFormattedGCode());
 
-        assertEquals("Y10Z-20", new PartialPosition(null, 10.0, -20.0).getFormattedGCode());
-        assertEquals("X10Z-20", new PartialPosition(10.0, null, -20.0).getFormattedGCode());
-        assertEquals("X-20Y10", new PartialPosition(-20.0, 10.0).getFormattedGCode());
+        assertEquals("Y10Z-20", new PartialPosition(null, 10.0, -20.0, UnitUtils.Units.MM).getFormattedGCode());
+        assertEquals("X10Z-20", new PartialPosition(10.0, null, -20.0, UnitUtils.Units.MM).getFormattedGCode());
+        assertEquals("X-20Y10", new PartialPosition(-20.0, 10.0, UnitUtils.Units.MM).getFormattedGCode());
 
-        assertEquals("Y10.5Z-20.05", new PartialPosition(null, 10.5, -20.05).getFormattedGCode());
-        assertEquals("X10.5Z-20.05", new PartialPosition(10.5, null, -20.05).getFormattedGCode());
-        assertEquals("X-20.05Y10.5", new PartialPosition(-20.05, 10.5).getFormattedGCode());
+        assertEquals("Y10.5Z-20.05", new PartialPosition(null, 10.5, -20.05, UnitUtils.Units.MM).getFormattedGCode());
+        assertEquals("X10.5Z-20.05", new PartialPosition(10.5, null, -20.05, UnitUtils.Units.MM).getFormattedGCode());
+        assertEquals("X-20.05Y10.5", new PartialPosition(-20.05, 10.5, UnitUtils.Units.MM).getFormattedGCode());
 
-        assertEquals("X5.2Y10.5Z-20.05", new PartialPosition(5.2, 10.5, -20.05).getFormattedGCode());
-        assertEquals("X10.5Y5.2Z-20.05", new PartialPosition(10.5, 5.2, -20.05).getFormattedGCode());
-        assertEquals("X-20.05Y10.5Z5.2", new PartialPosition(-20.05, 10.5, 5.2).getFormattedGCode());
+        assertEquals("X5.2Y10.5Z-20.05", new PartialPosition(5.2, 10.5, -20.05, UnitUtils.Units.MM).getFormattedGCode());
+        assertEquals("X10.5Y5.2Z-20.05", new PartialPosition(10.5, 5.2, -20.05, UnitUtils.Units.MM).getFormattedGCode());
+        assertEquals("X-20.05Y10.5Z5.2", new PartialPosition(-20.05, 10.5, 5.2, UnitUtils.Units.MM).getFormattedGCode());
 
-        assertEquals("Y10.5Z-20.05", new PartialPosition.Builder().setY(10.5).setZ(-20.05).build().getFormattedGCode());
-        assertEquals("X10.5Z-20.05", new PartialPosition.Builder().setX(10.5).setZ(-20.05).build().getFormattedGCode());
-        assertEquals("X-20.05Y10.5", new PartialPosition.Builder().setY(10.5).setX(-20.05).build().getFormattedGCode());
+        assertEquals("Y10.5Z-20.05", new PartialPosition.Builder().setUnits(UnitUtils.Units.MM).setY(10.5).setZ(-20.05).build().getFormattedGCode());
+        assertEquals("X10.5Z-20.05", new PartialPosition.Builder().setUnits(UnitUtils.Units.MM).setX(10.5).setZ(-20.05).build().getFormattedGCode());
+        assertEquals("X-20.05Y10.5", new PartialPosition.Builder().setUnits(UnitUtils.Units.MM).setY(10.5).setX(-20.05).build().getFormattedGCode());
 
         assertEquals("Y10.5Z-20.05", new PartialPosition.Builder()
+                .setUnits(UnitUtils.Units.MM)
                 .setValue(Axis.Y, 10.5).setValue(Axis.Z, -20.05).build()
                 .getFormattedGCode());
         assertEquals("X10.5Z-20.05", new PartialPosition.Builder()
+                .setUnits(UnitUtils.Units.MM)
                 .setValue(Axis.X, 10.5).setValue(Axis.Z, -20.05).build()
                 .getFormattedGCode());
         assertEquals("X-20.05Y10.5", new PartialPosition.Builder()
+                .setUnits(UnitUtils.Units.MM)
                 .setValue(Axis.Y, 10.5).setValue(Axis.X, -20.05).build()
                 .getFormattedGCode());
 
