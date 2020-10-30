@@ -36,7 +36,7 @@ Unpack and start the program ```bin/ugsplatform```
 **UGS Classic**<br>
 A clean and lightweight variant of UGS (requires [Java](https://java.com/en/download/manual.jsp)). <br>
 Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. <br>
-ss
+
 | Latest release (v2.0.6) | Nightly build  |
 |:---------------|:--------------|
 | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v.2.0.6/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](http://bit.ly/2HhJIir) |
