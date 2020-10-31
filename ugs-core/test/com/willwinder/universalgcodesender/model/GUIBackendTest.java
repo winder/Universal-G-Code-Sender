@@ -335,10 +335,11 @@ public class GUIBackendTest {
 
         // Then
         List<UGSEvent> events = eventArgumentCaptor.getAllValues();
-        assertEquals(3, events.size());
-        assertEquals(UGSEvent.FileState.FILE_LOADING, events.get(0).getFileState());
-        assertEquals(UGSEvent.EventType.SETTING_EVENT, events.get(1).getEventType());
-        assertEquals(UGSEvent.FileState.FILE_LOADED, events.get(2).getFileState());
+        assertEquals(4, events.size());
+        assertEquals(UGSEvent.FileState.OPENING_FILE, events.get(0).getFileState());
+        assertEquals(UGSEvent.FileState.FILE_LOADING, events.get(1).getFileState());
+        assertEquals(UGSEvent.EventType.SETTING_EVENT, events.get(2).getEventType());
+        assertEquals(UGSEvent.FileState.FILE_LOADED, events.get(3).getFileState());
 
         assertNotNull(instance.getProcessedGcodeFile());
     }

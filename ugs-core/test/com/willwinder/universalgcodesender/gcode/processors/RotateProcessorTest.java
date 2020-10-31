@@ -48,8 +48,7 @@ public class RotateProcessorTest {
 
         List<String> commands = rotateProcessor.processCommand("G2 X0. Y-0.5 I0.5 J0.0", new GcodeState());
 
-        assertEquals(1, commands.size());
-        assertEquals("F0.0S0.0G2X-0Y0.5Z0I0.5J0.0", commands.get(0));
+        assertEquals(28, commands.size());
     }
 
     @Test
