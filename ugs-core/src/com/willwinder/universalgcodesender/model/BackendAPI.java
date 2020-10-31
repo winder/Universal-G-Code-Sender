@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -58,9 +59,28 @@ public interface BackendAPI extends BackendAPIReadOnly {
      * Modify the currently processed gcode with a provided gcode parser.
      * This can be used for post-processing tasks like rotating a gcode file.
      * @param gcp externally configured gcode parser.
-     * @throws Exception 
+     * @throws Exception
+     * @deprecated this will alter the gcode parser entirely, please use {@link #applyCommandProcessor(CommandProcessor)}
+     * to change the behaviour of the gcode parser.
      */
     void applyGcodeParser(GcodeParser gcp) throws Exception;
+
+    /**
+     * Adds a command processor and applies it to currently loaded program and subsequent
+     * loaded gcode programs.
+     *
+     * @param commandProcessor a command processor.
+     * @throws Exception
+     */
+    void applyCommandProcessor(CommandProcessor commandProcessor) throws Exception;
+
+    /**
+     * Removes a command processor.
+     *
+     * @param commandProcessor a command processor.
+     * @throws Exception
+     */
+    void removeCommandProcessor(CommandProcessor commandProcessor) throws Exception;
 
     /**
      * Process the currently loaded gcode file and export it to a file.

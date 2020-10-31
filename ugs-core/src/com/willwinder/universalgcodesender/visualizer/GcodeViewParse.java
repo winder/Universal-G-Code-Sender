@@ -126,7 +126,7 @@ public class GcodeViewParse {
         GcodeParser gp = getParser(arcSegmentLength);
 
         // Save the state
-        Position start = new Position();
+        Position start = new Position(0, 0, 0, UnitUtils.Units.getUnits(gp.getCurrentState().units));
 
         while (reader.getNumRowsRemaining() > 0) {
             GcodeCommand commandObject = reader.getNextCommand();
@@ -136,7 +136,7 @@ public class GcodeViewParse {
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
                         addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
-                        start.set(meta.point.point());
+                        start = meta.point.point();
                     }
                 }
             }
@@ -157,7 +157,7 @@ public class GcodeViewParse {
         lines.clear();
 
         // Save the state
-        Position start = new Position();
+        Position start = new Position(0,0,0, UnitUtils.Units.getUnits(gp.getCurrentState().units));
 
         for (String s : gcode) {
             List<String> commands = gp.preprocessCommand(s, gp.getCurrentState());

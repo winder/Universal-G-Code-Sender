@@ -84,6 +84,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private boolean autoconnect = false;
     
     private GcodeParser gcp = new GcodeParser();
+    private final CommandProcessorList customCommandProcessors = new CommandProcessorList();
 
     @Override
     public void addUGSEventListener(UGSEventListener listener) {
@@ -175,7 +176,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     private void initGcodeParser() {
         // Configure gcode parser.
-        gcp.resetCommandProcessors();
+        gcp.clearCommandProcessors();
 
         try {
             List<CommandProcessor> processors = FirmwareUtils.getParserFor(firmware, settings).orElse(null);
@@ -186,6 +187,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         catch (Exception e) {
             initializeWithFallbackProcessors(gcp);
         }
+
+        gcp.addCommandProcessor(customCommandProcessors);
     }
 
     private void updateWithFirmware(String firmware) throws Exception {
@@ -416,12 +419,17 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void setGcodeFile(File file) throws Exception {
         logger.log(Level.INFO, "Setting gcode file.");
+        this.sendUGSEvent(new UGSEvent(FileState.OPENING_FILE, file.getAbsolutePath()), false);
         initGcodeParser();
         this.gcodeFile = file;
+        processGcodeFile();
+    }
+
+    private void processGcodeFile() throws Exception {
         this.processedGcodeFile = null;
 
         this.sendUGSEvent(new UGSEvent(FileState.FILE_LOADING,
-                file.getAbsolutePath()), false);
+                this.gcodeFile.getAbsolutePath()), false);
 
         initializeProcessedLines(true, this.gcodeFile, this.gcp);
 
@@ -482,7 +490,23 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
         this.setGcodeFile(target);
     }
-    
+
+    @Override
+    public void applyCommandProcessor(CommandProcessor commandProcessor) throws Exception {
+        logger.log(Level.INFO, "Applying new command processor");
+        customCommandProcessors.add(commandProcessor);
+
+        if(gcodeFile != null) {
+            processGcodeFile();
+        }
+    }
+
+    @Override
+    public void removeCommandProcessor(CommandProcessor commandProcessor) throws Exception {
+        customCommandProcessors.remove(commandProcessor);
+        processGcodeFile();
+    }
+
     @Override
     public File getGcodeFile() {
         logger.log(Level.FINEST, "Getting gcode file.");

@@ -391,7 +391,7 @@ public class GcodeModel extends Renderable {
         }
 
         lineColorBuffer.put(lineColorData);
-        lineColorBuffer.flip();
+        ((Buffer)lineColorBuffer).flip();
         gl.glColorPointer( 3, GL.GL_UNSIGNED_BYTE, 0, lineColorBuffer );
     }
 }

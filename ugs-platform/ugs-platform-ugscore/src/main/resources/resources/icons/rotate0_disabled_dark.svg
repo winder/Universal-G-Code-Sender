@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   sodipodi:docname="rotate0.svg"
+   inkscape:version="1.0beta1 (32d4812, 2019-09-19)"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 4.2333332 4.2333332"
+   height="16"
+   width="16">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     inkscape:window-maximized="0"
+     inkscape:window-y="30"
+     inkscape:window-x="224"
+     inkscape:window-height="1209"
+     inkscape:window-width="1600"
+     units="px"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="mm"
+     inkscape:cy="4.7970757"
+     inkscape:cx="10.980239"
+     inkscape:zoom="22.858834"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     style="display:inline"
+     inkscape:label="Base"
+     id="layer2"
+     inkscape:groupmode="layer">
+    <ellipse
+       ry="1.6814088"
+       rx="1.675761"
+       cy="2.115422"
+       cx="2.1162765"
+       id="path906"
+       style="fill:none;stroke:#41818f;stroke-width:0.353771;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0.353771, 0.707541;stroke-dashoffset:0.424525;stroke-opacity:1" />
+  </g>
+  <g
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <g
+       aria-label="0°"
+       id="text865"
+       style="font-size:1.23472000000000004px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583;fill:#41818f;fill-opacity:1">
+      <path
+         d="m 2.2205069,2.0783032 q 0,0.1133435 -0.020498,0.2031742 -0.020498,0.089228 -0.063906,0.1465024 -0.044614,0.05848 -0.1145492,0.088625 -0.069935,0.029542 -0.1724267,0.029542 -0.1006827,0 -0.1718238,-0.030145 -0.071141,-0.030145 -0.1151521,-0.089228 -0.044614,-0.059083 -0.064509,-0.1465024 -0.019895,-0.088022 -0.019895,-0.2013655 0,-0.1169607 0.020498,-0.2031741 0.020498,-0.086213 0.065112,-0.1458995 0.044614,-0.059083 0.115755,-0.088625 0.071141,-0.029542 0.1700151,-0.029542 0.1030943,0 0.1730296,0.030747 0.069935,0.030145 0.1145492,0.090434 0.044011,0.059083 0.063906,0.1458996 0.019895,0.086213 0.019895,0.1995567 z m -0.2333186,0 q 0,-0.1627804 -0.031953,-0.23151 -0.031953,-0.069332 -0.1061088,-0.069332 -0.074156,0 -0.1061087,0.069332 -0.031953,0.06873 -0.031953,0.2327158 0,0.159766 0.032556,0.2303042 0.032556,0.070538 0.1055059,0.070538 0.07295,0 0.1055059,-0.070538 0.032556,-0.070538 0.032556,-0.23151 z"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583;fill:#41818f;fill-opacity:1"
+         id="path844" />
+      <path
+         d="m 2.9053907,1.8630713 q 0,0.1061087 -0.074156,0.1790585 -0.073553,0.07295 -0.1802643,0.07295 -0.1067116,0 -0.1808671,-0.07295 -0.073553,-0.07295 -0.073553,-0.1790585 0,-0.1061088 0.073553,-0.1790585 0.074155,-0.07295 0.1808671,-0.07295 0.1073146,0 0.1808672,0.07295 0.073553,0.07295 0.073553,0.1790585 z m -0.1374591,0 q 0,-0.049437 -0.033762,-0.084405 -0.033159,-0.03557 -0.083199,-0.03557 -0.049437,0 -0.083199,0.034968 -0.033762,0.034968 -0.033762,0.085008 0,0.051246 0.033762,0.08561 0.034365,0.033762 0.083199,0.033762 0.05004,0 0.083199,-0.034968 0.033762,-0.034968 0.033762,-0.084405 z"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583;fill:#41818f;fill-opacity:1"
+         id="path846" />
+    </g>
+    <text
+       id="text3418"
+       y="1.914361"
+       x="1.8643123"
+       style="font-size:1.41111px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.264583"
+         y="1.914361"
+         x="1.8643123"
+         id="tspan3416"
+         sodipodi:role="line" /></text>
+  </g>
+</svg>

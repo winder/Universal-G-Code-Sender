@@ -24,35 +24,49 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.model.Position;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.normalizeCommand;
 
 public class RunFromProcessor implements CommandProcessor {
-    private final int runFromLine;
+    private int lineNumber;
     private GcodeParser parser = new GcodeParser();
     private Double clearanceHeight = 0.0;
-
     /**
      * Truncates gcode to the specified line, and rewrites the preamble with the GcodeState.
+     *
      * @param lineNum line where the program should run from.
      */
     public RunFromProcessor(int lineNum) {
-        runFromLine = lineNum;
+        lineNumber = lineNum;
+    }
+
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
     }
 
     @Override
     public List<String> processCommand(String command, GcodeState state) throws GcodeParserException {
+        // The processor is not activated
+        if (lineNumber == 0) {
+            return Collections.singletonList(command);
+        }
+
         // Don't trust the input's machine state, this processor is discarding lines which would have updated it.
         Position pos = parser.getCurrentState().currentPoint;
 
-        if (state.commandNumber < runFromLine) {
+        if (state.commandNumber < lineNumber) {
             parser.addCommand(command);
             clearanceHeight = Math.max(clearanceHeight, pos.z);
             return ImmutableList.of();
         }
 
-        if (state.commandNumber == runFromLine) {
+        if (state.commandNumber == lineNumber) {
 
             String moveToClearanceHeight = "G0Z" + clearanceHeight;
             String moveToXY = "G0X" + pos.x + "Y" + pos.y;

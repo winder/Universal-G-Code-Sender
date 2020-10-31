@@ -1,10 +1,5 @@
-/**
- * Expand an arc into smaller sections. You can configure the length of each
- * section, and whether it is expanded with a bunch of smaller arcs, or with
- * line segments.
- */
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,6 +27,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import static com.willwinder.universalgcodesender.gcode.util.Code.G1;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
@@ -42,6 +38,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * Expand an arc into smaller sections. You can configure the length of each
+ * section, and whether it is expanded with a bunch of smaller arcs, or with
+ * line segments.
  *
  * @author wwinder
  */
@@ -75,7 +74,7 @@ public class ArcExpander implements CommandProcessor {
 
         List<String> results = new ArrayList<>();
 
-        List<GcodeMeta> commands = GcodeParser.processCommand(command, 0, state);
+        List<GcodeMeta> commands = GcodeParserUtils.processCommand(command, 0, state);
 
         // If this is not an arc, there is nothing to do.
         Code c = hasArcCommand(commands);

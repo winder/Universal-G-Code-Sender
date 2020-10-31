@@ -18,11 +18,11 @@
  */
 package com.willwinder.universalgcodesender.gcode.processors;
 
-import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -142,7 +142,7 @@ public class MeshLeveler implements CommandProcessor {
 
     @Override
     public List<String> processCommand(final String commandString, GcodeState state) throws GcodeParserException {
-        List<GcodeMeta> commands = GcodeParser.processCommand(commandString, 0, state);
+        List<GcodeMeta> commands = GcodeParserUtils.processCommand(commandString, 0, state);
 
         // If there are no lines, return unmodified input.
         if (!ensureJustLines(commands)) {

@@ -30,13 +30,14 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author wwinder
  */
-@ServiceProvider(service=LocalizingService.class) 
+@ServiceProvider(service=LocalizingService.class)
 public class LocalizingService {
     public static final String MENU_WINDOW = "Menu/Window";
     public static final String MENU_WINDOW_PLUGIN = MENU_WINDOW +"/Plugins";
     public static final String MENU_WINDOW_CLASSIC = MENU_WINDOW + "/Classic";
     public static final String MENU_FILE = "Menu/File";
     public static final String MENU_MACHINE = "Menu/Machine";
+    public static final String MENU_PROGRAM = "Menu/Program";
     public static final String MENU_MACHINE_JOG = "Menu/Machine/Jog";
     public static final String MENU_MACHINE_JOG_STEP_SIZE = "Menu/Machine/Jog/Step Size";
     public static final String MENU_MACHINE_ACTIONS = "Menu/Machine/Actions";
@@ -45,6 +46,7 @@ public class LocalizingService {
 
     public static final String CATEGORY_WINDOW = "Window";
     public static final String CATEGORY_MACHINE = "Machine";
+    public static final String CATEGORY_PROGRAM = "Program";
     public static final String CATEGORY_FILE = "File";
     public static final String CATEGORY_VISUALIZER = "Visualizer";
 
@@ -207,7 +209,7 @@ public class LocalizingService {
     public final static String OutlineTitle = Localization.getString(OutlineTitleKey, lang);
     public final static String OutlineWindowPath = MENU_MACHINE_ACTIONS;
     public final static String OutlineActionId = "com.willwinder.ugs.nbp.core.actions.OutlineAction";
-    public final static String OutlineCategory = CATEGORY_MACHINE;
+    public final static String OutlineCategory = CATEGORY_PROGRAM;
 
     public final static String ConnectDisconnectTitleConnect = Localization.getString("mainWindow.ui.connect", lang);
     public final static String ConnectDisconnectTitleDisconnect = Localization.getString("mainWindow.ui.disconnect", lang);
