@@ -15,9 +15,6 @@ import org.openide.util.ImageUtilities;
         displayName = "Rotate 270°",
         lazy = false)
 @ActionReferences({
-        //@ActionReference(
-        //        path = "Toolbars/Run",
-        //        position = 980),
         @ActionReference(
                 path = LocalizingService.MENU_PROGRAM,
                 position = 1003)

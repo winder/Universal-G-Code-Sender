@@ -21,12 +21,9 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.RunFromProcessor;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.services.RotateModelService;
 import com.willwinder.universalgcodesender.services.RunFromService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
@@ -48,9 +45,6 @@ import java.awt.event.ActionEvent;
         displayName = "Run from...",
         lazy = false)
 @ActionReferences({
-        //@ActionReference(
-        //        path = "Toolbars/Run",
-        //        position = 980),
         @ActionReference(
                 path = LocalizingService.RunFromWindowPath,
                 position = 1017)
@@ -96,11 +90,11 @@ public final class RunFromAction extends AbstractAction implements UGSEventListe
         try {
             Integer result = Integer.parseInt(
                     JOptionPane.showInputDialog(
-                        new JFrame(),
-                        "Enter a line number to start from.",
-                        "Run From Action",
-                        JOptionPane.QUESTION_MESSAGE
-            ));
+                            new JFrame(),
+                            "Enter a line number to start from.",
+                            "Run From Action",
+                            JOptionPane.QUESTION_MESSAGE
+                    ));
 
             runFromService.runFromLine(result);
         } catch (Exception ex) {
