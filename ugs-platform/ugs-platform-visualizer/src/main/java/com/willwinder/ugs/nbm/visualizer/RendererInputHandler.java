@@ -120,7 +120,6 @@ public class RendererInputHandler implements
 
             switch (cse.getFileState()) {
                 case FILE_LOADED:
-                case FILE_LOADING:
                     setGcodeFile(cse.getFile());
                     break;
             }
