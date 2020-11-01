@@ -118,7 +118,7 @@ public class TinyGController extends AbstractController {
     @Override
     public void jogMachine(double distanceX, double distanceY, double distanceZ, double feedRate, UnitUtils.Units units) throws Exception {
         // Fetch the current coordinate units in which the machine is running
-        UnitUtils.Units targetUnits = UnitUtils.Units.getUnits(getCurrentGcodeState().units);
+        UnitUtils.Units targetUnits = getCurrentGcodeState().getUnits();
 
         // We need to convert to these units as we can not change the units in one command in TinyG
         double scale = UnitUtils.scaleUnits(units, targetUnits);
@@ -133,7 +133,7 @@ public class TinyGController extends AbstractController {
     @Override
     public void jogMachineTo(final PartialPosition position, final double feedRate) throws Exception {
         // Fetch the current coordinate units in which the machine is running
-        UnitUtils.Units targetUnits = UnitUtils.Units.getUnits(getCurrentGcodeState().units);
+        UnitUtils.Units targetUnits = getCurrentGcodeState().getUnits();
 
         // We need to convert to these units as we can not change the units in one command in TinyG
         double scale = UnitUtils.scaleUnits(position.getUnits(), targetUnits);

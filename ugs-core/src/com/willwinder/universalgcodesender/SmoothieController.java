@@ -190,7 +190,7 @@ public class SmoothieController extends AbstractController {
     private void handleStatusResponse(String response) {
         dispatchConsoleMessage(MessageType.VERBOSE, response + "\n");
 
-        UnitUtils.Units currentUnits = getCurrentGcodeState().units.equals(Code.G20) ? UnitUtils.Units.INCH : UnitUtils.Units.MM;
+        UnitUtils.Units currentUnits = getCurrentGcodeState().getUnits();
         controllerStatus = SmoothieUtils.getStatusFromStatusString(controllerStatus, response, currentUnits);
         dispatchStateChange(getControlState());
         dispatchStatusString(controllerStatus);

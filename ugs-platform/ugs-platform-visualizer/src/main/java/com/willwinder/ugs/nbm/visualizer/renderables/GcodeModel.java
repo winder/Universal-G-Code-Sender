@@ -353,7 +353,7 @@ public class GcodeModel extends Renderable {
 
         // Reset buffer and set to null of new geometry doesn't fit.
         if (lineVertexBuffer != null) {
-            lineVertexBuffer.clear();
+            ((Buffer)lineVertexBuffer).clear();
             if (lineVertexBuffer.remaining() < lineVertexData.length) {
                 lineVertexBuffer = null;
             }
@@ -364,7 +364,7 @@ public class GcodeModel extends Renderable {
         }
 
         lineVertexBuffer.put(lineVertexData);
-        lineVertexBuffer.flip();
+        ((Buffer)lineVertexBuffer).flip();
         gl.glVertexPointer( 3, GL.GL_FLOAT, 0, lineVertexBuffer );
     }
 
