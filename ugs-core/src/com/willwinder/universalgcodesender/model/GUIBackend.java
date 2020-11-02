@@ -783,8 +783,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         ScriptEngineManager mgr = new ScriptEngineManager();
         ScriptEngine engine = mgr.getEngineByName("JavaScript");
         try {
-            double position = Double.valueOf(engine.eval(expr).toString());
-            setWorkPosition(PartialPosition.from(axis, position));
+            double position = Double.parseDouble(engine.eval(expr).toString());
+            setWorkPosition(PartialPosition.from(axis, position, getSettings().getPreferredUnits()));
         } catch (ScriptException e) {
             throw new Exception("Invalid expression", e);
         }

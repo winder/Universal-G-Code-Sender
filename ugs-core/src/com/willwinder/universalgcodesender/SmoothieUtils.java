@@ -66,7 +66,7 @@ public class SmoothieUtils {
         Position machineCoord = controllerStatus.getMachineCoord();
 
 
-        PartialPosition.Builder offsets = new PartialPosition.Builder();
+        PartialPosition.Builder offsets = PartialPosition.builder();
         for (Map.Entry<Axis, Double> position : positions.getAll().entrySet()) {
             double axisOffset = -(position.getValue() - machineCoord.get(position.getKey()));
             offsets.setValue(position.getKey(), axisOffset);

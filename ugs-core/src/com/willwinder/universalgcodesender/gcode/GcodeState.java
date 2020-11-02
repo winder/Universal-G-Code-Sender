@@ -109,7 +109,7 @@ public class GcodeState {
         ret.coolant = coolant;
 
         if (currentPoint != null) {
-            ret.currentPoint = new Position(currentPoint.x, currentPoint.y, currentPoint.z, UnitUtils.Units.getUnits(units));
+            ret.currentPoint = new Position(currentPoint.x, currentPoint.y, currentPoint.z, getUnits());
         }
         ret.commandNumber = commandNumber;
         return ret;
@@ -149,6 +149,15 @@ public class GcodeState {
         result.append(this.offset);
         result.append(this.plane.code);
         return result.toString();
+    }
+
+    /**
+     * Returns the states current units
+     *
+     * @return the units
+     */
+    public Units getUnits() {
+        return UnitUtils.Units.getUnits(units);
     }
 
     @Override

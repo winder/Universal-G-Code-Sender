@@ -61,7 +61,7 @@ public class CoordinatesSubMenu extends JMenu {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                PartialPosition xyPosition = new PartialPosition(position.getX(), position.getY());
+                PartialPosition xyPosition = new PartialPosition(position.getX(), position.getY(), position.getUnits());
                 clipboard.setContents(new StringSelection(xyPosition.getFormattedGCode()), null);
             }
         });

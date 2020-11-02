@@ -286,7 +286,8 @@ public class TinyGUtils {
      */
     public static String generateResetCoordinatesToZeroCommand(ControllerStatus controllerStatus, GcodeState gcodeState) {
         int offsetCode = WorkCoordinateSystem.fromGCode(gcodeState.offset).getPValue();
-        Position machineCoord = controllerStatus.getMachineCoord();
+        UnitUtils.Units currentUnits = gcodeState.getUnits();
+        Position machineCoord = controllerStatus.getMachineCoord().getPositionIn(currentUnits);
         return "G10 L2 P" + offsetCode +
                 " X" + Utils.formatter.format(machineCoord.get(Axis.X)) +
                 " Y" + Utils.formatter.format(machineCoord.get(Axis.Y)) +
@@ -303,11 +304,11 @@ public class TinyGUtils {
      */
     public static String generateSetWorkPositionCommand(ControllerStatus controllerStatus, GcodeState gcodeState, PartialPosition positions) {
         int offsetCode = WorkCoordinateSystem.fromGCode(gcodeState.offset).getPValue();
-        Position machineCoord = controllerStatus.getMachineCoord();
+        UnitUtils.Units currentUnits = gcodeState.getUnits();
+        Position machineCoord = controllerStatus.getMachineCoord().getPositionIn(currentUnits);
 
-
-        PartialPosition.Builder offsets = new PartialPosition.Builder();
-        for (Map.Entry<Axis, Double> position : positions.getAll().entrySet()) {
+        PartialPosition.Builder offsets = PartialPosition.builder().setUnits(currentUnits);
+        for (Map.Entry<Axis, Double> position : positions.getPositionIn(currentUnits).getAll().entrySet()) {
             double axisOffset = -(position.getValue() - machineCoord.get(position.getKey()));
             offsets.setValue(position.getKey(), axisOffset);
 
