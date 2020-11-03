@@ -88,7 +88,7 @@ public class MathUtils {
      * Given a list of points and the starting index, find the most adjacent outer point counter clockwise
      * from the starting point
      *
-     * @param points a list of points
+     * @param points        a list of points
      * @param startingIndex the index of the point to originate from
      * @return the next outer point counter clockwise from the start point
      */
@@ -139,7 +139,7 @@ public class MathUtils {
         Position minPos = new Position(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, units);
         Position maxPos = new Position(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, units);
 
-        for( PartialPosition point : points ) {
+        for (PartialPosition point : points) {
             PartialPosition positionInUnits = point.getPositionIn(units);
             minPos.setX(Math.min(minPos.getX(), positionInUnits.getX()));
             minPos.setY(Math.min(minPos.getY(), positionInUnits.getY()));
@@ -153,6 +153,24 @@ public class MathUtils {
                 minPos.getX() + ((maxPos.getX() - minPos.getX()) / 2),
                 minPos.getY() + ((maxPos.getY() - minPos.getY()) / 2),
                 minPos.getZ() + ((maxPos.getZ() - minPos.getZ()) / 2),
+                units);
+    }
+
+    public static Position getLowerLeftCorner(List<PartialPosition> points) {
+        UnitUtils.Units units = points.get(0).getUnits();
+        Position minPos = new Position(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, units);
+
+        for (PartialPosition point : points) {
+            PartialPosition positionInUnits = point.getPositionIn(units);
+            minPos.setX(Math.min(minPos.getX(), positionInUnits.getX()));
+            minPos.setY(Math.min(minPos.getY(), positionInUnits.getY()));
+            minPos.setZ(Math.min(minPos.getZ(), positionInUnits.getZ()));
+        }
+
+        return new Position(
+                minPos.getX(),
+                minPos.getY(),
+                minPos.getZ(),
                 units);
     }
 }

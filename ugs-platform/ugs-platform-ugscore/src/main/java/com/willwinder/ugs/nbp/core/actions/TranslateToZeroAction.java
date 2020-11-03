@@ -1,32 +1,14 @@
-/*
-    Copyright 2020 Will Winder
-
-
-    This file is part of Universal Gcode Sender (UGS).
-
-    UGS is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    UGS is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
- */
 package com.willwinder.ugs.nbp.core.actions;
 
-import com.willwinder.universalgcodesender.services.RotateModelService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.services.TranslateModelService;
 import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -36,6 +18,11 @@ import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
+import org.openide.util.ImageUtilities;
 
 import javax.swing.AbstractAction;
 import java.awt.Component;
@@ -46,22 +33,35 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * An abstract action for applying rotation to a loaded model
- */
-public abstract class AbstractRotateAction extends AbstractAction implements UGSEventListener {
+@ActionID(
+        category = LocalizingService.CATEGORY_PROGRAM,
+        id = "TranslateToZeroAction")
+@ActionRegistration(
+        iconBase = AbstractRotateAction.ICON_BASE,
+        displayName = "Translate to zero",
+        lazy = false)
+@ActionReferences({
+        @ActionReference(
+                path = LocalizingService.MENU_PROGRAM,
+                position = 1020)
+})
+public class TranslateToZeroAction extends AbstractAction implements UGSEventListener {
 
     public static final String ICON_BASE = "resources/icons/rotation0.svg";
     public static final double ARC_SEGMENT_LENGTH = 0.5;
-    private final double rotation;
-    private final RotateModelService rotateModelService;
+    private final TranslateModelService translateModelService;
     private BackendAPI backend;
 
-    public AbstractRotateAction(double rotation) {
+    public TranslateToZeroAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        this.rotateModelService = CentralLookup.getDefault().lookup(RotateModelService.class);
+        this.translateModelService = CentralLookup.getDefault().lookup(TranslateModelService.class);
         this.backend.addUGSEventListener(this);
-        this.rotation = rotation;
+
+        putValue("iconBase", ICON_BASE);
+        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
+        putValue("menuText", "Translate to zero");
+        putValue(NAME, "Translate to zero");
+
         setEnabled(isEnabled());
     }
 
@@ -74,7 +74,7 @@ public abstract class AbstractRotateAction extends AbstractAction implements UGS
 
     @Override
     public boolean isEnabled() {
-        return backend.getGcodeFile() != null && this.rotateModelService.getRotation() != this.rotation;
+        return backend.getGcodeFile() != null;
     }
 
     @Override
@@ -85,10 +85,10 @@ public abstract class AbstractRotateAction extends AbstractAction implements UGS
 
         ThreadHelper.invokeLater(() -> {
             try {
-                LoaderDialogHelper.showDialog("Rotating model", 1000, (Component) e.getSource());
+                LoaderDialogHelper.showDialog("Translating model", 1000, (Component) e.getSource());
                 File gcodeFile = backend.getProcessedGcodeFile();
-                Position center = getCenter(gcodeFile);
-                rotateModelService.rotateModel(center, rotation);
+                Position lowerLeftCorner = getLowerLeftCorner(gcodeFile);
+                translateModelService.translate(lowerLeftCorner);
                 LoaderDialogHelper.closeDialog();
             } catch (Exception ex) {
                 GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
@@ -96,7 +96,7 @@ public abstract class AbstractRotateAction extends AbstractAction implements UGS
         });
     }
 
-    private Position getCenter(File gcodeFile) throws IOException, GcodeParserException {
+    private Position getLowerLeftCorner(File gcodeFile) throws IOException, GcodeParserException {
         List<LineSegment> lineSegments = parseGcodeLinesFromFile(gcodeFile);
 
         // We only care about carving motion, filter those commands out
@@ -111,7 +111,7 @@ public abstract class AbstractRotateAction extends AbstractAction implements UGS
                 .distinct()
                 .collect(Collectors.toList());
 
-        return MathUtils.getCenter(pointList);
+        return MathUtils.getLowerLeftCorner(pointList);
     }
 
     private List<LineSegment> parseGcodeLinesFromFile(File gcodeFile) throws IOException, GcodeParserException {
