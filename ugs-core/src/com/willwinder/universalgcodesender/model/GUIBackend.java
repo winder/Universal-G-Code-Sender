@@ -84,7 +84,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private boolean autoconnect = false;
     
     private GcodeParser gcp = new GcodeParser();
-    private final CommandProcessorList customCommandProcessors = new CommandProcessorList();
 
     @Override
     public void addUGSEventListener(UGSEventListener listener) {
@@ -187,8 +186,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         catch (Exception e) {
             initializeWithFallbackProcessors(gcp);
         }
-
-        gcp.addCommandProcessor(customCommandProcessors);
     }
 
     private void updateWithFirmware(String firmware) throws Exception {
@@ -494,7 +491,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void applyCommandProcessor(CommandProcessor commandProcessor) throws Exception {
         logger.log(Level.INFO, "Applying new command processor");
-        customCommandProcessors.add(commandProcessor);
+        gcp.addCommandProcessor(commandProcessor);
 
         if(gcodeFile != null) {
             processGcodeFile();
@@ -503,8 +500,12 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void removeCommandProcessor(CommandProcessor commandProcessor) throws Exception {
-        customCommandProcessors.remove(commandProcessor);
+        gcp.removeCommandProcessor(commandProcessor);
         processGcodeFile();
+
+        if(gcodeFile != null) {
+            processGcodeFile();
+        }
     }
 
     @Override

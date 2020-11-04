@@ -2,13 +2,13 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.gcode.processors.TranslateProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.services.TranslateModelService;
 import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -49,12 +49,10 @@ public class TranslateToZeroAction extends AbstractAction implements UGSEventLis
 
     public static final String ICON_BASE = "resources/icons/rotation0.svg";
     public static final double ARC_SEGMENT_LENGTH = 0.5;
-    private final TranslateModelService translateModelService;
     private BackendAPI backend;
 
     public TranslateToZeroAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        this.translateModelService = CentralLookup.getDefault().lookup(TranslateModelService.class);
         this.backend.addUGSEventListener(this);
 
         putValue("iconBase", ICON_BASE);
@@ -88,7 +86,8 @@ public class TranslateToZeroAction extends AbstractAction implements UGSEventLis
                 LoaderDialogHelper.showDialog("Translating model", 1000, (Component) e.getSource());
                 File gcodeFile = backend.getProcessedGcodeFile();
                 Position lowerLeftCorner = getLowerLeftCorner(gcodeFile);
-                translateModelService.translate(lowerLeftCorner);
+                TranslateProcessor translateProcessor = new TranslateProcessor(lowerLeftCorner);
+                backend.applyCommandProcessor(translateProcessor);
                 LoaderDialogHelper.closeDialog();
             } catch (Exception ex) {
                 GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());

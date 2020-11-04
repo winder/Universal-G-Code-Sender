@@ -19,8 +19,8 @@
  */
 package com.willwinder.ugs.nbp.core.actions;
 
-import com.willwinder.universalgcodesender.services.RotateModelService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.gcode.processors.RotateProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -54,12 +54,10 @@ public abstract class AbstractRotateAction extends AbstractAction implements UGS
     public static final String ICON_BASE = "resources/icons/rotation0.svg";
     public static final double ARC_SEGMENT_LENGTH = 0.5;
     private final double rotation;
-    private final RotateModelService rotateModelService;
     private BackendAPI backend;
 
     public AbstractRotateAction(double rotation) {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        this.rotateModelService = CentralLookup.getDefault().lookup(RotateModelService.class);
         this.backend.addUGSEventListener(this);
         this.rotation = rotation;
         setEnabled(isEnabled());
@@ -74,7 +72,7 @@ public abstract class AbstractRotateAction extends AbstractAction implements UGS
 
     @Override
     public boolean isEnabled() {
-        return backend.getGcodeFile() != null && this.rotateModelService.getRotation() != this.rotation;
+        return backend.getGcodeFile() != null;
     }
 
     @Override
@@ -88,7 +86,8 @@ public abstract class AbstractRotateAction extends AbstractAction implements UGS
                 LoaderDialogHelper.showDialog("Rotating model", 1000, (Component) e.getSource());
                 File gcodeFile = backend.getProcessedGcodeFile();
                 Position center = getCenter(gcodeFile);
-                rotateModelService.rotateModel(center, rotation);
+                RotateProcessor rotateProcessor = new RotateProcessor(center, rotation);
+                backend.applyCommandProcessor(rotateProcessor);
                 LoaderDialogHelper.closeDialog();
             } catch (Exception ex) {
                 GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
