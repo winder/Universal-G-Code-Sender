@@ -770,12 +770,13 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void setWorkPositionUsingExpression(final Axis axis, final String expression) throws Exception {
+        Units preferredUnits = getSettings().getPreferredUnits();
         String expr = StringUtils.trimToEmpty(expression);
-        expr = expr.replaceAll("#", String.valueOf(getWorkPosition().get(axis)));
+        expr = expr.replaceAll("#", String.valueOf(getWorkPosition().getPositionIn(preferredUnits).get(axis)));
 
-        // If the expression starts with a mathimatical operation add the original position
+        // If the expression starts with a mathematical operation add the original position
         if (StringUtils.startsWithAny(expr, "/", "*")) {
-            double value = getWorkPosition().get(axis);
+            double value = getWorkPosition().getPositionIn(preferredUnits).get(axis);
             expr = value + " " + expr;
         }
 
@@ -784,7 +785,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         ScriptEngine engine = mgr.getEngineByName("JavaScript");
         try {
             double position = Double.parseDouble(engine.eval(expr).toString());
-            setWorkPosition(PartialPosition.from(axis, position, getSettings().getPreferredUnits()));
+            setWorkPosition(PartialPosition.from(axis, position, preferredUnits));
         } catch (ScriptException e) {
             throw new Exception("Invalid expression", e);
         }
