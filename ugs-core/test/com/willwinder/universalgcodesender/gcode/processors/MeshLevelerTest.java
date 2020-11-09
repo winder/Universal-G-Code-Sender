@@ -66,8 +66,8 @@ public class MeshLevelerTest {
         expectedEx.expectMessage(MeshLeveler.ERROR_NOT_ENOUGH_SAMPLES);
 
         Position[][] grid = {
-            {new Position()},
-            {new Position()}
+            {new Position(MM)},
+            {new Position(MM)}
         };
 
         new MeshLeveler(0.0, grid, Units.MM);
@@ -79,8 +79,8 @@ public class MeshLevelerTest {
         expectedEx.expectMessage(MeshLeveler.ERROR_MESH_SHAPE);
 
         Position[][] grid = {
-            {new Position(), new Position()},
-            {new Position(), new Position(), new Position()}
+            {new Position(MM), new Position(MM)},
+            {new Position(MM), new Position(MM), new Position(MM)}
         };
 
         new MeshLeveler(0.0, grid, Units.MM);

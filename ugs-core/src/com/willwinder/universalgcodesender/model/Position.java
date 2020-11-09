@@ -31,8 +31,8 @@ public class Position extends Point3d {
 
     private final Units units;
 
-    public Position() {
-        this.units = Units.UNKNOWN;
+    public Position(Units units) {
+        this.units = units;
     }
 
     public Position(Position other) {

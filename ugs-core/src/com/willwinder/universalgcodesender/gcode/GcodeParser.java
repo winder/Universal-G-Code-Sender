@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 
 import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
-import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Spindle;
 
 /**
  * Object to parse gcode one command at a time in a way that can be used by any

@@ -323,8 +323,8 @@ public class GrblUtilsTest {
         String status = "<Idle,MPos:5.529,0.560,7.000,WPos:1.529,-5.440,-0.000>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
-        Position expResult = new Position(5.529, 0.560, 7.000, UnitUtils.Units.UNKNOWN);
-        Position result = GrblUtils.getMachinePositionFromStatusString(status, version, UnitUtils.Units.UNKNOWN);
+        Position expResult = new Position(5.529, 0.560, 7.000, UnitUtils.Units.MM);
+        Position result = GrblUtils.getMachinePositionFromStatusString(status, version, UnitUtils.Units.MM);
         assertEquals(expResult, result);
     }
 
@@ -348,8 +348,8 @@ public class GrblUtilsTest {
         String status = "<Idle,MPos:5.529,0.560,7.000,WPos:1.529,-5.440,-0.000>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
-        Position expResult = new Position(1.529, -5.440, -0.000, UnitUtils.Units.UNKNOWN);
-        Position result = GrblUtils.getWorkPositionFromStatusString(status, version, UnitUtils.Units.UNKNOWN);
+        Position expResult = new Position(1.529, -5.440, -0.000, UnitUtils.Units.MM);
+        Position result = GrblUtils.getWorkPositionFromStatusString(status, version, UnitUtils.Units.MM);
         assertEquals(expResult, result);
     }
 

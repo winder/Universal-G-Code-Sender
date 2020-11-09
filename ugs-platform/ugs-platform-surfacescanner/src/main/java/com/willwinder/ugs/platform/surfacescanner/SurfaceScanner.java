@@ -46,7 +46,7 @@ public class SurfaceScanner {
     private boolean scanningSurface = false;
     
     public SurfaceScanner() {
-        probeOffset = new Position();
+        probeOffset = new Position(Units.MM);
     }
 
     public void probeEvent(final Position p) {      

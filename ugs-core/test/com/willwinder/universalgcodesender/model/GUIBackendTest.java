@@ -475,6 +475,20 @@ public class GUIBackendTest {
     }
 
     @Test
+    public void setWorkPositionWithDivisionExpressionhouldConvertHashToWorkPositionUnits() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(10, 10,10, UnitUtils.Units.INCH));
+        instance.statusStringListener(status);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.Z, "# / 10");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 25.4, UnitUtils.Units.MM));
+    }
+
+    @Test
     public void setWorkPositionWithDivisionExpressionWithoutValue() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
@@ -487,6 +501,21 @@ public class GUIBackendTest {
         // Then
         verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 1.1, UnitUtils.Units.MM));
     }
+
+    @Test
+    public void setWorkPositionWithDivisionExpressionShouldConvertToWorkPositionUnits() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.INCH), new Position(10, 10,10, UnitUtils.Units.INCH));
+        instance.statusStringListener(status);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.Z, "/ 10");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 25.4, UnitUtils.Units.MM));
+    }
+
 
     @Test
     public void setWorkPositionWithSubtractionExpression() throws Exception {
