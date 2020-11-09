@@ -30,6 +30,7 @@ import org.openide.windows.TopComponent;
 
 import javax.swing.JButton;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 /**
  * A component that displays a toolbox menu
@@ -95,7 +96,11 @@ public final class ToolboxTopComponent extends TopComponent implements ISettings
 
         Settings.getActions().forEach(actionId ->
                 actionRegistrationService.getActionById(actionId)
-                        .ifPresent(actionReference -> buttonGridPanel.add(new JButton(actionReference.getAction()))));
+                        .ifPresent(actionReference -> {
+                            JButton button = new JButton(actionReference.getAction());
+                            button.setMinimumSize(new Dimension(10, 10));
+                            buttonGridPanel.add(button);
+                        }));
 
         buttonGridPanel.revalidate();
     }
