@@ -1,9 +1,3 @@
-/**
- * Draws a vertical line along the Z axis at the (X,Y) coordinate where the
- * mouse is considered to be.
- * <p>
- * Ray - Plane intersection: http://stackoverflow.com/a/21114992/204023
- */
 /*
     Copyright 2016-2017 Will Winder
 
