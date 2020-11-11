@@ -53,15 +53,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.anyString;
-import static org.easymock.EasyMock.capture;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.newCapture;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reset;
-import static org.easymock.EasyMock.verify;
+import static org.easymock.EasyMock.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -145,7 +137,7 @@ public class AbstractControllerTest {
         expect(expectLastCall()).anyTimes();
         mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall()).anyTimes();
-        mockCommunicator.connect(ConnectionDriver.JSERIALCOMM, port, portRate);
+        mockCommunicator.connect(or(eq(ConnectionDriver.JSERIALCOMM), eq(ConnectionDriver.JSSC)), eq(port), eq(portRate));
         expect(instance.isCommOpen()).andReturn(false).once();
         expect(instance.isCommOpen()).andReturn(true).anyTimes();
         expect(instance.handlesAllStateChangeEvents()).andReturn(handleStateChange).anyTimes();
