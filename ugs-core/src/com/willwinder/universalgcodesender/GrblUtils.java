@@ -79,7 +79,7 @@ public class GrblUtils {
      * Checks if the string contains the GRBL version.
      */
     static Boolean isGrblVersionString(final String response) {
-        Boolean version = response.startsWith("Grbl ") || response.startsWith("CarbideMotion ");
+        Boolean version = response.startsWith("Grbl ") || response.startsWith("CarbideMotion ") || response.startsWith("GrblHAL ");
         return version && (getVersionDouble(response) != -1);
     }
     
