@@ -18,34 +18,66 @@
  */
 package com.willwinder.ugs.nbp.jog;
 
+import javax.swing.*;
+
 /**
  * The buttons that can trigger events in the {@link JogPanel}
  *
  * @author Joacim Breiler
  */
 public enum JogPanelButtonEnum {
-    BUTTON_XPOS(1, 0, 0),
-    BUTTON_XNEG(-1, 0, 0),
-    BUTTON_YPOS(0, 1, 0),
-    BUTTON_YNEG(0, -1, 0),
-    BUTTON_ZPOS(0, 0, 1),
-    BUTTON_ZNEG(0, 0, -1),
-    BUTTON_DIAG_XNEG_YNEG(-1, -1, 0),
-    BUTTON_DIAG_XNEG_YPOS(-1, 1, 0),
-    BUTTON_DIAG_XPOS_YNEG(1, -1, 0),
-    BUTTON_DIAG_XPOS_YPOS(1, 1, 0),
-    BUTTON_TOGGLE_UNIT(0, 0, 0),
-    BUTTON_LARGER_STEP(0, 0, 0),
-    BUTTON_SMALLER_STEP(0, 0, 0);
+    BUTTON_XPOS(1, 0, 0,"icons/xpos.png","X+", SwingConstants.CENTER, SwingConstants.LEFT),
+    BUTTON_XNEG(-1, 0, 0,"icons/xneg.png","X-",  SwingConstants.CENTER, SwingConstants.RIGHT),
+    BUTTON_YPOS(0, 1, 0,"icons/ypos.png","Y+", SwingConstants.BOTTOM, SwingConstants.CENTER),
+    BUTTON_YNEG(0, -1, 0,"icons/yneg.png","Y-", SwingConstants.TOP, SwingConstants.CENTER),
+    BUTTON_ZPOS(0, 0, 1,"icons/zpos.png","Z+", SwingConstants.BOTTOM, SwingConstants.CENTER),
+    BUTTON_ZNEG(0, 0, -1,"icons/zneg.png","Z-", SwingConstants.TOP, SwingConstants.CENTER),
+    BUTTON_DIAG_XNEG_YNEG(-1, -1, 0, "icons/diag-xneg-yneg.png", null, SwingConstants.TOP, SwingConstants.CENTER),
+    BUTTON_DIAG_XNEG_YPOS(-1, 1, 0, "icons/diag-xneg-ypos.png", null, SwingConstants.TOP, SwingConstants.CENTER),
+    BUTTON_DIAG_XPOS_YNEG(1, -1, 0, "icons/diag-xpos-yneg.png", null,  SwingConstants.TOP, SwingConstants.CENTER),
+    BUTTON_DIAG_XPOS_YPOS(1, 1, 0, "icons/diag-xpos-ypos.png", null, SwingConstants.TOP, SwingConstants.CENTER);
 
     private final int x;
     private final int y;
     private final int z;
+    private final String iconUrl;
+    private final String text;
+    private final Integer verticalAligment;
+    private final Integer horisontalAligment;
 
-    JogPanelButtonEnum(int x, int y, int z) {
+    /**
+     * Constructor
+     *
+     * @param x - the X direction to jog
+     * @param y - the Y direction to jog
+     * @param z - the Z direction to jog
+     * @param iconUrl - a relative resource url
+     * @param text - an optional text to b
+     * @param verticalAligment   Sets the vertical position of the text relative to the icon
+     *                           and can have one of the following values
+     *                           <ul>
+     *                           <li>{@code SwingConstants.CENTER} (the default)
+     *                           <li>{@code SwingConstants.TOP}
+     *                           <li>{@code SwingConstants.BOTTOM}
+     *                           </ul>
+     * @param horisontalAligment Sets the horizontal position of the text relative to the
+     *                           icon and can have one of the following values:
+     *                           <ul>
+     *                           <li>{@code SwingConstants.RIGHT}
+     *                           <li>{@code SwingConstants.LEFT}
+     *                           <li>{@code SwingConstants.CENTER}
+     *                           <li>{@code SwingConstants.LEADING}
+     *                           <li>{@code SwingConstants.TRAILING} (the default)
+     *                           </ul>
+     */
+    JogPanelButtonEnum(int x, int y, int z, String iconUrl, String text, Integer verticalAligment, Integer horisontalAligment) {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.iconUrl = iconUrl;
+        this.text = text;
+        this.verticalAligment = verticalAligment;
+        this.horisontalAligment = horisontalAligment;
     }
 
     public int getX() {
@@ -58,5 +90,21 @@ public enum JogPanelButtonEnum {
 
     public int getZ() {
         return z;
+    }
+
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public int getVerticalAligment() {
+        return verticalAligment;
+    }
+
+    public int getHorisontalAlignment() {
+        return horisontalAligment;
     }
 }

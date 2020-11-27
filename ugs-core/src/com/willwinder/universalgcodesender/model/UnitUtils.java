@@ -19,6 +19,8 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.gcode.util.Code;
+import com.willwinder.universalgcodesender.i18n.Language;
+import com.willwinder.universalgcodesender.i18n.Localization;
 
 /**
  *
@@ -26,14 +28,16 @@ import com.willwinder.universalgcodesender.gcode.util.Code;
  */
 public class UnitUtils {
     public enum Units {
-        MM("mm"),
-        INCH("\""),
-        UNKNOWN("");
+        MM("mm", Localization.getString("millimeters")),
+        INCH("\"", Localization.getString("inches")),
+        UNKNOWN("", Localization.getString("unknown"));
 
         public final String abbreviation;
+        private final String description;
 
-        Units(String abbreviation) {
+        Units(String abbreviation, String description) {
             this.abbreviation = abbreviation;
+            this.description = description;
         }
 
         public static Units getUnit(String abbrev) {
@@ -54,6 +58,10 @@ public class UnitUtils {
             default:
               throw new RuntimeException("Not a units gcode: " + code);
           }
+        }
+
+        public String getDescription() {
+            return description;
         }
     }
 
