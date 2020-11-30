@@ -22,8 +22,10 @@ import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * A default implementation of the firmware settings to be used for controllers that
@@ -32,6 +34,11 @@ import java.util.Optional;
  * @author Joacim Breiler
  */
 public class DefaultFirmwareSettings implements IFirmwareSettings {
+    /**
+     * All listeners for listening to changed settings
+     */
+    private final Set<IFirmwareSettingsListener> listeners = new HashSet<>();
+
     @Override
     public Optional<FirmwareSetting> getSetting(String key) {
         return Optional.empty();
@@ -44,10 +51,12 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
 
     @Override
     public void addListener(IFirmwareSettingsListener listener) {
+        listeners.add(listener);
     }
 
     @Override
     public void removeListener(IFirmwareSettingsListener listener) {
+        listeners.remove(listener);
     }
 
     @Override
