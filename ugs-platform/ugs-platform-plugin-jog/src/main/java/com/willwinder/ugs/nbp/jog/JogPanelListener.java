@@ -30,21 +30,21 @@ public interface JogPanelListener {
      *
      * @param button the enum for the button
      */
-    void onButtonClicked(JogPanelButtonEnum button);
+    void onJogButtonClicked(JogPanelButtonEnum button);
 
     /**
      * Is called when the button has been long pressed
      *
      * @param button the enum for the button
      */
-    void onButtonLongPressed(JogPanelButtonEnum button);
+    void onJogButtonLongPressed(JogPanelButtonEnum button);
 
     /**
      * Is called when a long pressed button has been released
      *
      * @param button the enum for the button
      */
-    void onButtonLongReleased(JogPanelButtonEnum button);
+    void onJogButtonLongReleased(JogPanelButtonEnum button);
 
     /**
      * Is called when the step size of the Z-axis is changed
@@ -66,4 +66,19 @@ public interface JogPanelListener {
      * @param value the feed rate
      */
     void onFeedRateChanged(int value);
+
+    /**
+     * Toggles the units (mm/inch)
+     */
+    void onToggleUnit();
+
+    /**
+     * Increases the step distance
+     */
+    void onIncreaseStepSize();
+
+    /**
+     * Decreases the step distance
+     */
+    void onDecreaseStepSize();
 }
