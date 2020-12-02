@@ -47,7 +47,7 @@ import java.util.stream.Stream;
 })
 public class TranslateToZeroAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/rotation0.svg";
+    public static final String ICON_BASE = "resources/icons/translate.svg";
     public static final double ARC_SEGMENT_LENGTH = 0.5;
     private BackendAPI backend;
 
