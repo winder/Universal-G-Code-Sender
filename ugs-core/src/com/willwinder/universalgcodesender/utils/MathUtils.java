@@ -19,6 +19,8 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,7 +88,7 @@ public class MathUtils {
      * Given a list of points and the starting index, find the most adjacent outer point counter clockwise
      * from the starting point
      *
-     * @param points a list of points
+     * @param points        a list of points
      * @param startingIndex the index of the point to originate from
      * @return the next outer point counter clockwise from the start point
      */
@@ -124,5 +126,51 @@ public class MathUtils {
     public static double round(double value, int decimals) {
         double power = Math.pow(10, decimals);
         return Math.round(value * power) / power;
+    }
+
+    /**
+     * Gets the center position given a list of line segments.
+     *
+     * @param points a list of points
+     * @return a new position in the center of the given points
+     */
+    public static Position getCenter(List<PartialPosition> points) {
+        UnitUtils.Units units = points.get(0).getUnits();
+        Position minPos = new Position(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, units);
+        Position maxPos = new Position(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, units);
+
+        for (PartialPosition point : points) {
+            PartialPosition positionInUnits = point.getPositionIn(units);
+            minPos.setX(Math.min(minPos.getX(), positionInUnits.getX()));
+            minPos.setY(Math.min(minPos.getY(), positionInUnits.getY()));
+            minPos.setZ(Math.min(minPos.getZ(), positionInUnits.getZ()));
+            maxPos.setX(Math.max(maxPos.getX(), positionInUnits.getX()));
+            maxPos.setY(Math.max(maxPos.getY(), positionInUnits.getY()));
+            maxPos.setZ(Math.max(maxPos.getZ(), positionInUnits.getZ()));
+        }
+
+        return new Position(
+                minPos.getX() + ((maxPos.getX() - minPos.getX()) / 2),
+                minPos.getY() + ((maxPos.getY() - minPos.getY()) / 2),
+                minPos.getZ() + ((maxPos.getZ() - minPos.getZ()) / 2),
+                units);
+    }
+
+    public static Position getLowerLeftCorner(List<PartialPosition> points) {
+        UnitUtils.Units units = points.get(0).getUnits();
+        Position minPos = new Position(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, units);
+
+        for (PartialPosition point : points) {
+            PartialPosition positionInUnits = point.getPositionIn(units);
+            minPos.setX(Math.min(minPos.getX(), positionInUnits.getX()));
+            minPos.setY(Math.min(minPos.getY(), positionInUnits.getY()));
+            minPos.setZ(Math.min(minPos.getZ(), positionInUnits.getZ()));
+        }
+
+        return new Position(
+                minPos.getX(),
+                minPos.getY(),
+                minPos.getZ(),
+                units);
     }
 }

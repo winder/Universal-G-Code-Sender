@@ -20,9 +20,12 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.ActionReferenceLocalizer;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.RotateProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.RunFromProcessor;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.RunFromService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -46,9 +49,11 @@ public final class RunFromHere implements ActionListener {
 
     private final EditorCookie context;
     public static final String NAME = Localization.getString("platform.menu.runFrom");
+    private final RunFromService runFromService;
 
     public RunFromHere(EditorCookie context) {
         this.context = context;
+        this.runFromService = CentralLookup.getDefault().lookup(RunFromService.class);
     }
 
     @OnStart
@@ -60,17 +65,12 @@ public final class RunFromHere implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent ev) {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-
         Element root = context.getDocument().getDefaultRootElement();
         int caretPosition = context.getOpenedPanes()[0].getCaretPosition();
         int line = root.getElementIndex(caretPosition) + 1;
 
-        GcodeParser gcp = new GcodeParser();
-        gcp.addCommandProcessor(new RunFromProcessor(line));
-
         try {
-            backend.applyGcodeParser(gcp);
+            runFromService.runFromLine(line);
         } catch (Exception e) {
             GUIHelpers.displayErrorDialog(e.getLocalizedMessage());
         }

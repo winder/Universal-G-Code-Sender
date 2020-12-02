@@ -1,8 +1,5 @@
-/**
- * Split lines into a series of smaller line segments.
- */
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -30,12 +27,14 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.model.Position;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
+ * Split lines into a series of smaller line segments.
  *
  * @author wwinder
  */
@@ -69,7 +68,7 @@ public class LineSplitter implements CommandProcessor {
 
     @Override
     public List<String> processCommand(String commandString, GcodeState state) throws GcodeParserException {
-        List<GcodeParser.GcodeMeta> commands = GcodeParser.processCommand(commandString, 0, state);
+        List<GcodeParser.GcodeMeta> commands = GcodeParserUtils.processCommand(commandString, 0, state);
 
         List<String> results = new ArrayList<>();
 

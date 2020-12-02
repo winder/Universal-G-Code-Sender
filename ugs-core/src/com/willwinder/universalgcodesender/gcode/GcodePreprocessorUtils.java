@@ -711,8 +711,8 @@ public class GcodePreprocessorUtils {
         // Don't add the state
         //result.append(state.toGcode());
 
-        result.append("F" + state.speed);
-        result.append("S" + state.spindleSpeed);
+        result.append("F").append(state.speed);
+        result.append("S").append(state.spindleSpeed);
 
         // Check if we need to add the motion command back in.
         if (!gCodes.contains(code)) {

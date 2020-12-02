@@ -21,11 +21,10 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.gcode.GcodeParser;
-import com.willwinder.universalgcodesender.gcode.processors.RunFromProcessor;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.services.RunFromService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -33,7 +32,9 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import java.awt.event.ActionEvent;
 
 @ActionID(
@@ -44,9 +45,6 @@ import java.awt.event.ActionEvent;
         displayName = "Run from...",
         lazy = false)
 @ActionReferences({
-        //@ActionReference(
-        //        path = "Toolbars/Run",
-        //        position = 980),
         @ActionReference(
                 path = LocalizingService.RunFromWindowPath,
                 position = 1017)
@@ -54,12 +52,15 @@ import java.awt.event.ActionEvent;
 public final class RunFromAction extends AbstractAction implements UGSEventListener {
 
     public static final String ICON_BASE = "resources/icons/fast-forward.svg";
+    private final RunFromService runFromService;
 
     private BackendAPI backend;
 
     public RunFromAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
+        this.runFromService = CentralLookup.getDefault().lookup(RunFromService.class);
+
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
@@ -89,15 +90,13 @@ public final class RunFromAction extends AbstractAction implements UGSEventListe
         try {
             Integer result = Integer.parseInt(
                     JOptionPane.showInputDialog(
-                        new JFrame(),
-                        "Enter a line number to start from.",
-                        "Run From Action",
-                        JOptionPane.QUESTION_MESSAGE
-            ));
+                            new JFrame(),
+                            "Enter a line number to start from.",
+                            "Run From Action",
+                            JOptionPane.QUESTION_MESSAGE
+                    ));
 
-            GcodeParser gcp = new GcodeParser();
-            gcp.addCommandProcessor(new RunFromProcessor(result));
-            backend.applyGcodeParser(gcp);
+            runFromService.runFromLine(result);
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
         }

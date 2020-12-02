@@ -136,7 +136,7 @@ public class GcodeViewParse {
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
                         addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
-                        start.set(meta.point.point());
+                        start = meta.point.point();
                     }
                 }
             }

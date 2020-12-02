@@ -2,7 +2,6 @@ package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
-import com.willwinder.universalgcodesender.types.PointSegment;
 import java.util.List;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 
@@ -20,13 +19,20 @@ public interface IGcodeParser {
 
     /**
      * Add a preprocessor to use with the preprocessCommand method.
+     * @param p - a processor to be added
      */
     void addCommandProcessor(CommandProcessor p);
 
     /**
+     * Removes a processor to not be used anymore
+     * @param p - a processor to remove
+     */
+    void removeCommandProcessor(CommandProcessor p);
+
+    /**
      * Clear out any processors that have been added.
      */
-    void resetCommandProcessors();
+    void clearCommandProcessors();
 
     /**
      * Add a string of command(s) for parsing.

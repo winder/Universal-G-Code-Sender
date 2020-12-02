@@ -71,7 +71,7 @@ import java.util.stream.Stream;
         lazy = false)
 @ActionReferences({
         @ActionReference(
-                path = LocalizingService.OutlineWindowPath,
+                path = LocalizingService.MENU_PROGRAM,
                 position = 990)
 })
 public final class OutlineAction extends AbstractAction implements UGSEventListener {

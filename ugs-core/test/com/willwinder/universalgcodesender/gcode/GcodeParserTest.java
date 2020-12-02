@@ -18,14 +18,20 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
-import com.google.common.collect.Iterables;
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
-import com.willwinder.universalgcodesender.gcode.processors.*;
+import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
+import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
+import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
+import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
+import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
-import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -48,10 +54,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -196,7 +199,7 @@ public class GcodeParserTest {
         GcodeParser instance = new GcodeParser();
         instance.addCommandProcessor(new CommentProcessor());
         assertEquals(1, instance.numCommandProcessors());
-        instance.resetCommandProcessors();
+        instance.clearCommandProcessors();
         assertEquals(0, instance.numCommandProcessors());
     }
 
@@ -245,7 +248,7 @@ public class GcodeParserTest {
         assertEquals(1, result.size());
         assertEquals("G01X0.88889F100", result.get(0));
 
-        instance.resetCommandProcessors();
+        instance.clearCommandProcessors();
         instance.addCommandProcessor(new CommentProcessor());
         instance.addCommandProcessor(new FeedOverrideProcessor(200.));
         instance.addCommandProcessor(new DecimalProcessor(5));
@@ -340,101 +343,5 @@ public class GcodeParserTest {
         assertEquals(1, result.size());
         assertEquals(" G01 X10", result.get(0));
 
-    }
-
-    @Test
-    public void stateInitialized() throws Exception {
-        GcodeState state = new GcodeState();
-        Assert.assertEquals(G0, state.currentMotionMode);
-        List<GcodeMeta> metaList = GcodeParser.processCommand("X1", 0, new GcodeState());
-        Assert.assertEquals(1, metaList.size());
-        GcodeMeta meta = Iterables.getOnlyElement(metaList);
-        Assert.assertEquals(G0, meta.code);
-    }
-
-    @Test
-    public void multipleAxisWordCommands() throws Exception {
-        assertThatThrownBy(() -> GcodeParser.processCommand("G0G1X1X2", 0, new GcodeState()))
-                .isInstanceOf(GcodeParserException.class)
-                .hasMessageStartingWith(Localization.getString("parser.gcode.multiple-axis-commands"));
-    }
-
-    @Test
-    public void missingAxisWords() throws Exception {
-        assertThatThrownBy(() -> GcodeParser.processCommand("G38.2", 0, new GcodeState()))
-                .isInstanceOf(GcodeParserException.class)
-                .hasMessage(Localization.getString("parser.gcode.missing-axis-commands") + ": G38.2");
-    }
-
-    @Test
-    public void duplicateFeedException() throws Exception {
-        assertThatThrownBy(() -> GcodeParser.processCommand("F1F1", 0, new GcodeState()))
-                .isInstanceOf(GcodeParserException.class)
-                .hasMessage("Multiple F-codes on one line.");
-    }
-
-    @Test
-    public void duplicateSpindleException() throws Exception {
-        assertThatThrownBy(() -> GcodeParser.processCommand("S1S1", 0, new GcodeState()))
-                .isInstanceOf(GcodeParserException.class)
-                .hasMessage("Multiple S-codes on one line.");
-    }
-
-    @Test
-    public void g28WithAxes() throws Exception {
-        // No exception
-        GcodeParser.processCommand("G28 X1 Y2 Z3", 0, new GcodeState());
-    }
-
-    @Test
-    public void g28NoAxes() throws Exception {
-        // No exception
-        GcodeParser.processCommand("G28", 0, new GcodeState());
-    }
-
-    @Test
-    public void motionNoAxes() throws Exception {
-        List<GcodeMeta> metaList = GcodeParser.processCommand("G3", 0, new GcodeState());
-        GcodeMeta meta = Iterables.getOnlyElement(metaList);
-        assertThat(meta.code).isEqualTo(G3);
-        assertThat(meta.state.currentPoint).isEqualTo(new Position(0, 0, 0, MM));
-    }
-
-    @Test
-    public void processCommandWithBlockComment() throws Exception {
-        List<GcodeMeta> metaList = GcodeParser.processCommand("(hello world)G3", 0, new GcodeState());
-        assertThat(metaList.size()).isEqualTo(1);
-
-        metaList = GcodeParser.processCommand("(1)(2)G3(3)", 0, new GcodeState());
-        assertThat(metaList.size()).isEqualTo(1);
-    }
-
-    @Test
-    public void spaceInAxisWord() throws Exception {
-        List<GcodeMeta> metaList = GcodeParser.processCommand("G \t1 X-1Y  - 0.\t5Z\n1 .0", 0, new GcodeState());
-        GcodeMeta meta = Iterables.getOnlyElement(metaList);
-        assertThat(meta.code).isEqualTo(G1);
-        assertThat(meta.state.currentPoint).isEqualTo(new Position(-1, -0.5, 1, MM));
-    }
-
-    @Test
-    public void fWordOnly() throws Exception {
-        List<GcodeMeta> metaList = GcodeParser.processCommand("F100", 0, new GcodeState(), true);
-        GcodeMeta meta = Iterables.getOnlyElement(metaList);
-        assertThat(meta.state.speed).isEqualTo(100.0);
-    }
-
-    @Test
-    public void fWordFromJogCommandShouldNotBeParsed() throws Exception {
-        List<GcodeMeta> metaList = GcodeParser.processCommand("$J=G21G91X10F99", 0, new GcodeState(), true);
-        GcodeMeta meta = Iterables.getOnlyElement(metaList);
-        assertThat(meta.state.speed).isEqualTo(0.0);
-    }
-
-    @Test
-    public void sWordOnly() throws Exception {
-        List<GcodeMeta> metaList = GcodeParser.processCommand("S100", 0, new GcodeState(), true);
-        GcodeMeta meta = Iterables.getOnlyElement(metaList);
-        assertThat(meta.state.spindleSpeed).isEqualTo(100.0);
     }
 }
