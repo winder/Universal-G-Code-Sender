@@ -79,7 +79,7 @@ public class GrblUtils {
      * Checks if the string contains the GRBL version.
      */
     static Boolean isGrblVersionString(final String response) {
-        Boolean version = response.startsWith("Grbl ") || response.startsWith("CarbideMotion ");
+        Boolean version = response.startsWith("Grbl ") || response.startsWith("CarbideMotion ") || response.startsWith("GrblHAL ");
         return version && (getVersionDouble(response) != -1);
     }
     
@@ -152,8 +152,8 @@ public class GrblUtils {
      * @param grblVersionLetter the GRBL build version
      * @return a string with the gcode command
      */
-    protected static String getResetCoordToZeroCommand(final Axis axis, final double grblVersion, final Character grblVersionLetter) {
-        return getSetCoordCommand(PartialPosition.from(axis, 0.0), grblVersion, grblVersionLetter);
+    protected static String getResetCoordToZeroCommand(final Axis axis, Units units, final double grblVersion, final Character grblVersionLetter) {
+        return getSetCoordCommand(PartialPosition.from(axis, 0.0, units), grblVersion, grblVersionLetter);
     }
 
     /**

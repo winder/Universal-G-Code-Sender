@@ -501,7 +501,7 @@ public class GcodePreprocessorUtils {
             boolean absoluteIJK,
             boolean clockwise,
             PlaneFormatter plane) {
-        Position center = new Position();
+        Position center = new Position(start.getUnits());
         
         // This math is copied from GRBL in gcode.c
         double x = plane.axis0(end) - plane.axis0(start);

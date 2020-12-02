@@ -69,7 +69,7 @@ public class MachineBoundries extends Renderable {
             IFirmwareSettings firmwareSettings = backendAPI.getController().getFirmwareSettings();
             softLimitsEnabled = firmwareSettings.isSoftLimitsEnabled();
             if (softLimitsEnabled) {
-                PartialPosition.Builder builder = new PartialPosition.Builder().copy(maxPosition);
+                PartialPosition.Builder builder = PartialPosition.builder().copy(maxPosition);
                 for (Axis axis : Axis.values()) {
                     double maxPosition = firmwareSettings.getSoftLimit(axis);
 

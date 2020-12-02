@@ -38,12 +38,8 @@ public class GrblCommunicator extends BufferedCommunicator {
      * This constructor is for dependency injection so a mock serial device can
      * act as GRBL.
      */
-    protected GrblCommunicator(
-            LinkedBlockingDeque<GcodeCommand> cb, LinkedBlockingDeque<GcodeCommand> asl, Connection c) {
+    protected GrblCommunicator(LinkedBlockingDeque<GcodeCommand> cb, LinkedBlockingDeque<GcodeCommand> asl, Connection c) {
         super(cb, asl);
-        // Base constructor.
-        //this();
-        //TODO-f4grx-DONE: Mock connection
         this.connection = c;
         this.connection.addListener(this);
     }

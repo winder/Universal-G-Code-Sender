@@ -18,10 +18,9 @@
  */
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.firmware.DefaultFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.smoothie.SmoothieFirmwareSettings;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
-import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -58,7 +57,7 @@ public class SmoothieController extends AbstractController {
     public SmoothieController(ICommunicator communicator) {
         super(communicator);
         capabilities = new Capabilities();
-        firmwareSettings = new DefaultFirmwareSettings();
+        firmwareSettings = new SmoothieFirmwareSettings();
         controllerStatus = new ControllerStatus(ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
         commandCreator = new GcodeCommandCreator();
         statusPollTimer = new StatusPollTimer(this);
@@ -130,7 +129,7 @@ public class SmoothieController extends AbstractController {
 
     @Override
     public void viewParserState() {
-        comm.queueCommand(new GcodeCommand("$G"));
+        comm.queueCommand(new GcodeCommand(SmoothieUtils.VIEW_PARSER_STATE_COMMAND));
         comm.streamCommands();
     }
 
@@ -156,6 +155,7 @@ public class SmoothieController extends AbstractController {
                 commandComplete(response);
 
                 capabilities.addCapability(CapabilitiesConstants.JOGGING);
+                capabilities.addCapability(CapabilitiesConstants.HOMING);
                 capabilities.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);
                 controllerStatus = ControllerStatusBuilder.newInstance(controllerStatus).setState(ControllerState.IDLE).build();
                 dispatchStatusString(controllerStatus);
@@ -190,7 +190,7 @@ public class SmoothieController extends AbstractController {
     private void handleStatusResponse(String response) {
         dispatchConsoleMessage(MessageType.VERBOSE, response + "\n");
 
-        UnitUtils.Units currentUnits = getCurrentGcodeState().units.equals(Code.G20) ? UnitUtils.Units.INCH : UnitUtils.Units.MM;
+        UnitUtils.Units currentUnits = getCurrentGcodeState().getUnits();
         controllerStatus = SmoothieUtils.getStatusFromStatusString(controllerStatus, response, currentUnits);
         dispatchStateChange(getControlState());
         dispatchStatusString(controllerStatus);
@@ -215,6 +215,17 @@ public class SmoothieController extends AbstractController {
     @Override
     public void sendOverrideCommand(Overrides command) {
 
+    }
+
+    @Override
+    public void performHomingCycle() throws Exception {
+        GcodeCommand command = createCommand(SmoothieUtils.PERFORM_HOMING_CYCLE_COMMAND);
+        sendCommandImmediately(command);
+        controllerStatus = ControllerStatusBuilder
+                .newInstance(controllerStatus)
+                .setState(ControllerState.HOME)
+                .build();
+        dispatchStatusString(controllerStatus);
     }
 
     @Override
@@ -243,12 +254,6 @@ public class SmoothieController extends AbstractController {
     }
 
     @Override
-    public void resetCoordinateToZero(final Axis axis) throws Exception {
-        GcodeCommand command = createCommand(SmoothieUtils.RESET_COORDINATE_TO_ZERO_COMMAND);
-        sendCommandImmediately(command);
-    }
-
-    @Override
     public void setWorkPosition(PartialPosition axisPosition) throws Exception {
         String command = SmoothieUtils.generateSetWorkPositionCommand(controllerStatus, getCurrentGcodeState(), axisPosition);
         sendCommandImmediately(new GcodeCommand(command));
@@ -257,7 +262,7 @@ public class SmoothieController extends AbstractController {
     @Override
     public void killAlarmLock() throws Exception {
         if(controllerStatus.getState().equals(ControllerState.ALARM)) {
-            GcodeCommand command = createCommand(GrblUtils.GRBL_KILL_ALARM_LOCK_COMMAND);
+            GcodeCommand command = createCommand(SmoothieUtils.KILL_ALARM_LOCK_COMMAND);
             sendCommandImmediately(command);
         } else {
             throw new IllegalStateException("We may only send the unlock command when in " + ControllerState.ALARM + " state");

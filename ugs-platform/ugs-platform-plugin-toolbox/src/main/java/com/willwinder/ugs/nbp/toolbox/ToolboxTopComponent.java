@@ -28,8 +28,10 @@ import org.openide.awt.ActionReference;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 
-import javax.swing.JButton;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
+
+import static javax.swing.BorderFactory.createEmptyBorder;
 
 /**
  * A component that displays a toolbox menu
@@ -63,18 +65,18 @@ public final class ToolboxTopComponent extends TopComponent implements ISettings
         setToolTipText(LocalizingService.ToolboxTooltip);
 
         actionRegistrationService = Lookup.getDefault().lookup(ActionRegistrationService.class);
-
-        setLayout(new BorderLayout());
         buttonGridPanel = new ButtonGridPanel();
+
+        JScrollPane scrollPane = new JScrollPane(buttonGridPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setBorder(createEmptyBorder());
+        add(scrollPane, BorderLayout.CENTER);
         settingsChanged();
-        add(buttonGridPanel, BorderLayout.CENTER);
-        buttonGridPanel.revalidate();
     }
 
     @Override
     protected void componentActivated() {
         super.componentActivated();
-        buttonGridPanel.revalidate();
+        revalidate();
     }
 
     @Override
@@ -95,8 +97,12 @@ public final class ToolboxTopComponent extends TopComponent implements ISettings
 
         Settings.getActions().forEach(actionId ->
                 actionRegistrationService.getActionById(actionId)
-                        .ifPresent(actionReference -> buttonGridPanel.add(new JButton(actionReference.getAction()))));
+                        .ifPresent(actionReference -> {
+                            JButton button = new JButton(actionReference.getAction());
+                            button.setMinimumSize(new Dimension(100, 16));
+                            buttonGridPanel.add(button);
+                        }));
 
-        buttonGridPanel.revalidate();
+        revalidate();
     }
 }

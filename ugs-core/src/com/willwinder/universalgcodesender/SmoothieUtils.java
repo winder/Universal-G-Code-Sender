@@ -34,8 +34,11 @@ public class SmoothieUtils {
 
     public static final byte RESET_COMMAND = 0x18;
     public static final byte STATUS_COMMAND = '?';
+    public static final String PERFORM_HOMING_CYCLE_COMMAND = "$H";
+    public static final String VIEW_PARSER_STATE_COMMAND = "$G";
+    public static final String KILL_ALARM_LOCK_COMMAND = "$X";
 
-    public static final String RESET_COORDINATE_TO_ZERO_COMMAND = "G10 P0 L20 X0 Y0 Z0";
+
     /**
      * Parse state out of position string.
      */
@@ -61,15 +64,15 @@ public class SmoothieUtils {
         return PARSER_STATE_PATTERN.matcher(response).find();
     }
 
-    public static String generateSetWorkPositionCommand(ControllerStatus controllerStatus, GcodeState gcodeState, PartialPosition positions) {
+    public static String generateSetWorkPositionCommand(ControllerStatus controllerStatus, GcodeState gcodeState, PartialPosition position) {
         int offsetCode = WorkCoordinateSystem.fromGCode(gcodeState.offset).getPValue();
         Position machineCoord = controllerStatus.getMachineCoord();
 
 
-        PartialPosition.Builder offsets = new PartialPosition.Builder();
-        for (Map.Entry<Axis, Double> position : positions.getAll().entrySet()) {
-            double axisOffset = -(position.getValue() - machineCoord.get(position.getKey()));
-            offsets.setValue(position.getKey(), axisOffset);
+        PartialPosition.Builder offsets = PartialPosition.builder().setUnits(position.getUnits());
+        for (Map.Entry<Axis, Double> axisPosition : position.getAll().entrySet()) {
+            double axisOffset = -(axisPosition.getValue() - machineCoord.get(axisPosition.getKey()));
+            offsets.setValue(axisPosition.getKey(), axisOffset);
 
         }
         return "G10 L2 P" + offsetCode + " " + offsets.build().getFormattedGCode();

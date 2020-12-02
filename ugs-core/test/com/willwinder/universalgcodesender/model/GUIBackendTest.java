@@ -388,7 +388,7 @@ public class GUIBackendTest {
         instance.setWorkPositionUsingExpression(Axis.X, "10.1");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.X, 10.1));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.X, 10.1, UnitUtils.Units.MM));
     }
 
     @Test
@@ -402,7 +402,7 @@ public class GUIBackendTest {
         instance.setWorkPositionUsingExpression(Axis.Y, "10.1 * 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Y, 101.0));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Y, 101.0, UnitUtils.Units.MM));
     }
 
     @Test
@@ -416,7 +416,7 @@ public class GUIBackendTest {
         instance.setWorkPositionUsingExpression(Axis.Y, "-10.1");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Y, -10.1));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Y, -10.1, UnitUtils.Units.MM));
     }
 
     @Test
@@ -430,7 +430,7 @@ public class GUIBackendTest {
         instance.setWorkPositionUsingExpression(Axis.Y, "# + 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Y, 21.0));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Y, 21.0, UnitUtils.Units.MM));
     }
 
     @Test
@@ -444,7 +444,7 @@ public class GUIBackendTest {
         instance.setWorkPositionUsingExpression(Axis.Z, "# * 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 110.0));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 110.0, UnitUtils.Units.MM));
     }
 
     @Test
@@ -458,7 +458,7 @@ public class GUIBackendTest {
         instance.setWorkPositionUsingExpression(Axis.Z, "* 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 110.0));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 110.0, UnitUtils.Units.MM));
     }
 
     @Test
@@ -472,7 +472,21 @@ public class GUIBackendTest {
         instance.setWorkPositionUsingExpression(Axis.Z, "# / 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 1.1));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 1.1, UnitUtils.Units.MM));
+    }
+
+    @Test
+    public void setWorkPositionWithDivisionExpressionhouldConvertHashToWorkPositionUnits() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(10, 10,10, UnitUtils.Units.INCH));
+        instance.statusStringListener(status);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.Z, "# / 10");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 25.4, UnitUtils.Units.MM));
     }
 
     @Test
@@ -486,8 +500,23 @@ public class GUIBackendTest {
         instance.setWorkPositionUsingExpression(Axis.Z, "/ 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 1.1));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 1.1, UnitUtils.Units.MM));
     }
+
+    @Test
+    public void setWorkPositionWithDivisionExpressionShouldConvertToWorkPositionUnits() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.INCH), new Position(10, 10,10, UnitUtils.Units.INCH));
+        instance.statusStringListener(status);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.Z, "/ 10");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 25.4, UnitUtils.Units.MM));
+    }
+
 
     @Test
     public void setWorkPositionWithSubtractionExpression() throws Exception {
@@ -500,7 +529,7 @@ public class GUIBackendTest {
         instance.setWorkPositionUsingExpression(Axis.X, "# - 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.X, 1.0));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.X, 1.0, UnitUtils.Units.MM));
     }
 
     @Test
@@ -511,10 +540,9 @@ public class GUIBackendTest {
         instance.statusStringListener(status);
 
         // When
-        instance.setWorkPosition(new PartialPosition(25.0,99.0));
+        instance.setWorkPosition(new PartialPosition(25.0,99.0, UnitUtils.Units.MM));
 
         // Then
-        verify(controller, times(1)).setWorkPosition(new PartialPosition(25.0,99.0));
+        verify(controller, times(1)).setWorkPosition(new PartialPosition(25.0,99.0, UnitUtils.Units.MM));
     }
-
 }

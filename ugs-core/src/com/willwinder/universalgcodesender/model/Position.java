@@ -31,8 +31,8 @@ public class Position extends Point3d {
 
     private final Units units;
 
-    public Position() {
-        this.units = Units.UNKNOWN;
+    public Position(Units units) {
+        this.units = units;
     }
 
     public Position(Position other) {
@@ -63,16 +63,6 @@ public class Position extends Point3d {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
-    }
-
-    /**
-     * Check that the positions are the same ignoring units.
-     */
-    public boolean isSamePositionIgnoreUnits(final Position o) {
-        if (units != o.getUnits()) {
-            return equals(o.getPositionIn(units));
-        }
-        return equals(o);
     }
 
     @Override

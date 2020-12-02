@@ -55,9 +55,10 @@ public class Translator implements CommandProcessor {
     List<String> parts = GcodePreprocessorUtils.splitCommand(rawCommand);
     StringBuilder sb = new StringBuilder();
 
-    double x = offset.getPositionIn(UnitUtils.Units.getUnits(state.units)).x;
-    double y = offset.getPositionIn(UnitUtils.Units.getUnits(state.units)).y;
-    double z = offset.getPositionIn(UnitUtils.Units.getUnits(state.units)).z;
+    UnitUtils.Units currentUnits = state.getUnits();
+    double x = offset.getPositionIn(currentUnits).x;
+    double y = offset.getPositionIn(currentUnits).y;
+    double z = offset.getPositionIn(currentUnits).z;
 
     for (String part : parts) {
       switch (Character.toUpperCase(part.charAt(0))) {

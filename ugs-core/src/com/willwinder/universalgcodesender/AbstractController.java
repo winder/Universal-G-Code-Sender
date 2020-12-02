@@ -163,7 +163,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     public void returnToHome(double safetyHeightInMm) throws Exception {
         if (isIdle()) {
             // Convert the safety height to the same units as the current gcode state
-            UnitUtils.Units currentUnit = UnitUtils.Units.getUnits(getCurrentGcodeState().units);
+            UnitUtils.Units currentUnit = getCurrentGcodeState().getUnits();
             double safetyHeight = safetyHeightInMm * UnitUtils.scaleUnits(MM, currentUnit);
 
             // If Z is less than zero, raise it before further movement.
@@ -185,7 +185,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
      */
     @Override
     public void resetCoordinatesToZero() throws Exception {
-        setWorkPosition(new PartialPosition(0.0, 0.0, 0.0));
+        setWorkPosition(new PartialPosition(0.0, 0.0, 0.0, getCurrentGcodeState().getUnits()));
     }
 
     /**
@@ -193,7 +193,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
      */
     @Override
     public void resetCoordinateToZero(final Axis axis) throws Exception {
-        setWorkPosition(PartialPosition.from(axis, 0.0));
+        setWorkPosition(PartialPosition.from(axis, 0.0, getCurrentGcodeState().getUnits()));
     }
 
     @Override

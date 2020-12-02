@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copyright 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,21 +24,19 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.panels.ActionButtonPanel;
 import java.awt.BorderLayout;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 
 /**
  * Top component which displays something.
+ *
+ * @deprecated This actions component is deprecated and should be replaced by the toolbox.
  */
 @TopComponent.Description(
         preferredID = "ActionsTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "top_left", openAtStartup = true)
-@ActionID(category = LocalizingService.ActionsCategory, id = LocalizingService.ActionsActionId)
-@ActionReference(path = LocalizingService.ActionsWindowPath)
+@TopComponent.Registration(mode = "top_left", openAtStartup = false)
 @TopComponent.OpenActionRegistration(
         displayName = "<Not localized:ActionsTopComponent>",
         preferredID = "ActionsTopComponent"

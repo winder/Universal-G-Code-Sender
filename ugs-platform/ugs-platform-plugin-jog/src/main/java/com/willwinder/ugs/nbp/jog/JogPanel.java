@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -38,10 +38,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.Dimension;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -51,14 +51,13 @@ import java.util.Set;
  * @author Joacim Breiler
  */
 public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeChangeListener, ChangeListener {
-
     /**
      * The minimum width and height of the jog buttons.
      */
-    private static final int MINIMUM_BUTTON_SIZE = 52;
+    private static final int MINIMUM_BUTTON_SIZE = 36;
 
-    private static final float FONT_SIZE_LABEL_SMALL = 8;
-    private static final float FONT_SIZE_LABEL_MEDIUM = 10;
+    private static final float FONT_SIZE_LABEL_SMALL = 10;
+    private static final float FONT_SIZE_LABEL_MEDIUM = 12;
     private static final float FONT_SIZE_LABEL_LARGE = 14;
 
     /**
@@ -75,7 +74,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
     /**
      * A map with all buttons that allows bi-directional lookups with key->value and value->key
      */
-    private final BiMap<JogPanelButtonEnum, JButton> buttons = HashBiMap.create();
+    private final BiMap<JogPanelButtonEnum, JButton> jogButtons = HashBiMap.create();
 
     /**
      * Labels
@@ -90,7 +89,14 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
     private StepSizeSpinner zStepSizeSpinner;
     private StepSizeSpinner feedRateSpinner;
     private StepSizeSpinner xyStepSizeSpinner;
+
+    /**
+     * Special buttons
+     */
     private JButton stealFocusButton;
+    private JButton unitToggleButton;
+    private JButton increaseStepSizeButton;
+    private JButton decreaseStepSizeButton;
 
     public JogPanel() {
         createComponents();
@@ -116,39 +122,48 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         stealFocusButton.addActionListener(e -> stealFocusButton.requestFocusInWindow());
 
         // Create our buttons
-        buttons.put(JogPanelButtonEnum.BUTTON_XPOS, createImageButton("icons/xpos.png", "X+", SwingConstants.CENTER, SwingConstants.LEFT));
-        buttons.put(JogPanelButtonEnum.BUTTON_XNEG, createImageButton("icons/xneg.png", "X-", SwingConstants.CENTER, SwingConstants.RIGHT));
-        buttons.put(JogPanelButtonEnum.BUTTON_YPOS, createImageButton("icons/ypos.png", "Y+", SwingConstants.BOTTOM, SwingConstants.CENTER));
-        buttons.put(JogPanelButtonEnum.BUTTON_YNEG, createImageButton("icons/yneg.png", "Y-", SwingConstants.TOP, SwingConstants.CENTER));
-        buttons.put(JogPanelButtonEnum.BUTTON_ZPOS, createImageButton("icons/ypos.png", "Z+", SwingConstants.BOTTOM, SwingConstants.CENTER));
-        buttons.put(JogPanelButtonEnum.BUTTON_ZNEG, createImageButton("icons/yneg.png", "Z-", SwingConstants.TOP, SwingConstants.CENTER));
-        buttons.put(JogPanelButtonEnum.BUTTON_DIAG_XPOS_YPOS, createImageButton("icons/diag-xpos-ypos.png"));
-        buttons.put(JogPanelButtonEnum.BUTTON_DIAG_XNEG_YPOS, createImageButton("icons/diag-xneg-ypos.png"));
-        buttons.put(JogPanelButtonEnum.BUTTON_DIAG_XPOS_YNEG, createImageButton("icons/diag-xpos-yneg.png"));
-        buttons.put(JogPanelButtonEnum.BUTTON_DIAG_XNEG_YNEG, createImageButton("icons/diag-xneg-yneg.png"));
-
+        Arrays.asList(JogPanelButtonEnum.values()).forEach(this::createJogButton);
+        Dimension minimumSize = new Dimension(80, 18);
         feedRateSpinner = new StepSizeSpinner();
+        feedRateSpinner.setMinimumSize(minimumSize);
         xyStepSizeSpinner = new StepSizeSpinner();
+        xyStepSizeSpinner.setMinimumSize(minimumSize);
         zStepSizeSpinner = new StepSizeSpinner();
+        zStepSizeSpinner.setMinimumSize(minimumSize);
 
         // todo: could use a number of factory methods here to build similar stuff
         feedRateLabel = createSettingLabel(font, Localization.getString("platform.plugin.jog.feedRate"));
+        feedRateLabel.setMinimumSize(new Dimension(0,0));
         xyStepLabel = createSettingLabel(font, Localization.getString("platform.plugin.jog.stepSizeXY"));
+        xyStepLabel.setMinimumSize(new Dimension(0,0));
         zStepLabel = createSettingLabel(font, Localization.getString("platform.plugin.jog.stepSizeZ"));
+        zStepLabel.setMinimumSize(new Dimension(0,0));
 
-        JButton unitToggleButton = new JButton("--");
+        minimumSize = new Dimension(50, 18);
+        unitToggleButton = new JButton("--");
         unitToggleButton.setFocusable(false);
-        buttons.put(JogPanelButtonEnum.BUTTON_TOGGLE_UNIT, unitToggleButton);
-        buttons.put(JogPanelButtonEnum.BUTTON_LARGER_STEP, new JButton(Localization.getString("platform.plugin.jog.stepLarger")));
-        buttons.put(JogPanelButtonEnum.BUTTON_SMALLER_STEP, new JButton(Localization.getString("platform.plugin.jog.stepSmaller")));
+        unitToggleButton.setMinimumSize(minimumSize);
 
+        increaseStepSizeButton = new JButton(Localization.getString("platform.plugin.jog.stepLarger"));
+        increaseStepSizeButton.setFocusable(false);
+        increaseStepSizeButton.setMinimumSize(minimumSize);
 
+        decreaseStepSizeButton = new JButton(Localization.getString("platform.plugin.jog.stepSmaller"));
+        decreaseStepSizeButton.setFocusable(false);
+        decreaseStepSizeButton.setMinimumSize(minimumSize);
+
+        updateColors();
+    }
+
+    private void updateColors() {
         if (isDarkLaF()) {
-            buttons.values().forEach(button -> setForeground(ThemeColors.LIGHT_BLUE));
+            jogButtons.values().forEach(button -> setForeground(ThemeColors.LIGHT_BLUE));
             feedRateLabel.setForeground(ThemeColors.ORANGE);
             xyStepLabel.setForeground(ThemeColors.ORANGE);
             zStepLabel.setForeground(ThemeColors.ORANGE);
-            unitToggleButton.setForeground(ThemeColors.LIGHT_BLUE);
+            unitToggleButton.setForeground(ThemeColors.ORANGE);
+            increaseStepSizeButton.setForeground(ThemeColors.ORANGE);
+            decreaseStepSizeButton.setForeground(ThemeColors.ORANGE);
         }
     }
 
@@ -173,7 +188,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
     }
 
     public void setUnit(UnitUtils.Units unit) {
-        getButtonFromEnum(JogPanelButtonEnum.BUTTON_TOGGLE_UNIT).setText(unit.name());
+        unitToggleButton.setText(unit.getDescription());
     }
 
     public void setUseStepSizeZ(boolean useStepSizeZ) {
@@ -196,19 +211,19 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
 
     private JPanel createConfigurationPanel() {
         JPanel configurationPanel = new JPanel();
-        configurationPanel.setLayout(new MigLayout("fill, inset 0, gap 2", "[55%, shrinkprio 100, right][20%, shrinkprio 100][25%, center, shrinkprio 0]", "[center][center][center]"));
+        configurationPanel.setLayout(new MigLayout("fill, inset 0, gap 2", "[shrinkprio 200, right][25%, shrinkprio 100][25%, center, shrinkprio 0]", "[center][center][center]"));
 
         configurationPanel.add(xyStepLabel, "growx");
         configurationPanel.add(xyStepSizeSpinner, "growx");
-        configurationPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_TOGGLE_UNIT), "grow, wrap");
+        configurationPanel.add(unitToggleButton, "grow, wrap");
 
-        configurationPanel.add(zStepLabel, "growx, hidemode 3");
-        configurationPanel.add(zStepSizeSpinner, "growx, hidemode 3");
-        configurationPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_LARGER_STEP), "grow, wrap");
+        configurationPanel.add(zStepLabel, "growx, hidemode 0");
+        configurationPanel.add(zStepSizeSpinner, "growx, hidemode 0");
+        configurationPanel.add(increaseStepSizeButton, "grow, wrap");
 
         configurationPanel.add(feedRateLabel, "growx");
         configurationPanel.add(feedRateSpinner, "growx");
-        configurationPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_SMALLER_STEP), "grow, wrap");
+        configurationPanel.add(decreaseStepSizeButton, "grow, wrap");
         return configurationPanel;
     }
 
@@ -241,8 +256,8 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
 
         // Creates a window size listener
         SteppedSizeManager sizer = new SteppedSizeManager(this,
-                new Dimension(230, 0), // Scaling fonts to extra small
-                new Dimension(250, 0)  // Scaling fonts to small
+                new Dimension(300, 0), // Scaling fonts to extra small
+                new Dimension(400, 0)  // Scaling fonts to small
         );
         sizer.addListener(this);
 
@@ -254,7 +269,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
                     return; // ignore RMB
                 }
                 JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
-                listeners.forEach(a -> a.onButtonClicked(buttonEnum));
+                listeners.forEach(a -> a.onJogButtonClicked(buttonEnum));
             }
 
             @Override
@@ -278,7 +293,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
                     return; // ignore RMB
                 }
                 JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
-                listeners.forEach(a -> a.onButtonLongPressed(buttonEnum));
+                listeners.forEach(a -> a.onJogButtonLongPressed(buttonEnum));
             }
 
             @Override
@@ -287,15 +302,19 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
                     return; // ignore RMB
                 }
                 JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
-                listeners.forEach(a -> a.onButtonLongReleased(buttonEnum));
+                listeners.forEach(a -> a.onJogButtonLongReleased(buttonEnum));
             }
         };
 
-        buttons.values().forEach(button -> button.addMouseListener(longPressMouseListener));
+        jogButtons.values().forEach(button -> button.addMouseListener(longPressMouseListener));
 
         xyStepSizeSpinner.addChangeListener(this);
         zStepSizeSpinner.addChangeListener(this);
         feedRateSpinner.addChangeListener(this);
+
+        unitToggleButton.addActionListener((actionEvent) -> listeners.forEach(JogPanelListener::onToggleUnit));
+        increaseStepSizeButton.addActionListener((actionEvent) -> listeners.forEach(JogPanelListener::onIncreaseStepSize));
+        decreaseStepSizeButton.addActionListener((actionEvent) -> listeners.forEach(JogPanelListener::onDecreaseStepSize));
     }
 
     /**
@@ -306,7 +325,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
      */
     private JogPanelButtonEnum getButtonEnumFromMouseEvent(MouseEvent mouseEvent) {
         JButton releasedButton = (JButton) mouseEvent.getSource();
-        return buttons.inverse().get(releasedButton);
+        return jogButtons.inverse().get(releasedButton);
     }
 
     /**
@@ -316,38 +335,20 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
      * @return the button
      */
     private JButton getButtonFromEnum(JogPanelButtonEnum buttonEnum) {
-        return buttons.get(buttonEnum);
+        return jogButtons.get(buttonEnum);
     }
-
 
     /**
      * Creates a image button with a text.
      *
-     * @param baseUri            the base uri of the image
-     * @param text               the text to be shown togheter with the icon
-     * @param verticalAligment   Sets the vertical position of the text relative to the icon
-     *                           and can have one of the following values
-     *                           <ul>
-     *                           <li>{@code SwingConstants.CENTER} (the default)
-     *                           <li>{@code SwingConstants.TOP}
-     *                           <li>{@code SwingConstants.BOTTOM}
-     *                           </ul>
-     * @param horisontalAligment Sets the horizontal position of the text relative to the
-     *                           icon and can have one of the following values:
-     *                           <ul>
-     *                           <li>{@code SwingConstants.RIGHT}
-     *                           <li>{@code SwingConstants.LEFT}
-     *                           <li>{@code SwingConstants.CENTER}
-     *                           <li>{@code SwingConstants.LEADING}
-     *                           <li>{@code SwingConstants.TRAILING} (the default)
-     *                           </ul>
+     * @param buttonEnum the button enumeration containing the text  icon image
      * @return the button
      */
-    private JButton createImageButton(String baseUri, String text, int verticalAligment, int horisontalAligment) {
-        JButton button = createImageButton(baseUri);
-        button.setText(text);
-        button.setVerticalTextPosition(verticalAligment);
-        button.setHorizontalTextPosition(horisontalAligment);
+    private JButton createJogButton(JogPanelButtonEnum buttonEnum) {
+        JButton button = new JogButton(buttonEnum);
+        button.setMinimumSize(new Dimension(MINIMUM_BUTTON_SIZE, MINIMUM_BUTTON_SIZE));
+        button.addActionListener((e) -> stealFocusButton.requestFocusInWindow());
+        jogButtons.put(buttonEnum, button);
         return button;
     }
 
@@ -361,6 +362,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         ImageIcon imageIcon = ImageUtilities.loadImageIcon(baseUri, false);
         JButton button = new JButton(imageIcon);
         button.setMinimumSize(new Dimension(MINIMUM_BUTTON_SIZE, MINIMUM_BUTTON_SIZE));
+        button.setMargin(new Insets(0,0,0,0));
         button.setFocusable(false);
         button.addActionListener((e) -> stealFocusButton.requestFocusInWindow());
         return button;
@@ -369,7 +371,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        buttons.values().forEach(button -> button.setEnabled(enabled));
+        jogButtons.values().forEach(button -> button.setEnabled(enabled));
 
         xyStepSizeSpinner.setEnabled(enabled);
         zStepSizeSpinner.setEnabled(enabled);
@@ -380,66 +382,45 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         feedRateLabel.setEnabled(enabled);
 
         stealFocusButton.setEnabled(enabled);
+
+        unitToggleButton.setEnabled(enabled);
+        increaseStepSizeButton.setEnabled(enabled);
+        decreaseStepSizeButton.setEnabled(enabled);
     }
 
     @Override
     public void onSizeChange(int size) {
         switch (size) {
             case 0:
-                setFontSizeExtraSmall();
+                setFontSize(FONT_SIZE_LABEL_SMALL);
                 break;
             case 1:
-                setFontSizeSmall();
+                setFontSize(FONT_SIZE_LABEL_MEDIUM);
                 break;
             default:
-                setFontSizeNormal();
+                setFontSize(FONT_SIZE_LABEL_LARGE);
                 break;
         }
     }
 
-    private void setFontSizeExtraSmall() {
-        JButton unitToggleButton = getButtonFromEnum(JogPanelButtonEnum.BUTTON_TOGGLE_UNIT);
-        Font font = unitToggleButton.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
+    private void setFontSize(float fontSize) {
+        Font font = unitToggleButton.getFont().deriveFont(fontSize);
         unitToggleButton.setFont(font);
 
-        font = this.feedRateLabel.getFont().deriveFont(FONT_SIZE_LABEL_SMALL);
+        font = this.feedRateLabel.getFont().deriveFont(fontSize);
         this.feedRateLabel.setFont(font);
 
-        font = this.xyStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_SMALL);
+        font = this.xyStepLabel.getFont().deriveFont(fontSize);
         this.xyStepLabel.setFont(font);
 
-        font = this.zStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_SMALL);
+        font = this.zStepLabel.getFont().deriveFont(fontSize);
         this.zStepLabel.setFont(font);
-    }
 
-    private void setFontSizeSmall() {
-        JButton unitToggleButton = getButtonFromEnum(JogPanelButtonEnum.BUTTON_TOGGLE_UNIT);
-        Font font = unitToggleButton.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
-        unitToggleButton.setFont(font);
+        font = this.increaseStepSizeButton.getFont().deriveFont(fontSize);
+        this.increaseStepSizeButton.setFont(font);
 
-        font = this.feedRateLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
-        this.feedRateLabel.setFont(font);
-
-        font = this.xyStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
-        this.xyStepLabel.setFont(font);
-
-        font = this.zStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
-        this.zStepLabel.setFont(font);
-    }
-
-    private void setFontSizeNormal() {
-        JButton unitToggleButton = getButtonFromEnum(JogPanelButtonEnum.BUTTON_TOGGLE_UNIT);
-        Font font = unitToggleButton.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
-        unitToggleButton.setFont(font);
-
-        font = this.feedRateLabel.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
-        this.feedRateLabel.setFont(font);
-
-        font = this.xyStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
-        this.xyStepLabel.setFont(font);
-
-        font = this.zStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
-        this.zStepLabel.setFont(font);
+        font = this.decreaseStepSizeButton.getFont().deriveFont(fontSize);
+        this.decreaseStepSizeButton.setFont(font);
     }
 
     public void addListener(JogPanelListener listener) {

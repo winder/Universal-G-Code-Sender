@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -33,27 +34,27 @@ public class MathUtilsTest {
 
     @Test
     public void orientationWithPointsInClockwiseOrder() {
-        PartialPosition p1 = new PartialPosition(0d, 0d);
-        PartialPosition p2 = new PartialPosition(1d, 1d);
-        PartialPosition p3 = new PartialPosition(1d, 0d);
+        PartialPosition p1 = new PartialPosition(0d, 0d, UnitUtils.Units.MM);
+        PartialPosition p2 = new PartialPosition(1d, 1d, UnitUtils.Units.MM);
+        PartialPosition p3 = new PartialPosition(1d, 0d, UnitUtils.Units.MM);
         int orientation = MathUtils.orientation(p1, p2, p3);
         assertEquals(MathUtils.CLOCKWISE, orientation);
     }
 
     @Test
     public void orientationWithPointsInCounterClockwiseOrder() {
-        PartialPosition p1 = new PartialPosition(0d, 0d);
-        PartialPosition p2 = new PartialPosition(-1d, 1d);
-        PartialPosition p3 = new PartialPosition(-1d, 0d);
+        PartialPosition p1 = new PartialPosition(0d, 0d, UnitUtils.Units.MM);
+        PartialPosition p2 = new PartialPosition(-1d, 1d, UnitUtils.Units.MM);
+        PartialPosition p3 = new PartialPosition(-1d, 0d, UnitUtils.Units.MM);
         int orientation = MathUtils.orientation(p1, p2, p3);
         assertEquals(MathUtils.COUNTER_CLOCKWISE, orientation);
     }
 
     @Test
     public void orientationWithPointsCollinear() {
-        PartialPosition p1 = new PartialPosition(0d, 0d);
-        PartialPosition p2 = new PartialPosition(1d, 1d);
-        PartialPosition p3 = new PartialPosition(2d, 2d);
+        PartialPosition p1 = new PartialPosition(0d, 0d, UnitUtils.Units.MM);
+        PartialPosition p2 = new PartialPosition(1d, 1d, UnitUtils.Units.MM);
+        PartialPosition p3 = new PartialPosition(2d, 2d, UnitUtils.Units.MM);
         int orientation = MathUtils.orientation(p1, p2, p3);
         assertEquals(MathUtils.COLLINEAR, orientation);
     }
@@ -61,16 +62,16 @@ public class MathUtilsTest {
     @Test
     public void createConvexHullShouldRemoveInternalPoints() {
         List<PartialPosition> points = Arrays.asList(
-                new PartialPosition(0d, 0d),
-                new PartialPosition(0d, 10d),
-                new PartialPosition(10d,10d),
-                new PartialPosition(5d, 5d)
+                new PartialPosition(0d, 0d, UnitUtils.Units.MM),
+                new PartialPosition(0d, 10d, UnitUtils.Units.MM),
+                new PartialPosition(10d,10d, UnitUtils.Units.MM),
+                new PartialPosition(5d, 5d, UnitUtils.Units.MM)
         );
 
         List<PartialPosition> convexHull = MathUtils.generateConvexHull(points);
         assertEquals(3, convexHull.size());
-        assertEquals(new PartialPosition(0d,0d), convexHull.get(0));
-        assertEquals(new PartialPosition(10d,10d), convexHull.get(1));
-        assertEquals(new PartialPosition(0d,10d), convexHull.get(2));
+        assertEquals(new PartialPosition(0d,0d, UnitUtils.Units.MM), convexHull.get(0));
+        assertEquals(new PartialPosition(10d,10d, UnitUtils.Units.MM), convexHull.get(1));
+        assertEquals(new PartialPosition(0d,10d, UnitUtils.Units.MM), convexHull.get(2));
     }
 }

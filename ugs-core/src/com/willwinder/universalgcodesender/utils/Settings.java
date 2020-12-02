@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -430,15 +431,23 @@ public class Settings {
     }
 
     public ConnectionDriver getConnectionDriver() {
-        ConnectionDriver connectionDriver = ConnectionDriver.JSERIALCOMM;
         if (StringUtils.isNotEmpty(this.connectionDriver)) {
             try {
-                connectionDriver = ConnectionDriver.valueOf(this.connectionDriver);
+                return ConnectionDriver.valueOf(this.connectionDriver);
             } catch (IllegalArgumentException | NullPointerException ignored) {
                 // Never mind, we'll use the default
             }
         }
-        return connectionDriver;
+
+        return getDefaultDriver();
+    }
+
+    private ConnectionDriver getDefaultDriver() {
+        ConnectionDriver result = ConnectionDriver.JSERIALCOMM;
+        if (SystemUtils.IS_OS_LINUX) {
+            result = ConnectionDriver.JSSC;
+        }
+        return result;
     }
 
     public void setConnectionDriver(ConnectionDriver connectionDriver) {

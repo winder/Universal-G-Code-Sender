@@ -54,11 +54,7 @@ final public class PointSegment {
         public Position center = null;
         public Plane plane = null;
     }
-    
-    public PointSegment() {
-        this.lineNumber = -1;
-        this.point = new Position();
-    }
+
     
     public PointSegment(PointSegment ps) {
         this(ps.point(), ps.getLineNumber());
@@ -77,9 +73,7 @@ final public class PointSegment {
         }
     }
     
-    public PointSegment(final Position b, final int num)
-    {
-        this();
+    public PointSegment(final Position b, final int num) {
         this.point = new Position (b);
         this.lineNumber = num;
     }

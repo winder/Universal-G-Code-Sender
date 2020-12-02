@@ -25,6 +25,8 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.junit.Test;
 
 import static com.willwinder.universalgcodesender.model.Axis.*;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.INCH;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
@@ -306,9 +308,9 @@ public class GrblUtilsTest {
         String status = "<Run,MPos:50.400,43.200,0.000,WPos:50000,42.600,0.000>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
-        Position position = GrblUtils.getWorkPositionFromStatusString(status, version, UnitUtils.Units.MM);
+        Position position = GrblUtils.getWorkPositionFromStatusString(status, version, MM);
 
-        Position expResult = new Position(50000, 42.6, 0, UnitUtils.Units.MM);
+        Position expResult = new Position(50000, 42.6, 0, MM);
         assertEquals(expResult, position);
     }
 
@@ -321,8 +323,8 @@ public class GrblUtilsTest {
         String status = "<Idle,MPos:5.529,0.560,7.000,WPos:1.529,-5.440,-0.000>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
-        Position expResult = new Position(5.529, 0.560, 7.000, UnitUtils.Units.UNKNOWN);
-        Position result = GrblUtils.getMachinePositionFromStatusString(status, version, UnitUtils.Units.UNKNOWN);
+        Position expResult = new Position(5.529, 0.560, 7.000, UnitUtils.Units.MM);
+        Position result = GrblUtils.getMachinePositionFromStatusString(status, version, UnitUtils.Units.MM);
         assertEquals(expResult, result);
     }
 
@@ -331,9 +333,9 @@ public class GrblUtilsTest {
         String status = "<Run,MPos:5,43.200,1,WPos:50000,42.600,0.000>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
-        Position position = GrblUtils.getMachinePositionFromStatusString(status, version, UnitUtils.Units.MM);
+        Position position = GrblUtils.getMachinePositionFromStatusString(status, version, MM);
 
-        Position expResult = new Position(5, 43.2, 1, UnitUtils.Units.MM);
+        Position expResult = new Position(5, 43.2, 1, MM);
         assertEquals(expResult, position);
     }
 
@@ -346,8 +348,8 @@ public class GrblUtilsTest {
         String status = "<Idle,MPos:5.529,0.560,7.000,WPos:1.529,-5.440,-0.000>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
-        Position expResult = new Position(1.529, -5.440, -0.000, UnitUtils.Units.UNKNOWN);
-        Position result = GrblUtils.getWorkPositionFromStatusString(status, version, UnitUtils.Units.UNKNOWN);
+        Position expResult = new Position(1.529, -5.440, -0.000, UnitUtils.Units.MM);
+        Position result = GrblUtils.getWorkPositionFromStatusString(status, version, UnitUtils.Units.MM);
         assertEquals(expResult, result);
     }
 
@@ -359,20 +361,20 @@ public class GrblUtilsTest {
         Character letter = 'c';
         String result;
 
-        result = GrblUtils.getResetCoordToZeroCommand(X, version, letter);
+        result = GrblUtils.getResetCoordToZeroCommand(X, MM, version, letter);
         assertEquals("G92 X0", result);
-        result = GrblUtils.getResetCoordToZeroCommand(Y, version, letter);
+        result = GrblUtils.getResetCoordToZeroCommand(Y, MM, version, letter);
         assertEquals("G92 Y0", result);
-        result = GrblUtils.getResetCoordToZeroCommand(Z, version, letter);
+        result = GrblUtils.getResetCoordToZeroCommand(Z, MM, version, letter);
         assertEquals("G92 Z0", result);
 
         version = 0.9;
 
-        result = GrblUtils.getResetCoordToZeroCommand(X, version, letter);
+        result = GrblUtils.getResetCoordToZeroCommand(X, INCH, version, letter);
         assertEquals("G10 P0 L20 X0", result);
-        result = GrblUtils.getResetCoordToZeroCommand(Y, version, letter);
+        result = GrblUtils.getResetCoordToZeroCommand(Y, INCH, version, letter);
         assertEquals("G10 P0 L20 Y0", result);
-        result = GrblUtils.getResetCoordToZeroCommand(Z, version, letter);
+        result = GrblUtils.getResetCoordToZeroCommand(Z, INCH, version, letter);
         assertEquals("G10 P0 L20 Z0", result);
     }
 
@@ -421,15 +423,15 @@ public class GrblUtilsTest {
         String status = "<Idle|MPos:1.1,2.2,3.3|WPos:4.4,5.5,6.6|WCO:7.7,8.8,9.9|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZPDHRS|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = UnitUtils.Units.MM;
+        UnitUtils.Units unit = MM;
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
         assertEquals(ControllerState.IDLE, controllerStatus.getState());
 
-        assertEquals(new Position(1.1, 2.2, 3.3, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
-        assertEquals(new Position(4.4, 5.5, 6.6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());
-        assertEquals(new Position(7.7, 8.8, 9.9, UnitUtils.Units.MM), controllerStatus.getWorkCoordinateOffset());
+        assertEquals(new Position(1.1, 2.2, 3.3, MM), controllerStatus.getMachineCoord());
+        assertEquals(new Position(4.4, 5.5, 6.6, MM), controllerStatus.getWorkCoord());
+        assertEquals(new Position(7.7, 8.8, 9.9, MM), controllerStatus.getWorkCoordinateOffset());
 
         assertEquals(1, controllerStatus.getOverrides().feed);
         assertEquals(2, controllerStatus.getOverrides().rapid);
@@ -458,13 +460,13 @@ public class GrblUtilsTest {
         String status = "<Idle|MPos:1.1,2.2,3.3|WPos:4.4,5.5,6.6|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZPDHRS|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = UnitUtils.Units.MM;
+        UnitUtils.Units unit = MM;
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
-        assertEquals(new Position(1.1, 2.2, 3.3, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
-        assertEquals(new Position(4.4, 5.5, 6.6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());
-        assertEquals(new Position(0, 0, 0, UnitUtils.Units.MM), controllerStatus.getWorkCoordinateOffset());
+        assertEquals(new Position(1.1, 2.2, 3.3, MM), controllerStatus.getMachineCoord());
+        assertEquals(new Position(4.4, 5.5, 6.6, MM), controllerStatus.getWorkCoord());
+        assertEquals(new Position(0, 0, 0, MM), controllerStatus.getWorkCoordinateOffset());
     }
 
     @Test
@@ -472,13 +474,13 @@ public class GrblUtilsTest {
         String status = "<Idle|MPos:1.0,2.0,3.0|WCO:7.0,8.0,9.0|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZPDHRS|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = UnitUtils.Units.MM;
+        UnitUtils.Units unit = MM;
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
-        assertEquals(new Position(1, 2, 3, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
-        assertEquals(new Position(-6, -6, -6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());
-        assertEquals(new Position(7, 8, 9, UnitUtils.Units.MM), controllerStatus.getWorkCoordinateOffset());
+        assertEquals(new Position(1, 2, 3, MM), controllerStatus.getMachineCoord());
+        assertEquals(new Position(-6, -6, -6, MM), controllerStatus.getWorkCoord());
+        assertEquals(new Position(7, 8, 9, MM), controllerStatus.getWorkCoordinateOffset());
     }
 
     @Test
@@ -486,13 +488,13 @@ public class GrblUtilsTest {
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZPDHRS|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = UnitUtils.Units.MM;
+        UnitUtils.Units unit = MM;
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
-        assertEquals(new Position(11, 13, 15, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
-        assertEquals(new Position(4, 5, 6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());
-        assertEquals(new Position(7, 8, 9, UnitUtils.Units.MM), controllerStatus.getWorkCoordinateOffset());
+        assertEquals(new Position(11, 13, 15, MM), controllerStatus.getMachineCoord());
+        assertEquals(new Position(4, 5, 6, MM), controllerStatus.getWorkCoord());
+        assertEquals(new Position(7, 8, 9, MM), controllerStatus.getWorkCoordinateOffset());
     }
 
     @Test
@@ -500,7 +502,7 @@ public class GrblUtilsTest {
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|FS:12345.7,65432.1|F:12345.6|Pn:XYZPDHRS|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = UnitUtils.Units.MM;
+        UnitUtils.Units unit = MM;
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
@@ -513,7 +515,7 @@ public class GrblUtilsTest {
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|F:12345.6,1000.0>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = UnitUtils.Units.MM;
+        UnitUtils.Units unit = MM;
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
@@ -525,7 +527,7 @@ public class GrblUtilsTest {
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|F:12345.6,1000.0,2000.0>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = UnitUtils.Units.MM;
+        UnitUtils.Units unit = MM;
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
@@ -537,7 +539,7 @@ public class GrblUtilsTest {
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|FS:12345.7,65432.1|F:12345.6|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = UnitUtils.Units.MM;
+        UnitUtils.Units unit = MM;
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
@@ -556,7 +558,7 @@ public class GrblUtilsTest {
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|FS:12345.7,65432.1|F:12345.6>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = UnitUtils.Units.MM;
+        UnitUtils.Units unit = MM;
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 

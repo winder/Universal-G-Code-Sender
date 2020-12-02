@@ -52,8 +52,8 @@ public class GcodeViewParse {
 
     public GcodeViewParse()
     {
-        min = new Position();
-        max = new Position();
+        min = new Position(UnitUtils.Units.MM);
+        max = new Position(UnitUtils.Units.MM);
         lines = new ArrayList<>();
     }
 
@@ -126,7 +126,7 @@ public class GcodeViewParse {
         GcodeParser gp = getParser(arcSegmentLength);
 
         // Save the state
-        Position start = new Position(0, 0, 0, UnitUtils.Units.getUnits(gp.getCurrentState().units));
+        Position start = new Position(gp.getCurrentState().getUnits());
 
         while (reader.getNumRowsRemaining() > 0) {
             GcodeCommand commandObject = reader.getNextCommand();
@@ -157,7 +157,7 @@ public class GcodeViewParse {
         lines.clear();
 
         // Save the state
-        Position start = new Position(0,0,0, UnitUtils.Units.getUnits(gp.getCurrentState().units));
+        Position start = new Position(gp.getCurrentState().getUnits());
 
         for (String s : gcode) {
             List<String> commands = gp.preprocessCommand(s, gp.getCurrentState());
