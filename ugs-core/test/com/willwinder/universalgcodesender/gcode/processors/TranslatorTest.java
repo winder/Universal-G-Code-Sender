@@ -94,7 +94,7 @@ public class TranslatorTest {
 
         result = truncator.processCommand(result.get(0), state);
 
-        Assertions.assertThat(result).hasSize(1).contains("G0X0.3976Y0.7953Z1.1929");
+        Assertions.assertThat(result).hasSize(1).contains("G0X0.398Y0.795Z1.193");
     }
 
     @Test
