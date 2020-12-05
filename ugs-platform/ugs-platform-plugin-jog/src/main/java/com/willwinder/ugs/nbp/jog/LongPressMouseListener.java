@@ -63,6 +63,7 @@ public abstract class LongPressMouseListener implements MouseListener {
      * will trigger a long press event after the defined delay time.
      */
     private ScheduledFuture<?> longPressTimer;
+    private Component pressedComponent;
 
     /**
      * Constructor for creating a long press mouse listener
@@ -76,23 +77,16 @@ public abstract class LongPressMouseListener implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if(!isSourceEnabled(e)) {
-            return;
-        }
-
-        if (!isLongPressed) {
-            onMouseClicked(e);
-        } else {
-            onMouseLongClicked(e);
-        }
+        // Ignore these events as they behave unpredictable
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if(!isSourceEnabled(e)) {
+        if (!isSourceEnabled(e)) {
             return;
         }
 
+        pressedComponent = e.getComponent();
         isLongPressed = false;
         onMousePressed(e);
 
@@ -110,16 +104,24 @@ public abstract class LongPressMouseListener implements MouseListener {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        if(!isSourceEnabled(e)) {
+        if (!isSourceEnabled(e)) {
             return;
         }
 
         if (isLongPressed) {
             onMouseLongRelease(e);
-            onMouseLongClicked(e);
-        } else if (longPressTimer != null) {
-            longPressTimer.cancel(true);
+            if(pressedComponent.contains(e.getPoint())) {
+                onMouseLongClicked(e);
+            }
+        } else {
             onMouseRelease(e);
+            if(pressedComponent.contains(e.getPoint())) {
+                onMouseClicked(e);
+            }
+        }
+
+        if (longPressTimer != null) {
+            longPressTimer.cancel(true);
         }
 
         // Reset internal state
@@ -135,7 +137,7 @@ public abstract class LongPressMouseListener implements MouseListener {
     }
 
     private boolean isSourceEnabled(MouseEvent e) {
-        return ((Component)e.getSource()).isEnabled();
+        return ((Component) e.getSource()).isEnabled();
     }
 
     /**
