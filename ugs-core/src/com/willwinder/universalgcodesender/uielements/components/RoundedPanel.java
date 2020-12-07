@@ -37,6 +37,7 @@ public class RoundedPanel extends JPanel implements MouseListener {
     private boolean mouseOver = false;
     private boolean mousePressed = false;
     private List<RoundedPanelClickListener> listeners = new ArrayList<>();
+    private Component pressedComponent;
 
     public RoundedPanel(int radius) {
         super();
@@ -104,14 +105,15 @@ public class RoundedPanel extends JPanel implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent exc) {
-        if (!isEnabled()) return;
-        listeners.forEach(RoundedPanelClickListener::onClick);
+        // Ignore these events as they behave unpredictable
     }
 
     @Override
     public void mousePressed(MouseEvent exc) {
         this.mousePressed = true;
         this.repaint();
+
+        pressedComponent = exc.getComponent();
 
         if (!isEnabled()) return;
         listeners.forEach(RoundedPanelClickListener::onPressed);
@@ -124,6 +126,10 @@ public class RoundedPanel extends JPanel implements MouseListener {
 
         if (!isEnabled()) return;
         listeners.forEach(RoundedPanelClickListener::onReleased);
+
+        if(pressedComponent.contains(exc.getPoint())) {
+            listeners.forEach(RoundedPanelClickListener::onClick);
+        }
     }
 
     @Override
