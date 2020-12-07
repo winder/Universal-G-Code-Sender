@@ -110,14 +110,12 @@ public abstract class LongPressMouseListener implements MouseListener {
 
         if (isLongPressed) {
             onMouseLongRelease(e);
-            if(pressedComponent.contains(e.getPoint())) {
-                onMouseLongClicked(e);
-            }
         } else {
             onMouseRelease(e);
-            if(pressedComponent.contains(e.getPoint())) {
-                onMouseClicked(e);
-            }
+        }
+
+        if(pressedComponent.contains(e.getPoint())) {
+            onMouseClicked(e);
         }
 
         if (longPressTimer != null) {
