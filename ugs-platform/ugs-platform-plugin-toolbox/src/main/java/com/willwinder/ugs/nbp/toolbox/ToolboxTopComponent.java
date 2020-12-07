@@ -67,9 +67,7 @@ public final class ToolboxTopComponent extends TopComponent implements ISettings
         actionRegistrationService = Lookup.getDefault().lookup(ActionRegistrationService.class);
         buttonGridPanel = new ButtonGridPanel();
 
-        JScrollPane scrollPane = new JScrollPane(buttonGridPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setBorder(createEmptyBorder());
-        add(scrollPane, BorderLayout.CENTER);
+        add(buttonGridPanel, BorderLayout.CENTER);
         settingsChanged();
     }
 
