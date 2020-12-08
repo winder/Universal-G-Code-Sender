@@ -27,11 +27,7 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.Alarm;
-import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.utils.MathUtils;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
@@ -204,9 +200,17 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     private ActionListener createListenerUpdateSetting(Axis axis, JTextField textFieldSetting) {
         return event -> {
             try {
+                Position previousPosition = getBackend().getWorkPosition();
+
                 IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
                 double value = Double.parseDouble(textFieldSetting.getText());
                 firmwareSettings.setStepsPerMillimeter(axis, value);
+
+                // We need to issue soft reset to make the controller use the new settings
+                getBackend().issueSoftReset();
+
+                // Restore the previous position
+                getBackend().setWorkPosition(PartialPosition.from(previousPosition));
             } catch (Exception e) {
                 e.printStackTrace();
             }
