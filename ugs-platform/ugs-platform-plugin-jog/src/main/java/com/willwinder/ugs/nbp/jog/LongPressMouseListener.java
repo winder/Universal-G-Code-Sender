@@ -147,14 +147,6 @@ public abstract class LongPressMouseListener implements MouseListener {
     protected abstract void onMouseClicked(MouseEvent e);
 
     /**
-     * If the component was was clicked with a long click. This will not be
-     * triggered if the button was just clicked.
-     *
-     * @param e the mouse event
-     */
-    protected abstract void onMouseLongClicked(MouseEvent e);
-
-    /**
      * When the component is pressed. This may not trigger a onMouseRelease if
      * the button was pressed for more than the given long press delay.
      *

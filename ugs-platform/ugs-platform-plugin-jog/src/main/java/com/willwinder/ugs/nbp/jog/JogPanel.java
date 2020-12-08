@@ -273,11 +273,6 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
             }
 
             @Override
-            protected void onMouseLongClicked(MouseEvent e) {
-
-            }
-
-            @Override
             protected void onMousePressed(MouseEvent e) {
 
             }

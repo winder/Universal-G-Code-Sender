@@ -14,7 +14,6 @@ public class LongPressMouseListenerTest {
     public static final int LONG_PRESS_DELAY = 100;
 
     private boolean isMouseClicked;
-    private boolean isMouseLongClicked;
     private boolean isMousePressed;
     private boolean isMouseRelease;
     private boolean isMouseLongPressed;
@@ -25,7 +24,6 @@ public class LongPressMouseListenerTest {
     @Before
     public void setUp() {
         isMouseClicked = false;
-        isMouseLongClicked = false;
         isMousePressed = false;
         isMouseRelease = false;
         isMouseLongPressed = false;
@@ -39,11 +37,6 @@ public class LongPressMouseListenerTest {
             @Override
             protected void onMouseClicked(MouseEvent e) {
                 isMouseClicked = true;
-            }
-
-            @Override
-            protected void onMouseLongClicked(MouseEvent e) {
-                isMouseLongClicked = true;
             }
 
             @Override
@@ -109,7 +102,7 @@ public class LongPressMouseListenerTest {
     }
 
     @Test
-    public void mouseLongReleaseShouldNotTriggerLongClickIfReleasedOutsideComponent() throws InterruptedException {
+    public void mouseLongReleaseShouldNotTriggerClickIfReleasedOutsideComponent() throws InterruptedException {
         component.setLocation(0,0);
         component.setSize(1,1);
 
@@ -120,11 +113,10 @@ public class LongPressMouseListenerTest {
         longPressMouseListener.mouseReleased(event);
 
         assertFalse(isMouseClicked);
-        assertFalse(isMouseLongClicked);
     }
 
     @Test
-    public void mouseLongReleaseShouldTriggerLongClickIfReleasedInsideComponent() throws InterruptedException {
+    public void mouseLongReleaseShouldTriggerClickIfReleasedInsideComponent() throws InterruptedException {
         component.setLocation(0,0);
         component.setSize(1,1);
 
@@ -134,13 +126,12 @@ public class LongPressMouseListenerTest {
         Thread.sleep(LONG_PRESS_DELAY + 100);
         longPressMouseListener.mouseReleased(event);
 
-        assertFalse(isMouseClicked);
-        assertTrue(isMouseLongClicked);
+        assertTrue(isMouseClicked);
     }
 
 
     @Test
-    public void mouseReleaseShouldNotTriggerLongClickIfReleasedOutsideComponent() {
+    public void mouseReleaseShouldNotTriggerClickIfReleasedOutsideComponent() {
         component.setLocation(0,0);
         component.setSize(1,1);
 
@@ -150,11 +141,10 @@ public class LongPressMouseListenerTest {
         longPressMouseListener.mouseReleased(event);
 
         assertFalse(isMouseClicked);
-        assertFalse(isMouseLongClicked);
     }
 
     @Test
-    public void mouseReleaseShouldTriggerLongClickIfReleasedInsideComponent() {
+    public void mouseReleaseShouldTriggerClickIfReleasedInsideComponent() {
         component.setLocation(0,0);
         component.setSize(1,1);
 
@@ -164,6 +154,5 @@ public class LongPressMouseListenerTest {
         longPressMouseListener.mouseReleased(event);
 
         assertTrue(isMouseClicked);
-        assertFalse(isMouseLongClicked);
     }
 }
