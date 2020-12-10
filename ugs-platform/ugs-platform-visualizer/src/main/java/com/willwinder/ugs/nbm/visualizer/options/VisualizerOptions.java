@@ -97,9 +97,9 @@ public class VisualizerOptions extends ArrayList<Option> {
         add(getOption(VISUALIZER_OPTION_XY_GRID, "", new Color(179,179,179, 29)));
         add(getOption(VISUALIZER_OPTION_XY_PLANE, "", new Color(77,77,77,29)));
         add(getOption(VISUALIZER_OPTION_X, "", new Color(230,0,0)));
-        add(getOption(VISUALIZER_OPTION_Y, "", new Color(0,0,230)));
-        add(getOption(VISUALIZER_OPTION_Z, "", new Color(0,230,0)));
-       
+        add(getOption(VISUALIZER_OPTION_Y, "", new Color(0,230,0)));
+        add(getOption(VISUALIZER_OPTION_Z, "", new Color(0,0,230)));
+
         // SizeDisplay renderable
         add(getOption(VISUALIZER_OPTION_SIZE, "", new Color(128,128,128)));
 
