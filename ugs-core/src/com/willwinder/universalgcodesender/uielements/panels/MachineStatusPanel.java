@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -33,24 +33,14 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.uielements.components.AxisPanel;
+import com.willwinder.universalgcodesender.uielements.components.PopupEditor;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
-import com.willwinder.universalgcodesender.uielements.components.WorkCoordinateTextField;
-import com.willwinder.universalgcodesender.uielements.helpers.MachineStatusFontManager;
-import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
-import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
+import com.willwinder.universalgcodesender.uielements.helpers.*;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.Timer;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.GraphicsEnvironment;
+import javax.swing.*;
+import java.awt.*;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -58,14 +48,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
+import java.util.logging.Logger;
 
 /**
  * DRO style display panel with current controller state.
  */
 public class MachineStatusPanel extends JPanel implements UGSEventListener, ControllerStateListener, AxisPanel.AxisPanelListener {
-
+    private static final Logger LOGGER = Logger.getLogger(MachineStatusPanel.class.getName());
     private static final int COMMON_RADIUS = 7;
     private static final Duration REFRESH_RATE = Duration.ofSeconds(1);
 
@@ -98,6 +87,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private Units units;
     private Map<Axis, AxisPanel> axisPanels = new HashMap<>();
+    private final DecimalFormat decimalFormatter = new DecimalFormat("0.000");
 
 
     public MachineStatusPanel(BackendAPI backend) {
@@ -352,11 +342,27 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     @Override
-    public void onResetClick(Axis axis) {
+    public void onResetClick(JComponent component, Axis axis) {
         try {
             backend.resetCoordinateToZero(axis);
         } catch (Exception e) {
             // Ignore errors
+        }
+    }
+
+    @Override
+    public void onWorkPositionClick(JComponent component, Axis axis) {
+        if (backend.isConnected() && backend.isIdle()) {
+            String text = decimalFormatter.format(backend.getWorkPosition().get(axis));
+            PopupEditor popupEditor = new PopupEditor(component, "Set " + axis + " work position", text);
+            popupEditor.setVisible(true);
+            popupEditor.addPopupListener((value) -> {
+                try {
+                    backend.setWorkPositionUsingExpression(axis, value);
+                } catch (Exception e) {
+                    LOGGER.warning(String.format("Could not set work position '%s' on axis '%s'", value, axis));
+                }
+            });
         }
     }
 }

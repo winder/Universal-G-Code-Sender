@@ -16,20 +16,17 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.uielements.panels;
+package com.willwinder.universalgcodesender.uielements.components;
 
 import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.MachineStatusFontManager;
+import com.willwinder.universalgcodesender.uielements.helpers.MouseClickListener;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
@@ -66,42 +63,18 @@ public class AxisPanel extends JPanel {
         JLabel zeroLabel = new JLabel("0");
         zeroLabel.setForeground(ThemeColors.LIGHT_BLUE);
         resetPanel.add(zeroLabel, "pos (axis.x + axis.w - 4) (axis.y + axis.h - 25)");
-        resetPanel.addClickListener(() -> axisPanelListenerList.forEach(axisPanelListener -> axisPanelListener.onResetClick(axis)));
+        resetPanel.addClickListener(() -> axisPanelListenerList.forEach(axisPanelListener -> axisPanelListener.onResetClick(resetPanel, axis)));
 
         work.setHorizontalAlignment(SwingConstants.RIGHT);
         work.setForeground(ThemeColors.LIGHT_BLUE);
-        work.addMouseListener(new MouseListener() {
+
+        work.addMouseListener(new MouseClickListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                if(work.isEnabled()) {
-                    work.setBackground(ThemeColors.LIGHT_GREEN);
-                    work.repaint();
-                }
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                if (work.isEnabled()) {
-                    work.setForeground(ThemeColors.LIGHT_BLUE);
-                    work.repaint();
-                }
+            public void onClick(MouseEvent e) {
+                axisPanelListenerList.forEach(axisPanelListener -> axisPanelListener.onWorkPositionClick(work, axis));
             }
         });
+
         machine.setHorizontalAlignment(SwingConstants.RIGHT);
         machine.setForeground(ThemeColors.LIGHT_BLUE);
         axisPanel.add(resetPanel, "sy 2");
@@ -116,7 +89,7 @@ public class AxisPanel extends JPanel {
         add(axisPanel, BorderLayout.CENTER);
     }
 
-    void addListener(AxisPanelListener axisPanelListener) {
+    public void addListener(AxisPanelListener axisPanelListener) {
         axisPanelListenerList.add(axisPanelListener);
     }
 
@@ -147,6 +120,20 @@ public class AxisPanel extends JPanel {
     }
 
     public interface AxisPanelListener {
-        void onResetClick(Axis axis);
+        /**
+         * When the reset click button is pressed
+         *
+         * @param component - the button component being pressed
+         * @param axis - the axis that should be reset
+         */
+        void onResetClick(JComponent component, Axis axis);
+
+        /**
+         * When the work position is being clicked
+         *
+         * @param component - the label being clicked
+         * @param axis - the axis that the label is showing
+         */
+        void onWorkPositionClick(JComponent component, Axis axis);
     }
 }
