@@ -220,10 +220,8 @@ public class TinyGUtils {
             }
 
             ControllerState state = lastControllerStatus.getState();
-            String stateString = lastControllerStatus.getStateString();
             if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_STATUS)) {
                 state = getState(statusResultObject.get(FIELD_STATUS_REPORT_STATUS).getAsInt());
-                stateString = getStateAsString(statusResultObject.get(FIELD_STATUS_REPORT_STATUS).getAsInt());
             }
 
             Double spindleSpeed = lastControllerStatus.getSpindleSpeed();
@@ -232,7 +230,7 @@ public class TinyGUtils {
             ControllerStatus.AccessoryStates accessoryStates = lastControllerStatus.getAccessoryStates();
 
             ControllerStatus.OverridePercents overrides = new ControllerStatus.OverridePercents(overrideFeed, overrideRapid, overrideSpindle);
-            return new ControllerStatus(stateString, state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, enabledPins, accessoryStates);
+            return new ControllerStatus(state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, enabledPins, accessoryStates);
         }
 
         return lastControllerStatus;
@@ -279,11 +277,6 @@ public class TinyGUtils {
         }
     }
 
-    private static String getStateAsString(int state) {
-        ControllerState controllerState = getState(state);
-        return controllerState.name();
-    }
-
     /**
      * Generates a command for resetting the coordinates for the current coordinate system to zero.
      *
@@ -293,7 +286,8 @@ public class TinyGUtils {
      */
     public static String generateResetCoordinatesToZeroCommand(ControllerStatus controllerStatus, GcodeState gcodeState) {
         int offsetCode = WorkCoordinateSystem.fromGCode(gcodeState.offset).getPValue();
-        Position machineCoord = controllerStatus.getMachineCoord();
+        UnitUtils.Units currentUnits = gcodeState.getUnits();
+        Position machineCoord = controllerStatus.getMachineCoord().getPositionIn(currentUnits);
         return "G10 L2 P" + offsetCode +
                 " X" + Utils.formatter.format(machineCoord.get(Axis.X)) +
                 " Y" + Utils.formatter.format(machineCoord.get(Axis.Y)) +
@@ -310,11 +304,11 @@ public class TinyGUtils {
      */
     public static String generateSetWorkPositionCommand(ControllerStatus controllerStatus, GcodeState gcodeState, PartialPosition positions) {
         int offsetCode = WorkCoordinateSystem.fromGCode(gcodeState.offset).getPValue();
-        Position machineCoord = controllerStatus.getMachineCoord();
+        UnitUtils.Units currentUnits = gcodeState.getUnits();
+        Position machineCoord = controllerStatus.getMachineCoord().getPositionIn(currentUnits);
 
-
-        PartialPosition.Builder offsets = new PartialPosition.Builder();
-        for (Map.Entry<Axis, Double> position : positions.getAll().entrySet()) {
+        PartialPosition.Builder offsets = PartialPosition.builder().setUnits(currentUnits);
+        for (Map.Entry<Axis, Double> position : positions.getPositionIn(currentUnits).getAll().entrySet()) {
             double axisOffset = -(position.getValue() - machineCoord.get(position.getKey()));
             offsets.setValue(position.getKey(), axisOffset);
 

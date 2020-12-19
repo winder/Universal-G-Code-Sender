@@ -49,22 +49,15 @@ import java.util.logging.Logger;
 public class GcodeViewParse {
     Logger LOGGER = Logger.getLogger(GcodeViewParse.class.getName());
 
-    // false = incremental; true = absolute
-    boolean absoluteMode = true;
-    static boolean absoluteIJK = false;
-
     // Parsed object
     private final Position min;
     private final Position max;
     private final List<LineSegment> lines;
-    
-    // Debug
-    private final boolean debug = true;
-    
+
     public GcodeViewParse()
     {
-        min = new Position();
-        max = new Position();
+        min = new Position(UnitUtils.Units.MM);
+        max = new Position(UnitUtils.Units.MM);
         lines = new ArrayList<>();
     }
 
@@ -135,7 +128,7 @@ public class GcodeViewParse {
      * toObjFromReader and toObjRedux adds more complexity than having these two
      * methods.
      * 
-     * @param gcode commands to visualize.
+     * @param reader a stream with commands to parse.
      * @param arcSegmentLength length of line segments when expanding an arc.
      */
     public List<LineSegment> toObjFromReader(IGcodeStreamReader reader,
@@ -144,7 +137,7 @@ public class GcodeViewParse {
         GcodeParser gp = getParser(arcSegmentLength);
 
         // Save the state
-        Position start = new Position();
+        Position start = new Position(gp.getCurrentState().getUnits());
 
         while (reader.getNumRowsRemaining() > 0) {
             GcodeCommand commandObject = reader.getNextCommand();
@@ -154,7 +147,7 @@ public class GcodeViewParse {
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
                         addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
-                        start.set(meta.point.point());
+                        start = meta.point.point();
                     }
                 }
             }
@@ -165,6 +158,7 @@ public class GcodeViewParse {
     
     /**
      * The original (working) gcode to LineSegment collection code.
+     *
      * @param gcode commands to visualize.
      * @param arcSegmentLength length of line segments when expanding an arc.
      */
@@ -174,7 +168,7 @@ public class GcodeViewParse {
         lines.clear();
 
         // Save the state
-        Position start = new Position();
+        Position start = new Position(gp.getCurrentState().getUnits());
 
         for (String s : gcode) {
             List<String> commands = gp.preprocessCommand(s, gp.getCurrentState());

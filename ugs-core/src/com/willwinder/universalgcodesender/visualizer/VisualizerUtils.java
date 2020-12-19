@@ -81,10 +81,10 @@ public class VisualizerUtils {
      * Returns the center point on a line.
      */
     public static Position findCenter(Position min, Position max) {
-        Position center = new Position();
-        center.x = (min.x + max.x) / 2.0;
-        center.y = (min.y + max.y) / 2.0;
-        center.z = (min.z + max.z) / 2.0;
+        Position center = new Position(
+            (min.x + max.x) / 2.0,
+            (min.y + max.y) / 2.0,
+            (min.z + max.z) / 2.0);
         return center;
     }
 
@@ -112,12 +112,13 @@ public class VisualizerUtils {
     public static ArrayList<String> readFiletoArrayList(String gCode) throws IOException {
         ArrayList<String> vect = new ArrayList<>();
         File gCodeFile = new File(gCode);
-        FileInputStream fstream = new FileInputStream(gCodeFile);
-        DataInputStream dis = new DataInputStream(fstream);
-        BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
-        String line;
-        while ((line = fileStream.readLine()) != null) {
-            vect.add(line);
+        try(FileInputStream fstream = new FileInputStream(gCodeFile)) {
+            DataInputStream dis = new DataInputStream(fstream);
+            BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
+            String line;
+            while ((line = fileStream.readLine()) != null) {
+                vect.add(line);
+            }
         }
 
         return vect;

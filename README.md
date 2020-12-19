@@ -1,6 +1,12 @@
 ![Universal G-Code Sender](https://raw.githubusercontent.com/winder/Universal-G-Code-Sender/master/ugs-platform/branding/src/main/nbm-branding/core/core.jar/org/netbeans/core/startup/splash.gif "UGS Splash Image")
 
-Universal G-Code Sender is a Java based, cross platform G-Code sender, compatible with [GRBL](https://github.com/gnea/grbl/) and [TinyG](https://github.com/synthetos/TinyG)/[g2core](https://github.com/synthetos/g2). Use this program to run a GRBL or TinyG/g2core controlled CNC machine. 
+[![Last commit](https://img.shields.io/github/last-commit/winder/Universal-G-Code-Sender.svg?maxAge=1800)](https://github.com/winder/Universal-G-Code-Sender/commits/master)
+[![Build Status](https://travis-ci.org/winder/Universal-G-Code-Sender.svg?branch=master)](https://travis-ci.org/winder/Universal-G-Code-Sender)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2941c34531f749a2b7fbcd1737f71000)](https://www.codacy.com/app/winder/Universal-G-Code-Sender?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=winder/Universal-G-Code-Sender&amp;utm_campaign=Badge_Grade)
+[![Codebeat badge](https://codebeat.co/badges/48cc1265-2f6b-4163-8a8a-964acc073100)](https://codebeat.co/projects/github-com-winder-universal-g-code-sender-master)
+[![Releases](https://img.shields.io/github/v/release/winder/Universal-G-Code-Sender)](https://github.com/winder/Universal-G-Code-Sender/releases)
+
+Universal G-Code Sender is a Java based, cross platform G-Code sender, compatible with [GRBL](https://github.com/gnea/grbl/), [TinyG](https://github.com/synthetos/TinyG), [g2core](https://github.com/synthetos/g2) and [Smoothieware](http://smoothieware.org/).
 
 Online documentation and releases: http://winder.github.io/ugs_website/<br/>
 Discussion forum: https://groups.google.com/forum/#!forum/universal-gcode-sender
@@ -13,28 +19,27 @@ Technical details:
 * Developed with NetBeans 8.0.2 or later
 
 ## Downloads
+Below you will find the latest release of UGS.<br/> For older releases please visit the [releases page](https://github.com/winder/Universal-G-Code-Sender/releases).
 
-These are the nightly builds of the most recent code with the latest features and bug fixes. <br/>
-For stable releases visit the [downloads page](http://winder.github.io/ugs_website/download/).
+**UGS Platform**<br>
+The next generation, feature packed variant based on the Netbeans Platform.<br>
+Unpack and start the program ```bin/ugsplatform```
 
-[![Last commit](https://img.shields.io/github/last-commit/winder/Universal-G-Code-Sender.svg?maxAge=1800)](https://github.com/winder/Universal-G-Code-Sender/commits/master)
-[![Build Status](https://travis-ci.org/winder/Universal-G-Code-Sender.svg?branch=master)](https://travis-ci.org/winder/Universal-G-Code-Sender)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2941c34531f749a2b7fbcd1737f71000)](https://www.codacy.com/app/winder/Universal-G-Code-Sender?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=winder/Universal-G-Code-Sender&amp;utm_campaign=Badge_Grade)
-[![Codebeat badge](https://codebeat.co/badges/48cc1265-2f6b-4163-8a8a-964acc073100)](https://codebeat.co/projects/github-com-winder-universal-g-code-sender-master)
+| Latest release (v2.0.7) | Nightly build  |
+|:---------------|:--------------|
+| [![Windows](pictures/os_windows.png) Windows](https://ugs.jfrog.io/ugs/UGS/v2.0.7/ugs-platform-app-win.zip)           | [![Windows](pictures/os_windows.png) Windows](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-win.zip)  |
+| [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/v2.0.7/ugs-platform-app-ios.dmg)               | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-ios.dmg) |
+| [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/v2.0.7/ugs-platform-app-linux.tar.gz)        | [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-linux.tar.gz) |
+| [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/v2.0.7/ugs-platform-app-pi.tar.gz) | [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-pi.tar.gz) |
+| [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.7/ugs-platform-app.zip)                    | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app.zip) |
 
-| Version | Description |
-|-|-|
-| [UGS Classic](http://bit.ly/2HhJIir)  | The nightly build of the classic version with a clean and lightweight user interface |
-| [UGS Platform](http://bit.ly/2L2v9k6) | The nightly build of the next generation, feature packed version based on the Netbeans Platform |
+**UGS Classic**<br>
+A clean and lightweight variant of UGS (requires [Java](https://java.com/en/download/manual.jsp)). <br>
+Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. <br>
 
-## Running 
-
-Make sure you have [Java 8](https://java.com/en/download/manual.jsp) installed. 
-
-Download either **UGS Classic** or **UGS Platform** and unzip the .zip file.
-
-* For **UGS Classic** simply double click the jar file. On some platforms you may need to run the included start script.
-* For **UGS Platform** run the start script: ```bin/ugsplatform``` 
+| Latest release (v2.0.7) | Nightly build  |
+|:---------------|:--------------|
+| [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v.2.0.7/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](http://bit.ly/2HhJIir) |
 
 
 ## Screenshots
@@ -115,9 +120,11 @@ mvn package -pl ugs-core
 mvn package assembly:assembly
 ```
 
-#### Develop via Intellij
+#### Develop via IntelliJ
 
-If you are more used to Intellij, you can also build, run and debug it there:
+If you are more used to IntelliJ, you can also build, run and debug it there. 
+
+Before you start you need to change a setting for handling imports in Maven since we are using `jgitver`, [read more about it here](https://github.com/jgitver/jgitver-maven-plugin/wiki/Intellij-IDEA-configuration).
 
 - Run  `mvn nbm:run-platform -pl ugs-platform/application` once via terminal to build everything
 - Import the Source, `File` -> `New` -> `Project from existing Sources`
@@ -128,96 +135,3 @@ If you are more used to Intellij, you can also build, run and debug it there:
   - Working dir: `$ProjectFileDir$`
   - Use classpath of module: `ugs-platform-app` 
 - There is a [runConfiguration](.idea/runConfigurations/UGS_Platform.xml) in the repository, which should be available after importing the project
-
-
-## Changelog
-
-1.0.9 -> 2.0
-* Constant memory! Optimized every part of UGS to run in a fixed amount of memory, no more slowness because a file is too large.
-* 'Cancel' now issue a feed hold and soft reset to stop the machine faster.
-* Macro substitutions. Use {machine_x/y/z} {work_x/y/z} to substitute the current machine/work coordinates, {prompt|name} can be used to ask for values in a popup dialog.
-* UGS now queries GRBL for its current state and settings in order to configure itself in a more intelligent manner. (Thanks Phil!)
-* Improved gcode parser. Heavily refactored and validated with a new suite of unit tests, the gcode parser is now much more powerful than before and can be augmented customizable command processors.
-* Controllers can now be added and configured with a JSON file, see resources/firmware_config
-* Added restore default buttons on settings pages.
-* Plane selection support: G17, G18, G19
-* Setup wizard for CNC controllers
-* Improved support for TinyG / g2core
-* Improved web pendant
-* Added command line support
-
-1.0.8 -> 1.0.9
-* Many performance improvements.
-* New serial library: JSSC
-* Updated 3D library.
-* Maven build script (Thanks nitram509!)
-* TinyG support enabled.
-* XLCD support.
-* Bug fixes: INCH/MM jog units, visualizer fixes (crashes and OSX support), "Null stream" error, localization crashes, 
-* Translations: French, Greek, Dutch, Italian
-
-1.0.7 -> 1.0.8
-* PendantUI server - connect to UGS with your smartphone or tablet. (jvabob)
-* Translations: German, Spanish, Italian, Afrikaans
-* Many bugfixes and stability improvements.
-
-1.0.6 -> 1.0.7
-* Many improvements to code architecture to allow future support for multiple firmwares (TinyG, Marlin, Smoothie, etc).
-* New menu bar! Now new features can be added and existing features are more configurable.
-* Additional on-the-fly gcode command preprocessing:
-* - truncate and round long decimals to configurable length.
-* - enforce max command length.
-* - remove whitespaces.
-* - expand small arcs to G1 commands.
-* New option to save preprocessed gcode file to a file.
-* Visualizer navigation controls - pan and zoom with the mouse wheel. (michmerr)
-* Visualizer Support for radius arcs (phlatboyz sketchup plugin gcode now displays correctly)
-* New single-step mode.
-* New colored status indicator.
-* [Many bugfixes, thanks to UGS contributors](https://github.com/winder/Universal-G-Code-Sender/graphs/contributors)
-
-1.0.5 -> 1.0.6
-* 3D gcode visualizer!
-* - color coded line segments
-* - real time tool position
-* - real time gcode buffer position
-* Due to popular demand, RaspberryPi support.
-* Complete all-in-one release, 32 and 64 bit linux/windows/mac + RaspberryPi
-* Settings saved between runs (thanks lazyzero)
-* Advanced GRBL control, new buttons for GRBL 0.8c features (gcode check mode, homing, etc)
-* Major backend refactoring to make code more stable and testable.
-* Unit tests added, over 1300 lines of unit test code.
-
-1.0.4 -> 1.0.5
-* Job duration estimate now displayed when running a file.
-* Real-time machine position display for GRBL v8.0c.
-* Display for most recent GcodeComment.
-* Bug fixes - no more dropped commands!
-* Overhauled the GUI to display more information.
-
-1.0.3 -> 1.0.4
-* The step size spinner now goes to less than 1.
-* New buttons on the manual control page for common functions.
-* Manual X/Y coordinates can now be modified with arrow keys.
-* New start scripts added to release zip files.
-* Changed speed override to a percentage rather than absolute.
-* Bug fixes.
-
-1.0.2 -> 1.0.3
-* Manual jogging mode, control machine with buttons in the UI.
-* Automatically skip blank lines and comments when sending a file.
-* Bug fixes.
-
-1.0.1 -> 1.0.2
-* Grbl version checking.
-* Real-time pause/resume commands used for Grbl v0.8.
-* Comment filtering - parses out comments before sending commands.
-* Bug fixes.
-
-1.0 -> 1.0.1
-* New distribution jar - Application no longer requires RXTX to be installed!
-* Added table view for file streaming.
-* Added Pause/Resume button.
-* Usability improvements.
-* Many bug fixes.
-* Renamed package to com.willwinder.universalgcodesender.

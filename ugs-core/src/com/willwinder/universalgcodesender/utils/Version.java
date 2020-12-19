@@ -11,22 +11,47 @@ import java.util.logging.Logger;
 
 public class Version {
     private static final Logger LOGGER = Logger.getLogger(Version.class.getName());
-    private static final String VERSION = "2.0 [nightly] ";
     private static final String BUILD_DATE_FORMAT = "MMM dd, yyyy";
     private static final String BUILD_DATE_NUMBER_FORMAT = "yyyyMMdd";
+    private static String VERSION = "2.0-SNAPSHOT ";
     private static String BUILD_DATE = "";
 
     private static boolean initialized = false;
-    
+
+    /**
+     * Returns if this is a snapshot/nightly build
+     *
+     * @return true if it is a nightly build
+     */
     static public Boolean isNightlyBuild() {
-        return VERSION.contains("nightly");
+        return VERSION.contains("-SNAPSHOT");
     }
 
+    /**
+     * Returns the version as a string.
+     *
+     * If it is a snapshot/nightly build it will include a build date: "2.0.6-SNAPSHOT / Oct 06, 2020"
+     * If it is a release build it will only include the version: "2.0.6"
+     *
+     * @return the build version as a string
+     */
     static public String getVersionString() {
-        return Version.getVersion() + " / " + Version.getBuildDate();
+        if (!initialized) {
+            initialize();
+        }
+
+        String versionString = Version.getVersion();
+        if (isNightlyBuild()) {
+            return Version.getVersion() + " / " + Version.getBuildDate();
+        }
+        return versionString;
     }
 
-    static public String getVersion() {
+    synchronized static public String getVersion() {
+        if (!initialized) {
+            initialize();
+        }
+
         return VERSION;
     }
 
@@ -62,24 +87,17 @@ public class Version {
     }
 
     private static void initialize() {
-        String buildDate = "";
         try {
-            Class clazz = Version.class;
-            String className = clazz.getSimpleName() + ".class";
-            String classPath = clazz.getResource(className).toString();
-
-            if (classPath.startsWith("jar")) {
-                Properties props;
-                try (InputStream is = clazz.getResourceAsStream("/resources/build.properties")) {
-                    props = new Properties();
-                    props.load(is);
-                }
-                buildDate = props.getProperty("Build-Date");
+            Properties props;
+            try (InputStream is = Version.class.getResourceAsStream("/resources/build.properties")) {
+                props = new Properties();
+                props.load(is);
             }
+            VERSION = props.getProperty("Version");
+            BUILD_DATE = props.getProperty("Build-Date");
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Couldn't parse the build date from the properties file: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Couldn't parse the build date or version from the properties file: " + e.getMessage());
         }
-        BUILD_DATE = buildDate;
         initialized = true;
     }
 }

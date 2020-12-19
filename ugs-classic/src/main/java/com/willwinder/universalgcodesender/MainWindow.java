@@ -1561,7 +1561,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                             return true;
                         case KeyEvent.VK_INSERT:
                         case KeyEvent.VK_NUMPAD0:
-                            //resetCoordinatesButtonActionPerformed(null);
+                            resetCoordinatesButtonActionPerformed(null);
                             e.consume();
                             return true;
                         default:

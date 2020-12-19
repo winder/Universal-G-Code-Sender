@@ -67,7 +67,7 @@ public class MachineBoundries extends Renderable {
             IFirmwareSettings firmwareSettings = backendAPI.getController().getFirmwareSettings();
             softLimitsEnabled = firmwareSettings.isSoftLimitsEnabled();
             if (softLimitsEnabled) {
-                PartialPosition.Builder builder = new PartialPosition.Builder().copy(maxPosition);
+                PartialPosition.Builder builder = PartialPosition.builder().copy(maxPosition);
                 for (Axis axis : Axis.values()) {
                     double maxPosition = firmwareSettings.getSoftLimit(axis);
 
@@ -116,8 +116,8 @@ public class MachineBoundries extends Renderable {
     public void reloadPreferences(VisualizerOptions vo) {
         machineBoundryBottomColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_BOUNDRY_BASE).value);
         machineBoundryLineColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_BOUNDRY_SIDES).value);
-        yAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_X).value);
-        xAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_Y).value);
+        xAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_X).value);
+        yAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_Y).value);
         zAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_Z).value);
     }
 

@@ -48,7 +48,7 @@ import java.awt.event.ActionEvent;
 })
 public final class ResetCoordinatesToZeroAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/resetzero.png";
+    public static final String ICON_BASE = "resources/icons/resetzero.svg";
 
     private BackendAPI backend;
 

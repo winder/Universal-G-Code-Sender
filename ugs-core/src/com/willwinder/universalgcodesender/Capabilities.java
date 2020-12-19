@@ -158,4 +158,14 @@ public class Capabilities {
     public boolean hasFirmwareSettings() {
         return hasCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
     }
+
+    /**
+     * Returns if the hardware has support for returning to zero. The capability
+     * is defined in by the capability {@link CapabilitiesConstants#RETURN_TO_ZERO}
+     *
+     * @return true if return to zero function is available in the hardware
+     */
+    public boolean hasReturnToZero() {
+        return hasCapability(CapabilitiesConstants.RETURN_TO_ZERO);
+    }
 }

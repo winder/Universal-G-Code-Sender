@@ -14,23 +14,22 @@ public class LongPressMouseListenerTest {
     public static final int LONG_PRESS_DELAY = 100;
 
     private boolean isMouseClicked;
-    private boolean isMouseLongClicked;
     private boolean isMousePressed;
     private boolean isMouseRelease;
     private boolean isMouseLongPressed;
     private boolean isMouseLongRelease;
     private MouseEvent event;
+    private JLabel component;
 
     @Before
     public void setUp() {
         isMouseClicked = false;
-        isMouseLongClicked = false;
         isMousePressed = false;
         isMouseRelease = false;
         isMouseLongPressed = false;
         isMouseLongRelease = false;
 
-        JLabel component = new JLabel();
+        component = new JLabel();
         component.setEnabled(true);
         event = new MouseEvent(component, 0, 0, 0, 0, 0, 0, false, 0);
 
@@ -38,11 +37,6 @@ public class LongPressMouseListenerTest {
             @Override
             protected void onMouseClicked(MouseEvent e) {
                 isMouseClicked = true;
-            }
-
-            @Override
-            protected void onMouseLongClicked(MouseEvent e) {
-                isMouseLongClicked = true;
             }
 
             @Override
@@ -74,8 +68,10 @@ public class LongPressMouseListenerTest {
         assertFalse(isMouseLongPressed);
 
         Thread.sleep(LONG_PRESS_DELAY + 100); // add a couple of milliseconds to make sure it gets triggered
+        longPressMouseListener.mouseReleased(event);
+
         assertTrue(isMouseLongPressed);
-        assertFalse(isMouseLongRelease);
+        assertFalse(isMouseRelease);
     }
 
     @Test
@@ -89,23 +85,74 @@ public class LongPressMouseListenerTest {
 
         assertTrue(isMouseLongPressed);
         assertTrue(isMouseLongRelease);
-        assertTrue(isMouseLongClicked);
     }
 
     @Test
-    public void mousePressedShouldNotTriggerLongPressedIfReleasedBeforeDelay() throws InterruptedException {
+    public void mousePressedShouldNotTriggerLongPressedIfReleasedBeforeDelay() {
         longPressMouseListener.mousePressed(event);
         assertTrue(isMousePressed);
-        assertFalse(isMouseClicked);
         assertFalse(isMouseRelease);
         assertFalse(isMouseLongPressed);
 
         longPressMouseListener.mouseReleased(event);
 
-        Thread.sleep(LONG_PRESS_DELAY);
         assertTrue(isMouseRelease);
-        assertFalse(isMouseClicked);
         assertFalse(isMouseLongPressed);
         assertFalse(isMouseLongRelease);
+    }
+
+    @Test
+    public void mouseLongReleaseShouldNotTriggerClickIfReleasedOutsideComponent() throws InterruptedException {
+        component.setLocation(0,0);
+        component.setSize(1,1);
+
+        event = new MouseEvent(component, 0, 0, 0, 10, 10, 0, false, 0);
+        longPressMouseListener.mousePressed(event);
+
+        Thread.sleep(LONG_PRESS_DELAY + 100);
+        longPressMouseListener.mouseReleased(event);
+
+        assertFalse(isMouseClicked);
+    }
+
+    @Test
+    public void mouseLongReleaseShouldTriggerClickIfReleasedInsideComponent() throws InterruptedException {
+        component.setLocation(0,0);
+        component.setSize(1,1);
+
+        event = new MouseEvent(component, 0, 0, 0, 0, 0, 0, false, 0);
+        longPressMouseListener.mousePressed(event);
+
+        Thread.sleep(LONG_PRESS_DELAY + 100);
+        longPressMouseListener.mouseReleased(event);
+
+        assertTrue(isMouseClicked);
+    }
+
+
+    @Test
+    public void mouseReleaseShouldNotTriggerClickIfReleasedOutsideComponent() {
+        component.setLocation(0,0);
+        component.setSize(1,1);
+
+        event = new MouseEvent(component, 0, 0, 0, 10, 10, 0, false, 0);
+        longPressMouseListener.mousePressed(event);
+
+        longPressMouseListener.mouseReleased(event);
+
+        assertFalse(isMouseClicked);
+    }
+
+    @Test
+    public void mouseReleaseShouldTriggerClickIfReleasedInsideComponent() {
+        component.setLocation(0,0);
+        component.setSize(1,1);
+
+        event = new MouseEvent(component, 0, 0, 0, 0, 0, 0, false, 0);
+        longPressMouseListener.mousePressed(event);
+
+        longPressMouseListener.mouseReleased(event);
+
+        assertTrue(isMouseClicked);
     }
 }

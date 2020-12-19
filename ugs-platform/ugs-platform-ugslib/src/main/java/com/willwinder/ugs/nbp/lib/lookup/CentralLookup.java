@@ -26,34 +26,34 @@ package com.willwinder.ugs.nbp.lib.lookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.services.JogService;
+import com.willwinder.universalgcodesender.services.RunFromService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author will
  */
 public class CentralLookup extends AbstractLookup {
     private static CentralLookup def = new CentralLookup();
 
-    private InstanceContent content = null;
-    
+    private InstanceContent content;
+
     public CentralLookup(InstanceContent content) {
         super(content);
         this.content = content;
     }
-    
+
     public CentralLookup() {
         this(new InstanceContent());
         try {
             GUIBackend backend = new GUIBackend();
             Settings settings = SettingsFactory.loadSettings();
-            //Localization.initialize(settings.getLanguage());
 
             boolean fullyLocalized = Localization.initialize(settings.getLanguage());
             if (!fullyLocalized) {
@@ -61,26 +61,26 @@ public class CentralLookup extends AbstractLookup {
             }
 
             backend.applySettings(settings);
-            JogService jogService = new JogService(backend);
 
             this.add(backend);
             this.add(settings);
-            this.add(jogService);
+            this.add(new JogService(backend));
+            this.add(new RunFromService(backend));
         } catch (Exception ex) {
             Logger.getLogger(CentralLookup.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(1);
         }
     }
-    
+
+    public static CentralLookup getDefault() {
+        return def;
+    }
+
     final public void add(Object instance) {
         content.add(instance);
     }
 
     public void remove(Object instance) {
         content.remove(instance);
-    }
-
-    public static CentralLookup getDefault(){
-        return def;
     }
 }

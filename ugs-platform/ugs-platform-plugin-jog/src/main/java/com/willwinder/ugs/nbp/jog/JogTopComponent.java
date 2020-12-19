@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.JogService;
+import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -65,12 +66,12 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     private final BackendAPI backend;
     private final JogPanel jogPanel;
     private final JogService jogService;
-    private final ContinuousJogHandler continuousJogHandler;
+    private final ContinuousJogWorker continuousJogWorker;
 
     public JogTopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         jogService = CentralLookup.getDefault().lookup(JogService.class);
-        continuousJogHandler = new ContinuousJogHandler(backend, jogService);
+        continuousJogWorker = new ContinuousJogWorker(backend, jogService);
         UseSeparateStepSizeAction separateStepSizeAction = Lookup.getDefault().lookup(UseSeparateStepSizeAction.class);
 
         jogPanel = new JogPanel();
@@ -81,15 +82,12 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         jogPanel.setUnit(jogService.getUnits());
         jogPanel.setUseStepSizeZ(jogService.useStepSizeZ());
         jogPanel.addListener(this);
-        
+
         backend.addUGSEventListener(this);
-        backend.addControllerListener(continuousJogHandler);
 
         setLayout(new BorderLayout());
         setName(LocalizingService.JogControlTitle);
         setToolTipText(LocalizingService.JogControlTooltip);
-
-        setPreferredSize(new Dimension(250, 270));
 
         add(jogPanel, BorderLayout.CENTER);
 
@@ -105,28 +103,42 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         super.componentClosed();
         backend.removeUGSEventListener(this);
 
-        continuousJogHandler.stop();
-        backend.removeControllerListener(continuousJogHandler);
+        continuousJogWorker.stop();
+        backend.removeControllerListener(continuousJogWorker);
+    }
+
+    @Override
+    protected void componentOpened() {
+        super.componentOpened();
+        updateControls();
+        updateSettings();
     }
 
     @Override
     public void UGSEvent(UGSEvent event) {
+        updateControls();
+        if (event.isSettingChangeEvent()) {
+            updateSettings();
+        }
+    }
+
+    private void updateSettings() {
+        jogPanel.setFeedRate(Double.valueOf(backend.getSettings().getJogFeedRate()).intValue());
+        jogPanel.setStepSizeXY(backend.getSettings().getManualModeStepSize());
+        jogPanel.setStepSizeZ(backend.getSettings().getzJogStepSize());
+        jogPanel.setUnit(backend.getSettings().getPreferredUnits());
+        jogPanel.setUseStepSizeZ(backend.getSettings().useZStepSize());
+    }
+
+    private void updateControls() {
         boolean canJog = jogService.canJog();
         if (canJog != jogPanel.isEnabled()) {
             jogPanel.setEnabled(canJog);
         }
-
-        if (event.isSettingChangeEvent()) {
-            jogPanel.setFeedRate(Double.valueOf(backend.getSettings().getJogFeedRate()).intValue());
-            jogPanel.setStepSizeXY(backend.getSettings().getManualModeStepSize());
-            jogPanel.setStepSizeZ(backend.getSettings().getzJogStepSize());
-            jogPanel.setUnit(backend.getSettings().getPreferredUnits());
-            jogPanel.setUseStepSizeZ(backend.getSettings().useZStepSize());
-        }
     }
 
     @Override
-    public void onButtonClicked(JogPanelButtonEnum button) {
+    public void onJogButtonClicked(JogPanelButtonEnum button) {
         switch (button) {
             case BUTTON_XNEG:
                 jogService.adjustManualLocationXY(-1, 0);
@@ -158,27 +170,21 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
             case BUTTON_ZPOS:
                 jogService.adjustManualLocationZ(1);
                 break;
-            case BUTTON_TOGGLE_UNIT:
-                if (jogService.getUnits() == UnitUtils.Units.MM) {
-                    jogService.setUnits(UnitUtils.Units.INCH);
-                } else {
-                    jogService.setUnits(UnitUtils.Units.MM);
-                }
-                break;
             default:
         }
     }
 
     @Override
-    public void onButtonLongPressed(JogPanelButtonEnum button) {
+    public void onJogButtonLongPressed(JogPanelButtonEnum button) {
         if (backend.getController().getCapabilities().hasContinuousJogging()) {
-            continuousJogHandler.start(button);
+            continuousJogWorker.setDirection(button.getX(), button.getY(), button.getZ());
+            continuousJogWorker.start();
         }
     }
 
     @Override
-    public void onButtonLongReleased(JogPanelButtonEnum button) {
-        continuousJogHandler.stop();
+    public void onJogButtonLongReleased(JogPanelButtonEnum button) {
+        continuousJogWorker.stop();
     }
 
     @Override
@@ -194,5 +200,26 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     @Override
     public void onFeedRateChanged(int value) {
         jogService.setFeedRate(value);
+    }
+
+    @Override
+    public void onToggleUnit() {
+        if (jogService.getUnits() == UnitUtils.Units.MM) {
+            jogService.setUnits(UnitUtils.Units.INCH);
+        } else {
+            jogService.setUnits(UnitUtils.Units.MM);
+        }
+    }
+
+    @Override
+    public void onIncreaseStepSize() {
+        jogService.multiplyXYStepSize();
+        jogService.multiplyZStepSize();
+    }
+
+    @Override
+    public void onDecreaseStepSize() {
+        jogService.divideXYStepSize();
+        jogService.divideZStepSize();
     }
 }

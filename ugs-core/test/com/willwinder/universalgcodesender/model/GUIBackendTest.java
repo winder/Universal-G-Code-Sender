@@ -87,15 +87,15 @@ public class GUIBackendTest {
     @Test
     public void adjustManualLocationShouldBeOk() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        instance.adjustManualLocation(1, 0, 0, 10, 10, UnitUtils.Units.MM);
-        verify(controller, times(1)).jogMachine(1, 0, 0, 10, 10, UnitUtils.Units.MM);
+        instance.adjustManualLocation(10, 0, 0, 10, UnitUtils.Units.MM);
+        verify(controller, times(1)).jogMachine(10, 0, 0, 10, UnitUtils.Units.MM);
     }
 
     @Test
     public void adjustManualLocationWithNoDirectionShouldNotMoveTheMachine() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        instance.adjustManualLocation(0, 0, 0, 10, 10, UnitUtils.Units.MM);
-        verify(controller, times(0)).jogMachine(anyInt(), anyInt(), anyInt(), anyDouble(), anyDouble(), any(UnitUtils.Units.class));
+        instance.adjustManualLocation(0, 0, 0, 10, UnitUtils.Units.MM);
+        verify(controller, times(0)).jogMachine(anyInt(), anyInt(), anyInt(), anyDouble(), any(UnitUtils.Units.class));
     }
 
     @Test
@@ -335,10 +335,11 @@ public class GUIBackendTest {
 
         // Then
         List<UGSEvent> events = eventArgumentCaptor.getAllValues();
-        assertEquals(3, events.size());
-        assertEquals(UGSEvent.FileState.FILE_LOADING, events.get(0).getFileState());
-        assertEquals(UGSEvent.EventType.SETTING_EVENT, events.get(1).getEventType());
-        assertEquals(UGSEvent.FileState.FILE_LOADED, events.get(2).getFileState());
+        assertEquals(4, events.size());
+        assertEquals(UGSEvent.FileState.OPENING_FILE, events.get(0).getFileState());
+        assertEquals(UGSEvent.FileState.FILE_LOADING, events.get(1).getFileState());
+        assertEquals(UGSEvent.EventType.SETTING_EVENT, events.get(2).getEventType());
+        assertEquals(UGSEvent.FileState.FILE_LOADED, events.get(3).getFileState());
 
         assertNotNull(instance.getProcessedGcodeFile());
     }
@@ -380,140 +381,168 @@ public class GUIBackendTest {
     public void setWorkPositionWithValueExpressionShouldSetPosition() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
         instance.statusStringListener(status);
 
         // When
         instance.setWorkPositionUsingExpression(Axis.X, "10.1");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.X, 10.1));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.X, 10.1, UnitUtils.Units.MM));
     }
 
     @Test
     public void setWorkPositionWithExpressionShouldSetPosition() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
         instance.statusStringListener(status);
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Y, "10.1 * 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Y, 101.0));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Y, 101.0, UnitUtils.Units.MM));
     }
 
     @Test
     public void setWorkPositionWithExpressionShouldSetNegativePosition() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
         instance.statusStringListener(status);
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Y, "-10.1");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Y, -10.1));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Y, -10.1, UnitUtils.Units.MM));
     }
 
     @Test
     public void setWorkPositionWithAdditionExpression() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
         instance.statusStringListener(status);
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Y, "# + 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Y, 21.0));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Y, 21.0, UnitUtils.Units.MM));
     }
 
     @Test
     public void setWorkPositionWithMultiplicationExpression() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
         instance.statusStringListener(status);
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Z, "# * 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 110.0));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 110.0, UnitUtils.Units.MM));
     }
 
     @Test
     public void setWorkPositionWithMultiplicationExpressionWithoutValue() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
         instance.statusStringListener(status);
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Z, "* 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 110.0));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 110.0, UnitUtils.Units.MM));
     }
 
     @Test
     public void setWorkPositionWithDivisionExpression() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
         instance.statusStringListener(status);
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Z, "# / 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 1.1));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 1.1, UnitUtils.Units.MM));
+    }
+
+    @Test
+    public void setWorkPositionWithDivisionExpressionhouldConvertHashToWorkPositionUnits() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(10, 10,10, UnitUtils.Units.INCH));
+        instance.statusStringListener(status);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.Z, "# / 10");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 25.4, UnitUtils.Units.MM));
     }
 
     @Test
     public void setWorkPositionWithDivisionExpressionWithoutValue() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
         instance.statusStringListener(status);
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Z, "/ 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 1.1));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 1.1, UnitUtils.Units.MM));
     }
+
+    @Test
+    public void setWorkPositionWithDivisionExpressionShouldConvertToWorkPositionUnits() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.INCH), new Position(10, 10,10, UnitUtils.Units.INCH));
+        instance.statusStringListener(status);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.Z, "/ 10");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 25.4, UnitUtils.Units.MM));
+    }
+
 
     @Test
     public void setWorkPositionWithSubtractionExpression() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
         instance.statusStringListener(status);
 
         // When
         instance.setWorkPositionUsingExpression(Axis.X, "# - 10");
 
         // Then
-        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.X, 1.0));
+        verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.X, 1.0, UnitUtils.Units.MM));
     }
 
     @Test
     public void setWorkPositionMultipleAxes() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
         instance.statusStringListener(status);
 
         // When
-        instance.setWorkPosition(new PartialPosition(25.0,99.0));
+        instance.setWorkPosition(new PartialPosition(25.0,99.0, UnitUtils.Units.MM));
 
         // Then
-        verify(controller, times(1)).setWorkPosition(new PartialPosition(25.0,99.0));
+        verify(controller, times(1)).setWorkPosition(new PartialPosition(25.0,99.0, UnitUtils.Units.MM));
     }
-
 }

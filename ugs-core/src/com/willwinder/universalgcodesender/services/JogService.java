@@ -63,7 +63,11 @@ public class JogService {
     }
 
     private static double divideSize(double size) {
-        if (size > 100) {
+        if (size > 10000) {
+            return 10000;
+        } else if (size <= 10000 && size > 1000) {
+            return 1000;
+        } else if (size <= 1000 && size > 100) {
             return 100;
         } else if (size <= 100 && size > 10) {
             return 10;
@@ -82,12 +86,16 @@ public class JogService {
             return 0.01;
         } else if (size >= 0.01 && size < 0.1) {
             return 0.1;
-        }  else if (size >= 0.1 && size < 1) {
+        } else if (size >= 0.1 && size < 1) {
             return 1;
-        }  else if (size >= 1 && size < 10) {
+        } else if (size >= 1 && size < 10) {
             return 10;
-        }  else if (size >= 10) {
+        } else if (size >= 10 && size < 100) {
             return 100;
+        } else if (size >= 100 && size < 1000) {
+            return 1000;
+        } else if (size >= 1000 && size < 10000) {
+            return 10000;
         }
         return size;
     }
@@ -175,19 +183,18 @@ public class JogService {
     }
 
     /**
-     * Adjusts the Z axis location.
+     * Adjusts the location for each axises.
      */
-    public void adjustManualLocation(int x, int y, int z, double stepSize) {
+    public void adjustManualLocation(double distanceX, double distanceY, double distanceZ) {
         try {
             double feedRate = getSettings().getJogFeedRate();
             Units units = getSettings().getPreferredUnits();
-            backend.adjustManualLocation(x, y, z, stepSize, feedRate, units);
+            backend.adjustManualLocation(distanceX, distanceY, distanceZ, feedRate, units);
         } catch (Exception e) {
-            //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
-            //DialogDisplayer.getDefault().notify(nd);
+            // Not much we can do
         }
     }
-    
+
     /**
      * Adjusts the Z axis location.
      * @param z direction.
@@ -200,7 +207,7 @@ public class JogService {
             }
             double feedRate = getSettings().getJogFeedRate();
             Units preferredUnits = getSettings().getPreferredUnits();
-            backend.adjustManualLocation(0, 0, z, stepSize, feedRate, preferredUnits);
+            backend.adjustManualLocation(0, 0, z * stepSize, feedRate, preferredUnits);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             //DialogDisplayer.getDefault().notify(nd);
@@ -221,7 +228,7 @@ public class JogService {
             double feedRate = getFeedRate();
             double stepSize = getStepSizeXY();
             Units preferredUnits = getUnits();
-            backend.adjustManualLocation(x, y, 0, stepSize, feedRate, preferredUnits);
+            backend.adjustManualLocation(x * stepSize, y * stepSize, 0, feedRate, preferredUnits);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             //DialogDisplayer.getDefault().notify(nd);

@@ -18,25 +18,11 @@ public class PartialPosition {
     private final Double z;
     private final UnitUtils.Units units;
 
-    public PartialPosition(Double x, Double y) {
-        this.x = x;
-        this.y = y;
-        this.z = null;
-        this.units = UnitUtils.Units.UNKNOWN;
-    }
-
     public PartialPosition(Double x, Double y, UnitUtils.Units units) {
         this.x = x;
         this.y = y;
         this.z = null;
         this.units = units;
-    }
-
-    public PartialPosition(Double x, Double y, Double z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.units = UnitUtils.Units.UNKNOWN;
     }
 
     public PartialPosition(Double x, Double y, Double z, UnitUtils.Units units) {
@@ -46,18 +32,17 @@ public class PartialPosition {
         this.units = units;
     }
 
-    public PartialPosition() {
-        this.x = null;
-        this.y = null;
-        this.z = null;
-        this.units = UnitUtils.Units.UNKNOWN;
+    /**
+     * Creates a partial position with only one axis
+     * @param axis the axis to set
+     * @param value the position
+     * @param units the units of the position
+     * @return a partial position
+     */
+    public static PartialPosition from(Axis axis, Double value, UnitUtils.Units units) {
+        return builder().setValue(axis, value).setUnits(units).build();
     }
 
-
-    // a shortcut to builder (needed, because of final coords)
-    public static PartialPosition from(Axis axis, Double value) {
-        return new Builder().setValue(axis, value).build();
-    }
 
     public static PartialPosition from(Position position) {
         return new PartialPosition(position.getX(), position.getY(), position.getZ(), position.getUnits());
@@ -134,7 +119,7 @@ public class PartialPosition {
 
     public PartialPosition getPositionIn(UnitUtils.Units units) {
         double scale = UnitUtils.scaleUnits(this.units, units);
-        Builder builder = new Builder();
+        Builder builder = builder();
         for (Map.Entry<Axis, Double> axis : getAll().entrySet()) {
             builder.setValue(axis.getKey(), axis.getValue()*scale);
         }
@@ -142,6 +127,9 @@ public class PartialPosition {
         return builder.build();
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
 
     public static final class Builder {
         private Double x = null;
@@ -150,6 +138,9 @@ public class PartialPosition {
         private UnitUtils.Units units = UnitUtils.Units.UNKNOWN;
 
         public PartialPosition build() {
+            if (units == UnitUtils.Units.UNKNOWN) {
+                throw new RuntimeException("No units was supplied to the PartialPosition!");
+            }
             return new PartialPosition(x, y, z, units);
         }
 

@@ -146,7 +146,7 @@ public interface IFirmwareSettings {
      * @param stepsPerMillimeter the number of steps to move one millimeter
      * @throws FirmwareSettingsException if the settings couldn't be saved
      */
-    void setStepsPerMillimeter(Axis axis, int stepsPerMillimeter) throws FirmwareSettingsException;
+    void setStepsPerMillimeter(Axis axis, double stepsPerMillimeter) throws FirmwareSettingsException;
 
     /**
      * Return the number of steps needed to move the machine one millimeter.
@@ -155,7 +155,7 @@ public interface IFirmwareSettings {
      * @return number of steps per mm
      * @throws FirmwareSettingsException if the settings couldn't be fetched
      */
-    int getStepsPerMillimeter(Axis axis) throws FirmwareSettingsException;
+    double getStepsPerMillimeter(Axis axis) throws FirmwareSettingsException;
 
     /**
      * Sets the soft limit for the given axis in millimeters.

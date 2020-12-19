@@ -26,10 +26,9 @@
 package com.willwinder.universalgcodesender.visualizer;
 
 import com.willwinder.universalgcodesender.model.Position;
- 
+
 public class LineSegment {
 
-    private int toolhead = 0; //DEFAULT TOOLHEAD ASSUMED TO BE 0!
     private double speed;
     private final Position first, second;
     
@@ -39,18 +38,17 @@ public class LineSegment {
     private boolean isFastTraverse = false;
     private boolean isRotation = false;
     private final int lineNumber;
-    
-    public LineSegment(final Position a,final Position b, int num)
-    {
+
+    public LineSegment(final Position a, final Position b, int num) {
         first = new Position(a);
         second = new Position(b);
         lineNumber = num;
     }
-    
+
     public int getLineNumber() {
         return lineNumber;
     }
-    
+
     public Position getStart() {
         return this.first;
     }
@@ -59,28 +57,18 @@ public class LineSegment {
         return this.second;
     }
 
-    public void setToolHead(int head) {
-        this.toolhead = head;
-    }
-    
-    public int getToolhead()
-    {
-        return toolhead;
-    }
-    
     public void setSpeed(double s) {
         this.speed = s;
     }
-    
-    public double getSpeed()
-    {
+
+    public double getSpeed() {
         return speed;
     }
-    
+
     public void setIsZMovement(boolean isZ) {
         this.isZMovement = isZ;
     }
-    
+
     public boolean isZMovement() {
         return isZMovement;
     }
@@ -88,15 +76,15 @@ public class LineSegment {
     public void setIsArc(boolean isA) {
         this.isArc = isA;
     }
-    
+
     public boolean isArc() {
         return isArc;
     }
-    
+
     public void setIsFastTraverse(boolean isF) {
         this.isFastTraverse = isF;
     }
-    
+
     public boolean isFastTraverse() {
         return this.isFastTraverse;
     }

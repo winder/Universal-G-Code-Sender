@@ -22,8 +22,10 @@ import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * A default implementation of the firmware settings to be used for controllers that
@@ -32,6 +34,11 @@ import java.util.Optional;
  * @author Joacim Breiler
  */
 public class DefaultFirmwareSettings implements IFirmwareSettings {
+    /**
+     * All listeners for listening to changed settings
+     */
+    private final Set<IFirmwareSettingsListener> listeners = new HashSet<>();
+
     @Override
     public Optional<FirmwareSetting> getSetting(String key) {
         return Optional.empty();
@@ -44,10 +51,12 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
 
     @Override
     public void addListener(IFirmwareSettingsListener listener) {
+        listeners.add(listener);
     }
 
     @Override
     public void removeListener(IFirmwareSettingsListener listener) {
+        listeners.remove(listener);
     }
 
     @Override
@@ -78,27 +87,26 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
-    public boolean isInvertDirection(Axis axis) throws FirmwareSettingsException {
+    public boolean isInvertDirection(Axis axis) {
         return false;
     }
 
     @Override
-    public void setInvertDirection(Axis axis, boolean inverted) throws FirmwareSettingsException {
+    public void setInvertDirection(Axis axis, boolean inverted) {
 
     }
 
     @Override
-    public void setStepsPerMillimeter(Axis axis, int stepsPerMillimeter) throws FirmwareSettingsException {
-
+    public void setStepsPerMillimeter(Axis axis, double stepsPerMillimeter) {
     }
 
     @Override
-    public int getStepsPerMillimeter(Axis axis) {
+    public double getStepsPerMillimeter(Axis axis) {
         return 0;
     }
 
     @Override
-    public void setSoftLimit(Axis axis, double limit) throws FirmwareSettingsException {
+    public void setSoftLimit(Axis axis, double limit) {
     }
 
     @Override
@@ -127,12 +135,12 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
-    public void setSettings(List<FirmwareSetting> settings) throws FirmwareSettingsException {
+    public void setSettings(List<FirmwareSetting> settings) {
 
     }
 
     @Override
-    public double getMaximumRate(Axis axis) throws FirmwareSettingsException {
+    public double getMaximumRate(Axis axis) {
         return 0;
     }
 

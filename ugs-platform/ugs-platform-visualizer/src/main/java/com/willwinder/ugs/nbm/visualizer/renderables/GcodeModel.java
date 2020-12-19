@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -37,6 +37,7 @@ import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.List;
@@ -62,7 +63,7 @@ public class GcodeModel extends Renderable {
     private final RotationService rs;
 
     private boolean forceOldStyle = false;
-    private boolean colorArrayDirty, vertexArrayDirty;
+    private boolean colorArrayDirty, vertexArrayDirty, vertexBufferDirty;
 
     // Gcode file data
     private String gcodeFile = null;
@@ -72,7 +73,6 @@ public class GcodeModel extends Renderable {
     private List<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
     private List<LineSegment> pointList; //An ArrayList of linesegments composing the model
     private int currentCommandNumber = 0;
-    private int lastCommandNumber = 0;
 
     // OpenGL Object Buffer Variables
     private int numberOfVertices = -1;
@@ -94,7 +94,7 @@ public class GcodeModel extends Renderable {
 
     public GcodeModel(String title, RotationService rs) {
         super(10, title);
-        objectSize = new Position();
+        objectSize = new Position(0, 0, 0);
         this.rs = rs;
         reloadPreferences(new VisualizerOptions());
     }
@@ -106,8 +106,7 @@ public class GcodeModel extends Renderable {
         arcColor = vo.getOptionForKey(VISUALIZER_OPTION_ARC).value;
         plungeColor = vo.getOptionForKey(VISUALIZER_OPTION_PLUNGE).value;
         completedColor = vo.getOptionForKey(VISUALIZER_OPTION_COMPLETE).value;
-        updateVertexBuffers();
-        colorArrayDirty = true;
+        vertexBufferDirty = true;
     }
 
     /**
@@ -117,10 +116,9 @@ public class GcodeModel extends Renderable {
         this.gcodeFile = file;
         this.isDrawable = false;
         this.currentCommandNumber = 0;
-        this.lastCommandNumber = 0;
-        
+
         boolean result = generateObject();
-        
+
         // Force a display in case an animator isn't running.
         //forceRedraw();
 
@@ -133,8 +131,7 @@ public class GcodeModel extends Renderable {
      */
     public void setCurrentCommandNumber(int num) {
         currentCommandNumber = num;
-        updateVertexBuffers();
-        colorArrayDirty = true;
+        vertexBufferDirty = true;
     }
 
     public List<LineSegment> getLineList() {
@@ -166,15 +163,20 @@ public class GcodeModel extends Renderable {
         if (!isDrawable) return;
 
         GL2 gl = drawable.getGL().getGL2();
-        
-        // Batch mode if available 
+
+        // Batch mode if available
+        boolean forceOldStyle = false;
         if(!forceOldStyle
                 && gl.isFunctionAvailable( "glGenBuffers" )
                 && gl.isFunctionAvailable( "glBindBuffer" )
                 && gl.isFunctionAvailable( "glBufferData" )
                 && gl.isFunctionAvailable( "glDeleteBuffers" ) ) {
-            
+
             // Initialize OpenGL arrays if required.
+            if (this.vertexBufferDirty && !vertexArrayDirty && !colorArrayDirty) {
+                updateVertexBuffers();
+                this.vertexBufferDirty = false;
+            }
             if (this.colorArrayDirty) {
                 this.updateGLColorArray(drawable);
                 this.colorArrayDirty = false;
@@ -310,7 +312,6 @@ public class GcodeModel extends Renderable {
         next.setIsRotation(p.isFastTraverse());
         next.setIsZMovement(p.isZMovement());
         next.setSpeed(p.getSpeed());
-        next.setToolHead(p.getToolhead());
 
         return next;
     }
@@ -322,7 +323,7 @@ public class GcodeModel extends Renderable {
     {
         isDrawable = false;
         if (this.gcodeFile == null){ return false; }
-        
+
         try {
             GcodeViewParse gcvp = new GcodeViewParse();
             logger.log(Level.INFO, "About to process {}", gcodeFile);
@@ -351,7 +352,6 @@ public class GcodeModel extends Renderable {
             }
 
             // Grab the line number off the last line.
-            this.lastCommandNumber = gcodeLineList.get(gcodeLineList.size() - 1).getLineNumber();
 
             System.out.println("Object bounds: X ("+objectMin.x+", "+objectMax.x+")");
             System.out.println("               Y ("+objectMin.y+", "+objectMax.y+")");
@@ -369,8 +369,8 @@ public class GcodeModel extends Renderable {
             this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
             this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
 
-            this.dimensionsLabel = Localization.getString("VisualizerCanvas.dimensions") + ": " 
-                    + Localization.getString("VisualizerCanvas.width") + "=" + format.format(objectWidth) + " " 
+            this.dimensionsLabel = Localization.getString("VisualizerCanvas.dimensions") + ": "
+                    + Localization.getString("VisualizerCanvas.width") + "=" + format.format(objectWidth) + " "
                     + Localization.getString("VisualizerCanvas.height") + "=" + format.format(objectHeight);
             */
 
@@ -380,7 +380,7 @@ public class GcodeModel extends Renderable {
             this.numberOfVertices = gcodeLineList.size() * 2;
             this.lineVertexData = new float[numberOfVertices * 3];
             this.lineColorData = new byte[numberOfVertices * 3];
-            
+
             this.updateVertexBuffers();
         } catch (GcodeParserException | IOException e) {
             String error = Localization.getString("mainWindow.error.openingFile") + " : " + e.getLocalizedMessage();
@@ -401,7 +401,7 @@ public class GcodeModel extends Renderable {
             int vertIndex = 0;
             int colorIndex = 0;
             byte[] c = new byte[3];
-            for(LineSegment ls : gcodeLineList) {
+            for (LineSegment ls : gcodeLineList) {
                 // Find the lines color.
                 if (ls.isArc()) {
                     color = arcColor;
@@ -423,84 +423,84 @@ public class GcodeModel extends Renderable {
                     Position p1 = ls.getStart();
                     Position p2 = ls.getEnd();
 
-                    c[0] = (byte)color.getRed();
-                    c[1] = (byte)color.getGreen();
-                    c[2] = (byte)color.getBlue();
+                    c[0] = (byte) color.getRed();
+                    c[1] = (byte) color.getGreen();
+                    c[2] = (byte) color.getBlue();
 
                     // colors
                     //p1
                     lineColorData[colorIndex++] = c[0];
                     lineColorData[colorIndex++] = c[1];
                     lineColorData[colorIndex++] = c[2];
-                    
+
                     //p2
                     lineColorData[colorIndex++] = c[0];
                     lineColorData[colorIndex++] = c[1];
                     lineColorData[colorIndex++] = c[2];
-                    
+
                     // p1 location
-                    lineVertexData[vertIndex++] = (float)p1.x;
-                    lineVertexData[vertIndex++] = (float)p1.y;
-                    lineVertexData[vertIndex++] = (float)p1.z;
+                    lineVertexData[vertIndex++] = (float) p1.x;
+                    lineVertexData[vertIndex++] = (float) p1.y;
+                    lineVertexData[vertIndex++] = (float) p1.z;
                     //p2
-                    lineVertexData[vertIndex++] = (float)p2.x;
-                    lineVertexData[vertIndex++] = (float)p2.y;
-                    lineVertexData[vertIndex++] = (float)p2.z;
+                    lineVertexData[vertIndex++] = (float) p2.x;
+                    lineVertexData[vertIndex++] = (float) p2.y;
+                    lineVertexData[vertIndex++] = (float) p2.z;
                 }
             }
-            
+
             this.colorArrayDirty = true;
             this.vertexArrayDirty = true;
         }
     }
-    
+
     /**
      * Initialize or update open gl geometry array in native buffer objects.
      */
     private void updateGLGeometryArray(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-        
+
         // Reset buffer and set to null of new geometry doesn't fit.
         if (lineVertexBuffer != null) {
-            lineVertexBuffer.clear();
+            ((Buffer)lineVertexBuffer).clear();
             if (lineVertexBuffer.remaining() < lineVertexData.length) {
                 lineVertexBuffer = null;
             }
         }
-        
+
         if (lineVertexBuffer == null) {
             lineVertexBuffer = Buffers.newDirectFloatBuffer(lineVertexData.length);
         }
-        
+
         lineVertexBuffer.put(lineVertexData);
-        lineVertexBuffer.flip();
+        ((Buffer)lineVertexBuffer).flip();
         gl.glVertexPointer( 3, GL.GL_FLOAT, 0, lineVertexBuffer );
     }
-    
+
     /**
      * Initialize or update open gl color array in native buffer objects.
      */
     private void updateGLColorArray(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-        
+
         // Reset buffer and set to null of new colors don't fit.
         if (lineColorBuffer != null) {
-            lineColorBuffer.clear();
+            ((Buffer)lineColorBuffer).clear();
 
             if (lineColorBuffer.remaining() < lineColorData.length) {
                 lineColorBuffer = null;
             }
         }
-        
+
         if (lineColorBuffer == null) {
             if (lineColorData == null) {
                 updateVertexBuffers();
             }
             lineColorBuffer = Buffers.newDirectByteBuffer(this.lineColorData.length);
         }
-        
+
         lineColorBuffer.put(lineColorData);
-        lineColorBuffer.flip();
+        ((Buffer)lineColorBuffer).flip();
         gl.glColorPointer( 3, GL.GL_UNSIGNED_BYTE, 0, lineColorBuffer );
     }
 }

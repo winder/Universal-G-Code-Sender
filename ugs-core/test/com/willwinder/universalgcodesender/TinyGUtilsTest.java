@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -42,45 +42,45 @@ public class TinyGUtilsTest {
 
     @Test
     public void generateSetWorkPositionCommandShouldGenerateGcode() {
-        ControllerStatus controllerStatus = new ControllerStatus("", ControllerState.UNKNOWN, new Position(10, 10, 10, UnitUtils.Units.MM), new Position(10, 10, 10, UnitUtils.Units.MM));
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.UNKNOWN, new Position(10, 10, 10, UnitUtils.Units.MM), new Position(10, 10, 10, UnitUtils.Units.MM));
         GcodeState gcodeState = new GcodeState();
 
         gcodeState.offset = Code.G54;
-        String command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.X, 5.0));
+        String command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.X, 5.0, UnitUtils.Units.MM));
         assertEquals("G10 L2 P1 X5", command);
 
         gcodeState.offset = Code.G55;
-        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Y, 15.0));
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Y, 15.0, UnitUtils.Units.MM));
         assertEquals("G10 L2 P2 Y-5", command);
 
         gcodeState.offset = Code.G56;
-        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Z, 0.0));
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Z, 0.0, UnitUtils.Units.MM));
         assertEquals("G10 L2 P3 Z10", command);
 
         gcodeState.offset = Code.G57;
-        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Z, 0.0));
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Z, 0.0, UnitUtils.Units.MM));
         assertEquals("G10 L2 P4 Z10", command);
 
         gcodeState.offset = Code.G58;
-        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Z, 0.0));
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Z, 0.0, UnitUtils.Units.MM));
         assertEquals("G10 L2 P5 Z10", command);
 
         gcodeState.offset = Code.G59;
-        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Z, 0.0));
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Z, 0.0, UnitUtils.Units.MM));
         assertEquals("G10 L2 P6 Z10", command);
 
         gcodeState.offset = Code.G59;
-        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, new PartialPosition(10.0, 20.0));
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, new PartialPosition(10.0, 20.0, UnitUtils.Units.MM));
         assertEquals("G10 L2 P6 X-0Y-10", command); // the negative Zero gets formatted as "-0" - is this a problem?
 
         gcodeState.offset = Code.G59;
-        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, new PartialPosition(10.0, 20.0, 30.0));
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, new PartialPosition(10.0, 20.0, 30.0, UnitUtils.Units.MM));
         assertEquals("G10 L2 P6 X-0Y-10Z-20", command);
     }
 
     @Test
     public void generateResetCoordinatesToZeroCommandShouldGenerateGcode() {
-        ControllerStatus controllerStatus = new ControllerStatus("", ControllerState.UNKNOWN, new Position(10, 20, 30, UnitUtils.Units.MM), new Position(10, 10, 10, UnitUtils.Units.MM));
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.UNKNOWN, new Position(10, 20, 30, UnitUtils.Units.MM), new Position(10, 10, 10, UnitUtils.Units.MM));
         GcodeState gcodeState = new GcodeState();
 
         gcodeState.offset = Code.G54;
@@ -235,7 +235,7 @@ public class TinyGUtilsTest {
 
     @Test
     public void updateControllerStatusShouldHandleFeedOverrides() {
-        ControllerStatus lastControllerStatus = new ControllerStatus("Idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+        ControllerStatus lastControllerStatus = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
 
         JsonObject response = TinyGUtils.jsonToObject("{sr:{mfo:1.4}}");
         ControllerStatus controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);
@@ -248,7 +248,7 @@ public class TinyGUtilsTest {
 
     @Test
     public void updateControllerStatusShouldHandleSpindleverrides() {
-        ControllerStatus lastControllerStatus = new ControllerStatus("Idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+        ControllerStatus lastControllerStatus = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
 
         JsonObject response = TinyGUtils.jsonToObject("{sr:{sso:1.4}}");
         ControllerStatus controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);

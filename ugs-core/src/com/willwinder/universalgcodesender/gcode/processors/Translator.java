@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,19 +20,21 @@ package com.willwinder.universalgcodesender.gcode.processors;
 
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
-import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+
+import static com.willwinder.universalgcodesender.Utils.formatter;
 
 /**
  *
  * @author wwinder
  */
 public class Translator implements CommandProcessor {
-
   private final Position offset;
 
   public Translator(Position offset) {
@@ -40,11 +42,15 @@ public class Translator implements CommandProcessor {
   }
 
   private String shift(String part, double amount) {
-    return "" + part.charAt(0) + (Double.valueOf(part.substring(1)) + amount);
+    try {
+      return "" + part.charAt(0) + formatter.format(formatter.parse(part.substring(1)).doubleValue() + amount);
+    } catch (ParseException e) {
+      throw new IllegalArgumentException("Could not parse '" + part + "' as a double");
+    }
   }
 
   @Override
-  public List<String> processCommand(String command, GcodeState state) throws GcodeParserException {
+  public List<String> processCommand(String command, GcodeState state) {
     // If the file is in absolute mode, no translation is needed.
     if (!state.inAbsoluteMode) {
       return Collections.singletonList(command);
@@ -55,9 +61,10 @@ public class Translator implements CommandProcessor {
     List<String> parts = GcodePreprocessorUtils.splitCommand(rawCommand);
     StringBuilder sb = new StringBuilder();
 
-    double x = offset.getPositionIn(UnitUtils.Units.getUnits(state.units)).x;
-    double y = offset.getPositionIn(UnitUtils.Units.getUnits(state.units)).y;
-    double z = offset.getPositionIn(UnitUtils.Units.getUnits(state.units)).z;
+    UnitUtils.Units currentUnits = state.getUnits();
+    double x = offset.getPositionIn(currentUnits).x;
+    double y = offset.getPositionIn(currentUnits).y;
+    double z = offset.getPositionIn(currentUnits).z;
 
     for (String part : parts) {
       switch (Character.toUpperCase(part.charAt(0))) {

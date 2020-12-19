@@ -48,7 +48,7 @@ import java.awt.event.ActionEvent;
 })
 public final class ReturnToZeroAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/zero.png";
+    public static final String ICON_BASE = "resources/icons/zero.svg";
 
     private BackendAPI backend;
 
@@ -72,7 +72,8 @@ public final class ReturnToZeroAction extends AbstractAction implements UGSEvent
 
     @Override
     public boolean isEnabled() {
-        return backend.isIdle();
+        return backend.isIdle() &&
+                backend.getController().getCapabilities().hasReturnToZero();
     }
 
     @Override

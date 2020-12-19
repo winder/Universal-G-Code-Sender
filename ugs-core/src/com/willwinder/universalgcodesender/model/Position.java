@@ -29,8 +29,8 @@ public class Position extends CNCPoint {
 
     private final Units units;
 
-    public Position() {
-        this.units = Units.UNKNOWN;
+    public Position(Units units) {
+        this.units = units;
     }
 
     public Position(Position other) {
@@ -63,7 +63,7 @@ public class Position extends CNCPoint {
     @Override
     public boolean equals(final CNCPoint o) {
         if (o instanceof Position) {
-            return super.equals(o) && units == ((Position)o).units;
+            return super.equals(o) && units == ((Position) o).units;
         }
         return super.equals(o);
     }
@@ -97,7 +97,7 @@ public class Position extends CNCPoint {
 
     public Position getPositionIn(Units units) {
         double scale = UnitUtils.scaleUnits(this.units, units);
-        return new Position(x*scale, y*scale, z*scale, units);
+        return new Position(x * scale, y * scale, z * scale, units);
     }
 
     public double get(Axis axis) {
@@ -140,5 +140,38 @@ public class Position extends CNCPoint {
      */
     public boolean hasRotationTo(Position next) {
         return (this.a != next.a) || (this.b != next.b) || (this.c != next.c);
+    }
+
+    public void set(Axis axis, double value) {
+        switch (axis) {
+            case X:
+                setX(value);
+                break;
+            case Y:
+                setY(value);
+                break;
+            case Z:
+                setZ(value);
+                break;
+            default:
+        }
+    }
+
+    /**
+     * Rotates this point around the center with the given angle in radians and returns a new position
+     *
+     * @param center the XY position to rotate around
+     * @param radians the radians to rotate clock wise
+     * @return a new rotated position
+     */
+    public Position rotate(Position center, double radians) {
+        double cosA = Math.cos(radians);
+        double sinA = Math.sin(radians);
+
+        return new Position(
+                center.x + (cosA * (x -  center.x) + sinA * (y - center.y)),
+                center.y + (-sinA * (x - center.x) + cosA * (y - center.y)),
+                z,
+                units);
     }
 }

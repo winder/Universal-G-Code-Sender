@@ -1,5 +1,5 @@
 /*
-Copyright 2018 Will Winder
+Copyright 2018-2020 Will Winder
 
 This file is part of Universal Gcode Sender (UGS).
 
@@ -21,15 +21,13 @@ package com.willwinder.ugs.nbp.setupwizard;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 
-import java.io.IOException;
-
 /**
  * A test program for starting the setup wizard
  *
  * @author Joacim Breiler
  */
 public class SetupWizardTest {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         WizardStarter.openWizard(backend);
     }

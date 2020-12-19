@@ -53,11 +53,11 @@ import org.openide.util.actions.CallableSystemAction;
                 path = "Toolbars/Connection",
                 position = 980)})
 public class FirmwareAction extends CallableSystemAction implements UGSEventListener {
-    public static final String ICON_BASE = "resources/icons/firmware.png";
+    public static final String ICON_BASE = "resources/icons/firmware.svg";
 
     private final BackendAPI backend;
-    private final Component c;
-    JComboBox<String> firmwareCombo = new JComboBox<>();
+    private Component c;
+    private JComboBox<String> firmwareCombo;
 
     public FirmwareAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -65,16 +65,6 @@ public class FirmwareAction extends CallableSystemAction implements UGSEventList
 
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue(NAME, LocalizingService.ConnectionFirmwareToolbarTitle);
-
-        // Baud rate options.
-        loadFirmwareSelector();
-
-        JPanel panel = new JPanel(new FlowLayout());
-        panel.add(new JLabel(Localization.getString("mainWindow.swing.firmwareLabel")));
-        panel.add(firmwareCombo);
-        c = panel;
-
-        firmwareCombo.addActionListener(a -> setFirmware());
     }
 
     private void setFirmware() {
@@ -98,6 +88,18 @@ public class FirmwareAction extends CallableSystemAction implements UGSEventList
 
     @Override
     public Component getToolbarPresenter() {
+        if (c == null) {
+            firmwareCombo = new JComboBox<>();
+            JPanel panel = new JPanel(new FlowLayout());
+            panel.add(new JLabel(Localization.getString("mainWindow.swing.firmwareLabel")));
+            panel.add(firmwareCombo);
+            c = panel;
+
+            firmwareCombo.addActionListener(a -> setFirmware());
+
+            // Baud rate options.
+            loadFirmwareSelector();
+        }
         return c;
     }
 
@@ -108,6 +110,10 @@ public class FirmwareAction extends CallableSystemAction implements UGSEventList
 
     @Override
     public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
+        if (c == null) {
+            return;
+        }
+
         // If a setting has changed elsewhere, update the combo boxes.
         if (evt.isSettingChangeEvent()) {
             firmwareUpdated();

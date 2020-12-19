@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,9 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class Settings {
     private static final Logger logger = Logger.getLogger(Settings.class.getName());
@@ -100,6 +99,11 @@ public class Settings {
      * A directory with gcode files for easy access through pendant
      */
     private String workspaceDirectory;
+
+    /**
+     * The safety height to clear when returning to home given in mm.
+     */
+    private Double safetyHeight = 5d;
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
@@ -427,15 +431,23 @@ public class Settings {
     }
 
     public ConnectionDriver getConnectionDriver() {
-        ConnectionDriver connectionDriver = ConnectionDriver.JSERIALCOMM;
         if (StringUtils.isNotEmpty(this.connectionDriver)) {
             try {
-                connectionDriver = ConnectionDriver.valueOf(this.connectionDriver);
+                return ConnectionDriver.valueOf(this.connectionDriver);
             } catch (IllegalArgumentException | NullPointerException ignored) {
                 // Never mind, we'll use the default
             }
         }
-        return connectionDriver;
+
+        return getDefaultDriver();
+    }
+
+    private ConnectionDriver getDefaultDriver() {
+        ConnectionDriver result = ConnectionDriver.JSERIALCOMM;
+        if (SystemUtils.IS_OS_LINUX) {
+            result = ConnectionDriver.JSSC;
+        }
+        return result;
     }
 
     public void setConnectionDriver(ConnectionDriver connectionDriver) {
@@ -469,6 +481,14 @@ public class Settings {
         this.macros.clear();
         macros.forEach(this::addMacro);
         changed();
+    }
+
+    public double getSafetyHeight() {
+        return this.safetyHeight;
+    }
+
+    public void setSafetyHeight(double safetyHeight) {
+        this.safetyHeight = safetyHeight;
     }
 
     public static class AutoLevelSettings {

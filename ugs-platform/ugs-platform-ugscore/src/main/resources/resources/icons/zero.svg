@@ -10,9 +10,9 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="32"
-   height="32"
-   viewBox="0 0 32 32"
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
@@ -23,19 +23,19 @@
   <defs
      id="defs4">
     <marker
-       inkscape:isstock="true"
-       style="overflow:visible"
-       id="marker9443"
-       refX="0"
-       refY="0"
+       inkscape:stockid="Arrow1Mstart"
        orient="auto"
-       inkscape:stockid="Arrow1Mstart">
+       refY="0"
+       refX="0"
+       id="marker8480"
+       style="overflow:visible"
+       inkscape:isstock="true">
       <path
-         transform="matrix(0.4,0,0,0.4,4,0)"
-         style="fill:#353a40;fill-opacity:1;fill-rule:evenodd;stroke:#353a40;stroke-width:1pt;stroke-opacity:1"
+         inkscape:connector-curvature="0"
+         id="path8482"
          d="M 0,0 5,-5 -12.5,0 5,5 0,0 Z"
-         id="path9445"
-         inkscape:connector-curvature="0" />
+         style="fill:#353a40;fill-opacity:1;fill-rule:evenodd;stroke:#353a40;stroke-width:1pt;stroke-opacity:1"
+         transform="matrix(0.4,0,0,0.4,4,0)" />
     </marker>
     <marker
        inkscape:isstock="true"
@@ -277,14 +277,14 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.5935568"
-     inkscape:cx="-125.18404"
-     inkscape:cy="4.2166513"
+     inkscape:zoom="13.671763"
+     inkscape:cx="3.2110659"
+     inkscape:cy="19.639487"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1440"
-     inkscape:window-height="819"
+     inkscape:window-height="818"
      inkscape:window-x="0"
      inkscape:window-y="1"
      inkscape:window-maximized="1"
@@ -310,7 +310,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -319,71 +319,71 @@
      inkscape:groupmode="layer"
      id="layer1"
      style="display:inline"
-     transform="translate(0,-1020.3622)">
+     transform="translate(0,-1036.3622)">
     <path
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path7375"
-       d="M 8.9589389,1043.2786 30.787502,1022.5903"
-       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#353a40;stroke-width:3.43571162;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#marker9443)" />
+       d="M 4.4796059,1047.7203 15.393947,1037.3761"
+       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#353a40;stroke-width:1.71786511;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#marker8480)" />
     <path
-       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#353a40;stroke-width:2.6960001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2.6960001,2.6960001;stroke-dashoffset:3.63960013;stroke-opacity:1"
-       d="m 1.3482242,1020.8132 0,30.0008 30.6518258,0"
+       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#353a40;stroke-width:1.34800744;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:1.34800734, 1.34800734;stroke-dashoffset:3.63960004;stroke-opacity:1"
+       d="m 0.67422784,1036.4875 0,15.0005 15.32599616,0"
        id="path8639"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccc" />
     <g
        id="g5096"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5098"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5100"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5102"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5104"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5106"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5108"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5110"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5112"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5114"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5116"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5118"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5120"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5122"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
     <g
        id="g5124"
-       transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />
+       transform="matrix(0.01838765,0,0,0.01838765,10.869921,681.1221)" />
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer4"
      inkscape:label="Earlier work"
      style="display:none"
-     transform="translate(0,-1020.3622)">
+     transform="translate(0,-1036.3622)">
     <rect
        style="opacity:1;fill:#4d4d4d;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect4662"
@@ -1468,7 +1468,7 @@
      id="layer5"
      inkscape:label="Color Swatches"
      style="display:none"
-     transform="translate(0,-1020.3622)">
+     transform="translate(0,-1036.3622)">
     <rect
        style="opacity:1;fill:#c80000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect4778"
@@ -1539,13 +1539,13 @@
      id="layer2"
      inkscape:label="Stuff"
      style="display:inline"
-     transform="translate(0,-1020.3622)" />
+     transform="translate(0,-1036.3622)" />
   <g
      inkscape:groupmode="layer"
      id="layer6"
      inkscape:label="Icons"
      style="display:inline"
-     transform="translate(0,-1020.3622)">
+     transform="translate(0,-1036.3622)">
     <g
        style="fill:#4d4d4d;fill-opacity:1"
        id="g5849"
@@ -1612,5 +1612,5 @@
      id="layer3"
      inkscape:label="Borders"
      style="display:inline"
-     transform="translate(0,-1020.3622)" />
+     transform="translate(0,-1036.3622)" />
 </svg>
