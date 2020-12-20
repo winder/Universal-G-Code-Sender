@@ -375,7 +375,7 @@ public class GcodePreprocessorUtils {
         for(String t : argList) {
             if (t.length() > 1) {
                 char c = Character.toUpperCase(t.charAt(0));
-                if (c == 'X' || c == 'Y' || c == 'Z') {
+                if (c == 'X' || c == 'Y' || c == 'Z' || c == 'A' || c == 'B' || c == 'C') {
                     return true;
                 }
             }
