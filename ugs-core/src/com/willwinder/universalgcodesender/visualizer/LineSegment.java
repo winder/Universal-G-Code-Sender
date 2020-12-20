@@ -1,5 +1,11 @@
+/**
+ * Segment of gcode by the start/end positions.
+ *
+ * Created on Jan 29, 2013
+ */
+
 /*
-    Copyright 2013 Noah Levy
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,13 +30,13 @@ import com.willwinder.universalgcodesender.model.Position;
 public class LineSegment {
 
     private double speed;
-    private final Position first;
-    private final Position second;
-
+    private final Position first, second;
+    
     // Line properties
     private boolean isZMovement = false;
     private boolean isArc = false;
     private boolean isFastTraverse = false;
+    private boolean isRotation = false;
     private final int lineNumber;
 
     public LineSegment(final Position a, final Position b, int num) {
@@ -81,5 +87,13 @@ public class LineSegment {
 
     public boolean isFastTraverse() {
         return this.isFastTraverse;
+    }
+
+    public void setIsRotation(boolean isR) {
+        this.isRotation = isR;
+    }
+    
+    public boolean isRotation() {
+        return this.isRotation;
     }
 }

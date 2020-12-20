@@ -24,7 +24,6 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.util.Collections;
 import java.util.List;
-import javax.vecmath.Point3d;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
 
 /**
@@ -41,7 +40,7 @@ public class Stats implements CommandProcessor, GcodeStats {
 
     @Override
     public List<String> processCommand(String command, GcodeState state) throws GcodeParserException {
-        Point3d c = state.currentPoint;
+        Position c = state.currentPoint;
         if (c != null) {
             Position p = new Position(c.x, c.y, c.z, state.isMetric ? Units.MM : Units.INCH)
                             .getPositionIn(defaultUnits);

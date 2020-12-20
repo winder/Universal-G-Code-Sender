@@ -19,27 +19,27 @@
 package com.willwinder.ugs.nbm.visualizer.actions;
 
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
+import com.willwinder.universalgcodesender.model.Position;
 
 import javax.swing.*;
-import javax.vecmath.Point3d;
 import java.awt.event.ActionEvent;
 
 /**
- * An action for moving the camera in the vizualiser to the specified location
+ * An action for moving the camera in the visualizer to the specified location
  *
  * @author Joacim Breiler
  */
 public class MoveCameraAction extends AbstractAction {
 
-    public static final Point3d CAMERA_POSITION = new Point3d(0, 0, 1.5);
-    public static final Point3d ROTATION_TOP = new Point3d(0, 0, 0);
-    public static final Point3d ROTATION_LEFT = new Point3d(90, -90, 0);
-    public static final Point3d ROTATION_FRONT = new Point3d(0, -90, 0);
-    public static final Point3d ROTATION_ISOMETRIC = new Point3d(30, -30, 0);
+    public static final Position CAMERA_POSITION = new Position(0, 0, 1.5);
+    public static final Position ROTATION_TOP = new Position(0, 0, 0);
+    public static final Position ROTATION_LEFT = new Position(90, -90, 0);
+    public static final Position ROTATION_FRONT = new Position(0, -90, 0);
+    public static final Position ROTATION_ISOMETRIC = new Position(30, -30, 0);
 
     private final GcodeRenderer gcodeRenderer;
-    private Point3d position;
-    private Point3d rotation;
+    private Position position;
+    private Position rotation;
     private double zoom;
 
     /**
@@ -50,7 +50,7 @@ public class MoveCameraAction extends AbstractAction {
      * @param rotation      the rotation in which direction the camera should be rotate against
      * @param zoom          the zoom level
      */
-    public MoveCameraAction(GcodeRenderer gcodeRenderer, Point3d position, Point3d rotation, double zoom) {
+    public MoveCameraAction(GcodeRenderer gcodeRenderer, Position position, Position rotation, double zoom) {
         this.gcodeRenderer = gcodeRenderer;
         this.position = position;
         this.rotation = rotation;
@@ -63,7 +63,7 @@ public class MoveCameraAction extends AbstractAction {
      * @param gcodeRenderer the renderer to be used
      * @param rotation      the rotation in which direction the camera should be rotate against
      */
-    public MoveCameraAction(GcodeRenderer gcodeRenderer, Point3d rotation) {
+    public MoveCameraAction(GcodeRenderer gcodeRenderer, Position rotation) {
         this(gcodeRenderer, CAMERA_POSITION, rotation, 1);
     }
 

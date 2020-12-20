@@ -21,7 +21,7 @@ package com.willwinder.ugs.platform.probe.renderable;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.gl2.GLUT;
-import javax.vecmath.Point3d;
+import com.willwinder.universalgcodesender.model.Position;
 
 /**
  *
@@ -49,7 +49,7 @@ public class ProbeRenderableHelpers {
         }
     }
 
-    public static void drawTouchPlate(GL2 gl, GLUT glut, Point3d at, double inset, double size, Point3d offsets,
+    public static void drawTouchPlate(GL2 gl, GLUT glut, Position at, double inset, double size, Position offsets,
             double bumpThickness, double plateThickness, Side X, Side Y) {
         gl.glPushMatrix();
             gl.glTranslated(
@@ -85,7 +85,7 @@ public class ProbeRenderableHelpers {
         gl.glPopMatrix();
     }
 
-    public static void drawArrow(GL2 gl, GLUT glut, Point3d from, Point3d to) {
+    public static void drawArrow(GL2 gl, GLUT glut, Position from, Position to) {
         double vx = to.x - from.x;
         double vy = to.y - from.y;
         double vz = to.z - from.z;

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,11 +21,9 @@ package com.willwinder.universalgcodesender.model;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.vecmath.Point3d;
-import javax.vecmath.Tuple3d;
 import java.util.Objects;
 
-public class Position extends Point3d {
+public class Position extends CNCPoint {
 
     public static final Position ZERO = new Position(0, 0, 0, Units.MM);
 
@@ -36,11 +34,21 @@ public class Position extends Point3d {
     }
 
     public Position(Position other) {
-        this(other.x, other.y, other.z, other.units);
+        this(other.x, other.y, other.z, other.a, other.b, other.c, other.units);
+    }
+
+    public Position(double x, double y, double z) {
+        super(x, y, z, 0, 0, 0);
+        this.units = Units.UNKNOWN;
     }
 
     public Position(double x, double y, double z, Units units) {
-        super(x, y, z);
+        super(x, y, z, 0, 0, 0);
+        this.units = units;
+    }
+
+    public Position(double x, double y, double z, double a, double b, double c, Units units) {
+        super(x, y, z, a, b, c);
         this.units = units;
     }
 
@@ -53,7 +61,7 @@ public class Position extends Point3d {
     }
 
     @Override
-    public boolean equals(final Tuple3d o) {
+    public boolean equals(final CNCPoint o) {
         if (o instanceof Position) {
             return super.equals(o) && units == ((Position) o).units;
         }
@@ -65,10 +73,21 @@ public class Position extends Point3d {
         return ToStringBuilder.reflectionToString(this);
     }
 
+    /**
+     * Check that the positions are the same ignoring units.
+     */
+    public boolean isSamePositionIgnoreUnits(final Position o) {
+        if (units != o.getUnits()) {
+            return equals(o.getPositionIn(units));
+        }
+        return equals(o);
+    }
+
     @Override
     public int hashCode() {
         int hash = 3;
         hash = 83 * hash + Objects.hashCode(this.units);
+        hash = 83 * hash + super.hashCode();
         return hash;
     }
 
@@ -89,9 +108,38 @@ public class Position extends Point3d {
                 return getY();
             case Z:
                 return getZ();
+            case A:
+                return getA();
+            case B:
+                return getB();
+            case C:
+                return getC();
             default:
                 return 0;
         }
+    }
+
+    /**
+     * Determine if the motion between Positions is a Z plunge.
+     * @param next the Position to compare with the current object.
+     * @return True if it only requires a Z motion to reach next.
+     */
+    public boolean isZMotionTo(Position next) {
+        return (this.z != next.z) &&
+                (this.x == next.x) &&
+                (this.y == next.y) &&
+                (this.a == next.a) &&
+                (this.b == next.b) &&
+                (this.c == next.c);
+    }
+
+    /**
+     * Determine if the motion between Positions contains a rotation.
+     * @param next the Position to compare with the current object.
+     * @return True if a rotation occurs
+     */
+    public boolean hasRotationTo(Position next) {
+        return (this.a != next.a) || (this.b != next.b) || (this.c != next.c);
     }
 
     public void set(Axis axis, double value) {

@@ -21,6 +21,7 @@
  */
 package com.willwinder.universalgcodesender.visualizer;
 
+import com.willwinder.universalgcodesender.model.Position;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -28,7 +29,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -61,7 +61,7 @@ public class VisualizerUtils {
     /**
      * Returns the maximum side dimension of a box containing two points.
      */
-    public static double findMaxSide(Point3d min, Point3d max) {
+    public static double findMaxSide(Position min, Position max) {
         double x = Math.abs(min.x) + Math.abs(max.x);
         double y = Math.abs(min.y) + Math.abs(max.y);
         double z = Math.abs(min.z) + Math.abs(max.z);
@@ -71,7 +71,7 @@ public class VisualizerUtils {
     /**
      * Returns the aspect ratio from two points.
      */
-    public static double findAspectRatio(Point3d min, Point3d max) {
+    public static double findAspectRatio(Position min, Position max) {
         double x = Math.abs(min.x) + Math.abs(max.x);
         double y = Math.abs(min.y) + Math.abs(max.y);
         return x / y;
@@ -80,11 +80,11 @@ public class VisualizerUtils {
     /**
      * Returns the center point on a line.
      */
-    public static Point3d findCenter(Point3d min, Point3d max) {
-        Point3d center = new Point3d();
-        center.x = (min.x + max.x) / 2.0;
-        center.y = (min.y + max.y) / 2.0;
-        center.z = (min.z + max.z) / 2.0;
+    public static Position findCenter(Position min, Position max) {
+        Position center = new Position(
+            (min.x + max.x) / 2.0,
+            (min.y + max.y) / 2.0,
+            (min.z + max.z) / 2.0);
         return center;
     }
 
@@ -92,7 +92,7 @@ public class VisualizerUtils {
      * Find a factor to scale an object by so that it fits in the window.
      * The buffer factor is how much of a border to leave.
      */
-    public static double findScaleFactor(double x, double y, Point3d min, Point3d max, double bufferFactor) {
+    public static double findScaleFactor(double x, double y, Position min, Position max, double bufferFactor) {
         
         if (y == 0 || x == 0 || min == null || max == null) {
             return 1;

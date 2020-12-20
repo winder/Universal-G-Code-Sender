@@ -22,15 +22,15 @@ import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import javax.vecmath.Point3d;
+import com.willwinder.universalgcodesender.model.Position;
 
 /**
  *
  * @author wwinder
  */
 public class Selection extends Renderable {
-    private Point3d start = null;
-    private Point3d end = null;
+    private Position start = null;
+    private Position end = null;
 
     public Selection(String title) {
         super(8, title);
@@ -41,11 +41,11 @@ public class Selection extends Renderable {
         this.end = null;
     }
 
-    public void setStart(Point3d start) {
+    public void setStart(Position start) {
         this.start = start;
     }
 
-    public void setEnd(Point3d end) {
+    public void setEnd(Position end) {
         this.end = end;
     }
 
@@ -68,7 +68,7 @@ public class Selection extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d machineCoord, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates, Point3d rotation) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
         if (start == null || end == null) return;
 
         GL2 gl = drawable.getGL().getGL2();

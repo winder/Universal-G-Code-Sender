@@ -22,6 +22,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
+import com.willwinder.ugs.nbm.visualizer.shared.RotationService;
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -37,11 +38,11 @@ import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 
 import javax.swing.*;
-import javax.vecmath.Point3d;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
+import javax.swing.SwingUtilities;
 
 /**
  * Process all the listeners and call methods in the renderer.
@@ -70,16 +71,16 @@ public class RendererInputHandler implements
         animator.start();
         settings = backend.getSettings();
 
-        gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"));
-        selection = new Selection(Localization.getString("platform.visualizer.renderable.selection"));
+        RotationService rs = new RotationService();
+        gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"), rs);
         sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
+        selection = new Selection(Localization.getString("platform.visualizer.renderable.selection"));
         sizeDisplay.setUnits(settings.getPreferredUnits());
 
         gr.registerRenderable(gcodeModel);
         gr.registerRenderable(sizeDisplay);
         gr.registerRenderable(selection);
     }
-
     
     private void setFPS(int fps) {
         animator.stop();
@@ -102,7 +103,7 @@ public class RendererInputHandler implements
     /**
      * Pass new bounds (after interpolating arcs) in case of weird arcs.
      */
-    private void updateBounds(Point3d min, Point3d max) {
+    private void updateBounds(Position min, Position max) {
         // Update bounds.
         FileStats fs = settings.getFileStats();
         fs.minCoordinate = new Position(min.x, min.y, min.z, Units.MM);
@@ -132,8 +133,6 @@ public class RendererInputHandler implements
         }
     }
 
-
-    
     /**
      * Mouse Motion Listener
      */
@@ -174,7 +173,6 @@ public class RendererInputHandler implements
     public void mouseWheelMoved(MouseWheelEvent e) {
         gcodeRenderer.zoom(e.getWheelRotation());
     }
-
     
     /**
      * Window Listener
@@ -221,7 +219,7 @@ public class RendererInputHandler implements
     public void mouseClicked(MouseEvent e) {
         // Show popup
         if (SwingUtilities.isRightMouseButton(e) || e.isControlDown()) {
-            Point3d coords = gcodeRenderer.getMouseWorldLocation();
+            Position coords = gcodeRenderer.getMouseWorldLocation();
 
             // The position is always given in millimeters, convert to the preferred units
             Position position = new Position(coords.getX(), coords.getY(), coords.getZ(), Units.MM)
@@ -233,8 +231,8 @@ public class RendererInputHandler implements
     }
 
     private boolean selecting = false;
-    private Point3d selectionStart = null;
-    private Point3d selectionEnd = null;
+    private Position selectionStart = null;
+    private Position selectionEnd = null;
 
     /**
      * Mouse pressed is called on mouse-down.

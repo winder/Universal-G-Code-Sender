@@ -36,14 +36,18 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class GcodeViewParse {
+    Logger LOGGER = Logger.getLogger(GcodeViewParse.class.getName());
 
     // Parsed object
     private final Position min;
@@ -99,6 +103,13 @@ public class GcodeViewParse {
             max.z = z;
         }
     }
+
+    /**
+     * TODO: LineSegment is little more than a PointSegment which also has the beginning. Since they are never used
+     *       without an entire list of LineSegments there is no need to store the beginning. So...
+     * TODO: Remove LineSegment, use PointSegment everywhere instead. The biggest difference is that the PointSegment
+     *       also stores the PlaneState, that can be removed when things are converted to Point3d for final rendering.
+     */
 
     /**
      * Create a gcode parser with required configuration.
@@ -187,49 +198,55 @@ public class GcodeViewParse {
     }
     
     /**
+     * Helper to create a line segment with flags initialized.
+     */
+    private static LineSegment createLineSegment(Position a, Position b, PointSegment meta) {
+      LineSegment ls = new LineSegment(a, b, meta.getLineNumber());
+      ls.setIsArc(meta.isArc());
+      ls.setIsFastTraverse(meta.isFastTraverse());
+      ls.setIsZMovement(meta.isZMovement());
+      ls.setIsRotation(meta.isRotation());
+      return ls;
+    }
+
+    /**
      * Turns a point segment into one or more LineSegment. Arcs are expanded.
      * Keeps track of the minimum and maximum x/y/z locations.
      */
-    private List<LineSegment> addLinesFromPointSegment(final Position start, final PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret) {
+    private void addLinesFromPointSegment(final Position start, final PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret) {
         // For a line segment list ALL arcs must be converted to lines.
         double minArcLength = 0;
         LineSegment ls;
         endSegment.convertToMetric();
-        
-        Position end = new Position(endSegment.point());
 
-        // start is null for the first iteration.
-        if (start != null) {
-            // Expand arc for graphics.
-            if (endSegment.isArc()) {
-                List<Position> points =
-                    GcodePreprocessorUtils.generatePointsAlongArcBDring(
-                        start, end, endSegment.center(), endSegment.isClockwise(),
-                        endSegment.getRadius(), minArcLength, arcSegmentLength, new PlaneFormatter(endSegment.getPlaneState()));
-                // Create line segments from points.
-                if (points != null) {
-                    Position startPoint = start;
-                    for (Position nextPoint : points) {
-                        ls = new LineSegment(startPoint, nextPoint, endSegment.getLineNumber());
-                        ls.setIsArc(endSegment.isArc());
-                        ls.setIsFastTraverse(endSegment.isFastTraverse());
-                        ls.setIsZMovement(endSegment.isZMovement());
-                        this.testExtremes(nextPoint);
-                        ret.add(ls);
-                        startPoint = nextPoint;
+        try {
+            // start is null for the first iteration.
+            if (start != null) {
+                // Expand arc for graphics.
+                if (endSegment.isArc()) {
+                    List<Position> points =
+                        GcodePreprocessorUtils.generatePointsAlongArcBDring(
+                            start, endSegment.point(), endSegment.center(), endSegment.isClockwise(),
+                            endSegment.getRadius(), minArcLength, arcSegmentLength, new PlaneFormatter(endSegment.getPlaneState()));
+                    // Create line segments from points.
+                    if (points != null) {
+                        Position startPoint = start;
+                        for (Position nextPoint : points) {
+                            ret.add(createLineSegment(startPoint, nextPoint, endSegment));
+                            this.testExtremes(nextPoint);
+                            startPoint = nextPoint;
+                        }
                     }
+                // Line
+                } else {
+                    ret.add(createLineSegment(start, endSegment.point(), endSegment));
+                    this.testExtremes(endSegment.point());
                 }
-            // Line
-            } else {
-                ls = new LineSegment(start, end, endSegment.getLineNumber());
-                ls.setIsArc(endSegment.isArc());
-                ls.setIsFastTraverse(endSegment.isFastTraverse());
-                ls.setIsZMovement(endSegment.isZMovement());
-                this.testExtremes(end);
-                ret.add(ls);
             }
+        } catch (Exception e) {
+            String message = endSegment.getLineNumber() + ": " + e.getMessage();
+            GUIHelpers.displayErrorDialog(message, true);
+            LOGGER.log(Level.SEVERE, message, e);
         }
-        
-        return ret;
     }
 }
