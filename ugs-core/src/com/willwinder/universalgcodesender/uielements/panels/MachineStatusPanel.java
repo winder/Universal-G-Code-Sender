@@ -113,9 +113,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private void initSizer() {
         SteppedSizeManager sizer = new SteppedSizeManager(this,
-                new Dimension(200, 375),
-                new Dimension(240, 460),
-                new Dimension(310, 570));
+                new Dimension(160, 330),
+                new Dimension(240, 420),
+                new Dimension(310, 420));
         sizer.addListener(machineStatusFontManager::applyFonts);
     }
 
@@ -346,7 +346,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         try {
             backend.resetCoordinateToZero(axis);
         } catch (Exception e) {
-            // Ignore errors
+            LOGGER.warning(String.format("Could not reset work position on axis '%s'", axis));
         }
     }
 

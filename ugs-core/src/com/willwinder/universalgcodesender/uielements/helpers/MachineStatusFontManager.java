@@ -47,49 +47,44 @@ public class MachineStatusFontManager {
 
     public void init() {
         String fontPath = "/resources/";
-        String fontName = "LED.ttf";
+        String fontName = "LCD.ttf";
         InputStream is = getClass().getResourceAsStream(fontPath + fontName);
 
         Font font = createFont(is, fontName);
-        workCoordinateFont.add(font.deriveFont(Font.PLAIN,28));
-        workCoordinateFont.add(font.deriveFont(Font.PLAIN,30));
-        workCoordinateFont.add(font.deriveFont(Font.PLAIN,38));
-        workCoordinateFont.add(font.deriveFont(Font.PLAIN,46));
-        machineCoordinateFont.add(font.deriveFont(Font.PLAIN,19));
-        machineCoordinateFont.add(font.deriveFont(Font.PLAIN,19));
-        machineCoordinateFont.add(font.deriveFont(Font.PLAIN,27));
-        machineCoordinateFont.add(font.deriveFont(Font.PLAIN,32));
+        workCoordinateFont.add(font.deriveFont(Font.PLAIN,18));
+        workCoordinateFont.add(font.deriveFont(Font.PLAIN,24));
+        workCoordinateFont.add(font.deriveFont(Font.PLAIN,32));
+        machineCoordinateFont.add(font.deriveFont(Font.PLAIN,14));
+        machineCoordinateFont.add(font.deriveFont(Font.PLAIN,18));
+        machineCoordinateFont.add(font.deriveFont(Font.PLAIN,24));
+        speedValueFont.add(font.deriveFont(Font.PLAIN,14));
+        speedValueFont.add(font.deriveFont(Font.PLAIN,16));
         speedValueFont.add(font.deriveFont(Font.PLAIN,20));
-        speedValueFont.add(font.deriveFont(Font.PLAIN,24));
-        speedValueFont.add(font.deriveFont(Font.PLAIN,32));
-        speedValueFont.add(font.deriveFont(Font.PLAIN,40));
 
         // https://www.fontsquirrel.com
         fontName = "OpenSans-CondBold.ttf";
         is = getClass().getResourceAsStream(fontPath + fontName);
-        font = createFont(is, fontName);
-        activeStateFont.add(font.deriveFont(Font.PLAIN, 26));
-        activeStateFont.add(font.deriveFont(Font.PLAIN, 30));
-        activeStateFont.add(font.deriveFont(Font.PLAIN, 38));
-        activeStateFont.add(font.deriveFont(Font.PLAIN, 46));
+        Font boldFont = createFont(is, fontName);
 
         fontName = "OpenSans-Regular.ttf";
         is = getClass().getResourceAsStream(fontPath + fontName);
-        font = createFont(is, fontName);
-        axisResetFont.add(font.deriveFont(Font.PLAIN, 26));
-        axisResetFont.add(font.deriveFont(Font.PLAIN, 30));
-        axisResetFont.add(font.deriveFont(Font.PLAIN, 38));
-        axisResetFont.add(font.deriveFont(Font.PLAIN, 46));
+        Font regularFont = createFont(is, fontName);
 
-        Font zeroFont = font.deriveFont(Font.PLAIN, 18);
-        axisResetZeroFont.add(zeroFont);
-        axisResetZeroFont.add(zeroFont);
-        axisResetZeroFont.add(zeroFont);
+        activeStateFont.add(boldFont.deriveFont(Font.PLAIN, 20));
+        activeStateFont.add(boldFont.deriveFont(Font.PLAIN, 24));
+        activeStateFont.add(boldFont.deriveFont(Font.PLAIN, 30));
 
-        propertyLabelFont.add(font.deriveFont(Font.PLAIN, 12));
-        propertyLabelFont.add(font.deriveFont(Font.PLAIN, 14));
-        propertyLabelFont.add(font.deriveFont(Font.PLAIN, 17));
-        propertyLabelFont.add(font.deriveFont(Font.PLAIN, 24));
+        axisResetFont.add(regularFont.deriveFont(Font.PLAIN, 20));
+        axisResetFont.add(regularFont.deriveFont(Font.PLAIN, 24));
+        axisResetFont.add(regularFont.deriveFont(Font.PLAIN, 30));
+
+        axisResetZeroFont.add(regularFont.deriveFont(Font.PLAIN, 12));
+        axisResetZeroFont.add(regularFont.deriveFont(Font.PLAIN, 14));
+        axisResetZeroFont.add(regularFont.deriveFont(Font.PLAIN, 18));
+
+        propertyLabelFont.add(regularFont.deriveFont(Font.PLAIN, 12));
+        propertyLabelFont.add(regularFont.deriveFont(Font.PLAIN, 14));
+        propertyLabelFont.add(regularFont.deriveFont(Font.PLAIN, 17));
     }
 
     public void applyFonts(int size) {

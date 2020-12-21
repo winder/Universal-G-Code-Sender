@@ -49,20 +49,20 @@ public class AxisPanel extends JPanel {
         RoundedPanel axisPanel = new RoundedPanel(COMMON_RADIUS);
         axisPanel.setBackground(ThemeColors.VERY_DARK_GREY);
         axisPanel.setForeground(ThemeColors.LIGHT_BLUE);
-        axisPanel.setLayout(new MigLayout("fillx, wrap 2, inset 7, gap 0", "[left][grow, right]"));
+        axisPanel.setLayout(new MigLayout("fillx, wrap 2, inset 4 6 4 6, gap 0", "[left][grow, right]"));
 
         resetPanel = new RoundedPanel(COMMON_RADIUS);
         resetPanel.setForeground(ThemeColors.LIGHT_BLUE);
         resetPanel.setBackground(ThemeColors.DARK_BLUE_GREY);
         resetPanel.setBackgroundDisabled(ThemeColors.VERY_DARK_GREY);
         resetPanel.setHoverBackground(ThemeColors.MED_BLUE_GREY);
-        resetPanel.setLayout(new MigLayout("inset 5 15 5 15"));
+        resetPanel.setLayout(new MigLayout("inset 4 10 4 12, gap 0"));
         JLabel axisLabel = new JLabel(String.valueOf(axis));
         axisLabel.setForeground(ThemeColors.LIGHT_BLUE);
         resetPanel.add(axisLabel, "al center, dock center, id axis");
         JLabel zeroLabel = new JLabel("0");
         zeroLabel.setForeground(ThemeColors.LIGHT_BLUE);
-        resetPanel.add(zeroLabel, "pos (axis.x + axis.w - 4) (axis.y + axis.h - 25)");
+        resetPanel.add(zeroLabel, "id zero, pos (axis.x + axis.w - 4) (axis.y + axis.h - zero.h)");
         resetPanel.addClickListener(() -> axisPanelListenerList.forEach(axisPanelListener -> axisPanelListener.onResetClick(resetPanel, axis)));
 
         work.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -74,6 +74,12 @@ public class AxisPanel extends JPanel {
                 axisPanelListenerList.forEach(axisPanelListener -> axisPanelListener.onWorkPositionClick(work, axis));
             }
         });
+
+        Label workLabel = new Label("Work");
+        workLabel.setFont(new Font("Sans-Serif", Font.PLAIN, 9));
+
+        Label machineLabel = new Label("Machine");
+        machineLabel.setFont(new Font("Sans-Serif", Font.PLAIN, 9));
 
         machine.setHorizontalAlignment(SwingConstants.RIGHT);
         machine.setForeground(ThemeColors.LIGHT_BLUE);
