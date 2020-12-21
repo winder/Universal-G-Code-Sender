@@ -25,9 +25,9 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
+import com.willwinder.universalgcodesender.model.Position;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -86,7 +86,7 @@ public class MouseProjectionUtils {
                 new Vector3(wcoordFar[0], wcoordFar[1], wcoordFar[2])};
     }
 
-    public static Point3d intersectPointWithXYPlane(GLAutoDrawable drawable,
+    public static Position intersectPointWithXYPlane(GLAutoDrawable drawable,
             int rawMouseX, int rawMouseY) {
 
         int[] raw = {rawMouseX, rawMouseY};
@@ -115,7 +115,7 @@ public class MouseProjectionUtils {
      * @param S3 Bottom-left corner of a box on the plane.
      * @return The X, Y coordinate at Z=0
      */
-    private static Point3d intersectPointWithPlane(Vector3 R1, Vector3 R2,
+    private static Position intersectPointWithPlane(Vector3 R1, Vector3 R2,
                                      Vector3 S1, Vector3 S2, Vector3 S3) {
 
         // TODO: The plane S1, S2, S3 is the XY plane by definition, so this
@@ -134,14 +134,14 @@ public class MouseProjectionUtils {
 
         // If the ray is parallel to the plane return 0
         if (Math.abs(ndotdR) < 1e-6f) { // Choose your tolerance
-            return new Point3d(0,0,0);
+            return new Position(0,0,0);
         }
 
         double t = -n.dot(R1.sub(S1)) / ndotdR;
         Vector3 M = R1.add(dR.scale(t));
         //logger.log(Level.INFO, String.format("Intersection at: (%f,%f)", M.x, M.y));
 
-        return new Point3d(M.x, M.y, 0);
+        return new Position(M.x, M.y, 0);
 
         /*
         // The below will calculate if the intersection is also within the

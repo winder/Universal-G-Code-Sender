@@ -25,11 +25,11 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_HIGHLIGHT;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -79,7 +79,7 @@ public class Highlight extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d machineCoord, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseCoordinates, Point3d rotation) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
         if (lineVertexData == null || highlightedLines == null || highlightedLines.isEmpty()) {
             return;
         }
@@ -122,8 +122,9 @@ public class Highlight extends Renderable {
         this.lineVertexData = new float[numberOfVertices * 3];
 
         for (LineSegment ls : highlights) {
-            Point3d p1 = ls.getStart();
-            Point3d p2 = ls.getEnd();
+            //System.out.println("Line number: " + ls.getLineNumber());
+            Position p1 = ls.getStart();
+            Position p2 = ls.getEnd();
 
             // p1 location
             lineVertexData[vertIndex++] = (float)p1.x;

@@ -27,7 +27,6 @@ import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
 
-import javax.vecmath.Point3d;
 import java.awt.Color;
 
 /**
@@ -66,7 +65,7 @@ public class EditorPosition extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d machineCoord, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates, Point3d rotation) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
         if (position == null) {
             return;
         }

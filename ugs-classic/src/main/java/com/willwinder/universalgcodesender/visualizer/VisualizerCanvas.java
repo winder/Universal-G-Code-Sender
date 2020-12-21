@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2013-2016 Will Winder
+    Copywrite 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -44,6 +44,7 @@ import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.uielements.helpers.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.helpers.Overlay;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -61,8 +62,6 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
 
 /**
  *
@@ -81,8 +80,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     final static private DecimalFormat format = new DecimalFormat("####.00");
 
     // Machine data
-    private final Point3d machineCoord;
-    private final Point3d workCoord;
+    private final Position machineCoord;
+    private final Position workCoord;
     
     // Gcode file data
     private String gcodeFile = null;
@@ -96,8 +95,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     private GLU glu;
     
     // Projection variables
-    private Point3d center, eye;
-    private Point3d objectMin, objectMax;
+    private Position center, eye;
+    private Position objectMin, objectMax;
     private double maxSide;
     private double aspectRatio;
     private int xSize, ySize;
@@ -118,13 +117,13 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     private final int panMouseButton = InputEvent.BUTTON2_MASK; // TODO: Make configurable
     private double panMultiplierX = 1;
     private double panMultiplierY = 1;
-    private Vector3d translationVectorH;
-    private Vector3d translationVectorV;
+    private Position translationVectorH;
+    private Position translationVectorV;
 
     // Mouse rotation data
     private Point last;
     private Point current;
-    private Point3d rotation;
+    private Position rotation;
 
     // OpenGL Object Buffer Variables
     private int numberOfVertices = -1;
@@ -150,13 +149,13 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
        this.addMouseMotionListener(this);
        this.addMouseWheelListener(this);
 
-       this.eye = new Point3d(0, 0, 1.5);
-       this.center = new Point3d(0, 0, 0);
+       this.eye = new Position(0, 0, 1.5, Units.MM);
+       this.center = new Position(0, 0, 0, Units.MM);
        
-       this.workCoord = new Point3d(0, 0, 0);
-       this.machineCoord = new Point3d(0, 0, 0);
+       this.workCoord = new Position(0, 0, 0, Units.MM);
+       this.machineCoord = new Position(0, 0, 0, Units.MM);
        
-       this.rotation = new Point3d(0.0, -30.0, 0.0);
+       this.rotation = new Position(0.0, -30.0, 0.0, Units.MM);
        if (ortho) {
            setVerticalTranslationVector();
            setHorizontalTranslationVector();
@@ -558,8 +557,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
                 // Draw it.
                 {
-                    Point3d p1 = ls.getStart();
-                    Point3d p2 = ls.getEnd();
+                    Position p1 = ls.getStart();
+                    Position p2 = ls.getEnd();
                     byte[] c = color.getBytes();
 
                     // colors
@@ -573,6 +572,9 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                     lineColorData[colorIndex++] = c[1];
                     lineColorData[colorIndex++] = c[2];
                     
+                    // TODO: take ABC axes into consideration.
+                    // This is only used by the classic GUI.
+
                     // p1 location
                     lineVertexData[vertIndex++] = (float)p1.x;
                     lineVertexData[vertIndex++] = (float)p1.y;
@@ -807,16 +809,16 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         double y = xz * Math.sin(Math.toRadians(this.rotation.y));
         double yz = xz * Math.cos(Math.toRadians(this.rotation.y));
 
-        translationVectorH = new Vector3d(x, y, yz);
-        translationVectorH.normalize();
+        translationVectorH = new Position(x, y, yz);
+        translationVectorH.normalizeXYZ();
     }
 
     private void setVerticalTranslationVector(){
         double y = Math.cos(Math.toRadians(this.rotation.y));
         double yz = Math.sin(Math.toRadians(this.rotation.y));
 
-        translationVectorV = new Vector3d(0, y, yz);
-        translationVectorV.normalize();
+        translationVectorV = new Position(0, y, yz);
+        translationVectorV.normalizeXYZ();
     }
 
     @Override

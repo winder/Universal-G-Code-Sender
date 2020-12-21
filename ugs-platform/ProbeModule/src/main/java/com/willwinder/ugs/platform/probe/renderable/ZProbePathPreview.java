@@ -23,7 +23,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
-import javax.vecmath.Point3d;
+import com.willwinder.universalgcodesender.model.Position;
 
 /**
  *
@@ -32,7 +32,7 @@ import javax.vecmath.Point3d;
 public class ZProbePathPreview extends Renderable {
     private Double probeDepth = null;
     private Double probeOffset = null;
-    private Point3d start = null;
+    private Position start = null;
 
     private final GLUT glut;
 
@@ -41,7 +41,7 @@ public class ZProbePathPreview extends Renderable {
         glut = new GLUT();
     }
 
-    public void setStart(Point3d p) {
+    public void setStart(Position p) {
         this.start = p;
     }
 
@@ -69,7 +69,7 @@ public class ZProbePathPreview extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d machineCoord, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates, Point3d rotation) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
         if (this.probeDepth == null || this.probeOffset == null) return;
         final int slices = 10;
         final int stacks = 10;

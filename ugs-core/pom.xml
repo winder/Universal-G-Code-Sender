@@ -48,11 +48,6 @@
       <version>${jogl.version}</version>
     </dependency>
     <dependency>
-      <groupId>javax.vecmath</groupId>
-      <artifactId>vecmath</artifactId>
-      <version>${vecmath.version}</version>
-    </dependency>
-    <dependency>
       <groupId>javax.media</groupId>
       <artifactId>jmf</artifactId>
       <version>${jmf.version}</version>

@@ -39,8 +39,6 @@ import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.util.lookup.ServiceProviders;
 
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.util.ArrayList;
@@ -72,16 +70,16 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     private static boolean debugCoordinates = false; // turn on coordinate debug output
 
     // Machine data
-    private final Point3d machineCoord;
-    private final Point3d workCoord;
+    private final Position machineCoord;
+    private final Position workCoord;
     
     // GL Utility
     private GLU glu;
     private GLAutoDrawable drawable = null;
     
     // Projection variables
-    private Point3d center, eye;
-    private Point3d objectMin, objectMax;
+    private Position center, eye;
+    private Position objectMin, objectMax;
     private double maxSide;
     private int xSize, ySize;
     private double minArcLength;
@@ -101,14 +99,14 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     private final int panMouseButton = InputEvent.BUTTON2_MASK; // TODO: Make configurable
     private double panMultiplierX = 1;
     private double panMultiplierY = 1;
-    private Vector3d translationVectorH;
-    private Vector3d translationVectorV;
+    private Position translationVectorH;
+    private Position translationVectorV;
 
     // Mouse rotation data
     private Point mouseLastWindow;
     private Point mouseCurrentWindow;
-    private Point3d mouseWorldXY;
-    private Point3d rotation;
+    private Position mouseWorldXY;
+    private Position rotation;
     
     private FPSCounter fpsCounter;
     private Overlay overlay;
@@ -124,15 +122,15 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      * Constructor.
      */
     public GcodeRenderer() {
-        eye = new Point3d(0, 0, 1.5);
-        center = new Point3d(0, 0, 0);
-        objectMin = new Point3d(-10,-10,-10);
-        objectMax = new Point3d( 10, 10, 10);
+        eye = new Position(0, 0, 1.5);
+        center = new Position(0, 0, 0);
+        objectMin = new Position(-10,-10,-10);
+        objectMax = new Position( 10, 10, 10);
        
-        workCoord = new Point3d(0, 0, 0);
-        machineCoord = new Point3d(0, 0, 0);
+        workCoord = new Position(0, 0, 0);
+        machineCoord = new Position(0, 0, 0);
        
-        rotation = new Point3d(0.0, -30.0, 0.0);
+        rotation = new Position(0.0, -30.0, 0.0);
         setVerticalTranslationVector();
         setHorizontalTranslationVector();
 
@@ -173,7 +171,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     /**
      * Get the location on the XY plane of the mouse.
      */
-    public Point3d getMouseWorldLocation() {
+    public Position getMouseWorldLocation() {
         return this.mouseWorldXY;
     }
 
@@ -299,10 +297,10 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         resizeForCamera(objectMin, objectMax, 0.9);
     }
 
-    public void setObjectSize(Point3d min, Point3d max) {
+    public void setObjectSize(Position min, Position max) {
         if (min == null || max == null) {
-            this.objectMin = new Point3d(-10,-10,-10);
-            this.objectMax = new Point3d( 10, 10, 10);
+            this.objectMin = new Position(-10,-10,-10);
+            this.objectMax = new Position( 10, 10, 10);
             idle = true;
         } else {
             this.objectMin = min;
@@ -315,13 +313,13 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     /**
      * Zoom the visualizer to the given region.
      */
-    public void zoomToRegion(Point3d min, Point3d max, double bufferFactor) {
+    public void zoomToRegion(Position min, Position max, double bufferFactor) {
         if (min == null || max == null) return;
 
         if (this.ySize == 0){ this.ySize = 1; }  // prevent divide by zero
 
         // Figure out offset compared to the current center.
-        Point3d regionCenter = VisualizerUtils.findCenter(min, max);
+        Position regionCenter = VisualizerUtils.findCenter(min, max);
         this.eye.x = regionCenter.x - this.center.x;
         this.eye.y = regionCenter.y - this.center.y;
 
@@ -337,7 +335,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     /**
      * Zoom to display the given region leaving the suggested buffer.
      */
-    private void resizeForCamera(Point3d min, Point3d max, double bufferFactor) {
+    private void resizeForCamera(Position min, Position max, double bufferFactor) {
         if (min == null || max == null) return;
 
         if (this.ySize == 0){ this.ySize = 1; }  // prevent divide by zero
@@ -373,7 +371,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
                         drawable, mouseLastWindow.x, mouseLastWindow.y);
             gl.glPopMatrix();
         } else {
-            this.mouseWorldXY = new Point3d(0, 0, 0);
+            this.mouseWorldXY = new Position(0, 0, 0);
         }
 
         // Render the different parts of the scene.
@@ -396,7 +394,11 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
                 if (!r.enableLighting()) {
                     gl.glDisable(GL2.GL_LIGHTING);
                 }
-                r.draw(drawable, idle, machineCoord, workCoord, objectMin, objectMax, scaleFactor, mouseWorldXY, rotation);
+                try {
+                    r.draw(drawable, idle, machineCoord, workCoord, objectMin, objectMax, scaleFactor, mouseWorldXY, rotation);
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, "An exception occurred while drawing " + r.getClass().getSimpleName(), e);
+                }
                 if (!r.enableLighting()) {
                     gl.glEnable(GL2.GL_LIGHTING);
                     gl.glEnable(GL2.GL_LIGHT0);
@@ -519,16 +521,16 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         double y = xz * Math.sin(Math.toRadians(this.rotation.y));
         double yz = xz * Math.cos(Math.toRadians(this.rotation.y));
 
-        translationVectorH = new Vector3d(x, y, yz);
-        translationVectorH.normalize();
+        translationVectorH = new Position(x, y, yz);
+        translationVectorH.normalizeXYZ();
     }
 
     private void setVerticalTranslationVector(){
         double y = Math.cos(Math.toRadians(this.rotation.y));
         double yz = Math.sin(Math.toRadians(this.rotation.y));
 
-        translationVectorV = new Vector3d(0, y, yz);
-        translationVectorV.normalize();
+        translationVectorV = new Position(0, y, yz);
+        translationVectorV.normalizeXYZ();
     }
 
     public void mouseMoved(Point lastPoint) {
@@ -627,7 +629,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      * Reset the view angle and zoom.
      */
     public void resetView() {
-        moveCamera(new Point3d(0, 0, 1.5), new Point3d(0, -30, 0), 1);
+        moveCamera(new Position(0, 0, 1.5), new Position(0, -30, 0), 1);
     }
 
     /**
@@ -637,10 +639,10 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      * @param rotation directs the camera given this rotation
      * @param zoom the zoom level
      */
-    public void moveCamera(Point3d position, Point3d rotation, double zoom) {
+    public void moveCamera(Position position, Position rotation, double zoom) {
         this.zoomMultiplier = Math.min(Math.max(zoom, minZoomMultiplier), maxZoomMultiplier);
         this.scaleFactor = this.scaleFactorBase;
-        this.eye = new Point3d(position);
-        this.rotation = new Point3d(rotation);
+        this.eye = new Position(position);
+        this.rotation = new Position(rotation);
     }
 }

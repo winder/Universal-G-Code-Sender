@@ -21,9 +21,9 @@ package com.willwinder.ugs.platform.dowel
 import com.google.common.collect.Iterables
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils
 import com.willwinder.universalgcodesender.model.UnitUtils
+import com.willwinder.universalgcodesender.model.Position
 import java.io.PrintWriter
 import java.util.Date
-import javax.vecmath.Point3d
 
 /*
 
@@ -35,18 +35,18 @@ public class DowelGenerator(var settings: DowelSettings) {
 
   public fun unitMultiplier() = UnitUtils.scaleUnits(settings.units, UnitUtils.Units.MM)
 
-  public fun getLocations(target: UnitUtils.Units): List<Point3d> {
+  public fun getLocations(target: UnitUtils.Units): List<Position> {
     val mult= UnitUtils.scaleUnits(settings.units, target)
     val offset = mult * (settings.dowelDiameter + settings.bitDiameter * 1.25)
-    val corner = Point3d(
+    val corner = Position(
         mult * settings.dowelDiameter / 2.0,
         mult * settings.dowelDiameter / 2.0,
         0.0)
 
-    val ret: MutableList<Point3d> = mutableListOf()
+    val ret: MutableList<Position> = mutableListOf()
     for (x in 0 until settings.numDowelsX) {
       for (y in 0 until settings.numDowelsY) {
-        ret.add(Point3d(corner.x + x * offset, corner.y + y * offset, 0.0))
+        ret.add(Position(corner.x + x * offset, corner.y + y * offset, 0.0))
       }
     }
 
@@ -69,17 +69,17 @@ public class DowelGenerator(var settings: DowelSettings) {
     output.println("M30")
   }
 
-  public fun generateOne(at: Point3d, output: PrintWriter) {
+  public fun generateOne(at: Position, output: PrintWriter) {
     output.println("\n(Dowel at x:${at.x} y:${at.y})")
 
     val radius = settings.bitDiameter / 2.0 + settings.dowelDiameter / 2.0
     val quarterDepth = settings.cutDepth / 4.0
 
-    val arcSequence: Iterator<Point3d> = Iterables.cycle(listOf(
-        Point3d(at.x - radius, at.y, 0.0),
-        Point3d(at.x, at.y + radius, 0.0),
-        Point3d(at.x + radius, at.y, 0.0),
-        Point3d(at.x, at.y - radius, 0.0)
+    val arcSequence: Iterator<Position> = Iterables.cycle(listOf(
+        Position(at.x - radius, at.y, 0.0),
+        Position(at.x, at.y + radius, 0.0),
+        Position(at.x + radius, at.y, 0.0),
+        Position(at.x, at.y - radius, 0.0)
     )).iterator()
 
     var last = arcSequence.next();

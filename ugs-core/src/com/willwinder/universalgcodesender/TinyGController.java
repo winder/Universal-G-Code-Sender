@@ -381,7 +381,7 @@ public class TinyGController extends AbstractController {
         Optional<GcodeCommand> gcodeCommand = TinyGUtils.createOverrideCommand(currentOverrides, command);
         if (gcodeCommand.isPresent()) {
             sendCommandImmediately(gcodeCommand.get());
-        }
+	}
     }
 
     @Override

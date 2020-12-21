@@ -28,7 +28,6 @@ import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -38,7 +37,7 @@ public class AutoLevelPreview extends Renderable {
     private final GLUT glut;
 
     private ImmutableCollection<Position> positions;
-    private Point3d[][] grid = null;
+    private Position[][] grid = null;
 
     // The maximum distance of a probe used for coloring.
     private double maxZ, minZ;
@@ -77,9 +76,9 @@ public class AutoLevelPreview extends Renderable {
     public void updateSettings(
             ImmutableCollection<Position> positions,
             Units gridUnits,
-            final Point3d[][] grid,
-            Point3d max,
-            Point3d min) {
+            final Position[][] grid,
+            Position max,
+            Position min) {
         if (positions != null && !positions.isEmpty()) {
             this.positions = positions;
             this.grid = grid;
@@ -93,7 +92,7 @@ public class AutoLevelPreview extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d machineCoord, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates, Point3d rotation) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
 
         // Don't draw something invalid.
         if (positions == null || positions.isEmpty()) {
@@ -190,10 +189,10 @@ public class AutoLevelPreview extends Renderable {
             }
 
             for (int y = 0; y < this.grid[x].length - 1; y++) {
-                Point3d pos1 = this.grid[x][y];
-                Point3d pos2 = this.grid[x+1][y];
-                Point3d pos3 = this.grid[x][y+1];
-                Point3d pos4 = this.grid[x+1][y+1];
+                Position pos1 = this.grid[x][y];
+                Position pos2 = this.grid[x+1][y];
+                Position pos3 = this.grid[x][y+1];
+                Position pos4 = this.grid[x+1][y+1];
 
                 // Bottom left of quad
                 if (pos1 != null && pos2 != null && pos3 != null) {

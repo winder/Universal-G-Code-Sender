@@ -30,9 +30,9 @@ import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
+import com.willwinder.universalgcodesender.model.Position;
 import java.awt.Color;
 import java.util.logging.Logger;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -67,14 +67,14 @@ public class MouseOver extends Renderable {
     public void reloadPreferences(VisualizerOptions vo) {
     }
 
-    static private boolean inBounds(Point3d point, Point3d bottomLeft, Point3d topRight) {
+    static private boolean inBounds(Position point, Position bottomLeft, Position topRight) {
         if (point.x > topRight.x || point.x < bottomLeft.x) return false;
         if (point.y > topRight.y || point.y < bottomLeft.y) return false;
         return true;
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d machineCoord, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates, Point3d rotation) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
         if (mouseWorldCoordinates == null) return;
 
         if (inBounds(mouseWorldCoordinates, objectMin, objectMax)) {
