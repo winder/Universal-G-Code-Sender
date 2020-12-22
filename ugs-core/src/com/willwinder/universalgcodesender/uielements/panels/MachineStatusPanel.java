@@ -27,7 +27,6 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Axis;
-import static com.willwinder.universalgcodesender.model.Axis.*;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -49,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * DRO style display panel with current controller state.
@@ -141,9 +141,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         activeStateValueLabel.setBorder(BorderFactory.createEmptyBorder());
         add(activeStatePanel, "growx");
 
-        createAxisPanel(X);
-        createAxisPanel(Y);
-        createAxisPanel(Z);
+        Stream.of(Axis.X, Axis.Y, Axis.Z).forEach(this::createAxisPanel);
 
         JPanel speedPanel = new JPanel(new MigLayout(debug + "fillx, wrap 2, inset 0", "[al right][]"));
         speedPanel.setOpaque(false);
@@ -186,7 +184,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private void createAxisPanel(Axis axis) {
         AxisPanel axisPanel = new AxisPanel(axis, machineStatusFontManager);
         axisPanels.put(axis, axisPanel);
-        add(axisPanel,"growx, span 2");
+        add(axisPanel, "growx, span 2");
         axisPanel.addListener(this);
     }
 
@@ -206,7 +204,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private Timer createTimer() {
         return new Timer((int) REFRESH_RATE.toMillis(), (ae) -> EventQueue.invokeLater(() -> {
-            if (! backend.isConnected()) {
+            if (!backend.isConnected()) {
                 activeStateValueLabel.setText(OFFLINE);
                 activeStatePanel.setBackground(Color.BLACK);
             }
@@ -215,13 +213,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
                 gStatesLabel.setText("--");
             } else {
                 gStatesLabel.setText(
-                    String.join(" ",
-                        state.currentMotionMode.toString(),
-                        state.units.toString(),
-                        state.feedMode.toString(),
-                        state.distanceMode.toString(),
-                        state.offset.toString(),
-                        state.plane.code.toString()));
+                        String.join(" ",
+                                state.currentMotionMode.toString(),
+                                state.units.toString(),
+                                state.feedMode.toString(),
+                                state.distanceMode.toString(),
+                                state.offset.toString(),
+                                state.plane.code.toString()));
             }
         }));
     }
@@ -229,7 +227,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private void setUnits(Units u) {
         if (u == null || units == u) return;
         units = u;
-        switch(u) {
+        switch (u) {
             case MM:
                 break;
             case INCH:
@@ -281,7 +279,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             if (ep.SoftReset) enabled.add(PIN_SOFT_RESET);
             if (ep.CycleStart) enabled.add(PIN_CYCLE_STARY);
 
-            if (! enabled.isEmpty()) {
+            if (!enabled.isEmpty()) {
                 enabled.add(0, ALARM + ":");
                 pinStatesLabel.setText(String.join(" ", enabled));
                 pinStatesLabel.setForeground(ThemeColors.RED);
@@ -291,19 +289,19 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         this.setUnits(backend.getSettings().getPreferredUnits());
 
-        if (status.getMachineCoord() != null) {
-            Position machineCoord = status.getMachineCoord().getPositionIn(units);
-            axisPanels.get(X).setMachinePosition(machineCoord.x);
-            axisPanels.get(Y).setMachinePosition(machineCoord.y);
-            axisPanels.get(Z).setMachinePosition(machineCoord.z);
-        }
+        Arrays.stream(Axis.values())
+                .filter(axis -> axisPanels.containsKey(axis))
+                .forEach(axis -> {
+                    if (status.getMachineCoord() != null) {
+                        Position machineCoord = status.getMachineCoord().getPositionIn(units);
+                        axisPanels.get(axis).setMachinePosition(machineCoord.get(axis));
+                    }
 
-        if (status.getWorkCoord() != null) {
-            Position workCoord = status.getWorkCoord().getPositionIn(units);
-            axisPanels.get(X).setWorkPosition(workCoord.x);
-            axisPanels.get(Y).setWorkPosition(workCoord.y);
-            axisPanels.get(Z).setWorkPosition(workCoord.z);
-        }
+                    if (status.getWorkCoord() != null) {
+                        Position workCoord = status.getWorkCoord().getPositionIn(units);
+                        axisPanels.get(axis).setWorkPosition(workCoord.get(axis));
+                    }
+                });
 
         // Use real-time values if available, otherwise show the target values.
         int feedSpeed = status.getFeedSpeed() != null

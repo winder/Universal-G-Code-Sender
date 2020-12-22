@@ -222,6 +222,9 @@ public class GrblUtils {
         ret.addCapability(CapabilitiesConstants.CHECK_MODE);
         ret.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
         ret.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);
+        ret.addCapability(CapabilitiesConstants.X_AXIS);
+        ret.addCapability(CapabilitiesConstants.Y_AXIS);
+        ret.addCapability(CapabilitiesConstants.Z_AXIS);
 
         if (version >= 0.8) {
             ret.addCapability(CapabilitiesConstants.HOMING);

@@ -18,6 +18,8 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.model.Axis;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -167,5 +169,31 @@ public class Capabilities {
      */
     public boolean hasReturnToZero() {
         return hasCapability(CapabilitiesConstants.RETURN_TO_ZERO);
+    }
+
+
+    /**
+     * Returns if the controller has support for the given axis
+     *
+     * @param axis - the axis to check support for
+     * @return true if the axis is supported
+     */
+    public boolean hasAxis(Axis axis) {
+        switch (axis) {
+            case X:
+                return hasCapability(CapabilitiesConstants.X_AXIS);
+            case Y:
+                return hasCapability(CapabilitiesConstants.Y_AXIS);
+            case Z:
+                return hasCapability(CapabilitiesConstants.Z_AXIS);
+            case A:
+                return hasCapability(CapabilitiesConstants.A_AXIS);
+            case B:
+                return hasCapability(CapabilitiesConstants.B_AXIS);
+            case C:
+                return hasCapability(CapabilitiesConstants.C_AXIS);
+            default:
+                return false;
+        }
     }
 }
