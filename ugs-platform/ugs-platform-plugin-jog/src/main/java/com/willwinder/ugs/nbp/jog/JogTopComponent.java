@@ -46,8 +46,9 @@ import javax.swing.JPopupMenu;
         preferredID = "JogTopComponent"
 )
 @TopComponent.Registration(
-        mode = "middle_left",
-        openAtStartup = true)
+        mode = "bottom_left",
+        openAtStartup = true,
+        position = 5000)
 @ActionID(
         category = JogTopComponent.CATEGORY,
         id = JogTopComponent.ACTION_ID)

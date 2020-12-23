@@ -32,9 +32,7 @@ import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.uielements.panels.ActionButtonPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ActionPanel;
 import com.willwinder.universalgcodesender.uielements.panels.CommandPanel;
-import com.willwinder.universalgcodesender.uielements.panels.ConnectionPanelGroup;
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
-import com.willwinder.universalgcodesender.uielements.panels.MachineStatusPanel;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.BorderLayout;
@@ -66,7 +64,6 @@ public class WidgetPreviewer {
         // Button panel...
         panel.setLayout(new MigLayout("wrap 1"));
 
-        panel.add(frameLauncherButton("ConnectionPanelGroup", new ConnectionPanelGroup(backend, new JogService(backend))));
         panel.add(frameLauncherButton("CommandTextArea", new CommandTextArea(backend)));
         //panel.add(frameLauncherButton("ConnectionSettingsDialog", new ConnectionSettingsDialog(backend.getSettings()), null, false));
         panel.add(dialogLauncherButton("ConnectionSettingsPanel",
@@ -91,7 +88,6 @@ public class WidgetPreviewer {
         panel.add(frameLauncherButton("CommandPanel", new CommandPanel(backend)));
         panel.add(frameLauncherButton("JogPanel(true)", new JogPanel(backend, new JogService(backend), true)));
         panel.add(frameLauncherButton("JogPanel(false)", new JogPanel(backend, new JogService(backend), false)));
-        panel.add(frameLauncherButton("MachineStatusPanel", new MachineStatusPanel(backend)));
 
         // Display the main frame.
         frame.pack();

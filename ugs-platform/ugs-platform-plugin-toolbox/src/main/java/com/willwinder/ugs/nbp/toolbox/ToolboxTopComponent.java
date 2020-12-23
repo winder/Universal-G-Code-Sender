@@ -41,7 +41,7 @@ import static javax.swing.BorderFactory.createEmptyBorder;
 @TopComponent.Description(
         preferredID = "ugs-platform-plugin-toolboxTopComponent")
 @TopComponent.Registration(
-        mode = "top_left",
+        mode = "bottom_left",
         openAtStartup = true,
         position = 1000)
 @ActionReference(path = ToolboxTopComponent.WINOW_PATH)

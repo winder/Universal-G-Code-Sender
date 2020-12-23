@@ -16,13 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.uielements.helpers;
+package com.willwinder.ugs.nbp.dro;
+
+import com.willwinder.universalgcodesender.utils.FontUtils;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,11 +47,10 @@ public class MachineStatusFontManager {
     private List<JComponent> activeStateLabelComponents = new ArrayList<>();
 
     public void init() {
-        String fontPath = "/resources/";
-        String fontName = "LCD.ttf";
-        InputStream is = getClass().getResourceAsStream(fontPath + fontName);
+        Font font = FontUtils.getLcdFont();
+        Font boldFont = FontUtils.getSansBoldFont();
+        Font regularFont = FontUtils.getSansFont();
 
-        Font font = createFont(is, fontName);
         workCoordinateFont.add(font.deriveFont(Font.PLAIN,18));
         workCoordinateFont.add(font.deriveFont(Font.PLAIN,24));
         workCoordinateFont.add(font.deriveFont(Font.PLAIN,32));
@@ -60,15 +60,6 @@ public class MachineStatusFontManager {
         speedValueFont.add(font.deriveFont(Font.PLAIN,14));
         speedValueFont.add(font.deriveFont(Font.PLAIN,16));
         speedValueFont.add(font.deriveFont(Font.PLAIN,20));
-
-        // https://www.fontsquirrel.com
-        fontName = "OpenSans-CondBold.ttf";
-        is = getClass().getResourceAsStream(fontPath + fontName);
-        Font boldFont = createFont(is, fontName);
-
-        fontName = "OpenSans-Regular.ttf";
-        is = getClass().getResourceAsStream(fontPath + fontName);
-        Font regularFont = createFont(is, fontName);
 
         activeStateFont.add(boldFont.deriveFont(Font.PLAIN, 20));
         activeStateFont.add(boldFont.deriveFont(Font.PLAIN, 24));
@@ -137,15 +128,4 @@ public class MachineStatusFontManager {
         all.forEach(ge::registerFont);
     }
 
-    public static Font createFont(InputStream is, String fontName) {
-        try {
-            Font font = Font.createFont(Font.TRUETYPE_FONT, is);
-            is.close();
-            return font;
-        } catch (Exception exc) {
-            exc.printStackTrace();
-            System.err.println(fontName + " not loaded.  Using serif font.");
-            return new Font("sans-serif", Font.PLAIN, 24);
-        }
-    }
 }

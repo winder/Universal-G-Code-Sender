@@ -16,10 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.uielements.components;
+package com.willwinder.ugs.nbp.dro.panels;
 
 import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.uielements.helpers.MachineStatusFontManager;
+import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
+import com.willwinder.ugs.nbp.dro.MachineStatusFontManager;
 import com.willwinder.universalgcodesender.uielements.helpers.MouseClickListener;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import net.miginfocom.swing.MigLayout;

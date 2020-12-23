@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -43,6 +44,9 @@ import java.awt.event.ActionEvent;
         lazy = false)
 @ActionReferences({
         @ActionReference(
+                path = "Toolbars/Machine Actions",
+                position = 981),
+        @ActionReference(
                 path = LocalizingService.UnlockWindowPath,
                 position = 1020)
 })
@@ -55,6 +59,7 @@ public final class UnlockAction extends AbstractAction implements UGSEventListen
     public UnlockAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
+        this.backend.addControllerStateListener(this::UGSEvent);
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
@@ -65,6 +70,10 @@ public final class UnlockAction extends AbstractAction implements UGSEventListen
 
     @Override
     public void UGSEvent(UGSEvent cse) {
+        if (cse.isControllerStatusEvent()) {
+            java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        }
+
         if (cse.isStateChangeEvent()) {
             java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
         }
@@ -72,7 +81,10 @@ public final class UnlockAction extends AbstractAction implements UGSEventListen
 
     @Override
     public boolean isEnabled() {
-        return backend.isIdle();
+        return backend.isIdle() &&
+                backend.getController() != null &&
+                backend.getController().getControllerStatus() != null &&
+                backend.getController().getControllerStatus().getState() == ControllerState.ALARM;
     }
 
     @Override

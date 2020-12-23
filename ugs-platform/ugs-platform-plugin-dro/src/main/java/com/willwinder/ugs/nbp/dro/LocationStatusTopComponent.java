@@ -21,7 +21,7 @@ package com.willwinder.ugs.nbp.dro;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.panels.MachineStatusPanel;
+import com.willwinder.ugs.nbp.dro.panels.MachineStatusPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
@@ -39,7 +39,7 @@ import javax.swing.JScrollPane;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "bottom_left", openAtStartup = true)
+@TopComponent.Registration(mode = "top_left", openAtStartup = true)
 @ActionID(category = LocalizingService.LocationStatusCategory, id = LocalizingService.LocationStatusActionId)
 @ActionReference(path = LocalizingService.LocationStatusWindowPath)
 @TopComponent.OpenActionRegistration(

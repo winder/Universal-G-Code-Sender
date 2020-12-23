@@ -35,7 +35,7 @@ import org.openide.windows.TopComponent;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "middle_left", openAtStartup = true)
+@TopComponent.Registration(mode = "bottom_left", openAtStartup = false)
 @ActionID(category = LocalizingService.SendStatusCategory, id = LocalizingService.SendStatusActionId)
 @ActionReference(path = LocalizingService.SendStatusWindowPath)
 @TopComponent.OpenActionRegistration(
