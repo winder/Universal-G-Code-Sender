@@ -165,4 +165,9 @@ public class CommandPanel extends JPanel implements UGSEventListener, MessageLis
         backend.getSettings().setScrollWindowEnabled(scrollWindowMenuItem.isSelected());
         backend.getSettings().setVerboseOutputEnabled(showVerboseMenuItem.isSelected());
     }
+
+    @Override
+    public void requestFocus() {
+        commandTextField.requestFocus();
+    }
 }

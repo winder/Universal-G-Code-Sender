@@ -55,6 +55,12 @@ public final class SerialConsoleTopComponent extends TopComponent {
     }
 
     @Override
+    protected void componentActivated() {
+        super.componentActivated();
+        commandPanel.requestFocus();
+    }
+
+    @Override
     public void componentOpened() {
         super.componentOpened();
         setName(LocalizingService.SerialConsoleTitle);
