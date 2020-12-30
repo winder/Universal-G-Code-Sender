@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.dro.panels;
 
-import com.willwinder.ugs.nbp.dro.MachineStatusFontManager;
+import com.willwinder.ugs.nbp.dro.FontManager;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -80,7 +80,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final RoundedPanel pinStatePanel = new RoundedPanel(COMMON_RADIUS);
     private final JLabel pinStatesLabel = new JLabel();
 
-    private final MachineStatusFontManager machineStatusFontManager = new MachineStatusFontManager();
+    private final FontManager fontManager = new FontManager();
 
     private final BackendAPI backend;
     private final Timer statePollTimer;
@@ -116,13 +116,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
                 new Dimension(160, 330),
                 new Dimension(240, 420),
                 new Dimension(310, 420));
-        sizer.addListener(machineStatusFontManager::applyFonts);
+        sizer.addListener(fontManager::applyFonts);
     }
 
     private void initFonts() {
-        machineStatusFontManager.init();
+        fontManager.init();
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        machineStatusFontManager.registerFonts(ge);
+        fontManager.registerFonts(ge);
     }
 
     private void initComponents() {
@@ -173,16 +173,16 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         setAllCaps(feedLabel, feedValue, spindleSpeedLabel, spindleSpeedValue);
 
-        machineStatusFontManager.addActiveStateLabel(activeStateValueLabel);
-        machineStatusFontManager.addPropertyLabel(feedLabel, spindleSpeedLabel, pinStatesLabel, gStatesLabel);
-        machineStatusFontManager.addSpeedLabel(feedValue, spindleSpeedValue);
-        machineStatusFontManager.applyFonts(0);
+        fontManager.addActiveStateLabel(activeStateValueLabel);
+        fontManager.addPropertyLabel(feedLabel, spindleSpeedLabel, pinStatesLabel, gStatesLabel);
+        fontManager.addSpeedLabel(feedValue, spindleSpeedValue);
+        fontManager.applyFonts(0);
 
         statePollTimer.start();
     }
 
     private void createAxisPanel(Axis axis) {
-        AxisPanel axisPanel = new AxisPanel(axis, machineStatusFontManager);
+        AxisPanel axisPanel = new AxisPanel(axis, fontManager);
         axisPanels.put(axis, axisPanel);
         add(axisPanel, "growx, span 2");
         axisPanel.addListener(this);

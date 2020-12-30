@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.ugs.nbp.dro.panels.MachineStatusPanel;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
@@ -29,31 +30,34 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 
-import javax.swing.JScrollPane;
-
 /**
  * Top component which displays something.
  */
 @TopComponent.Description(
-        preferredID = "StatusTopComponent",
-        //iconBase="SET/PATH/TO/ICON/HERE", 
+        preferredID = "MachineStatusTopComponent",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "top_left", openAtStartup = true)
-@ActionID(category = LocalizingService.LocationStatusCategory, id = LocalizingService.LocationStatusActionId)
-@ActionReference(path = LocalizingService.LocationStatusWindowPath)
-@TopComponent.OpenActionRegistration(
-        displayName = "<Not localized:LocationStatusTopComponent>",
-        preferredID = "StatusTopComponent"
+@TopComponent.Registration(
+        mode = "top_left",
+        openAtStartup = true
 )
-public final class LocationStatusTopComponent extends TopComponent {
+@ActionID(
+        category = LocalizingService.LocationStatusCategory,
+        id = LocalizingService.LocationStatusActionId
+)
+@ActionReference(
+        path = LocalizingService.LocationStatusWindowPath
+)
+@TopComponent.OpenActionRegistration(
+        displayName = "<Not localized:MachineStatusTopComponent>",
+        preferredID = "MachineStatusTopComponent"
+)
+public final class MachineStatusTopComponent extends TopComponent {
 
-    public LocationStatusTopComponent() {
+    public MachineStatusTopComponent() {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         setLayout(new BorderLayout());
-
-        JScrollPane scrollPane = new JScrollPane(new MachineStatusPanel(backend));
-        add(scrollPane, BorderLayout.CENTER);
+        add(new MachineStatusPanel(backend), BorderLayout.CENTER);
         setMinimumSize(new Dimension(100, 100));
     }
 

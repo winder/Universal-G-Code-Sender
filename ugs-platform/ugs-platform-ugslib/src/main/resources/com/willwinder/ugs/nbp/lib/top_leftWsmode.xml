@@ -5,7 +5,7 @@
     <state type="joined"/>
     <constraints>
         <path orientation="horizontal" number="40" weight="0.2"/>
-        <path orientation="vertical" number="20" weight="0.6"/>
+        <path orientation="vertical" number="20" weight="0.55"/>
     </constraints>
     <bounds x="0" y="0" width="0" height="0"/>
     <frame state="0"/>

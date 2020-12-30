@@ -72,7 +72,8 @@ import java.util.stream.Stream;
 @ActionReferences({
         @ActionReference(
                 path = LocalizingService.MENU_PROGRAM,
-                position = 990)
+                position = 1200,
+                separatorBefore = 1199)
 })
 public final class OutlineAction extends AbstractAction implements UGSEventListener {
 

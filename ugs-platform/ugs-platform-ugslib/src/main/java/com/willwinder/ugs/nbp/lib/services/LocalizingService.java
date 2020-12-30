@@ -100,7 +100,7 @@ public class LocalizingService {
     public final static String LocationStatusTooltip = Localization.getString("platform.window.dro.tooltip", lang);
     public final static String LocationStatusWindowPath = MENU_WINDOW;
     public final static String LocationStatusActionId = "com.willwinder.ugs.nbp.control.StatusTopComponent";
-    public final static String LocationStatusCategory = CATEGORY_WINDOW;
+    public final static String LocationStatusCategory = MENU_WINDOW_PLUGIN;
 
     public final static String ActionsTitle = Localization.getString("platform.window.actions", lang);
     public final static String ActionsTooltip = Localization.getString("platform.window.actions.tooltip", lang);
@@ -122,19 +122,19 @@ public class LocalizingService {
 
     public final static String StartTitleKey = "mainWindow.swing.sendButton";
     public final static String StartTitle = Localization.getString(StartTitleKey, lang);
-    public final static String StartWindowPath = MENU_MACHINE;
+    public final static String StartWindowPath = MENU_PROGRAM;
     public final static String StartActionId = "com.willwinder.ugs.nbp.core.actions.StartAction";
     public final static String StartCategory = CATEGORY_MACHINE;
 
     public final static String PauseTitleKey = "mainWindow.swing.pauseButton";
     public final static String PauseTitle = Localization.getString(PauseTitleKey, lang);
-    public final static String PauseWindowPath = MENU_MACHINE;
+    public final static String PauseWindowPath = MENU_PROGRAM;
     public final static String PauseActionId = "com.willwinder.ugs.nbp.core.actions.PauseAction";
     public final static String PauseCategory = CATEGORY_MACHINE;
 
     public final static String StopTitleKey = "mainWindow.swing.stopButton";
     public final static String StopTitle = Localization.getString(StopTitleKey, lang);
-    public final static String StopWindowPath = MENU_MACHINE;
+    public final static String StopWindowPath = MENU_PROGRAM;
     public final static String StopActionId = "com.willwinder.ugs.nbp.core.actions.StopAction";
     public final static String StopCategory = CATEGORY_MACHINE;
 
@@ -258,7 +258,7 @@ public class LocalizingService {
 
     public final static String RunFromTitleKey = "platform.menu.runFrom";
     public final static String RunFromTitle = Localization.getString(RunFromTitleKey, lang);
-    public final static String RunFromWindowPath = MENU_MACHINE;
+    public final static String RunFromWindowPath = MENU_PROGRAM;
     public final static String RunFromActionId = "com.willwinder.ugs.nbp.core.actions.RunFromAction";
     public final static String RunFromCategory = CATEGORY_MACHINE;
 

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.dro;
 
 import com.willwinder.universalgcodesender.utils.FontUtils;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MachineStatusFontManager {
+public class FontManager {
 
     private List<Font> workCoordinateFont = new ArrayList<>(3);
     private List<Font> machineCoordinateFont = new ArrayList<>(3);
@@ -79,14 +80,16 @@ public class MachineStatusFontManager {
     }
 
     public void applyFonts(int size) {
-        int index = Math.max(0, Math.min(2, size));
-        workCoordinateComponents.forEach(c -> c.setFont(workCoordinateFont.get(index)));
-        machineCoordinateComponents.forEach(c -> c.setFont(machineCoordinateFont.get(index)));
-        axisResetComponents.forEach(c -> c.setFont(axisResetFont.get(index)));
-        axisResetZeroComponents.forEach(c -> c.setFont(axisResetZeroFont.get(index)));
-        propertyLabelComponents.forEach(c -> c.setFont(propertyLabelFont.get(index)));
-        speedValueComponents.forEach(c -> c.setFont(speedValueFont.get(index)));
-        activeStateLabelComponents.forEach(c -> c.setFont(activeStateFont.get(index)));
+        ThreadHelper.invokeLater(() -> {
+            int index = Math.max(0, Math.min(2, size));
+            workCoordinateComponents.forEach(c -> c.setFont(workCoordinateFont.get(index)));
+            machineCoordinateComponents.forEach(c -> c.setFont(machineCoordinateFont.get(index)));
+            axisResetComponents.forEach(c -> c.setFont(axisResetFont.get(index)));
+            axisResetZeroComponents.forEach(c -> c.setFont(axisResetZeroFont.get(index)));
+            propertyLabelComponents.forEach(c -> c.setFont(propertyLabelFont.get(index)));
+            speedValueComponents.forEach(c -> c.setFont(speedValueFont.get(index)));
+            activeStateLabelComponents.forEach(c -> c.setFont(activeStateFont.get(index)));
+        });
     }
 
     public void addWorkCoordinateLabel(JComponent... label) {

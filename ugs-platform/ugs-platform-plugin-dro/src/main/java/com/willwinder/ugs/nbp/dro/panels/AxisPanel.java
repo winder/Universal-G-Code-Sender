@@ -20,7 +20,7 @@ package com.willwinder.ugs.nbp.dro.panels;
 
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
-import com.willwinder.ugs.nbp.dro.MachineStatusFontManager;
+import com.willwinder.ugs.nbp.dro.FontManager;
 import com.willwinder.universalgcodesender.uielements.helpers.MouseClickListener;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import net.miginfocom.swing.MigLayout;
@@ -45,7 +45,7 @@ public class AxisPanel extends JPanel {
     private final RoundedPanel resetPanel;
     private final Set<AxisPanelListener> axisPanelListenerList = new HashSet<>();
 
-    public AxisPanel(Axis axis, MachineStatusFontManager machineStatusFontManager) {
+    public AxisPanel(Axis axis, FontManager fontManager) {
         super(new BorderLayout());
         RoundedPanel axisPanel = new RoundedPanel(COMMON_RADIUS);
         axisPanel.setBackground(ThemeColors.VERY_DARK_GREY);
@@ -76,22 +76,16 @@ public class AxisPanel extends JPanel {
             }
         });
 
-        Label workLabel = new Label("Work");
-        workLabel.setFont(new Font("Sans-Serif", Font.PLAIN, 9));
-
-        Label machineLabel = new Label("Machine");
-        machineLabel.setFont(new Font("Sans-Serif", Font.PLAIN, 9));
-
         machine.setHorizontalAlignment(SwingConstants.RIGHT);
         machine.setForeground(ThemeColors.LIGHT_BLUE);
         axisPanel.add(resetPanel, "sy 2");
         axisPanel.add(work, "grow, gapleft 5");
         axisPanel.add(machine, "span 2");
 
-        machineStatusFontManager.addAxisResetLabel(axisLabel);
-        machineStatusFontManager.addAxisResetZeroLabel(zeroLabel);
-        machineStatusFontManager.addWorkCoordinateLabel(work);
-        machineStatusFontManager.addMachineCoordinateLabel(machine);
+        fontManager.addAxisResetLabel(axisLabel);
+        fontManager.addAxisResetZeroLabel(zeroLabel);
+        fontManager.addWorkCoordinateLabel(work);
+        fontManager.addMachineCoordinateLabel(machine);
 
         add(axisPanel, BorderLayout.CENTER);
     }
