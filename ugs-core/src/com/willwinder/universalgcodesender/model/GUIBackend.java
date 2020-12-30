@@ -318,7 +318,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         parser.addCommandProcessor(new WhitespaceProcessor());
         parser.addCommandProcessor(new M30Processor());
         parser.addCommandProcessor(new DecimalProcessor(4));
-        parser.addCommandProcessor(new CommandLengthProcessor(50));
     }
 
     @Override
