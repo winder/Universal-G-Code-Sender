@@ -30,6 +30,8 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 
+import javax.swing.*;
+
 /**
  * Top component which displays something.
  */
@@ -57,7 +59,8 @@ public final class MachineStatusTopComponent extends TopComponent {
     public MachineStatusTopComponent() {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         setLayout(new BorderLayout());
-        add(new MachineStatusPanel(backend), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(new MachineStatusPanel(backend), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        add(scrollPane, BorderLayout.CENTER);
         setMinimumSize(new Dimension(100, 100));
     }
 
