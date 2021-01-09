@@ -1102,19 +1102,19 @@ public class GrblControllerTest {
 
         // Abstract controller should be used when grbl jog mode is disabled.
         instance.rawResponseHandler("Grbl 0.8c");
-        instance.jogMachine(-10, 0, 10, 11, UnitUtils.Units.INCH);
+        instance.jogMachine(new PartialPosition(-10., null, 10., UnitUtils.Units.INCH), 11);
         assertEquals(mgc.queuedStrings.get(2), "G20G91G1X-10Z10F11");
         assertEquals(mgc.queuedStrings.get(3), "G90 G21 ");
 
-        instance.jogMachine(0, 10, 0, 11, UnitUtils.Units.MM);
+        instance.jogMachine(new PartialPosition(null, 10., null, UnitUtils.Units.MM), 11);
         assertEquals(mgc.queuedStrings.get(4), "G21G91G1Y10F11");
         assertEquals(mgc.queuedStrings.get(5), "G90 G21 ");
 
         instance.rawResponseHandler("Grbl 1.1a");
-        instance.jogMachine(-10, 0, 10, 11, UnitUtils.Units.INCH);
+        instance.jogMachine(new PartialPosition(-10., null, 10., UnitUtils.Units.INCH), 11);
         assertEquals(mgc.queuedStrings.get(8), "$J=G20G91X-10Z10F11");
 
-        instance.jogMachine(0, 10, 0, 11, UnitUtils.Units.MM);
+        instance.jogMachine(new PartialPosition(null, 10., null, UnitUtils.Units.MM), 11);
         assertEquals(mgc.queuedStrings.get(9), "$J=G21G91Y10F11");
     }
 

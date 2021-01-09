@@ -349,13 +349,19 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
 
     @Override
-    public void adjustManualLocation(double distanceX, double distanceY, double distanceZ, double feedRate, Units units) throws Exception {
+    public void adjustManualLocation(PartialPosition distance, double feedRate) throws Exception {
+        boolean empty = !Arrays.stream(Axis.values())
+                .map(axis -> distance.hasAxis(axis) ? distance.getAxis(axis) : 0)
+                .filter(aDouble -> aDouble != 0.0)
+                .findAny()
+                .isPresent();
+
         // Don't send empty commands.
-        if ((distanceX == 0) && (distanceY == 0) && (distanceZ == 0)) {
+        if (empty) {
             return;
         }
 
-        controller.jogMachine(distanceX, distanceY, distanceZ, feedRate, units);
+        controller.jogMachine(distance, feedRate);
     }
 
     @Override
