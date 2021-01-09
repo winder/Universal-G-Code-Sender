@@ -78,6 +78,21 @@ public class PartialPositionTest {
     }
 
     @Test
+    public void testUnitsRotationShouldNotScale() {
+        PartialPosition p = new PartialPosition(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, UnitUtils.Units.MM);
+        PartialPosition same = p.getPositionIn(UnitUtils.Units.MM);
+        PartialPosition inch = p.getPositionIn(UnitUtils.Units.INCH);
+
+        assertEquals(p.getA(), same.getA());
+        assertEquals(p.getB(), same.getB());
+        assertEquals(p.getC(), same.getC());
+
+        assertEquals(p.getA(), inch.getA());
+        assertEquals(p.getB(), inch.getB());
+        assertEquals(p.getC(), inch.getC());
+    }
+
+    @Test
     public void testPosition() {
         Position p = new Position(1, 2, 3, UnitUtils.Units.MM);
         Position pInch = new Position(1, 2, 3, UnitUtils.Units.INCH);

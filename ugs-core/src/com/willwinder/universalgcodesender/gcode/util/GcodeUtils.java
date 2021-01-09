@@ -22,8 +22,6 @@ import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
-import javax.websocket.MessageHandler;
-
 /**
  * @author wwinder
  */

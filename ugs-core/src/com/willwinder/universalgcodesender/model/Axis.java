@@ -25,4 +25,14 @@ public enum Axis {
   A, // X
   B, // Y
   C  // Z
+  ;
+
+  public boolean isRotation() {
+      return ! isLinear();
+  }
+
+  public boolean isLinear() {
+    return this == X || this == Y || this == Z;
+  }
 }
+

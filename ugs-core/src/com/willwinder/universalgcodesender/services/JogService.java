@@ -241,7 +241,7 @@ public class JogService {
      * @param b direction.
      * @param c direction.
      */
-    public void adjustManualLocationXY(int a, int b, int c) {
+    public void adjustManualLocationABC(int a, int b, int c) {
         // TODO: ABC Axis
         throw new UnsupportedOperationException("This has not been implemented yet.");
         /*

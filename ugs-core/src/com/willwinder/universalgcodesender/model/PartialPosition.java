@@ -211,7 +211,8 @@ public class PartialPosition {
         double scale = UnitUtils.scaleUnits(this.units, units);
         Builder builder = builder();
         for (Map.Entry<Axis, Double> axis : getAll().entrySet()) {
-            builder.setValue(axis.getKey(), axis.getValue()*scale);
+            double mul = axis.getKey().isLinear() ? scale : 1.0;
+            builder.setValue(axis.getKey(), axis.getValue() * mul);
         }
         builder.setUnits(units);
         return builder.build();
@@ -364,7 +365,7 @@ public class PartialPosition {
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y, z, a, b, c);
+        return Objects.hash(x, y, z, a, b, c, units);
     }
 
     @Override
