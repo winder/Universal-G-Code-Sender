@@ -365,7 +365,6 @@ public class GrblControllerTest {
         // Send duration should be around 2 seconds.
         expResult = 2000L;
         result = instance.getSendDuration();
-        System.out.println("result: "+result);
         // Assert that result is within 0.5 seconds of expected value.
         assert(expResult <= result);
         assert(result <= (expResult + 500));

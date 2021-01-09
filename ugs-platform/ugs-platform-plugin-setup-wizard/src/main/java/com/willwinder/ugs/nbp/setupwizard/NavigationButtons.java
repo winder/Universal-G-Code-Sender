@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.openide.DialogDisplayer;
@@ -112,7 +113,7 @@ public class NavigationButtons {
             if (controller.getControllerStatus().getState() == ControllerState.ALARM) {
                 WizardUtils.killAlarm(backendAPI);
             } else {
-                controller.jogMachine(x * stepSize, y * stepSize, z * stepSize, feedRate, UnitUtils.Units.MM);
+                controller.jogMachine(new PartialPosition(x * stepSize, y * stepSize, z * stepSize, UnitUtils.Units.MM), feedRate);
             }
         } catch (Exception e) {
             NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while moving the machine: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
