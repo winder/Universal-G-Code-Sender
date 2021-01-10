@@ -47,7 +47,7 @@ import java.awt.event.ActionEvent;
 @ActionReferences({
         @ActionReference(
                 path = LocalizingService.RunFromWindowPath,
-                position = 1017)
+                position = 1016)
 })
 public final class RunFromAction extends AbstractAction implements UGSEventListener {
 

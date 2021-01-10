@@ -22,10 +22,10 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import com.willwinder.universalgcodesender.uielements.helpers.MachineStatusFontManager;
 import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.uielements.jog.StepSizeSpinner;
+import com.willwinder.universalgcodesender.utils.FontUtils;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 
@@ -40,7 +40,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -109,11 +108,8 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
     }
 
     private void createComponents() {
-        String fontPath = "/resources/";
-        // https://www.fontsquirrel.com
-        String fontName = "OpenSans-Regular.ttf";
-        InputStream is = getClass().getResourceAsStream(fontPath + fontName);
-        Font font = MachineStatusFontManager.createFont(is, fontName).deriveFont(Font.PLAIN, FONT_SIZE_LABEL_LARGE);
+
+        Font font = FontUtils.getSansFont().deriveFont(Font.PLAIN, FONT_SIZE_LABEL_LARGE);
 
         // Create our focus stealing button first
         stealFocusButton = createImageButton("icons/keyboard.png");

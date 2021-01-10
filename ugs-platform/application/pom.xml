@@ -116,6 +116,11 @@
             <artifactId>ugs-platform-plugin-toolbox</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ugs-platform-plugin-dro</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,8 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.uielements.panels;
+package com.willwinder.ugs.nbp.dro.panels;
 
+import com.willwinder.ugs.nbp.dro.FontManager;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -27,42 +28,33 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Axis;
-import static com.willwinder.universalgcodesender.model.Axis.*;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.uielements.components.PopupEditor;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
-import com.willwinder.universalgcodesender.uielements.components.WorkCoordinateTextField;
-import com.willwinder.universalgcodesender.uielements.helpers.MachineStatusFontManager;
-import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
-import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
+import com.willwinder.universalgcodesender.uielements.helpers.*;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.Timer;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.GraphicsEnvironment;
+import javax.swing.*;
+import java.awt.*;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-
-import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
+import java.util.Map;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * DRO style display panel with current controller state.
  */
-public class MachineStatusPanel extends JPanel implements UGSEventListener, ControllerStateListener {
-
+public class MachineStatusPanel extends JPanel implements UGSEventListener, ControllerStateListener, AxisPanel.AxisPanelListener {
+    private static final Logger LOGGER = Logger.getLogger(MachineStatusPanel.class.getName());
     private static final int COMMON_RADIUS = 7;
     private static final Duration REFRESH_RATE = Duration.ofSeconds(1);
 
@@ -80,14 +72,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final RoundedPanel activeStatePanel = new RoundedPanel(COMMON_RADIUS);
     private final JLabel activeStateValueLabel = new JLabel(" ");
 
-    private final JLabel machinePositionXValue = new JLabel("0.000");
-    private final JLabel machinePositionYValue = new JLabel("0.000");
-    private final JLabel machinePositionZValue = new JLabel("0.000");
-
-    private final JTextField workPositionXValue;
-    private final JTextField workPositionYValue;
-    private final JTextField workPositionZValue;
-
     private final JLabel feedValue = new JLabel("0");
     private final JLabel spindleSpeedValue = new JLabel("0");
 
@@ -96,15 +80,14 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final RoundedPanel pinStatePanel = new RoundedPanel(COMMON_RADIUS);
     private final JLabel pinStatesLabel = new JLabel();
 
-    private List<JComponent> axisResetControls = new ArrayList<>(3);
-
-    private final MachineStatusFontManager machineStatusFontManager = new MachineStatusFontManager();
+    private final FontManager fontManager = new FontManager();
 
     private final BackendAPI backend;
     private final Timer statePollTimer;
 
     private Units units;
-    private final DecimalFormat decimalFormatter;
+    private Map<Axis, AxisPanel> axisPanels = new HashMap<>();
+    private final DecimalFormat decimalFormatter = new DecimalFormat("0.000");
 
 
     public MachineStatusPanel(BackendAPI backend) {
@@ -113,11 +96,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             this.backend.addUGSEventListener(this);
             this.backend.addControllerStateListener(this);
         }
-        decimalFormatter = new DecimalFormat("0.000");
         statePollTimer = createTimer();
-        workPositionXValue = new WorkCoordinateTextField(backend, X);
-        workPositionYValue = new WorkCoordinateTextField(backend, Y);
-        workPositionZValue = new WorkCoordinateTextField(backend, Z);
 
         initFonts();
         initComponents();
@@ -134,16 +113,16 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private void initSizer() {
         SteppedSizeManager sizer = new SteppedSizeManager(this,
-                new Dimension(200, 375),
-                new Dimension(240, 460),
-                new Dimension(310, 570));
-        sizer.addListener(machineStatusFontManager::applyFonts);
+                new Dimension(160, 330),
+                new Dimension(240, 420),
+                new Dimension(310, 420));
+        sizer.addListener(fontManager::applyFonts);
     }
 
     private void initFonts() {
-        machineStatusFontManager.init();
+        fontManager.init();
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        machineStatusFontManager.registerFonts(ge);
+        fontManager.registerFonts(ge);
     }
 
     private void initComponents() {
@@ -162,9 +141,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         activeStateValueLabel.setBorder(BorderFactory.createEmptyBorder());
         add(activeStatePanel, "growx");
 
-        addAxisPanel(X, workPositionXValue, machinePositionXValue);
-        addAxisPanel(Y, workPositionYValue, machinePositionYValue);
-        addAxisPanel(Z, workPositionZValue, machinePositionZValue);
+        Stream.of(Axis.X, Axis.Y, Axis.Z).forEach(this::createAxisPanel);
 
         JPanel speedPanel = new JPanel(new MigLayout(debug + "fillx, wrap 2, inset 0", "[al right][]"));
         speedPanel.setOpaque(false);
@@ -196,12 +173,19 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         setAllCaps(feedLabel, feedValue, spindleSpeedLabel, spindleSpeedValue);
 
-        machineStatusFontManager.addActiveStateLabel(activeStateValueLabel);
-        machineStatusFontManager.addPropertyLabel(feedLabel, spindleSpeedLabel, pinStatesLabel, gStatesLabel);
-        machineStatusFontManager.addSpeedLabel(feedValue, spindleSpeedValue);
-        machineStatusFontManager.applyFonts(0);
+        fontManager.addActiveStateLabel(activeStateValueLabel);
+        fontManager.addPropertyLabel(feedLabel, spindleSpeedLabel, pinStatesLabel, gStatesLabel);
+        fontManager.addSpeedLabel(feedValue, spindleSpeedValue);
+        fontManager.applyFonts(0);
 
         statePollTimer.start();
+    }
+
+    private void createAxisPanel(Axis axis) {
+        AxisPanel axisPanel = new AxisPanel(axis, fontManager);
+        axisPanels.put(axis, axisPanel);
+        add(axisPanel, "growx, span 2");
+        axisPanel.addListener(this);
     }
 
     private void resetStatePinComponents() {
@@ -218,44 +202,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         Arrays.stream(labels).forEach(l -> l.setText(l.getText().toUpperCase()));
     }
 
-    private void addAxisPanel(Axis axis, JTextField work, JComponent machine) {
-        RoundedPanel axisPanel = new RoundedPanel(COMMON_RADIUS);
-        axisPanel.setBackground(ThemeColors.VERY_DARK_GREY);
-        axisPanel.setForeground(ThemeColors.LIGHT_BLUE);
-        axisPanel.setLayout(new MigLayout("fillx, wrap 2, inset 7, gap 0", "[left][grow, right]"));
-
-        RoundedPanel resetPanel = new RoundedPanel(COMMON_RADIUS);
-        resetPanel.setForeground(ThemeColors.LIGHT_BLUE);
-        resetPanel.setBackground(ThemeColors.DARK_BLUE_GREY);
-        resetPanel.setBackgroundDisabled(ThemeColors.VERY_DARK_GREY);
-        resetPanel.setHoverBackground(ThemeColors.MED_BLUE_GREY);
-        resetPanel.setLayout(new MigLayout("inset 5 15 5 15"));
-        JLabel axisLabel = new JLabel(String.valueOf(axis));
-        axisLabel.setForeground(ThemeColors.LIGHT_BLUE);
-        resetPanel.add(axisLabel, "al center, dock center, id axis");
-        JLabel zeroLabel = new JLabel("0");
-        zeroLabel.setForeground(ThemeColors.LIGHT_BLUE);
-        resetPanel.add(zeroLabel, "pos (axis.x + axis.w - 4) (axis.y + axis.h - 25)");
-
-        machine.setForeground(ThemeColors.LIGHT_BLUE);
-        axisPanel.add(resetPanel, "sy 2");
-        axisPanel.add(work, "grow, gapleft 5");
-        axisPanel.add(machine, "span 2");
-
-        machineStatusFontManager.addAxisResetLabel(axisLabel);
-        machineStatusFontManager.addAxisResetZeroLabel(zeroLabel);
-        machineStatusFontManager.addWorkCoordinateLabel(work);
-        machineStatusFontManager.addMachineCoordinateLabel(machine);
-
-        add(axisPanel,"growx, span 2");
-
-        resetPanel.addClickListener(() -> resetCoordinateButton(axis) );
-        axisResetControls.add(axisPanel);
-    }
-
     private Timer createTimer() {
         return new Timer((int) REFRESH_RATE.toMillis(), (ae) -> EventQueue.invokeLater(() -> {
-            if (! backend.isConnected()) {
+            if (!backend.isConnected()) {
                 activeStateValueLabel.setText(OFFLINE);
                 activeStatePanel.setBackground(Color.BLACK);
             }
@@ -264,13 +213,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
                 gStatesLabel.setText("--");
             } else {
                 gStatesLabel.setText(
-                    String.join(" ",
-                        state.currentMotionMode.toString(),
-                        state.units.toString(),
-                        state.feedMode.toString(),
-                        state.distanceMode.toString(),
-                        state.offset.toString(),
-                        state.plane.code.toString()));
+                        String.join(" ",
+                                state.currentMotionMode.toString(),
+                                state.units.toString(),
+                                state.feedMode.toString(),
+                                state.distanceMode.toString(),
+                                state.offset.toString(),
+                                state.plane.code.toString()));
             }
         }));
     }
@@ -278,7 +227,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private void setUnits(Units u) {
         if (u == null || units == u) return;
         units = u;
-        switch(u) {
+        switch (u) {
             case MM:
                 break;
             case INCH:
@@ -303,7 +252,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     private void updateControls() {
-        axisResetControls.forEach(c -> c.setEnabled(backend.isIdle()));
+        axisPanels.values().forEach(c -> c.setEnabled(backend.isIdle()));
 
         if (!backend.isConnected()) {
             // Clear out the status color.
@@ -330,7 +279,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             if (ep.SoftReset) enabled.add(PIN_SOFT_RESET);
             if (ep.CycleStart) enabled.add(PIN_CYCLE_STARY);
 
-            if (! enabled.isEmpty()) {
+            if (!enabled.isEmpty()) {
                 enabled.add(0, ALARM + ":");
                 pinStatesLabel.setText(String.join(" ", enabled));
                 pinStatesLabel.setForeground(ThemeColors.RED);
@@ -340,35 +289,19 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         this.setUnits(backend.getSettings().getPreferredUnits());
 
-        if (status.getMachineCoord() != null) {
-            Position machineCoord = status.getMachineCoord().getPositionIn(units);
-            this.setPositionValueColor(this.machinePositionXValue, this.machinePositionXValue.getText(), machineCoord.x);
-            this.machinePositionXValue.setText(decimalFormatter.format(machineCoord.x));
+        Arrays.stream(Axis.values())
+                .filter(axis -> axisPanels.containsKey(axis))
+                .forEach(axis -> {
+                    if (status.getMachineCoord() != null) {
+                        Position machineCoord = status.getMachineCoord().getPositionIn(units);
+                        axisPanels.get(axis).setMachinePosition(machineCoord.get(axis));
+                    }
 
-            this.setPositionValueColor(this.machinePositionYValue, this.machinePositionYValue.getText(), machineCoord.y);
-            this.machinePositionYValue.setText(decimalFormatter.format(machineCoord.y));
-
-            this.setPositionValueColor(this.machinePositionZValue, this.machinePositionZValue.getText(), machineCoord.z);
-            this.machinePositionZValue.setText(decimalFormatter.format(machineCoord.z));
-        }
-
-        if (status.getWorkCoord() != null) {
-            Position workCoord = status.getWorkCoord().getPositionIn(units);
-            if (!workPositionXValue.isFocusOwner()) {
-                this.setPositionValueColor(this.workPositionXValue, this.workPositionXValue.getText(), workCoord.x);
-                this.workPositionXValue.setText(decimalFormatter.format(workCoord.x));
-            }
-
-            if (!workPositionYValue.isFocusOwner()) {
-                this.setPositionValueColor(this.workPositionYValue, this.workPositionYValue.getText(), workCoord.y);
-                this.workPositionYValue.setText(decimalFormatter.format(workCoord.y));
-            }
-
-            if (!workPositionZValue.isFocusOwner()) {
-                this.setPositionValueColor(this.workPositionZValue, this.workPositionZValue.getText(), workCoord.z);
-                this.workPositionZValue.setText(decimalFormatter.format(workCoord.z));
-            }
-        }
+                    if (status.getWorkCoord() != null) {
+                        Position workCoord = status.getWorkCoord().getPositionIn(units);
+                        axisPanels.get(axis).setWorkPosition(workCoord.get(axis));
+                    }
+                });
 
         // Use real-time values if available, otherwise show the target values.
         int feedSpeed = status.getFeedSpeed() != null
@@ -380,14 +313,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
                 ? status.getSpindleSpeed().intValue()
                 : (int) this.backend.getGcodeState().spindleSpeed;
         this.spindleSpeedValue.setText(Integer.toString(spindleSpeed));
-    }
-
-    private void setPositionValueColor(JComponent label, String oldValue, double newValue) {
-        if (!oldValue.equals(decimalFormatter.format(newValue))) {
-            label.setForeground(ThemeColors.RED);
-        } else {
-            label.setForeground(ThemeColors.LIGHT_BLUE);
-        }
     }
 
     private void updateStatePanel(ControllerState state) {
@@ -408,19 +333,34 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             background = ThemeColors.GREEN;
         } else if (state == ControllerState.CHECK) {
             background = ThemeColors.LIGHT_BLUE;
-        } else if (state == ControllerState.IDLE) {
-            background = ThemeColors.GREY;
         }
 
         this.activeStatePanel.setBackground(background);
         this.activeStateValueLabel.setText(text.toUpperCase());
     }
 
-    private void resetCoordinateButton(Axis coord) {
+    @Override
+    public void onResetClick(JComponent component, Axis axis) {
         try {
-            this.backend.resetCoordinateToZero(coord);
-        } catch (Exception ex) {
-            displayErrorDialog(ex.getMessage());
+            backend.resetCoordinateToZero(axis);
+        } catch (Exception e) {
+            LOGGER.warning(String.format("Could not reset work position on axis '%s'", axis));
+        }
+    }
+
+    @Override
+    public void onWorkPositionClick(JComponent component, Axis axis) {
+        if (backend.isConnected() && backend.isIdle()) {
+            String text = decimalFormatter.format(backend.getWorkPosition().get(axis));
+            PopupEditor popupEditor = new PopupEditor(component, "Set " + axis + " work position", text);
+            popupEditor.setVisible(true);
+            popupEditor.addPopupListener((value) -> {
+                try {
+                    backend.setWorkPositionUsingExpression(axis, value);
+                } catch (Exception e) {
+                    LOGGER.warning(String.format("Could not set work position '%s' on axis '%s'", value, axis));
+                }
+            });
         }
     }
 }

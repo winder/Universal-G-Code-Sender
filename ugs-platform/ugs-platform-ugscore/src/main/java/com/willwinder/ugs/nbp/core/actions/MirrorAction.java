@@ -44,7 +44,7 @@ import java.util.stream.Stream;
 @ActionReferences({
         @ActionReference(
                 path = LocalizingService.MENU_PROGRAM,
-                position = 1020)
+                position = 1220)
 })
 public class MirrorAction extends AbstractAction implements UGSEventListener {
 

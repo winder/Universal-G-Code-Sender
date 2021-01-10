@@ -74,4 +74,11 @@ public class CapabilitiesConstants {
      * A key for identifying if the firmware supports returning to zero
      */
     public static final String RETURN_TO_ZERO = "RETURN_TO_ZERO";
+
+    public static final String X_AXIS = "X_AXIS";
+    public static final String Y_AXIS = "Y_AXIS";
+    public static final String Z_AXIS = "Z_AXIS";
+    public static final String A_AXIS = "A_AXIS";
+    public static final String B_AXIS = "B_AXIS";
+    public static final String C_AXIS = "C_AXIS";
 }

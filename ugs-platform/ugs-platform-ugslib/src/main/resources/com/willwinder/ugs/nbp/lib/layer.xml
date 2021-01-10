@@ -5,7 +5,6 @@
         <folder name="Modes">
             <file name="bottom_left.wsmode" url="bottom_leftWsmode.xml"/>
             <file name="editor.wsmode" url="editorWsmode.xml"/>
-            <file name="middle_left.wsmode" url="middle_leftWsmode.xml"/>
             <file name="output.wsmode" url="outputWsmode.xml"/>
             <file name="top_left.wsmode" url="top_leftWsmode.xml"/>
         </folder>

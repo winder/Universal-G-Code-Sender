@@ -17,7 +17,7 @@ import org.openide.util.ImageUtilities;
 @ActionReferences({
         @ActionReference(
                 path = LocalizingService.MENU_PROGRAM,
-                position = 1003)
+                position = 1203)
 })
 public class RotateLeftAction extends AbstractRotateAction {
 

@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copyright 2015-2020 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,12 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.core.control;
+package com.willwinder.ugs.nbp.dro;
 
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.panels.MachineStatusPanel;
+import com.willwinder.ugs.nbp.dro.panels.MachineStatusPanel;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
@@ -29,30 +30,36 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 
-import javax.swing.JScrollPane;
+import javax.swing.*;
 
 /**
  * Top component which displays something.
  */
 @TopComponent.Description(
-        preferredID = "StatusTopComponent",
-        //iconBase="SET/PATH/TO/ICON/HERE", 
+        preferredID = "MachineStatusTopComponent",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "bottom_left", openAtStartup = true)
-@ActionID(category = LocalizingService.LocationStatusCategory, id = LocalizingService.LocationStatusActionId)
-@ActionReference(path = LocalizingService.LocationStatusWindowPath)
-@TopComponent.OpenActionRegistration(
-        displayName = "<Not localized:LocationStatusTopComponent>",
-        preferredID = "StatusTopComponent"
+@TopComponent.Registration(
+        mode = "top_left",
+        openAtStartup = true
 )
-public final class LocationStatusTopComponent extends TopComponent {
+@ActionID(
+        category = LocalizingService.LocationStatusCategory,
+        id = LocalizingService.LocationStatusActionId
+)
+@ActionReference(
+        path = LocalizingService.LocationStatusWindowPath
+)
+@TopComponent.OpenActionRegistration(
+        displayName = "<Not localized:MachineStatusTopComponent>",
+        preferredID = "MachineStatusTopComponent"
+)
+public final class MachineStatusTopComponent extends TopComponent {
 
-    public LocationStatusTopComponent() {
+    public MachineStatusTopComponent() {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         setLayout(new BorderLayout());
-
-        JScrollPane scrollPane = new JScrollPane(new MachineStatusPanel(backend));
+        JScrollPane scrollPane = new JScrollPane(new MachineStatusPanel(backend), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(scrollPane, BorderLayout.CENTER);
         setMinimumSize(new Dimension(100, 100));
     }

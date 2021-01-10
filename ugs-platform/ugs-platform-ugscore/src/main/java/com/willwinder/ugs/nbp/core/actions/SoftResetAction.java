@@ -43,6 +43,9 @@ import java.awt.event.ActionEvent;
         lazy = false)
 @ActionReferences({
         @ActionReference(
+                path = "Toolbars/Machine Actions",
+                position = 982),
+        @ActionReference(
                 path = LocalizingService.SoftResetWindowPath,
                 position = 1030)
 })

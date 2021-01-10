@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 @ActionReferences({
         @ActionReference(
                 path = LocalizingService.MENU_PROGRAM,
-                position = 1020)
+                position = 1221)
 })
 public class TranslateToZeroAction extends AbstractAction implements UGSEventListener {
 
