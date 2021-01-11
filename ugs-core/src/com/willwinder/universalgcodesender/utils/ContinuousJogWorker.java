@@ -20,11 +20,7 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.Alarm;
-import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
@@ -121,7 +117,7 @@ public class ContinuousJogWorker implements ControllerListener {
                 // Ensure that we only send one command at the time, waiting for it to complete
                 if (!isWaitingForCommandComplete) {
                     isWaitingForCommandComplete = true;
-                    jogService.adjustManualLocation(x * stepSize, y * stepSize, z * stepSize);
+                    jogService.adjustManualLocation(new PartialPosition(x * stepSize, y * stepSize, z * stepSize, null));
                 } else {
                     Thread.sleep(JOG_COMMAND_INTERVAL);
                 }

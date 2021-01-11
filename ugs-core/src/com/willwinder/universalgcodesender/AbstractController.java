@@ -171,7 +171,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
             if (currentZPosition < safetyHeight) {
                 String moveToSafetyHeightCommand = GcodeUtils.GCODE_RETURN_TO_Z_ZERO_LOCATION;
                 if (safetyHeight > 0) {
-                    moveToSafetyHeightCommand = GcodeUtils.generateMoveCommand("G90 G0", 0, 0, 0, safetyHeight, currentUnit);
+                    moveToSafetyHeightCommand = GcodeUtils.generateMoveCommand("G90 G0", 0, new PartialPosition(null, null, safetyHeight, currentUnit));
                 }
                 sendCommandImmediately(createCommand(moveToSafetyHeightCommand));
             }
@@ -241,12 +241,10 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     }
 
     @Override
-    public void jogMachine(double distanceX, double distanceY, double distanceZ,
-                           double feedRate, UnitUtils.Units units) throws Exception {
+    public void jogMachine(PartialPosition distance, double feedRate) throws Exception {
         logger.log(Level.INFO, "Adjusting manual location.");
 
-        String commandString = GcodeUtils.generateMoveCommand("G91G1",
-                 feedRate, distanceX, distanceY, distanceZ, units);
+        String commandString = GcodeUtils.generateMoveCommand("G91G1", feedRate, distance);
 
         GcodeCommand command = createCommand(commandString);
         command.setTemporaryParserModalChange(true);

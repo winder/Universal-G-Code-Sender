@@ -227,7 +227,7 @@ public class G2CoreControllerTest {
 
         // When
         InOrder orderVerifier = inOrder(communicator);
-        controller.jogMachine(100, 100, 100, 1000, UnitUtils.Units.MM);
+        controller.jogMachine(new PartialPosition(100., 100., 100., UnitUtils.Units.MM), 1000);
 
         // Then
         orderVerifier.verify(communicator, times(1)).queueCommand(any(GcodeCommand.class));
@@ -249,7 +249,7 @@ public class G2CoreControllerTest {
 
         // When
         InOrder orderVerifier = inOrder(communicator);
-        controller.jogMachine(100, 100, 100,1000, UnitUtils.Units.MM);
+        controller.jogMachine(new PartialPosition(100., 100., 100., UnitUtils.Units.MM), 1000);
 
         // Then
         orderVerifier.verify(communicator, times(1)).queueCommand(any(GcodeCommand.class));

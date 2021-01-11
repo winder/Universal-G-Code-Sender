@@ -16,12 +16,20 @@ public class PartialPosition {
     private final Double x;
     private final Double y;
     private final Double z;
+    private final Double a;
+    private final Double b;
+    private final Double c;
+
     private final UnitUtils.Units units;
 
     public PartialPosition(Double x, Double y, UnitUtils.Units units) {
         this.x = x;
         this.y = y;
         this.z = null;
+        this.a = null;
+        this.b = null;
+        this.c = null;
+
         this.units = units;
     }
 
@@ -29,6 +37,21 @@ public class PartialPosition {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.a = null;
+        this.b = null;
+        this.c = null;
+
+        this.units = units;
+    }
+
+    public PartialPosition(Double x, Double y, Double z, Double a, Double b, Double c, UnitUtils.Units units) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.a = a;
+        this.b = b;
+        this.c = c;
+
         this.units = units;
     }
 
@@ -65,6 +88,18 @@ public class PartialPosition {
         return z != null;
     }
 
+    public boolean hasA() {
+        return a != null;
+    }
+
+    public boolean hasB() {
+        return b != null;
+    }
+
+    public boolean hasC() {
+        return c != null;
+    }
+
     public Double getX() {
         if (x == null) {
             throw new IllegalArgumentException("Tried to get x-axis which is not set");
@@ -86,6 +121,27 @@ public class PartialPosition {
         return z;
     }
 
+    public Double getA() {
+        if (a == null) {
+            throw new IllegalArgumentException("Tried to get a-axis which is not set");
+        }
+        return a;
+    }
+
+    public Double getB() {
+        if (b == null) {
+            throw new IllegalArgumentException("Tried to get b-axis which is not set");
+        }
+        return b;
+    }
+
+    public Double getC() {
+        if (c == null) {
+            throw new IllegalArgumentException("Tried to get c-axis which is not set");
+        }
+        return c;
+    }
+
     public UnitUtils.Units getUnits(){
         return units;
     }
@@ -101,7 +157,35 @@ public class PartialPosition {
         if (hasZ()) {
             allSetCoords.put(Axis.Z, z);
         }
+        if (hasA()) {
+            allSetCoords.put(Axis.A, a);
+        }
+        if (hasB()) {
+            allSetCoords.put(Axis.B, b);
+        }
+        if (hasC()) {
+            allSetCoords.put(Axis.C, c);
+        }
         return allSetCoords.build();
+    }
+
+    public boolean hasAxis(Axis axis) {
+        switch (axis) {
+            case X:
+                return hasX();
+            case Y:
+                return hasY();
+            case Z:
+                return hasZ();
+            case A:
+                return hasA();
+            case B:
+                return hasB();
+            case C:
+                return hasC();
+            default:
+                return false;
+        }
     }
 
     public double getAxis(Axis axis) {
@@ -112,6 +196,12 @@ public class PartialPosition {
                 return getY();
             case Z:
                 return getZ();
+            case A:
+                return getA();
+            case B:
+                return getB();
+            case C:
+                return getC();
             default:
                 return 0;
         }
@@ -121,7 +211,8 @@ public class PartialPosition {
         double scale = UnitUtils.scaleUnits(this.units, units);
         Builder builder = builder();
         for (Map.Entry<Axis, Double> axis : getAll().entrySet()) {
-            builder.setValue(axis.getKey(), axis.getValue()*scale);
+            double mul = axis.getKey().isLinear() ? scale : 1.0;
+            builder.setValue(axis.getKey(), axis.getValue() * mul);
         }
         builder.setUnits(units);
         return builder.build();
@@ -135,13 +226,16 @@ public class PartialPosition {
         private Double x = null;
         private Double y = null;
         private Double z = null;
+        private Double a = null;
+        private Double b = null;
+        private Double c = null;
         private UnitUtils.Units units = UnitUtils.Units.UNKNOWN;
 
         public PartialPosition build() {
             if (units == UnitUtils.Units.UNKNOWN) {
                 throw new RuntimeException("No units was supplied to the PartialPosition!");
             }
-            return new PartialPosition(x, y, z, units);
+            return new PartialPosition(x, y, z, a, b, c, units);
         }
 
         public Builder setValue(Axis axis, Double value) {
@@ -154,6 +248,15 @@ public class PartialPosition {
                     break;
                 case Z:
                     this.z = value;
+                    break;
+                case A:
+                    this.a = value;
+                    break;
+                case B:
+                    this.b = value;
+                    break;
+                case C:
+                    this.c = value;
                     break;
             }
             return this;
@@ -174,10 +277,28 @@ public class PartialPosition {
             return this;
         }
 
+        public Builder setA(Double a) {
+            this.a = a;
+            return this;
+        }
+
+        public Builder setB(Double b) {
+            this.b = b;
+            return this;
+        }
+
+        public Builder setC(Double c) {
+            this.c = c;
+            return this;
+        }
+
         public Builder copy(Position position) {
             this.x = position.getX();
             this.y = position.getY();
             this.z = position.getZ();
+            this.a = position.getA();
+            this.b = position.getB();
+            this.c = position.getC();
             this.units = position.getUnits();
             return this;
         }
@@ -191,6 +312,9 @@ public class PartialPosition {
             this.x = position.getX();
             this.y = position.getY();
             this.z = position.getZ();
+            this.a = position.getA();
+            this.b = position.getB();
+            this.c = position.getC();
             this.units = position.getUnits();
             return this;
         }
@@ -212,6 +336,15 @@ public class PartialPosition {
         if (this.hasZ()) {
             sb.append("Z").append(formatter.format(this.getZ()));
         }
+        if (this.hasA()) {
+            sb.append("A").append(formatter.format(this.getA()));
+        }
+        if (this.hasB()) {
+            sb.append("B").append(formatter.format(this.getB()));
+        }
+        if (this.hasC()) {
+            sb.append("C").append(formatter.format(this.getC()));
+        }
         return sb.toString();
     }
 
@@ -223,13 +356,16 @@ public class PartialPosition {
         return Objects.equals(x, that.x) &&
                 Objects.equals(y, that.y) &&
                 Objects.equals(z, that.z) &&
+                Objects.equals(a, that.a) &&
+                Objects.equals(b, that.b) &&
+                Objects.equals(c, that.c) &&
                 Objects.equals(units, that.units);
 
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y, z);
+        return Objects.hash(x, y, z, a, b, c, units);
     }
 
     @Override

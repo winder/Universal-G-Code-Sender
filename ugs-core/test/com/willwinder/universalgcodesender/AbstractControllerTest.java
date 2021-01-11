@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -558,8 +559,8 @@ public class AbstractControllerTest {
         niceInstance.setDistanceModeCode("G90");
         niceInstance.setUnitsCode("G21");
 
-        niceInstance.jogMachine(-10, 0, 10, 11, UnitUtils.Units.INCH);
-        niceInstance.jogMachine(0, 10, 0, 11, UnitUtils.Units.MM);
+        niceInstance.jogMachine(new PartialPosition(-10., null, 10., UnitUtils.Units.INCH), 11);
+        niceInstance.jogMachine(new PartialPosition(null, 10., null, UnitUtils.Units.MM), 11);
 
         assertEquals(4, gcodeCommandCapture.getValues().size());
         assertEquals("G20G91G1X-10Z10F11", gcodeCommandCapture.getValues().get(0).getCommandString());

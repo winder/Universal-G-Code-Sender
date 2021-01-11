@@ -185,11 +185,11 @@ public class JogService {
     /**
      * Adjusts the location for each axises.
      */
-    public void adjustManualLocation(double distanceX, double distanceY, double distanceZ) {
+    public void adjustManualLocation(PartialPosition distance) {
         try {
             double feedRate = getSettings().getJogFeedRate();
             Units units = getSettings().getPreferredUnits();
-            backend.adjustManualLocation(distanceX, distanceY, distanceZ, feedRate, units);
+            backend.adjustManualLocation(distance, feedRate);
         } catch (Exception e) {
             // Not much we can do
         }
@@ -207,7 +207,7 @@ public class JogService {
             }
             double feedRate = getSettings().getJogFeedRate();
             Units preferredUnits = getSettings().getPreferredUnits();
-            backend.adjustManualLocation(0, 0, z * stepSize, feedRate, preferredUnits);
+            backend.adjustManualLocation(new PartialPosition(null, null, z * stepSize, preferredUnits), feedRate);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             //DialogDisplayer.getDefault().notify(nd);
@@ -228,11 +228,33 @@ public class JogService {
             double feedRate = getFeedRate();
             double stepSize = getStepSizeXY();
             Units preferredUnits = getUnits();
-            backend.adjustManualLocation(x * stepSize, y * stepSize, 0, feedRate, preferredUnits);
+            backend.adjustManualLocation(new PartialPosition(x * stepSize, y * stepSize, null, preferredUnits), feedRate);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             //DialogDisplayer.getDefault().notify(nd);
         }
+    }
+
+    /**
+     * Adjusts the axis location.
+     * @param a direction.
+     * @param b direction.
+     * @param c direction.
+     */
+    public void adjustManualLocationABC(int a, int b, int c) {
+        // TODO: ABC Axis
+        throw new UnsupportedOperationException("This has not been implemented yet.");
+        /*
+        try {
+            double feedRate = getFeedRate();
+            double stepSize = getStepSizeXY();
+            Units preferredUnits = getUnits();
+            backend.adjustManualLocation(new PartialPosition(x * stepSize, y * stepSize, 0.0, preferredUnits), feedRate);
+        } catch (Exception e) {
+            //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
+            //DialogDisplayer.getDefault().notify(nd);
+        }
+         */
     }
 
     public boolean canJog() {

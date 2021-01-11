@@ -87,15 +87,17 @@ public class GUIBackendTest {
     @Test
     public void adjustManualLocationShouldBeOk() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        instance.adjustManualLocation(10, 0, 0, 10, UnitUtils.Units.MM);
-        verify(controller, times(1)).jogMachine(10, 0, 0, 10, UnitUtils.Units.MM);
+        PartialPosition p = new PartialPosition(10., 0., 0., UnitUtils.Units.MM);
+        instance.adjustManualLocation(p, 10);
+        verify(controller, times(1)).jogMachine(p, 10);
     }
 
     @Test
     public void adjustManualLocationWithNoDirectionShouldNotMoveTheMachine() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        instance.adjustManualLocation(0, 0, 0, 10, UnitUtils.Units.MM);
-        verify(controller, times(0)).jogMachine(anyInt(), anyInt(), anyInt(), anyDouble(), any(UnitUtils.Units.class));
+        PartialPosition p = new PartialPosition(0., 0., 0., UnitUtils.Units.MM);
+        instance.adjustManualLocation(p, 10);
+        verify(controller, times(0)).jogMachine(any(), anyDouble());
     }
 
     @Test

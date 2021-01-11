@@ -101,17 +101,14 @@ public interface IController {
     void requestStatusReport() throws Exception;
 
     /**
-     * Jogs the machine by a specified direction given distanceX, distanceY, distanceZ.
+     * Jogs the machine by a specified direction given by the partial position.
      * The distance is specified by the given units and can be a positive or negative value.
      *
-     * @param distanceX how long to jog on the X axis.
-     * @param distanceY how long to jog on the Y axis.
-     * @param distanceZ how long to jog on the Z axis.
+     * @param distance how long to jog along each axis.
      * @param feedRate how fast should we jog in the given direction
-     * @param units the units of the distance and feed rate
      * @throws Exception if something went wrong when jogging
      */
-    void jogMachine(double distanceX, double distanceY, double distanceZ, double feedRate, Units units) throws Exception;
+    void jogMachine(PartialPosition distance, double feedRate) throws Exception;
 
 
     /**

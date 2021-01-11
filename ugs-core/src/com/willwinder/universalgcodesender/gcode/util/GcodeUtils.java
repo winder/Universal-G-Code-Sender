@@ -53,40 +53,14 @@ public class GcodeUtils {
      *
      * @param command   the base command to use, ie: G91G1 or G1
      * @param feedRate the maximum feed rate
-     * @param x the x coordinate to move
-     * @param y the y coordinate to move
-     * @param z the z coordinate to move
-     * @param units     the units to use for movement
+     * @param p partial position of movement
      */
-    public static String generateMoveCommand(String command, double feedRate, double x, double y, double z, Units units) {
+    public static String generateMoveCommand(String command, double feedRate, PartialPosition p) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(GcodeUtils.unitCommand(units));
+        sb.append(GcodeUtils.unitCommand(p.getUnits()));
         sb.append(command);
-
-        if (x != 0) {
-            sb.append("X");
-            if (x < 0) {
-                sb.append("-");
-            }
-            sb.append(Utils.formatter.format(Math.abs(x)));
-        }
-
-        if (y != 0) {
-            sb.append("Y");
-            if (y < 0) {
-                sb.append("-");
-            }
-            sb.append(Utils.formatter.format(Math.abs(y)));
-        }
-
-        if (z != 0) {
-            sb.append("Z");
-            if (z < 0) {
-                sb.append("-");
-            }
-            sb.append(Utils.formatter.format(Math.abs(z)));
-        }
+        sb.append(p.getFormattedGCode(Utils.formatter));
 
         if (feedRate > 0) {
             String convertedFeedRate = Utils.formatter.format(feedRate);
