@@ -61,6 +61,13 @@ public interface JogPanelListener {
     void onStepSizeXYChanged(double value);
 
     /**
+     * Is called when the step size of the ABC-axis is changed
+     *
+     * @param value the step size
+     */
+    void onStepSizeABCChanged(double value);
+
+    /**
      * Is called when the feed rate is changed
      *
      * @param value the feed rate

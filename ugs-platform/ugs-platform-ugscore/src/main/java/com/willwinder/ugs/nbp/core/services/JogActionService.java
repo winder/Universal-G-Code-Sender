@@ -59,19 +59,38 @@ public class JogActionService {
             String category = "Machine";
             String menuPath = "Menu/" + category + "/Jog";
 
+            // Jog plus/minus X
             ars.registerAction(JogActionService.class.getCanonicalName() + ".xPlus", Localization.getString("jogging.xPlus") ,
                     category, "M-RIGHT" , menuPath, 0, localized, new JogAction(jogService, 1, 0));
             ars.registerAction(JogActionService.class.getCanonicalName() + ".xMinus", Localization.getString("jogging.xMinus"),
                     category, "M-LEFT"  , menuPath, 0, localized, new JogAction(jogService,-1, 0));
+            // Jog plus/minus Y
             ars.registerAction(JogActionService.class.getCanonicalName() + ".yPlus", Localization.getString("jogging.yPlus") ,
                     category, "M-UP"    , menuPath, 0, localized, new JogAction(jogService, 0, 1));
             ars.registerAction(JogActionService.class.getCanonicalName() + ".yMinus", Localization.getString("jogging.yMinus"),
                     category, "M-DOWN"  , menuPath, 0, localized, new JogAction(jogService, 0,-1));
+            // Jog plus/minus Z
             ars.registerAction(JogActionService.class.getCanonicalName() + ".zPlus", Localization.getString("jogging.zPlus") ,
                     category, "SM-UP"   , menuPath, 0, localized, new JogAction(jogService, 1));
             ars.registerAction(JogActionService.class.getCanonicalName() + ".zMinus", Localization.getString("jogging.zMinus"),
                     category, "SM-DOWN" , menuPath, 0, localized, new JogAction(jogService, -1));
+            // Jog plus/minus A
+            ars.registerAction(JogActionService.class.getCanonicalName() + ".aPlus", Localization.getString("jogging.aPlus") ,
+                    category, null   , menuPath, 0, localized, new JogAction(jogService, 0, 0, 0, 1, 0, 0));
+            ars.registerAction(JogActionService.class.getCanonicalName() + ".aMinus", Localization.getString("jogging.aMinus"),
+                    category, null , menuPath, 0, localized, new JogAction(jogService, 0, 0, 0, -1, 0, 0));
+            // Jog plus/minus B
+            ars.registerAction(JogActionService.class.getCanonicalName() + ".bPlus", Localization.getString("jogging.bPlus") ,
+                    category, null , menuPath, 0, localized, new JogAction(jogService, 0, 0, 0, 0, 1, 0));
+            ars.registerAction(JogActionService.class.getCanonicalName() + ".bMinus", Localization.getString("jogging.bMinus"),
+                    category, null , menuPath, 0, localized, new JogAction(jogService, 0, 0, 0, 0, -1, 0));
+            // Jog plus/minus C
+            ars.registerAction(JogActionService.class.getCanonicalName() + ".cPlus", Localization.getString("jogging.cPlus") ,
+                    category, null , menuPath, 0, localized, new JogAction(jogService, 0, 0, 0, 0, 0, 1));
+            ars.registerAction(JogActionService.class.getCanonicalName() + ".cMinus", Localization.getString("jogging.cMinus"),
+                    category, null , menuPath, 0, localized, new JogAction(jogService, 0, 0, 0, 0, 0, -1));
 
+            // Jog Diagonals
             ars.registerAction(JogActionService.class.getCanonicalName() + ".xPlus.yPlus", Localization.getString("jogging.xPlus.yPlus") ,
                     category, null , menuPath, 0, localized, new JogAction(jogService, 1, 1));
             ars.registerAction(JogActionService.class.getCanonicalName() + ".xPlus.yMinus", Localization.getString("jogging.xPlus.yMinus") ,
@@ -89,29 +108,41 @@ public class JogActionService {
 
             // Set Step Size XY
             ars.registerAction(JogSizeAction.class.getCanonicalName() + "xy.10", "XY 10",
-                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 10, true));
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 10, StepType.XY));
             ars.registerAction(JogSizeAction.class.getCanonicalName() + "xy.1", "XY 1",
-                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 1, true));
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 1, StepType.XY));
             ars.registerAction(JogSizeAction.class.getCanonicalName() + "xy.01", "XY 0.1",
-                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.1, true));
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.1, StepType.XY));
             ars.registerAction(JogSizeAction.class.getCanonicalName() + "xy.001", "XY 0.01",
-                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.01, true));
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.01, StepType.XY));
             ars.registerAction(JogSizeAction.class.getCanonicalName() + "xy.0001", "XY 0.001",
-                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.001, true));
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.001, StepType.XY));
 
             // Set Step Size Z
             ars.registerAction(JogSizeAction.class.getCanonicalName() + "z.10", "Z 10",
-                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 10, false));
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 10, StepType.Z));
             ars.registerAction(JogSizeAction.class.getCanonicalName() + "z.1", "Z 1",
-                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 1, false));
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 1, StepType.Z));
             ars.registerAction(JogSizeAction.class.getCanonicalName() + "z.01", "Z 0.1",
-                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.1, false));
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.1, StepType.Z));
             ars.registerAction(JogSizeAction.class.getCanonicalName() + "z.001", "Z 0.01",
-                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.01, false));
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.01, StepType.Z));
             ars.registerAction(JogSizeAction.class.getCanonicalName() + "z.0001", "Z 0.001",
-                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.001, false));
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.001, StepType.Z));
 
-            // Step Size XY
+            // Set Step Size ABC
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + "abc.10", "ABC 10",
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 10, StepType.ABC));
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + "abc.1", "ABC 1",
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 1, StepType.ABC));
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + "abc.01", "ABC 0.1",
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.1, StepType.ABC));
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + "abc.001", "ABC 0.01",
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.01, StepType.ABC));
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + "abc.0001", "ABC 0.001",
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, 0.001, StepType.ABC));
+
+            // Modify Step Size XY
             ars.registerAction(JogSizeAction.class.getCanonicalName() + ".divide", Localization.getString("jogging.divide"),
                     category, "" , menuPath, 0, localized, new JogSizeAction(jogService, STEPXY_DIVIDE));
             ars.registerAction(JogSizeAction.class.getCanonicalName() + ".multiply", Localization.getString("jogging.multiply"),
@@ -121,7 +152,7 @@ public class JogActionService {
             ars.registerAction(JogSizeAction.class.getCanonicalName() + ".increase", Localization.getString("jogging.increase"),
                     category, "" , menuPath, 0, localized, new JogSizeAction(jogService, STEPXY_PLUS));
 
-            // Step Size Z
+            // Modify Step Size Z
             ars.registerAction(JogSizeAction.class.getCanonicalName() + ".divide.z", Localization.getString("jogging.divide.z"),
                     category, "" , menuPath, 0, localized, new JogSizeAction(jogService, STEPZ_DIVIDE));
             ars.registerAction(JogSizeAction.class.getCanonicalName() + ".multiply.z", Localization.getString("jogging.multiply.z"),
@@ -130,6 +161,16 @@ public class JogActionService {
                     category, "" , menuPath, 0, localized, new JogSizeAction(jogService, STEPZ_MINUS));
             ars.registerAction(JogSizeAction.class.getCanonicalName() + ".increase.z", Localization.getString("jogging.increase.z"),
                     category, "" , menuPath, 0, localized, new JogSizeAction(jogService, STEPZ_PLUS));
+
+            // Modify Step Size ABC
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".divide.abc", Localization.getString("jogging.divide.abc"),
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, STEPABC_DIVIDE));
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".multiply.abc", Localization.getString("jogging.multiply.abc"),
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, STEPABC_MULTIPLY));
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".decrease.abc", Localization.getString("jogging.decrease.abc"),
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, STEPABC_MINUS));
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".increase.abc", Localization.getString("jogging.increase.abc"),
+                    category, "" , menuPath, 0, localized, new JogSizeAction(jogService, STEPABC_PLUS));
 
             // Feed Rate
             ars.registerAction(JogSizeAction.class.getCanonicalName() + ".decrease.feed", Localization.getString("jogging.decrease.feed"),
@@ -163,6 +204,10 @@ public class JogActionService {
       STEPZ_MINUS,
       STEPZ_MULTIPLY,
       STEPZ_DIVIDE,
+      STEPABC_PLUS,
+      STEPABC_MINUS,
+      STEPABC_MULTIPLY,
+      STEPABC_DIVIDE,
       FEED_PLUS,
       FEED_MINUS,
       FEED_MULTIPLY,
@@ -170,12 +215,18 @@ public class JogActionService {
       UNITS_TOGGLE
     }
 
+    protected enum StepType {
+        XY,
+        Z,
+        ABC
+    }
+
     protected class JogSizeAction extends AbstractAction {
         private JogService js;
         private Double size = null;
         private Operation operation = null;
         private Units unit = null;
-        private Boolean xy = null;
+        private StepType type = null;
 
         public JogSizeAction(JogService service, Units u) {
             js = service;
@@ -186,19 +237,25 @@ public class JogActionService {
             operation = op;
         }
 
-        public JogSizeAction(JogService service, double size, boolean xy) {
+        public JogSizeAction(JogService service, double size, StepType type) {
             js = service;
             this.size = size;
-            this.xy = xy;
+            this.type = type;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
             if (size != null) {
-                if (xy) {
-                    js.setStepSizeXY(size);
-                } else {
-                    js.setStepSizeZ(size);
+                switch (type) {
+                    case XY:
+                        js.setStepSizeXY(size);
+                        break;
+                    case Z:
+                        js.setStepSizeZ(size);
+                        break;
+                    case ABC:
+                        js.setStepSizeABC(size);
+                        break;
                 }
             }
             else if (operation != null) {
@@ -226,6 +283,18 @@ public class JogActionService {
                         break;
                     case STEPZ_MINUS:
                         js.decreaseZStepSize();
+                        break;
+                    case STEPABC_MULTIPLY:
+                        js.multiplyABCStepSize();
+                        break;
+                    case STEPABC_DIVIDE:
+                        js.divideABCStepSize();
+                        break;
+                    case STEPABC_PLUS:
+                        js.increaseABCStepSize();
+                        break;
+                    case STEPABC_MINUS:
+                        js.decreaseABCStepSize();
                         break;
                     case FEED_PLUS:
                         js.increaseFeedRate();
@@ -258,31 +327,34 @@ public class JogActionService {
 
     protected class JogAction extends AbstractAction {
         private JogService js;
-        private int x,y,z;
-        private boolean isZ;
+        private int x,y,z,a,b,c;
 
-        public JogAction(JogService service, int x, int y) {
+        public JogAction(JogService service, int x, int y, int z, int a, int b, int c) {
             js = service;
             this.x = x;
             this.y = y;
-            this.z = 0;
-            this.isZ = false;
+            this.z = z;
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+
+        public JogAction(JogService service, int x, int y) {
+            this(service, x, y, 0, 0, 0, 0);
         }
 
         public JogAction(JogService service, int z) {
-            js = service;
-            this.x = 0;
-            this.y = 0;
-            this.z = z;
-            this.isZ = true;
+            this(service, 0, 0, z, 0, 0, 0);
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (isZ) {
+            if (z != 0) {
                 js.adjustManualLocationZ(z);
-            } else {
+            } else if (x != 0 || y != 0) {
                 js.adjustManualLocationXY(x, y);
+            } else if (a != 0 || b != 0 || c != 0) {
+                js.adjustManualLocationABC(a, b, c);
             }
         }
 

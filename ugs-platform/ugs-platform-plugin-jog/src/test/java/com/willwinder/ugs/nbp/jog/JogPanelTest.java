@@ -42,11 +42,19 @@ public class JogPanelTest extends JFrame {
         fileMenu.add(menuItem);
 
         menuItem = new JMenuItem("Use Z step size");
-        menuItem.addActionListener(e -> jogPanel.setUseStepSizeZ(true));
+        menuItem.addActionListener(e -> jogPanel.enabledStepSizes(true, false));
         fileMenu.add(menuItem);
 
-        menuItem = new JMenuItem("Don't use Z step size");
-        menuItem.addActionListener(e -> jogPanel.setUseStepSizeZ(false));
+        menuItem = new JMenuItem("Use ABC step size");
+        menuItem.addActionListener(e -> jogPanel.enabledStepSizes(false, true));
+        fileMenu.add(menuItem);
+
+        menuItem = new JMenuItem("Use Z and ABC step size");
+        menuItem.addActionListener(e -> jogPanel.enabledStepSizes(true, true));
+        fileMenu.add(menuItem);
+
+        menuItem = new JMenuItem("Don't use Z or ABC step size");
+        menuItem.addActionListener(e -> jogPanel.enabledStepSizes(false, false));
         fileMenu.add(menuItem);
 
         setJMenuBar(menuBar);

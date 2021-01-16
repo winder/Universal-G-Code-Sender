@@ -1,5 +1,5 @@
 /*
-    Copyright 2018-2020 Will Winder
+    Copyright 2018-2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -81,13 +81,15 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
     private JLabel feedRateLabel;
     private JLabel xyStepLabel;
     private JLabel zStepLabel;
+    private JLabel abcStepLabel;
 
     /**
      * Spinners for jog settings
      */
-    private StepSizeSpinner zStepSizeSpinner;
     private StepSizeSpinner feedRateSpinner;
     private StepSizeSpinner xyStepSizeSpinner;
+    private StepSizeSpinner zStepSizeSpinner;
+    private StepSizeSpinner abcStepSizeSpinner;
 
     /**
      * Special buttons
@@ -126,6 +128,8 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         xyStepSizeSpinner.setMinimumSize(minimumSize);
         zStepSizeSpinner = new StepSizeSpinner();
         zStepSizeSpinner.setMinimumSize(minimumSize);
+        abcStepSizeSpinner = new StepSizeSpinner();
+        abcStepSizeSpinner.setMinimumSize(minimumSize);
 
         // todo: could use a number of factory methods here to build similar stuff
         feedRateLabel = createSettingLabel(font, Localization.getString("platform.plugin.jog.feedRate"));
@@ -134,6 +138,8 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         xyStepLabel.setMinimumSize(new Dimension(0,0));
         zStepLabel = createSettingLabel(font, Localization.getString("platform.plugin.jog.stepSizeZ"));
         zStepLabel.setMinimumSize(new Dimension(0,0));
+        abcStepLabel = createSettingLabel(font, Localization.getString("platform.plugin.jog.stepSizeABC"));
+        abcStepLabel.setMinimumSize(new Dimension(0,0));
 
         minimumSize = new Dimension(50, 18);
         unitToggleButton = new JButton("--");
@@ -183,20 +189,25 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         zStepSizeSpinner.setValue(stepSize);
     }
 
+    public void setStepSizeABC(double stepSize) {
+        abcStepSizeSpinner.setValue(stepSize);
+    }
+
     public void setUnit(UnitUtils.Units unit) {
         unitToggleButton.setText(unit.getDescription());
     }
 
-    public void setUseStepSizeZ(boolean useStepSizeZ) {
-        if (useStepSizeZ) {
-            zStepLabel.setVisible(true);
-            zStepSizeSpinner.setVisible(true);
+    public void enabledStepSizes(boolean useStepSizeZ, boolean useStepSizeABC) {
+        if (useStepSizeZ || useStepSizeABC) {
             xyStepLabel.setText(Localization.getString("platform.plugin.jog.stepSizeXY"));
         } else {
-            zStepLabel.setVisible(false);
-            zStepSizeSpinner.setVisible(false);
             xyStepLabel.setText(Localization.getString("platform.plugin.jog.stepSize"));
         }
+
+        zStepLabel.setVisible(useStepSizeZ);
+        zStepSizeSpinner.setVisible(useStepSizeZ);
+        abcStepLabel.setVisible(useStepSizeABC);
+        abcStepSizeSpinner.setVisible(useStepSizeABC);
     }
 
     private void initPanels() {
@@ -207,19 +218,22 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
 
     private JPanel createConfigurationPanel() {
         JPanel configurationPanel = new JPanel();
-        configurationPanel.setLayout(new MigLayout("fill, inset 0, gap 2", "[shrinkprio 200, right][25%, shrinkprio 100][25%, center, shrinkprio 0]", "[center][center][center]"));
+        configurationPanel.setLayout(new MigLayout("fill, inset 0, gap 2, flowy", "[shrinkprio 200, right][25%, shrinkprio 100][25%, center, shrinkprio 0, nogrid]", "[center][center][center]"));
 
         configurationPanel.add(xyStepLabel, "growx");
+        configurationPanel.add(zStepLabel, "growx, hidemode 3");
+        configurationPanel.add(abcStepLabel, "growx, hidemode 3");
+        configurationPanel.add(feedRateLabel, "growx, wrap");
+
         configurationPanel.add(xyStepSizeSpinner, "growx");
-        configurationPanel.add(unitToggleButton, "grow, wrap");
+        configurationPanel.add(zStepSizeSpinner, "growx, hidemode 3");
+        configurationPanel.add(abcStepSizeSpinner, "growx, hidemode 3");
+        configurationPanel.add(feedRateSpinner, "growx, wrap");
 
-        configurationPanel.add(zStepLabel, "growx, hidemode 0");
-        configurationPanel.add(zStepSizeSpinner, "growx, hidemode 0");
-        configurationPanel.add(increaseStepSizeButton, "grow, wrap");
+        configurationPanel.add(unitToggleButton, "grow");
+        configurationPanel.add(increaseStepSizeButton, "grow");
+        configurationPanel.add(decreaseStepSizeButton, "grow");
 
-        configurationPanel.add(feedRateLabel, "growx");
-        configurationPanel.add(feedRateSpinner, "growx");
-        configurationPanel.add(decreaseStepSizeButton, "grow, wrap");
         return configurationPanel;
     }
 
@@ -301,6 +315,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
 
         xyStepSizeSpinner.addChangeListener(this);
         zStepSizeSpinner.addChangeListener(this);
+        abcStepSizeSpinner.addChangeListener(this);
         feedRateSpinner.addChangeListener(this);
 
         unitToggleButton.addActionListener((actionEvent) -> listeners.forEach(JogPanelListener::onToggleUnit));
@@ -366,10 +381,12 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
 
         xyStepSizeSpinner.setEnabled(enabled);
         zStepSizeSpinner.setEnabled(enabled);
+        abcStepSizeSpinner.setEnabled(enabled);
         feedRateSpinner.setEnabled(enabled);
 
         xyStepLabel.setEnabled(enabled);
         zStepLabel.setEnabled(enabled);
+        abcStepLabel.setEnabled(enabled);
         feedRateLabel.setEnabled(enabled);
 
         stealFocusButton.setEnabled(enabled);
@@ -407,6 +424,9 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         font = this.zStepLabel.getFont().deriveFont(fontSize);
         this.zStepLabel.setFont(font);
 
+        font = this.abcStepLabel.getFont().deriveFont(fontSize);
+        this.abcStepLabel.setFont(font);
+
         font = this.increaseStepSizeButton.getFont().deriveFont(fontSize);
         this.increaseStepSizeButton.setFont(font);
 
@@ -424,6 +444,8 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
             this.listeners.forEach(listener -> listener.onStepSizeZChanged(zStepSizeSpinner.getValue()));
         } else if (e.getSource() == xyStepSizeSpinner) {
             this.listeners.forEach(listener -> listener.onStepSizeXYChanged(xyStepSizeSpinner.getValue()));
+        } else if (e.getSource() == abcStepSizeSpinner) {
+            this.listeners.forEach(listener -> listener.onStepSizeABCChanged(abcStepSizeSpinner.getValue()));
         } else if (e.getSource() == feedRateSpinner) {
             this.listeners.forEach(listener -> listener.onFeedRateChanged(feedRateSpinner.getValue().intValue()));
         }

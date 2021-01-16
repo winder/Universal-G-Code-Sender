@@ -72,7 +72,9 @@ public class ContinuousJogWorker implements ControllerListener {
      */
     public void destroy() {
         isRunning = false;
-        future.cancel(false);
+        if (future != null) {
+            future.cancel(false);
+        }
         backendAPI.removeControllerListener(this);
     }
 
@@ -183,7 +185,9 @@ public class ContinuousJogWorker implements ControllerListener {
         isWaitingForCommandComplete = false;
         if (command.isError()) {
             stop();
-            future.cancel(false);
+            if (future != null) {
+                future.cancel(false);
+            }
         }
     }
 

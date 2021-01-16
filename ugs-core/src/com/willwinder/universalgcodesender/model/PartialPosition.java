@@ -208,6 +208,7 @@ public class PartialPosition {
     }
 
     public PartialPosition getPositionIn(UnitUtils.Units units) {
+        if (units == this.units) return this;
         double scale = UnitUtils.scaleUnits(this.units, units);
         Builder builder = builder();
         for (Map.Entry<Axis, Double> axis : getAll().entrySet()) {

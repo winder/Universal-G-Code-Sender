@@ -116,6 +116,15 @@ public class JogService {
         setStepSizeZ(decreaseSize(getStepSizeZ()));
     }
 
+    public void increaseABCStepSize() {
+        setStepSizeABC(increaseSize(getStepSizeABC()));
+    }
+
+    public void decreaseABCStepSize() {
+        setStepSizeABC(decreaseSize(getStepSizeABC()));
+    }
+
+
     public void divideXYStepSize() {
         setStepSizeXY(divideSize(getStepSizeXY()));
     }
@@ -124,12 +133,20 @@ public class JogService {
         setStepSizeZ(divideSize(getStepSizeZ()));
     }
 
+    public void divideABCStepSize() {
+        setStepSizeABC(divideSize(getStepSizeZ()));
+    }
+
     public void multiplyXYStepSize() {
         setStepSizeXY(multiplySize(getStepSizeXY()));
     }
 
     public void multiplyZStepSize() {
         setStepSizeZ(multiplySize(getStepSizeZ()));
+    }
+
+    public void multiplyABCStepSize() {
+        setStepSizeABC(multiplySize(getStepSizeZ()));
     }
 
     public void multiplyFeedRate() {
@@ -148,16 +165,21 @@ public class JogService {
         setFeedRate(decreaseSize(getFeedRate()));
     }
 
-    public void setStepSizeXY(double size) {
-        getSettings().setManualModeStepSize(size);
-    }
 
     private Settings getSettings() {
         return backend.getSettings();
     }
 
+    public void setStepSizeXY(double size) {
+        getSettings().setManualModeStepSize(size);
+    }
+
     public void setStepSizeZ(double size) {
         getSettings().setzJogStepSize(size);
+    }
+
+    public void setStepSizeABC(double size) {
+        getSettings().setabcJogStepSize(size);
     }
 
     public void setFeedRate(double rate) {
@@ -189,7 +211,7 @@ public class JogService {
         try {
             double feedRate = getSettings().getJogFeedRate();
             Units units = getSettings().getPreferredUnits();
-            backend.adjustManualLocation(distance, feedRate);
+            backend.adjustManualLocation(distance.getPositionIn(units), feedRate);
         } catch (Exception e) {
             // Not much we can do
         }
@@ -218,6 +240,10 @@ public class JogService {
         return getSettings().useZStepSize();
     }
 
+    public boolean showABCStepSize() {
+        return getSettings().showABCStepSize();
+    }
+
     /**
      * Adjusts the XY axis location.
      * @param x direction.
@@ -228,7 +254,9 @@ public class JogService {
             double feedRate = getFeedRate();
             double stepSize = getStepSizeXY();
             Units preferredUnits = getUnits();
-            backend.adjustManualLocation(new PartialPosition(x * stepSize, y * stepSize, null, preferredUnits), feedRate);
+            Double dx = x == 0 ? null : x * stepSize;
+            Double dy = y == 0 ? null : y * stepSize;
+            backend.adjustManualLocation(new PartialPosition(dx, dy, null, preferredUnits), feedRate);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             //DialogDisplayer.getDefault().notify(nd);
@@ -236,25 +264,24 @@ public class JogService {
     }
 
     /**
-     * Adjusts the axis location.
+     * Adjusts the rotation axis location.
      * @param a direction.
      * @param b direction.
      * @param c direction.
      */
     public void adjustManualLocationABC(int a, int b, int c) {
-        // TODO: ABC Axis
-        throw new UnsupportedOperationException("This has not been implemented yet.");
-        /*
         try {
             double feedRate = getFeedRate();
-            double stepSize = getStepSizeXY();
+            double stepSize = getStepSizeABC();
             Units preferredUnits = getUnits();
-            backend.adjustManualLocation(new PartialPosition(x * stepSize, y * stepSize, 0.0, preferredUnits), feedRate);
+            Double da = a == 0 ? null : a * stepSize;
+            Double db = b == 0 ? null : b * stepSize;
+            Double dc = c == 0 ? null : c * stepSize;
+            backend.adjustManualLocation(new PartialPosition(null, null, null, da, db, dc, preferredUnits), feedRate);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             //DialogDisplayer.getDefault().notify(nd);
         }
-         */
     }
 
     public boolean canJog() {
@@ -269,6 +296,10 @@ public class JogService {
 
     public double getStepSizeZ() {
         return getSettings().getzJogStepSize();
+    }
+
+    public double getStepSizeABC() {
+        return getSettings().getabcJogStepSize();
     }
 
     public void cancelJog() {

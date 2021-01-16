@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.jog;
 
+import com.willwinder.ugs.nbp.jog.actions.ShowABCStepSizeAction;
 import com.willwinder.ugs.nbp.jog.actions.UseSeparateStepSizeAction;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
@@ -74,14 +75,11 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         jogService = CentralLookup.getDefault().lookup(JogService.class);
         continuousJogWorker = new ContinuousJogWorker(backend, jogService);
         UseSeparateStepSizeAction separateStepSizeAction = Lookup.getDefault().lookup(UseSeparateStepSizeAction.class);
+        ShowABCStepSizeAction showABCStepSizeAction = Lookup.getDefault().lookup(ShowABCStepSizeAction.class);
 
         jogPanel = new JogPanel();
         jogPanel.setEnabled(jogService.canJog());
-        jogPanel.setFeedRate(Double.valueOf(jogService.getFeedRate()).intValue());
-        jogPanel.setStepSizeXY(jogService.getStepSizeXY());
-        jogPanel.setStepSizeZ(jogService.getStepSizeZ());
-        jogPanel.setUnit(jogService.getUnits());
-        jogPanel.setUseStepSizeZ(jogService.useStepSizeZ());
+        updateSettings();
         jogPanel.addListener(this);
 
         backend.addUGSEventListener(this);
@@ -92,9 +90,15 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
 
         add(jogPanel, BorderLayout.CENTER);
 
-        if (separateStepSizeAction != null) {
+        // Right click options
+        if (separateStepSizeAction != null || showABCStepSizeAction != null) {
             JPopupMenu popupMenu = new JPopupMenu();
-            popupMenu.add(separateStepSizeAction);
+            if (separateStepSizeAction != null) {
+                popupMenu.add(separateStepSizeAction);
+            }
+            if (showABCStepSizeAction != null) {
+                popupMenu.add(showABCStepSizeAction);
+            }
             SwingHelpers.traverse(this, (comp) -> comp.setComponentPopupMenu(popupMenu));
         }
     }
@@ -124,11 +128,12 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     }
 
     private void updateSettings() {
-        jogPanel.setFeedRate(Double.valueOf(backend.getSettings().getJogFeedRate()).intValue());
-        jogPanel.setStepSizeXY(backend.getSettings().getManualModeStepSize());
-        jogPanel.setStepSizeZ(backend.getSettings().getzJogStepSize());
-        jogPanel.setUnit(backend.getSettings().getPreferredUnits());
-        jogPanel.setUseStepSizeZ(backend.getSettings().useZStepSize());
+        jogPanel.setFeedRate(Double.valueOf(jogService.getFeedRate()).intValue());
+        jogPanel.setStepSizeXY(jogService.getStepSizeXY());
+        jogPanel.setStepSizeZ(jogService.getStepSizeZ());
+        jogPanel.setStepSizeABC(jogService.getStepSizeABC());
+        jogPanel.setUnit(jogService.getUnits());
+        jogPanel.enabledStepSizes(jogService.useStepSizeZ(), jogService.showABCStepSize());
     }
 
     private void updateControls() {
@@ -199,6 +204,11 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     }
 
     @Override
+    public void onStepSizeABCChanged(double value) {
+        jogService.setStepSizeABC(value);
+    }
+
+    @Override
     public void onFeedRateChanged(int value) {
         jogService.setFeedRate(value);
     }
@@ -216,11 +226,13 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     public void onIncreaseStepSize() {
         jogService.multiplyXYStepSize();
         jogService.multiplyZStepSize();
+        jogService.multiplyABCStepSize();
     }
 
     @Override
     public void onDecreaseStepSize() {
         jogService.divideXYStepSize();
         jogService.divideZStepSize();
+        jogService.divideABCStepSize();
     }
 }

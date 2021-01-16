@@ -56,7 +56,9 @@ public class Settings {
     private boolean manualModeEnabled = false;
     private double manualModeStepSize = 1;
     private boolean useZStepSize = true;
+    private boolean showABCStepSize = true;
     private double zJogStepSize = 1;
+    private double abcJogStepSize = 1;
     private double jogFeedRate = 10;
     private boolean scrollWindowEnabled = true;
     private boolean verboseOutputEnabled = false;
@@ -247,12 +249,30 @@ public class Settings {
         changed();
     }
 
+    public boolean showABCStepSize() {
+        return this.showABCStepSize;
+    }
+
+    public void setShowABCStepSize(boolean showABCStepSize) {
+        this.showABCStepSize = showABCStepSize;
+        changed();
+    }
+
     public double getzJogStepSize() {
         return zJogStepSize;
     }
 
     public void setzJogStepSize(double zJogStepSize) {
         this.zJogStepSize = zJogStepSize;
+        changed();
+    }
+
+    public double getabcJogStepSize() {
+        return abcJogStepSize;
+    }
+
+    public void setabcJogStepSize(double abcJogStepSize) {
+        this.abcJogStepSize = abcJogStepSize;
         changed();
     }
 
