@@ -1,7 +1,6 @@
 /*
     Copyright 2021 Will Winder
 
-
     This file is part of Universal Gcode Sender (UGS).
 
     UGS is free software: you can redistribute it and/or modify
