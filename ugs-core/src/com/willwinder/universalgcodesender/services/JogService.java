@@ -175,11 +175,11 @@ public class JogService {
     }
 
     public void setStepSizeZ(double size) {
-        getSettings().setzJogStepSize(size);
+        getSettings().setZJogStepSize(size);
     }
 
     public void setStepSizeABC(double size) {
-        getSettings().setabcJogStepSize(size);
+        getSettings().setABCJogStepSize(size);
     }
 
     public void setFeedRate(double rate) {
@@ -295,11 +295,11 @@ public class JogService {
     }
 
     public double getStepSizeZ() {
-        return getSettings().getzJogStepSize();
+        return getSettings().getZJogStepSize();
     }
 
     public double getStepSizeABC() {
-        return getSettings().getabcJogStepSize();
+        return getSettings().getABCJogStepSize();
     }
 
     public void cancelJog() {

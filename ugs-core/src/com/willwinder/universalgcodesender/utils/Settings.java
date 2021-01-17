@@ -258,20 +258,20 @@ public class Settings {
         changed();
     }
 
-    public double getzJogStepSize() {
+    public double getZJogStepSize() {
         return zJogStepSize;
     }
 
-    public void setzJogStepSize(double zJogStepSize) {
+    public void setZJogStepSize(double zJogStepSize) {
         this.zJogStepSize = zJogStepSize;
         changed();
     }
 
-    public double getabcJogStepSize() {
+    public double getABCJogStepSize() {
         return abcJogStepSize;
     }
 
-    public void setabcJogStepSize(double abcJogStepSize) {
+    public void setABCJogStepSize(double abcJogStepSize) {
         this.abcJogStepSize = abcJogStepSize;
         changed();
     }
@@ -369,7 +369,7 @@ public class Settings {
 
             // Change
             setManualModeStepSize(manualModeStepSize * scaleUnits);
-            setzJogStepSize(zJogStepSize * scaleUnits);
+            setZJogStepSize(zJogStepSize * scaleUnits);
             setJogFeedRate(Math.round(jogFeedRate * scaleUnits));
         }
     }

@@ -144,7 +144,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     private void syncWithJogService() {
         Settings s = backend.getSettings();
         xyStepSizeSpinner.setValue(s.getManualModeStepSize());
-        zStepSizeSpinner.setValue(s.getzJogStepSize());
+        zStepSizeSpinner.setValue(s.getZJogStepSize());
         feedRateSpinner.setValue(s.getJogFeedRate());
     }
 
@@ -268,7 +268,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     private double getzStepSize() {
         double stepSize = zStepSizeSpinner.getValue();
-        backend.getSettings().setzJogStepSize(stepSize);
+        backend.getSettings().setZJogStepSize(stepSize);
         return stepSize;
     }
 
