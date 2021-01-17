@@ -187,22 +187,22 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     public void increaseStepActionPerformed() {
         jogService.increaseXYStepSize();
-        xyStepSizeSpinner.setValue(getxyStepSize());
+        xyStepSizeSpinner.setValue(getXYStepSize());
     }
 
     public void decreaseStepActionPerformed() {
         jogService.decreaseXYStepSize();
-        xyStepSizeSpinner.setValue(getxyStepSize());
+        xyStepSizeSpinner.setValue(getXYStepSize());
     }
 
     public void multiplyStepActionPerformed() {
         jogService.multiplyXYStepSize();
-        xyStepSizeSpinner.setValue(getxyStepSize());
+        xyStepSizeSpinner.setValue(getXYStepSize());
     }
 
     public void divideStepActionPerformed() {
         jogService.divideXYStepSize();
-        xyStepSizeSpinner.setValue(getxyStepSize());
+        xyStepSizeSpinner.setValue(getXYStepSize());
     }
 
     @Override
@@ -260,13 +260,13 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         return jogService.getUnits();
     }
 
-    private double getxyStepSize() {
+    private double getXYStepSize() {
         double stepSize = xyStepSizeSpinner.getValue();
         backend.getSettings().setManualModeStepSize(stepSize);
         return stepSize;
     }
 
-    private double getzStepSize() {
+    private double getZStepSize() {
         double stepSize = zStepSizeSpinner.getValue();
         backend.getSettings().setZJogStepSize(stepSize);
         return stepSize;

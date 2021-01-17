@@ -24,7 +24,7 @@ public class SettingsResource {
         Settings response = new Settings();
         response.setJogFeedRate(settings.getJogFeedRate());
         response.setJogStepSizeXY(settings.getManualModeStepSize());
-        response.setJogStepSizeZ(settings.getzJogStepSize());
+        response.setJogStepSizeZ(settings.getZJogStepSize());
         response.setPreferredUnits(settings.getPreferredUnits());
         return response;
     }
@@ -36,7 +36,7 @@ public class SettingsResource {
         com.willwinder.universalgcodesender.utils.Settings backendSettings = backendAPI.getSettings();
         backendSettings.setJogFeedRate(settings.getJogFeedRate());
         backendSettings.setManualModeStepSize(settings.getJogStepSizeXY());
-        backendSettings.setzJogStepSize(settings.getJogStepSizeZ());
+        backendSettings.setZJogStepSize(settings.getJogStepSizeZ());
         backendSettings.setPreferredUnits(settings.getPreferredUnits());
         backendAPI.applySettings(backendSettings);
     }
