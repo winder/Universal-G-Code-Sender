@@ -44,6 +44,7 @@ public class AvailableLanguages {
         availableLanguages.add(new Language("lt", "LT", "Lithuanian"));
         availableLanguages.add(new Language("nb", "NO", "Norwegian Bokmål"));
         availableLanguages.add(new Language("nn", "NO", "Norwegian Nynorsk"));
+        availableLanguages.add(new Language("fa", "IR", "Persian (Farsi)"));
         availableLanguages.add(new Language("pl", "PL", "Polish"));
         availableLanguages.add(new Language("pt", "BR", "Portuguese (Brazilian)"));
         availableLanguages.add(new Language("ru", "RU", "Russian"));

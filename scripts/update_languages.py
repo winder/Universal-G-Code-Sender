@@ -39,6 +39,7 @@ LANGUAGES = {
         'el': 'el_EL',
         'en': 'en_US',
         'es': 'es_ES',
+        'fa': 'fa_IR',
         'fr': 'fr_FR',
         'it': 'it_IT',
         'ja': 'jp_JA',
@@ -115,7 +116,7 @@ def checkForMissingMapping():
         if rec['code'] not in LANGUAGES:
             missing.append('%s(%s)' % (rec['name'], rec['code']))
 
-    if len(missing) is not 0:
+    if len(missing) != 0:
         print('\n%d missing file mappings: %s' %
               (len(missing), ', '.join(missing)))
         os._exit(1)
