@@ -1,5 +1,5 @@
 /*
-    Copyright 2018-2021 Will Winder
+    Copyright 2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,7 +21,6 @@ package com.willwinder.ugs.nbp.core.actions;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import static com.willwinder.universalgcodesender.model.Axis.Y;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -34,32 +33,34 @@ import org.openide.util.ImageUtilities;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
+import static com.willwinder.universalgcodesender.model.Axis.B;
+
 @ActionID(
-        category = LocalizingService.ResetYZeroCategory,
-        id = LocalizingService.ResetYZeroActionId)
+        category = LocalizingService.ResetBZeroCategory,
+        id = LocalizingService.ResetBZeroActionId)
 @ActionRegistration(
-        iconBase = ResetYCoordinateToZeroAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.ResetYZeroTitleKey,
+        iconBase = ResetBCoordinateToZeroAction.ICON_BASE,
+        displayName = "resources.MessagesBundle#" + LocalizingService.ResetBZeroTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(
-                path = LocalizingService.ResetYZeroWindowPath,
+                path = LocalizingService.ResetBZeroWindowPath,
                 position = 1030)
 })
-public final class ResetYCoordinateToZeroAction extends AbstractAction implements UGSEventListener {
+public final class ResetBCoordinateToZeroAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/resetzero_y.svg";
+    public static final String ICON_BASE = "resources/icons/resetzero_b.svg";
 
     private BackendAPI backend;
 
-    public ResetYCoordinateToZeroAction() {
+    public ResetBCoordinateToZeroAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
-        putValue("menuText", LocalizingService.ResetYZeroTitle);
-        putValue(NAME, LocalizingService.ResetYZeroTitle);
+        putValue("menuText", LocalizingService.ResetBZeroTitle);
+        putValue(NAME, LocalizingService.ResetBZeroTitle);
         setEnabled(isEnabled());
     }
 
@@ -78,7 +79,7 @@ public final class ResetYCoordinateToZeroAction extends AbstractAction implement
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            backend.resetCoordinateToZero(Y);
+            backend.resetCoordinateToZero(B);
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
         }

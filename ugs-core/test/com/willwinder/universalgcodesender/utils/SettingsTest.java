@@ -66,7 +66,7 @@ public class SettingsTest {
         assertTrue(target.useZStepSize());
         assertFalse(target.isVerboseOutputEnabled());
         assertNotNull(target.getVisualizerWindowSettings());
-        assertEquals(Double.valueOf(1), Double.valueOf(target.getzJogStepSize()));
+        assertEquals(Double.valueOf(1), Double.valueOf(target.getZJogStepSize()));
         assertFalse(target.isAutoStartPendant());
     }
 

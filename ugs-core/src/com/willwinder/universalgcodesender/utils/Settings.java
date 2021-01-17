@@ -1,5 +1,5 @@
 /*
-    Copyright 2014-2019 Will Winder
+    Copyright 2014-2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -56,7 +56,9 @@ public class Settings {
     private boolean manualModeEnabled = false;
     private double manualModeStepSize = 1;
     private boolean useZStepSize = true;
+    private boolean showABCStepSize = true;
     private double zJogStepSize = 1;
+    private double abcJogStepSize = 1;
     private double jogFeedRate = 10;
     private boolean scrollWindowEnabled = true;
     private boolean verboseOutputEnabled = false;
@@ -247,12 +249,30 @@ public class Settings {
         changed();
     }
 
-    public double getzJogStepSize() {
+    public boolean showABCStepSize() {
+        return this.showABCStepSize;
+    }
+
+    public void setShowABCStepSize(boolean showABCStepSize) {
+        this.showABCStepSize = showABCStepSize;
+        changed();
+    }
+
+    public double getZJogStepSize() {
         return zJogStepSize;
     }
 
-    public void setzJogStepSize(double zJogStepSize) {
+    public void setZJogStepSize(double zJogStepSize) {
         this.zJogStepSize = zJogStepSize;
+        changed();
+    }
+
+    public double getABCJogStepSize() {
+        return abcJogStepSize;
+    }
+
+    public void setABCJogStepSize(double abcJogStepSize) {
+        this.abcJogStepSize = abcJogStepSize;
         changed();
     }
 
@@ -349,7 +369,7 @@ public class Settings {
 
             // Change
             setManualModeStepSize(manualModeStepSize * scaleUnits);
-            setzJogStepSize(zJogStepSize * scaleUnits);
+            setZJogStepSize(zJogStepSize * scaleUnits);
             setJogFeedRate(Math.round(jogFeedRate * scaleUnits));
         }
     }

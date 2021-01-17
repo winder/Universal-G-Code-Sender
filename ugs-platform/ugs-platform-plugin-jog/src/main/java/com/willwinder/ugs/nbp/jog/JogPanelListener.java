@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -59,6 +59,13 @@ public interface JogPanelListener {
      * @param value the step size
      */
     void onStepSizeXYChanged(double value);
+
+    /**
+     * Is called when the step size of the ABC-axis is changed
+     *
+     * @param value the step size
+     */
+    void onStepSizeABCChanged(double value);
 
     /**
      * Is called when the feed rate is changed
