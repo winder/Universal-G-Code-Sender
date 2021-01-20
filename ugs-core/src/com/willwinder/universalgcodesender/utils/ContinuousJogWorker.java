@@ -115,11 +115,12 @@ public class ContinuousJogWorker implements ControllerListener {
         try {
             isRunning = true;
             final double stepSize = calculateStepSize();
+            final UnitUtils.Units units = jogService.getUnits();
             while (isRunning) {
                 // Ensure that we only send one command at the time, waiting for it to complete
                 if (!isWaitingForCommandComplete) {
                     isWaitingForCommandComplete = true;
-                    jogService.adjustManualLocation(new PartialPosition(x * stepSize, y * stepSize, z * stepSize, null));
+                    jogService.adjustManualLocation(new PartialPosition(x * stepSize, y * stepSize, z * stepSize, units));
                 } else {
                     Thread.sleep(JOG_COMMAND_INTERVAL);
                 }

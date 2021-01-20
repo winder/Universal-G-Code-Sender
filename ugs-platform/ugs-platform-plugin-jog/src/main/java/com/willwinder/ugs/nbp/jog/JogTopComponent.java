@@ -121,7 +121,10 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
 
     @Override
     public void UGSEvent(UGSEvent event) {
-        updateControls();
+        if (event.isStateChangeEvent()) {
+            updateControls();
+        }
+
         if (event.isSettingChangeEvent()) {
             updateSettings();
         }
