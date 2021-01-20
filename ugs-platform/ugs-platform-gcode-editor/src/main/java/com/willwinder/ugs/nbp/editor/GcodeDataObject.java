@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,16 +18,24 @@
 */
 package com.willwinder.ugs.nbp.editor;
 
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import org.openide.ErrorManager;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
+import org.openide.filesystems.FileAttributeEvent;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.MIMEResolver;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
 import org.openide.util.NbBundle.Messages;
 
+import java.io.File;
 import java.io.IOException;
 
 @Messages({
@@ -102,6 +110,49 @@ public class GcodeDataObject extends MultiDataObject {
     public GcodeDataObject(FileObject pf, MultiFileLoader loader) throws IOException {
         super(pf, loader);
         registerEditor(GcodeLanguageConfig.MIME_TYPE, true);
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+
+        try {
+            backend.setGcodeFile(new File(pf.getPath()));
+        } catch (Exception e) {
+            ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
+        }
+
+        pf.addFileChangeListener(new FileChangeListener() {
+            @Override
+            public void fileFolderCreated(FileEvent fe) {
+
+            }
+
+            @Override
+            public void fileDataCreated(FileEvent fe) {
+
+            }
+
+            @Override
+            public void fileChanged(FileEvent fe) {
+                try {
+                    backend.reloadGcodeFile();
+                } catch (Exception e) {
+                    ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
+                }
+            }
+
+            @Override
+            public void fileDeleted(FileEvent fe) {
+
+            }
+
+            @Override
+            public void fileRenamed(FileRenameEvent fe) {
+
+            }
+
+            @Override
+            public void fileAttributeChanged(FileAttributeEvent fe) {
+
+            }
+        });
     }
 
     @Override

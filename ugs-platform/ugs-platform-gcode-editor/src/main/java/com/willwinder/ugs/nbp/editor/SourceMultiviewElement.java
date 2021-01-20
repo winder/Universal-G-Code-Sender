@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,25 +19,10 @@
 package com.willwinder.ugs.nbp.editor;
 
 import com.willwinder.ugs.nbp.editor.renderer.EditorListener;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
-import org.openide.ErrorManager;
-import org.openide.cookies.EditorCookie;
-import org.openide.filesystems.FileAttributeEvent;
-import org.openide.filesystems.FileChangeListener;
-import org.openide.filesystems.FileEvent;
-import org.openide.filesystems.FileRenameEvent;
-import org.openide.filesystems.FileUtil;
-import org.openide.nodes.Node;
 import org.openide.util.Lookup;
-import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
-
-import javax.swing.*;
-import java.io.File;
-import java.util.Collection;
 
 @MultiViewElement.Registration(
         displayName = "#platform.window.editor.source",
@@ -49,64 +34,34 @@ import java.util.Collection;
 )
 public class SourceMultiviewElement extends MultiViewEditorElement {
 
-    private static EditorListener editorListener;
+    private static EditorListener editorListener = new EditorListener();
+    private final GcodeDataObject obj;
 
     public SourceMultiviewElement(Lookup lookup) {
         super(lookup);
-
-        if (editorListener == null) {
-           editorListener = new EditorListener();
-        }
-
-        FileUtil.addFileChangeListener(new FileChangeListener() {
-            @Override
-            public void fileFolderCreated(FileEvent fe) {
-
-            }
-
-            @Override
-            public void fileDataCreated(FileEvent fe) {
-
-            }
-
-            @Override
-            public void fileChanged(FileEvent fe) {
-                BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-                if (backend.getGcodeFile().getPath().equals(fe.getFile().getPath())) {
-                    try {
-                        backend.setGcodeFile(new File(fe.getFile().getPath()));
-                    } catch (Exception e) {
-                        ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
-                    }
-                }
-            }
-
-            @Override
-            public void fileDeleted(FileEvent fe) {
-
-            }
-
-            @Override
-            public void fileRenamed(FileRenameEvent fe) {
-
-            }
-
-            @Override
-            public void fileAttributeChanged(FileAttributeEvent fe) {
-
-            }
-        });
+        obj = lookup.lookup(GcodeDataObject.class);
     }
 
     @Override
     public void componentActivated() {
         super.componentActivated();
-        SwingUtilities.invokeLater(() -> getEditorPane().addCaretListener(editorListener));
+        editorListener.reset();
+        if(getEditorPane() != null) {
+           getEditorPane().addCaretListener(editorListener);
+        }
     }
 
     @Override
     public void componentClosed() {
-        getEditorPane().removeCaretListener(editorListener);
+        if(getEditorPane() != null) {
+            getEditorPane().removeCaretListener(editorListener);
+        }
+        editorListener.reset();
         super.componentClosed();
+    }
+
+    @Override
+    public Lookup getLookup() {
+        return obj.getLookup();
     }
 }

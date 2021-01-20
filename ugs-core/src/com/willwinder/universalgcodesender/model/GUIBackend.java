@@ -427,6 +427,13 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         processGcodeFile();
     }
 
+    @Override
+    public void reloadGcodeFile() throws Exception {
+        logger.log(Level.INFO, "Reloading gcode file.");
+        this.sendUGSEvent(new UGSEvent(FileState.OPENING_FILE, gcodeFile.getAbsolutePath()), false);
+        processGcodeFile();
+    }
+
     private void processGcodeFile() throws Exception {
         this.processedGcodeFile = null;
 
@@ -848,7 +855,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             logger.info("Start preprocessing");
             long start = System.currentTimeMillis();
             if (this.processedGcodeFile == null || forceReprocess) {
-                gcp.reset();
+                gcodeParser.reset();
 
                 String name = startFile.getName();
 
@@ -865,7 +872,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                 }
 
                 // Store gcode file stats.
-                GcodeStats gs = gcp.getCurrentStats();
+                GcodeStats gs = gcodeParser.getCurrentStats();
                 this.settings.setFileStats(new FileStats(
                     gs.getMin(), gs.getMax(), gs.getCommandCount()));
             }

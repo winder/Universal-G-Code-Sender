@@ -35,8 +35,20 @@ import java.util.List;
  * API used by front ends to interface with the model.
  */
 public interface BackendAPI extends BackendAPIReadOnly {
-    // Config options
+    /**
+     * Sets and loads a new gcode file, resets the parser and its processors.
+     *
+     * @param file the file to load
+     * @throws Exception
+     */
     void setGcodeFile(File file) throws Exception;
+
+    /**
+     * Reloads the currently loaded gcode file. This will retain the current parser and its processors.
+     *
+     * @throws Exception
+     */
+    void reloadGcodeFile() throws Exception;
 
     /**
      * Returns a list of files from the configured workspace directory
