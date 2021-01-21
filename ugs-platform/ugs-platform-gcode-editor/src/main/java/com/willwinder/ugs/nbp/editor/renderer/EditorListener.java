@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -31,6 +31,7 @@ import javax.swing.event.CaretListener;
 import javax.swing.text.Element;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Listens for editor events to notify visualizer, puts changes on the
@@ -43,21 +44,7 @@ public class EditorListener implements CaretListener {
     private EditorPosition position = null;
 
     public EditorListener() {
-        GcodeRenderer gcodeRenderer = Lookup.getDefault().lookup(GcodeRenderer.class);
-        GcodeModel gcodeModel = null;
-        for (Renderable renderable : gcodeRenderer.getRenderables()) {
-            if (renderable.getClass() == GcodeModel.class) {
-                gcodeModel = (GcodeModel) renderable;
-            }
-        }
-
-        if (gcodeModel != null) {
-            highlight = new Highlight(gcodeModel, Localization.getString("platform.visualizer.renderable.highlight"));
-            RenderableUtils.registerRenderable(highlight);
-
-            position = new EditorPosition(gcodeModel, Localization.getString("platform.visualizer.renderable.editor-position"));
-            RenderableUtils.registerRenderable(position);
-        }
+        reset();
     }
 
     @Override
@@ -74,8 +61,39 @@ public class EditorListener implements CaretListener {
                 selectedLines.add(i);
             }
 
-            highlight.setHighlightedLines(selectedLines);
-            position.setLineNumber(endIndex);
+            if (highlight != null) {
+                highlight.setHighlightedLines(selectedLines);
+            }
+
+            if (position != null) {
+                position.setLineNumber(endIndex);
+            }
+        }
+    }
+
+    public void reset() {
+        GcodeRenderer gcodeRenderer = Lookup.getDefault().lookup(GcodeRenderer.class);
+        GcodeModel gcodeModel = null;
+        for (Renderable renderable : gcodeRenderer.getRenderables()) {
+            if (renderable.getClass() == GcodeModel.class) {
+                gcodeModel = (GcodeModel) renderable;
+            }
+        }
+
+        if (gcodeModel != null) {
+            if (highlight != null) {
+                highlight.setHighlightedLines(Collections.emptyList());
+            } else {
+                highlight = new Highlight(gcodeModel, Localization.getString("platform.visualizer.renderable.highlight"));
+                RenderableUtils.registerRenderable(highlight);
+            }
+
+            if (position != null) {
+                position.setLineNumber(-1);
+            } else {
+                position = new EditorPosition(gcodeModel, Localization.getString("platform.visualizer.renderable.editor-position"));
+                RenderableUtils.registerRenderable(position);
+            }
         }
     }
 }

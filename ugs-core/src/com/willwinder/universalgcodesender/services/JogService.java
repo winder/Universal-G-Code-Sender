@@ -214,6 +214,7 @@ public class JogService {
             backend.adjustManualLocation(distance.getPositionIn(units), feedRate);
         } catch (Exception e) {
             // Not much we can do
+            logger.log(Level.SEVERE, "Could not jog the machine", e);
         }
     }
 

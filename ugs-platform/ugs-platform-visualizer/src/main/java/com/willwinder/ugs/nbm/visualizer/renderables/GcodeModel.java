@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,8 +50,7 @@ import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.*;
 import com.willwinder.ugs.nbm.visualizer.shared.RotationService;
-import com.willwinder.universalgcodesender.model.Point3d;
-import com.willwinder.universalgcodesender.types.PointSegment;
+
 import java.util.ArrayList;
 
 /**
@@ -135,7 +135,7 @@ public class GcodeModel extends Renderable {
     }
 
     public List<LineSegment> getLineList() {
-        return this.pointList;
+        return this.pointList != null ? this.pointList : Collections.emptyList();
     }
 
     @Override

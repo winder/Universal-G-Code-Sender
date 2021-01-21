@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mode PUBLIC "-//NetBeans//DTD Mode Properties 2.1//EN" "http://www.netbeans.org/dtds/mode-properties2_1.dtd">
 <mode version="2.4">
-    <name unique="editor"/>
-    <kind type="editor"/>
+    <name unique="editor_secondary"/>
+    <kind type="view"/>
     <state type="joined"/>
     <constraints>
         <path orientation="horizontal" number="100" weight="0.43"/>
+        <path orientation="vertical" number="20" weight="0.7"/>
     </constraints>
     <bounds x="0" y="0" width="0" height="0"/>
     <frame state="0"/>

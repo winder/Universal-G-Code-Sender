@@ -52,7 +52,7 @@ import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 @TopComponent.Description(
         preferredID = "VisualizerTopComponent"
 )
-@TopComponent.Registration(mode = "editor", openAtStartup = true)
+@TopComponent.Registration(mode = "editor_secondary", openAtStartup = true)
 @ActionID(category = Visualizer2TopComponent.VisualizerCategory, id = Visualizer2TopComponent.VisualizerActionId)
 @ActionReference(path = Visualizer2TopComponent.VisualizerWindowPath)
 @TopComponent.OpenActionRegistration(

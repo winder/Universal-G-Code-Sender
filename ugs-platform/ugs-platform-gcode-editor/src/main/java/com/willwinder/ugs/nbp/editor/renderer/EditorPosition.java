@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -66,7 +66,7 @@ public class EditorPosition extends Renderable {
 
     @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
-        if (position == null) {
+        if (position == null || GQ == null) {
             return;
         }
 
@@ -85,6 +85,11 @@ public class EditorPosition extends Renderable {
     }
 
     public void setLineNumber(int lineNumber) {
+        if(lineNumber < 0) {
+            position = null;
+            return;
+        }
+
         model.getLineList().stream()
                 .filter(lineSegment -> lineSegment.getLineNumber() == lineNumber + 1)
                 .findFirst()
