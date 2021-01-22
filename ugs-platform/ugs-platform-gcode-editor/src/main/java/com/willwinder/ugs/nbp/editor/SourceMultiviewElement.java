@@ -19,10 +19,15 @@
 package com.willwinder.ugs.nbp.editor;
 
 import com.willwinder.ugs.nbp.editor.renderer.EditorListener;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
+import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
+
+import java.io.File;
 
 @MultiViewElement.Registration(
         displayName = "#platform.window.editor.source",
@@ -36,24 +41,44 @@ public class SourceMultiviewElement extends MultiViewEditorElement {
 
     private static EditorListener editorListener = new EditorListener();
     private final GcodeDataObject obj;
+    private final GcodeFileListener fileListener;
 
     public SourceMultiviewElement(Lookup lookup) {
         super(lookup);
         obj = lookup.lookup(GcodeDataObject.class);
+        fileListener = new GcodeFileListener();
+    }
+
+    @Override
+    public void componentOpened() {
+        super.componentOpened();
+
+        // Load the file when the editor is active
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        try {
+            if (backend.getGcodeFile() == null || !backend.getGcodeFile().getAbsolutePath().equalsIgnoreCase(obj.getPrimaryFile().getPath())) {
+                backend.setGcodeFile(new File((obj.getPrimaryFile().getPath())));
+            }
+        } catch (Exception e) {
+            ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
+        }
+
+        obj.getPrimaryFile().addFileChangeListener(fileListener);
     }
 
     @Override
     public void componentActivated() {
         super.componentActivated();
         editorListener.reset();
-        if(getEditorPane() != null) {
-           getEditorPane().addCaretListener(editorListener);
+        if (getEditorPane() != null) {
+            getEditorPane().addCaretListener(editorListener);
         }
     }
 
     @Override
     public void componentClosed() {
-        if(getEditorPane() != null) {
+        obj.getPrimaryFile().removeFileChangeListener(fileListener);
+        if (getEditorPane() != null) {
             getEditorPane().removeCaretListener(editorListener);
         }
         editorListener.reset();

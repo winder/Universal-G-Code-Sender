@@ -16,7 +16,7 @@
 
     <properties>
       <maven.build.timestamp.format>yyyy.MM.dd.HH.mm</maven.build.timestamp.format>
-      <netbeans.version>RELEASE120-1</netbeans.version>
+      <netbeans.version>RELEASE122</netbeans.version>
       <ugs.app.title>Universal Gcode Platform ${project.version}</ugs.app.title>
       <ugs.appbundle.name>Universal Gcode Platform</ugs.appbundle.name>
 
