@@ -25,6 +25,7 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -103,6 +104,13 @@ public final class MacroService {
         public MacroAction(BackendAPI b, Macro macro) {
             backend = b;
             this.macro = macro;
+            backend.addUGSEventListener(this::onEvent);
+        }
+
+        private void onEvent(UGSEvent event) {
+            if (event != null && event.isStateChangeEvent()) {
+                EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+            }
         }
 
         @Override
