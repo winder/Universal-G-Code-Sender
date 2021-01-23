@@ -46,6 +46,8 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 	private OutputStream bufOut;
 	private InputStreamReader inStream;
 	private Thread replyThread;
+	private byte[] receiveBuffer = new byte[1492];
+	private int receiveBufferCnt = 0;
 
 	@Override
 	public void setUri(String uri) {
@@ -155,8 +157,29 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		while(!Thread.interrupted() && !client.isClosed())
 		{
 			try {
-				if(inStream.ready() && (resp = bufIn.readLine()) != null) {
-					responseMessageHandler.handleResponse(resp + "\n");
+				//int ch = bufIn.read();
+				//if (ch != -1) {
+				//	receiveBuffer[receiveBufferCnt] = (byte)ch;
+				//	receiveBufferCnt++;
+				//	if (receiveBufferCnt >= 1492) {
+				//		receiveBufferCnt = 0;
+				//	} else {
+				//		if ((ch == '\r') || (ch == '\n')) {
+				//			resp = new String(receiveBuffer, 0, receiveBufferCnt);
+				//			responseMessageHandler.handleResponse(resp + "\n");
+				//			receiveBufferCnt = 0;
+				//		}
+				//	}
+				//}
+				if (inStream.ready()) {
+					while (true) {
+						resp = bufIn.readLine();
+						if (resp != null) {
+							responseMessageHandler.handleResponse(resp + "\n");
+						} else {
+							break;
+						}
+					}
 				}
 			} catch (SocketException e) {
 				e.printStackTrace();
