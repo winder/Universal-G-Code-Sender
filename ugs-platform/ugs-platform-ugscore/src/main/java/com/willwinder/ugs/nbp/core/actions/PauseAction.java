@@ -50,7 +50,7 @@ import java.awt.event.ActionEvent;
 })
 public final class PauseAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/pause.png";
+    public static final String ICON_BASE = "resources/icons/pause.svg";
     private BackendAPI backend;
 
     public PauseAction() {

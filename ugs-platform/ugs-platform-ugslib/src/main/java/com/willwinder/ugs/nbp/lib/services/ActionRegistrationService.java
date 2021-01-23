@@ -28,7 +28,13 @@ import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -42,10 +48,11 @@ public class ActionRegistrationService {
     private static final String SHADOW = "shadow";
     private static final Logger LOGGER = Logger.getLogger(ActionRegistrationService.class.getSimpleName());
 
-    private Map<String, List<ActionReference>> actionCache = initCategoryActions();
+    private Map<String, List<ActionReference>> actionCache = new HashMap<>();
 
     /**
      * Extract action ID from the instance file path. For example 'com-willwinder-ugs-nbp-editor-actions-RunFromHere' from 'Action/Machine/com-willwinder-ugs-nbp-editor-actions-RunFromHere.instance'.
+     *
      * @param path full path to the action instance file.
      */
     private String extractId(String path) {
@@ -57,6 +64,7 @@ public class ActionRegistrationService {
 
     /**
      * Extract the action path from the instance file path. For example 'Machine/Jog' from 'Action/Machine/Jog/com-willwinder-ugs-nbp-editor-actions-RunFromHere.instance'.
+     *
      * @param path full path to the action instance file.
      */
     private String extractCategory(String path) {
@@ -139,6 +147,8 @@ public class ActionRegistrationService {
                 obj.setAttribute("originalFile", originalFile);
             }
         }
+
+        invalidateCache();
     }
 
     /**
@@ -167,6 +177,7 @@ public class ActionRegistrationService {
             in.refresh();
         }
 
+        invalidateCache();
         return in;
     }
 
@@ -198,41 +209,40 @@ public class ActionRegistrationService {
             }
 
             in.refresh();
+            invalidateCache();
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
     }
 
     public Optional<ActionReference> lookupAction(String category, String name) {
+        Map<String, List<ActionReference>> categoryActions = getCategoryActions();
+
         String key = "Actions/" + category;
         if (key != null) {
-            if(actionCache.containsKey(key)) {
-                return actionCache.get(key).stream()
+            if (categoryActions.containsKey(key)) {
+                return categoryActions.get(key).stream()
                         .filter(action -> action.getId().contains(name))
                         .findFirst();
             }
             return Optional.empty();
         }
 
-        return actionCache.values().stream().flatMap(Collection::stream)
+        return categoryActions.values().stream().flatMap(Collection::stream)
                 .filter(action -> action.getId().contains(name))
                 .findFirst();
     }
 
-    /**
-     * Returns a map with all action categories together with their list of actions.
-     *
-     * @return a map with all actions.
-     */
-    private Map<String, List<ActionReference>> initCategoryActions() {
-        FileObject rootFileObject = FileUtil.getConfigFile("Actions/");
-        return getCategoryActions(rootFileObject);
-    }
 
     /**
      * Get actions organized by category.
      */
     public Map<String, List<ActionReference>> getCategoryActions() {
+        if(actionCache.isEmpty()) {
+            FileObject rootFileObject = FileUtil.getConfigFile("Actions/");
+            actionCache = getCategoryActions(rootFileObject);
+        }
+
         return actionCache;
     }
 
@@ -311,5 +321,12 @@ public class ActionRegistrationService {
         }
 
         return getActionFromFileObject(configFile);
+    }
+
+    /**
+     * Invalidates the action cache and forces to reread all actions
+     */
+    private void invalidateCache() {
+        actionCache = new HashMap<>();
     }
 }

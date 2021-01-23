@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="svg2"
+   viewBox="0 0 31.999999 31.999999"
+   height="32"
+   width="32"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="resetzero_z32.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1260"
+     inkscape:window-height="723"
+     id="namedview13"
+     showgrid="false"
+     units="px"
+     inkscape:zoom="3.76"
+     inkscape:cx="-56.816925"
+     inkscape:cy="-11.372631"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="g4152" />
+  <defs
+     id="defs4" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     style="display:none"
+     id="layer2"
+     transform="translate(0,-145.16535)">
+    <rect
+       y="-6.9250491e-05"
+       x="0"
+       height="177.16536"
+       width="177.16536"
+       id="rect4140"
+       style="opacity:0.57300002;fill:#353a40;fill-opacity:1;stroke:#353a40;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  </g>
+  <g
+     style="display:inline"
+     transform="matrix(0.20655913,0,0,0.20655913,-2.412087,-183.07743)"
+     id="layer1">
+    <g
+       transform="translate(-16.399929,-9.1155035)"
+       id="g4152">
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;line-height:125%;font-family:opensans;-inkscape-font-specification:opensans;letter-spacing:0px;word-spacing:0px;fill:#353a40;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
+         x="24.495771"
+         y="1032.1235"
+         id="text4136"
+         sodipodi:linespacing="125%"><tspan
+           id="tspan4138"
+           x="24.495771"
+           y="1032.1235"
+           style="font-size:187.49998474px;fill:#353a40;fill-opacity:1;">Z</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#353a40;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
+         x="142.85715"
+         y="1049.505"
+         id="text4148"
+         sodipodi:linespacing="125%"><tspan
+           id="tspan4150"
+           x="142.85715"
+           y="1049.505"
+           style="font-size:59.99999237px;fill:#353a40;fill-opacity:1;">0</tspan></text>
+    </g>
+  </g>
+</svg>

@@ -76,6 +76,7 @@ public class JoystickServiceImpl implements JoystickService {
      * A version number for the settings so that we can handle version changes
      */
     private static final int SETTINGS_VERSION = 1;
+    private static final int MAX_NUM_CONTROLLERS = 4;
 
     private final ControllerManager controllerManager;
     private final JoystickState joystickState;
@@ -90,7 +91,7 @@ public class JoystickServiceImpl implements JoystickService {
 
     public JoystickServiceImpl() {
         joystickReadThread = Executors.newSingleThreadExecutor();
-        controllerManager = new ControllerManager();
+        controllerManager = new ControllerManager(MAX_NUM_CONTROLLERS, "/com/willwinder/ugs/nbp/joystick/gamecontrollerdb.txt");
         joystickState = new JoystickState();
         listeners = new HashSet<>();
 
@@ -142,15 +143,31 @@ public class JoystickServiceImpl implements JoystickService {
         if (isRunning) {
             return;
         }
+
         controllerManager.initSDLGamepad();
+        int numControllers = controllerManager.getNumControllers();
+        if (numControllers > 0) {
+            try {
+                LOGGER.info(String.format("Found %d gamepad controllers, will use the first one with the name \"%s\"", numControllers, controllerManager.getControllerIndex(0).getName()));
+            } catch (ControllerUnpluggedException e) {
+                LOGGER.severe("Couldn't get the name of the first gamepad controller");
+            }
+        } else {
+            LOGGER.info("Couldn't find any gamepad controllers");
+        }
+
         joystickReadThread.execute(this::mainLoop);
     }
 
     @Override
     public void destroy() {
         isRunning = false;
-        if (controllerManager != null && controllerManager.getNumControllers() > 0) {
-            controllerManager.quitSDLGamepad();
+        try {
+            if (controllerManager != null && controllerManager.getNumControllers() > 0) {
+                controllerManager.quitSDLGamepad();
+            }
+        } catch (IllegalStateException e) {
+            LOGGER.fine("Couldn't release the joystick manager: " + e.getMessage());
         }
     }
 
