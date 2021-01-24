@@ -1,11 +1,10 @@
-package com.willwinder.ugs.designer.logic.controls;
+package com.willwinder.ugs.nbp.designer.logic.controls;
 
-import com.willwinder.ugs.designer.gui.Colors;
-import com.willwinder.ugs.designer.logic.events.MouseShapeEvent;
-import com.willwinder.ugs.designer.logic.events.ShapeEvent;
-import com.willwinder.ugs.designer.logic.events.ShapeEventType;
-import com.willwinder.ugs.designer.entities.Entity;
-
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.gui.Colors;
+import com.willwinder.ugs.nbp.designer.logic.events.MouseShapeEvent;
+import com.willwinder.ugs.nbp.designer.logic.events.ShapeEvent;
+import com.willwinder.ugs.nbp.designer.logic.events.ShapeEventType;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -26,7 +25,7 @@ public class MoveControl extends Control {
     }
 
     @Override
-    public java.awt.Shape getShape() {
+    public Shape getShape() {
         return getParent().getBoundingBox();
     }
 

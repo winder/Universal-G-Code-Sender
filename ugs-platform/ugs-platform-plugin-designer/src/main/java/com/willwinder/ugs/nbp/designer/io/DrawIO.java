@@ -1,23 +1,17 @@
-package com.willwinder.ugs.designer.logic.io;
+package com.willwinder.ugs.nbp.designer.io;
 
 
-
-import com.willwinder.ugs.designer.gui.Drawing;
-import com.willwinder.ugs.designer.logic.Controller;
-import com.willwinder.ugs.designer.entities.Ellipse;
-import com.willwinder.ugs.designer.entities.Entity;
-import com.willwinder.ugs.designer.entities.Rectangle;
+import com.willwinder.ugs.nbp.designer.entities.Ellipse;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.Rectangle;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 public class DrawIO {
 

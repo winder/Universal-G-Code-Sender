@@ -1,15 +1,15 @@
-package com.willwinder.ugs.designer.gui;
+package com.willwinder.ugs.nbp.designer.gui;
 
 
-import com.willwinder.ugs.designer.gcode.SimpleGcodeRouter;
-import com.willwinder.ugs.designer.gcode.path.GcodePath;
-import com.willwinder.ugs.designer.gcode.toolpaths.SimpleOutline;
-import com.willwinder.ugs.designer.gcode.toolpaths.SimplePocket;
-import com.willwinder.ugs.designer.logic.Controller;
-import com.willwinder.ugs.designer.logic.controls.Control;
-import com.willwinder.ugs.designer.io.BatikIO;
-import com.willwinder.ugs.designer.io.DrawIO;
-import com.willwinder.ugs.designer.cut.CutType;
+import com.willwinder.ugs.nbp.designer.cut.CutType;
+import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
+import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
+import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimpleOutline;
+import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimplePocket;
+import com.willwinder.ugs.nbp.designer.io.BatikIO;
+import com.willwinder.ugs.nbp.designer.io.DrawIO;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.controls.Control;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;

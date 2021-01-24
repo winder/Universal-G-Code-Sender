@@ -1,9 +1,9 @@
-package com.willwinder.ugs.designer.entities;
+package com.willwinder.ugs.nbp.designer.entities;
 
 
-import com.willwinder.ugs.designer.logic.events.ShapeEvent;
-import com.willwinder.ugs.designer.logic.events.ShapeListener;
-import com.willwinder.ugs.designer.cut.CutSettings;
+import com.willwinder.ugs.nbp.designer.cut.CutSettings;
+import com.willwinder.ugs.nbp.designer.logic.events.ShapeEvent;
+import com.willwinder.ugs.nbp.designer.logic.events.ShapeListener;
 
 import java.awt.Rectangle;
 import java.awt.*;
@@ -56,7 +56,7 @@ public abstract class Entity {
     public List<Entity> includes(Point2D p) {
         ArrayList<Entity> shapes = new ArrayList<>();
 
-        java.awt.Shape transformedShape = getBounds();
+        Shape transformedShape = getBounds();
         if (transformedShape.contains(p)) {
             shapes.add(this);
             return shapes;
@@ -80,11 +80,11 @@ public abstract class Entity {
 
     public abstract void setSize(Point2D s);
 
-    public abstract java.awt.Shape getShape();
+    public abstract Shape getShape();
 
-    public abstract java.awt.Shape getRawShape();
+    public abstract Shape getRawShape();
 
-    public java.awt.Shape getBoundingBox() {
+    public Shape getBoundingBox() {
         return getBounds();
     }
 

@@ -47,7 +47,6 @@
             <version>1.13</version>
         </dependency>
 
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ugs-platform-ugslib</artifactId>

@@ -1,6 +1,6 @@
-package com.willwinder.ugs.designer.entities;
+package com.willwinder.ugs.nbp.designer.entities;
 
-import com.willwinder.ugs.designer.cut.CutType;
+import com.willwinder.ugs.nbp.designer.cut.CutType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.awt.*;
@@ -28,17 +28,17 @@ public class Rectangle extends Entity {
     }
 
     @Override
-    public java.awt.Shape getShape() {
+    public Shape getShape() {
         return getGlobalTransform().createTransformedShape(shape);
     }
 
     @Override
-    public java.awt.Shape getRawShape() {
+    public Shape getRawShape() {
         return shape;
     }
 
 
-    public java.awt.Shape getBoundingBox() {
+    public Shape getBoundingBox() {
         java.awt.Rectangle bounds = shape.getBounds();
         bounds.grow(5, 5);
         return getGlobalTransform().createTransformedShape(bounds);

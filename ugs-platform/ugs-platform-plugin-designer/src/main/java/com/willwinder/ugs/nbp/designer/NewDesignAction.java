@@ -10,6 +10,8 @@ import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.cookies.OpenCookie;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.ImageUtilities;
@@ -60,9 +62,9 @@ public final class NewDesignAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            File file = new File(Files.createTempDir(), "_ugs_editor.ugs");
-            IOUtils.write("", new FileWriter(file));
-            DataObject.find(FileUtil.toFileObject(file)).
+            FileSystem fs = FileUtil.createMemoryFileSystem();
+            FileObject fob = fs.getRoot().createData("unnamed", "ugsd");
+            DataObject.find(fob).
                     getLookup().lookup(OpenCookie.class).open();
         } catch (IOException ex) {
             ex.printStackTrace();

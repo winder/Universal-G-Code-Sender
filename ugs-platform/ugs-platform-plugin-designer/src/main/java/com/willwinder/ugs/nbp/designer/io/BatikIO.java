@@ -1,13 +1,9 @@
-package com.willwinder.ugs.designer.logic.io;
+package com.willwinder.ugs.nbp.designer.io;
 
 
-import com.willwinder.ugs.designer.logic.Controller;
-
-import com.willwinder.ugs.designer.entities.Ellipse;
-import com.willwinder.ugs.designer.entities.Group;
-import com.willwinder.ugs.designer.entities.Path;
-import com.willwinder.ugs.designer.entities.Rectangle;
-import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.Rectangle;
+import com.willwinder.ugs.nbp.designer.entities.*;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
 import org.apache.batik.ext.awt.geom.ExtendedPathIterator;
 import org.apache.batik.gvt.CompositeGraphicsNode;
@@ -28,6 +24,9 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.logging.Logger;
 
+/**
+ *
+ */
 public class BatikIO implements GVTTreeBuilderListener, Reader {
 
     private JSVGCanvas svgCanvas;
@@ -61,7 +60,7 @@ public class BatikIO implements GVTTreeBuilderListener, Reader {
                 }
             } else if (graphicsNode instanceof ShapeNode) {
                 ShapeNode shapeNode = (ShapeNode) graphicsNode;
-                java.awt.Shape shape = shapeNode.getShape();
+                Shape shape = shapeNode.getShape();
                 Entity createdShape = null;
 
                 if (shape instanceof ExtendedGeneralPath) {

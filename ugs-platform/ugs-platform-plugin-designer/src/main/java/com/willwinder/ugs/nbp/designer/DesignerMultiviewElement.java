@@ -29,10 +29,10 @@ import com.willwinder.ugs.designer.gui.SelectionSettings;
 import com.willwinder.ugs.designer.gui.ToolBox;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.controls.Control;
-import com.willwinder.ugs.designer.logic.io.BatikIO;
+import com.willwinder.ugs.designer.io.BatikIO;
 import com.willwinder.ugs.designer.logic.selection.SelectionEvent;
 import com.willwinder.ugs.designer.logic.selection.SelectionListener;
-import com.willwinder.ugs.nbp.designer.filetype.SvgDataObject;
+import com.willwinder.ugs.nbp.designer.filetype.UgsDataObject;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.apache.commons.io.IOUtils;
@@ -41,16 +41,9 @@ import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
-import org.openide.filesystems.FileAttributeEvent;
-import org.openide.filesystems.FileChangeListener;
-import org.openide.filesystems.FileEvent;
-import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileUtil;
-import org.openide.loaders.DataObject;
 import org.openide.util.Lookup;
-import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -69,9 +62,9 @@ import java.util.stream.Collectors;
 @MultiViewElement.Registration(
         displayName = "#platform.window.editor",
         iconBase = "com/willwinder/ugs/nbp/designer/edit.png",
-        mimeType = {"application/x-svg", "application/x-ugs"},
+        mimeType = {"application/x-ugs"},
         persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
-        preferredID = "Svg",
+        preferredID = "Ugs",
         position = 1000
 )
 public class DesignerMultiviewElement extends JPanel implements MultiViewElement, SelectionListener {
@@ -90,43 +83,9 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
 
     public DesignerMultiviewElement(Lookup lookup) {
         this.lookup = lookup;
-        SvgDataObject obj = lookup.lookup(SvgDataObject.class);
+        UgsDataObject obj = lookup.lookup(UgsDataObject.class);
         assert obj != null;
         file = FileUtil.toFile(obj.getPrimaryFile());
-
-
-        FileUtil.addFileChangeListener(new FileChangeListener() {
-            @Override
-            public void fileFolderCreated(FileEvent fe) {
-
-            }
-
-            @Override
-            public void fileDataCreated(FileEvent fe) {
-
-            }
-
-            @Override
-            public void fileChanged(FileEvent fe) {
-
-            }
-
-            @Override
-            public void fileDeleted(FileEvent fe) {
-
-            }
-
-            @Override
-            public void fileRenamed(FileRenameEvent fe) {
-
-            }
-
-            @Override
-            public void fileAttributeChanged(FileAttributeEvent fe) {
-
-            }
-        });
-
         initialize();
 
         if (StringUtils.endsWithIgnoreCase(file.getName(), "svg")) {
@@ -157,26 +116,7 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
         add(selectionSettings, BorderLayout.EAST);
 
         controller.getSelectionManager().addSelectionListener(this);
-
-        /*MenuListener mainMenuListener = new MenuListener(controller);
-        JMenuBar mainMenu = new MainMenu(mainMenuListener);
-        this.setJMenuBar(mainMenu);
-
-        setVisible(true);*/
         controller.newDrawing();
-    }
-
-    /**
-     * Updates the GUI to show the Drawing instance that is currently controlled
-     * by the DrawingController.
-     */
-    public void updateDrawing() {
-
-        drawingContainer.setDrawing(controller.getDrawing());
-        /*scrollpane.setPreferredSize(new Dimension(drawingContainer
-                .getPreferredSize().width + 100, drawingContainer
-                .getPreferredSize().height + 100));*/
-
     }
 
     @Override
@@ -237,11 +177,6 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
     @Override
     public void setMultiViewCallback(MultiViewElementCallback callback) {
         this.callback = callback;
-
-        Mode mode = WindowManager.getDefault().findMode("editor_secondary");
-        if (mode != null) {
-            mode.dockInto(callback.getTopComponent());
-        }
         callback.getTopComponent().setDisplayName(file.getName());
     }
 

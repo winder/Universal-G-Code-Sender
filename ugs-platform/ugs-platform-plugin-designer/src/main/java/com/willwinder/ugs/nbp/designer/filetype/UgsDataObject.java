@@ -32,7 +32,7 @@ import java.io.IOException;
 @MIMEResolver.ExtensionRegistration(
         displayName = "UGS design",
         mimeType = "application/x-ugs",
-        extension = {"ugs", "UGS"},
+        extension = {"ugsd", "UGSD"},
         position = 1
 )
 @DataObject.Registration(

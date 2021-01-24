@@ -1,4 +1,4 @@
-package com.willwinder.ugs.designer.actions;
+package com.willwinder.ugs.nbp.designer.actions;
 
 import java.util.Stack;
 
