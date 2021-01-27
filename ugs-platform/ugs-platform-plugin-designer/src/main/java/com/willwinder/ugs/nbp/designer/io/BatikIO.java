@@ -76,7 +76,7 @@ public class BatikIO implements GVTTreeBuilderListener, Reader {
                 if(createdShape != null) {
                     createdShape.setParent(parent);
                     createdShape.setTransform(groupTransform);
-                    parent.add(createdShape);
+                    parent.addChild(createdShape);
                 }
             }
         }

@@ -49,7 +49,7 @@ public class Drawing extends JPanel implements Iterable<Entity> {
 
     public void insertShape(Entity s) {
         s.setParent(root);
-        root.add(s);
+        root.addChild(s);
     }
 
     @Override
@@ -102,6 +102,6 @@ public class Drawing extends JPanel implements Iterable<Entity> {
     }
 
     public void removeShape(Entity s) {
-        root.remove(s);
+        root.removeChild(s);
     }
 }

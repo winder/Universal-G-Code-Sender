@@ -1,9 +1,8 @@
 package com.willwinder.ugs.nbp.designer.entities;
 
-
 import com.willwinder.ugs.nbp.designer.cut.CutSettings;
-import com.willwinder.ugs.nbp.designer.logic.events.ShapeEvent;
-import com.willwinder.ugs.nbp.designer.logic.events.ShapeListener;
+import com.willwinder.ugs.nbp.designer.logic.events.EntityEvent;
+import com.willwinder.ugs.nbp.designer.logic.events.EntityListener;
 
 import java.awt.Rectangle;
 import java.awt.*;
@@ -23,19 +22,34 @@ public abstract class Entity {
     private CutSettings cutSettings = new CutSettings();
     private List<Entity> shapes = new ArrayList<>();
     private AffineTransform transform = new AffineTransform();
-    private List<ShapeListener> listeners = new ArrayList<>();
 
     private double rotation = 0;
     private Point2D movementPoint = new Point2D.Double();
 
+    private AffineTransform positionTransform = new AffineTransform();
     private AffineTransform rotationTransform = new AffineTransform();
     private AffineTransform movementTransform = new AffineTransform();
+
+
+    private List<EntityListener> listeners = new ArrayList<>();
+    public void notifyEvent(EntityEvent entityEvent) {
+        listeners.forEach(entityListener -> entityListener.onEvent(entityEvent));
+    }
+
+    public void addListener(EntityListener entityListener) {
+        this.listeners.add(entityListener);
+    }
+
+    public void removeListener(EntityListener entityListener) {
+        this.listeners.remove(entityListener);
+    }
+
 
     public Entity() {
     }
 
-    public void notifyShapeEvent(ShapeEvent shapeEvent) {
-        listeners.forEach(shapeListener -> shapeListener.onShapeEvent(shapeEvent));
+    public Entity(double x, double y) {
+        setPosition(x, y);
     }
 
     public List<Entity> getShapes() {
@@ -45,7 +59,9 @@ public abstract class Entity {
     public List<Entity> getChildrenAt(Point2D p) {
 
         List<Entity> result = new ArrayList<>();
-        result.addAll(includes(p));
+        if (isWithin(p)) {
+            result.add(this);
+        }
         result.addAll(getShapes()
                 .stream()
                 .flatMap(s -> s.getChildrenAt(p).stream()).collect(Collectors.toList()));
@@ -53,16 +69,15 @@ public abstract class Entity {
         return result;
     }
 
-    public List<Entity> includes(Point2D p) {
-        ArrayList<Entity> shapes = new ArrayList<>();
-
-        Shape transformedShape = getBounds();
-        if (transformedShape.contains(p)) {
-            shapes.add(this);
-            return shapes;
-        }
-
-        return shapes;
+    /**
+     * Returns if the given point is within the given entity
+     *
+     * @param p the point to check
+     * @return true if the point is within the entity
+     */
+    public boolean isWithin(Point2D p) {
+        Shape transformedShape = getGlobalTransform().createTransformedShape(getBounds());
+        return transformedShape.contains(p);
     }
 
 
@@ -82,35 +97,28 @@ public abstract class Entity {
 
     public abstract Shape getShape();
 
-    public abstract Shape getRawShape();
-
-    public Shape getBoundingBox() {
-        return getBounds();
-    }
-
     public Rectangle getBounds() {
         return getShape().getBounds();
     }
 
     public Point2D getPosition() {
-        return getShape().getBounds().getLocation();
+        return getGlobalTransform().createTransformedShape(getShape())
+                .getBounds()
+                .getLocation();
     }
 
-    public Point2D getRelativePosition() {
-        return toRelativePoint(getShape().getBounds().getLocation());
+    public void setPosition(double x, double y) {
+        positionTransform = new AffineTransform();
+        positionTransform.translate(x, y);
     }
 
-    public void empty() {
-        shapes.clear();
-    }
-
-    public void add(Entity node) {
-        if (!contains(node)) {
+    public void addChild(Entity node) {
+        if (!containsChild(node)) {
             shapes.add(node);
         }
     }
 
-    public void remove(Entity shape) {
+    public void removeChild(Entity shape) {
         shapes.remove(shape);
     }
 
@@ -122,29 +130,15 @@ public abstract class Entity {
         this.parent = shape;
     }
 
-    public boolean contains(Entity node) {
+    public boolean containsChild(Entity node) {
         return shapes.contains(node);
     }
 
-    public boolean isEmpty() {
-        return shapes.isEmpty();
-    }
-
-
-    public void addListener(ShapeListener shapeListener) {
-        this.listeners.add(shapeListener);
-    }
-
-    public void removeListener(ShapeListener shapeListener) {
-        this.listeners.remove(shapeListener);
-    }
-
     public Point getCenter() {
-        return new Point((int) (getShape().getBounds().getCenterX()), (int) (getShape().getBounds().getCenterY()));
-    }
+        Rectangle bounds = getGlobalTransform().createTransformedShape(getShape())
+                .getBounds();
 
-    public void addAll(List<? extends Entity> shapes) {
-        this.shapes.addAll(shapes);
+        return new Point((int) (bounds.getCenterX()), (int) (bounds.getCenterY()));
     }
 
     public void destroy() {
@@ -156,31 +150,12 @@ public abstract class Entity {
         this.shapes.removeAll(shapes);
     }
 
-    public Point2D toRealPoint(Point2D relativePoint) {
-        try {
-            Point2D result = new Point2D.Double();
-            getGlobalTransform().transform(relativePoint, result);
-            return result;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public Point2D toRelativePoint(Point2D realPoint) {
-        try {
-            Point2D result = new Point2D.Double();
-            getGlobalTransform().inverseTransform(realPoint, result);
-            return result;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public AffineTransform getTransform() {
         AffineTransform affineTransform = new AffineTransform();
         affineTransform.concatenate(this.movementTransform);
-        affineTransform.concatenate(this.rotationTransform);
+        affineTransform.concatenate(this.positionTransform);
         affineTransform.concatenate(this.transform);
+        affineTransform.concatenate(this.rotationTransform);
         return affineTransform;
     }
 
@@ -227,7 +202,7 @@ public abstract class Entity {
             // Figure out the real and relative position before
             Point2D.Double realPositionBefore = new Point2D.Double();
             Point2D relativePositionBefore = new Point2D.Double();
-            transformer.transform(new Point2D.Double(getRawShape().getBounds().getX(), getRawShape().getBounds().getY()), realPositionBefore);
+            transformer.transform(new Point2D.Double(getShape().getBounds().getX(), getShape().getBounds().getY()), realPositionBefore);
             transformer.inverseTransform(realPositionBefore, relativePositionBefore);
 
             // Figure out the real and relative position after
@@ -244,13 +219,8 @@ public abstract class Entity {
             movementTransform = new AffineTransform();
             movementTransform.translate(movementPoint.getX(), movementPoint.getY());
         } catch (Exception e) {
-
+            throw new RuntimeException("Couldn't move the entity", e);
         }
-    }
-
-    public void rotate(double deltaAngle) {
-        rotation = +deltaAngle;
-        setRotation(rotation);
     }
 
     public double getRotation() {
@@ -259,32 +229,11 @@ public abstract class Entity {
 
     public void setRotation(double angle) {
         try {
-            // Fetch a base transformer to use
-            AffineTransform transformer = new AffineTransform();
-            if (parent != null) {
-                transformer = getParent().getGlobalTransform();
-            }
-            transformer.concatenate(transform);
-            //transformer.concatenate(movementTransform);
-
-            // Figure out the real and relative position before
-            Point2D.Double realPosition = new Point2D.Double();
-            Point2D.Double realCenter = new Point2D.Double();
-            transformer.transform(new Point2D.Double(getRawShape().getBounds().getX(), getRawShape().getBounds().getY()), realPosition);
-            transformer.transform(new Point2D.Double(getRawShape().getBounds().getCenterX(), getRawShape().getBounds().getCenterY()), realCenter);
-
-            Point2D relativePosition = new Point2D.Double();
-            Point2D relativeCenter = new Point2D.Double();
-            transformer.inverseTransform(realPosition, relativePosition);
-            transformer.inverseTransform(realCenter, relativeCenter);
-
-            System.out.println("\tReal pos: " + realPosition + " Real center " + realCenter + " -> Relative pos: " + relativePosition + " Relative center " + relativeCenter);
-
             rotation = angle;
             rotationTransform = new AffineTransform();
-            rotationTransform.rotate((rotation / 180d) * Math.PI, relativeCenter.getX(), relativeCenter.getY());
+            rotationTransform.rotate((rotation / 180d) * Math.PI, getShape().getBounds().getCenterX(), getShape().getBounds().getCenterY());
         } catch (Exception e) {
-
+            throw new RuntimeException("Couldn't set the rotation", e);
         }
     }
 

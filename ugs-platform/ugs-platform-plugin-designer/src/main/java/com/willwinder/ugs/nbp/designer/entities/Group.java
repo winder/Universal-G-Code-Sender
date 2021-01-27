@@ -8,7 +8,7 @@ public class Group extends Entity {
 
     @Override
     public void drawShape(Graphics2D g) {
-
+        getShapes().forEach(node -> node.draw(g));
     }
 
     @Override
@@ -18,11 +18,6 @@ public class Group extends Entity {
 
     @Override
     public Shape getShape() {
-        return new Rectangle();
-    }
-
-    @Override
-    public Shape getRawShape() {
         return new Rectangle();
     }
 }

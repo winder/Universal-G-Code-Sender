@@ -9,7 +9,7 @@ import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimplePocket;
 import com.willwinder.ugs.nbp.designer.io.BatikIO;
 import com.willwinder.ugs.nbp.designer.io.DrawIO;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.controls.Control;
+import com.willwinder.ugs.nbp.designer.controls.Control;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;

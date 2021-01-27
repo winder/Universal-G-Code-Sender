@@ -1,6 +1,8 @@
 package com.willwinder.ugs.nbp.designer.entities;
 
 import com.willwinder.ugs.nbp.designer.cut.CutType;
+import com.willwinder.ugs.nbp.designer.logic.events.EntityEvent;
+import com.willwinder.ugs.nbp.designer.logic.events.EntityEventType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.awt.*;
@@ -12,41 +14,26 @@ public class Rectangle extends Entity {
     private final Rectangle2D.Double shape;
 
     public Rectangle(double x, double y) {
-        super();
-        this.shape = new Rectangle2D.Double(x, y, 10, 10);
+        super(x, y);
+        this.shape = new Rectangle2D.Double(0, 0, 10, 10);
     }
 
     public void drawShape(Graphics2D g) {
         g.setStroke(new BasicStroke(1));
         g.setColor(Color.BLACK);
 
-        if(getCutSettings().getCutType() == CutType.POCKET) {
-            g.fill(getShape());
+        Shape transformedShape = getGlobalTransform().createTransformedShape(shape);
+
+        if (getCutSettings().getCutType() == CutType.POCKET) {
+            g.fill(transformedShape);
         }
 
-        g.draw(getShape());
+        g.draw(transformedShape);
     }
 
     @Override
     public Shape getShape() {
-        return getGlobalTransform().createTransformedShape(shape);
-    }
-
-    @Override
-    public Shape getRawShape() {
         return shape;
-    }
-
-
-    public Shape getBoundingBox() {
-        java.awt.Rectangle bounds = shape.getBounds();
-        bounds.grow(5, 5);
-        return getGlobalTransform().createTransformedShape(bounds);
-    }
-
-    @Override
-    public java.awt.Rectangle getBounds() {
-        return getShape().getBounds();
     }
 
     @Override
@@ -58,7 +45,8 @@ public class Rectangle extends Entity {
         if (s.getY() < 2) {
             s.setLocation(s.getX(), 2);
         }
-        shape.setFrame(shape.getX(), shape.getY(), s.getX(), s.getY());
+        shape.setFrame(0, 0, s.getX(), s.getY());
+        notifyEvent(new EntityEvent(this, EntityEventType.RESIZED));
     }
 
     public String toString() {
@@ -66,11 +54,13 @@ public class Rectangle extends Entity {
     }
 
     public void setWidth(double width) {
-        shape.setFrame(shape.getX(), shape.getY(), width, shape.getHeight());
+        shape.setFrame(0, 0, width, shape.getHeight());
+        notifyEvent(new EntityEvent(this, EntityEventType.RESIZED));
     }
 
     public void setHeight(double height) {
-        shape.setFrame(shape.getX(), shape.getY(), shape.getWidth(), height);
+        shape.setFrame(0, 0, shape.getWidth(), height);
+        notifyEvent(new EntityEvent(this, EntityEventType.RESIZED));
     }
 
 }

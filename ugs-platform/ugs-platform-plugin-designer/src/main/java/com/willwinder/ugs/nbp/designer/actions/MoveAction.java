@@ -3,7 +3,7 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.selection.SelectionManager;
 
 import java.awt.geom.Point2D;
 
@@ -13,8 +13,8 @@ import java.awt.geom.Point2D;
  */
 public class MoveAction implements DrawAction {
 
-    SelectionManager selected;
-    Point2D movement;
+    private SelectionManager selectionManager;
+    private Point2D movement;
 
     /**
      * Creates a MoveAction that moves all Shapes in the given Selection in the
@@ -26,12 +26,12 @@ public class MoveAction implements DrawAction {
      *          original position
      */
     public MoveAction(SelectionManager s, Point2D m) {
-        this.selected = s;
+        this.selectionManager = s;
         this.movement = m;
     }
 
     public void execute() {
-        for (Entity s : selected.getShapes()) {
+        for (Entity s : selectionManager.getShapes()) {
             Point2D position = s.getPosition();
             //s.setPosition(position.getX() + movement.getX(), position.getY() + movement.getY());
         }
@@ -46,7 +46,7 @@ public class MoveAction implements DrawAction {
     }
 
     public void undo() {
-        for (Entity s : selected.getShapes()) {
+        for (Entity s : selectionManager.getShapes()) {
             Point2D position = s.getPosition();
             //s.setPosition(position.getX() - movement.getX(), position.getY() - movement.getY());
         }

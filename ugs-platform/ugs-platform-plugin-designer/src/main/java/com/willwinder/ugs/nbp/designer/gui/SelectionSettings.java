@@ -7,8 +7,8 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Settings;
 import com.willwinder.ugs.nbp.designer.logic.events.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.events.ControllerListener;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionEvent;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionListener;
+import com.willwinder.ugs.nbp.designer.selection.SelectionEvent;
+import com.willwinder.ugs.nbp.designer.selection.SelectionListener;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

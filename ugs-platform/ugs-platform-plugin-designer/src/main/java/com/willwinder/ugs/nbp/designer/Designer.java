@@ -1,6 +1,7 @@
 package com.willwinder.ugs.nbp.designer;
 
 
+import com.willwinder.ugs.nbp.designer.entities.Rectangle;
 import com.willwinder.ugs.nbp.designer.gui.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 
@@ -34,9 +35,7 @@ public class Designer extends JFrame {
 
         getContentPane().add(tools, BorderLayout.WEST);
         getContentPane().add(drawingContainer, BorderLayout.CENTER);
-        getContentPane().add(selectionSettings, BorderLayout.EAST);
-
-
+        //getContentPane().add(selectionSettings, BorderLayout.EAST);
 
         MenuListener mainMenuListener = new MenuListener(controller);
         JMenuBar mainMenu = new MainMenu(mainMenuListener);
@@ -44,6 +43,18 @@ public class Designer extends JFrame {
 
         pack();
         setVisible(true);
+
+        Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setHeight(50);
+        rectangle.setWidth(50);
+
+        Rectangle rectangle2 = new Rectangle(100, 100);
+        rectangle2.setHeight(50);
+        rectangle2.setWidth(50);
+        rectangle.addChild(rectangle2);
+        rectangle.setRotation(Math.PI / 2);
+
+        controller.addShape(rectangle);
     }
 
     public static void main(String[] args) {

@@ -30,10 +30,6 @@ public class Path extends Entity {
     public Shape getShape() {
         return getGlobalTransform().createTransformedShape(shape);
     }
-    @Override
-    public Shape getRawShape() {
-        return shape;
-    }
 
     @Override
     public void setSize(Point2D s) {

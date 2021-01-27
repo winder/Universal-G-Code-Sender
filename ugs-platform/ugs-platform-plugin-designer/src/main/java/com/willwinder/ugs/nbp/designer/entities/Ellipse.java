@@ -11,30 +11,24 @@ public class Ellipse extends Entity {
     private final Ellipse2D shape;
 
     public Ellipse(double x, double y) {
-        super();
-        this.shape = new Ellipse2D.Double(x, y, 1, 1);
+        super(x, y);
+        this.shape = new Ellipse2D.Double(0, 0, 1, 1);
     }
 
     public void drawShape(Graphics2D g) {
         g.setStroke(new BasicStroke(1));
         g.setColor(Color.BLACK);
-
+        Shape transformedShape = getGlobalTransform().createTransformedShape(shape);
         if(getCutSettings().getCutType() == CutType.POCKET) {
-            g.fill(getShape());
+            g.fill(transformedShape);
         }
-
-        g.draw(getShape());
-    }
-
-    @Override
-    public Shape getRawShape() {
-        return shape;
+        g.draw(transformedShape);
     }
 
 
     @Override
     public Shape getShape() {
-        return getGlobalTransform().createTransformedShape(shape);
+        return shape;
     }
 
     public String toString() {
@@ -43,6 +37,6 @@ public class Ellipse extends Entity {
 
     @Override
     public void setSize(Point2D s) {
-        this.shape.setFrame(shape.getX(), shape.getY(), s.getX(), s.getY());
+        this.shape.setFrame(0, 0, s.getX(), s.getY());
     }
 }

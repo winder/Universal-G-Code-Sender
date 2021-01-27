@@ -1,15 +1,12 @@
 package com.willwinder.ugs.nbp.designer.logic;
 
-
-
 import com.willwinder.ugs.nbp.designer.actions.*;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.events.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.events.ControllerListener;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.selection.SelectionManager;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +22,7 @@ public class Controller {
 
     public Controller() {
 		drawing = null;
-		undoManager = new UndoManager();
+		undoManager = new SimpleUndoManager();
 		tool = Tool.LINE;
 		drawing = new Drawing();
 	}
@@ -37,10 +34,13 @@ public class Controller {
 	}
 
 	public void deleteSelectedShapes() {
-		DrawAction del = new DeleteAction(drawing, getSelectionManager());
-		del.execute();
-		undoManager.addAction(del);
-		drawing.repaint();
+		if (!getSelectionManager().getShapes().isEmpty()) {
+			DrawAction del = new DeleteAction(drawing, getSelectionManager().getShapes());
+			del.execute();
+			undoManager.addAction(del);
+			drawing.repaint();
+			getSelectionManager().empty();
+		}
 	}
 
 	public Drawing getDrawing() {
@@ -55,29 +55,14 @@ public class Controller {
 		return tool;
 	}
 
-	public void moveSelectedShapes(Point movement) {
-		if (!selectionManager.isEmpty()) {
-			DrawAction move = new MoveAction(selectionManager, movement);
-			undoManager.addAction(move);
-			move.execute();
-		}
-	}
-
 	public void newDrawing() {
 		drawing = new Drawing();
 		notifyListeners(ControllerEventType.NEW_DRAWING);
 	}
 
     private void notifyListeners(ControllerEventType event) {
-        listeners.forEach(l -> l.onControllerEvent(event));
+    	listeners.forEach(l -> l.onControllerEvent(event));
     }
-
-    public void recordMovement(Point movement) {
-		if (!selectionManager.isEmpty()) {
-            DrawAction move = new MoveAction(selectionManager, movement);
-            undoManager.addAction(move);
-		}
-	}
 
 	public void redo() {
 		if (this.undoManager.canRedo()) {
@@ -105,7 +90,6 @@ public class Controller {
 		}
 		drawing.repaint();
 	}
-
 
     public Settings getSettings() {
         return settings;

@@ -47,11 +47,4 @@ public class DrawingContainer extends JPanel implements ControllerListener {
             setDrawing(controller.getDrawing());
         }
     }
-
-    /*public void newDrawing(Drawing drawing) {
-            setDrawing(controller.getDrawing());
-            scrollpane.setPreferredSize(new Dimension(
-                    getPreferredSize().width + 100,
-                    getPreferredSize().height + 100));
-    }*/
 }

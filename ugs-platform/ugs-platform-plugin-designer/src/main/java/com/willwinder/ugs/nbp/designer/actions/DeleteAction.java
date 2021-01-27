@@ -3,7 +3,8 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
+
+import java.util.List;
 
 /**
  * DeleteAction implements a single undoable action where all Shapes in a given
@@ -11,42 +12,34 @@ import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
  */
 public class DeleteAction implements DrawAction {
 
-	Drawing d;
-	SelectionManager selection;
+    private Drawing d;
+    private List<Entity> entities;
 
-	int position;
+    /**
+     * Creates an DeleteAction that removes all shapes in the given Selection
+     * from the given Drawing.
+     *
+     * @param drawing  the drawing into which the shape should be added.
+     * @param entities the shape to be added.
+     */
+    public DeleteAction(Drawing drawing, List<Entity> entities) {
+        this.entities = entities;
+        this.d = drawing;
+    }
 
-	/**
-	 * Creates an DeleteAction that removes all shapes in the given Selection
-	 * from the given Drawing.
-	 * 
-	 * @param drawing
-	 *            the drawing into which the shape should be added.
-	 * @param selection
-	 *            the shape to be added.
-	 */
-	public DeleteAction(Drawing drawing, SelectionManager selection) {
-		// The selection need to be hard-copied because the selection behind the
-		// reference will change while editing the drawing.
-		this.selection = selection;
-		this.d = drawing;
-	}
+    public void execute() {
+        for (Entity s : entities) {
+            d.removeShape(s);
+        }
+    }
 
-	public void execute() {
-		for (Entity s : selection.getShapes()) {
-			d.removeShape(s);
-		}
-		selection.empty();
-	}
+    public void redo() {
+        execute();
+    }
 
-	public void redo() {
-		execute();
-	}
-
-	public void undo() {
-		for (Entity s : selection.getShapes()) {
-			d.insertShape(s);
-		}
-	}
-
+    public void undo() {
+        for (Entity s : entities) {
+            d.insertShape(s);
+        }
+    }
 }

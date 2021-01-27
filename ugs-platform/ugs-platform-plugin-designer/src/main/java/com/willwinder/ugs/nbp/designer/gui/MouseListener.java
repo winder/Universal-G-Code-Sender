@@ -6,11 +6,10 @@ import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.Rectangle;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.designer.logic.controls.Control;
-import com.willwinder.ugs.nbp.designer.logic.controls.ModifyControls;
-import com.willwinder.ugs.nbp.designer.logic.events.MouseShapeEvent;
-import com.willwinder.ugs.nbp.designer.logic.events.ShapeEvent;
-import com.willwinder.ugs.nbp.designer.logic.events.ShapeEventType;
+import com.willwinder.ugs.nbp.designer.controls.Control;
+import com.willwinder.ugs.nbp.designer.controls.ModifyControls;
+import com.willwinder.ugs.nbp.designer.logic.events.MouseEntityEvent;
+import com.willwinder.ugs.nbp.designer.logic.events.EntityEventType;
 
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
@@ -59,12 +58,12 @@ public class MouseListener extends MouseAdapter {
         }
 
         if (control != null) {
-            control.notifyShapeEvent(new MouseShapeEvent(control, ShapeEventType.MOUSE_DRAGGED, startPos, m.getPoint()));
-        } else if (c.getTool() == Tool.SELECT) {
+            control.notifyEvent(new MouseEntityEvent(control, EntityEventType.MOUSE_DRAGGED, startPos, m.getPoint()));
+        } /*else if (c.getTool() == Tool.SELECT) {
             for (Entity s : c.getSelectionManager().getShapes()) {
                 s.notifyShapeEvent(new MouseShapeEvent(s, ShapeEventType.MOUSE_DRAGGED, startPos, m.getPoint()));
             }
-        }
+        }*/
 
         c.getDrawing().repaint();
 
@@ -90,34 +89,20 @@ public class MouseListener extends MouseAdapter {
 
             control = shapes.stream().filter(shape -> shape instanceof Control && !(shape instanceof ModifyControls)).map(shape -> (Control) shape).findFirst().orElse(null);
             if (control != null) {
-                control.notifyShapeEvent(new MouseShapeEvent(control, ShapeEventType.MOUSE_PRESSED, startPos, m.getPoint()));
+                control.notifyEvent(new MouseEntityEvent(control, EntityEventType.MOUSE_PRESSED, startPos, m.getPoint()));
             } else {
                 Entity tmp = null;
                 if (!shapes.isEmpty()) {
                     tmp = shapes.get(shapes.size() - 1);
                 }
 
-                if (tmp != null) {
-                    tmp.notifyShapeEvent(new MouseShapeEvent(tmp, ShapeEventType.MOUSE_PRESSED, startPos, m.getPoint()));
-                }
-
                 if (((m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == 0)
                         && !c.getSelectionManager().contains(tmp)) {
-
-                    c.getSelectionManager().getShapes().forEach(shape -> {
-                        shape.notifyShapeEvent(new ShapeEvent(shape, ShapeEventType.UNSELECTED));
-                    });
-
                     c.getSelectionManager().empty();
                 }
 
                 if ((tmp != null) && (!c.getSelectionManager().contains(tmp))) {
-
-                    // empty the selection before selecting a new shape if shift is
-                    // not down
-
                     c.getSelectionManager().add(tmp);
-                    tmp.notifyShapeEvent(new ShapeEvent(tmp, ShapeEventType.SELECTED));
                 }
             }
 
@@ -141,7 +126,7 @@ public class MouseListener extends MouseAdapter {
         newShape = null;
 
         if (control != null) {
-            control.notifyShapeEvent(new MouseShapeEvent(control, ShapeEventType.MOUSE_RELEASED, startPos, m.getPoint()));
+            control.notifyEvent(new MouseEntityEvent(control, EntityEventType.MOUSE_RELEASED, startPos, m.getPoint()));
         }
         /*else if (c.getTool() == Tool.SELECT) {
             c.getSelection().getShapes().forEach(s -> {
