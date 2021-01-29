@@ -109,7 +109,7 @@ public final class OutlineAction extends AbstractAction implements UGSEventListe
             try {
                 LOGGER.finest("Generating the outline of the gcode model");
                 LoaderDialogHelper.showDialog("Generating outline", 1500, (Component) e.getSource());
-                File gcodeFile = backend.getGcodeFile();
+                File gcodeFile = backend.getProcessedGcodeFile();
                 List<GcodeCommand> gcodeCommands = generateOutlineCommands(gcodeFile);
                 LoaderDialogHelper.closeDialog();
 
