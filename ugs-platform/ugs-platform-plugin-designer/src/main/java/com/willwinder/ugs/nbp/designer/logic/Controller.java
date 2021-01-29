@@ -98,4 +98,10 @@ public class Controller {
     public void addListener(ControllerListener controllerListener) {
         listeners.add(controllerListener);
     }
+
+
+	public void setScale(double scale) {
+		drawing.setScale(scale);
+		drawing.repaint();
+	}
 }

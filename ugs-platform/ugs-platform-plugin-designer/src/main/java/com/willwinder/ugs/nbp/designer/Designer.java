@@ -36,6 +36,15 @@ public class Designer extends JFrame {
         getContentPane().add(tools, BorderLayout.WEST);
         getContentPane().add(drawingContainer, BorderLayout.CENTER);
         //getContentPane().add(selectionSettings, BorderLayout.EAST);
+        JPanel bottomPanel = new JPanel();
+
+        JSlider zoomSlider = new JSlider(0,1000, 100);
+        zoomSlider.addChangeListener(event -> {
+            double scale = ((double) zoomSlider.getValue()) / 100d;
+            controller.setScale(scale);
+        });
+        bottomPanel.add(zoomSlider);
+        getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 
         MenuListener mainMenuListener = new MenuListener(controller);
         JMenuBar mainMenu = new MainMenu(mainMenuListener);
@@ -47,14 +56,14 @@ public class Designer extends JFrame {
         Rectangle rectangle = new Rectangle(10, 10);
         rectangle.setHeight(50);
         rectangle.setWidth(50);
+        rectangle.setRotation(Math.PI / 2);
+        controller.addShape(rectangle);
 
         Rectangle rectangle2 = new Rectangle(100, 100);
         rectangle2.setHeight(50);
         rectangle2.setWidth(50);
-        rectangle.addChild(rectangle2);
-        rectangle.setRotation(Math.PI / 2);
+        controller.addShape(rectangle2);
 
-        controller.addShape(rectangle);
     }
 
     public static void main(String[] args) {

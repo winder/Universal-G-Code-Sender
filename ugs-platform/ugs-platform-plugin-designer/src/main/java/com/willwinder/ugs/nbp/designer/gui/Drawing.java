@@ -22,6 +22,7 @@ public class Drawing extends JPanel implements Iterable<Entity> {
     private static final long serialVersionUID = 0;
 
     private Group root;
+    private AffineTransform scaleTransform = new AffineTransform();
 
     public Drawing() {
         root = new Group();
@@ -85,23 +86,23 @@ public class Drawing extends JPanel implements Iterable<Entity> {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D)g;
-        g2.getTransform().concatenate(AffineTransform.getScaleInstance(1, -1));
-
         RenderingHints rh = ((Graphics2D) g).getRenderingHints();
         rh.put(KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         rh.put(KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         rh.put(KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         rh.put(KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g2.setRenderingHints(rh);
-
+        g2.transform(scaleTransform);
         for (Entity s : root.getShapes()) {
             s.draw(g2);
         }
-
-        g2.getTransform().concatenate(AffineTransform.getScaleInstance(1, -1));
     }
 
     public void removeShape(Entity s) {
         root.removeChild(s);
+    }
+
+    public void setScale(double scale) {
+        scaleTransform = AffineTransform.getScaleInstance(scale, scale);
     }
 }
