@@ -25,7 +25,7 @@ import java.util.Objects;
 
 public class Position extends CNCPoint {
 
-    public static final Position ZERO = new Position(0, 0, 0, Units.MM);
+    public static final Position ZERO = new Position(0, 0, 0, 0, 0, 0, Units.MM);
 
     private final Units units;
 
@@ -97,7 +97,7 @@ public class Position extends CNCPoint {
 
     public Position getPositionIn(Units units) {
         double scale = UnitUtils.scaleUnits(this.units, units);
-        return new Position(x * scale, y * scale, z * scale, units);
+        return new Position(x * scale, y * scale, z * scale, a, b, c, units);
     }
 
     public double get(Axis axis) {

@@ -1,9 +1,9 @@
 package com.willwinder.ugs.nbm.visualizer;
 
+import com.willwinder.ugs.nbm.visualizer.actions.OpenTestFileAction;
 import com.willwinder.ugs.nbp.core.actions.BaudRateAction;
 import com.willwinder.ugs.nbp.core.actions.ConnectDisconnectAction;
 import com.willwinder.ugs.nbp.core.actions.FirmwareAction;
-import com.willwinder.ugs.nbp.core.actions.OpenAction;
 import com.willwinder.ugs.nbp.core.actions.PortAction;
 import com.willwinder.ugs.nbp.core.actions.ReturnToZeroAction;
 import com.willwinder.ugs.nbp.core.actions.SoftResetAction;
@@ -56,7 +56,7 @@ public class VisualizerTestMain extends JFrame {
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(fileMenu);
 
-        JMenuItem menuItem = new JMenuItem(new OpenAction());
+        JMenuItem menuItem = new JMenuItem(new OpenTestFileAction());
         menuItem.setText("Open");
         fileMenu.add(menuItem);
 
@@ -71,7 +71,7 @@ public class VisualizerTestMain extends JFrame {
         setJMenuBar(menuBar);
 
         JToolBar toolBar = new JToolBar();
-        toolBar.add(new OpenAction());
+        toolBar.add(new OpenTestFileAction());
         toolBar.add(new ConnectDisconnectAction());
         toolBar.add(new FirmwareAction().getToolbarPresenter());
         toolBar.add(new PortAction().getToolbarPresenter());

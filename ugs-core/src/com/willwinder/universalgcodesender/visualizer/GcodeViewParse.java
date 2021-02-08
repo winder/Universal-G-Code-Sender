@@ -183,6 +183,9 @@ public class GcodeViewParse {
                                     meta.point.point().x,
                                     meta.point.point().y,
                                     meta.point.point().z,
+                                    meta.point.point().a,
+                                    meta.point.point().b,
+                                    meta.point.point().c,
                                     gp.getCurrentState().isMetric ? UnitUtils.Units.MM : UnitUtils.Units.INCH
                                     );
                         } else {

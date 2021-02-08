@@ -109,7 +109,7 @@ public class GcodeState {
         ret.coolant = coolant;
 
         if (currentPoint != null) {
-            ret.currentPoint = new Position(currentPoint.x, currentPoint.y, currentPoint.z, getUnits());
+            ret.currentPoint = new Position(currentPoint.x, currentPoint.y, currentPoint.z, currentPoint.a, currentPoint.b, currentPoint.c, getUnits());
         }
         ret.commandNumber = commandNumber;
         return ret;

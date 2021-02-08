@@ -233,11 +233,11 @@ public class GcodeModel extends Renderable {
       return angle == 0 ? 0.0 : Math.cos(Math.toRadians(angle));
     }
 
-    private static LineSegment toCartesian(LineSegment p) {
+    public static LineSegment toCartesian(LineSegment p) {
         Position start = new Position(p.getStart().x, p.getStart().y, p.getStart().z);
         Position end = new Position(p.getEnd().x, p.getEnd().y, p.getEnd().z);
 
-        if (p.isRotation()) {
+        if (hasRotation(p.getStart()) || hasRotation(p.getEnd())) {
           double sx = p.getStart().x;
           double sy = p.getStart().y;
           double sz = p.getStart().z;
@@ -314,6 +314,16 @@ public class GcodeModel extends Renderable {
         next.setSpeed(p.getSpeed());
 
         return next;
+    }
+
+    /**
+     * Returns true if the position has any rotation
+     *
+     * @param position
+     * @return true if the position contains rotations
+     */
+    private static boolean hasRotation(Position position) {
+        return position.a != 0 || position.b != 0 || position.c != 0;
     }
 
     /**
