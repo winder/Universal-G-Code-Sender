@@ -26,12 +26,8 @@ script:
   - mvn test install -B -Djava.util.logging.config.file=scripts/logging.config
   - codecov
   # Make sure artifacts can be built
-  - mvn package -pl ugs-classic assembly:assembly -DskipTests=true
-  - mvn package -pl ugs-platform/application -P create-autoupdate -DskipTests=true
-  - mvn package -pl ugs-platform/application -P create-macosx-package -DskipTests=true
-  - mvn package -pl ugs-platform/application -P create-win-package -DskipTests=true
-  - mvn package -pl ugs-platform/application -P create-linux-package -DskipTests=true
-  - mvn package -pl ugs-platform/application -P create-pi-package -DskipTests=true
+  - mvn assembly:assembly -pl ugs-classic -DskipTests=true
+  - mvn package -pl ugs-platform/application -P create-autoupdate,create-macosx-package,create-win-package,create-linux-package,create-pi-package -DskipTests=true
 
 
 deploy:
