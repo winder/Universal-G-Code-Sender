@@ -1,12 +1,13 @@
 package com.willwinder.ugs.nbp.designer.entities;
 
-import com.willwinder.ugs.nbp.designer.cut.CutType;
-
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 
-public class Path extends Entity {
+public class Path extends AbstractEntity {
 
     private final Path2D.Double shape;
 
@@ -15,35 +16,26 @@ public class Path extends Entity {
         this.shape = new Path2D.Double();
     }
 
-    public void drawShape(Graphics2D g) {
+    public void render(Graphics2D g) {
         g.setStroke(new BasicStroke(1));
         g.setColor(Color.BLACK);
-
-        if(getCutSettings().getCutType() == CutType.POCKET) {
-            g.fill(getShape());
-        }
-
         g.draw(getShape());
     }
 
     @Override
-    public Shape getShape() {
-        return getGlobalTransform().createTransformedShape(shape);
+    public Shape getRelativeShape() {
+        return shape;
     }
 
     @Override
-    public void setSize(Point2D s) {
-        if (s.getX() < 2) {
-            s.setLocation(2, s.getY());
+    public void setSize(Dimension s) {
+        if (s.getWidth() < 2) {
+            s.setSize(2, s.getWidth());
         }
 
-        if (s.getY() < 2) {
-            s.setLocation(s.getX(), 2);
+        if (s.getHeight() < 2) {
+            s.setSize(s.getHeight(), 2);
         }
-    }
-
-    public String toString() {
-        return "path;" + super.toString();
     }
 
     public void moveTo(double x, double y) {

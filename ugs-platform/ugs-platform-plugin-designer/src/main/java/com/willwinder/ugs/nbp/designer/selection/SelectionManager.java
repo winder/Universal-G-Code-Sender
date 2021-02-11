@@ -1,51 +1,49 @@
 package com.willwinder.ugs.nbp.designer.selection;
 
-
-
-import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.controls.Control;
 import com.willwinder.ugs.nbp.designer.controls.ModifyControls;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.Group;
 
+import java.awt.Shape;
+import java.awt.geom.Area;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class SelectionManager {
+public class SelectionManager extends Group {
 
     private List<SelectionListener> listeners = new ArrayList<>();
-    private List<Entity> shapes = new ArrayList<>();
+    private List<Entity> selectedEntities = new ArrayList<>();
+
     public SelectionManager() {
         super();
     }
 
-    public void empty() {
-        shapes.forEach(this::traverseAndRemoveControls);
-        shapes.clear();
+    @Override
+    public Shape getShape() {
+        Area area = new Area();
+        selectedEntities.stream()
+                .filter(c -> c != this)
+                .forEach(c -> area.add(new Area(c.getShape())));
+
+        return area.getBounds();
+    }
+
+    public void removeAll() {
+        super.removeAll();
+        selectedEntities.clear();
         fireSelectionEvent(new SelectionEvent());
     }
 
-    private void traverseAndRemoveControls(Entity shape) {
-        List<Entity> toBeRemoved = new ArrayList<>();
-        shape.getShapes().forEach(child -> {
-            if(child instanceof Control) {
-                child.destroy();
-                toBeRemoved.add(child);
-            }
-
-            traverseAndRemoveControls(child);
-        });
-
-        shape.removeAll(toBeRemoved);
-    }
-
-    public void add(Entity shape) {
-        shape.addChild(new ModifyControls(shape, this));
-        shapes.add(shape);
+    public void add(Entity entity) {
+        selectedEntities.add(entity);
+        addChild(new ModifyControls(entity, this));
         fireSelectionEvent(new SelectionEvent());
     }
 
     public void addSelectionListener(SelectionListener selectionListener) {
-        if(!this.listeners.contains(selectionListener)) {
+        if (!this.listeners.contains(selectionListener)) {
             this.listeners.add(selectionListener);
         }
     }
@@ -54,15 +52,14 @@ public class SelectionManager {
         this.listeners.forEach(listener -> listener.onSelectionEvent(selectionEvent));
     }
 
-    public boolean isEmpty() {
-        return shapes.isEmpty();
-    }
-
-    public List<Entity> getShapes() {
-        return Collections.unmodifiableList(new ArrayList<>(shapes));
-    }
-
     public boolean contains(Entity shape) {
-        return shapes.contains(shape);
+        return selectedEntities.contains(shape);
+    }
+
+    public List<Control> getControls() {
+        return getAllChildren().stream()
+                .filter(c -> c instanceof Control)
+                .map(c -> (Control) c)
+                .collect(Collectors.toList());
     }
 }

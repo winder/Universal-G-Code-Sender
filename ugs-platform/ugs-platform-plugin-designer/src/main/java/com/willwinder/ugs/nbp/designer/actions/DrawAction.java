@@ -1,23 +1,12 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 /**
- * This interface depicts a single undoable drawing action.
+ * This interface depicts a single draw action that can be used to execute some behaviour to a drawing
  */
 public interface DrawAction {
 
     /**
-     * This method performs the original action.
+     * Performs a action
      */
     void execute();
-
-    /**
-     * This method redoes an action performed and recorded in an UndoManager.
-     */
-    void redo();
-
-    /**
-     * This method undoes an action performed and recorded in an UndoManager.
-     */
-    void undo();
-
 }

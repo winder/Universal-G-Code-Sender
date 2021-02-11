@@ -19,20 +19,18 @@
 package com.willwinder.ugs.nbp.designer;
 
 import com.google.common.io.Files;
-import com.willwinder.ugs.nbp.designer.cut.CutType;
+import com.willwinder.ugs.nbp.designer.actions.UndoManagerAdapter;
+import com.willwinder.ugs.nbp.designer.controls.Control;
+import com.willwinder.ugs.nbp.designer.filetype.UgsDataObject;
 import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
 import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
-import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimpleOutline;
-import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimplePocket;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.SelectionSettings;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
+import com.willwinder.ugs.nbp.designer.io.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.controls.Control;
-import com.willwinder.ugs.nbp.designer.io.BatikIO;
 import com.willwinder.ugs.nbp.designer.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.selection.SelectionListener;
-import com.willwinder.ugs.nbp.designer.filetype.UgsDataObject;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.apache.commons.io.IOUtils;
@@ -45,8 +43,10 @@ import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Action;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileWriter;
@@ -57,7 +57,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 
 @MultiViewElement.Registration(
         displayName = "#platform.window.editor",
@@ -80,6 +79,7 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
 
     private BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(2);
     private ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 100, TimeUnit.MILLISECONDS, workQueue);
+    private UndoManagerAdapter undoManager;
 
     public DesignerMultiviewElement(Lookup lookup) {
         this.lookup = lookup;
@@ -89,7 +89,7 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
         initialize();
 
         if (StringUtils.endsWithIgnoreCase(file.getName(), "svg")) {
-            BatikIO batikIO = new BatikIO();
+            SvgReader batikIO = new SvgReader();
             batikIO.open(file, controller);
         } else {
             controller.newDrawing();
@@ -105,6 +105,7 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
         setLayout(new BorderLayout());
 
         controller = new Controller();
+        undoManager = new UndoManagerAdapter(controller.getUndoManager());
         tools = new ToolBox(controller);
         selectionSettings = new SelectionSettings(controller);
 
@@ -171,7 +172,7 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
 
     @Override
     public UndoRedo getUndoRedo() {
-        return null;
+        return undoManager;
     }
 
     @Override
@@ -209,14 +210,14 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
                 try {
                     GcodePath gcodePath = gcodeRouter.toPath(shape, affineTransform);
 
-                    if (shape.getCutSettings().getCutType() == CutType.POCKET) {
+                    /*if (shape.getCutSettings().getCutType() == CutType.POCKET) {
                         SimplePocket simplePocket = new SimplePocket(gcodePath);
                         gcodePath = simplePocket.toGcodePath();
 
                         SimpleOutline simpleOutline = new SimpleOutline(gcodePath);
                         simpleOutline.setDepth(shape.getCutSettings().getDepth());
                         gcodePath = simpleOutline.toGcodePath();
-                    }
+                    }*/
 
                     return gcodeRouter.toGcode(gcodePath);
                 } catch (IOException ex) {

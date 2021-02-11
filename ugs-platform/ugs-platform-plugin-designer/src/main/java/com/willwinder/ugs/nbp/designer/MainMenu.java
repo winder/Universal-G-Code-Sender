@@ -1,6 +1,10 @@
-package com.willwinder.ugs.nbp.designer.gui;
+package com.willwinder.ugs.nbp.designer;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
@@ -101,7 +105,6 @@ public class MainMenu extends JMenuBar {
         selectionMenu.add(all);
         selectionMenu.add(clear);
         selectionMenu.add(delete);
-
 
         add(fileMenu);
         add(editMenu);

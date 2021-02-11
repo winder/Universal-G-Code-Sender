@@ -1,16 +1,15 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
-
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 
 import java.util.List;
 
 /**
- * DeleteAction implements a single undoable action where all Shapes in a given
+ * DeleteAction implements a single undoable action where all Entities in a given
  * Selection are added to a Drawing.
  */
-public class DeleteAction implements DrawAction {
+public class DeleteAction implements DrawAction, UndoableAction {
 
     private Drawing d;
     private List<Entity> entities;
@@ -19,8 +18,8 @@ public class DeleteAction implements DrawAction {
      * Creates an DeleteAction that removes all shapes in the given Selection
      * from the given Drawing.
      *
-     * @param drawing  the drawing into which the shape should be added.
-     * @param entities the shape to be added.
+     * @param drawing  the drawing from which the entities should be removed.
+     * @param entities alist of entities that should be removed from the drawing
      */
     public DeleteAction(Drawing drawing, List<Entity> entities) {
         this.entities = entities;
@@ -29,7 +28,7 @@ public class DeleteAction implements DrawAction {
 
     public void execute() {
         for (Entity s : entities) {
-            d.removeShape(s);
+            d.removeEntity(s);
         }
     }
 
@@ -39,7 +38,7 @@ public class DeleteAction implements DrawAction {
 
     public void undo() {
         for (Entity s : entities) {
-            d.insertShape(s);
+            d.insertEntity(s);
         }
     }
 }

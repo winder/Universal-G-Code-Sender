@@ -1,37 +1,53 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 
+import com.willwinder.ugs.nbp.designer.controls.GridControl;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.Group;
+import com.willwinder.ugs.nbp.designer.selection.SelectionManager;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static java.awt.RenderingHints.*;
+import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
+import static java.awt.RenderingHints.KEY_ANTIALIASING;
+import static java.awt.RenderingHints.KEY_RENDERING;
+import static java.awt.RenderingHints.KEY_TEXT_ANTIALIASING;
 
-public class Drawing extends JPanel implements Iterable<Entity> {
+public class Drawing extends JPanel {
 
     private static final long serialVersionUID = 0;
+    private final SelectionManager selectionManager;
+    private Group globalRoot;
+    private Group entitesRoot;
+    private AffineTransform scaleTransform;
+    private double scale;
 
-    private Group root;
-    private AffineTransform scaleTransform = new AffineTransform();
+    public Drawing(SelectionManager s) {
+        scale = 1;
+        scaleTransform = AffineTransform.getScaleInstance(scale, scale);
+        entitesRoot = new Group();
+        selectionManager = s;
 
-    public Drawing() {
-        root = new Group();
+        globalRoot = new Group();
+        globalRoot.addChild(new GridControl(this));
+        globalRoot.addChild(entitesRoot);
+        globalRoot.addChild(selectionManager);
+
         setBorder(BorderFactory.createLineBorder(Color.black));
         setBackground(Color.WHITE);
     }
 
     public BufferedImage getImage() {
-
         BufferedImage bi = new BufferedImage(getPreferredSize().width,
                 getPreferredSize().height, BufferedImage.TYPE_INT_RGB);
         Graphics g = bi.createGraphics();
@@ -39,70 +55,61 @@ public class Drawing extends JPanel implements Iterable<Entity> {
         return bi;
     }
 
-    public List<Entity> getShapesAt(Point2D p) {
-        return getShapesAt(root.getShapes(), p);
+    public List<Entity> getEntitiesAt(Point2D p) {
+        return globalRoot.getChildrenAt(p);
     }
 
-    private List<Entity> getShapesAt(Collection<Entity> shapes, Point2D p) {
-        return shapes.stream()
-                .flatMap(s -> s.getChildrenAt(p).stream()).collect(Collectors.toList());
-    }
-
-    public void insertShape(Entity s) {
-        s.setParent(root);
-        root.addChild(s);
-    }
-
-    @Override
-    public Iterator<Entity> iterator() {
-        return root.getShapes().iterator();
+    public void insertEntity(Entity s) {
+        s.setParent(entitesRoot);
+        entitesRoot.addChild(s);
     }
 
     public List<Entity> getShapes() {
         List<Entity> result = new ArrayList<>();
-        root.getShapes().forEach(shape -> collectAll(shape, result));
+        entitesRoot.getChildren().forEach(shape -> collectAll(shape, result));
         return result;
     }
 
     public void collectAll(Entity shape, List<Entity> result) {
         result.add(shape);
 
-        List<Entity> shapes = shape.getShapes();
-        shapes.forEach(shape1 -> {
-            collectAll(shape1, result);
-        });
-    }
-
-    public void listShapes() {
-        System.out.println("---");
-        for (Entity s : root.getShapes()) {
-            System.out.println(s);
+        if (shape instanceof Group) {
+            List<Entity> shapes = ((Group) shape).getChildren();
+            shapes.forEach(shape1 -> collectAll(shape1, result));
         }
-        System.out.println("---");
     }
 
     public void paintComponent(Graphics g) {
 
         super.paintComponent(g);
 
-        Graphics2D g2 = (Graphics2D)g;
+        Graphics2D g2 = (Graphics2D) g;
         RenderingHints rh = ((Graphics2D) g).getRenderingHints();
         rh.put(KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         rh.put(KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         rh.put(KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         rh.put(KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g2.setRenderingHints(rh);
-        g2.transform(scaleTransform);
-        for (Entity s : root.getShapes()) {
-            s.draw(g2);
-        }
+        globalRoot.render(g2);
+        selectionManager.render(g2);
     }
 
-    public void removeShape(Entity s) {
-        root.removeChild(s);
+    public void removeEntity(Entity s) {
+        globalRoot.removeChild(s);
+    }
+
+    /**
+     * Returns the scale of a pixel, if set to 1 means that one pixel is equal to one millimeter
+     *
+     * @return the scale of a pixel
+     */
+    public double getScale() {
+        return scale;
     }
 
     public void setScale(double scale) {
+        this.scale = scale;
         scaleTransform = AffineTransform.getScaleInstance(scale, scale);
+        globalRoot.setTransform(scaleTransform);
     }
 }

@@ -1,7 +1,7 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 public interface UndoManager {
-    void addAction(DrawAction action);
+    void addAction(UndoableAction action);
 
     boolean canRedo();
 
@@ -10,4 +10,8 @@ public interface UndoManager {
     void redo();
 
     void undo();
+
+    String getUndoPresentationName();
+
+    String getRedoPresentationName();
 }

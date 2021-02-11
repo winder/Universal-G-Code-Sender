@@ -1,7 +1,5 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
-
-
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.selection.SelectionManager;
 
@@ -11,7 +9,7 @@ import java.awt.geom.Point2D;
  * MoveAction implements a single undoable action where all the Shapes in a
  * given Selection are moved.
  */
-public class MoveAction implements DrawAction {
+public class MoveAction implements DrawAction, UndoableAction {
 
     private SelectionManager selectionManager;
     private Point2D movement;
@@ -31,7 +29,7 @@ public class MoveAction implements DrawAction {
     }
 
     public void execute() {
-        for (Entity s : selectionManager.getShapes()) {
+        for (Entity s : selectionManager.getChildren()) {
             Point2D position = s.getPosition();
             //s.setPosition(position.getX() + movement.getX(), position.getY() + movement.getY());
         }
@@ -46,7 +44,7 @@ public class MoveAction implements DrawAction {
     }
 
     public void undo() {
-        for (Entity s : selectionManager.getShapes()) {
+        for (Entity s : selectionManager.getChildren()) {
             Point2D position = s.getPosition();
             //s.setPosition(position.getX() - movement.getX(), position.getY() - movement.getY());
         }

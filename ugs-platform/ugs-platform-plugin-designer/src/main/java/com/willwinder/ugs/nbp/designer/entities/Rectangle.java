@@ -1,66 +1,60 @@
 package com.willwinder.ugs.nbp.designer.entities;
 
-import com.willwinder.ugs.nbp.designer.cut.CutType;
 import com.willwinder.ugs.nbp.designer.logic.events.EntityEvent;
-import com.willwinder.ugs.nbp.designer.logic.events.EntityEventType;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import com.willwinder.ugs.nbp.designer.logic.events.EventType;
 
-import java.awt.*;
-import java.awt.geom.Point2D;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
-public class Rectangle extends Entity {
+public class Rectangle extends AbstractEntity {
 
     private final Rectangle2D.Double shape;
+
+    public Rectangle() {
+        this.shape = new Rectangle2D.Double(0, 0, 10, 10);
+    }
 
     public Rectangle(double x, double y) {
         super(x, y);
         this.shape = new Rectangle2D.Double(0, 0, 10, 10);
     }
 
-    public void drawShape(Graphics2D g) {
+    public void render(Graphics2D g) {
         g.setStroke(new BasicStroke(1));
         g.setColor(Color.BLACK);
-
-        Shape transformedShape = getGlobalTransform().createTransformedShape(shape);
-
-        if (getCutSettings().getCutType() == CutType.POCKET) {
-            g.fill(transformedShape);
-        }
-
-        g.draw(transformedShape);
+        g.draw(getShape());
     }
 
     @Override
-    public Shape getShape() {
+    public Shape getRelativeShape() {
         return shape;
     }
 
     @Override
-    public void setSize(Point2D s) {
-        if (s.getX() < 2) {
-            s.setLocation(2, s.getY());
+    public void setSize(Dimension s) {
+        if (s.getWidth() < 2) {
+            s.setSize(2, s.getHeight());
         }
 
-        if (s.getY() < 2) {
-            s.setLocation(s.getX(), 2);
+        if (s.getHeight() < 2) {
+            s.setSize(s.getWidth(), 2);
         }
-        shape.setFrame(0, 0, s.getX(), s.getY());
-        notifyEvent(new EntityEvent(this, EntityEventType.RESIZED));
+        shape.setFrame(0, 0, s.getWidth(), s.getHeight());
+        notifyEvent(new EntityEvent(this, EventType.RESIZED));
     }
-
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
-
+    
     public void setWidth(double width) {
         shape.setFrame(0, 0, width, shape.getHeight());
-        notifyEvent(new EntityEvent(this, EntityEventType.RESIZED));
+        notifyEvent(new EntityEvent(this, EventType.RESIZED));
     }
 
     public void setHeight(double height) {
         shape.setFrame(0, 0, shape.getWidth(), height);
-        notifyEvent(new EntityEvent(this, EntityEventType.RESIZED));
+        notifyEvent(new EntityEvent(this, EventType.RESIZED));
     }
 
 }

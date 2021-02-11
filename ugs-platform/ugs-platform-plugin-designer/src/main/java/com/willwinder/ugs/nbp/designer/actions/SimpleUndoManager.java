@@ -6,6 +6,8 @@ import java.util.Stack;
  * UndoManager is a simplistic reusable component to support an undo-redo
  * mechanism. UndoableActions can be added in the manager, which gives a
  * centered interface for performing their undo and redo actions.
+ *
+ * @author Alex Lagerstedt
  */
 public class SimpleUndoManager implements UndoManager {
 
@@ -13,8 +15,8 @@ public class SimpleUndoManager implements UndoManager {
     // When a new action is made it is put in the undo stack. When an operation
     // is undone, it is places in the redo stack.
 
-    private Stack<DrawAction> undoStack;
-    private Stack<DrawAction> redoStack;
+    private Stack<UndoableAction> undoStack;
+    private Stack<UndoableAction> redoStack;
 
     /**
      * Constructs a empty Undo Manager.
@@ -30,7 +32,7 @@ public class SimpleUndoManager implements UndoManager {
      * @param action the UndoableAction to be added.
      */
     @Override
-    public void addAction(DrawAction action) {
+    public void addAction(UndoableAction action) {
         this.redoStack.clear();
         this.undoStack.push(action);
     }
@@ -61,7 +63,7 @@ public class SimpleUndoManager implements UndoManager {
      */
     @Override
     public void redo() {
-        DrawAction action = this.redoStack.pop();
+        UndoableAction action = this.redoStack.pop();
         action.redo();
         this.undoStack.push(action);
     }
@@ -72,8 +74,18 @@ public class SimpleUndoManager implements UndoManager {
      */
     @Override
     public void undo() {
-        DrawAction action = this.undoStack.pop();
+        UndoableAction action = this.undoStack.pop();
         action.undo();
         this.redoStack.push(action);
+    }
+
+    @Override
+    public String getUndoPresentationName() {
+        return this.undoStack.peek().toString();
+    }
+
+    @Override
+    public String getRedoPresentationName() {
+        return this.redoStack.peek().toString();
     }
 }

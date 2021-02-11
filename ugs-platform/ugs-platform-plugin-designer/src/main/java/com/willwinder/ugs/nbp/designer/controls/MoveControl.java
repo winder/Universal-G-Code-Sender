@@ -2,66 +2,64 @@ package com.willwinder.ugs.nbp.designer.controls;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
-import com.willwinder.ugs.nbp.designer.logic.events.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.events.EntityEvent;
-import com.willwinder.ugs.nbp.designer.logic.events.EntityEventType;
+import com.willwinder.ugs.nbp.designer.logic.events.EventType;
+import com.willwinder.ugs.nbp.designer.logic.events.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.selection.SelectionManager;
 
-import java.awt.*;
-import java.awt.geom.AffineTransform;
+import java.awt.BasicStroke;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.util.logging.Logger;
 
-public class MoveControl extends Control {
+public class MoveControl extends AbstractControl {
     private static final Logger LOGGER = Logger.getLogger(MoveControl.class.getSimpleName());
-    public static final int SIZE = 1;
-
     private Point2D startOffset = new Point2D.Double();
 
-    public MoveControl(Entity parent, SelectionManager selectionManager) {
-        super(parent, selectionManager);
-        AffineTransform transform = new AffineTransform();
-        transform.translate(-(SIZE/2d), -(SIZE/2d));
-        setTransform(transform);
+    public MoveControl(Entity target, SelectionManager selectionManager) {
+        super(target, selectionManager);
     }
 
     @Override
-    public void setSize(Point2D s) {
+    public void setSize(Dimension s) {
     }
 
     @Override
-    public Shape getShape() {
-        java.awt.Rectangle bounds = getParent().getBounds();
-        bounds.grow(SIZE, SIZE);
-        return bounds;
+    public boolean isWithin(Point2D point) {
+        return getTarget().isWithin(point);
     }
 
     @Override
-    public void drawShape(Graphics2D g) {
+    public void render(Graphics2D g) {
         g.setStroke(new BasicStroke(1f));
         g.setColor(Colors.CONTROL_BORDER);
 
-        Shape transformedShape = getParent().getGlobalTransform().createTransformedShape(getShape());
-        g.draw(transformedShape);
+        // Highlight the model
+        g.draw(getShape());
+
+        // Draw the bounds
+        g.setStroke(new BasicStroke(1f, 0, 0, 1, new float[]{2, 2}, 0));
+        g.draw(getTarget().getGlobalTransform().createTransformedShape(getRelativeShape().getBounds()));
     }
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
-        if (entityEvent instanceof MouseEntityEvent && entityEvent.getShape() == this) {
+        if (entityEvent instanceof MouseEntityEvent && entityEvent.getTarget() == this) {
             MouseEntityEvent mouseShapeEvent = (MouseEntityEvent) entityEvent;
             Point2D mousePosition = mouseShapeEvent.getCurrentMousePosition();
 
-            getSelectionManager().getShapes().forEach(entity -> {
-                Point2D movement = new Point2D.Double(mousePosition.getX() - entity.getPosition().getX() - startOffset.getX(), mousePosition.getY() - entity.getPosition().getY() - startOffset.getY());
+            Entity target = getTarget();
+            Point2D deltaMovement = new Point2D.Double(mousePosition.getX() - target.getPosition().getX() - startOffset.getX(), mousePosition.getY() - target.getPosition().getY() - startOffset.getY());
 
-                if (mouseShapeEvent.getType() == EntityEventType.MOUSE_PRESSED) {
-                    startOffset = new Point2D.Double(mousePosition.getX() - entityEvent.getShape().getPosition().getX(), mousePosition.getY() - entityEvent.getShape().getPosition().getY());
-                } else if (mouseShapeEvent.getType() == EntityEventType.MOUSE_DRAGGED) {
-                    entity.move(movement);
-                } else if (mouseShapeEvent.getType() == EntityEventType.MOUSE_RELEASED) {
-                    LOGGER.info("Stopped moving " + entity.getPosition());
-                }
-            });
+            if (mouseShapeEvent.getType() == EventType.MOUSE_PRESSED) {
+                startOffset = new Point2D.Double(mousePosition.getX() - target.getPosition().getX(), mousePosition.getY() - target.getPosition().getY());
+            } else if (mouseShapeEvent.getType() == EventType.MOUSE_DRAGGED) {
+                target.move(deltaMovement);
+            } else if (mouseShapeEvent.getType() == EventType.MOUSE_RELEASED) {
+                LOGGER.info("Stopped moving " + target.getPosition());
+            }
+
         }
     }
 }

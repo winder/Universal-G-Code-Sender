@@ -1,21 +1,23 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
-
+import com.willwinder.ugs.nbp.designer.controls.Control;
+import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.entities.Ellipse;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.Rectangle;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.designer.controls.Control;
-import com.willwinder.ugs.nbp.designer.controls.ModifyControls;
+import com.willwinder.ugs.nbp.designer.logic.events.EventType;
 import com.willwinder.ugs.nbp.designer.logic.events.MouseEntityEvent;
-import com.willwinder.ugs.nbp.designer.logic.events.EntityEventType;
 
+import java.awt.Dimension;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * MouseListener listens to the mouse events in a drawing and modifies the
@@ -33,8 +35,8 @@ public class MouseListener extends MouseAdapter {
 
     private Point2D mouseDelta;
 
-    private Entity newShape;
-    private Control control;
+    private AbstractEntity newShape;
+    private List<Control> controls;
 
     /**
      * Constructs a new MouseListener
@@ -46,7 +48,7 @@ public class MouseListener extends MouseAdapter {
         this.c = c;
         this.newShape = null;
         this.mouseDelta = new Point2D.Double(0, 0);
-
+        this.controls = Collections.emptyList();
     }
 
     public void mouseDragged(MouseEvent m) {
@@ -54,11 +56,12 @@ public class MouseListener extends MouseAdapter {
         mouseDelta.setLocation(m.getPoint().getX() - lastPos.getX(), m.getPoint().getY() - lastPos.getY());
         if (isDrawing && (newShape != null)) {
             Point2D position = newShape.getPosition();
-            newShape.setSize(new Point2D.Double(m.getPoint().x - position.getX(), m.getPoint().y - position.getY()));
+            newShape.setSize(new Dimension(Double.valueOf(m.getPoint().x - position.getX()).intValue(), Double.valueOf(m.getPoint().y - position.getY()).intValue()));
         }
 
-        if (control != null) {
-            control.notifyEvent(new MouseEntityEvent(control, EntityEventType.MOUSE_DRAGGED, startPos, m.getPoint()));
+        if (!controls.isEmpty()) {
+            Control control = controls.get(0);
+            control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_DRAGGED, startPos, m.getPoint()));
         } /*else if (c.getTool() == Tool.SELECT) {
             for (Entity s : c.getSelectionManager().getShapes()) {
                 s.notifyShapeEvent(new MouseShapeEvent(s, ShapeEventType.MOUSE_DRAGGED, startPos, m.getPoint()));
@@ -66,9 +69,7 @@ public class MouseListener extends MouseAdapter {
         }*/
 
         c.getDrawing().repaint();
-
         lastPos = m.getPoint();
-
     }
 
     public void mouseMoved(MouseEvent m) {
@@ -80,29 +81,32 @@ public class MouseListener extends MouseAdapter {
 
         Tool t = c.getTool();
         isDrawing = true;
-        control = null;
+        controls = Collections.emptyList();
 
         if (t == Tool.SELECT) {
 
-            List<Entity> shapes = c.getDrawing().getShapesAt(startPos);
 
+            controls = c.getSelectionManager()
+                    .getControls()
+                    .stream()
+                    .filter(c -> c.isWithin(m.getPoint())).collect(Collectors.toList());
 
-            control = shapes.stream().filter(shape -> shape instanceof Control && !(shape instanceof ModifyControls)).map(shape -> (Control) shape).findFirst().orElse(null);
-            if (control != null) {
-                control.notifyEvent(new MouseEntityEvent(control, EntityEventType.MOUSE_PRESSED, startPos, m.getPoint()));
+            if (!controls.isEmpty()) {
+                Control control = controls.get(0);
+                control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_PRESSED, startPos, m.getPoint()));
             } else {
-                Entity tmp = null;
-                if (!shapes.isEmpty()) {
-                    tmp = shapes.get(shapes.size() - 1);
-                }
+                Entity entity = c.getDrawing().getEntitiesAt(startPos)
+                        .stream()
+                        .min((e1, e2) -> (int) ((e1.getBounds().getWidth() * e1.getBounds().getWidth()) - (e2.getBounds().getWidth() * e2.getBounds().getWidth())))
+                        .orElse(null);
 
                 if (((m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == 0)
-                        && !c.getSelectionManager().contains(tmp)) {
-                    c.getSelectionManager().empty();
+                        && !c.getSelectionManager().contains(entity)) {
+                    c.getSelectionManager().removeAll();
                 }
 
-                if ((tmp != null) && (!c.getSelectionManager().contains(tmp))) {
-                    c.getSelectionManager().add(tmp);
+                if (entity != null && !c.getSelectionManager().contains(entity)) {
+                    c.getSelectionManager().add(entity);
                 }
             }
 
@@ -125,8 +129,9 @@ public class MouseListener extends MouseAdapter {
         isDrawing = false;
         newShape = null;
 
-        if (control != null) {
-            control.notifyEvent(new MouseEntityEvent(control, EntityEventType.MOUSE_RELEASED, startPos, m.getPoint()));
+        if (!controls.isEmpty()) {
+            Control control = controls.get(0);
+            control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_RELEASED, startPos, m.getPoint()));
         }
         /*else if (c.getTool() == Tool.SELECT) {
             c.getSelection().getShapes().forEach(s -> {
@@ -139,7 +144,7 @@ public class MouseListener extends MouseAdapter {
             }
 
         }*/
-        control = null;
+        controls = Collections.emptyList();
     }
 
 }

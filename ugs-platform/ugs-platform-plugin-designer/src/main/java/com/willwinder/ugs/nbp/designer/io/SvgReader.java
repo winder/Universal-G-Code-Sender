@@ -27,11 +27,11 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class BatikIO implements GVTTreeBuilderListener, Reader {
+public class SvgReader implements GVTTreeBuilderListener, Reader {
 
     private JSVGCanvas svgCanvas;
     private Controller controller;
-    private static final Logger LOGGER = Logger.getLogger(BatikIO.class.getSimpleName());
+    private static final Logger LOGGER = Logger.getLogger(SvgReader.class.getSimpleName());
 
     @Override
     public void open(File f, Controller c) {
@@ -42,7 +42,7 @@ public class BatikIO implements GVTTreeBuilderListener, Reader {
         svgCanvas.setURI(f.toURI().toString());
     }
 
-    private void walk(Node node, Entity parent, AffineTransform transform, int level) {
+    private void walk(Node node, Group group, AffineTransform transform, int level) {
         GraphicsNode graphicsNode = svgCanvas.getUpdateManager().getBridgeContext().getGraphicsNode(node);
 
         if (graphicsNode != null) {
@@ -56,12 +56,12 @@ public class BatikIO implements GVTTreeBuilderListener, Reader {
             if (graphicsNode instanceof CompositeGraphicsNode ) {
                 NodeList childNodes = node.getChildNodes();
                 for (int i = 0; i < childNodes.getLength(); i++) {
-                    walk(childNodes.item(i), parent, groupTransform, level + 1);
+                    walk(childNodes.item(i), group, groupTransform, level + 1);
                 }
             } else if (graphicsNode instanceof ShapeNode) {
                 ShapeNode shapeNode = (ShapeNode) graphicsNode;
                 Shape shape = shapeNode.getShape();
-                Entity createdShape = null;
+                AbstractEntity createdShape = null;
 
                 if (shape instanceof ExtendedGeneralPath) {
                     createdShape = parsePath((ExtendedGeneralPath) shape);
@@ -74,28 +74,28 @@ public class BatikIO implements GVTTreeBuilderListener, Reader {
                 }
 
                 if(createdShape != null) {
-                    createdShape.setParent(parent);
+                    createdShape.setParent(group);
                     createdShape.setTransform(groupTransform);
-                    parent.addChild(createdShape);
+                    group.addChild(createdShape);
                 }
             }
         }
     }
 
-    private Entity parseEllipse(Ellipse2D shape) {
+    private AbstractEntity parseEllipse(Ellipse2D shape) {
         Ellipse circle = new Ellipse((int) shape.getX(), (int) shape.getY());
-        circle.setSize(new Point((int) shape.getWidth(), (int) shape.getHeight()));
+        circle.setSize(new Dimension((int) shape.getWidth(), (int) shape.getHeight()));
         return circle;
     }
 
-    private Entity parseRectangle(Rectangle2D shape) {
+    private AbstractEntity parseRectangle(Rectangle2D shape) {
         Rectangle rectangle = new Rectangle(shape.getX(), shape.getY());
         rectangle.setWidth(shape.getWidth());
         rectangle.setHeight(shape.getHeight());
         return rectangle;
     }
 
-    private Entity parsePath(ExtendedGeneralPath shape) {
+    private AbstractEntity parsePath(ExtendedGeneralPath shape) {
         ExtendedPathIterator extendedPathIterator = shape.getExtendedPathIterator();
         double[] coords = new double[8];
 
@@ -147,7 +147,7 @@ public class BatikIO implements GVTTreeBuilderListener, Reader {
         walk(svgCanvas.getSVGDocument(), group, new AffineTransform(), 0);
 
         controller.newDrawing();
-        controller.getDrawing().insertShape(group);
+        controller.getDrawing().insertEntity(group);
         controller.getDrawing().repaint();
     }
 

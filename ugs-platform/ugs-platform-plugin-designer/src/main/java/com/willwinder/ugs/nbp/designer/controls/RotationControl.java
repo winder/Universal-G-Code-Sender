@@ -1,78 +1,34 @@
 package com.willwinder.ugs.nbp.designer.controls;
 
-
 import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.logic.events.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.events.EntityEvent;
-import com.willwinder.ugs.nbp.designer.logic.events.EntityEventType;
+import com.willwinder.ugs.nbp.designer.logic.events.EventType;
+import com.willwinder.ugs.nbp.designer.logic.events.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.selection.SelectionManager;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.logging.Logger;
 
-public class RotationControl extends Control {
-    public static final int SIZE = 6;
+public class RotationControl extends AbstractControl {
+    public static final int SIZE = 8;
+    private static final Logger LOGGER = Logger.getLogger(RotationControl.class.getSimpleName());
     private final Rectangle2D shape;
-    private Point2D mousePoint;
-    private double angle;
+    private Point2D startPosition = new Point2D.Double();
+    private double startRotation;
+    private double rotationSnapping = 10d;
 
-    public RotationControl(Entity parent, SelectionManager selectionManager) {
-        super(parent, selectionManager);
+    public RotationControl(Entity target, SelectionManager selectionManager) {
+        super(target, selectionManager);
         shape = new Rectangle2D.Double(0, 0, SIZE, SIZE);
-        angle = parent.getRotation();
-
-        updatePosition();
-        parent.addListener(event -> {
-            if (event.getType() == EntityEventType.RESIZED) {
-                updatePosition();
-            }
-        });
     }
-
-    private void updatePosition() {
-        AffineTransform transform = new AffineTransform();
-        transform.translate(getParent().getBounds().getWidth() / 2 - (SIZE / 2d), -(SIZE * 2d));
-        setTransform(transform);
-    }
-
-    @Override
-    public Shape getShape() {
-        return shape;
-    }
-
-    @Override
-    public void setSize(Point2D s) {
-
-    }
-
-    @Override
-    public void drawShape(Graphics2D g) {
-        g.setStroke(new BasicStroke(0));
-        g.setColor(Color.GRAY);
-
-        Shape transformedShape = getGlobalTransform().createTransformedShape(getShape());
-        g.fill(transformedShape);
-    }
-
-    @Override
-    public void onEvent(EntityEvent entityEvent) {
-        if (entityEvent instanceof MouseEntityEvent && entityEvent.getShape() == this) {
-            MouseEntityEvent mouseShapeEvent = (MouseEntityEvent) entityEvent;
-            Point2D centerPoint = getParent().getCenter();
-
-            try {
-                mousePoint = mouseShapeEvent.getCurrentMousePosition();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            angle = Math.round(calcRotationAngleInDegrees(centerPoint, mousePoint) / 5d) * 5d;
-            getParent().setRotation(angle);
-        }
-    }
-
 
     /**
      * Calculates the angle from centerPt to targetPt in degrees.
@@ -119,5 +75,71 @@ public class RotationControl extends Control {
         }
 
         return angle;
+    }
+
+    private void updatePosition() {
+        // Create transformation for where to position the controller in relative space
+        AffineTransform transform = getTarget().getGlobalTransform();
+
+        Rectangle bounds = getTarget().getRelativeShape().getBounds();
+        transform.translate(bounds.getX(), bounds.getY());
+        transform.translate(bounds.getWidth() / 2 - (SIZE / 2d), -(SIZE * 2d));
+
+        // Transform the position from relative space to real space
+        Point2D result = new Point2D.Double();
+        transform.transform(new Point2D.Double(0, 0), result);
+
+        // Create a new transform for the control
+        transform = new AffineTransform();
+        transform.translate(result.getX(), result.getY());
+        setTransform(transform);
+    }
+
+    @Override
+    public Shape getShape() {
+        return getGlobalTransform().createTransformedShape(shape);
+    }
+
+    @Override
+    public Shape getRelativeShape() {
+        return shape;
+    }
+
+    @Override
+    public void setSize(Dimension s) {
+
+    }
+
+    @Override
+    public AffineTransform getGlobalTransform() {
+        return getTransform();
+    }
+
+    @Override
+    public void render(Graphics2D g) {
+        updatePosition();
+        g.setStroke(new BasicStroke(0));
+        g.setColor(Color.GRAY);
+        g.fill(getShape());
+    }
+
+    @Override
+    public void onEvent(EntityEvent entityEvent) {
+        if (entityEvent instanceof MouseEntityEvent && entityEvent.getTarget() == this) {
+            MouseEntityEvent mouseShapeEvent = (MouseEntityEvent) entityEvent;
+            Point2D mousePosition = mouseShapeEvent.getCurrentMousePosition();
+
+            Entity target = getTarget();
+            if (mouseShapeEvent.getType() == EventType.MOUSE_PRESSED) {
+                startPosition = mousePosition;
+                startRotation = target.getRotation();
+            } else if (mouseShapeEvent.getType() == EventType.MOUSE_DRAGGED) {
+                double deltaAngle = calcRotationAngleInDegrees(target.getCenter(), mousePosition) - calcRotationAngleInDegrees(target.getCenter(), startPosition);
+                double snappedRotation = Math.round((startRotation + deltaAngle) / rotationSnapping) * rotationSnapping;
+                target.setRotation(snappedRotation);
+            } else if (mouseShapeEvent.getType() == EventType.MOUSE_RELEASED) {
+                LOGGER.info("Stopped rotating " + target.getRotation());
+            }
+        }
     }
 }

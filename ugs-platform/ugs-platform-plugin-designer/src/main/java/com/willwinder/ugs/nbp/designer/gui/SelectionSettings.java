@@ -1,6 +1,5 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
-
 import com.willwinder.ugs.nbp.designer.cut.CutType;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -10,10 +9,18 @@ import com.willwinder.ugs.nbp.designer.logic.events.ControllerListener;
 import com.willwinder.ugs.nbp.designer.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.selection.SelectionListener;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
+import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
-import java.awt.*;
+import java.awt.Dimension;
 import java.util.Arrays;
 
 public class SelectionSettings extends JPanel implements SelectionListener, ControllerListener {
@@ -90,19 +97,19 @@ public class SelectionSettings extends JPanel implements SelectionListener, Cont
     }
 
     private void onDepthChange(ChangeEvent event) {
-        if(this.shape == null) {
+        if (this.shape == null) {
             return;
         }
-        this.shape.getCutSettings().setDepth((Double) depthSpinner.getValue());
+        //this.shape.getCutSettings().setDepth((Double) depthSpinner.getValue());
     }
 
     private void onCutTypeChange(ListSelectionEvent event) {
-        if(this.shape == null) {
+        if (this.shape == null) {
             return;
         }
 
         CutType selectedValue = cutType.getSelectedValue();
-        this.shape.getCutSettings().setCutType(selectedValue);
+        //this.shape.getCutSettings().setCutType(selectedValue);
     }
 
     @Override
@@ -111,7 +118,7 @@ public class SelectionSettings extends JPanel implements SelectionListener, Cont
         cutType.setEnabled(enabled);
         depthSpinner.setEnabled(enabled);
 
-        if(!enabled) {
+        if (!enabled) {
             cutType.setSelectedIndex(0);
             depthSpinner.setValue(0d);
         }
@@ -120,7 +127,7 @@ public class SelectionSettings extends JPanel implements SelectionListener, Cont
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
         System.out.println("Selection settings: " + selectionEvent);
-        if(this.controller.getSelectionManager().getShapes().isEmpty()){
+        if (this.controller.getSelectionManager().getChildren().isEmpty()) {
             this.shape = null;
             setEnabled(false);
             return;
@@ -128,18 +135,18 @@ public class SelectionSettings extends JPanel implements SelectionListener, Cont
             setEnabled(true);
         }
 
-        this.shape = this.controller.getSelectionManager().getShapes().get(0);
+        this.shape = this.controller.getSelectionManager().getChildren().get(0);
 
         int index = 0;
-        for(int i = 0; i < cutType.getModel().getSize(); i++) {
-            if(cutType.getModel().getElementAt(i) == this.shape.getCutSettings().getCutType()) {
+        for (int i = 0; i < cutType.getModel().getSize(); i++) {
+            /*if(cutType.getModel().getElementAt(i) == this.shape.getCutSettings().getCutType()) {
                 index = i;
                 break;
-            }
+            }*/
         }
         cutType.setSelectedIndex(index);
 
-        depthSpinner.setValue(this.shape.getCutSettings().getDepth());
+        //depthSpinner.setValue(this.shape.getCutSettings().getDepth());
 
         Settings settings = controller.getSettings();
         feedSpeedSpinner.setValue(settings.getFeedSpeed());

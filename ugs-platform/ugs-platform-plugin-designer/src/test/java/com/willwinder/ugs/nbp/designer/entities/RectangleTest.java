@@ -2,6 +2,7 @@ package com.willwinder.ugs.nbp.designer.entities;
 
 import org.junit.Test;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 import static org.junit.Assert.*;
@@ -55,5 +56,38 @@ public class RectangleTest {
 
         assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getX()));
         assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getY()));
+    }
+
+    @Test
+    public void getShapeShouldReturnATransformedShape() {
+        Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setWidth(10);
+        rectangle.setHeight(10);
+
+        AffineTransform transform = new AffineTransform();
+        transform.translate(10, 10);
+        rectangle.setTransform(transform);
+
+        assertEquals(20d, rectangle.getShape().getBounds().getX(), 0.01);
+        assertEquals(20d, rectangle.getShape().getBounds().getY(), 0.01);
+    }
+
+    @Test
+    public void getShapeShouldReturnAGloballyTransformedShape() {
+        AffineTransform transform = new AffineTransform();
+        transform.translate(10, 10);
+        Rectangle rectangle = new Rectangle();
+        rectangle.setWidth(10);
+        rectangle.setHeight(10);
+        rectangle.setTransform(transform);
+
+        transform = new AffineTransform();
+        transform.translate(10, 10);
+        Group group = new Group();
+        group.setTransform(transform);
+        group.addChild(rectangle);
+
+        assertEquals(20d, rectangle.getShape().getBounds().getX(), 0.01);
+        assertEquals(20d, rectangle.getShape().getBounds().getY(), 0.01);
     }
 }

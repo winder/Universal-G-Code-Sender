@@ -1,5 +1,6 @@
 package com.willwinder.ugs.nbp.designer.gcode;
 
+import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gcode.path.*;
 import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimpleOutline;
@@ -124,7 +125,7 @@ public class SimpleGcodeRouter {
         }
 
         // Wrap in too
-        switch (shape.getCutSettings().getCutType()) {
+        /*switch (shape.getCutSettings().getCutType()) {
             case ON_PATH:
                 SimpleOutline cut = new SimpleOutline(path);
                 cut.setDepth(shape.getCutSettings().getDepth());
@@ -137,7 +138,7 @@ public class SimpleGcodeRouter {
                 break;
             case OUTSIDE_PATH:
                 break;
-        }
+        }*/
 
         return path;
     }

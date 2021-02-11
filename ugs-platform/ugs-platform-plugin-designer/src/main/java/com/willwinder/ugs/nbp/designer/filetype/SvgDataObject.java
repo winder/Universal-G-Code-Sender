@@ -98,8 +98,6 @@ public class SvgDataObject extends MultiDataObject {
     public SvgDataObject(FileObject pf, MultiFileLoader loader) throws IOException {
         super(pf, loader);
         registerEditor("application/x-svg", true);
-
-
     }
 
     @Override

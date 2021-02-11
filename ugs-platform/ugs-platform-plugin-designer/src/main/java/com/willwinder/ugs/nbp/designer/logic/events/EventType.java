@@ -1,6 +1,6 @@
 package com.willwinder.ugs.nbp.designer.logic.events;
 
-public enum EntityEventType {
+public enum EventType {
     ROTATED,
     MOVED,
     RESIZED,

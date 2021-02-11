@@ -1,26 +1,25 @@
 package com.willwinder.ugs.nbp.designer.logic.events;
 
-
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 
 public class EntityEvent {
-    private final Entity shape;
-    private EntityEventType type;
+    private final Entity target;
+    private EventType type;
 
-    public EntityEvent(Entity shape, EntityEventType type) {
-        this.shape = shape;
+    public EntityEvent(Entity target, EventType type) {
+        this.target = target;
         this.type = type;
     }
 
-    public EntityEventType getType() {
+    public EventType getType() {
         return type;
     }
 
-    public void setType(EntityEventType type) {
+    public void setType(EventType type) {
         this.type = type;
     }
 
-    public Entity getShape() {
-        return shape;
+    public Entity getTarget() {
+        return target;
     }
 }
