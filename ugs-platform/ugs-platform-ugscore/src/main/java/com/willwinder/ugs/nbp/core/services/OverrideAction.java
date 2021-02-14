@@ -18,8 +18,6 @@
  */
 package com.willwinder.ugs.nbp.core.services;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Overrides;
 import org.openide.util.Lookup;
 
@@ -36,6 +34,9 @@ public class OverrideAction extends AbstractAction implements Serializable {
     private OverrideActionService overrideActionService;
     private Overrides action;
 
+    /**
+     * Empty constructor to be used for serialization
+     */
     public OverrideAction() {
     }
 

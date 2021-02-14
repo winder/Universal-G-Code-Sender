@@ -18,11 +18,9 @@
  */
 package com.willwinder.ugs.nbp.core.services;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.services.JogService;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;

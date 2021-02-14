@@ -17,8 +17,10 @@ public class MacroAction extends AbstractAction implements Serializable {
     private transient BackendAPI backend;
     private Macro macro;
 
+    /**
+     * Empty constructor to be used for serialization
+     */
     public MacroAction() {
-
     }
 
     public MacroAction(BackendAPI b, Macro macro) {
