@@ -79,7 +79,7 @@ public class GrblUtils {
      * Checks if the string contains the GRBL version.
      */
     static Boolean isGrblVersionString(final String response) {
-        Boolean version = response.startsWith("Grbl ") || response.startsWith("CarbideMotion ") || response.startsWith("GrblHAL ") || response.startsWith("gCarvin ");
+        boolean version = response.startsWith("Grbl ") || response.startsWith("CarbideMotion ") || response.startsWith("GrblHAL ") || response.startsWith("gCarvin ");
         return version && (getVersionDouble(response) != -1);
     }
     
@@ -266,19 +266,19 @@ public class GrblUtils {
     /**
      * Check if a string contains a GRBL position string.
      */
-    private static final String STATUS_REGEX = "\\<.*\\>";
+    private static final String STATUS_REGEX = "<.*>";
     private static final Pattern STATUS_PATTERN = Pattern.compile(STATUS_REGEX);
     static protected Boolean isGrblStatusString(final String response) {
         return STATUS_PATTERN.matcher(response).find();
     }
 
-    private static final String PROBE_REGEX = "\\[PRB:.*\\]";
+    private static final String PROBE_REGEX = "\\[PRB:.*]";
     private static final Pattern PROBE_PATTERN = Pattern.compile(PROBE_REGEX);
     static protected Boolean isGrblProbeMessage(final String response) {
         return PROBE_PATTERN.matcher(response).find();
     }
 
-    private static final String FEEDBACK_REGEX = "\\[.*\\]";
+    private static final String FEEDBACK_REGEX = "\\[.*]";
     private static final Pattern FEEDBACK_PATTERN = Pattern.compile(FEEDBACK_REGEX);
     static protected Boolean isGrblFeedbackMessage(final String response, Capabilities c) {
         if (c.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)) {
@@ -482,7 +482,7 @@ public class GrblUtils {
     /**
      * Parse state out of position string.
      */
-    final static String STATUS_STATE_REGEX = "(?<=\\<)[a-zA-z]*(?=[,])";
+    final static String STATUS_STATE_REGEX = "(?<=<)[a-zA-z]*(?=[,])";
     final static Pattern STATUS_STATE_PATTERN = Pattern.compile(STATUS_STATE_REGEX);
     static protected String getStateFromStatusString(final String status, final Capabilities version) {
         String retValue = null;
@@ -525,9 +525,10 @@ public class GrblUtils {
         }
     }
 
-    static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)");
-    static Pattern workPattern = Pattern.compile("(?<=WPos:)(\\-?\\d*\\.?\\d*),(\\-?\\d*\\.?\\d*),(\\-?\\d*\\.?\\d*)");
-    static Pattern wcoPattern = Pattern.compile("(?<=WCO:)(\\-?\\d*\\.?\\d*),(\\-?\\d*\\.?\\d*),(\\-?\\d*\\.?\\d*)");
+    // Optionally look for 6 axes (ABC support as extended by Grbl ESP 32)
+    static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d*))?(?:,(-?\\d*\\.?\\d*))?(?:,(-?\\d*\\.?\\d*))?");
+    static Pattern workPattern = Pattern.compile("(?<=WPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d*))?(?:,(-?\\d*\\.?\\d*))?(?:,(-?\\d*\\.?\\d*))?");
+    static Pattern wcoPattern = Pattern.compile("(?<=WCO:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d*))?(?:,(-?\\d*\\.?\\d*))?(?:,(-?\\d*\\.?\\d*))?");
     static protected Position getMachinePositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
         if (version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             return GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
@@ -547,10 +548,23 @@ public class GrblUtils {
     static private Position getPositionFromStatusString(final String status, final Pattern pattern, Units reportingUnits) {
         Matcher matcher = pattern.matcher(status);
         if (matcher.find()) {
-            return new Position(Double.parseDouble(matcher.group(1)),
-                                Double.parseDouble(matcher.group(2)),
-                                Double.parseDouble(matcher.group(3)),
-                                reportingUnits);
+            Position result = new Position(Double.parseDouble(matcher.group(1)),
+                    Double.parseDouble(matcher.group(2)),
+                    Double.parseDouble(matcher.group(3)),
+                    reportingUnits);
+
+            // Add in optional axes.
+            if (matcher.group(6) != null) {
+                result.c = Double.parseDouble(matcher.group(6));
+            }
+            if (matcher.group(5) != null) {
+                result.b = Double.parseDouble(matcher.group(5));
+            }
+            if (matcher.group(4) != null) {
+                result.a = Double.parseDouble(matcher.group(4));
+            }
+
+            return result;
         }
         
         return null;

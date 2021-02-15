@@ -230,6 +230,9 @@ public class TinyGController extends AbstractController {
             return;
         }
 
+        capabilities.addCapability(CapabilitiesConstants.X_AXIS);
+        capabilities.addCapability(CapabilitiesConstants.Y_AXIS);
+        capabilities.addCapability(CapabilitiesConstants.Z_AXIS);
         capabilities.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);
         capabilities.addCapability(CapabilitiesConstants.JOGGING);
         capabilities.removeCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);

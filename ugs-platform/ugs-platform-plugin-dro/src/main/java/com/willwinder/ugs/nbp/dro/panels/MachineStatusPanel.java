@@ -50,6 +50,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import static com.willwinder.universalgcodesender.CapabilitiesConstants.*;
+
 /**
  * DRO style display panel with current controller state.
  */
@@ -63,6 +65,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final String PIN_X = Localization.getString("machineStatus.pin.x").toUpperCase();
     private final String PIN_Y = Localization.getString("machineStatus.pin.y").toUpperCase();
     private final String PIN_Z = Localization.getString("machineStatus.pin.z").toUpperCase();
+    private final String PIN_A = Localization.getString("machineStatus.pin.a").toUpperCase();
+    private final String PIN_B = Localization.getString("machineStatus.pin.b").toUpperCase();
+    private final String PIN_C = Localization.getString("machineStatus.pin.c").toUpperCase();
     private final String PIN_PROBE = Localization.getString("machineStatus.pin.probe").toUpperCase();
     private final String PIN_DOOR = Localization.getString("machineStatus.pin.door").toUpperCase();
     private final String PIN_HOLD = Localization.getString("machineStatus.pin.hold").toUpperCase();
@@ -86,7 +91,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final Timer statePollTimer;
 
     private Units units;
-    private Map<Axis, AxisPanel> axisPanels = new HashMap<>();
+    private final Map<Axis, AxisPanel> axisPanels = new HashMap<>();
     private final DecimalFormat decimalFormatter = new DecimalFormat("0.000");
 
 
@@ -141,7 +146,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         activeStateValueLabel.setBorder(BorderFactory.createEmptyBorder());
         add(activeStatePanel, "growx");
 
-        Stream.of(Axis.X, Axis.Y, Axis.Z).forEach(this::createAxisPanel);
+        Stream.of(Axis.X, Axis.Y, Axis.Z, Axis.A, Axis.B, Axis.C).forEach(this::createAxisPanel);
 
         JPanel speedPanel = new JPanel(new MigLayout(debug + "fillx, wrap 2, inset 0", "[al right][]"));
         speedPanel.setOpaque(false);
@@ -229,7 +234,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         units = u;
         switch (u) {
             case MM:
-                break;
             case INCH:
                 break;
             default:
@@ -252,13 +256,21 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     private void updateControls() {
-        axisPanels.values().forEach(c -> c.setEnabled(backend.isIdle()));
-
         if (!backend.isConnected()) {
+            axisPanels.values().forEach(c -> c.setEnabled(false));
+
             // Clear out the status color.
             this.updateStatePanel(ControllerState.UNKNOWN);
             resetStatePinComponents();
+            return;
         }
+
+        axisPanels.get(Axis.X).setEnabled(backend.getController().getCapabilities().hasCapability(X_AXIS));
+        axisPanels.get(Axis.Y).setEnabled(backend.getController().getCapabilities().hasCapability(Y_AXIS));
+        axisPanels.get(Axis.Z).setEnabled(backend.getController().getCapabilities().hasCapability(Z_AXIS));
+        axisPanels.get(Axis.A).setEnabled(backend.getController().getCapabilities().hasCapability(A_AXIS));
+        axisPanels.get(Axis.B).setEnabled(backend.getController().getCapabilities().hasCapability(B_AXIS));
+        axisPanels.get(Axis.C).setEnabled(backend.getController().getCapabilities().hasCapability(C_AXIS));
     }
 
     private void onControllerStatusReceived(ControllerStatus status) {
@@ -273,6 +285,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             if (ep.X) enabled.add(PIN_X);
             if (ep.Y) enabled.add(PIN_Y);
             if (ep.Z) enabled.add(PIN_Z);
+            if (ep.A) enabled.add(PIN_A);
+            if (ep.B) enabled.add(PIN_B);
+            if (ep.C) enabled.add(PIN_C);
             if (ep.Probe) enabled.add(PIN_PROBE);
             if (ep.Door) enabled.add(PIN_DOOR);
             if (ep.Hold) enabled.add(PIN_HOLD);
@@ -290,7 +305,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         this.setUnits(backend.getSettings().getPreferredUnits());
 
         Arrays.stream(Axis.values())
-                .filter(axis -> axisPanels.containsKey(axis))
+                .filter(axisPanels::containsKey)
                 .forEach(axis -> {
                     if (status.getMachineCoord() != null) {
                         Position machineCoord = status.getMachineCoord().getPositionIn(units);

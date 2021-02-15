@@ -1,0 +1,66 @@
+{
+    "Name": "GRBL ESP32",
+    "Version": 5,
+    "Controller": {
+        "name": "GRBL ESP32",
+        "args": null
+    },
+    "GcodeProcessors": {
+        "Front": [
+            {
+                "name": "CommentProcessor",
+                "enabled": true,
+                "optional": false
+            },{
+                "name": "FeedOverrideProcessor",
+                "enabled": false,
+                "optional": true,
+                "args": {
+                    "speedOverridePercent": 60
+                }
+            },{
+                "name": "M30Processor",
+                "enabled": true,
+                "optional": false
+            },{
+                "name": "ArcExpander",
+                "enabled": false,
+                "optional": true,
+                "args": {
+                    "segmentLengthMM": 1.3
+                }
+            }
+        ],
+        "Custom": [
+
+        ],
+        "End": [
+            {
+                "name": "DecimalProcessor",
+                "enabled": true,
+                "optional": true,
+                "args": {
+                    "decimals":4
+                }
+            },{
+                "name": "WhitespaceProcessor",
+                "enabled": true,
+                "optional": true
+            },{
+                "name": "SpindleOnDweller",
+                "enabled": false,
+                "optional": true,
+                "args": {
+                    "duration": 2.5
+                }
+            },{
+                "name": "CommandLengthProcessor",
+                "enabled": true,
+                "optional": true,
+                "args": {
+                    "commandLength":70
+                }
+            }
+        ]
+    }
+}

@@ -567,4 +567,63 @@ public class GrblUtilsTest {
         assertFalse(controllerStatus.getAccessoryStates().SpindleCCW);
         assertFalse(controllerStatus.getAccessoryStates().SpindleCW);
     }
+
+    @Test
+    public void get6AxesCoordinates() {
+        String status = "<Idle|MPos:1.1,2.2,3.3,4.4,5.5,6.6|WPos:7.7,8.8,9.9,10.10,11.11,12.12|WCO:13.13,14.14,15.15,16.16,17.17,18.18|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZABCPDHRS|A:SFMC>";
+        Capabilities version = new Capabilities();
+        version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
+        UnitUtils.Units unit = MM;
+
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+
+        assertEquals(ControllerState.IDLE, controllerStatus.getState());
+
+        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 5.5, 6.6, MM), controllerStatus.getMachineCoord());
+        assertEquals(new Position(7.7, 8.8, 9.9, 10.10, 11.11, 12.12, MM), controllerStatus.getWorkCoord());
+        assertEquals(new Position(13.13, 14.14, 15.15, 16.16, 17.17, 18.18, MM), controllerStatus.getWorkCoordinateOffset());
+
+        assertTrue(controllerStatus.getEnabledPins().A);
+        assertTrue(controllerStatus.getEnabledPins().B);
+        assertTrue(controllerStatus.getEnabledPins().C);
+    }
+
+    @Test
+    public void get5AxesCoordinates() {
+        String status = "<Idle|MPos:1.1,2.2,3.3,4.4,5.5|WPos:7.7,8.8,9.9,10.10,11.11|WCO:13.13,14.14,15.15,16.16,17.17|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZABPDHRS|A:SFMC>";
+        Capabilities version = new Capabilities();
+        version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
+        UnitUtils.Units unit = MM;
+
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+
+        assertEquals(ControllerState.IDLE, controllerStatus.getState());
+
+        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 5.5, 0.0, MM), controllerStatus.getMachineCoord());
+        assertEquals(new Position(7.7, 8.8, 9.9, 10.10, 11.11, 0.0, MM), controllerStatus.getWorkCoord());
+        assertEquals(new Position(13.13, 14.14, 15.15, 16.16, 17.17, 0.0, MM), controllerStatus.getWorkCoordinateOffset());
+        assertTrue(controllerStatus.getEnabledPins().A);
+        assertTrue(controllerStatus.getEnabledPins().B);
+        assertFalse(controllerStatus.getEnabledPins().C);
+    }
+
+    @Test
+    public void get4AxesCoordinates() {
+        String status = "<Idle|MPos:1.1,2.2,3.3,4.4|WPos:7.7,8.8,9.9,10.10|WCO:13.13,14.14,15.15,16.16|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZAPDHRS|A:SFMC>";
+        Capabilities version = new Capabilities();
+        version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
+        UnitUtils.Units unit = MM;
+
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+
+        assertEquals(ControllerState.IDLE, controllerStatus.getState());
+
+        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 0.0, 0.0, MM), controllerStatus.getMachineCoord());
+        assertEquals(new Position(7.7, 8.8, 9.9, 10.10, 0.0, 0.0, MM), controllerStatus.getWorkCoord());
+        assertEquals(new Position(13.13, 14.14, 15.15, 16.16, 0.0, 0.0, MM), controllerStatus.getWorkCoordinateOffset());
+
+        assertTrue(controllerStatus.getEnabledPins().A);
+        assertFalse(controllerStatus.getEnabledPins().B);
+        assertFalse(controllerStatus.getEnabledPins().C);
+    }
 }
