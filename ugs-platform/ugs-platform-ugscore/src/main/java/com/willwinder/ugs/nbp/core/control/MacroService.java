@@ -97,39 +97,5 @@ public final class MacroService {
         }
     }
 
-    protected class MacroAction extends AbstractAction {
-        private BackendAPI backend;
-        private Macro macro;
 
-        public MacroAction(BackendAPI b, Macro macro) {
-            backend = b;
-            this.macro = macro;
-            backend.addUGSEventListener(this::onEvent);
-        }
-
-        private void onEvent(UGSEvent event) {
-            if (event != null && event.isStateChangeEvent()) {
-                EventQueue.invokeLater(() -> setEnabled(isEnabled()));
-            }
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (macro != null && macro.getGcode() != null) {
-                EventQueue.invokeLater(() -> {
-                    try {
-                        MacroHelper.executeCustomGcode(macro.getGcode(), backend);
-                    } catch (Exception ex) {
-                        GUIHelpers.displayErrorDialog(ex.getMessage());
-                        Exceptions.printStackTrace(ex);
-                    }
-                });
-            }
-        }
-
-        @Override
-        public boolean isEnabled() {
-            return backend.isConnected() && backend.isIdle();
-        }
-    }
 }

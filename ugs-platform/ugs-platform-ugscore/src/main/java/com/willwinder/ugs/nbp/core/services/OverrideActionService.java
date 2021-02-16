@@ -75,23 +75,23 @@ public class OverrideActionService {
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrCoarseMinus", String.format(pattern, OverridesPanel.MINUS_COARSE),
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_FEED_OVR_COARSE_MINUS));
+                    new OverrideAction(Overrides.CMD_FEED_OVR_COARSE_MINUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrFineMinus", String.format(pattern, OverridesPanel.MINUS_FINE),
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_FEED_OVR_FINE_MINUS));
+                    new OverrideAction(Overrides.CMD_FEED_OVR_FINE_MINUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrFinePlus", String.format(pattern, OverridesPanel.PLUS_FINE),
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_FEED_OVR_FINE_PLUS));
+                    new OverrideAction(Overrides.CMD_FEED_OVR_FINE_PLUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrCoarsePlus", String.format(pattern, OverridesPanel.PLUS_COARSE),
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_FEED_OVR_COARSE_PLUS));
+                    new OverrideAction(Overrides.CMD_FEED_OVR_COARSE_PLUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrReset", String.format(pattern, OverridesPanel.RESET_FEED),
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_FEED_OVR_RESET));
+                    new OverrideAction(Overrides.CMD_FEED_OVR_RESET));
 
             // Spindle Overrides
             menuPath = "Menu/Machine/Overrides";
@@ -102,23 +102,23 @@ public class OverrideActionService {
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrCoarseMinus", String.format(pattern, OverridesPanel.MINUS_COARSE),
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_COARSE_MINUS));
+                    new OverrideAction(Overrides.CMD_SPINDLE_OVR_COARSE_MINUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrFineMinus", String.format(pattern, OverridesPanel.MINUS_FINE),
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_FINE_MINUS));
+                    new OverrideAction(Overrides.CMD_SPINDLE_OVR_FINE_MINUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrFinePlus", String.format(pattern, OverridesPanel.PLUS_FINE),
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_FINE_PLUS));
+                    new OverrideAction(Overrides.CMD_SPINDLE_OVR_FINE_PLUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrCoarsePlus", String.format(pattern, OverridesPanel.PLUS_COARSE),
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_COARSE_PLUS));
+                    new OverrideAction(Overrides.CMD_SPINDLE_OVR_COARSE_PLUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrReset", String.format(pattern, Localization.getString("mainWindow.swing.reset")),
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_RESET));
+                    new OverrideAction(Overrides.CMD_SPINDLE_OVR_RESET));
 
             // Rapid Overrides
             menuPath = "Menu/Machine/Overrides";
@@ -130,15 +130,15 @@ public class OverrideActionService {
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".rapidOvrLow", String.format(pattern, OverridesPanel.RAPID_LOW),
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_RAPID_OVR_LOW));
+                    new OverrideAction(Overrides.CMD_RAPID_OVR_LOW));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".rapidOvrMedium", String.format(pattern, OverridesPanel.RAPID_MEDIUM),
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_RAPID_OVR_MEDIUM));
+                    new OverrideAction(Overrides.CMD_RAPID_OVR_MEDIUM));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".rapidOvrReset", String.format(pattern, OverridesPanel.RAPID_FULL),
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_RAPID_OVR_RESET));
+                    new OverrideAction(Overrides.CMD_RAPID_OVR_RESET));
 
             // Toggles
             menuPath = "Menu/Machine/Overrides/Toggles";
@@ -149,15 +149,15 @@ public class OverrideActionService {
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".toggleSpindle", OverridesPanel.SPINDLE_SHORT,
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_TOGGLE_SPINDLE));
+                    new OverrideAction(Overrides.CMD_TOGGLE_SPINDLE));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".toogleFloodCoolant", OverridesPanel.FLOOD,
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_TOGGLE_FLOOD_COOLANT));
+                    new OverrideAction(Overrides.CMD_TOGGLE_FLOOD_COOLANT));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".toggleMistCoolant", OverridesPanel.MIST,
                     category, null, menuPath, 0, localized,
-                    new OverrideAction(this, Overrides.CMD_TOGGLE_MIST_COOLANT));
+                    new OverrideAction(Overrides.CMD_TOGGLE_MIST_COOLANT));
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
