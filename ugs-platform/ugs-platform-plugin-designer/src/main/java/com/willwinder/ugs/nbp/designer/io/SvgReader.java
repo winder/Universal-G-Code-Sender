@@ -1,8 +1,8 @@
 package com.willwinder.ugs.nbp.designer.io;
 
 
-import com.willwinder.ugs.nbp.designer.entities.Rectangle;
-import com.willwinder.ugs.nbp.designer.entities.*;
+import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
+import com.willwinder.ugs.nbp.designer.gui.entities.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
 import org.apache.batik.ext.awt.geom.ExtendedPathIterator;

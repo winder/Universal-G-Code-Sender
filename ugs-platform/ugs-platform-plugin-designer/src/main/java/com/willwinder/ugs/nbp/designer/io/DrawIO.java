@@ -1,10 +1,10 @@
 package com.willwinder.ugs.nbp.designer.io;
 
 
-import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.entities.Ellipse;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.Rectangle;
+import com.willwinder.ugs.nbp.designer.gui.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Ellipse;
+import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 

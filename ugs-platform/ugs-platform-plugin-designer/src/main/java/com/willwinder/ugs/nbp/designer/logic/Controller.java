@@ -1,15 +1,15 @@
 package com.willwinder.ugs.nbp.designer.logic;
 
-import com.willwinder.ugs.nbp.designer.actions.AddAction;
-import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
-import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
-import com.willwinder.ugs.nbp.designer.actions.UndoManager;
-import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.logic.actions.AddAction;
+import com.willwinder.ugs.nbp.designer.logic.actions.DeleteAction;
+import com.willwinder.ugs.nbp.designer.logic.actions.SimpleUndoManager;
+import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
+import com.willwinder.ugs.nbp.designer.gui.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.events.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.events.ControllerListener;
-import com.willwinder.ugs.nbp.designer.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
 
 import java.util.ArrayList;
 import java.util.List;

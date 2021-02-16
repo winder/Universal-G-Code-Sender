@@ -1,6 +1,6 @@
 package com.willwinder.ugs.nbp.designer.logic.events;
 
-import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 
 import java.awt.geom.Point2D;
 

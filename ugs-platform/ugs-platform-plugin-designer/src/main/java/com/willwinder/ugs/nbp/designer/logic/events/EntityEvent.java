@@ -1,6 +1,6 @@
 package com.willwinder.ugs.nbp.designer.logic.events;
 
-import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 
 public class EntityEvent {
     private final Entity target;

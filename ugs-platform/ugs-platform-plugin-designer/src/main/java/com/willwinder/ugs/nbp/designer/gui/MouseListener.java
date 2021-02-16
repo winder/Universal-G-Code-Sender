@@ -1,10 +1,10 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
-import com.willwinder.ugs.nbp.designer.controls.Control;
-import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.entities.Ellipse;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.Rectangle;
+import com.willwinder.ugs.nbp.designer.gui.controls.Control;
+import com.willwinder.ugs.nbp.designer.gui.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Ellipse;
+import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
 import com.willwinder.ugs.nbp.designer.logic.events.EventType;
@@ -133,6 +133,7 @@ public class MouseListener extends MouseAdapter {
             Control control = controls.get(0);
             control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_RELEASED, startPos, m.getPoint()));
         }
+
         /*else if (c.getTool() == Tool.SELECT) {
             c.getSelection().getShapes().forEach(s -> {
                 s.notifyShapeEvent(new MouseShapeEvent(s, ShapeEventType.MOUSE_RELEASED, startPos, m.getPoint()));

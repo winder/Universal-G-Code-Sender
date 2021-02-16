@@ -1,7 +1,7 @@
 package com.willwinder.ugs.nbp.designer;
 
-import com.willwinder.ugs.nbp.designer.entities.Group;
-import com.willwinder.ugs.nbp.designer.entities.Rectangle;
+import com.willwinder.ugs.nbp.designer.gui.entities.Group;
+import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.SelectionSettings;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;

@@ -1,13 +1,12 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
-import com.willwinder.ugs.nbp.designer.cut.CutType;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Settings;
 import com.willwinder.ugs.nbp.designer.logic.events.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.events.ControllerListener;
-import com.willwinder.ugs.nbp.designer.selection.SelectionEvent;
-import com.willwinder.ugs.nbp.designer.selection.SelectionListener;
+import com.willwinder.ugs.nbp.designer.logic.selection.SelectionEvent;
+import com.willwinder.ugs.nbp.designer.logic.selection.SelectionListener;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;

@@ -1,7 +1,7 @@
 package com.willwinder.ugs.nbp.designer;
 
 
-import com.willwinder.ugs.nbp.designer.controls.Control;
+import com.willwinder.ugs.nbp.designer.gui.controls.Control;
 import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
 import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.DrawIO;

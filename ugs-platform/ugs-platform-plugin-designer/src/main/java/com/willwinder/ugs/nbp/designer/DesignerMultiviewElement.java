@@ -19,9 +19,8 @@
 package com.willwinder.ugs.nbp.designer;
 
 import com.google.common.io.Files;
-import com.willwinder.ugs.nbp.designer.actions.UndoManagerAdapter;
-import com.willwinder.ugs.nbp.designer.controls.Control;
-import com.willwinder.ugs.nbp.designer.filetype.UgsDataObject;
+import com.willwinder.ugs.nbp.designer.logic.actions.UndoManagerAdapter;
+import com.willwinder.ugs.nbp.designer.gui.controls.Control;
 import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
 import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
@@ -29,8 +28,8 @@ import com.willwinder.ugs.nbp.designer.gui.SelectionSettings;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
 import com.willwinder.ugs.nbp.designer.io.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.selection.SelectionEvent;
-import com.willwinder.ugs.nbp.designer.selection.SelectionListener;
+import com.willwinder.ugs.nbp.designer.logic.selection.SelectionEvent;
+import com.willwinder.ugs.nbp.designer.logic.selection.SelectionListener;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.apache.commons.io.IOUtils;
@@ -40,6 +39,7 @@ import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.MultiDataObject;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 
@@ -59,11 +59,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @MultiViewElement.Registration(
-        displayName = "#platform.window.editor",
+        displayName = "#platform.window.designer",
         iconBase = "com/willwinder/ugs/nbp/designer/edit.png",
-        mimeType = {"application/x-ugs"},
+        mimeType = {"application/x-ugs", "application/x-svg"},
         persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
-        preferredID = "Ugs",
+        preferredID = "DesignerMultiviewElement",
         position = 1000
 )
 public class DesignerMultiviewElement extends JPanel implements MultiViewElement, SelectionListener {
@@ -83,12 +83,12 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
 
     public DesignerMultiviewElement(Lookup lookup) {
         this.lookup = lookup;
-        UgsDataObject obj = lookup.lookup(UgsDataObject.class);
+        MultiDataObject obj = lookup.lookup(MultiDataObject.class);
         assert obj != null;
         file = FileUtil.toFile(obj.getPrimaryFile());
         initialize();
 
-        if (StringUtils.endsWithIgnoreCase(file.getName(), "svg")) {
+        if (file != null && StringUtils.endsWithIgnoreCase(file.getName(), "svg")) {
             SvgReader batikIO = new SvgReader();
             batikIO.open(file, controller);
         } else {
@@ -178,7 +178,11 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
     @Override
     public void setMultiViewCallback(MultiViewElementCallback callback) {
         this.callback = callback;
-        callback.getTopComponent().setDisplayName(file.getName());
+        if (file != null) {
+            callback.getTopComponent().setDisplayName(file.getName());
+        } else {
+            callback.getTopComponent().setDisplayName("Unnamed drawing");
+        }
     }
 
     public CloseOperationState canCloseElement() {

@@ -1,10 +1,10 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 
-import com.willwinder.ugs.nbp.designer.controls.GridControl;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.Group;
-import com.willwinder.ugs.nbp.designer.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gui.controls.GridControl;
+import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Group;
+import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -28,19 +28,19 @@ public class Drawing extends JPanel {
     private static final long serialVersionUID = 0;
     private final SelectionManager selectionManager;
     private Group globalRoot;
-    private Group entitesRoot;
+    private Group entitiesRoot;
     private AffineTransform scaleTransform;
     private double scale;
 
     public Drawing(SelectionManager s) {
         scale = 1;
         scaleTransform = AffineTransform.getScaleInstance(scale, scale);
-        entitesRoot = new Group();
+        entitiesRoot = new Group();
         selectionManager = s;
 
         globalRoot = new Group();
         globalRoot.addChild(new GridControl(this));
-        globalRoot.addChild(entitesRoot);
+        globalRoot.addChild(entitiesRoot);
         globalRoot.addChild(selectionManager);
 
         setBorder(BorderFactory.createLineBorder(Color.black));
@@ -60,13 +60,13 @@ public class Drawing extends JPanel {
     }
 
     public void insertEntity(Entity s) {
-        s.setParent(entitesRoot);
-        entitesRoot.addChild(s);
+        s.setParent(entitiesRoot);
+        entitiesRoot.addChild(s);
     }
 
     public List<Entity> getShapes() {
         List<Entity> result = new ArrayList<>();
-        entitesRoot.getChildren().forEach(shape -> collectAll(shape, result));
+        entitiesRoot.getChildren().forEach(shape -> collectAll(shape, result));
         return result;
     }
 

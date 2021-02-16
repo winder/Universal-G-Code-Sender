@@ -1,9 +1,7 @@
 package com.willwinder.ugs.nbp.designer.gcode;
 
-import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gcode.path.*;
-import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimpleOutline;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
