@@ -24,6 +24,8 @@ import com.willwinder.ugs.nbp.joystick.model.JoystickControl;
 import com.willwinder.ugs.nbp.joystick.service.JoystickService;
 import com.willwinder.ugs.nbp.lib.services.ActionReference;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.uielements.JScrollMenu;
+import com.willwinder.universalgcodesender.uielements.JScrollPopupMenu;
 
 import javax.swing.*;
 import java.awt.*;
@@ -75,7 +77,7 @@ public class BindActionButton extends JButton {
 
     private JPopupMenu createPopupMenu(JoystickControl joystickControl) {
         ActionManager actionManager = joystickService.getActionManager();
-        JPopupMenu popupMenu = new JPopupMenu();
+        JPopupMenu popupMenu = new JScrollPopupMenu();
 
         popupMenu.add(createClearActionMenuItem(joystickControl, actionManager));
         popupMenu.add(new JSeparator());
@@ -98,7 +100,7 @@ public class BindActionButton extends JButton {
     }
 
     private Optional<JMenu> createActionsCategoryMenu(JoystickControl joystickControl, String category) {
-        JMenu categoryMenuItem = new JMenu(category);
+        JMenu categoryMenuItem = new JScrollMenu(category);
         joystickService.getActionManager()
                 .getActionsByCategory(category).stream()
                 .filter(actionReference -> !(actionReference.getAction() instanceof AnalogAction && !joystickControl.isAnalog())) // Analog actions doesn't work with digital buttons, do not add those actions
