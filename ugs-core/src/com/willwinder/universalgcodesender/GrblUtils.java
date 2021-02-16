@@ -421,15 +421,15 @@ public class GrblUtils {
             if (lastStatus != null && lastStatus.getWorkCoordinateOffset() != null) {
                 WCO = lastStatus.getWorkCoordinateOffset();
             } else {
-                WCO = new Position(0,0,0, reportingUnits);
+                WCO = new Position(0,0,0,0,0,0, reportingUnits);
             }
         }
 
         // Calculate missing coordinate with WCO
         if (WPos == null && MPos != null) {
-            WPos = new Position(MPos.x-WCO.x, MPos.y-WCO.y, MPos.z-WCO.z, reportingUnits);
+            WPos = new Position(MPos.x-WCO.x, MPos.y-WCO.y, MPos.z-WCO.z, MPos.a-WCO.a, MPos.b-WCO.b, MPos.c-WCO.c, reportingUnits);
         } else if (MPos == null && WPos != null) {
-            MPos = new Position(WPos.x+WCO.x, WPos.y+WCO.y, WPos.z+WCO.z, reportingUnits);
+            MPos = new Position(WPos.x+WCO.x, WPos.y+WCO.y, WPos.z+WCO.z, WPos.a+WCO.a, WPos.b+WCO.b, WPos.c+WCO.c, reportingUnits);
         }
 
         if (!isOverrideReport && lastStatus != null) {
