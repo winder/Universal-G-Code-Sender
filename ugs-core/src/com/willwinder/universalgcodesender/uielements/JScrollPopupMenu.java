@@ -4,6 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 
+/**
+ * Adds scroll bars to a popup menu
+ * Originally posted here: https://stackoverflow.com/a/15121081/8795168
+ *
+ * @author https://stackoverflow.com/users/1950115/riquochet
+ */
 public class JScrollPopupMenu extends JPopupMenu {
     protected int maximumVisibleRows = 10;
 

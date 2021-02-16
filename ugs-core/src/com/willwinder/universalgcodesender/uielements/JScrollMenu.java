@@ -5,6 +5,12 @@ import javax.swing.plaf.MenuItemUI;
 import javax.swing.plaf.PopupMenuUI;
 import java.awt.*;
 
+/**
+ * Adds scroll bars to a JMenu
+ * Originally posted here: https://stackoverflow.com/a/14167008/8795168
+ *
+ * @author https://stackoverflow.com/users/1950115/riquochet
+ */
 public class JScrollMenu extends JMenu {
     /**
      * The popup menu portion of the menu.
