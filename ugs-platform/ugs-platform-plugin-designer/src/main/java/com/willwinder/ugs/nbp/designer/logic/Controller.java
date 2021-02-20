@@ -1,50 +1,42 @@
 package com.willwinder.ugs.nbp.designer.logic;
 
-import com.willwinder.ugs.nbp.designer.logic.actions.AddAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.DeleteAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.SimpleUndoManager;
-import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
-import com.willwinder.ugs.nbp.designer.gui.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
+import com.willwinder.ugs.nbp.designer.gui.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.logic.actions.AddAction;
+import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.logic.events.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.events.ControllerListener;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Controller {
 
-    private final SelectionManager selectionManager = new SelectionManager();
+    private final SelectionManager selectionManager;
+    private final UndoManager undoManager;
     private Drawing drawing;
-    private UndoManager undoManager;
     private Tool tool;
     private Settings settings = new Settings();
-    private List<ControllerListener> listeners = new ArrayList<>();
+    private Set<ControllerListener> listeners = new HashSet<>();
 
 
     public Controller() {
-        drawing = null;
-        undoManager = new SimpleUndoManager();
-        tool = Tool.LINE;
+
+        tool = Tool.SELECT;
+        selectionManager = CentralLookup.getDefault().lookup(SelectionManager.class);
         drawing = new Drawing(selectionManager);
+
+        // Refresh the drawing when something has been undone or redone
+        undoManager = CentralLookup.getDefault().lookup(UndoManager.class);
+        undoManager.addListener(() -> getDrawing().repaint());
     }
 
     public void addShape(AbstractEntity s) {
         AddAction add = new AddAction(drawing, s);
         add.execute();
         undoManager.addAction(add);
-    }
-
-    public void deleteSelectedShapes() {
-        if (!getSelectionManager().getChildren().isEmpty()) {
-            DeleteAction del = new DeleteAction(drawing, getSelectionManager().getChildren());
-            del.execute();
-            undoManager.addAction(del);
-            drawing.repaint();
-            getSelectionManager().removeAll();
-        }
     }
 
     public Drawing getDrawing() {
@@ -70,29 +62,6 @@ public class Controller {
 
     private void notifyListeners(ControllerEventType event) {
         listeners.forEach(l -> l.onControllerEvent(event));
-    }
-
-    public void redo() {
-        if (this.undoManager.canRedo()) {
-            this.undoManager.redo();
-        }
-        drawing.repaint();
-    }
-
-    public void selectAll() {
-        selectionManager.removeAll();
-        for (Entity sh : drawing.getShapes()) {
-            selectionManager.add(sh);
-        }
-        drawing.repaint();
-
-    }
-
-    public void undo() {
-        if (this.undoManager.canUndo()) {
-            this.undoManager.undo();
-        }
-        drawing.repaint();
     }
 
     public Settings getSettings() {

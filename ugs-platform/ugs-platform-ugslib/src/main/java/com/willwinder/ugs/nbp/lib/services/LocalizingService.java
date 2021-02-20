@@ -36,6 +36,7 @@ public class LocalizingService {
     public static final String MENU_WINDOW_PLUGIN = MENU_WINDOW +"/Plugins";
     public static final String MENU_WINDOW_CLASSIC = MENU_WINDOW + "/Classic";
     public static final String MENU_FILE = "Menu/File";
+    public static final String MENU_EDIT = "Menu/Edit";
     public static final String MENU_MACHINE = "Menu/Machine";
     public static final String MENU_PROGRAM = "Menu/Program";
     public static final String MENU_MACHINE_JOG = "Menu/Machine/Jog";
@@ -49,6 +50,7 @@ public class LocalizingService {
     public static final String CATEGORY_PROGRAM = "Program";
     public static final String CATEGORY_FILE = "File";
     public static final String CATEGORY_VISUALIZER = "Visualizer";
+    public static final String CATEGORY_EDIT = "Edit";
 
     // Initialize backend (locale setting) before we load localized strings.
     public static final String lang = CentralLookup.getDefault().lookup(BackendAPI.class).getSettings().getLanguage();

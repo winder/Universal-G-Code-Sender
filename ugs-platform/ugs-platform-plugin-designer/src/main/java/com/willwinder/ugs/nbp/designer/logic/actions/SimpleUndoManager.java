@@ -1,5 +1,7 @@
 package com.willwinder.ugs.nbp.designer.logic.actions;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -17,13 +19,15 @@ public class SimpleUndoManager implements UndoManager {
 
     private Stack<UndoableAction> undoStack;
     private Stack<UndoableAction> redoStack;
+    private Set<UndoManagerListener> listeners;
 
     /**
      * Constructs a empty Undo Manager.
      */
     public SimpleUndoManager() {
-        this.undoStack = new Stack<>();
-        this.redoStack = new Stack<>();
+        undoStack = new Stack<>();
+        redoStack = new Stack<>();
+        listeners = new HashSet<>();
     }
 
     /**
@@ -33,8 +37,9 @@ public class SimpleUndoManager implements UndoManager {
      */
     @Override
     public void addAction(UndoableAction action) {
-        this.redoStack.clear();
-        this.undoStack.push(action);
+        redoStack.clear();
+        undoStack.push(action);
+        listeners.forEach(UndoManagerListener::onChanged);
     }
 
     /**
@@ -44,7 +49,7 @@ public class SimpleUndoManager implements UndoManager {
      */
     @Override
     public boolean canRedo() {
-        return !this.redoStack.isEmpty();
+        return !redoStack.isEmpty();
     }
 
     /**
@@ -54,7 +59,7 @@ public class SimpleUndoManager implements UndoManager {
      */
     @Override
     public boolean canUndo() {
-        return !this.undoStack.isEmpty();
+        return !undoStack.isEmpty();
     }
 
     /**
@@ -63,9 +68,12 @@ public class SimpleUndoManager implements UndoManager {
      */
     @Override
     public void redo() {
-        UndoableAction action = this.redoStack.pop();
-        action.redo();
-        this.undoStack.push(action);
+        if (canRedo()) {
+            UndoableAction action = redoStack.pop();
+            action.redo();
+            undoStack.push(action);
+            listeners.forEach(UndoManagerListener::onChanged);
+        }
     }
 
     /**
@@ -74,18 +82,33 @@ public class SimpleUndoManager implements UndoManager {
      */
     @Override
     public void undo() {
-        UndoableAction action = this.undoStack.pop();
-        action.undo();
-        this.redoStack.push(action);
+        if (canUndo()) {
+            UndoableAction action = undoStack.pop();
+            action.undo();
+            redoStack.push(action);
+            listeners.forEach(UndoManagerListener::onChanged);
+        }
     }
 
     @Override
     public String getUndoPresentationName() {
-        return this.undoStack.peek().toString();
+        return undoStack.peek().toString();
     }
 
     @Override
     public String getRedoPresentationName() {
-        return this.redoStack.peek().toString();
+        return redoStack.peek().toString();
+    }
+
+    @Override
+    public void addListener(UndoManagerListener undoListener) {
+        listeners.add(undoListener);
+    }
+
+    @Override
+    public void clear() {
+        undoStack.clear();
+        redoStack.clear();
+        listeners.forEach(UndoManagerListener::onChanged);
     }
 }

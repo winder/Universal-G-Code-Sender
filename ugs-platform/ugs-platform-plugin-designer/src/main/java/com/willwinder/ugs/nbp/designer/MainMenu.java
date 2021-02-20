@@ -1,6 +1,16 @@
 package com.willwinder.ugs.nbp.designer;
 
-import javax.swing.ImageIcon;
+import com.willwinder.ugs.nbp.designer.logic.actions.ClearSelectionAction;
+import com.willwinder.ugs.nbp.designer.logic.actions.DeleteAction;
+import com.willwinder.ugs.nbp.designer.logic.actions.ExportGcodeAction;
+import com.willwinder.ugs.nbp.designer.logic.actions.ExportPngAction;
+import com.willwinder.ugs.nbp.designer.logic.actions.NewAction;
+import com.willwinder.ugs.nbp.designer.logic.actions.OpenAction;
+import com.willwinder.ugs.nbp.designer.logic.actions.QuitAction;
+import com.willwinder.ugs.nbp.designer.logic.actions.RedoAction;
+import com.willwinder.ugs.nbp.designer.logic.actions.SelectAllAction;
+import com.willwinder.ugs.nbp.designer.logic.actions.UndoAction;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -17,44 +27,23 @@ public class MainMenu extends JMenuBar {
 
     private static final long serialVersionUID = 0;
 
-    public MainMenu(MenuListener listener) {
+    public MainMenu() {
 
         JMenu fileMenu = new JMenu("File");
-        JMenuItem newdrawing = new JMenuItem("New", new ImageIcon(
-                MainMenu.class.getResource("/img/document-new.png")));
-        JMenuItem open = new JMenuItem("Open", new ImageIcon(
-                MainMenu.class.getResource(
-                        "/img/document-open.png")));
-        JMenuItem saveas = new JMenuItem("Save as", new ImageIcon(MainMenu.class.getResource(
-                "/img/document-save-as.png")));
-        JMenuItem export = new JMenuItem("Export PNG", new ImageIcon(
-                MainMenu.class.getResource(
-                        "/img/document-save-as.png")));
-        JMenuItem exportGcode = new JMenuItem("Export GCode", new ImageIcon(
-                MainMenu.class.getResource(
-                        "/img/document-save-as.png")));
-        JMenuItem quit = new JMenuItem("Quit", new ImageIcon(
-                MainMenu.class.getResource(
-                        "/img/system-log-out.png")));
+        JMenuItem newdrawing = new JMenuItem(new NewAction());
+        JMenuItem open = new JMenuItem(new OpenAction());
+        JMenuItem export = new JMenuItem(new ExportPngAction());
+        JMenuItem exportGcode = new JMenuItem(new ExportGcodeAction());
+        JMenuItem quit = new JMenuItem(new QuitAction());
 
         JMenu editMenu = new JMenu("Edit");
-        JMenuItem undo = new JMenuItem("Undo", new ImageIcon(MainMenu.class.getResource(
-                "/img/edit-undo.png")));
-        JMenuItem redo = new JMenuItem("Redo", new ImageIcon(MainMenu.class.getResource(
-                "/img/edit-redo.png")));
+        JMenuItem undo = new JMenuItem(new UndoAction());
+        JMenuItem redo = new JMenuItem(new RedoAction());
 
         JMenu selectionMenu = new JMenu("Selection");
-        JMenuItem all = new JMenuItem("Select all", new ImageIcon(
-                MainMenu.class.getResource(
-                        "/img/edit-select-all.png")));
-        JMenuItem clear = new JMenuItem("Clear selection", new ImageIcon(
-                MainMenu.class.getResource(
-                        "/img/edit-clear.png")));
-        JMenuItem delete = new JMenuItem("Delete", new ImageIcon(
-                MainMenu.class.getResource(
-                        "/img/edit-delete.png")));
-        delete.setActionCommand("Delete");
-
+        JMenuItem all = new JMenuItem(new SelectAllAction());
+        JMenuItem clear = new JMenuItem(new ClearSelectionAction());
+        JMenuItem delete = new JMenuItem(new DeleteAction());
 
         redo.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
@@ -68,8 +57,6 @@ public class MainMenu extends JMenuBar {
                 KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
         export.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
-        saveas.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
         clear.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
         all.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,
@@ -77,23 +64,9 @@ public class MainMenu extends JMenuBar {
         delete.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_BACK_SPACE, 0));
 
-
-        quit.addActionListener(listener);
-        all.addActionListener(listener);
-        undo.addActionListener(listener);
-        redo.addActionListener(listener);
-        delete.addActionListener(listener);
-        clear.addActionListener(listener);
-        newdrawing.addActionListener(listener);
-        open.addActionListener(listener);
-        saveas.addActionListener(listener);
-        export.addActionListener(listener);
-        exportGcode.addActionListener(listener);
-
         fileMenu.add(newdrawing);
         fileMenu.add(open);
         fileMenu.addSeparator();
-        fileMenu.add(saveas);
         fileMenu.add(export);
         fileMenu.add(exportGcode);
         fileMenu.addSeparator();

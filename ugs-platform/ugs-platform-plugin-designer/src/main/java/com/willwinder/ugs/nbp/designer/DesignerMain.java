@@ -1,11 +1,16 @@
 package com.willwinder.ugs.nbp.designer;
 
+import com.willwinder.ugs.nbp.designer.gui.TopToolBar;
 import com.willwinder.ugs.nbp.designer.gui.entities.Group;
 import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.SelectionSettings;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.actions.SimpleUndoManager;
+import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
+import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -32,13 +37,23 @@ public class DesignerMain extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setPreferredSize(new Dimension(1024, 768));
 
+        UndoManager undoManager = new SimpleUndoManager();
+        CentralLookup.getDefault().add(undoManager);
+
+        SelectionManager selectionManager = new SelectionManager();
+        CentralLookup.getDefault().add(selectionManager);
+
         Controller controller = new Controller();
-        ToolBox tools = new ToolBox(controller);
+        CentralLookup.getDefault().add(controller);
+
         SelectionSettings selectionSettings = new SelectionSettings(controller);
 
         DrawingContainer drawingContainer = new DrawingContainer(controller);
         controller.addListener(drawingContainer);
 
+        TopToolBar topToolBar = new TopToolBar(controller);
+        getContentPane().add(topToolBar, BorderLayout.NORTH);
+        ToolBox tools = new ToolBox(controller);
         getContentPane().add(tools, BorderLayout.WEST);
         getContentPane().add(drawingContainer, BorderLayout.CENTER);
         //getContentPane().add(selectionSettings, BorderLayout.EAST);
@@ -52,8 +67,7 @@ public class DesignerMain extends JFrame {
         bottomPanel.add(zoomSlider);
         getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 
-        MenuListener mainMenuListener = new MenuListener(controller);
-        JMenuBar mainMenu = new MainMenu(mainMenuListener);
+        JMenuBar mainMenu = new MainMenu();
         this.setJMenuBar(mainMenu);
 
         pack();
@@ -75,7 +89,6 @@ public class DesignerMain extends JFrame {
         group.addChild(rectangle2);
 
         controller.getDrawing().insertEntity(group);
-
     }
 
     public static void main(String[] args) {

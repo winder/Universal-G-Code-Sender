@@ -53,8 +53,9 @@ public class Group extends AbstractEntity {
         return children.contains(node);
     }
 
-    public void removeChild(Entity shape) {
-        children.remove(shape);
+    public void removeChild(Entity entity) {
+        children.remove(entity);
+        children.stream().filter(c -> c instanceof Group).forEach(c -> ((Group) c).removeChild(entity));
     }
 
     @Override

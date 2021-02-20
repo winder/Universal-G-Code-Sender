@@ -14,4 +14,8 @@ public interface UndoManager {
     String getUndoPresentationName();
 
     String getRedoPresentationName();
+
+    void addListener(UndoManagerListener undoListener);
+
+    void clear();
 }

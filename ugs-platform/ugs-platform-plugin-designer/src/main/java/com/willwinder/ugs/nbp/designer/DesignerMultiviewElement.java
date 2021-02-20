@@ -19,6 +19,8 @@
 package com.willwinder.ugs.nbp.designer;
 
 import com.google.common.io.Files;
+import com.willwinder.ugs.nbp.designer.logic.actions.SimpleUndoManager;
+import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.logic.actions.UndoManagerAdapter;
 import com.willwinder.ugs.nbp.designer.gui.controls.Control;
 import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
@@ -30,6 +32,7 @@ import com.willwinder.ugs.nbp.designer.io.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionListener;
+import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.apache.commons.io.IOUtils;
@@ -104,8 +107,15 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
 
         setLayout(new BorderLayout());
 
+        UndoManager undoManager = new SimpleUndoManager();
+        CentralLookup.getDefault().add(undoManager);
+
+        SelectionManager selectionManager = new SelectionManager();
+        selectionManager.addSelectionListener(this);
+        CentralLookup.getDefault().add(selectionManager);
+
         controller = new Controller();
-        undoManager = new UndoManagerAdapter(controller.getUndoManager());
+        this.undoManager = new UndoManagerAdapter(controller.getUndoManager());
         tools = new ToolBox(controller);
         selectionSettings = new SelectionSettings(controller);
 
@@ -116,7 +126,6 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
         add(drawingContainer, BorderLayout.CENTER);
         add(selectionSettings, BorderLayout.EAST);
 
-        controller.getSelectionManager().addSelectionListener(this);
         controller.newDrawing();
     }
 

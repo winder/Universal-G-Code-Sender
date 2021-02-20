@@ -1,5 +1,6 @@
 package com.willwinder.ugs.nbp.designer.logic.selection;
 
+import com.google.common.collect.ImmutableList;
 import com.willwinder.ugs.nbp.designer.gui.controls.Control;
 import com.willwinder.ugs.nbp.designer.gui.controls.ModifyControls;
 import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
@@ -8,6 +9,7 @@ import com.willwinder.ugs.nbp.designer.gui.entities.Group;
 import java.awt.Shape;
 import java.awt.geom.Area;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,6 +56,10 @@ public class SelectionManager extends Group {
 
     public boolean contains(Entity shape) {
         return selectedEntities.contains(shape);
+    }
+
+    public List<Entity> getSelectedEntities() {
+        return Collections.unmodifiableList(new ArrayList<>(selectedEntities));
     }
 
     public List<Control> getControls() {
