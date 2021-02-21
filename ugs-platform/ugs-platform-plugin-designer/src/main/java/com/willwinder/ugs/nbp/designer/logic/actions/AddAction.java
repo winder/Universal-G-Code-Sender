@@ -3,6 +3,7 @@ package com.willwinder.ugs.nbp.designer.logic.actions;
 
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
@@ -14,7 +15,7 @@ import java.awt.event.ActionEvent;
 public class AddAction extends AbstractAction implements DrawAction, UndoableAction {
 
     private Drawing drawing;
-    private AbstractEntity shape;
+    private Entity shape;
 
     /**
      * Creates an AddAction that adds the given Entity to the given Drawing.
@@ -22,7 +23,7 @@ public class AddAction extends AbstractAction implements DrawAction, UndoableAct
      * @param drawing the drawing into which the shape should be added.
      * @param shape   the shape to be added.
      */
-    public AddAction(Drawing drawing, AbstractEntity shape) {
+    public AddAction(Drawing drawing, Entity shape) {
         this.drawing = drawing;
         this.shape = shape;
     }

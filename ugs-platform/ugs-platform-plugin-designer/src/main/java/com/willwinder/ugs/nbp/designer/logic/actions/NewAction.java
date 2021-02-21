@@ -10,11 +10,13 @@ import java.awt.event.ActionEvent;
 
 public class NewAction extends AbstractAction {
 
-    private static final String ICON_BASE = "img/document-new.png";
+    public static final String SMALL_ICON_PATH = "img/new.svg";
+    public static final String LARGE_ICON_PATH = "img/new32.svg";
 
     public NewAction() {
-        putValue("iconBase", ICON_BASE);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
+        putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
+        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "New");
         putValue(NAME, "New");
     }

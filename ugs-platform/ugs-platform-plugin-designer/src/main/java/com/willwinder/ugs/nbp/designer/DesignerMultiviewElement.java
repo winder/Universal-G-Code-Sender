@@ -19,17 +19,18 @@
 package com.willwinder.ugs.nbp.designer;
 
 import com.google.common.io.Files;
-import com.willwinder.ugs.nbp.designer.logic.actions.SimpleUndoManager;
-import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
-import com.willwinder.ugs.nbp.designer.logic.actions.UndoManagerAdapter;
-import com.willwinder.ugs.nbp.designer.gui.controls.Control;
 import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
 import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.SelectionSettings;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
+import com.willwinder.ugs.nbp.designer.gui.controls.Control;
+import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 import com.willwinder.ugs.nbp.designer.io.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.actions.SimpleUndoManager;
+import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
+import com.willwinder.ugs.nbp.designer.logic.actions.UndoManagerAdapter;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
@@ -55,6 +56,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -92,8 +94,11 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
         initialize();
 
         if (file != null && StringUtils.endsWithIgnoreCase(file.getName(), "svg")) {
-            SvgReader batikIO = new SvgReader();
-            batikIO.open(file, controller);
+            SvgReader svgReader = new SvgReader();
+            svgReader.read(file).ifPresent(entity -> {
+                controller.getDrawing().insertEntity(entity);
+                controller.getDrawing().repaint();
+            });
         } else {
             controller.newDrawing();
         }
@@ -116,7 +121,7 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
 
         controller = new Controller();
         this.undoManager = new UndoManagerAdapter(controller.getUndoManager());
-        tools = new ToolBox(controller);
+        tools = new ToolBox();
         selectionSettings = new SelectionSettings(controller);
 
         drawingContainer = new DrawingContainer(controller);
@@ -215,7 +220,7 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
             AffineTransform affineTransform = AffineTransform.getScaleInstance(1, -1);
             affineTransform.translate(0, -controller.getDrawing().getHeight());
 
-            List<String> collect = controller.getDrawing().getShapes().stream().map(shape -> {
+            List<String> collect = controller.getDrawing().getEntities().stream().map(shape -> {
                 if (shape instanceof Control) {
                     return "";
                 }

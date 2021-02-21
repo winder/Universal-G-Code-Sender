@@ -1,9 +1,9 @@
 package com.willwinder.ugs.nbp.designer.gui.controls;
 
 import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
-import com.willwinder.ugs.nbp.designer.logic.events.EntityEvent;
-import com.willwinder.ugs.nbp.designer.logic.events.EventType;
-import com.willwinder.ugs.nbp.designer.logic.events.MouseEntityEvent;
+import com.willwinder.ugs.nbp.designer.gui.entities.EntityEvent;
+import com.willwinder.ugs.nbp.designer.gui.entities.EventType;
+import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
 
 import java.awt.BasicStroke;

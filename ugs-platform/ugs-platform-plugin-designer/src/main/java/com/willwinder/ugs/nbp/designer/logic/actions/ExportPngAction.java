@@ -14,11 +14,13 @@ import java.io.File;
 
 public class ExportPngAction extends AbstractAction {
 
-    private static final String ICON_BASE = "img/document-save-as.png";
+    private static final String SMALL_ICON_PATH = "img/export.svg";
+    private static final String LARGE_ICON_PATH = "img/export32.svg";
 
     public ExportPngAction() {
-        putValue("iconBase", ICON_BASE);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
+        putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
+        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Export PNG");
         putValue(NAME, "Export PNG");
     }

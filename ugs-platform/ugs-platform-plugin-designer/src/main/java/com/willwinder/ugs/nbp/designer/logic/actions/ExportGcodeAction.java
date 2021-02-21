@@ -3,27 +3,24 @@ package com.willwinder.ugs.nbp.designer.logic.actions;
 import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
 import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.gui.controls.Control;
-import com.willwinder.ugs.nbp.designer.io.PngWriter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.AbstractAction;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
-import java.io.File;
 import java.io.IOException;
 
 public class ExportGcodeAction extends AbstractAction {
 
-    private static final String ICON_BASE = "img/document-save-as.png";
+    private static final String SMALL_ICON_PATH = "img/export.svg";
+    private static final String LARGE_ICON_PATH = "img/export32.svg";
 
     public ExportGcodeAction() {
-        putValue("iconBase", ICON_BASE);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
+        putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
+        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Export Gcode");
         putValue(NAME, "Export Gcode");
     }
@@ -36,7 +33,7 @@ public class ExportGcodeAction extends AbstractAction {
 
         AffineTransform affineTransform = AffineTransform.getScaleInstance(1, -1);
         affineTransform.translate(0, -controller.getDrawing().getHeight());
-        controller.getDrawing().getShapes().forEach(shape -> {
+        controller.getDrawing().getEntities().forEach(shape -> {
             if (shape instanceof Control) {
                 return;
             }

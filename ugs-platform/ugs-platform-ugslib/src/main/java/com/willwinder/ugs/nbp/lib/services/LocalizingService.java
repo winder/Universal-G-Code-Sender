@@ -285,6 +285,7 @@ public class LocalizingService {
     public final static String ToolboxTitle = Localization.getString("platform.plugin.toolbox.title", lang);
     public final static String ToolboxTooltip = Localization.getString("platform.plugin.toolbox.tooltip", lang);
 
+
     public LocalizingService() throws IOException {
         ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
 

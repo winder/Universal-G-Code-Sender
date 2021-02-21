@@ -1,8 +1,8 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.events.ControllerEventType;
-import com.willwinder.ugs.nbp.designer.logic.events.ControllerListener;
+import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
+import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
 
 import javax.swing.JPanel;
 import java.awt.GridLayout;
@@ -43,6 +43,5 @@ public class DrawingContainer extends JPanel implements ControllerListener {
         if (event == ControllerEventType.NEW_DRAWING) {
             setDrawing(controller.getDrawing());
         }
-
     }
 }

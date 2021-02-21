@@ -3,8 +3,8 @@ package com.willwinder.ugs.nbp.designer.gui;
 import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Settings;
-import com.willwinder.ugs.nbp.designer.logic.events.ControllerEventType;
-import com.willwinder.ugs.nbp.designer.logic.events.ControllerListener;
+import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
+import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionListener;
 

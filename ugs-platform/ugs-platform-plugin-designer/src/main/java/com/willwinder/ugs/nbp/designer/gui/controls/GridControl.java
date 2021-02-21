@@ -2,7 +2,7 @@ package com.willwinder.ugs.nbp.designer.gui.controls;
 
 import com.willwinder.ugs.nbp.designer.gui.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
-import com.willwinder.ugs.nbp.designer.logic.events.EntityEvent;
+import com.willwinder.ugs.nbp.designer.gui.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
 
 import java.awt.BasicStroke;

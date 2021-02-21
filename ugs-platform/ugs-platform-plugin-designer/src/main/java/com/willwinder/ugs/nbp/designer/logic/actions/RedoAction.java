@@ -18,7 +18,9 @@ import java.awt.event.ActionEvent;
         displayName = "Redo"
 )
 public class RedoAction extends AbstractAction implements UndoManagerListener {
-    public static final String ICON_BASE = "img/edit-redo.png";
+    public static final String SMALL_ICON_PATH = "img/redo.svg";
+    public static final String LARGE_ICON_PATH = "img/redo32.svg";
+
     private final UndoManager undoManager;
 
     public RedoAction() {
@@ -26,8 +28,9 @@ public class RedoAction extends AbstractAction implements UndoManagerListener {
         undoManager.addListener(this);
         setEnabled(undoManager.canRedo());
 
-        putValue("iconBase", ICON_BASE);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
+        putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
+        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Redo");
         putValue(NAME, "Redo");
     }

@@ -1,77 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="128"
-   height="128"
-   id="svg2"
+   viewBox="0 0 16 16"
    version="1.1"
-   inkscape:version="0.47 r22583"
-   inkscape:export-filename="/home/alex/Draw/img/circle.png"
-   inkscape:export-xdpi="22.5"
-   inkscape:export-ydpi="22.5"
-   sodipodi:docname="circle.svg">
+   id="svg832"
+   sodipodi:docname="circle.svg"
+   width="16"
+   height="16"
+   inkscape:version="1.1-dev (0486c1a, 2020-10-10)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
   <defs
-     id="defs4">
-    <inkscape:perspective
-       sodipodi:type="inkscape:persp3d"
-       inkscape:vp_x="0 : 526.18109 : 1"
-       inkscape:vp_y="0 : 1000 : 0"
-       inkscape:vp_z="744.09448 : 526.18109 : 1"
-       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
-       id="perspective10" />
-  </defs>
+     id="defs836" />
   <sodipodi:namedview
-     id="base"
      pagecolor="#ffffff"
      bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="50.404085"
-     inkscape:cy="40.33782"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:window-width="1788"
+     inkscape:window-height="977"
+     id="namedview834"
      showgrid="false"
-     inkscape:window-width="1001"
-     inkscape:window-height="739"
-     inkscape:window-x="262"
-     inkscape:window-y="147"
-     inkscape:window-maximized="0" />
-  <metadata
-     id="metadata7">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(-278.65,-278.56933)">
-    <path
-       sodipodi:type="arc"
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#404040;stroke-width:3.1880395;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:10"
-       id="path2816"
-       sodipodi:cx="312.85715"
-       sodipodi:cy="383.07648"
-       sodipodi:rx="32.857143"
-       sodipodi:ry="22.142857"
-       d="m 345.71429,383.07648 a 32.857143,22.142857 0 1 1 -65.71429,0 32.857143,22.142857 0 1 1 65.71429,0 z"
-       transform="matrix(1.568362,0,0,1.568362,-148.02326,-258.23326)" />
-  </g>
+     width="16px"
+     inkscape:zoom="5.96"
+     inkscape:cx="60.067114"
+     inkscape:cy="13.338926"
+     inkscape:window-x="75"
+     inkscape:window-y="85"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg832" />
+  <!-- Font Awesome Free 5.15.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) -->
+  <path
+     d="M 8,0 C 3.580645,0 0,3.580645 0,8 c 0,4.419355 3.580645,8 8,8 4.419355,0 8,-3.580645 8,-8 C 16,3.580645 12.419355,0 8,0 Z M 8,14.451613 C 4.435484,14.451613 1.5483872,11.564516 1.5483872,8 1.5483872,4.435484 4.435484,1.5483872 8,1.5483872 c 3.564516,0 6.451613,2.8870968 6.451613,6.4516128 0,3.564516 -2.887097,6.451613 -6.451613,6.451613 z"
+     id="path830"
+     style="fill:#353a40;fill-opacity:1;stroke-width:0.032258" />
 </svg>

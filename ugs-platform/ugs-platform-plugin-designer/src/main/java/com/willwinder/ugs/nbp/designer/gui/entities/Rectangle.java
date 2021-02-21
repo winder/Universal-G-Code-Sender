@@ -1,8 +1,5 @@
 package com.willwinder.ugs.nbp.designer.gui.entities;
 
-import com.willwinder.ugs.nbp.designer.logic.events.EntityEvent;
-import com.willwinder.ugs.nbp.designer.logic.events.EventType;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;

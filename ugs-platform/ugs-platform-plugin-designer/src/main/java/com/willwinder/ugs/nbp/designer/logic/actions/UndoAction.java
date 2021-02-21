@@ -18,7 +18,8 @@ import java.awt.event.ActionEvent;
         displayName = "Undo"
 )
 public class UndoAction extends AbstractAction implements UndoManagerListener {
-    public static final String ICON_BASE = "img/edit-undo.png";
+    public static final String SMALL_ICON_PATH = "img/undo.svg";
+    public static final String LARGE_ICON_PATH = "img/undo32.svg";
     private final UndoManager undoManager;
 
     public UndoAction() {
@@ -26,8 +27,9 @@ public class UndoAction extends AbstractAction implements UndoManagerListener {
         undoManager.addListener(this);
         setEnabled(undoManager.canUndo());
 
-        putValue("iconBase", ICON_BASE);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
+        putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
+        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Undo");
         putValue(NAME, "Undo");
     }

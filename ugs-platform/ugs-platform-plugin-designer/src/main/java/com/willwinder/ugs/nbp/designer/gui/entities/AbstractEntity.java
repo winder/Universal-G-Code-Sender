@@ -1,9 +1,5 @@
 package com.willwinder.ugs.nbp.designer.gui.entities;
 
-import com.willwinder.ugs.nbp.designer.logic.events.EntityEvent;
-import com.willwinder.ugs.nbp.designer.logic.events.EntityListener;
-import com.willwinder.ugs.nbp.designer.logic.events.EventType;
-
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;

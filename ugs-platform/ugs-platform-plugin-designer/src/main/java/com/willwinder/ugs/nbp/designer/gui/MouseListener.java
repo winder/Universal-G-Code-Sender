@@ -7,8 +7,7 @@ import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.designer.logic.events.EventType;
-import com.willwinder.ugs.nbp.designer.logic.events.MouseEntityEvent;
+import com.willwinder.ugs.nbp.designer.gui.entities.EventType;
 
 import java.awt.Dimension;
 import java.awt.event.InputEvent;
@@ -120,7 +119,7 @@ public class MouseListener extends MouseAdapter {
 
 
         if (newShape != null) {
-            c.addShape(newShape);
+            c.addEntity(newShape);
         }
 
     }

@@ -1,5 +1,6 @@
 package com.willwinder.ugs.nbp.designer;
 
+import com.willwinder.ugs.nbp.designer.gui.MainMenu;
 import com.willwinder.ugs.nbp.designer.gui.TopToolBar;
 import com.willwinder.ugs.nbp.designer.gui.entities.Group;
 import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
@@ -16,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.UnsupportedLookAndFeelException;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
@@ -32,6 +34,7 @@ public class DesignerMain extends JFrame {
      * Constructs a new graphical user interface for the program and shows it.
      */
     public DesignerMain() {
+
 
         setTitle("UGS Designer");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -51,9 +54,9 @@ public class DesignerMain extends JFrame {
         DrawingContainer drawingContainer = new DrawingContainer(controller);
         controller.addListener(drawingContainer);
 
-        TopToolBar topToolBar = new TopToolBar(controller);
+        TopToolBar topToolBar = new TopToolBar();
         getContentPane().add(topToolBar, BorderLayout.NORTH);
-        ToolBox tools = new ToolBox(controller);
+        ToolBox tools = new ToolBox();
         getContentPane().add(tools, BorderLayout.WEST);
         getContentPane().add(drawingContainer, BorderLayout.CENTER);
         //getContentPane().add(selectionSettings, BorderLayout.EAST);

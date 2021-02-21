@@ -1,9 +1,12 @@
 package com.willwinder.ugs.nbp.designer.io;
 
-
+import com.willwinder.ugs.nbp.designer.gui.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Ellipse;
+import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Group;
+import com.willwinder.ugs.nbp.designer.gui.entities.Path;
 import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
-import com.willwinder.ugs.nbp.designer.gui.entities.*;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
 import org.apache.batik.ext.awt.geom.ExtendedPathIterator;
 import org.apache.batik.gvt.CompositeGraphicsNode;
@@ -16,12 +19,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 /**
@@ -29,18 +37,32 @@ import java.util.logging.Logger;
  */
 public class SvgReader implements GVTTreeBuilderListener, Reader {
 
-    private JSVGCanvas svgCanvas;
-    private Controller controller;
     private static final Logger LOGGER = Logger.getLogger(SvgReader.class.getSimpleName());
 
+    private JSVGCanvas svgCanvas;
+    private Group result;
+
     @Override
-    public void open(File f, Controller c) {
-        this.controller = c;
+    public Optional<Entity> read(File f) {
+        if (EventQueue.isDispatchThread()) {
+            throw new RuntimeException("Method can not be executed in dispatch thread");
+        }
+        result = null;
         svgCanvas = new JSVGCanvas();
         svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
         svgCanvas.addGVTTreeBuilderListener(this);
         svgCanvas.setURI(f.toURI().toString());
+
+        try {
+            // Wait for svg loader to finish processing the SVG
+            ThreadHelper.waitUntil(() -> result != null, 10, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            // Never mind
+        }
+
+        return Optional.ofNullable(result);
     }
+
 
     private void walk(Node node, Group group, AffineTransform transform, int level) {
         GraphicsNode graphicsNode = svgCanvas.getUpdateManager().getBridgeContext().getGraphicsNode(node);
@@ -49,11 +71,11 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
             LOGGER.finest(StringUtils.leftPad("", level, "\t") + graphicsNode);
 
             AffineTransform groupTransform = new AffineTransform(transform);
-            if(graphicsNode.getTransform() != null) {
+            if (graphicsNode.getTransform() != null) {
                 groupTransform.concatenate(graphicsNode.getTransform());
             }
 
-            if (graphicsNode instanceof CompositeGraphicsNode ) {
+            if (graphicsNode instanceof CompositeGraphicsNode) {
                 NodeList childNodes = node.getChildNodes();
                 for (int i = 0; i < childNodes.getLength(); i++) {
                     walk(childNodes.item(i), group, groupTransform, level + 1);
@@ -73,7 +95,7 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
                     LOGGER.finest(shape.toString());
                 }
 
-                if(createdShape != null) {
+                if (createdShape != null) {
                     createdShape.setParent(group);
                     createdShape.setTransform(groupTransform);
                     group.addChild(createdShape);
@@ -145,10 +167,7 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
     public void gvtBuildCompleted(GVTTreeBuilderEvent e) {
         Group group = new Group();
         walk(svgCanvas.getSVGDocument(), group, new AffineTransform(), 0);
-
-        controller.newDrawing();
-        controller.getDrawing().insertEntity(group);
-        controller.getDrawing().repaint();
+        this.result = group;
     }
 
     @Override

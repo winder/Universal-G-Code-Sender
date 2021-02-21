@@ -2,10 +2,9 @@ package com.willwinder.ugs.nbp.designer.logic;
 
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 import com.willwinder.ugs.nbp.designer.logic.actions.AddAction;
 import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
-import com.willwinder.ugs.nbp.designer.logic.events.ControllerEventType;
-import com.willwinder.ugs.nbp.designer.logic.events.ControllerListener;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
@@ -26,14 +25,14 @@ public class Controller {
 
         tool = Tool.SELECT;
         selectionManager = CentralLookup.getDefault().lookup(SelectionManager.class);
-        drawing = new Drawing(selectionManager);
+        drawing = new Drawing();
 
         // Refresh the drawing when something has been undone or redone
         undoManager = CentralLookup.getDefault().lookup(UndoManager.class);
         undoManager.addListener(() -> getDrawing().repaint());
     }
 
-    public void addShape(AbstractEntity s) {
+    public void addEntity(Entity s) {
         AddAction add = new AddAction(drawing, s);
         add.execute();
         undoManager.addAction(add);
@@ -53,10 +52,11 @@ public class Controller {
 
     public void setTool(Tool t) {
         this.tool = t;
+        notifyListeners(ControllerEventType.TOOL_SELECTED);
     }
 
     public void newDrawing() {
-        drawing = new Drawing(selectionManager);
+        drawing = new Drawing();
         notifyListeners(ControllerEventType.NEW_DRAWING);
     }
 

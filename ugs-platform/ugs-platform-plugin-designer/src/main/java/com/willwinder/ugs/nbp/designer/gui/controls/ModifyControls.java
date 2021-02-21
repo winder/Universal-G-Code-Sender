@@ -1,7 +1,7 @@
 package com.willwinder.ugs.nbp.designer.gui.controls;
 
 import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
-import com.willwinder.ugs.nbp.designer.logic.events.EntityEvent;
+import com.willwinder.ugs.nbp.designer.gui.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
 
 public class ModifyControls extends AbstractControlGroup {
