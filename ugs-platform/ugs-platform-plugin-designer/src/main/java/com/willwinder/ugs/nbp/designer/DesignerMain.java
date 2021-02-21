@@ -2,11 +2,10 @@ package com.willwinder.ugs.nbp.designer;
 
 import com.willwinder.ugs.nbp.designer.gui.MainMenu;
 import com.willwinder.ugs.nbp.designer.gui.TopToolBar;
-import com.willwinder.ugs.nbp.designer.gui.entities.Group;
-import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.SelectionSettings;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
+import com.willwinder.ugs.nbp.designer.io.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.actions.SimpleUndoManager;
 import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
@@ -17,7 +16,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.UnsupportedLookAndFeelException;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
@@ -76,22 +74,11 @@ public class DesignerMain extends JFrame {
         pack();
         setVisible(true);
 
-        Group group = new Group();
-        group.setPosition(200, 200);
-        group.setRotation(90);
-
-        Rectangle rectangle = new Rectangle(10, 10);
-        rectangle.setHeight(50);
-        rectangle.setWidth(50);
-        rectangle.setRotation(Math.PI / 2);
-        group.addChild(rectangle);
-
-        Rectangle rectangle2 = new Rectangle(100, 100);
-        rectangle2.setHeight(50);
-        rectangle2.setWidth(50);
-        group.addChild(rectangle2);
-
-        controller.getDrawing().insertEntity(group);
+        SvgReader svgReader = new SvgReader();
+        svgReader.read(DesignerMain.class.getResourceAsStream("/com/willwinder/ugs/nbp/designer/example.svg")).ifPresent(group -> {
+            controller.getDrawing().insertEntity(group);
+            controller.getDrawing().repaint();
+        });
     }
 
     public static void main(String[] args) {

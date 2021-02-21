@@ -7,6 +7,7 @@ import com.willwinder.ugs.nbp.designer.gui.entities.Group;
 import com.willwinder.ugs.nbp.designer.gui.entities.Path;
 import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
+import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
 import org.apache.batik.ext.awt.geom.ExtendedPathIterator;
 import org.apache.batik.gvt.CompositeGraphicsNode;
@@ -15,9 +16,11 @@ import org.apache.batik.gvt.ShapeNode;
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.svg.GVTTreeBuilderEvent;
 import org.apache.batik.swing.svg.GVTTreeBuilderListener;
+import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.svg.SVGDocument;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -27,6 +30,8 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -52,6 +57,38 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
         svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
         svgCanvas.addGVTTreeBuilderListener(this);
         svgCanvas.setURI(f.toURI().toString());
+
+        try {
+            // Wait for svg loader to finish processing the SVG
+            ThreadHelper.waitUntil(() -> result != null, 10, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            // Never mind
+        }
+
+        return Optional.ofNullable(result);
+    }
+
+    @Override
+    public Optional<Entity> read(InputStream inputStream) {
+        if (EventQueue.isDispatchThread()) {
+            throw new RuntimeException("Method can not be executed in dispatch thread");
+        }
+
+        String parser = XMLResourceDescriptor.getXMLParserClassName();
+        SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+        SVGDocument doc = null;
+
+        try {
+            doc = f.createSVGDocument(null, inputStream);
+        } catch (IOException ex) {
+            throw new RuntimeException("Couldn't load stream");
+        }
+
+        result = null;
+        svgCanvas = new JSVGCanvas();
+        svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
+        svgCanvas.addGVTTreeBuilderListener(this);
+        svgCanvas.setSVGDocument(doc);;
 
         try {
             // Wait for svg loader to finish processing the SVG
@@ -120,7 +157,7 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
     private AbstractEntity parsePath(ExtendedGeneralPath shape) {
         ExtendedPathIterator extendedPathIterator = shape.getExtendedPathIterator();
         double[] coords = new double[8];
-
+        double[] lastMoveTo = new double[2];
         Path line = new Path();
 
         while (!extendedPathIterator.isDone()) {
@@ -129,6 +166,9 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
                 case ExtendedPathIterator.SEG_MOVETO:
                     extendedPathIterator.currentSegment(coords);
                     line.moveTo(coords[0], coords[1]);
+
+                    lastMoveTo[0] = coords[0];
+                    lastMoveTo[1] = coords[1];
                     break;
 
                 case ExtendedPathIterator.SEG_LINETO:
@@ -142,6 +182,7 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
                     break;
 
                 case ExtendedPathIterator.SEG_ARCTO:
+                    // TODO arcs are parsed as lines, this should be translated to some sort of path
                     extendedPathIterator.currentSegment(coords);
                     line.lineTo(coords[5], coords[6]);
                     break;
@@ -152,6 +193,12 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
                     break;
 
                 case PathIterator.SEG_CLOSE:
+                    extendedPathIterator.currentSegment(coords);
+                    line.lineTo(lastMoveTo[0], lastMoveTo[1]);
+                    break;
+
+                default:
+                    LOGGER.warning("Missing handler for path segment: " + i);
             }
             extendedPathIterator.next();
         }
