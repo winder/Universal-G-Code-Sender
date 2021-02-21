@@ -120,7 +120,10 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
         CentralLookup.getDefault().add(selectionManager);
 
         controller = new Controller();
+        CentralLookup.getDefault().add(controller);
+
         this.undoManager = new UndoManagerAdapter(controller.getUndoManager());
+
         tools = new ToolBox();
         selectionSettings = new SelectionSettings(controller);
 
