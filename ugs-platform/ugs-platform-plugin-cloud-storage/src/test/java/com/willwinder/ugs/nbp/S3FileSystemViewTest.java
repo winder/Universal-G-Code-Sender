@@ -100,6 +100,8 @@ public class S3FileSystemViewTest {
         // Compare result to original file.
         byte[] results = Files.readAllBytes(localFile.toPath());
         Assert.assertArrayEquals(fileContents, results);
+    
+        instance.minioClient.removeBucket("test-files");
     }
     
     @Test
