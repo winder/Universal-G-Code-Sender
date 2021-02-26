@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.AbstractController.UnexpectedCommand;
 import com.willwinder.universalgcodesender.gcode.util.Code;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageType;
@@ -125,6 +126,8 @@ public class GrblControllerTest {
 
     @Test
     public void testGetGrblVersion() throws Exception {
+        Localization.initialize(settings.getLanguage());
+
         System.out.println("getGrblVersion");
         GrblController instance = new GrblController(mgc);
         String result;
@@ -521,6 +524,8 @@ public class GrblControllerTest {
      */
     @Test
     public void testIsReadyToStreamFile() throws Exception {
+        Localization.initialize(settings.getLanguage());
+
         System.out.println("isReadyToStreamFile");
         GrblController instance = new GrblController(mgc);
 
@@ -1267,6 +1272,8 @@ public class GrblControllerTest {
 
     @Test
     public void rawResponseHandlerWithKnownErrorShouldWriteMessageToConsole() throws Exception {
+        Localization.initialize(settings.getLanguage());
+
         // Given
         GrblController instance = new GrblController(mgc);
         instance.openCommPort(getSettings().getConnectionDriver(), "foo", 2400);
@@ -1292,6 +1299,8 @@ public class GrblControllerTest {
 
     @Test
     public void rawResponseHandlerWithUnknownErrorShouldWriteGenericMessageToConsole() throws Exception {
+        Localization.initialize(settings.getLanguage());
+
         // Given
         GrblController instance = new GrblController(mgc);
         instance.setDistanceModeCode("G90");
@@ -1315,6 +1324,8 @@ public class GrblControllerTest {
 
     @Test
     public void rawResponseHandlerOnErrorWithNoSentCommandsShouldSendMessageToConsole() throws Exception {
+        Localization.initialize(settings.getLanguage());
+
         // Given
         GrblController instance = new GrblController(mgc);
         instance.setDistanceModeCode("G90");
