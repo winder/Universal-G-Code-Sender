@@ -27,7 +27,7 @@ public class NewAction extends AbstractAction {
         undoManager.clear();
 
         SelectionManager selectionManager = CentralLookup.getDefault().lookup(SelectionManager.class);
-        selectionManager.removeAll();
+        selectionManager.clearSelection();
 
         Controller controller = CentralLookup.getDefault().lookup(Controller.class);
         controller.newDrawing();

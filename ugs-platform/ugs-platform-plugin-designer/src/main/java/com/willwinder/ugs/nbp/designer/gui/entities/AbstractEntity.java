@@ -5,32 +5,29 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public abstract class AbstractEntity implements Entity {
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractEntity.class.getSimpleName());
     private Entity parent;
-    private AffineTransform transform = new AffineTransform();
-
-    private double rotation = 0;
-    private Point2D movementPoint = new Point2D.Double();
-
-    private AffineTransform positionTransform = new AffineTransform();
-    private AffineTransform rotationTransform = new AffineTransform();
-    private AffineTransform movementTransform = new AffineTransform();
-
-
     private List<EntityListener> listeners = new ArrayList<>();
+
+    private AffineTransform transform = new AffineTransform();
 
     public AbstractEntity() {
     }
 
-    public AbstractEntity(double x, double y) {
-        setPosition(x, y);
+    /**
+     * Creates an entity with the relative position to the parent
+     *
+     * @param relativeX the relative position to the parent
+     * @param relativeY the relative position to the parent
+     */
+    public AbstractEntity(double relativeX, double relativeY) {
+        applyTransform(AffineTransform.getTranslateInstance(relativeX, relativeY));
     }
 
     public void notifyEvent(EntityEvent entityEvent) {
@@ -74,9 +71,16 @@ public abstract class AbstractEntity implements Entity {
         return getBounds().getLocation();
     }
 
-    public void setPosition(double x, double y) {
-        positionTransform = new AffineTransform();
-        positionTransform.translate(x, y);
+    /**
+     * Sets the relative position to the parent
+     *
+     * @param x the relative position to the parent
+     * @param y the relative position to the parent
+     */
+    public void setRelativePosition(double x, double y) {
+        //positionTransform = new AffineTransform();
+        //positionTransform.translate(x, y);
+        transform.translate(x, y);
     }
 
     @Override
@@ -85,14 +89,14 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
-    public void setParent(Entity shape) {
-        this.parent = shape;
+    public void setParent(Entity entity) {
+        this.parent = entity;
     }
 
     @Override
-    public Point getCenter() {
+    public Point2D getCenter() {
         Rectangle bounds = getBounds();
-        return new Point((int) (bounds.getCenterX()), (int) (bounds.getCenterY()));
+        return new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
     }
 
     @Override
@@ -101,16 +105,12 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
-    public AffineTransform getTransform() {
-        AffineTransform affineTransform = new AffineTransform();
-        affineTransform.concatenate(this.movementTransform);
-        affineTransform.concatenate(this.positionTransform);
-        affineTransform.concatenate(this.transform);
-        affineTransform.concatenate(this.rotationTransform);
-        return affineTransform;
+    public AffineTransform getRelativeTransform() {
+        return this.transform;
     }
 
-    public void setTransform(AffineTransform transform) {
+    @Override
+    public void setRelativeTransform(AffineTransform transform) {
         // Prevent null transforms
         if (transform == null) {
             transform = new AffineTransform();
@@ -128,7 +128,7 @@ public abstract class AbstractEntity implements Entity {
         AffineTransform ctm = new AffineTransform();
         Entity node = this;
         while (node != null) {
-            ctm.preConcatenate(node.getTransform());
+            ctm.preConcatenate(node.getRelativeTransform());
             node = node.getParent();
         }
         return ctm;
@@ -136,52 +136,51 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void move(Point2D deltaMovement) {
-        try {
-            // Fetch a base transformer to use
-            AffineTransform transformer = transform;
-            if (parent != null) {
-                transformer = getParent().getGlobalTransform();
-            }
-
-            // Figure out the real and relative position before
-            Point2D.Double realPositionBefore = new Point2D.Double();
-            Point2D relativePositionBefore = new Point2D.Double();
-            transformer.transform(new Point2D.Double(getShape().getBounds().getX(), getShape().getBounds().getY()), realPositionBefore);
-            transformer.inverseTransform(realPositionBefore, relativePositionBefore);
-
-            // Figure out the real and relative position after
-            Point2D.Double realPositionAfter = new Point2D.Double(realPositionBefore.getX() + deltaMovement.getX(), realPositionBefore.getY() + deltaMovement.getY());
-            Point2D relativePositionAfter = new Point2D.Double();
-            transformer.inverseTransform(realPositionAfter, relativePositionAfter);
-
-            // Calculate relative delta
-            Point2D.Double realDelta = new Point2D.Double(realPositionAfter.getX() - realPositionBefore.getX(), realPositionAfter.getY() - realPositionBefore.getY());
-            Point2D relativeDelta = new Point2D.Double(relativePositionAfter.getX() - relativePositionBefore.getX(), relativePositionAfter.getY() - relativePositionBefore.getY());
-            LOGGER.finest("Real delta " + realDelta + " -> Relative delta " + relativeDelta);
-
-            movementPoint.setLocation(movementPoint.getX() + relativeDelta.getX(), movementPoint.getY() + relativeDelta.getY());
-            movementTransform = new AffineTransform();
-            movementTransform.translate(movementPoint.getX(), movementPoint.getY());
-            notifyEvent(new EntityEvent(this, EventType.MOVED));
-        } catch (Exception e) {
-            throw new RuntimeException("Couldn't move the entity", e);
-        }
+        transform.preConcatenate(AffineTransform.getTranslateInstance(deltaMovement.getX(), deltaMovement.getY()));
+        notifyEvent(new EntityEvent(this, EventType.MOVED));
     }
 
     @Override
     public double getRotation() {
-        return rotation;
+        Point2D point1 = new Point2D.Double(0, 0);
+        getGlobalTransform().transform(point1, point1);
+
+        Point2D point2 = new Point2D.Double(10, 0);
+        getGlobalTransform().transform(point2, point2);
+
+        Point2D normalized = new Point2D.Double(point2.getX() - point1.getX(), point2.getY() - point1.getY());
+        return Math.toDegrees(Math.atan2(normalized.getY(), normalized.getX()));
     }
 
     @Override
-    public void setRotation(double angle) {
+    public void rotate(double angle) {
         try {
-            rotation = angle;
-            rotationTransform = new AffineTransform();
-            rotationTransform.rotate((rotation / 180d) * Math.PI, getRelativeShape().getBounds().getCenterX(), getRelativeShape().getBounds().getCenterY());
+            transform.rotate(Math.toRadians(angle), getRelativeShape().getBounds().getCenterX(), getRelativeShape().getBounds().getCenterY());
             notifyEvent(new EntityEvent(this, EventType.ROTATED));
         } catch (Exception e) {
             throw new RuntimeException("Couldn't set the rotation", e);
         }
     }
+
+    @Override
+    public void rotate(Point2D center, double angle) {
+        try {
+            Point2D relativePoint = new Point2D.Double(0, 0);
+            getGlobalTransform().inverseTransform(center, relativePoint);
+
+            try {
+                transform.concatenate(AffineTransform.getRotateInstance(Math.toRadians(angle), relativePoint.getX() + getRelativeShape().getBounds().getCenterX(), relativePoint.getY() + getRelativeShape().getBounds().getCenterY()));
+                notifyEvent(new EntityEvent(this, EventType.ROTATED));
+            } catch (Exception e) {
+                throw new RuntimeException("Couldn't set the rotation", e);
+            }
+        } catch (NoninvertibleTransformException e) {
+        }
+    }
+
+    public void applyTransform(AffineTransform transform) {
+        this.transform.concatenate(transform);
+        notifyEvent(new EntityEvent(this, EventType.MOVED));
+    }
+
 }

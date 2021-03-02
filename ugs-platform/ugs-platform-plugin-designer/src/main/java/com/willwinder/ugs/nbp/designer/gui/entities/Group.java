@@ -16,8 +16,8 @@ public class Group extends AbstractEntity {
     private List<Entity> children = new ArrayList<>();
 
     @Override
-    public final void render(Graphics2D g) {
-        children.forEach(node -> node.render(g));
+    public void render(Graphics2D graphics) {
+        children.forEach(node -> node.render(graphics));
     }
 
     @Override

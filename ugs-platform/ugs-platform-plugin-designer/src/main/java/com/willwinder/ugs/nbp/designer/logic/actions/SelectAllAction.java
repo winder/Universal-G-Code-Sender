@@ -35,9 +35,9 @@ public class SelectAllAction extends AbstractAction implements DrawingListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        selectionManager.removeAll();
+        selectionManager.clearSelection();
         for (Entity sh : controller.getDrawing().getEntities()) {
-            selectionManager.add(sh);
+            selectionManager.addSelection(sh);
         }
         controller.getDrawing().repaint();
     }

@@ -16,10 +16,10 @@ public class Path extends AbstractEntity {
         this.shape = new Path2D.Double();
     }
 
-    public void render(Graphics2D g) {
-        g.setStroke(new BasicStroke(1));
-        g.setColor(Color.BLACK);
-        g.draw(getShape());
+    public void render(Graphics2D graphics) {
+        graphics.setStroke(new BasicStroke(1));
+        graphics.setColor(Color.BLACK);
+        graphics.draw(getShape());
     }
 
     @Override

@@ -42,23 +42,23 @@ public class DeleteAction extends AbstractAction implements SelectionListener {
         selectionManager = CentralLookup.getDefault().lookup(SelectionManager.class);
 
         selectionManager.addSelectionListener(this);
-        setEnabled(!selectionManager.getSelectedEntities().isEmpty());
+        setEnabled(!selectionManager.getSelection().isEmpty());
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (!selectionManager.getChildren().isEmpty()) {
-            List<Entity> entities = selectionManager.getSelectedEntities();
+        if (!selectionManager.getSelection().isEmpty()) {
+            List<Entity> entities = selectionManager.getSelection();
             UndoableDeleteAction undoableAction = new UndoableDeleteAction(controller.getDrawing(), entities);
             undoManager.addAction(undoableAction);
             undoableAction.execute();
         }
-        selectionManager.removeAll();
+        selectionManager.clearSelection();
     }
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
-        setEnabled(!selectionManager.getSelectedEntities().isEmpty());
+        setEnabled(!selectionManager.getSelection().isEmpty());
     }
 
     /**

@@ -62,6 +62,7 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
             // Wait for svg loader to finish processing the SVG
             ThreadHelper.waitUntil(() -> result != null, 10, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
+            throw new RuntimeException("It took to long to load file");
             // Never mind
         }
 
@@ -94,7 +95,7 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
             // Wait for svg loader to finish processing the SVG
             ThreadHelper.waitUntil(() -> result != null, 10, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
-            // Never mind
+            throw new RuntimeException("It took to long to load file");
         }
 
         return Optional.ofNullable(result);
@@ -134,7 +135,7 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
 
                 if (createdShape != null) {
                     createdShape.setParent(group);
-                    createdShape.setTransform(groupTransform);
+                    createdShape.setRelativeTransform(groupTransform);
                     group.addChild(createdShape);
                 }
             }

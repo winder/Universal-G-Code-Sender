@@ -126,7 +126,7 @@ public class SelectionSettings extends JPanel implements SelectionListener, Cont
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
         System.out.println("Selection settings: " + selectionEvent);
-        if (this.controller.getSelectionManager().getChildren().isEmpty()) {
+        if (this.controller.getSelectionManager().getSelection().isEmpty()) {
             this.shape = null;
             setEnabled(false);
             return;
@@ -134,7 +134,7 @@ public class SelectionSettings extends JPanel implements SelectionListener, Cont
             setEnabled(true);
         }
 
-        this.shape = this.controller.getSelectionManager().getChildren().get(0);
+        this.shape = this.controller.getSelectionManager().getSelection().get(0);
 
         int index = 0;
         for (int i = 0; i < cutType.getModel().getSize(); i++) {

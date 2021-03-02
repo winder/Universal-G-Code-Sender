@@ -52,8 +52,62 @@ public class RectangleTest {
         assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getX()));
         assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getY()));
 
-        rectangle.setRotation(Math.PI * 4);
+        rectangle.rotate(Math.PI * 4);
 
+        assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getX()));
+        assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getY()));
+    }
+
+    @Test
+    public void moveShouldTranslateTheEntity() {
+        Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setWidth(10);
+        rectangle.setHeight(10);
+
+        assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getX()));
+        assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getY()));
+
+        rectangle.move(new Point2D.Double(-5, -5));
+
+        assertEquals(Double.valueOf(10), Double.valueOf(rectangle.getCenter().getX()));
+        assertEquals(Double.valueOf(10), Double.valueOf(rectangle.getCenter().getY()));
+        assertEquals(Double.valueOf(5), Double.valueOf(rectangle.getPosition().getX()));
+        assertEquals(Double.valueOf(5), Double.valueOf(rectangle.getPosition().getY()));
+    }
+
+    @Test
+    public void moveShouldTranslateScaledEntity() {
+        Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.applyTransform(AffineTransform.getScaleInstance(2, 2));
+        rectangle.setWidth(10);
+        rectangle.setHeight(10);
+
+        assertEquals(Double.valueOf(10), Double.valueOf(rectangle.getPosition().getX()));
+        assertEquals(Double.valueOf(10), Double.valueOf(rectangle.getPosition().getY()));
+        assertEquals(Double.valueOf(20), Double.valueOf(rectangle.getCenter().getX()));
+        assertEquals(Double.valueOf(20), Double.valueOf(rectangle.getCenter().getY()));
+
+        rectangle.move(new Point2D.Double(-5, -5));
+
+        assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getX()));
+        assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getY()));
+        assertEquals(Double.valueOf(5), Double.valueOf(rectangle.getPosition().getX()));
+        assertEquals(Double.valueOf(5), Double.valueOf(rectangle.getPosition().getY()));
+    }
+
+    @Test
+    public void rotateShouldRotateAroundItsCenter() {
+        Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setWidth(10);
+        rectangle.setHeight(10);
+
+        assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getX()));
+        assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getY()));
+
+        rectangle.rotate(90);
+
+        assertEquals(Double.valueOf(10), Double.valueOf(rectangle.getPosition().getX()));
+        assertEquals(Double.valueOf(10), Double.valueOf(rectangle.getPosition().getY()));
         assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getX()));
         assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getY()));
     }
@@ -66,7 +120,7 @@ public class RectangleTest {
 
         AffineTransform transform = new AffineTransform();
         transform.translate(10, 10);
-        rectangle.setTransform(transform);
+        rectangle.applyTransform(transform);
 
         assertEquals(20d, rectangle.getShape().getBounds().getX(), 0.01);
         assertEquals(20d, rectangle.getShape().getBounds().getY(), 0.01);
@@ -79,15 +133,54 @@ public class RectangleTest {
         Rectangle rectangle = new Rectangle();
         rectangle.setWidth(10);
         rectangle.setHeight(10);
-        rectangle.setTransform(transform);
+        rectangle.setRelativeTransform(transform);
 
         transform = new AffineTransform();
         transform.translate(10, 10);
         Group group = new Group();
-        group.setTransform(transform);
+        group.setRelativeTransform(transform);
         group.addChild(rectangle);
 
         assertEquals(20d, rectangle.getShape().getBounds().getX(), 0.01);
         assertEquals(20d, rectangle.getShape().getBounds().getY(), 0.01);
+    }
+
+    @Test
+    public void setPositionShouldTranslateTheRectangle() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setWidth(10);
+        rectangle.setHeight(10);
+        rectangle.move(new Point2D.Double(10, 0));
+
+        assertEquals(rectangle.getPosition().getX(), 10, 0.1);
+        assertEquals(rectangle.getPosition().getY(), 0, 0.1);
+    }
+
+    @Test
+    public void rotateShouldRotateAroundRectangleCenter() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setWidth(10);
+        rectangle.setHeight(10);
+        rectangle.move(new Point2D.Double(10, 10));
+
+        rectangle.rotate(-90);
+
+        assertEquals(15, rectangle.getCenter().getX(), 0.01);
+        assertEquals(15, rectangle.getCenter().getY(), 0.01);
+        assertEquals(-90, rectangle.getRotation(), 0.01);
+    }
+
+    @Test
+    public void rotateAroundPointShouldRotateFromRectangleCenter() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setWidth(10);
+        rectangle.setHeight(10);
+        rectangle.move(new Point2D.Double(10, 0));
+
+        rectangle.rotate(new Point2D.Double(0,0), -90);
+
+        assertEquals(0, rectangle.getPosition().getX(), 0.01);
+        assertEquals(-10, rectangle.getPosition().getY(), 0.01);
+        assertEquals(-90, rectangle.getRotation(), 0.01);
     }
 }

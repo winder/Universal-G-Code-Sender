@@ -55,7 +55,7 @@ public final class ToolInsertAction extends AbstractAction {
                         controller.addEntity(entity);
 
                         SelectionManager selectionManager = CentralLookup.getDefault().lookup(SelectionManager.class);
-                        selectionManager.add(entity);
+                        selectionManager.addSelection(entity);
 
                         controller.getDrawing().repaint();
                         controller.setTool(Tool.SELECT);

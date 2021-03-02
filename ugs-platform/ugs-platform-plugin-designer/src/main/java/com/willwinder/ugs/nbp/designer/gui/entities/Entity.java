@@ -9,7 +9,13 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 public interface Entity {
-    void render(Graphics2D g);
+
+    /**
+     * Renders the entity using the given graphics context
+     *
+     * @param graphics the graphics context to render the entity into
+     */
+    void render(Graphics2D graphics);
 
     /**
      * Returns the shape model in relative space without any applied affine transformations
@@ -55,17 +61,57 @@ public interface Entity {
 
     void setParent(Entity shape);
 
-    Point getCenter();
+    Point2D getCenter();
 
     void destroy();
 
-    AffineTransform getTransform();
+    /**
+     * Returns the current relative transformation
+     *
+     * @return a relative transformation for this entity
+     */
+    AffineTransform getRelativeTransform();
 
+    /**
+     * Sets a new relative transform overwriting any previous transformation
+     *
+     * @param transform a new transform
+     */
+    void setRelativeTransform(AffineTransform transform);
+
+    /**
+     * Returns the current transformation for transforming the entities shape to real coordinatesﬁ
+     *
+     * @return a global transform applying all parents transformations
+     */
     AffineTransform getGlobalTransform();
 
+    /**
+     * Moves the entity in real space using a delta movement
+     *
+     * @param deltaMovement a delta movement to move the entity
+     */
     void move(Point2D deltaMovement);
 
+    /**
+     * Returns the objects rotation in degrees
+     *
+     * @return the angle in degrees
+     */
     double getRotation();
 
-    void setRotation(double angle);
+    /**
+     * Rotate the object around its center point in the given degrees
+     *
+     * @param angle the angle in degrees
+     */
+    void rotate(double angle);
+
+    /**
+     * Rotates the object
+     *
+     * @param center the center point in real space to rotate around
+     * @param angle  the angle in degrees to rotate
+     */
+    void rotate(Point2D center, double angle);
 }

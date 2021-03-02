@@ -34,7 +34,7 @@ public abstract class AbstractControl extends AbstractEntity implements Control 
     }
 
     @Override
-    public void setParent(Entity shape) {
+    public void setParent(Entity entity) {
         // Short circuit the set parent, we never want to change it
     }
 

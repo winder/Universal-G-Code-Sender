@@ -36,12 +36,12 @@ public class ClearSelectionAction extends AbstractAction implements SelectionLis
 
         selectionManager = CentralLookup.getDefault().lookup(SelectionManager.class);
         selectionManager.addSelectionListener(this);
-        setEnabled(!selectionManager.getSelectedEntities().isEmpty());
+        setEnabled(!selectionManager.getSelection().isEmpty());
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        selectionManager.removeAll();
+        selectionManager.clearSelection();
 
         Controller controller = CentralLookup.getDefault().lookup(Controller.class);
         controller.getDrawing().repaint();
@@ -49,6 +49,6 @@ public class ClearSelectionAction extends AbstractAction implements SelectionLis
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
-        setEnabled(!selectionManager.getSelectedEntities().isEmpty());
+        setEnabled(!selectionManager.getSelection().isEmpty());
     }
 }

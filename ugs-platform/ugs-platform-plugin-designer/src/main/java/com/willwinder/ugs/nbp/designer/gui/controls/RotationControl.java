@@ -92,7 +92,7 @@ public class RotationControl extends AbstractControl {
         // Create a new transform for the control
         transform = new AffineTransform();
         transform.translate(result.getX(), result.getY());
-        setTransform(transform);
+        setRelativeTransform(transform);
     }
 
     @Override
@@ -112,15 +112,15 @@ public class RotationControl extends AbstractControl {
 
     @Override
     public AffineTransform getGlobalTransform() {
-        return getTransform();
+        return getRelativeTransform();
     }
 
     @Override
-    public void render(Graphics2D g) {
+    public void render(Graphics2D graphics) {
         updatePosition();
-        g.setStroke(new BasicStroke(0));
-        g.setColor(Color.GRAY);
-        g.fill(getShape());
+        graphics.setStroke(new BasicStroke(0));
+        graphics.setColor(Color.GRAY);
+        graphics.fill(getShape());
     }
 
     @Override
@@ -136,7 +136,8 @@ public class RotationControl extends AbstractControl {
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_DRAGGED) {
                 double deltaAngle = calcRotationAngleInDegrees(target.getCenter(), mousePosition) - calcRotationAngleInDegrees(target.getCenter(), startPosition);
                 double snappedRotation = Math.round((startRotation + deltaAngle) / rotationSnapping) * rotationSnapping;
-                target.setRotation(snappedRotation);
+                LOGGER.info("Rotation:" + snappedRotation);
+                target.rotate(snappedRotation);
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_RELEASED) {
                 LOGGER.info("Stopped rotating " + target.getRotation());
             }

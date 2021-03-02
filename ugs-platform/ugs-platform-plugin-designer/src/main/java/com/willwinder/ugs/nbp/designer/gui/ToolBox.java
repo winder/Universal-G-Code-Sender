@@ -6,13 +6,13 @@ import com.willwinder.ugs.nbp.designer.logic.actions.ToolDrawCircleAction;
 import com.willwinder.ugs.nbp.designer.logic.actions.ToolDrawRectangleAction;
 import com.willwinder.ugs.nbp.designer.logic.actions.ToolInsertAction;
 import com.willwinder.ugs.nbp.designer.logic.actions.ToolSelectAction;
+import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import java.awt.Color;
 import java.awt.Dimension;
 
 public class ToolBox extends JToolBar {
@@ -55,6 +55,7 @@ public class ToolBox extends JToolBar {
         controller.addListener((event) -> {
             if (event == ControllerEventType.TOOL_SELECTED) {
                 buttons.clearSelection();
+                CentralLookup.getDefault().lookup(SelectionManager.class).clearSelection();
                 switch (controller.getTool()) {
                     case SELECT:
                         select.setSelected(true);

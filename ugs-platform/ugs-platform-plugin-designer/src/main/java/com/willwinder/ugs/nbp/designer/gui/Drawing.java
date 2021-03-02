@@ -116,7 +116,7 @@ public class Drawing extends JPanel {
     public void setScale(double scale) {
         this.scale = scale;
         scaleTransform = AffineTransform.getScaleInstance(scale, scale);
-        globalRoot.setTransform(scaleTransform);
+        globalRoot.setRelativeTransform(scaleTransform);
         listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.SCALE_CHANGED));
     }
 

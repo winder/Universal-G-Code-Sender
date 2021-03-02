@@ -5,6 +5,8 @@ import com.willwinder.ugs.nbp.designer.gui.TopToolBar;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.SelectionSettings;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
+import com.willwinder.ugs.nbp.designer.gui.entities.Ellipse;
+import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.actions.SimpleUndoManager;
@@ -18,6 +20,9 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 
 /**
  * A gcode designer tool that works in stand alone mode
@@ -74,10 +79,48 @@ public class DesignerMain extends JFrame {
         pack();
         setVisible(true);
 
+        //loadExample(controller);
+        final Rectangle r = new Rectangle(145, 145);
+        r.setSize(new Dimension(10, 10));
+        controller.getDrawing().insertEntity(r);
+
+        Ellipse point = new Ellipse(100, 100);
+        point.setSize(new Dimension(100, 100));
+        controller.getDrawing().insertEntity(point);
+
+
+        final Rectangle rectangle = new Rectangle(75, 75);
+        rectangle.setSize(new Dimension(50, 50));
+        controller.getDrawing().insertEntity(rectangle);
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    Point2D center = new Point2D.Double(150, 150);
+                    rectangle.rotate(center, 2);
+
+                    r.rotate(2);
+                    controller.getDrawing().repaint();
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        });
+        thread.start();
+
+
+    }
+
+    private void loadExample(Controller controller) {
         SvgReader svgReader = new SvgReader();
         svgReader.read(DesignerMain.class.getResourceAsStream("/com/willwinder/ugs/nbp/designer/example.svg")).ifPresent(group -> {
+            group.move(new Point2D.Double(10, 10));
             controller.getDrawing().insertEntity(group);
-            controller.getDrawing().repaint();
         });
     }
 

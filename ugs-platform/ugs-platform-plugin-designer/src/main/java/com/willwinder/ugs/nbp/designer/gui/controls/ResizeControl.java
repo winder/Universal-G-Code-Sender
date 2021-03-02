@@ -23,7 +23,7 @@ public class ResizeControl extends AbstractControl {
     private static final Logger LOGGER = Logger.getLogger(ResizeControl.class.getSimpleName());
     private final Location location;
     private final Rectangle2D shape;
-    private AffineTransform transform;
+    private AffineTransform transform = new AffineTransform();
     private Point2D.Double startOffset = new Point2D.Double();
     ;
 
@@ -77,11 +77,11 @@ public class ResizeControl extends AbstractControl {
     }
 
     @Override
-    public void render(Graphics2D g) {
+    public void render(Graphics2D graphics) {
         updatePosition();
-        g.setStroke(new BasicStroke(1));
-        g.setColor(Colors.CONTROL_HANDLE);
-        g.fill(getShape());
+        graphics.setStroke(new BasicStroke(1));
+        graphics.setColor(Colors.CONTROL_HANDLE);
+        graphics.fill(getShape());
     }
 
     @Override

@@ -11,7 +11,7 @@ public class PngWriter implements Writer {
     @Override
     public void write(File file, Controller controller) {
         try {
-            controller.getSelectionManager().removeAll();
+            controller.getSelectionManager().clearSelection();
             BufferedImage bi = controller.getDrawing().getImage();
             ImageIO.write(bi, "png", file);
         } catch (IOException e) {

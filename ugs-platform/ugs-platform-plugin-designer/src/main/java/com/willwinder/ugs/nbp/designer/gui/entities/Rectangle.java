@@ -15,15 +15,21 @@ public class Rectangle extends AbstractEntity {
         this.shape = new Rectangle2D.Double(0, 0, 10, 10);
     }
 
-    public Rectangle(double x, double y) {
-        super(x, y);
+    /**
+     * Creates a rectangle with the relative position to the parent
+     *
+     * @param relativeX the relative position to the parent
+     * @param relativeY the relative position to the parent
+     */
+    public Rectangle(double relativeX, double relativeY) {
+        super(relativeX, relativeY);
         this.shape = new Rectangle2D.Double(0, 0, 10, 10);
     }
 
-    public void render(Graphics2D g) {
-        g.setStroke(new BasicStroke(1));
-        g.setColor(Color.BLACK);
-        g.draw(getShape());
+    public void render(Graphics2D graphics) {
+        graphics.setStroke(new BasicStroke(1));
+        graphics.setColor(Color.BLACK);
+        graphics.draw(getShape());
     }
 
     @Override

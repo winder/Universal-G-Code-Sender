@@ -28,7 +28,7 @@ public abstract class AbstractControlGroup extends Group implements EntityListen
     }
 
     @Override
-    public void setParent(Entity shape) {
+    public void setParent(Entity entity) {
         // Short circuit the set parent, we never want to change it
     }
 

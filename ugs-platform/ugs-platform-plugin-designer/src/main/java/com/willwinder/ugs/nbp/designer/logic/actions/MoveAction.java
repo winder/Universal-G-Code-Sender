@@ -4,6 +4,7 @@ import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
 
 import java.awt.geom.Point2D;
+import java.util.List;
 
 /**
  * MoveAction implements a single undoable action where all the Shapes in a
@@ -11,7 +12,7 @@ import java.awt.geom.Point2D;
  */
 public class MoveAction implements DrawAction, UndoableAction {
 
-    private SelectionManager selectionManager;
+    private final List<Entity> entityList;
     private Point2D movement;
 
     /**
@@ -23,20 +24,17 @@ public class MoveAction implements DrawAction, UndoableAction {
      * @param m the amount the shapes should be moved, relative to the
      *          original position
      */
-    public MoveAction(SelectionManager s, Point2D m) {
-        this.selectionManager = s;
+    public MoveAction(List<Entity> entityList, Point2D m) {
+        this.entityList = entityList;
         this.movement = m;
     }
 
     public void execute() {
-        for (Entity s : selectionManager.getChildren()) {
-            Point2D position = s.getPosition();
-            //s.setPosition(position.getX() + movement.getX(), position.getY() + movement.getY());
-        }
+        entityList.forEach(entity -> entity.move(movement));
     }
 
     public String getDescription() {
-        return null;
+        return "Move";
     }
 
     public void redo() {
@@ -44,10 +42,8 @@ public class MoveAction implements DrawAction, UndoableAction {
     }
 
     public void undo() {
-        for (Entity s : selectionManager.getChildren()) {
-            Point2D position = s.getPosition();
-            //s.setPosition(position.getX() - movement.getX(), position.getY() - movement.getY());
-        }
+        Point2D negativeMovement = new Point2D.Double(-movement.getX(), -movement.getY());
+        entityList.forEach(entity -> entity.move(negativeMovement));
     }
 
 }

@@ -100,12 +100,12 @@ public class MouseListener extends MouseAdapter {
                         .orElse(null);
 
                 if (((m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == 0)
-                        && !c.getSelectionManager().contains(entity)) {
-                    c.getSelectionManager().removeAll();
+                        && !c.getSelectionManager().isSelected(entity)) {
+                    c.getSelectionManager().clearSelection();
                 }
 
-                if (entity != null && !c.getSelectionManager().contains(entity)) {
-                    c.getSelectionManager().add(entity);
+                if (entity != null && !c.getSelectionManager().isSelected(entity)) {
+                    c.getSelectionManager().addSelection(entity);
                 }
             }
 
