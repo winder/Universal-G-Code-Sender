@@ -554,13 +554,13 @@ public class GrblUtils {
                     reportingUnits);
 
             // Add in optional axes.
-            if (matcher.group(6) != null) {
+            if (matcher.group(6) != null && matcher.group(6).length() > 0) {
                 result.c = Double.parseDouble(matcher.group(6));
             }
-            if (matcher.group(5) != null) {
+            if (matcher.group(5) != null && matcher.group(5).length() > 0) {
                 result.b = Double.parseDouble(matcher.group(5));
             }
-            if (matcher.group(4) != null) {
+            if (matcher.group(4) != null && matcher.group(4).length() > 0) {
                 result.a = Double.parseDouble(matcher.group(4));
             }
 
