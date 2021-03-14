@@ -1515,4 +1515,20 @@ public class GrblControllerTest {
         verify(communicator, times(1)).sendByteImmediately(GRBL_PAUSE_COMMAND);
         verify(controllerListener, times(1)).controlStateChange(COMM_SENDING_PAUSED);
     }
+
+    @Test
+    public void capabilityIsolation() throws Exception {
+        boolean hasRealTime;
+        GrblController gc = new GrblController(mgc);
+        gc.openCommPort(getSettings().getConnectionDriver(), "foo", 2400);
+
+        // This was being tested unintentionally in some of the other tests.
+        // Now that it has been fixed, go ahead and test it directly.
+        gc.rawResponseHandler("Grbl 1.1f");
+        hasRealTime = gc.getCapabilities().hasCapability(GrblCapabilitiesConstants.REAL_TIME);
+        assertTrue(hasRealTime);
+        gc.rawResponseHandler("Grbl 0.7");
+        hasRealTime = gc.getCapabilities().hasCapability(GrblCapabilitiesConstants.REAL_TIME);
+        assertFalse(hasRealTime);
+    }
 }
