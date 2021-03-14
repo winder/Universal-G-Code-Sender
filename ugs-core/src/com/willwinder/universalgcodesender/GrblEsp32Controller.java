@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import static com.willwinder.universalgcodesender.CapabilitiesConstants.*;
 
 public class GrblEsp32Controller extends GrblController {
+    private final Capabilities capabilities = new Capabilities();
     private static final Logger logger = Logger.getLogger(GrblEsp32Controller.class.getName());
     static Pattern axisCountPattern = Pattern.compile("\\[MSG:Axis count (\\d*)]");
 
@@ -40,6 +41,11 @@ public class GrblEsp32Controller extends GrblController {
             return Optional.empty();
         }
         return Optional.of(Integer.parseInt(m.group(1)));
+    }
+
+    @Override
+    public Capabilities getCapabilities() {
+        return capabilities.merge(super.getCapabilities());
     }
 
     @Override

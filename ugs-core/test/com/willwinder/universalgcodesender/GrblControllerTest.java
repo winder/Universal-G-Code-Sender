@@ -109,16 +109,6 @@ public class GrblControllerTest {
         f.set(null, false);
     }
 
-    private static void setState(GrblController gc, ControlState state) {
-        try {
-            Method m = AbstractController.class.getDeclaredMethod("setCurrentState", ControlState.class);
-            m.setAccessible(true);
-            m.invoke(gc, state);
-        } catch (Exception e) {
-            Assert.fail();
-        }
-    }
-
     private Settings getSettings() {
         return settings;
     }
@@ -866,15 +856,26 @@ public class GrblControllerTest {
         instance.resumeStreaming();
     }
 
+    private void sendStuff(GrblController instance) throws Exception {
+        List commands = new ArrayList<>();
+        for (int i = 0; i < 30; i++) {
+            commands.add(instance.createCommand("G0X" + i));
+        }
+        instance.queueStream(new SimpleGcodeStreamReader(commands));
+        instance.beginStreaming();
+    }
+
     @Test
     public void testPauseAndCancelSend() throws Exception {
         System.out.println("Pause + cancelSend");
-        GrblController instance = new GrblController(mgc);
-        setState(instance, COMM_SENDING);
-        instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
+        GrblController instance;
 
         // Test 1.1 cancel throws an exception (Grbl 0.7).
+        this.mgc = new MockGrblCommunicator();
+        instance = new GrblController(mgc);
+        instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
         instance.rawResponseHandler("Grbl 0.7");
+        sendStuff(instance);
         boolean threwException = false;
         try {
             instance.pauseStreaming();
@@ -888,6 +889,9 @@ public class GrblControllerTest {
 
         // Test 1.2 Cancel when nothing is running (Grbl 0.8c).
         //          Check for soft reset.
+        this.mgc = new MockGrblCommunicator();
+        instance = new GrblController(mgc);
+        instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
         instance.rawResponseHandler("Grbl 0.8c");
         instance.pauseStreaming();
         instance.cancelSend();
@@ -898,6 +902,9 @@ public class GrblControllerTest {
 
         // Test 2.1
         // Add 30 commands, start send, cancel before any sending. (Grbl 0.7)
+        this.mgc = new MockGrblCommunicator();
+        instance = new GrblController(mgc);
+        instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
         instance.rawResponseHandler("Grbl 0.7");
         List<GcodeCommand> commands = new ArrayList<>();
         for (int i=0; i < 30; i++) {
@@ -928,8 +935,9 @@ public class GrblControllerTest {
 
         // Test 2.2
         // Add 30 commands, start send, cancel before any sending. (Grbl 0.8c)
-        //setUp();
-        //instance = new GrblController(mgc);
+        this.mgc = new MockGrblCommunicator();
+        instance = new GrblController(mgc);
+        instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
         instance.rawResponseHandler("Grbl 0.8c");
         commands = new ArrayList<>();
         for (int i=0; i < 30; i++) {
@@ -954,6 +962,9 @@ public class GrblControllerTest {
 
         // Test 3.2
         // Add 30 commands, start send, cancel after sending 15. (Grbl 0.8c)
+        this.mgc = new MockGrblCommunicator();
+        instance = new GrblController(mgc);
+        instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
         instance.rawResponseHandler("Grbl 0.8c");
         commands = new ArrayList<>();
         for (int i=0; i < 30; i++) {

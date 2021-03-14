@@ -59,7 +59,7 @@ public class GrblController extends AbstractController {
     private double grblVersion = 0.0;           // The 0.8 in 'Grbl 0.8c'
     private Character grblVersionLetter = null; // The c in 'Grbl 0.8c'
     protected Boolean isReady = false;          // Not ready until version is received.
-    protected Capabilities capabilities = new Capabilities();
+    private Capabilities capabilities = new Capabilities();
     private final GrblFirmwareSettings firmwareSettings;
 
     // Polling state
@@ -208,7 +208,7 @@ public class GrblController extends AbstractController {
                 this.grblVersion = GrblUtils.getVersionDouble(response);
                 this.grblVersionLetter = GrblUtils.getVersionLetter(response);
 
-                this.capabilities.merge(GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter));
+                this.capabilities = GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter);
 
                 try {
                     this.sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_SETTINGS_COMMAND));

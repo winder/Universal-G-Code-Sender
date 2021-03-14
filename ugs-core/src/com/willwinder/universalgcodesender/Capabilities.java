@@ -37,11 +37,14 @@ public class Capabilities {
     private Set<String> capabilities = new HashSet<>();
 
     /**
-     * Merge capabilities from another Capabilities object into this one.
+     * Merge capabilities from another Capabilities object into a new one.
      * @param other the capabilities to merge.
      */
-    public void merge(Capabilities other) {
-        capabilities.addAll(other.capabilities);
+    public Capabilities merge(Capabilities other) {
+        Capabilities result = new Capabilities();
+        result.capabilities.addAll(other.capabilities);
+        result.capabilities.addAll(capabilities);
+        return result;
     }
 
     /**
