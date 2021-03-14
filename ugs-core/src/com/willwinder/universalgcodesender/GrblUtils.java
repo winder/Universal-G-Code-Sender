@@ -252,11 +252,9 @@ public class GrblUtils {
         return ret;
     }
 
-    static String PROBE_POSITION_REGEX = "\\[PRB:(-?\\d*\\.\\d*),(-?\\d*\\.\\d*),(-?\\d*\\.\\d*)(?::(\\d))?]";
-    static Pattern PROBE_POSITION_PATTERN = Pattern.compile(PROBE_POSITION_REGEX);
     static protected Position parseProbePosition(final String response, final Units units) {
         // Don't parse failed probe response.
-        if (response.contains(":0]")) {
+        if (response.endsWith(":0]")) {
             return null;
         }
 
@@ -526,9 +524,10 @@ public class GrblUtils {
     }
 
     // Optionally look for 6 axes (ABC support as extended by Grbl ESP 32)
-    static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d*))?(?:,(-?\\d*\\.?\\d*))?(?:,(-?\\d*\\.?\\d*))?");
-    static Pattern workPattern = Pattern.compile("(?<=WPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d*))?(?:,(-?\\d*\\.?\\d*))?(?:,(-?\\d*\\.?\\d*))?");
-    static Pattern wcoPattern = Pattern.compile("(?<=WCO:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d*))?(?:,(-?\\d*\\.?\\d*))?(?:,(-?\\d*\\.?\\d*))?");
+    static Pattern PROBE_POSITION_PATTERN = Pattern.compile("\\[PRB:(-?\\d*\\.\\d*),(-?\\d*\\.\\d*),(-?\\d*\\.\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?:\\d?]");
+    static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
+    static Pattern workPattern = Pattern.compile("(?<=WPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
+    static Pattern wcoPattern = Pattern.compile("(?<=WCO:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
     static protected Position getMachinePositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
         if (version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             return GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
@@ -554,13 +553,13 @@ public class GrblUtils {
                     reportingUnits);
 
             // Add in optional axes.
-            if (matcher.group(6) != null && matcher.group(6).length() > 0) {
+            if (matcher.group(6) != null) {
                 result.c = Double.parseDouble(matcher.group(6));
             }
-            if (matcher.group(5) != null && matcher.group(5).length() > 0) {
+            if (matcher.group(5) != null) {
                 result.b = Double.parseDouble(matcher.group(5));
             }
-            if (matcher.group(4) != null && matcher.group(4).length() > 0) {
+            if (matcher.group(4) != null) {
                 result.a = Double.parseDouble(matcher.group(4));
             }
 

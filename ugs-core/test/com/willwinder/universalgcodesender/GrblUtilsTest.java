@@ -626,4 +626,25 @@ public class GrblUtilsTest {
         assertFalse(controllerStatus.getEnabledPins().B);
         assertFalse(controllerStatus.getEnabledPins().C);
     }
+
+    @Test
+    public void parseProbePosition() {
+        String ThreeAxisFail = "[PRB:0.000,0.000,0.000:0]";
+        assertEquals(null, GrblUtils.parseProbePosition(ThreeAxisFail, MM));
+        String FourAxisFail = "[PRB:0.000,0.000,0.000,0.000:0]";
+        assertEquals(null, GrblUtils.parseProbePosition(FourAxisFail, MM));
+        String FiveAxisFail = "[PRB:0.000,0.000,0.000,0.000,0.000:0]";
+        assertEquals(null, GrblUtils.parseProbePosition(FiveAxisFail, MM));
+        String SixAxisFail = "[PRB:0.000,0.000,0.000,0.000,0.000,0.000:0]";
+        assertEquals(null, GrblUtils.parseProbePosition(SixAxisFail, MM));
+
+        String ThreeAxis = "[PRB:1.1,2.2,3.3:1]";
+        assertEquals(new Position(1.1, 2.2, 3.3, MM), GrblUtils.parseProbePosition(ThreeAxis, MM));
+        String FourAxis = "[PRB:1.1,2.2,3.3,4.4:1]";
+        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 0.0, 0.0, MM), GrblUtils.parseProbePosition(FourAxis, MM));
+        String FiveAxis = "[PRB:1.1,2.2,3.3,4.4,5.5:1]";
+        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 5.5, 0.0, MM), GrblUtils.parseProbePosition(FiveAxis, MM));
+        String SixAxis = "[PRB:1.1,2.2,3.3,4.4,5.5,6.6:1]";
+        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 5.5, 6.6, MM), GrblUtils.parseProbePosition(SixAxis, MM));
+    }
 }
