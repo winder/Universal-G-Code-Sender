@@ -18,15 +18,15 @@
  */
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.types.GcodeCommand;
-
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.willwinder.universalgcodesender.CapabilitiesConstants.*;
 
 public class GrblEsp32Controller extends GrblController {
+    private static final Logger logger = Logger.getLogger(GrblEsp32Controller.class.getName());
     static Pattern axisCountPattern = Pattern.compile("\\[MSG:Axis count (\\d*)]");
 
     public GrblEsp32Controller() {
@@ -68,6 +68,7 @@ public class GrblEsp32Controller extends GrblController {
 
         Optional<Integer> axes = getAxisCount(response);
         if (axes.isPresent()) {
+            logger.info("Axis Count: " + axes.get());
             this.capabilities.removeCapability(X_AXIS);
             this.capabilities.removeCapability(Y_AXIS);
             this.capabilities.removeCapability(Z_AXIS);
