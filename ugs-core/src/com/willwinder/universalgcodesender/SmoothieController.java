@@ -154,6 +154,9 @@ public class SmoothieController extends AbstractController {
                 firmwareVersion = "Smoothie " + StringUtils.substringBetween(response, "Build date:", ",").trim();
                 commandComplete(response);
 
+                capabilities.addCapability(CapabilitiesConstants.X_AXIS);
+                capabilities.addCapability(CapabilitiesConstants.Y_AXIS);
+                capabilities.addCapability(CapabilitiesConstants.Z_AXIS);
                 capabilities.addCapability(CapabilitiesConstants.JOGGING);
                 capabilities.addCapability(CapabilitiesConstants.HOMING);
                 capabilities.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);

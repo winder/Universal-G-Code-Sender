@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -85,7 +85,6 @@ public class VisualizerPopupMenu extends JPopupMenu {
     }
 
     private void createViewPresetSubmenu() {
-
         JMenu menu = new JMenu(Localization.getString("platform.visualizer.popup.viewPresets"));
         add(menu);
 

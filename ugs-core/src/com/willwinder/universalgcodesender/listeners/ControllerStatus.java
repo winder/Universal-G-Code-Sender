@@ -112,6 +112,9 @@ public class ControllerStatus {
         final public boolean X;
         final public boolean Y;
         final public boolean Z;
+        final public boolean A;
+        final public boolean B;
+        final public boolean C;
         final public boolean Probe;
         final public boolean Door;
         final public boolean Hold;
@@ -123,6 +126,9 @@ public class ControllerStatus {
             X = enabledUpper.contains("X");
             Y = enabledUpper.contains("Y");
             Z = enabledUpper.contains("Z");
+            A = enabledUpper.contains("A");
+            B = enabledUpper.contains("B");
+            C = enabledUpper.contains("C");
             Probe = enabledUpper.contains("P");
             Door = enabledUpper.contains("D");
             Hold = enabledUpper.contains("H");

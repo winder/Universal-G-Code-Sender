@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.dro;
 
+import com.willwinder.ugs.nbp.dro.panels.DROPopup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -26,6 +27,7 @@ import com.willwinder.ugs.nbp.dro.panels.MachineStatusPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
@@ -62,6 +64,10 @@ public final class MachineStatusTopComponent extends TopComponent {
         JScrollPane scrollPane = new JScrollPane(new MachineStatusPanel(backend), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(scrollPane, BorderLayout.CENTER);
         setMinimumSize(new Dimension(100, 100));
+
+        // Add popup menu. Don't use SwingUtils.traverse, it interferes with the AxisPanels.
+        DROPopup popup = new DROPopup(backend);
+        scrollPane.setComponentPopupMenu(popup);
     }
 
     @Override

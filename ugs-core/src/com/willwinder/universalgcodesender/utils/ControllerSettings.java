@@ -20,13 +20,7 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.willwinder.universalgcodesender.G2CoreController;
-import com.willwinder.universalgcodesender.GrblController;
-import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.LoopBackCommunicator;
-import com.willwinder.universalgcodesender.SmoothieController;
-import com.willwinder.universalgcodesender.TinyGController;
-import com.willwinder.universalgcodesender.XLCDCommunicator;
+import com.willwinder.universalgcodesender.*;
 import com.willwinder.universalgcodesender.gcode.util.CommandProcessorLoader;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +63,7 @@ public class ControllerSettings {
 
     public enum CONTROLLER {
         GRBL("GRBL"),
+        GRBL_ESP32("GRBL ESP32"),
         SMOOTHIE("SmoothieBoard"),
         TINYG("TinyG"),
         G2CORE("g2core"),
@@ -108,12 +103,13 @@ public class ControllerSettings {
      * }
      */
     public IController getController() {
-        //String controllerName = controllerConfig.get("name").getAsString();
         String controllerName = this.Controller.name;
         CONTROLLER controller = CONTROLLER.fromString(controllerName);
         switch (controller) {
             case GRBL:
                 return new GrblController();
+            case GRBL_ESP32:
+                return new GrblEsp32Controller();
             case SMOOTHIE:
                 return new SmoothieController();
             case TINYG:

@@ -962,7 +962,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         try {
           parser.addCommand(command.getCommandString());
         } catch (Exception e) {
-          logger.log(Level.SEVERE, "Problem parsing command.", e);
+          logger.log(Level.SEVERE, "Problem parsing command: " + command, e);
         }
 
         String gcode = command.getCommandString().toUpperCase();

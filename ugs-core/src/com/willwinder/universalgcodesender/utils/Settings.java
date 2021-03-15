@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -29,15 +30,7 @@ import org.apache.commons.lang3.SystemUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class Settings {
@@ -49,10 +42,16 @@ public class Settings {
 
     private String firmwareVersion = "GRBL";
     private String fileName = System.getProperty("user.home");
+
+    // Welcome screen
     private Deque<String> fileHistory = new ArrayDeque<>();
     private Deque<String> dirHistory = new ArrayDeque<>();
+
+    // Connection
     private String port = "";
     private String portRate = "115200";
+
+    // Jogging / JogService
     private boolean manualModeEnabled = false;
     private double manualModeStepSize = 1;
     private boolean useZStepSize = true;
@@ -60,9 +59,12 @@ public class Settings {
     private double zJogStepSize = 1;
     private double abcJogStepSize = 1;
     private double jogFeedRate = 10;
+
+    // Console
     private boolean scrollWindowEnabled = true;
     private boolean verboseOutputEnabled = false;
     private boolean commandTableEnabled = false;
+
     // Sender Settings
     private WindowSettings mainWindowSettings = new WindowSettings(0,0,640,520);
     private WindowSettings visualizerWindowSettings = new WindowSettings(0,0,640,480);
@@ -70,11 +72,11 @@ public class Settings {
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
     private Units preferredUnits = Units.MM;
+    private Set<Axis> disabledAxes = new HashSet<>();
 
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
     private boolean autoStartPendant = false;
-
     private boolean autoConnect = false;
     private boolean autoReconnect = false;
 
@@ -360,7 +362,17 @@ public class Settings {
     public Units getPreferredUnits() {
         return (preferredUnits == null) ? Units.MM : preferredUnits;
     }
-        
+
+    public boolean isAxisEnabled(Axis a) {
+        return !this.disabledAxes.contains(a);
+    }
+
+    public void setAxisEnabled(Axis a, boolean enabled) {
+        if (enabled ? this.disabledAxes.remove(a) : this.disabledAxes.add(a)) {
+            changed();
+        }
+    }
+
     public void setPreferredUnits(Units units) {
         if (units != null) {
             double scaleUnits = UnitUtils.scaleUnits(preferredUnits, units);

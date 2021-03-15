@@ -37,6 +37,17 @@ public class Capabilities {
     private Set<String> capabilities = new HashSet<>();
 
     /**
+     * Merge capabilities from another Capabilities object into a new one.
+     * @param other the capabilities to merge.
+     */
+    public Capabilities merge(Capabilities other) {
+        Capabilities result = new Capabilities();
+        result.capabilities.addAll(other.capabilities);
+        result.capabilities.addAll(capabilities);
+        return result;
+    }
+
+    /**
      * Adds a capability that is either defined in {@link CapabilitiesConstants} or a
      * special capability for the controller.
      *

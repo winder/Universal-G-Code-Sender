@@ -207,8 +207,9 @@ public class GrblController extends AbstractController {
                 
                 this.grblVersion = GrblUtils.getVersionDouble(response);
                 this.grblVersionLetter = GrblUtils.getVersionLetter(response);
-                
+
                 this.capabilities = GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter);
+
                 try {
                     this.sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_SETTINGS_COMMAND));
                     this.sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND));

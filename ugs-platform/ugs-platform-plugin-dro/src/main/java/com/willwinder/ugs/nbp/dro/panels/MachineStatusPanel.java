@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2020 Will Winder
+    Copyright 2016-2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.dro.panels;
 
 import com.willwinder.ugs.nbp.dro.FontManager;
+import com.willwinder.universalgcodesender.Capabilities;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -36,17 +37,16 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.uielements.components.PopupEditor;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.*;
+import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -63,6 +63,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final String PIN_X = Localization.getString("machineStatus.pin.x").toUpperCase();
     private final String PIN_Y = Localization.getString("machineStatus.pin.y").toUpperCase();
     private final String PIN_Z = Localization.getString("machineStatus.pin.z").toUpperCase();
+    private final String PIN_A = Localization.getString("machineStatus.pin.a").toUpperCase();
+    private final String PIN_B = Localization.getString("machineStatus.pin.b").toUpperCase();
+    private final String PIN_C = Localization.getString("machineStatus.pin.c").toUpperCase();
     private final String PIN_PROBE = Localization.getString("machineStatus.pin.probe").toUpperCase();
     private final String PIN_DOOR = Localization.getString("machineStatus.pin.door").toUpperCase();
     private final String PIN_HOLD = Localization.getString("machineStatus.pin.hold").toUpperCase();
@@ -85,8 +88,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final BackendAPI backend;
     private final Timer statePollTimer;
 
+    private final JPanel axisPanel = new JPanel();
     private Units units;
-    private Map<Axis, AxisPanel> axisPanels = new HashMap<>();
+    private final Map<Axis, AxisPanel> axisPanels = new HashMap<>();
     private final DecimalFormat decimalFormatter = new DecimalFormat("0.000");
 
 
@@ -126,7 +130,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     private void initComponents() {
-
         String debug = "";
         //String debug = "debug, ";
         setLayout(new MigLayout(debug + "fillx, wrap 1, inset 5", "grow"));
@@ -141,7 +144,10 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         activeStateValueLabel.setBorder(BorderFactory.createEmptyBorder());
         add(activeStatePanel, "growx");
 
-        Stream.of(Axis.X, Axis.Y, Axis.Z).forEach(this::createAxisPanel);
+        // Default to showing X, Y, Z
+        axisPanel.setLayout(new MigLayout(debug + "fillx, wrap 1, hidemode 3", "grow"));
+        Stream.of(Axis.values()).forEach(this::initializeAxisPanel);
+        add(axisPanel, "growx");
 
         JPanel speedPanel = new JPanel(new MigLayout(debug + "fillx, wrap 2, inset 0", "[al right][]"));
         speedPanel.setOpaque(false);
@@ -156,7 +162,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         add(gStatesLabel, "align center");
 
         Color transparent = new Color(0, 0, 0, 0);
-
         pinStatePanel.setLayout(new MigLayout("insets 0 5 0 5"));
         pinStatePanel.setBackground(transparent);
         resetStatePinComponents();
@@ -181,11 +186,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         statePollTimer.start();
     }
 
-    private void createAxisPanel(Axis axis) {
-        AxisPanel axisPanel = new AxisPanel(axis, fontManager);
-        axisPanels.put(axis, axisPanel);
-        add(axisPanel, "growx, span 2");
-        axisPanel.addListener(this);
+    private void initializeAxisPanel(Axis axis) {
+        AxisPanel panel = new AxisPanel(axis, fontManager);
+        panel.setVisible(axis.isLinear());
+        panel.setEnabled(false);
+        axisPanels.put(axis, panel);
+        axisPanel.add(panel, "growx");
+        panel.addListener(this);
     }
 
     private void resetStatePinComponents() {
@@ -229,7 +236,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         units = u;
         switch (u) {
             case MM:
-                break;
             case INCH:
                 break;
             default:
@@ -248,16 +254,34 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         }
         if (evt.isSettingChangeEvent() && backend.getController() != null && backend.getController().getControllerStatus() != null) {
             onControllerStatusReceived(backend.getController().getControllerStatus());
+            updateControls();
         }
     }
 
+    /**
+     * Enable and disable the different axes based on capabilities and configuration.
+     */
     private void updateControls() {
-        axisPanels.values().forEach(c -> c.setEnabled(backend.isIdle()));
-
         if (!backend.isConnected()) {
+            axisPanels.entrySet().forEach(entry -> {
+                entry.getValue().setEnabled(false);
+                entry.getValue().setVisible(entry.getKey().isLinear());
+            });
+
             // Clear out the status color.
             this.updateStatePanel(ControllerState.UNKNOWN);
             resetStatePinComponents();
+            return;
+        }
+
+        Capabilities cap = backend.getController().getCapabilities();
+        Settings settings = backend.getSettings();
+
+        for (Axis a : Axis.values()) {
+            // don't hide every axis while capabilities are being detected.
+            boolean enabled = (cap.hasAxis(a) || a.isLinear()) && settings.isAxisEnabled(a);
+            axisPanels.get(a).setEnabled(enabled);
+            axisPanels.get(a).setVisible(enabled);
         }
     }
 
@@ -266,13 +290,15 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         resetStatePinComponents();
 
         if (status.getEnabledPins() != null) {
-
             EnabledPins ep = status.getEnabledPins();
 
             List<String> enabled = new ArrayList<>();
             if (ep.X) enabled.add(PIN_X);
             if (ep.Y) enabled.add(PIN_Y);
             if (ep.Z) enabled.add(PIN_Z);
+            if (ep.A) enabled.add(PIN_A);
+            if (ep.B) enabled.add(PIN_B);
+            if (ep.C) enabled.add(PIN_C);
             if (ep.Probe) enabled.add(PIN_PROBE);
             if (ep.Door) enabled.add(PIN_DOOR);
             if (ep.Hold) enabled.add(PIN_HOLD);
@@ -290,7 +316,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         this.setUnits(backend.getSettings().getPreferredUnits());
 
         Arrays.stream(Axis.values())
-                .filter(axis -> axisPanels.containsKey(axis))
+                .filter(axisPanels::containsKey)
                 .forEach(axis -> {
                     if (status.getMachineCoord() != null) {
                         Position machineCoord = status.getMachineCoord().getPositionIn(units);
