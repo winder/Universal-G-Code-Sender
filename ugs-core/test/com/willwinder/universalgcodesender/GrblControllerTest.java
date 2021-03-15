@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.AbstractController.UnexpectedCommand;
 import com.willwinder.universalgcodesender.gcode.util.Code;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageType;
@@ -99,6 +100,7 @@ public class GrblControllerTest {
         Field f = GUIHelpers.class.getDeclaredField("unitTestMode");
         f.setAccessible(true);
         f.set(null, true);
+        Localization.initialize("en_US");
     }
 
     @After
