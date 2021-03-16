@@ -30,7 +30,6 @@ import java.util.Set;
  * @author Joacim Breiler
  */
 public class Capabilities {
-
     /**
      * The capabilities available for the current hardware
      */
@@ -38,6 +37,7 @@ public class Capabilities {
 
     /**
      * Merge capabilities from another Capabilities object into a new one.
+     *
      * @param other the capabilities to merge.
      */
     public Capabilities merge(Capabilities other) {
@@ -74,7 +74,6 @@ public class Capabilities {
      * @param capability the capability as a string that we want to check. You may define
      *                   your own values, the generic capabilities are defined in
      *                   {@link CapabilitiesConstants}
-     *
      * @return returns true if the capability is available
      */
     public boolean hasCapability(String capability) {
@@ -206,5 +205,14 @@ public class Capabilities {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Returns if the hardware has the capabilities for opening the door
+     *
+     * @return true if open door function is available in the hardware
+     */
+    public boolean hasOpenDoor() {
+        return hasCapability(CapabilitiesConstants.OPEN_DOOR);
     }
 }

@@ -801,6 +801,11 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
 
     @Override
+    public void openDoor() throws Exception {
+        controller.openDoor();
+    }
+
+    @Override
     public void setWorkPosition(PartialPosition position) throws Exception {
         controller.setWorkPosition(position);
     }

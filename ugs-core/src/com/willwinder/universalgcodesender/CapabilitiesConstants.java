@@ -75,6 +75,11 @@ public class CapabilitiesConstants {
      */
     public static final String RETURN_TO_ZERO = "RETURN_TO_ZERO";
 
+    /**
+     * A key for identifying if the firmware supports opening the door
+     */
+    public static final String OPEN_DOOR = "DOOR_DOOR";
+
     public static final String X_AXIS = "X_AXIS";
     public static final String Y_AXIS = "Y_AXIS";
     public static final String Z_AXIS = "Z_AXIS";
