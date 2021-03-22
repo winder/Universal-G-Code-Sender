@@ -201,6 +201,11 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         throw new Exception(Localization.getString("controller.exception.setworkpos"));
     }
 
+    @Override
+    public void openDoor() throws Exception {
+        throw new Exception(Localization.getString("controller.exception.door"));
+    }
+
     /**
      * Disable alarm mode and put device into idle state, throw an exception
      * if not supported.

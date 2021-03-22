@@ -481,6 +481,15 @@ public class GrblController extends AbstractController {
     }
 
     @Override
+    public void openDoor() throws Exception {
+        if (!this.isCommOpen()) {
+            throw new RuntimeException("Not connected to the controller");
+        }
+
+        comm.sendByteImmediately(GrblUtils.GRBL_DOOR_COMMAND);
+    }
+
+    @Override
     public void toggleCheckMode() throws Exception {
         if (this.isCommOpen()) {
             String gcode = GrblUtils.getToggleCheckModeCommand(this.grblVersion, this.grblVersionLetter);

@@ -168,6 +168,12 @@ public class LocalizingService {
     public final static String SoftResetActionId = "com.willwinder.ugs.nbp.core.actions.SoftResetAction";
     public final static String SoftResetCategory = CATEGORY_MACHINE;
 
+    public final static String OpenDoorTitleKey = "mainWindow.swing.openDoor";
+    public final static String OpenDoorTitle = Localization.getString(OpenDoorTitleKey, lang);
+    public final static String OpenDoorWindowPath = MENU_MACHINE_ACTIONS;
+    public final static String OpenDoorActionId = "com.willwinder.ugs.nbp.core.actions.OpenDoorAction";
+    public final static String OpenDoorCategory = CATEGORY_MACHINE;
+
     public final static String ResetZeroTitleKey = "mainWindow.swing.resetCoordinatesButton";
     public final static String ResetZeroTitle = Localization.getString(ResetZeroTitleKey, lang);
     public final static String ResetZeroWindowPath = MENU_MACHINE_ACTIONS;

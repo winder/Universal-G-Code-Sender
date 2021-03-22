@@ -85,7 +85,10 @@ public interface IController {
      */
     void setWorkPosition(PartialPosition axisPosition) throws Exception;
 
-
+    /**
+     * Triggers that the door is open
+     */
+    void openDoor() throws Exception;
 
     void killAlarmLock() throws Exception;
     void toggleCheckMode() throws Exception;

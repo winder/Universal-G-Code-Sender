@@ -145,7 +145,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         add(activeStatePanel, "growx");
 
         // Default to showing X, Y, Z
-        axisPanel.setLayout(new MigLayout(debug + "fillx, wrap 1, hidemode 3", "grow"));
+        axisPanel.setLayout(new MigLayout(debug + "fillx, wrap 1, hidemode 3, inset 0 0 0 0", "grow"));
         Stream.of(Axis.values()).forEach(this::initializeAxisPanel);
         add(axisPanel, "growx");
 

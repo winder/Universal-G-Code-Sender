@@ -247,6 +247,7 @@ public class GrblUtils {
             ret.addCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING);
             ret.addCapability(CapabilitiesConstants.OVERRIDES);
             ret.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
+            ret.addCapability(CapabilitiesConstants.OPEN_DOOR);
         }
 
         return ret;

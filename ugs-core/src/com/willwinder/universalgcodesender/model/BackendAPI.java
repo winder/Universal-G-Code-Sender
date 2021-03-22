@@ -173,4 +173,11 @@ public interface BackendAPI extends BackendAPIReadOnly {
      * @param message the message to be written
      */
     void dispatchMessage(MessageType messageType, String message);
+
+    /**
+     * Opens the door on the machine
+     *
+     * @throws Exception
+     */
+    void openDoor() throws Exception;
 }
