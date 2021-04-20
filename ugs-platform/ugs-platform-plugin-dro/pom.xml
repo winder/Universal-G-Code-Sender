@@ -37,6 +37,7 @@
             <artifactId>ugs-core</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
