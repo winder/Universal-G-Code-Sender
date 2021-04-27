@@ -25,11 +25,13 @@ import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileRenameEvent;
+import java.io.Serializable;
 
 /**
  * Listens to external file change events and updates it on the controller
  */
-public class GcodeFileListener implements FileChangeListener {
+public class GcodeFileListener implements FileChangeListener, Serializable {
+    private static final long serialVersionUID = 7255903502190131123L;
 
     @Override
     public void fileFolderCreated(FileEvent fe) {
