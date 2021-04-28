@@ -38,7 +38,7 @@ import java.io.File;
         position = 1000
 )
 public class SourceMultiviewElement extends MultiViewEditorElement {
-
+    private static final long serialVersionUID = 7255236202190135442L;
     private static EditorListener editorListener = new EditorListener();
     private final GcodeDataObject obj;
     private final GcodeFileListener fileListener;
