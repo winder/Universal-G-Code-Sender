@@ -95,10 +95,10 @@ public class FirmwareAction extends CallableSystemAction implements UGSEventList
             panel.add(firmwareCombo);
             c = panel;
 
-            firmwareCombo.addActionListener(a -> setFirmware());
-
             // Baud rate options.
             loadFirmwareSelector();
+
+            firmwareCombo.addActionListener(a -> setFirmware());
         }
         return c;
     }
