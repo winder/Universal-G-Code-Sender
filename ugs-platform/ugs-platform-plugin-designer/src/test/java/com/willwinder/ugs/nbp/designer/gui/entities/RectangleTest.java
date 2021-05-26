@@ -127,22 +127,22 @@ public class RectangleTest {
     }
 
     @Test
-    public void getShapeShouldReturnAGloballyTransformedShape() {
+    public void getShapeShouldNotReturnATransformedShapeIfAddedAfterTransform() {
         AffineTransform transform = new AffineTransform();
         transform.translate(10, 10);
         Rectangle rectangle = new Rectangle();
         rectangle.setWidth(10);
         rectangle.setHeight(10);
-        rectangle.setRelativeTransform(transform);
+        rectangle.setTransform(transform);
 
         transform = new AffineTransform();
         transform.translate(10, 10);
         Group group = new Group();
-        group.setRelativeTransform(transform);
+        group.setTransform(transform);
         group.addChild(rectangle);
 
-        assertEquals(20d, rectangle.getShape().getBounds().getX(), 0.01);
-        assertEquals(20d, rectangle.getShape().getBounds().getY(), 0.01);
+        assertEquals(10d, rectangle.getShape().getBounds().getX(), 0.01);
+        assertEquals(10d, rectangle.getShape().getBounds().getY(), 0.01);
     }
 
     @Test
@@ -163,6 +163,13 @@ public class RectangleTest {
         rectangle.setHeight(10);
         rectangle.move(new Point2D.Double(10, 10));
 
+        // Rotate 360
+        rectangle.rotate(-90);
+        rectangle.rotate(-90);
+        rectangle.rotate(-90);
+        rectangle.rotate(-90);
+
+        // Rotate additional 90 degrees
         rectangle.rotate(-90);
 
         assertEquals(15, rectangle.getCenter().getX(), 0.01);
@@ -175,12 +182,15 @@ public class RectangleTest {
         Rectangle rectangle = new Rectangle();
         rectangle.setWidth(10);
         rectangle.setHeight(10);
-        rectangle.move(new Point2D.Double(10, 0));
+        rectangle.setCenter(new Point2D.Double(10, 0));
+
+        assertEquals(5, rectangle.getPosition().getX(), 0.01);
+        assertEquals(-5, rectangle.getPosition().getY(), 0.01);
 
         rectangle.rotate(new Point2D.Double(0,0), -90);
 
-        assertEquals(0, rectangle.getPosition().getX(), 0.01);
-        assertEquals(-10, rectangle.getPosition().getY(), 0.01);
+        assertEquals(-5, rectangle.getPosition().getX(), 0.01);
+        assertEquals(-15, rectangle.getPosition().getY(), 0.01);
         assertEquals(-90, rectangle.getRotation(), 0.01);
     }
 }

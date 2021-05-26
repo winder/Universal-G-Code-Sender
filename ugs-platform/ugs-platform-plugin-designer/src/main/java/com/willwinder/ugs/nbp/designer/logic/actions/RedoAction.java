@@ -9,14 +9,6 @@ import org.openide.util.ImageUtilities;
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
-
-@ActionID(
-        category = LocalizingService.CATEGORY_EDIT,
-        id = "com.willwinder.ugs.nbp.designer.logic.actions.RedoAction"
-)
-@ActionRegistration(
-        displayName = "Redo"
-)
 public class RedoAction extends AbstractAction implements UndoManagerListener {
     public static final String SMALL_ICON_PATH = "img/redo.svg";
     public static final String LARGE_ICON_PATH = "img/redo32.svg";

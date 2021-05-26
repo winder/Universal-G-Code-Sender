@@ -92,11 +92,17 @@ public class SimpleUndoManager implements UndoManager {
 
     @Override
     public String getUndoPresentationName() {
+        if (!canUndo()) {
+            return "";
+        }
         return undoStack.peek().toString();
     }
 
     @Override
     public String getRedoPresentationName() {
+        if (!canRedo()) {
+            return "";
+        }
         return redoStack.peek().toString();
     }
 

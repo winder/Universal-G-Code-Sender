@@ -44,4 +44,9 @@ public class AddAction extends AbstractAction implements DrawAction, UndoableAct
     public void actionPerformed(ActionEvent e) {
         execute();
     }
+
+    @Override
+    public String toString() {
+        return "add entity";
+    }
 }

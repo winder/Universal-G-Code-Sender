@@ -93,5 +93,10 @@ public class DeleteAction extends AbstractAction implements SelectionListener {
             }
             drawing.repaint();
         }
+
+        @Override
+        public String toString() {
+            return "delete entity";
+        }
     }
 }

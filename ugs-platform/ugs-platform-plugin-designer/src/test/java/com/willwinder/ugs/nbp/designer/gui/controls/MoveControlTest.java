@@ -61,8 +61,8 @@ public class MoveControlTest {
         rectangle.move(new Point2D.Double(10, 10));
 
         Group group = new Group();
-        group.move(new Point2D.Double(10, 10));
         group.addChild(rectangle);
+        group.move(new Point2D.Double(10, 10));
 
         SelectionManager selectionManager = new SelectionManager();
 
@@ -83,7 +83,6 @@ public class MoveControlTest {
         rectangle.setWidth(10);
         rectangle.setHeight(10);
         rectangle.applyTransform(AffineTransform.getScaleInstance(2, 2));
-        rectangle.move(new Point2D.Double(10, 10));
 
         SelectionManager selectionManager = new SelectionManager();
 
@@ -94,8 +93,8 @@ public class MoveControlTest {
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_RELEASED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
 
-        assertEquals(11, rectangle.getPosition().getX(), 0.1);
-        assertEquals(11, rectangle.getPosition().getY(), 0.1);
+        assertEquals(1, rectangle.getPosition().getX(), 0.1);
+        assertEquals(1, rectangle.getPosition().getY(), 0.1);
     }
 
     @Test
@@ -133,4 +132,30 @@ public class MoveControlTest {
         assertEquals(10, rectangle2.getPosition().getY(), 0.1);
     }
 
+    @Test
+    public void moveShouldMoveEntitiesWhenParentIsScaled() {
+        Group group = new Group();
+        group.applyTransform(AffineTransform.getScaleInstance(0.1, 0.1));
+
+        Rectangle rectangle = new Rectangle();
+        rectangle.setWidth(10);
+        rectangle.setHeight(10);
+        group.addChild(rectangle);
+
+        SelectionManager selectionManager = new SelectionManager();
+        selectionManager.addSelection(rectangle);
+
+        assertEquals(0, selectionManager.getPosition().getX(), 0.1);
+        assertEquals(0, selectionManager.getPosition().getY(), 0.1);
+
+        MoveControl target = new MoveControl(selectionManager, selectionManager);
+        target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_PRESSED, new Point2D.Double(10, 10), new Point2D.Double(10, 10)));
+        target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
+        target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(12, 12)));
+        target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
+        target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_RELEASED, new Point2D.Double(10, 10), new Point2D.Double(20, 20)));
+
+        assertEquals(10, rectangle.getPosition().getX(), 0.1);
+        assertEquals(10, rectangle.getPosition().getY(), 0.1);
+    }
 }

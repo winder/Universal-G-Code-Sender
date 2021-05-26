@@ -13,13 +13,6 @@ import org.openide.util.ImageUtilities;
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
-@ActionID(
-        category = LocalizingService.CATEGORY_EDIT,
-        id = "com.willwinder.ugs.nbp.designer.logic.actions.ClearSelection"
-)
-@ActionRegistration(
-        displayName = "Clear selection"
-)
 public class ClearSelectionAction extends AbstractAction implements SelectionListener {
 
     public static final String SMALL_ICON_PATH = "img/clear-selection.svg";

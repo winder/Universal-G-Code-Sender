@@ -24,6 +24,7 @@ public class Rectangle extends AbstractEntity {
     public Rectangle(double relativeX, double relativeY) {
         super(relativeX, relativeY);
         this.shape = new Rectangle2D.Double(0, 0, 10, 10);
+        System.out.println(getPosition().getX() + ", " + getPosition().getY());
     }
 
     public void render(Graphics2D graphics) {

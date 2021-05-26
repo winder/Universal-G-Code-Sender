@@ -12,6 +12,10 @@ public class Ellipse extends AbstractEntity {
         this.shape = new Ellipse2D.Double(0, 0, 10, 10);
     }
 
+    public Ellipse() {
+        this.shape = new Ellipse2D.Double(0, 0, 10, 10);
+    }
+
     @Override
     public void render(Graphics2D graphics) {
         graphics.setStroke(new BasicStroke(1));

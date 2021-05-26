@@ -8,29 +8,11 @@
         <folder name="text">
             <folder name="xgcode">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="com.willwinder.ugs.nbp.geom.editor.Bundle"/>
-                <folder name="FontsColors">
-                    <folder name="NetBeans">
-                        <folder name="Defaults">
-                            <file name="FontAndColors.xml" url="FontAndColors.xml">
-                                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.willwinder.ugs.nbp.geom.editor.Bundle"/>
-                            </file>
-                        </folder>
-                    </folder>
-                </folder>
-            </folder>
-        </folder>
-    </folder>
-
-    <folder name="OptionsDialog">
-        <folder name="PreviewExamples">
-            <folder name="application">
-                <file name="x-svg" url="GcodeTemplate.gcode"/>
             </folder>
         </folder>
     </folder>
 
     <folder name="Menu">
-        <file name="Edit"/>
         <folder name="File">
             <folder name="File">
                 <file name="org-openide-actions-OpenAction.instance"/>
@@ -45,6 +27,7 @@
                 <attr name="position" intvalue="22"/>
             </file>
         </folder>
+
         <file name="Source_hidden"/>
         <file name="Refactor_hidden"/>
         <file name="GoTo_hidden"/>
@@ -65,6 +48,7 @@
             <file name="org-netbeans-core-ui-sysopen-SystemOpenAction.instance_hidden"/>
             <file name="org-netbeans-modules-editor-ExportHtmlAction.instance_hidden"/>
             <file name="org-openide-actions-GotoAction.instance_hidden"/>
+            <file name="org-openide-actions-UndoAction.instance"/>
         </folder>
         <folder name="System">
             <file name="org-netbeans-core-actions-JumpNextAction.instance_hidden"/>

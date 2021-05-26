@@ -25,7 +25,7 @@ public class GridControl extends AbstractEntity implements Control {
         graphics.setStroke(new BasicStroke(0.1f));
         graphics.setColor(Color.GRAY);
 
-        double gridSize = drawing.getScale() * 10;
+        double gridSize = 10;
         for (double x = 0; x < drawing.getWidth(); x += gridSize) {
             graphics.drawLine((int) Math.round(x), 0, (int) Math.round(x), drawing.getHeight());
         }

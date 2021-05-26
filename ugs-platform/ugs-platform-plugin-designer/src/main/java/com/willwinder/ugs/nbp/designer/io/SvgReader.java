@@ -135,7 +135,7 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
 
                 if (createdShape != null) {
                     createdShape.setParent(group);
-                    createdShape.setRelativeTransform(groupTransform);
+                    createdShape.setTransform(groupTransform);
                     group.addChild(createdShape);
                 }
             }

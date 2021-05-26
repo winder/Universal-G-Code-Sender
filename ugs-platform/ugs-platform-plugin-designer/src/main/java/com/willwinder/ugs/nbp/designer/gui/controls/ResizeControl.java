@@ -45,7 +45,7 @@ public class ResizeControl extends AbstractControl {
 
     private void updatePosition() {
         // Create transformation for where to position the controller in relative space
-        AffineTransform transform = getTarget().getGlobalTransform();
+        AffineTransform transform = getTarget().getTransform();
         Rectangle bounds = getTarget().getRelativeShape().getBounds();
         transform.translate(bounds.getX(), bounds.getY());
 
@@ -69,11 +69,6 @@ public class ResizeControl extends AbstractControl {
     @Override
     public void setSize(Dimension s) {
 
-    }
-
-    @Override
-    public AffineTransform getGlobalTransform() {
-        return this.transform;
     }
 
     @Override

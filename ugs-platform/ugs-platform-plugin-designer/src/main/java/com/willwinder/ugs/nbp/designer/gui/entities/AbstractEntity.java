@@ -1,12 +1,9 @@
 package com.willwinder.ugs.nbp.designer.gui.entities;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,41 +43,34 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public boolean isWithin(Point2D point) {
-        Shape bounds = getGlobalTransform().createTransformedShape(getRelativeShape().getBounds());
-        return bounds.contains(point);
+        return getShape().contains(point);
     }
 
     @Override
     public Dimension getSize() {
-        Rectangle bounds = getRelativeShape().getBounds();
+        Rectangle2D bounds = getShape().getBounds2D();
         return new Dimension((int) bounds.getWidth(), (int) bounds.getHeight());
     }
 
     @Override
-    public Rectangle getBounds() {
-        return getShape().getBounds();
+    public Rectangle2D getBounds() {
+        return getShape().getBounds2D();
     }
 
     @Override
     public Shape getShape() {
-        return getGlobalTransform().createTransformedShape(getRelativeShape());
+        return getTransform().createTransformedShape(getRelativeShape());
     }
 
     @Override
     public Point2D getPosition() {
-        return getBounds().getLocation();
+        return new Point2D.Double(getBounds().getX(), getBounds().getY());
     }
 
-    /**
-     * Sets the relative position to the parent
-     *
-     * @param x the relative position to the parent
-     * @param y the relative position to the parent
-     */
-    public void setRelativePosition(double x, double y) {
-        //positionTransform = new AffineTransform();
-        //positionTransform.translate(x, y);
-        transform.translate(x, y);
+    @Override
+    public void setPosition(Point2D position) {
+        Point2D currentPosition = getPosition();
+        transform.translate(position.getX() - currentPosition.getX(), position.getY() - currentPosition.getY());
     }
 
     @Override
@@ -95,8 +85,13 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public Point2D getCenter() {
-        Rectangle bounds = getBounds();
+        Rectangle2D bounds = getBounds();
         return new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
+    }
+
+    @Override
+    public void setCenter(Point2D center) {
+        setPosition(new Point2D.Double(center.getX() - (getSize().width / 2d), center.getY() - (getSize().height / 2d)));
     }
 
     @Override
@@ -105,12 +100,12 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
-    public AffineTransform getRelativeTransform() {
+    public AffineTransform getTransform() {
         return this.transform;
     }
 
     @Override
-    public void setRelativeTransform(AffineTransform transform) {
+    public void setTransform(AffineTransform transform) {
         // Prevent null transforms
         if (transform == null) {
             transform = new AffineTransform();
@@ -119,34 +114,27 @@ public abstract class AbstractEntity implements Entity {
         this.transform = transform;
     }
 
-    /**
-     * Returns the concatenated transform of this node. That is, this
-     * node's transform preconcatenated with it's parent's transforms.
-     */
-    @Override
-    public AffineTransform getGlobalTransform() {
-        AffineTransform ctm = new AffineTransform();
-        Entity node = this;
-        while (node != null) {
-            ctm.preConcatenate(node.getRelativeTransform());
-            node = node.getParent();
-        }
-        return ctm;
-    }
-
     @Override
     public void move(Point2D deltaMovement) {
-        transform.preConcatenate(AffineTransform.getTranslateInstance(deltaMovement.getX(), deltaMovement.getY()));
-        notifyEvent(new EntityEvent(this, EventType.MOVED));
+        try {
+
+            //Point2D relativeDeltaMovement = new Point2D.Double();
+            //getGlobalTransform().inverseTransform(deltaMovement, relativeDeltaMovement);
+
+            transform.preConcatenate(AffineTransform.getTranslateInstance(deltaMovement.getX(), deltaMovement.getY()));
+            notifyEvent(new EntityEvent(this, EventType.MOVED));
+        } catch (Exception e) {
+            throw new RuntimeException("Could not make inverse transform of point", e);
+        }
     }
 
     @Override
     public double getRotation() {
         Point2D point1 = new Point2D.Double(0, 0);
-        getGlobalTransform().transform(point1, point1);
+        getTransform().transform(point1, point1);
 
         Point2D point2 = new Point2D.Double(10, 0);
-        getGlobalTransform().transform(point2, point2);
+        getTransform().transform(point2, point2);
 
         Point2D normalized = new Point2D.Double(point2.getX() - point1.getX(), point2.getY() - point1.getY());
         return Math.toDegrees(Math.atan2(normalized.getY(), normalized.getX()));
@@ -154,33 +142,18 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void rotate(double angle) {
-        try {
-            transform.rotate(Math.toRadians(angle), getRelativeShape().getBounds().getCenterX(), getRelativeShape().getBounds().getCenterY());
-            notifyEvent(new EntityEvent(this, EventType.ROTATED));
-        } catch (Exception e) {
-            throw new RuntimeException("Couldn't set the rotation", e);
-        }
+        transform.rotate(Math.toRadians(angle), getRelativeShape().getBounds().getCenterX(), getRelativeShape().getBounds().getCenterY());
+        notifyEvent(new EntityEvent(this, EventType.ROTATED));
     }
 
     @Override
     public void rotate(Point2D center, double angle) {
-        try {
-            Point2D relativePoint = new Point2D.Double(0, 0);
-            getGlobalTransform().inverseTransform(center, relativePoint);
-
-            try {
-                transform.concatenate(AffineTransform.getRotateInstance(Math.toRadians(angle), relativePoint.getX() + getRelativeShape().getBounds().getCenterX(), relativePoint.getY() + getRelativeShape().getBounds().getCenterY()));
-                notifyEvent(new EntityEvent(this, EventType.ROTATED));
-            } catch (Exception e) {
-                throw new RuntimeException("Couldn't set the rotation", e);
-            }
-        } catch (NoninvertibleTransformException e) {
-        }
+        transform.preConcatenate(AffineTransform.getRotateInstance(Math.toRadians(angle), center.getX(), center.getY()));
+        notifyEvent(new EntityEvent(this, EventType.ROTATED));
     }
 
+    @Override
     public void applyTransform(AffineTransform transform) {
         this.transform.concatenate(transform);
-        notifyEvent(new EntityEvent(this, EventType.MOVED));
     }
-
 }

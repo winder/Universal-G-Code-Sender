@@ -4,7 +4,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.GridLayout;
 
 /**
@@ -31,7 +31,8 @@ public class DrawingContainer extends JPanel implements ControllerListener {
 
     public void setDrawing(Drawing d) {
         removeAll();
-        add(d);
+        JScrollPane scrollPane = new JScrollPane(d, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        add(scrollPane);
         revalidate();
 
         d.addMouseListener(mouseListener);

@@ -50,13 +50,13 @@ public class SelectionManager extends AbstractEntity {
                 .filter(c -> c != this)
                 .forEach(c -> area.add(new Area(c.getShape())));
 
-        return area.getBounds();
+        return area.getBounds2D();
     }
 
     @Override
     public Shape getRelativeShape() {
         try {
-            return getGlobalTransform().createInverse().createTransformedShape(getShape());
+            return getTransform().createInverse().createTransformedShape(getShape());
         } catch (NoninvertibleTransformException e) {
             throw new RuntimeException("Could not create inverse transformer");
         }
@@ -64,8 +64,7 @@ public class SelectionManager extends AbstractEntity {
 
     public void clearSelection() {
         selectedEntities.clear();
-        setRelativePosition(0,0);
-        setRelativeTransform(new AffineTransform());
+        setTransform(new AffineTransform());
         fireSelectionEvent(new SelectionEvent());
     }
 
@@ -105,17 +104,6 @@ public class SelectionManager extends AbstractEntity {
     }
 
     @Override
-    public Point2D getPosition() {
-        return new Point2D.Double(getShape().getBounds().getX(), getShape().getBounds().getY());
-    }
-
-    @Override
-    public void setRelativePosition(double x, double y) {
-        System.out.println(x + "," + y);
-        super.setRelativePosition(x, y);
-    }
-
-    @Override
     public double getRotation() {
         if (getSelection().size() == 1) {
             return getSelection().get(0).getRotation();
@@ -126,9 +114,6 @@ public class SelectionManager extends AbstractEntity {
     @Override
     public void rotate(double angle) {
         try {
-            //AffineTransform rotateInstance = AffineTransform.getRotateInstance(Math.toRadians(angle), getRelativeShape().getBounds().getCenterX(), getRelativeShape().getBounds().getCenterY());
-            //transform.rotate(Math.toRadians(angle), getRelativeShape().getBounds().getCenterX(), getRelativeShape().getBounds().getCenterY());
-            //applyTransform(rotateInstance);
             selectedEntities.forEach(entity -> {
                 entity.rotate(getCenter(), angle);
             });
@@ -141,6 +126,6 @@ public class SelectionManager extends AbstractEntity {
 
     @Override
     public void setSize(Dimension s) {
-        System.out.println(s);
+        System.out.println("SelectionManager.setSize() is not implemented");
     }
 }

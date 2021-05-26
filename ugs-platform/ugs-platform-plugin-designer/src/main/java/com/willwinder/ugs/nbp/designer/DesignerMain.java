@@ -1,11 +1,8 @@
 package com.willwinder.ugs.nbp.designer;
 
-import com.willwinder.ugs.nbp.designer.gui.MainMenu;
-import com.willwinder.ugs.nbp.designer.gui.TopToolBar;
-import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
-import com.willwinder.ugs.nbp.designer.gui.SelectionSettings;
-import com.willwinder.ugs.nbp.designer.gui.ToolBox;
+import com.willwinder.ugs.nbp.designer.gui.*;
 import com.willwinder.ugs.nbp.designer.gui.entities.Ellipse;
+import com.willwinder.ugs.nbp.designer.gui.entities.Group;
 import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -37,6 +34,7 @@ public class DesignerMain extends JFrame {
      * Constructs a new graphical user interface for the program and shows it.
      */
     public DesignerMain() {
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
 
 
         setTitle("UGS Designer");
@@ -63,13 +61,15 @@ public class DesignerMain extends JFrame {
         getContentPane().add(tools, BorderLayout.WEST);
         getContentPane().add(drawingContainer, BorderLayout.CENTER);
         //getContentPane().add(selectionSettings, BorderLayout.EAST);
+        getContentPane().add(new EntitiesTree(controller), BorderLayout.EAST);
         JPanel bottomPanel = new JPanel();
 
         JSlider zoomSlider = new JSlider(1, 1000, 100);
         zoomSlider.addChangeListener(event -> {
             double scale = ((double) zoomSlider.getValue()) / 100d;
-            controller.setScale(scale);
+            controller.getDrawing().setScale(scale);
         });
+        zoomSlider.setValue((int) (controller.getDrawing().getScale() * 100));
         bottomPanel.add(zoomSlider);
         getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 
@@ -80,40 +80,7 @@ public class DesignerMain extends JFrame {
         setVisible(true);
 
         //loadExample(controller);
-        final Rectangle r = new Rectangle(145, 145);
-        r.setSize(new Dimension(10, 10));
-        controller.getDrawing().insertEntity(r);
-
-        Ellipse point = new Ellipse(100, 100);
-        point.setSize(new Dimension(100, 100));
-        controller.getDrawing().insertEntity(point);
-
-
-        final Rectangle rectangle = new Rectangle(75, 75);
-        rectangle.setSize(new Dimension(50, 50));
-        controller.getDrawing().insertEntity(rectangle);
-
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    Point2D center = new Point2D.Double(150, 150);
-                    rectangle.rotate(center, 2);
-
-                    r.rotate(2);
-                    controller.getDrawing().repaint();
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            }
-        });
-        thread.start();
-
-
+        controller.getDrawing().repaint();
     }
 
     private void loadExample(Controller controller) {

@@ -25,15 +25,16 @@ import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.SelectionSettings;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
 import com.willwinder.ugs.nbp.designer.gui.controls.Control;
-import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 import com.willwinder.ugs.nbp.designer.io.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.actions.DeleteAction;
+import com.willwinder.ugs.nbp.designer.logic.actions.SelectAllAction;
 import com.willwinder.ugs.nbp.designer.logic.actions.SimpleUndoManager;
 import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
-import com.willwinder.ugs.nbp.designer.logic.actions.UndoManagerAdapter;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.platform.UndoManagerAdapter;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.apache.commons.io.IOUtils;
@@ -56,7 +57,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -102,8 +102,10 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
         } else {
             controller.newDrawing();
         }
-    }
 
+        getActionMap().put("delete", new DeleteAction());
+        getActionMap().put("select-all", new SelectAllAction());
+    }
 
     /**
      * Constructs a new graphical user interface for the program and shows it.

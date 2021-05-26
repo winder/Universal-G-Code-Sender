@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.willwinder.ugs.nbp.designer.filetype;
+package com.willwinder.ugs.nbp.designer.platform;
 
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -30,74 +30,84 @@ import org.openide.loaders.MultiFileLoader;
 import java.io.IOException;
 
 @MIMEResolver.ExtensionRegistration(
-        displayName = "SVG",
-        mimeType = "application/x-svg",
-        extension = {"svg", "SVG"},
+        displayName = "UGS design",
+        mimeType = "application/x-ugs",
+        extension = {"ugsd", "UGSD"},
         position = 1
 )
 @DataObject.Registration(
-        mimeType = "application/x-svg",
+        mimeType = "application/x-ugs",
         iconBase = "com/willwinder/ugs/nbp/designer/edit.png",
-        displayName = "SVG",
+        displayName = "UGS design",
         position = 300
 )
 @ActionReferences({
         @ActionReference(
-                path = "Loaders/text/x-svg/Actions",
-                id = @ActionID(category = "System", id = "org.openide.actions.OpenAction"),
-                position = 100,
-                separatorAfter = 200
+                path = "Loaders/text/x-ugs/Menu",
+                id = @ActionID(category = "Edit", id = "org.openide.actions.UndoAction"),
+                position = 100
         ),
         @ActionReference(
-                path = "Loaders/text/x-svg/Actions",
+                path = "Loaders/text/x-ugs/Menu",
+                id = @ActionID(category = "Edit", id = "org.openide.actions.RedoAction"),
+                position = 200
+        ),
+        @ActionReference(
+                path = "Loaders/text/x-ugs/Menu",
                 id = @ActionID(category = "Edit", id = "org.openide.actions.CutAction"),
                 position = 300
         ),
         @ActionReference(
-                path = "Loaders/text/x-svg/Actions",
+                path = "Loaders/text/x-ugs/Menu",
                 id = @ActionID(category = "Edit", id = "org.openide.actions.CopyAction"),
                 position = 400,
                 separatorAfter = 500
         ),
         @ActionReference(
-                path = "Loaders/text/x-svg/Actions",
+                path = "Loaders/text/x-ugs/Menu",
                 id = @ActionID(category = "Edit", id = "org.openide.actions.DeleteAction"),
                 position = 600
         ),
         @ActionReference(
-                path = "Loaders/text/x-svg/Actions",
+                path = "Loaders/text/x-ugs/Actions",
+                id = @ActionID(category = "System", id = "org.openide.actions.OpenAction"),
+                position = 100,
+                separatorAfter = 200
+        ),
+        @ActionReference(
+                path = "Loaders/text/x-ugs/Actions",
                 id = @ActionID(category = "System", id = "org.openide.actions.RenameAction"),
                 position = 700,
                 separatorAfter = 800
         ),
         @ActionReference(
-                path = "Loaders/text/x-svg/Actions",
+                path = "Loaders/text/x-ugs/Actions",
                 id = @ActionID(category = "System", id = "org.openide.actions.SaveAsTemplateAction"),
                 position = 900,
                 separatorAfter = 1000
         ),
         @ActionReference(
-                path = "Loaders/text/x-svg/Actions",
+                path = "Loaders/text/x-ugs/Actions",
                 id = @ActionID(category = "System", id = "org.openide.actions.FileSystemAction"),
                 position = 1100,
                 separatorAfter = 1200
         ),
         @ActionReference(
-                path = "Loaders/text/x-svg/Actions",
+                path = "Loaders/text/x-ugs/Actions",
                 id = @ActionID(category = "System", id = "org.openide.actions.ToolsAction"),
                 position = 1300
         ),
         @ActionReference(
-                path = "Loaders/text/x-svg/Actions",
+                path = "Loaders/text/x-ugs/Actions",
                 id = @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"),
                 position = 1400
         )
 })
-public class SvgDataObject extends MultiDataObject {
+public class UgsDataObject extends MultiDataObject {
 
-    public SvgDataObject(FileObject pf, MultiFileLoader loader) throws IOException {
+    public UgsDataObject(FileObject pf, MultiFileLoader loader) throws IOException {
         super(pf, loader);
-        registerEditor("application/x-svg", true);
+        registerEditor("application/x-ugs", true);
     }
 
     @Override

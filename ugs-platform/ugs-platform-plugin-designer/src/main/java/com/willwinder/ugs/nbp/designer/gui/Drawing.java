@@ -6,37 +6,33 @@ import com.willwinder.ugs.nbp.designer.gui.entities.Group;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
-import static java.awt.RenderingHints.KEY_ANTIALIASING;
-import static java.awt.RenderingHints.KEY_RENDERING;
-import static java.awt.RenderingHints.KEY_TEXT_ANTIALIASING;
+import static java.awt.RenderingHints.*;
 
 public class Drawing extends JPanel {
 
     private static final long serialVersionUID = 0;
     private Group globalRoot;
     private Group entitiesRoot;
-    private AffineTransform scaleTransform;
     private double scale;
     private final Set<DrawingListener> listeners;
+    private int width;
+    private int height;
 
     public Drawing() {
         scale = 1;
-        scaleTransform = AffineTransform.getScaleInstance(scale, scale);
+        width = 1000;
+        height = 1000;
         listeners = new HashSet<>();
 
         globalRoot = new Group();
@@ -50,6 +46,8 @@ public class Drawing extends JPanel {
 
         setBorder(BorderFactory.createLineBorder(Color.black));
         setBackground(Color.WHITE);
+
+        setPreferredSize(new Dimension(width, height));
     }
 
     public BufferedImage getImage() {
@@ -76,20 +74,29 @@ public class Drawing extends JPanel {
         return result;
     }
 
-    private void recursiveCollectEntities(Entity shape, List<Entity> result) {
-        result.add(shape);
+    public Entity getRootEntity() {
+        return entitiesRoot;
+    }
 
+    private void recursiveCollectEntities(Entity shape, List<Entity> result) {
         if (shape instanceof Group) {
             List<Entity> shapes = ((Group) shape).getChildren();
             shapes.forEach(s -> recursiveCollectEntities(s, result));
+        } else {
+            result.add(shape);
         }
     }
 
     public void paintComponent(Graphics g) {
 
         super.paintComponent(g);
-
         Graphics2D g2 = (Graphics2D) g;
+        AffineTransform previousTransform = g2.getTransform();
+
+        AffineTransform affineTransform = new AffineTransform(g2.getTransform());
+        affineTransform.concatenate(getTransform());
+        g2.setTransform(affineTransform);
+
         RenderingHints rh = ((Graphics2D) g).getRenderingHints();
         rh.put(KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         rh.put(KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
@@ -97,6 +104,7 @@ public class Drawing extends JPanel {
         rh.put(KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g2.setRenderingHints(rh);
         globalRoot.render(g2);
+        g2.setTransform(previousTransform);
     }
 
     public void removeEntity(Entity s) {
@@ -115,12 +123,17 @@ public class Drawing extends JPanel {
 
     public void setScale(double scale) {
         this.scale = scale;
-        scaleTransform = AffineTransform.getScaleInstance(scale, scale);
-        globalRoot.setRelativeTransform(scaleTransform);
+        System.out.println("Scale changed " + scale);
         listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.SCALE_CHANGED));
+        setPreferredSize(new Dimension((int)(width * scale), (int)(height * scale)));
+        repaint();
     }
 
     public void addListener(DrawingListener listener) {
         listeners.add(listener);
+    }
+
+    public AffineTransform getTransform() {
+        return AffineTransform.getScaleInstance(scale, scale);
     }
 }

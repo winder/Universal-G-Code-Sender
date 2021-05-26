@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 
 public class MouseListener extends MouseAdapter {
 
-    boolean isDrawing;
-    private Controller c;
+    private boolean isDrawing;
+    private Controller controller;
     private Point2D startPos;
     private Point2D lastPos;
 
@@ -40,76 +40,83 @@ public class MouseListener extends MouseAdapter {
     /**
      * Constructs a new MouseListener
      *
-     * @param c the DrawingController through which the modifications will be
+     * @param controller the DrawingController through which the modifications will be
      *          done
      */
-    public MouseListener(Controller c) {
-        this.c = c;
+    public MouseListener(Controller controller) {
+        this.controller = controller;
         this.newShape = null;
         this.mouseDelta = new Point2D.Double(0, 0);
         this.controls = Collections.emptyList();
     }
 
     public void mouseDragged(MouseEvent m) {
+        Point2D relativeMousePoint = toRelativePoint(m);
 
-        mouseDelta.setLocation(m.getPoint().getX() - lastPos.getX(), m.getPoint().getY() - lastPos.getY());
+        mouseDelta.setLocation(relativeMousePoint.getX() - lastPos.getX(), relativeMousePoint.getY() - lastPos.getY());
         if (isDrawing && (newShape != null)) {
             Point2D position = newShape.getPosition();
-            newShape.setSize(new Dimension(Double.valueOf(m.getPoint().x - position.getX()).intValue(), Double.valueOf(m.getPoint().y - position.getY()).intValue()));
+            newShape.setSize(new Dimension(Double.valueOf(relativeMousePoint.getX() - position.getX()).intValue(), Double.valueOf(relativeMousePoint.getY() - position.getY()).intValue()));
         }
 
         if (!controls.isEmpty()) {
             Control control = controls.get(0);
-            control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_DRAGGED, startPos, m.getPoint()));
-        } /*else if (c.getTool() == Tool.SELECT) {
-            for (Entity s : c.getSelectionManager().getShapes()) {
-                s.notifyShapeEvent(new MouseShapeEvent(s, ShapeEventType.MOUSE_DRAGGED, startPos, m.getPoint()));
-            }
-        }*/
+            control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_DRAGGED, startPos, relativeMousePoint));
+        }
 
-        c.getDrawing().repaint();
-        lastPos = m.getPoint();
+        controller.getDrawing().repaint();
+        lastPos = relativeMousePoint;
     }
 
     public void mouseMoved(MouseEvent m) {
-        lastPos = m.getPoint();
+        lastPos = toRelativePoint(m);
+    }
+
+    private Point2D toRelativePoint(MouseEvent m) {
+        try {
+            return controller.getDrawing().getTransform().inverseTransform(m.getPoint(), null);
+            //return m.getPoint();
+        } catch (Exception e) {
+            throw new RuntimeException("Could not transform mouse position", e);
+        }
     }
 
     public void mousePressed(MouseEvent m) {
-        startPos = lastPos;
+        Point2D relativeMousePoint = toRelativePoint(m);
+        startPos = relativeMousePoint;
 
-        Tool t = c.getTool();
+        Tool t = controller.getTool();
         isDrawing = true;
         controls = Collections.emptyList();
 
         if (t == Tool.SELECT) {
 
 
-            controls = c.getSelectionManager()
+            controls = controller.getSelectionManager()
                     .getControls()
                     .stream()
-                    .filter(c -> c.isWithin(m.getPoint())).collect(Collectors.toList());
+                    .filter(c -> c.isWithin(relativeMousePoint)).collect(Collectors.toList());
 
             if (!controls.isEmpty()) {
                 Control control = controls.get(0);
-                control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_PRESSED, startPos, m.getPoint()));
+                control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_PRESSED, startPos, relativeMousePoint));
             } else {
-                Entity entity = c.getDrawing().getEntitiesAt(startPos)
+                Entity entity = controller.getDrawing().getEntitiesAt(startPos)
                         .stream()
                         .min((e1, e2) -> (int) ((e1.getBounds().getWidth() * e1.getBounds().getWidth()) - (e2.getBounds().getWidth() * e2.getBounds().getWidth())))
                         .orElse(null);
 
                 if (((m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == 0)
-                        && !c.getSelectionManager().isSelected(entity)) {
-                    c.getSelectionManager().clearSelection();
+                        && !controller.getSelectionManager().isSelected(entity)) {
+                    controller.getSelectionManager().clearSelection();
                 }
 
-                if (entity != null && !c.getSelectionManager().isSelected(entity)) {
-                    c.getSelectionManager().addSelection(entity);
+                if (entity != null && !controller.getSelectionManager().isSelected(entity)) {
+                    controller.getSelectionManager().addSelection(entity);
                 }
             }
 
-            c.getDrawing().repaint();
+            controller.getDrawing().repaint();
 
         } else if (t == Tool.RECTANGLE) {
             newShape = new Rectangle(startPos.getX(), startPos.getY());
@@ -119,32 +126,21 @@ public class MouseListener extends MouseAdapter {
 
 
         if (newShape != null) {
-            c.addEntity(newShape);
+            controller.addEntity(newShape);
         }
 
     }
 
     public void mouseReleased(MouseEvent m) {
+        Point2D relativeMousePoint = toRelativePoint(m);
         isDrawing = false;
         newShape = null;
 
         if (!controls.isEmpty()) {
             Control control = controls.get(0);
-            control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_RELEASED, startPos, m.getPoint()));
+            control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_RELEASED, startPos, relativeMousePoint));
         }
 
-        /*else if (c.getTool() == Tool.SELECT) {
-            c.getSelection().getShapes().forEach(s -> {
-                s.notifyShapeEvent(new MouseShapeEvent(s, ShapeEventType.MOUSE_RELEASED, startPos, m.getPoint()));
-            });
-
-            Point total = new Point(m.getPoint().x - startPos.x, m.getPoint().y - startPos.y);
-            if ((total.x != 0) || (total.y != 0)) {
-                c.recordMovement(total);
-            }
-
-        }*/
         controls = Collections.emptyList();
     }
-
 }

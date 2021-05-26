@@ -79,7 +79,7 @@ public class RotationControl extends AbstractControl {
 
     private void updatePosition() {
         // Create transformation for where to position the controller in relative space
-        AffineTransform transform = getTarget().getGlobalTransform();
+        AffineTransform transform = getTarget().getTransform();
 
         Rectangle bounds = getTarget().getRelativeShape().getBounds();
         transform.translate(bounds.getX(), bounds.getY());
@@ -92,12 +92,12 @@ public class RotationControl extends AbstractControl {
         // Create a new transform for the control
         transform = new AffineTransform();
         transform.translate(result.getX(), result.getY());
-        setRelativeTransform(transform);
+        setTransform(transform);
     }
 
     @Override
     public Shape getShape() {
-        return getGlobalTransform().createTransformedShape(shape);
+        return getTransform().createTransformedShape(shape);
     }
 
     @Override
@@ -108,11 +108,6 @@ public class RotationControl extends AbstractControl {
     @Override
     public void setSize(Dimension s) {
 
-    }
-
-    @Override
-    public AffineTransform getGlobalTransform() {
-        return getRelativeTransform();
     }
 
     @Override
@@ -135,9 +130,8 @@ public class RotationControl extends AbstractControl {
                 startRotation = target.getRotation();
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_DRAGGED) {
                 double deltaAngle = calcRotationAngleInDegrees(target.getCenter(), mousePosition) - calcRotationAngleInDegrees(target.getCenter(), startPosition);
-                double snappedRotation = Math.round((startRotation + deltaAngle) / rotationSnapping) * rotationSnapping;
-                LOGGER.info("Rotation:" + snappedRotation);
-                target.rotate(snappedRotation);
+                target.rotate(deltaAngle);
+                startPosition = mousePosition;
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_RELEASED) {
                 LOGGER.info("Stopped rotating " + target.getRotation());
             }

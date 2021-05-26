@@ -6,6 +6,7 @@ import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.AbstractAction;
@@ -35,11 +36,13 @@ public class SelectAllAction extends AbstractAction implements DrawingListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        selectionManager.clearSelection();
-        for (Entity sh : controller.getDrawing().getEntities()) {
-            selectionManager.addSelection(sh);
-        }
-        controller.getDrawing().repaint();
+        ThreadHelper.invokeLater(() -> {
+            selectionManager.clearSelection();
+            for (Entity sh : controller.getDrawing().getEntities()) {
+                selectionManager.addSelection(sh);
+            }
+            controller.getDrawing().repaint();
+        });
     }
 
     @Override

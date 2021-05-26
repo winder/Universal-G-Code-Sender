@@ -20,7 +20,7 @@ public class MoveAction implements DrawAction, UndoableAction {
      * direction given by the point. The movement is relative to the shapes
      * original position.
      *
-     * @param s a selection which contains the shapes to be moved
+     * @param entityList a selection which contains the shapes to be moved
      * @param m the amount the shapes should be moved, relative to the
      *          original position
      */
@@ -33,10 +33,6 @@ public class MoveAction implements DrawAction, UndoableAction {
         entityList.forEach(entity -> entity.move(movement));
     }
 
-    public String getDescription() {
-        return "Move";
-    }
-
     public void redo() {
         execute();
     }
@@ -46,4 +42,8 @@ public class MoveAction implements DrawAction, UndoableAction {
         entityList.forEach(entity -> entity.move(negativeMovement));
     }
 
+    @Override
+    public String toString() {
+        return "move entity";
+    }
 }

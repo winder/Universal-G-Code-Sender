@@ -1,11 +1,10 @@
 package com.willwinder.ugs.nbp.designer.gui.entities;
 
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Shape;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,10 +35,13 @@ public class Group extends AbstractEntity {
         return area.getBounds();
     }
 
-
     @Override
     public Shape getRelativeShape() {
-        return new Rectangle2D.Double();
+        try {
+            return getTransform().createInverse().createTransformedShape(getShape());
+        } catch (NoninvertibleTransformException e) {
+            throw new RuntimeException("Could not create inverse transformer");
+        }
     }
 
     public void addChild(Entity node) {
@@ -49,9 +51,30 @@ public class Group extends AbstractEntity {
         }
     }
 
+    @Override
+    public void applyTransform(AffineTransform transform) {
+        children.forEach(c -> c.applyTransform(transform));
+    }
+
+    @Override
+    public void move(Point2D deltaMovement) {
+        try {
+            applyTransform(AffineTransform.getTranslateInstance(deltaMovement.getX(), deltaMovement.getY()));
+            notifyEvent(new EntityEvent(this, EventType.MOVED));
+        } catch (Exception e) {
+            throw new RuntimeException("Could not make inverse transform of point", e);
+        }
+    }
+
+    @Override
+    public void setTransform(AffineTransform transform) {
+        children.forEach(c -> c.setTransform(transform));
+    }
+
     public boolean containsChild(Entity node) {
         return children.contains(node);
     }
+
 
     public void removeChild(Entity entity) {
         children.remove(entity);

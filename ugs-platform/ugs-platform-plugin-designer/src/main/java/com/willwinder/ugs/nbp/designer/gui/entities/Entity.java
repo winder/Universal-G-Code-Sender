@@ -2,11 +2,10 @@ package com.willwinder.ugs.nbp.designer.gui.entities;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 public interface Entity {
 
@@ -48,7 +47,7 @@ public interface Entity {
 
     void setSize(Dimension s);
 
-    Rectangle getBounds();
+    Rectangle2D getBounds();
 
     /**
      * Returns the real position of the entity
@@ -56,6 +55,8 @@ public interface Entity {
      * @return the real position
      */
     Point2D getPosition();
+
+    void setPosition(Point2D position);
 
     Entity getParent();
 
@@ -66,25 +67,24 @@ public interface Entity {
     void destroy();
 
     /**
-     * Returns the current relative transformation
+     * Returns the current transformation
      *
-     * @return a relative transformation for this entity
+     * @return a transformation for this entity
      */
-    AffineTransform getRelativeTransform();
+    AffineTransform getTransform();
 
     /**
-     * Sets a new relative transform overwriting any previous transformation
+     * Sets a new transform overwriting any previous transformation
      *
      * @param transform a new transform
      */
-    void setRelativeTransform(AffineTransform transform);
+    void setTransform(AffineTransform transform);
 
     /**
-     * Returns the current transformation for transforming the entities shape to real coordinatesﬁ
      *
-     * @return a global transform applying all parents transformations
+     * @param transform
      */
-    AffineTransform getGlobalTransform();
+    void applyTransform(AffineTransform transform);
 
     /**
      * Moves the entity in real space using a delta movement
@@ -114,4 +114,6 @@ public interface Entity {
      * @param angle  the angle in degrees to rotate
      */
     void rotate(Point2D center, double angle);
+
+    void setCenter(Point2D center);
 }

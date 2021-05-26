@@ -42,7 +42,7 @@ public class MoveControl extends AbstractControl {
 
         // Draw the bounds
         graphics.setStroke(new BasicStroke(1f, 0, 0, 1, new float[]{2, 2}, 0));
-        graphics.draw(getTarget().getGlobalTransform().createTransformedShape(getRelativeShape().getBounds()));
+        graphics.draw(getTarget().getTransform().createTransformedShape(getRelativeShape().getBounds()));
     }
 
     @Override

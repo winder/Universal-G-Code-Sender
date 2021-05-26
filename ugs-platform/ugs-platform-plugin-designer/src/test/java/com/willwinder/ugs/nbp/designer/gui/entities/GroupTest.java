@@ -13,12 +13,13 @@ public class GroupTest {
     @Test
     public void getChildrenAtShouldReturnEntitiesWithinPoint() {
         Group group = new Group();
-        group.setRelativePosition(10, 10);
 
         Rectangle rectangle = new Rectangle(0, 0);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
         group.addChild(rectangle);
+
+        group.move(new Point2D.Double(10, 10));
 
         List<Entity> childrenAt = group.getChildrenAt(new Point2D.Double(11, 11));
         assertEquals(1, childrenAt.size());
@@ -31,22 +32,21 @@ public class GroupTest {
     @Test
     public void getPositionOfChildrenShouldReturnRealPosition() {
         Group group = new Group();
-        group.setRelativePosition(10, 10);
 
         Rectangle rectangle = new Rectangle(10, 10);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
         group.addChild(rectangle);
 
+        group.move(new Point2D.Double(10, 10));
+
         assertEquals(20, rectangle.getPosition().getX(), 0.1);
         assertEquals(20, rectangle.getPosition().getX(), 0.1);
     }
 
     @Test
-    public void moveShouldMoveChildrenAsWell() {
+    public void moveShouldMoveChildren() {
         Group group = new Group();
-        group.setRelativePosition(10, 10);
-
         Rectangle rectangle = new Rectangle(10, 10);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
@@ -54,13 +54,13 @@ public class GroupTest {
 
         group.move(new Point2D.Double(-10, -10));
 
-        assertEquals(10, rectangle.getPosition().getX(), 0.1);
-        assertEquals(10, rectangle.getPosition().getX(), 0.1);
+        assertEquals(0, rectangle.getPosition().getX(), 0.1);
+        assertEquals(0, rectangle.getPosition().getX(), 0.1);
     }
 
 
     @Test
-    public void movingChildrenShouldBeRelativeToParent() {
+    public void movingChildrenShouldIgnoreParentLocation() {
         Group group = new Group();
         group.move(new Point2D.Double(10, 10));
 
@@ -72,36 +72,37 @@ public class GroupTest {
         rectangle.move(new Point2D.Double(-5, -5));
         rectangle.move(new Point2D.Double(-5, -5));
 
-        assertEquals(10, rectangle.getPosition().getX(), 0.1);
-        assertEquals(10, rectangle.getPosition().getX(), 0.1);
+        assertEquals(0, rectangle.getPosition().getX(), 0.1);
+        assertEquals(0, rectangle.getPosition().getX(), 0.1);
     }
 
     @Test
-    public void movingChildrenOnScaledEntityShouldCalculateRelativeDeltaParent() {
+    public void scalingGroupShouldScaleChildren() {
         Group group = new Group();
+        Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setWidth(10);
+        rectangle.setHeight(10);
+        group.addChild(rectangle);
+
         group.applyTransform(AffineTransform.getScaleInstance(2, 2));
-        group.move(new Point2D.Double(10, 10));
 
-        Rectangle rectangle = new Rectangle(10, 10);
-        rectangle.setWidth(10);
-        rectangle.setHeight(10);
-        group.addChild(rectangle);
+        assertEquals(10, group.getPosition().getX(), 0.1);
+        assertEquals(10, group.getPosition().getY(), 0.1);
+        assertEquals(20, group.getSize().getWidth(), 0.1);
+        assertEquals(20, group.getSize().getHeight(), 0.1);
 
-        assertEquals(30, group.getPosition().getX(), 0.1);
-        assertEquals(30, group.getPosition().getY(), 0.1);
-
-        rectangle.move(new Point2D.Double(-5, -5));
-        rectangle.move(new Point2D.Double(-5, -5));
 
         assertEquals(10, rectangle.getPosition().getX(), 0.1);
         assertEquals(10, rectangle.getPosition().getX(), 0.1);
+        assertEquals(20, rectangle.getSize().getWidth(), 0.1);
+        assertEquals(20, rectangle.getSize().getHeight(), 0.1);
     }
 
 
     //@Test
     public void rotateShouldRotateChildrenAsWell() {
         Group group = new Group();
-        group.setRelativePosition(10, 0);
+        group.move(new Point2D.Double(10, 0));
 
         Rectangle rectangle = new Rectangle(10, 0);
         rectangle.setWidth(0);

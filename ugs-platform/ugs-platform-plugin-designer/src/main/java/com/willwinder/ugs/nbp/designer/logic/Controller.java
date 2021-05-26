@@ -1,13 +1,14 @@
 package com.willwinder.ugs.nbp.designer.logic;
 
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
-import com.willwinder.ugs.nbp.designer.gui.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 import com.willwinder.ugs.nbp.designer.logic.actions.AddAction;
 import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
+import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -70,12 +71,6 @@ public class Controller {
 
     public void addListener(ControllerListener controllerListener) {
         listeners.add(controllerListener);
-    }
-
-
-    public void setScale(double scale) {
-        drawing.setScale(scale);
-        drawing.repaint();
     }
 
     public UndoManager getUndoManager() {
