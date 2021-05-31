@@ -2,14 +2,12 @@ package com.willwinder.ugs.nbp.designer.logic.actions;
 
 import com.willwinder.ugs.nbp.designer.gui.DrawingEvent;
 import com.willwinder.ugs.nbp.designer.gui.DrawingListener;
-import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 public class SelectAllAction extends AbstractAction implements DrawingListener {
@@ -17,30 +15,27 @@ public class SelectAllAction extends AbstractAction implements DrawingListener {
     public static final String SMALL_ICON_PATH = "img/select-all.svg";
     public static final String LARGE_ICON_PATH = "img/select-all32.svg";
 
-    private final SelectionManager selectionManager;
     private final Controller controller;
 
-    public SelectAllAction() {
+    public SelectAllAction(Controller controller) {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Select all");
         putValue(NAME, "Select all");
 
-        selectionManager = CentralLookup.getDefault().lookup(SelectionManager.class);
-        controller = CentralLookup.getDefault().lookup(Controller.class);
+        this.controller = controller;
 
-        setEnabled(!controller.getDrawing().getEntities().isEmpty());
-        controller.getDrawing().addListener(this);
+        setEnabled(!this.controller.getDrawing().getEntities().isEmpty());
+        this.controller.getDrawing().addListener(this);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        SelectionManager selectionManager = controller.getSelectionManager();
         ThreadHelper.invokeLater(() -> {
             selectionManager.clearSelection();
-            for (Entity sh : controller.getDrawing().getEntities()) {
-                selectionManager.addSelection(sh);
-            }
+            selectionManager.setSelection(controller.getDrawing().getEntities());
             controller.getDrawing().repaint();
         });
     }

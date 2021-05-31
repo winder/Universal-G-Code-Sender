@@ -26,6 +26,8 @@ import org.openide.filesystems.MIMEResolver;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.nodes.CookieSet;
+import org.openide.nodes.Node;
 
 import java.io.IOException;
 
@@ -97,7 +99,9 @@ public class SvgDataObject extends MultiDataObject {
 
     public SvgDataObject(FileObject pf, MultiFileLoader loader) throws IOException {
         super(pf, loader);
-        registerEditor("application/x-svg", true);
+        //registerEditor("application/x-svg", true);
+        CookieSet cookies = getCookieSet();
+        cookies.add(new SvgOpenSupport(getPrimaryEntry()));
     }
 
     @Override

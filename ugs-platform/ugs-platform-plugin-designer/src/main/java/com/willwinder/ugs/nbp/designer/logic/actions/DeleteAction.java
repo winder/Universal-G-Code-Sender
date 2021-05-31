@@ -1,15 +1,14 @@
 package com.willwinder.ugs.nbp.designer.logic.actions;
 
-import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionEvent;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionListener;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
@@ -19,38 +18,35 @@ import java.util.List;
  */
 public class DeleteAction extends AbstractAction implements SelectionListener {
 
-
     private static final String SMALL_ICON_PATH = "img/delete.svg";
     private static final String LARGE_ICON_PATH = "img/delete32.svg";
-    private final UndoManager undoManager;
     private final Controller controller;
-    private final SelectionManager selectionManager;
 
     /**
      * Creates an DeleteAction that removes all shapes in the given Selection
      * from the given Drawing.
      */
-    public DeleteAction() {
+    public DeleteAction(Controller controller) {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Delete");
         putValue(NAME, "Delete");
 
-        undoManager = CentralLookup.getDefault().lookup(UndoManager.class);
-        controller = CentralLookup.getDefault().lookup(Controller.class);
-        selectionManager = CentralLookup.getDefault().lookup(SelectionManager.class);
+        this.controller = controller;
 
+        SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);
         setEnabled(!selectionManager.getSelection().isEmpty());
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        SelectionManager selectionManager = controller.getSelectionManager();
         if (!selectionManager.getSelection().isEmpty()) {
             List<Entity> entities = selectionManager.getSelection();
             UndoableDeleteAction undoableAction = new UndoableDeleteAction(controller.getDrawing(), entities);
-            undoManager.addAction(undoableAction);
+            controller.getUndoManager().addAction(undoableAction);
             undoableAction.execute();
         }
         selectionManager.clearSelection();
@@ -58,11 +54,12 @@ public class DeleteAction extends AbstractAction implements SelectionListener {
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
+        SelectionManager selectionManager = controller.getSelectionManager();
         setEnabled(!selectionManager.getSelection().isEmpty());
     }
 
     /**
-     * Stores the state of
+     * Stores the state of the deletion
      */
     static class UndoableDeleteAction implements UndoableAction, DrawAction {
         private final List<Entity> entities;

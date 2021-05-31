@@ -1,16 +1,14 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
-import com.willwinder.ugs.nbp.designer.gui.controls.GridControl;
-import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
-import com.willwinder.ugs.nbp.designer.gui.entities.Group;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.controls.GridControl;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -22,32 +20,28 @@ import static java.awt.RenderingHints.*;
 public class Drawing extends JPanel {
 
     private static final long serialVersionUID = 0;
-    private Group globalRoot;
-    private Group entitiesRoot;
+    private EntityGroup globalRoot;
+    private EntityGroup entitiesRoot;
     private double scale;
-    private final Set<DrawingListener> listeners;
+    private final Set<DrawingListener> listeners = new HashSet<>();
     private int width;
     private int height;
+    private int margin = 100;
 
-    public Drawing() {
-        scale = 1;
-        width = 1000;
-        height = 1000;
-        listeners = new HashSet<>();
+    public Drawing(SelectionManager selectionManager) {
+        width = 600;
+        height = 600;
+        setScale(1);
 
-        globalRoot = new Group();
+        globalRoot = new EntityGroup();
         globalRoot.addChild(new GridControl(this));
 
-        entitiesRoot = new Group();
+        entitiesRoot = new EntityGroup();
         globalRoot.addChild(entitiesRoot);
-
-        SelectionManager selectionManager = CentralLookup.getDefault().lookup(SelectionManager.class);
         globalRoot.addChild(selectionManager);
 
         setBorder(BorderFactory.createLineBorder(Color.black));
         setBackground(Color.WHITE);
-
-        setPreferredSize(new Dimension(width, height));
     }
 
     public BufferedImage getImage() {
@@ -79,8 +73,8 @@ public class Drawing extends JPanel {
     }
 
     private void recursiveCollectEntities(Entity shape, List<Entity> result) {
-        if (shape instanceof Group) {
-            List<Entity> shapes = ((Group) shape).getChildren();
+        if (shape instanceof EntityGroup) {
+            List<Entity> shapes = ((EntityGroup) shape).getChildren();
             shapes.forEach(s -> recursiveCollectEntities(s, result));
         } else {
             result.add(shape);
@@ -123,9 +117,8 @@ public class Drawing extends JPanel {
 
     public void setScale(double scale) {
         this.scale = scale;
-        System.out.println("Scale changed " + scale);
         listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.SCALE_CHANGED));
-        setPreferredSize(new Dimension((int)(width * scale), (int)(height * scale)));
+        setPreferredSize(new Dimension((int) ((width + (margin * 2)) * scale), (int) ((height + (margin * 2)) * scale)));
         repaint();
     }
 
@@ -134,6 +127,20 @@ public class Drawing extends JPanel {
     }
 
     public AffineTransform getTransform() {
-        return AffineTransform.getScaleInstance(scale, scale);
+        AffineTransform transform = AffineTransform.getScaleInstance(scale, scale);
+        transform.translate(margin, margin);
+        return transform;
+    }
+
+    public void removeListener(DrawingListener drawingListener) {
+        listeners.remove(drawingListener);
+    }
+
+    public double getDrawingHeight() {
+        return height;
+    }
+
+    public double getDrawingWidth() {
+        return width;
     }
 }

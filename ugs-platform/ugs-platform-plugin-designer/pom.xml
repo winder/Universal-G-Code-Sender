@@ -34,6 +34,12 @@
             <version>3.10</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.cogman</groupId>
+            <artifactId>javadocking</artifactId>
+            <version>1.7.1</version>
+        </dependency>
+
         <!-- For geometric operations -->
         <dependency>
             <groupId>org.locationtech.jts</groupId>

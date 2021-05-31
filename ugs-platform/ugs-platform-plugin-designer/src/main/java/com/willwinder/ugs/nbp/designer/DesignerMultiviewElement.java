@@ -22,23 +22,22 @@ import com.google.common.io.Files;
 import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
 import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
+import com.willwinder.ugs.nbp.designer.gui.EntitiesTree;
 import com.willwinder.ugs.nbp.designer.gui.SelectionSettings;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
-import com.willwinder.ugs.nbp.designer.gui.controls.Control;
+import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.io.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.actions.DeleteAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.SelectAllAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.SimpleUndoManager;
-import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionEvent;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionListener;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.logic.actions.*;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.platform.UndoManagerAdapter;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
@@ -46,16 +45,14 @@ import org.openide.awt.UndoRedo;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.MultiDataObject;
 import org.openide.util.Lookup;
-import org.openide.windows.TopComponent;
 
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -63,14 +60,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@MultiViewElement.Registration(
-        displayName = "#platform.window.designer",
-        iconBase = "com/willwinder/ugs/nbp/designer/edit.png",
-        mimeType = {"application/x-ugs", "application/x-svg"},
-        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
-        preferredID = "DesignerMultiviewElement",
-        position = 1000
-)
+
 public class DesignerMultiviewElement extends JPanel implements MultiViewElement, SelectionListener {
 
     private static final long serialVersionUID = 0;
@@ -80,11 +70,12 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
     private SelectionSettings selectionSettings;
     private Controller controller;
     private DrawingContainer drawingContainer;
-    private ToolBox tools;
 
     private BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(2);
     private ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 100, TimeUnit.MILLISECONDS, workQueue);
     private UndoManagerAdapter undoManager;
+    private ArrayList<Action> actions;
+    private ToolBox toolBox;
 
     public DesignerMultiviewElement(Lookup lookup) {
         this.lookup = lookup;
@@ -103,8 +94,8 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
             controller.newDrawing();
         }
 
-        getActionMap().put("delete", new DeleteAction());
-        getActionMap().put("select-all", new SelectAllAction());
+        getActionMap().put("delete", new DeleteAction(controller));
+        getActionMap().put("select-all", new SelectAllAction(controller));
     }
 
     /**
@@ -121,22 +112,36 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
         selectionManager.addSelectionListener(this);
         CentralLookup.getDefault().add(selectionManager);
 
-        controller = new Controller();
+        controller = new Controller(selectionManager, undoManager);
         CentralLookup.getDefault().add(controller);
 
-        this.undoManager = new UndoManagerAdapter(controller.getUndoManager());
+        this.undoManager = new UndoManagerAdapter(undoManager);
 
-        tools = new ToolBox();
         selectionSettings = new SelectionSettings(controller);
-
         drawingContainer = new DrawingContainer(controller);
         controller.addListener(drawingContainer);
 
-        add(tools, BorderLayout.WEST);
-        add(drawingContainer, BorderLayout.CENTER);
-        add(selectionSettings, BorderLayout.EAST);
+        JSplitPane rightPanel = createRightPanel(controller, selectionSettings);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, drawingContainer, rightPanel);
+        splitPane.setResizeWeight(0.95);
+        add(splitPane, BorderLayout.CENTER);
+
+        actions = new ArrayList<>();
+        actions.add(new ToolSelectAction(controller));
+        actions.add(new ToolDrawRectangleAction(controller));
+        actions.add(new ToolInsertAction(controller));
+        actions.add(new ToolDrawCircleAction(controller));
+
+        toolBox = new ToolBox(controller);
 
         controller.newDrawing();
+    }
+
+    @NotNull
+    private JSplitPane createRightPanel(Controller controller, SelectionSettings selectionSettings) {
+        JSplitPane toolsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(new EntitiesTree(controller)), selectionSettings);
+        toolsSplit.setResizeWeight(0.9);
+        return toolsSplit;
     }
 
     @Override
@@ -146,7 +151,7 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
 
     @Override
     public JComponent getToolbarRepresentation() {
-        return null;
+        return toolBox;
     }
 
     @Override
@@ -210,6 +215,7 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
+        drawingContainer.repaint();
         generateGcode();
     }
 

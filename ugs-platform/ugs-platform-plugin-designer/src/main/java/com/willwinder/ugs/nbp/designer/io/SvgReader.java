@@ -1,11 +1,12 @@
 package com.willwinder.ugs.nbp.designer.io;
 
-import com.willwinder.ugs.nbp.designer.gui.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.gui.entities.Ellipse;
-import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
-import com.willwinder.ugs.nbp.designer.gui.entities.Group;
-import com.willwinder.ugs.nbp.designer.gui.entities.Path;
-import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
+import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;

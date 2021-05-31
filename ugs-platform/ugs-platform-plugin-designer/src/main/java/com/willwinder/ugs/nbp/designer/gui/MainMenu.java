@@ -1,5 +1,6 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.actions.ClearSelectionAction;
 import com.willwinder.ugs.nbp.designer.logic.actions.DeleteAction;
 import com.willwinder.ugs.nbp.designer.logic.actions.ExportGcodeAction;
@@ -28,7 +29,7 @@ public class MainMenu extends JMenuBar {
 
     private static final long serialVersionUID = 0;
 
-    public MainMenu() {
+    public MainMenu(Controller controller) {
 
         JMenuItem newdrawing = new JMenuItem(new NewAction());
         JMenuItem open = new JMenuItem(new OpenAction());
@@ -39,9 +40,9 @@ public class MainMenu extends JMenuBar {
         JMenuItem undo = new JMenuItem(new UndoAction());
         JMenuItem redo = new JMenuItem(new RedoAction());
 
-        JMenuItem all = new JMenuItem(new SelectAllAction());
+        JMenuItem all = new JMenuItem(new SelectAllAction(controller));
         JMenuItem clear = new JMenuItem(new ClearSelectionAction());
-        JMenuItem delete = new JMenuItem(new DeleteAction());
+        JMenuItem delete = new JMenuItem(new DeleteAction(controller));
 
         redo.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
@@ -58,7 +59,7 @@ public class MainMenu extends JMenuBar {
         clear.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
         all.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,
-                InputEvent.CTRL_DOWN_MASK));
+                InputEvent.META_DOWN_MASK));
         delete.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_BACK_SPACE, 0));
 

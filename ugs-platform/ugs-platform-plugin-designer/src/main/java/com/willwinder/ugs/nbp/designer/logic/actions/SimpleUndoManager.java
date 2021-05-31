@@ -117,4 +117,9 @@ public class SimpleUndoManager implements UndoManager {
         redoStack.clear();
         listeners.forEach(UndoManagerListener::onChanged);
     }
+
+    @Override
+    public void removeListener(UndoManagerListener undoListener) {
+        listeners.remove(undoListener);
+    }
 }

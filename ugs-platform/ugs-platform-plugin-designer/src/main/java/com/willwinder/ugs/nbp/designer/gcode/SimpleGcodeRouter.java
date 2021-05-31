@@ -1,6 +1,6 @@
 package com.willwinder.ugs.nbp.designer.gcode;
 
-import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gcode.path.*;
 
 import java.awt.geom.AffineTransform;

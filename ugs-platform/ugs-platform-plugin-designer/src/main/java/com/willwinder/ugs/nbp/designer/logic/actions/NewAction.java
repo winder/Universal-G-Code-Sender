@@ -1,7 +1,7 @@
 package com.willwinder.ugs.nbp.designer.logic.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.openide.util.ImageUtilities;
 

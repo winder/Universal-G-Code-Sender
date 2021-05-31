@@ -6,44 +6,47 @@ import com.willwinder.ugs.nbp.designer.logic.actions.ToolDrawCircleAction;
 import com.willwinder.ugs.nbp.designer.logic.actions.ToolDrawRectangleAction;
 import com.willwinder.ugs.nbp.designer.logic.actions.ToolInsertAction;
 import com.willwinder.ugs.nbp.designer.logic.actions.ToolSelectAction;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
+import javax.swing.*;
 import java.awt.Dimension;
 
 public class ToolBox extends JToolBar {
 
-    public ToolBox() {
-        super("Tools", VERTICAL);
+    public ToolBox(Controller controller) {
+        super("Tools");
+        setFloatable(false);
 
-        add(Box.createRigidArea(new Dimension(10, 10)));
-
-        JToggleButton select = new JToggleButton(new ToolSelectAction());
+        JToggleButton select = new JToggleButton(new ToolSelectAction(controller));
         select.setText("");
         select.setToolTipText("Select and move shapes");
         add(select);
 
-        JToggleButton rectangle = new JToggleButton(new ToolDrawRectangleAction());
+        JToggleButton rectangle = new JToggleButton(new ToolDrawRectangleAction(controller));
         rectangle.setText("");
         rectangle.setToolTipText("Draw squares and rectangles");
         add(rectangle);
 
-        JToggleButton circle = new JToggleButton(new ToolDrawCircleAction());
+        JToggleButton circle = new JToggleButton(new ToolDrawCircleAction(controller));
         circle.setText("");
         circle.setToolTipText("Draw circles and ellipses");
         add(circle);
 
-        JToggleButton insert = new JToggleButton(new ToolInsertAction());
+        JToggleButton insert = new JToggleButton(new ToolInsertAction(controller));
         insert.setText("");
         insert.setToolTipText("Inserts a drawing");
         insert.setContentAreaFilled(false);
         add(insert);
 
         add(Box.createRigidArea(new Dimension(10, 10)));
+        add(Box.createHorizontalGlue());
+
+        JSlider zoomSlider = new JSlider(1, 1000, 100);
+        zoomSlider.addChangeListener(event -> {
+            double scale = ((double) zoomSlider.getValue()) / 100d;
+            controller.getDrawing().setScale(scale);
+        });
+        zoomSlider.setValue((int) (controller.getDrawing().getScale() * 100));
+        add(zoomSlider);
 
         ButtonGroup buttons = new ButtonGroup();
         buttons.add(select);
@@ -51,11 +54,10 @@ public class ToolBox extends JToolBar {
         buttons.add(rectangle);
         buttons.add(insert);
 
-        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
         controller.addListener((event) -> {
             if (event == ControllerEventType.TOOL_SELECTED) {
                 buttons.clearSelection();
-                CentralLookup.getDefault().lookup(SelectionManager.class).clearSelection();
+                controller.getSelectionManager().clearSelection();
                 switch (controller.getTool()) {
                     case SELECT:
                         select.setSelected(true);

@@ -19,9 +19,9 @@
       <netbeans.version>RELEASE122</netbeans.version>
       <ugs.app.title>Universal Gcode Platform ${project.version}</ugs.app.title>
       <ugs.appbundle.name>Universal Gcode Platform</ugs.appbundle.name>
-      <parsedVersion.majorVersion/>
-      <parsedVersion.minorVersion/>
-      <parsedVersion.incrementalVersion/>
+      <parsedVersion.majorVersion>2</parsedVersion.majorVersion>
+      <parsedVersion.minorVersion>0</parsedVersion.minorVersion>
+      <parsedVersion.incrementalVersion>0</parsedVersion.incrementalVersion>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
        <!-- Modules specification version, overrides project version -->

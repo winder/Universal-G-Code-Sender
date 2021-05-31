@@ -32,6 +32,8 @@ public class DrawingContainer extends JPanel implements ControllerListener {
     public void setDrawing(Drawing d) {
         removeAll();
         JScrollPane scrollPane = new JScrollPane(d, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(5);
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(5);
         add(scrollPane);
         revalidate();
 

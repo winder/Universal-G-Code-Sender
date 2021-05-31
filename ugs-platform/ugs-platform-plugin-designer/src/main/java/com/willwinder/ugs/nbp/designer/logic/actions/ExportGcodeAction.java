@@ -2,7 +2,7 @@ package com.willwinder.ugs.nbp.designer.logic.actions;
 
 import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
 import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
-import com.willwinder.ugs.nbp.designer.gui.controls.Control;
+import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.openide.util.ImageUtilities;

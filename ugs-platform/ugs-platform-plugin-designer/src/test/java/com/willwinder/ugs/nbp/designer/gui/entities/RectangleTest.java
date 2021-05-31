@@ -1,5 +1,7 @@
 package com.willwinder.ugs.nbp.designer.gui.entities;
 
+import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import org.junit.Test;
 
 import java.awt.geom.AffineTransform;
@@ -137,9 +139,9 @@ public class RectangleTest {
 
         transform = new AffineTransform();
         transform.translate(10, 10);
-        Group group = new Group();
-        group.setTransform(transform);
-        group.addChild(rectangle);
+        EntityGroup entityGroup = new EntityGroup();
+        entityGroup.setTransform(transform);
+        entityGroup.addChild(rectangle);
 
         assertEquals(10d, rectangle.getShape().getBounds().getX(), 0.01);
         assertEquals(10d, rectangle.getShape().getBounds().getY(), 0.01);

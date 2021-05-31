@@ -1,7 +1,6 @@
 package com.willwinder.ugs.nbp.designer.logic.actions;
 
-import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 
 import java.awt.geom.Point2D;
 import java.util.List;

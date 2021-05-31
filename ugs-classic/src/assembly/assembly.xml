@@ -10,14 +10,14 @@
   <fileSets>
     <fileSet>
       <directory>${project.build.releaseSourceDirectory}</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory>UniversalGcodeSender</outputDirectory>
       <includes>
         <include>*.*</include>
       </includes>
     </fileSet>
     <fileSet>
       <directory>${project.build.directory}</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory>UniversalGcodeSender</outputDirectory>
       <includes>
         <include>UniversalGcodeSender.jar</include>
       </includes>

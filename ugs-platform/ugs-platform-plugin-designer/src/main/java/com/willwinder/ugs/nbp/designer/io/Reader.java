@@ -1,7 +1,6 @@
 package com.willwinder.ugs.nbp.designer.io;
 
-import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 
 import java.io.File;
 import java.io.InputStream;

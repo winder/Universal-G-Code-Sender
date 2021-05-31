@@ -1,8 +1,8 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
-import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
-import com.willwinder.ugs.nbp.designer.gui.entities.EntityEvent;
-import com.willwinder.ugs.nbp.designer.gui.entities.EventType;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
+import com.willwinder.ugs.nbp.designer.entities.EventType;
 
 import java.awt.geom.Point2D;
 

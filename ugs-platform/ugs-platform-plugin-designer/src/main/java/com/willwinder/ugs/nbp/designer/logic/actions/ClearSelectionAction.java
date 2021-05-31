@@ -1,13 +1,10 @@
 package com.willwinder.ugs.nbp.designer.logic.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionEvent;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionListener;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.AbstractAction;

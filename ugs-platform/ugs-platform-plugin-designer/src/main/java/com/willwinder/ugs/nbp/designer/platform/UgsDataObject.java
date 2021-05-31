@@ -18,14 +18,17 @@
 */
 package com.willwinder.ugs.nbp.designer.platform;
 
+import com.willwinder.ugs.nbp.designer.DesignerTopComponent;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
+import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.MIMEResolver;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.nodes.CookieSet;
 
 import java.io.IOException;
 
@@ -107,7 +110,8 @@ public class UgsDataObject extends MultiDataObject {
 
     public UgsDataObject(FileObject pf, MultiFileLoader loader) throws IOException {
         super(pf, loader);
-        registerEditor("application/x-ugs", true);
+        CookieSet cookies = getCookieSet();
+        cookies.add(new UgsOpenSupport(getPrimaryEntry()));
     }
 
     @Override

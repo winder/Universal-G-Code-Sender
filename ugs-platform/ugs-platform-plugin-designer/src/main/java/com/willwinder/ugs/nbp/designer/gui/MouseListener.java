@@ -1,15 +1,17 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
-import com.willwinder.ugs.nbp.designer.gui.controls.Control;
-import com.willwinder.ugs.nbp.designer.gui.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.gui.entities.Ellipse;
-import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
-import com.willwinder.ugs.nbp.designer.gui.entities.Rectangle;
+import com.willwinder.ugs.nbp.designer.entities.controls.Control;
+import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.designer.gui.entities.EventType;
+import com.willwinder.ugs.nbp.designer.entities.EventType;
+import com.willwinder.ugs.nbp.designer.logic.actions.AddAction;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -41,7 +43,7 @@ public class MouseListener extends MouseAdapter {
      * Constructs a new MouseListener
      *
      * @param controller the DrawingController through which the modifications will be
-     *          done
+     *                   done
      */
     public MouseListener(Controller controller) {
         this.controller = controller;
@@ -90,31 +92,38 @@ public class MouseListener extends MouseAdapter {
         controls = Collections.emptyList();
 
         if (t == Tool.SELECT) {
-
+            boolean shiftPressed = (m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0;
 
             controls = controller.getSelectionManager()
                     .getControls()
                     .stream()
                     .filter(c -> c.isWithin(relativeMousePoint)).collect(Collectors.toList());
 
-            if (!controls.isEmpty()) {
+            if (!controls.isEmpty() && !shiftPressed) {
                 Control control = controls.get(0);
                 control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_PRESSED, startPos, relativeMousePoint));
             } else {
+                controls.clear();
                 Entity entity = controller.getDrawing().getEntitiesAt(startPos)
                         .stream()
                         .min((e1, e2) -> (int) ((e1.getBounds().getWidth() * e1.getBounds().getWidth()) - (e2.getBounds().getWidth() * e2.getBounds().getWidth())))
                         .orElse(null);
 
-                if (((m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == 0)
-                        && !controller.getSelectionManager().isSelected(entity)) {
-                    controller.getSelectionManager().clearSelection();
-                }
 
-                if (entity != null && !controller.getSelectionManager().isSelected(entity)) {
-                    controller.getSelectionManager().addSelection(entity);
+                if (entity != null) {
+                    if ((m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0) {
+                        controller.getSelectionManager().toggleSelection(entity);
+                    } else {
+                        controller.getSelectionManager().clearSelection();
+                        controller.getSelectionManager().addSelection(entity);
+                    }
+                } else {
+                    if (!shiftPressed) {
+                        controller.getSelectionManager().clearSelection();
+                    }
                 }
             }
+
 
             controller.getDrawing().repaint();
 
@@ -126,6 +135,8 @@ public class MouseListener extends MouseAdapter {
 
 
         if (newShape != null) {
+            AddAction addAction = new AddAction(controller, newShape);
+            addAction.actionPerformed(new ActionEvent(this, 0, ""));
             controller.addEntity(newShape);
         }
 

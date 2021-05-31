@@ -11,18 +11,19 @@ import java.awt.event.ActionEvent;
 public class ToolSelectAction extends AbstractAction {
     private static final String SMALL_ICON_PATH = "img/pointer.svg";
     private static final String LARGE_ICON_PATH = "img/pointer32.svg";
+    private final Controller controller;
 
-    public ToolSelectAction() {
+    public ToolSelectAction(Controller controller) {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Select");
         putValue(NAME, "Select");
+        this.controller = controller;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
         controller.setTool(Tool.SELECT);
     }
 }

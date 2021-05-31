@@ -1,11 +1,9 @@
 package com.willwinder.ugs.nbp.designer.logic.actions;
 
-import com.willwinder.ugs.nbp.designer.gui.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.io.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.designer.logic.selection.SelectionManager;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.ImageUtilities;
@@ -22,13 +20,15 @@ public final class ToolInsertAction extends AbstractAction {
 
     public static final String SMALL_ICON_PATH = "img/import.svg";
     public static final String LARGE_ICON_PATH = "img/import32.svg";
+    private final Controller controller;
 
-    public ToolInsertAction() {
+    public ToolInsertAction(Controller controller) {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Insert");
         putValue(NAME, "Insert");
+        this.controller = controller;
     }
 
     @Override
@@ -51,11 +51,8 @@ public final class ToolInsertAction extends AbstractAction {
                     if (optional.isPresent()) {
                         Entity entity = optional.get();
 
-                        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
                         controller.addEntity(entity);
-
-                        SelectionManager selectionManager = CentralLookup.getDefault().lookup(SelectionManager.class);
-                        selectionManager.addSelection(entity);
+                        controller.getSelectionManager().addSelection(entity);
 
                         controller.getDrawing().repaint();
                         controller.setTool(Tool.SELECT);
