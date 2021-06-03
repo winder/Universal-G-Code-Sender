@@ -3,20 +3,19 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
-import com.willwinder.ugs.nbp.designer.gui.Colors;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 
 public abstract class AbstractCuttable extends AbstractEntity implements Cuttable {
 
     private CutType cutType = CutType.NONE;
+    private double toolDiameter;
 
-    public AbstractCuttable() {
+    protected AbstractCuttable() {
         this(0, 0);
     }
 
-    public AbstractCuttable(double relativeX, double relativeY) {
+    protected AbstractCuttable(double relativeX, double relativeY) {
         super(relativeX, relativeY);
     }
 
@@ -29,6 +28,16 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     public void setCutType(CutType cutType) {
         this.cutType = cutType;
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public double getToolDiameter() {
+        return toolDiameter;
+    }
+
+    @Override
+    public void setToolDiameter(double toolDiameter) {
+        this.toolDiameter = toolDiameter;
     }
 
     @Override

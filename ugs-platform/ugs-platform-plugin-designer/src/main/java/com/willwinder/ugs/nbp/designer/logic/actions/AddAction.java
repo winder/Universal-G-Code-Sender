@@ -13,8 +13,8 @@ import java.awt.event.ActionEvent;
  */
 public class AddAction extends AbstractAction implements DrawAction, UndoableAction {
 
-    private final Controller controller;
-    private Entity entity;
+    private final transient Controller controller;
+    private final transient Entity entity;
 
     /**
      * Creates an AddAction that adds the given Entity to the given Drawing.

@@ -13,7 +13,7 @@ public abstract class AbstractControlEntityGroup extends EntityGroup implements 
 
     private final SelectionManager selectionManager;
 
-    public AbstractControlEntityGroup(SelectionManager selectionManager) {
+    protected AbstractControlEntityGroup(SelectionManager selectionManager) {
         super.setParent(selectionManager);
         this.selectionManager = selectionManager;
         this.addListener(this);

@@ -14,7 +14,7 @@ public abstract class AbstractEntity implements Entity {
 
     private AffineTransform transform = new AffineTransform();
 
-    public AbstractEntity() {
+    protected AbstractEntity() {
     }
 
     /**
@@ -23,7 +23,7 @@ public abstract class AbstractEntity implements Entity {
      * @param relativeX the relative position to the parent
      * @param relativeY the relative position to the parent
      */
-    public AbstractEntity(double relativeX, double relativeY) {
+    protected AbstractEntity(double relativeX, double relativeY) {
         applyTransform(AffineTransform.getTranslateInstance(relativeX, relativeY));
     }
 

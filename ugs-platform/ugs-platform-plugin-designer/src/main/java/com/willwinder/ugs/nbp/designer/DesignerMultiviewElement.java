@@ -64,17 +64,17 @@ import java.util.stream.Collectors;
 public class DesignerMultiviewElement extends JPanel implements MultiViewElement, SelectionListener {
 
     private static final long serialVersionUID = 0;
-    private final Lookup lookup;
+    private final transient Lookup lookup;
     private final File file;
-    private MultiViewElementCallback callback;
+    private transient MultiViewElementCallback callback;
     private SelectionSettings selectionSettings;
-    private Controller controller;
+    private transient Controller controller;
     private DrawingContainer drawingContainer;
 
-    private BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(2);
-    private ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 100, TimeUnit.MILLISECONDS, workQueue);
-    private UndoManagerAdapter undoManager;
-    private ArrayList<Action> actions;
+    private transient BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(2);
+    private transient ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 100, TimeUnit.MILLISECONDS, workQueue);
+    private transient UndoManagerAdapter undoManager;
+    private transient ArrayList<Action> actions;
     private ToolBox toolBox;
 
     public DesignerMultiviewElement(Lookup lookup) {
@@ -166,32 +166,32 @@ public class DesignerMultiviewElement extends JPanel implements MultiViewElement
 
     @Override
     public void componentOpened() {
-
+        // Not implemented
     }
 
     @Override
     public void componentClosed() {
-
+        // Not implemented
     }
 
     @Override
     public void componentShowing() {
-
+        // Not implemented
     }
 
     @Override
     public void componentHidden() {
-
+        // Not implemented
     }
 
     @Override
     public void componentActivated() {
-
+        // Not implemented
     }
 
     @Override
     public void componentDeactivated() {
-
+        // Not implemented
     }
 
     @Override

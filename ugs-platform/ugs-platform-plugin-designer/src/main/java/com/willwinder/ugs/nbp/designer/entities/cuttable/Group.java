@@ -14,4 +14,14 @@ public class Group extends EntityGroup implements Cuttable {
     public void setCutType(CutType cutType) {
         this.cutType = cutType;
     }
+
+    @Override
+    public double getToolDiameter() {
+        return 0;
+    }
+
+    @Override
+    public void setToolDiameter(double toolDiameter) {
+
+    }
 }

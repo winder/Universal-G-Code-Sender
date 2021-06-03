@@ -32,7 +32,7 @@ public class DesignerMain extends JFrame {
 
 
         setTitle("UGS Designer");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new Dimension(1024, 768));
 
         UndoManager undoManager = new SimpleUndoManager();
@@ -46,7 +46,7 @@ public class DesignerMain extends JFrame {
 
         DrawingContainer drawingContainer = new DrawingContainer(controller);
         controller.addListener(drawingContainer);
-        selectionManager.addSelectionListener((e) -> drawingContainer.repaint());
+        selectionManager.addSelectionListener(e -> drawingContainer.repaint());
 
         JSplitPane toolsSplit = createRightPanel(controller);
 
@@ -55,7 +55,6 @@ public class DesignerMain extends JFrame {
         splitPane.setResizeWeight(0.95);
 
         getContentPane().add(splitPane, BorderLayout.CENTER);
-        //getContentPane().add(selectionSettings, BorderLayout.EAST);
 
         ToolBox tools = new ToolBox(controller);
         add(tools, BorderLayout.NORTH);

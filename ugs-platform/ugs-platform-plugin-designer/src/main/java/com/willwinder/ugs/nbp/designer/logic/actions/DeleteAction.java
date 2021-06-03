@@ -20,7 +20,7 @@ public class DeleteAction extends AbstractAction implements SelectionListener {
 
     private static final String SMALL_ICON_PATH = "img/delete.svg";
     private static final String LARGE_ICON_PATH = "img/delete32.svg";
-    private final Controller controller;
+    private final transient Controller controller;
 
     /**
      * Creates an DeleteAction that removes all shapes in the given Selection

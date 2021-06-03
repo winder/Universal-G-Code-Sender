@@ -10,7 +10,7 @@ public abstract class AbstractControl extends AbstractEntity implements Control 
 
     private final SelectionManager selectionManager;
 
-    public AbstractControl(SelectionManager selectionManager) {
+    protected AbstractControl(SelectionManager selectionManager) {
         super.setParent(selectionManager);
         this.selectionManager = selectionManager;
         addListener(this);

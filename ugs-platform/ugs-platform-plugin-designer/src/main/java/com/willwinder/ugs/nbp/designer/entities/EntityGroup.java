@@ -92,7 +92,10 @@ public class EntityGroup extends AbstractEntity {
 
     public void removeChild(Entity entity) {
         children.remove(entity);
-        children.stream().filter(c -> c instanceof EntityGroup).forEach(c -> ((EntityGroup) c).removeChild(entity));
+        children.stream()
+                .filter(EntityGroup.class::isInstance)
+                .map(EntityGroup.class::cast)
+                .forEach(c -> c.removeChild(entity));
     }
 
     @Override

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class EntitiesTree extends JPanel implements DrawingListener, ControllerListener, SelectionListener {
 
     private final DefaultMutableTreeNode topNode = new DefaultMutableTreeNode("Drawing");
-    private Controller controller;
+    private transient Controller controller;
     private final JTree tree;
 
     public EntitiesTree(Controller controller) {

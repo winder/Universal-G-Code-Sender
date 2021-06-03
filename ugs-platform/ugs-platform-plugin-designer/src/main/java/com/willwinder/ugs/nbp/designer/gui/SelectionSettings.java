@@ -3,10 +3,10 @@ package com.willwinder.ugs.nbp.designer.gui;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.Settings;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.Settings;
 import com.willwinder.universalgcodesender.Utils;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
@@ -14,21 +14,20 @@ import org.openide.util.ImageUtilities;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.EnumMap;
 
 public class SelectionSettings extends JPanel implements SelectionListener {
-    private final JTextField width;
+    private final JTextField widthTextField;
     private final JTextField rotation;
     private final ButtonGroup buttonGroup;
-    private Controller controller;
+    private transient Controller controller;
     private final JSpinner depthSpinner;
     private final JSpinner feedSpeedSpinner;
     private final JSpinner plungeSpeedSpinner;
     private final JSpinner toolDiameterSpinner;
-    private final JTextField height;
-    private Entity shape;
-    private final Map<CutType, JToggleButton> cutTypeButtonMap = new HashMap<>();
+    private final JTextField heightTextField;
+    private transient Entity entity;
+    private final EnumMap<CutType, JToggleButton> cutTypeButtonMap = new EnumMap<>(CutType.class);
 
     public SelectionSettings(Controller controller) {
         this();
@@ -38,13 +37,13 @@ public class SelectionSettings extends JPanel implements SelectionListener {
     public SelectionSettings() {
         setLayout(new MigLayout("fill, wrap 2"));
 
-        height = new JTextField("0");
+        heightTextField = new JTextField("0");
         add(new JLabel("Height"));
-        add(height, "grow");
+        add(heightTextField, "grow");
 
-        width = new JTextField("0");
+        widthTextField = new JTextField("0");
         add(new JLabel("Width"));
-        add(width, "grow");
+        add(widthTextField, "grow");
 
         rotation = new JTextField("0");
         add(new JLabel("Rotation"));
@@ -64,9 +63,9 @@ public class SelectionSettings extends JPanel implements SelectionListener {
             JToggleButton button = cutTypeButtonMap.get(key);
             buttonGroup.add(button);
             button.addActionListener((event) -> {
-                this.controller.getSelectionManager().getSelection().forEach((entity -> {
-                    if(entity instanceof Cuttable) {
-                        ((Cuttable)entity).setCutType(key);
+                this.controller.getSelectionManager().getSelection().forEach((selectedEntity -> {
+                    if (selectedEntity instanceof Cuttable) {
+                        ((Cuttable) selectedEntity).setCutType(key);
                     }
                 }));
             });
@@ -119,6 +118,11 @@ public class SelectionSettings extends JPanel implements SelectionListener {
     }
 
     private void onToolDiameterChange(ChangeEvent changeEvent) {
+        controller.getSelectionManager().getSelection().forEach(selectedEntity -> {
+            if (selectedEntity instanceof Cuttable) {
+                ((Cuttable) selectedEntity).setToolDiameter((Double) toolDiameterSpinner.getValue());
+            }
+        });
         controller.getSettings().setToolDiameter((Double) toolDiameterSpinner.getValue());
     }
 
@@ -131,7 +135,7 @@ public class SelectionSettings extends JPanel implements SelectionListener {
     }
 
     private void onDepthChange(ChangeEvent event) {
-        if (this.shape == null) {
+        if (this.entity == null) {
             return;
         }
         //this.shape.getCutSettings().setDepth((Double) depthSpinner.getValue());
@@ -152,42 +156,47 @@ public class SelectionSettings extends JPanel implements SelectionListener {
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
         if (this.controller.getSelectionManager().getSelection().isEmpty()) {
-            this.shape = null;
+            this.entity = null;
             setEnabled(false);
             return;
         } else {
             setEnabled(true);
         }
 
-        this.shape = this.controller.getSelectionManager().getSelection().get(0);
+        this.entity = this.controller.getSelectionManager().getSelection().get(0);
 
         Settings settings = controller.getSettings();
         feedSpeedSpinner.setValue(settings.getFeedSpeed());
         plungeSpeedSpinner.setValue(settings.getPlungeSpeed());
-        toolDiameterSpinner.setValue(settings.getToolDiameter());
         if (controller.getSelectionManager().getSelection().size() == 1) {
-            Entity entity = controller.getSelectionManager().getSelection().get(0);
-            width.setEnabled(true);
-            width.setText("" + entity.getSize().width);
+            Entity selectedEntity = controller.getSelectionManager().getSelection().get(0);
+            widthTextField.setVisible(true);
+            widthTextField.setText("" + selectedEntity.getSize().width);
 
-            height.setEnabled(true);
-            height.setText("" + entity.getSize().height);
+            heightTextField.setVisible(true);
+            heightTextField.setText("" + selectedEntity.getSize().height);
 
-            rotation.setText(Utils.formatter.format(entity.getRotation()));
+            rotation.setText(Utils.formatter.format(selectedEntity.getRotation()));
             rotation.setEnabled(true);
-            if(entity instanceof Cuttable) {
-                JToggleButton jToggleButton = cutTypeButtonMap.get(((Cuttable) entity).getCutType());
+            if (selectedEntity instanceof Cuttable) {
+                JToggleButton jToggleButton = cutTypeButtonMap.get(((Cuttable) selectedEntity).getCutType());
                 jToggleButton.setSelected(true);
-            }
-        } else {
-            width.setText("");
-            width.setEnabled(false);
 
-            height.setText("");
-            height.setEnabled(false);
+                toolDiameterSpinner.setVisible(true);
+                toolDiameterSpinner.setValue(((Cuttable) selectedEntity).getToolDiameter());
+            }
+
+        } else {
+            widthTextField.setText("");
+            widthTextField.setVisible(false);
+
+            heightTextField.setText("");
+            heightTextField.setVisible(false);
 
             rotation.setText("");
-            rotation.setEnabled(false);
+            rotation.setVisible(false);
+
+            toolDiameterSpinner.setVisible(false);
         }
     }
 }

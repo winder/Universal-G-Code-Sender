@@ -23,7 +23,6 @@ public class Rectangle extends AbstractCuttable {
     public Rectangle(double relativeX, double relativeY) {
         super(relativeX, relativeY);
         this.shape = new Rectangle2D.Double(0, 0, 10, 10);
-        System.out.println(getPosition().getX() + ", " + getPosition().getY());
     }
 
     @Override

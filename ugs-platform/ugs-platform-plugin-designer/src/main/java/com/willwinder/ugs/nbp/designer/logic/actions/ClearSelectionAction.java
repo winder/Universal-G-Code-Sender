@@ -15,7 +15,7 @@ public class ClearSelectionAction extends AbstractAction implements SelectionLis
     public static final String SMALL_ICON_PATH = "img/clear-selection.svg";
     public static final String LARGE_ICON_PATH = "img/clear-selection32.svg";
 
-    private final SelectionManager selectionManager;
+    private final transient SelectionManager selectionManager;
 
     public ClearSelectionAction() {
         putValue("iconBase", SMALL_ICON_PATH);
