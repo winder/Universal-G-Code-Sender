@@ -1,6 +1,7 @@
-dist: trusty
+dist: focal
 language: java
 os: linux
+jdk: openjdk13
 
 # Prevent running default install script
 install: true
@@ -10,9 +11,6 @@ cache:
   - "$HOME/.m2"
   - "ugs-pendant/src/main/webapp/node"
   - "ugs-pendant/src/main/webapp/node_modules"
-
-jdk:
-- oraclejdk8
 
 before_script:
 - sudo apt-get update -qq
@@ -36,6 +34,7 @@ deploy:
     script: bash scripts/deploy.sh nightly
     skip_cleanup: true
     on:
+      repo: winder/Universal-G-Code-Sender
       branch: master
       tags: false
 
@@ -44,6 +43,7 @@ deploy:
     script: bash scripts/deploy.sh $TRAVIS_TAG
     skip_cleanup: true
     on:
+      repo: winder/Universal-G-Code-Sender
       tags: true
 
 env:
