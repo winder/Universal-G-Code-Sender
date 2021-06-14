@@ -11,9 +11,6 @@ cache:
   - "ugs-pendant/src/main/webapp/node"
   - "ugs-pendant/src/main/webapp/node_modules"
 
-jdk:
-- oraclejdk8
-
 before_script:
 - sudo apt-get update -qq
 - pip install --user codecov
@@ -23,6 +20,7 @@ before_script:
 - curl -fL https://getcli.jfrog.io | sh
 
 script:
+  - jdk_switcher use openjdk8
   - mvn test install -B -Djava.util.logging.config.file=scripts/logging.config
   - codecov
   # Make sure artifacts can be built
