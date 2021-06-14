@@ -1,6 +1,7 @@
 dist: focal
 language: java
 os: linux
+jdk: openjdk13
 
 # Prevent running default install script
 install: true
@@ -20,7 +21,6 @@ before_script:
 - curl -fL https://getcli.jfrog.io | sh
 
 script:
-  - jdk_switcher use openjdk8
   - mvn test install -B -Djava.util.logging.config.file=scripts/logging.config
   - codecov
   # Make sure artifacts can be built
@@ -34,6 +34,7 @@ deploy:
     script: bash scripts/deploy.sh nightly
     skip_cleanup: true
     on:
+      repo: winder/Universal-G-Code-Sender
       branch: master
       tags: false
 
@@ -42,6 +43,7 @@ deploy:
     script: bash scripts/deploy.sh $TRAVIS_TAG
     skip_cleanup: true
     on:
+      repo: winder/Universal-G-Code-Sender
       tags: true
 
 env:
