@@ -98,4 +98,6 @@ public abstract class Coordinate {
     }
 
     public abstract Coordinate set(Axis axis, double value);
+
+    public abstract Coordinate copy();
 }

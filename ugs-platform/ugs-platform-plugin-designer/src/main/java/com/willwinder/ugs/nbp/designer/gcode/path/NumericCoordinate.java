@@ -67,6 +67,11 @@ public final class NumericCoordinate extends Coordinate {
         return this;
     }
 
+    @Override
+    public Coordinate copy() {
+        return new NumericCoordinate(axes);
+    }
+
 
     /**
      * Get the numeric value for the axis

@@ -1,6 +1,9 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
+import com.willwinder.ugs.nbp.designer.entities.EntityListener;
+import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
@@ -9,22 +12,29 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Settings;
 import com.willwinder.universalgcodesender.Utils;
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.lang3.StringUtils;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.EnumMap;
 
-public class SelectionSettings extends JPanel implements SelectionListener {
+public class SelectionSettings extends JPanel implements SelectionListener, DocumentListener, EntityListener, ChangeListener {
     private final JTextField widthTextField;
     private final JTextField rotation;
     private final ButtonGroup buttonGroup;
+    private final JTextField posXTextField;
+    private final JTextField posYTextField;
     private transient Controller controller;
     private final JSpinner depthSpinner;
-    private final JSpinner feedSpeedSpinner;
+    /*private final JSpinner feedSpeedSpinner;
     private final JSpinner plungeSpeedSpinner;
-    private final JSpinner toolDiameterSpinner;
+    private final JSpinner toolDiameterSpinner;*/
     private final JTextField heightTextField;
     private transient Entity entity;
     private final EnumMap<CutType, JToggleButton> cutTypeButtonMap = new EnumMap<>(CutType.class);
@@ -45,9 +55,21 @@ public class SelectionSettings extends JPanel implements SelectionListener {
         add(new JLabel("Width"));
         add(widthTextField, "grow");
 
+        posXTextField = new JTextField("0");
+        add(new JLabel("X"));
+        add(posXTextField, "grow");
+        posXTextField.getDocument().addDocumentListener(this);
+
+        posYTextField = new JTextField("0");
+        add(new JLabel("Y"));
+        add(posYTextField, "grow");
+        posYTextField.getDocument().addDocumentListener(this);
+
+
         rotation = new JTextField("0");
         add(new JLabel("Rotation"));
         add(rotation, "grow");
+        rotation.getDocument().addDocumentListener(this);
 
         add(new JSeparator(), "grow, spanx, wrap");
 
@@ -66,6 +88,7 @@ public class SelectionSettings extends JPanel implements SelectionListener {
                 this.controller.getSelectionManager().getSelection().forEach((selectedEntity -> {
                     if (selectedEntity instanceof Cuttable) {
                         ((Cuttable) selectedEntity).setCutType(key);
+                        controller.getDrawing().repaint();
                     }
                 }));
             });
@@ -82,29 +105,29 @@ public class SelectionSettings extends JPanel implements SelectionListener {
         depthSpinner.setPreferredSize(depthSpinner.getPreferredSize());
         add(new JLabel("Cut depth"));
         add(depthSpinner);
-        depthSpinner.addChangeListener(this::onDepthChange);
+        depthSpinner.addChangeListener(this);
 
-        add(new JSeparator(), "grow, spanx, wrap");
+       /* add(new JSeparator(), "grow, spanx, wrap");
 
 
         spinnerNumberModel = new SpinnerNumberModel(1000, 0, 100000, 100);
         feedSpeedSpinner = new JSpinner(spinnerNumberModel);
         add(new JLabel("Feed speed"));
         add(feedSpeedSpinner);
-        feedSpeedSpinner.addChangeListener(this::onFeedSpeedChange);
+        feedSpeedSpinner.addChangeListener(this);
 
         spinnerNumberModel = new SpinnerNumberModel(1000, 1, 100000, 100);
         plungeSpeedSpinner = new JSpinner(spinnerNumberModel);
         add(new JLabel("Plunge speed"));
         add(plungeSpeedSpinner);
-        plungeSpeedSpinner.addChangeListener(this::onPlungeSpeedChange);
+        plungeSpeedSpinner.addChangeListener(this);
 
         spinnerNumberModel = new SpinnerNumberModel(3d, 0.1d, 30d, 0.1d);
         toolDiameterSpinner = new JSpinner(spinnerNumberModel);
         toolDiameterSpinner.setPreferredSize(plungeSpeedSpinner.getPreferredSize().getSize());
         add(new JLabel("Tool diameter"));
         add(toolDiameterSpinner);
-        toolDiameterSpinner.addChangeListener(this::onToolDiameterChange);
+        toolDiameterSpinner.addChangeListener(this);*/
 
         setEnabled(false);
     }
@@ -115,30 +138,7 @@ public class SelectionSettings extends JPanel implements SelectionListener {
         }
         this.controller = controller;
         this.controller.getSelectionManager().addSelectionListener(this);
-    }
-
-    private void onToolDiameterChange(ChangeEvent changeEvent) {
-        controller.getSelectionManager().getSelection().forEach(selectedEntity -> {
-            if (selectedEntity instanceof Cuttable) {
-                ((Cuttable) selectedEntity).setToolDiameter((Double) toolDiameterSpinner.getValue());
-            }
-        });
-        controller.getSettings().setToolDiameter((Double) toolDiameterSpinner.getValue());
-    }
-
-    private void onPlungeSpeedChange(ChangeEvent changeEvent) {
-        controller.getSettings().setPlungeSpeed((Integer) plungeSpeedSpinner.getValue());
-    }
-
-    private void onFeedSpeedChange(ChangeEvent changeEvent) {
-        controller.getSettings().setFeedSpeed((Integer) feedSpeedSpinner.getValue());
-    }
-
-    private void onDepthChange(ChangeEvent event) {
-        if (this.entity == null) {
-            return;
-        }
-        //this.shape.getCutSettings().setDepth((Double) depthSpinner.getValue());
+        this.controller.getSelectionManager().addListener(this);
     }
 
     @Override
@@ -155,6 +155,58 @@ public class SelectionSettings extends JPanel implements SelectionListener {
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
+
+        onEvent(new EntityEvent(controller.getSelectionManager(), EventType.MOVED));
+    }
+
+    private void setFieldValue(JTextField textField, String value) {
+        textField.setVisible(true);
+        textField.setEnabled(true);
+        textField.getDocument().removeDocumentListener(this);
+        textField.setText(value);
+        textField.getDocument().addDocumentListener(this);
+    }
+
+    private void setFieldValue(JSpinner spinner, Object value) {
+        spinner.setVisible(true);
+        spinner.setEnabled(true);
+        spinner.removeChangeListener(this);
+        spinner.setValue(value);
+        spinner.addChangeListener(this);
+    }
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        changedUpdate(e);
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        changedUpdate(e);
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        controller.getSelectionManager().removeListener(this);
+        if (StringUtils.isNotEmpty(rotation.getText())) {
+            double angle = Double.parseDouble(rotation.getText());
+            controller.getSelectionManager().setRotation(angle);
+            controller.getDrawing().repaint();
+        }
+
+        if (StringUtils.isNotEmpty(posXTextField.getText()) && StringUtils.isNotEmpty(posYTextField.getText())) {
+            double x = Double.parseDouble(posXTextField.getText());
+            double y = Double.parseDouble(posYTextField.getText());
+            Point2D position = controller.getSelectionManager().getPosition();
+            position.setLocation(x - position.getX(), y - position.getY());
+            controller.getSelectionManager().move(position);
+            controller.getDrawing().repaint();
+        }
+        controller.getSelectionManager().addListener(this);
+    }
+
+    @Override
+    public void onEvent(EntityEvent entityEvent) {
         if (this.controller.getSelectionManager().getSelection().isEmpty()) {
             this.entity = null;
             setEnabled(false);
@@ -166,37 +218,47 @@ public class SelectionSettings extends JPanel implements SelectionListener {
         this.entity = this.controller.getSelectionManager().getSelection().get(0);
 
         Settings settings = controller.getSettings();
-        feedSpeedSpinner.setValue(settings.getFeedSpeed());
-        plungeSpeedSpinner.setValue(settings.getPlungeSpeed());
+        depthSpinner.setModel(new SpinnerNumberModel(controller.getSettings().getStockThickness(), 0d, controller.getSettings().getStockThickness(), 0.1d));
+
+        //feedSpeedSpinner.setValue(settings.getFeedSpeed());
+        //plungeSpeedSpinner.setValue(settings.getPlungeSpeed());
         if (controller.getSelectionManager().getSelection().size() == 1) {
             Entity selectedEntity = controller.getSelectionManager().getSelection().get(0);
-            widthTextField.setVisible(true);
-            widthTextField.setText("" + selectedEntity.getSize().width);
+            setFieldValue(rotation, Utils.formatter.format(selectedEntity.getRotation()));
 
-            heightTextField.setVisible(true);
-            heightTextField.setText("" + selectedEntity.getSize().height);
-
-            rotation.setText(Utils.formatter.format(selectedEntity.getRotation()));
-            rotation.setEnabled(true);
             if (selectedEntity instanceof Cuttable) {
-                JToggleButton jToggleButton = cutTypeButtonMap.get(((Cuttable) selectedEntity).getCutType());
-                jToggleButton.setSelected(true);
-
-                toolDiameterSpinner.setVisible(true);
-                toolDiameterSpinner.setValue(((Cuttable) selectedEntity).getToolDiameter());
+                Cuttable cuttable = (Cuttable) selectedEntity;
+                JToggleButton cutTypeButton = cutTypeButtonMap.get(cuttable.getCutType());
+                cutTypeButton.setSelected(true);
+                //setFieldValue(toolDiameterSpinner, cuttable.getToolDiameter());
+                setFieldValue(depthSpinner, cuttable.getCutDepth());
             }
-
-        } else {
-            widthTextField.setText("");
-            widthTextField.setVisible(false);
-
-            heightTextField.setText("");
-            heightTextField.setVisible(false);
-
-            rotation.setText("");
-            rotation.setVisible(false);
-
-            toolDiameterSpinner.setVisible(false);
         }
+
+        Point2D position = controller.getSelectionManager().getPosition();
+        setFieldValue(posXTextField, Utils.formatter.format(position.getX()));
+        setFieldValue(posYTextField, Utils.formatter.format(position.getY()));
+
+        setFieldValue(widthTextField, Utils.formatter.format(controller.getSelectionManager().getSize().width));
+        setFieldValue(heightTextField, Utils.formatter.format(controller.getSelectionManager().getSize().height));
+        setFieldValue(rotation, Utils.formatter.format(controller.getSelectionManager().getRotation()));
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        if (controller == null || controller.getSelectionManager() == null) {
+            return;
+        }
+
+        controller.getSelectionManager().getSelection().forEach(selectedEntity -> {
+            if (selectedEntity instanceof Cuttable) {
+                Cuttable cuttable = (Cuttable)selectedEntity;
+                //cuttable.setToolDiameter((Double) toolDiameterSpinner.getValue());
+                cuttable.setCutDepth((Double) depthSpinner.getValue());
+            }
+        });
+        //controller.getSettings().setToolDiameter((Double) toolDiameterSpinner.getValue());
+        //controller.getSettings().setPlungeSpeed((Integer) plungeSpeedSpinner.getValue());
+        //controller.getSettings().setFeedSpeed((Integer) feedSpeedSpinner.getValue());
     }
 }

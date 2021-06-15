@@ -1,9 +1,9 @@
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -14,10 +14,10 @@ import java.awt.Shape;
 
 public class GridControl extends AbstractEntity implements Control {
 
-    private final Drawing drawing;
+    private final Controller controller;
 
-    public GridControl(Drawing drawing) {
-        this.drawing = drawing;
+    public GridControl(Controller controller) {
+        this.controller = controller;
     }
 
     @Override
@@ -26,12 +26,15 @@ public class GridControl extends AbstractEntity implements Control {
         graphics.setColor(Color.GRAY);
 
         double gridSize = 10;
-        for (double x = 0; x <= drawing.getDrawingWidth(); x += gridSize) {
-            graphics.drawLine((int) Math.round(x), 0, (int) Math.round(x), (int)drawing.getDrawingHeight());
+        double width = (int)controller.getSettings().getStockSize().getWidth();
+        double height = (int)controller.getSettings().getStockSize().getHeight();
+
+        for (double x = 0; x <= width; x += gridSize) {
+            graphics.drawLine((int) Math.round(x), 0, (int) Math.round(x), (int) height);
         }
 
-        for (double y = 0; y <= drawing.getDrawingHeight(); y += gridSize) {
-            graphics.drawLine(0, (int) Math.round(y), (int)drawing.getDrawingWidth(), (int) Math.round(y));
+        for (double y = 0; y <= height; y += gridSize) {
+            graphics.drawLine(0, (int) Math.round(y), (int) width, (int) Math.round(y));
         }
     }
 

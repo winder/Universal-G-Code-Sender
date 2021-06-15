@@ -8,7 +8,6 @@ import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,9 +17,27 @@ import java.util.stream.Collectors;
 public class SimplePocket implements PathGenerator {
     private final PathGenerator source;
     GeometryFactory geometryFactory = new GeometryFactory();
-    private double depth;
-    private double passDepth = 1;
-    private double passOver = 10;
+
+    /**
+     * The depth that we are targeting for
+     */
+    private double targetDepth;
+
+    /**
+     * The tool diameter in millimeters
+     */
+    private double toolDiameter = 3;
+
+    /**
+     * The depth to plunge for each pass
+     */
+    private double depthPerPass = 1;
+
+    /**
+     * How much should the tool cut for each pass. Should be larger than 0 and smaller than 1.
+     * 0.1 would cut 10% of the tool diameter for each pass and 1 would cut 100% of the tool diameter.
+     */
+    private double stepOver = 0.3;
 
     public SimplePocket(PathGenerator source) {
         this.source = source;
@@ -32,24 +49,38 @@ public class SimplePocket implements PathGenerator {
         Polygon polygon = new Polygon(linearRing, new LinearRing[0], geometryFactory);
 
         List<List<NumericCoordinate>> coordinateList = new ArrayList<>();
-        double buffer = 0;
-        while (true) {
-            DouglasPeuckerSimplifier simplifier = new DouglasPeuckerSimplifier(polygon.buffer(-buffer));
-            simplifier.setDistanceTolerance(0.5);
-            List<NumericCoordinate> numericCoordinates = geometryToCoordinates(simplifier.getResultGeometry());
-            if (numericCoordinates.isEmpty() || numericCoordinates.size() <= 1) {
-                break;
+        double currentDepth = 0;
+        while (currentDepth < targetDepth) {
+
+            double buffer = 0;
+            while (true) {
+                DouglasPeuckerSimplifier simplifier = new DouglasPeuckerSimplifier(polygon.buffer(-buffer));
+                simplifier.setDistanceTolerance(0.5);
+                List<NumericCoordinate> numericCoordinates = new ArrayList<>();
+                for (NumericCoordinate coordinate : geometryToCoordinates(simplifier.getResultGeometry())) {
+                    numericCoordinates.add(coordinate.set(Axis.Z, -currentDepth));
+                }
+
+                if (numericCoordinates.isEmpty() || numericCoordinates.size() <= 1) {
+                    break;
+                }
+
+                coordinateList.add(numericCoordinates);
+                buffer = buffer + (toolDiameter * stepOver);
             }
-            coordinateList.add(numericCoordinates);
-            buffer = buffer + passOver;
+
+            currentDepth += depthPerPass;
         }
 
-        Collections.reverse(coordinateList);
         GcodePath gcodePath = new GcodePath();
-        coordinateList.forEach(cl -> {
-            gcodePath.addSegment(SegmentType.LINE, cl.get(0));
-            cl.forEach(c -> gcodePath.addSegment(SegmentType.LINE, c));
-        });
+
+        // Rapid movement to first point
+        if (!coordinateList.isEmpty()) {
+            coordinateList.forEach(cl -> {
+                gcodePath.addSegment(SegmentType.LINE, cl.get(0));
+                cl.forEach(c -> gcodePath.addSegment(SegmentType.LINE, c));
+            });
+        }
         return gcodePath;
     }
 
@@ -75,5 +106,17 @@ public class SimplePocket implements PathGenerator {
                 .map(c -> new NumericCoordinate(c.getX(), c.getY(), c.getZ()))
                 .collect(Collectors.toList());
 
+    }
+
+    public void setTargetDepth(double targetDepth) {
+        this.targetDepth = Math.abs(targetDepth);
+    }
+
+    public void setToolDiameter(double toolDiameter) {
+        this.toolDiameter = toolDiameter;
+    }
+
+    public void setStepOver(double stepOver) {
+        this.stepOver = Math.max(Math.min(0.01, Math.abs(stepOver)), 1.0);
     }
 }

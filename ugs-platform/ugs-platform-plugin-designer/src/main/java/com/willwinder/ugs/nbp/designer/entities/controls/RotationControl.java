@@ -89,8 +89,8 @@ public class RotationControl extends AbstractControl {
         AffineTransform transform = getSelectionManager().getTransform();
 
         Rectangle bounds = getSelectionManager().getRelativeShape().getBounds();
-        transform.translate(bounds.getX(), bounds.getY());
-        transform.translate(bounds.getWidth() / 2 - (SIZE / 2d), -(SIZE * 2d));
+        transform.translate(bounds.getX(), bounds.getY() + bounds.getHeight());
+        transform.translate(bounds.getWidth() / 2 - (SIZE / 2d), SIZE);
 
         // Transform the position from relative space to real space
         Point2D result = new Point2D.Double();

@@ -1,7 +1,6 @@
 package com.willwinder.ugs.nbp.designer.io;
 
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
@@ -17,6 +16,7 @@ import org.apache.batik.gvt.ShapeNode;
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.svg.GVTTreeBuilderEvent;
 import org.apache.batik.swing.svg.GVTTreeBuilderListener;
+import org.apache.batik.swing.svg.JSVGComponent;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
@@ -55,7 +55,7 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
         }
         result = null;
         svgCanvas = new JSVGCanvas();
-        svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
+        svgCanvas.setDocumentState(JSVGComponent.ALWAYS_DYNAMIC);
         svgCanvas.addGVTTreeBuilderListener(this);
         svgCanvas.setURI(f.toURI().toString());
 
@@ -66,7 +66,6 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
             throw new RuntimeException("It took to long to load file");
             // Never mind
         }
-
         return Optional.ofNullable(result);
     }
 
@@ -88,9 +87,10 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
 
         result = null;
         svgCanvas = new JSVGCanvas();
-        svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
+        svgCanvas.setDocumentState(JSVGComponent.ALWAYS_DYNAMIC);
         svgCanvas.addGVTTreeBuilderListener(this);
-        svgCanvas.setSVGDocument(doc);;
+        svgCanvas.setSVGDocument(doc);
+
 
         try {
             // Wait for svg loader to finish processing the SVG
@@ -116,8 +116,20 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
 
             if (graphicsNode instanceof CompositeGraphicsNode) {
                 NodeList childNodes = node.getChildNodes();
+
+                Group childGroup = group;
+                if (((CompositeGraphicsNode) graphicsNode).getChildren().size() > 1) {
+                    childGroup = new Group();
+                    childGroup.setParent(group);
+                    if (node.getAttributes() != null && node.getAttributes().getNamedItem("id") != null) {
+                        Node id = node.getAttributes().getNamedItem("id");
+                        childGroup.setName(childGroup.getName() + " (" + id.getFirstChild().getNodeValue() + ")");
+                    }
+                    group.addChild(childGroup);
+                }
+
                 for (int i = 0; i < childNodes.getLength(); i++) {
-                    walk(childNodes.item(i), group, groupTransform, level + 1);
+                    walk(childNodes.item(i), childGroup, groupTransform, level + 1);
                 }
             } else if (graphicsNode instanceof ShapeNode) {
                 ShapeNode shapeNode = (ShapeNode) graphicsNode;
@@ -135,6 +147,10 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
                 }
 
                 if (createdShape != null) {
+                    Node id = node.getAttributes().getNamedItem("id");
+                    if (id != null) {
+                        createdShape.setName(createdShape.getName() + " (" + id.getFirstChild().getNodeValue() + ")");
+                    }
                     createdShape.setParent(group);
                     createdShape.setTransform(groupTransform);
                     group.addChild(createdShape);
@@ -216,6 +232,13 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
     public void gvtBuildCompleted(GVTTreeBuilderEvent e) {
         Group group = new Group();
         walk(svgCanvas.getSVGDocument(), group, new AffineTransform(), 0);
+
+        // We need to invert the Y coordinate
+        AffineTransform transform = new AffineTransform();
+        transform.translate(0, group.getSize().height);
+        transform.scale(1, -1);
+        group.applyTransform(transform);
+
         this.result = group;
     }
 

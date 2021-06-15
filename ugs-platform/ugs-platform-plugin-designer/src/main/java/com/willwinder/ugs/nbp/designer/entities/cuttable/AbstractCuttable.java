@@ -10,6 +10,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
 
     private CutType cutType = CutType.NONE;
     private double toolDiameter;
+    private double cutDepth;
 
     protected AbstractCuttable() {
         this(0, 0);
@@ -38,6 +39,16 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     @Override
     public void setToolDiameter(double toolDiameter) {
         this.toolDiameter = toolDiameter;
+    }
+
+    @Override
+    public double getCutDepth() {
+        return cutDepth;
+    }
+
+    @Override
+    public void setCutDepth(double cutDepth) {
+        this.cutDepth = cutDepth;
     }
 
     @Override

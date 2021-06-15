@@ -5,12 +5,12 @@ import com.willwinder.ugs.nbp.designer.gcode.path.*;
 import java.util.Iterator;
 import java.util.List;
 
-public class SimpleOutline implements PathGenerator {
+public class SimpleOnPath implements PathGenerator {
     private final PathGenerator source;
     private double depth;
     private double passDepth = 1;
 
-    public SimpleOutline(PathGenerator source) {
+    public SimpleOnPath(PathGenerator source) {
         this.source = source;
     }
 

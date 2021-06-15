@@ -108,38 +108,7 @@ public class DesignerTopComponent extends CloneableTopComponent implements UndoM
         }
 
         executor.execute(() -> {
-            SimpleGcodeRouter gcodeRouter = new SimpleGcodeRouter();
-
-            AffineTransform affineTransform = AffineTransform.getScaleInstance(1, -1);
-            affineTransform.translate(0, -controller.getDrawing().getDrawingHeight());
-
-            List<String> collect = controller.getDrawing().getEntities().stream().map(shape -> {
-                if (shape instanceof Control) {
-                    return "";
-                }
-
-                try {
-                    GcodePath gcodePath = gcodeRouter.toPath(shape, affineTransform);
-
-                    /*if (shape.getCutSettings().getCutType() == CutType.POCKET) {
-                        SimplePocket simplePocket = new SimplePocket(gcodePath);
-                        gcodePath = simplePocket.toGcodePath();
-
-                        SimpleOutline simpleOutline = new SimpleOutline(gcodePath);
-                        simpleOutline.setDepth(shape.getCutSettings().getDepth());
-                        gcodePath = simpleOutline.toGcodePath();
-                    }*/
-
-                    return gcodeRouter.toGcode(gcodePath);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return "";
-            }).collect(Collectors.toList());
-
-            String gcode = String.join("\n", collect);
+            String gcode = Utils.toGcode(controller, controller.getDrawing().getEntities());
 
             try {
                 File file = new File(Files.createTempDir(), "_ugs_editor.gcode");

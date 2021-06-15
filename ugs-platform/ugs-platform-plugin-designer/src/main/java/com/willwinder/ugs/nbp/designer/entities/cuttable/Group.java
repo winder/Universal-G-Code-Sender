@@ -5,6 +5,10 @@ import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 public class Group extends EntityGroup implements Cuttable {
     private CutType cutType = CutType.NONE;
 
+    public Group() {
+        setName("Group");
+    }
+
     @Override
     public CutType getCutType() {
         return cutType;
@@ -22,6 +26,16 @@ public class Group extends EntityGroup implements Cuttable {
 
     @Override
     public void setToolDiameter(double toolDiameter) {
+
+    }
+
+    @Override
+    public double getCutDepth() {
+        return 0;
+    }
+
+    @Override
+    public void setCutDepth(double cutDepth) {
 
     }
 }

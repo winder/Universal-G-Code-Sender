@@ -3,7 +3,8 @@ package com.willwinder.ugs.nbp.designer.gui;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.GridControl;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.Size;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,28 +21,24 @@ import static java.awt.RenderingHints.*;
 public class Drawing extends JPanel {
 
     private static final long serialVersionUID = 0;
+    private final Controller controller;
     private EntityGroup globalRoot;
     private EntityGroup entitiesRoot;
     private double scale;
     private final Set<DrawingListener> listeners = new HashSet<>();
-    private int width;
-    private int height;
     private int margin = 100;
 
-    public Drawing(SelectionManager selectionManager) {
-        width = 600;
-        height = 600;
-        setScale(1);
-
+    public Drawing(Controller controller) {
+        this.controller = controller;
         globalRoot = new EntityGroup();
-        globalRoot.addChild(new GridControl(this));
-
+        globalRoot.addChild(new GridControl(controller));
         entitiesRoot = new EntityGroup();
         globalRoot.addChild(entitiesRoot);
-        globalRoot.addChild(selectionManager);
+        globalRoot.addChild(controller.getSelectionManager());
 
         setBorder(BorderFactory.createLineBorder(Color.black));
         setBackground(Color.WHITE);
+        setScale(1);
     }
 
     public BufferedImage getImage() {
@@ -118,7 +115,8 @@ public class Drawing extends JPanel {
     public void setScale(double scale) {
         this.scale = scale;
         listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.SCALE_CHANGED));
-        setPreferredSize(new Dimension((int) ((width + (margin * 2)) * scale), (int) ((height + (margin * 2)) * scale)));
+        Size stockSize = controller.getSettings().getStockSize();
+        setPreferredSize(new Dimension((int) ((stockSize.getWidth() + (margin * 2)) * scale), (int) ((stockSize.getHeight() + (margin * 2)) * scale)));
         repaint();
     }
 
@@ -127,20 +125,14 @@ public class Drawing extends JPanel {
     }
 
     public AffineTransform getTransform() {
-        AffineTransform transform = AffineTransform.getScaleInstance(scale, scale);
+        AffineTransform transform = AffineTransform.getScaleInstance(1, -1);
+        transform.translate(0, -getHeight());
         transform.translate(margin, margin);
+        transform.scale(scale, scale);
         return transform;
     }
 
     public void removeListener(DrawingListener drawingListener) {
         listeners.remove(drawingListener);
-    }
-
-    public double getDrawingHeight() {
-        return height;
-    }
-
-    public double getDrawingWidth() {
-        return width;
     }
 }

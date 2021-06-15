@@ -9,6 +9,7 @@ public class Path extends AbstractCuttable {
 
     public Path() {
         super();
+        setName("Path");
         this.shape = new Path2D.Double();
     }
 
@@ -42,10 +43,5 @@ public class Path extends AbstractCuttable {
 
     public void curveTo(double x1, double y1, double x2, double y2, double x3, double y3) {
         shape.curveTo(x1, y1, x2, y2, x3, y3);
-    }
-
-    @Override
-    public String toString() {
-        return "Path (" + getCutType().name() + ")";
     }
 }

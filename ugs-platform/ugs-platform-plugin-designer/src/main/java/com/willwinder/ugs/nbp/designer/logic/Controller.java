@@ -24,7 +24,7 @@ public class Controller {
         this.undoManager = undoManager;
         this.tool = Tool.SELECT;
         this.selectionManager = selectionManager;
-        this.drawing = new Drawing(selectionManager);
+        this.drawing = new Drawing(this);
         this.undoManager.addListener(() -> this.drawing.repaint());
     }
 
@@ -51,7 +51,7 @@ public class Controller {
     }
 
     public void newDrawing() {
-        drawing = new Drawing(selectionManager);
+        drawing = new Drawing(this);
         notifyListeners(ControllerEventType.NEW_DRAWING);
     }
 

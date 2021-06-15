@@ -9,6 +9,7 @@ public class Ellipse extends AbstractCuttable {
 
     public Ellipse(double relativeX, double relativeY) {
         super(relativeX, relativeY);
+        setName("Ellipse");
         this.shape = new Ellipse2D.Double(0, 0, 10, 10);
     }
 

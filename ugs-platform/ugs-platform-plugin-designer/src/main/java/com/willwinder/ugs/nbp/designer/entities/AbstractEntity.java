@@ -13,6 +13,7 @@ public abstract class AbstractEntity implements Entity {
     private Set<EntityListener> listeners = new HashSet<>();
 
     private AffineTransform transform = new AffineTransform();
+    private String name = "AbstractEntity";
 
     protected AbstractEntity() {
     }
@@ -148,6 +149,14 @@ public abstract class AbstractEntity implements Entity {
         transform.preConcatenate(AffineTransform.getScaleInstance(sx, sy));
     }
 
+    @Override
+    public void setRotation(double rotation) {
+        double deltaRotation = getRotation() - rotation;
+        if (deltaRotation != 0) {
+            rotate(deltaRotation);
+        }
+    }
+
 
     @Override
     public void rotate(Point2D center, double angle) {
@@ -158,5 +167,18 @@ public abstract class AbstractEntity implements Entity {
     @Override
     public void applyTransform(AffineTransform transform) {
         this.transform.preConcatenate(transform);
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String toString() {
+        return getName();
     }
 }

@@ -14,6 +14,12 @@ import java.util.stream.Stream;
 public class EntityGroup extends AbstractEntity {
     private List<Entity> children = new ArrayList<>();
 
+    double groupRotation = 0;
+
+    public EntityGroup() {
+        setName("Group");
+    }
+
     @Override
     public void render(Graphics2D graphics) {
         children.forEach(node -> node.render(graphics));
@@ -32,6 +38,7 @@ public class EntityGroup extends AbstractEntity {
     @Override
     public void rotate(Point2D center, double angle) {
         try {
+            groupRotation += angle;
             getAllChildren().forEach(entity -> entity.rotate(center, angle));
             notifyEvent(new EntityEvent(this, EventType.ROTATED));
         } catch (Exception e) {
@@ -137,6 +144,14 @@ public class EntityGroup extends AbstractEntity {
         return Collections.unmodifiableList(this.children);
     }
 
+    @Override
+    public void setRotation(double rotation) {
+        Point2D center = getCenter();
+        double deltaRotation = getRotation() - rotation;
+        if (deltaRotation != 0) {
+            children.forEach(entity -> entity.rotate(center, deltaRotation));
+        }
+    }
 
     public final List<Entity> getAllChildren() {
         List<Entity> result = this.children
@@ -150,10 +165,5 @@ public class EntityGroup extends AbstractEntity {
                 }).collect(Collectors.toList());
 
         return Collections.unmodifiableList(result);
-    }
-
-    @Override
-    public String toString() {
-        return "Group " + hashCode();
     }
 }

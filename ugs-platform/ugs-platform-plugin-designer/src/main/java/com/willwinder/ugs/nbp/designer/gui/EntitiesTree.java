@@ -1,7 +1,9 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerListener;

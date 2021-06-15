@@ -2,6 +2,10 @@ package com.willwinder.ugs.nbp.designer.gcode;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gcode.path.*;
+import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.gcode.util.Code;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
@@ -19,10 +23,6 @@ public class SimpleGcodeRouter {
     public static final int QUAD_SEGMENTS = 10;
     public static final int CUBIC_SEGMENTS = 10;
 
-    /**
-     * The safe Z position to start from and end at
-     */
-    private Coordinate safeZ;
     /**
      * A position near the material to plunge to
      */
@@ -44,7 +44,6 @@ public class SimpleGcodeRouter {
     private boolean debug = true;
 
     public SimpleGcodeRouter() {
-        safeZ = new NumericCoordinate(null, null, 10d);
         nearZ = new NumericCoordinate(null, null, 1d);
         plungeRate = 400;
         feedRate = 1000;
@@ -79,13 +78,13 @@ public class SimpleGcodeRouter {
             switch (type) {
                 case PathIterator.SEG_MOVETO: {
                     currentPoint.setLocation(segment[0], segment[1]);
-                    NumericCoordinate move = new NumericCoordinate(segment[0], segment[1],0d);
+                    NumericCoordinate move = new NumericCoordinate(segment[0], segment[1], 0d);
                     path.addSegment(SegmentType.MOVE, move);
                     break;
                 }
                 case PathIterator.SEG_LINETO:
                     currentPoint.setLocation(segment[0], segment[1]);
-                    NumericCoordinate line = new NumericCoordinate(segment[0], segment[1],0d);
+                    NumericCoordinate line = new NumericCoordinate(segment[0], segment[1], 0d);
                     path.addSegment(SegmentType.LINE, line);
                     break;
                 case PathIterator.SEG_QUADTO: {
@@ -151,7 +150,7 @@ public class SimpleGcodeRouter {
 
     public String toGcode(GcodePath gcodePath) throws IOException {
         StringWriter stringWriter = new StringWriter();
-        stringWriter.write("G21\n");
+        stringWriter.write(Code.G21.name() + "\n");
         toGcode(stringWriter, gcodePath);
         stringWriter.flush();
         return stringWriter.toString();
@@ -190,7 +189,6 @@ public class SimpleGcodeRouter {
         boolean hasFeedRateSet = false;
 
         // Convert path segments to G codes
-        Segment prev = null;
         for (ListIterator<Segment> i = segments.listIterator(); i.hasNext(); ) {
             Segment s = i.next();
             switch (s.type) {
@@ -203,7 +201,8 @@ public class SimpleGcodeRouter {
                     // The rapid over target point is skipped when we do multiple passes
                     // and the end point is the same as the starting point.
                     //goToSafeHeight(writer);
-                    writer.write("G00 ");
+                    writer.write(SegmentType.MOVE.gcode);
+                    writer.write(" ");
                     writer.write(s.point.set(Axis.Z, nearZ.get(Axis.Z)).toGcode());
                     writer.write(" (rapid move)\n");
                     hasFeedRateSet = false;
@@ -217,7 +216,8 @@ public class SimpleGcodeRouter {
                     writer.write(s.point.undefined(Axis.Z).toGcode());
                     writer.write('\n');*/
 
-                    writer.write("G01 ");
+                    writer.write(SegmentType.LINE.gcode);
+                    writer.write(" ");
                     writer.write("F" + plungeRate + " ");
                     writer.write(s.point.toGcode());
 
@@ -250,23 +250,27 @@ public class SimpleGcodeRouter {
                     }
 
                     writer.write(s.point.toGcode());
-                    writer.write(" (move)\n");
+                    writer.write("\n");
                     break;
                 default:
                     throw new RuntimeException("BUG! Unhandled segment type " + s.type);
             }
-            prev = s;
         }
 
         goToSafeHeight(writer);
     }
 
     private void goToSafeHeight(Writer writer) throws IOException {
-        writer.write("G00 ");
+        writer.write(SegmentType.MOVE.gcode);
+        writer.write(" ");
         writer.write(nearZ.toGcode());
-        if(debug) {
+        if (debug) {
             writer.write(" (moving to safety point)");
         }
         writer.write("\n\t");
+    }
+
+    public void setSafeHeight(double safeHeight) {
+        safeHeight = safeHeight;
     }
 }

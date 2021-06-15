@@ -138,4 +138,10 @@ public interface Entity {
      * @param sy the y scale factor
      */
     void scale(double sx, double sy);
+
+    void setRotation(double rotation);
+
+    String getName();
+
+    void setName(String name);
 }

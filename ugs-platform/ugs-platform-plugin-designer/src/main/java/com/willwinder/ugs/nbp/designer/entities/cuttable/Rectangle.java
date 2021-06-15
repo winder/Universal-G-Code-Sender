@@ -11,7 +11,7 @@ public class Rectangle extends AbstractCuttable {
     private final Rectangle2D.Double shape;
 
     public Rectangle() {
-        this.shape = new Rectangle2D.Double(0, 0, 10, 10);
+        this(0,0);
     }
 
     /**
@@ -23,6 +23,7 @@ public class Rectangle extends AbstractCuttable {
     public Rectangle(double relativeX, double relativeY) {
         super(relativeX, relativeY);
         this.shape = new Rectangle2D.Double(0, 0, 10, 10);
+        setName("Rectangle");
     }
 
     @Override
