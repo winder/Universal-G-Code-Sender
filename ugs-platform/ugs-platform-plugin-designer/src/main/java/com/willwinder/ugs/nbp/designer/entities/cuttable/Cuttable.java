@@ -7,10 +7,6 @@ public interface Cuttable extends Entity {
 
     void setCutType(CutType cutType);
 
-    double getToolDiameter();
-
-    void setToolDiameter(double toolDiameter);
-
     double getCutDepth();
 
     void setCutDepth(double cutDepth);

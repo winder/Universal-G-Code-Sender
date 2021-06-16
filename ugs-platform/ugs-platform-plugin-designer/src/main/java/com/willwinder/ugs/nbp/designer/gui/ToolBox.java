@@ -7,10 +7,11 @@ import com.willwinder.ugs.nbp.designer.logic.actions.*;
 import com.willwinder.universalgcodesender.Utils;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.util.HelpCtx;
 
 import javax.swing.*;
 import java.awt.*;
+
+import static org.openide.NotifyDescriptor.OK_OPTION;
 
 public class ToolBox extends JToolBar {
 
@@ -67,20 +68,31 @@ public class ToolBox extends JToolBar {
         add(zoomSlider);
 
         add(Box.createHorizontalStrut(6));
-        add(new PanelButton("Bit", "3 mm"));
-        add(Box.createHorizontalStrut(6));
-        PanelButton stockButton = new PanelButton("Stock size", controller.getSettings().getStockSizeText());
-        stockButton.addActionListener((e) -> {
-            StockSettings stockSettings = new StockSettings(controller);
-            DialogDescriptor dialogDescriptor = new DialogDescriptor(stockSettings, "test", true, null);
-            dialogDescriptor.setHelpCtx(new HelpCtx("Flepp"));
-            if (DialogDisplayer.getDefault().notify(dialogDescriptor) == DialogDescriptor.OK_OPTION) {
-                Size stockSize = stockSettings.getStockSize();
-                double stockThickness = stockSettings.getStockThickness();
-                ChangeStockSettings changeStockSettings = new ChangeStockSettings(controller, stockSize.getWidth(), stockSize.getHeight(), stockThickness);
+        PanelButton toolButton = new PanelButton("Tool", controller.getSettings().getToolDescription());
+        toolButton.addActionListener(e -> {
+            ToolSettingsPanel toolSettingsPanel = new ToolSettingsPanel(controller);
+            DialogDescriptor dialogDescriptor = new DialogDescriptor(toolSettingsPanel, "Tool setings", true, null);
+            if (DialogDisplayer.getDefault().notify(dialogDescriptor) == OK_OPTION) {
+                ChangeToolSettingsAction changeStockSettings = new ChangeToolSettingsAction(controller, toolSettingsPanel.getToolDiameter(), toolSettingsPanel.getFeedSpeed(), toolSettingsPanel.getPlungeSpeed(), toolSettingsPanel.getDepthPerPass(), toolSettingsPanel.getStepOver());
                 changeStockSettings.actionPerformed(null);
                 controller.getUndoManager().addAction(changeStockSettings);
-                stockButton.setText(controller.getSettings().getStockSizeText());
+                toolButton.setText(controller.getSettings().getToolDescription());
+            }
+        });
+        add(toolButton);
+
+        add(Box.createHorizontalStrut(6));
+        PanelButton stockButton = new PanelButton("Stock size", controller.getSettings().getStockSizeDescription());
+        stockButton.addActionListener(e -> {
+            StockSettingsPanel stockSettingsPanel = new StockSettingsPanel(controller);
+            DialogDescriptor dialogDescriptor = new DialogDescriptor(stockSettingsPanel, "Stock size", true, null);
+            if (DialogDisplayer.getDefault().notify(dialogDescriptor) == OK_OPTION) {
+                Size stockSize = stockSettingsPanel.getStockSize();
+                double stockThickness = stockSettingsPanel.getStockThickness();
+                ChangeStockSettingsAction changeStockSettingsAction = new ChangeStockSettingsAction(controller, stockSize.getWidth(), stockSize.getHeight(), stockThickness);
+                changeStockSettingsAction.actionPerformed(null);
+                controller.getUndoManager().addAction(changeStockSettingsAction);
+                stockButton.setText(controller.getSettings().getStockSizeDescription());
             }
         });
         add(stockButton);
@@ -97,7 +109,7 @@ public class ToolBox extends JToolBar {
         buttons.add(rectangle);
         buttons.add(insert);
 
-        controller.addListener((event) -> {
+        controller.addListener(event -> {
             if (event == ControllerEventType.TOOL_SELECTED) {
                 buttons.clearSelection();
                 controller.getSelectionManager().clearSelection();

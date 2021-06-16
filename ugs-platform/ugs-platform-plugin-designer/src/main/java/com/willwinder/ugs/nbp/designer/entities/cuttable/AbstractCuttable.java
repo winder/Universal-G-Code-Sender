@@ -9,7 +9,6 @@ import java.awt.*;
 public abstract class AbstractCuttable extends AbstractEntity implements Cuttable {
 
     private CutType cutType = CutType.NONE;
-    private double toolDiameter;
     private double cutDepth;
 
     protected AbstractCuttable() {
@@ -29,16 +28,6 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     public void setCutType(CutType cutType) {
         this.cutType = cutType;
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
-    }
-
-    @Override
-    public double getToolDiameter() {
-        return toolDiameter;
-    }
-
-    @Override
-    public void setToolDiameter(double toolDiameter) {
-        this.toolDiameter = toolDiameter;
     }
 
     @Override
@@ -64,7 +53,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             graphics.draw(getShape());
         }
         else {
-            graphics.setColor(Color.GRAY);
+            graphics.setColor(Color.LIGHT_GRAY);
             graphics.draw(getShape());
         }
     }

@@ -1,6 +1,6 @@
 package com.willwinder.ugs.nbp.designer;
 
-import com.willwinder.ugs.nbp.designer.gui.SelectionSettings;
+import com.willwinder.ugs.nbp.designer.gui.SelectionSettingsPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.openide.windows.TopComponent;
 
@@ -11,7 +11,7 @@ import org.openide.windows.TopComponent;
 @TopComponent.Registration(mode = "bottom_left", openAtStartup = false)
 public class SettingsTopComponent extends TopComponent {
 
-    private SelectionSettings selectionSettings;
+    private SelectionSettingsPanel selectionSettingsPanel;
 
     public SettingsTopComponent() {
         setMinimumSize(new java.awt.Dimension(50, 50));
@@ -23,12 +23,12 @@ public class SettingsTopComponent extends TopComponent {
     @Override
     protected void componentOpened() {
         super.componentOpened();
-        selectionSettings = new SelectionSettings();
-        add(selectionSettings);
+        selectionSettingsPanel = new SelectionSettingsPanel();
+        add(selectionSettingsPanel);
         validate();
     }
 
     public void updateController(Controller controller) {
-        selectionSettings.updateController(controller);
+        selectionSettingsPanel.updateController(controller);
     }
 }

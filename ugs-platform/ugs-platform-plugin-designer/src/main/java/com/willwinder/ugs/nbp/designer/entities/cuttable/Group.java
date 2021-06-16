@@ -20,16 +20,6 @@ public class Group extends EntityGroup implements Cuttable {
     }
 
     @Override
-    public double getToolDiameter() {
-        return 0;
-    }
-
-    @Override
-    public void setToolDiameter(double toolDiameter) {
-
-    }
-
-    @Override
     public double getCutDepth() {
         return 0;
     }

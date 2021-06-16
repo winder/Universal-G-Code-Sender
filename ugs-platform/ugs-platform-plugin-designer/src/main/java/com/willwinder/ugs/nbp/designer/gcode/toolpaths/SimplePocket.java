@@ -52,10 +52,15 @@ public class SimplePocket implements PathGenerator {
         double currentDepth = 0;
         while (currentDepth < targetDepth) {
 
+            currentDepth += depthPerPass;
+            if(currentDepth > targetDepth) {
+                currentDepth = targetDepth;
+            }
+
             double buffer = 0;
             while (true) {
                 DouglasPeuckerSimplifier simplifier = new DouglasPeuckerSimplifier(polygon.buffer(-buffer));
-                simplifier.setDistanceTolerance(0.5);
+                simplifier.setDistanceTolerance(0.01);
                 List<NumericCoordinate> numericCoordinates = new ArrayList<>();
                 for (NumericCoordinate coordinate : geometryToCoordinates(simplifier.getResultGeometry())) {
                     numericCoordinates.add(coordinate.set(Axis.Z, -currentDepth));
@@ -69,7 +74,7 @@ public class SimplePocket implements PathGenerator {
                 buffer = buffer + (toolDiameter * stepOver);
             }
 
-            currentDepth += depthPerPass;
+
         }
 
         GcodePath gcodePath = new GcodePath();
@@ -117,6 +122,14 @@ public class SimplePocket implements PathGenerator {
     }
 
     public void setStepOver(double stepOver) {
-        this.stepOver = Math.max(Math.min(0.01, Math.abs(stepOver)), 1.0);
+        this.stepOver = Math.min(Math.max(0.01, Math.abs(stepOver)), 1.0);
+    }
+
+    public void setDepthPerPass(double depthPerPass) {
+        this.depthPerPass = Math.abs(depthPerPass);
+    }
+
+    public double getDepthPerPass() {
+        return depthPerPass;
     }
 }

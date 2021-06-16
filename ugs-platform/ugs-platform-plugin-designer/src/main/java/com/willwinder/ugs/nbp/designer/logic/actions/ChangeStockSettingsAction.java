@@ -6,15 +6,15 @@ import com.willwinder.ugs.nbp.designer.logic.Size;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class ChangeStockSettings extends AbstractAction implements UndoableAction {
+public class ChangeStockSettingsAction extends AbstractAction implements UndoableAction {
 
     private final Size previousSize;
     private final Size newSize;
     private final double previousThickness;
     private final double newThickness;
-    private final Controller controller;
+    private final transient Controller controller;
 
-    public ChangeStockSettings(Controller controller, double width, double height, double newThickness) {
+    public ChangeStockSettingsAction(Controller controller, double width, double height, double newThickness) {
         this.newSize = new Size(width, height);
         this.newThickness = newThickness;
         this.previousSize = controller.getSettings().getStockSize();

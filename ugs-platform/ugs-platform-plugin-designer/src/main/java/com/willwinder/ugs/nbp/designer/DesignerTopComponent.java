@@ -1,17 +1,14 @@
 package com.willwinder.ugs.nbp.designer;
 
 import com.google.common.io.Files;
-import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
-import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
-import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.actions.DeleteAction;
 import com.willwinder.ugs.nbp.designer.logic.actions.SelectAllAction;
 import com.willwinder.ugs.nbp.designer.logic.actions.SimpleUndoManager;
 import com.willwinder.ugs.nbp.designer.logic.actions.UndoManagerListener;
-import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.platform.UndoManagerAdapter;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -23,15 +20,12 @@ import org.openide.windows.CloneableTopComponent;
 import org.openide.windows.TopComponent;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @TopComponent.Description(
         preferredID = "DesignerTopComponent",
@@ -51,10 +45,12 @@ public class DesignerTopComponent extends CloneableTopComponent implements UndoM
     private final ThreadPoolExecutor executor;
     private final Controller controller;
     private final UndoManagerAdapter undoManagerAdapter;
+    private final ArrayBlockingQueue<Runnable> jobQueue;
 
 
     public DesignerTopComponent() {
-        executor = new ThreadPoolExecutor(1, 1, 100, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(2));
+        jobQueue = new ArrayBlockingQueue<>(1);
+        executor = new ThreadPoolExecutor(1, 1, 1000, TimeUnit.MILLISECONDS, jobQueue);
         undoManager = new SimpleUndoManager();
         undoManagerAdapter = new UndoManagerAdapter(undoManager);
         selectionManager = new SelectionManager();
@@ -75,7 +71,7 @@ public class DesignerTopComponent extends CloneableTopComponent implements UndoM
 
         DrawingContainer drawingContainer = new DrawingContainer(controller);
         controller.addListener(drawingContainer);
-        selectionManager.addSelectionListener((e) -> {
+        selectionManager.addSelectionListener(e -> {
             drawingContainer.repaint();
             Utils.openSettings(controller);
             Utils.openEntitesTree(controller);
@@ -103,7 +99,9 @@ public class DesignerTopComponent extends CloneableTopComponent implements UndoM
     }
 
     private void generateGcode() {
-        if (executor.getActiveCount() > 1) {
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+
+        if (!jobQueue.isEmpty()) {
             return;
         }
 
@@ -115,10 +113,7 @@ public class DesignerTopComponent extends CloneableTopComponent implements UndoM
                 FileWriter fileWriter = new FileWriter(file);
                 IOUtils.write(gcode, fileWriter);
                 fileWriter.close();
-                BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
                 backend.setGcodeFile(file);
-            } catch (IOException e) {
-                e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             }

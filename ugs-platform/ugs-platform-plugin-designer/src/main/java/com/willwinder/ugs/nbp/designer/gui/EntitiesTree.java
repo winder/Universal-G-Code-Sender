@@ -1,14 +1,12 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
-import com.willwinder.ugs.nbp.designer.entities.EntityListener;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
-import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
-import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -74,7 +72,7 @@ public class EntitiesTree extends JPanel implements DrawingListener, ControllerL
 
     private void reloadTree() {
         topNode.removeAllChildren();
-        addNode(topNode, controller.getDrawing().getRootEntity());
+        ((EntityGroup) controller.getDrawing().getRootEntity()).getChildren().forEach(child -> addNode(topNode, child));
         tree.setModel(new DefaultTreeModel(topNode));
         tree.expandRow(0);
     }

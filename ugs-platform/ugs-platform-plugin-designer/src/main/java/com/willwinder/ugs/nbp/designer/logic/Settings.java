@@ -2,7 +2,6 @@ package com.willwinder.ugs.nbp.designer.logic;
 
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +16,7 @@ public class Settings {
     private UnitUtils.Units preferredUnits = UnitUtils.Units.MM;
     private Size stockSize = new Size(300, 200);
     private double toolStepOver = 0.3;
+    private double depthPerPass = 1;
 
     public int getFeedSpeed() {
         return feedSpeed;
@@ -127,9 +127,21 @@ public class Settings {
         this.toolStepOver = toolStepOver;
     }
 
-    @NotNull
-    public String getStockSizeText() {
+    public String getStockSizeDescription() {
         double scale = UnitUtils.scaleUnits(UnitUtils.Units.MM, getPreferredUnits());
         return Utils.formatter.format(getStockSize().getWidth() * scale) + " x " + Utils.formatter.format(getStockSize().getHeight() * scale) + " x " + Utils.formatter.format(getStockThickness() * scale) + " " + getPreferredUnits().abbreviation;
+    }
+
+    public String getToolDescription() {
+        double scale = UnitUtils.scaleUnits(UnitUtils.Units.MM, getPreferredUnits());
+        return Utils.formatter.format(getToolDiameter() * scale) +  " " + getPreferredUnits().abbreviation;
+    }
+
+    public double getDepthPerPass() {
+        return depthPerPass;
+    }
+
+    public void setDepthPerPass(double depthPerPass) {
+        this.depthPerPass = depthPerPass;
     }
 }

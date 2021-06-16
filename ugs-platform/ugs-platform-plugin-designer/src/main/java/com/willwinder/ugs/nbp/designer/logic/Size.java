@@ -1,6 +1,8 @@
 package com.willwinder.ugs.nbp.designer.logic;
 
-public class Size {
+import java.io.Serializable;
+
+public class Size implements Serializable {
     private double width;
     private double height;
 
@@ -16,5 +18,4 @@ public class Size {
     public double getHeight() {
         return height;
     }
-
 }

@@ -8,13 +8,13 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.text.ParseException;
 
-public class StockSettings extends JPanel {
+public class StockSettingsPanel extends JPanel {
     private final Controller controller;
     private JTextField stockThickness;
     private JTextField stockHeight;
     private JTextField stockWidth;
 
-    public StockSettings(Controller controller) {
+    public StockSettingsPanel(Controller controller) {
         this.controller = controller;
         initComponents();
     }

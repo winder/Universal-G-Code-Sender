@@ -1,14 +1,13 @@
 package com.willwinder.ugs.nbp.designer;
 
 import com.willwinder.ugs.nbp.designer.gui.*;
-import com.willwinder.ugs.nbp.designer.gui.SelectionSettings;
+import com.willwinder.ugs.nbp.designer.gui.SelectionSettingsPanel;
 import com.willwinder.ugs.nbp.designer.io.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.actions.SimpleUndoManager;
 import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.BorderLayout;
@@ -70,11 +69,10 @@ public class DesignerMain extends JFrame {
         controller.getDrawing().repaint();
     }
 
-    @NotNull
     private JSplitPane createRightPanel(Controller controller) {
         getContentPane().add(new ToolBox(controller), BorderLayout.NORTH);
 
-        JSplitPane toolsSplit = new JSplitPane( JSplitPane.VERTICAL_SPLIT, new JScrollPane(new EntitiesTree(controller)), new SelectionSettings(controller));
+        JSplitPane toolsSplit = new JSplitPane( JSplitPane.VERTICAL_SPLIT, new JScrollPane(new EntitiesTree(controller)), new SelectionSettingsPanel(controller));
         toolsSplit.setResizeWeight(0.9);
         return toolsSplit;
     }

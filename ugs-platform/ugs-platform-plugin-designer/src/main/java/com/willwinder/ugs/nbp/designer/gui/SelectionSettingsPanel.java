@@ -9,7 +9,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.Settings;
+import com.willwinder.ugs.nbp.designer.logic.actions.ChangeCutSettingsAction;
 import com.willwinder.universalgcodesender.Utils;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
@@ -24,27 +24,24 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.EnumMap;
 
-public class SelectionSettings extends JPanel implements SelectionListener, DocumentListener, EntityListener, ChangeListener {
+public class SelectionSettingsPanel extends JPanel implements SelectionListener, DocumentListener, EntityListener, ChangeListener {
     private final JTextField widthTextField;
     private final JTextField rotation;
     private final ButtonGroup buttonGroup;
     private final JTextField posXTextField;
     private final JTextField posYTextField;
+    private final JLabel cutDepthLabel;
     private transient Controller controller;
     private final JSpinner depthSpinner;
-    /*private final JSpinner feedSpeedSpinner;
-    private final JSpinner plungeSpeedSpinner;
-    private final JSpinner toolDiameterSpinner;*/
     private final JTextField heightTextField;
-    private transient Entity entity;
     private final EnumMap<CutType, JToggleButton> cutTypeButtonMap = new EnumMap<>(CutType.class);
 
-    public SelectionSettings(Controller controller) {
+    public SelectionSettingsPanel(Controller controller) {
         this();
         updateController(controller);
     }
 
-    public SelectionSettings() {
+    public SelectionSettingsPanel() {
         setLayout(new MigLayout("fill, wrap 2"));
 
         heightTextField = new JTextField("0");
@@ -79,19 +76,15 @@ public class SelectionSettings extends JPanel implements SelectionListener, Docu
         cutTypeButtonMap.put(CutType.OUTSIDE_PATH, new JToggleButton(ImageUtilities.loadImageIcon("img/cutoutside32.png", false)));
         cutTypeButtonMap.put(CutType.ON_PATH, new JToggleButton(ImageUtilities.loadImageIcon("img/cutonpath32.png", false)));
 
+        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(100d, 0d, 100.0d, 0.1d);
+        depthSpinner = new JSpinner(spinnerNumberModel);
+        depthSpinner.setPreferredSize(depthSpinner.getPreferredSize());
 
         buttonGroup = new ButtonGroup();
         cutTypeButtonMap.keySet().forEach(key -> {
             JToggleButton button = cutTypeButtonMap.get(key);
             buttonGroup.add(button);
-            button.addActionListener((event) -> {
-                this.controller.getSelectionManager().getSelection().forEach((selectedEntity -> {
-                    if (selectedEntity instanceof Cuttable) {
-                        ((Cuttable) selectedEntity).setCutType(key);
-                        controller.getDrawing().repaint();
-                    }
-                }));
-            });
+            button.addActionListener(event -> { stateChanged(null); });
         });
 
         add(cutTypeButtonMap.get(CutType.NONE), "span 2, split");
@@ -100,35 +93,10 @@ public class SelectionSettings extends JPanel implements SelectionListener, Docu
         add(cutTypeButtonMap.get(CutType.OUTSIDE_PATH), "split");
         add(cutTypeButtonMap.get(CutType.ON_PATH), "wrap");
 
-        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(100d, 0d, 100.0d, 0.1d);
-        depthSpinner = new JSpinner(spinnerNumberModel);
-        depthSpinner.setPreferredSize(depthSpinner.getPreferredSize());
-        add(new JLabel("Cut depth"));
+        cutDepthLabel = new JLabel("Cut depth");
+        add(cutDepthLabel);
         add(depthSpinner);
         depthSpinner.addChangeListener(this);
-
-       /* add(new JSeparator(), "grow, spanx, wrap");
-
-
-        spinnerNumberModel = new SpinnerNumberModel(1000, 0, 100000, 100);
-        feedSpeedSpinner = new JSpinner(spinnerNumberModel);
-        add(new JLabel("Feed speed"));
-        add(feedSpeedSpinner);
-        feedSpeedSpinner.addChangeListener(this);
-
-        spinnerNumberModel = new SpinnerNumberModel(1000, 1, 100000, 100);
-        plungeSpeedSpinner = new JSpinner(spinnerNumberModel);
-        add(new JLabel("Plunge speed"));
-        add(plungeSpeedSpinner);
-        plungeSpeedSpinner.addChangeListener(this);
-
-        spinnerNumberModel = new SpinnerNumberModel(3d, 0.1d, 30d, 0.1d);
-        toolDiameterSpinner = new JSpinner(spinnerNumberModel);
-        toolDiameterSpinner.setPreferredSize(plungeSpeedSpinner.getPreferredSize().getSize());
-        add(new JLabel("Tool diameter"));
-        add(toolDiameterSpinner);
-        toolDiameterSpinner.addChangeListener(this);*/
-
         setEnabled(false);
     }
 
@@ -144,9 +112,7 @@ public class SelectionSettings extends JPanel implements SelectionListener, Docu
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        Arrays.stream(getComponents()).forEach(component -> {
-            component.setEnabled(enabled);
-        });
+        Arrays.stream(getComponents()).forEach(component -> component.setEnabled(enabled));
 
         if (!enabled) {
             depthSpinner.setValue(0d);
@@ -155,7 +121,6 @@ public class SelectionSettings extends JPanel implements SelectionListener, Docu
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
-
         onEvent(new EntityEvent(controller.getSelectionManager(), EventType.MOVED));
     }
 
@@ -202,26 +167,21 @@ public class SelectionSettings extends JPanel implements SelectionListener, Docu
             controller.getSelectionManager().move(position);
             controller.getDrawing().repaint();
         }
+
         controller.getSelectionManager().addListener(this);
     }
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
         if (this.controller.getSelectionManager().getSelection().isEmpty()) {
-            this.entity = null;
             setEnabled(false);
             return;
         } else {
             setEnabled(true);
         }
 
-        this.entity = this.controller.getSelectionManager().getSelection().get(0);
-
-        Settings settings = controller.getSettings();
         depthSpinner.setModel(new SpinnerNumberModel(controller.getSettings().getStockThickness(), 0d, controller.getSettings().getStockThickness(), 0.1d));
 
-        //feedSpeedSpinner.setValue(settings.getFeedSpeed());
-        //plungeSpeedSpinner.setValue(settings.getPlungeSpeed());
         if (controller.getSelectionManager().getSelection().size() == 1) {
             Entity selectedEntity = controller.getSelectionManager().getSelection().get(0);
             setFieldValue(rotation, Utils.formatter.format(selectedEntity.getRotation()));
@@ -230,8 +190,11 @@ public class SelectionSettings extends JPanel implements SelectionListener, Docu
                 Cuttable cuttable = (Cuttable) selectedEntity;
                 JToggleButton cutTypeButton = cutTypeButtonMap.get(cuttable.getCutType());
                 cutTypeButton.setSelected(true);
-                //setFieldValue(toolDiameterSpinner, cuttable.getToolDiameter());
                 setFieldValue(depthSpinner, cuttable.getCutDepth());
+
+                boolean hasCutTypeSelection = cuttable.getCutType() != CutType.NONE;
+                depthSpinner.setEnabled(hasCutTypeSelection);
+                cutDepthLabel.setEnabled(hasCutTypeSelection);
             }
         }
 
@@ -242,6 +205,7 @@ public class SelectionSettings extends JPanel implements SelectionListener, Docu
         setFieldValue(widthTextField, Utils.formatter.format(controller.getSelectionManager().getSize().width));
         setFieldValue(heightTextField, Utils.formatter.format(controller.getSelectionManager().getSize().height));
         setFieldValue(rotation, Utils.formatter.format(controller.getSelectionManager().getRotation()));
+        controller.getDrawing().repaint();
     }
 
     @Override
@@ -250,15 +214,15 @@ public class SelectionSettings extends JPanel implements SelectionListener, Docu
             return;
         }
 
+        CutType cutType = cutTypeButtonMap.keySet().stream().filter(key -> cutTypeButtonMap.get(key).isSelected()).findFirst().orElse(CutType.NONE);
         controller.getSelectionManager().getSelection().forEach(selectedEntity -> {
             if (selectedEntity instanceof Cuttable) {
-                Cuttable cuttable = (Cuttable)selectedEntity;
-                //cuttable.setToolDiameter((Double) toolDiameterSpinner.getValue());
-                cuttable.setCutDepth((Double) depthSpinner.getValue());
+                Cuttable cuttable = (Cuttable) selectedEntity;
+                ChangeCutSettingsAction changeCutSettingsAction = new ChangeCutSettingsAction(controller, cuttable, (Double) depthSpinner.getValue(), cutType);
+                controller.getUndoManager().addAction(changeCutSettingsAction);
+                changeCutSettingsAction.actionPerformed(null);
             }
         });
-        //controller.getSettings().setToolDiameter((Double) toolDiameterSpinner.getValue());
-        //controller.getSettings().setPlungeSpeed((Integer) plungeSpeedSpinner.getValue());
-        //controller.getSettings().setFeedSpeed((Integer) feedSpeedSpinner.getValue());
+        onEvent(new EntityEvent(controller.getSelectionManager(), EventType.SETTINGS_CHANGED));
     }
 }

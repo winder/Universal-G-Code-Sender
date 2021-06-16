@@ -74,6 +74,7 @@ public class Utils {
                             simplePocket.setTargetDepth(cuttable.getCutDepth());
                             simplePocket.setToolDiameter(settings.getToolDiameter());
                             simplePocket.setStepOver(settings.getToolStepOver());
+                            simplePocket.setDepthPerPass(settings.getDepthPerPass());
                             gcodePath = simplePocket.toGcodePath();
 
                             /*SimpleOutline simpleOutline = new SimpleOutline(gcodePath);
