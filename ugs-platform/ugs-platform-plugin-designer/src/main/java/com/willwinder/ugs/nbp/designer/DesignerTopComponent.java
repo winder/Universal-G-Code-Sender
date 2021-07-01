@@ -22,7 +22,6 @@ import org.openide.windows.TopComponent;
 import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -90,6 +89,7 @@ public class DesignerTopComponent extends CloneableTopComponent implements UndoM
         getActionMap().put("delete", new DeleteAction(controller));
         getActionMap().put("select-all", new SelectAllAction(controller));
 
+        generateGcode();
     }
 
     @Override

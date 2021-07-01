@@ -1,5 +1,6 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
+import com.willwinder.ugs.nbp.lib.EditorUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -60,10 +61,12 @@ public final class NewDesignAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            FileSystem fs = FileUtil.createMemoryFileSystem();
-            FileObject fob = fs.getRoot().createData("unnamed", "ugsd");
-            DataObject.find(fob).
-                    getLookup().lookup(OpenCookie.class).open();
+            if (EditorUtils.closeOpenEditors()) {
+                FileSystem fs = FileUtil.createMemoryFileSystem();
+                FileObject fob = fs.getRoot().createData("unnamed", "ugsd");
+                DataObject.find(fob).
+                        getLookup().lookup(OpenCookie.class).open();
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
         }

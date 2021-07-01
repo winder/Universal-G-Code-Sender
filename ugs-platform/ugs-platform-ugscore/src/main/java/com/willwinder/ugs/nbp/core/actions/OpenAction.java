@@ -18,29 +18,23 @@
  */
 package com.willwinder.ugs.nbp.core.actions;
 
+import com.willwinder.ugs.nbp.lib.EditorUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
-import org.apache.commons.lang3.ArrayUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
-import org.openide.cookies.EditorCookie;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.nodes.Node;
 import org.openide.util.ImageUtilities;
-import org.openide.windows.TopComponent;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @ActionID(
         category = LocalizingService.OpenCategory,
@@ -86,7 +80,7 @@ public final class OpenAction extends AbstractAction {
                 .openFile(sourceDir)
                 .ifPresent(f -> {
                     try {
-                        if(closeOpenEditors()) {
+                        if(EditorUtils.closeOpenEditors()) {
                             DataObject.find(FileUtil.toFileObject(f))
                                     .getLookup()
                                     .lookup(OpenCookie.class)
@@ -96,27 +90,5 @@ public final class OpenAction extends AbstractAction {
                         ex.printStackTrace();
                     }
                 });
-    }
-
-    /**
-     * Close all open editors
-     *
-     * @return true if all editors could be closed
-     */
-    private boolean closeOpenEditors() {
-        List<TopComponent> editorCookies = TopComponent.getRegistry().getOpened()
-                .stream()
-                .filter(topComponent ->
-                        Arrays.stream(ArrayUtils.nullToEmpty(topComponent.getActivatedNodes(), Node[].class))
-                            .anyMatch(node -> node.getCookie(EditorCookie.class) != null))
-                .collect(Collectors.toList());
-
-        boolean closed = true;
-        for(TopComponent editorCookie : editorCookies) {
-            if (!editorCookie.close()) {
-               closed = false;
-            }
-        }
-        return closed;
     }
 }
