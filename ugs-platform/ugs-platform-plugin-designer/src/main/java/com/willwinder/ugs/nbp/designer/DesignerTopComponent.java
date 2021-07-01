@@ -31,12 +31,6 @@ import java.util.concurrent.TimeUnit;
         persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED
 )
 @TopComponent.Registration(mode = "editor", openAtStartup = false)
-@TopComponent.OpenActionRegistration(
-        displayName = "<Not localized:DesignerTopComponent>",
-        preferredID = "DesignerTopComponent"
-)
-@ActionID(category = "Window", id = "DesignerTopComponent")
-@ActionReference(path = "Menu/Window")
 public class DesignerTopComponent extends CloneableTopComponent implements UndoManagerListener {
 
     private final SimpleUndoManager undoManager;

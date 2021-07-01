@@ -20,27 +20,29 @@ package com.willwinder.ugs.nbp.designer.gcode.path;
  * Supported axes.
  */
 public enum Axis {
-	// Note. XYZ must be the first axes, because some code relies on their ordinals.
-	X,
-	Y, 
-	Z,
-	A, /** Rotation around X */
-	B, /** Rotation around Y */
-	C, /** Rotation around Z */
-	I, /** X offset in a plane */
-	J, /** Y offset in a plane */
-	K, /** Z offset in a plane */
-	;
-	/**
-	 * Get an axis
-	 * @return axis or null if not found
-	 */
-	static public Axis get(char a) {
-		String ax = Character.toString(Character.toUpperCase(a));
-		try {
-			return valueOf(ax);
-		} catch(IllegalArgumentException e) {
-			return null;
-		}
-	}
+    // Note. XYZ must be the first axes, because some code relies on their ordinals.
+    X,
+    Y,
+    Z,
+    A, // Rotation around X
+    B, // Rotation around Y
+    C, // Rotation around Z
+    I, // X offset in a plane
+    J, // Y offset in a plane
+    K, // Z offset in a plane
+    ;
+
+    /**
+     * Get an axis
+     *
+     * @return axis or null if not found
+     */
+    public static Axis get(char a) {
+        String ax = Character.toString(Character.toUpperCase(a));
+        try {
+            return valueOf(ax);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
 }

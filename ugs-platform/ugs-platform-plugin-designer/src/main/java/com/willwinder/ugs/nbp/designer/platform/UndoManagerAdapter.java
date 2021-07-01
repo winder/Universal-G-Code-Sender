@@ -24,7 +24,6 @@ public class UndoManagerAdapter implements UndoRedo {
                 listeners.forEach(l ->
                         SwingUtilities.invokeLater(() -> {
                             l.stateChanged(new ChangeEvent(this));
-                            System.out.println("New event");
                         })));
     }
 

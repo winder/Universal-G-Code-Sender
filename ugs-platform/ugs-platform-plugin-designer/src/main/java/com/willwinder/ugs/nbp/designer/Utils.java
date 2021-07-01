@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 
 public class Utils {
     public static SettingsTopComponent openSettings(Controller controller) {
-        SettingsTopComponent component = TopComponent.getRegistry().getOpened().stream().filter(t -> t instanceof SettingsTopComponent)
-                .map(t -> (SettingsTopComponent) t)
+        SettingsTopComponent component = TopComponent.getRegistry().getOpened().stream().filter(SettingsTopComponent.class::isInstance)
+                .map(SettingsTopComponent.class::cast)
                 .findFirst().orElseGet(() -> {
                     SettingsTopComponent topComponent = new SettingsTopComponent();
                     topComponent.open();
@@ -38,8 +38,8 @@ public class Utils {
     }
 
     public static EntitiesTreeTopComponent openEntitesTree(Controller controller) {
-        EntitiesTreeTopComponent component = TopComponent.getRegistry().getOpened().stream().filter(t -> t instanceof EntitiesTreeTopComponent)
-                .map(t -> (EntitiesTreeTopComponent) t)
+        EntitiesTreeTopComponent component = TopComponent.getRegistry().getOpened().stream().filter(EntitiesTreeTopComponent.class::isInstance)
+                .map(EntitiesTreeTopComponent.class::cast)
                 .findFirst().orElseGet(() -> {
                     EntitiesTreeTopComponent topComponent = new EntitiesTreeTopComponent();
                     topComponent.open();
