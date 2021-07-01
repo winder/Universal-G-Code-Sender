@@ -1,16 +1,16 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.actions.ClearSelectionAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.DeleteAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.ExportGcodeAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.ExportPngAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.NewAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.OpenAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.QuitAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.RedoAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.SelectAllAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.UndoAction;
+import com.willwinder.ugs.nbp.designer.actions.ClearSelectionAction;
+import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
+import com.willwinder.ugs.nbp.designer.actions.ExportGcodeAction;
+import com.willwinder.ugs.nbp.designer.actions.ExportPngAction;
+import com.willwinder.ugs.nbp.designer.actions.NewAction;
+import com.willwinder.ugs.nbp.designer.actions.OpenAction;
+import com.willwinder.ugs.nbp.designer.actions.QuitAction;
+import com.willwinder.ugs.nbp.designer.actions.RedoAction;
+import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
+import com.willwinder.ugs.nbp.designer.actions.UndoAction;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;

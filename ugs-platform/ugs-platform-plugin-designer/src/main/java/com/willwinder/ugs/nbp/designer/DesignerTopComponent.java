@@ -5,16 +5,14 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.actions.DeleteAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.SelectAllAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.SimpleUndoManager;
-import com.willwinder.ugs.nbp.designer.logic.actions.UndoManagerListener;
+import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
+import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
+import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
+import com.willwinder.ugs.nbp.designer.actions.UndoManagerListener;
 import com.willwinder.ugs.nbp.designer.platform.UndoManagerAdapter;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.apache.commons.io.IOUtils;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
 import org.openide.awt.UndoRedo;
 import org.openide.windows.CloneableTopComponent;
 import org.openide.windows.TopComponent;
@@ -61,6 +59,7 @@ public class DesignerTopComponent extends CloneableTopComponent implements UndoM
         CentralLookup.getDefault().add(selectionManager);
 
         Utils.openSettings(controller);
+        Utils.openEntitesTree(controller);
 
         DrawingContainer drawingContainer = new DrawingContainer(controller);
         controller.addListener(drawingContainer);

@@ -1,4 +1,4 @@
-package com.willwinder.ugs.nbp.designer.logic.actions;
+package com.willwinder.ugs.nbp.designer.actions;
 
 public interface UndoableAction {
     /**

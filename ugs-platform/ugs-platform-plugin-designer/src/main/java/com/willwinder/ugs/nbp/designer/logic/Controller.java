@@ -2,8 +2,8 @@ package com.willwinder.ugs.nbp.designer.logic;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
-import com.willwinder.ugs.nbp.designer.logic.actions.AddAction;
-import com.willwinder.ugs.nbp.designer.logic.actions.UndoManager;
+import com.willwinder.ugs.nbp.designer.actions.AddAction;
+import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 
 import java.util.ArrayList;

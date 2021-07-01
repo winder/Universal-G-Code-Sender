@@ -1,6 +1,4 @@
-package com.willwinder.ugs.nbp.designer.logic.actions;
-
-import com.willwinder.ugs.nbp.designer.DesignerTopComponent;
+package com.willwinder.ugs.nbp.designer.actions;
 
 public interface UndoManager {
     void addAction(UndoableAction action);

@@ -1,4 +1,4 @@
-package com.willwinder.ugs.nbp.designer.logic.actions;
+package com.willwinder.ugs.nbp.designer.actions;
 
 import java.util.HashSet;
 import java.util.Set;

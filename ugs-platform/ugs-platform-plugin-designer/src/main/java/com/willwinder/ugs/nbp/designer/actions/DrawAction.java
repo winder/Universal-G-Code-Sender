@@ -1,4 +1,4 @@
-package com.willwinder.ugs.nbp.designer.logic.actions;
+package com.willwinder.ugs.nbp.designer.actions;
 
 /**
  * This interface depicts a single draw action that can be used to execute some behaviour to a drawing

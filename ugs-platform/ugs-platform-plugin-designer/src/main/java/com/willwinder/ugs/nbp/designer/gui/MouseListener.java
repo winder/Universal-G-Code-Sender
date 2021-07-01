@@ -8,7 +8,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
-import com.willwinder.ugs.nbp.designer.logic.actions.AddAction;
+import com.willwinder.ugs.nbp.designer.actions.AddAction;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
