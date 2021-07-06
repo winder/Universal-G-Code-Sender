@@ -2,10 +2,10 @@ package com.willwinder.ugs.nbp.designer.io;
 
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.nbp.designer.Design;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
@@ -33,6 +33,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -49,7 +50,7 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
     private Group result;
 
     @Override
-    public Optional<Entity> read(File f) {
+    public Optional<Design> read(File f) {
         if (EventQueue.isDispatchThread()) {
             throw new RuntimeException("Method can not be executed in dispatch thread");
         }
@@ -66,11 +67,14 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
             throw new RuntimeException("It took to long to load file");
             // Never mind
         }
-        return Optional.ofNullable(result);
+
+        Design design = new Design();
+        design.setEntities(result != null ? result.getChildren() : new ArrayList<>());
+        return Optional.of(design);
     }
 
     @Override
-    public Optional<Entity> read(InputStream inputStream) {
+    public Optional<Design> read(InputStream inputStream) {
         if (EventQueue.isDispatchThread()) {
             throw new RuntimeException("Method can not be executed in dispatch thread");
         }
@@ -99,7 +103,9 @@ public class SvgReader implements GVTTreeBuilderListener, Reader {
             throw new RuntimeException("It took to long to load file");
         }
 
-        return Optional.ofNullable(result);
+        Design design = new Design();
+        design.setEntities(result != null ? result.getChildren() : new ArrayList<>());
+        return Optional.of(design);
     }
 
 

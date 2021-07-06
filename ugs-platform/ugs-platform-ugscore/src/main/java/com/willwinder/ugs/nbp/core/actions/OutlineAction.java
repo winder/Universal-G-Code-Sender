@@ -111,13 +111,14 @@ public final class OutlineAction extends AbstractAction implements UGSEventListe
                 LoaderDialogHelper.showDialog("Generating outline", 1500, (Component) e.getSource());
                 File gcodeFile = backend.getGcodeFile();
                 List<GcodeCommand> gcodeCommands = generateOutlineCommands(gcodeFile);
-                LoaderDialogHelper.closeDialog();
 
                 LOGGER.finest("Sending the outline to the controller");
                 backend.getController().queueStream(new SimpleGcodeStreamReader(gcodeCommands));
                 backend.getController().beginStreaming();
             } catch (Exception ex) {
                 GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
+            } finally {
+                LoaderDialogHelper.closeDialog();
             }
         });
     }

@@ -1,5 +1,6 @@
-package com.willwinder.ugs.nbp.designer.logic;
+package com.willwinder.ugs.nbp.designer.io;
 
+import com.willwinder.ugs.nbp.designer.logic.SettingsListener;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 

@@ -17,8 +17,9 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.core.actions;
+package com.willwinder.ugs.nbp.editor.actions;
 
+import com.willwinder.ugs.nbp.editor.GcodeDataObject;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -30,7 +31,10 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
+import org.openide.nodes.Node;
+import org.openide.util.HelpCtx;
 import org.openide.util.ImageUtilities;
+import org.openide.util.actions.CookieAction;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
@@ -49,9 +53,10 @@ import java.awt.event.ActionEvent;
                 path = LocalizingService.RunFromWindowPath,
                 position = 1016)
 })
-public final class RunFromAction extends AbstractAction implements UGSEventListener {
+public final class RunFromAction extends CookieAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/fast-forward.svg";
+    public static final String NAME = LocalizingService.RunFromTitle;
+    public static final String ICON_BASE = "icons/fast-forward.svg";
     private final RunFromService runFromService;
 
     private BackendAPI backend;
@@ -60,12 +65,7 @@ public final class RunFromAction extends AbstractAction implements UGSEventListe
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
         this.runFromService = CentralLookup.getDefault().lookup(RunFromService.class);
-
-
-        putValue("iconBase", ICON_BASE);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
-        putValue("menuText", LocalizingService.RunFromTitle);
-        putValue(NAME, LocalizingService.RunFromTitle);
+        setIcon(ImageUtilities.loadImageIcon(ICON_BASE, false));
         setEnabled(isEnabled());
     }
 
@@ -78,11 +78,22 @@ public final class RunFromAction extends AbstractAction implements UGSEventListe
 
     @Override
     public boolean isEnabled() {
-        return backend.getGcodeFile() != null;
+        return backend.getGcodeFile() != null && backend.isConnected() && !backend.isSendingFile() && super.isEnabled();
+    }
+
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public HelpCtx getHelpCtx() {
+        return null;
+    }
+
+    @Override
+    protected void performAction(Node[] activatedNodes) {
         if (!isEnabled()) {
             return;
         }
@@ -100,5 +111,15 @@ public final class RunFromAction extends AbstractAction implements UGSEventListe
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
         }
+    }
+
+    @Override
+    protected int mode() {
+        return CookieAction.MODE_ANY;
+    }
+
+    @Override
+    protected Class<?>[] cookieClasses() {
+        return new Class[]{GcodeDataObject.class};
     }
 }

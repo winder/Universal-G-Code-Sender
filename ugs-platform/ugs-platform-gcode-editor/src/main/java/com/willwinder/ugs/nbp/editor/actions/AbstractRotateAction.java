@@ -17,8 +17,9 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.core.actions;
+package com.willwinder.ugs.nbp.editor.actions;
 
+import com.willwinder.ugs.nbp.editor.GcodeDataObject;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.gcode.processors.RotateProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
@@ -28,18 +29,15 @@ import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
-import com.willwinder.universalgcodesender.utils.MathUtils;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
+import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
+import org.openide.nodes.Node;
+import org.openide.util.HelpCtx;
+import org.openide.util.ImageUtilities;
+import org.openide.util.actions.CookieAction;
 
-import javax.swing.AbstractAction;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -49,18 +47,19 @@ import java.util.stream.Stream;
 /**
  * An abstract action for applying rotation to a loaded model
  */
-public abstract class AbstractRotateAction extends AbstractAction implements UGSEventListener {
+public abstract class AbstractRotateAction extends CookieAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/rotation0.svg";
+    public static final String ICON_BASE = "icons/rotation0.svg";
     public static final double ARC_SEGMENT_LENGTH = 0.5;
     private final double rotation;
-    private BackendAPI backend;
+    private transient BackendAPI backend;
 
     public AbstractRotateAction(double rotation) {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
         this.rotation = rotation;
         setEnabled(isEnabled());
+        setIcon(ImageUtilities.loadImageIcon(ICON_BASE, false));
     }
 
     @Override
@@ -72,27 +71,48 @@ public abstract class AbstractRotateAction extends AbstractAction implements UGS
 
     @Override
     public boolean isEnabled() {
-        return backend.getGcodeFile() != null;
+        return backend.getGcodeFile() != null && !backend.isSendingFile() && super.isEnabled();
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    protected void performAction(Node[] activatedNodes) {
         if (!isEnabled()) {
             return;
         }
 
         ThreadHelper.invokeLater(() -> {
             try {
-                LoaderDialogHelper.showDialog("Rotating model", 1000, (Component) e.getSource());
+                LoaderDialogHelper.showDialog("Rotating model", 1000);
                 File gcodeFile = backend.getProcessedGcodeFile();
                 Position center = getCenter(gcodeFile);
                 RotateProcessor rotateProcessor = new RotateProcessor(center, rotation);
                 backend.applyCommandProcessor(rotateProcessor);
-                LoaderDialogHelper.closeDialog();
             } catch (Exception ex) {
                 GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
+            } finally {
+                LoaderDialogHelper.closeDialog();
             }
         });
+    }
+
+    @Override
+    public String getName() {
+        return (String) getValue(NAME);
+    }
+
+    @Override
+    public HelpCtx getHelpCtx() {
+        return null;
+    }
+
+    @Override
+    protected int mode() {
+        return CookieAction.MODE_ANY;
+    }
+
+    @Override
+    protected Class<?>[] cookieClasses() {
+        return new Class[]{GcodeDataObject.class};
     }
 
     private Position getCenter(File gcodeFile) throws IOException, GcodeParserException {

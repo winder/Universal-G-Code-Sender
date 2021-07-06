@@ -1,13 +1,13 @@
 package com.willwinder.ugs.nbp.designer.io;
 
-import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.Design;
 
 import java.io.File;
 import java.io.InputStream;
 import java.util.Optional;
 
 public interface Reader {
-    Optional<Entity> read(File file);
+    Optional<Design> read(File file);
 
-    Optional<Entity> read(InputStream resourceAsStream);
+    Optional<Design> read(InputStream resourceAsStream);
 }

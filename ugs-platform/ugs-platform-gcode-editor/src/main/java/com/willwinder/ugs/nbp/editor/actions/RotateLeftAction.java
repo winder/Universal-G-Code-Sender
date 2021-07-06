@@ -1,4 +1,4 @@
-package com.willwinder.ugs.nbp.core.actions;
+package com.willwinder.ugs.nbp.editor.actions;
 
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import org.openide.awt.ActionID;
@@ -21,13 +21,11 @@ import org.openide.util.ImageUtilities;
 })
 public class RotateLeftAction extends AbstractRotateAction {
 
-    public static final String ICON_BASE = "resources/icons/rotate_left.svg";
+    public static final String ICON_BASE = "icons/rotate_left.svg";
 
     public RotateLeftAction() {
         super((Math.PI / 2) * 3);
-        putValue("iconBase", ICON_BASE);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
-        putValue("menuText", "Rotate left");
+        setIcon(ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue(NAME, "Rotate left");
     }
 }
