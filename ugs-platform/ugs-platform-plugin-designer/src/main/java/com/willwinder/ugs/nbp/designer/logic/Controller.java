@@ -1,10 +1,12 @@
 package com.willwinder.ugs.nbp.designer.logic;
 
-import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.actions.AddAction;
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
+import com.willwinder.ugs.nbp.designer.model.Design;
+import com.willwinder.ugs.nbp.designer.model.Settings;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -74,5 +76,25 @@ public class Controller {
 
     public UndoManager getUndoManager() {
         return undoManager;
+    }
+
+    public void setDesign(Design design) {
+        newDrawing();
+        design.getEntities().forEach(getDrawing()::insertEntity);
+
+        // We want to update per new setting to ensure that event listeners will be notified
+        if (design.getSettings() != null) {
+            settings.setStockSize(design.getSettings().getStockSize());
+            settings.setDepthPerPass(design.getSettings().getDepthPerPass());
+            settings.setFeedSpeed(design.getSettings().getFeedSpeed());
+            settings.setPlungeSpeed(design.getSettings().getPlungeSpeed());
+            settings.setStockThickness(design.getSettings().getStockThickness());
+            settings.setToolDiameter(design.getSettings().getToolDiameter());
+            settings.setToolStepOver(design.getSettings().getToolStepOver());
+            settings.setPreferredUnits(design.getSettings().getPreferredUnits());
+            settings.setSafeHeight(design.getSettings().getSafeHeight());
+        }
+
+        getDrawing().repaint();
     }
 }

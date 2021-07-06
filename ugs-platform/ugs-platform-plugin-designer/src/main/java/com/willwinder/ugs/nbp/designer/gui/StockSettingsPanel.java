@@ -1,7 +1,7 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.Size;
+import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.Utils;
 import net.miginfocom.swing.MigLayout;
 

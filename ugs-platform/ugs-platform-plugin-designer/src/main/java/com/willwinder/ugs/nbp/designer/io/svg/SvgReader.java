@@ -1,11 +1,12 @@
-package com.willwinder.ugs.nbp.designer.io;
+package com.willwinder.ugs.nbp.designer.io.svg;
 
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
-import com.willwinder.ugs.nbp.designer.Design;
+import com.willwinder.ugs.nbp.designer.model.Design;
+import com.willwinder.ugs.nbp.designer.io.DesignReader;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
@@ -42,7 +43,7 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class SvgReader implements GVTTreeBuilderListener, Reader {
+public class SvgReader implements GVTTreeBuilderListener, DesignReader {
 
     private static final Logger LOGGER = Logger.getLogger(SvgReader.class.getSimpleName());
 

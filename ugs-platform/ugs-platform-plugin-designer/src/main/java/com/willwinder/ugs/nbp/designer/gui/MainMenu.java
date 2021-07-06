@@ -1,16 +1,7 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
+import com.willwinder.ugs.nbp.designer.actions.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.actions.ClearSelectionAction;
-import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
-import com.willwinder.ugs.nbp.designer.actions.ExportGcodeAction;
-import com.willwinder.ugs.nbp.designer.actions.ExportPngAction;
-import com.willwinder.ugs.nbp.designer.actions.NewAction;
-import com.willwinder.ugs.nbp.designer.actions.OpenAction;
-import com.willwinder.ugs.nbp.designer.actions.QuitAction;
-import com.willwinder.ugs.nbp.designer.actions.RedoAction;
-import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
-import com.willwinder.ugs.nbp.designer.actions.UndoAction;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -33,7 +24,8 @@ public class MainMenu extends JMenuBar {
 
         JMenuItem newdrawing = new JMenuItem(new NewAction());
         JMenuItem open = new JMenuItem(new OpenAction());
-        JMenuItem export = new JMenuItem(new ExportPngAction());
+        JMenuItem save = new JMenuItem(new SaveAction(controller));
+        JMenuItem export = new JMenuItem(new ExportPngAction(controller));
         JMenuItem exportGcode = new JMenuItem(new ExportGcodeAction(controller));
         JMenuItem quit = new JMenuItem(new QuitAction());
 
@@ -48,6 +40,8 @@ public class MainMenu extends JMenuBar {
                 KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
         open.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+        save.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
         newdrawing.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
         undo.setAccelerator(KeyStroke.getKeyStroke(
@@ -66,6 +60,7 @@ public class MainMenu extends JMenuBar {
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(newdrawing);
         fileMenu.add(open);
+        fileMenu.add(save);
         fileMenu.addSeparator();
         fileMenu.add(export);
         fileMenu.add(exportGcode);

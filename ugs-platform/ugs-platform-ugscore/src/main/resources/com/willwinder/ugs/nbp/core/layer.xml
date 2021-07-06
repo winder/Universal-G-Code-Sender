@@ -43,15 +43,21 @@
             <attr name="position" intvalue="10" />
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
             <file name="org-openide-actions-SaveAllAction.instance_hidden"/>
-            <file name="org-openide-actions-SaveAction.shadow_hidden"/>
-            <file name="org-openide-actions-SaveAsAction.shadow_hidden"/>
-            <file name="org-openide-actions-SaveAction.instance">
-                <attr name="position" intvalue="20"/>
-            </file>
-            <file name="org-openide-actions-SaveAsAction.instance">
-                <attr name="position" intvalue="22"/>
-            </file>
+            <file name="org-openide-actions-SaveAction.shadow"/>
+            <file name="org-openide-actions-SaveAsAction.shadow"/>
+            <file name="org-openide-actions-SaveAction.instance_hidden"/>
+            <file name="org-openide-actions-SaveAsAction.instance_hidden"/>
             <file name="org-netbeans-modules-editor-ExportHtmlAction.shadow_hidden"/>
+
+            <file name="org-openide-actions-CloseAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
+                <attr name="delegate" methodvalue="org.openide.awt.Actions.performer"/>
+                <attr name="selectionType" stringvalue="ANY"/>
+                <attr name="surviveFocusChange" boolvalue="false"/>
+                <attr name="displayName" bundlevalue="org/openide/awt/Bundle#Close"/>
+                <attr name="noIconInMenu" boolvalue="true"/>
+                <attr name="type" stringvalue="org.netbeans.api.actions.Closable"/>
+            </file>
         </folder>
         <folder name="Edit">
             <attr name="position" intvalue="20" />

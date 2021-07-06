@@ -4,7 +4,7 @@ import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.GridControl;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.Size;
+import com.willwinder.ugs.nbp.designer.model.Size;
 
 import javax.swing.*;
 import java.awt.*;

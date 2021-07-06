@@ -1,7 +1,7 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.Size;
+import com.willwinder.ugs.nbp.designer.model.Size;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

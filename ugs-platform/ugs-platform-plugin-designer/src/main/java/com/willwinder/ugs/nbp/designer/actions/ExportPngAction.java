@@ -1,6 +1,6 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
-import com.willwinder.ugs.nbp.designer.io.PngWriter;
+import com.willwinder.ugs.nbp.designer.io.png.PngWriter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.openide.util.ImageUtilities;
@@ -16,19 +16,19 @@ public class ExportPngAction extends AbstractAction {
 
     private static final String SMALL_ICON_PATH = "img/export.svg";
     private static final String LARGE_ICON_PATH = "img/export32.svg";
+    private final Controller controller;
 
-    public ExportPngAction() {
+    public ExportPngAction(Controller controller) {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Export PNG");
         putValue(NAME, "Export PNG");
+        this.controller = controller;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
-
         JFileChooser fileDialog = new JFileChooser();
         fileDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileDialog.setDialogType(JFileChooser.CUSTOM_DIALOG);

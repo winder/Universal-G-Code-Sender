@@ -1,20 +1,25 @@
 package com.willwinder.ugs.nbp.designer;
 
 import com.google.common.io.Files;
-import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
-import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
-import com.willwinder.ugs.nbp.designer.gui.ToolBox;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
 import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
 import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
 import com.willwinder.ugs.nbp.designer.actions.UndoManagerListener;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
+import com.willwinder.ugs.nbp.designer.gui.ToolBox;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.platform.UgsDataObject;
 import com.willwinder.ugs.nbp.designer.platform.UndoManagerAdapter;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.apache.commons.io.IOUtils;
 import org.openide.awt.UndoRedo;
-import org.openide.windows.CloneableTopComponent;
+import org.openide.cookies.CloseCookie;
+import org.openide.loaders.DataNode;
+import org.openide.nodes.Children;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 
 import java.awt.*;
@@ -26,10 +31,10 @@ import java.util.concurrent.TimeUnit;
 
 @TopComponent.Description(
         preferredID = "DesignerTopComponent",
-        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED
+        persistenceType = TopComponent.PERSISTENCE_NEVER
 )
 @TopComponent.Registration(mode = "editor", openAtStartup = false)
-public class DesignerTopComponent extends CloneableTopComponent implements UndoManagerListener {
+public class DesignerTopComponent extends TopComponent implements UndoManagerListener {
 
     private final SimpleUndoManager undoManager;
     private final SelectionManager selectionManager;
@@ -37,15 +42,21 @@ public class DesignerTopComponent extends CloneableTopComponent implements UndoM
     private final Controller controller;
     private final UndoManagerAdapter undoManagerAdapter;
     private final ArrayBlockingQueue<Runnable> jobQueue;
+    private final UgsDataObject dataObject;
 
-
-    public DesignerTopComponent() {
+    public DesignerTopComponent(UgsDataObject dataObject) {
+        this.dataObject = dataObject;
         jobQueue = new ArrayBlockingQueue<>(1);
         executor = new ThreadPoolExecutor(1, 1, 1000, TimeUnit.MILLISECONDS, jobQueue);
         undoManager = new SimpleUndoManager();
         undoManagerAdapter = new UndoManagerAdapter(undoManager);
         selectionManager = new SelectionManager();
+
         controller = new Controller(selectionManager, undoManager);
+        CentralLookup.getDefault().add(controller);
+
+        setActivatedNodes(new DataNode[]{new DataNode(dataObject, Children.LEAF, dataObject.getLookup())});
+        setDisplayName(dataObject.getName());
     }
 
     @Override
@@ -86,6 +97,16 @@ public class DesignerTopComponent extends CloneableTopComponent implements UndoM
     }
 
     @Override
+    public boolean canClose() {
+        CloseCookie closeCookie = dataObject.getCookie(CloseCookie.class);
+        if (closeCookie != null) {
+            return closeCookie.close();
+        }
+
+        return true;
+    }
+
+    @Override
     protected void componentClosed() {
         super.componentClosed();
         undoManager.removeListener(this);
@@ -102,7 +123,7 @@ public class DesignerTopComponent extends CloneableTopComponent implements UndoM
             String gcode = Utils.toGcode(controller, controller.getDrawing().getEntities());
 
             try {
-                File file = new File(Files.createTempDir(), "_ugs_editor.gcode");
+                File file = new File(Files.createTempDir(), dataObject.getName() + ".gcode");
                 FileWriter fileWriter = new FileWriter(file);
                 IOUtils.write(gcode, fileWriter);
                 fileWriter.close();
@@ -118,8 +139,12 @@ public class DesignerTopComponent extends CloneableTopComponent implements UndoM
         return undoManagerAdapter;
     }
 
+
     @Override
     public void onChanged() {
+        dataObject.setModified(true);
+
+        // Refresh the vizualiser
         generateGcode();
     }
 }

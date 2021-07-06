@@ -1,7 +1,7 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
-import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.io.SvgReader;
+import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
+import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -47,12 +47,14 @@ public final class ToolInsertAction extends AbstractAction {
             if (f != null) {
                 if (StringUtils.endsWithIgnoreCase(f.getName(), ".svg")) {
                     SvgReader svgReader = new SvgReader();
-                    Optional<Entity> optional = svgReader.read(f);
+                    Optional<Design> optional = svgReader.read(f);
                     if (optional.isPresent()) {
-                        Entity entity = optional.get();
+                        Design design = optional.get();
 
-                        controller.addEntity(entity);
-                        controller.getSelectionManager().addSelection(entity);
+                        design.getEntities().forEach(entity -> {
+                            controller.addEntity(entity);
+                            controller.getSelectionManager().addSelection(entity);
+                        });
 
                         controller.getDrawing().repaint();
                         controller.setTool(Tool.SELECT);

@@ -44,13 +44,13 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     public SelectionSettingsPanel() {
         setLayout(new MigLayout("fill, wrap 2"));
 
-        heightTextField = new JTextField("0");
-        add(new JLabel("Height"));
-        add(heightTextField, "grow");
-
         widthTextField = new JTextField("0");
         add(new JLabel("Width"));
         add(widthTextField, "grow");
+
+        heightTextField = new JTextField("0");
+        add(new JLabel("Height"));
+        add(heightTextField, "grow");
 
         posXTextField = new JTextField("0");
         add(new JLabel("X"));

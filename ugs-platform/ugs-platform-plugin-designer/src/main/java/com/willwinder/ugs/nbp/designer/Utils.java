@@ -7,7 +7,7 @@ import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimpleOnPath;
 import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimplePocket;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.Settings;
+import com.willwinder.ugs.nbp.designer.model.Settings;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;

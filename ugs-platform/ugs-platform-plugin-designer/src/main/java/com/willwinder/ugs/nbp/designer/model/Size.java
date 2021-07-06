@@ -1,4 +1,4 @@
-package com.willwinder.ugs.nbp.designer.io;
+package com.willwinder.ugs.nbp.designer.model;
 
 import java.io.Serializable;
 

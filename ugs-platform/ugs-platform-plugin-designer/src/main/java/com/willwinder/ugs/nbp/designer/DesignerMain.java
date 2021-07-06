@@ -1,18 +1,15 @@
 package com.willwinder.ugs.nbp.designer;
 
-import com.willwinder.ugs.nbp.designer.gui.*;
-import com.willwinder.ugs.nbp.designer.gui.SelectionSettingsPanel;
-import com.willwinder.ugs.nbp.designer.io.SvgReader;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gui.*;
+import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
 import javax.swing.*;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.geom.Point2D;
+import java.awt.*;
 
 /**
  * A gcode designer tool that works in stand alone mode
@@ -79,10 +76,8 @@ public class DesignerMain extends JFrame {
 
     private void loadExample(Controller controller) {
         SvgReader svgReader = new SvgReader();
-        svgReader.read(DesignerMain.class.getResourceAsStream("/com/willwinder/ugs/nbp/designer/example.svg")).ifPresent(group -> {
-            group.move(new Point2D.Double(10, 10));
-            controller.getDrawing().insertEntity(group);
-        });
+        svgReader.read(DesignerMain.class.getResourceAsStream("/com/willwinder/ugs/nbp/designer/example.svg"))
+                .ifPresent(design -> design.getEntities().forEach(controller.getDrawing()::insertEntity));
     }
 
     public static void main(String[] args) {

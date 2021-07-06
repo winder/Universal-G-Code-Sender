@@ -18,9 +18,7 @@
 */
 package com.willwinder.ugs.nbp.designer.platform;
 
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
+import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.MIMEResolver;
 import org.openide.loaders.DataObject;
@@ -46,12 +44,29 @@ public class UgsDataObject extends MultiDataObject {
 
     public UgsDataObject(FileObject pf, MultiFileLoader loader) throws IOException {
         super(pf, loader);
+
         CookieSet cookies = getCookieSet();
+        cookies.add(new UgsCloseCookie(this));
         cookies.add(new UgsOpenSupport(getPrimaryEntry()));
     }
 
     @Override
     protected int associateLookup() {
         return 1;
+    }
+
+    @Override
+    public void setModified(boolean isModified) {
+        if (isModified) {
+            if (getCookie(UgsSaveCookie.class) == null) {
+                getCookieSet().add(new UgsSaveCookie(this));
+            }
+        } else {
+            SaveCookie cookie = getCookie(UgsSaveCookie.class);
+            if (cookie != null) {
+                getCookieSet().remove(cookie);
+            }
+        }
+        super.setModified(isModified);
     }
 }
