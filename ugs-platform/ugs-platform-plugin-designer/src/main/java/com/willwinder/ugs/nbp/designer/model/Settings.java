@@ -135,7 +135,7 @@ public class Settings {
 
     public String getToolDescription() {
         double scale = UnitUtils.scaleUnits(UnitUtils.Units.MM, getPreferredUnits());
-        return Utils.formatter.format(getToolDiameter() * scale) +  " " + getPreferredUnits().abbreviation;
+        return Utils.formatter.format(getToolDiameter() * scale) + " " + getPreferredUnits().abbreviation;
     }
 
     public double getDepthPerPass() {
@@ -144,5 +144,19 @@ public class Settings {
 
     public void setDepthPerPass(double depthPerPass) {
         this.depthPerPass = depthPerPass;
+    }
+
+    public void applySettings(Settings settings) {
+        if (settings != null) {
+            setStockSize(settings.getStockSize());
+            setDepthPerPass(settings.getDepthPerPass());
+            setFeedSpeed(settings.getFeedSpeed());
+            setPlungeSpeed(settings.getPlungeSpeed());
+            setStockThickness(settings.getStockThickness());
+            setToolDiameter(settings.getToolDiameter());
+            setToolStepOver(settings.getToolStepOver());
+            setPreferredUnits(settings.getPreferredUnits());
+            setSafeHeight(settings.getSafeHeight());
+        }
     }
 }

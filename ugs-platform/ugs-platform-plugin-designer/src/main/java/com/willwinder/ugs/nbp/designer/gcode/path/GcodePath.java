@@ -16,7 +16,6 @@
  */
 package com.willwinder.ugs.nbp.designer.gcode.path;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +25,8 @@ import java.util.List;
  * <p>Paths can be divided into two types: numeric or symbolic. A numeric path contains
  * only numeric coordinates, while a symbolic path may contain a mixture of numeric and symbolic coordinates.
  * Some path manipulation functions can only be used on numeric paths.
+ *
+ * @author Calle Laakkonen
  */
 public class GcodePath implements PathGenerator {
 

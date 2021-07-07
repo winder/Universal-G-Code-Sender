@@ -16,11 +16,23 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.logic;
+package com.willwinder.ugs.nbp.designer.platform;
+
+import com.willwinder.ugs.nbp.core.services.FileFilterService;
+import com.willwinder.ugs.nbp.designer.actions.OpenAction;
+import org.openide.modules.OnStart;
+import org.openide.util.Lookup;
 
 /**
  * @author Joacim Breiler
  */
-public enum Tool {
-    CIRCLE, RECTANGLE, LINE, SELECT, INSERT;
+@OnStart
+public class Startup implements Runnable {
+
+    @Override
+    public void run() {
+        // Registers the file types that can be opened in UGSs
+        FileFilterService fileFilterService = Lookup.getDefault().lookup(FileFilterService.class);
+        fileFilterService.registerFileFilter(OpenAction.DESIGN_FILE_FILTER);
+    }
 }

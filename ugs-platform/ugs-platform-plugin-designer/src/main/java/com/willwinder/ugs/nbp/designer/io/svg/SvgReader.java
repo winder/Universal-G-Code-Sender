@@ -1,3 +1,21 @@
+/*
+    Copyright 2021 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.designer.io.svg;
 
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
@@ -5,8 +23,8 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
-import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
+import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
@@ -24,9 +42,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
 
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.PathIterator;
@@ -41,7 +57,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 /**
- *
+ * @author Joacim Breiler
  */
 public class SvgReader implements GVTTreeBuilderListener, DesignReader {
 

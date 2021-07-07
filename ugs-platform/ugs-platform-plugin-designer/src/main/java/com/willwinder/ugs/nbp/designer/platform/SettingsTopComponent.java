@@ -1,4 +1,4 @@
-package com.willwinder.ugs.nbp.designer;
+package com.willwinder.ugs.nbp.designer.platform;
 
 import com.willwinder.ugs.nbp.designer.gui.SelectionSettingsPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -8,8 +8,9 @@ import org.openide.windows.TopComponent;
         preferredID = "SettingsTopComponent",
         persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED
 )
-@TopComponent.Registration(mode = "bottom_left", openAtStartup = false)
+@TopComponent.Registration(mode = "top_left", openAtStartup = false)
 public class SettingsTopComponent extends TopComponent {
+    private static final long serialVersionUID = 324234398723987873L;
 
     private SelectionSettingsPanel selectionSettingsPanel;
 

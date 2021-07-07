@@ -7,6 +7,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.loaders.SaveAsCapable;
 import org.openide.util.ImageUtilities;
 
@@ -15,7 +16,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-public class UgsSaveCookie implements Icon, SaveCookie, SaveAsCapable {
+public class UgsSaveCookie implements Icon, SaveCookie {
     private final UgsDataObject dataObject;
     private final Icon icon = ImageUtilities.loadImageIcon("img/new.svg", false);
 
@@ -26,8 +27,15 @@ public class UgsSaveCookie implements Icon, SaveCookie, SaveAsCapable {
     @Override
     public void save() {
         Controller controller = CentralLookup.getDefault().lookup(Controller.class);
-        if(controller == null) {
+        if (controller == null) {
             throw new IllegalStateException("Couldn't find an instance of the drawing controller");
+        }
+
+        try {
+            boolean valid = dataObject.getPrimaryFile().getFileSystem().isValid();
+
+        } catch (FileStateInvalidException e) {
+            e.printStackTrace();
         }
 
         UgsDesignWriter writer = new UgsDesignWriter();
@@ -58,10 +66,5 @@ public class UgsSaveCookie implements Icon, SaveCookie, SaveAsCapable {
     @Override
     public int getIconHeight() {
         return icon.getIconHeight();
-    }
-
-    @Override
-    public void saveAs(FileObject folder, String name) throws IOException {
-
     }
 }

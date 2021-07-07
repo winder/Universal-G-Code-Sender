@@ -5,6 +5,9 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Calle Laakkonen
+ */
 public class GcodePathAreaComparator implements Comparator<GcodePath> {
 
     private Map<GcodePath, Double> areaCache;

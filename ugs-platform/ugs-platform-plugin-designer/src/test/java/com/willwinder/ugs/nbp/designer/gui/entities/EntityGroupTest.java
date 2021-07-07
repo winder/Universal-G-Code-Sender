@@ -76,7 +76,7 @@ public class EntityGroupTest {
         rectangle.move(new Point2D.Double(-5, -5));
 
         assertEquals(0, rectangle.getPosition().getX(), 0.1);
-        assertEquals(0, rectangle.getPosition().getX(), 0.1);
+        assertEquals(0, rectangle.getPosition().getY(), 0.1);
     }
 
     @Test

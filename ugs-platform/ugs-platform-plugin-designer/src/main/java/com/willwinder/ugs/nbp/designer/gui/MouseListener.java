@@ -1,3 +1,21 @@
+/*
+    Copyright 2021 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
@@ -26,7 +44,6 @@ import java.util.stream.Collectors;
  *
  * @author Alex Lagerstedt
  */
-
 public class MouseListener extends MouseAdapter {
 
     private boolean isDrawing;
@@ -77,7 +94,6 @@ public class MouseListener extends MouseAdapter {
     private Point2D toRelativePoint(MouseEvent m) {
         try {
             return controller.getDrawing().getTransform().inverseTransform(m.getPoint(), null);
-            //return m.getPoint();
         } catch (Exception e) {
             throw new RuntimeException("Could not transform mouse position", e);
         }

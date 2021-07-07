@@ -19,6 +19,7 @@ package com.willwinder.ugs.nbp.designer.gcode.path;
 /**
  * Interface for classes that generate paths
  *
+ * @author Calle Laakkonen
  */
 public interface PathGenerator {
 	/**

@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copywrite 2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,11 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.logic;
+package com.willwinder.ugs.nbp.lib.lookup;
+
+import org.openide.nodes.Node;
 
 /**
  * @author Joacim Breiler
  */
-public enum Tool {
-    CIRCLE, RECTANGLE, LINE, SELECT, INSERT;
+public interface EditorCookie extends Node.Cookie {
+    void open();
 }

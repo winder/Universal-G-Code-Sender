@@ -76,7 +76,7 @@ public class DesignerMain extends JFrame {
 
     private void loadExample(Controller controller) {
         SvgReader svgReader = new SvgReader();
-        svgReader.read(DesignerMain.class.getResourceAsStream("/com/willwinder/ugs/nbp/designer/example.svg"))
+        svgReader.read(DesignerMain.class.getResourceAsStream("/com/willwinder/ugs/nbp/designer/platform/example.svg"))
                 .ifPresent(design -> design.getEntities().forEach(controller.getDrawing()::insertEntity));
     }
 

@@ -1,9 +1,10 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
-import com.willwinder.ugs.nbp.designer.DesignerTopComponent;
+import com.willwinder.ugs.nbp.lib.EditorUtils;
+import com.willwinder.ugs.nbp.lib.lookup.EditorCookie;
 import org.openide.cookies.OpenCookie;
 
-public class UgsOpenSupport implements OpenCookie {
+public class UgsOpenSupport implements OpenCookie, EditorCookie {
 
     private final UgsDataObject.Entry entry;
 
@@ -13,9 +14,11 @@ public class UgsOpenSupport implements OpenCookie {
 
     @Override
     public void open() {
-        UgsDataObject dobj = (UgsDataObject) entry.getDataObject();
-        DesignerTopComponent designerTopComponent = new DesignerTopComponent(dobj);
-        designerTopComponent.open();
-        designerTopComponent.requestActive();
+        if (EditorUtils.closeOpenEditors()) {
+            UgsDataObject dobj = (UgsDataObject) entry.getDataObject();
+            DesignerTopComponent designerTopComponent = new DesignerTopComponent(dobj);
+            designerTopComponent.open();
+            designerTopComponent.requestActive();
+        }
     }
 }

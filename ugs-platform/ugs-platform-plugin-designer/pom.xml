@@ -62,6 +62,12 @@
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>com.willwinder</groupId>
+            <artifactId>ugs-platform-ugscore</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
 
         <!-- For netbeans editor API -->
         <dependency>
@@ -156,6 +162,12 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-editor-util</artifactId>
+            <version>${netbeans.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-filesystems-nb</artifactId>
             <version>${netbeans.version}</version>
             <scope>compile</scope>
         </dependency>

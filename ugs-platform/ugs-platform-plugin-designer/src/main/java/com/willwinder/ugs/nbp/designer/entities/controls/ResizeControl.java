@@ -1,5 +1,22 @@
-package com.willwinder.ugs.nbp.designer.entities.controls;
+/*
+    Copyright 2021 Will Winder
 
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.willwinder.ugs.nbp.designer.entities.controls;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
@@ -18,6 +35,9 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.logging.Logger;
 
+/**
+ * @author Joacim Breiler
+ */
 public class ResizeControl extends AbstractControl {
     public static final int SIZE = 8;
     private static final Logger LOGGER = Logger.getLogger(ResizeControl.class.getSimpleName());
@@ -91,14 +111,11 @@ public class ResizeControl extends AbstractControl {
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_DRAGGED) {
                 if (location == Location.TOP_LEFT) {
                     Dimension size = getSelectionManager().getSize();
-                    //double sx = ((double) size.width - deltaMovement.getX()) / (double) size.width;
-                    //double sy = ((double) size.height - deltaMovement.getY()) / (double) size.height;
                     double sx = (double) size.width / ((double) size.width - deltaMovement.getX());
                     double sy = (double) size.height/ ((double) size.height - deltaMovement.getY());
 
                     target.scale(sx, sy);
                     target.move(deltaMovement);
-                    //target.setSize(new Dimension(Double.valueOf(size.getWidth() - deltaMovement.getX()).intValue(), Double.valueOf(size.getHeight() - deltaMovement.getY()).intValue()));
                 }
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_RELEASED) {
                 LOGGER.info("Stopped moving " + target.getPosition());

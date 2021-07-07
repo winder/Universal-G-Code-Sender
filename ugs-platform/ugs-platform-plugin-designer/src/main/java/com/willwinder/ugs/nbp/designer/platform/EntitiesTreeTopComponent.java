@@ -1,10 +1,17 @@
-package com.willwinder.ugs.nbp.designer;
+package com.willwinder.ugs.nbp.designer.platform;
 
 import com.willwinder.ugs.nbp.designer.gui.EntitiesTree;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.openide.windows.TopComponent;
 
+@TopComponent.Description(
+        preferredID = "EntitiesTreeTopComponent",
+        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED
+)
+@TopComponent.Registration(mode = "bottom_left", openAtStartup = false)
 public class EntitiesTreeTopComponent extends TopComponent {
+    private static final long serialVersionUID = 432423498723987873L;
+
     private EntitiesTree entitiesTree;
 
     public EntitiesTreeTopComponent() {

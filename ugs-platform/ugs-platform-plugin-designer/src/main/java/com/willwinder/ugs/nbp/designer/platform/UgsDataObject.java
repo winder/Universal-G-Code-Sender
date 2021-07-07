@@ -36,7 +36,7 @@ import java.io.IOException;
 )
 @DataObject.Registration(
         mimeType = "application/x-ugs",
-        iconBase = "com/willwinder/ugs/nbp/designer/edit.png",
+        iconBase = "com/willwinder/ugs/nbp/designer/platform/edit.png",
         displayName = "UGS design",
         position = 300
 )

@@ -4,11 +4,10 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
-import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.apache.commons.lang3.StringUtils;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
@@ -21,7 +20,7 @@ import java.util.Optional;
 public class OpenAction extends AbstractAction {
     private static final String ICON_SMALL_PATH = "img/open.svg";
     private static final String ICON_LARGE_PATH = "img/open32.svg";
-    private static final FileFilter DESIGN_FILE_FILTER = new FileNameExtensionFilter("UGS Design (ugsd)", "ugsd");
+    public static final FileFilter DESIGN_FILE_FILTER = new FileNameExtensionFilter("UGS Design (ugsd)", "ugsd");
     private static final FileFilter SVG_FILE_FILTER = new FileNameExtensionFilter("Scalable Vector Graphics (svg)", "svg");
 
     public OpenAction() {

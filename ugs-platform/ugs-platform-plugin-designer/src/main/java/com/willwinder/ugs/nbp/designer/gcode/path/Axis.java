@@ -17,7 +17,8 @@
 package com.willwinder.ugs.nbp.designer.gcode.path;
 
 /**
- * Supported axes.
+ * Supported axes
+ * @author Calle Laakkonen
  */
 public enum Axis {
     // Note. XYZ must be the first axes, because some code relies on their ordinals.

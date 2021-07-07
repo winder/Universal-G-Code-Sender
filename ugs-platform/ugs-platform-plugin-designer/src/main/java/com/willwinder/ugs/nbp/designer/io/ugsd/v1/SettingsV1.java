@@ -1,5 +1,6 @@
 package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
 
+import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
@@ -84,5 +85,18 @@ public class SettingsV1 {
 
     public double getDepthPerPass() {
         return depthPerPass;
+    }
+
+    public Settings toInternal() {
+        Settings settings = new Settings();
+        settings.setSafeHeight(safeHeight);
+        settings.setPreferredUnits(preferredUnits);
+        settings.setToolStepOver(toolStepOver);
+        settings.setToolDiameter(toolDiameter);
+        settings.setStockThickness(stockThickness);
+        settings.setPlungeSpeed(plungeSpeed);
+        settings.setDepthPerPass(depthPerPass);
+        settings.setFeedSpeed(feedSpeed);
+        return settings;
     }
 }

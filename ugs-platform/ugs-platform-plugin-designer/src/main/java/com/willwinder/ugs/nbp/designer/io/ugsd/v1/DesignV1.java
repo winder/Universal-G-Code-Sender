@@ -27,9 +27,12 @@ public class DesignV1 extends UgsDesign implements Serializable {
 
     public Design toInternal() {
         Design design = new Design();
+        if (entities != null) {
             design.setEntities(getEntities().stream()
-                .map(EntityV1::toInternal)
-                .collect(Collectors.toList()));
+                    .map(EntityV1::toInternal)
+                    .collect(Collectors.toList()));
+        }
+        design.setSettings(settings.toInternal());
         return design;
     }
 

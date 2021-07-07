@@ -1,11 +1,24 @@
+/*
+ * This file is part of JGCGen.
+ *
+ * JGCGen is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * JGCGen is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with JGCGen.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.designer.gcode;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gcode.path.*;
-import com.willwinder.universalgcodesender.gcode.GcodeParser;
-import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
-import com.willwinder.universalgcodesender.model.UnitUtils;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
@@ -18,6 +31,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * @author Calle Laakkonen
+ */
 public class SimpleGcodeRouter {
 
     public static final int QUAD_SEGMENTS = 10;

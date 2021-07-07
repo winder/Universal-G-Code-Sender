@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 
 /**
  * Writes the design to a stream or file in the latest design format.
+ *
+ * @author Joacim Breiler
  */
 public class UgsDesignWriter implements DesignWriter {
     @Override
@@ -131,6 +133,13 @@ public class UgsDesignWriter implements DesignWriter {
         SettingsV1 settings = new SettingsV1();
         settings.setFeedSpeed(controller.getSettings().getFeedSpeed());
         settings.setDepthPerPass(controller.getSettings().getDepthPerPass());
+        settings.setStockThickness(controller.getSettings().getStockThickness());
+        settings.setStockSize(controller.getSettings().getStockSize());
+        settings.setPlungeSpeed(controller.getSettings().getPlungeSpeed());
+        settings.setPreferredUnits(controller.getSettings().getPreferredUnits());
+        settings.setSafeHeight(controller.getSettings().getSafeHeight());
+        settings.setToolDiameter(controller.getSettings().getToolDiameter());
+        settings.setToolStepOver(controller.getSettings().getToolStepOver());
         return settings;
     }
 

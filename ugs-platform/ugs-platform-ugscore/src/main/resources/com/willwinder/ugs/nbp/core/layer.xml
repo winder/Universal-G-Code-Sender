@@ -58,6 +58,12 @@
                 <attr name="noIconInMenu" boolvalue="true"/>
                 <attr name="type" stringvalue="org.netbeans.api.actions.Closable"/>
             </file>
+
+            <file name="Separator3.instance_hidden"/>
+            <file name="org-openide-actions-PageSetupAction.shadow_hidden"/>
+            <file name="org-openide-actions-PrintAction.shadow_hidden"/>
+            <file name="org-netbeans-modules-print-action-PageSetupAction.shadow_hidden"/>
+            <file name="org-netbeans-modules-print-action-PrintAction.shadow_hidden"/>
         </folder>
         <folder name="Edit">
             <attr name="position" intvalue="20" />
@@ -99,6 +105,9 @@
             <file name="CloseWindowAction.shadow_hidden"/>
             <file name="DocumentsAction.shadow_hidden"/>
             <file name="GroupsMenuAction.shadow_hidden"/>
+        </folder>
+        <folder name="Help">
+            <file name="org-netbeans-modules-autoupdate-ui-actions-CheckForUpdatesAction.shadow_hidden"/>
         </folder>
     </folder>
     <folder name="Toolbars">
