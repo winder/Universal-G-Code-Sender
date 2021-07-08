@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013-2016 Will Winder
+    Copyright 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 

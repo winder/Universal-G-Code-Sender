@@ -36,12 +36,11 @@ import java.util.Set;
 public class Controller {
 
     private final SelectionManager selectionManager;
+    private final Settings settings = new Settings();
+    private final Set<ControllerListener> listeners = new HashSet<>();
+    private final UndoManager undoManager;
     private Drawing drawing;
     private Tool tool;
-    private Settings settings = new Settings();
-    private Set<ControllerListener> listeners = new HashSet<>();
-    private UndoManager undoManager;
-
 
     public Controller(SelectionManager selectionManager, UndoManager undoManager) {
         this.undoManager = undoManager;

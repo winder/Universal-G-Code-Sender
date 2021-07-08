@@ -32,7 +32,6 @@ public abstract class AbstractControl extends AbstractEntity implements Control 
     private final SelectionManager selectionManager;
 
     protected AbstractControl(SelectionManager selectionManager) {
-        super.setParent(selectionManager);
         this.selectionManager = selectionManager;
         addListener(this);
     }
@@ -50,11 +49,6 @@ public abstract class AbstractControl extends AbstractEntity implements Control 
     @Override
     public SelectionManager getSelectionManager() {
         return selectionManager;
-    }
-
-    @Override
-    public void setParent(Entity entity) {
-        // Short circuit the set parent, we never want to change it
     }
 
     @Override

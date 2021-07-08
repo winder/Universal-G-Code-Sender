@@ -77,6 +77,7 @@ public class EntityPathV1 extends CuttableEntityV1 {
                     path.curveTo(segment.getCoordinates().get(0)[0], segment.getCoordinates().get(0)[1], segment.getCoordinates().get(1)[0], segment.getCoordinates().get(1)[1], segment.getCoordinates().get(2)[0], segment.getCoordinates().get(2)[1]);
             }
         });
+        //path.setRotation(rotation);
         applyCommonAttributes(path);
         return path;
     }

@@ -74,10 +74,4 @@ public class Rectangle extends AbstractCuttable {
         shape.setFrame(0, 0, shape.getWidth(), height);
         notifyEvent(new EntityEvent(this, EventType.RESIZED));
     }
-
-    @Override
-    public String toString() {
-        return "Rectangle (" + getCutType().name() + ")";
-    }
-
 }

@@ -42,11 +42,11 @@ import static java.awt.RenderingHints.*;
 public class Drawing extends JPanel {
 
     private static final long serialVersionUID = 1298712398723987873L;
-    private final Controller controller;
-    private EntityGroup globalRoot;
-    private EntityGroup entitiesRoot;
+    private final transient Controller controller;
+    private final transient EntityGroup globalRoot;
+    private final transient EntityGroup entitiesRoot;
     private double scale;
-    private final Set<DrawingListener> listeners = new HashSet<>();
+    private final transient Set<DrawingListener> listeners = new HashSet<>();
     private int margin = 100;
 
     public Drawing(Controller controller) {
@@ -75,7 +75,6 @@ public class Drawing extends JPanel {
     }
 
     public void insertEntity(Entity s) {
-        s.setParent(entitiesRoot);
         entitiesRoot.addChild(s);
         listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_ADDED));
     }
@@ -99,6 +98,7 @@ public class Drawing extends JPanel {
         }
     }
 
+    @Override
     public void paintComponent(Graphics g) {
 
         super.paintComponent(g);

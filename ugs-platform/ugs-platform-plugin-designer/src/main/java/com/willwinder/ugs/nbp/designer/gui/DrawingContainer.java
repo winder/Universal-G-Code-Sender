@@ -35,28 +35,27 @@ public class DrawingContainer extends JPanel implements ControllerListener {
 
     private static final long serialVersionUID = 0;
 
-    private final Controller controller;
-    private final MouseListener mouseListener;
-
+    private final transient Controller controller;
+    private final transient MouseListener drawingMouseListener;
 
     public DrawingContainer(Controller controller) {
         super();
         setLayout(new GridLayout(0, 1));
         this.controller = controller;
-        this.mouseListener = new MouseListener(controller);
+        this.drawingMouseListener = new MouseListener(controller);
         setDrawing(this.controller.getDrawing());
     }
 
     public void setDrawing(Drawing d) {
         removeAll();
-        JScrollPane scrollPane = new JScrollPane(d, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        JScrollPane scrollPane = new JScrollPane(d, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.getVerticalScrollBar().setUnitIncrement(5);
         scrollPane.getHorizontalScrollBar().setUnitIncrement(5);
         add(scrollPane);
         revalidate();
 
-        d.addMouseListener(mouseListener);
-        d.addMouseMotionListener(mouseListener);
+        d.addMouseListener(drawingMouseListener);
+        d.addMouseMotionListener(drawingMouseListener);
     }
 
     @Override

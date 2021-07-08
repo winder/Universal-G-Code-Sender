@@ -1,5 +1,5 @@
 /*
-    Copywrite 2021 Will Winder
+    Copyright 2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  */
 public class EditorUtils {
     /**
-     * Close all open editors
+     * Close all open editors that has the {@link EditorCookie} registered.
      *
      * @return true if all editors could be closed
      */
@@ -60,7 +60,7 @@ public class EditorUtils {
     }
 
     /**
-     * Finds all editors
+     * Finds all editors that has the {@link EditorCookie} registered.
      *
      * @return a list with opened editors
      */

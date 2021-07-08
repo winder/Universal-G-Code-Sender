@@ -143,7 +143,6 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
                 Group childGroup = group;
                 if (((CompositeGraphicsNode) graphicsNode).getChildren().size() > 1) {
                     childGroup = new Group();
-                    childGroup.setParent(group);
                     if (node.getAttributes() != null && node.getAttributes().getNamedItem("id") != null) {
                         Node id = node.getAttributes().getNamedItem("id");
                         childGroup.setName(childGroup.getName() + " (" + id.getFirstChild().getNodeValue() + ")");
@@ -174,7 +173,6 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
                     if (id != null) {
                         createdShape.setName(createdShape.getName() + " (" + id.getFirstChild().getNodeValue() + ")");
                     }
-                    createdShape.setParent(group);
                     createdShape.setTransform(groupTransform);
                     group.addChild(createdShape);
                 }

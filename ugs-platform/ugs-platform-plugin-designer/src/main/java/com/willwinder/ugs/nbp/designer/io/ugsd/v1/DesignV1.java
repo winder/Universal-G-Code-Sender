@@ -4,14 +4,15 @@ import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.io.ugsd.common.UgsDesign;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class DesignV1 extends UgsDesign implements Serializable {
     public static final String VERSION = "1";
 
-    private SettingsV1 settings;
-    private List<EntityV1> entities;
+    private SettingsV1 settings = new SettingsV1();
+    private List<EntityV1> entities = Collections.emptyList();
 
     public DesignV1() {
         setVersion(DesignV1.VERSION);

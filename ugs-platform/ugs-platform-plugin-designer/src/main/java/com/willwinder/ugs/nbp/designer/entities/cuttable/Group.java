@@ -20,11 +20,15 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
+ * Handles a group of entities and enables to set cut settings for all child entites.
+ *
  * @author Joacim Breiler
  */
 public class Group extends EntityGroup implements Cuttable {
-    private CutType cutType = CutType.NONE;
 
     public Group() {
         setName("Group");
@@ -32,21 +36,46 @@ public class Group extends EntityGroup implements Cuttable {
 
     @Override
     public CutType getCutType() {
-        return cutType;
+        List<CutType> cutTypes = getChildren().stream()
+                .filter(Cuttable.class::isInstance)
+                .map(Cuttable.class::cast)
+                .map(Cuttable::getCutType)
+                .filter(cutType -> cutType != CutType.NONE)
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (!cutTypes.isEmpty()) {
+            return cutTypes.get(0);
+        } else {
+            return CutType.NONE;
+        }
     }
 
     @Override
     public void setCutType(CutType cutType) {
-        this.cutType = cutType;
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable) {
+                ((Cuttable) child).setCutType(cutType);
+            }
+        });
     }
 
     @Override
     public double getCutDepth() {
-        return 0;
+        return getChildren().stream()
+                .filter(Cuttable.class::isInstance)
+                .map(Cuttable.class::cast)
+                .mapToDouble(Cuttable::getCutDepth)
+                .max()
+                .orElse(0);
     }
 
     @Override
     public void setCutDepth(double cutDepth) {
-
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable) {
+                ((Cuttable) child).setCutDepth(cutDepth);
+            }
+        });
     }
 }

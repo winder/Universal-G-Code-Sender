@@ -2,7 +2,7 @@
  * http://linuxcnc.org/docs/html/gcode/g-code.html#gcode:g17-g19.1
  */
 /*
-    Copywrite 2013-2016 Will Winder
+    Copyright 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 

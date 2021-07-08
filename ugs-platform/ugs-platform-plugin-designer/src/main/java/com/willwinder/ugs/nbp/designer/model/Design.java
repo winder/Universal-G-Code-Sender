@@ -20,19 +20,16 @@ package com.willwinder.ugs.nbp.designer.model;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 
-import java.io.File;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Joacim Breiler
  */
 public class Design {
-    private File file;
+    private List<Entity> entities = Collections.emptyList();
 
-    private List<Entity> entities;
-
-    private Settings settings;
+    private Settings settings = new Settings();
 
     public List<Entity> getEntities() {
         return entities;
@@ -48,13 +45,5 @@ public class Design {
 
     public void setSettings(Settings settings) {
         this.settings = settings;
-    }
-
-    public void setFile(File file) {
-        this.file = file;
-    }
-
-    public Optional<File> getFile() {
-        return Optional.ofNullable(file);
     }
 }

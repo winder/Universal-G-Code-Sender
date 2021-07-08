@@ -77,10 +77,6 @@ public interface Entity {
 
     void setPosition(Point2D position);
 
-    Entity getParent();
-
-    void setParent(Entity shape);
-
     /**
      * Destroys this entity freeing up any allocated resources
      */

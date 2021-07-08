@@ -1,0 +1,169 @@
+package com.willwinder.ugs.nbp.designer.io.ugsd;
+
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.*;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.model.Design;
+import com.willwinder.ugs.nbp.designer.model.Settings;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.awt.*;
+import java.io.ByteArrayOutputStream;
+import java.io.StringBufferInputStream;
+import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.util.Optional;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+public class UgsDesignReaderTest {
+
+    @Mock
+    private Controller controller;
+
+    @Mock
+    private Drawing drawing;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void readEmptyFileShouldReturnEmptyDesign() {
+        UgsDesignReader reader = new UgsDesignReader();
+        Optional<Design> design = reader.read(IOUtils.toInputStream(""));
+        assertFalse(design.isPresent());
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void readFaultyFormatShouldThrowException() {
+        UgsDesignReader reader = new UgsDesignReader();
+        reader.read(IOUtils.toInputStream("{}"));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void readFaultyVersionShouldThrowException() {
+        UgsDesignReader reader = new UgsDesignReader();
+        reader.read(IOUtils.toInputStream("{\"version\":1000}"));
+    }
+
+    @Test
+    public void readEmptyDesignFileShouldReturnDesign() {
+        UgsDesignReader reader = new UgsDesignReader();
+        Design design = reader.read(IOUtils.toInputStream("{\"version\":\"1\"}")).get();
+
+        assertNotNull(design.getSettings());
+        assertEquals(20, design.getSettings().getStockThickness(), 0.1);
+        assertEquals(3, design.getSettings().getToolDiameter(), 0.1);
+        assertEquals(1.0, design.getSettings().getDepthPerPass(), 0.1);
+        assertEquals(10, design.getSettings().getSafeHeight(), 0.1);
+        assertEquals(0.3, design.getSettings().getToolStepOver(), 0.1);
+        assertEquals(UnitUtils.Units.MM, design.getSettings().getPreferredUnits());
+        assertEquals(1000, design.getSettings().getFeedSpeed());
+        assertEquals(300, design.getSettings().getStockSize().getWidth(), 0.1);
+        assertEquals(200, design.getSettings().getStockSize().getHeight(), 0.1);
+
+        assertNotNull(design.getEntities());
+        assertEquals(0, design.getEntities().size());
+    }
+
+    @Test
+    public void readDesignWithRectangle() {
+        Rectangle entity = new Rectangle();
+        entity.setSize(new Dimension(1, 2));
+        entity.setName("rectangle");
+        entity.setRotation(1.1);
+        entity.setCutDepth(12);
+        entity.setCutType(CutType.POCKET);
+        String data = convertEntityToString(entity);
+
+        UgsDesignReader reader = new UgsDesignReader();
+        Design design = reader.read(IOUtils.toInputStream(data)).get();
+
+        Cuttable readEntity = (Cuttable) design.getEntities().get(0);
+        assertTrue(readEntity instanceof Rectangle);
+        assertEquals(entity.getPosition(), readEntity.getPosition());
+        assertEquals(entity.getName(), readEntity.getName());
+        assertEquals(entity.getCutType(), readEntity.getCutType());
+        assertEquals(entity.getCutDepth(), readEntity.getCutDepth(), 0.1);
+        assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
+    }
+
+    @Test
+    public void readDesignWithEllipse() {
+        Ellipse entity = new Ellipse();
+        entity.setSize(new Dimension(1, 1));
+        entity.setName("ellipse");
+        entity.setRotation(1);
+        entity.setCutDepth(12);
+        entity.setCutType(CutType.POCKET);
+        String data = convertEntityToString(entity);
+
+        UgsDesignReader reader = new UgsDesignReader();
+        Design design = reader.read(IOUtils.toInputStream(data)).get();
+
+        Cuttable readEntity = (Cuttable) design.getEntities().get(0);
+        assertTrue(readEntity instanceof Ellipse);
+        assertEquals(entity.getPosition().getX(), readEntity.getPosition().getX(), 0.1);
+        assertEquals(entity.getPosition().getY(), readEntity.getPosition().getY(), 0.1);
+        assertEquals(entity.getName(), readEntity.getName());
+        assertEquals(entity.getCutType(), readEntity.getCutType());
+        assertEquals(entity.getCutDepth(), readEntity.getCutDepth(), 0.1);
+        assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
+    }
+
+    @Test
+    public void readDesignWithPath() {
+        Path entity = new Path();
+        entity.setSize(new Dimension(1, 1));
+        entity.moveTo(0, 0);
+        entity.lineTo(0, 0);
+        entity.lineTo(1.1, 1.1);
+        entity.lineTo(1, 0);
+        entity.lineTo(0, 0);
+        entity.setName("path");
+        entity.setRotation(1);
+        entity.setCutDepth(12);
+        entity.setCutType(CutType.POCKET);
+        String data = convertEntityToString(entity);
+
+        UgsDesignReader reader = new UgsDesignReader();
+        Design design = reader.read(IOUtils.toInputStream(data)).get();
+
+        Cuttable readEntity = (Cuttable) design.getEntities().get(0);
+        assertTrue(readEntity instanceof Path);
+        assertEquals(entity.getPosition().getX(), readEntity.getPosition().getX(), 0.1);
+        assertEquals(entity.getPosition().getY(), readEntity.getPosition().getY(), 0.1);
+        assertEquals(entity.getName(), readEntity.getName());
+        assertEquals(entity.getCutType(), readEntity.getCutType());
+        assertEquals(entity.getCutDepth(), readEntity.getCutDepth(), 0.1);
+        assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
+    }
+
+    @NotNull
+    private String convertEntityToString(Entity entity) {
+        when(controller.getSettings()).thenReturn(new Settings());
+        when(controller.getDrawing()).thenReturn(drawing);
+
+        EntityGroup group = new EntityGroup();
+        group.addChild(entity);
+        when(drawing.getRootEntity()).thenReturn(group);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        UgsDesignWriter writer = new UgsDesignWriter();
+        writer.write(baos, controller);
+
+        return new String(baos.toByteArray());
+    }
+}

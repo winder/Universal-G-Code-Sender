@@ -12,7 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * A gcode designer tool that works in stand alone mode
+ * A test implementation of the gcode designer tool that works in stand alone mode
  *
  * @author Joacim Breiler
  */

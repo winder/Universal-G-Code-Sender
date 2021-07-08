@@ -31,7 +31,6 @@ public abstract class AbstractControlEntityGroup extends EntityGroup implements 
     private final SelectionManager selectionManager;
 
     protected AbstractControlEntityGroup(SelectionManager selectionManager) {
-        super.setParent(selectionManager);
         this.selectionManager = selectionManager;
         this.addListener(this);
         addListener(this);
@@ -39,11 +38,6 @@ public abstract class AbstractControlEntityGroup extends EntityGroup implements 
 
     public SelectionManager getSelectionManager() {
         return selectionManager;
-    }
-
-    @Override
-    public void setParent(Entity entity) {
-        // Short circuit the set parent, we never want to change it
     }
 
     @Override

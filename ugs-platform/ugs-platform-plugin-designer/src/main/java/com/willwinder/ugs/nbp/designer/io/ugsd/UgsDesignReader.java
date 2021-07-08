@@ -29,7 +29,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -63,12 +62,11 @@ public class UgsDesignReader implements DesignReader {
             Gson gson = new GsonBuilder().create();
             UgsDesign design = gson.fromJson(designFileContent, UgsDesign.class);
 
-            switch (design.getVersion()) {
-                case DesignV1.VERSION:
-                    return parseV1(designFileContent);
-                default:
-                    throw new RuntimeException("Unknown version " + design.getVersion());
+            if (DesignV1.VERSION.equals(design.getVersion())) {
+                return parseV1(designFileContent);
             }
+
+            throw new RuntimeException("Unknown version " + design.getVersion());
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Couldn't load stream", e);
             throw new RuntimeException("Couldn't read from stream", e);

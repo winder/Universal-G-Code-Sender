@@ -85,6 +85,7 @@ public class EntityEllipseV1 extends CuttableEntityV1 {
         size.setSize(width, height);
         ellipse.setSize(size);
         ellipse.setPosition(new Point2D.Double(x, y));
+        //ellipse.setRotation(getRotation());
         applyCommonAttributes(ellipse);
         return ellipse;
     }

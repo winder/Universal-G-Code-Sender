@@ -51,6 +51,8 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
 
     private final transient UndoManagerAdapter undoManagerAdapter;
     private final transient BackendAPI backend;
+    private transient DrawingContainer drawingContainer;
+    private transient ToolBox toolbox;
     private transient Controller controller;
     private final UgsDataObject dataObject;
 
@@ -73,18 +75,18 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     }
 
     private void loadDesign(UgsDataObject dataObject) {
+        Design design = new Design();
         try {
             File file = new File(dataObject.getPrimaryFile().getPath());
-            Design design = new Design();
             if (file.exists()) {
                 UgsDesignReader reader = new UgsDesignReader();
                 design = reader.read(file).orElse(design);
             }
-            controller.setDesign(design);
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Couldn't load design from file " + dataObject.getPrimaryFile(), e);
         }
+        controller.setDesign(design);
     }
 
     private void updateFilename() {
@@ -103,16 +105,17 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         PlatformUtils.openSettings(controller);
         PlatformUtils.openEntitesTree(controller);
 
-        DrawingContainer drawingContainer = new DrawingContainer(controller);
+        drawingContainer = new DrawingContainer(controller);
         controller.addListener(drawingContainer);
-        controller.getUndoManager().addListener(this);
         controller.getSelectionManager().addSelectionListener(this);
+        toolbox = new ToolBox(controller);
 
-        add(new ToolBox(controller), BorderLayout.NORTH);
+        add(toolbox, BorderLayout.NORTH);
         add(drawingContainer, BorderLayout.CENTER);
 
         setVisible(true);
 
+        controller.getUndoManager().addListener(this);
         controller.getDrawing().repaint();
         getActionMap().put("delete", new DeleteAction(controller));
         getActionMap().put("select-all", new SelectAllAction(controller));
@@ -132,6 +135,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     @Override
     protected void componentClosed() {
         super.componentClosed();
+        controller.removeListener(drawingContainer);
         controller.getUndoManager().removeListener(this);
     }
 

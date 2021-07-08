@@ -90,7 +90,6 @@ public class EntityGroup extends AbstractEntity {
     public void addChild(Entity node) {
         if (!containsChild(node)) {
             children.add(node);
-            node.setParent(this);
         }
     }
 

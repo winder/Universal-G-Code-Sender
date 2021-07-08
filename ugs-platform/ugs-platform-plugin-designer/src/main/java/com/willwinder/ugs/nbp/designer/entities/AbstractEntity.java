@@ -96,16 +96,6 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
-    public Entity getParent() {
-        return parent;
-    }
-
-    @Override
-    public void setParent(Entity entity) {
-        this.parent = entity;
-    }
-
-    @Override
     public Point2D getCenter() {
         Rectangle2D bounds = getBounds();
         return new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
@@ -172,7 +162,7 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void setRotation(double rotation) {
-        double deltaRotation = getRotation() - rotation;
+        double deltaRotation = getRotation() + rotation;
         if (deltaRotation != 0) {
             rotate(deltaRotation);
         }

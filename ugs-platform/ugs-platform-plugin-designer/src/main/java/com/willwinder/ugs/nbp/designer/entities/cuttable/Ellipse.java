@@ -47,10 +47,4 @@ public class Ellipse extends AbstractCuttable {
     public void setSize(Dimension s) {
         this.shape.setFrame(0, 0, s.getWidth(), s.getHeight());
     }
-
-
-    @Override
-    public String toString() {
-        return "Ellipse (" + getCutType().name() + ")";
-    }
 }
