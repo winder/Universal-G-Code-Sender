@@ -8,11 +8,6 @@ import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimpleOnPath;
 import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimplePocket;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Settings;
-import com.willwinder.ugs.nbp.designer.platform.EntitiesTreeTopComponent;
-import com.willwinder.ugs.nbp.designer.platform.SettingsTopComponent;
-import org.openide.windows.Mode;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
@@ -66,5 +61,15 @@ public class Utils {
                 .collect(Collectors.toList());
 
         return String.join("\n", collect);
+    }
+
+    public static double normalizeRotation(double degrees) {
+        if (degrees >= 360) {
+            return degrees % 360;
+        } else if (degrees < 0) {
+            return degrees % 360 + 360;
+        }
+
+        return Math.abs(degrees);
     }
 }

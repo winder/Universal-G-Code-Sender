@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.actions.MoveAction;
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
 import java.awt.*;
@@ -45,7 +46,7 @@ public class MoveControl extends AbstractControl {
     }
 
     @Override
-    public void setSize(Dimension s) {
+    public void setSize(Size size) {
     }
 
     @Override

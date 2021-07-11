@@ -19,7 +19,6 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
-import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
@@ -27,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.actions.AddAction;
+import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -53,7 +53,7 @@ public class MouseListener extends MouseAdapter {
 
     private Point2D mouseDelta;
 
-    private AbstractEntity newShape;
+    private Entity newShape;
     private List<Control> controls;
 
     /**
@@ -75,7 +75,7 @@ public class MouseListener extends MouseAdapter {
         mouseDelta.setLocation(relativeMousePoint.getX() - lastPos.getX(), relativeMousePoint.getY() - lastPos.getY());
         if (isDrawing && (newShape != null)) {
             Point2D position = newShape.getPosition();
-            newShape.setSize(new Dimension(Double.valueOf(relativeMousePoint.getX() - position.getX()).intValue(), Double.valueOf(relativeMousePoint.getY() - position.getY()).intValue()));
+            newShape.setSize(new Size(relativeMousePoint.getX() - position.getX(), relativeMousePoint.getY() - position.getY()));
         }
 
         if (!controls.isEmpty()) {

@@ -22,10 +22,10 @@ import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -60,7 +60,7 @@ public class GridControl extends AbstractEntity implements Control {
     }
 
     @Override
-    public void setSize(Dimension s) {
+    public void setSize(Size size) {
 
     }
 

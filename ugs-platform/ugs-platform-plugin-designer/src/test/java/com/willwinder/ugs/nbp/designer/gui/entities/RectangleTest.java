@@ -54,7 +54,7 @@ public class RectangleTest {
         assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getX()));
         assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getY()));
 
-        rectangle.rotate(Math.PI * 4);
+        rectangle.setRotation(90);
 
         assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getX()));
         assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getY()));
@@ -84,17 +84,13 @@ public class RectangleTest {
         rectangle.setWidth(10);
         rectangle.setHeight(10);
 
-        assertEquals(Double.valueOf(10), Double.valueOf(rectangle.getPosition().getX()));
-        assertEquals(Double.valueOf(10), Double.valueOf(rectangle.getPosition().getY()));
-        assertEquals(Double.valueOf(20), Double.valueOf(rectangle.getCenter().getX()));
-        assertEquals(Double.valueOf(20), Double.valueOf(rectangle.getCenter().getY()));
+        assertEquals(new Point2D.Double(20, 20), rectangle.getPosition());
+        assertEquals(new Point2D.Double(30, 30), rectangle.getCenter());
 
         rectangle.move(new Point2D.Double(-5, -5));
 
-        assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getX()));
-        assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getY()));
-        assertEquals(Double.valueOf(5), Double.valueOf(rectangle.getPosition().getX()));
-        assertEquals(Double.valueOf(5), Double.valueOf(rectangle.getPosition().getY()));
+        assertEquals(new Point2D.Double(15, 15), rectangle.getPosition());
+        assertEquals(new Point2D.Double(25, 25), rectangle.getCenter());
     }
 
     @Test
@@ -166,17 +162,17 @@ public class RectangleTest {
         rectangle.move(new Point2D.Double(10, 10));
 
         // Rotate 360
-        rectangle.rotate(-90);
-        rectangle.rotate(-90);
-        rectangle.rotate(-90);
-        rectangle.rotate(-90);
+        rectangle.rotate(90);
+        rectangle.rotate(90);
+        rectangle.rotate(90);
+        rectangle.rotate(90);
 
         // Rotate additional 90 degrees
-        rectangle.rotate(-90);
+        rectangle.rotate(90);
 
         assertEquals(15, rectangle.getCenter().getX(), 0.01);
         assertEquals(15, rectangle.getCenter().getY(), 0.01);
-        assertEquals(-90, rectangle.getRotation(), 0.01);
+        assertEquals(90, rectangle.getRotation(), 0.01);
     }
 
     @Test
@@ -189,10 +185,36 @@ public class RectangleTest {
         assertEquals(5, rectangle.getPosition().getX(), 0.01);
         assertEquals(-5, rectangle.getPosition().getY(), 0.01);
 
-        rectangle.rotate(new Point2D.Double(0,0), -90);
+        rectangle.rotate(new Point2D.Double(0, 0), -90);
 
         assertEquals(-5, rectangle.getPosition().getX(), 0.01);
-        assertEquals(-15, rectangle.getPosition().getY(), 0.01);
-        assertEquals(-90, rectangle.getRotation(), 0.01);
+        assertEquals(5, rectangle.getPosition().getY(), 0.01);
+        assertEquals(270, rectangle.getRotation(), 0.01);
+    }
+
+    @Test
+    public void rotateAroundPointShouldRotateRectangle() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setWidth(1);
+        rectangle.setHeight(1);
+        rectangle.setCenter(new Point2D.Double(10, 0));
+
+        rectangle.rotate(new Point2D.Double(5, 0), 90);
+
+        assertEquals(new Point2D.Double(4.5, -5.5), rectangle.getPosition());
+        assertEquals(90, rectangle.getRotation(), 0.01);
+    }
+
+    @Test
+    public void setPositionOnRotateRectangleShouldMoveToCorrectPosition() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setWidth(200);
+        rectangle.setHeight(50);
+        rectangle.setRotation(270);
+        rectangle.setPosition(new Point2D.Double(0.1, 0.1));
+
+        assertEquals(0.1, rectangle.getPosition().getX(), 0.1);
+        assertEquals(0.1, rectangle.getPosition().getY(), 0.1);
+        assertEquals(270, rectangle.getRotation(), 0.01);
     }
 }

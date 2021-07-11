@@ -82,8 +82,8 @@ public class EntityRectangleV1 extends CuttableEntityV1 {
         Rectangle rectangle = new Rectangle();
         rectangle.setWidth(width);
         rectangle.setHeight(height);
+        rectangle.setRotation(rotation);
         rectangle.setPosition(new Point2D.Double(x, y));
-        //rectangle.setRotation(rotation);
         applyCommonAttributes(rectangle);
         return rectangle;
     }

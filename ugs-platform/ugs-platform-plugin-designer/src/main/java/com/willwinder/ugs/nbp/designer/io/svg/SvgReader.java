@@ -25,6 +25,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
 import com.willwinder.ugs.nbp.designer.model.Design;
+import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
@@ -181,8 +182,8 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
     }
 
     private AbstractEntity parseEllipse(Ellipse2D shape) {
-        Ellipse circle = new Ellipse((int) shape.getX(), (int) shape.getY());
-        circle.setSize(new Dimension((int) shape.getWidth(), (int) shape.getHeight()));
+        Ellipse circle = new Ellipse(shape.getX(), shape.getY());
+        circle.setSize(new Size(shape.getWidth(), shape.getHeight()));
         return circle;
     }
 
@@ -256,7 +257,7 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
 
         // We need to invert the Y coordinate
         AffineTransform transform = new AffineTransform();
-        transform.translate(0, group.getSize().height);
+        transform.translate(0, group.getSize().getHeight());
         transform.scale(1, -1);
         group.applyTransform(transform);
 

@@ -18,6 +18,8 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
+import com.willwinder.ugs.nbp.designer.model.Size;
+
 import java.awt.*;
 import java.awt.geom.Path2D;
 
@@ -40,13 +42,18 @@ public class Path extends AbstractCuttable {
     }
 
     @Override
-    public void setSize(Dimension s) {
-        if (s.getWidth() < 2) {
-            s.setSize(2, s.getWidth());
+    public Size getSize() {
+        return new Size(shape.getBounds().width, shape.getBounds().height);
+    }
+
+    @Override
+    public void setSize(Size size) {
+        if (size.getWidth() < 2) {
+            size = new Size(2, size.getHeight());
         }
 
-        if (s.getHeight() < 2) {
-            s.setSize(s.getHeight(), 2);
+        if (size.getHeight() < 2) {
+            size = new Size(size.getWidth(), 2);
         }
     }
 

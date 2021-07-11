@@ -18,11 +18,11 @@
  */
 package com.willwinder.ugs.nbp.designer.entities;
 
+import com.willwinder.ugs.nbp.designer.Utils;
+import com.willwinder.ugs.nbp.designer.model.Size;
+
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
+import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +35,8 @@ import java.util.stream.Stream;
 public class EntityGroup extends AbstractEntity {
     private List<Entity> children = new ArrayList<>();
 
-    double groupRotation = 0;
+    private double groupRotation = 0;
+    private Point2D cachedCenter = new Point2D.Double(0, 0);
 
     public EntityGroup() {
         setName("Group");
@@ -47,13 +48,19 @@ public class EntityGroup extends AbstractEntity {
     }
 
     @Override
-    public void setSize(Dimension s) {
+    public void setSize(Size size) {
 
     }
 
     @Override
     public void rotate(double angle) {
-        rotate(getCenter(), angle);
+        try {
+            groupRotation += angle;
+            getAllChildren().forEach(entity -> entity.rotate(getCenter(), angle));
+            notifyEvent(new EntityEvent(this, EventType.ROTATED));
+        } catch (Exception e) {
+            throw new RuntimeException("Couldn't set the rotation", e);
+        }
     }
 
     @Override
@@ -62,6 +69,7 @@ public class EntityGroup extends AbstractEntity {
             groupRotation += angle;
             getAllChildren().forEach(entity -> entity.rotate(center, angle));
             notifyEvent(new EntityEvent(this, EventType.ROTATED));
+            recalculateCenter();
         } catch (Exception e) {
             throw new RuntimeException("Couldn't set the rotation", e);
         }
@@ -90,12 +98,30 @@ public class EntityGroup extends AbstractEntity {
     public void addChild(Entity node) {
         if (!containsChild(node)) {
             children.add(node);
+            recalculateCenter();
         }
+    }
+
+    private void recalculateCenter() {
+        Rectangle2D bounds = getShape().getBounds2D();
+        cachedCenter = new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
+    }
+
+    @Override
+    public Point2D getCenter() {
+        return cachedCenter;
+    }
+
+    public void addAll(List<Entity> entities) {
+        entities.forEach(this::addChild);
+        recalculateCenter();
     }
 
     @Override
     public void applyTransform(AffineTransform transform) {
-        children.forEach(c -> c.applyTransform(transform));
+        if (children != null) {
+            children.forEach(c -> c.applyTransform(transform));
+        }
     }
 
     @Override
@@ -103,6 +129,7 @@ public class EntityGroup extends AbstractEntity {
         try {
             applyTransform(AffineTransform.getTranslateInstance(deltaMovement.getX(), deltaMovement.getY()));
             notifyEvent(new EntityEvent(this, EventType.MOVED));
+            recalculateCenter();
         } catch (Exception e) {
             throw new RuntimeException("Could not make inverse transform of point", e);
         }
@@ -123,6 +150,8 @@ public class EntityGroup extends AbstractEntity {
                 .filter(EntityGroup.class::isInstance)
                 .map(EntityGroup.class::cast)
                 .forEach(c -> c.removeChild(entity));
+
+        recalculateCenter();
     }
 
     @Override
@@ -136,7 +165,9 @@ public class EntityGroup extends AbstractEntity {
     }
 
     public void removeAll() {
+        this.groupRotation = 0;
         this.children.clear();
+        recalculateCenter();
     }
 
     public List<Entity> getChildrenAt(Point2D p) {
@@ -167,10 +198,19 @@ public class EntityGroup extends AbstractEntity {
     @Override
     public void setRotation(double rotation) {
         Point2D center = getCenter();
-        double deltaRotation = getRotation() - rotation;
+        double deltaRotation = rotation - getRotation();
         if (deltaRotation != 0) {
             children.forEach(entity -> entity.rotate(center, deltaRotation));
         }
+        groupRotation += deltaRotation;
+    }
+
+    @Override
+    public double getRotation() {
+        if (children.size() == 1) {
+            groupRotation = children.get(0).getRotation();
+        }
+        return Utils.normalizeRotation(groupRotation);
     }
 
     public final List<Entity> getAllChildren() {

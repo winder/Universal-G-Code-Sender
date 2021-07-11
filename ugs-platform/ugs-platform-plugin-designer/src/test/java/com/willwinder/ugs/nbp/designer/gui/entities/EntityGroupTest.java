@@ -89,33 +89,82 @@ public class EntityGroupTest {
 
         entityGroup.applyTransform(AffineTransform.getScaleInstance(2, 2));
 
-        assertEquals(10, entityGroup.getPosition().getX(), 0.1);
-        assertEquals(10, entityGroup.getPosition().getY(), 0.1);
+        assertEquals(20, entityGroup.getPosition().getX(), 0.1);
+        assertEquals(20, entityGroup.getPosition().getY(), 0.1);
         assertEquals(20, entityGroup.getSize().getWidth(), 0.1);
         assertEquals(20, entityGroup.getSize().getHeight(), 0.1);
 
-
-        assertEquals(10, rectangle.getPosition().getX(), 0.1);
-        assertEquals(10, rectangle.getPosition().getX(), 0.1);
+        assertEquals(20, rectangle.getPosition().getX(), 0.1);
+        assertEquals(20, rectangle.getPosition().getX(), 0.1);
         assertEquals(20, rectangle.getSize().getWidth(), 0.1);
         assertEquals(20, rectangle.getSize().getHeight(), 0.1);
     }
 
-
-    //@Test
-    public void rotateShouldRotateChildrenAsWell() {
+    @Test
+    public void rotateShouldRotateChildAsWell() {
         EntityGroup entityGroup = new EntityGroup();
-        entityGroup.move(new Point2D.Double(10, 0));
 
         Rectangle rectangle = new Rectangle(10, 0);
-        rectangle.setWidth(0);
-        rectangle.setHeight(0);
+        rectangle.setWidth(1);
+        rectangle.setHeight(1);
         entityGroup.addChild(rectangle);
 
         entityGroup.rotate(90);
 
-        assertEquals(0, rectangle.getPosition().getX(), 0.1);
-        assertEquals(10, rectangle.getPosition().getY(), 0.1);
+        assertEquals(10, rectangle.getPosition().getX(), 0.1);
+        assertEquals(0, rectangle.getPosition().getY(), 0.1);
         assertEquals(90, rectangle.getRotation(), 0.1);
+    }
+
+    @Test
+    public void rotateShouldRotateChildrenAsWell() {
+        EntityGroup entityGroup = new EntityGroup();
+
+        Rectangle rectangle1 = new Rectangle(10, 0);
+        rectangle1.setWidth(1);
+        rectangle1.setHeight(1);
+        entityGroup.addChild(rectangle1);
+
+        Rectangle rectangle2 = new Rectangle(0, 0);
+        rectangle2.setWidth(1);
+        rectangle2.setHeight(1);
+        entityGroup.addChild(rectangle2);
+
+        entityGroup.rotate(90);
+
+        assertEquals(5, rectangle1.getPosition().getX(), 0.1);
+        assertEquals(-5, rectangle1.getPosition().getY(), 0.1);
+        assertEquals(90, rectangle1.getRotation(), 0.1);
+
+        assertEquals(5, rectangle2.getPosition().getX(), 0.1);
+        assertEquals(5, rectangle2.getPosition().getY(), 0.1);
+        assertEquals(90, rectangle2.getRotation(), 0.1);
+        assertEquals(90, entityGroup.getRotation(), 0.1);
+    }
+
+    @Test
+    public void setRotationShouldRotateChildrenAsWell() {
+        EntityGroup entityGroup = new EntityGroup();
+
+        Rectangle rectangle1 = new Rectangle(10, 0);
+        rectangle1.setWidth(1);
+        rectangle1.setHeight(1);
+        entityGroup.addChild(rectangle1);
+
+        Rectangle rectangle2 = new Rectangle(0, 0);
+        rectangle2.setWidth(1);
+        rectangle2.setHeight(1);
+        entityGroup.addChild(rectangle2);
+
+        entityGroup.setRotation(90);
+
+        assertEquals(5, rectangle1.getPosition().getX(), 0.1);
+        assertEquals(-5, rectangle1.getPosition().getY(), 0.1);
+        assertEquals(90, rectangle1.getRotation(), 0.1);
+
+        assertEquals(5, rectangle2.getPosition().getX(), 0.1);
+        assertEquals(5, rectangle2.getPosition().getY(), 0.1);
+        assertEquals(90, rectangle2.getRotation(), 0.1);
+        assertEquals(90, entityGroup.getRotation(), 0.1);
     }
 }

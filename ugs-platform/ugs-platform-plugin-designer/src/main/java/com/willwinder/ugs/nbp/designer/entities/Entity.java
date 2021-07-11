@@ -18,6 +18,8 @@
  */
 package com.willwinder.ugs.nbp.designer.entities;
 
+import com.willwinder.ugs.nbp.designer.model.Size;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -62,9 +64,9 @@ public interface Entity {
      */
     boolean isWithin(Point2D point);
 
-    Dimension getSize();
+    Size getSize();
 
-    void setSize(Dimension s);
+    void setSize(Size size);
 
     Rectangle2D getBounds();
 

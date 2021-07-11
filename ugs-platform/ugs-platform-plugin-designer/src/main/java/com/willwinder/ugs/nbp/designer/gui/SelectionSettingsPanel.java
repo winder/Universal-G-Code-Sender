@@ -175,9 +175,13 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     public void changedUpdate(DocumentEvent e) {
         controller.getSelectionManager().removeListener(this);
         if (StringUtils.isNotEmpty(rotation.getText())) {
-            double angle = Double.parseDouble(rotation.getText());
-            controller.getSelectionManager().setRotation(angle);
-            controller.getDrawing().repaint();
+            try {
+                double angle = Double.parseDouble(rotation.getText());
+                controller.getSelectionManager().setRotation(angle);
+                controller.getDrawing().repaint();
+            } catch(NumberFormatException ex) {
+                // never mind
+            }
         }
 
         if (StringUtils.isNotEmpty(posXTextField.getText()) && StringUtils.isNotEmpty(posYTextField.getText())) {
@@ -205,8 +209,6 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
         if (controller.getSelectionManager().getSelection().size() == 1) {
             Entity selectedEntity = controller.getSelectionManager().getSelection().get(0);
-            setFieldValue(rotation, Utils.formatter.format(selectedEntity.getRotation()));
-
             if (selectedEntity instanceof Cuttable) {
                 Cuttable cuttable = (Cuttable) selectedEntity;
                 JToggleButton cutTypeButton = cutTypeButtonMap.get(cuttable.getCutType());
@@ -223,8 +225,8 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         setFieldValue(posXTextField, Utils.formatter.format(position.getX()));
         setFieldValue(posYTextField, Utils.formatter.format(position.getY()));
 
-        setFieldValue(widthTextField, Utils.formatter.format(controller.getSelectionManager().getSize().width));
-        setFieldValue(heightTextField, Utils.formatter.format(controller.getSelectionManager().getSize().height));
+        setFieldValue(widthTextField, Utils.formatter.format(controller.getSelectionManager().getSize().getWidth()));
+        setFieldValue(heightTextField, Utils.formatter.format(controller.getSelectionManager().getSize().getHeight()));
         setFieldValue(rotation, Utils.formatter.format(controller.getSelectionManager().getRotation()));
         controller.getDrawing().repaint();
     }

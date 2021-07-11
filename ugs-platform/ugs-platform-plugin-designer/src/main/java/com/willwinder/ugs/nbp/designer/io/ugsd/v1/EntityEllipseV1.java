@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -81,11 +82,9 @@ public class EntityEllipseV1 extends CuttableEntityV1 {
     @Override
     public Entity toInternal() {
         Ellipse ellipse = new Ellipse();
-        Dimension size = new Dimension();
-        size.setSize(width, height);
-        ellipse.setSize(size);
+        ellipse.setSize(new Size(width, height));
+        ellipse.setRotation(getRotation());
         ellipse.setPosition(new Point2D.Double(x, y));
-        //ellipse.setRotation(getRotation());
         applyCommonAttributes(ellipse);
         return ellipse;
     }

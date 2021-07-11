@@ -24,9 +24,9 @@ import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.BasicStroke;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -86,7 +86,7 @@ public class ResizeControl extends AbstractControl {
     }
 
     @Override
-    public void setSize(Dimension s) {
+    public void setSize(Size size) {
 
     }
 
@@ -110,9 +110,9 @@ public class ResizeControl extends AbstractControl {
                 startOffset = new Point2D.Double(mousePosition.getX() - target.getPosition().getX(), mousePosition.getY() - target.getPosition().getY());
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_DRAGGED) {
                 if (location == Location.TOP_LEFT) {
-                    Dimension size = getSelectionManager().getSize();
-                    double sx = (double) size.width / ((double) size.width - deltaMovement.getX());
-                    double sy = (double) size.height/ ((double) size.height - deltaMovement.getY());
+                    Size size = getSelectionManager().getSize();
+                    double sx = size.getWidth() / (size.getWidth() - deltaMovement.getX());
+                    double sy = size.getHeight() / (size.getHeight() - deltaMovement.getY());
 
                     target.scale(sx, sy);
                     target.move(deltaMovement);

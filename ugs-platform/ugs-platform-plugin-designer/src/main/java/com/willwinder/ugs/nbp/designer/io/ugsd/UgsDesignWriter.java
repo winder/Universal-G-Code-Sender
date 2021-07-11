@@ -90,8 +90,8 @@ public class UgsDesignWriter implements DesignWriter {
         EntityEllipseV1 ellipse = new EntityEllipseV1();
         ellipse.setX(entity.getPosition().getX());
         ellipse.setY(entity.getPosition().getY());
-        ellipse.setWidth(entity.getSize().getWidth());
-        ellipse.setHeight(entity.getSize().getHeight());
+        ellipse.setWidth(entity.getRelativeShape().getBounds().getWidth());
+        ellipse.setHeight(entity.getRelativeShape().getBounds().getHeight());
         ellipse.setRotation(entity.getRotation());
         return ellipse;
     }
@@ -100,8 +100,8 @@ public class UgsDesignWriter implements DesignWriter {
         EntityRectangleV1 rectangle = new EntityRectangleV1();
         rectangle.setX(entity.getPosition().getX());
         rectangle.setY(entity.getPosition().getY());
-        rectangle.setWidth(entity.getSize().getWidth());
-        rectangle.setHeight(entity.getSize().getHeight());
+        rectangle.setWidth(entity.getRelativeShape().getBounds2D().getWidth());
+        rectangle.setHeight(entity.getRelativeShape().getBounds2D().getHeight());
         rectangle.setRotation(entity.getRotation());
         return rectangle;
     }

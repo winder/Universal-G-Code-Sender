@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author Joacim Breiler
@@ -38,5 +39,19 @@ public class Size implements Serializable {
 
     public double getHeight() {
         return height;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Size size = (Size) o;
+        return Double.compare(size.width, width) == 0 &&
+                Double.compare(size.height, height) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(width, height);
     }
 }

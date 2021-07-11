@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
+import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -38,11 +39,11 @@ public class Rectangle extends AbstractCuttable {
     /**
      * Creates a rectangle with the relative position to the parent
      *
-     * @param relativeX the relative position to the parent
-     * @param relativeY the relative position to the parent
+     * @param x the x position
+     * @param y the y position
      */
-    public Rectangle(double relativeX, double relativeY) {
-        super(relativeX, relativeY);
+    public Rectangle(double x, double y) {
+        super(x, y);
         this.shape = new Rectangle2D.Double(0, 0, 10, 10);
         setName("Rectangle");
     }
@@ -53,15 +54,15 @@ public class Rectangle extends AbstractCuttable {
     }
 
     @Override
-    public void setSize(Dimension s) {
-        if (s.getWidth() < 2) {
-            s.setSize(2, s.getHeight());
+    public void setSize(Size size) {
+        if (size.getWidth() < 2) {
+            size = new Size(2, size.getHeight());
         }
 
-        if (s.getHeight() < 2) {
-            s.setSize(s.getWidth(), 2);
+        if (size.getHeight() < 2) {
+            size = new Size(size.getWidth(), 2);
         }
-        shape.setFrame(0, 0, s.getWidth(), s.getHeight());
+        shape.setFrame(0, 0, size.getWidth(), size.getHeight());
         notifyEvent(new EntityEvent(this, EventType.RESIZED));
     }
     

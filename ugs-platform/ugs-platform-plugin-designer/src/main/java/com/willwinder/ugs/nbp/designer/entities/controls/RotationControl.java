@@ -25,11 +25,11 @@ import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.actions.RotateAction;
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -65,7 +65,7 @@ public class RotationControl extends AbstractControl {
      * Assumes all points are in the same coordinate space.  If they are not,
      * you will need to call SwingUtilities.convertPointToScreen or equivalent
      * on all arguments before passing them  to this function.
-     *
+     * <p>
      * Source: https://stackoverflow.com/a/16340752
      *
      * @param centerPt Point we are rotating around.
@@ -134,7 +134,7 @@ public class RotationControl extends AbstractControl {
     }
 
     @Override
-    public void setSize(Dimension s) {
+    public void setSize(Size size) {
 
     }
 
@@ -143,7 +143,14 @@ public class RotationControl extends AbstractControl {
         updatePosition();
         graphics.setStroke(new BasicStroke(0));
         graphics.setColor(Color.GRAY);
-        graphics.fill(getShape());
+        Shape shape = getShape();
+        graphics.fill(shape);
+
+        int centerX = (int) Math.round(getSelectionManager().getCenter().getX());
+        int centerY = (int) Math.round(getSelectionManager().getCenter().getY());
+        graphics.setStroke(new BasicStroke(1));
+        graphics.drawLine(centerX - (SIZE / 2), centerY, centerX + (SIZE / 2), centerY);
+        graphics.drawLine(centerX, centerY - (SIZE / 2), centerX, centerY + (SIZE / 2));
     }
 
     @Override
@@ -158,7 +165,7 @@ public class RotationControl extends AbstractControl {
                 startRotation = target.getRotation();
                 center = target.getCenter();
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_DRAGGED) {
-                double deltaAngle = calcRotationAngleInDegrees(target.getCenter(), mousePosition) - calcRotationAngleInDegrees(target.getCenter(), startPosition);
+                double deltaAngle = Math.round((calcRotationAngleInDegrees(target.getCenter(), startPosition) - calcRotationAngleInDegrees(target.getCenter(), mousePosition)) * 10d) / 10d;
                 target.rotate(center, deltaAngle);
                 startPosition = mousePosition;
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_RELEASED) {

@@ -8,6 +8,7 @@ import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.model.Settings;
+import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.io.ByteArrayOutputStream;
 import java.io.StringBufferInputStream;
 import java.io.StringReader;
@@ -81,9 +83,10 @@ public class UgsDesignReaderTest {
     @Test
     public void readDesignWithRectangle() {
         Rectangle entity = new Rectangle();
-        entity.setSize(new Dimension(1, 2));
+        entity.setSize(new Size(10, 10));
+        entity.setCenter(new Point2D.Double(10, 10));
         entity.setName("rectangle");
-        entity.setRotation(1.1);
+        entity.setRotation(90);
         entity.setCutDepth(12);
         entity.setCutType(CutType.POCKET);
         String data = convertEntityToString(entity);
@@ -91,6 +94,7 @@ public class UgsDesignReaderTest {
         UgsDesignReader reader = new UgsDesignReader();
         Design design = reader.read(IOUtils.toInputStream(data)).get();
 
+        assertEquals(1, design.getEntities().size());
         Cuttable readEntity = (Cuttable) design.getEntities().get(0);
         assertTrue(readEntity instanceof Rectangle);
         assertEquals(entity.getPosition(), readEntity.getPosition());
@@ -103,7 +107,7 @@ public class UgsDesignReaderTest {
     @Test
     public void readDesignWithEllipse() {
         Ellipse entity = new Ellipse();
-        entity.setSize(new Dimension(1, 1));
+        entity.setSize(new Size(1, 1));
         entity.setName("ellipse");
         entity.setRotation(1);
         entity.setCutDepth(12);
@@ -126,7 +130,7 @@ public class UgsDesignReaderTest {
     @Test
     public void readDesignWithPath() {
         Path entity = new Path();
-        entity.setSize(new Dimension(1, 1));
+        entity.setSize(new Size(1, 1));
         entity.moveTo(0, 0);
         entity.lineTo(0, 0);
         entity.lineTo(1.1, 1.1);

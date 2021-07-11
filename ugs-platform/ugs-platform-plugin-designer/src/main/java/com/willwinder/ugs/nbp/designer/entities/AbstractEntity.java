@@ -18,6 +18,9 @@
  */
 package com.willwinder.ugs.nbp.designer.entities;
 
+import com.willwinder.ugs.nbp.designer.Utils;
+import com.willwinder.ugs.nbp.designer.model.Size;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -30,23 +33,23 @@ import java.util.Set;
  */
 public abstract class AbstractEntity implements Entity {
 
-    private Entity parent;
     private Set<EntityListener> listeners = new HashSet<>();
 
     private AffineTransform transform = new AffineTransform();
     private String name = "AbstractEntity";
 
     protected AbstractEntity() {
+        this(0, 0);
     }
 
     /**
      * Creates an entity with the relative position to the parent
      *
-     * @param relativeX the relative position to the parent
-     * @param relativeY the relative position to the parent
+     * @param x the position in real space
+     * @param y the position in real space
      */
-    protected AbstractEntity(double relativeX, double relativeY) {
-        applyTransform(AffineTransform.getTranslateInstance(relativeX, relativeY));
+    protected AbstractEntity(double x, double y) {
+        applyTransform(AffineTransform.getTranslateInstance(x, y));
     }
 
     public void notifyEvent(EntityEvent entityEvent) {
@@ -69,9 +72,9 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
-    public Dimension getSize() {
+    public Size getSize() {
         Rectangle2D bounds = getShape().getBounds2D();
-        return new Dimension((int) bounds.getWidth(), (int) bounds.getHeight());
+        return new Size( bounds.getWidth(),  bounds.getHeight());
     }
 
     @Override
@@ -92,7 +95,7 @@ public abstract class AbstractEntity implements Entity {
     @Override
     public void setPosition(Point2D position) {
         Point2D currentPosition = getPosition();
-        transform.translate(position.getX() - currentPosition.getX(), position.getY() - currentPosition.getY());
+        move(new Point2D.Double(position.getX() - currentPosition.getX(), position.getY() - currentPosition.getY()));
     }
 
     @Override
@@ -103,7 +106,7 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void setCenter(Point2D center) {
-        setPosition(new Point2D.Double(center.getX() - (getSize().width / 2d), center.getY() - (getSize().height / 2d)));
+        setPosition(new Point2D.Double(center.getX() - (getSize().getWidth() / 2d), center.getY() - (getSize().getHeight() / 2d)));
     }
 
 
@@ -146,23 +149,23 @@ public abstract class AbstractEntity implements Entity {
         getTransform().transform(point2, point2);
 
         Point2D normalized = new Point2D.Double(point2.getX() - point1.getX(), point2.getY() - point1.getY());
-        return Math.toDegrees(Math.atan2(normalized.getY(), normalized.getX()));
+        return Utils.normalizeRotation(-Math.toDegrees(Math.atan2(normalized.getY(), normalized.getX())));
     }
 
     @Override
     public void rotate(double angle) {
-        transform.preConcatenate(AffineTransform.getRotateInstance(Math.toRadians(angle), getRelativeShape().getBounds().getCenterX(), getRelativeShape().getBounds().getCenterY()));
-        notifyEvent(new EntityEvent(this, EventType.ROTATED));
+        rotate(getCenter(), angle);
     }
 
     @Override
     public void scale(double sx, double sy) {
         transform.preConcatenate(AffineTransform.getScaleInstance(sx, sy));
+        notifyEvent(new EntityEvent(this, EventType.RESIZED));
     }
 
     @Override
     public void setRotation(double rotation) {
-        double deltaRotation = getRotation() + rotation;
+        double deltaRotation = rotation - getRotation();
         if (deltaRotation != 0) {
             rotate(deltaRotation);
         }
@@ -171,7 +174,7 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void rotate(Point2D center, double angle) {
-        transform.preConcatenate(AffineTransform.getRotateInstance(Math.toRadians(angle), center.getX(), center.getY()));
+        transform.preConcatenate(AffineTransform.getRotateInstance(-Math.toRadians(angle), center.getX(), center.getY()));
         notifyEvent(new EntityEvent(this, EventType.ROTATED));
     }
 
