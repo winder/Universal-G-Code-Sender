@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
-import com.willwinder.ugs.nbp.designer.Utils;
+import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.openide.util.ImageUtilities;
 
@@ -47,7 +47,11 @@ public class ExportGcodeAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        String gcode = Utils.toGcode(controller, controller.getDrawing().getEntities());
+        SimpleGcodeRouter simpleGcodeRouter = new SimpleGcodeRouter();
+        simpleGcodeRouter.setSafeHeight(controller.getSettings().getSafeHeight());
+        simpleGcodeRouter.setFeedSpeed(controller.getSettings().getFeedSpeed());
+        simpleGcodeRouter.setPlungeSpeed(controller.getSettings().getPlungeSpeed());
+        String gcode = simpleGcodeRouter.toGcode(controller.getDrawing().getEntities());
         LOGGER.info(gcode);
     }
 }

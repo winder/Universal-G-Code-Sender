@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 
 /**
  * @author Joacim Breiler
@@ -31,4 +32,6 @@ public interface Cuttable extends Entity {
     double getCutDepth();
 
     void setCutDepth(double cutDepth);
+
+    GcodePath toGcodePath();
 }

@@ -63,43 +63,37 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     }
 
     public SelectionSettingsPanel() {
-        setLayout(new MigLayout("fill, wrap 2"));
-
-        widthTextField = new JTextField("0");
-        add(new JLabel("Width"));
-        add(widthTextField, "grow");
-
-        heightTextField = new JTextField("0");
-        add(new JLabel("Height"));
-        add(heightTextField, "grow");
+        setLayout(new MigLayout("fill, wrap 2", "[] 10 [grow]"));
 
         posXTextField = new JTextField("0");
-        add(new JLabel("X"));
-        add(posXTextField, "grow");
         posXTextField.getDocument().addDocumentListener(this);
-
         posYTextField = new JTextField("0");
-        add(new JLabel("Y"));
-        add(posYTextField, "grow");
         posYTextField.getDocument().addDocumentListener(this);
+        add(new JLabel("X", SwingConstants.RIGHT), "grow");
+        add(posXTextField, "grow");
+        add(new JLabel("Y", SwingConstants.RIGHT), "grow");
+        add(posYTextField, "grow");
+
+        widthTextField = new JTextField("0");
+        heightTextField = new JTextField("0");
+        add(new JLabel("Width", SwingConstants.RIGHT), "grow");
+        add(widthTextField, "grow");
+        add(new JLabel("Height", SwingConstants.RIGHT), "grow");
+        add(heightTextField, "grow");
 
 
         rotation = new JTextField("0");
-        add(new JLabel("Rotation"));
-        add(rotation, "grow");
         rotation.getDocument().addDocumentListener(this);
+        add(new JLabel("Rotation", SwingConstants.RIGHT), "grow");
+        add(rotation, "grow");
 
-        add(new JSeparator(), "grow, spanx, wrap");
+        add(new JSeparator(), "spanx, wrap");
 
         cutTypeButtonMap.put(CutType.NONE, new JToggleButton(ImageUtilities.loadImageIcon("img/cutnone32.png", false)));
         cutTypeButtonMap.put(CutType.POCKET, new JToggleButton(ImageUtilities.loadImageIcon("img/cutpocket32.png", false)));
         cutTypeButtonMap.put(CutType.INSIDE_PATH, new JToggleButton(ImageUtilities.loadImageIcon("img/cutinside32.png", false)));
         cutTypeButtonMap.put(CutType.OUTSIDE_PATH, new JToggleButton(ImageUtilities.loadImageIcon("img/cutoutside32.png", false)));
         cutTypeButtonMap.put(CutType.ON_PATH, new JToggleButton(ImageUtilities.loadImageIcon("img/cutonpath32.png", false)));
-
-        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(100d, 0d, 100.0d, 0.1d);
-        depthSpinner = new JSpinner(spinnerNumberModel);
-        depthSpinner.setPreferredSize(depthSpinner.getPreferredSize());
 
         buttonGroup = new ButtonGroup();
         cutTypeButtonMap.keySet().forEach(key -> {
@@ -108,15 +102,21 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             button.addActionListener(event -> { stateChanged(null); });
         });
 
-        add(cutTypeButtonMap.get(CutType.NONE), "span 2, split");
-        add(cutTypeButtonMap.get(CutType.POCKET), "split");
-        add(cutTypeButtonMap.get(CutType.INSIDE_PATH), "split");
-        add(cutTypeButtonMap.get(CutType.OUTSIDE_PATH), "split");
-        add(cutTypeButtonMap.get(CutType.ON_PATH), "wrap");
+        JPanel cutTypePanel = new JPanel(new MigLayout("fill, insets 0"));
+        cutTypePanel.add(cutTypeButtonMap.get(CutType.NONE));
+        cutTypePanel.add(cutTypeButtonMap.get(CutType.POCKET));
+        cutTypePanel.add(cutTypeButtonMap.get(CutType.INSIDE_PATH));
+        cutTypePanel.add(cutTypeButtonMap.get(CutType.OUTSIDE_PATH));
+        cutTypePanel.add(cutTypeButtonMap.get(CutType.ON_PATH));
+        add(cutTypePanel, "grow, spanx, wrap");
+
+        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(100d, 0d, 100.0d, 0.1d);
+        depthSpinner = new JSpinner(spinnerNumberModel);
+        depthSpinner.setPreferredSize(depthSpinner.getPreferredSize());
 
         cutDepthLabel = new JLabel("Cut depth");
         add(cutDepthLabel);
-        add(depthSpinner);
+        add(depthSpinner, "grow, wrap");
         depthSpinner.addChangeListener(this);
         setEnabled(false);
     }

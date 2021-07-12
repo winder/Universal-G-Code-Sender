@@ -32,7 +32,7 @@ public enum SegmentType {
     /**
      * Drill down at this point
      */
-    POINT("???"),
+    POINT(Code.G1.name()),
 
     /**
      * Move in a straight line

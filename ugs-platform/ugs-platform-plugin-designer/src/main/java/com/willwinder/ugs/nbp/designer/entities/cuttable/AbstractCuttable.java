@@ -18,16 +18,28 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
+import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
+import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
+import com.willwinder.ugs.nbp.designer.gcode.path.NumericCoordinate;
+import com.willwinder.ugs.nbp.designer.gcode.path.SegmentType;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Joacim Breiler
  */
 public abstract class AbstractCuttable extends AbstractEntity implements Cuttable {
+    public static final int QUAD_SEGMENTS = 10;
+    public static final int CUBIC_SEGMENTS = 10;
 
     private CutType cutType = CutType.NONE;
     private double cutDepth;
@@ -69,13 +81,77 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             graphics.setColor(Color.BLACK);
             graphics.fill(getShape());
             graphics.draw(getShape());
-        } else if (getCutType() == CutType.INSIDE_PATH ||getCutType() == CutType.ON_PATH ||getCutType() == CutType.OUTSIDE_PATH) {
+        } else if (getCutType() == CutType.INSIDE_PATH || getCutType() == CutType.ON_PATH || getCutType() == CutType.OUTSIDE_PATH) {
             graphics.setColor(Color.BLACK);
             graphics.draw(getShape());
-        }
-        else {
+        } else {
             graphics.setColor(Color.LIGHT_GRAY);
             graphics.draw(getShape());
         }
+    }
+
+    public GcodePath toGcodePath() {
+        GcodePath path = new GcodePath();
+        PathIterator pathIterator = getShape().getPathIterator(new AffineTransform());
+
+        double[] segment = new double[8];
+        Point2D currentPoint = new Point2D.Double();
+        while (!pathIterator.isDone()) {
+            Arrays.fill(segment, 0d);
+            int type = pathIterator.currentSegment(segment);
+            switch (type) {
+                case PathIterator.SEG_MOVETO: {
+                    currentPoint.setLocation(segment[0], segment[1]);
+                    NumericCoordinate move = new NumericCoordinate(segment[0], segment[1], 0d);
+                    path.addSegment(SegmentType.MOVE, move);
+                    break;
+                }
+                case PathIterator.SEG_LINETO:
+                    currentPoint.setLocation(segment[0], segment[1]);
+                    NumericCoordinate line = new NumericCoordinate(segment[0], segment[1], 0d);
+                    path.addSegment(SegmentType.LINE, line);
+                    break;
+                case PathIterator.SEG_QUADTO: {
+                    Point2D controlPoint1 = new Point2D.Double(segment[0], segment[1]);
+                    Point2D destination = new Point2D.Double(segment[2], segment[3]);
+                    java.util.List<Point2D> points = Utils.quadraticBezier(currentPoint, destination, controlPoint1, QUAD_SEGMENTS);
+
+                    createLinesFromPoints(path, points);
+                    currentPoint = destination;
+                    break;
+                }
+                case PathIterator.SEG_CUBICTO: {
+                    Point2D controlPoint1 = new Point2D.Double(segment[0], segment[1]);
+                    Point2D controlPoint2 = new Point2D.Double(segment[2], segment[3]);
+                    Point2D destination = new Point2D.Double(segment[4], segment[5]);
+                    java.util.List<Point2D> points = Utils.cubicBezier(currentPoint, destination, controlPoint1, controlPoint2, CUBIC_SEGMENTS);
+
+                    createLinesFromPoints(path, points);
+                    currentPoint = destination;
+                    break;
+                }
+
+                case PathIterator.SEG_CLOSE: {
+                    currentPoint.setLocation(segment[0], segment[1]);
+                    NumericCoordinate move = new NumericCoordinate(segment[0], segment[1], 0d);
+                    path.addSegment(SegmentType.MOVE, move);
+                    path.addSegment(SegmentType.SEAM, move);
+                    break;
+                }
+
+                default:
+                    throw new UnsupportedOperationException();
+            }
+            pathIterator.next();
+        }
+
+        return path;
+    }
+
+    private void createLinesFromPoints(GcodePath path, List<Point2D> point2DS) {
+        point2DS.forEach(point2D -> {
+            NumericCoordinate cubicPoint = new NumericCoordinate(point2D.getX(), point2D.getY());
+            path.addSegment(SegmentType.LINE, cubicPoint);
+        });
     }
 }

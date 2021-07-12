@@ -1,7 +1,24 @@
+/*
+    Copyright 2021 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.designer.platform;
 
 import com.google.common.io.Files;
-import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
 import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
 import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
@@ -9,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.actions.UndoManagerListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
@@ -145,8 +163,13 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         }
 
         EXECUTOR.execute(() -> {
-            String gcode = Utils.toGcode(controller, controller.getDrawing().getEntities());
+            SimpleGcodeRouter simpleGcodeRouter = new SimpleGcodeRouter();
+            simpleGcodeRouter.setSafeHeight(controller.getSettings().getSafeHeight());
+            simpleGcodeRouter.setDepthPerPass(controller.getSettings().getDepthPerPass());
+            simpleGcodeRouter.setToolDiameter(controller.getSettings().getToolDiameter());
+            simpleGcodeRouter.setToolStepOver(controller.getSettings().getToolStepOver());
 
+            String gcode = simpleGcodeRouter.toGcode(controller.getDrawing().getEntities());
             try {
                 File file = new File(Files.createTempDir(), dataObject.getName() + ".gcode");
                 FileWriter fileWriter = new FileWriter(file);

@@ -1,68 +1,31 @@
+/*
+    Copyright 2021 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.designer;
 
-import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
-import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
-import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
-import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimpleOnPath;
-import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimplePocket;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.model.Settings;
-
-import java.awt.geom.AffineTransform;
-import java.io.IOException;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * @author Joacim Breiler
+ */
 public class Utils {
-    public static String toGcode(Controller controller, List<Entity> entities) {
-        Settings settings = controller.getSettings();
-
-        SimpleGcodeRouter gcodeRouter = new SimpleGcodeRouter();
-        gcodeRouter.setSafeHeight(settings.getSafeHeight());
-
-        List<String> collect = entities.stream()
-                .filter(Cuttable.class::isInstance)
-                .map(Cuttable.class::cast)
-                .map(cuttable -> {
-                    GcodePath gcodePath = gcodeRouter.toPath(cuttable, new AffineTransform());
-
-                    switch (cuttable.getCutType()) {
-                        case POCKET:
-                            SimplePocket simplePocket = new SimplePocket(gcodePath);
-                            simplePocket.setTargetDepth(cuttable.getCutDepth());
-                            simplePocket.setToolDiameter(settings.getToolDiameter());
-                            simplePocket.setStepOver(settings.getToolStepOver());
-                            simplePocket.setDepthPerPass(settings.getDepthPerPass());
-                            gcodePath = simplePocket.toGcodePath();
-
-                            /*SimpleOutline simpleOutline = new SimpleOutline(gcodePath);
-                            simpleOutline.setDepth(cuttable.get);
-                            gcodePath = simpleOutline.toGcodePath();*/
-                            break;
-                        case ON_PATH:
-                            SimpleOnPath simpleOnPath = new SimpleOnPath(gcodePath);
-                            //simpleOutline.setDepth(shape.getCutSettings().getDepth());
-                            gcodePath = simpleOnPath.toGcodePath();
-                            break;
-                        default:
-                            return "";
-                    }
-
-                    try {
-                        return gcodeRouter.toGcode(gcodePath);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return "";
-                }).filter(line -> !line.isEmpty())
-                .collect(Collectors.toList());
-
-        return String.join("\n", collect);
-    }
-
     public static double normalizeRotation(double degrees) {
         if (degrees >= 360) {
             return degrees % 360;
@@ -71,5 +34,58 @@ public class Utils {
         }
 
         return Math.abs(degrees);
+    }
+
+    /**
+     * Generates a list of points interpolating a quadratic bezier using the given number of segments
+     *
+     * @param origin the start position
+     * @param destination the end position
+     * @param control1 the control point
+     * @param segments number of segments to make the bezier curve
+     * @return a list of points for a line path.
+     */
+    public static List<Point2D> quadraticBezier(Point2D origin, Point2D destination, Point2D control1, int segments) {
+        List<Point2D> pointsForReturn = new ArrayList<>();
+
+        float t = 0;
+        for (int i = 0; i < segments; i++) {
+
+            // B(t) = (1 - t)2 * P0 + 2(1 - t) * t * P1 + t2 * P2, t ∈ [0,1]
+            double x = Math.pow(1 - t, 2) * origin.getX() + 2.0f * (1 - t) * t * control1.getX() + t * t * destination.getX();
+            double y = Math.pow(1 - t, 2) * origin.getY() + 2.0f * (1 - t) * t * control1.getY() + t * t * destination.getY();
+            Point2D p = new Point2D.Double(x, y);
+            t += 1.0f / segments;
+            pointsForReturn.add(p);
+        }
+        pointsForReturn.add(destination);
+        return pointsForReturn;
+    }
+
+    /**
+     * Generates a list of points interpolating a cubic bezier using the given number of segments
+     *
+     * @param origin the start position
+     * @param destination the end position
+     * @param control1 the first control point
+     * @param control2 the second control point
+     * @param segments number of segments to make the bezier curve
+     * @return a list of points for a line path.
+     */
+    public static List<Point2D> cubicBezier(Point2D origin, Point2D destination, Point2D control1, Point2D control2, int segments) {
+        List<Point2D> pointsForReturn = new ArrayList<>();
+
+        float t = 0;
+        for (int i = 0; i < segments; i++) {
+
+            // B(t) = (1 – t)3 * P0 + 3(1 – t)2 * t * P1 + 3(1-t) * t2 * P2 + t3 * P3
+            double x = Math.pow(1 - t, 3) * origin.getX() + 3.0f * Math.pow(1 - t, 2) * t * control1.getX() + 3.0f * (1 - t) * t * t * control2.getX() + t * t * t * destination.getX();
+            double y = Math.pow(1 - t, 3) * origin.getY() + 3.0f * Math.pow(1 - t, 2) * t * control1.getY() + 3.0f * (1 - t) * t * t * control2.getY() + t * t * t * destination.getY();
+            Point2D p = new Point2D.Double(x, y);
+            t += 1.0f / segments;
+            pointsForReturn.add(p);
+        }
+        pointsForReturn.add(destination);
+        return pointsForReturn;
     }
 }

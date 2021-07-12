@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,5 +78,10 @@ public class Group extends EntityGroup implements Cuttable {
                 ((Cuttable) child).setCutDepth(cutDepth);
             }
         });
+    }
+
+    @Override
+    public GcodePath toGcodePath() {
+        return new GcodePath();
     }
 }

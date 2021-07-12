@@ -61,6 +61,10 @@ public final class NumericCoordinate extends Coordinate {
         this(x, y, null);
     }
 
+    public NumericCoordinate(Double z) {
+        this(null, null,  z);
+    }
+
     @Override
     public NumericCoordinate set(Axis axis, double value) {
         axes.put(axis, value);
@@ -95,7 +99,7 @@ public final class NumericCoordinate extends Coordinate {
         if (Math.abs(d) < 0.001) {
             d = 0.0;
         }
-        return d;
+        return Math.round(d * 10000d) / 10000d;
     }
 
     public boolean isDefined(Axis a) {
