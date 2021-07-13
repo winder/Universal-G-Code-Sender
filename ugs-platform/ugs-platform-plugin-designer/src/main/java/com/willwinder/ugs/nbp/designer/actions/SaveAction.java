@@ -31,8 +31,8 @@ import java.io.File;
  * @author Joacim Breiler
  */
 public class SaveAction extends AbstractAction {
-    private static final String ICON_SMALL_PATH = "img/new.svg";
-    private static final String ICON_LARGE_PATH = "img/new32.svg";
+    private static final String ICON_SMALL_PATH = "img/save.svg";
+    private static final String ICON_LARGE_PATH = "img/save32.svg";
     private final Controller controller;
 
     public SaveAction(Controller controller) {

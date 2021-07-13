@@ -29,6 +29,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.actions.ChangeCutSettingsAction;
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.ImageUtilities;
@@ -52,6 +53,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private final JTextField posXTextField;
     private final JTextField posYTextField;
     private final JLabel cutDepthLabel;
+    private final JPanel cutTypePanel;
     private transient Controller controller;
     private final JSpinner depthSpinner;
     private final JTextField heightTextField;
@@ -102,7 +104,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             button.addActionListener(event -> { stateChanged(null); });
         });
 
-        JPanel cutTypePanel = new JPanel(new MigLayout("fill, insets 0"));
+        cutTypePanel = new JPanel(new MigLayout("fill, insets 0"));
         cutTypePanel.add(cutTypeButtonMap.get(CutType.NONE));
         cutTypePanel.add(cutTypeButtonMap.get(CutType.POCKET));
         cutTypePanel.add(cutTypeButtonMap.get(CutType.INSIDE_PATH));
@@ -134,7 +136,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         Arrays.stream(getComponents()).forEach(component -> component.setEnabled(enabled));
-
+        SwingHelpers.traverse(cutTypePanel, component -> component.setEnabled(enabled));
         if (!enabled) {
             depthSpinner.setValue(0d);
         }
@@ -215,7 +217,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
                 cutTypeButton.setSelected(true);
                 setFieldValue(depthSpinner, cuttable.getCutDepth());
 
-                boolean hasCutTypeSelection = cuttable.getCutType() != CutType.NONE;
+                final boolean hasCutTypeSelection = cuttable.getCutType() != CutType.NONE;
                 depthSpinner.setEnabled(hasCutTypeSelection);
                 cutDepthLabel.setEnabled(hasCutTypeSelection);
             }

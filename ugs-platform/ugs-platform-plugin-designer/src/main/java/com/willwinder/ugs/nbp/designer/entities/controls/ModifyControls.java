@@ -30,10 +30,10 @@ public class ModifyControls extends AbstractControlEntityGroup {
         super(selectionManager);
         addChild(new MoveControl(selectionManager));
         addChild(new RotationControl(selectionManager));
-        addChild(new ResizeControl(selectionManager, Location.TOP_LEFT));
-        addChild(new ResizeControl(selectionManager, Location.TOP_RIGHT));
         addChild(new ResizeControl(selectionManager, Location.BOTTOM_LEFT));
         addChild(new ResizeControl(selectionManager, Location.BOTTOM_RIGHT));
+        addChild(new ResizeControl(selectionManager, Location.TOP_LEFT));
+        addChild(new ResizeControl(selectionManager, Location.TOP_RIGHT));
     }
 
 

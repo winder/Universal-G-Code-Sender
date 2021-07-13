@@ -189,8 +189,7 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
 
     private AbstractEntity parseRectangle(Rectangle2D shape) {
         Rectangle rectangle = new Rectangle(shape.getX(), shape.getY());
-        rectangle.setWidth(shape.getWidth());
-        rectangle.setHeight(shape.getHeight());
+        rectangle.setSize(new Size(shape.getWidth(), shape.getHeight()));
         return rectangle;
     }
 

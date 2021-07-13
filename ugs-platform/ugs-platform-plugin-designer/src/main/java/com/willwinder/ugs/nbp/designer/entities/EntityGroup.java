@@ -226,4 +226,10 @@ public class EntityGroup extends AbstractEntity {
 
         return Collections.unmodifiableList(result);
     }
+
+    @Override
+    public void scale(double sx, double sy) {
+        this.children.forEach(child -> child.scale(sx, sy));
+        recalculateCenter();
+    }
 }

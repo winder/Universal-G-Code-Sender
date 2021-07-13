@@ -1,4 +1,4 @@
-package com.willwinder.ugs.nbp.designer.gui.entities;
+package com.willwinder.ugs.nbp.designer.entities;
 
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.MoveControl;

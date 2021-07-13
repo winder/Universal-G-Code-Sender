@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    viewBox="0 0 16 16"
    version="1.1"
    id="svg832"
    sodipodi:docname="circle.svg"
    width="16"
    height="16"
-   inkscape:version="1.1-dev (0486c1a, 2020-10-10)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
+   inkscape:version="1.0.1 (c497b03c, 2020-09-10)">
+  <metadata
+     id="metadata5252">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
   <defs
      id="defs836" />
   <sodipodi:namedview
@@ -22,21 +37,23 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1788"
-     inkscape:window-height="977"
+     inkscape:window-width="1680"
+     inkscape:window-height="963"
      id="namedview834"
      showgrid="false"
      width="16px"
      inkscape:zoom="5.96"
-     inkscape:cx="60.067114"
+     inkscape:cx="28.104027"
      inkscape:cy="13.338926"
-     inkscape:window-x="75"
-     inkscape:window-y="85"
+     inkscape:window-x="0"
+     inkscape:window-y="23"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg832" />
+     inkscape:current-layer="svg832"
+     inkscape:document-rotation="0" />
   <!-- Font Awesome Free 5.15.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) -->
   <path
-     d="M 8,0 C 3.580645,0 0,3.580645 0,8 c 0,4.419355 3.580645,8 8,8 4.419355,0 8,-3.580645 8,-8 C 16,3.580645 12.419355,0 8,0 Z M 8,14.451613 C 4.435484,14.451613 1.5483872,11.564516 1.5483872,8 1.5483872,4.435484 4.435484,1.5483872 8,1.5483872 c 3.564516,0 6.451613,2.8870968 6.451613,6.4516128 0,3.564516 -2.887097,6.451613 -6.451613,6.451613 z"
-     id="path830"
-     style="fill:#353a40;fill-opacity:1;stroke-width:0.032258" />
+     d="m 7.9999997,0.72727257 c -4.0175953,0 -7.27272713,3.25513203 -7.27272713,7.27272793 0,4.0175955 3.25513183,7.2727275 7.27272713,7.2727275 4.0175953,0 7.2727283,-3.255132 7.2727283,-7.2727275 0,-4.0175959 -3.255133,-7.27272793 -7.2727283,-7.27272793 z"
+     id="path830-2"
+     style="fill:#ffffff;fill-opacity:1;stroke:#353a40;stroke-width:1.45454;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     sodipodi:nodetypes="sssss" />
 </svg>

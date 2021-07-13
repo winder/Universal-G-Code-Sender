@@ -69,11 +69,11 @@ public class ResizeControl extends AbstractControl {
         transform.translate(bounds.getX(), bounds.getY());
 
         double halfSize = SIZE / 2d;
-        if (location == Location.TOP_RIGHT) {
+        if (location == Location.BOTTOM_RIGHT) {
             transform.translate(bounds.getWidth(), 0);
-        } else if (location == Location.BOTTOM_LEFT) {
+        } else if (location == Location.TOP_LEFT) {
             transform.translate(0, bounds.getHeight());
-        } else if (location == Location.BOTTOM_RIGHT) {
+        } else if (location == Location.TOP_RIGHT) {
             transform.translate(bounds.getWidth(), bounds.getHeight());
         }
 
@@ -105,17 +105,27 @@ public class ResizeControl extends AbstractControl {
             Point2D mousePosition = mouseShapeEvent.getCurrentMousePosition();
 
             Entity target = getSelectionManager();
-            Point2D deltaMovement = new Point2D.Double(mousePosition.getX() - target.getPosition().getX() - startOffset.getX(), mousePosition.getY() - target.getPosition().getY() - startOffset.getY());
             if (mouseShapeEvent.getType() == EventType.MOUSE_PRESSED) {
-                startOffset = new Point2D.Double(mousePosition.getX() - target.getPosition().getX(), mousePosition.getY() - target.getPosition().getY());
+                startPositon = target.getPosition();
+                startOffset = new Point2D.Double(mousePosition.getX() - getPosition().getX(), mousePosition.getY() - getPosition().getY());
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_DRAGGED) {
-                if (location == Location.TOP_LEFT) {
-                    Size size = getSelectionManager().getSize();
-                    double sx = size.getWidth() / (size.getWidth() - deltaMovement.getX());
-                    double sy = size.getHeight() / (size.getHeight() - deltaMovement.getY());
+                Point2D deltaMovement = new Point2D.Double(mousePosition.getX() - getPosition().getX() - startOffset.getX(), mousePosition.getY() - getPosition().getY() - startOffset.getY());
 
-                    target.scale(sx, sy);
+                Size size = getSelectionManager().getSize();
+                double sx = deltaMovement.getX() / size.getWidth();
+                double sy = deltaMovement.getY() / size.getHeight();
+
+                if (location == Location.BOTTOM_LEFT) {
                     target.move(deltaMovement);
+                    target.scale(1d - sx, 1d - sy);
+                } else if (location == Location.TOP_RIGHT) {
+                    target.scale(1d + sx, 1d + sy);
+                } else if (location == Location.BOTTOM_RIGHT) {
+                    target.move(new Point2D.Double(0, deltaMovement.getY()));
+                    target.scale(1d + sx, 1d - sy);
+                } else if (location == Location.TOP_LEFT) {
+                    target.move(new Point2D.Double(deltaMovement.getX(), 0));
+                    target.scale(1d - sx, 1d + sy);
                 }
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_RELEASED) {
                 LOGGER.info("Stopped moving " + target.getPosition());

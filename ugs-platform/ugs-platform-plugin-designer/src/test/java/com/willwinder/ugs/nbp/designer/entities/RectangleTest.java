@@ -1,4 +1,4 @@
-package com.willwinder.ugs.nbp.designer.gui.entities;
+package com.willwinder.ugs.nbp.designer.entities;
 
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
@@ -217,4 +217,38 @@ public class RectangleTest {
         assertEquals(0.1, rectangle.getPosition().getY(), 0.1);
         assertEquals(270, rectangle.getRotation(), 0.01);
     }
+
+    @Test
+    public void scaleShouldChangeTheSize() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setWidth(100);
+        rectangle.setHeight(100);
+        rectangle.setPosition(new Point2D.Double(1, 1));
+
+        rectangle.scale(0.5, 0.5);
+        assertEquals(50, rectangle.getSize().getWidth(), 0.1);
+        assertEquals(50, rectangle.getSize().getHeight(), 0.1);
+        assertEquals(1, rectangle.getPosition().getX(), 0.1);
+        assertEquals(1, rectangle.getPosition().getY(), 0.1);
+    }
+
+    @Test
+    public void scaleShouldChangeSizeWhenRotated() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setPosition(new Point2D.Double(1, 1));
+        rectangle.setWidth(100);
+        rectangle.setHeight(100);
+        rectangle.setRotation(90);
+
+        assertEquals(1, rectangle.getPosition().getY(), 0.1);
+        assertEquals(1, rectangle.getPosition().getX(), 0.1);
+
+        rectangle.scale(0.5, 0.5);
+        assertEquals(50, rectangle.getSize().getWidth(), 0.1);
+        assertEquals(50, rectangle.getSize().getHeight(), 0.1);
+        assertEquals(1, rectangle.getPosition().getX(), 0.1);
+        assertEquals(1, rectangle.getPosition().getY(), 0.1);
+    }
+
+
 }

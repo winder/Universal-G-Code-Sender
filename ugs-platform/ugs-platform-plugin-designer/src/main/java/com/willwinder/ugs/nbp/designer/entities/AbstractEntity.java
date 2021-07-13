@@ -159,7 +159,11 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void scale(double sx, double sy) {
-        transform.preConcatenate(AffineTransform.getScaleInstance(sx, sy));
+        Point2D originalPosition = getPosition();
+        transform.concatenate(AffineTransform.getScaleInstance(sx, sy));
+
+        Point2D currentPosition = getPosition();
+        transform.preConcatenate(AffineTransform.getTranslateInstance(originalPosition.getX() - currentPosition.getX(), originalPosition.getY() - currentPosition.getY()));
         notifyEvent(new EntityEvent(this, EventType.RESIZED));
     }
 

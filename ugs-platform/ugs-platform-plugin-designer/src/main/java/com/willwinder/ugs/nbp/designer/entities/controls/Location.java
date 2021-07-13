@@ -22,8 +22,8 @@ package com.willwinder.ugs.nbp.designer.entities.controls;
  * @author Joacim Breiler
  */
 public enum Location {
-    TOP_LEFT,
-    TOP_RIGHT,
     BOTTOM_LEFT,
-    BOTTOM_RIGHT
+    BOTTOM_RIGHT,
+    TOP_LEFT,
+    TOP_RIGHT
 }

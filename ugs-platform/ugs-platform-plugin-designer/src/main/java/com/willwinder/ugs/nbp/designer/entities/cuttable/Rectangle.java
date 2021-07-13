@@ -33,7 +33,7 @@ public class Rectangle extends AbstractCuttable {
     private final Rectangle2D.Double shape;
 
     public Rectangle() {
-        this(0,0);
+        this(0, 0);
     }
 
     /**
@@ -65,7 +65,7 @@ public class Rectangle extends AbstractCuttable {
         shape.setFrame(0, 0, size.getWidth(), size.getHeight());
         notifyEvent(new EntityEvent(this, EventType.RESIZED));
     }
-    
+
     public void setWidth(double width) {
         shape.setFrame(0, 0, width, shape.getHeight());
         notifyEvent(new EntityEvent(this, EventType.RESIZED));

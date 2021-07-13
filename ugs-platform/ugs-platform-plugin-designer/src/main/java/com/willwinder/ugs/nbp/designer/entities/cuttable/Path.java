@@ -42,11 +42,6 @@ public class Path extends AbstractCuttable {
     }
 
     @Override
-    public Size getSize() {
-        return new Size(shape.getBounds().width, shape.getBounds().height);
-    }
-
-    @Override
     public void setSize(Size size) {
         if (size.getWidth() < 2) {
             size = new Size(2, size.getHeight());
