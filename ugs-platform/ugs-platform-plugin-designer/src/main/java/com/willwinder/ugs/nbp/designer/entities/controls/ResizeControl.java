@@ -106,7 +106,6 @@ public class ResizeControl extends AbstractControl {
 
             Entity target = getSelectionManager();
             if (mouseShapeEvent.getType() == EventType.MOUSE_PRESSED) {
-                startPositon = target.getPosition();
                 startOffset = new Point2D.Double(mousePosition.getX() - getPosition().getX(), mousePosition.getY() - getPosition().getY());
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_DRAGGED) {
                 Point2D deltaMovement = new Point2D.Double(mousePosition.getX() - getPosition().getX() - startOffset.getX(), mousePosition.getY() - getPosition().getY() - startOffset.getY());
