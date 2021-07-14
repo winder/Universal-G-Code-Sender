@@ -22,11 +22,12 @@ import com.willwinder.ugs.nbp.designer.gcode.path.Axis;
 import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.gcode.path.NumericCoordinate;
 import com.willwinder.ugs.nbp.designer.gcode.path.PathGenerator;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -55,28 +56,56 @@ public class SimplePocket extends AbstractToolPath {
         double currentDepth = 0;
         while (currentDepth < getTargetDepth()) {
             currentDepth += getDepthPerPass();
-            if(currentDepth > getTargetDepth()) {
+            if (currentDepth > getTargetDepth()) {
                 currentDepth = getTargetDepth();
             }
 
             double buffer = getToolDiameter() / 2d;
+
             while (true) {
                 final double depth = currentDepth;
-                List<NumericCoordinate> bufferedCoordinates = geometryToCoordinates(simplifyGeometry(polygon.buffer(-buffer)))
-                        .stream()
-                        .map(coordinate -> new NumericCoordinate(coordinate.get(Axis.X), coordinate.get(Axis.Y), -depth))
+
+                Geometry bufferedGeometry = simplifyGeometry(polygon.buffer(-buffer));
+                List<List<NumericCoordinate>> bufferedCoordinateLists = toGeometryList(bufferedGeometry).stream()
+                        .map(geometry -> {
+                            List<NumericCoordinate> bufferedCoordinates = geometryToCoordinates(geometry)
+                                    .stream()
+                                    .map(coordinate -> new NumericCoordinate(coordinate.get(Axis.X), coordinate.get(Axis.Y), -depth))
+                                    .collect(Collectors.toList());
+
+                            if (bufferedCoordinates.isEmpty() || bufferedCoordinates.size() <= 1) {
+                                return null;
+                            }
+
+                            return bufferedCoordinates;
+                        })
+                        .filter(Objects::nonNull)
                         .collect(Collectors.toList());
 
-                if (bufferedCoordinates.isEmpty() || bufferedCoordinates.size() <= 1) {
+
+                if(bufferedCoordinateLists.isEmpty()) {
                     break;
                 }
 
-                coordinateList.add(bufferedCoordinates);
+                coordinateList.addAll(bufferedCoordinateLists);
+
                 buffer = buffer + (getToolDiameter() * stepOver);
             }
         }
 
         return toGcodePath(coordinateList);
+    }
+
+    private List<Geometry> toGeometryList(Geometry geometry) {
+        if (geometry instanceof MultiPolygon) {
+            List<Geometry> geometryList = new ArrayList<>();
+            for (int i = 0; i < geometry.getNumGeometries(); i++) {
+                geometryList.add(geometry.getGeometryN(i));
+            }
+            return geometryList;
+        }
+
+        return Collections.singletonList(geometry);
     }
 
     public void setStepOver(double stepOver) {

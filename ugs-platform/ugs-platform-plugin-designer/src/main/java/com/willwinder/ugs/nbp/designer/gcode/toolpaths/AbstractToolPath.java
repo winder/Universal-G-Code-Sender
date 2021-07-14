@@ -116,8 +116,8 @@ public abstract class AbstractToolPath implements PathGenerator {
     protected GcodePath toGcodePath(List<List<NumericCoordinate>> coordinateList) {
         GcodePath gcodePath = new GcodePath();
         if (!coordinateList.isEmpty()) {
-            addSafeHeightSegmentTo(gcodePath, coordinateList.get(0).get(0));
             coordinateList.forEach(cl -> {
+                addSafeHeightSegmentTo(gcodePath, cl.get(0));
                 gcodePath.addSegment(SegmentType.POINT, cl.get(0));
                 cl.forEach(c -> gcodePath.addSegment(SegmentType.LINE, c));
             });
