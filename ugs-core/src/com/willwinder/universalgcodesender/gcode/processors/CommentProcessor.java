@@ -6,7 +6,7 @@
  * Any percent symbols at the end of a line: "G0 X1%" -> "G0 X1"
  */
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 

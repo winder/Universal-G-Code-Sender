@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,13 +18,8 @@
  */
 package com.willwinder.ugs.nbp.core.lifecycle;
 
-import com.willwinder.ugs.nbp.core.services.ConsoleNotificationService;
-import com.willwinder.ugs.nbp.core.services.JogActionService;
+import com.willwinder.ugs.nbp.core.services.*;
 import com.willwinder.ugs.nbp.core.control.MacroService;
-import com.willwinder.ugs.nbp.core.services.OverrideActionService;
-import com.willwinder.ugs.nbp.core.services.PendantService;
-import com.willwinder.ugs.nbp.core.services.SettingsChangedNotificationService;
-import com.willwinder.ugs.nbp.core.services.WindowTitleUpdaterService;
 import com.willwinder.ugs.nbp.core.statusline.SendStatusLineService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
@@ -79,6 +74,8 @@ public class startup extends OptionProcessor implements Runnable {
         Lookup.getDefault().lookup(PendantService.class);
         logger.info("Loading ConsoleNotificationService...");
         Lookup.getDefault().lookup(ConsoleNotificationService.class);
+        logger.info("Loading FileFilterService...");
+        Lookup.getDefault().lookup(FileFilterService.class);
         logger.info("Services loaded!");
 
         logger.info("Setting UGP version title.");

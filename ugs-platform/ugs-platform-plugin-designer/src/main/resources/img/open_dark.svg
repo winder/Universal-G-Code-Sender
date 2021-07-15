@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg900"
+   sodipodi:docname="open.svg"
+   width="16"
+   height="16"
+   inkscape:version="1.1-dev (0486c1a, 2020-10-10)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs904" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1827"
+     inkscape:window-height="1196"
+     id="namedview902"
+     showgrid="false"
+     width="16px"
+     inkscape:zoom="29.483643"
+     inkscape:cx="-0.016958556"
+     inkscape:cy="5.8676603"
+     inkscape:window-x="53"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg900" />
+  <!-- Font Awesome Free 5.15.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) -->
+  <path
+     d="M 14.664365,7.1229246 H 13.333766 V 5.7895502 c 0,-0.7361341 -0.597241,-1.3333754 -1.333376,-1.3333754 H 7.555801 L 5.7779654,2.678342 H 1.3333766 C 0.59724162,2.678342 0,3.2755823 0,4.0117164 v 8.0002486 c 0,0.736134 0.59724162,1.333375 1.3333766,1.333375 H 12.444849 c 0.458348,0 0.88614,-0.236119 1.130592,-0.627798 L 15.794957,9.161877 C 16.350531,8.2757392 15.711617,7.1229246 14.664365,7.1229246 Z M 1.3333766,4.1783882 c 0,-0.09167 0.075003,-0.1666718 0.1666721,-0.1666718 h 3.725121 l 1.7778355,1.7778338 h 4.8307128 c 0.09167,0 0.166672,0.075 0.166672,0.1666718 V 7.1229246 H 4.2223594 c -0.4666819,0 -0.9000293,0.2444527 -1.1417038,0.6444652 L 1.3333766,10.661922 Z M 12.444849,12.011965 H 2.000065 L 4.1445791,8.4563 H 14.667143 Z"
+     id="path898"
+     style="fill:#0ac9f1;fill-opacity:1;stroke-width:0.999999" />
+</svg>

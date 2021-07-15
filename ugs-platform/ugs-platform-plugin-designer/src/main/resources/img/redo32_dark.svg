@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 32 32"
+   version="1.1"
+   id="svg1252"
+   sodipodi:docname="redo32.svg"
+   inkscape:version="1.1-dev (0486c1a, 2020-10-10)"
+   width="32"
+   height="32"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1256" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1524"
+     inkscape:window-height="1081"
+     id="namedview1254"
+     showgrid="false"
+     inkscape:zoom="40.15459"
+     inkscape:cx="6.4500721"
+     inkscape:cy="7.0353103"
+     inkscape:window-x="53"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg1252"
+     width="16px" />
+  <!-- Font Awesome Free 5.15.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) -->
+  <path
+     d="M 31.238593,-7.1636427e-6 H 28.230406 A 0.76140613,0.76190425 0 0 0 27.468998,0.79808753 L 27.7228,6.0526869 A 15.698925,15.709195 0 0 0 15.73573,0.50792899 C 7.0645833,0.50792899 -0.00634074,7.5891939 4.266865e-6,16.266013 0.00634426,24.956802 7.0493553,31.999971 15.73573,31.999971 a 15.678621,15.688878 0 0 0 10.544206,-4.057776 0.76140613,0.76190425 0 0 0 0.03046,-1.106665 l -2.157318,-2.158728 a 0.76140613,0.76190425 0 0 0 -1.039317,-0.03492 11.16729,11.174596 0 1 1 1.892093,-14.622846 L 18.563724,9.7098254 A 0.76140613,0.76190425 0 0 0 17.766152,10.47173 v 3.010156 a 0.76140613,0.76190425 0 0 0 0.761406,0.761905 h 12.711039 a 0.76140613,0.76190425 0 0 0 0.761402,-0.761903 V 0.76189708 A 0.76140613,0.76190425 0 0 0 31.238593,-7.1636427e-6 Z"
+     id="path1250"
+     style="fill:#0ac9f1;fill-opacity:1;stroke-width:1" />
+</svg>

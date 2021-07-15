@@ -49,6 +49,20 @@ public class LoaderDialogHelper {
     }
 
     /**
+     * Shows a modal loader dialog. To close the dialog, use {@link LoaderDialogHelper#closeDialog()}.
+     * If closing the window occurs before the given parameter minimumTimeToShow it will still
+     * be visible until that time has passed. The intention is to make sure the user
+     * is given time to read the title of the dialog.
+     *
+     * @param title             the title to display in the dialog
+     * @param minimumTimeToShow the minimum time to show the dialog before the
+     *                          loader dialog is closed
+     */
+    public static void showDialog(String title, int minimumTimeToShow) {
+        showDialog(title, minimumTimeToShow, new JLabel());
+    }
+
+    /**
      * Shows a modal loader dialog with the given component as the parent.
      * To close the dialog, use {@link LoaderDialogHelper#closeDialog()}. If closing
      * the window occurs before the given parameter minimumTimeToShow it will still

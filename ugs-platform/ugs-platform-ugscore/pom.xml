@@ -20,6 +20,7 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>com.willwinder.ugs.nbp.core.actions</publicPackage>
+                        <publicPackage>com.willwinder.ugs.nbp.core.services</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

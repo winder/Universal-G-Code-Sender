@@ -33,7 +33,7 @@ import java.io.File;
         displayName = "#platform.window.editor.source",
         iconBase = "com/willwinder/ugs/nbp/editor/edit.png",
         mimeType = "text/xgcode",
-        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
+        persistenceType = TopComponent.PERSISTENCE_NEVER,
         preferredID = "Gcode",
         position = 1000
 )

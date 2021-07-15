@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2018 Will Winder
+    Copyright 2015-2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,29 +18,24 @@
  */
 package com.willwinder.ugs.nbp.core.actions;
 
+import com.willwinder.ugs.nbp.core.services.FileFilterService;
+import com.willwinder.ugs.nbp.lib.EditorUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.utils.SwingHelpers;
-import org.apache.commons.lang3.ArrayUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
-import org.openide.cookies.EditorCookie;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.nodes.Node;
 import org.openide.util.ImageUtilities;
-import org.openide.windows.TopComponent;
+import org.openide.util.Lookup;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @ActionID(
         category = LocalizingService.OpenCategory,
@@ -63,10 +58,12 @@ import java.util.stream.Collectors;
 public final class OpenAction extends AbstractAction {
 
     public static final String ICON_BASE = "resources/icons/open.svg";
-    private BackendAPI backend;
+    private transient final FileFilterService fileFilterService;
+    private transient final BackendAPI backend;
 
     public OpenAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this.fileFilterService = Lookup.getDefault().lookup(FileFilterService.class);
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
@@ -82,41 +79,29 @@ public final class OpenAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         String sourceDir = backend.getSettings().getLastOpenedFilename();
-        SwingHelpers
-                .openFile(sourceDir)
-                .ifPresent(f -> {
-                    try {
-                        if(closeOpenEditors()) {
-                            DataObject.find(FileUtil.toFileObject(f))
-                                    .getLookup()
-                                    .lookup(OpenCookie.class)
-                                    .open();
-                        }
-                    } catch (DataObjectNotFoundException ex) {
-                        ex.printStackTrace();
-                    }
-                });
-    }
 
-    /**
-     * Close all open editors
-     *
-     * @return true if all editors could be closed
-     */
-    private boolean closeOpenEditors() {
-        List<TopComponent> editorCookies = TopComponent.getRegistry().getOpened()
-                .stream()
-                .filter(topComponent ->
-                        Arrays.stream(ArrayUtils.nullToEmpty(topComponent.getActivatedNodes(), Node[].class))
-                            .anyMatch(node -> node.getCookie(EditorCookie.class) != null))
-                .collect(Collectors.toList());
+        JFileChooser fileChooser = new JFileChooser(sourceDir);
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setFileHidingEnabled(true);
+        fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
+        fileChooser.setAcceptAllFileFilterUsed(true);
 
-        boolean closed = true;
-        for(TopComponent editorCookie : editorCookies) {
-            if (!editorCookie.close()) {
-               closed = false;
+        // Fetches all available file formats that UGS can open
+        fileFilterService.getFileFilters().forEach(fileChooser::addChoosableFileFilter);
+
+        int returnVal = fileChooser.showOpenDialog(new JFrame());
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                if (EditorUtils.closeOpenEditors()) {
+                    backend.getSettings().setLastOpenedFilename(fileChooser.getSelectedFile().getAbsolutePath());
+                    DataObject.find(FileUtil.toFileObject(fileChooser.getSelectedFile()))
+                            .getLookup()
+                            .lookup(OpenCookie.class)
+                            .open();
+                }
+            } catch (DataObjectNotFoundException ex) {
+                ex.printStackTrace();
             }
         }
-        return closed;
     }
 }

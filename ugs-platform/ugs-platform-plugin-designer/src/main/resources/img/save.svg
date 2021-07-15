@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg837"
+   sodipodi:docname="save.svg"
+   inkscape:version="1.0.1 (c497b03c, 2020-09-10)">
+  <metadata
+     id="metadata843">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>ionicons-v5-p</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs841" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1271"
+     inkscape:window-height="865"
+     id="namedview839"
+     showgrid="false"
+     inkscape:zoom="5.1337949"
+     inkscape:cx="-5.8278627"
+     inkscape:cy="8.637765"
+     inkscape:window-x="0"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg837" />
+  <title
+     id="title833">ionicons-v5-p</title>
+  <path
+     d="m 12.461774,0.90609203 a 1.1428539,1.1428539 0 0 0 -0.808212,-0.334642 H 2.22216 A 1.6503525,1.6503525 0 0 0 0.57145003,2.22216 V 13.777841 A 1.6503525,1.6503525 0 0 0 2.22216,15.428551 h 11.555681 a 1.6557096,1.6557096 0 0 0 1.65071,-1.65071 V 4.346439 A 1.1428539,1.1428539 0 0 0 15.093909,3.538227 Z M 8,13.71427 A 2.2857079,2.2857079 0 1 1 10.285708,11.428562 2.2828507,2.2828507 0 0 1 8,13.71427 Z M 9.714281,5.714293 H 2.857158 A 0.57142696,0.57142696 0 0 1 2.285731,5.142866 V 2.857158 A 0.57142696,0.57142696 0 0 1 2.857158,2.285731 h 6.857123 a 0.57142696,0.57142696 0 0 1 0.571427,0.571427 V 5.142866 A 0.57142696,0.57142696 0 0 1 9.714281,5.714293 Z"
+     style="fill:none;stroke:#353a40;stroke-width:1.1429;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+     id="path835" />
+</svg>
