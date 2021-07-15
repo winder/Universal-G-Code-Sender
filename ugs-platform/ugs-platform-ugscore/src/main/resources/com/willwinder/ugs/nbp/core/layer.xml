@@ -8,17 +8,77 @@
             <file name="com-willwinder-ugs-nbp-core-toolbars-ConnectionFirmwareToolbar.instance_hidden"/>
             <file name="com-willwinder-ugs-nbp-core-toolbars-ConnectionSerialPortToolbar.instance_hidden"/>
         </folder>
+        <folder name="Edit">
+            <file name="org-openide-actions-FindAction.shadow_hidden"/>
+            <file name="org-netbeans-core-ui-options-filetypes-OpenAsAction.instance_hidden"/>
+            <file name="org-netbeans-core-ui-sysopen-SystemOpenAction.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-ExportHtmlAction.instance_hidden"/>
+            <file name="org-openide-actions-GotoAction.instance_hidden"/>
+            <file name="select-identifier.instance_hidden"/>
+        </folder>
+        <folder name="System">
+            <file name="org-netbeans-core-actions-JumpNextAction.instance_hidden"/>
+            <file name="org-netbeans-core-actions-JumpPrevAction.instance_hidden"/>
+            <file name="org-netbeans-core-windows-model-NewMode.instance_hidden"/>
+            <file name="org-openide-actions-InstantiateAction.instance_hidden"/>
+            <file name="org-openide-actions-MoveDownAction.instance_hidden"/>
+            <file name="org-openide-actions-MoveUpAction.instance_hidden"/>
+            <file name="org-openide-actions-NewAction.instance_hidden"/>
+            <file name="org-openide-actions-NewTemplateAction.instance_hidden"/>
+            <file name="org-openide-actions-OpenAction.instance"/>
+            <file name="org-openide-actions-PageSetupAction.instance_hidden"/>
+            <file name="org-openide-actions-PopupAction.instance_hidden"/>
+            <file name="org-openide-actions-PrintAction.instance_hidden"/>
+            <file name="org-openide-actions-PropertiesAction.instance_hidden"/>
+            <file name="org-openide-actions-RenameAction.instance_hidden"/>
+            <file name="org-openide-actions-ReorderAction.instance_hidden"/>
+        </folder>
+        <folder name="View">
+            <file name="org-netbeans-core-actions-HTMLViewAction.instance_hidden"/>
+            <file name="org-openide-actions-CustomizeAction.instance_hidden"/>
+        </folder>
     </folder>
     <folder name="Menu">
         <folder name="File">
             <attr name="position" intvalue="10" />
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
-            <file name="org-openide-actions-SaveAction.shadow_hidden"/>
-            <file name="org-openide-actions-SaveAsAction.shadow_hidden"/>
+            <file name="org-openide-actions-SaveAllAction.instance_hidden"/>
+            <file name="org-openide-actions-SaveAction.shadow"/>
+            <file name="org-openide-actions-SaveAsAction.shadow"/>
+            <file name="org-openide-actions-SaveAction.instance_hidden"/>
+            <file name="org-openide-actions-SaveAsAction.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-ExportHtmlAction.shadow_hidden"/>
+
+            <file name="org-openide-actions-CloseAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
+                <attr name="delegate" methodvalue="org.openide.awt.Actions.performer"/>
+                <attr name="selectionType" stringvalue="ANY"/>
+                <attr name="surviveFocusChange" boolvalue="false"/>
+                <attr name="displayName" bundlevalue="org/openide/awt/Bundle#Close"/>
+                <attr name="noIconInMenu" boolvalue="true"/>
+                <attr name="type" stringvalue="org.netbeans.api.actions.Closable"/>
+            </file>
+
+            <file name="Separator3.instance_hidden"/>
+            <file name="org-openide-actions-PageSetupAction.shadow_hidden"/>
+            <file name="org-openide-actions-PrintAction.shadow_hidden"/>
+            <file name="org-netbeans-modules-print-action-PageSetupAction.shadow_hidden"/>
+            <file name="org-netbeans-modules-print-action-PrintAction.shadow_hidden"/>
         </folder>
         <folder name="Edit">
             <attr name="position" intvalue="20" />
+            <!-- found in org-netbeans-modules-editor.jar!/org/netbeans/modules/editor/resources/layer.xml-->
+            <file name="org-netbeans-modules-editor-MainMenuAction$SelectIdentifierAction.instance_hidden"/>
+            <file name="SeparatorAfterProjectsSearch.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-MainMenuAction$StartMacroRecordingAction.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-MainMenuAction$StopMacroRecordingAction.instance_hidden"/>
+            <file name="clipboard-lines.shadow_hidden"/>
+            <file name="org-netbeans-modules-search-FindInFilesAction.instance_hidden"/>
         </folder>
+        <file name="Source_hidden"/>
+        <file name="Refactor_hidden"/>
+        <file name="GoTo_hidden"/>
+        <file name="View_hidden"/>
         <folder name="Refactoring_hidden"/>
         <folder name="Tools">
             <file name="Separator1.instance_hidden"/>
@@ -45,6 +105,9 @@
             <file name="CloseWindowAction.shadow_hidden"/>
             <file name="DocumentsAction.shadow_hidden"/>
             <file name="GroupsMenuAction.shadow_hidden"/>
+        </folder>
+        <folder name="Help">
+            <file name="org-netbeans-modules-autoupdate-ui-actions-CheckForUpdatesAction.shadow_hidden"/>
         </folder>
     </folder>
     <folder name="Toolbars">
@@ -76,5 +139,10 @@
             <!-- Moved to another package -->
             <file name="ProbeTopComponent.settings_hidden"/>
         </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="M-S.shadow">
+            <attr name="originalFile" stringvalue="Menu/File/org-openide-actions-SaveAction.instance"/>
+        </file>
     </folder>
 </filesystem>

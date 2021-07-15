@@ -19,6 +19,8 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,8 +35,8 @@ import java.io.IOException;
  */
 public class GcodeStreamReader extends GcodeStream implements IGcodeStreamReader {
     private BufferedReader reader;
-    private int numRows;
-    private int numRowsRemaining;
+    private int numRows = 0;
+    private int numRowsRemaining = 0;
 
     public static class NotGcodeStreamFile extends Exception {}
 
@@ -42,8 +44,12 @@ public class GcodeStreamReader extends GcodeStream implements IGcodeStreamReader
         this.reader = reader;
         
         try {
-            String metadata = reader.readLine().trim();
+            String line = reader.readLine();
+            if (StringUtils.isEmpty(line)) {
+                return;
+            }
 
+            String metadata = line.trim();
             if (!metadata.startsWith(super.metaPrefix)) {
                 throw new NotGcodeStreamFile();
             }

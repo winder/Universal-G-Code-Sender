@@ -23,11 +23,19 @@
         </plugins>
     </build>
     <dependencies>
+        <!-- UGS dependencies -->
         <dependency>
             <groupId>com.willwinder</groupId>
             <artifactId>ugs-platform-visualizer</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ugs-platform-ugslib</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
+
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-nodes</artifactId>

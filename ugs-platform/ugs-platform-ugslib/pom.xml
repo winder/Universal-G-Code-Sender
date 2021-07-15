@@ -19,6 +19,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
+                        <publicPackage>com.willwinder.ugs.nbp.lib</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.lib.options</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.lib.services</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.lib.lookup</publicPackage>
@@ -211,6 +212,11 @@
             <artifactId>org-openide-nodes</artifactId>
             <version>${netbeans.version}</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-text</artifactId>
+            <version>${netbeans.version}</version>
         </dependency>
     </dependencies>
 </project>
