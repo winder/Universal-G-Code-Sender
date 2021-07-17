@@ -145,10 +145,17 @@ public class CommandProcessorLoaderTest {
         object.add("args", args);
         array.add(object);
 
+        args = new JsonObject();
+        args.addProperty("segmentLengthMM", 2.5);
+        object = new JsonObject();
+        object.addProperty("name", "LineSplitter");
+        object.add("args", args);
+        array.add(object);
+
         String jsonConfig = array.toString();
         List<CommandProcessor> processors = CommandProcessorLoader.initializeWithProcessors(jsonConfig);
 
-        assertEquals(9, processors.size());
+        assertEquals(10, processors.size());
         assertEquals(ArcExpander.class, processors.get(0).getClass());
         assertEquals(CommentProcessor.class, processors.get(1).getClass());
         assertEquals(DecimalProcessor.class, processors.get(2).getClass());
@@ -158,6 +165,7 @@ public class CommandProcessorLoaderTest {
         assertEquals(CommandLengthProcessor.class, processors.get(6).getClass());
         assertEquals(WhitespaceProcessor.class, processors.get(7).getClass());
         assertEquals(SpindleOnDweller.class, processors.get(8).getClass());
+        assertEquals(LineSplitter.class, processors.get(9).getClass());
     }
     
     private static JsonElement with(String name, Boolean enabled) {

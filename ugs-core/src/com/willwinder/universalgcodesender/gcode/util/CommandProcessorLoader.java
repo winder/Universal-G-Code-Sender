@@ -22,20 +22,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
-import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
-import com.willwinder.universalgcodesender.gcode.processors.SpindleOnDweller;
-import com.willwinder.universalgcodesender.gcode.processors.PatternRemover;
-import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.*;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.ControllerSettings.ProcessorConfig;
 import java.util.ArrayList;
 import java.util.List;
-import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 
 /**
  *
@@ -163,15 +154,22 @@ public class CommandProcessorLoader {
      *         "enabled": <enabled>
      *         "optional": <optional>,
      *     },{
-     *         name: "WhitespaceProcessor",
+     *         "name": "WhitespaceProcessor",
      *         "enabled": <enabled>
      *         "optional": <optional>,
-     },{
-         name: "SpindleOnDweller",
-         "enabled": <enabled>,
+     *     },{
+     *         "name": "SpindleOnDweller",
+     *         "enabled": <enabled>,
      *         "optional": <optional>,
      *         "args": {
      *             "duraion": <double>
+     *         }
+     *     },{
+     *         "name":"LineSplitter",
+     *         "enabled": <enabled>,
+     *         "optional": <optional>,
+     *         "args": {
+     *             "segmentLengthMM": <double>
      *         }
      *     }
      *  ]
@@ -183,52 +181,12 @@ public class CommandProcessorLoader {
     static public List<CommandProcessor> initializeWithProcessors(List<ProcessorConfig> config) {
         List<CommandProcessor> list = new ArrayList<>();
         for (ProcessorConfig pc : config) {
-            CommandProcessor p = null;
-
             // Check if the processor is enabled.
             if (pc.optional && !pc.enabled) {
                 continue;
             }
 
-            switch (pc.name) {
-                case "ArcExpander":
-                    double length = pc.args.get("segmentLengthMM").getAsDouble();
-                    p = new ArcExpander(true, length);
-                    break;
-                case "CommandLengthProcessor":
-                    int commandLength = pc.args.get("commandLength").getAsInt();
-                    p = new CommandLengthProcessor(commandLength);
-                    break;
-                case "CommentProcessor":
-                    p = new CommentProcessor();
-                    break;
-                case "DecimalProcessor":
-                    int decimals = pc.args.get("decimals").getAsInt();
-                    p = new DecimalProcessor(decimals);
-                    break;
-                case "FeedOverrideProcessor":
-                    double override = pc.args.get("speedOverridePercent").getAsDouble();
-                    p = new FeedOverrideProcessor(override);
-                    break;
-                case "M30Processor":
-                    p = new M30Processor();
-                    break;
-                case "PatternRemover":
-                    String pattern = pc.args.get("pattern").getAsString();
-                    p = new PatternRemover(pattern);
-                    break;
-                case "WhitespaceProcessor":
-                    p = new WhitespaceProcessor();
-                    break;
-                case "SpindleOnDweller":
-                    double duration = pc.args.get("duration").getAsDouble();
-                    p = new SpindleOnDweller(duration);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown processor: " + pc.name);
-            }
-
-            list.add(p);
+            list.add(getProcessor(pc));
         }
 
         return list;
@@ -240,49 +198,44 @@ public class CommandProcessorLoader {
      * @return 
      */
     static public String getHelpForConfig(ProcessorConfig pc) {
-        CommandProcessor p;
         try {
-            switch (pc.name) {
-                case "ArcExpander":
-                    double length = pc.args.get("segmentLengthMM").getAsDouble();
-                    p = new ArcExpander(true, length);
-                    break;
-                case "CommandLengthProcessor":
-                    int commandLength = pc.args.get("commandLength").getAsInt();
-                    p = new CommandLengthProcessor(commandLength);
-                    break;
-                case "CommentProcessor":
-                    p = new CommentProcessor();
-                    break;
-                case "DecimalProcessor":
-                    int decimals = pc.args.get("decimals").getAsInt();
-                    p = new DecimalProcessor(decimals);
-                    break;
-                case "FeedOverrideProcessor":
-                    double override = pc.args.get("speedOverridePercent").getAsDouble();
-                    p = new FeedOverrideProcessor(override);
-                    break;
-                case "M30Processor":
-                    p = new M30Processor();
-                    break;
-                case "PatternRemover":
-                    String pattern = pc.args.get("pattern").getAsString();
-                    p = new PatternRemover(pattern);
-                    break;
-                case "WhitespaceProcessor":
-                    p = new WhitespaceProcessor();
-                    break;
-                case "SpindleOnDweller":
-                    int duration = pc.args.get("duration").getAsInt();
-                    p = new SpindleOnDweller(duration);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown processor: " + pc.name);
-            }
-            return p.getHelp();
+            return getProcessor(pc).getHelp();
         } catch (Exception e) {
             return Localization.getString("settings.processors.loadError")
                     + ": " + Localization.getString(pc.name);
+        }
+    }
+
+    private static CommandProcessor getProcessor(ProcessorConfig pc) {
+        switch (pc.name) {
+            case "ArcExpander":
+                double length = pc.args.get("segmentLengthMM").getAsDouble();
+                return new ArcExpander(true, length);
+            case "CommandLengthProcessor":
+                int commandLength = pc.args.get("commandLength").getAsInt();
+                return new CommandLengthProcessor(commandLength);
+            case "CommentProcessor":
+                return new CommentProcessor();
+            case "DecimalProcessor":
+                int decimals = pc.args.get("decimals").getAsInt();
+                return new DecimalProcessor(decimals);
+            case "FeedOverrideProcessor":
+                double override = pc.args.get("speedOverridePercent").getAsDouble();
+                return new FeedOverrideProcessor(override);
+            case "M30Processor":
+                return new M30Processor();
+            case "PatternRemover":
+                String pattern = pc.args.get("pattern").getAsString();
+                return new PatternRemover(pattern);
+            case "WhitespaceProcessor":
+                return new WhitespaceProcessor();
+            case "SpindleOnDweller":
+                double duration = pc.args.get("duration").getAsDouble();
+                return new SpindleOnDweller(duration);
+            case "LineSplitter":
+                return new LineSplitter(pc.args.get("segmentLengthMM").getAsDouble());
+            default:
+                throw new IllegalArgumentException("Unknown processor: " + pc.name);
         }
     }
 }
