@@ -18,7 +18,9 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.selection;
 
-import com.willwinder.ugs.nbp.designer.entities.*;
+import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.entities.controls.ModifyControls;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
@@ -28,12 +30,10 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,7 +42,6 @@ import java.util.stream.Stream;
  */
 public class SelectionManager extends AbstractEntity {
 
-    private static final Logger LOGGER = Logger.getLogger(SelectionManager.class.getSimpleName());
     private final Set<SelectionListener> listeners = new HashSet<>();
     private final EntityGroup entityGroup;
     private final ModifyControls modifyControls;
@@ -155,19 +154,16 @@ public class SelectionManager extends AbstractEntity {
     @Override
     public void move(Point2D deltaMovement) {
         entityGroup.move(deltaMovement);
-        notifyEvent(new EntityEvent(this, EventType.MOVED));
     }
 
     @Override
     public void rotate(double angle) {
         entityGroup.rotate(angle);
-        notifyEvent(new EntityEvent(this, EventType.ROTATED));
     }
 
     @Override
     public void rotate(Point2D center, double angle) {
         entityGroup.rotate(center, angle);
-        notifyEvent(new EntityEvent(this, EventType.ROTATED));
     }
 
     @Override
@@ -178,28 +174,21 @@ public class SelectionManager extends AbstractEntity {
     @Override
     public void setRotation(double rotation) {
         entityGroup.setRotation(rotation);
-        notifyEvent(new EntityEvent(this, EventType.ROTATED));
     }
 
     @Override
     public void scale(double sx, double sy) {
         entityGroup.scale(sx, sy);
-        notifyEvent(new EntityEvent(this, EventType.RESIZED));
     }
 
     @Override
     public Size getSize() {
-        if(entityGroup.getChildren().size() == 1) {
-            return entityGroup.getChildren().get(0).getSize();
-        }
-
-        Rectangle2D bounds = getShape().getBounds2D();
-        return new Size(bounds.getWidth(), bounds.getHeight());
+        return entityGroup.getSize();
     }
 
     @Override
     public void setSize(Size size) {
-        LOGGER.warning("SelectionManager.setSize() is not implemented");
+        entityGroup.setSize(size);
     }
 
     public void toggleSelection(Entity entity) {

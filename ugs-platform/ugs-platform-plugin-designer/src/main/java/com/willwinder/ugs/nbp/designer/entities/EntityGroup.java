@@ -49,7 +49,8 @@ public class EntityGroup extends AbstractEntity {
 
     @Override
     public void setSize(Size size) {
-
+        Size originalSize = getSize();
+        scale(size.getWidth() / originalSize.getWidth(), size.getHeight() / originalSize.getHeight());
     }
 
     @Override
@@ -203,6 +204,8 @@ public class EntityGroup extends AbstractEntity {
             children.forEach(entity -> entity.rotate(center, deltaRotation));
         }
         groupRotation += deltaRotation;
+        notifyEvent(new EntityEvent(this, EventType.ROTATED));
+        recalculateCenter();
     }
 
     @Override
@@ -229,7 +232,14 @@ public class EntityGroup extends AbstractEntity {
 
     @Override
     public void scale(double sx, double sy) {
-        this.children.forEach(child -> child.scale(sx, sy));
+        Point2D originalPosition = getPosition();
+        this.children.forEach(child -> {
+            Point2D childOriginalPosition = child.getPosition();
+            Point2D relativePosition = new Point2D.Double(childOriginalPosition.getX() - originalPosition.getX(), childOriginalPosition.getY() - originalPosition.getY());
+            child.scale(sx, sy);
+            child.setPosition(new Point2D.Double(originalPosition.getX() + (relativePosition.getX() * sx), originalPosition.getY() + (relativePosition.getY() * sy)));
+        });
+        notifyEvent(new EntityEvent(this, EventType.RESIZED));
         recalculateCenter();
     }
 }

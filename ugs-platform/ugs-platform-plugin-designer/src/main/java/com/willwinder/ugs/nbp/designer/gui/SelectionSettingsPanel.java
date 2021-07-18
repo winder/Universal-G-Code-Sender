@@ -28,6 +28,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.actions.ChangeCutSettingsAction;
+import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import net.miginfocom.swing.MigLayout;
@@ -77,7 +78,9 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         add(posYTextField, "grow");
 
         widthTextField = new JTextField("0");
+        widthTextField.getDocument().addDocumentListener(this);
         heightTextField = new JTextField("0");
+        heightTextField.getDocument().addDocumentListener(this);
         add(new JLabel("Width", SwingConstants.RIGHT), "grow");
         add(widthTextField, "grow");
         add(new JLabel("Height", SwingConstants.RIGHT), "grow");
@@ -192,6 +195,13 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             Point2D position = controller.getSelectionManager().getPosition();
             position.setLocation(x - position.getX(), y - position.getY());
             controller.getSelectionManager().move(position);
+            controller.getDrawing().repaint();
+        }
+
+        if (StringUtils.isNotEmpty(widthTextField.getText()) && StringUtils.isNotEmpty(heightTextField.getText())) {
+            double width = Double.parseDouble(widthTextField.getText());
+            double height = Double.parseDouble(heightTextField.getText());
+            controller.getSelectionManager().setSize(new Size(width, height));
             controller.getDrawing().repaint();
         }
 
