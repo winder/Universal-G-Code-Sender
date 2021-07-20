@@ -104,7 +104,9 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         cutTypeButtonMap.keySet().forEach(key -> {
             JToggleButton button = cutTypeButtonMap.get(key);
             buttonGroup.add(button);
-            button.addActionListener(event -> { stateChanged(null); });
+            button.addActionListener(event -> {
+                stateChanged(null);
+            });
         });
 
         cutTypePanel = new JPanel(new MigLayout("fill, insets 0"));
@@ -184,7 +186,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
                 double angle = Double.parseDouble(rotation.getText());
                 controller.getSelectionManager().setRotation(angle);
                 controller.getDrawing().repaint();
-            } catch(NumberFormatException ex) {
+            } catch (NumberFormatException ex) {
                 // never mind
             }
         }
@@ -199,10 +201,17 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         }
 
         if (StringUtils.isNotEmpty(widthTextField.getText()) && StringUtils.isNotEmpty(heightTextField.getText())) {
-            double width = Double.parseDouble(widthTextField.getText());
-            double height = Double.parseDouble(heightTextField.getText());
-            controller.getSelectionManager().setSize(new Size(width, height));
-            controller.getDrawing().repaint();
+            try {
+                double width = Double.parseDouble(widthTextField.getText());
+                double height = Double.parseDouble(heightTextField.getText());
+                if (width <= 1 || height <= 0) {
+                    return;
+                }
+                controller.getSelectionManager().setSize(new Size(width, height));
+                controller.getDrawing().repaint();
+            } catch (NumberFormatException ex) {
+                // never mind
+            }
         }
 
         controller.getSelectionManager().addListener(this);
