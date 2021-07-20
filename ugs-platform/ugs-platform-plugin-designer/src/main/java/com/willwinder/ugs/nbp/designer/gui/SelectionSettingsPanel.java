@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
+import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EntityListener;
@@ -29,7 +30,6 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.actions.ChangeCutSettingsAction;
 import com.willwinder.ugs.nbp.designer.model.Size;
-import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
@@ -184,7 +184,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
         if (StringUtils.isNotEmpty(rotation.getText()) && e.getDocument() == rotation.getDocument()) {
             try {
-                double angle = Double.parseDouble(rotation.getText());
+                double angle = Utils.parseDouble(rotation.getText());
                 controller.getSelectionManager().setRotation(angle);
                 controller.getDrawing().repaint();
             } catch (NumberFormatException ex) {
@@ -193,8 +193,8 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         }
 
         if (StringUtils.isNotEmpty(posXTextField.getText()) && StringUtils.isNotEmpty(posYTextField.getText()) && (e.getDocument() == posXTextField.getDocument() || e.getDocument() == posYTextField.getDocument())) {
-            double x = Double.parseDouble(posXTextField.getText());
-            double y = Double.parseDouble(posYTextField.getText());
+            double x = Utils.parseDouble(posXTextField.getText());
+            double y = Utils.parseDouble(posYTextField.getText());
             Point2D position = controller.getSelectionManager().getPosition();
             position.setLocation(x - position.getX(), y - position.getY());
             controller.getSelectionManager().move(position);
@@ -203,8 +203,8 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
         if (StringUtils.isNotEmpty(widthTextField.getText()) && StringUtils.isNotEmpty(heightTextField.getText()) && (e.getDocument() == widthTextField.getDocument() || e.getDocument() == heightTextField.getDocument())) {
             try {
-                double width = Double.parseDouble(widthTextField.getText());
-                double height = Double.parseDouble(heightTextField.getText());
+                double width = Utils.parseDouble(widthTextField.getText());
+                double height = Utils.parseDouble(heightTextField.getText());
                 if (width <= 1 || height <= 0) {
                     return;
                 }
@@ -262,12 +262,12 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
 
         Point2D position = controller.getSelectionManager().getPosition();
-        setFieldValue(posXTextField, Utils.formatter.format(position.getX()));
-        setFieldValue(posYTextField, Utils.formatter.format(position.getY()));
+        setFieldValue(posXTextField, Utils.toString(position.getX()));
+        setFieldValue(posYTextField, Utils.toString(position.getY()));
 
-        setFieldValue(widthTextField, Utils.formatter.format(controller.getSelectionManager().getSize().getWidth()));
-        setFieldValue(heightTextField, Utils.formatter.format(controller.getSelectionManager().getSize().getHeight()));
-        setFieldValue(rotation, Utils.formatter.format(controller.getSelectionManager().getRotation()));
+        setFieldValue(widthTextField, Utils.toString(controller.getSelectionManager().getSize().getWidth()));
+        setFieldValue(heightTextField, Utils.toString(controller.getSelectionManager().getSize().getHeight()));
+        setFieldValue(rotation, Utils.toString(controller.getSelectionManager().getRotation()));
         controller.getDrawing().repaint();
     }
 }

@@ -18,7 +18,10 @@
  */
 package com.willwinder.ugs.nbp.designer;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.awt.geom.Point2D;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +37,23 @@ public class Utils {
         }
 
         return Math.abs(degrees);
+    }
+
+    public static double parseDouble(String value) {
+        if(StringUtils.isEmpty(value)) {
+            return 0;
+        }
+
+        try {
+            return com.willwinder.universalgcodesender.Utils.formatter.parse(value).doubleValue();
+        } catch (ParseException e) {
+            return 0;
+        }
+    }
+
+
+    public static String toString(double value) {
+        return com.willwinder.universalgcodesender.Utils.formatter.format(value);
     }
 
     /**

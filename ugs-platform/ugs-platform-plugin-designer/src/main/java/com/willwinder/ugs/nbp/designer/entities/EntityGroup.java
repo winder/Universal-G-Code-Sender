@@ -85,7 +85,7 @@ public class EntityGroup extends AbstractEntity {
                 .filter(c -> c != this)
                 .forEach(c -> area.add(new Area(c.getShape())));
 
-        return area.getBounds();
+        return area.getBounds2D();
     }
 
     @Override
