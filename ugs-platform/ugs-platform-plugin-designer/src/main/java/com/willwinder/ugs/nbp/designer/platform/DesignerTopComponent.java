@@ -19,10 +19,7 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
 import com.google.common.io.Files;
-import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
-import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
-import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
-import com.willwinder.ugs.nbp.designer.actions.UndoManagerListener;
+import com.willwinder.ugs.nbp.designer.actions.*;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
@@ -42,6 +39,7 @@ import org.openide.nodes.Children;
 import org.openide.text.DataEditorSupport;
 import org.openide.windows.TopComponent;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
@@ -75,6 +73,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     private final UgsDataObject dataObject;
 
     public DesignerTopComponent(UgsDataObject dataObject) {
+        super();
         this.dataObject = dataObject;
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         controller = CentralLookup.getDefault().lookup(Controller.class);
@@ -90,6 +89,9 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         dataObject.addPropertyChangeListener(evt -> updateFilename());
         loadDesign(dataObject);
         updateFilename();
+
+        getActionMap().put("delete", new DeleteAction(controller));
+        getActionMap().put("select-all", new SelectAllAction(controller));
     }
 
     private void loadDesign(UgsDataObject dataObject) {
@@ -135,8 +137,6 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
 
         controller.getUndoManager().addListener(this);
         controller.getDrawing().repaint();
-        getActionMap().put("delete", new DeleteAction(controller));
-        getActionMap().put("select-all", new SelectAllAction(controller));
         generateGcode();
     }
 
@@ -200,5 +200,6 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         controller.getDrawing().repaint();
         PlatformUtils.openSettings(controller);
         PlatformUtils.openEntitesTree(controller);
+        requestActive();
     }
 }
