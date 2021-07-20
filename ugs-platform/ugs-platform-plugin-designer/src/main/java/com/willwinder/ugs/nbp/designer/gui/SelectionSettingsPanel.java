@@ -219,41 +219,6 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     }
 
     @Override
-    public void onEvent(EntityEvent entityEvent) {
-        if (this.controller.getSelectionManager().getSelection().isEmpty()) {
-            setEnabled(false);
-            return;
-        } else {
-            setEnabled(true);
-        }
-
-        depthSpinner.setModel(new SpinnerNumberModel(controller.getSettings().getStockThickness(), 0d, controller.getSettings().getStockThickness(), 0.1d));
-
-        if (controller.getSelectionManager().getSelection().size() == 1) {
-            Entity selectedEntity = controller.getSelectionManager().getSelection().get(0);
-            if (selectedEntity instanceof Cuttable) {
-                Cuttable cuttable = (Cuttable) selectedEntity;
-                JToggleButton cutTypeButton = cutTypeButtonMap.get(cuttable.getCutType());
-                cutTypeButton.setSelected(true);
-                setFieldValue(depthSpinner, cuttable.getCutDepth());
-
-                final boolean hasCutTypeSelection = cuttable.getCutType() != CutType.NONE;
-                depthSpinner.setEnabled(hasCutTypeSelection);
-                cutDepthLabel.setEnabled(hasCutTypeSelection);
-            }
-        }
-
-        Point2D position = controller.getSelectionManager().getPosition();
-        setFieldValue(posXTextField, Utils.formatter.format(position.getX()));
-        setFieldValue(posYTextField, Utils.formatter.format(position.getY()));
-
-        setFieldValue(widthTextField, Utils.formatter.format(controller.getSelectionManager().getSize().getWidth()));
-        setFieldValue(heightTextField, Utils.formatter.format(controller.getSelectionManager().getSize().getHeight()));
-        setFieldValue(rotation, Utils.formatter.format(controller.getSelectionManager().getRotation()));
-        controller.getDrawing().repaint();
-    }
-
-    @Override
     public void stateChanged(ChangeEvent e) {
         if (controller == null || controller.getSelectionManager() == null) {
             return;
@@ -269,5 +234,40 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             }
         });
         onEvent(new EntityEvent(controller.getSelectionManager(), EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public void onEvent(EntityEvent entityEvent) {
+        if (this.controller.getSelectionManager().getSelection().isEmpty()) {
+            setEnabled(false);
+            return;
+        } else {
+            setEnabled(true);
+        }
+
+        depthSpinner.setModel(new SpinnerNumberModel(controller.getSettings().getStockThickness(), 0d, controller.getSettings().getStockThickness(), 0.1d));
+
+
+        Entity selectedEntity = controller.getSelectionManager().getSelection().get(0);
+        if (selectedEntity instanceof Cuttable) {
+            Cuttable cuttable = (Cuttable) selectedEntity;
+            JToggleButton cutTypeButton = cutTypeButtonMap.get(cuttable.getCutType());
+            cutTypeButton.setSelected(true);
+            setFieldValue(depthSpinner, cuttable.getCutDepth());
+
+            final boolean hasCutTypeSelection = cuttable.getCutType() != CutType.NONE;
+            depthSpinner.setEnabled(hasCutTypeSelection);
+            cutDepthLabel.setEnabled(hasCutTypeSelection);
+        }
+
+
+        Point2D position = controller.getSelectionManager().getPosition();
+        setFieldValue(posXTextField, Utils.formatter.format(position.getX()));
+        setFieldValue(posYTextField, Utils.formatter.format(position.getY()));
+
+        setFieldValue(widthTextField, Utils.formatter.format(controller.getSelectionManager().getSize().getWidth()));
+        setFieldValue(heightTextField, Utils.formatter.format(controller.getSelectionManager().getSize().getHeight()));
+        setFieldValue(rotation, Utils.formatter.format(controller.getSelectionManager().getRotation()));
+        controller.getDrawing().repaint();
     }
 }
