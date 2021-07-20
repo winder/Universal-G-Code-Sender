@@ -36,8 +36,10 @@ public class EntityGroup extends AbstractEntity {
     private List<Entity> children = new ArrayList<>();
 
     private double groupRotation = 0;
+    private Point2D cachedCenter = new Point2D.Double(0, 0);
 
     public EntityGroup() {
+        super();
         setName("Group");
     }
 
@@ -69,6 +71,7 @@ public class EntityGroup extends AbstractEntity {
             groupRotation += angle;
             getAllChildren().forEach(entity -> entity.rotate(center, angle));
             notifyEvent(new EntityEvent(this, EventType.ROTATED));
+            invalidateCenter();
         } catch (Exception e) {
             throw new RuntimeException("Couldn't set the rotation", e);
         }
@@ -97,17 +100,27 @@ public class EntityGroup extends AbstractEntity {
     public void addChild(Entity node) {
         if (!containsChild(node)) {
             children.add(node);
+            invalidateCenter();
         }
+    }
+
+    private void invalidateCenter() {
+        cachedCenter = null;
     }
 
     @Override
     public Point2D getCenter() {
-        Rectangle2D bounds = getShape().getBounds2D();
-        return new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
+        if (cachedCenter == null) {
+            Rectangle2D bounds = getShape().getBounds2D();
+            cachedCenter = new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
+        }
+
+        return cachedCenter;
     }
 
     public void addAll(List<Entity> entities) {
         entities.forEach(this::addChild);
+        invalidateCenter();
     }
 
     @Override
@@ -115,6 +128,7 @@ public class EntityGroup extends AbstractEntity {
         if (children != null) {
             children.forEach(c -> c.applyTransform(transform));
         }
+        invalidateCenter();
     }
 
     @Override
@@ -122,6 +136,7 @@ public class EntityGroup extends AbstractEntity {
         try {
             applyTransform(AffineTransform.getTranslateInstance(deltaMovement.getX(), deltaMovement.getY()));
             notifyEvent(new EntityEvent(this, EventType.MOVED));
+            invalidateCenter();
         } catch (Exception e) {
             throw new RuntimeException("Could not make inverse transform of point", e);
         }
@@ -130,6 +145,7 @@ public class EntityGroup extends AbstractEntity {
     @Override
     public void setTransform(AffineTransform transform) {
         children.forEach(c -> c.setTransform(transform));
+        invalidateCenter();
     }
 
     public boolean containsChild(Entity node) {
@@ -142,6 +158,8 @@ public class EntityGroup extends AbstractEntity {
                 .filter(EntityGroup.class::isInstance)
                 .map(EntityGroup.class::cast)
                 .forEach(c -> c.removeChild(entity));
+
+        invalidateCenter();
     }
 
     @Override
@@ -157,6 +175,7 @@ public class EntityGroup extends AbstractEntity {
     public void removeAll() {
         this.groupRotation = 0;
         this.children.clear();
+        invalidateCenter();
     }
 
     public List<Entity> getChildrenAt(Point2D p) {
@@ -193,6 +212,7 @@ public class EntityGroup extends AbstractEntity {
         }
         groupRotation += deltaRotation;
         notifyEvent(new EntityEvent(this, EventType.ROTATED));
+        invalidateCenter();
     }
 
     @Override
@@ -204,6 +224,10 @@ public class EntityGroup extends AbstractEntity {
     }
 
     public final List<Entity> getAllChildren() {
+        if (this.children == null) {
+            return Collections.emptyList();
+        }
+
         List<Entity> result = this.children
                 .stream()
                 .flatMap(s -> {
@@ -227,5 +251,6 @@ public class EntityGroup extends AbstractEntity {
             child.setPosition(new Point2D.Double(originalPosition.getX() + (relativePosition.getX() * sx), originalPosition.getY() + (relativePosition.getY() * sy)));
         });
         notifyEvent(new EntityEvent(this, EventType.RESIZED));
+        invalidateCenter();
     }
 }

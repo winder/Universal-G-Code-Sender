@@ -181,7 +181,8 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     @Override
     public void changedUpdate(DocumentEvent e) {
         controller.getSelectionManager().removeListener(this);
-        if (StringUtils.isNotEmpty(rotation.getText())) {
+
+        if (StringUtils.isNotEmpty(rotation.getText()) && e.getDocument() == rotation.getDocument()) {
             try {
                 double angle = Double.parseDouble(rotation.getText());
                 controller.getSelectionManager().setRotation(angle);
@@ -191,7 +192,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             }
         }
 
-        if (StringUtils.isNotEmpty(posXTextField.getText()) && StringUtils.isNotEmpty(posYTextField.getText())) {
+        if (StringUtils.isNotEmpty(posXTextField.getText()) && StringUtils.isNotEmpty(posYTextField.getText()) && (e.getDocument() == posXTextField.getDocument() || e.getDocument() == posYTextField.getDocument())) {
             double x = Double.parseDouble(posXTextField.getText());
             double y = Double.parseDouble(posYTextField.getText());
             Point2D position = controller.getSelectionManager().getPosition();
@@ -200,7 +201,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             controller.getDrawing().repaint();
         }
 
-        if (StringUtils.isNotEmpty(widthTextField.getText()) && StringUtils.isNotEmpty(heightTextField.getText())) {
+        if (StringUtils.isNotEmpty(widthTextField.getText()) && StringUtils.isNotEmpty(heightTextField.getText()) && (e.getDocument() == widthTextField.getDocument() || e.getDocument() == heightTextField.getDocument())) {
             try {
                 double width = Double.parseDouble(widthTextField.getText());
                 double height = Double.parseDouble(heightTextField.getText());

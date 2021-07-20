@@ -18,9 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.selection;
 
-import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.*;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.entities.controls.ModifyControls;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
@@ -40,7 +38,7 @@ import java.util.stream.Stream;
 /**
  * @author Joacim Breiler
  */
-public class SelectionManager extends AbstractEntity {
+public class SelectionManager extends AbstractEntity implements EntityListener {
 
     private final Set<SelectionListener> listeners = new HashSet<>();
     private final EntityGroup entityGroup;
@@ -50,6 +48,7 @@ public class SelectionManager extends AbstractEntity {
         super();
         entityGroup = new EntityGroup();
         modifyControls = new ModifyControls(this);
+        entityGroup.addListener(this);
     }
 
     @Override
@@ -102,6 +101,7 @@ public class SelectionManager extends AbstractEntity {
 
     public void removeSelection(Entity entity) {
         entityGroup.removeChild(entity);
+        entity.removeListener(this);
         fireSelectionEvent(new SelectionEvent());
     }
 
@@ -197,5 +197,10 @@ public class SelectionManager extends AbstractEntity {
         } else {
             addSelection(entity);
         }
+    }
+
+    @Override
+    public void onEvent(EntityEvent entityEvent) {
+        notifyEvent(entityEvent);
     }
 }
