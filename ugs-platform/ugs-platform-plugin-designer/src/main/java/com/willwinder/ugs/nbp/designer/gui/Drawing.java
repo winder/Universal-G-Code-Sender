@@ -28,6 +28,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -57,8 +58,7 @@ public class Drawing extends JPanel {
         globalRoot.addChild(entitiesRoot);
         globalRoot.addChild(controller.getSelectionManager());
 
-        setBorder(BorderFactory.createLineBorder(Color.black));
-        setBackground(Color.WHITE);
+        setBackground(Colors.BACKGROUND);
         setScale(1);
     }
 
@@ -77,6 +77,7 @@ public class Drawing extends JPanel {
     public void insertEntity(Entity s) {
         entitiesRoot.addChild(s);
         listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_ADDED));
+        refresh();
     }
 
     public List<Entity> getEntities() {
@@ -122,6 +123,7 @@ public class Drawing extends JPanel {
     public void removeEntity(Entity s) {
         globalRoot.removeChild(s);
         listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED));
+        refresh();
     }
 
     /**
@@ -133,12 +135,26 @@ public class Drawing extends JPanel {
         return scale;
     }
 
+    @Override
+    public Dimension getMinimumSize() {
+        Rectangle2D bounds = globalRoot.getBounds();
+        return new Dimension((int)(bounds.getMaxX() * scale) + (margin * 2), (int)(bounds.getMaxY() * scale) + (margin * 2));
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return getMinimumSize();
+    }
+
     public void setScale(double scale) {
         this.scale = scale;
         listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.SCALE_CHANGED));
-        Size stockSize = controller.getSettings().getStockSize();
-        setPreferredSize(new Dimension((int) ((stockSize.getWidth() + (margin * 2)) * scale), (int) ((stockSize.getHeight() + (margin * 2)) * scale)));
+        refresh();
+    }
+
+    private void refresh() {
         repaint();
+        firePropertyChange("minimumSize", getMinimumSize(), getMinimumSize());
     }
 
     public void addListener(DrawingListener listener) {

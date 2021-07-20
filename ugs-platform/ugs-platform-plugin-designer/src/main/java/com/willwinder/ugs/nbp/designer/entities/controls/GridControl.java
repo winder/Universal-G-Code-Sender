@@ -24,38 +24,55 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 /**
  * @author Joacim Breiler
  */
 public class GridControl extends AbstractEntity implements Control {
 
+    public static final int MINIMUM_SIZE = 300;
+    public static final int LARGE_GRID_SIZE = 50;
+    public static final int SMALL_GRID_SIZE = 10;
     private final Controller controller;
-
     public GridControl(Controller controller) {
         this.controller = controller;
     }
 
     @Override
     public void render(Graphics2D graphics) {
+        double gridSize = LARGE_GRID_SIZE;
+
+        Rectangle2D bounds = controller.getDrawing().getRootEntity().getBounds();
+        int calculatedMinimumWidth = (int) Math.round(Math.floor(bounds.getMaxX() / gridSize) * gridSize + (gridSize * 2));
+        int calculatedMinimumHeight = (int) Math.round(Math.floor(bounds.getMaxY() / gridSize) * gridSize + (gridSize * 2));
+
+        int width = Math.max(calculatedMinimumWidth, MINIMUM_SIZE);
+        int height = Math.max(calculatedMinimumHeight, MINIMUM_SIZE);
+
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, width, height);
+
         graphics.setStroke(new BasicStroke(0.1f));
-        graphics.setColor(Color.GRAY);
-
-        double gridSize = 10;
-        double width = (int)controller.getSettings().getStockSize().getWidth();
-        double height = (int)controller.getSettings().getStockSize().getHeight();
-
-        for (double x = 0; x <= width; x += gridSize) {
-            graphics.drawLine((int) Math.round(x), 0, (int) Math.round(x), (int) height);
+        graphics.setColor(Color.LIGHT_GRAY);
+        for (int x = 0; x <= width; x += SMALL_GRID_SIZE) {
+            graphics.drawLine(x, 0, x, height);
         }
 
-        for (double y = 0; y <= height; y += gridSize) {
-            graphics.drawLine(0, (int) Math.round(y), (int) width, (int) Math.round(y));
+        for (int y = 0; y <= height; y += SMALL_GRID_SIZE) {
+            graphics.drawLine(0, y, width, y);
+        }
+
+
+        graphics.setStroke(new BasicStroke(0.2f));
+        graphics.setColor(Color.LIGHT_GRAY);
+        for (int x = 0; x <= width; x += LARGE_GRID_SIZE) {
+            graphics.drawLine(x, 0, x, height);
+        }
+
+        for (int y = 0; y <= height; y += LARGE_GRID_SIZE) {
+            graphics.drawLine(0, y, width, y);
         }
     }
 

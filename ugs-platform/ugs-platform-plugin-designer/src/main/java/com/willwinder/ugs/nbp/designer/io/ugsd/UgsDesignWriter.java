@@ -134,7 +134,6 @@ public class UgsDesignWriter implements DesignWriter {
         settings.setFeedSpeed(controller.getSettings().getFeedSpeed());
         settings.setDepthPerPass(controller.getSettings().getDepthPerPass());
         settings.setStockThickness(controller.getSettings().getStockThickness());
-        settings.setStockSize(controller.getSettings().getStockSize());
         settings.setPlungeSpeed(controller.getSettings().getPlungeSpeed());
         settings.setPreferredUnits(controller.getSettings().getPreferredUnits());
         settings.setSafeHeight(controller.getSettings().getSafeHeight());
