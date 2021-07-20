@@ -18,11 +18,10 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.GridControl;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.model.Size;
 
 import javax.swing.*;
 import java.awt.*;
@@ -43,7 +42,6 @@ import static java.awt.RenderingHints.*;
 public class Drawing extends JPanel {
 
     private static final long serialVersionUID = 1298712398723987873L;
-    private final transient Controller controller;
     private final transient EntityGroup globalRoot;
     private final transient EntityGroup entitiesRoot;
     private double scale;
@@ -51,7 +49,6 @@ public class Drawing extends JPanel {
     private int margin = 100;
 
     public Drawing(Controller controller) {
-        this.controller = controller;
         globalRoot = new EntityGroup();
         globalRoot.addChild(new GridControl(controller));
         entitiesRoot = new EntityGroup();

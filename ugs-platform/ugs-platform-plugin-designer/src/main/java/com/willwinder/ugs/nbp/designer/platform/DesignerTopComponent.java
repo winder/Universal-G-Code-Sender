@@ -25,6 +25,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
+import com.willwinder.ugs.nbp.designer.gui.PopupMenuFactory;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -39,7 +40,6 @@ import org.openide.nodes.Children;
 import org.openide.text.DataEditorSupport;
 import org.openide.windows.TopComponent;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
@@ -136,6 +136,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         setVisible(true);
 
         controller.getUndoManager().addListener(this);
+        controller.getDrawing().setComponentPopupMenu(new PopupMenuFactory().createPopupMenu(controller));
         controller.getDrawing().repaint();
         generateGcode();
     }

@@ -63,6 +63,7 @@ public class DesignerMain extends JFrame {
         setVisible(true);
 
         loadExample(controller);
+        controller.getDrawing().setComponentPopupMenu(new PopupMenuFactory().createPopupMenu(controller));
         controller.getDrawing().repaint();
     }
 
