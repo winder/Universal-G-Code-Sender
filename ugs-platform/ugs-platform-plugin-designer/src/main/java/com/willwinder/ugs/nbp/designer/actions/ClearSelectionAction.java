@@ -37,15 +37,17 @@ public class ClearSelectionAction extends AbstractAction implements SelectionLis
     public static final String LARGE_ICON_PATH = "img/clear-selection32.svg";
 
     private final transient SelectionManager selectionManager;
+    private final transient Controller controller;
 
-    public ClearSelectionAction() {
+    public ClearSelectionAction(Controller controller) {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Clear selection");
         putValue(NAME, "Clear selection");
 
-        selectionManager = CentralLookup.getDefault().lookup(SelectionManager.class);
+        this.controller = controller;
+        selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);
         setEnabled(!selectionManager.getSelection().isEmpty());
     }
@@ -53,9 +55,6 @@ public class ClearSelectionAction extends AbstractAction implements SelectionLis
     @Override
     public void actionPerformed(ActionEvent e) {
         selectionManager.clearSelection();
-
-        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
-        controller.getDrawing().repaint();
     }
 
     @Override

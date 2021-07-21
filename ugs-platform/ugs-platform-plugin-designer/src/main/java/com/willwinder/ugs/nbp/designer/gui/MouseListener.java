@@ -93,7 +93,7 @@ public class MouseListener extends MouseAdapter {
 
     private Point2D toRelativePoint(MouseEvent m) {
         try {
-            return controller.getDrawing().getTransform().inverseTransform(m.getPoint(), null);
+            return controller.getDrawing().getTransform().inverseTransform(m.getPoint(), new Point2D.Double());
         } catch (Exception e) {
             throw new RuntimeException("Could not transform mouse position", e);
         }
