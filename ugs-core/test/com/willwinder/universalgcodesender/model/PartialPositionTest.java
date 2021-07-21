@@ -120,4 +120,17 @@ public class PartialPositionTest {
         assertEquals(ppxy.getY(), 2.0, 0.000001);
         assertFalse(ppxy.hasZ());
     }
+
+    @Test
+    public void copyShouldCopyTheValuesThatAreSet() {
+        PartialPosition partialPosition = PartialPosition.builder().setX(1d).setB(2d).setUnits(UnitUtils.Units.MM).build();
+        PartialPosition copy = PartialPosition.builder().copy(partialPosition).build();
+        assertEquals(partialPosition.getX(), copy.getX(), 0.1);
+        assertFalse(partialPosition.hasY());
+        assertFalse(partialPosition.hasZ());
+        assertFalse(partialPosition.hasA());
+        assertEquals(partialPosition.getB(), copy.getB(), 0.1);
+        assertFalse(partialPosition.hasC());
+        assertEquals(partialPosition.getUnits(), copy.getUnits());
+    }
 }

@@ -47,6 +47,7 @@ public class AddAction extends AbstractAction implements DrawAction, UndoableAct
     }
 
     public void execute() {
+        controller.getSelectionManager().clearSelection();
         controller.getDrawing().insertEntity(entity);
     }
 
@@ -55,6 +56,7 @@ public class AddAction extends AbstractAction implements DrawAction, UndoableAct
     }
 
     public void undo() {
+        controller.getSelectionManager().clearSelection();
         controller.getDrawing().removeEntity(entity);
     }
 

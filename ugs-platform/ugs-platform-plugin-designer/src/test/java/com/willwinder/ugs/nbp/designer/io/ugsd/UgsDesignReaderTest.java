@@ -3,7 +3,6 @@ package com.willwinder.ugs.nbp.designer.io.ugsd;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.*;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Design;
@@ -17,12 +16,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.ByteArrayOutputStream;
-import java.io.StringBufferInputStream;
-import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -73,8 +68,6 @@ public class UgsDesignReaderTest {
         assertEquals(0.3, design.getSettings().getToolStepOver(), 0.1);
         assertEquals(UnitUtils.Units.MM, design.getSettings().getPreferredUnits());
         assertEquals(1000, design.getSettings().getFeedSpeed());
-        assertEquals(300, design.getSettings().getStockSize().getWidth(), 0.1);
-        assertEquals(200, design.getSettings().getStockSize().getHeight(), 0.1);
 
         assertNotNull(design.getEntities());
         assertEquals(0, design.getEntities().size());

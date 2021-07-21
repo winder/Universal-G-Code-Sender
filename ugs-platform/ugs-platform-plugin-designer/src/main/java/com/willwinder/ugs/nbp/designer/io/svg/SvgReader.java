@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.model.Size;
+import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
@@ -42,12 +43,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
+import org.w3c.dom.svg.SVGRect;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -135,7 +134,11 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
 
             AffineTransform groupTransform = new AffineTransform(transform);
             if (graphicsNode.getTransform() != null) {
-                groupTransform.concatenate(graphicsNode.getTransform());
+                if( !graphicsNode.getTransform().isIdentity()) {
+                    groupTransform.concatenate(graphicsNode.getTransform());
+                } else {
+                    
+                }
             }
 
             if (graphicsNode instanceof CompositeGraphicsNode) {
@@ -252,7 +255,17 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
     @Override
     public void gvtBuildCompleted(GVTTreeBuilderEvent e) {
         Group group = new Group();
-        walk(svgCanvas.getSVGDocument(), group, new AffineTransform(), 0);
+        Dimension2D svgDocumentSize = svgCanvas.getSVGDocumentSize();
+
+        // If the width and height attributes are missing, try to fetch them from the viewport
+        SVGDocument svgDocument = svgCanvas.getSVGDocument();
+        if (svgDocumentSize.getWidth() == 0  || svgDocumentSize.getHeight() == 0) {
+            SVGRect baseVal = svgDocument.getRootElement().getViewBox().getBaseVal();
+            svgDocument.getRootElement().setAttributeNS(null, "width", Utils.formatter.format(baseVal.getWidth()));
+            svgDocument.getRootElement().setAttributeNS(null, "height", Utils.formatter.format(baseVal.getHeight()));
+        }
+
+        walk(svgDocument, group, new AffineTransform(), 0);
 
         // We need to invert the Y coordinate
         AffineTransform transform = new AffineTransform();
