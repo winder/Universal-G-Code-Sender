@@ -327,13 +327,13 @@ public class PartialPosition {
         }
 
         public Builder copy(PartialPosition position) {
-            this.x = position.getX();
-            this.y = position.getY();
-            this.z = position.getZ();
-            this.a = position.getA();
-            this.b = position.getB();
-            this.c = position.getC();
-            this.units = position.getUnits();
+            this.x = position.x;
+            this.y = position.y;
+            this.z = position.z;
+            this.a = position.a;
+            this.b = position.b;
+            this.c = position.c;
+            this.units = position.units;
             return this;
         }
     }
