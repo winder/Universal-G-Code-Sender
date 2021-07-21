@@ -120,8 +120,8 @@ public class RectangleTest {
         transform.translate(10, 10);
         rectangle.applyTransform(transform);
 
-        assertEquals(20d, rectangle.getShape().getBounds().getX(), 0.01);
-        assertEquals(20d, rectangle.getShape().getBounds().getY(), 0.01);
+        assertEquals(20d, rectangle.getShape().getBounds2D().getX(), 0.01);
+        assertEquals(20d, rectangle.getShape().getBounds2D().getY(), 0.01);
     }
 
     @Test
@@ -139,8 +139,8 @@ public class RectangleTest {
         entityGroup.setTransform(transform);
         entityGroup.addChild(rectangle);
 
-        assertEquals(10d, rectangle.getShape().getBounds().getX(), 0.01);
-        assertEquals(10d, rectangle.getShape().getBounds().getY(), 0.01);
+        assertEquals(10d, rectangle.getShape().getBounds2D().getX(), 0.01);
+        assertEquals(10d, rectangle.getShape().getBounds2D().getY(), 0.01);
     }
 
     @Test

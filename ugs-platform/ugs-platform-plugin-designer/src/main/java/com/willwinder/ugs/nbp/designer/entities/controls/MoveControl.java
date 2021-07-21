@@ -18,15 +18,13 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
-import com.willwinder.ugs.nbp.designer.gui.Colors;
-import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
+import com.willwinder.ugs.nbp.designer.actions.MoveAction;
+import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
-import com.willwinder.ugs.nbp.designer.actions.MoveAction;
-import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
-import com.willwinder.ugs.nbp.designer.model.Size;
+import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
 import java.awt.*;
@@ -46,25 +44,12 @@ public class MoveControl extends AbstractControl {
     }
 
     @Override
-    public void setSize(Size size) {
-    }
-
-    @Override
     public boolean isWithin(Point2D point) {
         return getSelectionManager().isWithin(point);
     }
 
     @Override
     public void render(Graphics2D graphics) {
-        graphics.setStroke(new BasicStroke(1f));
-        graphics.setColor(Colors.CONTROL_BORDER);
-
-        // Highlight the model
-        graphics.draw(getShape());
-
-        // Draw the bounds
-        graphics.setStroke(new BasicStroke(1f, 0, 0, 1, new float[]{2, 2}, 0));
-        graphics.draw(getSelectionManager().getTransform().createTransformedShape(getRelativeShape().getBounds()));
     }
 
     @Override
