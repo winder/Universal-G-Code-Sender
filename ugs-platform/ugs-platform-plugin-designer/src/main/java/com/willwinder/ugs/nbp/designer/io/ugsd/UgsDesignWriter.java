@@ -2,15 +2,18 @@ package com.willwinder.ugs.nbp.designer.io.ugsd;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.*;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.io.File;
@@ -118,7 +121,8 @@ public class UgsDesignWriter implements DesignWriter {
 
     private List<EntityPathSegmentV1> convertPathToSegments(Entity entity) {
         List<EntityPathSegmentV1> segments = new ArrayList<>();
-        PathIterator pathIterator = entity.getShape().getPathIterator(new AffineTransform());
+        Shape shape = entity.getShape();
+        PathIterator pathIterator = shape.getPathIterator(AffineTransform.getRotateInstance(Math.toRadians(Utils.normalizeRotation(entity.getRotation())), shape.getBounds2D().getCenterX(), shape.getBounds2D().getCenterY()));
         double[] coordinates = new double[8];
         while (!pathIterator.isDone()) {
             Arrays.fill(coordinates, 0);
@@ -134,7 +138,6 @@ public class UgsDesignWriter implements DesignWriter {
         settings.setFeedSpeed(controller.getSettings().getFeedSpeed());
         settings.setDepthPerPass(controller.getSettings().getDepthPerPass());
         settings.setStockThickness(controller.getSettings().getStockThickness());
-        settings.setStockSize(controller.getSettings().getStockSize());
         settings.setPlungeSpeed(controller.getSettings().getPlungeSpeed());
         settings.setPreferredUnits(controller.getSettings().getPreferredUnits());
         settings.setSafeHeight(controller.getSettings().getSafeHeight());

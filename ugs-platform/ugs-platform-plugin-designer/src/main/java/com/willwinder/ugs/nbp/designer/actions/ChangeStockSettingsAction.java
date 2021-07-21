@@ -28,17 +28,12 @@ import java.awt.event.ActionEvent;
  * @author Joacim Breiler
  */
 public class ChangeStockSettingsAction extends AbstractAction implements UndoableAction {
-
-    private final Size previousSize;
-    private final Size newSize;
     private final double previousThickness;
     private final double newThickness;
     private final transient Controller controller;
 
-    public ChangeStockSettingsAction(Controller controller, double width, double height, double newThickness) {
-        this.newSize = new Size(width, height);
+    public ChangeStockSettingsAction(Controller controller, double newThickness) {
         this.newThickness = newThickness;
-        this.previousSize = controller.getSettings().getStockSize();
         this.previousThickness = controller.getSettings().getStockThickness();
         this.controller = controller;
         putValue("menuText", "Change stock settings");
@@ -53,13 +48,11 @@ public class ChangeStockSettingsAction extends AbstractAction implements Undoabl
     @Override
     public void undo() {
         this.controller.getSettings().setStockThickness(previousThickness);
-        this.controller.getSettings().setStockSize(previousSize);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         this.controller.getSettings().setStockThickness(newThickness);
-        this.controller.getSettings().setStockSize(newSize);
         this.controller.getDrawing().repaint();
     }
 }
