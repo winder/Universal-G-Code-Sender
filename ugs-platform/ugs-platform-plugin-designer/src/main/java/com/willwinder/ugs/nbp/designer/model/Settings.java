@@ -15,7 +15,6 @@ public class Settings {
     private double stockThickness = 20;
     private double safeHeight = 10;
     private UnitUtils.Units preferredUnits = UnitUtils.Units.MM;
-    private Size stockSize = new Size(300, 200);
     private double toolStepOver = 0.3;
     private double depthPerPass = 1;
 
@@ -48,20 +47,6 @@ public class Settings {
 
     public void setToolDiameter(double toolDiameter) {
         this.toolDiameter = toolDiameter;
-        notifyListeners();
-    }
-
-    /**
-     * Returns the stock size in millimeters
-     *
-     * @return the stock size
-     */
-    public Size getStockSize() {
-        return stockSize;
-    }
-
-    public void setStockSize(Size size) {
-        this.stockSize = size;
         notifyListeners();
     }
 
@@ -130,7 +115,7 @@ public class Settings {
 
     public String getStockSizeDescription() {
         double scale = UnitUtils.scaleUnits(UnitUtils.Units.MM, getPreferredUnits());
-        return Utils.formatter.format(getStockSize().getWidth() * scale) + " x " + Utils.formatter.format(getStockSize().getHeight() * scale) + " x " + Utils.formatter.format(getStockThickness() * scale) + " " + getPreferredUnits().abbreviation;
+        return Utils.formatter.format(getStockThickness() * scale) + " " + getPreferredUnits().abbreviation;
     }
 
     public String getToolDescription() {
@@ -148,7 +133,6 @@ public class Settings {
 
     public void applySettings(Settings settings) {
         if (settings != null) {
-            setStockSize(settings.getStockSize());
             setDepthPerPass(settings.getDepthPerPass());
             setFeedSpeed(settings.getFeedSpeed());
             setPlungeSpeed(settings.getPlungeSpeed());

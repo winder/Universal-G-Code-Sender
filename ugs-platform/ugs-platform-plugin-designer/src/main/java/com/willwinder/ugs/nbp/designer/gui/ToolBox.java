@@ -92,7 +92,7 @@ public class ToolBox extends JToolBar {
         PanelButton toolButton = new PanelButton("Tool", controller.getSettings().getToolDescription());
         toolButton.addActionListener(e -> {
             ToolSettingsPanel toolSettingsPanel = new ToolSettingsPanel(controller);
-            DialogDescriptor dialogDescriptor = new DialogDescriptor(toolSettingsPanel, "Tool setings", true, null);
+            DialogDescriptor dialogDescriptor = new DialogDescriptor(toolSettingsPanel, "Tool settings", true, null);
             if (DialogDisplayer.getDefault().notify(dialogDescriptor) == OK_OPTION) {
                 ChangeToolSettingsAction changeStockSettings = new ChangeToolSettingsAction(controller, toolSettingsPanel.getToolDiameter(), toolSettingsPanel.getFeedSpeed(), toolSettingsPanel.getPlungeSpeed(), toolSettingsPanel.getDepthPerPass(), toolSettingsPanel.getStepOver());
                 changeStockSettings.actionPerformed(null);
@@ -103,14 +103,13 @@ public class ToolBox extends JToolBar {
         add(toolButton);
 
         add(Box.createHorizontalStrut(6));
-        PanelButton stockButton = new PanelButton("Stock size", controller.getSettings().getStockSizeDescription());
+        PanelButton stockButton = new PanelButton("Stock", controller.getSettings().getStockSizeDescription());
         stockButton.addActionListener(e -> {
             StockSettingsPanel stockSettingsPanel = new StockSettingsPanel(controller);
-            DialogDescriptor dialogDescriptor = new DialogDescriptor(stockSettingsPanel, "Stock size", true, null);
+            DialogDescriptor dialogDescriptor = new DialogDescriptor(stockSettingsPanel, "Stock settings", true, null);
             if (DialogDisplayer.getDefault().notify(dialogDescriptor) == OK_OPTION) {
-                Size stockSize = stockSettingsPanel.getStockSize();
                 double stockThickness = stockSettingsPanel.getStockThickness();
-                ChangeStockSettingsAction changeStockSettingsAction = new ChangeStockSettingsAction(controller, stockSize.getWidth(), stockSize.getHeight(), stockThickness);
+                ChangeStockSettingsAction changeStockSettingsAction = new ChangeStockSettingsAction(controller, stockThickness);
                 changeStockSettingsAction.actionPerformed(null);
                 controller.getUndoManager().addAction(changeStockSettingsAction);
                 stockButton.setText(controller.getSettings().getStockSizeDescription());
@@ -118,9 +117,8 @@ public class ToolBox extends JToolBar {
         });
         add(stockButton);
         controller.getSettings().addListener(() -> {
-            Size stockSize = controller.getSettings().getStockSize();
             double thickness = controller.getSettings().getStockThickness();
-            stockButton.setText(Utils.formatter.format(stockSize.getWidth()) + " x " + Utils.formatter.format(stockSize.getHeight()) + " x " + Utils.formatter.format(thickness));
+            stockButton.setText(Utils.formatter.format(thickness));
         });
 
 

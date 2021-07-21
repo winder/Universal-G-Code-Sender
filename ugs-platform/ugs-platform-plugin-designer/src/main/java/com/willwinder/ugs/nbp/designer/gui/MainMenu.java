@@ -52,7 +52,7 @@ public class MainMenu extends JMenuBar {
         JMenuItem redo = new JMenuItem(new RedoAction());
 
         JMenuItem all = new JMenuItem(new SelectAllAction(controller));
-        JMenuItem clear = new JMenuItem(new ClearSelectionAction());
+        JMenuItem clear = new JMenuItem(new ClearSelectionAction(controller));
         JMenuItem delete = new JMenuItem(new DeleteAction(controller));
 
         redo.setAccelerator(KeyStroke.getKeyStroke(
