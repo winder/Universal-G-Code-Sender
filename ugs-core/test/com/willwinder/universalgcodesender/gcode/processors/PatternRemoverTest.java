@@ -173,4 +173,26 @@ public class PatternRemoverTest {
         assertThat(result).containsExactly("S1000");
     }
     
+    /**
+     * Commands with sed match should be modified.
+     */
+    @Test
+    public void testMatchSedMacroLines() throws Exception {
+        System.out.println("matchSedMacroLines");
+
+        // Vanilla setup contains 1 macro named "1" defined as "G91 X0 Y0;"
+        PatternRemover instance = new PatternRemover("s/M6T/%1%");
+
+        String command;
+
+        GcodeState state = new GcodeState();
+        state.currentPoint = new Position(0, 0, 0, MM);
+        state.inAbsoluteMode = true;
+
+        command = "M6T";
+        List<String> result = instance.processCommand(command, state);
+        System.out.println(">>"+command+" to \""+result.get(0)+"\"");
+        assertThat(result).containsExactly("G90;G0X0Y0S1000");
+        //assertThat(result).containsExactly("MACRO");
+    }
 }
