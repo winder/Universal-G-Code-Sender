@@ -21,7 +21,6 @@
  */
 package com.willwinder.universalgcodesender.gcode.processors;
 
-
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import java.util.ArrayList;
@@ -30,8 +29,10 @@ import java.util.regex.Pattern;
 
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.utils.Settings;
 import java.util.regex.Matcher;
+
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
 /**
  *
@@ -42,7 +43,8 @@ public class PatternRemover implements CommandProcessor {
     // r[0] is "" or 'replace with' string from regexpattern or sed supplied
     private List<String> r = new ArrayList<>();
     
-    private BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);;
+    private BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+    //Private settings = BackendAPI.getSettings();
      
     public PatternRemover(String regexPattern) {
         /* AndyCXL enhancing 'remover' into 'remover or replacer' by
@@ -70,9 +72,10 @@ public class PatternRemover implements CommandProcessor {
                 // Retrieve and match macros, expand macro.gcode() if defined
                 if (mp.matches()) {
                     // Get the backend, through which macros are retrieved
-                    backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+                    //backend = CentralLookup.getDefault().lookup(BackendAPI.class);
                     int expanded = 0;
-                    List<Macro> macros = backend.getSettings().getMacros();
+                    Settings settings = backend.getSettings();
+                    List<Macro> macros = settings.getMacros();
                     // Enumerate macros to find match
                     for (Macro macro: macros) {
                         // Iterate macros and test given name amongst macro names
