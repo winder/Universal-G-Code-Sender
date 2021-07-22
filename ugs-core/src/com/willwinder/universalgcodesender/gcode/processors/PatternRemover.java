@@ -67,22 +67,24 @@ public class PatternRemover implements CommandProcessor {
                 // Does s3[2] contain a known macro name (one)? Expand if so
                 Pattern pm = Pattern.compile("%.+%");
                 Matcher mp = pm.matcher(s3[2]);
-                int matched = 0;
                 // Retrieve and match macros, expand macro.gcode() if defined
                 if (mp.matches()) {
                     // Get the backend, through which macros are retrieved
                     backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+                    int expanded = 0;
                     List<Macro> macros = backend.getSettings().getMacros();
                     // Enumerate macros to find match
                     for (Macro macro: macros) {
                         // Iterate macros and test given name amongst macro names
                         if (mp.group().equals("%"+macro.getName()+"%")) {
                             s3[2] = s3[2].replace(mp.group(), macro.getGcode());
-                            matched = 1;
+                            expanded = 1;
                             break;
                         }
                     }
-                    if (matched == 0) {
+                    // If there was no macro name match thus expansion
+                    // safely degrade s3[2] into "" to avoid gcode exceptions
+                    if (expanded == 0) {
                         s3[2] = "";
                     }
                 }
