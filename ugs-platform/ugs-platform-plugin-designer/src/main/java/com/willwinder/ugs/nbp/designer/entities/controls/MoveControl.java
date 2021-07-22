@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
+import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.actions.MoveAction;
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
@@ -36,8 +37,8 @@ import java.util.List;
  * @author Joacim Breiler
  */
 public class MoveControl extends AbstractControl {
-    private Point2D startOffset = new Point2D.Double();
-    private Point2D startPositon = new Point2D.Double();
+    private Point2D startOffset;
+    private Point2D startPosition;
 
     public MoveControl(SelectionManager selectionManager) {
         super(selectionManager);
@@ -50,6 +51,7 @@ public class MoveControl extends AbstractControl {
 
     @Override
     public void render(Graphics2D graphics) {
+        // There is nothing to render
     }
 
     @Override
@@ -60,16 +62,22 @@ public class MoveControl extends AbstractControl {
 
             Entity target = getSelectionManager();
             if (mouseShapeEvent.getType() == EventType.MOUSE_PRESSED) {
-                startPositon = target.getPosition();
+                startPosition = target.getPosition();
                 startOffset = new Point2D.Double(mousePosition.getX() - target.getPosition().getX(), mousePosition.getY() - target.getPosition().getY());
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_DRAGGED) {
                 Point2D deltaMovement = new Point2D.Double(mousePosition.getX() - target.getPosition().getX() - startOffset.getX(), mousePosition.getY() - target.getPosition().getY() - startOffset.getY());
-                target.move(deltaMovement);
-            } else if (mouseShapeEvent.getType() == EventType.MOUSE_RELEASED) {
-                Point2D deltaMovement = new Point2D.Double(mousePosition.getX() - target.getPosition().getX() - startOffset.getX(), mousePosition.getY() - target.getPosition().getY() - startOffset.getY());
-                target.move(deltaMovement);
-                Point2D deltaMovementTotal = new Point2D.Double(mousePosition.getX() - startPositon.getX() - startOffset.getX(), mousePosition.getY() - startPositon.getY() - startOffset.getY());
+                if (mouseShapeEvent.isAltPressed()) {
+                    Point2D newPosition = new Point2D.Double(Utils.roundToDecimals(target.getPosition().getX() + deltaMovement.getX(), 1), Utils.roundToDecimals(target.getPosition().getY() + deltaMovement.getY(), 1));
+                    target.setPosition(newPosition);
+                } else {
+                    Point2D newPosition = new Point2D.Double(Math.round(target.getPosition().getX() + deltaMovement.getX()), Math.round(target.getPosition().getY() + deltaMovement.getY()));
+                    target.setPosition(newPosition);
+                }
+            } else if (mouseShapeEvent.getType() == EventType.MOUSE_RELEASED && startPosition != null) {
+                Point2D deltaMovementTotal = new Point2D.Double(target.getPosition().getX() - startPosition.getX(), target.getPosition().getY() - startPosition.getY());
                 addUndoAction(deltaMovementTotal, target);
+                startPosition = null;
+                startOffset = null;
             }
         }
     }

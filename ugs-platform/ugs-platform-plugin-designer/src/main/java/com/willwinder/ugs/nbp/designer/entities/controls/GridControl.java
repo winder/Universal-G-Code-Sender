@@ -66,7 +66,6 @@ public class GridControl extends AbstractEntity implements Control {
 
 
         graphics.setStroke(new BasicStroke(0.2f));
-        graphics.setColor(Color.LIGHT_GRAY);
         for (int x = 0; x <= width; x += LARGE_GRID_SIZE) {
             graphics.drawLine(x, 0, x, height);
         }
