@@ -19,17 +19,14 @@
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
-import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gui.Colors;
+import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
-import java.awt.BasicStroke;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -39,7 +36,8 @@ import java.util.logging.Logger;
  * @author Joacim Breiler
  */
 public class ResizeControl extends AbstractControl {
-    public static final int SIZE = 8;
+    public static final int SIZE = 6;
+    public static final int MARGIN = 6;
     private static final Logger LOGGER = Logger.getLogger(ResizeControl.class.getSimpleName());
     private final Location location;
     private final Rectangle2D shape;
@@ -64,22 +62,32 @@ public class ResizeControl extends AbstractControl {
 
     private void updatePosition() {
         // Create transformation for where to position the controller in relative space
-        AffineTransform transform = getSelectionManager().getTransform();
-        Rectangle bounds = getSelectionManager().getRelativeShape().getBounds();
-        transform.translate(bounds.getX(), bounds.getY());
+        AffineTransform t = getSelectionManager().getTransform();
+        Rectangle2D bounds = getSelectionManager().getRelativeShape().getBounds2D();
+        t.translate(bounds.getX(), bounds.getY());
 
         double halfSize = SIZE / 2d;
         if (location == Location.BOTTOM_RIGHT) {
-            transform.translate(bounds.getWidth(), 0);
+            t.translate(bounds.getWidth() + MARGIN, -MARGIN);
         } else if (location == Location.TOP_LEFT) {
-            transform.translate(0, bounds.getHeight());
+            t.translate(-MARGIN, bounds.getHeight() + MARGIN);
         } else if (location == Location.TOP_RIGHT) {
-            transform.translate(bounds.getWidth(), bounds.getHeight());
+            t.translate(bounds.getWidth() + MARGIN, bounds.getHeight() + MARGIN);
+        } else if (location == Location.BOTTOM_LEFT) {
+            t.translate(- MARGIN, - MARGIN);
+        } else if (location == Location.TOP) {
+            t.translate(bounds.getWidth() / 2d, bounds.getHeight() + MARGIN);
+        } else if (location == Location.BOTTOM) {
+            t.translate(bounds.getWidth() / 2d,  - MARGIN);
+        } else if (location == Location.LEFT) {
+            t.translate(-MARGIN, bounds.getHeight() / 2d);
+        } else if (location == Location.RIGHT) {
+            t.translate(bounds.getWidth() + MARGIN, bounds.getHeight() / 2d);
         }
 
         // Transform the position from relative space to real space
         Point2D center = new Point2D.Double();
-        transform.transform(new Point2D.Double(0, 0), center);
+        t.transform(new Point2D.Double(0, 0), center);
 
         this.transform = new AffineTransform();
         this.transform.translate(center.getX() - halfSize, center.getY() - halfSize);
@@ -111,20 +119,38 @@ public class ResizeControl extends AbstractControl {
                 Point2D deltaMovement = new Point2D.Double(mousePosition.getX() - getPosition().getX() - startOffset.getX(), mousePosition.getY() - getPosition().getY() - startOffset.getY());
 
                 Size size = getSelectionManager().getSize();
-                double sx = deltaMovement.getX() / size.getWidth();
-                double sy = deltaMovement.getY() / size.getHeight();
+                double deltaX = deltaMovement.getX() / size.getWidth();
+                double deltaY = deltaMovement.getY() / size.getHeight();
+
+                double scale = deltaX;
+                double scaleSizeX = scale * size.getWidth();
+                double scaleSizeY = scale * size.getHeight();
+
+                if (size.getWidth() - Math.abs(scaleSizeX) < 1 || size.getHeight() - Math.abs(scaleSizeY) < 1) {
+                    return;
+                }
 
                 if (location == Location.BOTTOM_LEFT) {
-                    target.move(deltaMovement);
-                    target.scale(1d - sx, 1d - sy);
+                    target.move(new Point2D.Double(scaleSizeX, scaleSizeY));
+                    target.scale(1d - scale, 1d - scale);
                 } else if (location == Location.TOP_RIGHT) {
-                    target.scale(1d + sx, 1d + sy);
+                    target.scale(1d + scale, 1d + scale);
                 } else if (location == Location.BOTTOM_RIGHT) {
-                    target.move(new Point2D.Double(0, deltaMovement.getY()));
-                    target.scale(1d + sx, 1d - sy);
+                    target.move(new Point2D.Double(0, -scaleSizeY));
+                    target.scale(1d + scale, 1d + scale);
                 } else if (location == Location.TOP_LEFT) {
-                    target.move(new Point2D.Double(deltaMovement.getX(), 0));
-                    target.scale(1d - sx, 1d + sy);
+                    target.move(new Point2D.Double(scaleSizeX, 0));
+                    target.scale(1d - scale, 1d - scale);
+                } else if (location == Location.LEFT) {
+                    target.move(new Point2D.Double(deltaX * size.getWidth(), 0));
+                    target.scale(1d - deltaX, 1d);
+                } else if (location == Location.BOTTOM) {
+                    target.move(new Point2D.Double(0, deltaY * size.getHeight()));
+                    target.scale(1d, 1d - deltaY);
+                } else if (location == Location.TOP) {
+                    target.scale(1d, 1d + deltaY);
+                } else if (location == Location.RIGHT) {
+                    target.scale(1d + deltaX, 1d);
                 }
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_RELEASED) {
                 LOGGER.info("Stopped moving " + target.getPosition());
