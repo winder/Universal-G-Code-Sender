@@ -42,7 +42,7 @@ public class PatternRemover implements CommandProcessor {
     // r[0] is "" or 'replace with' string from regexpattern or sed supplied
     private List<String> r = new ArrayList<>();
     
-    private BackendAPI backend;
+    private BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);;
      
     public PatternRemover(String regexPattern) {
         /* AndyCXL enhancing 'remover' into 'remover or replacer' by
@@ -82,7 +82,7 @@ public class PatternRemover implements CommandProcessor {
                             break;
                         }
                     }
-                    // If there was no macro name match thus expansion
+                    // If there was no macro name match thus no expansion
                     // safely degrade s3[2] into "" to avoid gcode exceptions
                     if (expanded == 0) {
                         s3[2] = "";
