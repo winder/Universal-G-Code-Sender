@@ -40,7 +40,7 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
  */
 public class PatternRemover implements CommandProcessor {
     private Pattern p;
-    // r[0] is "" or 'replace with' string from regexpattern or sed supplied
+    // r[0] is "" or 'replace with' string from regexpattern in sed supplied
     private List<String> r = new ArrayList<>();
     
     //private BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -95,12 +95,20 @@ public class PatternRemover implements CommandProcessor {
                 // Any macros are expanded, string is ready to submit
                 r.add(s3[2].trim());
             } else {
-                r.add("");
+                if (r.isEmpty()) {
+                    r.add("");
+                } else {
+                    r.set(0,"");
+                }
             }
         } else {
             // grep pattern received, presume entire pattern is the regexPattern
             p = Pattern.compile(regexPattern);
-            r.add("");
+            if (r.isEmpty()) {
+                r.add("");
+            } else {
+                r.set(0,"");
+            }
         }
     }
     
