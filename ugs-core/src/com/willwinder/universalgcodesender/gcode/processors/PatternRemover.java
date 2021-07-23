@@ -127,7 +127,11 @@ public class PatternRemover implements CommandProcessor {
         *  either case too, so simply replace matches to regex with sed
         */
         //ret.add(p.matcher(command).replaceAll(""));
-        ret.add( p.matcher(command).replaceAll( r.get(0) ) );
+        if (ret.isEmpty()) {
+            ret.add( p.matcher(command).replaceAll( r.get(0) ) );
+        } else {
+            ret.set(0, p.matcher(command).replaceAll( r.get(0) ) );
+        }
         return ret;
     }
 }
