@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities.controls;
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.Shape;
 
@@ -34,6 +35,11 @@ public abstract class AbstractControl extends AbstractEntity implements Control 
     protected AbstractControl(SelectionManager selectionManager) {
         this.selectionManager = selectionManager;
         addListener(this);
+    }
+
+    @Override
+    public void setSize(Size size) {
+        // Never mind...
     }
 
     @Override

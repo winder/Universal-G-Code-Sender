@@ -18,24 +18,19 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
+import com.willwinder.ugs.nbp.designer.actions.RotateAction;
+import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
-import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
-import com.willwinder.ugs.nbp.designer.actions.RotateAction;
-import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gui.Colors;
+import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.*;
+import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -44,16 +39,17 @@ import java.util.logging.Logger;
  * @author Joacim Breiler
  */
 public class RotationControl extends AbstractControl {
-    public static final int SIZE = 8;
+    public static final int SIZE = 6;
+    public static final int MARGIN = 12;
     private static final Logger LOGGER = Logger.getLogger(RotationControl.class.getSimpleName());
-    private final Rectangle2D shape;
+    private final Shape shape;
     private Point2D startPosition = new Point2D.Double();
     private double startRotation = 0d;
     private Point2D center;
 
     public RotationControl(SelectionManager selectionManager) {
         super(selectionManager);
-        shape = new Rectangle2D.Double(0, 0, SIZE, SIZE);
+        shape = new Ellipse2D.Double(0, 0, SIZE, SIZE);
     }
 
     /**
@@ -109,9 +105,9 @@ public class RotationControl extends AbstractControl {
         // Create transformation for where to position the controller in relative space
         AffineTransform transform = getSelectionManager().getTransform();
 
-        Rectangle bounds = getSelectionManager().getRelativeShape().getBounds();
+        Rectangle2D bounds = getSelectionManager().getRelativeShape().getBounds2D();
         transform.translate(bounds.getX(), bounds.getY() + bounds.getHeight());
-        transform.translate(bounds.getWidth() / 2 - (SIZE / 2d), SIZE);
+        transform.translate(bounds.getWidth() / 2 - (SIZE / 2d), MARGIN);
 
         // Transform the position from relative space to real space
         Point2D result = new Point2D.Double();
@@ -142,15 +138,16 @@ public class RotationControl extends AbstractControl {
     public void render(Graphics2D graphics) {
         updatePosition();
         graphics.setStroke(new BasicStroke(0));
-        graphics.setColor(Color.GRAY);
+        graphics.setColor(Colors.CONTROL_HANDLE);
         Shape shape = getShape();
         graphics.fill(shape);
 
-        int centerX = (int) Math.round(getSelectionManager().getCenter().getX());
-        int centerY = (int) Math.round(getSelectionManager().getCenter().getY());
-        graphics.setStroke(new BasicStroke(1));
-        graphics.drawLine(centerX - (SIZE / 2), centerY, centerX + (SIZE / 2), centerY);
-        graphics.drawLine(centerX, centerY - (SIZE / 2), centerX, centerY + (SIZE / 2));
+        double centerX = getSelectionManager().getCenter().getX();
+        double centerY = getSelectionManager().getCenter().getY();
+        graphics.setStroke(new BasicStroke(0.8f));
+
+        graphics.draw(new Line2D.Double(centerX - (SIZE / 2d), centerY, centerX + (SIZE / 2d), centerY));
+        graphics.draw(new Line2D.Double(centerX, centerY - (SIZE / 2d), centerX, centerY + (SIZE / 2d)));
     }
 
     @Override
