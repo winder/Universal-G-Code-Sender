@@ -153,7 +153,7 @@ public class PatternRemoverTest {
     }
 
     /**
-     * Commands with sed match should be modified.
+     * Commands with sed match should be modified
      */
     @Test
     public void testMatchSedStartLines() throws Exception {
