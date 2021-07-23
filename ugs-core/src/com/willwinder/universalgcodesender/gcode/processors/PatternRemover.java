@@ -95,20 +95,12 @@ public class PatternRemover implements CommandProcessor {
                 // Any macros are expanded, string is ready to submit
                 r.add(s3[2].trim());
             } else {
-                if (r.isEmpty()) {
-                    r.add("");
-                } else {
-                    r.set(0,"");
-                }
+                r.add("");
             }
         } else {
             // grep pattern received, presume entire pattern is the regexPattern
             p = Pattern.compile(regexPattern);
-            if (r.isEmpty()) {
-                r.add("");
-            } else {
-                r.set(0,"");
-            }
+            r.add("");
         }
     }
     
@@ -127,11 +119,7 @@ public class PatternRemover implements CommandProcessor {
         *  either case too, so simply replace matches to regex with sed
         */
         //ret.add(p.matcher(command).replaceAll(""));
-        if (ret.isEmpty()) {
-            ret.add( p.matcher(command).replaceAll( r.get(0) ) );
-        } else {
-            ret.set(0, p.matcher(command).replaceAll( r.get(0) ) );
-        }
+        ret.add( p.matcher(command).replaceAll( r.get(0) ) );
         return ret;
     }
 }
