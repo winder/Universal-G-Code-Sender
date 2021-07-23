@@ -18,8 +18,9 @@
  */
 package com.willwinder.ugs.nbp.designer.platform;
 
-import com.willwinder.ugs.nbp.designer.gui.EntitiesTree;
+import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTree;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.openide.windows.TopComponent;
 
 /**
@@ -27,7 +28,7 @@ import org.openide.windows.TopComponent;
  */
 @TopComponent.Description(
         preferredID = "EntitiesTreeTopComponent",
-        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED
+        persistenceType = TopComponent.PERSISTENCE_NEVER
 )
 @TopComponent.Registration(mode = "bottom_left", openAtStartup = false)
 public class EntitiesTreeTopComponent extends TopComponent {
@@ -47,10 +48,9 @@ public class EntitiesTreeTopComponent extends TopComponent {
         super.componentOpened();
         entitiesTree = new EntitiesTree();
         add(entitiesTree);
-        validate();
-    }
 
-    public void updateController(Controller controller) {
+        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
         entitiesTree.updateController(controller);
+        validate();
     }
 }

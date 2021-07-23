@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.Utils;
+import com.willwinder.ugs.nbp.designer.actions.ChangeCutSettingsAction;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EntityListener;
@@ -28,37 +29,35 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.actions.ChangeCutSettingsAction;
 import com.willwinder.ugs.nbp.designer.model.Size;
-import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
-import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.DefaultFormatter;
+import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
-import java.util.EnumMap;
 
 /**
  * @author Joacim Breiler
  */
-public class SelectionSettingsPanel extends JPanel implements SelectionListener, DocumentListener, EntityListener, ChangeListener {
+public class SelectionSettingsPanel extends JPanel implements SelectionListener, DocumentListener, EntityListener, ChangeListener, ItemListener {
     private final JTextField widthTextField;
     private final JTextField rotation;
-    private final ButtonGroup buttonGroup;
     private final JTextField posXTextField;
     private final JTextField posYTextField;
     private final JLabel cutDepthLabel;
-    private final JPanel cutTypePanel;
+    private final JComboBox<CutType> cutTypeComboBox;
     private transient Controller controller;
     private final JSpinner depthSpinner;
     private final JTextField heightTextField;
-    private final EnumMap<CutType, JToggleButton> cutTypeButtonMap = new EnumMap<>(CutType.class);
 
     public SelectionSettingsPanel(Controller controller) {
         this();
@@ -92,39 +91,45 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         add(new JLabel("Rotation", SwingConstants.RIGHT), "grow");
         add(rotation, "grow");
 
-        add(new JSeparator(), "spanx, wrap");
+        add(new JSeparator(), "grow, spanx, wrap");
 
-        cutTypeButtonMap.put(CutType.NONE, new JToggleButton(ImageUtilities.loadImageIcon("img/cutnone32.png", false)));
-        cutTypeButtonMap.put(CutType.POCKET, new JToggleButton(ImageUtilities.loadImageIcon("img/cutpocket32.png", false)));
-        cutTypeButtonMap.put(CutType.INSIDE_PATH, new JToggleButton(ImageUtilities.loadImageIcon("img/cutinside32.png", false)));
-        cutTypeButtonMap.put(CutType.OUTSIDE_PATH, new JToggleButton(ImageUtilities.loadImageIcon("img/cutoutside32.png", false)));
-        cutTypeButtonMap.put(CutType.ON_PATH, new JToggleButton(ImageUtilities.loadImageIcon("img/cutonpath32.png", false)));
-
-        buttonGroup = new ButtonGroup();
-        cutTypeButtonMap.keySet().forEach(key -> {
-            JToggleButton button = cutTypeButtonMap.get(key);
-            buttonGroup.add(button);
-            button.addActionListener(event -> {
-                stateChanged(null);
-            });
+        cutTypeComboBox = new JComboBox<>();
+        Arrays.stream(CutType.values()).forEach(cutTypeComboBox::addItem);
+        cutTypeComboBox.setSelectedItem(CutType.NONE);
+        cutTypeComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                CutType cutType = (CutType) value;
+                setText(cutType.getName());
+                setIcon(new CutTypeIcon(cutType, CutTypeIcon.Size.SMALL));
+                return this;
+            }
         });
+        cutTypeComboBox.addItemListener(this);
 
-        cutTypePanel = new JPanel(new MigLayout("fill, insets 0"));
-        cutTypePanel.add(cutTypeButtonMap.get(CutType.NONE));
-        cutTypePanel.add(cutTypeButtonMap.get(CutType.POCKET));
-        cutTypePanel.add(cutTypeButtonMap.get(CutType.INSIDE_PATH));
-        cutTypePanel.add(cutTypeButtonMap.get(CutType.OUTSIDE_PATH));
-        cutTypePanel.add(cutTypeButtonMap.get(CutType.ON_PATH));
-        add(cutTypePanel, "grow, spanx, wrap");
+
+        JLabel cutTypeLabel = new JLabel("Cut type", SwingConstants.RIGHT);
+        add(cutTypeLabel);
+        add(cutTypeComboBox, " grow, wrap");
 
         SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(100d, 0d, 100.0d, 0.1d);
         depthSpinner = new JSpinner(spinnerNumberModel);
-        depthSpinner.setPreferredSize(depthSpinner.getPreferredSize());
 
-        cutDepthLabel = new JLabel("Cut depth");
+        // Make the spinner commit the value immediately
+        JSpinner.NumberEditor editor = new JSpinner.NumberEditor(depthSpinner);
+        depthSpinner.setEditor(editor);
+        JFormattedTextField jtf = editor.getTextField();
+        DefaultFormatter formatter = (DefaultFormatter) jtf.getFormatter();
+        formatter.setCommitsOnValidEdit(true);
+
+        depthSpinner.setPreferredSize(depthSpinner.getPreferredSize());
+        depthSpinner.setModel(new SpinnerNumberModel(0, 0d, 100, 0.1d));
+        depthSpinner.addChangeListener(this);
+
+        cutDepthLabel = new JLabel("Cut depth", SwingConstants.RIGHT);
         add(cutDepthLabel);
         add(depthSpinner, "grow, wrap");
-        depthSpinner.addChangeListener(this);
         setEnabled(false);
     }
 
@@ -135,15 +140,15 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         this.controller = controller;
         this.controller.getSelectionManager().addSelectionListener(this);
         this.controller.getSelectionManager().addListener(this);
+        depthSpinner.setModel(new SpinnerNumberModel(controller.getSettings().getStockThickness(), 0d, controller.getSettings().getStockThickness(), 0.1d));
     }
 
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         Arrays.stream(getComponents()).forEach(component -> component.setEnabled(enabled));
-        SwingHelpers.traverse(cutTypePanel, component -> component.setEnabled(enabled));
         if (!enabled) {
-            depthSpinner.setValue(0d);
+            setFieldValue(depthSpinner, 0d);
         }
     }
 
@@ -161,11 +166,24 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     }
 
     private void setFieldValue(JSpinner spinner, Object value) {
+        boolean enabled = spinner.isEnabled();
         spinner.setVisible(true);
         spinner.setEnabled(true);
         spinner.removeChangeListener(this);
         spinner.setValue(value);
         spinner.addChangeListener(this);
+        spinner.setEnabled(enabled);
+    }
+
+
+    private void setFieldValue(JComboBox comboBox, Object value) {
+        boolean enabled = comboBox.isEnabled();
+        comboBox.setVisible(true);
+        comboBox.setEnabled(true);
+        comboBox.removeItemListener(this);
+        comboBox.setSelectedItem(value);
+        comboBox.addItemListener(this);
+        comboBox.setEnabled(enabled);
     }
 
     @Override
@@ -224,7 +242,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             return;
         }
 
-        CutType cutType = cutTypeButtonMap.keySet().stream().filter(key -> cutTypeButtonMap.get(key).isSelected()).findFirst().orElse(CutType.NONE);
+        CutType cutType = (CutType) cutTypeComboBox.getSelectedItem();
         controller.getSelectionManager().getSelection().forEach(selectedEntity -> {
             if (selectedEntity instanceof Cuttable) {
                 Cuttable cuttable = (Cuttable) selectedEntity;
@@ -245,14 +263,11 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             setEnabled(true);
         }
 
-        depthSpinner.setModel(new SpinnerNumberModel(controller.getSettings().getStockThickness(), 0d, controller.getSettings().getStockThickness(), 0.1d));
-
-
         Entity selectedEntity = controller.getSelectionManager().getSelection().get(0);
         if (selectedEntity instanceof Cuttable) {
             Cuttable cuttable = (Cuttable) selectedEntity;
-            JToggleButton cutTypeButton = cutTypeButtonMap.get(cuttable.getCutType());
-            cutTypeButton.setSelected(true);
+
+            setFieldValue(cutTypeComboBox, cuttable.getCutType());
             setFieldValue(depthSpinner, cuttable.getCutDepth());
 
             final boolean hasCutTypeSelection = cuttable.getCutType() != CutType.NONE;
@@ -269,5 +284,10 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         setFieldValue(heightTextField, Utils.toString(controller.getSelectionManager().getSize().getHeight()));
         setFieldValue(rotation, Utils.toString(controller.getSelectionManager().getRotation()));
         controller.getDrawing().repaint();
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        stateChanged(null);
     }
 }

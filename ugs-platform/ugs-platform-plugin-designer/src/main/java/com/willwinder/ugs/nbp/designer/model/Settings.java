@@ -12,8 +12,8 @@ public class Settings {
     private int feedSpeed = 1000;
     private int plungeSpeed = 400;
     private double toolDiameter = 3d;
-    private double stockThickness = 20;
-    private double safeHeight = 10;
+    private double stockThickness = 10;
+    private double safeHeight = 5;
     private UnitUtils.Units preferredUnits = UnitUtils.Units.MM;
     private double toolStepOver = 0.3;
     private double depthPerPass = 1;

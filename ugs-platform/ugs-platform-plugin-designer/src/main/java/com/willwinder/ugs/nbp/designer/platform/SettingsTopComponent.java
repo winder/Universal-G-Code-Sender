@@ -6,7 +6,7 @@ import org.openide.windows.TopComponent;
 
 @TopComponent.Description(
         preferredID = "SettingsTopComponent",
-        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED
+        persistenceType = TopComponent.PERSISTENCE_NEVER
 )
 @TopComponent.Registration(mode = "top_left", openAtStartup = false)
 public class SettingsTopComponent extends TopComponent {

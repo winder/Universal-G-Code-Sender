@@ -16,22 +16,24 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gui;
+package com.willwinder.ugs.nbp.designer.gui.tree;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
+import com.willwinder.ugs.nbp.designer.gui.DrawingEvent;
+import com.willwinder.ugs.nbp.designer.gui.DrawingListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
-import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +54,7 @@ public class EntitiesTree extends JPanel implements DrawingListener, ControllerL
     }
 
     public void updateController(Controller controller) {
-        if (this.controller != null) {
+        if (this.controller != null && this.controller != controller) {
             this.controller.removeListener(this);
             this.controller.getDrawing().removeListener(this);
             this.controller.getSelectionManager().removeSelectionListener(this);
@@ -66,8 +68,12 @@ public class EntitiesTree extends JPanel implements DrawingListener, ControllerL
 
     public EntitiesTree() {
 
-        setLayout(new MigLayout("fill, insets 5"));
+        setLayout(new BorderLayout());
         tree = new JTree(topNode);
+        tree.setEditable(true);
+        tree.setRootVisible(false);
+        tree.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        tree.setCellRenderer(new EntityCellRenderer(tree));
         setBackground(tree.getBackground());
 
         tree.addTreeSelectionListener(e -> {
@@ -83,7 +89,7 @@ public class EntitiesTree extends JPanel implements DrawingListener, ControllerL
 
         tree.expandRow(0);
 
-        add(tree, "grow");
+        add(tree, BorderLayout.CENTER);
     }
 
     @Override
@@ -99,8 +105,7 @@ public class EntitiesTree extends JPanel implements DrawingListener, ControllerL
     }
 
     private void addNode(DefaultMutableTreeNode parent, Entity entity) {
-        DefaultMutableTreeNode node = new DefaultMutableTreeNode(entity);
-
+        EntityTreeNode node = new EntityTreeNode(entity);
         if (entity instanceof EntityGroup) {
             ((EntityGroup) entity).getChildren().forEach(childEntity -> addNode(node, childEntity));
         }
