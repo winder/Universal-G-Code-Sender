@@ -3,7 +3,6 @@ package com.willwinder.ugs.nbp.designer.entities.controls;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
-import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
 import java.awt.geom.Point2D;

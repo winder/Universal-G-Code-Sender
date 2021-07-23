@@ -123,7 +123,7 @@ public class MoveControlTest {
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_PRESSED, new Point2D.Double(10, 10), new Point2D.Double(10, 10)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(12, 12)));
-        target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
+        target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(20, 20)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_RELEASED, new Point2D.Double(10, 10), new Point2D.Double(20, 20)));
 
         Assert.assertEquals(10, selectionManager.getPosition().getX(), 0.1);
@@ -156,7 +156,7 @@ public class MoveControlTest {
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_PRESSED, new Point2D.Double(10, 10), new Point2D.Double(10, 10)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(12, 12)));
-        target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
+        target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(20, 20)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_RELEASED, new Point2D.Double(10, 10), new Point2D.Double(20, 20)));
 
         Assert.assertEquals(10, rectangle.getPosition().getX(), 0.1);

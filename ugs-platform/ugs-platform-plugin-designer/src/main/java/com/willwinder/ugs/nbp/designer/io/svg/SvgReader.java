@@ -134,10 +134,10 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
 
             AffineTransform groupTransform = new AffineTransform(transform);
             if (graphicsNode.getTransform() != null) {
-                if( !graphicsNode.getTransform().isIdentity()) {
+                if (!graphicsNode.getTransform().isIdentity()) {
                     groupTransform.concatenate(graphicsNode.getTransform());
                 } else {
-                    
+
                 }
             }
 
@@ -200,6 +200,7 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
         ExtendedPathIterator extendedPathIterator = shape.getExtendedPathIterator();
         double[] coords = new double[8];
         double[] lastMoveTo = new double[2];
+        double[] lastPoint = new double[2];
         Path line = new Path();
 
         while (!extendedPathIterator.isDone()) {
@@ -211,32 +212,76 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
 
                     lastMoveTo[0] = coords[0];
                     lastMoveTo[1] = coords[1];
+                    lastPoint[0] = coords[0];
+                    lastPoint[1] = coords[1];
                     break;
 
                 case ExtendedPathIterator.SEG_LINETO:
                     extendedPathIterator.currentSegment(coords);
                     line.lineTo(coords[0], coords[1]);
+                    lastPoint[0] = coords[0];
+                    lastPoint[1] = coords[1];
                     break;
 
                 case ExtendedPathIterator.SEG_QUADTO:
                     extendedPathIterator.currentSegment(coords);
                     line.quadTo(coords[0], coords[1], coords[2], coords[3]);
+                    lastPoint[0] = coords[2];
+                    lastPoint[1] = coords[3];
                     break;
 
+                /*
+                 *  The segment type constant for an elliptical arc.  This consists of
+                 *  Seven values [rx, ry, angle, largeArcFlag, sweepFlag, x, y].
+                 *  rx, ry are the radius of the ellipse.
+                 *  angle is angle of the x axis of the ellipse.
+                 *  largeArcFlag is zero if the smaller of the two arcs are to be used.
+                 *  sweepFlag is zero if the 'left' branch is taken one otherwise.
+                 *  x and y are the destination for the ellipse.
+                 */
                 case ExtendedPathIterator.SEG_ARCTO:
-                    // TODO arcs are parsed as lines, this should be translated to some sort of path
                     extendedPathIterator.currentSegment(coords);
-                    line.lineTo(coords[5], coords[6]);
+                    double rx = coords[0];
+                    double ry = coords[1];
+                    double angle = coords[2];
+                    boolean largeArcFlag = coords[3] >= 1;
+                    boolean sweepFlag = coords[4] >= 1;
+                    double x = coords[5];
+                    double y = coords[6];
+
+                    // If the radius is zero, just make a line
+                    if (rx == 0 || ry == 0) {
+                        line.lineTo(x, y);
+                        break;
+                    }
+
+                    // Get the current coordinates of the path
+                    double x0 = lastPoint[0];
+                    double y0 = lastPoint[1];
+
+                    // If the endpoints (x, y) and (x0, y0) are identical, then this is not an arc
+                    if (x0 == x && y0 == y) {
+                        break;
+                    }
+
+                    Arc2D arc = ExtendedGeneralPath.computeArc(x0, y0, rx, ry, angle, largeArcFlag, sweepFlag, x, y);
+                    line.append(arc);
+                    lastPoint[0] = coords[5];
+                    lastPoint[1] = coords[6];
                     break;
 
                 case PathIterator.SEG_CUBICTO:
                     extendedPathIterator.currentSegment(coords);
                     line.curveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+                    lastPoint[0] = coords[4];
+                    lastPoint[1] = coords[5];
                     break;
 
                 case PathIterator.SEG_CLOSE:
                     extendedPathIterator.currentSegment(coords);
                     line.lineTo(lastMoveTo[0], lastMoveTo[1]);
+                    lastPoint[0] = lastMoveTo[0];
+                    lastPoint[1] = lastMoveTo[1];
                     break;
 
                 default:
@@ -259,7 +304,7 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
 
         // If the width and height attributes are missing, try to fetch them from the viewport
         SVGDocument svgDocument = svgCanvas.getSVGDocument();
-        if (svgDocumentSize.getWidth() == 0  || svgDocumentSize.getHeight() == 0) {
+        if (svgDocumentSize.getWidth() == 0 || svgDocumentSize.getHeight() == 0) {
             SVGRect baseVal = svgDocument.getRootElement().getViewBox().getBaseVal();
             svgDocument.getRootElement().setAttributeNS(null, "width", Utils.formatter.format(baseVal.getWidth()));
             svgDocument.getRootElement().setAttributeNS(null, "height", Utils.formatter.format(baseVal.getHeight()));

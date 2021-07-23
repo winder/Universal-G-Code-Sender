@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Path2D;
 
 /**
@@ -66,5 +67,9 @@ public class Path extends AbstractCuttable {
 
     public void curveTo(double x1, double y1, double x2, double y2, double x3, double y3) {
         shape.curveTo(x1, y1, x2, y2, x3, y3);
+    }
+
+    public void append(Shape s) {
+        shape.append(s, true);
     }
 }

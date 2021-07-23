@@ -19,11 +19,10 @@
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
-import java.awt.Shape;
+import java.awt.*;
 
 /**
  * @author Joacim Breiler
