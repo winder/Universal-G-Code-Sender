@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.gui;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
+import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 
 import java.awt.geom.Point2D;
 
@@ -31,11 +32,21 @@ public class MouseEntityEvent extends EntityEvent {
 
     private final Point2D currentMousePosition;
     private final Point2D startMousePosition;
+    private boolean shiftPressed;
+    private boolean altPressed;
+    private boolean ctrlPressed;
 
     public MouseEntityEvent(Entity entity, EventType type, Point2D startMousePosition, Point2D currentMousePosition) {
         super(entity, type);
         this.currentMousePosition = currentMousePosition;
         this.startMousePosition = startMousePosition;
+    }
+
+    public MouseEntityEvent(Control entity, EventType type, Point2D startMousePosition, Point2D currentMousePosition, boolean shiftPressed, boolean ctrlPressed, boolean altPressed) {
+        this(entity, type, startMousePosition, currentMousePosition);
+        this.shiftPressed = shiftPressed;
+        this.altPressed = altPressed;
+        this.ctrlPressed = ctrlPressed;
     }
 
     public Point2D getCurrentMousePosition() {
@@ -48,5 +59,17 @@ public class MouseEntityEvent extends EntityEvent {
 
     public Point2D getMovementDelta() {
         return new Point2D.Double(startMousePosition.getX() - currentMousePosition.getX(), startMousePosition.getY() - currentMousePosition.getY());
+    }
+
+    public boolean isShiftPressed() {
+        return shiftPressed;
+    }
+
+    public boolean isAltPressed() {
+        return altPressed;
+    }
+
+    public boolean isCtrlPressed() {
+        return ctrlPressed;
     }
 }

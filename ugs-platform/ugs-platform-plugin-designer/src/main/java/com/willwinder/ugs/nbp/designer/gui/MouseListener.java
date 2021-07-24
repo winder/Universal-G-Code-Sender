@@ -18,31 +18,31 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
+import com.willwinder.ugs.nbp.designer.actions.AddAction;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.designer.entities.EventType;
-import com.willwinder.ugs.nbp.designer.actions.AddAction;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 /**
  * MouseListener listens to the mouse events in a drawing and modifies the
  * Drawing through a DrawingController
  *
  * @author Alex Lagerstedt
+ * @author Joacim Breiler
  */
 public class MouseListener extends MouseAdapter {
 
@@ -50,11 +50,9 @@ public class MouseListener extends MouseAdapter {
     private Controller controller;
     private Point2D startPos;
     private Point2D lastPos;
-
     private Point2D mouseDelta;
-
     private Entity newShape;
-    private List<Control> controls;
+    private Set<Control> hoveredControls;
 
     /**
      * Constructs a new MouseListener
@@ -66,11 +64,15 @@ public class MouseListener extends MouseAdapter {
         this.controller = controller;
         this.newShape = null;
         this.mouseDelta = new Point2D.Double(0, 0);
-        this.controls = Collections.emptyList();
+        this.hoveredControls = new HashSet<>();
     }
 
+    @Override
     public void mouseDragged(MouseEvent m) {
         Point2D relativeMousePoint = toRelativePoint(m);
+        boolean shiftPressed = (m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0;
+        boolean ctrlPressed = (m.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
+        boolean altPressed = (m.getModifiersEx() & InputEvent.ALT_DOWN_MASK) != 0;
 
         mouseDelta.setLocation(relativeMousePoint.getX() - lastPos.getX(), relativeMousePoint.getY() - lastPos.getY());
         if (isDrawing && (newShape != null)) {
@@ -78,17 +80,36 @@ public class MouseListener extends MouseAdapter {
             newShape.setSize(new Size(relativeMousePoint.getX() - position.getX(), relativeMousePoint.getY() - position.getY()));
         }
 
-        if (!controls.isEmpty()) {
-            Control control = controls.get(0);
-            control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_DRAGGED, startPos, relativeMousePoint));
+        if (!hoveredControls.isEmpty()) {
+            Control control = hoveredControls.iterator().next();
+            control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_DRAGGED, startPos, relativeMousePoint, shiftPressed, ctrlPressed, altPressed));
         }
 
         controller.getDrawing().repaint();
         lastPos = relativeMousePoint;
     }
 
+    @Override
     public void mouseMoved(MouseEvent m) {
+        Point2D relativeMousePoint = toRelativePoint(m);
+        boolean shiftPressed = (m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0;
+        boolean ctrlPressed = (m.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
+        boolean altPressed = (m.getModifiersEx() & InputEvent.ALT_DOWN_MASK) != 0;
+
+        List<Control> allControls = controller.getSelectionManager().getControls();
+        allControls.forEach(control -> {
+            boolean within = control.isWithin(relativeMousePoint);
+            boolean alreadyHovered = hoveredControls.contains(control);
+            if (!within && alreadyHovered) {
+                hoveredControls.remove(control);
+                control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_OUT, relativeMousePoint, relativeMousePoint, shiftPressed, ctrlPressed, altPressed));
+            } else if (within && !alreadyHovered) {
+                hoveredControls.add(control);
+                control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_IN, relativeMousePoint, relativeMousePoint, shiftPressed, ctrlPressed, altPressed));
+            }
+        });
         lastPos = toRelativePoint(m);
+        controller.getDrawing().repaint();
     }
 
     private Point2D toRelativePoint(MouseEvent m) {
@@ -99,27 +120,22 @@ public class MouseListener extends MouseAdapter {
         }
     }
 
+    @Override
     public void mousePressed(MouseEvent m) {
         Point2D relativeMousePoint = toRelativePoint(m);
+        boolean shiftPressed = (m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0;
+        boolean ctrlPressed = (m.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
+        boolean altPressed = (m.getModifiersEx() & InputEvent.ALT_DOWN_MASK) != 0;
         startPos = relativeMousePoint;
 
         Tool t = controller.getTool();
         isDrawing = true;
-        controls = Collections.emptyList();
 
         if (t == Tool.SELECT) {
-            boolean shiftPressed = (m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0;
-
-            controls = controller.getSelectionManager()
-                    .getControls()
-                    .stream()
-                    .filter(c -> c.isWithin(relativeMousePoint)).collect(Collectors.toList());
-
-            if (!controls.isEmpty() && !shiftPressed) {
-                Control control = controls.get(0);
-                control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_PRESSED, startPos, relativeMousePoint));
+            if (!hoveredControls.isEmpty() && !shiftPressed) {
+                Control control = hoveredControls.iterator().next();
+                control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_PRESSED, startPos, relativeMousePoint, shiftPressed, ctrlPressed, altPressed));
             } else {
-                controls.clear();
                 Entity entity = controller.getDrawing().getEntitiesAt(startPos)
                         .stream()
                         .min((e1, e2) -> (int) ((e1.getBounds().getWidth() * e1.getBounds().getWidth()) - (e2.getBounds().getWidth() * e2.getBounds().getWidth())))
@@ -140,7 +156,6 @@ public class MouseListener extends MouseAdapter {
                 }
             }
 
-
             controller.getDrawing().repaint();
 
         } else if (t == Tool.RECTANGLE) {
@@ -158,16 +173,18 @@ public class MouseListener extends MouseAdapter {
 
     }
 
+    @Override
     public void mouseReleased(MouseEvent m) {
         Point2D relativeMousePoint = toRelativePoint(m);
+        boolean shiftPressed = (m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0;
+        boolean ctrlPressed = (m.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
+        boolean altPressed = (m.getModifiersEx() & InputEvent.ALT_DOWN_MASK) != 0;
         isDrawing = false;
         newShape = null;
 
-        if (!controls.isEmpty()) {
-            Control control = controls.get(0);
-            control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_RELEASED, startPos, relativeMousePoint));
+        if (!hoveredControls.isEmpty() && startPos != null) {
+            Control control = hoveredControls.iterator().next();
+            control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_RELEASED, startPos, relativeMousePoint, shiftPressed, ctrlPressed, altPressed));
         }
-
-        controls = Collections.emptyList();
     }
 }
