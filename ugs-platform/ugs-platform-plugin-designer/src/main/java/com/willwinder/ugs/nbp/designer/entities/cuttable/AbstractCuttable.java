@@ -78,7 +78,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     @Override
     public void render(Graphics2D graphics) {
         if (getCutType() != CutType.NONE && getCutDepth() == 0) {
-            graphics.setStroke(new BasicStroke(0.8f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{1, 1}, 0));
+            graphics.setStroke(new BasicStroke(0.8f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{0.8f, 0.8f}, 0));
             graphics.setColor(Colors.SHAPE_HINT);
             graphics.draw(getShape());
         } else if (getCutType() == CutType.POCKET) {
@@ -91,7 +91,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             graphics.setColor(getCutColor());
             graphics.draw(getShape());
         } else {
-            graphics.setStroke(new BasicStroke(0.8f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{1, 1}, 0));
+            graphics.setStroke(new BasicStroke(0.8f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{0.8f, 0.8f}, 0));
             graphics.setColor(Colors.SHAPE_OUTLINE);
             graphics.draw(getShape());
         }

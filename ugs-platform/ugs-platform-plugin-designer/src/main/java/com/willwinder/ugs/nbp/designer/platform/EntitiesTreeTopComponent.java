@@ -41,16 +41,8 @@ public class EntitiesTreeTopComponent extends TopComponent {
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());
         setDisplayName("Design objects");
-    }
-
-    @Override
-    protected void componentOpened() {
-        super.componentOpened();
-        entitiesTree = new EntitiesTree();
-        add(entitiesTree);
-
         Controller controller = CentralLookup.getDefault().lookup(Controller.class);
-        entitiesTree.updateController(controller);
-        validate();
+        entitiesTree = new EntitiesTree(controller);
+        add(entitiesTree);
     }
 }

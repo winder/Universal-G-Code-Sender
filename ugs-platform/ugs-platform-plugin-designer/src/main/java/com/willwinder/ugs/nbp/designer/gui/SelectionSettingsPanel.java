@@ -60,11 +60,6 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private final JTextField heightTextField;
 
     public SelectionSettingsPanel(Controller controller) {
-        this();
-        updateController(controller);
-    }
-
-    public SelectionSettingsPanel() {
         setLayout(new MigLayout("fill, wrap 2", "[] 10 [grow]"));
 
         posXTextField = new JTextField("0");
@@ -131,9 +126,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         add(cutDepthLabel);
         add(depthSpinner, "grow, wrap");
         setEnabled(false);
-    }
 
-    public void updateController(Controller controller) {
         if (this.controller != null) {
             this.controller.getSelectionManager().removeSelectionListener(this);
         }

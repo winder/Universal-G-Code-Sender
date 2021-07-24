@@ -49,25 +49,6 @@ public class EntitiesTree extends JPanel implements DrawingListener, ControllerL
     private final JTree tree;
 
     public EntitiesTree(Controller controller) {
-        this();
-        updateController(controller);
-    }
-
-    public void updateController(Controller controller) {
-        if (this.controller != null && this.controller != controller) {
-            this.controller.removeListener(this);
-            this.controller.getDrawing().removeListener(this);
-            this.controller.getSelectionManager().removeSelectionListener(this);
-        }
-
-        this.controller = controller;
-        this.controller.addListener(this);
-        this.controller.getDrawing().addListener(this);
-        this.controller.getSelectionManager().addSelectionListener(this);
-    }
-
-    public EntitiesTree() {
-
         setLayout(new BorderLayout());
         tree = new JTree(topNode);
         tree.setEditable(true);
@@ -90,6 +71,21 @@ public class EntitiesTree extends JPanel implements DrawingListener, ControllerL
         tree.expandRow(0);
 
         add(tree, BorderLayout.CENTER);
+        updateController(controller);
+    }
+
+    private void updateController(Controller controller) {
+        if (this.controller != null && this.controller != controller) {
+            this.controller.removeListener(this);
+            this.controller.getDrawing().removeListener(this);
+            this.controller.getSelectionManager().removeSelectionListener(this);
+        }
+
+        this.controller = controller;
+        this.controller.addListener(this);
+        this.controller.getDrawing().addListener(this);
+        this.controller.getSelectionManager().addSelectionListener(this);
+        reloadTree();
     }
 
     @Override
@@ -97,7 +93,7 @@ public class EntitiesTree extends JPanel implements DrawingListener, ControllerL
         reloadTree();
     }
 
-    private void reloadTree() {
+    public void reloadTree() {
         topNode.removeAllChildren();
         ((EntityGroup) controller.getDrawing().getRootEntity()).getChildren().forEach(child -> addNode(topNode, child));
         tree.setModel(new DefaultTreeModel(topNode));
