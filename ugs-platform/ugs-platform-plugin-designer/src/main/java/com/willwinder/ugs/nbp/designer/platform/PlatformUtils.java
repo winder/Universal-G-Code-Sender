@@ -18,7 +18,6 @@ public class PlatformUtils {
                     return topComponent;
                 });
 
-        component.updateController(controller);
         if (!controller.getSelectionManager().getSelection().isEmpty()) {
             component.requestActive();
         }
@@ -37,7 +36,6 @@ public class PlatformUtils {
                     return topComponent;
                 });
 
-        component.updateController(controller);
         if (!controller.getSelectionManager().getSelection().isEmpty()) {
             component.requestActive();
         }

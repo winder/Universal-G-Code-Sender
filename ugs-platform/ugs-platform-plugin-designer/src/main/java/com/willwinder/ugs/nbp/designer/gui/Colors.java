@@ -25,12 +25,14 @@ import java.awt.*;
  */
 public class Colors {
 
+
     private Colors() {
         throw new IllegalStateException("Utility class");
     }
 
+    public static final Color SHAPE_HINT = new Color(190, 190, 190);
+    public static final Color SHAPE_OUTLINE = new Color(144, 183, 252);
     public static final Color CONTROL_BORDER = new Color(144, 183, 252);
-    public static final Color CUT_PATH = new Color(255, 151, 11);
     public static final Color CONTROL_HANDLE = Color.GRAY;
     public static final Color BACKGROUND = new Color(246, 246, 246);
 

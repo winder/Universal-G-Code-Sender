@@ -21,7 +21,6 @@ package com.willwinder.ugs.nbp.designer.gui;
 import com.willwinder.ugs.nbp.designer.actions.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
-import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.Utils;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -62,23 +61,10 @@ public class ToolBox extends JToolBar {
         insert.setContentAreaFilled(false);
         add(insert);
 
-
-        JPopupMenu popupMenu = new JPopupMenu();
-
-        JMenuItem menuItemCreateSpringProject = new JMenuItem("Spring Project");
-        popupMenu.add(menuItemCreateSpringProject);
-
-        JMenuItem menuItemCreateHibernateProject = new JMenuItem("Hibernate Project");
-        popupMenu.add(menuItemCreateHibernateProject);
-
-        JMenuItem menuItemCreateStrutsProject = new JMenuItem("Struts Project");
-        popupMenu.add(menuItemCreateStrutsProject);
-
-
         add(Box.createRigidArea(new Dimension(10, 10)));
         add(Box.createHorizontalGlue());
 
-        JSlider zoomSlider = new JSlider(1, 1000, 100);
+        JSlider zoomSlider = new JSlider(80, 800, 400);
         zoomSlider.addChangeListener(event -> {
             double scale = ((double) zoomSlider.getValue()) / 100d;
             controller.getDrawing().setScale(scale);

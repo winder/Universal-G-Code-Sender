@@ -56,7 +56,7 @@ public class Drawing extends JPanel {
         globalRoot.addChild(controller.getSelectionManager());
 
         setBackground(Colors.BACKGROUND);
-        setScale(1);
+        setScale(2);
     }
 
     public BufferedImage getImage() {

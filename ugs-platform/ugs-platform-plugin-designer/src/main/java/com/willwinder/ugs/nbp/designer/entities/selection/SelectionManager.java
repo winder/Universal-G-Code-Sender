@@ -56,8 +56,8 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
         if (!entityGroup.getChildren().isEmpty()) {
             // Highlight the selected models
             getSelection().forEach(entity -> {
-                graphics.setStroke(new BasicStroke(1f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{1, 1}, 0));
-                graphics.setColor(Colors.CONTROL_BORDER);
+                graphics.setStroke(new BasicStroke(0.8f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{0.8f, 0.8f}, 0));
+                graphics.setColor(Colors.SHAPE_OUTLINE);
                 graphics.draw(entity.getShape());
             });
 
