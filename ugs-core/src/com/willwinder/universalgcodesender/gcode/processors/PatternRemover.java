@@ -32,7 +32,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.util.regex.Matcher;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+//import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
 /**
  *
@@ -71,10 +71,10 @@ public class PatternRemover implements CommandProcessor {
                 Matcher mp = pm.matcher(s3[2].trim());
                 // Retrieve and match macros, expand macro.gcode() if defined
                 if (mp.matches()) {
+                    int expanded = 0;
+                    /*
                     // Get the backend, through which macros are retrieved
                     BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-                    int expanded = 0;
-                    
                     Settings settings = backend.getSettings();
                     List<Macro> macros = settings.getMacros();
                     // Enumerate macros to find match
@@ -86,6 +86,7 @@ public class PatternRemover implements CommandProcessor {
                             break;
                         }
                     }
+                    */
                     // If there was no macro name match thus no expansion
                     // safely degrade s3[2] into "" to avoid gcode exceptions
                     if (expanded == 0) {
