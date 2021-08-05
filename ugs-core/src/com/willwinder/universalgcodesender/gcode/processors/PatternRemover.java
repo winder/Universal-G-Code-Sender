@@ -25,22 +25,26 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
-//
-import com.willwinder.universalgcodesender.types.Macro;
-//import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.utils.Settings;
-//
 import java.util.regex.Matcher;
+//
+//import com.willwinder.universalgcodesender.types.Macro;
+//import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+//import com.willwinder.universalgcodesender.model.BackendAPI;
+//import com.willwinder.universalgcodesender.utils.Settings;
+//
 
 /**
  *
- * @author wwinder
+ * @author wwinder, AndyCXL
+ *
  */
 public class PatternRemover implements CommandProcessor {
     final private Pattern p;
     final private List<String> r = new ArrayList<>();
+    private static final Logger logger = Logger.getLogger(PatternRemover.class.getName());
     //
     public PatternRemover(String regexPattern) {
         // AndyCXL enhancing 'remover' into 'remover or replacer' with sed
@@ -99,6 +103,9 @@ public class PatternRemover implements CommandProcessor {
         List<String> ret = new ArrayList<>();
         // Property p contains the grep string in either case of grep or sed
         ret.add( p.matcher(command).replaceAll( r.get(0) ) );
+        if (!command.equals(ret.get(0))) {
+            logger.log(Level.INFO, "Replacer: "+command+" to: "+ret.get(0));
+        }
         return ret;
     }
 }

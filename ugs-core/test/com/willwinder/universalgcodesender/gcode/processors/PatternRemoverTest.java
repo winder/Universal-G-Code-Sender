@@ -133,21 +133,16 @@ public class PatternRemoverTest {
     public void testMatchSedLines() throws Exception {
         System.out.println("matchSedLines");
 
-        PatternRemover instance = new PatternRemover("s/^[mM]6\\s*[tT]([0-9]+)$/M123SED");
+        PatternRemover instance = new PatternRemover("s/M6T[0-9]+/M123SED");
 
         String command;
 
         GcodeState state = new GcodeState();
         state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
-
-        command = "M6 T12";
-        List<String> result = instance.processCommand(command, state);
-        System.out.println(">>"+command+" to \""+result.get(0)+"\"");
-        assertThat(result).containsExactly("M123SED");
-
+        
         command = "M6T12";
-        result = instance.processCommand(command, state);
+        List<String> result = instance.processCommand(command, state);
         System.out.println(">>"+command+" to \""+result.get(0)+"\"");
         assertThat(result).containsExactly("M123SED");
     }
@@ -181,7 +176,7 @@ public class PatternRemoverTest {
         System.out.println("matchSedMacroLines");
 
         // Vanilla setup contains 1 macro named "1" defined as "G91 X0 Y0;"
-        PatternRemover instance = new PatternRemover("s/M6T/%999%");
+        PatternRemover instance = new PatternRemover("s/M6\\s*T([0-9]+)/%999%");
 
         String command;
 
@@ -189,11 +184,9 @@ public class PatternRemoverTest {
         state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
 
-        command = "M6T";
+        command = "M6 T113";
         List<String> result = instance.processCommand(command, state);
         System.out.println(">>"+command+" to \""+result.get(0)+"\"");
-        assertThat(result).containsExactly(""); //G90;G0X0Y0F1000
-        //assertThat(result).containsExactly("G90;G0X0Y0F1000");
-        //assertThat(result).containsExactly("MACRO");
+        assertThat(result).containsExactly("");
     }
 }
