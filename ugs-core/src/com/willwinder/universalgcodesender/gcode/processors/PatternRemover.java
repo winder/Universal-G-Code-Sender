@@ -30,12 +30,9 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 //
-//import com.willwinder.universalgcodesender.types.Macro;
-//import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-//import com.willwinder.universalgcodesender.model.BackendAPI;
-//import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.types.Macro;
+import com.willwinder.universalgcodesender.utils.SettingsFactory;
 //
-
 /**
  *
  * @author wwinder, AndyCXL
@@ -60,11 +57,10 @@ public class PatternRemover implements CommandProcessor {
                 // Retrieve and match macros, expand macro.gcode() if defined
                 if (mp.matches()) {
                     int expanded = 0;
-                    /* TODO:
+                    // TODO:
                     // Get the backend, through which macros are retrieved
-                    BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-                    Settings settings = backend.getSettings();
-                    List<Macro> macros = settings.getMacros();
+                    // backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+                    List<Macro> macros = SettingsFactory.loadSettings().getMacros();
                     // Enumerate macros to find match
                     for (Macro macro: macros) {
                         // Iterate macros and test given name amongst macro names
@@ -74,7 +70,7 @@ public class PatternRemover implements CommandProcessor {
                             break;
                         }
                     }
-                    // :TODO */
+                    // :TODO //
                     // If there was no macro matched safely degrade s3[2] into ""
                     if (expanded == 0) {
                         s3[2] = "";
