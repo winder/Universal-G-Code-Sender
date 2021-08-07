@@ -95,7 +95,7 @@ public class JogSizeAction extends AbstractAction implements Serializable {
         } else if (operation != null) {
             switch (operation) {
                 case STEPXY_MULTIPLY:
-                    js.multiplyXYStepSize();
+                    getJogService().multiplyXYStepSize(); //AndyCXL
                     break;
                 case STEPXY_DIVIDE:
                     getJogService().divideXYStepSize();
