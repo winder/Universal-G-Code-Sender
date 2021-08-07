@@ -44,7 +44,7 @@ public class PatternRemover implements CommandProcessor {
     private static final Logger logger = Logger.getLogger(PatternRemover.class.getName());
     //
     public PatternRemover(String regexPattern) {
-        // AndyCXL enhancing 'remover' into 'remover or replacer' with sed
+        // Check if 'remover or replacer' by detecting sed syntax
         String[] s3 = regexPattern.split("/", 3);
         if (s3[0].trim().equals("s")) {
             // sed pattern identified, second split is therefore grep pattern
@@ -57,9 +57,7 @@ public class PatternRemover implements CommandProcessor {
                 // Retrieve and match macros, expand macro.gcode() if defined
                 if (mp.matches()) {
                     int expanded = 0;
-                    // TODO:
-                    // Get the backend, through which macros are retrieved
-                    // backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+                    // Get the defined macros for match searching
                     List<Macro> macros = SettingsFactory.loadSettings().getMacros();
                     // Enumerate macros to find match
                     for (Macro macro: macros) {
@@ -70,7 +68,6 @@ public class PatternRemover implements CommandProcessor {
                             break;
                         }
                     }
-                    // :TODO //
                     // If there was no macro matched safely degrade s3[2] into ""
                     if (expanded == 0) {
                         s3[2] = "";
@@ -100,7 +97,7 @@ public class PatternRemover implements CommandProcessor {
         // Property p contains the grep string in either case of grep or sed
         ret.add( p.matcher(command).replaceAll( r.get(0) ) );
         if (!command.equals(ret.get(0))) {
-            logger.log(Level.INFO, "Replacer: "+command+" to: "+ret.get(0));
+            logger.log(Level.INFO, "Replacer: \""+command+"\" to: \""+ret.get(0)+"\"");
         }
         return ret;
     }
