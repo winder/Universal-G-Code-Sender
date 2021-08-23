@@ -27,23 +27,9 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-api-annotations-common</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-awt</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-windows</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
+        
+        
+        
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util</artifactId>
@@ -71,46 +57,12 @@
             <artifactId>org-openide-util-ui</artifactId>
             <version>${netbeans.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-options-api</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-settings</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
-
-        <!-- UI -->
-        <dependency>
-            <groupId>com.miglayout</groupId>
-            <artifactId>miglayout</artifactId>
-            <version>${miglayout.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.willwinder</groupId>
-            <artifactId>ugs-platform-ugscore</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- Test -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-            <type>jar</type>
-        </dependency>
-
-        <!-- JSON -->
+        
+        
+        
+        
+        
+        
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>

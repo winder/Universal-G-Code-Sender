@@ -156,34 +156,16 @@
             <artifactId>ugs-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.willwinder.universalgcodesender</groupId>
-            <artifactId>ugs-pendant</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-api-annotations-common</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
+        
+        
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-options-api</artifactId>
             <version>${netbeans.version}</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-filesystems</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
+        
+        
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-ui</artifactId>
@@ -196,27 +178,14 @@
             <version>${netbeans.version}</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-windows</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-loaders</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
+        
+        
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-nodes</artifactId>
             <version>${netbeans.version}</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-text</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
+        
     </dependencies>
 </project>

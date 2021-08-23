@@ -36,13 +36,7 @@
         </plugins>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-api-annotations-common</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
-
-        <!-- app netbeans dependencies -->
+        
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-awt</artifactId>
@@ -50,12 +44,7 @@
             <type>jar</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-filesystems</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
+        
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util</artifactId>
@@ -74,12 +63,7 @@
             <version>${netbeans.version}</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-settings</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
+        
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-options-api</artifactId>
@@ -92,44 +76,12 @@
             <version>${netbeans.version}</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-dialogs</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-sendopts</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-editor</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-loaders</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-nodes</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-text</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
-
-        <!-- UGS Module Dependencies -->
+        
+        
+        
+        
+        
+        
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ugs-platform-ugslib</artifactId>

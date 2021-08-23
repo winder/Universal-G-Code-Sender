@@ -160,6 +160,10 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <groupId>org.apache.maven.plugins</groupId>
         <version>${ugs.surefire.version}</version>
+        <configuration>
+        	<parallel>all</parallel>
+        </configuration>
+
       </plugin>
     </plugins>
   </build>

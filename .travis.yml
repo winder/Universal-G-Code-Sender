@@ -21,11 +21,11 @@ before_script:
 - curl -fL https://getcli.jfrog.io | sh
 
 script:
-  - mvn test install -B -Djava.util.logging.config.file=scripts/logging.config
+  - mvn -T 1C test install -B -Djava.util.logging.config.file=scripts/logging.config
   - codecov
   # Make sure artifacts can be built
-  - mvn assembly:assembly -pl ugs-classic -DskipTests=true
-  - mvn package -pl ugs-platform/application -P create-autoupdate,create-macosx-package,create-win-package,create-linux-package,create-pi-package -DskipTests=true
+  - mvn -T 1C assembly:assembly -pl ugs-classic -DskipTests=true
+  - mvn -T 1C package -pl ugs-platform/application -P create-autoupdate,create-macosx-package,create-win-package,create-linux-package,create-pi-package -DskipTests=true
 
 
 deploy:

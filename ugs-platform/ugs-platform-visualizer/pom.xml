@@ -30,17 +30,8 @@
         </plugins>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-api-annotations-common</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-settings</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
+        
+        
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util</artifactId>
@@ -65,11 +56,7 @@
             <artifactId>ugs-platform-ugslib</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-awt</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
+        
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-ui</artifactId>

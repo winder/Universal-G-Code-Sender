@@ -32,26 +32,10 @@
             <artifactId>ugs-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.willwinder.universalgcodesender</groupId>
-            <artifactId>ugs-pendant</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.willwinder.universalgcodesender</groupId>
-            <artifactId>ugs-cli</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        
+        
 
-        <!-- ************************* -->
-        <!-- *** TEST dependencies ***-->
-
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>3.4</version>
-            <scope>test</scope>
-        </dependency>
+        
     </dependencies>
 
     <build>

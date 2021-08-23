@@ -27,34 +27,11 @@
         </plugins>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-api-annotations-common</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-awt</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-windows</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-            <version>${netbeans.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util-lookup</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
+        
+        
+        
+        
+        
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ugs-platform-ugslib</artifactId>
@@ -66,21 +43,9 @@
             <artifactId>ugs-platform-visualizer</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util-ui</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-options-api</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-settings</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
+        
+        
+        
 
       <dependency>
         <groupId>junit</groupId>
@@ -95,11 +60,6 @@
         <scope>test</scope>
         <type>jar</type>
       </dependency>
-      <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-core</artifactId>
-        <version>1.3</version>
-        <scope>test</scope>
-      </dependency>
+      
     </dependencies>
 </project>

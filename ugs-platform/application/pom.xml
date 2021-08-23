@@ -15,12 +15,7 @@
     <name>ugs-platform-app</name>
 
     <dependencies>
-        <dependency>
-            <groupId>org.netbeans.cluster</groupId>
-            <artifactId>platform</artifactId>
-            <version>${netbeans.version}</version>
-            <type>pom</type>
-        </dependency>
+        
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ugs-platform-branding</artifactId>
