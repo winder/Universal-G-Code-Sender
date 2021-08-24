@@ -46,42 +46,39 @@ public class PatternRemover implements CommandProcessor {
     public PatternRemover(String regexPattern) {
         // Check if 'remover or replacer' by detecting sed syntax
         String[] s3 = regexPattern.split("/", 3);
-        if (s3[0].trim().equals("s")) {
-            // sed pattern identified, second split is therefore grep pattern
-            p = Pattern.compile(s3[1].trim());
-            // Third split is the 'replace with' string, use "" if absent
-            if (s3.length == 3) {
-                // Does s3[2] contain a known macro name (one)? Expand if so
+        switch(s3.length) {
+            case 2:
+                // Replacer s/regex match to p, blank r
+                p = Pattern.compile(s3[1].trim());
+                r.add("");
+                break;
+            case 3:
+                // Full s/regex/replace match, r as-is or with macro expansion
                 Pattern pm = Pattern.compile("%.+%");
                 Matcher mp = pm.matcher(s3[2].trim());
-                // Retrieve and match macros, expand macro.gcode() if defined
                 if (mp.matches()) {
-                    int expanded = 0;
-                    // Get the defined macros for match searching
+                    // Get the user's macros for match searching
                     List<Macro> macros = SettingsFactory.loadSettings().getMacros();
-                    // Enumerate macros to find match
                     for (Macro macro: macros) {
-                        // Iterate macros and test given name amongst macro names
                         if (mp.group().equals("%"+macro.getName()+"%")) {
                             s3[2] = s3[2].replace(mp.group(), macro.getGcode());
-                            expanded = 1;
                             break;
                         }
                     }
-                    // If there was no macro matched safely degrade s3[2] into ""
-                    if (expanded == 0) {
-                        s3[2] = "";
-                    }
                 }
-                // Any macros are expanded, string is ready to submit
-                r.add(s3[2].trim());
-            } else {
+                // s3[2] contains macro expansion or the orig string if no matches
+                p = Pattern.compile(s3[1].trim());
+                if (s3[2].contains("%")) {
+                    r.add("");
+                } else {
+                    r.add(s3[2].trim());
+                }
+                break;
+            default:
+                // No sed, or mal-formed, so Simple regex to p, blank r
+                p = Pattern.compile(regexPattern);
                 r.add("");
-            }
-        } else {
-            // grep pattern received, presume entire pattern is the regexPattern
-            p = Pattern.compile(regexPattern);
-            r.add("");
+                break;
         }
     }
     

@@ -175,8 +175,8 @@ public class PatternRemoverTest {
     public void testMatchSedMacroLines() throws Exception {
         System.out.println("matchSedMacroLines");
 
-        // Vanilla setup contains 1 macro named "1" defined as "G91 X0 Y0;"
-        PatternRemover instance = new PatternRemover("s/M6\\s*T([0-9]+)/%999%");
+        // Vanilla install contains 1 macro named "Macro #1" defined as "G91 X0 Y0;"
+        PatternRemover instance = new PatternRemover("s/M6\\s*T([0-9]+)/%Macro #1%");
 
         String command;
 
@@ -187,6 +187,6 @@ public class PatternRemoverTest {
         command = "M6 T113";
         List<String> result = instance.processCommand(command, state);
         System.out.println(">>"+command+" to \""+result.get(0)+"\"");
-        assertThat(result).containsExactly("");
+        assertThat(result).containsExactly("G91 X0 Y0;");
     }
 }
