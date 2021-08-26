@@ -212,7 +212,7 @@ public class GrblCommunicatorTest {
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
         String term = "\n";
-        String thirtyNineCharString = "thirty-nine character command here.....";
+        String thirtyCharString = "thirty character command......";
 
         boolean result;
         boolean expResult;
@@ -223,13 +223,14 @@ public class GrblCommunicatorTest {
         assertEquals(13, CommUtils.getSizeOfBuffer(l));
 
         // Make sure GrblUtils hasn't updated RX buffer size.
-        assertEquals(123, GrblUtils.GRBL_RX_BUFFER_SIZE);
+        assertEquals(128, GrblUtils.GRBL_RX_BUFFER_SIZE);
 
         // Add a bunch of commands so that the buffer is full.
-        // 39*3 + 3 newlines + 3 CommUtils caution  = 123 == buffer size.
-        instance.queueCommand(new GcodeCommand(thirtyNineCharString));
-        instance.queueCommand(new GcodeCommand(thirtyNineCharString));
-        instance.queueCommand(new GcodeCommand(thirtyNineCharString));
+        // (30 characters + 1 newline + 1 commUtils safety character) * 4 = 128
+        instance.queueCommand(new GcodeCommand(thirtyCharString));
+        instance.queueCommand(new GcodeCommand(thirtyCharString));
+        instance.queueCommand(new GcodeCommand(thirtyCharString));
+        instance.queueCommand(new GcodeCommand(thirtyCharString));
 
         // Stream them so that there are active commands.
         instance.streamCommands();
@@ -238,7 +239,7 @@ public class GrblCommunicatorTest {
         assertEquals(expResult, result);
 
         // Add another command and stream it so that something is queued.
-        instance.queueCommand(new GcodeCommand(thirtyNineCharString));
+        instance.queueCommand(new GcodeCommand(thirtyCharString));
         instance.streamCommands();
         expResult = true;
         result = instance.areActiveCommands();
@@ -246,7 +247,7 @@ public class GrblCommunicatorTest {
 
         // Check with MockGrbl to verify the fourth command wasn't sent.
         String output = mg.readStringFromGrblBuffer();
-        String goal = thirtyNineCharString+term+thirtyNineCharString+term+thirtyNineCharString+term;
+        String goal = thirtyCharString+term+thirtyCharString+term+thirtyCharString+term+thirtyCharString+term;
         assertEquals(goal, output);
         
         // Make room for the next command.
@@ -257,9 +258,10 @@ public class GrblCommunicatorTest {
         
         // Make sure the queued command was sent.
         output = mg.readStringFromGrblBuffer();
-        assertEquals(thirtyNineCharString+term, output);
+        assertEquals(thirtyCharString+term, output);
   
         // Wrap up.
+        mc.sendResponse("ok");
         mc.sendResponse("ok");
         mc.sendResponse("ok");
         mc.sendResponse("ok");
