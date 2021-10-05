@@ -22,10 +22,10 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class DxfReader implements DesignReader {
+
+    public static final double MILLIMETERS_PER_INCH = 25.4;
 
     @Override
     public Optional<Design> read(File file) {
@@ -43,37 +43,43 @@ public class DxfReader implements DesignReader {
             parser.parse(resourceAsStream, DXFParser.DEFAULT_ENCODING);
         } catch (ParseException e) {
             throw new RuntimeException("Could not parse file", e);
-
         }
+
         DXFDocument doc = parser.getDocument();
 
-        Design design = new Design();
-        List<Entity> entities = new ArrayList<>();
         Group group = new Group();
-        entities.add(group);
-        design.setEntities(entities);
-
         Iterator layerIterator = doc.getDXFLayerIterator();
         while (layerIterator.hasNext()) {
             DXFLayer layer = (DXFLayer) layerIterator.next();
+            Group layerGroup = new Group();
+            layerGroup.setName(layer.getName());
 
             Group circlesGroup = parseCircles(layer);
-            circlesGroup.setName("Circles " + layer.getName());
+            circlesGroup.setName("Circles");
             if (!circlesGroup.getChildren().isEmpty()) {
-                group.addChild(circlesGroup);
+                layerGroup.addChild(circlesGroup);
             }
 
             Group linesGroup = new Group();
-            linesGroup.setName("Lines " + layer.getName());
+            linesGroup.setName("Lines");
             parseLines(layer, linesGroup);
             if (!linesGroup.getChildren().isEmpty()) {
-                group.addChild(linesGroup);
+                layerGroup.addChild(linesGroup);
+            }
+
+            if (!layerGroup.getChildren().isEmpty()) {
+                group.addChild(layerGroup);
             }
         }
 
         group.setPosition(new Point2D.Double(0, 0));
 
-
+        Design design = new Design();
+        List<Entity> entities = new ArrayList<>();
+        if (!group.getChildren().isEmpty()) {
+            entities.add(group);
+        }
+        design.setEntities(entities);
         return Optional.of(design);
     }
 
@@ -90,10 +96,10 @@ public class DxfReader implements DesignReader {
                 }
 
                 if (lastPoint == null) {
-                    path.moveTo(line.getStartPoint().getX() * 25.4, line.getStartPoint().getY() * 25.4);
+                    path.moveTo(line.getStartPoint().getX() * MILLIMETERS_PER_INCH, line.getStartPoint().getY() * MILLIMETERS_PER_INCH);
                 }
 
-                path.lineTo(line.getEndPoint().getX() * 25.4, line.getEndPoint().getY() * 25.4);
+                path.lineTo(line.getEndPoint().getX() * MILLIMETERS_PER_INCH, line.getEndPoint().getY() * MILLIMETERS_PER_INCH);
                 lastPoint = line.getEndPoint();
             }
             linesGroup.addChild(path);
@@ -106,8 +112,8 @@ public class DxfReader implements DesignReader {
         List<DXFCircle> circles = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_CIRCLE);
         if (circles != null) {
             for (DXFCircle circle : circles) {
-                double radius = circle.getRadius() * 25.4;
-                Ellipse ellipse = new Ellipse((circle.getCenterPoint().getX() * 25.4) - radius, (circle.getCenterPoint().getY() * 25.4) - radius);
+                double radius = circle.getRadius() * MILLIMETERS_PER_INCH;
+                Ellipse ellipse = new Ellipse((circle.getCenterPoint().getX() * MILLIMETERS_PER_INCH) - radius, (circle.getCenterPoint().getY() * MILLIMETERS_PER_INCH) - radius);
                 ellipse.setSize(new Size(radius * 2, radius * 2));
                 circlesGroup.addChild(ellipse);
             }
