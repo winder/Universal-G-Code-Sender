@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
+import com.willwinder.ugs.nbp.designer.io.dxf.DxfReader;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -56,32 +57,35 @@ public final class ToolInsertAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         JFileChooser fileDialog = new JFileChooser();
         fileDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        FileFilter filter = new FileNameExtensionFilter("Draw files",
-                "draw", "svg");
-        fileDialog.addChoosableFileFilter(filter);
-        fileDialog.setFileFilter(filter);
-
+        fileDialog.addChoosableFileFilter(new FileNameExtensionFilter(".svg", "svg"));
+        fileDialog.addChoosableFileFilter(new FileNameExtensionFilter(".dxf", "dxf"));
         fileDialog.showOpenDialog(null);
 
         ThreadHelper.invokeLater(() -> {
             File f = fileDialog.getSelectedFile();
             if (f != null) {
+
+                Optional<Design> optionalDesign = Optional.empty();
                 if (StringUtils.endsWithIgnoreCase(f.getName(), ".svg")) {
                     SvgReader svgReader = new SvgReader();
-                    Optional<Design> optional = svgReader.read(f);
-                    if (optional.isPresent()) {
-                        Design design = optional.get();
+                    optionalDesign = svgReader.read(f);
+                } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".dxf")) {
+                    DxfReader reader = new DxfReader();
+                    optionalDesign = reader.read(f);
+                }
 
-                        design.getEntities().forEach(entity -> {
-                            controller.addEntity(entity);
-                            controller.getSelectionManager().addSelection(entity);
-                        });
+                if (optionalDesign.isPresent()) {
+                    Design design = optionalDesign.get();
 
-                        controller.getDrawing().repaint();
-                        controller.setTool(Tool.SELECT);
-                    } else {
-                        throw new RuntimeException("Could not open svg: " + f.getName());
-                    }
+                    design.getEntities().forEach(entity -> {
+                        controller.addEntity(entity);
+                        controller.getSelectionManager().addSelection(entity);
+                    });
+
+                    controller.getDrawing().repaint();
+                    controller.setTool(Tool.SELECT);
+                } else {
+                    throw new RuntimeException("Could not open: " + f.getName());
                 }
             }
         });
