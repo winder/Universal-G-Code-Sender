@@ -103,5 +103,6 @@ public class Controller {
         design.getEntities().forEach(getDrawing()::insertEntity);
         settings.applySettings(design.getSettings());
         getDrawing().repaint();
+        setTool(Tool.SELECT);
     }
 }
