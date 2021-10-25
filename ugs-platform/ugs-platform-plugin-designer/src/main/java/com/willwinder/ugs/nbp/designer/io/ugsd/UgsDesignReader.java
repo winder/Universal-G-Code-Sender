@@ -27,7 +27,6 @@ import com.willwinder.ugs.nbp.designer.io.ugsd.v1.*;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -73,7 +72,6 @@ public class UgsDesignReader implements DesignReader {
         }
     }
 
-    @NotNull
     private Optional<Design> parseV1(String designFile) {
         RuntimeTypeAdapterFactory<EntityV1> entityAdapterFactory = RuntimeTypeAdapterFactory.of(EntityV1.class, "type");
         entityAdapterFactory.registerSubtype(EntityPathV1.class, EntityTypeV1.PATH.name());

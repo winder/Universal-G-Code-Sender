@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 public class Version {
     private static final Logger LOGGER = Logger.getLogger(Version.class.getName());
-    private static final String BUILD_DATE_FORMAT = "MMM dd, yyyy";
+    private static final String BUILD_DATE_FORMAT = "yyyy-MM-dd";
     private static final String BUILD_DATE_NUMBER_FORMAT = "yyyyMMdd";
     private static String VERSION = "2.0-SNAPSHOT ";
     private static String BUILD_DATE = "";
@@ -23,19 +23,19 @@ public class Version {
      *
      * @return true if it is a nightly build
      */
-    static public Boolean isNightlyBuild() {
+    public static boolean isNightlyBuild() {
         return VERSION.contains("-SNAPSHOT");
     }
 
     /**
      * Returns the version as a string.
      *
-     * If it is a snapshot/nightly build it will include a build date: "2.0.6-SNAPSHOT / Oct 06, 2020"
+     * If it is a snapshot/nightly build it will include a build date: "2.0.6-SNAPSHOT / 2020-10-06"
      * If it is a release build it will only include the version: "2.0.6"
      *
      * @return the build version as a string
      */
-    static public String getVersionString() {
+    public static String getVersionString() {
         if (!initialized) {
             initialize();
         }
@@ -47,7 +47,7 @@ public class Version {
         return versionString;
     }
 
-    synchronized static public String getVersion() {
+    public static synchronized String getVersion() {
         if (!initialized) {
             initialize();
         }
@@ -58,9 +58,9 @@ public class Version {
     /**
      * Fetches the the build date for this version
      *
-     * @return the build date in the format MMM dd, yyyy
+     * @return the build date in the format yyyy-MM-dd
      */
-    synchronized public static String getBuildDate() {
+    public static synchronized String getBuildDate() {
         if (!initialized) {
             initialize();
         }
@@ -79,7 +79,7 @@ public class Version {
             Date date = parser.parse(buildDate);
 
             SimpleDateFormat formatter = new SimpleDateFormat(BUILD_DATE_NUMBER_FORMAT);
-            return Long.valueOf(formatter.format(date));
+            return Long.parseLong(formatter.format(date));
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE,"Couldn't convert the " + buildDate + " from date format \"" + BUILD_DATE_FORMAT + "\" to format \"" + BUILD_DATE_NUMBER_FORMAT + "\"");
             return 0;
