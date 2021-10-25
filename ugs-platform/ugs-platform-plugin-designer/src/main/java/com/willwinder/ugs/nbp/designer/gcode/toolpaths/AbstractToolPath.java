@@ -1,7 +1,6 @@
 package com.willwinder.ugs.nbp.designer.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.gcode.path.*;
-import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;

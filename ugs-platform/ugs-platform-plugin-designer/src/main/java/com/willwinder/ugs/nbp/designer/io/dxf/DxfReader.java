@@ -7,7 +7,6 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.model.Size;
-import org.jetbrains.annotations.NotNull;
 import org.kabeja.dxf.*;
 import org.kabeja.dxf.helpers.Point;
 import org.kabeja.parser.DXFParser;
@@ -106,7 +105,6 @@ public class DxfReader implements DesignReader {
         }
     }
 
-    @NotNull
     private Group parseCircles(DXFLayer layer) {
         Group circlesGroup = new Group();
         List<DXFCircle> circles = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_CIRCLE);

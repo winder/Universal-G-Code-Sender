@@ -16,10 +16,6 @@
             <plugin>
                 <groupId>org.apache.netbeans.utilities</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                <configuration>
-                    <publicPackages>
-                    </publicPackages>
-                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -27,18 +23,12 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4</version>
+            <version>${commons-io.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.10</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.cogman</groupId>
-            <artifactId>javadocking</artifactId>
-            <version>1.7.1</version>
+            <version>${commons-lang3.version}</version>
         </dependency>
 
         <!-- For geometric operations -->
@@ -52,7 +42,7 @@
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-all</artifactId>
-            <version>1.14</version>
+            <version>${batik.version}</version>
         </dependency>
 
         <!-- UGS dependencies -->
