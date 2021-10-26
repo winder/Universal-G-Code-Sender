@@ -26,9 +26,12 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.NbPreferences;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+import java.util.prefs.Preferences;
+
+import static com.willwinder.ugs.nbp.editor.EditorUtils.openFile;
 
 @Messages({
         "LBL_Gcode_LOADER=Files of Gcode"
@@ -48,15 +51,23 @@ import java.util.logging.Logger;
 public class GcodeDataObject extends MultiDataObject {
     public GcodeDataObject(FileObject pf, MultiFileLoader loader) throws IOException {
         super(pf, loader);
-        registerEditor(GcodeLanguageConfig.MIME_TYPE, true);
 
-        // Add an editor cookie so that EditorUtils can find it
-        getCookieSet().add((EditorCookie) () -> {
-            OpenCookie cookie = getCookie(OpenCookie.class);
-            if(cookie != null) {
-                cookie.open();
-            }
-        });
+        Preferences prefs = NbPreferences.forModule(EditorOptionsPanel.class);
+        boolean loadEditor = prefs.getBoolean(EditorOptionsPanel.SHOW_ON_OPEN, true);
+
+        if (loadEditor) {
+            registerEditor(GcodeLanguageConfig.MIME_TYPE, true);
+
+            // Add an editor cookie so that EditorUtils can find it
+            getCookieSet().add((EditorCookie) () -> {
+                OpenCookie cookie = getCookie(OpenCookie.class);
+                if (cookie != null) {
+                    cookie.open();
+                }
+            });
+        } else {
+            openFile(pf);
+        }
     }
 
     @Override

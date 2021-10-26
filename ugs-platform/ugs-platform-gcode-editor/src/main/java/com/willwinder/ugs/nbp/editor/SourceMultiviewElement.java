@@ -52,17 +52,7 @@ public class SourceMultiviewElement extends MultiViewEditorElement {
     @Override
     public void componentOpened() {
         super.componentOpened();
-
-        // Load the file when the editor is active
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        try {
-            if (backend.getGcodeFile() == null || !backend.getGcodeFile().getAbsolutePath().equalsIgnoreCase(obj.getPrimaryFile().getPath())) {
-                backend.setGcodeFile(new File((obj.getPrimaryFile().getPath())));
-            }
-        } catch (Exception e) {
-            ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
-        }
-
+        EditorUtils.openFile(obj.getPrimaryFile());
         obj.getPrimaryFile().addFileChangeListener(fileListener);
     }
 
