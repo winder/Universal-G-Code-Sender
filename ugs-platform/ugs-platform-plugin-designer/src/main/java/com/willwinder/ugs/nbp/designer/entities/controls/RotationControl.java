@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
@@ -38,10 +39,10 @@ import java.util.List;
  * @author Joacim Breiler
  */
 public class RotationControl extends AbstractControl {
-    public static final int SIZE = 6;
-    public static final int MARGIN = 12;
+    public static final int SIZE = 8;
+    public static final int MARGIN = 16;
 
-    private final Shape shape;
+    private final Ellipse2D.Double shape;
     private Point2D startPosition = new Point2D.Double();
     private double startRotation = 0d;
     private Point2D center;
@@ -52,13 +53,17 @@ public class RotationControl extends AbstractControl {
         shape = new Ellipse2D.Double(0, 0, SIZE, SIZE);
     }
 
-    private void updatePosition() {
+    private void updatePosition(Drawing drawing) {
+        double size = SIZE / drawing.getScale();
+        double margin = MARGIN / drawing.getScale();
+        shape.setFrame(0, 0, size, size);
+
         // Create transformation for where to position the controller in relative space
         AffineTransform transform = getSelectionManager().getTransform();
 
         Rectangle2D bounds = getSelectionManager().getRelativeShape().getBounds2D();
         transform.translate(bounds.getX(), bounds.getY() + bounds.getHeight());
-        transform.translate(bounds.getWidth() / 2 - (SIZE / 2d), MARGIN);
+        transform.translate(bounds.getWidth() / 2 - (size / 2d), margin);
 
         // Transform the position from relative space to real space
         Point2D result = new Point2D.Double();
@@ -81,22 +86,23 @@ public class RotationControl extends AbstractControl {
     }
 
     @Override
-    public void render(Graphics2D graphics) {
-        updatePosition();
-        graphics.setStroke(new BasicStroke(1f));
+    public void render(Graphics2D graphics, Drawing drawing) {
+        updatePosition(drawing);
         graphics.setColor(Colors.CONTROL_HANDLE);
-        graphics.fill(getShape());
 
         if (isHovered) {
             graphics.setColor(Colors.CONTROL_BORDER);
             graphics.draw(getShape());
 
             // Draw cross
+            double halfSize = SIZE / drawing.getScale();
             double centerX = getSelectionManager().getCenter().getX();
             double centerY = getSelectionManager().getCenter().getY();
-            graphics.draw(new Line2D.Double(centerX - (SIZE / 2d), centerY, centerX + (SIZE / 2d), centerY));
-            graphics.draw(new Line2D.Double(centerX, centerY - (SIZE / 2d), centerX, centerY + (SIZE / 2d)));
+            graphics.draw(new Line2D.Double(centerX - halfSize, centerY, centerX + halfSize, centerY));
+            graphics.draw(new Line2D.Double(centerX, centerY - halfSize, centerX, centerY + halfSize));
         }
+
+        graphics.fill(getShape());
     }
 
     @Override
@@ -112,7 +118,7 @@ public class RotationControl extends AbstractControl {
                 center = target.getCenter();
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_DRAGGED) {
                 int decimals = 0;
-                if(mouseShapeEvent.isAltPressed()) {
+                if (mouseShapeEvent.isAltPressed()) {
                     decimals = 1;
                 }
 

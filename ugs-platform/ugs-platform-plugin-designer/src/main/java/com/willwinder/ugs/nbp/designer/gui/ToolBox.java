@@ -64,7 +64,7 @@ public class ToolBox extends JToolBar {
         add(Box.createRigidArea(new Dimension(10, 10)));
         add(Box.createHorizontalGlue());
 
-        JSlider zoomSlider = new JSlider(80, 800, 400);
+        JSlider zoomSlider = new JSlider(1, 2000, 400);
         zoomSlider.addChangeListener(event -> {
             double scale = ((double) zoomSlider.getValue()) / 100d;
             controller.getDrawing().setScale(scale);

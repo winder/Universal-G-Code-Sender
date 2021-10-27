@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.gcode.path.NumericCoordinate;
 import com.willwinder.ugs.nbp.designer.gcode.path.SegmentType;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
@@ -76,22 +77,25 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     }
 
     @Override
-    public void render(Graphics2D graphics) {
+    public void render(Graphics2D graphics, Drawing drawing) {
+        float strokeWidth = Double.valueOf(1.2 / drawing.getScale()).floatValue();
+        float dashWidth = Double.valueOf(2 / drawing.getScale()).floatValue();
+
         if (getCutType() != CutType.NONE && getCutDepth() == 0) {
-            graphics.setStroke(new BasicStroke(0.4f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{0.8f, 0.8f}, 0));
+            graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
             graphics.setColor(Colors.SHAPE_HINT);
             graphics.draw(getShape());
         } else if (getCutType() == CutType.POCKET) {
-            graphics.setStroke(new BasicStroke(0.4f));
+            graphics.setStroke(new BasicStroke(strokeWidth));
             graphics.setColor(getCutColor());
             graphics.fill(getShape());
             graphics.draw(getShape());
         } else if (getCutType() == CutType.INSIDE_PATH || getCutType() == CutType.ON_PATH || getCutType() == CutType.OUTSIDE_PATH) {
-            graphics.setStroke(new BasicStroke(0.4f));
+            graphics.setStroke(new BasicStroke(strokeWidth));
             graphics.setColor(getCutColor());
             graphics.draw(getShape());
         } else {
-            graphics.setStroke(new BasicStroke(0.4f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{0.8f, 0.8f}, 0));
+            graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
             graphics.setColor(Colors.SHAPE_OUTLINE);
             graphics.draw(getShape());
         }

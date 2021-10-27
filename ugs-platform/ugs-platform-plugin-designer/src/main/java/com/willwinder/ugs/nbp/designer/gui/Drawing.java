@@ -113,7 +113,7 @@ public class Drawing extends JPanel {
         rh.put(KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         rh.put(KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g2.setRenderingHints(rh);
-        globalRoot.render(g2);
+        globalRoot.render(g2, this);
         g2.setTransform(previousTransform);
     }
 

@@ -25,6 +25,7 @@ import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
@@ -50,7 +51,7 @@ public class MoveControl extends AbstractControl {
     }
 
     @Override
-    public void render(Graphics2D graphics) {
+    public void render(Graphics2D graphics, Drawing drawing) {
         // There is nothing to render
     }
 
