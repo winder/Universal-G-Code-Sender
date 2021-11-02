@@ -12,6 +12,9 @@ public class PopupMenuFactory {
         popupMenu.add(new ClearSelectionAction(controller));
         popupMenu.add(new DeleteAction(controller));
         popupMenu.add(new JPopupMenu.Separator());
+        popupMenu.add(new CopyAction(controller));
+        popupMenu.add(new PasteAction(controller));
+        popupMenu.add(new JPopupMenu.Separator());
         popupMenu.add(new FlipHorizontallyAction(controller));
         popupMenu.add(new FlipVerticallyAction(controller));
         return popupMenu;

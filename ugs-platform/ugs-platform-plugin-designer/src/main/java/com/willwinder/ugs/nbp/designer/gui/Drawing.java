@@ -77,6 +77,13 @@ public class Drawing extends JPanel {
         refresh();
     }
 
+    public void insertEntities(List<Entity> entities) {
+        entities.forEach(entitiesRoot::addChild);
+        listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_ADDED));
+        refresh();
+    }
+
+
     public List<Entity> getEntities() {
         List<Entity> result = new ArrayList<>();
         entitiesRoot.getChildren().forEach(shape -> recursiveCollectEntities(shape, result));

@@ -67,4 +67,9 @@ public class ChangeCutSettingsAction extends AbstractAction implements UndoableA
         cuttable.setCutDepth(newCutDepth);
         this.controller.getDrawing().repaint();
     }
+
+    @Override
+    public String toString() {
+        return "cut settings";
+    }
 }

@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.io.ugsd;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
 import com.willwinder.ugs.nbp.designer.io.RuntimeTypeAdapterFactory;
 import com.willwinder.ugs.nbp.designer.io.ugsd.common.UgsDesign;
@@ -31,9 +32,13 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * @author Joacim Breiler
@@ -73,16 +78,27 @@ public class UgsDesignReader implements DesignReader {
     }
 
     private Optional<Design> parseV1(String designFile) {
+        Gson gson = getParser();
+        DesignV1 designV1 = gson.fromJson(designFile, DesignV1.class);
+        return Optional.of(designV1.toInternal());
+    }
+
+    private Gson getParser() {
         RuntimeTypeAdapterFactory<EntityV1> entityAdapterFactory = RuntimeTypeAdapterFactory.of(EntityV1.class, "type");
         entityAdapterFactory.registerSubtype(EntityPathV1.class, EntityTypeV1.PATH.name());
         entityAdapterFactory.registerSubtype(EntityGroupV1.class, EntityTypeV1.GROUP.name());
         entityAdapterFactory.registerSubtype(EntityRectangleV1.class, EntityTypeV1.RECTANGLE.name());
         entityAdapterFactory.registerSubtype(EntityEllipseV1.class, EntityTypeV1.ELLIPSE.name());
 
-        Gson gson = new GsonBuilder()
+        return new GsonBuilder()
                 .registerTypeAdapterFactory(entityAdapterFactory)
                 .create();
-        DesignV1 designV1 = gson.fromJson(designFile, DesignV1.class);
-        return Optional.of(designV1.toInternal());
+    }
+
+    public List<Entity> deserialize(String entities) {
+        Gson gson = getParser();
+        return Arrays.stream(gson.fromJson(entities, EntityV1[].class))
+                .map(EntityV1::toInternal)
+                .collect(Collectors.toList());
     }
 }

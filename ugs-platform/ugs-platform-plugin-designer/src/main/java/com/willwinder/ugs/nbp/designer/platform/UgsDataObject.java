@@ -32,7 +32,7 @@ import java.io.IOException;
         displayName = "UGS design",
         mimeType = "application/x-ugs",
         extension = {"ugsd", "UGSD"},
-        position = 1
+        position = 100
 )
 @DataObject.Registration(
         mimeType = "application/x-ugs",
