@@ -10,7 +10,6 @@ import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -148,7 +147,6 @@ public class UgsDesignReaderTest {
         assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
     }
 
-    @NotNull
     private String convertEntityToString(Entity entity) {
         when(controller.getSettings()).thenReturn(new Settings());
         when(controller.getDrawing()).thenReturn(drawing);

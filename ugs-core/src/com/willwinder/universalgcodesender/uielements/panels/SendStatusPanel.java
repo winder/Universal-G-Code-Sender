@@ -40,6 +40,7 @@ import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
 import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
@@ -52,6 +53,7 @@ import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_
  */
 public class SendStatusPanel extends JPanel implements UGSEventListener, ControllerListener {
     private static final String AL_RIGHT = "al right";
+    private static final Logger LOGGER = Logger.getLogger(SendStatusPanel.class.getSimpleName());
     private final BackendAPI backend;
 
     private final JLabel rowsLabel = new JLabel(Localization.getString("mainWindow.swing.rowsLabel"));
@@ -176,7 +178,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
             try {
                 try (IGcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
                     numRows = gsr.getNumRows();
-                    System.out.println("NUM ROWS: " + numRows);
+                    LOGGER.fine("NUM ROWS: " + numRows);
                 }
             } catch (GcodeStreamReader.NotGcodeStreamFile | IOException ex) {}
         }

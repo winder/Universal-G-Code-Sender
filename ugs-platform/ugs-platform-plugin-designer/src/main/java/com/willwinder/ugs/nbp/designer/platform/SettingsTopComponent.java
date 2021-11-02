@@ -13,15 +13,12 @@ import org.openide.windows.TopComponent;
 public class SettingsTopComponent extends TopComponent {
     private static final long serialVersionUID = 324234398723987873L;
 
-    private SelectionSettingsPanel selectionSettingsPanel;
-
     public SettingsTopComponent() {
         setMinimumSize(new java.awt.Dimension(50, 50));
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());
         setDisplayName("Cut settings");
         Controller controller = CentralLookup.getDefault().lookup(Controller.class);
-        selectionSettingsPanel = new SelectionSettingsPanel(controller);
-        add(selectionSettingsPanel);
+        add(new SelectionSettingsPanel(controller));
     }
 }
