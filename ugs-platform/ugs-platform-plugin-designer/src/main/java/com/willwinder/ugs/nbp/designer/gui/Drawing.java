@@ -77,6 +77,13 @@ public class Drawing extends JPanel {
         refresh();
     }
 
+    public void insertEntities(List<Entity> entities) {
+        entities.forEach(entitiesRoot::addChild);
+        listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_ADDED));
+        refresh();
+    }
+
+
     public List<Entity> getEntities() {
         List<Entity> result = new ArrayList<>();
         entitiesRoot.getChildren().forEach(shape -> recursiveCollectEntities(shape, result));
@@ -113,7 +120,7 @@ public class Drawing extends JPanel {
         rh.put(KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         rh.put(KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g2.setRenderingHints(rh);
-        globalRoot.render(g2);
+        globalRoot.render(g2, this);
         g2.setTransform(previousTransform);
     }
 

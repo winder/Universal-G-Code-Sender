@@ -23,6 +23,9 @@ import com.willwinder.ugs.nbp.designer.gui.DrawingListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
@@ -31,6 +34,14 @@ import java.awt.event.ActionEvent;
 /**
  * @author Joacim Breiler
  */
+@ActionID(
+        id = "com.willwinder.ugs.nbp.designer.actions.SelectAllAction",
+        category = "Edit")
+@ActionReferences({
+        @ActionReference(
+                path = "Shortcuts",
+                name = "D-A")
+})
 public class SelectAllAction extends AbstractAction implements DrawingListener {
 
     public static final String SMALL_ICON_PATH = "img/select-all.svg";

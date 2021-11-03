@@ -23,6 +23,8 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.openide.windows.TopComponent;
 
+import javax.swing.*;
+
 /**
  * @author Joacim Breiler
  */
@@ -43,6 +45,6 @@ public class EntitiesTreeTopComponent extends TopComponent {
         setDisplayName("Design objects");
         Controller controller = CentralLookup.getDefault().lookup(Controller.class);
         entitiesTree = new EntitiesTree(controller);
-        add(entitiesTree);
+        add(new JScrollPane(entitiesTree));
     }
 }

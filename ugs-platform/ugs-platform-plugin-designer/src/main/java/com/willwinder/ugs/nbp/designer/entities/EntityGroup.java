@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.entities;
 
 import com.willwinder.ugs.nbp.designer.Utils;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
@@ -44,8 +45,8 @@ public class EntityGroup extends AbstractEntity {
     }
 
     @Override
-    public void render(Graphics2D graphics) {
-        children.forEach(node -> node.render(graphics));
+    public void render(Graphics2D graphics, Drawing drawing) {
+        children.forEach(node -> node.render(graphics, drawing));
     }
 
     @Override

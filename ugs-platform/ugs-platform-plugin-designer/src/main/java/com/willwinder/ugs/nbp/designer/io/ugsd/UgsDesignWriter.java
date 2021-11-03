@@ -171,4 +171,11 @@ public class UgsDesignWriter implements DesignWriter {
         segment.setCoordinates(coordinateList);
         return segment;
     }
+
+    public String serialize(List<Entity> entities) {
+        Gson gson = new Gson();
+        return gson.toJson(entities.stream()
+                .map(this::convertToEntity)
+                .collect(Collectors.toList()));
+    }
 }

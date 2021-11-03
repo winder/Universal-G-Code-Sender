@@ -74,7 +74,7 @@ public abstract class AbstractEntity implements Entity {
     @Override
     public Size getSize() {
         Rectangle2D bounds = getShape().getBounds2D();
-        return new Size( bounds.getWidth(),  bounds.getHeight());
+        return new Size(bounds.getWidth(), bounds.getHeight());
     }
 
     @Override

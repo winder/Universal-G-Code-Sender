@@ -40,7 +40,7 @@ public class Utils {
     }
 
     public static double parseDouble(String value) {
-        if(StringUtils.isEmpty(value)) {
+        if (StringUtils.isEmpty(value)) {
             return 0;
         }
 
@@ -108,10 +108,10 @@ public class Utils {
     /**
      * Generates a list of points interpolating a quadratic bezier using the given number of segments
      *
-     * @param origin the start position
+     * @param origin      the start position
      * @param destination the end position
-     * @param control1 the control point
-     * @param segments number of segments to make the bezier curve
+     * @param control1    the control point
+     * @param segments    number of segments to make the bezier curve
      * @return a list of points for a line path.
      */
     public static List<Point2D> quadraticBezier(Point2D origin, Point2D destination, Point2D control1, int segments) {
@@ -134,11 +134,11 @@ public class Utils {
     /**
      * Generates a list of points interpolating a cubic bezier using the given number of segments
      *
-     * @param origin the start position
+     * @param origin      the start position
      * @param destination the end position
-     * @param control1 the first control point
-     * @param control2 the second control point
-     * @param segments number of segments to make the bezier curve
+     * @param control1    the first control point
+     * @param control2    the second control point
+     * @param segments    number of segments to make the bezier curve
      * @return a list of points for a line path.
      */
     public static List<Point2D> cubicBezier(Point2D origin, Point2D destination, Point2D control1, Point2D control2, int segments) {
@@ -160,7 +160,7 @@ public class Utils {
 
     public static double roundToDecimals(double value, int decimals) {
         double power = Math.pow(10, decimals);
-        if(power == 0) {
+        if (power == 0) {
             power = 1;
         }
         return Math.round(value * power) / power;
