@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg832"
+   sodipodi:docname="cutoutside.svg"
+   inkscape:version="1.0.1 (c497b03c, 2020-09-10)"
+   width="16"
+   height="16">
+  <metadata
+     id="metadata843">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs836" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1680"
+     inkscape:window-height="963"
+     id="namedview834"
+     showgrid="false"
+     inkscape:zoom="6.6161843"
+     inkscape:cx="14.65306"
+     inkscape:cy="17.418563"
+     inkscape:window-x="0"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg832"
+     width="16px"
+     inkscape:document-rotation="0" />
+  <!-- Font Awesome Free 5.15.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) -->
+  <rect
+     style="fill:none;stroke:#0ac9f1;stroke-width:0.896552;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:5.3863;stroke-opacity:1;paint-order:markers fill stroke"
+     id="rect1451"
+     width="9.8620691"
+     height="9.8620682"
+     x="3.0689654"
+     y="3.0689659"
+     ry="0.88920277" />
+  <rect
+     style="fill:none;stroke:#ff970b;stroke-width:0.806897;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+     id="rect1527"
+     width="12.193104"
+     height="12.193103"
+     x="1.9034481"
+     y="1.9034486"
+     ry="2.1003873" />
+</svg>
