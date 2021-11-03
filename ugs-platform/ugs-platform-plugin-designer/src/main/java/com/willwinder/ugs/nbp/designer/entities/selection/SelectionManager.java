@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.designer.entities.*;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.entities.controls.ModifyControls;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
@@ -52,16 +53,18 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
     }
 
     @Override
-    public final void render(Graphics2D graphics) {
+    public final void render(Graphics2D graphics, Drawing drawing) {
         if (!entityGroup.getChildren().isEmpty()) {
             // Highlight the selected models
+            float strokeWidth = Double.valueOf(1.6 / drawing.getScale()).floatValue();
+            float dashWidth = Double.valueOf(2 / drawing.getScale()).floatValue();
             getSelection().forEach(entity -> {
-                graphics.setStroke(new BasicStroke(1f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{1, 1}, 0));
-                graphics.setColor(Colors.CONTROL_BORDER);
+                graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
+                graphics.setColor(Colors.SHAPE_OUTLINE);
                 graphics.draw(entity.getShape());
             });
 
-            modifyControls.render(graphics);
+            modifyControls.render(graphics, drawing);
         }
     }
 

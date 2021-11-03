@@ -18,21 +18,21 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
+import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
-import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gui.Colors;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
+import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
-import java.awt.BasicStroke;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 import java.util.logging.Logger;
 
 /**
@@ -40,16 +40,20 @@ import java.util.logging.Logger;
  */
 public class ResizeControl extends AbstractControl {
     public static final int SIZE = 8;
+    public static final int MARGIN = 6;
+    public static final double ARC_SIZE = 1d;
     private static final Logger LOGGER = Logger.getLogger(ResizeControl.class.getSimpleName());
     private final Location location;
-    private final Rectangle2D shape;
+    private final RoundRectangle2D.Double shape;
     private AffineTransform transform = new AffineTransform();
     private Point2D.Double startOffset = new Point2D.Double();
+    private boolean isHovered;
 
     public ResizeControl(SelectionManager selectionManager, Location location) {
         super(selectionManager);
         this.location = location;
-        this.shape = new Rectangle2D.Double(0, 0, SIZE, SIZE);
+
+        this.shape = new RoundRectangle2D.Double(0, 0, SIZE, SIZE, ARC_SIZE, ARC_SIZE);
     }
 
     @Override
@@ -62,39 +66,14 @@ public class ResizeControl extends AbstractControl {
         return shape;
     }
 
-    private void updatePosition() {
-        // Create transformation for where to position the controller in relative space
-        AffineTransform transform = getSelectionManager().getTransform();
-        Rectangle bounds = getSelectionManager().getRelativeShape().getBounds();
-        transform.translate(bounds.getX(), bounds.getY());
-
-        double halfSize = SIZE / 2d;
-        if (location == Location.BOTTOM_RIGHT) {
-            transform.translate(bounds.getWidth(), 0);
-        } else if (location == Location.TOP_LEFT) {
-            transform.translate(0, bounds.getHeight());
-        } else if (location == Location.TOP_RIGHT) {
-            transform.translate(bounds.getWidth(), bounds.getHeight());
+    @Override
+    public void render(Graphics2D graphics, Drawing drawing) {
+        updatePosition(drawing);
+        if (isHovered) {
+            graphics.setColor(Colors.CONTROL_BORDER);
+        } else {
+            graphics.setColor(Colors.CONTROL_HANDLE);
         }
-
-        // Transform the position from relative space to real space
-        Point2D center = new Point2D.Double();
-        transform.transform(new Point2D.Double(0, 0), center);
-
-        this.transform = new AffineTransform();
-        this.transform.translate(center.getX() - halfSize, center.getY() - halfSize);
-    }
-
-    @Override
-    public void setSize(Size size) {
-
-    }
-
-    @Override
-    public void render(Graphics2D graphics) {
-        updatePosition();
-        graphics.setStroke(new BasicStroke(1));
-        graphics.setColor(Colors.CONTROL_HANDLE);
         graphics.fill(getShape());
     }
 
@@ -104,31 +83,115 @@ public class ResizeControl extends AbstractControl {
             MouseEntityEvent mouseShapeEvent = (MouseEntityEvent) entityEvent;
             Point2D mousePosition = mouseShapeEvent.getCurrentMousePosition();
 
-            Entity target = getSelectionManager();
             if (mouseShapeEvent.getType() == EventType.MOUSE_PRESSED) {
                 startOffset = new Point2D.Double(mousePosition.getX() - getPosition().getX(), mousePosition.getY() - getPosition().getY());
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_DRAGGED) {
-                Point2D deltaMovement = new Point2D.Double(mousePosition.getX() - getPosition().getX() - startOffset.getX(), mousePosition.getY() - getPosition().getY() - startOffset.getY());
-
-                Size size = getSelectionManager().getSize();
-                double sx = deltaMovement.getX() / size.getWidth();
-                double sy = deltaMovement.getY() / size.getHeight();
-
-                if (location == Location.BOTTOM_LEFT) {
-                    target.move(deltaMovement);
-                    target.scale(1d - sx, 1d - sy);
-                } else if (location == Location.TOP_RIGHT) {
-                    target.scale(1d + sx, 1d + sy);
-                } else if (location == Location.BOTTOM_RIGHT) {
-                    target.move(new Point2D.Double(0, deltaMovement.getY()));
-                    target.scale(1d + sx, 1d - sy);
-                } else if (location == Location.TOP_LEFT) {
-                    target.move(new Point2D.Double(deltaMovement.getX(), 0));
-                    target.scale(1d - sx, 1d + sy);
-                }
+                performScaling(mousePosition);
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_RELEASED) {
+                Entity target = getSelectionManager();
                 LOGGER.info("Stopped moving " + target.getPosition());
+            } else if (mouseShapeEvent.getType() == EventType.MOUSE_IN) {
+                isHovered = true;
+            } else if (mouseShapeEvent.getType() == EventType.MOUSE_OUT) {
+                isHovered = false;
             }
         }
+    }
+
+    private void updatePosition(Drawing drawing) {
+        double size = SIZE / drawing.getScale();
+        double halfSize = size / 2d;
+        double arcSize = ARC_SIZE / drawing.getScale();
+        double margin = MARGIN / drawing.getScale();
+
+        this.shape.setRoundRect(0, 0, size, size, arcSize, arcSize);
+
+        // Create transformation for where to position the controller in relative space
+        AffineTransform t = getSelectionManager().getTransform();
+        Rectangle2D bounds = getSelectionManager().getRelativeShape().getBounds2D();
+        t.translate(bounds.getX(), bounds.getY());
+
+        if (location == Location.BOTTOM_RIGHT) {
+            t.translate(bounds.getWidth() + margin, -margin);
+        } else if (location == Location.TOP_LEFT) {
+            t.translate(-margin, bounds.getHeight() + margin);
+        } else if (location == Location.TOP_RIGHT) {
+            t.translate(bounds.getWidth() + margin, bounds.getHeight() + margin);
+        } else if (location == Location.BOTTOM_LEFT) {
+            t.translate(-margin, -margin);
+        } else if (location == Location.TOP) {
+            t.translate(bounds.getWidth() / 2d, bounds.getHeight() + margin);
+        } else if (location == Location.BOTTOM) {
+            t.translate(bounds.getWidth() / 2d, -margin);
+        } else if (location == Location.LEFT) {
+            t.translate(-margin, bounds.getHeight() / 2d);
+        } else if (location == Location.RIGHT) {
+            t.translate(bounds.getWidth() + margin, bounds.getHeight() / 2d);
+        }
+
+        // Transform the position from relative space to real space
+        Point2D center = new Point2D.Double();
+        t.transform(new Point2D.Double(0, 0), center);
+
+        this.transform = new AffineTransform();
+        this.transform.translate(center.getX() - halfSize, center.getY() - halfSize);
+    }
+
+    private void performScaling(Point2D mousePosition) {
+        int decimals = 1;
+        Size size = getSelectionManager().getSize();
+        Entity target = getSelectionManager();
+
+        Point2D deltaMovement = new Point2D.Double(Utils.roundToDecimals(mousePosition.getX() - getPosition().getX() - startOffset.getX(), decimals), Utils.roundToDecimals(mousePosition.getY() - getPosition().getY() - startOffset.getY(), decimals));
+        Point2D scaleFactor = getScaleFactor(deltaMovement.getX() / size.getWidth(), deltaMovement.getY() / size.getHeight());
+        Size newSize = new Size(Utils.roundToDecimals(target.getSize().getWidth() * scaleFactor.getX(), decimals), Utils.roundToDecimals(target.getSize().getHeight() * scaleFactor.getY(), decimals));
+
+        // Do not scale if the entity will become too small after operation
+        if (newSize.getWidth() < 1 || newSize.getHeight() < 1) {
+            return;
+        }
+
+        target.move(getDeltaMovement(size, newSize));
+        target.setSize(newSize);
+    }
+
+    private Point2D getDeltaMovement(Size size, Size newSize) {
+        Size deltaSize = new Size(size.getWidth() - newSize.getWidth(), size.getHeight() - newSize.getHeight());
+        Point2D movement = new Point2D.Double(0, 0);
+        if (location == Location.BOTTOM_LEFT) {
+            movement.setLocation(deltaSize.getWidth(), deltaSize.getHeight());
+        } else if (location == Location.BOTTOM_RIGHT) {
+            movement.setLocation(0, deltaSize.getHeight());
+        } else if (location == Location.TOP_LEFT) {
+            movement.setLocation(deltaSize.getWidth(), 0);
+        } else if (location == Location.LEFT) {
+            movement.setLocation(deltaSize.getWidth(), 0);
+        } else if (location == Location.BOTTOM) {
+            movement.setLocation(0, deltaSize.getHeight());
+        }
+        return movement;
+    }
+
+    private Point2D getScaleFactor(double deltaX, double deltaY) {
+        double scale = deltaX;
+        Point2D scaleFactor = new Point2D.Double(0, 0);
+        if (location == Location.BOTTOM_LEFT) {
+            scaleFactor.setLocation(1d - scale, 1d - scale);
+        } else if (location == Location.TOP_RIGHT) {
+            scaleFactor.setLocation(1d + scale, 1d + scale);
+        } else if (location == Location.BOTTOM_RIGHT) {
+            scaleFactor.setLocation(1d + scale, 1d + scale);
+        } else if (location == Location.TOP_LEFT) {
+            scaleFactor.setLocation(1d - scale, 1d - scale);
+        } else if (location == Location.LEFT) {
+            scaleFactor.setLocation(1d - deltaX, 1d);
+        } else if (location == Location.BOTTOM) {
+            scaleFactor.setLocation(1d, 1d - deltaY);
+        } else if (location == Location.TOP) {
+            scaleFactor.setLocation(1d, 1d + deltaY);
+        } else if (location == Location.RIGHT) {
+            scaleFactor.setLocation(1d + deltaX, 1d);
+        }
+        return scaleFactor;
     }
 }

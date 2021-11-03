@@ -93,8 +93,8 @@ public class UgsDesignWriter implements DesignWriter {
         EntityEllipseV1 ellipse = new EntityEllipseV1();
         ellipse.setX(entity.getPosition().getX());
         ellipse.setY(entity.getPosition().getY());
-        ellipse.setWidth(entity.getRelativeShape().getBounds().getWidth());
-        ellipse.setHeight(entity.getRelativeShape().getBounds().getHeight());
+        ellipse.setWidth(entity.getRelativeShape().getBounds2D().getWidth());
+        ellipse.setHeight(entity.getRelativeShape().getBounds2D().getHeight());
         ellipse.setRotation(entity.getRotation());
         return ellipse;
     }
@@ -170,5 +170,12 @@ public class UgsDesignWriter implements DesignWriter {
         }
         segment.setCoordinates(coordinateList);
         return segment;
+    }
+
+    public String serialize(List<Entity> entities) {
+        Gson gson = new Gson();
+        return gson.toJson(entities.stream()
+                .map(this::convertToEntity)
+                .collect(Collectors.toList()));
     }
 }

@@ -56,7 +56,7 @@ public class Drawing extends JPanel {
         globalRoot.addChild(controller.getSelectionManager());
 
         setBackground(Colors.BACKGROUND);
-        setScale(1);
+        setScale(2);
     }
 
     public BufferedImage getImage() {
@@ -76,6 +76,13 @@ public class Drawing extends JPanel {
         listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_ADDED));
         refresh();
     }
+
+    public void insertEntities(List<Entity> entities) {
+        entities.forEach(entitiesRoot::addChild);
+        listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_ADDED));
+        refresh();
+    }
+
 
     public List<Entity> getEntities() {
         List<Entity> result = new ArrayList<>();
@@ -113,7 +120,7 @@ public class Drawing extends JPanel {
         rh.put(KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         rh.put(KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g2.setRenderingHints(rh);
-        globalRoot.render(g2);
+        globalRoot.render(g2, this);
         g2.setTransform(previousTransform);
     }
 

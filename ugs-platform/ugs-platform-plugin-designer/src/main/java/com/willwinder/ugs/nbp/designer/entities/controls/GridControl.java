@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities.controls;
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
@@ -41,7 +42,7 @@ public class GridControl extends AbstractEntity implements Control {
     }
 
     @Override
-    public void render(Graphics2D graphics) {
+    public void render(Graphics2D graphics, Drawing drawing) {
         double gridSize = LARGE_GRID_SIZE;
 
         Rectangle2D bounds = controller.getDrawing().getRootEntity().getBounds();
@@ -54,7 +55,7 @@ public class GridControl extends AbstractEntity implements Control {
         graphics.setColor(Color.WHITE);
         graphics.fillRect(0, 0, width, height);
 
-        graphics.setStroke(new BasicStroke(0.1f));
+        graphics.setStroke(new BasicStroke(Double.valueOf(0.1 / drawing.getScale()).floatValue()));
         graphics.setColor(Color.LIGHT_GRAY);
         for (int x = 0; x <= width; x += SMALL_GRID_SIZE) {
             graphics.drawLine(x, 0, x, height);
@@ -65,8 +66,7 @@ public class GridControl extends AbstractEntity implements Control {
         }
 
 
-        graphics.setStroke(new BasicStroke(0.2f));
-        graphics.setColor(Color.LIGHT_GRAY);
+        graphics.setStroke(new BasicStroke(Double.valueOf(0.2 / drawing.getScale()).floatValue()));
         for (int x = 0; x <= width; x += LARGE_GRID_SIZE) {
             graphics.drawLine(x, 0, x, height);
         }

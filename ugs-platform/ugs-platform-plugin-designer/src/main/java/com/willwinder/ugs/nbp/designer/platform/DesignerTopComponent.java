@@ -19,7 +19,8 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
 import com.google.common.io.Files;
-import com.willwinder.ugs.nbp.designer.actions.*;
+import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
+import com.willwinder.ugs.nbp.designer.actions.UndoManagerListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
@@ -89,9 +90,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         dataObject.addPropertyChangeListener(evt -> updateFilename());
         loadDesign(dataObject);
         updateFilename();
-
-        getActionMap().put("delete", new DeleteAction(controller));
-        getActionMap().put("select-all", new SelectAllAction(controller));
+        PlatformUtils.registerActions(getActionMap(), controller, this);
     }
 
     private void loadDesign(UgsDataObject dataObject) {
@@ -156,6 +155,12 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         super.componentClosed();
         controller.removeListener(drawingContainer);
         controller.getUndoManager().removeListener(this);
+    }
+
+    @Override
+    protected void componentActivated() {
+        super.componentActivated();
+        PlatformUtils.registerActions(getActionMap(), controller, this);
     }
 
     private void generateGcode() {

@@ -22,9 +22,19 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
  * @author Joacim Breiler
  */
 public enum CutType {
-    NONE,
-    POCKET,
-    ON_PATH,
-    INSIDE_PATH,
-    OUTSIDE_PATH
+    NONE("None"),
+    POCKET("Pocket"),
+    ON_PATH("On path"),
+    INSIDE_PATH("Inside path"),
+    OUTSIDE_PATH("Outside path");
+
+    private final String name;
+
+    CutType(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

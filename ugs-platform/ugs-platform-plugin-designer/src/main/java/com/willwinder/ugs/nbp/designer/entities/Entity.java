@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.entities;
 
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
@@ -34,8 +35,9 @@ public interface Entity {
      * Renders the entity using the given graphics context
      *
      * @param graphics the graphics context to render the entity into
+     * @param drawing
      */
-    void render(Graphics2D graphics);
+    void render(Graphics2D graphics, Drawing drawing);
 
     /**
      * Returns the shape model in relative space without any applied affine transformations

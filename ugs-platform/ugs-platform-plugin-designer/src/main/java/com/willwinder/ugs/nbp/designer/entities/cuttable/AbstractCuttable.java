@@ -20,12 +20,15 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.gcode.path.NumericCoordinate;
 import com.willwinder.ugs.nbp.designer.gcode.path.SegmentType;
+import com.willwinder.ugs.nbp.designer.gui.Colors;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -74,20 +77,41 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     }
 
     @Override
-    public void render(Graphics2D graphics) {
-        graphics.setStroke(new BasicStroke(1));
+    public void render(Graphics2D graphics, Drawing drawing) {
+        float strokeWidth = Double.valueOf(1.2 / drawing.getScale()).floatValue();
+        float dashWidth = Double.valueOf(2 / drawing.getScale()).floatValue();
 
-        if (getCutType() == CutType.POCKET) {
-            graphics.setColor(Color.BLACK);
+        if (getCutType() != CutType.NONE && getCutDepth() == 0) {
+            graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
+            graphics.setColor(Colors.SHAPE_HINT);
+            graphics.draw(getShape());
+        } else if (getCutType() == CutType.POCKET) {
+            graphics.setStroke(new BasicStroke(strokeWidth));
+            graphics.setColor(getCutColor());
             graphics.fill(getShape());
             graphics.draw(getShape());
         } else if (getCutType() == CutType.INSIDE_PATH || getCutType() == CutType.ON_PATH || getCutType() == CutType.OUTSIDE_PATH) {
-            graphics.setColor(Color.BLACK);
+            graphics.setStroke(new BasicStroke(strokeWidth));
+            graphics.setColor(getCutColor());
             graphics.draw(getShape());
         } else {
-            graphics.setColor(Color.LIGHT_GRAY);
+            graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
+            graphics.setColor(Colors.SHAPE_OUTLINE);
             graphics.draw(getShape());
         }
+    }
+
+    private Color getCutColor() {
+        int color = Math.max(0, Math.min(255, (int) Math.round(255d * getCutAlpha()) - 25));
+        return new Color(color, color, color);
+    }
+
+    private double getCutAlpha() {
+        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
+        if (getCutDepth() == 0) {
+            return 1d;
+        }
+        return 1d - Math.max(Float.MIN_VALUE, getCutDepth() / controller.getSettings().getStockThickness());
     }
 
     public GcodePath toGcodePath() {

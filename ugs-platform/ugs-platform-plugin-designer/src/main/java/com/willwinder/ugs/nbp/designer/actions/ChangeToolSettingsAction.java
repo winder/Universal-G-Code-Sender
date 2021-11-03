@@ -78,4 +78,9 @@ public class ChangeToolSettingsAction extends AbstractAction implements Undoable
         this.controller.getSettings().setDepthPerPass(newDepthPerPass);
         this.controller.getSettings().setToolStepOver(newStepOver);
     }
+
+    @Override
+    public String toString() {
+        return "tool settings";
+    }
 }

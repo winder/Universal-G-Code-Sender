@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.actions.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import org.openide.util.Utilities;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -51,30 +52,25 @@ public class MainMenu extends JMenuBar {
         JMenuItem undo = new JMenuItem(new UndoAction());
         JMenuItem redo = new JMenuItem(new RedoAction());
 
+        JMenuItem copy = new JMenuItem(new CopyAction(controller));
+        JMenuItem paste = new JMenuItem(new PasteAction(controller));
+
         JMenuItem all = new JMenuItem(new SelectAllAction(controller));
         JMenuItem clear = new JMenuItem(new ClearSelectionAction(controller));
         JMenuItem delete = new JMenuItem(new DeleteAction(controller));
 
-        redo.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
-        open.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
-        save.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
-        newdrawing.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
-        undo.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
-        quit.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
-        export.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
-        clear.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
-        all.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,
-                InputEvent.META_DOWN_MASK));
-        delete.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_BACK_SPACE, 0));
+        open.setAccelerator(Utilities.stringToKey("D-O"));
+        save.setAccelerator(Utilities.stringToKey("D-S"));
+        newdrawing.setAccelerator(Utilities.stringToKey("D-N"));
+        undo.setAccelerator(Utilities.stringToKey("D-Z"));
+        redo.setAccelerator(Utilities.stringToKey("SD-Z"));
+        quit.setAccelerator(Utilities.stringToKey("D-Q"));
+        export.setAccelerator(Utilities.stringToKey("D-E"));
+        clear.setAccelerator(Utilities.stringToKey("O-C"));
+        all.setAccelerator(Utilities.stringToKey("D-A"));
+        delete.setAccelerator(Utilities.stringToKey("BACK_SPACE"));
+        copy.setAccelerator(Utilities.stringToKey("D-C"));
+        paste.setAccelerator(Utilities.stringToKey("D-V"));
 
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(newdrawing);
@@ -89,6 +85,9 @@ public class MainMenu extends JMenuBar {
         JMenu editMenu = new JMenu("Edit");
         editMenu.add(undo);
         editMenu.add(redo);
+        editMenu.add(new JSeparator());
+        editMenu.add(copy);
+        editMenu.add(paste);
         editMenu.add(new JSeparator());
         editMenu.add(all);
         editMenu.add(clear);

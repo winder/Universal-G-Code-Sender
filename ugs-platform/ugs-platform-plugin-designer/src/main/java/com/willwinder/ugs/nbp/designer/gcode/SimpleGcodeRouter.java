@@ -125,9 +125,14 @@ public class SimpleGcodeRouter {
     }
 
     public String toGcode(List<Entity> entities) {
+        // Try to figure out the size of the drawing
+        double width = entities.stream().map(e -> e.getBounds().getMaxX()).max(Double::compareTo).orElse((double) 0);
+        double height = entities.stream().map(e -> e.getBounds().getMaxX()).max(Double::compareTo).orElse((double) 0);
+
         List<String> collect = entities.stream()
                 .filter(Cuttable.class::isInstance)
                 .map(Cuttable.class::cast)
+                .sorted(new EntityComparator(width, height))
                 .map(cuttable -> {
                     GcodePath gcodePath = cuttable.toGcodePath();
                     switch (cuttable.getCutType()) {
