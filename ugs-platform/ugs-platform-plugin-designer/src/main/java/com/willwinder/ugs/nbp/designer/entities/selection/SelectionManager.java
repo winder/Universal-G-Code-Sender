@@ -19,8 +19,6 @@
 package com.willwinder.ugs.nbp.designer.entities.selection;
 
 import com.willwinder.ugs.nbp.designer.entities.*;
-import com.willwinder.ugs.nbp.designer.entities.controls.Control;
-import com.willwinder.ugs.nbp.designer.entities.controls.ModifyControls;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Size;
@@ -29,10 +27,8 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,12 +39,10 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
 
     private final Set<SelectionListener> listeners = new HashSet<>();
     private final EntityGroup entityGroup;
-    private final ModifyControls modifyControls;
 
     public SelectionManager() {
         super();
         entityGroup = new EntityGroup();
-        modifyControls = new ModifyControls(this);
         entityGroup.addListener(this);
     }
 
@@ -58,13 +52,10 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
             // Highlight the selected models
             float strokeWidth = Double.valueOf(1.6 / drawing.getScale()).floatValue();
             float dashWidth = Double.valueOf(2 / drawing.getScale()).floatValue();
-            getSelection().forEach(entity -> {
-                graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
-                graphics.setColor(Colors.SHAPE_OUTLINE);
-                graphics.draw(entity.getShape());
-            });
 
-            modifyControls.render(graphics, drawing);
+            graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
+            graphics.setColor(Colors.SHAPE_OUTLINE);
+            getSelection().forEach(entity -> graphics.draw(entity.getShape()));
         }
     }
 
@@ -139,13 +130,6 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
                     }
                 })
                 .distinct()
-                .collect(Collectors.toList());
-    }
-
-    public List<Control> getControls() {
-        return modifyControls.getAllChildren().stream()
-                .filter(Control.class::isInstance)
-                .map(Control.class::cast)
                 .collect(Collectors.toList());
     }
 

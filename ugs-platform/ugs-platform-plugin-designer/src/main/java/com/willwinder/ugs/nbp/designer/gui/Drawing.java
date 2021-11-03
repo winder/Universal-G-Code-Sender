@@ -20,7 +20,7 @@ package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
-import com.willwinder.ugs.nbp.designer.entities.controls.GridControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 
 import javax.swing.*;
@@ -29,10 +29,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.awt.RenderingHints.*;
 
@@ -44,6 +43,7 @@ public class Drawing extends JPanel {
     private static final long serialVersionUID = 1298712398723987873L;
     private final transient EntityGroup globalRoot;
     private final transient EntityGroup entitiesRoot;
+    private final EntityGroup controlsRoot;
     private double scale;
     private final transient Set<DrawingListener> listeners = new HashSet<>();
     private int margin = 100;
@@ -51,9 +51,17 @@ public class Drawing extends JPanel {
     public Drawing(Controller controller) {
         globalRoot = new EntityGroup();
         globalRoot.addChild(new GridControl(controller));
+
         entitiesRoot = new EntityGroup();
         globalRoot.addChild(entitiesRoot);
         globalRoot.addChild(controller.getSelectionManager());
+
+        controlsRoot = new EntityGroup();
+        globalRoot.addChild(controlsRoot);
+        controlsRoot.addChild(new ModifyControls(controller.getSelectionManager()));
+        controlsRoot.addChild(new SelectionControl(controller));
+        controlsRoot.addChild(new CreateRectangleControl(controller));
+        controlsRoot.addChild(new CreateEllipseControl(controller));
 
         setBackground(Colors.BACKGROUND);
         setScale(2);
@@ -71,6 +79,10 @@ public class Drawing extends JPanel {
         return globalRoot.getChildrenAt(p);
     }
 
+    public List<Entity> getEntitiesIntersecting(Shape shape) {
+        return globalRoot.getChildrenIntersecting(shape);
+    }
+
     public void insertEntity(Entity s) {
         entitiesRoot.addChild(s);
         listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_ADDED));
@@ -83,11 +95,17 @@ public class Drawing extends JPanel {
         refresh();
     }
 
-
     public List<Entity> getEntities() {
         List<Entity> result = new ArrayList<>();
         entitiesRoot.getChildren().forEach(shape -> recursiveCollectEntities(shape, result));
         return result;
+    }
+
+    public List<Control> getControls() {
+        return controlsRoot.getAllChildren().stream()
+                .filter(Control.class::isInstance)
+                .map(Control.class::cast)
+                .collect(Collectors.toList());
     }
 
     public Entity getRootEntity() {

@@ -20,6 +20,9 @@ package com.willwinder.ugs.nbp.designer.entities.controls;
 
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
+
+import java.awt.*;
 
 /**
  * @author Joacim Breiler
@@ -41,6 +44,12 @@ public class ModifyControls extends AbstractControlEntityGroup {
         addChild(new ResizeControl(selectionManager, Location.TOP_RIGHT));
     }
 
+    @Override
+    public void render(Graphics2D graphics, Drawing drawing) {
+        if (!getSelectionManager().getSelection().isEmpty()) {
+            super.render(graphics, drawing);
+        }
+    }
 
     @Override
     public void onEvent(EntityEvent entityEvent) {

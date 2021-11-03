@@ -194,4 +194,9 @@ public class ResizeControl extends AbstractControl {
         }
         return scaleFactor;
     }
+
+    @Override
+    public String toString() {
+        return "ResizeControl";
+    }
 }

@@ -195,6 +195,22 @@ public class EntityGroup extends AbstractEntity {
         return Collections.unmodifiableList(result);
     }
 
+    public List<Entity> getChildrenIntersecting(Shape shape) {
+        List<Entity> result = this.children
+                .stream()
+                .flatMap(s -> {
+                    if (s instanceof EntityGroup) {
+                        return ((EntityGroup) s).getChildrenIntersecting(shape).stream();
+                    } else if (s.isIntersecting(shape)) {
+                        return Stream.of(s);
+                    } else {
+                        return Stream.empty();
+                    }
+                }).collect(Collectors.toList());
+
+        return Collections.unmodifiableList(result);
+    }
+
     /**
      * Get a list of all direct children of this group
      *
