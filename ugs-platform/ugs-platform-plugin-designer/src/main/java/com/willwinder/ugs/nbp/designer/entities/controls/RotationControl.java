@@ -87,6 +87,10 @@ public class RotationControl extends AbstractControl {
 
     @Override
     public void render(Graphics2D graphics, Drawing drawing) {
+        if (getSelectionManager().getSelection().isEmpty()) {
+            return;
+        }
+
         updatePosition(drawing);
         graphics.setColor(Colors.CONTROL_HANDLE);
 

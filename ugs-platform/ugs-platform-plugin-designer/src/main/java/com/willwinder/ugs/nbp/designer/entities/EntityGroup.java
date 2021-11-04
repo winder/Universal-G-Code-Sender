@@ -80,11 +80,11 @@ public class EntityGroup extends AbstractEntity {
 
     @Override
     public Shape getShape() {
-        Area area = new Area();
+        final Area area = new Area();
         List<Entity> allChildren = getAllChildren();
         allChildren.stream()
                 .filter(c -> c != this)
-                .forEach(c -> area.add(new Area(c.getShape())));
+                .forEach(c -> area.add(new Area(c.getBounds())));
 
         return area.getBounds2D();
     }

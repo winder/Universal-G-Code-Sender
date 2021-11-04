@@ -130,7 +130,9 @@ public class SelectionControl extends AbstractControl {
             entitiesAt.forEach(e -> controller.getSelectionManager().toggleSelection(e));
         } else {
             List<Entity> selection = entitiesAt.stream()
+                    .sorted(Comparator.comparingDouble(e -> e.getBounds().getWidth() * e.getBounds().getHeight()))
                     .limit(1)
+                    .filter(e -> !controller.getSelectionManager().isSelected(e))
                     .collect(Collectors.toList());
             controller.getSelectionManager().setSelection(selection);
         }

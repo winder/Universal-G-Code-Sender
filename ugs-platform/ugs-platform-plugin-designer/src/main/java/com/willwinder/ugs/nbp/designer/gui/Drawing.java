@@ -58,7 +58,17 @@ public class Drawing extends JPanel {
 
         controlsRoot = new EntityGroup();
         globalRoot.addChild(controlsRoot);
-        controlsRoot.addChild(new ModifyControls(controller.getSelectionManager()));
+        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.TOP));
+        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.LEFT));
+        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.RIGHT));
+        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.BOTTOM));
+        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.BOTTOM_LEFT));
+        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.BOTTOM_RIGHT));
+        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.TOP_LEFT));
+        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.TOP_RIGHT));
+        controlsRoot.addChild(new HighlightModelControl(controller.getSelectionManager()));
+        controlsRoot.addChild(new MoveControl(controller.getSelectionManager()));
+        controlsRoot.addChild(new RotationControl(controller.getSelectionManager()));
         controlsRoot.addChild(new SelectionControl(controller));
         controlsRoot.addChild(new CreateRectangleControl(controller));
         controlsRoot.addChild(new CreateEllipseControl(controller));
