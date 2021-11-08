@@ -80,11 +80,11 @@ public class EntityGroup extends AbstractEntity {
 
     @Override
     public Shape getShape() {
-        Area area = new Area();
+        final Area area = new Area();
         List<Entity> allChildren = getAllChildren();
         allChildren.stream()
                 .filter(c -> c != this)
-                .forEach(c -> area.add(new Area(c.getShape())));
+                .forEach(c -> area.add(new Area(c.getBounds())));
 
         return area.getBounds2D();
     }
@@ -186,6 +186,22 @@ public class EntityGroup extends AbstractEntity {
                     if (s instanceof EntityGroup) {
                         return ((EntityGroup) s).getChildrenAt(p).stream();
                     } else if (s.isWithin(p)) {
+                        return Stream.of(s);
+                    } else {
+                        return Stream.empty();
+                    }
+                }).collect(Collectors.toList());
+
+        return Collections.unmodifiableList(result);
+    }
+
+    public List<Entity> getChildrenIntersecting(Shape shape) {
+        List<Entity> result = this.children
+                .stream()
+                .flatMap(s -> {
+                    if (s instanceof EntityGroup) {
+                        return ((EntityGroup) s).getChildrenIntersecting(shape).stream();
+                    } else if (s.isIntersecting(shape)) {
                         return Stream.of(s);
                     } else {
                         return Stream.empty();

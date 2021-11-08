@@ -71,6 +71,10 @@ public abstract class AbstractEntity implements Entity {
         return getShape().contains(point);
     }
 
+    public boolean isIntersecting(Shape shape) {
+        return shape.intersects(getShape().getBounds2D());
+    }
+
     @Override
     public Size getSize() {
         Rectangle2D bounds = getShape().getBounds2D();

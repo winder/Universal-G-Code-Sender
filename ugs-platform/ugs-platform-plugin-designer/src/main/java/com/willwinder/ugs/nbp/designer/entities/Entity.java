@@ -163,4 +163,6 @@ public interface Entity {
     String getName();
 
     void setName(String name);
+
+    boolean isIntersecting(Shape shape);
 }
