@@ -100,7 +100,7 @@ public class Controller {
 
     public void setDesign(Design design) {
         newDrawing();
-        design.getEntities().forEach(getDrawing()::insertEntity);
+        getDrawing().insertEntities(design.getEntities());
         settings.applySettings(design.getSettings());
         getDrawing().repaint();
         setTool(Tool.SELECT);

@@ -68,6 +68,10 @@ public class ResizeControl extends AbstractControl {
 
     @Override
     public void render(Graphics2D graphics, Drawing drawing) {
+        if (getSelectionManager().getSelection().isEmpty()) {
+            return;
+        }
+
         updatePosition(drawing);
         if (isHovered) {
             graphics.setColor(Colors.CONTROL_BORDER);
@@ -193,5 +197,10 @@ public class ResizeControl extends AbstractControl {
             scaleFactor.setLocation(1d + deltaX, 1d);
         }
         return scaleFactor;
+    }
+
+    @Override
+    public String toString() {
+        return "ResizeControl";
     }
 }

@@ -10,12 +10,16 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 public class HighlightModelControl extends AbstractControl {
-    protected HighlightModelControl(SelectionManager selectionManager) {
+    public HighlightModelControl(SelectionManager selectionManager) {
         super(selectionManager);
     }
 
     @Override
     public void render(Graphics2D graphics, Drawing drawing) {
+        if (getSelectionManager().getSelection().isEmpty()) {
+            return;
+        }
+
         // Draw the bounds
         double margin = ResizeControl.MARGIN / drawing.getScale();
         graphics.setColor(Colors.CONTROL_BORDER);

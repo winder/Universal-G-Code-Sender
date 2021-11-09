@@ -33,7 +33,6 @@ public abstract class AbstractControl extends AbstractEntity implements Control 
 
     protected AbstractControl(SelectionManager selectionManager) {
         this.selectionManager = selectionManager;
-        addListener(this);
     }
 
     @Override
@@ -54,11 +53,5 @@ public abstract class AbstractControl extends AbstractEntity implements Control 
     @Override
     public SelectionManager getSelectionManager() {
         return selectionManager;
-    }
-
-    @Override
-    public void destroy() {
-        removeListener(this);
-        super.destroy();
     }
 }
