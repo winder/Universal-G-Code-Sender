@@ -17,7 +17,7 @@ import java.util.List;
 
 public class FlipHorizontallyAction extends AbstractAction implements SelectionListener {
     private static final String SMALL_ICON_PATH = "img/flip-horizontal.svg";
-    private static final String LARGE_ICON_PATH = "img/flip-horizontal32.svg";
+    private static final String LARGE_ICON_PATH = "img/flip-horizontal24.svg";
     private final transient Controller controller;
 
     public FlipHorizontallyAction(Controller controller) {

@@ -22,10 +22,10 @@ import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
-import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
@@ -33,6 +33,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -45,15 +46,39 @@ public class ResizeControl extends AbstractControl {
     private static final Logger LOGGER = Logger.getLogger(ResizeControl.class.getSimpleName());
     private final Location location;
     private final RoundRectangle2D.Double shape;
+    private final Controller controller;
     private AffineTransform transform = new AffineTransform();
     private Point2D.Double startOffset = new Point2D.Double();
     private boolean isHovered;
 
-    public ResizeControl(SelectionManager selectionManager, Location location) {
-        super(selectionManager);
+    public ResizeControl(Controller controller, Location location) {
+        super(controller.getSelectionManager());
+        this.controller = controller;
         this.location = location;
-
         this.shape = new RoundRectangle2D.Double(0, 0, SIZE, SIZE, ARC_SIZE, ARC_SIZE);
+    }
+
+    @Override
+    public Optional<Cursor> getHoverCursor() {
+        Cursor cursor = null;
+        if (location == Location.TOP_LEFT) {
+            cursor = new Cursor(Cursor.NW_RESIZE_CURSOR);
+        } else if (location == Location.TOP_RIGHT) {
+            cursor = new Cursor(Cursor.NE_RESIZE_CURSOR);
+        } else if (location == Location.BOTTOM_LEFT) {
+            cursor = new Cursor(Cursor.SW_RESIZE_CURSOR);
+        } else if (location == Location.BOTTOM_RIGHT) {
+            cursor = new Cursor(Cursor.SE_RESIZE_CURSOR);
+        } else if (location == Location.BOTTOM) {
+            cursor = new Cursor(Cursor.S_RESIZE_CURSOR);
+        } else if (location == Location.TOP) {
+            cursor = new Cursor(Cursor.N_RESIZE_CURSOR);
+        } else if (location == Location.LEFT) {
+            cursor = new Cursor(Cursor.W_RESIZE_CURSOR);
+        } else if (location == Location.RIGHT) {
+            cursor = new Cursor(Cursor.E_RESIZE_CURSOR);
+        }
+        return Optional.ofNullable(cursor);
     }
 
     @Override

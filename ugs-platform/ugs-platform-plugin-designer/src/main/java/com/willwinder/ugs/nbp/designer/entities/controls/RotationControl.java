@@ -29,11 +29,13 @@ import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import org.openide.util.ImageUtilities;
 
 import java.awt.*;
 import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Joacim Breiler
@@ -43,6 +45,7 @@ public class RotationControl extends AbstractControl {
     public static final int MARGIN = 16;
 
     private final Ellipse2D.Double shape;
+    private final Cursor cursor;
     private Point2D startPosition = new Point2D.Double();
     private double startRotation = 0d;
     private Point2D center;
@@ -51,6 +54,7 @@ public class RotationControl extends AbstractControl {
     public RotationControl(SelectionManager selectionManager) {
         super(selectionManager);
         shape = new Ellipse2D.Double(0, 0, SIZE, SIZE);
+        cursor = Toolkit.getDefaultToolkit().createCustomCursor(ImageUtilities.loadImage("img/cursors/rotate.svg", false), new Point(8, 8), "rotater");
     }
 
     private void updatePosition(Drawing drawing) {
@@ -83,6 +87,11 @@ public class RotationControl extends AbstractControl {
     @Override
     public Shape getRelativeShape() {
         return shape;
+    }
+
+    @Override
+    public Optional<Cursor> getHoverCursor() {
+        return Optional.of(cursor);
     }
 
     @Override

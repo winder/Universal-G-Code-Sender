@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.entities.selection;
 
 import com.willwinder.ugs.nbp.designer.entities.*;
+import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Size;
@@ -48,11 +49,10 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
 
     @Override
     public final void render(Graphics2D graphics, Drawing drawing) {
-        if (!entityGroup.getChildren().isEmpty()) {
+        if (!isEmpty()) {
             // Highlight the selected models
             float strokeWidth = Double.valueOf(1.6 / drawing.getScale()).floatValue();
             float dashWidth = Double.valueOf(2 / drawing.getScale()).floatValue();
-
             graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
             graphics.setColor(Colors.SHAPE_OUTLINE);
             getSelection().forEach(entity -> graphics.draw(entity.getShape()));
@@ -80,7 +80,7 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
     }
 
     public void addSelection(Entity entity) {
-        if (entity == this) {
+        if (entity == this || entity instanceof Control) {
             return;
         }
         entityGroup.addChild(entity);
@@ -88,8 +88,13 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
     }
 
     public void setSelection(List<Entity> entities) {
+        List<Entity> selection = entities.stream()
+                .filter(e -> e != this)
+                .filter(e -> !(e instanceof Control))
+                .collect(Collectors.toList());
+
         entityGroup.removeAll();
-        entityGroup.addAll(entities);
+        entityGroup.addAll(selection);
         fireSelectionEvent(new SelectionEvent());
     }
 
@@ -189,5 +194,9 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
     @Override
     public void onEvent(EntityEvent entityEvent) {
         notifyEvent(entityEvent);
+    }
+
+    public boolean isEmpty() {
+        return entityGroup.getChildren().isEmpty();
     }
 }

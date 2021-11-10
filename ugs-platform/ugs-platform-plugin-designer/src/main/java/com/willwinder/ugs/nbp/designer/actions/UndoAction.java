@@ -29,7 +29,7 @@ import java.awt.event.ActionEvent;
  */
 public class UndoAction extends AbstractAction implements UndoManagerListener {
     public static final String SMALL_ICON_PATH = "img/undo.svg";
-    public static final String LARGE_ICON_PATH = "img/undo32.svg";
+    public static final String LARGE_ICON_PATH = "img/undo24.svg";
     private final UndoManager undoManager;
 
     public UndoAction() {

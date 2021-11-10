@@ -40,6 +40,7 @@ public class ToolBox extends JToolBar {
         setFloatable(false);
 
         JToggleButton select = new JToggleButton(new ToolSelectAction(controller));
+        select.setSelected(true);
         select.setText("");
         select.setToolTipText("Select and move shapes");
         add(select);
@@ -55,11 +56,30 @@ public class ToolBox extends JToolBar {
         add(circle);
 
 
-        JToggleButton insert = new JToggleButton(new ToolInsertAction(controller));
+        JButton insert = new JButton(new ToolInsertAction(controller));
         insert.setText("");
         insert.setToolTipText("Inserts a drawing");
         insert.setContentAreaFilled(false);
+        insert.setBorderPainted(false);
         add(insert);
+
+        addSeparator();
+
+        JButton flipHorizontal = new JButton(new FlipHorizontallyAction(controller));
+        flipHorizontal.setText("");
+        flipHorizontal.setToolTipText("Flips horizontally");
+        flipHorizontal.setContentAreaFilled(false);
+        flipHorizontal.setBorderPainted(false);
+        add(flipHorizontal);
+
+        JButton flipVertical = new JButton(new FlipVerticallyAction(controller));
+        flipVertical.setText("");
+        flipVertical.setToolTipText("Flips vertically");
+        flipVertical.setContentAreaFilled(false);
+        flipVertical.setBorderPainted(false);
+        add(flipVertical);
+
+        addSeparator();
 
         add(Box.createRigidArea(new Dimension(10, 10)));
         add(Box.createHorizontalGlue());

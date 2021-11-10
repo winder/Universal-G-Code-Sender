@@ -22,11 +22,14 @@ import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 
+import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -75,17 +78,29 @@ public class MouseListener extends MouseAdapter {
         boolean ctrlPressed = (m.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
         boolean altPressed = (m.getModifiersEx() & InputEvent.ALT_DOWN_MASK) != 0;
 
-        controller.getDrawing().getControls().forEach(control -> {
+
+        List<Control> allControls = controller.getDrawing().getControls();
+        allControls.forEach(control -> {
             boolean within = control.isWithin(lastPos);
+
             boolean alreadyHovered = hoveredControls.contains(control);
             if (!within && alreadyHovered) {
                 hoveredControls.remove(control);
                 control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_OUT, lastPos, lastPos, shiftPressed, ctrlPressed, altPressed));
             } else if (within && !alreadyHovered) {
                 hoveredControls.add(control);
+
                 control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_IN, lastPos, lastPos, shiftPressed, ctrlPressed, altPressed));
+                control.getHoverCursor().ifPresent(cursor -> controller.setCursor(cursor));
             }
         });
+
+        hoveredControls.stream()
+                .filter(c -> c.getHoverCursor().isPresent())
+                .map(Control::getHoverCursor)
+                .findFirst()
+                .orElse(Optional.of(Cursor.getDefaultCursor()))
+                .ifPresent(c -> controller.setCursor(c));
 
         controller.getDrawing().repaint();
     }
