@@ -24,7 +24,7 @@ import java.awt.geom.Point2D;
 import java.util.List;
 
 /**
- * RotateAction implements an action where all the Shapes in a
+ * RotateAction implements an action where all the entities in a
  * given Selection are rotated.
  *
  * @author Joacim Breiler
@@ -41,7 +41,7 @@ public class RotateAction implements DrawAction, UndoableAction {
      * original position.
      *
      * @param entityList a selection which contains the shapes to be moved
-     * @param center
+     * @param center     the center to rotate around
      * @param rotation   the amount the shapes should be rotated, relative to the
      */
     public RotateAction(List<Entity> entityList, Point2D center, double rotation) {

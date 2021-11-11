@@ -30,7 +30,7 @@ import java.awt.event.ActionEvent;
  */
 public class ToolDrawCircleAction extends AbstractAction {
     private static final String ICON_SMALL_PATH = "img/circle.svg";
-    private static final String ICON_LARGE_PATH = "img/circle32.svg";
+    private static final String ICON_LARGE_PATH = "img/circle24.svg";
     private final Controller controller;
 
     public ToolDrawCircleAction(Controller controller) {

@@ -18,10 +18,11 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
-import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.Throttler;
+import com.willwinder.ugs.nbp.designer.entities.*;
 import com.willwinder.ugs.nbp.designer.entities.controls.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,10 +48,14 @@ public class Drawing extends JPanel {
     private double scale;
     private final transient Set<DrawingListener> listeners = new HashSet<>();
     private int margin = 100;
+    private Throttler refreshThrottler;
 
     public Drawing(Controller controller) {
+        refreshThrottler = new Throttler(this::refresh, 2000);
+
         globalRoot = new EntityGroup();
         globalRoot.addChild(new GridControl(controller));
+        globalRoot.addListener((event) -> refreshThrottler.run());
 
         entitiesRoot = new EntityGroup();
         globalRoot.addChild(entitiesRoot);
@@ -58,16 +63,16 @@ public class Drawing extends JPanel {
 
         controlsRoot = new EntityGroup();
         globalRoot.addChild(controlsRoot);
-        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.TOP));
-        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.LEFT));
-        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.RIGHT));
-        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.BOTTOM));
-        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.BOTTOM_LEFT));
-        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.BOTTOM_RIGHT));
-        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.TOP_LEFT));
-        controlsRoot.addChild(new ResizeControl(controller.getSelectionManager(), Location.TOP_RIGHT));
+        controlsRoot.addChild(new ResizeControl(controller, Location.TOP));
+        controlsRoot.addChild(new ResizeControl(controller, Location.LEFT));
+        controlsRoot.addChild(new ResizeControl(controller, Location.RIGHT));
+        controlsRoot.addChild(new ResizeControl(controller, Location.BOTTOM));
+        controlsRoot.addChild(new ResizeControl(controller, Location.BOTTOM_LEFT));
+        controlsRoot.addChild(new ResizeControl(controller, Location.BOTTOM_RIGHT));
+        controlsRoot.addChild(new ResizeControl(controller, Location.TOP_LEFT));
+        controlsRoot.addChild(new ResizeControl(controller, Location.TOP_RIGHT));
         controlsRoot.addChild(new HighlightModelControl(controller.getSelectionManager()));
-        controlsRoot.addChild(new MoveControl(controller.getSelectionManager()));
+        controlsRoot.addChild(new MoveControl(controller));
         controlsRoot.addChild(new RotationControl(controller.getSelectionManager()));
         controlsRoot.addChild(new SelectionControl(controller));
         controlsRoot.addChild(new CreateRectangleControl(controller));
@@ -93,8 +98,8 @@ public class Drawing extends JPanel {
         return globalRoot.getChildrenIntersecting(shape);
     }
 
-    public void insertEntity(Entity s) {
-        entitiesRoot.addChild(s);
+    public void insertEntity(Entity entity) {
+        entitiesRoot.addChild(entity);
         listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_ADDED));
         refresh();
     }
@@ -109,13 +114,6 @@ public class Drawing extends JPanel {
         List<Entity> result = new ArrayList<>();
         entitiesRoot.getChildren().forEach(shape -> recursiveCollectEntities(shape, result));
         return result;
-    }
-
-    public List<Control> getControls() {
-        return controlsRoot.getAllChildren().stream()
-                .filter(Control.class::isInstance)
-                .map(Control.class::cast)
-                .collect(Collectors.toList());
     }
 
     public Entity getRootEntity() {
@@ -154,7 +152,7 @@ public class Drawing extends JPanel {
 
     public void removeEntity(Entity s) {
         globalRoot.removeChild(s);
-        listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED));
+        ThreadHelper.invokeLater(() -> listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED)));
         refresh();
     }
 
@@ -170,7 +168,7 @@ public class Drawing extends JPanel {
     @Override
     public Dimension getMinimumSize() {
         Rectangle2D bounds = globalRoot.getBounds();
-        return new Dimension((int)(bounds.getMaxX() * scale) + (margin * 2), (int)(bounds.getMaxY() * scale) + (margin * 2));
+        return new Dimension((int) (bounds.getMaxX() * scale) + (margin * 2), (int) (bounds.getMaxY() * scale) + (margin * 2));
     }
 
     @Override
@@ -186,7 +184,10 @@ public class Drawing extends JPanel {
 
     private void refresh() {
         repaint();
-        firePropertyChange("minimumSize", getMinimumSize(), getMinimumSize());
+        Dimension minimumSize = getMinimumSize();
+        firePropertyChange("minimumSize", minimumSize.width, minimumSize.height);
+        firePropertyChange("preferredSize", minimumSize.width, minimumSize.height);
+        revalidate();
     }
 
     public void addListener(DrawingListener listener) {
@@ -203,5 +204,18 @@ public class Drawing extends JPanel {
 
     public void removeListener(DrawingListener drawingListener) {
         listeners.remove(drawingListener);
+    }
+
+    public List<Control> getControls() {
+        return controlsRoot.getAllChildren().stream()
+                .filter(Control.class::isInstance)
+                .map(Control.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    public void removeEntities(List<Entity> entities) {
+        entities.forEach(globalRoot::removeChild);
+        ThreadHelper.invokeLater(() -> listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED)));
+        refresh();
     }
 }

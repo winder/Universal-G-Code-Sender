@@ -37,7 +37,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Joacim Breiler
@@ -58,14 +57,14 @@ public class EntitiesTree extends JPanel implements DrawingListener, ControllerL
         setBackground(tree.getBackground());
 
         tree.addTreeSelectionListener(e -> {
-            TreePath[] selectionPaths = tree.getSelectionPaths();
-            if (selectionPaths != null && controller != null) {
-                List<Entity> entities = Arrays.stream(selectionPaths)
-                        .filter(path -> ((DefaultMutableTreeNode) path.getLastPathComponent()).getUserObject() instanceof Entity)
-                        .map(path -> (Entity) ((DefaultMutableTreeNode) path.getLastPathComponent()).getUserObject())
-                        .collect(Collectors.toList());
-                controller.getSelectionManager().setSelection(entities);
-            }
+            Arrays.asList(e.getPaths()).forEach(p -> {
+                Entity entity = (Entity) ((DefaultMutableTreeNode) p.getLastPathComponent()).getUserObject();
+                if (e.isAddedPath(p) && !controller.getSelectionManager().isSelected(entity)) {
+                    controller.getSelectionManager().addSelection(entity);
+                } else if (!e.isAddedPath(p) && controller.getSelectionManager().isSelected(entity)) {
+                    controller.getSelectionManager().removeSelection(entity);
+                }
+            });
         });
 
         tree.expandRow(0);

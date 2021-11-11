@@ -18,14 +18,13 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
-import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 /**
@@ -34,10 +33,9 @@ import java.awt.event.ActionEvent;
 public class ClearSelectionAction extends AbstractAction implements SelectionListener {
 
     public static final String SMALL_ICON_PATH = "img/clear-selection.svg";
-    public static final String LARGE_ICON_PATH = "img/clear-selection32.svg";
+    public static final String LARGE_ICON_PATH = "img/clear-selection24.svg";
 
     private final transient SelectionManager selectionManager;
-    private final transient Controller controller;
 
     public ClearSelectionAction(Controller controller) {
         putValue("iconBase", SMALL_ICON_PATH);
@@ -46,7 +44,6 @@ public class ClearSelectionAction extends AbstractAction implements SelectionLis
         putValue("menuText", "Clear selection");
         putValue(NAME, "Clear selection");
 
-        this.controller = controller;
         selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);
         setEnabled(!selectionManager.getSelection().isEmpty());

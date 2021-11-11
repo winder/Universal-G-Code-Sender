@@ -40,7 +40,7 @@ import java.util.Optional;
 public final class ToolInsertAction extends AbstractAction {
 
     public static final String SMALL_ICON_PATH = "img/import.svg";
-    public static final String LARGE_ICON_PATH = "img/import32.svg";
+    public static final String LARGE_ICON_PATH = "img/import24.svg";
     private final Controller controller;
 
     public ToolInsertAction(Controller controller) {

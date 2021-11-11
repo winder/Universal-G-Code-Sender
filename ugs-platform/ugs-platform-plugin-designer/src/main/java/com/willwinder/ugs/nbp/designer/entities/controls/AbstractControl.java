@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
+import java.util.Optional;
 
 /**
  * @author Joacim Breiler
@@ -38,6 +39,11 @@ public abstract class AbstractControl extends AbstractEntity implements Control 
     @Override
     public void setSize(Size size) {
         // Never mind...
+    }
+
+    @Override
+    public Optional<Cursor> getHoverCursor() {
+        return Optional.empty();
     }
 
     @Override

@@ -32,7 +32,7 @@ import java.awt.event.ActionEvent;
 public class NewAction extends AbstractAction {
 
     public static final String SMALL_ICON_PATH = "img/new.svg";
-    public static final String LARGE_ICON_PATH = "img/new32.svg";
+    public static final String LARGE_ICON_PATH = "img/new24.svg";
 
     public NewAction() {
         putValue("iconBase", SMALL_ICON_PATH);

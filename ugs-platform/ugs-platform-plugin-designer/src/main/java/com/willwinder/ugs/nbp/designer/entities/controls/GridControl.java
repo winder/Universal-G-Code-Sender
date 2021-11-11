@@ -27,6 +27,7 @@ import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+import java.util.Optional;
 
 /**
  * @author Joacim Breiler
@@ -37,6 +38,7 @@ public class GridControl extends AbstractEntity implements Control {
     public static final int LARGE_GRID_SIZE = 50;
     public static final int SMALL_GRID_SIZE = 10;
     private final Controller controller;
+
     public GridControl(Controller controller) {
         this.controller = controller;
     }
@@ -74,6 +76,11 @@ public class GridControl extends AbstractEntity implements Control {
         for (int y = 0; y <= height; y += LARGE_GRID_SIZE) {
             graphics.drawLine(0, y, width, y);
         }
+    }
+
+    @Override
+    public Optional<Cursor> getHoverCursor() {
+        return Optional.empty();
     }
 
     @Override

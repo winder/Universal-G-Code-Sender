@@ -22,13 +22,7 @@ import com.willwinder.ugs.nbp.designer.actions.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.openide.util.Utilities;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JSeparator;
-import javax.swing.KeyStroke;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
+import javax.swing.*;
 
 /**
  * Represents a main menu for a DrawGUI
@@ -54,6 +48,9 @@ public class MainMenu extends JMenuBar {
 
         JMenuItem copy = new JMenuItem(new CopyAction(controller));
         JMenuItem paste = new JMenuItem(new PasteAction(controller));
+
+        JMenuItem flipHorizontal = new JMenuItem(new FlipHorizontallyAction(controller));
+        JMenuItem flipVertical = new JMenuItem(new FlipVerticallyAction(controller));
 
         JMenuItem all = new JMenuItem(new SelectAllAction(controller));
         JMenuItem clear = new JMenuItem(new ClearSelectionAction(controller));
@@ -88,6 +85,9 @@ public class MainMenu extends JMenuBar {
         editMenu.add(new JSeparator());
         editMenu.add(copy);
         editMenu.add(paste);
+        editMenu.add(new JSeparator());
+        editMenu.add(flipHorizontal);
+        editMenu.add(flipVertical);
         editMenu.add(new JSeparator());
         editMenu.add(all);
         editMenu.add(clear);

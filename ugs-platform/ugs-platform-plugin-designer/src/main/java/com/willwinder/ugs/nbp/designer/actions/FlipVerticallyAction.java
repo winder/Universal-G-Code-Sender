@@ -17,7 +17,7 @@ import java.util.List;
 
 public class FlipVerticallyAction extends AbstractAction implements SelectionListener {
     private static final String SMALL_ICON_PATH = "img/flip-vertical.svg";
-    private static final String LARGE_ICON_PATH = "img/flip-vertical32.svg";
+    private static final String LARGE_ICON_PATH = "img/flip-vertical24.svg";
     private final transient Controller controller;
 
     public FlipVerticallyAction(Controller controller) {

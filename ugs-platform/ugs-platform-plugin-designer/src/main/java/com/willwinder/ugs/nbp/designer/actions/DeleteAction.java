@@ -50,7 +50,7 @@ import java.util.List;
 public class DeleteAction extends AbstractAction implements SelectionListener {
 
     private static final String SMALL_ICON_PATH = "img/delete.svg";
-    private static final String LARGE_ICON_PATH = "img/delete32.svg";
+    private static final String LARGE_ICON_PATH = "img/delete24.svg";
     private final transient Controller controller;
 
     /**
@@ -108,17 +108,13 @@ public class DeleteAction extends AbstractAction implements SelectionListener {
 
         @Override
         public void undo() {
-            for (Entity s : entities) {
-                drawing.insertEntity(s);
-            }
+            drawing.insertEntities(entities);
             drawing.repaint();
         }
 
         @Override
         public void execute() {
-            for (Entity s : entities) {
-                drawing.removeEntity(s);
-            }
+            drawing.removeEntities(entities);
             drawing.repaint();
         }
 

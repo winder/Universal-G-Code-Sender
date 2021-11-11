@@ -30,7 +30,7 @@ import java.awt.event.ActionEvent;
  */
 public class ToolDrawRectangleAction extends AbstractAction {
     private static final String SMALL_ICON_PATH = "img/rectangle.png";
-    private static final String LARGE_ICON_PATH = "img/rectangle32.png";
+    private static final String LARGE_ICON_PATH = "img/rectangle24.png";
     private final Controller controller;
 
     public ToolDrawRectangleAction(Controller controller) {

@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.model.Settings;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -104,5 +105,9 @@ public class Controller {
         settings.applySettings(design.getSettings());
         getDrawing().repaint();
         setTool(Tool.SELECT);
+    }
+
+    public void setCursor(Cursor cursor) {
+        drawing.setCursor(cursor);
     }
 }

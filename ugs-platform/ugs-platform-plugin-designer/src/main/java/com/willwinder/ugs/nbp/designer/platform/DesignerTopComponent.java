@@ -27,6 +27,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.PopupMenuFactory;
+import com.willwinder.ugs.nbp.designer.Throttler;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -45,8 +46,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -64,8 +63,8 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     private static final long serialVersionUID = 3123334398723987873L;
     private static final Logger LOGGER = Logger.getLogger(DesignerTopComponent.class.getSimpleName());
     private static final ArrayBlockingQueue<Runnable> JOB_QUEUE = new ArrayBlockingQueue<>(1);
-    private static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(1, 1, 1000, TimeUnit.MILLISECONDS, JOB_QUEUE);
 
+    private final Throttler refreshThrottler;
     private final transient UndoManagerAdapter undoManagerAdapter;
     private final transient BackendAPI backend;
     private transient DrawingContainer drawingContainer;
@@ -76,6 +75,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     public DesignerTopComponent(UgsDataObject dataObject) {
         super();
         this.dataObject = dataObject;
+        refreshThrottler = new Throttler(this::generateGcode, 1000);
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         controller = CentralLookup.getDefault().lookup(Controller.class);
         if (controller == null) {
@@ -137,7 +137,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         controller.getUndoManager().addListener(this);
         controller.getDrawing().setComponentPopupMenu(new PopupMenuFactory().createPopupMenu(controller));
         controller.getDrawing().repaint();
-        generateGcode();
+        refreshThrottler.run();
     }
 
     @Override
@@ -164,28 +164,22 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     }
 
     private void generateGcode() {
-        if (!JOB_QUEUE.isEmpty()) {
-            return;
+        SimpleGcodeRouter simpleGcodeRouter = new SimpleGcodeRouter();
+        simpleGcodeRouter.setSafeHeight(controller.getSettings().getSafeHeight());
+        simpleGcodeRouter.setDepthPerPass(controller.getSettings().getDepthPerPass());
+        simpleGcodeRouter.setToolDiameter(controller.getSettings().getToolDiameter());
+        simpleGcodeRouter.setToolStepOver(controller.getSettings().getToolStepOver());
+
+        String gcode = simpleGcodeRouter.toGcode(controller.getDrawing().getEntities());
+        try {
+            File file = new File(Files.createTempDir(), dataObject.getName() + ".gcode");
+            FileWriter fileWriter = new FileWriter(file);
+            IOUtils.write(gcode, fileWriter);
+            fileWriter.close();
+            backend.setGcodeFile(file);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        EXECUTOR.execute(() -> {
-            SimpleGcodeRouter simpleGcodeRouter = new SimpleGcodeRouter();
-            simpleGcodeRouter.setSafeHeight(controller.getSettings().getSafeHeight());
-            simpleGcodeRouter.setDepthPerPass(controller.getSettings().getDepthPerPass());
-            simpleGcodeRouter.setToolDiameter(controller.getSettings().getToolDiameter());
-            simpleGcodeRouter.setToolStepOver(controller.getSettings().getToolStepOver());
-
-            String gcode = simpleGcodeRouter.toGcode(controller.getDrawing().getEntities());
-            try {
-                File file = new File(Files.createTempDir(), dataObject.getName() + ".gcode");
-                FileWriter fileWriter = new FileWriter(file);
-                IOUtils.write(gcode, fileWriter);
-                fileWriter.close();
-                backend.setGcodeFile(file);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
     }
 
     @Override
@@ -197,7 +191,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     public void onChanged() {
         dataObject.setModified(true);
         if (!backend.isSendingFile()) {
-            generateGcode();
+            refreshThrottler.run();
         }
     }
 
