@@ -108,17 +108,13 @@ public class DeleteAction extends AbstractAction implements SelectionListener {
 
         @Override
         public void undo() {
-            for (Entity s : entities) {
-                drawing.insertEntity(s);
-            }
+            drawing.insertEntities(entities);
             drawing.repaint();
         }
 
         @Override
         public void execute() {
-            for (Entity s : entities) {
-                drawing.removeEntity(s);
-            }
+            drawing.removeEntities(entities);
             drawing.repaint();
         }
 

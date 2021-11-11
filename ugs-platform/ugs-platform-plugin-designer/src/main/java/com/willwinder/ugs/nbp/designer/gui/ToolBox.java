@@ -68,16 +68,34 @@ public class ToolBox extends JToolBar {
         JButton flipHorizontal = new JButton(new FlipHorizontallyAction(controller));
         flipHorizontal.setText("");
         flipHorizontal.setToolTipText("Flips horizontally");
-        flipHorizontal.setContentAreaFilled(false);
         flipHorizontal.setBorderPainted(false);
         add(flipHorizontal);
 
         JButton flipVertical = new JButton(new FlipVerticallyAction(controller));
         flipVertical.setText("");
         flipVertical.setToolTipText("Flips vertically");
-        flipVertical.setContentAreaFilled(false);
         flipVertical.setBorderPainted(false);
         add(flipVertical);
+
+        addSeparator();
+
+        JButton union = new JButton(new UnionAction(controller));
+        union.setText("");
+        union.setToolTipText("Unions two or more entities with each other");
+        union.setBorderPainted(false);
+        add(union);
+
+        JButton subtract = new JButton(new SubtractAction(controller));
+        subtract.setText("");
+        subtract.setToolTipText("Subtracts one entity with another");
+        subtract.setBorderPainted(false);
+        add(subtract);
+
+        JButton intersection = new JButton(new IntersectionAction(controller));
+        intersection.setText("");
+        intersection.setToolTipText("Makes an intersection between two entities");
+        intersection.setBorderPainted(false);
+        add(intersection);
 
         addSeparator();
 

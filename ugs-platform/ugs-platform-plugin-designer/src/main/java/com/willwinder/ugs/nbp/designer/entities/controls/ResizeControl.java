@@ -46,14 +46,12 @@ public class ResizeControl extends AbstractControl {
     private static final Logger LOGGER = Logger.getLogger(ResizeControl.class.getSimpleName());
     private final Location location;
     private final RoundRectangle2D.Double shape;
-    private final Controller controller;
     private AffineTransform transform = new AffineTransform();
     private Point2D.Double startOffset = new Point2D.Double();
     private boolean isHovered;
 
     public ResizeControl(Controller controller, Location location) {
         super(controller.getSelectionManager());
-        this.controller = controller;
         this.location = location;
         this.shape = new RoundRectangle2D.Double(0, 0, SIZE, SIZE, ARC_SIZE, ARC_SIZE);
     }

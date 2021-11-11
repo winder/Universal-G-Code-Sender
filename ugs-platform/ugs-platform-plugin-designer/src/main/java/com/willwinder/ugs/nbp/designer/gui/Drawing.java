@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.designer.Throttler;
 import com.willwinder.ugs.nbp.designer.entities.*;
 import com.willwinder.ugs.nbp.designer.entities.controls.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -151,7 +152,7 @@ public class Drawing extends JPanel {
 
     public void removeEntity(Entity s) {
         globalRoot.removeChild(s);
-        listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED));
+        ThreadHelper.invokeLater(() -> listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED)));
         refresh();
     }
 
@@ -210,5 +211,11 @@ public class Drawing extends JPanel {
                 .filter(Control.class::isInstance)
                 .map(Control.class::cast)
                 .collect(Collectors.toList());
+    }
+
+    public void removeEntities(List<Entity> entities) {
+        entities.forEach(globalRoot::removeChild);
+        ThreadHelper.invokeLater(() -> listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED)));
+        refresh();
     }
 }
