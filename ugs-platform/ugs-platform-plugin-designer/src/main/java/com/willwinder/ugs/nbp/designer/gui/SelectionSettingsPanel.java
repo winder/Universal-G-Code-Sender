@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -49,18 +50,30 @@ import java.util.Arrays;
  * @author Joacim Breiler
  */
 public class SelectionSettingsPanel extends JPanel implements SelectionListener, DocumentListener, EntityListener, ChangeListener, ItemListener {
+    private final JTextField textTextField;
     private final JTextField widthTextField;
     private final JTextField rotation;
     private final JTextField posXTextField;
     private final JTextField posYTextField;
     private final JLabel cutDepthLabel;
     private final JComboBox<CutType> cutTypeComboBox;
+    private final JComboBox<Font> fontDropDown;
     private transient Controller controller;
     private final JSpinner depthSpinner;
     private final JTextField heightTextField;
 
     public SelectionSettingsPanel(Controller controller) {
         setLayout(new MigLayout("fill, wrap 2", "[] 10 [grow]"));
+        textTextField = new JTextField();
+        add(new JLabel("Text", SwingConstants.RIGHT), "grow");
+        add(textTextField, "grow");
+
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        Font[] fontNames = Arrays.stream(ge.getAllFonts()).distinct().toArray(Font[]::new);
+        fontDropDown = new JComboBox<>(fontNames);
+        add(new JLabel("Font", SwingConstants.RIGHT), "grow");
+        add(fontDropDown, "grow");
+        fontDropDown.addItemListener(this);
 
         posXTextField = new JTextField("0");
         posXTextField.getDocument().addDocumentListener(this);
@@ -226,6 +239,15 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             }
         }
 
+        if(!controller.getSelectionManager().isEmpty()) {
+            Entity entity = controller.getSelectionManager().getSelection().get(0);
+            if(entity instanceof Text) {
+                ((Text)entity).setText(textTextField.getText());
+                ((Text)entity).setFontFamily((String) fontDropDown.getSelectedItem());
+            }
+            controller.getDrawing().repaint();
+        }
+
         controller.getSelectionManager().addListener(this);
     }
 
@@ -236,12 +258,19 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         }
 
         CutType cutType = (CutType) cutTypeComboBox.getSelectedItem();
+        String fontFamily = (String) fontDropDown.getSelectedItem();
         controller.getSelectionManager().getSelection().forEach(selectedEntity -> {
             if (selectedEntity instanceof Cuttable) {
                 Cuttable cuttable = (Cuttable) selectedEntity;
                 ChangeCutSettingsAction changeCutSettingsAction = new ChangeCutSettingsAction(controller, cuttable, (Double) depthSpinner.getValue(), cutType);
                 controller.getUndoManager().addAction(changeCutSettingsAction);
                 changeCutSettingsAction.actionPerformed(null);
+            }
+
+            if (selectedEntity instanceof Text) {
+                // TODO fix undoable action
+                Text text = (Text) selectedEntity;
+                text.setFontFamily(fontFamily);
             }
         });
         onEvent(new EntityEvent(controller.getSelectionManager(), EventType.SETTINGS_CHANGED));
@@ -266,6 +295,12 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             final boolean hasCutTypeSelection = cuttable.getCutType() != CutType.NONE;
             depthSpinner.setEnabled(hasCutTypeSelection);
             cutDepthLabel.setEnabled(hasCutTypeSelection);
+        }
+
+        textTextField.setEnabled(selectedEntity instanceof Text);
+        if (selectedEntity instanceof Text) {
+            setFieldValue(textTextField, ((Text)selectedEntity).getText());
+            setFieldValue(fontDropDown, ((Text)selectedEntity).getFontFamily());
         }
 
 

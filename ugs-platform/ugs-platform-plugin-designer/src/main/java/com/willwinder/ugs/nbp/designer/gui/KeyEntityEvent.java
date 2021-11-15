@@ -18,23 +18,29 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
-import java.awt.*;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
+import com.willwinder.ugs.nbp.designer.entities.EventType;
+import com.willwinder.ugs.nbp.designer.entities.controls.Control;
+
+import java.awt.geom.Point2D;
 
 /**
  * @author Joacim Breiler
  */
-public class Colors {
+public class KeyEntityEvent extends EntityEvent {
 
+    private final char key;
+    private boolean shiftPressed;
+    private boolean altPressed;
+    private boolean ctrlPressed;
 
-    private Colors() {
-        throw new IllegalStateException("Utility class");
+    public KeyEntityEvent(Entity entity, EventType type, char key) {
+        super(entity, type);
+        this.key = key;
     }
 
-    public static final Color SHAPE_HINT = new Color(190, 190, 190);
-    public static final Color SHAPE_OUTLINE = new Color(122, 161, 228);
-    public static final Color CONTROL_BORDER = new Color(122, 161, 228);
-    public static final Color CONTROL_HANDLE = Color.GRAY;
-    public static final Color BACKGROUND = new Color(246, 246, 246);
-    public static final Color CURSOR = new Color(246, 132, 38);
-
+    public char getKey() {
+        return key;
+    }
 }
