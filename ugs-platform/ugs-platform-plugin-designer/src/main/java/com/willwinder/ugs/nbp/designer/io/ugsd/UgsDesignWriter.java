@@ -5,15 +5,29 @@ import com.google.gson.GsonBuilder;
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.*;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.*;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.CutTypeV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.CuttableEntityV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.DesignV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityEllipseV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityGroupV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathSegmentV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathTypeV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityRectangleV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityTextV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.SettingsV1;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.awt.*;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.io.File;
@@ -65,6 +79,8 @@ public class UgsDesignWriter implements DesignWriter {
             result = parseEllipse(entity);
         } else if (entity instanceof Path) {
             result = parsePath(entity);
+        } else if (entity instanceof Text) {
+            result = parseText((Text) entity);
         } else {
             return null;
         }
@@ -78,6 +94,18 @@ public class UgsDesignWriter implements DesignWriter {
             ((CuttableEntityV1) result).setCutType(CutTypeV1.fromCutType(((Cuttable) entity).getCutType()));
         }
         return result;
+    }
+
+    private EntityV1 parseText(Text entity) {
+        EntityTextV1 text = new EntityTextV1();
+        text.setX(entity.getPosition().getX());
+        text.setY(entity.getPosition().getY());
+        text.setWidth(entity.getSize().getWidth());
+        text.setHeight(entity.getSize().getHeight());
+        text.setRotation(entity.getRotation());
+        text.setText(entity.getText());
+        text.setFontName(entity.getFontFamily());
+        return text;
     }
 
     private EntityV1 parsePath(Entity entity) {

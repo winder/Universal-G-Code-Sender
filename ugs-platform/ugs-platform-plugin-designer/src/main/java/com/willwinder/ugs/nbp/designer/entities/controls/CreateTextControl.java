@@ -94,6 +94,8 @@ public class CreateTextControl extends AbstractControl {
         AddAction addAction = new AddAction(controller, text);
         addAction.actionPerformed(new ActionEvent(this, 0, ""));
         controller.addEntity(text);
+        controller.setTool(Tool.SELECT);
+        controller.getSelectionManager().addSelection(text);
     }
 
     @Override
