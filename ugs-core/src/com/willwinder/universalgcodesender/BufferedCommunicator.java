@@ -213,7 +213,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
                 continue;
             }
 
-            String commandString = command.getCommandString().trim();
+            String commandString = command.getCommandString();
             
             this.activeCommandList.add(command);
             this.sentBufferSize += (commandString.length() + 1);
