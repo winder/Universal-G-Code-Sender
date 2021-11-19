@@ -202,7 +202,8 @@ public class GrblController extends AbstractController {
 
                 // In case a reset occurred while streaming.
                 if (this.isStreaming()) {
-                    checkStreamFinished();
+                    this.dispatchConsoleMessage(MessageType.INFO, "\n**** GRBL was reset. Canceling file transfer. ****\n\n");
+                    cancelCommands();
                 }
                 
                 this.grblVersion = GrblUtils.getVersionDouble(response);
