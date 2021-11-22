@@ -27,37 +27,10 @@ import java.util.List;
  * @author Joacim Breiler
  */
 public class EntityPathV1 extends CuttableEntityV1 {
-    private double x;
-    private double y;
-    private double rotation;
     private List<EntityPathSegmentV1> segments;
 
     public EntityPathV1() {
         super(EntityTypeV1.PATH);
-    }
-
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    public void setRotation(double rotation) {
-        this.rotation = rotation;
-    }
-
-    public double getRotation() {
-        return rotation;
     }
 
     @Override
@@ -77,7 +50,6 @@ public class EntityPathV1 extends CuttableEntityV1 {
                     path.curveTo(segment.getCoordinates().get(0)[0], segment.getCoordinates().get(0)[1], segment.getCoordinates().get(1)[0], segment.getCoordinates().get(1)[1], segment.getCoordinates().get(2)[0], segment.getCoordinates().get(2)[1]);
             }
         });
-        path.setRotation(rotation);
         applyCommonAttributes(path);
         return path;
     }

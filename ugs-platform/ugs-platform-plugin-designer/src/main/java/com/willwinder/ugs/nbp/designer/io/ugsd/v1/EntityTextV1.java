@@ -19,66 +19,17 @@
 package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
-import com.willwinder.ugs.nbp.designer.model.Size;
-
-import java.awt.geom.Point2D;
 
 /**
  * @author Joacim Breiler
  */
 public class EntityTextV1 extends CuttableEntityV1 {
-    private double x;
-    private double y;
-    private double width;
-    private double height;
-    private double rotation;
     private String text;
     private String fontName;
 
     public EntityTextV1() {
         super(EntityTypeV1.TEXT);
-    }
-
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    public double getWidth() {
-        return width;
-    }
-
-    public void setWidth(double width) {
-        this.width = width;
-    }
-
-    public double getHeight() {
-        return height;
-    }
-
-    public void setHeight(double height) {
-        this.height = height;
-    }
-
-    public void setRotation(double rotation) {
-        this.rotation = rotation;
-    }
-
-    public double getRotation() {
-        return rotation;
     }
 
     public void setText(String text) {
@@ -94,9 +45,6 @@ public class EntityTextV1 extends CuttableEntityV1 {
         Text text = new Text();
         text.setFontFamily(fontName);
         text.setText(this.text);
-        text.setRotation(rotation);
-        text.setSize(new Size(width, height));
-        text.setPosition(new Point2D.Double(x, y));
         applyCommonAttributes(text);
         return text;
     }

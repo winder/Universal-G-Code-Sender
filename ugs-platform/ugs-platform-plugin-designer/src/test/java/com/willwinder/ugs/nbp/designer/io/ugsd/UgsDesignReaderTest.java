@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.io.ByteArrayOutputStream;
 import java.util.Optional;
@@ -99,9 +100,9 @@ public class UgsDesignReaderTest {
     @Test
     public void readDesignWithEllipse() {
         Ellipse entity = new Ellipse();
-        entity.setSize(new Size(1, 1));
+        entity.setSize(new Size(50, 100));
+        entity.setRotation(10);
         entity.setName("ellipse");
-        entity.setRotation(1);
         entity.setCutDepth(12);
         entity.setCutType(CutType.POCKET);
         String data = convertEntityToString(entity);
@@ -111,23 +112,30 @@ public class UgsDesignReaderTest {
 
         Cuttable readEntity = (Cuttable) design.getEntities().get(0);
         assertTrue(readEntity instanceof Ellipse);
+
+        assertEquals(entity.getTransform(), readEntity.getTransform());
         assertEquals(entity.getPosition().getX(), readEntity.getPosition().getX(), 0.1);
         assertEquals(entity.getPosition().getY(), readEntity.getPosition().getY(), 0.1);
         assertEquals(entity.getName(), readEntity.getName());
         assertEquals(entity.getCutType(), readEntity.getCutType());
         assertEquals(entity.getCutDepth(), readEntity.getCutDepth(), 0.1);
+        assertEquals(entity.getRelativeShape().getBounds().getWidth(), readEntity.getRelativeShape().getBounds().getWidth(), 0.1);
+        assertEquals(entity.getRelativeShape().getBounds().getHeight(), readEntity.getRelativeShape().getBounds().getHeight(), 0.1);
+        assertEquals(entity.getSize().getWidth(), readEntity.getSize().getWidth(), 0.1);
+        assertEquals(entity.getSize().getHeight(), readEntity.getSize().getHeight(), 0.1);
         assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
     }
 
     @Test
     public void readDesignWithPath() {
         Path entity = new Path();
-        entity.setSize(new Size(1, 1));
         entity.moveTo(0, 0);
         entity.lineTo(0, 0);
-        entity.lineTo(1.1, 1.1);
-        entity.lineTo(1, 0);
+        entity.lineTo(10.1, 10.1);
+        entity.lineTo(10, 0);
         entity.lineTo(0, 0);
+        entity.setSize(new Size(10, 12));
+        entity.setPosition(new Point2D.Double(100, 120));
         entity.setName("path");
         entity.setRotation(1);
         entity.setCutDepth(12);

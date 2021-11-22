@@ -98,11 +98,7 @@ public class UgsDesignWriter implements DesignWriter {
 
     private EntityV1 parseText(Text entity) {
         EntityTextV1 text = new EntityTextV1();
-        text.setX(entity.getPosition().getX());
-        text.setY(entity.getPosition().getY());
-        text.setWidth(entity.getSize().getWidth());
-        text.setHeight(entity.getSize().getHeight());
-        text.setRotation(entity.getRotation());
+        text.setTransform(entity.getTransform());
         text.setText(entity.getText());
         text.setFontName(entity.getFontFamily());
         return text;
@@ -110,30 +106,20 @@ public class UgsDesignWriter implements DesignWriter {
 
     private EntityV1 parsePath(Entity entity) {
         EntityPathV1 path = new EntityPathV1();
-        path.setX(entity.getPosition().getX());
-        path.setY(entity.getPosition().getY());
-        path.setRotation(entity.getRotation());
+        path.setTransform(entity.getTransform());
         path.setSegments(convertPathToSegments(entity));
         return path;
     }
 
     private EntityV1 parseEllipse(Entity entity) {
         EntityEllipseV1 ellipse = new EntityEllipseV1();
-        ellipse.setX(entity.getPosition().getX());
-        ellipse.setY(entity.getPosition().getY());
-        ellipse.setWidth(entity.getRelativeShape().getBounds2D().getWidth());
-        ellipse.setHeight(entity.getRelativeShape().getBounds2D().getHeight());
-        ellipse.setRotation(entity.getRotation());
+        ellipse.setTransform(entity.getTransform());
         return ellipse;
     }
 
     private EntityV1 parseRectangle(Entity entity) {
         EntityRectangleV1 rectangle = new EntityRectangleV1();
-        rectangle.setX(entity.getPosition().getX());
-        rectangle.setY(entity.getPosition().getY());
-        rectangle.setWidth(entity.getRelativeShape().getBounds2D().getWidth());
-        rectangle.setHeight(entity.getRelativeShape().getBounds2D().getHeight());
-        rectangle.setRotation(entity.getRotation());
+        rectangle.setTransform(entity.getTransform());
         return rectangle;
     }
 
@@ -149,8 +135,8 @@ public class UgsDesignWriter implements DesignWriter {
 
     private List<EntityPathSegmentV1> convertPathToSegments(Entity entity) {
         List<EntityPathSegmentV1> segments = new ArrayList<>();
-        Shape shape = entity.getShape();
-        PathIterator pathIterator = shape.getPathIterator(AffineTransform.getRotateInstance(Math.toRadians(Utils.normalizeRotation(entity.getRotation())), shape.getBounds2D().getCenterX(), shape.getBounds2D().getCenterY()));
+        Shape shape = entity.getRelativeShape();
+        PathIterator pathIterator = shape.getPathIterator(new AffineTransform());
         double[] coordinates = new double[8];
         while (!pathIterator.isDone()) {
             Arrays.fill(coordinates, 0);

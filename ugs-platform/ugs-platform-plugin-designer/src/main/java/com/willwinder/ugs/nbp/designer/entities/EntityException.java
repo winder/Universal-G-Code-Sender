@@ -16,25 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
-
-import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
+package com.willwinder.ugs.nbp.designer.entities;
 
 /**
  * @author Joacim Breiler
  */
-public class EntityEllipseV1 extends CuttableEntityV1 {
-
-
-    public EntityEllipseV1() {
-        super(EntityTypeV1.ELLIPSE);
-    }
-
-    @Override
-    public Entity toInternal() {
-        Ellipse ellipse = new Ellipse();
-        applyCommonAttributes(ellipse);
-        return ellipse;
+public class EntityException extends RuntimeException {
+    public EntityException(Exception e) {
+        super(e);
     }
 }

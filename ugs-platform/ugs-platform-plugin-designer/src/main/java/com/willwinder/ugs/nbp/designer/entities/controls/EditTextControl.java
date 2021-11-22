@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.List;
 
 public class EditTextControl extends AbstractControl {
 
@@ -30,8 +31,9 @@ public class EditTextControl extends AbstractControl {
 
     private boolean isTextEntitySelected() {
         boolean isTextEntity = false;
-        if (!controller.getSelectionManager().isEmpty()) {
-            Entity entity = controller.getSelectionManager().getSelection().get(0);
+        List<Entity> selection = controller.getSelectionManager().getSelection();
+        if (!selection.isEmpty()) {
+            Entity entity = selection.get(0);
             isTextEntity = entity instanceof Text;
         }
         return isTextEntity;

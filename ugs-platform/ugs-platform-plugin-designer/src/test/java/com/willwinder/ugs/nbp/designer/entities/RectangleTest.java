@@ -2,6 +2,7 @@ package com.willwinder.ugs.nbp.designer.entities;
 
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.nbp.designer.model.Size;
 import org.junit.Test;
 
 import java.awt.geom.AffineTransform;
@@ -250,5 +251,24 @@ public class RectangleTest {
         assertEquals(1, rectangle.getPosition().getY(), 0.1);
     }
 
+
+    @Test
+    public void setSizeWithAnotherWidthShouldOnlyScaleWidth() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setPosition(new Point2D.Double(1, 1));
+        rectangle.setWidth(100);
+        rectangle.setHeight(100);
+        rectangle.setRotation(90);
+
+        assertEquals(100, rectangle.getSize().getWidth(), 0.1);
+        assertEquals(100, rectangle.getSize().getHeight(), 0.1);
+        assertEquals(1, rectangle.getPosition().getX(), 0.1);
+        assertEquals(1, rectangle.getPosition().getY(), 0.1);
+        assertEquals(90, rectangle.getRotation(), 0.1);
+
+        rectangle.setSize(new Size(200, 150));
+        assertEquals(200, rectangle.getSize().getWidth(), 0.1);
+        assertEquals(150, rectangle.getSize().getHeight(), 0.1);
+    }
 
 }

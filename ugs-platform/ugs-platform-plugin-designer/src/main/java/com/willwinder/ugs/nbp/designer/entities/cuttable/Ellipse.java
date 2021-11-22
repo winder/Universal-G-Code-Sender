@@ -18,9 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
-import com.willwinder.ugs.nbp.designer.model.Size;
-
-import java.awt.*;
+import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 
 /**
@@ -37,16 +35,11 @@ public class Ellipse extends AbstractCuttable {
     }
 
     public Ellipse() {
-        this.shape = new Ellipse2D.Double(0, 0, 10, 10);
+        this(0,0);
     }
 
     @Override
     public Shape getRelativeShape() {
         return shape;
-    }
-
-    @Override
-    public void setSize(Size size) {
-        this.shape.setFrame(0, 0, size.getWidth(), size.getHeight());
     }
 }
