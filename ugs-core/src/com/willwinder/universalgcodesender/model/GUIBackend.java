@@ -658,7 +658,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     
     @Override
     public boolean canSend() {
-        return isIdle() && (this.gcodeFile != null);
+        return isIdle() &&
+                controller.getControllerStatus().getState() != ControllerState.ALARM &&
+                this.gcodeFile != null;
     }
     
     @Override
