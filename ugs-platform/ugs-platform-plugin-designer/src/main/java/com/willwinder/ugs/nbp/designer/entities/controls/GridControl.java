@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Optional;
 
@@ -68,13 +69,34 @@ public class GridControl extends AbstractEntity implements Control {
         }
 
 
+
+        AffineTransform affineTransform = AffineTransform.getScaleInstance(1 / drawing.getScale(), -1 / drawing.getScale());
+        affineTransform.rotate(Math.PI/2);
+        Font font = new Font(null, Font.PLAIN, 10).deriveFont(affineTransform);
+        graphics.setFont(font);
+        FontMetrics fontMetrics = graphics.getFontMetrics();
+
         graphics.setStroke(new BasicStroke(Double.valueOf(0.2 / drawing.getScale()).floatValue()));
         for (int x = 0; x <= width; x += LARGE_GRID_SIZE) {
             graphics.drawLine(x, 0, x, height);
+
+            String text = x + " mm";
+            int y =  -fontMetrics.stringWidth(text);
+            graphics.drawString(text, x - (int) Math.round(3 / drawing.getScale()), y - (int) Math.round(8 / drawing.getScale()));
         }
+
+
+        affineTransform = AffineTransform.getScaleInstance(1 / drawing.getScale(), -1 / drawing.getScale());
+        font = new Font(null, Font.PLAIN, 10).deriveFont(affineTransform);
+        graphics.setFont(font);
+        fontMetrics = graphics.getFontMetrics();
 
         for (int y = 0; y <= height; y += LARGE_GRID_SIZE) {
             graphics.drawLine(0, y, width, y);
+
+            String text = y + " mm";
+            int x =  -fontMetrics.stringWidth(text);
+            graphics.drawString(text, x - (int) Math.round(8 / drawing.getScale()), y - (int) Math.round(3 / drawing.getScale()));
         }
     }
 
@@ -83,10 +105,6 @@ public class GridControl extends AbstractEntity implements Control {
         return Optional.empty();
     }
 
-    @Override
-    public void setSize(Size size) {
-
-    }
 
     @Override
     public Shape getShape() {

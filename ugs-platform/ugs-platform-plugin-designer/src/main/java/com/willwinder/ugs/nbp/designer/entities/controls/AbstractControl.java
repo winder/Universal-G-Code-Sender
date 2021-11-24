@@ -37,11 +37,6 @@ public abstract class AbstractControl extends AbstractEntity implements Control 
     }
 
     @Override
-    public void setSize(Size size) {
-        // Never mind...
-    }
-
-    @Override
     public Optional<Cursor> getHoverCursor() {
         return Optional.empty();
     }

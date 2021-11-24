@@ -77,6 +77,8 @@ public class Drawing extends JPanel {
         controlsRoot.addChild(new SelectionControl(controller));
         controlsRoot.addChild(new CreateRectangleControl(controller));
         controlsRoot.addChild(new CreateEllipseControl(controller));
+        controlsRoot.addChild(new CreateTextControl(controller));
+        controlsRoot.addChild(new EditTextControl(controller));
 
         setBackground(Colors.BACKGROUND);
         setScale(2);

@@ -16,25 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gui;
-
-import java.awt.*;
+package com.willwinder.ugs.nbp.designer.entities;
 
 /**
  * @author Joacim Breiler
  */
-public class Colors {
-
-
-    private Colors() {
-        throw new IllegalStateException("Utility class");
+public class EntityException extends RuntimeException {
+    public EntityException(Exception e) {
+        super(e);
     }
-
-    public static final Color SHAPE_HINT = new Color(190, 190, 190);
-    public static final Color SHAPE_OUTLINE = new Color(122, 161, 228);
-    public static final Color CONTROL_BORDER = new Color(122, 161, 228);
-    public static final Color CONTROL_HANDLE = Color.GRAY;
-    public static final Color BACKGROUND = new Color(246, 246, 246);
-    public static final Color CURSOR = new Color(246, 132, 38);
-
 }

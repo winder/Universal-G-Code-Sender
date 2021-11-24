@@ -21,32 +21,31 @@ package com.willwinder.ugs.nbp.designer.entities.controls;
 import com.willwinder.ugs.nbp.designer.actions.AddAction;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * A control that will create a new ellipse
  *
  * @author Joacim Breiler
  */
-public class CreateEllipseControl extends AbstractControl {
+public class CreateTextControl extends AbstractControl {
 
     private final Controller controller;
     private Point2D startPosition;
     private Point2D endPosition;
     private boolean isPressed;
 
-    public CreateEllipseControl(Controller controller) {
+    public CreateTextControl(Controller controller) {
         super(controller.getSelectionManager());
         this.controller = controller;
     }
@@ -58,7 +57,7 @@ public class CreateEllipseControl extends AbstractControl {
             double endX = Math.max(startPosition.getX(), endPosition.getX());
             double startY = Math.min(startPosition.getY(), endPosition.getY());
             double endY = Math.max(startPosition.getY(), endPosition.getY());
-            Ellipse2D.Double rect = new Ellipse2D.Double(startX, startY, endX - startX, endY - startY);
+            Rectangle2D.Double rect = new Rectangle2D.Double(startX, startY, endX - startX, endY - startY);
             graphics.setColor(ThemeColors.LIGHT_BLUE_GREY);
             graphics.draw(rect);
         }
@@ -66,8 +65,7 @@ public class CreateEllipseControl extends AbstractControl {
 
     @Override
     public boolean isWithin(Point2D point) {
-        // This control will be active if the circle tool is activated
-        return controller.getTool() == Tool.CIRCLE;
+        return controller.getTool() == Tool.TEXT;
     }
 
     @Override
@@ -90,19 +88,18 @@ public class CreateEllipseControl extends AbstractControl {
 
     private void createEntity() {
         double startX = Math.min(startPosition.getX(), endPosition.getX());
-        double endX = Math.max(startPosition.getX(), endPosition.getX());
         double startY = Math.min(startPosition.getY(), endPosition.getY());
-        double endY = Math.max(startPosition.getY(), endPosition.getY());
 
-        Ellipse ellipse = new Ellipse(startX, startY);
-        ellipse.setSize(new Size(endX - startX, endY - startY));
-        AddAction addAction = new AddAction(controller, ellipse);
+        Text text = new Text(startX, startY);
+        AddAction addAction = new AddAction(controller, text);
         addAction.actionPerformed(new ActionEvent(this, 0, ""));
-        controller.addEntity(ellipse);
+        controller.addEntity(text);
+        controller.setTool(Tool.SELECT);
+        controller.getSelectionManager().addSelection(text);
     }
 
     @Override
     public String toString() {
-        return "CreateEllipseControl";
+        return "CreateTextControl";
     }
 }

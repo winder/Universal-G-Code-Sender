@@ -22,6 +22,8 @@ import com.google.gson.annotations.Expose;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 
+import java.awt.geom.AffineTransform;
+
 /**
  * @author Joacim Breiler
  */
@@ -31,6 +33,9 @@ public class CuttableEntityV1 extends EntityV1 {
 
     @Expose
     private CutTypeV1 cutType;
+
+    @Expose
+    private AffineTransform transform;
 
     public CuttableEntityV1(EntityTypeV1 type) {
         super(type);
@@ -56,9 +61,16 @@ public class CuttableEntityV1 extends EntityV1 {
     protected void applyCommonAttributes(Entity entity) {
         super.applyCommonAttributes(entity);
 
+        // We need to make a copy of the transformation to set the affine transformation state and type which is not serialized
+        entity.setTransform(new AffineTransform(transform.getScaleX(), transform.getShearY(), transform.getShearX(), transform.getScaleY(), transform.getTranslateX(), transform.getTranslateY()));
+
         if (entity instanceof Cuttable) {
             ((Cuttable) entity).setCutDepth(cutDepth);
             ((Cuttable) entity).setCutType(CutTypeV1.toCutType(cutType));
         }
+    }
+
+    public void setTransform(AffineTransform transform) {
+        this.transform = transform;
     }
 }

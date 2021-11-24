@@ -45,7 +45,7 @@ public class RotationControl extends AbstractControl {
     public static final int MARGIN = 16;
 
     private final Ellipse2D.Double shape;
-    private final Cursor cursor;
+    private Cursor cursor;
     private Point2D startPosition = new Point2D.Double();
     private double startRotation = 0d;
     private Point2D center;
@@ -54,7 +54,12 @@ public class RotationControl extends AbstractControl {
     public RotationControl(SelectionManager selectionManager) {
         super(selectionManager);
         shape = new Ellipse2D.Double(0, 0, SIZE, SIZE);
-        cursor = Toolkit.getDefaultToolkit().createCustomCursor(ImageUtilities.loadImage("img/cursors/rotate.svg", false), new Point(8, 8), "rotater");
+
+        try {
+            cursor = Toolkit.getDefaultToolkit().createCustomCursor(ImageUtilities.loadImage("img/cursors/rotate.svg", false), new Point(8, 8), "rotater");
+        } catch (HeadlessException e) {
+            cursor = null;
+        }
     }
 
     private void updatePosition(Drawing drawing) {
@@ -91,7 +96,7 @@ public class RotationControl extends AbstractControl {
 
     @Override
     public Optional<Cursor> getHoverCursor() {
-        return Optional.of(cursor);
+        return Optional.ofNullable(cursor);
     }
 
     @Override

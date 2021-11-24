@@ -16,25 +16,36 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gui;
+package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
 
-import java.awt.*;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 
 /**
  * @author Joacim Breiler
  */
-public class Colors {
+public class EntityTextV1 extends CuttableEntityV1 {
+    private String text;
+    private String fontName;
 
-
-    private Colors() {
-        throw new IllegalStateException("Utility class");
+    public EntityTextV1() {
+        super(EntityTypeV1.TEXT);
     }
 
-    public static final Color SHAPE_HINT = new Color(190, 190, 190);
-    public static final Color SHAPE_OUTLINE = new Color(122, 161, 228);
-    public static final Color CONTROL_BORDER = new Color(122, 161, 228);
-    public static final Color CONTROL_HANDLE = Color.GRAY;
-    public static final Color BACKGROUND = new Color(246, 246, 246);
-    public static final Color CURSOR = new Color(246, 132, 38);
+    public void setText(String text) {
+        this.text = text;
+    }
 
+    public void setFontName(String fontName) {
+        this.fontName = fontName;
+    }
+
+    @Override
+    public Entity toInternal() {
+        Text text = new Text();
+        text.setFontFamily(fontName);
+        text.setText(this.text);
+        applyCommonAttributes(text);
+        return text;
+    }
 }

@@ -55,6 +55,10 @@ public class ToolBox extends JToolBar {
         circle.setToolTipText("Draw circles and ellipses");
         add(circle);
 
+        JToggleButton text = new JToggleButton(new ToolDrawTextAction(controller));
+        text.setText("");
+        text.setToolTipText("Write text");
+        add(text);
 
         JButton insert = new JButton(new ToolInsertAction(controller));
         insert.setText("");
@@ -150,6 +154,7 @@ public class ToolBox extends JToolBar {
         buttons.add(select);
         buttons.add(circle);
         buttons.add(rectangle);
+        buttons.add(text);
         buttons.add(insert);
 
         controller.addListener(event -> {
@@ -165,6 +170,9 @@ public class ToolBox extends JToolBar {
                         break;
                     case CIRCLE:
                         circle.setSelected(true);
+                        break;
+                    case TEXT:
+                        text.setSelected(true);
                         break;
                     case INSERT:
                         insert.setSelected(true);

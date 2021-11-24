@@ -41,7 +41,8 @@ public class SelectionManagerTest {
 
         target.move(new Point2D.Double(10, 10));
 
-        assertEquals(new Size(50, 50), target.getSize());
+        assertEquals(50, target.getSize().getWidth(), 0.1);
+        assertEquals(50, target.getSize().getHeight(), 0.1);
         assertEquals(new Point2D.Double(20, 30), target.getPosition());
         assertEquals(new Point2D.Double(45, 55), target.getCenter());
         assertEquals(0, target.getRotation(), 0.1);

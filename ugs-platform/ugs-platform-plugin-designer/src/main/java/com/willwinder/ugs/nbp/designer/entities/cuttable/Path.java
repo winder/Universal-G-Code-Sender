@@ -18,11 +18,12 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
-import com.willwinder.ugs.nbp.designer.model.Size;
+import com.willwinder.ugs.nbp.designer.entities.EntityException;
 
-import java.awt.*;
-import java.awt.geom.Arc2D;
+import java.awt.Shape;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 
 /**
  * @author Joacim Breiler
@@ -42,31 +43,43 @@ public class Path extends AbstractCuttable {
         return shape;
     }
 
-    @Override
-    public void setSize(Size size) {
-        if (size.getWidth() < 2) {
-            size = new Size(2, size.getHeight());
-        }
-
-        if (size.getHeight() < 2) {
-            size = new Size(size.getWidth(), 2);
-        }
-    }
-
     public void moveTo(double x, double y) {
-        shape.moveTo(x, y);
+        try {
+            Point2D relativePoint = getTransform().inverseTransform(new Point2D.Double(x, y), null);
+            shape.moveTo(relativePoint.getX(), relativePoint.getY());
+        } catch (NoninvertibleTransformException e) {
+            throw new EntityException(e);
+        }
     }
 
     public void lineTo(double x, double y) {
-        shape.lineTo(x, y);
+        try {
+            Point2D relativePoint = getTransform().inverseTransform(new Point2D.Double(x, y), null);
+            shape.lineTo(relativePoint.getX(), relativePoint.getY());
+        } catch (NoninvertibleTransformException e) {
+            throw new EntityException(e);
+        }
     }
 
     public void quadTo(double x1, double y1, double x2, double y2) {
-        shape.quadTo(x1, y1, x2, y2);
+        try {
+            Point2D relativePoint1 = getTransform().inverseTransform(new Point2D.Double(x1, y1), null);
+            Point2D relativePoint2 = getTransform().inverseTransform(new Point2D.Double(x2, y2), null);
+            shape.quadTo(relativePoint1.getX(), relativePoint1.getY(), relativePoint2.getX(), relativePoint2.getY());
+        } catch (NoninvertibleTransformException e) {
+            throw new EntityException(e);
+        }
     }
 
     public void curveTo(double x1, double y1, double x2, double y2, double x3, double y3) {
-        shape.curveTo(x1, y1, x2, y2, x3, y3);
+        try {
+            Point2D relativePoint1 = getTransform().inverseTransform(new Point2D.Double(x1, y1), null);
+            Point2D relativePoint2 = getTransform().inverseTransform(new Point2D.Double(x2, y2), null);
+            Point2D relativePoint3 = getTransform().inverseTransform(new Point2D.Double(x3, y3), null);
+            shape.curveTo(relativePoint1.getX(), relativePoint1.getY(), relativePoint2.getX(), relativePoint2.getY(), relativePoint3.getX(), relativePoint3.getY());
+        } catch (NoninvertibleTransformException e) {
+            throw new EntityException(e);
+        }
     }
 
     public void append(Shape s) {

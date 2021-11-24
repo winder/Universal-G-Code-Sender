@@ -5,15 +5,29 @@ import com.google.gson.GsonBuilder;
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.*;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.*;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.CutTypeV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.CuttableEntityV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.DesignV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityEllipseV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityGroupV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathSegmentV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathTypeV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityRectangleV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityTextV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.SettingsV1;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.awt.*;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.io.File;
@@ -65,6 +79,8 @@ public class UgsDesignWriter implements DesignWriter {
             result = parseEllipse(entity);
         } else if (entity instanceof Path) {
             result = parsePath(entity);
+        } else if (entity instanceof Text) {
+            result = parseText((Text) entity);
         } else {
             return null;
         }
@@ -80,32 +96,30 @@ public class UgsDesignWriter implements DesignWriter {
         return result;
     }
 
+    private EntityV1 parseText(Text entity) {
+        EntityTextV1 text = new EntityTextV1();
+        text.setTransform(entity.getTransform());
+        text.setText(entity.getText());
+        text.setFontName(entity.getFontFamily());
+        return text;
+    }
+
     private EntityV1 parsePath(Entity entity) {
         EntityPathV1 path = new EntityPathV1();
-        path.setX(entity.getPosition().getX());
-        path.setY(entity.getPosition().getY());
-        path.setRotation(entity.getRotation());
+        path.setTransform(entity.getTransform());
         path.setSegments(convertPathToSegments(entity));
         return path;
     }
 
     private EntityV1 parseEllipse(Entity entity) {
         EntityEllipseV1 ellipse = new EntityEllipseV1();
-        ellipse.setX(entity.getPosition().getX());
-        ellipse.setY(entity.getPosition().getY());
-        ellipse.setWidth(entity.getRelativeShape().getBounds2D().getWidth());
-        ellipse.setHeight(entity.getRelativeShape().getBounds2D().getHeight());
-        ellipse.setRotation(entity.getRotation());
+        ellipse.setTransform(entity.getTransform());
         return ellipse;
     }
 
     private EntityV1 parseRectangle(Entity entity) {
         EntityRectangleV1 rectangle = new EntityRectangleV1();
-        rectangle.setX(entity.getPosition().getX());
-        rectangle.setY(entity.getPosition().getY());
-        rectangle.setWidth(entity.getRelativeShape().getBounds2D().getWidth());
-        rectangle.setHeight(entity.getRelativeShape().getBounds2D().getHeight());
-        rectangle.setRotation(entity.getRotation());
+        rectangle.setTransform(entity.getTransform());
         return rectangle;
     }
 
@@ -121,8 +135,8 @@ public class UgsDesignWriter implements DesignWriter {
 
     private List<EntityPathSegmentV1> convertPathToSegments(Entity entity) {
         List<EntityPathSegmentV1> segments = new ArrayList<>();
-        Shape shape = entity.getShape();
-        PathIterator pathIterator = shape.getPathIterator(AffineTransform.getRotateInstance(Math.toRadians(Utils.normalizeRotation(entity.getRotation())), shape.getBounds2D().getCenterX(), shape.getBounds2D().getCenterY()));
+        Shape shape = entity.getRelativeShape();
+        PathIterator pathIterator = shape.getPathIterator(new AffineTransform());
         double[] coordinates = new double[8];
         while (!pathIterator.isDone()) {
             Arrays.fill(coordinates, 0);

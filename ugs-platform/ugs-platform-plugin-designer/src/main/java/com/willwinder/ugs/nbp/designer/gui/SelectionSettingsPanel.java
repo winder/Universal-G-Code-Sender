@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -33,13 +34,25 @@ import com.willwinder.ugs.nbp.designer.model.Size;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.swing.*;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultFormatter;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
@@ -55,12 +68,19 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private final JTextField posYTextField;
     private final JLabel cutDepthLabel;
     private final JComboBox<CutType> cutTypeComboBox;
-    private transient Controller controller;
     private final JSpinner depthSpinner;
     private final JTextField heightTextField;
+    private JLabel textLabel;
+    private JComboBox<String> fontDropDown;
+    private JLabel fontLabel;
+    private JSeparator fontSeparator;
+    private JTextField textTextField;
+    private transient Controller controller;
 
     public SelectionSettingsPanel(Controller controller) {
-        setLayout(new MigLayout("fill, wrap 2", "[] 10 [grow]"));
+        setLayout(new MigLayout("fill, wrap 2, hidemode 3", "[sg label] 10 [grow]"));
+
+        addTextSettingFields();
 
         posXTextField = new JTextField("0");
         posXTextField.getDocument().addDocumentListener(this);
@@ -134,6 +154,34 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         this.controller.getSelectionManager().addSelectionListener(this);
         this.controller.getSelectionManager().addListener(this);
         depthSpinner.setModel(new SpinnerNumberModel(controller.getSettings().getStockThickness(), 0d, controller.getSettings().getStockThickness(), 0.1d));
+    }
+
+    private void addTextSettingFields() {
+        textTextField = new JTextField();
+        textTextField.setVisible(false);
+        textTextField.getDocument().addDocumentListener(this);
+        textLabel = new JLabel("Text", SwingConstants.RIGHT);
+        textLabel.setVisible(false);
+
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        String[] fontNames = Arrays.stream(ge.getAvailableFontFamilyNames()).distinct().toArray(String[]::new);
+        fontDropDown = new JComboBox<>(fontNames);
+        fontDropDown.setRenderer(new FontDropDownRenderer());
+        fontDropDown.addItemListener(this);
+        fontDropDown.setVisible(false);
+        Dimension minimumSize = fontDropDown.getMinimumSize();
+        fontDropDown.setMinimumSize(new Dimension(100, minimumSize.height));
+
+        fontLabel = new JLabel("Font", SwingConstants.RIGHT);
+        fontLabel.setVisible(false);
+        fontSeparator = new JSeparator(SwingConstants.HORIZONTAL);
+        fontSeparator.setVisible(false);
+
+        add(textLabel, "grow");
+        add(textTextField, "grow");
+        add(fontLabel, "grow");
+        add(fontDropDown, "grow");
+        add(fontSeparator, "grow, spanx, wrap");
     }
 
     @Override
@@ -226,6 +274,15 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             }
         }
 
+        if (!controller.getSelectionManager().isEmpty()) {
+            Entity entity = controller.getSelectionManager().getSelection().get(0);
+            if (entity instanceof Text) {
+                ((Text) entity).setText(textTextField.getText());
+                ((Text) entity).setFontFamily((String) fontDropDown.getSelectedItem());
+            }
+            controller.getDrawing().repaint();
+        }
+
         controller.getSelectionManager().addListener(this);
     }
 
@@ -236,12 +293,19 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         }
 
         CutType cutType = (CutType) cutTypeComboBox.getSelectedItem();
+        String fontFamily = (String) fontDropDown.getSelectedItem();
         controller.getSelectionManager().getSelection().forEach(selectedEntity -> {
             if (selectedEntity instanceof Cuttable) {
                 Cuttable cuttable = (Cuttable) selectedEntity;
                 ChangeCutSettingsAction changeCutSettingsAction = new ChangeCutSettingsAction(controller, cuttable, (Double) depthSpinner.getValue(), cutType);
                 controller.getUndoManager().addAction(changeCutSettingsAction);
                 changeCutSettingsAction.actionPerformed(null);
+            }
+
+            if (selectedEntity instanceof Text) {
+                // TODO fix undoable action
+                Text text = (Text) selectedEntity;
+                text.setFontFamily(fontFamily);
             }
         });
         onEvent(new EntityEvent(controller.getSelectionManager(), EventType.SETTINGS_CHANGED));
@@ -268,6 +332,16 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             cutDepthLabel.setEnabled(hasCutTypeSelection);
         }
 
+        boolean isTextCuttable = selectedEntity instanceof Text;
+        textTextField.setVisible(isTextCuttable);
+        textLabel.setVisible(isTextCuttable);
+        fontLabel.setVisible(isTextCuttable);
+        fontDropDown.setVisible(isTextCuttable);
+        fontSeparator.setVisible(isTextCuttable);
+        if (isTextCuttable) {
+            setFieldValue(textTextField, ((Text) selectedEntity).getText());
+            setFieldValue(fontDropDown, ((Text) selectedEntity).getFontFamily());
+        }
 
         Point2D position = controller.getSelectionManager().getPosition();
         setFieldValue(posXTextField, Utils.toString(position.getX()));
