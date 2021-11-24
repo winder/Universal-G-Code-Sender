@@ -1,6 +1,5 @@
 package com.willwinder.ugs.nbp.designer.entities;
 
-import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import org.junit.Test;
@@ -86,12 +85,12 @@ public class RectangleTest {
         rectangle.setHeight(10);
 
         assertEquals(new Point2D.Double(20, 20), rectangle.getPosition());
-        assertEquals(new Point2D.Double(30, 30), rectangle.getCenter());
+        assertEquals(new Point2D.Double(25, 25), rectangle.getCenter());
 
         rectangle.move(new Point2D.Double(-5, -5));
 
         assertEquals(new Point2D.Double(15, 15), rectangle.getPosition());
-        assertEquals(new Point2D.Double(25, 25), rectangle.getCenter());
+        assertEquals(new Point2D.Double(20, 20), rectangle.getCenter());
     }
 
     @Test
