@@ -138,6 +138,10 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
                 .collect(Collectors.toList());
     }
 
+    public List<Entity> getChildren() {
+        return entityGroup.getChildren();
+    }
+
     @Override
     public Point2D getCenter() {
         return entityGroup.getCenter();
