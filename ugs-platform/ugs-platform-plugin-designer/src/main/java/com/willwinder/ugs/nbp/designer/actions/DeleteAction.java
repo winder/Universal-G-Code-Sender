@@ -68,15 +68,15 @@ public class DeleteAction extends AbstractAction implements SelectionListener {
 
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);
-        setEnabled(!selectionManager.getSelection().isEmpty());
+        setEnabled(!selectionManager.getChildren().isEmpty());
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         SelectionManager selectionManager = controller.getSelectionManager();
-        if (!selectionManager.getSelection().isEmpty()) {
-            List<Entity> entities = selectionManager.getSelection();
-            UndoableDeleteAction undoableAction = new UndoableDeleteAction(controller.getDrawing(), entities);
+        List<Entity> selection = selectionManager.getChildren();
+        if (!selection.isEmpty()) {
+            UndoableDeleteAction undoableAction = new UndoableDeleteAction(controller.getDrawing(), selection);
             controller.getUndoManager().addAction(undoableAction);
             undoableAction.execute();
         }
@@ -86,7 +86,7 @@ public class DeleteAction extends AbstractAction implements SelectionListener {
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
         SelectionManager selectionManager = controller.getSelectionManager();
-        setEnabled(!selectionManager.getSelection().isEmpty());
+        setEnabled(!selectionManager.getChildren().isEmpty());
     }
 
     /**

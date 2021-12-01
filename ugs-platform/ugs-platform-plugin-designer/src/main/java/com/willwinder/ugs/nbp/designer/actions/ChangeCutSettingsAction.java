@@ -21,9 +21,12 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import org.apache.commons.lang3.time.StopWatch;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Joacim Breiler
@@ -31,16 +34,16 @@ import java.awt.event.ActionEvent;
 public class ChangeCutSettingsAction extends AbstractAction implements UndoableAction {
 
     private final transient Controller controller;
-    private final double previousCutDepth;
-    private final CutType previousCutType;
+    private final List<Double> previousCutDepth;
+    private final List<CutType> previousCutType;
     private final double newCutDepth;
     private final CutType newCutType;
-    private final Cuttable cuttable;
+    private final List<Cuttable> cuttableList;
 
-    public ChangeCutSettingsAction(Controller controller, Cuttable cuttable, double cutDepth, CutType cutType) {
-        this.cuttable = cuttable;
-        previousCutDepth = cuttable.getCutDepth();
-        previousCutType = cuttable.getCutType();
+    public ChangeCutSettingsAction(Controller controller, List<Cuttable> cuttableList, double cutDepth, CutType cutType) {
+        this.cuttableList = cuttableList;
+        previousCutDepth = cuttableList.stream().map(Cuttable::getCutDepth).collect(Collectors.toList());
+        previousCutType = cuttableList.stream().map(Cuttable::getCutType).collect(Collectors.toList());
         newCutDepth = cutDepth;
         newCutType = cutType;
 
@@ -48,6 +51,7 @@ public class ChangeCutSettingsAction extends AbstractAction implements UndoableA
         putValue("menuText", "Change stock settings");
         putValue(NAME, "Change stock settings");
     }
+
     @Override
     public void redo() {
         actionPerformed(null);
@@ -55,16 +59,18 @@ public class ChangeCutSettingsAction extends AbstractAction implements UndoableA
 
     @Override
     public void undo() {
-        cuttable.setCutDepth(previousCutDepth);
-        cuttable.setCutType(previousCutType);
-        cuttable.setCutDepth(previousCutDepth);
+        for (int i = 0; i < cuttableList.size(); i++) {
+            cuttableList.get(i).setCutDepth(previousCutDepth.get(i));
+            cuttableList.get(i).setCutType(previousCutType.get(i));
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        cuttable.setCutDepth(newCutDepth);
-        cuttable.setCutType(newCutType);
-        cuttable.setCutDepth(newCutDepth);
+        for (Cuttable cuttable : cuttableList) {
+            cuttable.setCutDepth(newCutDepth);
+            cuttable.setCutType(newCutType);
+        }
         this.controller.getDrawing().repaint();
     }
 

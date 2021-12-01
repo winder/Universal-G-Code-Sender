@@ -57,6 +57,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Joacim Breiler
@@ -294,20 +296,21 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
         CutType cutType = (CutType) cutTypeComboBox.getSelectedItem();
         String fontFamily = (String) fontDropDown.getSelectedItem();
-        controller.getSelectionManager().getSelection().forEach(selectedEntity -> {
-            if (selectedEntity instanceof Cuttable) {
-                Cuttable cuttable = (Cuttable) selectedEntity;
-                ChangeCutSettingsAction changeCutSettingsAction = new ChangeCutSettingsAction(controller, cuttable, (Double) depthSpinner.getValue(), cutType);
-                controller.getUndoManager().addAction(changeCutSettingsAction);
-                changeCutSettingsAction.actionPerformed(null);
-            }
 
-            if (selectedEntity instanceof Text) {
-                // TODO fix undoable action
-                Text text = (Text) selectedEntity;
-                text.setFontFamily(fontFamily);
-            }
+        List<Cuttable> cuttables = controller.getSelectionManager().getSelection().stream().filter(entity -> entity instanceof Cuttable).map(entity -> (Cuttable) entity).collect(Collectors.toList());
+        if (!cuttables.isEmpty()) {
+            ChangeCutSettingsAction changeCutSettingsAction = new ChangeCutSettingsAction(controller, cuttables, (Double) depthSpinner.getValue(), cutType);
+            changeCutSettingsAction.actionPerformed(null);
+            controller.getUndoManager().addAction(changeCutSettingsAction);
+        }
+
+        controller.getSelectionManager().getSelection().stream()
+                .filter(entity -> entity instanceof Text)
+                .map(entity -> (Text) entity).forEach(text -> {
+            // TODO fix undoable action
+            text.setFontFamily(fontFamily);
         });
+
         onEvent(new EntityEvent(controller.getSelectionManager(), EventType.SETTINGS_CHANGED));
     }
 

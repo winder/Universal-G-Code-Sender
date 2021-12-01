@@ -20,8 +20,6 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
-import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.gcode.path.NumericCoordinate;
 import com.willwinder.ugs.nbp.designer.gcode.path.SegmentType;
@@ -63,7 +61,6 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     @Override
     public void setCutType(CutType cutType) {
         this.cutType = cutType;
-        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 
     @Override
