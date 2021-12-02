@@ -70,24 +70,25 @@ public class BackendInitializerHelper implements UGSEventListener {
             // Only connect if port is available
             Settings settings = SettingsFactory.loadSettings();
             List<String> portNames = ConnectionFactory.getPortNames(settings.getConnectionDriver());
-            if(portNames.contains(port)) {
+            if (portNames.contains(port)) {
                 backend.connect(firmware, port, baudRate);
             }
 
             // TODO Wait until controller is finnished and in state IDLE or ALARM
             Thread.sleep(3000);
 
-            if(backend.isConnected()) {
+            if (backend.isConnected()) {
                 System.out.println("Connected to \"" + backend.getController().getFirmwareVersion() + "\" on " + port + " baud " + baudRate);
+            } else {
+                throw new RuntimeException();
             }
         } catch (Exception e) {
             System.err.println("Couldn't connect to controller with firmware \"" + firmware + "\" on " + port + " baud " + baudRate);
 
             if (StringUtils.isNotEmpty(e.getMessage())) {
                 System.err.println(e.getMessage());
-            } else {
-                e.printStackTrace();
             }
+            System.exit(-1);
         } finally {
             backend.removeUGSEventListener(this);
         }
