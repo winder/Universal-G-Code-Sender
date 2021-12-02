@@ -20,6 +20,7 @@ package com.willwinder.ugs.cli;
 
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -172,7 +173,7 @@ public class TerminalClient {
         try {
             backend.performHomingCycle();
             Thread.sleep(WAIT_DURATION);
-            while (!backend.isIdle()) {
+            while (backend.getController().getControllerStatus().getState() == ControllerState.HOME) {
                 Thread.sleep(10);
             }
         } catch (Exception e) {
