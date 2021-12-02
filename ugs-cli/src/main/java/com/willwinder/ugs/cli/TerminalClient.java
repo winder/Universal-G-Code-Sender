@@ -41,9 +41,9 @@ import java.util.logging.LogManager;
  */
 public class TerminalClient {
 
+    private static final long WAIT_DURATION = 1000L;
     private static final String SOFTWARE_NAME = "ugs-cli";
     private static final String SOFTWARE_DESCRIPTION = "This is a terminal version of Universal Gcode Sender used for sending gcode files to controllers using command line.";
-
     private final Configuration configuration;
     private BackendAPI backend;
     private PendantUI pendantUI;
@@ -150,6 +150,7 @@ public class TerminalClient {
     private void resetAlarm() {
         try {
             backend.killAlarmLock();
+            Thread.sleep(WAIT_DURATION);
         } catch (Exception e) {
             throw new RuntimeException("The alarm couldn't be reset", e);
         }
@@ -170,6 +171,7 @@ public class TerminalClient {
     private void homeMachine() {
         try {
             backend.performHomingCycle();
+            Thread.sleep(WAIT_DURATION);
             while (!backend.isIdle()) {
                 Thread.sleep(10);
             }
@@ -206,19 +208,33 @@ public class TerminalClient {
             backend.setGcodeFile(file);
 
             if (!backend.canSend()) {
-                System.out.println("The controller is in a state where it isn't able to process the file: " + backend.getControlState());
+                System.out.println("The controller is in a state where it isn't able to process the file: " + backend.getController().getControllerStatus().getState());
                 return;
             }
 
-
             backend.send();
+            Thread.sleep(WAIT_DURATION);
 
             while (backend.isSendingFile()) {
-                Thread.sleep(50);
+                if (backend.isPaused()) {
+                    handleResume();
+                } else {
+                    Thread.sleep(50);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException("Couldn't send file", e);
         }
+    }
+
+    private void handleResume() throws Exception {
+        System.out.print("The file stream is paused, press 'ENTER' to resume ");
+        while (System.in.read() != '\n') {
+            Thread.sleep(10);
+        }
+        System.out.println("Resuming...");
+        backend.pauseResume();
+        Thread.sleep(WAIT_DURATION);
     }
 
     /**
