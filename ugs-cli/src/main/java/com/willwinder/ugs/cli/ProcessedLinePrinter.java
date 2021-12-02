@@ -53,8 +53,10 @@ public class ProcessedLinePrinter implements ControllerListener {
 
     @Override
     public void commandSent(GcodeCommand command) {
-        if (command.getCommandNumber() > 0) {
+        if (command.getCommandNumber() > 0 && !command.isGenerated()) {
             System.out.println("#" + command.getCommandNumber() + " - " + command.getOriginalCommandString());
+        } else {
+            System.out.println("> " + command.getOriginalCommandString());
         }
     }
 
