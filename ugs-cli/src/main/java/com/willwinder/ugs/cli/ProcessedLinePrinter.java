@@ -24,7 +24,6 @@ import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * A simple class for printing out commands
@@ -62,7 +61,7 @@ public class ProcessedLinePrinter implements ControllerListener {
 
     @Override
     public void commandComplete(GcodeCommand command) {
-        if (command.getCommandNumber() > 0 && !StringUtils.equalsIgnoreCase(command.getResponse(), "ok")) {
+        if (command.getCommandNumber() > 0 && (command.isError() || command.isSkipped())) {
             System.err.println("#" + command.getCommandNumber() + " - " + command.getOriginalCommandString() + " [" + command.getResponse() + "]");
         }
     }
