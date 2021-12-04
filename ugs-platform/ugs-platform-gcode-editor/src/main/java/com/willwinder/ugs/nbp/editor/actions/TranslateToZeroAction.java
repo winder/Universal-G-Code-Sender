@@ -27,6 +27,8 @@ import org.openide.util.actions.CookieAction;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,6 +46,7 @@ import java.util.stream.Stream;
 })
 public class TranslateToZeroAction extends CookieAction implements UGSEventListener {
 
+    private Logger logger = Logger.getLogger(TranslateToZeroAction.class.getSimpleName());
     public static final String NAME = "Translate to zero";
     public static final String ICON_BASE = "icons/translate.svg";
     public static final double ARC_SEGMENT_LENGTH = 0.5;
@@ -87,6 +90,7 @@ public class TranslateToZeroAction extends CookieAction implements UGSEventListe
                 TranslateProcessor translateProcessor = new TranslateProcessor(lowerLeftCorner);
                 backend.applyCommandProcessor(translateProcessor);
             } catch (Exception ex) {
+                logger.log(Level.SEVERE, "Couldn't translate gcode", ex);
                 GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
             } finally {
                 LoaderDialogHelper.closeDialog();
