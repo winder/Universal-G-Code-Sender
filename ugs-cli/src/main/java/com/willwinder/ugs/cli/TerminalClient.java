@@ -113,7 +113,7 @@ public class TerminalClient {
                 sendFile();
             }
 
-            while (pendantUI != null) {
+            while (configuration.hasOption(OptionEnum.DAEMON) && pendantUI != null) {
                 Thread.sleep(100);
             }
 
