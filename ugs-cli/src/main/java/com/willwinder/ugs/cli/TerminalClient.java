@@ -217,7 +217,7 @@ public class TerminalClient {
             Thread.sleep(WAIT_DURATION);
 
             while (backend.isSendingFile()) {
-                if (backend.isPaused()) {
+                if (backend.getController().getControllerStatus() != null && backend.getController().getControllerStatus().getState() == ControllerState.HOLD) {
                     handleResume();
                 } else {
                     Thread.sleep(50);
