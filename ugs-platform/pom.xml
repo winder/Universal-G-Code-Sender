@@ -4,12 +4,11 @@
     <parent>
         <groupId>com.willwinder.universalgcodesender</groupId>
         <artifactId>ugs-parent</artifactId>
-        <version>2.0-SNAPSHOT</version>
+        <version>${revision}${changelist}</version>
     </parent>
 
     <groupId>com.willwinder</groupId>
     <artifactId>ugs-platform-parent</artifactId>
-    <version>2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ugs-platform-parent</name>
@@ -47,13 +46,9 @@
       <all.clusters>${project.build.directory}/${brandingToken}</all.clusters>
 
       <!--==== Plugin Versions ====-->
-      <ugs.maven-jar-plugin.version>3.2.0</ugs.maven-jar-plugin.version>
-
       <ugs.maven-antrun-plugin.version>1.8</ugs.maven-antrun-plugin.version>
 
       <ugs.nbm-maven-plugin.version>4.4</ugs.nbm-maven-plugin.version>
-
-      <ugs.maven-resources-plugin.version>3.1.0</ugs.maven-resources-plugin.version>
     </properties>
 
     <build>
@@ -98,7 +93,9 @@
         <plugins>
           <!-- Copy and apply filtering on manifest.mf file -->                                                                                   
           <plugin>
-            <artifactId>maven-resources-plugin</artifactId>                                                                                               
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>${ugs.maven-resources-plugin.version}</version>
             <executions>
               <execution>                                                                                                              
                 <id>generate-modules-xml</id>
@@ -125,7 +122,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>build-helper-maven-plugin</artifactId>
-            <version>1.8</version>
+            <version>3.2.0</version>
             <executions>
               <execution>
                 <id>parse-version</id>
@@ -135,7 +132,6 @@
               </execution>
             </executions>
           </plugin>
-
         </plugins>
     </build>
 
