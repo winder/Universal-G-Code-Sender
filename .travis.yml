@@ -25,8 +25,9 @@ script:
   - export REVISION="2.0"
   - export CHANGELIST="-SNAPSHOT"
   # If a travis tag was defined extract the version number and unset the snapshot
-  - if [[ $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then export REVISION=${TRAVIS_TAG:1}; export CHANGELIST="" fi
+  - if [[ $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then export REVISION=${TRAVIS_TAG:1}; export CHANGELIST=""; fi
   # Build using the revision
+  - echo "Building version ${REVISION}${CHANGELIST}"
   - mvn test install -B -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
   - codecov
   # Make sure artifacts can be built
