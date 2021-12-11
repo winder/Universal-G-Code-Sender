@@ -22,7 +22,15 @@ package com.willwinder.ugs.nbp.designer.entities;
  * @author Joacim Breiler
  */
 public class EntityException extends RuntimeException {
+    public EntityException(String s) {
+        super(s);
+    }
+
     public EntityException(Exception e) {
         super(e);
+    }
+
+    public EntityException(String s, Exception e) {
+        super(s, e);
     }
 }

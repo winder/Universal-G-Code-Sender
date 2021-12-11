@@ -18,9 +18,11 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityException;
 
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
@@ -84,5 +86,15 @@ public class Path extends AbstractCuttable {
 
     public void append(Shape s) {
         shape.append(s, true);
+    }
+
+    @Override
+    public Entity copy() {
+        Path path = new Path();
+        path.append(getRelativeShape());
+        path.setTransform(new AffineTransform(getTransform()));
+        path.setCutDepth(getCutDepth());
+        path.setCutType(getCutType());
+        return path;
     }
 }

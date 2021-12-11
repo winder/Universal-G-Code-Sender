@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.selection;
 
+import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.entities.*;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
@@ -38,7 +39,7 @@ import java.util.stream.Stream;
  */
 public class SelectionManager extends AbstractEntity implements EntityListener {
 
-    private final Set<SelectionListener> listeners = new HashSet<>();
+    private final Set<SelectionListener> listeners  = Sets.newConcurrentHashSet();
     private final EntityGroup entityGroup;
 
     public SelectionManager() {
@@ -87,6 +88,14 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
         fireSelectionEvent(new SelectionEvent());
     }
 
+    public void addSelection(List<Entity> entities) {
+        entityGroup.addAll(entities.stream()
+                .filter(entity -> entity != this || !(entity instanceof Control))
+                .collect(Collectors.toList()));
+
+        fireSelectionEvent(new SelectionEvent());
+    }
+
     public void setSelection(List<Entity> entities) {
         List<Entity> selection = entities.stream()
                 .filter(e -> e != this)
@@ -110,14 +119,13 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
 
 
     public void removeSelectionListener(SelectionListener selectionListener) {
-        if (!this.listeners.contains(selectionListener)) {
-            this.listeners.remove(selectionListener);
+        if (!listeners.contains(selectionListener)) {
+            listeners.remove(selectionListener);
         }
     }
 
     private void fireSelectionEvent(SelectionEvent selectionEvent) {
-        new ArrayList<>(this.listeners)
-                .forEach(listener -> listener.
+        listeners.forEach(listener -> listener.
                         onSelectionEvent(selectionEvent));
     }
 
@@ -202,5 +210,10 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
 
     public boolean isEmpty() {
         return entityGroup.getChildren().isEmpty();
+    }
+
+    @Override
+    public Entity copy() {
+        throw new RuntimeException("Not implemented");
     }
 }

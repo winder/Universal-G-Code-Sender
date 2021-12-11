@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
+import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.Throttler;
 import com.willwinder.ugs.nbp.designer.entities.*;
 import com.willwinder.ugs.nbp.designer.entities.controls.*;
@@ -46,7 +47,7 @@ public class Drawing extends JPanel {
     private final transient EntityGroup entitiesRoot;
     private final EntityGroup controlsRoot;
     private double scale;
-    private final transient Set<DrawingListener> listeners = new HashSet<>();
+    private final transient Set<DrawingListener> listeners  = Sets.newConcurrentHashSet();
     private int margin = 100;
     private Throttler refreshThrottler;
 

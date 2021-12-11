@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
@@ -124,5 +125,10 @@ public class GridControl extends AbstractEntity implements Control {
     @Override
     public void onEvent(EntityEvent entityEvent) {
 
+    }
+
+    @Override
+    public Entity copy() {
+        throw new RuntimeException("Not implemented");
     }
 }

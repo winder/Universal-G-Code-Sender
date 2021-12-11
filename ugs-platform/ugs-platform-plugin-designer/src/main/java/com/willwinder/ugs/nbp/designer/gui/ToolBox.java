@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.designer.actions.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 
@@ -103,14 +104,22 @@ public class ToolBox extends JToolBar {
 
         addSeparator();
 
+        JButton multiply = new JButton(new MultiplyAction(controller));
+        multiply.setText("");
+        multiply.setToolTipText("Multiplies the selection");
+        multiply.setBorderPainted(false);
+        add(multiply);
+
+        addSeparator();
+
         add(Box.createRigidArea(new Dimension(10, 10)));
         add(Box.createHorizontalGlue());
 
         JSlider zoomSlider = new JSlider(1, 2000, 400);
-        zoomSlider.addChangeListener(event -> {
+        zoomSlider.addChangeListener(event -> ThreadHelper.invokeLater(() -> {
             double scale = ((double) zoomSlider.getValue()) / 100d;
             controller.getDrawing().setScale(scale);
-        });
+        }));
         zoomSlider.setValue((int) (controller.getDrawing().getScale() * 100));
 
         zoomSlider.setMaximumSize(new Dimension(100, 32));
