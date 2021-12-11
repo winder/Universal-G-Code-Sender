@@ -1,14 +1,14 @@
 package com.willwinder.ugs.nbp.designer.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.gcode.path.*;
-import org.locationtech.jts.geom.CoordinateSequence;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LinearRing;
+import com.willwinder.ugs.nbp.designer.gcode.path.Coordinate;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,37 +79,8 @@ public abstract class AbstractToolPath implements PathGenerator {
         gcodePath.addSegment(SegmentType.MOVE, new NumericCoordinate(0d));
     }
 
-    protected LinearRing pathToLinearRing(GcodePath gcodePath) {
-        List<org.locationtech.jts.geom.Coordinate> coordinateList = gcodePath.getSegments().stream()
-                .map(segment -> pointToCoordinate(segment.getPoint()))
-                .collect(Collectors.toList());
-
-        coordinateList.add(pointToCoordinate(gcodePath.getSegments().get(0).getPoint()));
-
-        CoordinateSequence points = new CoordinateArraySequence(coordinateList.toArray(new org.locationtech.jts.geom.Coordinate[]{}));
-        GeometryFactory factory = new GeometryFactory();
-        return new LinearRing(points, factory);
-    }
-
-    private org.locationtech.jts.geom.Coordinate pointToCoordinate(com.willwinder.ugs.nbp.designer.gcode.path.Coordinate point) {
-        return new org.locationtech.jts.geom.Coordinate(point.get(Axis.X), point.get(Axis.Y), point.get(Axis.Z));
-    }
-
     public GeometryFactory getGeometryFactory() {
         return geometryFactory;
-    }
-
-    protected List<NumericCoordinate> geometryToCoordinates(Geometry geometry) {
-        org.locationtech.jts.geom.Coordinate[] coordinates = geometry.getCoordinates();
-        return Arrays.stream(coordinates)
-                .map(c -> new NumericCoordinate(c.getX(), c.getY(), c.getZ()))
-                .collect(Collectors.toList());
-    }
-
-    protected Geometry simplifyGeometry(Geometry bufferedGeometry) {
-        DouglasPeuckerSimplifier simplifier = new DouglasPeuckerSimplifier(bufferedGeometry);
-        simplifier.setDistanceTolerance(0.01);
-        return simplifier.getResultGeometry();
     }
 
     protected GcodePath toGcodePath(List<List<NumericCoordinate>> coordinateList) {

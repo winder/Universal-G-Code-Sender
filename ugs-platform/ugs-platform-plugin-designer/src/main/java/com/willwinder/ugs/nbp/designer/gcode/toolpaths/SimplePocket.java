@@ -30,6 +30,8 @@ import org.locationtech.jts.geom.Polygon;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.willwinder.ugs.nbp.designer.gcode.toolpaths.ToolPathUtils.*;
+
 /**
  * @author Joacim Breiler
  */
@@ -96,17 +98,7 @@ public class SimplePocket extends AbstractToolPath {
         return toGcodePath(coordinateList);
     }
 
-    private List<Geometry> toGeometryList(Geometry geometry) {
-        if (geometry instanceof MultiPolygon) {
-            List<Geometry> geometryList = new ArrayList<>();
-            for (int i = 0; i < geometry.getNumGeometries(); i++) {
-                geometryList.add(geometry.getGeometryN(i));
-            }
-            return geometryList;
-        }
 
-        return Collections.singletonList(geometry);
-    }
 
     public void setStepOver(double stepOver) {
         this.stepOver = Math.min(Math.max(0.01, Math.abs(stepOver)), 1.0);
