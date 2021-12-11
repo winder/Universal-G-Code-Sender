@@ -20,7 +20,9 @@ package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
+import com.willwinder.ugs.nbp.designer.gcode.path.Coordinate;
 
+import java.awt.geom.Point2D;
 import java.util.List;
 
 /**
@@ -36,10 +38,13 @@ public class EntityPathV1 extends CuttableEntityV1 {
     @Override
     public Entity toInternal() {
         Path path = new Path();
+        final Point2D latestMoveTo = new Point2D.Double();
         getSegments().forEach(segment -> {
             switch(segment.getType()) {
                 case MOVE_TO:
                     path.moveTo(segment.getCoordinates().get(0)[0], segment.getCoordinates().get(0)[1]);
+                    latestMoveTo.setLocation(new Point2D.Double(segment.getCoordinates().get(0)[0], segment.getCoordinates().get(0)[1]));
+                    break;
                 case LINE_TO:
                     path.lineTo(segment.getCoordinates().get(0)[0], segment.getCoordinates().get(0)[1]);
                     break;
@@ -48,6 +53,9 @@ public class EntityPathV1 extends CuttableEntityV1 {
                     break;
                 case CUBIC_TO:
                     path.curveTo(segment.getCoordinates().get(0)[0], segment.getCoordinates().get(0)[1], segment.getCoordinates().get(1)[0], segment.getCoordinates().get(1)[1], segment.getCoordinates().get(2)[0], segment.getCoordinates().get(2)[1]);
+                    break;
+                case CLOSE:
+                    path.lineTo(latestMoveTo.getX(), latestMoveTo.getY());
             }
         });
         applyCommonAttributes(path);

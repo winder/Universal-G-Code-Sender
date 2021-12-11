@@ -19,12 +19,17 @@
 package com.willwinder.ugs.nbp.designer.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.gcode.path.*;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.willwinder.ugs.nbp.designer.gcode.toolpaths.ToolPathUtils.*;
 
 /**
  * @author Joacim Breiler
@@ -50,28 +55,31 @@ public class SimplePath extends AbstractToolPath {
         List<List<NumericCoordinate>> coordinateList = new ArrayList<>();
         for (GcodePath path : sources) {
             GcodePath sourcePath = path.toGcodePath();
-            if(sourcePath.getSize() < 4) {
+            if (sourcePath.getSize() < 4) {
                 continue;
             }
 
             LinearRing linearRing = pathToLinearRing(sourcePath);
             Polygon polygon = new Polygon(linearRing, new LinearRing[0], getGeometryFactory());
+            List<Geometry> geometries = toGeometryList(polygon.buffer(offset));
 
-            List<NumericCoordinate> geometryCoordinates = geometryToCoordinates(polygon.buffer(offset));
+            geometries.forEach(geometry -> {
+                List<NumericCoordinate> geometryCoordinates = geometryToCoordinates(geometry);
 
-            double currentDepth = 0;
-            while (currentDepth < getTargetDepth()) {
+                double currentDepth = 0;
+                while (currentDepth < getTargetDepth()) {
 
-                currentDepth += getDepthPerPass();
-                if(currentDepth > getTargetDepth()) {
-                    currentDepth = getTargetDepth();
+                    currentDepth += getDepthPerPass();
+                    if (currentDepth > getTargetDepth()) {
+                        currentDepth = getTargetDepth();
+                    }
+
+                    final double depth = -currentDepth;
+                    coordinateList.add(geometryCoordinates.stream()
+                            .map(numericCoordinate -> new NumericCoordinate(numericCoordinate.get(Axis.X), numericCoordinate.get(Axis.Y), depth))
+                            .collect(Collectors.toList()));
                 }
-
-                final double depth = -currentDepth;
-                coordinateList.add(geometryCoordinates.stream()
-                        .map(numericCoordinate -> new NumericCoordinate(numericCoordinate.get(Axis.X), numericCoordinate.get(Axis.Y), depth))
-                        .collect(Collectors.toList()));
-            }
+            });
         }
 
         return toGcodePath(coordinateList);
