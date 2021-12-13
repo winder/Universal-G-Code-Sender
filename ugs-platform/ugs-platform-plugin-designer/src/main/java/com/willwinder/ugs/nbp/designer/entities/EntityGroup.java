@@ -34,7 +34,7 @@ import java.util.stream.Stream;
  * @author Joacim Breiler
  */
 public class EntityGroup extends AbstractEntity implements EntityListener {
-    private List<Entity> children = new ArrayList<>();
+    private final List<Entity> children = Collections.synchronizedList(new ArrayList<>());
 
     private double groupRotation = 0;
     private Point2D cachedCenter = new Point2D.Double(0, 0);
@@ -62,7 +62,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
             getAllChildren().forEach(entity -> entity.rotate(getCenter(), angle));
             notifyEvent(new EntityEvent(this, EventType.ROTATED));
         } catch (Exception e) {
-            throw new RuntimeException("Couldn't set the rotation", e);
+            throw new EntityException("Couldn't set the rotation", e);
         }
     }
 
@@ -74,7 +74,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
             notifyEvent(new EntityEvent(this, EventType.ROTATED));
             invalidateCenter();
         } catch (Exception e) {
-            throw new RuntimeException("Couldn't set the rotation", e);
+            throw new EntityException("Couldn't set the rotation", e);
         }
     }
 
@@ -93,7 +93,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         try {
             return getTransform().createInverse().createTransformedShape(getShape());
         } catch (NoninvertibleTransformException e) {
-            throw new RuntimeException("Could not create inverse transformer");
+            throw new EntityException("Could not create inverse transformer");
         }
     }
 
@@ -139,7 +139,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
             notifyEvent(new EntityEvent(this, EventType.MOVED));
             invalidateCenter();
         } catch (Exception e) {
-            throw new RuntimeException("Could not make inverse transform of point", e);
+            throw new EntityException("Could not make inverse transform of point", e);
         }
     }
 
@@ -168,11 +168,6 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     public void destroy() {
         super.destroy();
         children.forEach(Entity::destroy);
-    }
-
-    public void removeAll(List<? extends Entity> entities) {
-        entities.forEach(entity -> entity.removeListener(this));
-        this.children.removeAll(entities);
     }
 
     public void removeAll() {
@@ -277,5 +272,12 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     @Override
     public void onEvent(EntityEvent entityEvent) {
         notifyEvent(entityEvent);
+    }
+
+    @Override
+    public Entity copy() {
+        EntityGroup group = new EntityGroup();
+        getChildren().stream().map(Entity::copy).forEach(group::addChild);
+        return group;
     }
 }

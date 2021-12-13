@@ -18,7 +18,10 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 
 /**
@@ -41,5 +44,14 @@ public class Ellipse extends AbstractCuttable {
     @Override
     public Shape getRelativeShape() {
         return shape;
+    }
+
+    @Override
+    public Entity copy() {
+        Ellipse ellipse = new Ellipse();
+        ellipse.setTransform(new AffineTransform(getTransform()));
+        ellipse.setCutDepth(getCutDepth());
+        ellipse.setCutType(getCutType());
+        return ellipse;
     }
 }

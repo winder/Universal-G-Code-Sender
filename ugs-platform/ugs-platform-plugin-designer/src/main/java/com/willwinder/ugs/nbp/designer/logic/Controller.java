@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.logic;
 
+import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.actions.AddAction;
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
@@ -28,7 +29,7 @@ import com.willwinder.ugs.nbp.designer.model.Settings;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -38,7 +39,7 @@ public class Controller {
 
     private final SelectionManager selectionManager;
     private final Settings settings = new Settings();
-    private final Set<ControllerListener> listeners = new HashSet<>();
+    private final Set<ControllerListener> listeners = Sets.newConcurrentHashSet();
     private final UndoManager undoManager;
     private Drawing drawing;
     private Tool tool;
@@ -54,6 +55,13 @@ public class Controller {
     public void addEntity(Entity s) {
         AddAction add = new AddAction(this, s);
         add.execute();
+        undoManager.addAction(add);
+    }
+
+    public void addEntities(List<Entity> s) {
+        AddAction add = new AddAction(this, s);
+        add.execute();
+        undoManager.addAction(add);
     }
 
     public Drawing getDrawing() {

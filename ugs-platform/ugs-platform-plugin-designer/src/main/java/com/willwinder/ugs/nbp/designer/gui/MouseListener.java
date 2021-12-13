@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
+import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -27,7 +28,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -41,10 +41,10 @@ import java.util.Set;
  */
 public class MouseListener extends MouseAdapter {
 
-    private Controller controller;
+    private final Controller controller;
+    private final Set<Control> hoveredControls = Sets.newConcurrentHashSet();
     private Point2D startPos;
     private Point2D lastPos;
-    private Set<Control> hoveredControls;
     private Control selectedControl;
 
     /**
@@ -55,7 +55,6 @@ public class MouseListener extends MouseAdapter {
      */
     public MouseListener(Controller controller) {
         this.controller = controller;
-        this.hoveredControls = new HashSet<>();
     }
 
     @Override

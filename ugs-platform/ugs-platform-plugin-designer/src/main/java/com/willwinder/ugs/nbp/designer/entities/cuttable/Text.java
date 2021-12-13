@@ -1,5 +1,6 @@
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.Font;
@@ -62,5 +63,16 @@ public class Text extends AbstractCuttable {
     public void setFontFamily(String fontFamily) {
         this.fontFamily = fontFamily;
         regenerateShape();
+    }
+
+    @Override
+    public Entity copy() {
+        Text text = new Text();
+        text.setText(getText());
+        text.setFontFamily(getFontFamily());
+        text.setCutDepth(getCutDepth());
+        text.setCutType(getCutType());
+        text.setTransform(new AffineTransform(getTransform()));
+        return text;
     }
 }

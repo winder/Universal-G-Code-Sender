@@ -1,5 +1,6 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
+import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import org.openide.awt.UndoRedo;
 
@@ -8,17 +9,16 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
-public class UndoManagerAdapter implements UndoRedo {
+public class
+UndoManagerAdapter implements UndoRedo {
 
     private final UndoManager undoManager;
-    private final List<ChangeListener> listeners;
+    private final Set<ChangeListener> listeners = Sets.newConcurrentHashSet();
 
     public UndoManagerAdapter(UndoManager undoManager) {
         this.undoManager = undoManager;
-        this.listeners = new ArrayList<>();
 
         undoManager.addListener(() ->
                 listeners.forEach(l ->

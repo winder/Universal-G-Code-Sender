@@ -1,5 +1,6 @@
 package com.willwinder.ugs.nbp.designer.model;
 
+import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.logic.SettingsListener;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -8,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Settings {
-    private Set<SettingsListener> listeners = new HashSet<>();
+    private Set<SettingsListener> listeners = Sets.newConcurrentHashSet();
     private int feedSpeed = 1000;
     private int plungeSpeed = 400;
     private double toolDiameter = 3d;

@@ -23,6 +23,8 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * AddAction implements a single undoable action where an entity is added to a
@@ -33,22 +35,33 @@ import java.awt.event.ActionEvent;
 public class AddAction extends AbstractAction implements DrawAction, UndoableAction {
 
     private final transient Controller controller;
-    private final transient Entity entity;
+    private final transient List<Entity> entities;
 
     /**
      * Creates an AddAction that adds the given Entity to the given Drawing.
      *
      * @param controller the controller for the drawing.
-     * @param entity   the shape to be added.
+     * @param entity     the entity to be added.
      */
     public AddAction(Controller controller, Entity entity) {
         this.controller = controller;
-        this.entity = entity;
+        this.entities = Collections.singletonList(entity);
+    }
+
+    /**
+     * Creates an AddAction that adds the given Entity to the given Drawing.
+     *
+     * @param controller the controller for the drawing.
+     * @param entities   the entities to be added.
+     */
+    public AddAction(Controller controller, List<Entity> entities) {
+        this.controller = controller;
+        this.entities = entities;
     }
 
     public void execute() {
         controller.getSelectionManager().clearSelection();
-        controller.getDrawing().insertEntity(entity);
+        controller.getDrawing().insertEntities(entities);
     }
 
     public void redo() {
@@ -57,7 +70,7 @@ public class AddAction extends AbstractAction implements DrawAction, UndoableAct
 
     public void undo() {
         controller.getSelectionManager().clearSelection();
-        controller.getDrawing().removeEntity(entity);
+        controller.getDrawing().removeEntities(entities);
     }
 
     @Override
@@ -68,6 +81,10 @@ public class AddAction extends AbstractAction implements DrawAction, UndoableAct
 
     @Override
     public String toString() {
-        return "add entity";
+        if (entities.size() > 1) {
+            return "add entities";
+        } else {
+            return "add entity";
+        }
     }
 }

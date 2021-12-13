@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.entities;
 
+import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
@@ -25,7 +26,6 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -33,7 +33,7 @@ import java.util.Set;
  */
 public abstract class AbstractEntity implements Entity {
 
-    private Set<EntityListener> listeners = new HashSet<>();
+    private final Set<EntityListener> listeners = Sets.newConcurrentHashSet();
 
     private AffineTransform transform = new AffineTransform();
     private String name = "AbstractEntity";
@@ -156,7 +156,7 @@ public abstract class AbstractEntity implements Entity {
             transform.preConcatenate(AffineTransform.getTranslateInstance(deltaMovement.getX(), deltaMovement.getY()));
             notifyEvent(new EntityEvent(this, EventType.MOVED));
         } catch (Exception e) {
-            throw new RuntimeException("Could not make inverse transform of point", e);
+            throw new EntityException("Could not make inverse transform of point", e);
         }
     }
 
@@ -195,7 +195,6 @@ public abstract class AbstractEntity implements Entity {
             rotate(deltaRotation);
         }
     }
-
 
     @Override
     public void rotate(Point2D center, double angle) {
