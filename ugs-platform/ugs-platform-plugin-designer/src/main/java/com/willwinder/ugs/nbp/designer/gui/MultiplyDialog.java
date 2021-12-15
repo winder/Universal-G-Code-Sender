@@ -21,7 +21,6 @@ package com.willwinder.ugs.nbp.designer.gui;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -112,6 +111,7 @@ public class MultiplyDialog extends JDialog implements ChangeListener, WindowLis
         okButton = new JButton("OK");
         buttonPanel.add(okButton);
         add(buttonPanel, "dock south");
+        getRootPane().setDefaultButton(okButton);
     }
 
     private void onCancel() {

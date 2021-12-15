@@ -21,7 +21,6 @@ package com.willwinder.ugs.nbp.designer.gui;
 import com.willwinder.ugs.nbp.designer.actions.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
-import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -127,11 +126,12 @@ public class ToolBox extends JToolBar {
 
         add(Box.createHorizontalStrut(6));
         PanelButton toolButton = new PanelButton("Tool", controller.getSettings().getToolDescription());
+        controller.getSettings().addListener(() -> toolButton.setText(controller.getSettings().getToolDescription()));
         toolButton.addActionListener(e -> {
             ToolSettingsPanel toolSettingsPanel = new ToolSettingsPanel(controller);
             DialogDescriptor dialogDescriptor = new DialogDescriptor(toolSettingsPanel, "Tool settings", true, null);
             if (DialogDisplayer.getDefault().notify(dialogDescriptor) == OK_OPTION) {
-                ChangeToolSettingsAction changeStockSettings = new ChangeToolSettingsAction(controller, toolSettingsPanel.getToolDiameter(), toolSettingsPanel.getFeedSpeed(), toolSettingsPanel.getPlungeSpeed(), toolSettingsPanel.getDepthPerPass(), toolSettingsPanel.getStepOver());
+                ChangeToolSettingsAction changeStockSettings = new ChangeToolSettingsAction(controller, toolSettingsPanel.getSettings());
                 changeStockSettings.actionPerformed(null);
                 controller.getUndoManager().addAction(changeStockSettings);
                 toolButton.setText(controller.getSettings().getToolDescription());
@@ -141,6 +141,7 @@ public class ToolBox extends JToolBar {
 
         add(Box.createHorizontalStrut(6));
         PanelButton stockButton = new PanelButton("Stock", controller.getSettings().getStockSizeDescription());
+        controller.getSettings().addListener(() -> stockButton.setText(controller.getSettings().getStockSizeDescription()));
         stockButton.addActionListener(e -> {
             StockSettingsPanel stockSettingsPanel = new StockSettingsPanel(controller);
             DialogDescriptor dialogDescriptor = new DialogDescriptor(stockSettingsPanel, "Stock settings", true, null);
@@ -153,11 +154,6 @@ public class ToolBox extends JToolBar {
             }
         });
         add(stockButton);
-        controller.getSettings().addListener(() -> {
-            double thickness = controller.getSettings().getStockThickness();
-            stockButton.setText(Utils.formatter.format(thickness));
-        });
-
 
         ButtonGroup buttons = new ButtonGroup();
         buttons.add(select);
