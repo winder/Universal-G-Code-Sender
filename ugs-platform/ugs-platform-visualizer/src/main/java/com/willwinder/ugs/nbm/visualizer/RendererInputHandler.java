@@ -22,8 +22,8 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
-import com.willwinder.ugs.nbm.visualizer.shared.RotationService;
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
+import com.willwinder.ugs.nbm.visualizer.shared.RotationService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -33,6 +33,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
@@ -42,7 +43,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
-import javax.swing.SwingUtilities;
 
 /**
  * Process all the listeners and call methods in the renderer.
@@ -118,17 +118,17 @@ public class RendererInputHandler implements
     public void UGSEvent(UGSEvent cse) {
         if (cse.isFileChangeEvent()) {
             animator.pause();
-
-            switch (cse.getFileState()) {
+            FileStateEvent fileStateEvent = (FileStateEvent) cse;
+            switch (fileStateEvent.getFileState()) {
                 case FILE_LOADED:
-                    setGcodeFile(cse.getFile());
+                    setGcodeFile(fileStateEvent.getFile());
                     break;
             }
 
             animator.resume();
         }
 
-        if(cse.isSettingChangeEvent()) {
+        if (cse.isSettingChangeEvent()) {
             sizeDisplay.setUnits(settings.getPreferredUnits());
         }
     }

@@ -173,7 +173,7 @@ public class TerminalClient {
         try {
             backend.performHomingCycle();
             Thread.sleep(WAIT_DURATION);
-            while (backend.getController().getControllerStatus().getState() == ControllerState.HOME) {
+            while (backend.getControllerState() == ControllerState.HOME) {
                 Thread.sleep(10);
             }
         } catch (Exception e) {
@@ -209,7 +209,7 @@ public class TerminalClient {
             backend.setGcodeFile(file);
 
             if (!backend.canSend()) {
-                System.out.println("The controller is in a state where it isn't able to process the file: " + backend.getController().getControllerStatus().getState());
+                System.out.println("The controller is in a state where it isn't able to process the file: " + backend.getControllerState());
                 return;
             }
 
@@ -217,7 +217,7 @@ public class TerminalClient {
             Thread.sleep(WAIT_DURATION);
 
             while (backend.isSendingFile()) {
-                if (backend.getController().getControllerStatus() != null && backend.getController().getControllerStatus().getState() == ControllerState.HOLD) {
+                if (backend.getControllerState() == ControllerState.HOLD) {
                     handleResume();
                 } else {
                     Thread.sleep(50);

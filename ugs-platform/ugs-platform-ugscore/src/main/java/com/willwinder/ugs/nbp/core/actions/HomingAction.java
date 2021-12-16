@@ -23,9 +23,11 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -70,7 +72,7 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse.isStateChangeEvent()) {
+        if (cse instanceof ControllerStateEvent) {
             java.awt.EventQueue.invokeLater(() -> {
                 updateToolTip();
                 setEnabled(isEnabled());
@@ -83,7 +85,8 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
         return backend.getController() != null &&
                 backend.getController().getFirmwareSettings() != null &&
                 backend.isIdle() &&
-                isHomingEnabled();
+                (backend.getControllerState() == ControllerState.IDLE || backend.getControllerState() == ControllerState.ALARM) &&
+        isHomingEnabled();
     }
 
     private boolean isHomingEnabled() {

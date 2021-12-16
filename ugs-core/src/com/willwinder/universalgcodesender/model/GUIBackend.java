@@ -32,8 +32,11 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.*;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UGSEvent.EventType;
-import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
+import com.willwinder.universalgcodesender.model.events.AlarmEvent;
+import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.*;
@@ -66,11 +69,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     private IController controller = null;
     private Settings settings = null;
-    private Position machineCoord = null;
-    private Position workCoord = null;
 
     private final Collection<ControllerListener> controllerListeners = new ArrayList<>();
-    private final Collection<UGSEventListener> ugsEventListener = new ArrayList<>();
+    private final Collection<UGSEventListener> ugsEventListener = Collections.synchronizedList(new ArrayList<>());
     private final Collection<ControllerStateListener> controllerStateListener = new ArrayList<>();
 
     // GUI State
@@ -82,8 +83,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private long lastResponse = Long.MIN_VALUE;
     private boolean streamFailed = false;
     private boolean autoconnect = false;
-    
+
     private GcodeParser gcp = new GcodeParser();
+    private ControllerStatus controllerStatus = new ControllerStatus();
 
     @Override
     public void addUGSEventListener(UGSEventListener listener) {
@@ -161,7 +163,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             preprocessAndExportToFile(this.gcp, this.getGcodeFile(), gcw);
         }
     }
-    
+
     /**
      * Special utility to loop over a gcode file and apply any modifications made by a gcode parser. The results are
      * stored in a GcodeStream formatted file.
@@ -240,10 +242,11 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         logger.log(Level.FINEST, "Is connected: {0}", isConnected);
         return isConnected;
     }
-    
+
     @Override
     public void disconnect() throws Exception {
         autoconnect = false;
+        controllerStatus = new ControllerStatus();
         disconnectInternal();
     }
 
@@ -389,12 +392,17 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public Position getWorkPosition() {
-        return this.workCoord;
+        return controllerStatus.getWorkCoord();
     }
 
     @Override
     public Position getMachinePosition() {
-        return this.machineCoord;
+        return controllerStatus.getMachineCoord();
+    }
+
+    @Override
+    public ControllerState getControllerState() {
+        return controllerStatus.getState();
     }
 
     @Override
@@ -404,7 +412,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         }
         return null;
     }
-    
+
     @Override
     public IController getController() {
         logger.log(Level.FINEST, "Getting controller");
@@ -421,7 +429,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void setGcodeFile(File file) throws Exception {
         logger.log(Level.INFO, "Setting gcode file.");
-        this.sendUGSEvent(new UGSEvent(FileState.OPENING_FILE, file.getAbsolutePath()), false);
+        this.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE, file.getAbsolutePath()), false);
         initGcodeParser();
         this.gcodeFile = file;
         processGcodeFile();
@@ -430,19 +438,19 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void reloadGcodeFile() throws Exception {
         logger.log(Level.INFO, "Reloading gcode file.");
-        this.sendUGSEvent(new UGSEvent(FileState.OPENING_FILE, gcodeFile.getAbsolutePath()), false);
+        this.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE, gcodeFile.getAbsolutePath()), false);
         processGcodeFile();
     }
 
     private void processGcodeFile() throws Exception {
         this.processedGcodeFile = null;
 
-        this.sendUGSEvent(new UGSEvent(FileState.FILE_LOADING,
+        this.sendUGSEvent(new FileStateEvent(FileState.FILE_LOADING,
                 this.gcodeFile.getAbsolutePath()), false);
 
         initializeProcessedLines(true, this.gcodeFile, this.gcp);
 
-        this.sendUGSEvent(new UGSEvent(FileState.FILE_LOADED,
+        this.sendUGSEvent(new FileStateEvent(FileState.FILE_LOADED,
                 processedGcodeFile.getAbsolutePath()), false);
     }
 
@@ -531,7 +539,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         logger.log(Level.INFO, "Getting processed gcode file.");
         return this.processedGcodeFile;
     }
-    
+
     @Override
     public void send() throws Exception {
         logger.log(Level.INFO, "Sending gcode file.");
@@ -549,13 +557,13 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             throw new Exception(Localization.getString("mainWindow.error.startingStream"), e);
         }
     }
-    
+
     @Override
     public long getNumRows() {
         logger.log(Level.FINEST, "Getting number of rows.");
         return controller == null ? 0 : this.controller.rowsInSend();
     }
-    
+
     @Override
     public long getNumSentRows() {
         logger.log(Level.FINEST, "Getting number of sent rows.");
@@ -577,7 +585,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public long getSendDuration() {
         return controller == null ? 0 : controller.getSendDuration();
     }
-    
+
     @Override
     public long getSendRemainingDuration() {
         long completedRows = getNumCompletedRows();
@@ -617,7 +625,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             throw new Exception(Localization.getString("mainWindow.error.pauseResume"));
         }
     }
-    
+
     @Override
     public String getPauseResumeText() {
         if (isPaused())
@@ -625,7 +633,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         else
             return Localization.getString("mainWindow.ui.pauseButton");
     }
-    
+
     @Override
     public boolean isActive() {
         return this.controller != null && !isIdle();
@@ -640,12 +648,12 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public boolean isIdle() {
         return this.controller != null && controller.isIdle();
     }
-    
+
     @Override
     public boolean isPaused() {
         return this.controller != null && this.controller.isPaused();
     }
-    
+
     @Override
     public boolean canPause() {
         return this.controller != null && isConnected() && !isIdle() && !isPaused();
@@ -655,14 +663,14 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public boolean canCancel() {
         return canPause() || isPaused();
     }
-    
+
     @Override
     public boolean canSend() {
         return isIdle() &&
-                controller != null && controller.getControllerStatus() != null && controller.getControllerStatus().getState() == ControllerState.IDLE &&
+                (getControllerState() == ControllerState.IDLE || getControllerState() == ControllerState.CHECK) &&
                 this.gcodeFile != null;
     }
-    
+
     @Override
     public void cancel() throws Exception {
         if (this.canCancel()) {
@@ -685,27 +693,27 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public void resetCoordinateToZero(Axis coordinate) throws Exception {
         this.controller.resetCoordinateToZero(coordinate);
     }
-    
+
     @Override
     public void killAlarmLock() throws Exception {
         this.controller.killAlarmLock();
     }
-    
+
     @Override
     public void performHomingCycle() throws Exception {
         this.controller.performHomingCycle();
     }
-    
+
     @Override
     public void toggleCheckMode() throws Exception {
         this.controller.toggleCheckMode();
     }
-    
+
     @Override
     public void issueSoftReset() throws Exception {
         this.controller.issueSoftReset();
     }
-    
+
     @Override
     public void requestParserState() throws Exception {
         this.controller.viewParserState();
@@ -722,12 +730,12 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        this.sendUGSEvent(new UGSEvent(FileState.FILE_STREAM_COMPLETE, filename), false);
+        this.sendUGSEvent(new FileStateEvent(FileState.FILE_STREAM_COMPLETE, filename), false);
     }
 
     @Override
     public void receivedAlarm(Alarm alarm) {
-        this.sendUGSEvent(new UGSEvent(alarm), true);
+        this.sendUGSEvent(new AlarmEvent(alarm), true);
     }
 
     @Override
@@ -753,16 +761,22 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void statusStringListener(ControllerStatus status) {
-        this.machineCoord = status.getMachineCoord();
-        this.workCoord = status.getWorkCoord();
         this.lastResponse = System.currentTimeMillis();
-        this.sendControllerStateEvent(new UGSEvent(status));
+        ControllerStatus oldStatus = this.controllerStatus;
+        this.controllerStatus = status;
+        if (oldStatus.getState() != status.getState()) {
+            sendUGSEvent(new ControllerStateEvent(status.getState(), oldStatus.getState()), true);
+        }
+
+        if (oldStatus != status) {
+            this.sendControllerStateEvent(new UGSEvent(status));
+        }
     }
-    
+
     ///////////////////////
     // Utility functions //
     ///////////////////////
-    
+
     /**
      * This would be static but I want to define it in the interface.
      * @param settings Settings to apply to the controller.
@@ -792,7 +806,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                     .append(Localization.getString("firmware.feature.linesToArc")).append(NEW_LINE)
                     .append(Localization.getString("firmware.feature.statusUpdates")).append(NEW_LINE)
                     .append(Localization.getString("firmware.feature.statusUpdateRate"));
-            
+
             throw new Exception(message.toString(), ex);
         }
     }
@@ -838,12 +852,12 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     ////////////////////////
     // Private functions. //
     ////////////////////////
-    
+
     private boolean openCommConnection(String port, int baudRate) throws Exception {
         boolean connected;
         try {
             connected = controller.openCommPort(settings.getConnectionDriver(), port, baudRate);
-            
+
             this.initializeProcessedLines(false, this.gcodeFile, this.gcp);
         } catch (Exception e) {
             logger.log(Level.INFO, "Exception in openCommConnection.", e);
@@ -887,7 +901,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             logger.info("Took " + (end - start) + "ms to preprocess");
         }
     }
-    
+
     private void sendUGSEvent(UGSEvent event, boolean force) {
         if (event.isControllerStatusEvent()) return;
 

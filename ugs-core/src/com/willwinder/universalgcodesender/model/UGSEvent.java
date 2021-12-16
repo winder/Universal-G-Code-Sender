@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender.model;
 
-import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -30,13 +29,9 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 public class UGSEvent {
     private final EventType evt;
-    private Alarm alarm;
     private ControlState controlState = null;
-    private GcodeState gcodeState = null;
-    private FileState fileState = null;
     private Position probePosition = null;
     private ControllerStatus controllerStatus = null;
-    private String file = null;
 
     public enum EventType {
         STATE_EVENT,
@@ -45,17 +40,13 @@ public class UGSEvent {
         FIRMWARE_SETTING_EVENT,
         PROBE_EVENT,
         CONTROLLER_STATUS_EVENT,
-        GCODE_STATE_EVENT,
-        ALARM_EVENT
+        ALARM_EVENT,
+        /**
+         * An event type intended to be used to get controller state changes
+         */
+        CONTROLLER_STATE_EVENT
     }
 
-    public enum FileState {
-        OPENING_FILE,
-        FILE_LOADING,
-        FILE_LOADED,
-        FILE_STREAM_COMPLETE
-    }
-        
     public enum ControlState {
         COMM_DISCONNECTED,
         COMM_IDLE,
@@ -102,7 +93,6 @@ public class UGSEvent {
         evt = type;
         switch (evt) {
             case STATE_EVENT:
-            case FILE_EVENT:
             case PROBE_EVENT:
             case CONTROLLER_STATUS_EVENT:
                 throw new RuntimeException("Missing parameters for " + type + " event.");
@@ -116,29 +106,6 @@ public class UGSEvent {
     public UGSEvent(ControlState state) {
         evt = EventType.STATE_EVENT;
         controlState = state;
-    }
-
-    /**
-     * Create a gcode state event.
-     * @param state the new state.
-     */
-    public UGSEvent(GcodeState state) {
-        evt = EventType.GCODE_STATE_EVENT;
-        gcodeState = state;
-    }
-    
-    /**
-     * Create a file state event
-     * FILE_LOADING: This event provides a path to an unprocessed gcode file.
-     * FILE_LOADED: This event provides a path to a processed gcode file which
-     *              should be opened with a GcodeStreamReader.
-     * @param state the new file state.
-     * @param filepath the file related to the file event.
-     */
-    public UGSEvent(FileState state, String filepath) {
-        evt = EventType.FILE_EVENT;
-        fileState = state;
-        file = filepath;
     }
 
     /**
@@ -159,30 +126,9 @@ public class UGSEvent {
         this.controllerStatus = controllerStatus;
     }
 
-    /**
-     * Create a controller alarm event.
-     */
-    public UGSEvent(Alarm alarm) {
-        evt = EventType.ALARM_EVENT;
-        this.alarm = alarm;
-    }
-
     // Getters
-
-    public Alarm getAlarm() {
-        return alarm;
-    }
-
     public ControlState getControlState() {
         return controlState;
-    }
-
-    public FileState getFileState() {
-        return fileState;
-    }
-    
-    public String getFile() {
-        return file;
     }
 
     public Position getProbePosition() {
@@ -191,10 +137,6 @@ public class UGSEvent {
 
     public ControllerStatus getControllerStatus() {
         return controllerStatus;
-    }
-
-    public GcodeState getGcodeState() {
-      return gcodeState;
     }
 
     @Override

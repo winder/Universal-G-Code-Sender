@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.macros.MacroActionPanel;
 import com.willwinder.universalgcodesender.uielements.panels.CommandPanel;
@@ -1907,17 +1908,17 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             commandTable.setAutoWindowScroll(backend.getSettings().isScrollWindowEnabled());
         }
 
-        if (evt.isFileChangeEvent()) {
-            switch(evt.getFileState()) {
+        if (evt instanceof FileStateEvent) {
+            FileStateEvent fileStateEvent = (FileStateEvent) evt;
+            switch(fileStateEvent.getFileState()) {
                 case FILE_LOADING:
-                    File f = backend.getGcodeFile();
                     fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel") + ": " + backend.getGcodeFile().getName()));
                     fileModePanel.setToolTipText(backend.getGcodeFile().getAbsolutePath());
                     processedGcodeFile = null;
-                    gcodeFile = evt.getFile();
+                    gcodeFile = fileStateEvent.getFile();
                     break;
                 case FILE_LOADED:
-                    processedGcodeFile = evt.getFile();
+                    processedGcodeFile = fileStateEvent.getFile();
                     try {
                         try (IGcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
                             resetSentRowLabels(gsr.getNumRows());

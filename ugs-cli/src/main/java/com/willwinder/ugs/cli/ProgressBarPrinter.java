@@ -26,6 +26,8 @@ import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.FileState;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
@@ -105,7 +107,7 @@ public class ProgressBarPrinter implements ControllerListener, UGSEventListener 
 
     @Override
     public void UGSEvent(UGSEvent event) {
-        if (event.isFileChangeEvent() && event.getFileState() == UGSEvent.FileState.FILE_LOADED) {
+        if ((event instanceof FileStateEvent) && ((FileStateEvent) event).getFileState() == FileState.FILE_LOADED) {
             pb = new ProgressBarBuilder()
                     .setStyle(ProgressBarStyle.UNICODE_BLOCK)
                     .setInitialMax(100)

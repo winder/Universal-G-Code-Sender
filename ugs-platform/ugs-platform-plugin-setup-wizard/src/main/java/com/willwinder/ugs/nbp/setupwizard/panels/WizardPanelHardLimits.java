@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.AlarmEvent;
 import com.willwinder.universalgcodesender.uielements.components.RoundedBorder;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -167,7 +168,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
                 labelLimitY.setBackground(controllerStatus.getEnabledPins().Y ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
                 labelLimitZ.setBackground(controllerStatus.getEnabledPins().Z ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
             });
-        } else if (evt.getEventType() == UGSEvent.EventType.ALARM_EVENT && evt.getAlarm() == Alarm.HARD_LIMIT) {
+        } else if (evt instanceof AlarmEvent && ((AlarmEvent) evt).getAlarm() == Alarm.HARD_LIMIT) {
             ThreadHelper.invokeLater(() -> {
                 try {
                     getBackend().issueSoftReset();

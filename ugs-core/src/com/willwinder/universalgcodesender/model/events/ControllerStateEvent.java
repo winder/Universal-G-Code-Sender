@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,30 +16,32 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.setupwizard;
+package com.willwinder.universalgcodesender.model.events;
 
 import com.willwinder.universalgcodesender.listeners.ControllerState;
-import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 
 /**
- * Common utils for the wizard
+ * An event that will be dispatched when the controller state has changed.
  *
  * @author Joacim Breiler
  */
-public class WizardUtils {
+public class ControllerStateEvent extends UGSEvent {
 
-    /**
-     * If the current state is alarm this method will kill it.
-     *
-     * @param backendAPI the backend to use for handling the alarm
-     */
-    public static void killAlarm(BackendAPI backendAPI) {
-        if (backendAPI.getControllerState() == ControllerState.ALARM) {
-            try {
-                backendAPI.killAlarmLock();
-            } catch (Exception ignore) {
-                // Ignored
-            }
-        }
+    private final ControllerState state;
+    private final ControllerState previousState;
+
+    public ControllerStateEvent(ControllerState state, ControllerState previousState) {
+        super(EventType.CONTROLLER_STATE_EVENT);
+        this.state = state;
+        this.previousState = previousState;
+    }
+
+    public ControllerState getState() {
+        return state;
+    }
+
+    public ControllerState getPreviousState() {
+        return previousState;
     }
 }

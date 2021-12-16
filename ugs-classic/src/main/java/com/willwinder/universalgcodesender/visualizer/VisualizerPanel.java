@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import javax.swing.JPanel;
@@ -125,14 +126,15 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isFileChangeEvent()) {
-            switch(evt.getFileState()) {
+        if (evt instanceof FileStateEvent) {
+            FileStateEvent fileStateEvent = (FileStateEvent) evt;
+            switch (fileStateEvent.getFileState()) {
                 case FILE_LOADING:
-                    setGcodeFile(evt.getFile());
+                    setGcodeFile(fileStateEvent.getFile());
                     break;
 
                 case FILE_LOADED:
-                    setProcessedGcodeFile(evt.getFile());
+                    setProcessedGcodeFile(fileStateEvent.getFile());
                     break;
 
                 default:

@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.events.AlarmEvent;
 import com.willwinder.universalgcodesender.utils.MathUtils;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
@@ -335,7 +336,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
                 checkPulseIntervalLimits();
                 checkUpdatedValues();
             });
-        } else if (event.getEventType() == UGSEvent.EventType.ALARM_EVENT && event.getAlarm() == Alarm.HARD_LIMIT) {
+        } else if (event instanceof AlarmEvent && ((AlarmEvent) event).getAlarm() == Alarm.HARD_LIMIT) {
             ThreadHelper.invokeLater(() -> {
                 try {
                     getBackend().issueSoftReset();

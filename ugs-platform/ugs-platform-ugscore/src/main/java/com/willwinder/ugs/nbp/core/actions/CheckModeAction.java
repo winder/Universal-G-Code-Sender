@@ -21,9 +21,11 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -50,7 +52,7 @@ public final class CheckModeAction extends AbstractAction implements UGSEventLis
 
     public static final String ICON_BASE = "resources/icons/check.svg";
 
-    private BackendAPI backend;
+    private final BackendAPI backend;
 
     public CheckModeAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -65,14 +67,16 @@ public final class CheckModeAction extends AbstractAction implements UGSEventLis
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse.isStateChangeEvent()) {
+        if (cse instanceof ControllerStateEvent) {
             java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
         }
     }
 
     @Override
     public boolean isEnabled() {
-        return backend.isConnected() && backend.isIdle() && backend.getController().getCapabilities().hasCheckMode();
+        return backend.isConnected() && backend.isIdle() &&
+                (backend.getControllerState() == ControllerState.IDLE || backend.getControllerState() == ControllerState.CHECK) &&
+                backend.getController().getCapabilities().hasCheckMode();
     }
 
     @Override

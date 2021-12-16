@@ -28,25 +28,23 @@ import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.uielements.components.PopupEditor;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
-import com.willwinder.universalgcodesender.uielements.helpers.*;
+import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
+import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
 import javax.swing.Timer;
+import javax.swing.*;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.time.Duration;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -246,7 +244,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isStateChangeEvent()) {
+        if (evt instanceof ControllerStateEvent) {
             updateControls();
         }
         if (evt.isControllerStatusEvent()) {
@@ -277,11 +275,12 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         Capabilities cap = backend.getController().getCapabilities();
         Settings settings = backend.getSettings();
 
+        boolean enabled = backend.getControllerState() == ControllerState.IDLE;
         for (Axis a : Axis.values()) {
             // don't hide every axis while capabilities are being detected.
-            boolean enabled = (cap.hasAxis(a) || a.isLinear()) && settings.isAxisEnabled(a);
+            boolean visible = (cap.hasAxis(a) || a.isLinear()) && settings.isAxisEnabled(a);
             axisPanels.get(a).setEnabled(enabled);
-            axisPanels.get(a).setVisible(enabled);
+            axisPanels.get(a).setVisible(visible);
         }
     }
 

@@ -25,6 +25,8 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import com.willwinder.universalgcodesender.model.events.FileState;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.apache.commons.io.FileUtils;
@@ -338,10 +340,10 @@ public class GUIBackendTest {
         // Then
         List<UGSEvent> events = eventArgumentCaptor.getAllValues();
         assertEquals(4, events.size());
-        assertEquals(UGSEvent.FileState.OPENING_FILE, events.get(0).getFileState());
-        assertEquals(UGSEvent.FileState.FILE_LOADING, events.get(1).getFileState());
+        assertEquals(FileState.OPENING_FILE, ((FileStateEvent)events.get(0)).getFileState());
+        assertEquals(FileState.FILE_LOADING, ((FileStateEvent)events.get(1)).getFileState());
         assertEquals(UGSEvent.EventType.SETTING_EVENT, events.get(2).getEventType());
-        assertEquals(UGSEvent.FileState.FILE_LOADED, events.get(3).getFileState());
+        assertEquals(FileState.FILE_LOADED, ((FileStateEvent) events.get(3)).getFileState());
 
         assertNotNull(instance.getProcessedGcodeFile());
     }

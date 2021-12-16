@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -37,7 +38,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
+import static com.willwinder.universalgcodesender.model.events.FileState.FILE_LOADED;
 
 /**
  * A component which should be embedded in a status bar.
@@ -139,7 +140,7 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
         }
 
         // Display the number of rows when a file is loaded.
-        if (evt.isFileChangeEvent() && evt.getFileState() == FILE_LOADED) {
+        if (evt instanceof FileStateEvent && ((FileStateEvent)evt).getFileState() == FILE_LOADED) {
             setRows();
         }
     }

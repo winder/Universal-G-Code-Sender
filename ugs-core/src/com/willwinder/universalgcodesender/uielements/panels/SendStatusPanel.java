@@ -27,24 +27,22 @@ import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.Timer;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.logging.Logger;
 
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
-import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
-import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_STREAM_COMPLETE;
+import static com.willwinder.universalgcodesender.model.events.FileState.FILE_LOADED;
+import static com.willwinder.universalgcodesender.model.events.FileState.FILE_STREAM_COMPLETE;
 
 /**
  * A send status panel for displaying the progress of a file stream
@@ -221,11 +219,14 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
         }
 
         // On file loaded event, reset the rows.
-        if (evt.isFileChangeEvent() && evt.getFileState() == FILE_LOADED) {
-            resetSentRowLabels();
-        } else if (evt.isFileChangeEvent() && evt.getFileState() == FILE_STREAM_COMPLETE) {
-            update();
-            endSend();
+        if (evt instanceof FileStateEvent) {
+            FileStateEvent fileStateEvent = (FileStateEvent) evt;;
+            if (fileStateEvent.getFileState() == FILE_LOADED) {
+                resetSentRowLabels();
+            } else if (fileStateEvent.getFileState() == FILE_STREAM_COMPLETE) {
+                update();
+                endSend();
+            }
         }
     }
 

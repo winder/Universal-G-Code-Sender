@@ -30,8 +30,8 @@ import java.awt.event.ActionEvent;
  * An action that will jog to a coordinate
  */
 public class JogToHereAction extends AbstractAction {
-    private final JogService jogService;
-    private PartialPosition position;
+    private final transient JogService jogService;
+    private final PartialPosition position;
 
     public JogToHereAction(JogService jogService, Position position) {
         this.jogService = jogService;
@@ -40,7 +40,6 @@ public class JogToHereAction extends AbstractAction {
             setEnabled(false);
         }
     }
-
 
     @Override
     public void actionPerformed(ActionEvent e) {

@@ -19,31 +19,32 @@
 
 package com.willwinder.ugs.nbm.workflow;
 
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.FileState;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.utils.Settings;
-import java.io.File;
-import java.util.Arrays;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.modules.OnStart;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
+
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import java.io.File;
+import java.util.Arrays;
+
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 
 @ConvertAsProperties(
         dtd = "-//com.willwinder.ugs.nbm.workflow//WorkflowWindow//EN",
@@ -121,9 +122,10 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
     @Override
     public void UGSEvent(UGSEvent cse) {
         if (cse.isFileChangeEvent()) {
-            if (cse.getFileState() == UGSEvent.FileState.FILE_LOADED) {
+            FileStateEvent fileStateEvent = (FileStateEvent) cse;
+            if (fileStateEvent.getFileState() == FileState.FILE_LOADED) {
                 this.addFileToWorkflow(backend.getGcodeFile());
-            } else if (cse.getFileState() == UGSEvent.FileState.FILE_STREAM_COMPLETE) {
+            } else if (fileStateEvent.getFileState() == FileState.FILE_STREAM_COMPLETE) {
                 this.completeFile(backend.getGcodeFile());
             }
         }

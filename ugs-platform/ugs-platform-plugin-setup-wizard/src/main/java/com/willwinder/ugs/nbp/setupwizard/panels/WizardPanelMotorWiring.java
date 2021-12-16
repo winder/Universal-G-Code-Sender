@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.AlarmEvent;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -162,7 +163,7 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
             ThreadHelper.invokeLater(this::refreshReverseDirectionCheckboxes);
         } else if (event.isControllerStatusEvent() || event.isStateChangeEvent()) {
             WizardUtils.killAlarm(getBackend());
-        } else if (event.getEventType() == UGSEvent.EventType.ALARM_EVENT && event.getAlarm() == Alarm.HARD_LIMIT) {
+        } else if (event instanceof AlarmEvent && ((AlarmEvent) event).getAlarm() == Alarm.HARD_LIMIT) {
             ThreadHelper.invokeLater(() -> {
                 try {
                     getBackend().issueSoftReset();

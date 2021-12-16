@@ -22,9 +22,9 @@ package com.willwinder.universalgcodesender.model;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 
@@ -164,6 +164,14 @@ public interface BackendAPI extends BackendAPIReadOnly {
            
     // Shouldn't be needed often.
     IController getController();
+
+    /**
+     * Returns the current controller state. If no controller is loaded or if it
+     * is disconnected it will return {@link ControllerState#DISCONNECTED}
+     *
+     * @return the controller state
+     */
+    ControllerState getControllerState();
     void applySettingsToController(Settings settings, IController controller) throws Exception;
 
     /**

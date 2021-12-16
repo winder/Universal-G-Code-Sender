@@ -22,7 +22,6 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
 /**
- *
  * @author wwinder
  */
 public class ControllerStatus {
@@ -40,10 +39,10 @@ public class ControllerStatus {
     /**
      * Baseline constructor. This data should always be present. Represents the
      * controller status.
-     * 
-     * @param state controller state, i.e. {@link ControllerState#IDLE}/{@link ControllerState#HOLD}/{@link ControllerState#RUN}
+     *
+     * @param state        controller state, i.e. {@link ControllerState#IDLE}/{@link ControllerState#HOLD}/{@link ControllerState#RUN}
      * @param machineCoord controller machine coordinates
-     * @param workCoord controller work coordinates
+     * @param workCoord    controller work coordinates
      */
     public ControllerStatus(ControllerState state, Position machineCoord, Position workCoord) {
         this(state, machineCoord, workCoord, 0d, UnitUtils.Units.MM, 0d, null, null, null, null);
@@ -66,6 +65,10 @@ public class ControllerStatus {
         this.overrides = overrides;
         this.pins = pins;
         this.accessoryStates = states;
+    }
+
+    public ControllerStatus() {
+        this(ControllerState.DISCONNECTED, Position.ZERO, Position.ZERO);
     }
 
     public ControllerState getState() {
@@ -156,6 +159,7 @@ public class ControllerStatus {
         final public int feed;
         final public int rapid;
         final public int spindle;
+
         public OverridePercents(int feed, int rapid, int spindle) {
             this.feed = feed;
             this.rapid = rapid;
