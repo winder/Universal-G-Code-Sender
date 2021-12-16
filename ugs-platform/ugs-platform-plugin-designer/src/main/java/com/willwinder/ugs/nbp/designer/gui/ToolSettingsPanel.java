@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.universalgcodesender.Utils;
 import net.miginfocom.swing.MigLayout;
 
@@ -35,6 +36,7 @@ public class ToolSettingsPanel extends JPanel {
     private JTextField plungeSpeed;
     private JTextField depthPerPass;
     private JTextField stepOver;
+    private JTextField safeHeight;
 
     public ToolSettingsPanel(Controller controller) {
         this.controller = controller;
@@ -44,26 +46,30 @@ public class ToolSettingsPanel extends JPanel {
     private void initComponents() {
         setLayout(new MigLayout("fill", "[20%][80%]"));
 
-        add(new JLabel("Bit settings"), "span, wrap");
         add(new JLabel("Tool diameter"));
-        toolDiameter = new JTextField(Utils.formatter.format(controller.getSettings().getToolDiameter()));
+        toolDiameter = new TextFieldWithUnit(Unit.MM, 3, controller.getSettings().getToolDiameter());
         add(toolDiameter, "grow, wrap");
 
         add(new JLabel("Feed speed"));
-        feedSpeed = new JTextField(Utils.formatter.format(controller.getSettings().getFeedSpeed()));
+        feedSpeed = new TextFieldWithUnit(Unit.MM_PER_MINUTE, 0, controller.getSettings().getFeedSpeed());
         add(feedSpeed, "grow, wrap");
 
         add(new JLabel("Plunge speed"));
-        plungeSpeed = new JTextField(Utils.formatter.format(controller.getSettings().getPlungeSpeed()));
+        plungeSpeed = new TextFieldWithUnit(Unit.MM_PER_MINUTE, 0, controller.getSettings().getPlungeSpeed());
         add(plungeSpeed, "grow, wrap");
 
         add(new JLabel("Depth per pass"));
-        depthPerPass = new JTextField(Utils.formatter.format(controller.getSettings().getDepthPerPass()));
+        depthPerPass = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getDepthPerPass());
         add(depthPerPass, "grow, wrap");
 
         add(new JLabel("Step over"));
-        stepOver = new JTextField(Utils.formatter.format(controller.getSettings().getToolStepOver()));
+        stepOver =  new TextFieldWithUnit(Unit.PERCENT, 2,
+                controller.getSettings().getToolStepOver());
         add(stepOver, "grow, wrap");
+
+        add(new JLabel("Safe height"));
+        safeHeight = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getSafeHeight());
+        add(safeHeight, "grow, wrap");
     }
 
     public double getToolDiameter() {
@@ -76,7 +82,7 @@ public class ToolSettingsPanel extends JPanel {
 
     public double getStepOver() {
         try {
-            return Utils.formatter.parse(stepOver.getText()).doubleValue();
+            return Utils.formatter.parse(stepOver.getText()).doubleValue() / 100;
         } catch (ParseException e) {
             return controller.getSettings().getToolStepOver();
         }
@@ -104,5 +110,25 @@ public class ToolSettingsPanel extends JPanel {
         } catch (ParseException e) {
             return controller.getSettings().getPlungeSpeed();
         }
+    }
+
+    public double getSafeHeight() {
+        try {
+            return Utils.formatter.parse(safeHeight.getText()).doubleValue();
+        } catch (ParseException e) {
+            return controller.getSettings().getSafeHeight();
+        }
+    }
+
+    public Settings getSettings() {
+        Settings settings = new Settings();
+        settings.applySettings(controller.getSettings());
+        settings.setSafeHeight(getSafeHeight());
+        settings.setDepthPerPass(getDepthPerPass());
+        settings.setFeedSpeed(getFeedSpeed());
+        settings.setToolDiameter(getToolDiameter());
+        settings.setToolStepOver(getStepOver());
+        settings.setPlungeSpeed(getPlungeSpeed());
+        return settings;
     }
 }

@@ -5,6 +5,9 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 
 import javax.swing.*;
 
+/**
+ * @author Joacim Breiler
+ */
 public class PopupMenuFactory {
     public JPopupMenu createPopupMenu(Controller controller) {
         JPopupMenu popupMenu = new JPopupMenu();
