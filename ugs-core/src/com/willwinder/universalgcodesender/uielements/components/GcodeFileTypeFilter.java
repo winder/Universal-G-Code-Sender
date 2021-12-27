@@ -64,7 +64,7 @@ public class GcodeFileTypeFilter extends FileFilter {
     //The description of this filter
     @Override
     public String getDescription() {
-        return "G-Code (gcoode, nc, txt)";
+        return "G-Code (gcode, nc, txt)";
     }
     
     private static String getExtension(File f) {
