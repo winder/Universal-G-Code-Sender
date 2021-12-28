@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -257,9 +258,12 @@ public class GUIBackendTest {
         assertEquals(ControlState.COMM_DISCONNECTED, instance.getControlState());
         assertFalse(instance.isConnected());
 
-        assertEquals("Only one event should have been fired", 1, eventArgumentCaptor.getAllValues().size());
-        assertTrue(eventArgumentCaptor.getValue().isStateChangeEvent());
-        assertEquals(ControlState.COMM_DISCONNECTED, eventArgumentCaptor.getValue().getControlState());
+        assertEquals("Only one event should have been fired", 2, eventArgumentCaptor.getAllValues().size());
+        assertEquals(UGSEvent.EventType.CONTROLLER_STATE_EVENT, eventArgumentCaptor.getAllValues().get(0).getEventType());
+        assertEquals(ControllerState.DISCONNECTED, ((ControllerStateEvent) eventArgumentCaptor.getAllValues().get(0)).getState());
+
+        assertTrue(eventArgumentCaptor.getAllValues().get(1).isStateChangeEvent());
+        assertEquals(ControlState.COMM_DISCONNECTED, eventArgumentCaptor.getAllValues().get(1).getControlState());
     }
 
     @Test
