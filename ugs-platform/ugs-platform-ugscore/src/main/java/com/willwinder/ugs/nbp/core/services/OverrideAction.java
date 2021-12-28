@@ -43,7 +43,7 @@ public class OverrideAction extends AbstractAction implements Serializable {
     /**
      * Constructor
      *
-     * @param action                the action to execute
+     * @param action the action to execute
      */
     public OverrideAction(Overrides action) {
         this.action = action;
@@ -55,7 +55,7 @@ public class OverrideAction extends AbstractAction implements Serializable {
     }
 
     private OverrideActionService getOverrideActionService() {
-        if(overrideActionService == null) {
+        if (overrideActionService == null) {
             overrideActionService = Lookup.getDefault().lookup(OverrideActionService.class);
         }
         return overrideActionService;
@@ -63,6 +63,6 @@ public class OverrideAction extends AbstractAction implements Serializable {
 
     @Override
     public boolean isEnabled() {
-        return getOverrideActionService().canRunAction();
+        return getOverrideActionService() != null && getOverrideActionService().canRunAction();
     }
 }
