@@ -86,8 +86,12 @@ public class TranslateToZeroAction extends CookieAction implements UGSEventListe
             try {
                 LoaderDialogHelper.showDialog("Translating model", 1000);
                 File gcodeFile = backend.getProcessedGcodeFile();
-                Position lowerLeftCorner = getLowerLeftCorner(gcodeFile);
-                TranslateProcessor translateProcessor = new TranslateProcessor(lowerLeftCorner);
+                Position offset = getLowerLeftCorner(gcodeFile);
+                offset.x = -offset.x;
+                offset.y = -offset.y;
+                offset.z = 0;
+
+                TranslateProcessor translateProcessor = new TranslateProcessor(offset);
                 backend.applyCommandProcessor(translateProcessor);
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "Couldn't translate gcode", ex);
