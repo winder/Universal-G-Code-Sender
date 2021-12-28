@@ -363,8 +363,11 @@ public class RendererInputHandler implements
 
     @Override
     public void commandComplete(GcodeCommand command) {
-        gcodeModel.setCurrentCommandNumber(command.getCommandNumber());
-        // TODO: When to redraw??
+        if (command.isGenerated()) {
+            gcodeModel.setCurrentCommandNumber(0);
+        } else {
+            gcodeModel.setCurrentCommandNumber(command.getCommandNumber());
+        }
     }
 
     @Override
