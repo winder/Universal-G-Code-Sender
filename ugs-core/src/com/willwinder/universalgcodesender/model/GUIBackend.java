@@ -246,7 +246,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void disconnect() throws Exception {
         autoconnect = false;
+        ControllerState previousState = controllerStatus.getState();
         controllerStatus = new ControllerStatus();
+        sendUGSEvent(new ControllerStateEvent(ControllerState.DISCONNECTED, previousState), true);
         disconnectInternal();
     }
 
