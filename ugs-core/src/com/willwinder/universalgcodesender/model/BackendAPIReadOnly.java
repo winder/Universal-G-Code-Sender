@@ -21,7 +21,6 @@ package com.willwinder.universalgcodesender.model;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import java.io.File;
@@ -50,19 +49,9 @@ public interface BackendAPIReadOnly {
     void removeUGSEventListener(UGSEventListener listener);
 
     /**
-     * Listener for controller status events, these come at regular intervals. 
-     */
-    void addControllerStateListener(ControllerStateListener listener);
-
-    /**
-     * Removes a controller state listener
-     *
-     * @param listener the listener to be removed
-     */
-    void removeControllerStateListener(ControllerStateListener listener);
-
-    /**
      * Details internal controller listener.
+     *
+     * @deprecated if possible switch to {@link #addUGSEventListener(UGSEventListener)} and listen for {@link com.willwinder.universalgcodesender.model.events.ControllerStatusEvent} instead
      */
     void addControllerListener(ControllerListener listener);
 

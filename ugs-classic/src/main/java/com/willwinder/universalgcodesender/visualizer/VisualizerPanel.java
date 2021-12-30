@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
@@ -80,9 +81,7 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
 
     @Override
     public void statusStringListener(ControllerStatus status) {
-        // Give coordinates to canvas.
-        this.canvas.setMachineCoordinate(status.getMachineCoord());
-        this.canvas.setWorkCoordinate(status.getWorkCoord());
+
     }
     
     @Override
@@ -140,6 +139,10 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
                 default:
                     break;
             }
+        } else if (evt instanceof ControllerStatusEvent) {
+            ControllerStatusEvent controllerStatusEvent = (ControllerStatusEvent) evt;
+            this.canvas.setMachineCoordinate(controllerStatusEvent.getStatus().getMachineCoord());
+            this.canvas.setWorkCoordinate(controllerStatusEvent.getStatus().getWorkCoord());
         }
     }
 }

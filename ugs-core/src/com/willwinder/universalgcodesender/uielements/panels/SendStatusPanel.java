@@ -220,7 +220,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
 
         // On file loaded event, reset the rows.
         if (evt instanceof FileStateEvent) {
-            FileStateEvent fileStateEvent = (FileStateEvent) evt;;
+            FileStateEvent fileStateEvent = (FileStateEvent) evt;
             if (fileStateEvent.getFileState() == FILE_LOADED) {
                 resetSentRowLabels();
             } else if (fileStateEvent.getFileState() == FILE_STREAM_COMPLETE) {

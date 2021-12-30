@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender.model;
 
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
@@ -31,7 +30,6 @@ public class UGSEvent {
     private final EventType evt;
     private ControlState controlState = null;
     private Position probePosition = null;
-    private ControllerStatus controllerStatus = null;
 
     public enum EventType {
         STATE_EVENT,
@@ -79,10 +77,6 @@ public class UGSEvent {
         return EventType.PROBE_EVENT.equals(evt);
     }
 
-    public boolean isControllerStatusEvent() {
-        return EventType.CONTROLLER_STATUS_EVENT.equals(evt);
-    }
-
     /**
      * Create a new event of given type. STATE_EVENT and FILE_EVENT have
      * required parameters, so a runtime exception will be thrown if they are
@@ -94,7 +88,6 @@ public class UGSEvent {
         switch (evt) {
             case STATE_EVENT:
             case PROBE_EVENT:
-            case CONTROLLER_STATUS_EVENT:
                 throw new RuntimeException("Missing parameters for " + type + " event.");
         }
     }
@@ -118,14 +111,6 @@ public class UGSEvent {
         this.probePosition = probePosition;
     }
 
-    /**
-     * Create a controller status event.
-     */
-    public UGSEvent(ControllerStatus controllerStatus) {
-        evt = EventType.CONTROLLER_STATUS_EVENT;
-        this.controllerStatus = controllerStatus;
-    }
-
     // Getters
     public ControlState getControlState() {
         return controlState;
@@ -133,10 +118,6 @@ public class UGSEvent {
 
     public Position getProbePosition() {
         return probePosition;
-    }
-
-    public ControllerStatus getControllerStatus() {
-        return controllerStatus;
     }
 
     @Override

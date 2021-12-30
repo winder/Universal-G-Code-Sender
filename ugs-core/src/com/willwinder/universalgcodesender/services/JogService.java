@@ -288,8 +288,7 @@ public class JogService {
 
     public boolean canJog() {
         return backend.isConnected() &&
-                (backend.getControllerState() == ControllerState.IDLE || backend.getControllerState() == ControllerState.JOG || backend.getControllerState() == ControllerState.RUN) &&
-                !backend.isSendingFile() &&
+                (backend.getControllerState() == ControllerState.IDLE || backend.getControllerState() == ControllerState.JOG) &&
                 backend.getController().getCapabilities().hasJogging();
     }
 

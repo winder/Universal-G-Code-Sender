@@ -25,23 +25,17 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.events.AlarmEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.utils.MathUtils;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import java.awt.Dimension;
-import java.awt.Font;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -55,7 +49,7 @@ import java.util.TimerTask;
  *
  * @author Joacim Breiler
  */
-public class WizardPanelStepCalibration extends AbstractWizardPanel implements UGSEventListener, ControllerStateListener {
+public class WizardPanelStepCalibration extends AbstractWizardPanel implements UGSEventListener {
 
     private static final long TIME_BEFORE_RESET_ON_ALARM = 500;
     private final DecimalFormat decimalFormat;
@@ -281,7 +275,6 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     @Override
     public void initialize() {
         getBackend().addUGSEventListener(this);
-        getBackend().addControllerStateListener(this);
         WizardUtils.killAlarm(getBackend());
         updateMeasurementEstimatesFields();
         updateSettingFieldsFromFirmware();
@@ -320,14 +313,13 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         }
 
         getBackend().removeUGSEventListener(this);
-        getBackend().removeControllerStateListener(this);
     }
 
     @Override
     public void UGSEvent(UGSEvent event) {
         if (getBackend().getController() != null &&
                 getBackend().isConnected() &&
-                (event.isControllerStatusEvent() || event.isStateChangeEvent())) {
+                (event instanceof ControllerStatusEvent || event.isStateChangeEvent())) {
             WizardUtils.killAlarm(getBackend());
         } else if (event.isSettingChangeEvent() || event.isStateChangeEvent()) {
             ThreadHelper.invokeLater(() -> {
@@ -346,8 +338,8 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
             }, TIME_BEFORE_RESET_ON_ALARM);
         }
 
-        if (event.isControllerStatusEvent()) {
-            navigationButtons.refresh(event.getControllerStatus().getMachineCoord());
+        if (event instanceof ControllerStatusEvent) {
+            navigationButtons.refresh(((ControllerStatusEvent) event).getStatus().getMachineCoord());
         }
     }
 

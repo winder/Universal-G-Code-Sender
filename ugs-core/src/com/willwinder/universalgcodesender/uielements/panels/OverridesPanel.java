@@ -19,39 +19,27 @@
 package com.willwinder.universalgcodesender.uielements.panels;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import java.awt.Color;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 
 /**
  * Send speed override commands to the backend.
  *
  * @author wwinder
  */
-public final class OverridesPanel extends JPanel implements UGSEventListener, ControllerListener {
+public final class OverridesPanel extends JPanel implements UGSEventListener {
     private final BackendAPI backend;
     private final ArrayList<Component> components = new ArrayList<>();
 
@@ -98,7 +86,6 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
         this.backend = backend;
         if (backend != null) {
             backend.addUGSEventListener(this);
-            backend.addControllerListener(this);
         }
 
         initComponents();
@@ -127,6 +114,24 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
     public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
         if (evt.isStateChangeEvent()) {
             updateControls();
+        } else if (evt instanceof ControllerStatusEvent) {
+            ControllerStatus status = ((ControllerStatusEvent) evt).getStatus();
+            if (status.getOverrides() != null) {
+                this.feedSpeed.setText(status.getOverrides().feed + "%");
+                this.spindleSpeed.setText(status.getOverrides().spindle + "%");
+                this.rapidSpeed.setText(status.getOverrides().rapid + "%");
+            }
+            if (status.getAccessoryStates() != null) {
+                AccessoryStates states = status.getAccessoryStates();
+
+                toggleSpindle.setBackground((states.SpindleCW || states.SpindleCCW) ? Color.GREEN : Color.RED);
+                toggleFloodCoolant.setBackground(states.Flood ? Color.GREEN : Color.RED);
+                toggleMistCoolant.setBackground(states.Mist ? Color.GREEN : Color.RED);
+
+                toggleSpindle.setOpaque(true);
+                toggleFloodCoolant.setOpaque(true);
+                toggleMistCoolant.setOpaque(true);
+            }
         }
     }
 
@@ -251,59 +256,6 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
         this.add(toggleSpindle);
         this.add(toggleFloodCoolant);
         this.add(toggleMistCoolant);
-    }
-
-    @Override
-    public void controlStateChange(com.willwinder.universalgcodesender.model.UGSEvent.ControlState state) {
-    }
-
-    @Override
-    public void fileStreamComplete(String filename, boolean success) {
-    }
-
-    @Override
-    public void receivedAlarm(Alarm alarm) {
-
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-    }
-
-    @Override
-    public void commandSent(GcodeCommand command) {
-    }
-
-    @Override
-    public void commandComplete(GcodeCommand command) {
-    }
-
-    @Override
-    public void commandComment(String comment) {
-    }
-
-    @Override
-    public void probeCoordinates(Position p) {
-    }
-
-    @Override
-    public void statusStringListener(ControllerStatus status) {
-        if (status.getOverrides() != null) {
-            this.feedSpeed.setText(status.getOverrides().feed + "%");
-            this.spindleSpeed.setText(status.getOverrides().spindle + "%");
-            this.rapidSpeed.setText(status.getOverrides().rapid + "%");
-        }
-        if (status.getAccessoryStates() != null) {
-            AccessoryStates states = status.getAccessoryStates();
-
-            toggleSpindle.setBackground((states.SpindleCW || states.SpindleCCW) ? Color.GREEN : Color.RED);
-            toggleFloodCoolant.setBackground(states.Flood ? Color.GREEN : Color.RED);
-            toggleMistCoolant.setBackground(states.Mist ? Color.GREEN : Color.RED);
-
-            toggleSpindle.setOpaque(true);
-            toggleFloodCoolant.setOpaque(true);
-            toggleMistCoolant.setOpaque(true);
-        }
     }
 
     private static class RealTimeAction extends AbstractAction {

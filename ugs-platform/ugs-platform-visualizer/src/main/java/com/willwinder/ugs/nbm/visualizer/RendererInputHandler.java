@@ -33,6 +33,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -116,7 +117,7 @@ public class RendererInputHandler implements
      */
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse.isFileChangeEvent()) {
+        if (cse instanceof FileStateEvent) {
             animator.pause();
             FileStateEvent fileStateEvent = (FileStateEvent) cse;
             switch (fileStateEvent.getFileState()) {
@@ -126,10 +127,12 @@ public class RendererInputHandler implements
             }
 
             animator.resume();
-        }
-
-        if (cse.isSettingChangeEvent()) {
+        } else if (cse.isSettingChangeEvent()) {
             sizeDisplay.setUnits(settings.getPreferredUnits());
+        } else if (cse instanceof ControllerStatusEvent) {
+            ControllerStatusEvent controllerStatusEvent = (ControllerStatusEvent) cse;
+            gcodeRenderer.setMachineCoordinate(controllerStatusEvent.getStatus().getMachineCoord());
+            gcodeRenderer.setWorkCoordinate(controllerStatusEvent.getStatus().getWorkCoord());
         }
     }
 
@@ -335,8 +338,7 @@ public class RendererInputHandler implements
      */
     @Override
     public void statusStringListener(ControllerStatus status) {
-        gcodeRenderer.setMachineCoordinate(status.getMachineCoord());
-        gcodeRenderer.setWorkCoordinate(status.getWorkCoord());
+
     }
 
     @Override

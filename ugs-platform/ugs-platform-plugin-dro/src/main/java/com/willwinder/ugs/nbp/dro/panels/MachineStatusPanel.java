@@ -24,13 +24,13 @@ import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
-import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.uielements.components.PopupEditor;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
@@ -51,7 +51,7 @@ import java.util.stream.Stream;
 /**
  * DRO style display panel with current controller state.
  */
-public class MachineStatusPanel extends JPanel implements UGSEventListener, ControllerStateListener, AxisPanel.AxisPanelListener {
+public class MachineStatusPanel extends JPanel implements UGSEventListener, AxisPanel.AxisPanelListener {
     private static final Logger LOGGER = Logger.getLogger(MachineStatusPanel.class.getName());
     private static final int COMMON_RADIUS = 7;
     private static final Duration REFRESH_RATE = Duration.ofSeconds(1);
@@ -96,7 +96,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         this.backend = backend;
         if (this.backend != null) {
             this.backend.addUGSEventListener(this);
-            this.backend.addControllerStateListener(this);
         }
         statePollTimer = createTimer();
 
@@ -247,8 +246,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         if (evt instanceof ControllerStateEvent) {
             updateControls();
         }
-        if (evt.isControllerStatusEvent()) {
-            onControllerStatusReceived(evt.getControllerStatus());
+        if (evt instanceof ControllerStatusEvent) {
+            onControllerStatusReceived(((ControllerStatusEvent)evt).getStatus());
         }
         if (evt.isSettingChangeEvent() && backend.getController() != null && backend.getController().getControllerStatus() != null) {
             onControllerStatusReceived(backend.getController().getControllerStatus());
@@ -341,24 +340,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     private void updateStatePanel(ControllerState state) {
-
-        Color background = ThemeColors.GREY;
         String text = Utils.getControllerStateText(state);
-        if (state == ControllerState.ALARM) {
-            background = ThemeColors.RED;
-        } else if (state == ControllerState.HOLD) {
-            background = ThemeColors.ORANGE;
-        } else if (state == ControllerState.DOOR) {
-            background = ThemeColors.ORANGE;
-        } else if (state == ControllerState.RUN) {
-            background = ThemeColors.GREEN;
-        } else if (state == ControllerState.JOG) {
-            background = ThemeColors.GREEN;
-        } else if (state == ControllerState.HOME) {
-            background = ThemeColors.GREEN;
-        } else if (state == ControllerState.CHECK) {
-            background = ThemeColors.LIGHT_BLUE;
-        }
+        Color background = Utils.getControllerStateBackgroundColor(state);
 
         this.activeStatePanel.setBackground(background);
         this.activeStateValueLabel.setText(text.toUpperCase());

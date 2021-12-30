@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -68,7 +69,7 @@ public final class StopAction extends AbstractAction implements UGSEventListener
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse.isStateChangeEvent()) {
+        if (cse instanceof ControllerStateEvent || cse.isStateChangeEvent()) {
             java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
         }
     }

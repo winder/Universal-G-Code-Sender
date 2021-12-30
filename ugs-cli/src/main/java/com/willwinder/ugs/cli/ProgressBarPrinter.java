@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -96,24 +97,25 @@ public class ProgressBarPrinter implements ControllerListener, UGSEventListener 
 
     @Override
     public void statusStringListener(ControllerStatus status) {
-        if (pb != null) {
-            if (status.getState() == ControllerState.HOLD) {
-                pb.setExtraMessage("[PAUSED] 'ENTER' to resume");
-            } else {
-                pb.setExtraMessage("[" + status.getState() + "]");
-            }
-        }
+
     }
 
     @Override
     public void UGSEvent(UGSEvent event) {
-        if ((event instanceof FileStateEvent) && ((FileStateEvent) event).getFileState() == FileState.FILE_LOADED) {
+        if (event instanceof FileStateEvent && ((FileStateEvent) event).getFileState() == FileState.FILE_LOADED) {
             pb = new ProgressBarBuilder()
                     .setStyle(ProgressBarStyle.UNICODE_BLOCK)
                     .setInitialMax(100)
                     .setTaskName(backend.getGcodeFile().getName())
                     .setPrintStream(System.out)
                     .build();
+        } else if (event instanceof ControllerStateEvent && pb != null) {
+            ControllerStateEvent controllerStateEvent = (ControllerStateEvent) event;
+            if (controllerStateEvent.getState() == ControllerState.HOLD) {
+                pb.setExtraMessage("[PAUSED] 'ENTER' to resume");
+            } else {
+                pb.setExtraMessage("[" + controllerStateEvent.getState() + "]");
+            }
         }
     }
 }

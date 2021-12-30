@@ -32,11 +32,8 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.*;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UGSEvent.EventType;
-import com.willwinder.universalgcodesender.model.events.AlarmEvent;
-import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
-import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.model.events.*;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.*;
@@ -58,7 +55,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author wwinder
  */
 public class GUIBackend implements BackendAPI, ControllerListener, SettingChangeListener, IFirmwareSettingsListener {
@@ -72,7 +68,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     private final Collection<ControllerListener> controllerListeners = new ArrayList<>();
     private final Collection<UGSEventListener> ugsEventListener = Collections.synchronizedList(new ArrayList<>());
-    private final Collection<ControllerStateListener> controllerStateListener = new ArrayList<>();
 
     // GUI State
     private File gcodeFile = null;
@@ -100,22 +95,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         if (ugsEventListener.contains(listener)) {
             logger.log(Level.INFO, "Removing UGSEvent listener: " + listener.getClass().getSimpleName());
             ugsEventListener.remove(listener);
-        }
-    }
-
-    @Override
-    public void addControllerStateListener(ControllerStateListener listener) {
-        if (!controllerStateListener.contains(listener)) {
-            logger.log(Level.INFO, "Adding controller state listener: " + listener.getClass().getSimpleName());
-            controllerStateListener.add(listener);
-        }
-    }
-
-    @Override
-    public void removeControllerStateListener(ControllerStateListener listener) {
-        if (controllerStateListener.contains(listener)) {
-            logger.log(Level.INFO, "Removing controller state listener: " + listener.getClass().getSimpleName());
-            controllerStateListener.remove(listener);
         }
     }
 
@@ -184,8 +163,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             for (CommandProcessor p : processors) {
                 gcp.addCommandProcessor(p);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             initializeWithFallbackProcessors(gcp);
         }
     }
@@ -294,7 +272,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                     connect(settings.getFirmwareVersion(), settings.getPort(), Integer.parseInt(settings.getPortRate()));
                 }
             } catch (Exception e) {
-                logger.log(Level.WARNING, "Auto connect failed",e);
+                logger.log(Level.WARNING, "Auto connect failed", e);
             }
         }
     }
@@ -410,7 +388,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public GcodeState getGcodeState() {
         if (this.controller != null) {
-          return this.controller.getCurrentGcodeState();
+            return this.controller.getCurrentGcodeState();
         }
         return null;
     }
@@ -459,26 +437,26 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public List<String> getWorkspaceFileList() {
         String workspaceDirectory = settings.getWorkspaceDirectory();
-        if(StringUtils.isBlank(workspaceDirectory)) {
+        if (StringUtils.isBlank(workspaceDirectory)) {
             return Collections.emptyList();
         }
 
         File folder = new File(workspaceDirectory);
-        if(!folder.exists() || !folder.isDirectory()){
+        if (!folder.exists() || !folder.isDirectory()) {
             return Collections.emptyList();
         }
 
         return Arrays.stream(Objects.requireNonNull(folder.listFiles()))
                 .map(File::getName)
                 .filter(name -> StringUtils.endsWithIgnoreCase(name, ".gcode") ||
-                                StringUtils.endsWithIgnoreCase(name, ".nc") ||
-                                StringUtils.endsWithIgnoreCase(name, ".tap"))
+                        StringUtils.endsWithIgnoreCase(name, ".nc") ||
+                        StringUtils.endsWithIgnoreCase(name, ".tap"))
                 .collect(Collectors.toList());
     }
 
     @Override
     public void openWorkspaceFile(String file) throws Exception {
-        if(!getWorkspaceFileList().contains(file)) {
+        if (!getWorkspaceFileList().contains(file)) {
             throw new FileNotFoundException("Couldn't find the file '" + file + "' in workspace directory");
         }
 
@@ -515,7 +493,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         logger.log(Level.INFO, "Applying new command processor");
         gcp.addCommandProcessor(commandProcessor);
 
-        if(gcodeFile != null) {
+        if (gcodeFile != null) {
             processGcodeFile();
         }
     }
@@ -525,7 +503,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         gcp.removeCommandProcessor(commandProcessor);
         processGcodeFile();
 
-        if(gcodeFile != null) {
+        if (gcodeFile != null) {
             processGcodeFile();
         }
     }
@@ -594,7 +572,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         long numberOfRows = getNumRows();
 
         // Early exit condition. Can't make an estimate if we haven't started.
-        if (completedRows == 0 || numberOfRows == 0) { return -1L; }
+        if (completedRows == 0 || numberOfRows == 0) {
+            return -1L;
+        }
 
         long elapsedTime = getSendDuration();
         long timePerRow = elapsedTime / completedRows;
@@ -606,7 +586,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public void pauseResume() throws Exception {
         logger.log(Level.INFO, "Pause/Resume");
         try {
-            switch(getControlState()) {
+            switch (getControlState()) {
                 case COMM_IDLE:
                 default:
                     if (!isSendingFile()) {
@@ -771,7 +751,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         }
 
         if (oldStatus != status) {
-            this.sendControllerStateEvent(new UGSEvent(status));
+            sendUGSEvent(new ControllerStatusEvent(status, oldStatus), true);
         }
     }
 
@@ -781,7 +761,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     /**
      * This would be static but I want to define it in the interface.
-     * @param settings Settings to apply to the controller.
+     *
+     * @param settings   Settings to apply to the controller.
      * @param controller Controller to receive settings.
      * @throws java.lang.Exception Exception thrown if controller doesn't support some settings.
      */
@@ -864,7 +845,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         } catch (Exception e) {
             logger.log(Level.INFO, "Exception in openCommConnection.", e);
             throw new Exception(Localization.getString("mainWindow.error.connection")
-                    + " ("+ e.getClass().getName() + "): "+e.getMessage());
+                    + " (" + e.getClass().getName() + "): " + e.getMessage());
         }
         return connected;
     }
@@ -897,7 +878,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                 // Store gcode file stats.
                 GcodeStats gs = gcodeParser.getCurrentStats();
                 this.settings.setFileStats(new FileStats(
-                    gs.getMin(), gs.getMax(), gs.getCommandCount()));
+                        gs.getMin(), gs.getMax(), gs.getCommandCount()));
             }
             long end = System.currentTimeMillis();
             logger.info("Took " + (end - start) + "ms to preprocess");
@@ -905,24 +886,16 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
 
     private void sendUGSEvent(UGSEvent event, boolean force) {
-        if (event.isControllerStatusEvent()) return;
-
-        logger.log(Level.FINE, "Sending control state event {0}.", event.getEventType());
+        logger.log(Level.FINE, "Sending event {0}.", event.getEventType());
+        long startTime = System.currentTimeMillis();
         if (event.isStateChangeEvent()) {
-            if (this.controller != null && this.controller.handlesAllStateChangeEvents() && !force){
+            if (this.controller != null && this.controller.handlesAllStateChangeEvents() && !force) {
                 return;
             }
         }
 
         ugsEventListener.forEach(l -> l.UGSEvent(event));
-    }
-
-    private void sendControllerStateEvent(UGSEvent event) {
-        if (!event.isControllerStatusEvent()) return;
-
-        for (ControllerStateListener l : controllerStateListener) {
-            l.UGSEvent(event);
-        }
+        long deltaTime = System.currentTimeMillis() - startTime;
     }
 
     @Override

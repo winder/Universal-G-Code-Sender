@@ -1204,7 +1204,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             setVisualizerFile();
 
             // Add listener
-            this.backend.addControllerListener(vw);
+            this.backend.addUGSEventListener(vw);
         }
 
         // Display the form
