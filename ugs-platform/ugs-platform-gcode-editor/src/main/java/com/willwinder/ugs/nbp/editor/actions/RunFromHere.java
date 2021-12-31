@@ -62,7 +62,7 @@ public final class RunFromHere implements ActionListener {
     public void actionPerformed(ActionEvent ev) {
         Element root = context.getDocument().getDefaultRootElement();
         int caretPosition = context.getOpenedPanes()[0].getCaretPosition();
-        int line = root.getElementIndex(caretPosition) + 1;
+        int line = root.getElementIndex(caretPosition);
 
         try {
             runFromService.runFromLine(line);

@@ -43,7 +43,8 @@ public class InvalidGrblCommandErrorParser implements ErrorParser {
             "G38.2", "G38.3", "G38.4", "G38.5", "G80", "G54", "G55", "G56",
             "G57", "G58", "G59", "G17", "G18", "G19", "G90", "G91", "G91.1",
             "G93", "G94", "G20", "G21", "G40", "G43.1", "G49", "M30", "G10",
-            "G10", "L20", "G28", "G30", "G28.1", "G30.1", "G53", "G92", "G92.1"
+            "G10", "L20", "G28", "G30", "G28.1", "G30.1", "G53", "G92", "G92.1",
+            "G61"
     );
     private static final Pattern VALID_PATTERN = Pattern.compile("G0?[0-4]|L0?2|M0?[0-5]|M0?[7-9]", Pattern.CASE_INSENSITIVE);
     private final FileObject fileObject;

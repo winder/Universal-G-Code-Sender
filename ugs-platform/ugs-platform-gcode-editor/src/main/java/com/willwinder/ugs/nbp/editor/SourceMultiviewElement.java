@@ -20,33 +20,36 @@ package com.willwinder.ugs.nbp.editor;
 
 import com.willwinder.ugs.nbp.editor.renderer.EditorListener;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
-import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
-
-import java.io.File;
 
 @MultiViewElement.Registration(
         displayName = "#platform.window.editor.source",
         iconBase = "com/willwinder/ugs/nbp/editor/edit.png",
-        mimeType = "text/xgcode",
+        mimeType = GcodeLanguageConfig.MIME_TYPE,
         persistenceType = TopComponent.PERSISTENCE_NEVER,
         preferredID = "Gcode",
         position = 1000
 )
-public class SourceMultiviewElement extends MultiViewEditorElement {
+public class SourceMultiviewElement extends MultiViewEditorElement implements UGSEventListener {
     private static final long serialVersionUID = 7255236202190135442L;
     private static EditorListener editorListener = new EditorListener();
     private final GcodeDataObject obj;
     private final GcodeFileListener fileListener;
+    private final BackendAPI backend;
 
     public SourceMultiviewElement(Lookup lookup) {
         super(lookup);
         obj = lookup.lookup(GcodeDataObject.class);
         fileListener = new GcodeFileListener();
+        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend.addUGSEventListener(this);
     }
 
     @Override
@@ -78,5 +81,14 @@ public class SourceMultiviewElement extends MultiViewEditorElement {
     @Override
     public Lookup getLookup() {
         return obj.getLookup();
+    }
+
+    @Override
+    public void UGSEvent(UGSEvent ugsEvent) {
+        // Disable the editor if not idle or disconnected
+        if (ugsEvent.isStateChangeEvent()) {
+            ControllerState state = backend.getController().getControllerStatus().getState();
+            getEditorPane().setEditable(state == ControllerState.IDLE || state == ControllerState.DISCONNECTED);
+        }
     }
 }

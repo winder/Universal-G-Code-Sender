@@ -15,4 +15,7 @@
     <fontcolor name="AXIS" foreColor="339EAA"/>
     <fontcolor name="WHITESPACE" default="whitespace"/>
     <fontcolor name="COMMENT" default="comment"/>
+
+    <!-- GCode that is inactive, for instance if lines should be skipped -->
+    <fontcolor name="INACTIVE" default="comment"/>
 </fontscolors>
