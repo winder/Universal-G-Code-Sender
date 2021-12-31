@@ -24,9 +24,10 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
  * An event that will be dispatched when a new file has been set in
  * program.
  */
-public class FileStateEvent extends UGSEvent {
+public class FileStateEvent implements UGSEvent {
     private final FileState fileState;
     private final String file;
+    private final boolean success;
 
     /**
      * Create a file state event
@@ -38,9 +39,23 @@ public class FileStateEvent extends UGSEvent {
      * @param filepath the file related to the file event.
      */
     public FileStateEvent(FileState state, String filepath) {
-        super(UGSEvent.EventType.FILE_EVENT);
-        fileState = state;
-        file = filepath;
+        this(state, filepath, true);
+    }
+
+    /**
+     * Create a file state event
+     * FILE_LOADING: This event provides a path to an unprocessed gcode file.
+     * FILE_LOADED: This event provides a path to a processed gcode file which
+     * should be opened with a GcodeStreamReader.
+     *
+     * @param state    the new file state.
+     * @param filepath the file related to the file event.
+     * @param success if the given file state was a success, usually used together with {@link FileState#FILE_STREAM_COMPLETE} to indicate if file was sent
+     */
+    public FileStateEvent(FileState state, String filepath, boolean success) {
+        this.fileState = state;
+        this.file = filepath;
+        this.success = success;
     }
 
     public FileState getFileState() {
@@ -49,5 +64,9 @@ public class FileStateEvent extends UGSEvent {
 
     public String getFile() {
         return file;
+    }
+
+    public boolean isSuccess() {
+        return success;
     }
 }

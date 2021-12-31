@@ -30,7 +30,7 @@ import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.apache.commons.lang3.StringUtils;
 
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.*;
 
 /**
  * Controller implementation for Smoothieware
@@ -103,7 +103,7 @@ public class SmoothieController extends AbstractController {
         comm.cancelSend();
         comm.sendByteImmediately(SmoothieUtils.RESET_COMMAND);
 
-        setCurrentState(UGSEvent.ControlState.COMM_DISCONNECTED);
+        setCurrentState(CommunicatorState.COMM_DISCONNECTED);
         controllerStatus = ControllerStatusBuilder.newInstance(controllerStatus)
                 .setState(ControllerState.DISCONNECTED)
                 .build();
@@ -232,7 +232,7 @@ public class SmoothieController extends AbstractController {
     }
 
     @Override
-    public Boolean handlesAllStateChangeEvents() {
+    public boolean handlesAllStateChangeEvents() {
         return false;
     }
 
@@ -273,32 +273,32 @@ public class SmoothieController extends AbstractController {
     }
 
     @Override
-    public UGSEvent.ControlState getControlState() {
+    public CommunicatorState getControlState() {
         ControllerState state = controllerStatus.getState();
         switch(state) {
             case JOG:
             case RUN:
-                return UGSEvent.ControlState.COMM_SENDING;
+                return CommunicatorState.COMM_SENDING;
             case HOLD:
             case DOOR:
-                return UGSEvent.ControlState.COMM_SENDING_PAUSED;
+                return CommunicatorState.COMM_SENDING_PAUSED;
             case IDLE:
                 if (isStreaming()){
-                    return UGSEvent.ControlState.COMM_SENDING_PAUSED;
+                    return CommunicatorState.COMM_SENDING_PAUSED;
                 } else {
-                    return UGSEvent.ControlState.COMM_IDLE;
+                    return CommunicatorState.COMM_IDLE;
                 }
             case CHECK:
                 if (isStreaming() && comm.isPaused()) {
-                    return UGSEvent.ControlState.COMM_SENDING_PAUSED;
+                    return CommunicatorState.COMM_SENDING_PAUSED;
                 } else if (isStreaming() && !comm.isPaused()) {
-                    return UGSEvent.ControlState.COMM_SENDING;
+                    return CommunicatorState.COMM_SENDING;
                 } else {
                     return COMM_CHECK;
                 }
             case ALARM:
             default:
-                return UGSEvent.ControlState.COMM_IDLE;
+                return CommunicatorState.COMM_IDLE;
         }
     }
 }

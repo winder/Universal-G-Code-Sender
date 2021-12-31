@@ -18,17 +18,17 @@
  */
 package com.willwinder.universalgcodesender.model.events;
 
-import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 
-public class AlarmEvent implements UGSEvent {
-    private final Alarm alarm;
+public class FirmwareSettingEvent implements UGSEvent {
+    private final FirmwareSetting firmwareSetting;
 
-    public AlarmEvent(Alarm alarm) {
-        this.alarm = alarm;
+    public FirmwareSettingEvent(FirmwareSetting firmwareSetting) {
+        this.firmwareSetting = firmwareSetting;
     }
 
-    public Alarm getAlarm() {
-        return alarm;
+    public FirmwareSetting getFirmwareSetting() {
+        return firmwareSetting;
     }
 }

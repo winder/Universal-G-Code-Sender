@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,6 +20,8 @@ package com.willwinder.universalgcodesender.listeners;
 
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * @author wwinder
@@ -111,6 +113,16 @@ public class ControllerStatus {
         return feedSpeedUnits;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
     public static class EnabledPins {
         final public boolean X;
         final public boolean Y;
@@ -138,6 +150,16 @@ public class ControllerStatus {
             SoftReset = enabledUpper.contains("R");
             CycleStart = enabledUpper.contains("S");
         }
+
+        @Override
+        public boolean equals(Object o) {
+            return EqualsBuilder.reflectionEquals(this, o);
+        }
+
+        @Override
+        public int hashCode() {
+            return HashCodeBuilder.reflectionHashCode(this);
+        }
     }
 
     public static class AccessoryStates {
@@ -153,6 +175,16 @@ public class ControllerStatus {
             Flood = enabledUpper.contains("F");
             Mist = enabledUpper.contains("M");
         }
+
+        @Override
+        public boolean equals(Object o) {
+            return EqualsBuilder.reflectionEquals(this, o);
+        }
+
+        @Override
+        public int hashCode() {
+            return HashCodeBuilder.reflectionHashCode(this);
+        }
     }
 
     public static class OverridePercents {
@@ -164,6 +196,16 @@ public class ControllerStatus {
             this.feed = feed;
             this.rapid = rapid;
             this.spindle = spindle;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return EqualsBuilder.reflectionEquals(this, o);
+        }
+
+        @Override
+        public int hashCode() {
+            return HashCodeBuilder.reflectionHashCode(this);
         }
     }
 }

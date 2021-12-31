@@ -18,110 +18,11 @@
  */
 package com.willwinder.universalgcodesender.model;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 /**
- * These objects are passed around by the GUI API to notify listeners of state
- * changes.
+ * An event class that can be used to notify GUI or other types of features from the BackendAPI.
  *
  * @author wwinder
  */
-public class UGSEvent {
-    private final EventType evt;
-    private ControlState controlState = null;
-    private Position probePosition = null;
+public interface UGSEvent {
 
-    public enum EventType {
-        STATE_EVENT,
-        FILE_EVENT,
-        SETTING_EVENT,
-        FIRMWARE_SETTING_EVENT,
-        PROBE_EVENT,
-        CONTROLLER_STATUS_EVENT,
-        ALARM_EVENT,
-        /**
-         * An event type intended to be used to get controller state changes
-         */
-        CONTROLLER_STATE_EVENT
-    }
-
-    public enum ControlState {
-        COMM_DISCONNECTED,
-        COMM_IDLE,
-        COMM_SENDING,
-        COMM_SENDING_PAUSED,
-        COMM_CHECK
-    }
-
-    public EventType getEventType(){
-        return evt;
-    }
-
-    public boolean isStateChangeEvent() {
-        return EventType.STATE_EVENT.equals(evt);
-    }
-
-    public boolean isFileChangeEvent() {
-        return EventType.FILE_EVENT.equals(evt);
-    }
-
-    public boolean isSettingChangeEvent() {
-        return EventType.SETTING_EVENT.equals(evt);
-    }
-
-    public boolean isFirmwareSettingEvent() {
-        return EventType.FIRMWARE_SETTING_EVENT.equals(evt);
-    }
-
-    public boolean isProbeEvent() {
-        return EventType.PROBE_EVENT.equals(evt);
-    }
-
-    /**
-     * Create a new event of given type. STATE_EVENT and FILE_EVENT have
-     * required parameters, so a runtime exception will be thrown if they are
-     * specified with this constructor.
-     * @param type 
-     */
-    public UGSEvent(EventType type) {
-        evt = type;
-        switch (evt) {
-            case STATE_EVENT:
-            case PROBE_EVENT:
-                throw new RuntimeException("Missing parameters for " + type + " event.");
-        }
-    }
-
-    /**
-     * Create a control state event.
-     * @param state the new state.
-     */
-    public UGSEvent(ControlState state) {
-        evt = EventType.STATE_EVENT;
-        controlState = state;
-    }
-
-    /**
-     * Create a probe position event.
-     * PROBE_POSITION: This event indicates the tool location after a probe.
-     * @param probePosition 
-     */
-    public UGSEvent(Position probePosition) {
-        evt = EventType.PROBE_EVENT;
-        this.probePosition = probePosition;
-    }
-
-    // Getters
-    public ControlState getControlState() {
-        return controlState;
-    }
-
-    public Position getProbePosition() {
-        return probePosition;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
 }

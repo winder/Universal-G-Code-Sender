@@ -44,6 +44,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
 
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import net.miginfocom.swing.MigLayout;
 
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -355,7 +356,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isStateChangeEvent()) {
+        if (evt instanceof ControllerStateEvent) {
             updateControls();
         }
     }

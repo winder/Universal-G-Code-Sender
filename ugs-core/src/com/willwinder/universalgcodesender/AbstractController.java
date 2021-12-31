@@ -24,13 +24,8 @@ import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerState;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
+import com.willwinder.universalgcodesender.listeners.*;
 import com.willwinder.universalgcodesender.model.*;
-import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
@@ -44,7 +39,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.willwinder.universalgcodesender.Utils.formatter;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.*;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 
@@ -99,7 +94,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
 
     // Maintain the current state given actions performed.
     // Concrete classes with a status field should override getControlState.
-    private ControlState currentState = COMM_DISCONNECTED;
+    private CommunicatorState currentState = COMM_DISCONNECTED;
 
 
     /** API Interface. */
@@ -518,7 +513,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
             throw new Exception("Cannot send command(s), comm port is not open.");
         }
 
-        this.setCurrentState(ControlState.COMM_SENDING);
+        this.setCurrentState(CommunicatorState.COMM_SENDING);
         this.comm.queueCommand(command);
         this.comm.streamCommands();
     }
@@ -630,7 +625,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     }
 
     @Override
-    public ControlState getControlState() {
+    public CommunicatorState getControlState() {
         return this.currentState;
     }
 
@@ -706,9 +701,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         command.setSent(true);
         this.activeCommands.add(command);
 
-        if (command.hasComment()) {
-            dispatchCommandCommment(command.getComment());
-        }
         dispatchCommandSent(command);
         dispatchConsoleMessage(MessageType.INFO, ">>> " + StringUtils.trimToEmpty(command.getCommandString()) + "\n");
     }
@@ -732,16 +724,17 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     }
 
     public void checkStreamFinished() {
+        ControllerState state = getControllerStatus().getState();
         if (this.isStreaming() &&
                 !this.comm.areActiveCommands() &&
                 this.comm.numActiveCommands() == 0 &&
                 rowsRemaining() <= 0 &&
-                (getControllerStatus().getState().equals(ControllerState.CHECK) || getControlState() == COMM_IDLE || getControlState() == COMM_SENDING_PAUSED)) {
+                (state == ControllerState.CHECK || state == ControllerState.IDLE)) {
             String streamName = "queued commands";
-            this.fileStreamComplete(streamName, true);
 
             // Make sure the GUI gets updated when the file finishes
             this.dispatchStateChange(getControlState());
+            this.fileStreamComplete(streamName, true);
         }
     }
 
@@ -785,9 +778,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         command.setResponse("<skipped by application>");
         command.setSkipped(true);
         dispatchCommandSkipped(command);
-        if (command.hasComment()) {
-            dispatchCommandCommment(command.getComment());
-        }
 
         checkStreamFinished();
     }
@@ -824,7 +814,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         rawResponseHandler(response);
     }
 
-    protected void setCurrentState(ControlState state) {
+    protected void setCurrentState(CommunicatorState state) {
         this.currentState = state;
         if (!this.handlesAllStateChangeEvents()) {
             this.dispatchStateChange(state);
@@ -863,7 +853,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         }
     }
 
-    protected void dispatchStateChange(ControlState state) {
+    protected void dispatchStateChange(CommunicatorState state) {
         if (listeners != null) {
             for (ControllerListener c : listeners) {
                 c.controlStateChange(state);
@@ -899,14 +889,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         if (listeners != null) {
             for (ControllerListener c : listeners) {
                 c.commandComplete(command);
-            }
-        }
-    }
-
-    protected void dispatchCommandCommment(String comment) {
-        if (listeners != null) {
-            for (ControllerListener c : listeners) {
-                c.commandComment(comment);
             }
         }
     }

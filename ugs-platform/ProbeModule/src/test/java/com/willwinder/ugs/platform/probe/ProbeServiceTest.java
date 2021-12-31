@@ -18,21 +18,22 @@
  */
 package com.willwinder.ugs.platform.probe;
 
-import static com.willwinder.ugs.platform.probe.ProbeService.retractDistance;
 import com.willwinder.ugs.platform.probe.ProbeService.ProbeParameters;
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G54;
-import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G55;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.ProbeEvent;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.times;
+
+import static com.willwinder.ugs.platform.probe.ProbeService.retractDistance;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G54;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G55;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -59,9 +60,9 @@ public class ProbeServiceTest {
         ps.performZProbe(pc);
 
         Position probeZ = new Position(5, 5, 3, Units.MM);
-        ps.UGSEvent(new UGSEvent(probeZ));
-        ps.UGSEvent(new UGSEvent(probeZ));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
+        ps.UGSEvent(new ProbeEvent(probeZ));
+        ps.UGSEvent(new ProbeEvent(probeZ));
+        ps.UGSEvent(new ControllerStateEvent(ControllerState.IDLE, ControllerState.RUN));
 
         InOrder order = inOrder(backend);
 
@@ -92,11 +93,11 @@ public class ProbeServiceTest {
         Position probeX = new Position(1.0, 1.0, 0, Units.MM);
 
         // Events to transition between states.
-        ps.UGSEvent(new UGSEvent(probeY));
-        ps.UGSEvent(new UGSEvent(probeY));
-        ps.UGSEvent(new UGSEvent(probeX));
-        ps.UGSEvent(new UGSEvent(probeX));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
+        ps.UGSEvent(new ProbeEvent(probeY));
+        ps.UGSEvent(new ProbeEvent(probeY));
+        ps.UGSEvent(new ProbeEvent(probeX));
+        ps.UGSEvent(new ProbeEvent(probeX));
+        ps.UGSEvent(new ControllerStateEvent(ControllerState.IDLE, ControllerState.DISCONNECTED));
 
         InOrder order = inOrder(backend);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 X0Y0");
@@ -144,13 +145,13 @@ public class ProbeServiceTest {
         Position probeZ = new Position(0., 0., 3.0, Units.MM);
 
         // Events to transition between states.
-        ps.UGSEvent(new UGSEvent(probeZ));
-        ps.UGSEvent(new UGSEvent(probeZ));
-        ps.UGSEvent(new UGSEvent(probeX));
-        ps.UGSEvent(new UGSEvent(probeX));
-        ps.UGSEvent(new UGSEvent(probeY));
-        ps.UGSEvent(new UGSEvent(probeY));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
+        ps.UGSEvent(new ProbeEvent(probeZ));
+        ps.UGSEvent(new ProbeEvent(probeZ));
+        ps.UGSEvent(new ProbeEvent(probeX));
+        ps.UGSEvent(new ProbeEvent(probeX));
+        ps.UGSEvent(new ProbeEvent(probeY));
+        ps.UGSEvent(new ProbeEvent(probeY));
+        ps.UGSEvent(new ControllerStateEvent(ControllerState.IDLE, ControllerState.RUN));
 
         InOrder order = inOrder(backend);
 

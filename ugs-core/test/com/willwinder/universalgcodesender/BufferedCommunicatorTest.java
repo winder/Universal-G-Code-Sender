@@ -96,16 +96,6 @@ public class BufferedCommunicatorTest {
      * Test of getBufferSize method, of class BufferedCommunicator.
      */
     @Test
-    @Ignore
-    public void testSingleStepMode() {
-        System.out.println("testSingleStepMode");
-        fail("Not implemented yet.");
-    }
-
-    /**
-     * Test of getBufferSize method, of class BufferedCommunicator.
-     */
-    @Test
     public void testGetBufferSize() {
         System.out.println("getBufferSize");
         assertEquals(101, instance.getBufferSize());

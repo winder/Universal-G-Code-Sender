@@ -121,7 +121,7 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
      */
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse.isFileChangeEvent()) {
+        if (cse instanceof FileStateEvent) {
             FileStateEvent fileStateEvent = (FileStateEvent) cse;
             if (fileStateEvent.getFileState() == FileState.FILE_LOADED) {
                 this.addFileToWorkflow(backend.getGcodeFile());

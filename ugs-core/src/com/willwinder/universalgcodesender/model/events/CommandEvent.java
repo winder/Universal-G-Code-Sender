@@ -18,17 +18,26 @@
  */
 package com.willwinder.universalgcodesender.model.events;
 
-import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 
-public class AlarmEvent implements UGSEvent {
-    private final Alarm alarm;
+/**
+ * Event for notifying state changes for commands
+ */
+public class CommandEvent implements UGSEvent {
+    private final CommandEventType commandEventType;
+    private final GcodeCommand command;
 
-    public AlarmEvent(Alarm alarm) {
-        this.alarm = alarm;
+    public CommandEvent(CommandEventType commandEventType, GcodeCommand command) {
+        this.commandEventType = commandEventType;
+        this.command = command;
     }
 
-    public Alarm getAlarm() {
-        return alarm;
+    public CommandEventType getCommandEventType() {
+        return commandEventType;
+    }
+
+    public GcodeCommand getCommand() {
+        return command;
     }
 }

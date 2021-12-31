@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.openide.DialogDisplayer;
@@ -149,7 +150,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
                 Localization.getString("platform.plugin.setupwizard.soft-limits.instructions") +
                 "</p></body></html>");
 
-        navigationButtons = new NavigationButtons(getBackend(), 1.0, (int)getBackend().getSettings().getJogFeedRate());
+        navigationButtons = new NavigationButtons(getBackend(), 1.0, (int) getBackend().getSettings().getJogFeedRate());
 
         checkboxEnableSoftLimits = new JCheckBox("Enable soft limits");
         checkboxEnableSoftLimits.addActionListener(event -> onSoftLimitsClicked());
@@ -328,18 +329,13 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
     @Override
     public void UGSEvent(UGSEvent event) {
 
-        if (getBackend().getController() != null &&
-                getBackend().isConnected() &&
-                (event instanceof ControllerStatusEvent || event.isStateChangeEvent())) {
+        if (getBackend().getController() != null && getBackend().isConnected() && event instanceof ControllerStatusEvent) {
             WizardUtils.killAlarm(getBackend());
-
-            if (event instanceof ControllerStatusEvent) {
-                Position machineCoord = ((ControllerStatusEvent) event).getStatus().getMachineCoord();
-                labelPositionX.setText(positionDecimalFormat.format(machineCoord.get(Axis.X)) + " mm");
-                labelPositionY.setText(positionDecimalFormat.format(machineCoord.get(Axis.Y)) + " mm");
-                labelPositionZ.setText(positionDecimalFormat.format(machineCoord.get(Axis.Z)) + " mm");
-            }
-        } else if (event.isFirmwareSettingEvent()) {
+            Position machineCoord = ((ControllerStatusEvent) event).getStatus().getMachineCoord();
+            labelPositionX.setText(positionDecimalFormat.format(machineCoord.get(Axis.X)) + " mm");
+            labelPositionY.setText(positionDecimalFormat.format(machineCoord.get(Axis.Y)) + " mm");
+            labelPositionZ.setText(positionDecimalFormat.format(machineCoord.get(Axis.Z)) + " mm");
+        } else if (event instanceof FirmwareSettingEvent) {
             refeshControls();
         }
 

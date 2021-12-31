@@ -30,7 +30,9 @@ import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.AlarmEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -155,9 +157,9 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
 
     @Override
     public void UGSEvent(UGSEvent event) {
-        if (event.isFirmwareSettingEvent()) {
+        if (event instanceof FirmwareSettingEvent) {
             ThreadHelper.invokeLater(this::refreshReverseDirectionCheckboxes);
-        } else if (event instanceof ControllerStatusEvent || event.isStateChangeEvent()) {
+        } else if (event instanceof ControllerStateEvent) {
             WizardUtils.killAlarm(getBackend());
         } else if (event instanceof AlarmEvent && ((AlarmEvent) event).getAlarm() == Alarm.HARD_LIMIT) {
             ThreadHelper.invokeLater(() -> {

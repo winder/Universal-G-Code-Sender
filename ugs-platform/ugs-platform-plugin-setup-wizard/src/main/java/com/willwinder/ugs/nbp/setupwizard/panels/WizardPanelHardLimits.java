@@ -29,6 +29,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.AlarmEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 import com.willwinder.universalgcodesender.uielements.components.RoundedBorder;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -154,7 +155,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isFirmwareSettingEvent()) {
+        if (evt instanceof FirmwareSettingEvent) {
             refreshComponents();
         } else if (evt instanceof ControllerStatusEvent) {
             ThreadHelper.invokeLater(() -> {

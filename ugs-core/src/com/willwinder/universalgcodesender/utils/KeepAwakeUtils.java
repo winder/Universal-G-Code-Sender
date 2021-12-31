@@ -62,7 +62,7 @@ public class KeepAwakeUtils {
             @Override
             public void run() {
                 // Move the mouse every 30 seconds to prevent sleeping.
-                if (backendAPI.isPaused() || backendAPI.isActive()) {
+                if (backendAPI.isPaused() || !backendAPI.isIdle()) {
                     keepAwake();
                 }
             }

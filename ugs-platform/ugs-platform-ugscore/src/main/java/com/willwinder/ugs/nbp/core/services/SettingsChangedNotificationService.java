@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.LifecycleManager;
 import org.openide.awt.Notification;
@@ -54,7 +55,7 @@ public class SettingsChangedNotificationService {
     }
 
     private void checkForLanguageChangeAndAskForRestart(UGSEvent ugsEvent) {
-        if (ugsEvent.isSettingChangeEvent() && !StringUtils.equalsIgnoreCase(lastSelectedLanguage, backend.getSettings().getLanguage())) {
+        if (ugsEvent instanceof SettingChangedEvent && !StringUtils.equalsIgnoreCase(lastSelectedLanguage, backend.getSettings().getLanguage())) {
             lastSelectedLanguage = backend.getSettings().getLanguage();
             Localization.initialize(backend.getSettings().getLanguage());
             notifyRestartRequired();

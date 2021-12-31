@@ -75,7 +75,6 @@ public final class CheckModeAction extends AbstractAction implements UGSEventLis
     @Override
     public boolean isEnabled() {
         return backend.isConnected() && backend.isIdle() &&
-                (backend.getControllerState() == ControllerState.IDLE || backend.getControllerState() == ControllerState.CHECK) &&
                 backend.getController().getCapabilities().hasCheckMode();
     }
 

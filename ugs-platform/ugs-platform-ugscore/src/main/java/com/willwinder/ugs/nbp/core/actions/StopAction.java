@@ -33,6 +33,7 @@ import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 
 @ActionID(
@@ -69,8 +70,8 @@ public final class StopAction extends AbstractAction implements UGSEventListener
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse instanceof ControllerStateEvent || cse.isStateChangeEvent()) {
-            java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        if (cse instanceof ControllerStateEvent) {
+            EventQueue.invokeLater(() -> setEnabled(isEnabled()));
         }
     }
 

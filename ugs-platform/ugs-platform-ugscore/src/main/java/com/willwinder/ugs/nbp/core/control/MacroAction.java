@@ -4,6 +4,7 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.util.Exceptions;
@@ -36,7 +37,7 @@ public class MacroAction extends AbstractAction implements Serializable {
     }
 
     private void onEvent(UGSEvent event) {
-        if (event != null && event.isStateChangeEvent()) {
+        if (event instanceof ControllerStateEvent) {
             EventQueue.invokeLater(() -> setEnabled(isEnabled()));
         }
     }

@@ -248,10 +248,9 @@ public class TerminalClient {
         SettingsFactory.saveSettings();
 
         if (configuration.hasOption(OptionEnum.PRINT_STREAM)) {
-            backend.addControllerListener(new ProcessedLinePrinter());
+            backend.addUGSEventListener(new ProcessedLinePrinter());
         } else if (configuration.hasOption(OptionEnum.PRINT_PROGRESSBAR)) {
             ProgressBarPrinter progressBarPrinter = new ProgressBarPrinter(backend);
-            backend.addControllerListener(progressBarPrinter);
             backend.addUGSEventListener(progressBarPrinter);
         }
     }

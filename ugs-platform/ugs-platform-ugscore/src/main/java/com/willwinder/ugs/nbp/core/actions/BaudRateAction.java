@@ -30,6 +30,9 @@ import java.awt.FlowLayout;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -95,12 +98,12 @@ public class BaudRateAction extends CallableSystemAction implements UGSEventList
         }
 
         // If a setting has changed elsewhere, update the combo boxes.
-        if (evt.isSettingChangeEvent()) {
+        if (evt instanceof SettingChangedEvent) {
             updateBaudRate();
         }
 
         // if the state has changed, check if the baud box should be displayed.
-        else if (evt.isStateChangeEvent()) {
+        else if (evt instanceof ControllerStateEvent) {
             c.setVisible(!backend.isConnected());
         }
     }

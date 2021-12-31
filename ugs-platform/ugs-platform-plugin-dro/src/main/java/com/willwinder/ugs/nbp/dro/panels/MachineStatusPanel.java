@@ -31,6 +31,7 @@ import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.uielements.components.PopupEditor;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
@@ -245,11 +246,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
     public void UGSEvent(UGSEvent evt) {
         if (evt instanceof ControllerStateEvent) {
             updateControls();
-        }
-        if (evt instanceof ControllerStatusEvent) {
-            onControllerStatusReceived(((ControllerStatusEvent)evt).getStatus());
-        }
-        if (evt.isSettingChangeEvent() && backend.getController() != null && backend.getController().getControllerStatus() != null) {
+        } else if (evt instanceof ControllerStatusEvent) {
+            onControllerStatusReceived(((ControllerStatusEvent) evt).getStatus());
+        } else if (evt instanceof SettingChangedEvent && backend.getController() != null && backend.getController().getControllerStatus() != null) {
             onControllerStatusReceived(backend.getController().getControllerStatus());
             updateControls();
         }

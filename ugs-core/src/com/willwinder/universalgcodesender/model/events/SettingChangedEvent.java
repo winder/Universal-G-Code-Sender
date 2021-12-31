@@ -18,17 +18,8 @@
  */
 package com.willwinder.universalgcodesender.model.events;
 
-import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 
-public class AlarmEvent implements UGSEvent {
-    private final Alarm alarm;
+public class SettingChangedEvent implements UGSEvent {
 
-    public AlarmEvent(Alarm alarm) {
-        this.alarm = alarm;
-    }
-
-    public Alarm getAlarm() {
-        return alarm;
-    }
 }

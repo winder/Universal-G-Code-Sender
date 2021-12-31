@@ -26,9 +26,8 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.PartialPosition;
-import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import com.willwinder.universalgcodesender.model.CommunicatorState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
@@ -175,7 +174,7 @@ public interface IController {
     Boolean isPaused();
     Boolean isIdle();
     void cancelSend() throws Exception;
-    ControlState getControlState();
+    CommunicatorState getControlState();
 
     /**
      * In case a controller reset is detected.
@@ -188,7 +187,7 @@ public interface IController {
      * things like completing the final command in a stream will not
      * automatically re-enable buttons.
      */
-    Boolean handlesAllStateChangeEvents();
+    boolean handlesAllStateChangeEvents();
     
     /*
     Stream content

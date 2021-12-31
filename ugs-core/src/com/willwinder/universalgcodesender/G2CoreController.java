@@ -22,10 +22,10 @@ import com.google.gson.JsonObject;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.CommunicatorState;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
 
 /**
  * G2Core Control layer.
@@ -54,7 +54,7 @@ public class G2CoreController extends TinyGController {
         this.comm.sendByteImmediately(TinyGUtils.COMMAND_QUEUE_FLUSH);
         this.comm.sendByteImmediately((byte) '\n');
 
-        setCurrentState(UGSEvent.ControlState.COMM_DISCONNECTED);
+        setCurrentState(CommunicatorState.COMM_DISCONNECTED);
         controllerStatus = ControllerStatusBuilder.newInstance(controllerStatus)
                 .setState(ControllerState.DISCONNECTED)
                 .build();

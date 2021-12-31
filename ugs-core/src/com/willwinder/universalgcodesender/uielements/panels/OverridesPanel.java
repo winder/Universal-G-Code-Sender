@@ -24,6 +24,8 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryS
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import net.miginfocom.swing.MigLayout;
 
@@ -66,21 +68,21 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
     private final ArrayList<RealTimeAction> spindleActions = new ArrayList<>();
     private final ArrayList<RealTimeAction> feedActions = new ArrayList<>();
 
-    public final static String FEED_SHORT = Localization.getString("overrides.feed.short");
-    public final static String SPINDLE_SHORT = Localization.getString("overrides.spindle.short");
-    public final static String RAPID_SHORT = Localization.getString("overrides.rapid.short");
-    public final static String TOGGLE_SHORT = Localization.getString("overrides.toggle.short");
-    public final static String RESET_SPINDLE = Localization.getString("overrides.spindle.reset");
-    public final static String RESET_FEED = Localization.getString("overrides.feed.reset");
-    public final static String MINUS_COARSE = "--";
-    public final static String MINUS_FINE = "-";
-    public final static String PLUS_COARSE = "++";
-    public final static String PLUS_FINE = "+";
-    public final static String RAPID_LOW = Localization.getString("overrides.rapid.low");
-    public final static String RAPID_MEDIUM = Localization.getString("overrides.rapid.medium");
-    public final static String RAPID_FULL = Localization.getString("overrides.rapid.full");
-    public final static String MIST = Localization.getString("overrides.mist");
-    public final static String FLOOD = Localization.getString("overrides.flood");
+    public static final String FEED_SHORT = Localization.getString("overrides.feed.short");
+    public static final String SPINDLE_SHORT = Localization.getString("overrides.spindle.short");
+    public static final String RAPID_SHORT = Localization.getString("overrides.rapid.short");
+    public static final String TOGGLE_SHORT = Localization.getString("overrides.toggle.short");
+    public static final String RESET_SPINDLE = Localization.getString("overrides.spindle.reset");
+    public static final String RESET_FEED = Localization.getString("overrides.feed.reset");
+    public static final String MINUS_COARSE = "--";
+    public static final String MINUS_FINE = "-";
+    public static final String PLUS_COARSE = "++";
+    public static final String PLUS_FINE = "+";
+    public static final String RAPID_LOW = Localization.getString("overrides.rapid.low");
+    public static final String RAPID_MEDIUM = Localization.getString("overrides.rapid.medium");
+    public static final String RAPID_FULL = Localization.getString("overrides.rapid.full");
+    public static final String MIST = Localization.getString("overrides.mist");
+    public static final String FLOOD = Localization.getString("overrides.flood");
 
     public OverridesPanel(BackendAPI backend) {
         this.backend = backend;
@@ -111,8 +113,8 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
     }
 
     @Override
-    public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
-        if (evt.isStateChangeEvent()) {
+    public void UGSEvent(UGSEvent evt) {
+        if (evt instanceof ControllerStateEvent) {
             updateControls();
         } else if (evt instanceof ControllerStatusEvent) {
             ControllerStatus status = ((ControllerStatusEvent) evt).getStatus();

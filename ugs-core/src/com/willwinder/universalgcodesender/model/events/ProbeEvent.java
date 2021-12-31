@@ -18,17 +18,17 @@
  */
 package com.willwinder.universalgcodesender.model.events;
 
-import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 
-public class AlarmEvent implements UGSEvent {
-    private final Alarm alarm;
+public class ProbeEvent implements UGSEvent {
+    private final Position probePosition;
 
-    public AlarmEvent(Alarm alarm) {
-        this.alarm = alarm;
+    public ProbeEvent(Position probePosition) {
+        this.probePosition = probePosition;
     }
 
-    public Alarm getAlarm() {
-        return alarm;
+    public Position getProbePosition() {
+        return probePosition;
     }
 }

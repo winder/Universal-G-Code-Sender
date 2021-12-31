@@ -26,13 +26,12 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
  *
  * @author Joacim Breiler
  */
-public class ControllerStatusEvent extends UGSEvent {
+public class ControllerStatusEvent implements UGSEvent {
 
     private final ControllerStatus status;
     private final ControllerStatus previousStatus;
 
     public ControllerStatusEvent(ControllerStatus status, ControllerStatus previousStatus) {
-        super(EventType.CONTROLLER_STATUS_EVENT);
         this.status = status;
         this.previousStatus = previousStatus;
     }

@@ -20,9 +20,8 @@ package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.MessageListener;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+
 import java.io.File;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 
@@ -49,20 +48,6 @@ public interface BackendAPIReadOnly {
     void removeUGSEventListener(UGSEventListener listener);
 
     /**
-     * Details internal controller listener.
-     *
-     * @deprecated if possible switch to {@link #addUGSEventListener(UGSEventListener)} and listen for {@link com.willwinder.universalgcodesender.model.events.ControllerStatusEvent} instead
-     */
-    void addControllerListener(ControllerListener listener);
-
-    /**
-     * Removes a controller listener
-     *
-     * @param listener the listener to be removed
-     */
-    void removeControllerListener(ControllerListener listener);
-
-    /**
      * Adds a listener that will receive all messages that should be written to the console
      *
      * @param listener the listener to be added
@@ -82,14 +67,13 @@ public interface BackendAPIReadOnly {
 
     // Controller status
     boolean isConnected();
-    boolean isActive();
     boolean isSendingFile();
     boolean isIdle();
     boolean isPaused();
     boolean canPause();
     boolean canCancel();
     boolean canSend();
-    ControlState getControlState();
+    CommunicatorState getControlState();
     Position getWorkPosition();
     Position getMachinePosition();
     GcodeState getGcodeState();

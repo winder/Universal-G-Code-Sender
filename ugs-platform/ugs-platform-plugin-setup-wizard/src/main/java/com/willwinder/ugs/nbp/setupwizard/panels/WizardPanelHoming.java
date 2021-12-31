@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.openide.DialogDisplayer;
@@ -264,7 +265,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
 
     @Override
     public void UGSEvent(UGSEvent event) {
-        if (event.isFirmwareSettingEvent()) {
+        if (event instanceof FirmwareSettingEvent) {
             refreshControls();
         }
     }

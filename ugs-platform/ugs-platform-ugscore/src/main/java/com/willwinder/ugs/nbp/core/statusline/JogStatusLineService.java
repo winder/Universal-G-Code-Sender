@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.Component;
 import javax.swing.JLabel;
@@ -61,7 +62,7 @@ public class JogStatusLineService implements StatusLineElementProvider {
 
         @Override
         public void UGSEvent(UGSEvent evt) {
-            if (evt.isSettingChangeEvent()) {
+            if (evt instanceof SettingChangedEvent) {
                 setText();
             }
         }

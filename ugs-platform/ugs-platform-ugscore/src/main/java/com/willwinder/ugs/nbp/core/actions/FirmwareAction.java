@@ -23,6 +23,8 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 import org.openide.awt.ActionID;
@@ -115,12 +117,12 @@ public class FirmwareAction extends CallableSystemAction implements UGSEventList
         }
 
         // If a setting has changed elsewhere, update the combo boxes.
-        if (evt.isSettingChangeEvent()) {
+        if (evt instanceof SettingChangedEvent) {
             firmwareUpdated();
         }
 
         // if the state has changed, check if the baud box should be displayed.
-        else if (evt.isStateChangeEvent()) {
+        else if (evt instanceof ControllerStateEvent) {
             c.setVisible(!backend.isConnected());
         }
 

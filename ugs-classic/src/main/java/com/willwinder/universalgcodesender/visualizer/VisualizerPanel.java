@@ -20,26 +20,23 @@
 package com.willwinder.universalgcodesender.visualizer;
 
 import com.jogamp.opengl.util.FPSAnimator;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.CommandEvent;
+import com.willwinder.universalgcodesender.model.events.CommandEventType;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Window manager for visualizer. Creates 3D canvas and manages data.
  *
  * @author wwinder
  */
-public class VisualizerPanel extends JPanel implements ControllerListener, UGSEventListener {
+public class VisualizerPanel extends JPanel implements UGSEventListener {
 
     private static final int FPS = 20; // animator's target frames per second
 
@@ -52,7 +49,6 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
     public VisualizerPanel(BackendAPI backend) {
         super(new BorderLayout());
         if (backend != null) {
-            backend.addControllerListener(this);
             backend.addUGSEventListener(this);
         }
 
@@ -80,50 +76,6 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
     }
 
     @Override
-    public void statusStringListener(ControllerStatus status) {
-
-    }
-    
-    @Override
-    public void controlStateChange(UGSEvent.ControlState state) {
-    }
-
-    @Override
-    public void fileStreamComplete(String filename, boolean success) {
-        //throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void receivedAlarm(Alarm alarm) {
-
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-        // TODO: When canned cycles are handled in the controller I'll need to
-        //       update the visualizer to use commands sniffed from this queue.
-    }
-
-    @Override
-    public void commandSent(GcodeCommand command) {
-        //throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void commandComplete(GcodeCommand command) {
-        canvas.setCurrentCommandNumber(command.getCommandNumber());
-    }
-
-    @Override
-    public void commandComment(String comment) {
-        //throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void probeCoordinates(Position p) {
-    }
-
-    @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt instanceof FileStateEvent) {
             FileStateEvent fileStateEvent = (FileStateEvent) evt;
@@ -143,6 +95,11 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
             ControllerStatusEvent controllerStatusEvent = (ControllerStatusEvent) evt;
             this.canvas.setMachineCoordinate(controllerStatusEvent.getStatus().getMachineCoord());
             this.canvas.setWorkCoordinate(controllerStatusEvent.getStatus().getWorkCoord());
+        } else if (evt instanceof CommandEvent) {
+            CommandEvent commandEvent = (CommandEvent) evt;
+            if (commandEvent.getCommandEventType() == CommandEventType.COMMAND_COMPLETE && !commandEvent.getCommand().isGenerated()) {
+                canvas.setCurrentCommandNumber(commandEvent.getCommand().getCommandNumber());
+            }
         }
     }
 }
