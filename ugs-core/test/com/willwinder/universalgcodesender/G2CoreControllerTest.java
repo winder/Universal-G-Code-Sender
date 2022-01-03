@@ -153,8 +153,8 @@ public class G2CoreControllerTest {
         assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 3}}");
-        assertEquals(ControllerState.HOLD, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_SENDING_PAUSED, controller.getControlState());
+        assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 4}}");
         assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
