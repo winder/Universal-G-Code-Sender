@@ -251,7 +251,7 @@ public class TinyGUtils {
             case 2: // Machine is in alarm state
                 return ControllerState.ALARM;
             case 3: // Machine has encountered program stop
-                return ControllerState.IDLE;
+                return ControllerState.HOLD;
             case 4: // Machine has encountered program end
                 return ControllerState.IDLE;
             case 5: // Machine is running

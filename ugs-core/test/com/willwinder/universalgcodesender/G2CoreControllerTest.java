@@ -153,8 +153,8 @@ public class G2CoreControllerTest {
         assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 3}}");
-        assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
+        assertEquals(ControllerState.HOLD, controller.getControllerStatus().getState());
+        assertEquals(CommunicatorState.COMM_SENDING_PAUSED, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 4}}");
         assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
@@ -303,5 +303,44 @@ public class G2CoreControllerTest {
         assertEquals("G20G90G1X0.039Y0.079Z0.118F39.37", command.getCommandString());
         assertTrue(command.isGenerated());
         assertTrue(command.isTemporaryParserModalChange());
+    }
+
+    @Test
+    public void jogMachineShouldEmulateRunStateAsJog() throws Exception {
+        // Given
+        when(communicator.isConnected()).thenReturn(true);
+        controller.jogMachine(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000d);
+
+        // When
+        controller.rawResponseHandler("{\"sr\":{\"stat\": 5}}"); // receive RUN
+
+        // Then
+        assertEquals(ControllerState.JOG, controller.getControllerStatus().getState());
+    }
+
+    @Test
+    public void jogMachineShouldTurnBackToIdleWhenDone() throws Exception {
+        // Given
+        when(communicator.isConnected()).thenReturn(true);
+        controller.jogMachine(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000d);
+        controller.rawResponseHandler("{\"sr\":{\"stat\": 1}}"); // receive IDLE
+
+        // Then
+        assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
+    }
+
+    @Test
+    public void jogMachineShouldTurnSwitchOfIsJoggingWhenComplete() throws Exception {
+        // Given
+        when(communicator.isConnected()).thenReturn(true);
+        controller.jogMachine(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000d);
+        controller.rawResponseHandler("{\"sr\":{\"stat\": 1}}"); // receive IDLE
+
+        // When
+        controller.sendCommandImmediately(new GcodeCommand("G0 X1"));
+        controller.rawResponseHandler("{\"sr\":{\"stat\": 5}}"); // receive RUN
+
+        // Then
+        assertEquals("Should now consider send commands as a normal run state", ControllerState.RUN, controller.getControllerStatus().getState());
     }
 }

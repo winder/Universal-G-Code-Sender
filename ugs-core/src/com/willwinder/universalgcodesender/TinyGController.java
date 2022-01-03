@@ -256,7 +256,7 @@ public class TinyGController extends AbstractController {
         gcodeList.forEach(gcode -> updateParserModalState(new GcodeCommand(gcode)));
 
         // Notify our listeners about the new status
-        controllerStatus = TinyGUtils.updateControllerStatus(controllerStatus, jo);
+        controllerStatus = parseControllerStatus(jo);
         dispatchStatusString(controllerStatus);
 
         // Notify state change to our listeners
@@ -265,6 +265,15 @@ public class TinyGController extends AbstractController {
             LOGGER.log(Level.FINE, "Changing state from " + previousControlState + " to " + newControlState);
             setCurrentState(newControlState);
         }
+    }
+
+    /**
+     * Parse the controller status response and return the current controller status
+     * @param jo a json object with the controller status
+     * @return the new current controller status
+     */
+    protected ControllerStatus parseControllerStatus(JsonObject jo) {
+        return TinyGUtils.updateControllerStatus(controllerStatus, jo);
     }
 
     protected void sendInitCommands() {
@@ -384,7 +393,7 @@ public class TinyGController extends AbstractController {
         Optional<GcodeCommand> gcodeCommand = TinyGUtils.createOverrideCommand(currentOverrides, command);
         if (gcodeCommand.isPresent()) {
             sendCommandImmediately(gcodeCommand.get());
-	}
+	    }
     }
 
     @Override

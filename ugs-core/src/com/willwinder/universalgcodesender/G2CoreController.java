@@ -20,9 +20,11 @@ package com.willwinder.universalgcodesender;
 
 import com.google.gson.JsonObject;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
@@ -33,8 +35,12 @@ import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_I
  * @author Joacim Breiler
  */
 public class G2CoreController extends TinyGController {
-
     private static final String STATUS_REPORT_CONFIG = "{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t}}";
+
+    /**
+     * A temporary flag for emulating a JOG state when parsing the controller status
+     */
+    private boolean isJogging = false;
 
     public G2CoreController() {
         super();
@@ -46,6 +52,7 @@ public class G2CoreController extends TinyGController {
 
     @Override
     protected void openCommAfterEvent() {
+        // We don't need this
     }
 
     @Override
@@ -64,6 +71,7 @@ public class G2CoreController extends TinyGController {
         sendInitCommands();
     }
 
+    @Override
     protected void handleReadyResponse(String response, JsonObject jo) {
         if (TinyGUtils.isTinyGVersion(jo)) {
             firmwareVersionNumber = TinyGUtils.getVersion(jo);
@@ -95,6 +103,7 @@ public class G2CoreController extends TinyGController {
         }
     }
 
+    @Override
     protected void sendInitCommands() {
         // Enable JSON mode
         // 0=text mode, 1=JSON mode
@@ -145,5 +154,41 @@ public class G2CoreController extends TinyGController {
 
         // We will end up in an alarm state, clear the alarm
         killAlarmLock();
+    }
+
+    @Override
+    public void jogMachine(PartialPosition distance, double feedRate) throws Exception {
+        isJogging = true;
+        super.jogMachine(distance, feedRate);
+    }
+
+    @Override
+    public void jogMachineTo(final PartialPosition position, final double feedRate) throws Exception {
+        isJogging = true;
+        super.jogMachineTo(position, feedRate);
+    }
+
+    /**
+     * Parses the controller status object and returns the current status.
+     * In this method we emulate states that the controller doesn't currently handle
+     *
+     * @param jo a json object with the controller status
+     * @return the new current controller status
+     */
+    @Override
+    protected ControllerStatus parseControllerStatus(JsonObject jo) {
+        ControllerStatus controllerStatus = TinyGUtils.updateControllerStatus(this.controllerStatus, jo);
+
+        // If controller is in the state RUN but we are jogging emulate a JOG-state
+        if (controllerStatus.getState() == ControllerState.RUN && isJogging) {
+            controllerStatus = ControllerStatusBuilder
+                    .newInstance(controllerStatus)
+                    .setState(ControllerState.JOG)
+                    .build();
+        } else if (controllerStatus.getState() == ControllerState.IDLE && isJogging) {
+            isJogging = false;
+        }
+
+        return controllerStatus;
     }
 }

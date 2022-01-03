@@ -161,7 +161,7 @@ public class ContinuousJogWorker implements UGSEventListener {
 
     @Override
     public void UGSEvent(UGSEvent event) {
-        if(event instanceof CommandEvent && ((CommandEvent) event).getCommandEventType() == CommandEventType.COMMAND_COMPLETE) {
+        if (event instanceof CommandEvent && ((CommandEvent) event).getCommandEventType() == CommandEventType.COMMAND_COMPLETE) {
             GcodeCommand command = ((CommandEvent) event).getCommand();
             isWaitingForCommandComplete = false;
             if (command.isError()) {

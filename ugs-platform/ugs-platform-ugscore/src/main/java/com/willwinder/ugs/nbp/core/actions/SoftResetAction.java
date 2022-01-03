@@ -77,7 +77,7 @@ public final class SoftResetAction extends AbstractAction implements UGSEventLis
 
     @Override
     public boolean isEnabled() {
-        return backend.isIdle();
+        return backend.isIdle() || backend.isPaused();
     }
 
     @Override
