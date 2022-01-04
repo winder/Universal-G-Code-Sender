@@ -22,10 +22,10 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.services.RunFromService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import org.netbeans.api.editor.EditorRegistry;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
-import org.openide.cookies.EditorCookie;
 import org.openide.modules.OnStart;
 
 import javax.swing.text.Element;
@@ -42,12 +42,10 @@ import java.awt.event.ActionListener;
 @ActionReference(path = "Editors/text/xgcode/Popup", position = 400)
 public final class RunFromHere implements ActionListener {
 
-    private final EditorCookie context;
     public static final String NAME = Localization.getString("platform.menu.runFrom");
     private final RunFromService runFromService;
 
-    public RunFromHere(EditorCookie context) {
-        this.context = context;
+    public RunFromHere() {
         this.runFromService = CentralLookup.getDefault().lookup(RunFromService.class);
     }
 
@@ -60,8 +58,8 @@ public final class RunFromHere implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent ev) {
-        Element root = context.getDocument().getDefaultRootElement();
-        int caretPosition = context.getOpenedPanes()[0].getCaretPosition();
+        Element root = EditorRegistry.lastFocusedComponent().getDocument().getDefaultRootElement();
+        int caretPosition = EditorRegistry.lastFocusedComponent().getCaretPosition();
         int line = root.getElementIndex(caretPosition);
 
         try {
