@@ -49,7 +49,6 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
         obj = lookup.lookup(GcodeDataObject.class);
         fileListener = new GcodeFileListener();
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backend.addUGSEventListener(this);
     }
 
     @Override
@@ -57,6 +56,7 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
         super.componentOpened();
         EditorUtils.openFile(obj.getPrimaryFile());
         obj.getPrimaryFile().addFileChangeListener(fileListener);
+        backend.addUGSEventListener(this);
     }
 
     @Override
@@ -70,6 +70,7 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
 
     @Override
     public void componentClosed() {
+        backend.removeUGSEventListener(this);
         obj.getPrimaryFile().removeFileChangeListener(fileListener);
         if (getEditorPane() != null) {
             getEditorPane().removeCaretListener(editorListener);
@@ -86,7 +87,7 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
     @Override
     public void UGSEvent(UGSEvent ugsEvent) {
         // Disable the editor if not idle or disconnected
-        if (ugsEvent.isStateChangeEvent()) {
+        if (ugsEvent.isStateChangeEvent() && backend.getController() != null && backend.getController().getControllerStatus() != null ) {
             ControllerState state = backend.getController().getControllerStatus().getState();
             getEditorPane().setEditable(state == ControllerState.IDLE || state == ControllerState.DISCONNECTED);
         }
