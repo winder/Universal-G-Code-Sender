@@ -50,7 +50,8 @@ public class Ellipse extends AbstractCuttable {
     public Entity copy() {
         Ellipse ellipse = new Ellipse();
         ellipse.setTransform(new AffineTransform(getTransform()));
-        ellipse.setCutDepth(getCutDepth());
+        ellipse.setStartDepth(getStartDepth());
+        ellipse.setTargetDepth(getTargetDepth());
         ellipse.setCutType(getCutType());
         return ellipse;
     }

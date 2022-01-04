@@ -282,6 +282,7 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
                     line.lineTo(lastMoveTo[0], lastMoveTo[1]);
                     lastPoint[0] = lastMoveTo[0];
                     lastPoint[1] = lastMoveTo[1];
+                    line.close();
                     break;
 
                 default:

@@ -101,6 +101,12 @@ public class ToolBox extends JToolBar {
         intersection.setBorderPainted(false);
         add(intersection);
 
+        JButton breakApart = new JButton(new BreakApartAction(controller));
+        breakApart.setText("");
+        breakApart.setToolTipText("Breaks apart multiple entities");
+        breakApart.setBorderPainted(false);
+        add(breakApart);
+
         addSeparator();
 
         JButton multiply = new JButton(new MultiplyAction(controller));

@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
-import com.willwinder.ugs.nbp.designer.gcode.path.Coordinate;
 
 import java.awt.geom.Point2D;
 import java.util.List;
@@ -56,6 +55,7 @@ public class EntityPathV1 extends CuttableEntityV1 {
                     break;
                 case CLOSE:
                     path.lineTo(latestMoveTo.getX(), latestMoveTo.getY());
+                    path.close();
             }
         });
         applyCommonAttributes(path);
