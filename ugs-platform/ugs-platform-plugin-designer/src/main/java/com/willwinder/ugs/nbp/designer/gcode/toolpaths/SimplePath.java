@@ -18,14 +18,13 @@
  */
 package com.willwinder.ugs.nbp.designer.gcode.toolpaths;
 
-import com.willwinder.ugs.nbp.designer.gcode.path.*;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Polygon;
 
+import java.awt.geom.Area;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,52 +34,38 @@ import static com.willwinder.ugs.nbp.designer.gcode.toolpaths.ToolPathUtils.*;
  * @author Joacim Breiler
  */
 public class SimplePath extends AbstractToolPath {
-    private final PathGenerator source;
-
+    private final Cuttable source;
 
     private double offset;
 
-    public SimplePath(PathGenerator source) {
+    public SimplePath(Cuttable source) {
         this.source = source;
     }
 
     @Override
     public GcodePath toGcodePath() {
-        final List<GcodePath> sources = source.toGcodePath().splitAtSubpaths();
+        Geometry geometry = convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
+        Geometry bufferedGeometry = geometry.buffer(offset);
+        List<Geometry> geometries = toGeometryList(bufferedGeometry);
 
-        // Sort the paths from smallest to largest, so the small (possibly inner) parts
-        // get cut first.
-        sources.sort(new GcodePathAreaComparator(sources));
+        ArrayList<List<PartialPosition>> coordinateList = new ArrayList<>();
+        geometries.forEach(g -> {
+            List<PartialPosition> geometryCoordinates = geometryToCoordinates(g);
 
-        List<List<NumericCoordinate>> coordinateList = new ArrayList<>();
-        for (GcodePath path : sources) {
-            GcodePath sourcePath = path.toGcodePath();
-            if (sourcePath.getSize() < 4) {
-                continue;
-            }
+            double currentDepth = getStartDepth();
+            while (currentDepth < getTargetDepth()) {
 
-            LinearRing linearRing = pathToLinearRing(sourcePath);
-            Polygon polygon = new Polygon(linearRing, new LinearRing[0], getGeometryFactory());
-            List<Geometry> geometries = toGeometryList(polygon.buffer(offset));
-
-            geometries.forEach(geometry -> {
-                List<NumericCoordinate> geometryCoordinates = geometryToCoordinates(geometry);
-
-                double currentDepth = 0;
-                while (currentDepth < getTargetDepth()) {
-
-                    currentDepth += getDepthPerPass();
-                    if (currentDepth > getTargetDepth()) {
-                        currentDepth = getTargetDepth();
-                    }
-
-                    final double depth = -currentDepth;
-                    coordinateList.add(geometryCoordinates.stream()
-                            .map(numericCoordinate -> new NumericCoordinate(numericCoordinate.get(Axis.X), numericCoordinate.get(Axis.Y), depth))
-                            .collect(Collectors.toList()));
+                currentDepth += getDepthPerPass();
+                if (currentDepth > getTargetDepth()) {
+                    currentDepth = getTargetDepth();
                 }
-            });
-        }
+
+                final double depth = -currentDepth;
+                coordinateList.add(geometryCoordinates.stream()
+                        .map(numericCoordinate -> PartialPosition.builder().copy(numericCoordinate).setZ(depth).build())
+                        .collect(Collectors.toList()));
+            }
+        });
 
         return toGcodePath(coordinateList);
     }

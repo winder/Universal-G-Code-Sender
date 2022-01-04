@@ -20,6 +20,7 @@ public class Text extends AbstractCuttable {
 
     public Text(double x, double y) {
         super(x, y);
+        setName("Text");
         text = "";
         fontFamily = Font.SANS_SERIF;
         regenerateShape();
@@ -67,12 +68,13 @@ public class Text extends AbstractCuttable {
 
     @Override
     public Entity copy() {
-        Text text = new Text();
-        text.setText(getText());
-        text.setFontFamily(getFontFamily());
-        text.setCutDepth(getCutDepth());
-        text.setCutType(getCutType());
-        text.setTransform(new AffineTransform(getTransform()));
-        return text;
+        Text copy = new Text();
+        copy.setText(getText());
+        copy.setFontFamily(getFontFamily());
+        copy.setStartDepth(getStartDepth());
+        copy.setTargetDepth(getTargetDepth());
+        copy.setCutType(getCutType());
+        copy.setTransform(new AffineTransform(getTransform()));
+        return copy;
     }
 }

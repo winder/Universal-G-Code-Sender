@@ -19,19 +19,52 @@
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 
 /**
+ * Defines an entity that can be cut using a cut operation.
+ *
  * @author Joacim Breiler
  */
 public interface Cuttable extends Entity {
+    /**
+     * Returns the desired cut operation use to cut the entity.
+     *
+     * @return the cut type to use.
+     */
     CutType getCutType();
 
+    /**
+     * Sets the desired cut operation to use for cutting the entity.
+     *
+     * @param cutType the cut type to use
+     */
     void setCutType(CutType cutType);
 
-    double getCutDepth();
+    /**
+     * Returns the target depth that we want to end cutting to.
+     *
+     * @return a positive number for a depth to cut
+     */
+    double getTargetDepth();
 
-    void setCutDepth(double cutDepth);
+    /**
+     * Sets the target depth that we want to end cutting to.
+     *
+     * @param cutDepth a positive number for a depth to cut
+     */
+    void setTargetDepth(double cutDepth);
 
-    GcodePath toGcodePath();
+    /**
+     * Returns the start depth that we want to begin cutting from.
+     *
+     * @return a positive number for a depth to cut from
+     */
+    double getStartDepth();
+
+    /**
+     * Sets the start depth to start cutting from
+     *
+     * @param startDepth a positive number for a depth to cut from
+     */
+    void setStartDepth(double startDepth);
 }

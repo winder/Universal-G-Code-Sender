@@ -29,6 +29,9 @@ import java.awt.geom.AffineTransform;
  */
 public class CuttableEntityV1 extends EntityV1 {
     @Expose
+    private double startDepth;
+
+    @Expose
     private double cutDepth;
 
     @Expose
@@ -49,6 +52,14 @@ public class CuttableEntityV1 extends EntityV1 {
         this.cutType = cutType;
     }
 
+    public double getStartDepth() {
+        return startDepth;
+    }
+
+    public void setStartDepth(double startDepth) {
+        this.startDepth = startDepth;
+    }
+
     public double getCutDepth() {
         return cutDepth;
     }
@@ -65,7 +76,8 @@ public class CuttableEntityV1 extends EntityV1 {
         entity.setTransform(new AffineTransform(transform.getScaleX(), transform.getShearY(), transform.getShearX(), transform.getScaleY(), transform.getTranslateX(), transform.getTranslateY()));
 
         if (entity instanceof Cuttable) {
-            ((Cuttable) entity).setCutDepth(cutDepth);
+            ((Cuttable) entity).setStartDepth(startDepth);
+            ((Cuttable) entity).setTargetDepth(cutDepth);
             ((Cuttable) entity).setCutType(CutTypeV1.toCutType(cutType));
         }
     }

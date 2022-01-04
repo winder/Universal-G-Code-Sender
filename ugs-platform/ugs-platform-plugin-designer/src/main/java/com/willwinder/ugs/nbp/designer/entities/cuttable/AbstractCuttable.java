@@ -18,32 +18,21 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
-import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
-import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
-import com.willwinder.ugs.nbp.designer.gcode.path.NumericCoordinate;
-import com.willwinder.ugs.nbp.designer.gcode.path.SegmentType;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Joacim Breiler
  */
 public abstract class AbstractCuttable extends AbstractEntity implements Cuttable {
-    public static final int QUAD_SEGMENTS = 10;
-    public static final int CUBIC_SEGMENTS = 10;
-
     private CutType cutType = CutType.NONE;
-    private double cutDepth;
+    private double targetDepth;
+    private double startDepth;
 
     protected AbstractCuttable() {
         this(0, 0);
@@ -64,13 +53,23 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     }
 
     @Override
-    public double getCutDepth() {
-        return cutDepth;
+    public double getStartDepth() {
+        return startDepth;
     }
 
     @Override
-    public void setCutDepth(double cutDepth) {
-        this.cutDepth = cutDepth;
+    public void setStartDepth(double startDepth) {
+        this.startDepth = Math.abs(startDepth);
+    }
+
+    @Override
+    public double getTargetDepth() {
+        return targetDepth;
+    }
+
+    @Override
+    public void setTargetDepth(double targetDepth) {
+        this.targetDepth = Math.abs(targetDepth);
     }
 
     @Override
@@ -78,7 +77,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         float strokeWidth = Double.valueOf(1.2 / drawing.getScale()).floatValue();
         float dashWidth = Double.valueOf(2 / drawing.getScale()).floatValue();
 
-        if (getCutType() != CutType.NONE && getCutDepth() == 0) {
+        if (getCutType() != CutType.NONE && getTargetDepth() == 0) {
             graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
             graphics.setColor(Colors.SHAPE_HINT);
             graphics.draw(getShape());
@@ -105,74 +104,9 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
 
     private double getCutAlpha() {
         Controller controller = CentralLookup.getDefault().lookup(Controller.class);
-        if (getCutDepth() == 0) {
+        if (getTargetDepth() == 0) {
             return 1d;
         }
-        return 1d - Math.max(Float.MIN_VALUE, getCutDepth() / controller.getSettings().getStockThickness());
-    }
-
-    public GcodePath toGcodePath() {
-        GcodePath path = new GcodePath();
-        PathIterator pathIterator = getShape().getPathIterator(new AffineTransform());
-
-        double[] segment = new double[8];
-        Point2D currentPoint = new Point2D.Double();
-        while (!pathIterator.isDone()) {
-            Arrays.fill(segment, 0d);
-            int type = pathIterator.currentSegment(segment);
-            switch (type) {
-                case PathIterator.SEG_MOVETO: {
-                    currentPoint.setLocation(segment[0], segment[1]);
-                    NumericCoordinate move = new NumericCoordinate(segment[0], segment[1], 0d);
-                    path.addSegment(SegmentType.MOVE, move);
-                    break;
-                }
-                case PathIterator.SEG_LINETO:
-                    currentPoint.setLocation(segment[0], segment[1]);
-                    NumericCoordinate line = new NumericCoordinate(segment[0], segment[1], 0d);
-                    path.addSegment(SegmentType.LINE, line);
-                    break;
-                case PathIterator.SEG_QUADTO: {
-                    Point2D controlPoint1 = new Point2D.Double(segment[0], segment[1]);
-                    Point2D destination = new Point2D.Double(segment[2], segment[3]);
-                    java.util.List<Point2D> points = Utils.quadraticBezier(currentPoint, destination, controlPoint1, QUAD_SEGMENTS);
-
-                    createLinesFromPoints(path, points);
-                    currentPoint = destination;
-                    break;
-                }
-                case PathIterator.SEG_CUBICTO: {
-                    Point2D controlPoint1 = new Point2D.Double(segment[0], segment[1]);
-                    Point2D controlPoint2 = new Point2D.Double(segment[2], segment[3]);
-                    Point2D destination = new Point2D.Double(segment[4], segment[5]);
-                    java.util.List<Point2D> points = Utils.cubicBezier(currentPoint, destination, controlPoint1, controlPoint2, CUBIC_SEGMENTS);
-
-                    createLinesFromPoints(path, points);
-                    currentPoint = destination;
-                    break;
-                }
-
-                case PathIterator.SEG_CLOSE: {
-                    currentPoint.setLocation(segment[0], segment[1]);
-                    NumericCoordinate move = new NumericCoordinate(segment[0], segment[1], 0d);
-                    path.addSegment(SegmentType.MOVE, move);
-                    path.addSegment(SegmentType.SEAM, move);
-                    break;
-                }
-
-                default:
-                    throw new UnsupportedOperationException();
-            }
-            pathIterator.next();
-        }
-
-        return path;
-    }
-
-    private void createLinesFromPoints(GcodePath path, List<Point2D> point2DS) {
-        point2DS.forEach(point2D -> {
-            NumericCoordinate cubicPoint = new NumericCoordinate(point2D.getX(), point2D.getY());
-            path.addSegment(SegmentType.LINE, cubicPoint);
-        });
+        return 1d - Math.max(Float.MIN_VALUE, getTargetDepth() / controller.getSettings().getStockThickness());
     }
 }

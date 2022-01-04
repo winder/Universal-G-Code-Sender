@@ -68,9 +68,11 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private final JTextField rotation;
     private final JTextField posXTextField;
     private final JTextField posYTextField;
-    private final JLabel cutDepthLabel;
+    private final JLabel startDepthLabel;
+    private final JLabel targetDepthLabel;
     private final JComboBox<CutType> cutTypeComboBox;
-    private final JSpinner depthSpinner;
+    private final JSpinner startDepthSpinner;
+    private final JSpinner targetDepthSpinner;
     private final JTextField heightTextField;
     private JLabel textLabel;
     private JComboBox<String> fontDropDown;
@@ -130,23 +132,40 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         add(cutTypeLabel);
         add(cutTypeComboBox, " grow, wrap");
 
-        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(100d, 0d, 100.0d, 0.1d);
-        depthSpinner = new JSpinner(spinnerNumberModel);
+        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(0d, 0d, 100.0d, 0.1d);
+        startDepthSpinner = new JSpinner(spinnerNumberModel);
 
         // Make the spinner commit the value immediately
-        JSpinner.NumberEditor editor = new JSpinner.NumberEditor(depthSpinner);
-        depthSpinner.setEditor(editor);
+        JSpinner.NumberEditor editor = new JSpinner.NumberEditor(startDepthSpinner);
+        startDepthSpinner.setEditor(editor);
         JFormattedTextField jtf = editor.getTextField();
         DefaultFormatter formatter = (DefaultFormatter) jtf.getFormatter();
         formatter.setCommitsOnValidEdit(true);
 
-        depthSpinner.setPreferredSize(depthSpinner.getPreferredSize());
-        depthSpinner.setModel(new SpinnerNumberModel(0, 0d, 100, 0.1d));
-        depthSpinner.addChangeListener(this);
+        startDepthSpinner.setPreferredSize(startDepthSpinner.getPreferredSize());
+        startDepthSpinner.addChangeListener(this);
 
-        cutDepthLabel = new JLabel("Cut depth", SwingConstants.RIGHT);
-        add(cutDepthLabel);
-        add(depthSpinner, "grow, wrap");
+
+        spinnerNumberModel = new SpinnerNumberModel(0d, 0d, 100.0d, 0.1d);
+        targetDepthSpinner = new JSpinner(spinnerNumberModel);
+
+        // Make the spinner commit the value immediately
+        editor = new JSpinner.NumberEditor(targetDepthSpinner);
+        targetDepthSpinner.setEditor(editor);
+        jtf = editor.getTextField();
+        formatter = (DefaultFormatter) jtf.getFormatter();
+        formatter.setCommitsOnValidEdit(true);
+
+        targetDepthSpinner.setPreferredSize(targetDepthSpinner.getPreferredSize());
+        targetDepthSpinner.addChangeListener(this);
+
+        startDepthLabel = new JLabel("Start depth", SwingConstants.RIGHT);
+        add(startDepthLabel);
+        add(startDepthSpinner, "grow, wrap");
+
+        targetDepthLabel = new JLabel("Target depth", SwingConstants.RIGHT);
+        add(targetDepthLabel);
+        add(targetDepthSpinner, "grow, wrap");
         setEnabled(false);
 
         if (this.controller != null) {
@@ -155,7 +174,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         this.controller = controller;
         this.controller.getSelectionManager().addSelectionListener(this);
         this.controller.getSelectionManager().addListener(this);
-        depthSpinner.setModel(new SpinnerNumberModel(controller.getSettings().getStockThickness(), 0d, controller.getSettings().getStockThickness(), 0.1d));
+        targetDepthSpinner.setModel(new SpinnerNumberModel(controller.getSettings().getStockThickness(), 0d, controller.getSettings().getStockThickness(), 0.1d));
     }
 
     private void addTextSettingFields() {
@@ -191,7 +210,8 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         super.setEnabled(enabled);
         Arrays.stream(getComponents()).forEach(component -> component.setEnabled(enabled));
         if (!enabled) {
-            setFieldValue(depthSpinner, 0d);
+            setFieldValue(targetDepthSpinner, 0d);
+            setFieldValue(startDepthSpinner, 0d);
         }
     }
 
@@ -219,7 +239,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     }
 
 
-    private void setFieldValue(JComboBox comboBox, Object value) {
+    private void setFieldValue(JComboBox<?> comboBox, Object value) {
         boolean enabled = comboBox.isEnabled();
         comboBox.setVisible(true);
         comboBox.setEnabled(true);
@@ -297,19 +317,23 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         CutType cutType = (CutType) cutTypeComboBox.getSelectedItem();
         String fontFamily = (String) fontDropDown.getSelectedItem();
 
-        List<Cuttable> cuttables = controller.getSelectionManager().getSelection().stream().filter(entity -> entity instanceof Cuttable).map(entity -> (Cuttable) entity).collect(Collectors.toList());
+        List<Cuttable> cuttables = controller.getSelectionManager().getSelection().stream()
+                .filter(Cuttable.class::isInstance)
+                .map(Cuttable.class::cast).collect(Collectors.toList());
+
         if (!cuttables.isEmpty()) {
-            ChangeCutSettingsAction changeCutSettingsAction = new ChangeCutSettingsAction(controller, cuttables, (Double) depthSpinner.getValue(), cutType);
+            double startDepth = (Double) startDepthSpinner.getValue();
+            double targetDepth = Math.max((Double) targetDepthSpinner.getValue(), startDepth);
+            ChangeCutSettingsAction changeCutSettingsAction = new ChangeCutSettingsAction(controller, cuttables, startDepth, targetDepth, cutType);
             changeCutSettingsAction.actionPerformed(null);
             controller.getUndoManager().addAction(changeCutSettingsAction);
         }
 
         controller.getSelectionManager().getSelection().stream()
-                .filter(entity -> entity instanceof Text)
-                .map(entity -> (Text) entity).forEach(text -> {
-            // TODO fix undoable action
-            text.setFontFamily(fontFamily);
-        });
+                .filter(Text.class::isInstance)
+                .map(Text.class::cast)
+                // TODO fix undoable action
+                .forEach(text -> text.setFontFamily(fontFamily));
 
         onEvent(new EntityEvent(controller.getSelectionManager(), EventType.SETTINGS_CHANGED));
     }
@@ -328,11 +352,14 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             Cuttable cuttable = (Cuttable) selectedEntity;
 
             setFieldValue(cutTypeComboBox, cuttable.getCutType());
-            setFieldValue(depthSpinner, cuttable.getCutDepth());
+            setFieldValue(startDepthSpinner, cuttable.getStartDepth());
+            setFieldValue(targetDepthSpinner, cuttable.getTargetDepth());
 
             final boolean hasCutTypeSelection = cuttable.getCutType() != CutType.NONE;
-            depthSpinner.setEnabled(hasCutTypeSelection);
-            cutDepthLabel.setEnabled(hasCutTypeSelection);
+            startDepthSpinner.setEnabled(hasCutTypeSelection);
+            startDepthLabel.setEnabled(hasCutTypeSelection);
+            targetDepthSpinner.setEnabled(hasCutTypeSelection);
+            targetDepthLabel.setEnabled(hasCutTypeSelection);
         }
 
         boolean isTextCuttable = selectedEntity instanceof Text;

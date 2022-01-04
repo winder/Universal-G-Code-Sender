@@ -21,7 +21,6 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import org.apache.commons.lang3.time.StopWatch;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -34,17 +33,21 @@ import java.util.stream.Collectors;
 public class ChangeCutSettingsAction extends AbstractAction implements UndoableAction {
 
     private final transient Controller controller;
+    private final List<Double> previousStartDepth;
     private final List<Double> previousCutDepth;
     private final List<CutType> previousCutType;
+    private final double newStartDepth;
     private final double newCutDepth;
     private final CutType newCutType;
     private final List<Cuttable> cuttableList;
 
-    public ChangeCutSettingsAction(Controller controller, List<Cuttable> cuttableList, double cutDepth, CutType cutType) {
+    public ChangeCutSettingsAction(Controller controller, List<Cuttable> cuttableList, double startDepth, double targetDepth, CutType cutType) {
         this.cuttableList = cuttableList;
-        previousCutDepth = cuttableList.stream().map(Cuttable::getCutDepth).collect(Collectors.toList());
+        previousStartDepth = cuttableList.stream().map(Cuttable::getStartDepth).collect(Collectors.toList());
+        previousCutDepth = cuttableList.stream().map(Cuttable::getTargetDepth).collect(Collectors.toList());
         previousCutType = cuttableList.stream().map(Cuttable::getCutType).collect(Collectors.toList());
-        newCutDepth = cutDepth;
+        newStartDepth = startDepth;
+        newCutDepth = targetDepth;
         newCutType = cutType;
 
         this.controller = controller;
@@ -60,7 +63,8 @@ public class ChangeCutSettingsAction extends AbstractAction implements UndoableA
     @Override
     public void undo() {
         for (int i = 0; i < cuttableList.size(); i++) {
-            cuttableList.get(i).setCutDepth(previousCutDepth.get(i));
+            cuttableList.get(i).setStartDepth(previousStartDepth.get(i));
+            cuttableList.get(i).setTargetDepth(previousCutDepth.get(i));
             cuttableList.get(i).setCutType(previousCutType.get(i));
         }
     }
@@ -68,7 +72,8 @@ public class ChangeCutSettingsAction extends AbstractAction implements UndoableA
     @Override
     public void actionPerformed(ActionEvent e) {
         for (Cuttable cuttable : cuttableList) {
-            cuttable.setCutDepth(newCutDepth);
+            cuttable.setStartDepth(newStartDepth);
+            cuttable.setTargetDepth(newCutDepth);
             cuttable.setCutType(newCutType);
         }
         this.controller.getDrawing().repaint();
