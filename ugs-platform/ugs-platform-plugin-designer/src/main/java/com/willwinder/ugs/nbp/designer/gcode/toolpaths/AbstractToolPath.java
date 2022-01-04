@@ -1,18 +1,22 @@
 package com.willwinder.ugs.nbp.designer.gcode.toolpaths;
 
-import com.willwinder.ugs.nbp.designer.gcode.path.*;
-import com.willwinder.ugs.nbp.designer.gcode.path.Coordinate;
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.geom.impl.CoordinateArraySequence;
-import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
+import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
+import com.willwinder.ugs.nbp.designer.gcode.path.PathGenerator;
+import com.willwinder.ugs.nbp.designer.gcode.path.SegmentType;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import org.locationtech.jts.geom.GeometryFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class AbstractToolPath implements PathGenerator {
+
+    /**
+     * The depth to start from in millimeters
+     */
+    private double startDepth = 0;
+
     /**
      * The depth that we are targeting for in millimeters
      */
@@ -33,7 +37,16 @@ public abstract class AbstractToolPath implements PathGenerator {
      */
     private double safeHeight = 1;
 
-    private GeometryFactory geometryFactory = new GeometryFactory();
+    private final GeometryFactory geometryFactory = new GeometryFactory();
+
+
+    public double getStartDepth() {
+        return Math.abs(startDepth);
+    }
+
+    public void setStartDepth(double startDepth) {
+        this.startDepth = startDepth;
+    }
 
     public void setTargetDepth(double targetDepth) {
         this.targetDepth = Math.abs(targetDepth);
@@ -68,22 +81,21 @@ public abstract class AbstractToolPath implements PathGenerator {
     }
 
     protected void addSafeHeightSegment(GcodePath gcodePath) {
-        NumericCoordinate safeHeightCoordinate = new NumericCoordinate();
-        safeHeightCoordinate.set(Axis.Z, getSafeHeight());
+        PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, getSafeHeight(), UnitUtils.Units.MM);
         gcodePath.addSegment(SegmentType.MOVE, safeHeightCoordinate);
     }
 
-    protected void addSafeHeightSegmentTo(GcodePath gcodePath, NumericCoordinate coordinate) {
+    protected void addSafeHeightSegmentTo(GcodePath gcodePath, PartialPosition coordinate) {
         addSafeHeightSegment(gcodePath);
-        gcodePath.addSegment(SegmentType.MOVE, new NumericCoordinate(coordinate.get(Axis.X), coordinate.get(Axis.Y)));
-        gcodePath.addSegment(SegmentType.MOVE, new NumericCoordinate(0d));
+        gcodePath.addSegment(SegmentType.MOVE, new PartialPosition(coordinate.getX(), coordinate.getY(), UnitUtils.Units.MM));
+        gcodePath.addSegment(SegmentType.MOVE, PartialPosition.from(Axis.Z, 0d, UnitUtils.Units.MM));
     }
 
     public GeometryFactory getGeometryFactory() {
         return geometryFactory;
     }
 
-    protected GcodePath toGcodePath(List<List<NumericCoordinate>> coordinateList) {
+    protected GcodePath toGcodePath(List<List<PartialPosition>> coordinateList) {
         GcodePath gcodePath = new GcodePath();
         if (!coordinateList.isEmpty()) {
             coordinateList.forEach(cl -> {

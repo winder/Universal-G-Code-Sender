@@ -32,7 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +58,7 @@ public class UgsDesignReader implements DesignReader {
     @Override
     public Optional<Design> read(InputStream resourceAsStream) {
         try {
-            String designFileContent = IOUtils.toString(resourceAsStream);
+            String designFileContent = IOUtils.toString(resourceAsStream, StandardCharsets.UTF_8);
             if (StringUtils.isEmpty(designFileContent)) {
                 return Optional.empty();
             }

@@ -80,15 +80,15 @@ public class SubtractAction extends AbstractAction implements SelectionListener 
 
         @Override
         public void redo() {
-            Area area = new Area();
-            area.add(new Area(entities.get(0).getShape()));
+            Area area = new Area(entities.get(0).getShape());
             area.subtract(new Area(entities.get(1).getShape()));
 
             path = new Path();
             if (entities.get(0) instanceof Cuttable) {
                 Cuttable cuttable = (Cuttable) entities.get(0);
                 path.setCutType(cuttable.getCutType());
-                path.setCutDepth(cuttable.getCutDepth());
+                path.setStartDepth(cuttable.getStartDepth());
+                path.setTargetDepth(cuttable.getTargetDepth());
                 path.setName(cuttable.getName());
             }
             path.append(area);

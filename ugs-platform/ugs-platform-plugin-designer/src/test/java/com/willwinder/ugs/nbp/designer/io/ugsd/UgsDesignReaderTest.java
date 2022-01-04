@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.io.ByteArrayOutputStream;
 import java.util.Optional;
@@ -80,7 +79,8 @@ public class UgsDesignReaderTest {
         entity.setCenter(new Point2D.Double(10, 10));
         entity.setName("rectangle");
         entity.setRotation(90);
-        entity.setCutDepth(12);
+        entity.setStartDepth(1);
+        entity.setTargetDepth(12);
         entity.setCutType(CutType.POCKET);
         String data = convertEntityToString(entity);
 
@@ -93,7 +93,8 @@ public class UgsDesignReaderTest {
         assertEquals(entity.getPosition(), readEntity.getPosition());
         assertEquals(entity.getName(), readEntity.getName());
         assertEquals(entity.getCutType(), readEntity.getCutType());
-        assertEquals(entity.getCutDepth(), readEntity.getCutDepth(), 0.1);
+        assertEquals(entity.getStartDepth(), readEntity.getStartDepth(), 0.1);
+        assertEquals(entity.getTargetDepth(), readEntity.getTargetDepth(), 0.1);
         assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
     }
 
@@ -103,7 +104,7 @@ public class UgsDesignReaderTest {
         entity.setSize(new Size(50, 100));
         entity.setRotation(10);
         entity.setName("ellipse");
-        entity.setCutDepth(12);
+        entity.setTargetDepth(12);
         entity.setCutType(CutType.POCKET);
         String data = convertEntityToString(entity);
 
@@ -118,7 +119,7 @@ public class UgsDesignReaderTest {
         assertEquals(entity.getPosition().getY(), readEntity.getPosition().getY(), 0.1);
         assertEquals(entity.getName(), readEntity.getName());
         assertEquals(entity.getCutType(), readEntity.getCutType());
-        assertEquals(entity.getCutDepth(), readEntity.getCutDepth(), 0.1);
+        assertEquals(entity.getTargetDepth(), readEntity.getTargetDepth(), 0.1);
         assertEquals(entity.getRelativeShape().getBounds().getWidth(), readEntity.getRelativeShape().getBounds().getWidth(), 0.1);
         assertEquals(entity.getRelativeShape().getBounds().getHeight(), readEntity.getRelativeShape().getBounds().getHeight(), 0.1);
         assertEquals(entity.getSize().getWidth(), readEntity.getSize().getWidth(), 0.1);
@@ -138,7 +139,7 @@ public class UgsDesignReaderTest {
         entity.setPosition(new Point2D.Double(100, 120));
         entity.setName("path");
         entity.setRotation(1);
-        entity.setCutDepth(12);
+        entity.setTargetDepth(12);
         entity.setCutType(CutType.POCKET);
         String data = convertEntityToString(entity);
 
@@ -151,7 +152,7 @@ public class UgsDesignReaderTest {
         assertEquals(entity.getPosition().getY(), readEntity.getPosition().getY(), 0.1);
         assertEquals(entity.getName(), readEntity.getName());
         assertEquals(entity.getCutType(), readEntity.getCutType());
-        assertEquals(entity.getCutDepth(), readEntity.getCutDepth(), 0.1);
+        assertEquals(entity.getTargetDepth(), readEntity.getTargetDepth(), 0.1);
         assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
     }
 
