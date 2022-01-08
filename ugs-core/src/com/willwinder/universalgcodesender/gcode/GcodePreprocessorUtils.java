@@ -591,7 +591,7 @@ public class GcodePreprocessorUtils {
      *
      * @return angle in radians of a line going from start to end.
      */
-    static private double getAngle(final Position start, final Position end, PlaneFormatter plane) {
+    static public double getAngle(final Position start, final Position end, PlaneFormatter plane) {
         double deltaX = plane.axis0(end) - plane.axis0(start);
         double deltaY = plane.axis1(end) - plane.axis1(start);
 

@@ -69,8 +69,6 @@ public class DesignerMain extends JFrame {
     }
 
     private JSplitPane createRightPanel(Controller controller) {
-        getContentPane().add(new ToolBox(controller), BorderLayout.NORTH);
-
         JSplitPane toolsSplit = new JSplitPane( JSplitPane.VERTICAL_SPLIT, new JScrollPane(new EntitiesTree(controller)), new SelectionSettingsPanel(controller));
         toolsSplit.setResizeWeight(0.9);
         return toolsSplit;

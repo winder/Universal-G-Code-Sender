@@ -33,13 +33,10 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
-import org.openide.util.ImageUtilities;
 import org.openide.util.actions.CookieAction;
 
-import javax.swing.AbstractAction;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import java.awt.event.ActionEvent;
+import javax.swing.*;
+import java.awt.*;
 
 @ActionID(
         category = LocalizingService.RunFromCategory,
@@ -57,22 +54,20 @@ public final class RunFromAction extends CookieAction implements UGSEventListene
 
     public static final String NAME = LocalizingService.RunFromTitle;
     public static final String ICON_BASE = "icons/fast-forward.svg";
-    private final RunFromService runFromService;
-
-    private BackendAPI backend;
+    private final transient  RunFromService runFromService;
+    private final transient BackendAPI backend;
 
     public RunFromAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
         this.runFromService = CentralLookup.getDefault().lookup(RunFromService.class);
-        setIcon(ImageUtilities.loadImageIcon(ICON_BASE, false));
         setEnabled(isEnabled());
     }
 
     @Override
     public void UGSEvent(UGSEvent cse) {
         if (cse.isStateChangeEvent()) {
-            java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+            EventQueue.invokeLater(() -> setEnabled(isEnabled()));
         }
     }
 
@@ -121,5 +116,10 @@ public final class RunFromAction extends CookieAction implements UGSEventListene
     @Override
     protected Class<?>[] cookieClasses() {
         return new Class[]{GcodeDataObject.class};
+    }
+
+    @Override
+    protected String iconResource() {
+        return ICON_BASE;
     }
 }

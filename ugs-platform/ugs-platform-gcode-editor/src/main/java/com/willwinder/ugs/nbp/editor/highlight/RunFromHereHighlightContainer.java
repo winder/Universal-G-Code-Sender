@@ -60,7 +60,7 @@ public class RunFromHereHighlightContainer extends AbstractHighlightsContainer i
 
         JEditorPane comp = panes[0];
         Element root = comp.getDocument().getDefaultRootElement();
-        Element element = root.getElement(lineNumber);
+        Element element = root.getElement(lineNumber + 1);
         bag.clear();
         if (element != null) {
             bag.addHighlight(0, element.getStartOffset(), highlightAttributes);

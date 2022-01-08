@@ -23,22 +23,22 @@ import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import javax.swing.Action;
-import org.openide.awt.ActionReferences;
-import org.openide.util.ImageUtilities;
-
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.modules.OnStart;
+import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
+
+import javax.swing.*;
 
 @ActionID(
         category = CameraResetPreset.CATEGORY,
         id = CameraResetPreset.ID
 )
 @ActionRegistration(
-        iconBase = CameraResetPreset.ICON_BASE,
+        iconBase = CameraResetPreset.SMALL_ICON_PATH,
         displayName = "--",
         lazy = false
 )
@@ -48,16 +48,17 @@ import org.openide.util.Lookup;
                 position = 1060)
 })
 public final class CameraResetPreset extends MoveCameraAction {
-    public static final String ICON_BASE = "icons/XYZ.png";
+    public static final String SMALL_ICON_PATH = "icons/XYZ.svg";
+    public static final String LARGE_ICON_PATH = "icons/XYZ24.svg";
     public static final String CATEGORY = LocalizingService.CATEGORY_VISUALIZER;
     public static final String ID = "com.willwinder.ugs.nbm.visualizer.actions.CameraResetPreset";
     public static final String NAME = Localization.getString("platform.visualizer.popup.presets.reset");
 
     @OnStart
     public static class Localizer extends TopComponentLocalizer {
-      public Localizer() {
-        super(LocalizingService.CATEGORY_VISUALIZER, ID, NAME);
-      }
+        public Localizer() {
+            super(LocalizingService.CATEGORY_VISUALIZER, ID, NAME);
+        }
     }
 
     public CameraResetPreset() {
@@ -65,9 +66,11 @@ public final class CameraResetPreset extends MoveCameraAction {
                 Lookup.getDefault().lookup(GcodeRenderer.class),
                 ROTATION_ISOMETRIC);
 
-        putValue("iconBase", ICON_BASE);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
+        putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
+        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", NAME);
         putValue(Action.NAME, NAME);
+        putValue(Action.SHORT_DESCRIPTION, "Resets camera preset");
     }
 }

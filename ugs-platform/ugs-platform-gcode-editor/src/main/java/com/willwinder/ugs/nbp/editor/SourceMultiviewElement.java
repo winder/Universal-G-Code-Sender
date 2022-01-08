@@ -26,8 +26,14 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
+import org.netbeans.editor.EditorUI;
+import org.netbeans.editor.Utilities;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.Arrays;
 
 @MultiViewElement.Registration(
         displayName = "#platform.window.editor.source",
@@ -39,10 +45,11 @@ import org.openide.windows.TopComponent;
 )
 public class SourceMultiviewElement extends MultiViewEditorElement implements UGSEventListener {
     private static final long serialVersionUID = 7255236202190135442L;
-    private static EditorListener editorListener = new EditorListener();
+    private static final EditorListener editorListener = new EditorListener();
     private final GcodeDataObject obj;
     private final GcodeFileListener fileListener;
-    private final BackendAPI backend;
+    private final transient BackendAPI backend;
+    private static final Component TOOLBAR_PADDING = Box.createRigidArea(new Dimension(1, 30));
 
     public SourceMultiviewElement(Lookup lookup) {
         super(lookup);
@@ -65,6 +72,17 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
         editorListener.reset();
         if (getEditorPane() != null) {
             getEditorPane().addCaretListener(editorListener);
+            setToolBarHeight();
+        }
+    }
+
+    private void setToolBarHeight() {
+        EditorUI editorUI = Utilities.getEditorUI(getEditorPane());
+        JToolBar toolBarComponent = editorUI.getToolBarComponent();
+
+        // Adds an element with vertical height
+        if (Arrays.stream(toolBarComponent.getComponents()).noneMatch(c -> c.equals(TOOLBAR_PADDING))) {
+            toolBarComponent.add(TOOLBAR_PADDING);
         }
     }
 
@@ -87,7 +105,7 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
     @Override
     public void UGSEvent(UGSEvent ugsEvent) {
         // Disable the editor if not idle or disconnected
-        if (ugsEvent.isStateChangeEvent() && backend.getController() != null && backend.getController().getControllerStatus() != null ) {
+        if (ugsEvent.isStateChangeEvent() && backend.getController() != null && backend.getController().getControllerStatus() != null) {
             ControllerState state = backend.getController().getControllerStatus().getState();
             getEditorPane().setEditable(state == ControllerState.IDLE || state == ControllerState.DISCONNECTED);
         }
