@@ -5,11 +5,10 @@
     <parent>
         <groupId>com.willwinder</groupId>
         <artifactId>ugs-platform-parent</artifactId>
-        <version>2.0-SNAPSHOT</version>
+        <version>${revision}${changelist}</version>
     </parent>
 
     <artifactId>ugs-platform-plugin-dro</artifactId>
-    <version>2.0-SNAPSHOT</version>
     <packaging>nbm</packaging>
 
     <build>

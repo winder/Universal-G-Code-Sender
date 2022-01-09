@@ -4,11 +4,10 @@
     <parent>
         <groupId>com.willwinder</groupId>
         <artifactId>ugs-platform-parent</artifactId>
-        <version>2.0-SNAPSHOT</version>
+        <version>${revision}${changelist}</version>
     </parent>
 
     <artifactId>ugs-platform-ugscore</artifactId>
-    <version>2.0-SNAPSHOT</version>
     <packaging>nbm</packaging>
 
     <build>
@@ -16,6 +15,7 @@
             <plugin>
                 <groupId>org.apache.netbeans.utilities</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
+                <version>${ugs.nbm-maven-plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
