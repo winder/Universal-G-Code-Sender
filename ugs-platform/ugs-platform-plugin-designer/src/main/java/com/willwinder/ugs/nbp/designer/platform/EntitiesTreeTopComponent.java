@@ -36,15 +36,18 @@ import javax.swing.*;
 public class EntitiesTreeTopComponent extends TopComponent {
     private static final long serialVersionUID = 432423498723987873L;
 
-    private EntitiesTree entitiesTree;
-
     public EntitiesTreeTopComponent() {
         setMinimumSize(new java.awt.Dimension(50, 50));
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());
         setDisplayName("Design objects");
+    }
+
+    @Override
+    protected void componentOpened() {
+        super.componentOpened();
+        removeAll();
         Controller controller = CentralLookup.getDefault().lookup(Controller.class);
-        entitiesTree = new EntitiesTree(controller);
-        add(new JScrollPane(entitiesTree));
+        add(new JScrollPane(new EntitiesTree(controller)));
     }
 }

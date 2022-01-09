@@ -181,7 +181,7 @@ public class CNCPoint {
    * @param t1 the first tuple
    * @param t2 the second tuple
    */
-  public final void add(CNCPoint t1, CNCPoint t2)
+  public final CNCPoint add(CNCPoint t1, CNCPoint t2)
   {
     this.x = t1.x + t2.x;
     this.y = t1.y + t2.y;
@@ -189,6 +189,7 @@ public class CNCPoint {
     this.a = t1.a + t2.a;
     this.b = t1.b + t2.b;
     this.c = t1.c + t2.c;
+    return this;
   }
 
 
@@ -196,9 +197,9 @@ public class CNCPoint {
    * Sets the value of this tuple to the sum of itself and t1.
    * @param t1 the other tuple
    */  
-  public final void add(CNCPoint t1)
+  public final CNCPoint add(CNCPoint t1)
   { 
-    add(this, t1);
+    return add(this, t1);
   }
 
   /**
@@ -207,7 +208,7 @@ public class CNCPoint {
    * @param t1 the first tuple
    * @param t2 the second tuple
    */
-  public final void sub(CNCPoint t1, CNCPoint t2)
+  public final CNCPoint sub(CNCPoint t1, CNCPoint t2)
   {
     this.x = t1.x - t2.x;
     this.y = t1.y - t2.y;
@@ -215,6 +216,7 @@ public class CNCPoint {
     this.a = t1.a - t2.a;
     this.b = t1.b - t2.b;
     this.c = t1.c - t2.c;
+    return this;
   }
 
   /**  
@@ -222,9 +224,9 @@ public class CNCPoint {
    * of itself and t1 (this = this - t1).
    * @param t1 the other tuple
    */  
-  public final void sub(CNCPoint t1)
+  public final CNCPoint sub(CNCPoint t1)
   { 
-    sub(this, t1);
+    return sub(this, t1);
   }
 
 
@@ -232,23 +234,24 @@ public class CNCPoint {
    * Sets the value of this tuple to the negation of tuple t1.
    * @param t1 the source tuple
    */
-  public final void negate(CNCPoint t1)
+  public final CNCPoint negate(CNCPoint t1)
   {
     this.x = -t1.x;
     this.y = -t1.y;
     this.z = -t1.z;
-    this.x = -t1.a;
-    this.y = -t1.b;
-    this.z = -t1.c;
+    this.a = -t1.a;
+    this.b = -t1.b;
+    this.c = -t1.c;
+    return this;
   }
 
 
   /**
    * Negates the value of this tuple in place.
    */
-  public final void negate()
+  public final CNCPoint negate()
   {
-    negate(this);
+    return negate(this);
   }
 
 
@@ -258,7 +261,7 @@ public class CNCPoint {
    * @param s the scalar value
    * @param t1 the source tuple
    */
-  public final void scale(double s, CNCPoint t1)
+  public final CNCPoint scale(double s, CNCPoint t1)
   {
     this.x = s*t1.x;
     this.y = s*t1.y;
@@ -266,6 +269,7 @@ public class CNCPoint {
     this.a = s*t1.a;
     this.b = s*t1.b;
     this.c = s*t1.c;
+    return this;
   }
 
 
@@ -274,9 +278,9 @@ public class CNCPoint {
    * of itself.
    * @param s the scalar value
    */
-  public final void scale(double s)
+  public final CNCPoint scale(double s)
   {
-    scale(s, this);
+    return scale(s, this);
   }
 
 
@@ -287,7 +291,7 @@ public class CNCPoint {
    * @param t1 the tuple to be multipled
    * @param t2 the tuple to be added
    */
-  public final void scaleAdd(double s, CNCPoint t1, CNCPoint t2)
+  public final CNCPoint scaleAdd(double s, CNCPoint t1, CNCPoint t2)
   {
     this.x = s*t1.x + t2.x;
     this.y = s*t1.y + t2.y;
@@ -295,6 +299,7 @@ public class CNCPoint {
     this.a = s*t1.a + t2.a;
     this.b = s*t1.b + t2.b;
     this.c = s*t1.c + t2.c;
+    return this;
   }
 
   /**
@@ -303,8 +308,8 @@ public class CNCPoint {
    * @param s the scalar value
    * @param t1 the tuple to be added
    */  
-  public final void scaleAdd(double s, CNCPoint t1) {
-    scaleAdd(s, this, t1);
+  public final CNCPoint scaleAdd(double s, CNCPoint t1) {
+    return scaleAdd(s, this, t1);
   }
 
   /**

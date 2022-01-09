@@ -61,8 +61,8 @@ public class InvalidGrblCommandErrorParser implements ErrorParser {
     }
 
     @Override
-    public void handleToken(Token<GcodeTokenId> token, int line) {
-        if (!(backend.getController() instanceof GrblController)) {
+    public void handleToken(Token<?> token, int line) {
+        if (!(backend.isConnected() && backend.getController() instanceof GrblController)) {
             return;
         }
 

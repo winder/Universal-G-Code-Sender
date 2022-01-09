@@ -120,7 +120,12 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     }
 
     public void addAll(List<Entity> entities) {
-        entities.forEach(this::addChild);
+        entities.forEach(entity -> {
+            if (!containsChild(entity)) {
+                children.add(entity);
+                entity.addListener(this);
+            }
+        });
         invalidateCenter();
     }
 
