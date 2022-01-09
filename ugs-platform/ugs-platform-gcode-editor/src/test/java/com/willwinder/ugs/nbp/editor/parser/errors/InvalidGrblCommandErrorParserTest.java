@@ -26,6 +26,7 @@ public class InvalidGrblCommandErrorParserTest {
         BackendAPI backendAPI = mock(BackendAPI.class);
         IController grblController = mock(GrblController.class);
         when(backendAPI.getController()).thenReturn(grblController);
+        when(backendAPI.isConnected()).thenReturn(true);
 
         parser = new InvalidGrblCommandErrorParser(fileObject, backendAPI);
     }
