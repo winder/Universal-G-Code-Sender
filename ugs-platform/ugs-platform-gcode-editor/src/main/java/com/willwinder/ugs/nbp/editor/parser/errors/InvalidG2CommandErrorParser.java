@@ -21,25 +21,20 @@ package com.willwinder.ugs.nbp.editor.parser.errors;
 import com.willwinder.ugs.nbp.editor.lexer.GcodeTokenId;
 import com.willwinder.ugs.nbp.editor.parser.GcodeError;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.TinyGController;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.csl.api.Severity;
 import org.openide.filesystems.FileObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class InvalidG2CommandErrorParser implements ErrorParser {
     private final FileObject fileObject;
     private final BackendAPI backend;
-
-    private List<GcodeError> errorList = new ArrayList<>();
+    private final List<GcodeError> errorList = new ArrayList<>();
 
     public InvalidG2CommandErrorParser(FileObject fileObject) {
         this.fileObject = fileObject;
@@ -47,8 +42,8 @@ public class InvalidG2CommandErrorParser implements ErrorParser {
     }
 
     @Override
-    public void handleToken(Token<GcodeTokenId> token, int line) {
-        if (!(backend.getController() instanceof TinyGController)) {
+    public void handleToken(Token<?> token, int line) {
+        if (!(backend.isConnected() && backend.getController() instanceof TinyGController)) {
             return;
         }
 

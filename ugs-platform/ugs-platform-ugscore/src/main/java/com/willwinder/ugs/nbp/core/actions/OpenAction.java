@@ -60,6 +60,7 @@ public final class OpenAction extends AbstractAction {
     public static final String ICON_BASE = "resources/icons/open.svg";
     private transient final FileFilterService fileFilterService;
     private transient final BackendAPI backend;
+    private final JFileChooser fileChooser;
 
     public OpenAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -69,6 +70,8 @@ public final class OpenAction extends AbstractAction {
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", LocalizingService.OpenTitle);
         putValue(NAME, LocalizingService.OpenTitle);
+
+        fileChooser = createFileChooser();
     }
 
     @Override
@@ -78,14 +81,6 @@ public final class OpenAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        String sourceDir = backend.getSettings().getLastOpenedFilename();
-
-        JFileChooser fileChooser = new JFileChooser(sourceDir);
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileChooser.setFileHidingEnabled(true);
-        fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
-        fileChooser.setAcceptAllFileFilterUsed(true);
-
         // Fetches all available file formats that UGS can open
         fileFilterService.getFileFilters().forEach(fileChooser::addChoosableFileFilter);
 
@@ -103,5 +98,16 @@ public final class OpenAction extends AbstractAction {
                 ex.printStackTrace();
             }
         }
+    }
+
+    private JFileChooser createFileChooser() {
+        String sourceDir = backend.getSettings().getLastOpenedFilename();
+
+        JFileChooser fileChooser = new JFileChooser(sourceDir);
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setFileHidingEnabled(true);
+        fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
+        fileChooser.setAcceptAllFileFilterUsed(true);
+        return fileChooser;
     }
 }

@@ -18,7 +18,10 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -47,5 +50,15 @@ public class Rectangle extends AbstractCuttable {
     @Override
     public Shape getRelativeShape() {
         return shape;
+    }
+
+    @Override
+    public Entity copy() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setTransform(new AffineTransform(getTransform()));
+        rectangle.setStartDepth(getStartDepth());
+        rectangle.setTargetDepth(getTargetDepth());
+        rectangle.setCutType(getCutType());
+        return rectangle;
     }
 }

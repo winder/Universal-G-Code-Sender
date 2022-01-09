@@ -23,6 +23,7 @@ import org.netbeans.modules.parsing.api.Snapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Gcode parser results holding all errors found
@@ -50,5 +51,9 @@ public class GcodeParserResult extends ParserResult {
     @Override
     protected void invalidate() {
         errorList.clear();
+    }
+
+    public void addAll(List<GcodeError> errors) {
+        errorList.addAll(errors);
     }
 }

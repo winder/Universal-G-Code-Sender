@@ -5,6 +5,9 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 
 import javax.swing.*;
 
+/**
+ * @author Joacim Breiler
+ */
 public class PopupMenuFactory {
     public JPopupMenu createPopupMenu(Controller controller) {
         JPopupMenu popupMenu = new JPopupMenu();
@@ -18,6 +21,7 @@ public class PopupMenuFactory {
         popupMenu.add(new UnionAction(controller));
         popupMenu.add(new SubtractAction(controller));
         popupMenu.add(new IntersectionAction(controller));
+        popupMenu.add(new BreakApartAction(controller));
         popupMenu.addSeparator();
         popupMenu.add(new FlipHorizontallyAction(controller));
         popupMenu.add(new FlipVerticallyAction(controller));

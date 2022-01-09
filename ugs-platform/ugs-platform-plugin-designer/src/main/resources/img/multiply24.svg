@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 24 24"
+   width="24"
+   height="24"
+   version="1.1"
+   id="svg837"
+   sodipodi:docname="multiply24.svg"
+   inkscape:version="1.0.1 (c497b03c, 2020-09-10)">
+  <metadata
+     id="metadata843">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs841" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1510"
+     inkscape:window-height="830"
+     id="namedview839"
+     showgrid="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:zoom="20.983912"
+     inkscape:cx="12"
+     inkscape:cy="12"
+     inkscape:window-x="0"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg837" />
+  <path
+     fill="none"
+     d="M0 0h24v24H0z"
+     id="path833" />
+  <path
+     d="M 3,3 H 6 V 6 H 3 Z"
+     id="path835"
+     sodipodi:nodetypes="ccccc" />
+  <path
+     d="m 8,3 h 3 V 6 H 8 Z"
+     id="path835-0"
+     sodipodi:nodetypes="ccccc"
+     inkscape:transform-center-x="2.8314607"
+     inkscape:transform-center-y="0.94382022" />
+  <path
+     d="M 13.000001,3 H 16 v 3 h -2.999999 z"
+     id="path835-0-7"
+     sodipodi:nodetypes="ccccc"
+     inkscape:transform-center-x="2.8314607"
+     inkscape:transform-center-y="0.94382022" />
+  <path
+     d="m 18,3 h 3 v 3 h -3 z"
+     id="path835-0-2"
+     sodipodi:nodetypes="ccccc"
+     inkscape:transform-center-x="2.8314607"
+     inkscape:transform-center-y="0.94382022" />
+  <path
+     d="m 3,8 h 3 v 3 H 3 Z"
+     id="path835-1"
+     sodipodi:nodetypes="ccccc" />
+  <path
+     d="m 8,8 h 3 v 3 H 8 Z"
+     id="path835-0-3"
+     sodipodi:nodetypes="ccccc"
+     inkscape:transform-center-x="2.8314607"
+     inkscape:transform-center-y="0.94382022" />
+  <path
+     d="M 13.000001,8 H 16 v 3 h -2.999999 z"
+     id="path835-0-7-5"
+     sodipodi:nodetypes="ccccc"
+     inkscape:transform-center-x="2.8314607"
+     inkscape:transform-center-y="0.94382022" />
+  <path
+     d="m 18,8 h 3 v 3 h -3 z"
+     id="path835-0-2-4"
+     sodipodi:nodetypes="ccccc"
+     inkscape:transform-center-x="2.8314607"
+     inkscape:transform-center-y="0.94382022" />
+  <path
+     d="m 3,13 h 3 v 3 H 3 Z"
+     id="path835-5"
+     sodipodi:nodetypes="ccccc" />
+  <path
+     d="m 8,13 h 3 v 3 H 8 Z"
+     id="path835-0-4"
+     sodipodi:nodetypes="ccccc"
+     inkscape:transform-center-x="2.8314607"
+     inkscape:transform-center-y="0.94382022" />
+  <path
+     d="M 13.000001,13 H 16 v 3 h -2.999999 z"
+     id="path835-0-7-0"
+     sodipodi:nodetypes="ccccc"
+     inkscape:transform-center-x="2.8314607"
+     inkscape:transform-center-y="0.94382022" />
+  <path
+     d="m 18,13 h 3 v 3 h -3 z"
+     id="path835-0-2-47"
+     sodipodi:nodetypes="ccccc"
+     inkscape:transform-center-x="2.8314607"
+     inkscape:transform-center-y="0.94382022" />
+  <path
+     d="m 3,18 h 3 v 3 H 3 Z"
+     id="path835-4"
+     sodipodi:nodetypes="ccccc" />
+  <path
+     d="m 8,18 h 3.000001 v 3 H 8 Z"
+     id="path835-0-5"
+     sodipodi:nodetypes="ccccc"
+     inkscape:transform-center-x="2.8314607"
+     inkscape:transform-center-y="0.94382022" />
+  <path
+     d="m 13.000002,18 h 2.999999 v 3 h -2.999999 z"
+     id="path835-0-7-1"
+     sodipodi:nodetypes="ccccc"
+     inkscape:transform-center-x="2.8314607"
+     inkscape:transform-center-y="0.94382022" />
+  <path
+     d="m 18.000001,18 h 3 v 3 h -3 z"
+     id="path835-0-2-8"
+     sodipodi:nodetypes="ccccc"
+     inkscape:transform-center-x="2.8314607"
+     inkscape:transform-center-y="0.94382022" />
+</svg>

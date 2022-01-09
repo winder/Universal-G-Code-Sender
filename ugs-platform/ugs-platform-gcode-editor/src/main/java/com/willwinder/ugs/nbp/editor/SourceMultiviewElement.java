@@ -20,33 +20,42 @@ package com.willwinder.ugs.nbp.editor;
 
 import com.willwinder.ugs.nbp.editor.renderer.EditorListener;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
-import org.openide.ErrorManager;
+import org.netbeans.editor.EditorUI;
+import org.netbeans.editor.Utilities;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 
-import java.io.File;
+import javax.swing.*;
+import java.awt.*;
+import java.util.Arrays;
 
 @MultiViewElement.Registration(
         displayName = "#platform.window.editor.source",
         iconBase = "com/willwinder/ugs/nbp/editor/edit.png",
-        mimeType = "text/xgcode",
+        mimeType = GcodeLanguageConfig.MIME_TYPE,
         persistenceType = TopComponent.PERSISTENCE_NEVER,
         preferredID = "Gcode",
         position = 1000
 )
-public class SourceMultiviewElement extends MultiViewEditorElement {
+public class SourceMultiviewElement extends MultiViewEditorElement implements UGSEventListener {
     private static final long serialVersionUID = 7255236202190135442L;
-    private static EditorListener editorListener = new EditorListener();
+    private static final EditorListener editorListener = new EditorListener();
     private final GcodeDataObject obj;
     private final GcodeFileListener fileListener;
+    private final transient BackendAPI backend;
+    private static final Component TOOLBAR_PADDING = Box.createRigidArea(new Dimension(1, 30));
 
     public SourceMultiviewElement(Lookup lookup) {
         super(lookup);
         obj = lookup.lookup(GcodeDataObject.class);
         fileListener = new GcodeFileListener();
+        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
     }
 
     @Override
@@ -54,6 +63,7 @@ public class SourceMultiviewElement extends MultiViewEditorElement {
         super.componentOpened();
         EditorUtils.openFile(obj.getPrimaryFile());
         obj.getPrimaryFile().addFileChangeListener(fileListener);
+        backend.addUGSEventListener(this);
     }
 
     @Override
@@ -62,11 +72,23 @@ public class SourceMultiviewElement extends MultiViewEditorElement {
         editorListener.reset();
         if (getEditorPane() != null) {
             getEditorPane().addCaretListener(editorListener);
+            setToolBarHeight();
+        }
+    }
+
+    private void setToolBarHeight() {
+        EditorUI editorUI = Utilities.getEditorUI(getEditorPane());
+        JToolBar toolBarComponent = editorUI.getToolBarComponent();
+
+        // Adds an element with vertical height
+        if (Arrays.stream(toolBarComponent.getComponents()).noneMatch(c -> c.equals(TOOLBAR_PADDING))) {
+            toolBarComponent.add(TOOLBAR_PADDING);
         }
     }
 
     @Override
     public void componentClosed() {
+        backend.removeUGSEventListener(this);
         obj.getPrimaryFile().removeFileChangeListener(fileListener);
         if (getEditorPane() != null) {
             getEditorPane().removeCaretListener(editorListener);
@@ -78,5 +100,14 @@ public class SourceMultiviewElement extends MultiViewEditorElement {
     @Override
     public Lookup getLookup() {
         return obj.getLookup();
+    }
+
+    @Override
+    public void UGSEvent(UGSEvent ugsEvent) {
+        // Disable the editor if not idle or disconnected
+        if (ugsEvent.isStateChangeEvent() && backend.getController() != null && backend.getController().getControllerStatus() != null) {
+            ControllerState state = backend.getController().getControllerStatus().getState();
+            getEditorPane().setEditable(state == ControllerState.IDLE || state == ControllerState.DISCONNECTED);
+        }
     }
 }

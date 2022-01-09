@@ -38,7 +38,7 @@ import org.openide.util.Lookup;
         id = CameraYPreset.ID
 )
 @ActionRegistration(
-        iconBase = CameraYPreset.ICON_BASE,
+        iconBase = CameraYPreset.SMALL_ICON_PATH,
         displayName = "--",
         lazy = false
 )
@@ -48,7 +48,8 @@ import org.openide.util.Lookup;
                 position = 1060)
 })
 public final class CameraYPreset extends MoveCameraAction {
-    public static final String ICON_BASE = "icons/Y.png";
+    public static final String SMALL_ICON_PATH = "icons/Y.svg";
+    public static final String LARGE_ICON_PATH = "icons/Y24.svg";
     public static final String CATEGORY = LocalizingService.CATEGORY_VISUALIZER;
     public static final String ID = "com.willwinder.ugs.nbm.visualizer.actions.CameraYPreset";
     public static final String NAME = Localization.getString("platform.visualizer.popup.presets.front");
@@ -65,9 +66,11 @@ public final class CameraYPreset extends MoveCameraAction {
                 Lookup.getDefault().lookup(GcodeRenderer.class),
                 ROTATION_FRONT);
 
-        putValue("iconBase", ICON_BASE);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
+        putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
+        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", NAME);
         putValue(Action.NAME, NAME);
+        putValue(Action.SHORT_DESCRIPTION, "Sets the camera to Y preset");
     }
 }

@@ -23,7 +23,7 @@ import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
 
 import javax.swing.*;
-import java.awt.GridLayout;
+import java.awt.*;
 
 /**
  * A simple container that contains a Drawing instance and keeps it
@@ -40,7 +40,7 @@ public class DrawingContainer extends JPanel implements ControllerListener {
 
     public DrawingContainer(Controller controller) {
         super();
-        setLayout(new GridLayout(0, 1));
+        setLayout(new BorderLayout());
         this.controller = controller;
         this.drawingMouseListener = new MouseListener(controller);
         setDrawing(this.controller.getDrawing());
@@ -51,7 +51,7 @@ public class DrawingContainer extends JPanel implements ControllerListener {
         JScrollPane scrollPane = new JScrollPane(d, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.getVerticalScrollBar().setUnitIncrement(5);
         scrollPane.getHorizontalScrollBar().setUnitIncrement(5);
-        add(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
         revalidate();
 
         d.addMouseListener(drawingMouseListener);
