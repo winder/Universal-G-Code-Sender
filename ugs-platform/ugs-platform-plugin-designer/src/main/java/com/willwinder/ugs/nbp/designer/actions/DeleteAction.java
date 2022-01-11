@@ -24,6 +24,9 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
@@ -36,10 +39,18 @@ import java.util.List;
  *
  * @author Joacim Breiler
  */
+@ActionID(
+        id = "com.willwinder.ugs.nbp.designer.actions.DeleteAction",
+        category = "Edit")
+@ActionReferences({
+        @ActionReference(
+                path = "Shortcuts",
+                name = "BACK_SPACE")
+})
 public class DeleteAction extends AbstractAction implements SelectionListener {
 
     private static final String SMALL_ICON_PATH = "img/delete.svg";
-    private static final String LARGE_ICON_PATH = "img/delete32.svg";
+    private static final String LARGE_ICON_PATH = "img/delete24.svg";
     private final transient Controller controller;
 
     /**
@@ -57,15 +68,15 @@ public class DeleteAction extends AbstractAction implements SelectionListener {
 
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);
-        setEnabled(!selectionManager.getSelection().isEmpty());
+        setEnabled(!selectionManager.getChildren().isEmpty());
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         SelectionManager selectionManager = controller.getSelectionManager();
-        if (!selectionManager.getSelection().isEmpty()) {
-            List<Entity> entities = selectionManager.getSelection();
-            UndoableDeleteAction undoableAction = new UndoableDeleteAction(controller.getDrawing(), entities);
+        List<Entity> selection = selectionManager.getChildren();
+        if (!selection.isEmpty()) {
+            UndoableDeleteAction undoableAction = new UndoableDeleteAction(controller.getDrawing(), selection);
             controller.getUndoManager().addAction(undoableAction);
             undoableAction.execute();
         }
@@ -75,7 +86,7 @@ public class DeleteAction extends AbstractAction implements SelectionListener {
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
         SelectionManager selectionManager = controller.getSelectionManager();
-        setEnabled(!selectionManager.getSelection().isEmpty());
+        setEnabled(!selectionManager.getChildren().isEmpty());
     }
 
     /**
@@ -97,17 +108,13 @@ public class DeleteAction extends AbstractAction implements SelectionListener {
 
         @Override
         public void undo() {
-            for (Entity s : entities) {
-                drawing.insertEntity(s);
-            }
+            drawing.insertEntities(entities);
             drawing.repaint();
         }
 
         @Override
         public void execute() {
-            for (Entity s : entities) {
-                drawing.removeEntity(s);
-            }
+            drawing.removeEntities(entities);
             drawing.repaint();
         }
 

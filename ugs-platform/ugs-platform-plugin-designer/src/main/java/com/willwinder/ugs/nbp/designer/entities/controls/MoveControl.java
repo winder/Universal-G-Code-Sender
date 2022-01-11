@@ -25,33 +25,72 @@ import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gui.Colors;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Joacim Breiler
  */
 public class MoveControl extends AbstractControl {
+    private final RoundRectangle2D.Double shape;
+    private final Controller controller;
+    private AffineTransform transform = new AffineTransform();
     private Point2D startOffset;
     private Point2D startPosition;
+    private boolean isHovered = false;
 
-    public MoveControl(SelectionManager selectionManager) {
-        super(selectionManager);
+    public MoveControl(Controller controller) {
+        super(controller.getSelectionManager());
+        this.controller = controller;
+        this.shape = new RoundRectangle2D.Double(0, 0, ResizeControl.SIZE, ResizeControl.SIZE, ResizeControl.ARC_SIZE, ResizeControl.ARC_SIZE);
     }
 
     @Override
     public boolean isWithin(Point2D point) {
-        return getSelectionManager().isWithin(point);
+        return !controller.getSelectionManager().isEmpty() &&
+                getSelectionManager().getShape().contains(point);
     }
 
     @Override
-    public void render(Graphics2D graphics) {
-        // There is nothing to render
+    public Shape getShape() {
+        return transform.createTransformedShape(getRelativeShape());
+    }
+
+    @Override
+    public Shape getRelativeShape() {
+        return shape;
+    }
+
+    @Override
+    public void render(Graphics2D graphics, Drawing drawing) {
+        if (controller.getSelectionManager().isEmpty()) {
+            return;
+        }
+
+        updatePosition(drawing);
+        if (isHovered) {
+            graphics.setColor(Colors.CONTROL_BORDER);
+        } else {
+            graphics.setColor(Colors.CONTROL_HANDLE);
+        }
+        graphics.fill(getShape());
+    }
+
+    @Override
+    public Optional<Cursor> getHoverCursor() {
+        return Optional.of(new Cursor(Cursor.HAND_CURSOR));
     }
 
     @Override
@@ -78,8 +117,34 @@ public class MoveControl extends AbstractControl {
                 addUndoAction(deltaMovementTotal, target);
                 startPosition = null;
                 startOffset = null;
+            } else if (mouseShapeEvent.getType() == EventType.MOUSE_IN) {
+                isHovered = true;
+            } else if (mouseShapeEvent.getType() == EventType.MOUSE_OUT) {
+                isHovered = false;
             }
         }
+    }
+
+    private void updatePosition(Drawing drawing) {
+        double size = ResizeControl.SIZE / drawing.getScale();
+        double halfSize = size / 2d;
+        double arcSize = ResizeControl.ARC_SIZE / drawing.getScale();
+
+        this.shape.setRoundRect(0, 0, size, size, arcSize, arcSize);
+
+        // Create transformation for where to position the controller in relative space
+        AffineTransform t = getSelectionManager().getTransform();
+        Rectangle2D bounds = getSelectionManager().getRelativeShape().getBounds2D();
+        t.translate(bounds.getX(), bounds.getY());
+
+        t.translate(bounds.getWidth() / 2, bounds.getHeight() / 2);
+
+        // Transform the position from relative space to real space
+        Point2D center = new Point2D.Double();
+        t.transform(new Point2D.Double(0, 0), center);
+
+        this.transform = new AffineTransform();
+        this.transform.translate(center.getX() - halfSize, center.getY() - halfSize);
     }
 
     private void addUndoAction(Point2D deltaMovement, Entity target) {

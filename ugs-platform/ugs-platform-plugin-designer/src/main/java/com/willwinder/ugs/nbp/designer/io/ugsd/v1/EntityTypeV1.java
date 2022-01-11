@@ -22,5 +22,5 @@ package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
  * @author Joacim Breiler
  */
 public enum EntityTypeV1 {
-    PATH, GROUP, ELLIPSE, RECTANGLE
+    PATH, GROUP, ELLIPSE, RECTANGLE, TEXT
 }

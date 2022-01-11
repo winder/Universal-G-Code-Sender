@@ -21,12 +21,22 @@ before_script:
 - curl -fL https://getcli.jfrog.io | sh
 
 script:
-  - mvn test install -B -Djava.util.logging.config.file=scripts/logging.config
+  # Default to a snapshot build
+  - export REVISION="2.0"
+  - export CHANGELIST="-SNAPSHOT"
+  # If a travis tag was defined extract the version number and unset the snapshot
+  - if [[ $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then export REVISION=${TRAVIS_TAG:1}; export CHANGELIST=""; fi
+  # Build using the revision
+  - echo "Building version ${REVISION}${CHANGELIST}"
+  - mvn test install -B -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
   - codecov
   # Make sure artifacts can be built
-  - mvn assembly:assembly -pl ugs-classic -DskipTests=true
-  - mvn package -pl ugs-platform/application -P create-autoupdate,create-macosx-package,create-win-package,create-linux-package,create-pi-package -DskipTests=true
-
+  - mvn package -pl ugs-classic assembly:assembly -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
+  - mvn package -pl ugs-platform/application -P create-autoupdate -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
+  - mvn package -pl ugs-platform/application -P create-macosx-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
+  - mvn package -pl ugs-platform/application -P create-win-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
+  - mvn package -pl ugs-platform/application -P create-linux-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
+  - mvn package -pl ugs-platform/application -P create-pi-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
 deploy:
   # Only deploy as nightly if master branch without tag

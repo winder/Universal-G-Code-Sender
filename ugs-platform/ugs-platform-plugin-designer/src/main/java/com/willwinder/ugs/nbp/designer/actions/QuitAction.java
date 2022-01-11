@@ -28,7 +28,7 @@ import java.awt.event.ActionEvent;
  */
 public class QuitAction extends AbstractAction {
     private static final String ICON_SMALL_PATH = "img/exit.svg";
-    private static final String ICON_LARGE_PATH = "img/exit32.svg";
+    private static final String ICON_LARGE_PATH = "img/exit24.svg";
 
     public QuitAction() {
         putValue("iconBase", ICON_SMALL_PATH);

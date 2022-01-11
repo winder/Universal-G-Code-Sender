@@ -5,11 +5,10 @@
     <parent>
         <groupId>com.willwinder.universalgcodesender</groupId>
         <artifactId>ugs-parent</artifactId>
-        <version>2.0-SNAPSHOT</version>
+        <version>${revision}${changelist}</version>
     </parent>
 
     <artifactId>ugs-pendant</artifactId>
-    <version>2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
@@ -17,9 +16,6 @@
     <url>https://github.com/winder/Universal-G-Code-Sender/tree/master/ugs-pendant</url>
 
     <properties>
-        <timestamp>${maven.build.timestamp}</timestamp>
-        <maven.build.timestamp.format>MMM dd, yyyy</maven.build.timestamp.format>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -78,16 +74,6 @@
             <artifactId>jersey-media-multipart</artifactId>
             <version>${jersey.version}</version>
         </dependency>
-
-        <!-- ************************* -->
-        <!-- *** TEST dependencies ***-->
-
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>3.4</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <profiles>
@@ -106,7 +92,7 @@
                     <plugin>
                         <groupId>com.github.eirslett</groupId>
                         <artifactId>frontend-maven-plugin</artifactId>
-                        <version>1.6</version>
+                        <version>1.12.0</version>
                         <configuration>
                             <workingDirectory>${project.basedir}/src/main/webapp</workingDirectory>
                         </configuration>

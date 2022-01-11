@@ -57,22 +57,22 @@ public class OverlayTest {
     @Test
     public void drawingNulledTextShouldDoNothing() {
         target.draw(null);
-        verifyZeroInteractions(drawable);
-        verifyZeroInteractions(renderer);
+        verifyNoInteractions(drawable);
+        verifyNoInteractions(renderer);
     }
 
     @Test
     public void drawingEmptyTextShouldDoNothing() {
         target.draw("");
-        verifyZeroInteractions(drawable);
-        verifyZeroInteractions(renderer);
+        verifyNoInteractions(drawable);
+        verifyNoInteractions(renderer);
     }
 
     @Test
     public void drawingBlankSpaceTextShouldDoNothing() {
         target.draw(" ");
-        verifyZeroInteractions(drawable);
-        verifyZeroInteractions(renderer);
+        verifyNoInteractions(drawable);
+        verifyNoInteractions(renderer);
     }
 
     @Test

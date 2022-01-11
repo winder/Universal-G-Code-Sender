@@ -24,6 +24,8 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Joacim Breiler
@@ -31,23 +33,28 @@ import java.awt.event.ActionEvent;
 public class ChangeCutSettingsAction extends AbstractAction implements UndoableAction {
 
     private final transient Controller controller;
-    private final double previousCutDepth;
-    private final CutType previousCutType;
+    private final List<Double> previousStartDepth;
+    private final List<Double> previousCutDepth;
+    private final List<CutType> previousCutType;
+    private final double newStartDepth;
     private final double newCutDepth;
     private final CutType newCutType;
-    private final Cuttable cuttable;
+    private final List<Cuttable> cuttableList;
 
-    public ChangeCutSettingsAction(Controller controller, Cuttable cuttable, double cutDepth, CutType cutType) {
-        this.cuttable = cuttable;
-        previousCutDepth = cuttable.getCutDepth();
-        previousCutType = cuttable.getCutType();
-        newCutDepth = cutDepth;
+    public ChangeCutSettingsAction(Controller controller, List<Cuttable> cuttableList, double startDepth, double targetDepth, CutType cutType) {
+        this.cuttableList = cuttableList;
+        previousStartDepth = cuttableList.stream().map(Cuttable::getStartDepth).collect(Collectors.toList());
+        previousCutDepth = cuttableList.stream().map(Cuttable::getTargetDepth).collect(Collectors.toList());
+        previousCutType = cuttableList.stream().map(Cuttable::getCutType).collect(Collectors.toList());
+        newStartDepth = startDepth;
+        newCutDepth = targetDepth;
         newCutType = cutType;
 
         this.controller = controller;
         putValue("menuText", "Change stock settings");
         putValue(NAME, "Change stock settings");
     }
+
     @Override
     public void redo() {
         actionPerformed(null);
@@ -55,16 +62,25 @@ public class ChangeCutSettingsAction extends AbstractAction implements UndoableA
 
     @Override
     public void undo() {
-        cuttable.setCutDepth(previousCutDepth);
-        cuttable.setCutType(previousCutType);
-        cuttable.setCutDepth(previousCutDepth);
+        for (int i = 0; i < cuttableList.size(); i++) {
+            cuttableList.get(i).setStartDepth(previousStartDepth.get(i));
+            cuttableList.get(i).setTargetDepth(previousCutDepth.get(i));
+            cuttableList.get(i).setCutType(previousCutType.get(i));
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        cuttable.setCutDepth(newCutDepth);
-        cuttable.setCutType(newCutType);
-        cuttable.setCutDepth(newCutDepth);
+        for (Cuttable cuttable : cuttableList) {
+            cuttable.setStartDepth(newStartDepth);
+            cuttable.setTargetDepth(newCutDepth);
+            cuttable.setCutType(newCutType);
+        }
         this.controller.getDrawing().repaint();
+    }
+
+    @Override
+    public String toString() {
+        return "cut settings";
     }
 }

@@ -22,9 +22,14 @@ import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 
+import java.awt.*;
+import java.util.Optional;
+
 /**
  * @author Joacim Breiler
  */
 public interface Control extends EntityListener, Entity {
     SelectionManager getSelectionManager();
+
+    Optional<Cursor> getHoverCursor();
 }

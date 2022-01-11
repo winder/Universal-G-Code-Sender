@@ -18,10 +18,12 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
-import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
-import com.willwinder.ugs.nbp.designer.entities.controls.GridControl;
+import com.google.common.collect.Sets;
+import com.willwinder.ugs.nbp.designer.Throttler;
+import com.willwinder.ugs.nbp.designer.entities.*;
+import com.willwinder.ugs.nbp.designer.entities.controls.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,10 +31,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.awt.RenderingHints.*;
 
@@ -44,16 +45,41 @@ public class Drawing extends JPanel {
     private static final long serialVersionUID = 1298712398723987873L;
     private final transient EntityGroup globalRoot;
     private final transient EntityGroup entitiesRoot;
+    private final EntityGroup controlsRoot;
     private double scale;
-    private final transient Set<DrawingListener> listeners = new HashSet<>();
+    private final transient Set<DrawingListener> listeners  = Sets.newConcurrentHashSet();
     private int margin = 100;
+    private Throttler refreshThrottler;
 
     public Drawing(Controller controller) {
+        refreshThrottler = new Throttler(this::refresh, 2000);
+
         globalRoot = new EntityGroup();
         globalRoot.addChild(new GridControl(controller));
+        globalRoot.addListener((event) -> refreshThrottler.run());
+
         entitiesRoot = new EntityGroup();
         globalRoot.addChild(entitiesRoot);
         globalRoot.addChild(controller.getSelectionManager());
+
+        controlsRoot = new EntityGroup();
+        globalRoot.addChild(controlsRoot);
+        controlsRoot.addChild(new ResizeControl(controller, Location.TOP));
+        controlsRoot.addChild(new ResizeControl(controller, Location.LEFT));
+        controlsRoot.addChild(new ResizeControl(controller, Location.RIGHT));
+        controlsRoot.addChild(new ResizeControl(controller, Location.BOTTOM));
+        controlsRoot.addChild(new ResizeControl(controller, Location.BOTTOM_LEFT));
+        controlsRoot.addChild(new ResizeControl(controller, Location.BOTTOM_RIGHT));
+        controlsRoot.addChild(new ResizeControl(controller, Location.TOP_LEFT));
+        controlsRoot.addChild(new ResizeControl(controller, Location.TOP_RIGHT));
+        controlsRoot.addChild(new HighlightModelControl(controller.getSelectionManager()));
+        controlsRoot.addChild(new MoveControl(controller));
+        controlsRoot.addChild(new RotationControl(controller.getSelectionManager()));
+        controlsRoot.addChild(new SelectionControl(controller));
+        controlsRoot.addChild(new CreateRectangleControl(controller));
+        controlsRoot.addChild(new CreateEllipseControl(controller));
+        controlsRoot.addChild(new CreateTextControl(controller));
+        controlsRoot.addChild(new EditTextControl(controller));
 
         setBackground(Colors.BACKGROUND);
         setScale(2);
@@ -71,8 +97,18 @@ public class Drawing extends JPanel {
         return globalRoot.getChildrenAt(p);
     }
 
-    public void insertEntity(Entity s) {
-        entitiesRoot.addChild(s);
+    public List<Entity> getEntitiesIntersecting(Shape shape) {
+        return globalRoot.getChildrenIntersecting(shape);
+    }
+
+    public void insertEntity(Entity entity) {
+        entitiesRoot.addChild(entity);
+        listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_ADDED));
+        refresh();
+    }
+
+    public void insertEntities(List<Entity> entities) {
+        entities.forEach(entitiesRoot::addChild);
         listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_ADDED));
         refresh();
     }
@@ -113,13 +149,13 @@ public class Drawing extends JPanel {
         rh.put(KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         rh.put(KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g2.setRenderingHints(rh);
-        globalRoot.render(g2);
+        globalRoot.render(g2, this);
         g2.setTransform(previousTransform);
     }
 
     public void removeEntity(Entity s) {
         globalRoot.removeChild(s);
-        listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED));
+        ThreadHelper.invokeLater(() -> listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED)));
         refresh();
     }
 
@@ -135,7 +171,7 @@ public class Drawing extends JPanel {
     @Override
     public Dimension getMinimumSize() {
         Rectangle2D bounds = globalRoot.getBounds();
-        return new Dimension((int)(bounds.getMaxX() * scale) + (margin * 2), (int)(bounds.getMaxY() * scale) + (margin * 2));
+        return new Dimension((int) (bounds.getMaxX() * scale) + (margin * 2), (int) (bounds.getMaxY() * scale) + (margin * 2));
     }
 
     @Override
@@ -151,7 +187,10 @@ public class Drawing extends JPanel {
 
     private void refresh() {
         repaint();
-        firePropertyChange("minimumSize", getMinimumSize(), getMinimumSize());
+        Dimension minimumSize = getMinimumSize();
+        firePropertyChange("minimumSize", minimumSize.width, minimumSize.height);
+        firePropertyChange("preferredSize", minimumSize.width, minimumSize.height);
+        revalidate();
     }
 
     public void addListener(DrawingListener listener) {
@@ -168,5 +207,18 @@ public class Drawing extends JPanel {
 
     public void removeListener(DrawingListener drawingListener) {
         listeners.remove(drawingListener);
+    }
+
+    public List<Control> getControls() {
+        return controlsRoot.getAllChildren().stream()
+                .filter(Control.class::isInstance)
+                .map(Control.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    public void removeEntities(List<Entity> entities) {
+        entities.forEach(globalRoot::removeChild);
+        ThreadHelper.invokeLater(() -> listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED)));
+        refresh();
     }
 }

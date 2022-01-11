@@ -16,6 +16,8 @@
  */
 package com.willwinder.ugs.nbp.designer.gcode.path;
 
+import com.willwinder.universalgcodesender.model.PartialPosition;
+
 /**
  * Path segment
  *
@@ -29,22 +31,17 @@ public final class Segment {
     /**
      * The segment point. This can be null when type is SEAM
      */
-    public final Coordinate point;
+    public final PartialPosition point;
     /**
      * The segment label. This is usually with SEAM to identify subpaths,
      * but can be used with points too as general purpose comments.
      */
     public final String label;
 
-    public Segment(SegmentType type, Coordinate point) {
+    public Segment(SegmentType type, PartialPosition point) {
         this.type = type;
         this.point = point;
         this.label = null;
-    }
-    public Segment(SegmentType type, Coordinate point, String label) {
-        this.type = type;
-        this.point = point;
-        this.label = label;
     }
 
     @Override
@@ -60,7 +57,7 @@ public final class Segment {
      *
      * @return
      */
-    public final String getLabel() {
+    public String getLabel() {
         return label;
     }
 
@@ -69,7 +66,7 @@ public final class Segment {
      *
      * @return segment type
      */
-    public final SegmentType getType() {
+    public SegmentType getType() {
         return type;
     }
 
@@ -79,7 +76,7 @@ public final class Segment {
      * @return point
      * @throws NullPointerException if segment has no point
      */
-    public final Coordinate getPoint() {
+    public PartialPosition getPoint() {
         if (point == null)
             throw new NullPointerException(type + " segment has no point!");
 

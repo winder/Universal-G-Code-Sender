@@ -19,7 +19,6 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.Utils;
 import net.miginfocom.swing.MigLayout;
 
@@ -43,7 +42,7 @@ public class StockSettingsPanel extends JPanel {
         setLayout(new MigLayout("fill", "[20%][80%]"));
 
         add(new JLabel("Thickness"));
-        stockThickness = new JTextField(Utils.formatter.format(controller.getSettings().getStockThickness()));
+        stockThickness = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getStockThickness());
         add(stockThickness, "grow, wrap");
     }
 

@@ -131,8 +131,8 @@ public class GrblFirmwareSettingsTest {
         target.setValue("$0", "10");
 
         // Then
-        verifyZeroInteractions(firmwareSettingsListener);
-        verifyZeroInteractions(controller);
+        verifyNoInteractions(firmwareSettingsListener);
+        verifyNoInteractions(controller);
     }
 
     @Test

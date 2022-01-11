@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.io.ugsd;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
 import com.willwinder.ugs.nbp.designer.io.RuntimeTypeAdapterFactory;
 import com.willwinder.ugs.nbp.designer.io.ugsd.common.UgsDesign;
@@ -27,14 +28,17 @@ import com.willwinder.ugs.nbp.designer.io.ugsd.v1.*;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * @author Joacim Breiler
@@ -54,7 +58,7 @@ public class UgsDesignReader implements DesignReader {
     @Override
     public Optional<Design> read(InputStream resourceAsStream) {
         try {
-            String designFileContent = IOUtils.toString(resourceAsStream);
+            String designFileContent = IOUtils.toString(resourceAsStream, StandardCharsets.UTF_8);
             if (StringUtils.isEmpty(designFileContent)) {
                 return Optional.empty();
             }
@@ -73,18 +77,29 @@ public class UgsDesignReader implements DesignReader {
         }
     }
 
-    @NotNull
     private Optional<Design> parseV1(String designFile) {
+        Gson gson = getParser();
+        DesignV1 designV1 = gson.fromJson(designFile, DesignV1.class);
+        return Optional.of(designV1.toInternal());
+    }
+
+    private Gson getParser() {
         RuntimeTypeAdapterFactory<EntityV1> entityAdapterFactory = RuntimeTypeAdapterFactory.of(EntityV1.class, "type");
         entityAdapterFactory.registerSubtype(EntityPathV1.class, EntityTypeV1.PATH.name());
         entityAdapterFactory.registerSubtype(EntityGroupV1.class, EntityTypeV1.GROUP.name());
         entityAdapterFactory.registerSubtype(EntityRectangleV1.class, EntityTypeV1.RECTANGLE.name());
         entityAdapterFactory.registerSubtype(EntityEllipseV1.class, EntityTypeV1.ELLIPSE.name());
+        entityAdapterFactory.registerSubtype(EntityTextV1.class, EntityTypeV1.TEXT.name());
 
-        Gson gson = new GsonBuilder()
+        return new GsonBuilder()
                 .registerTypeAdapterFactory(entityAdapterFactory)
                 .create();
-        DesignV1 designV1 = gson.fromJson(designFile, DesignV1.class);
-        return Optional.of(designV1.toInternal());
+    }
+
+    public List<Entity> deserialize(String entities) {
+        Gson gson = getParser();
+        return Arrays.stream(gson.fromJson(entities, EntityV1[].class))
+                .map(EntityV1::toInternal)
+                .collect(Collectors.toList());
     }
 }

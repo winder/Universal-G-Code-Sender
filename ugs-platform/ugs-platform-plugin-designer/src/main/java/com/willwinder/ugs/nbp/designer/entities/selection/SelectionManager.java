@@ -18,20 +18,19 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.selection;
 
+import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.entities.*;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
-import com.willwinder.ugs.nbp.designer.entities.controls.ModifyControls;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,28 +39,24 @@ import java.util.stream.Stream;
  */
 public class SelectionManager extends AbstractEntity implements EntityListener {
 
-    private final Set<SelectionListener> listeners = new HashSet<>();
+    private final Set<SelectionListener> listeners  = Sets.newConcurrentHashSet();
     private final EntityGroup entityGroup;
-    private final ModifyControls modifyControls;
 
     public SelectionManager() {
         super();
         entityGroup = new EntityGroup();
-        modifyControls = new ModifyControls(this);
         entityGroup.addListener(this);
     }
 
     @Override
-    public final void render(Graphics2D graphics) {
-        if (!entityGroup.getChildren().isEmpty()) {
+    public final void render(Graphics2D graphics, Drawing drawing) {
+        if (!isEmpty()) {
             // Highlight the selected models
-            getSelection().forEach(entity -> {
-                graphics.setStroke(new BasicStroke(0.8f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{0.8f, 0.8f}, 0));
-                graphics.setColor(Colors.SHAPE_OUTLINE);
-                graphics.draw(entity.getShape());
-            });
-
-            modifyControls.render(graphics);
+            float strokeWidth = Double.valueOf(1.6 / drawing.getScale()).floatValue();
+            float dashWidth = Double.valueOf(2 / drawing.getScale()).floatValue();
+            graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
+            graphics.setColor(Colors.SHAPE_OUTLINE);
+            getSelection().forEach(entity -> graphics.draw(entity.getShape()));
         }
     }
 
@@ -86,16 +81,29 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
     }
 
     public void addSelection(Entity entity) {
-        if (entity == this) {
+        if (entity == this || entity instanceof Control) {
             return;
         }
         entityGroup.addChild(entity);
         fireSelectionEvent(new SelectionEvent());
     }
 
+    public void addSelection(List<Entity> entities) {
+        entityGroup.addAll(entities.stream()
+                .filter(entity -> entity != this || !(entity instanceof Control))
+                .collect(Collectors.toList()));
+
+        fireSelectionEvent(new SelectionEvent());
+    }
+
     public void setSelection(List<Entity> entities) {
+        List<Entity> selection = entities.stream()
+                .filter(e -> e != this)
+                .filter(e -> !(e instanceof Control))
+                .collect(Collectors.toList());
+
         entityGroup.removeAll();
-        entityGroup.addAll(entities);
+        entityGroup.addAll(selection);
         fireSelectionEvent(new SelectionEvent());
     }
 
@@ -111,14 +119,13 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
 
 
     public void removeSelectionListener(SelectionListener selectionListener) {
-        if (!this.listeners.contains(selectionListener)) {
-            this.listeners.remove(selectionListener);
+        if (!listeners.contains(selectionListener)) {
+            listeners.remove(selectionListener);
         }
     }
 
     private void fireSelectionEvent(SelectionEvent selectionEvent) {
-        new ArrayList<>(this.listeners)
-                .forEach(listener -> listener.
+        listeners.forEach(listener -> listener.
                         onSelectionEvent(selectionEvent));
     }
 
@@ -139,11 +146,8 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
                 .collect(Collectors.toList());
     }
 
-    public List<Control> getControls() {
-        return modifyControls.getAllChildren().stream()
-                .filter(Control.class::isInstance)
-                .map(Control.class::cast)
-                .collect(Collectors.toList());
+    public List<Entity> getChildren() {
+        return entityGroup.getChildren();
     }
 
     @Override
@@ -202,5 +206,14 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
     @Override
     public void onEvent(EntityEvent entityEvent) {
         notifyEvent(entityEvent);
+    }
+
+    public boolean isEmpty() {
+        return entityGroup.getChildren().isEmpty();
+    }
+
+    @Override
+    public Entity copy() {
+        throw new RuntimeException("Not implemented");
     }
 }

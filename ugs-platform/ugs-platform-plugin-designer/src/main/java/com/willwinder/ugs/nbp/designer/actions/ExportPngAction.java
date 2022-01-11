@@ -35,7 +35,7 @@ import java.io.File;
 public class ExportPngAction extends AbstractAction {
 
     private static final String SMALL_ICON_PATH = "img/export.svg";
-    private static final String LARGE_ICON_PATH = "img/export32.svg";
+    private static final String LARGE_ICON_PATH = "img/export24.svg";
     private final Controller controller;
 
     public ExportPngAction(Controller controller) {

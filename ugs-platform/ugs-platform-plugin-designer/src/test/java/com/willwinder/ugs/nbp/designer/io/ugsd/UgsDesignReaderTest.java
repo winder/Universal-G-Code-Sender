@@ -10,7 +10,6 @@ import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -80,7 +79,8 @@ public class UgsDesignReaderTest {
         entity.setCenter(new Point2D.Double(10, 10));
         entity.setName("rectangle");
         entity.setRotation(90);
-        entity.setCutDepth(12);
+        entity.setStartDepth(1);
+        entity.setTargetDepth(12);
         entity.setCutType(CutType.POCKET);
         String data = convertEntityToString(entity);
 
@@ -93,17 +93,18 @@ public class UgsDesignReaderTest {
         assertEquals(entity.getPosition(), readEntity.getPosition());
         assertEquals(entity.getName(), readEntity.getName());
         assertEquals(entity.getCutType(), readEntity.getCutType());
-        assertEquals(entity.getCutDepth(), readEntity.getCutDepth(), 0.1);
+        assertEquals(entity.getStartDepth(), readEntity.getStartDepth(), 0.1);
+        assertEquals(entity.getTargetDepth(), readEntity.getTargetDepth(), 0.1);
         assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
     }
 
     @Test
     public void readDesignWithEllipse() {
         Ellipse entity = new Ellipse();
-        entity.setSize(new Size(1, 1));
+        entity.setSize(new Size(50, 100));
+        entity.setRotation(10);
         entity.setName("ellipse");
-        entity.setRotation(1);
-        entity.setCutDepth(12);
+        entity.setTargetDepth(12);
         entity.setCutType(CutType.POCKET);
         String data = convertEntityToString(entity);
 
@@ -112,26 +113,33 @@ public class UgsDesignReaderTest {
 
         Cuttable readEntity = (Cuttable) design.getEntities().get(0);
         assertTrue(readEntity instanceof Ellipse);
+
+        assertEquals(entity.getTransform(), readEntity.getTransform());
         assertEquals(entity.getPosition().getX(), readEntity.getPosition().getX(), 0.1);
         assertEquals(entity.getPosition().getY(), readEntity.getPosition().getY(), 0.1);
         assertEquals(entity.getName(), readEntity.getName());
         assertEquals(entity.getCutType(), readEntity.getCutType());
-        assertEquals(entity.getCutDepth(), readEntity.getCutDepth(), 0.1);
+        assertEquals(entity.getTargetDepth(), readEntity.getTargetDepth(), 0.1);
+        assertEquals(entity.getRelativeShape().getBounds().getWidth(), readEntity.getRelativeShape().getBounds().getWidth(), 0.1);
+        assertEquals(entity.getRelativeShape().getBounds().getHeight(), readEntity.getRelativeShape().getBounds().getHeight(), 0.1);
+        assertEquals(entity.getSize().getWidth(), readEntity.getSize().getWidth(), 0.1);
+        assertEquals(entity.getSize().getHeight(), readEntity.getSize().getHeight(), 0.1);
         assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
     }
 
     @Test
     public void readDesignWithPath() {
         Path entity = new Path();
-        entity.setSize(new Size(1, 1));
         entity.moveTo(0, 0);
         entity.lineTo(0, 0);
-        entity.lineTo(1.1, 1.1);
-        entity.lineTo(1, 0);
+        entity.lineTo(10.1, 10.1);
+        entity.lineTo(10, 0);
         entity.lineTo(0, 0);
+        entity.setSize(new Size(10, 12));
+        entity.setPosition(new Point2D.Double(100, 120));
         entity.setName("path");
         entity.setRotation(1);
-        entity.setCutDepth(12);
+        entity.setTargetDepth(12);
         entity.setCutType(CutType.POCKET);
         String data = convertEntityToString(entity);
 
@@ -144,11 +152,10 @@ public class UgsDesignReaderTest {
         assertEquals(entity.getPosition().getY(), readEntity.getPosition().getY(), 0.1);
         assertEquals(entity.getName(), readEntity.getName());
         assertEquals(entity.getCutType(), readEntity.getCutType());
-        assertEquals(entity.getCutDepth(), readEntity.getCutDepth(), 0.1);
+        assertEquals(entity.getTargetDepth(), readEntity.getTargetDepth(), 0.1);
         assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
     }
 
-    @NotNull
     private String convertEntityToString(Entity entity) {
         when(controller.getSettings()).thenReturn(new Settings());
         when(controller.getDrawing()).thenReturn(drawing);

@@ -1,16 +1,21 @@
 package com.willwinder.ugs.nbp.designer.entities.selection;
 
+import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.controls.MoveControl;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 public class SelectionManagerTest {
 
@@ -36,7 +41,8 @@ public class SelectionManagerTest {
 
         target.move(new Point2D.Double(10, 10));
 
-        assertEquals(new Size(50, 50), target.getSize());
+        assertEquals(50, target.getSize().getWidth(), 0.1);
+        assertEquals(50, target.getSize().getHeight(), 0.1);
         assertEquals(new Point2D.Double(20, 30), target.getPosition());
         assertEquals(new Point2D.Double(45, 55), target.getCenter());
         assertEquals(0, target.getRotation(), 0.1);
@@ -82,5 +88,25 @@ public class SelectionManagerTest {
         assertEquals(90, rectangle2.getRotation(), 0.001);
         assertEquals(new Point2D.Double(5, -5), rectangle1.getPosition());
         assertEquals(new Point2D.Double(5, 5), rectangle2.getPosition());
+    }
+
+    @Test
+    public void addSelectionWithControlShouldNotBePossible() {
+        Controller controller = mock(Controller.class);
+        MoveControl control = new MoveControl(controller);
+
+        target.addSelection(control);
+
+        assertTrue(target.isEmpty());
+    }
+
+    @Test
+    public void setSelectionWithControlShouldNotBePossible() {
+        Controller controller = mock(Controller.class);
+        MoveControl control = new MoveControl(controller);
+
+        target.setSelection(Collections.singletonList(control));
+
+        assertTrue(target.isEmpty());
     }
 }

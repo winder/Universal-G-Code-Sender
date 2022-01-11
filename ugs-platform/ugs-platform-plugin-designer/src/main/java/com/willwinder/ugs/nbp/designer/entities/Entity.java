@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.entities;
 
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
@@ -26,7 +27,9 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 /**
- * @author Joacim Breilelr
+ * An entity is something that can be drawn in a {@link Drawing} which has a position, rotation and size.
+ *
+ * @author Joacim Breiler
  */
 public interface Entity {
 
@@ -34,11 +37,12 @@ public interface Entity {
      * Renders the entity using the given graphics context
      *
      * @param graphics the graphics context to render the entity into
+     * @param drawing  the current drawing where the entity is displayed
      */
-    void render(Graphics2D graphics);
+    void render(Graphics2D graphics, Drawing drawing);
 
     /**
-     * Returns the shape model in relative space without any applied affine transformations
+     * Returns the entity shape in relative space without any applied affine transformations
      *
      * @return a shape using relative coordinates
      */
@@ -52,8 +56,18 @@ public interface Entity {
      */
     Shape getShape();
 
+    /**
+     * Adds an entity listener to be notified on entity events
+     *
+     * @param entityListener a listener that will receive events
+     */
     void addListener(EntityListener entityListener);
 
+    /**
+     * Removes an entity listener that no longer will notified on entity events
+     *
+     * @param entityListener the listener to remove
+     */
     void removeListener(EntityListener entityListener);
 
     /**
@@ -64,10 +78,25 @@ public interface Entity {
      */
     boolean isWithin(Point2D point);
 
+    /**
+     * Returns the size of the entity in real space using its bounds
+     *
+     * @return the size of the entity
+     */
     Size getSize();
 
+    /**
+     * Sets the size of the entity in real space forming its new bounds
+     *
+     * @param size the new size
+     */
     void setSize(Size size);
 
+    /**
+     * Gets the bounds of the entity with the position and size in real space
+     *
+     * @return the bounds in real space
+     */
     Rectangle2D getBounds();
 
     /**
@@ -77,6 +106,11 @@ public interface Entity {
      */
     Point2D getPosition();
 
+    /**
+     * Sets the real position of the entity
+     *
+     * @param position the new position
+     */
     void setPosition(Point2D position);
 
     /**
@@ -99,7 +133,7 @@ public interface Entity {
     void setTransform(AffineTransform transform);
 
     /**
-     * Applies a new generic transformation to this entity
+     * Applies a new transformation to this entity
      *
      * @param transform the new transformation to add to this
      */
@@ -113,7 +147,7 @@ public interface Entity {
     void move(Point2D deltaMovement);
 
     /**
-     * Returns the objects rotation in degrees
+     * Returns the object rotation in degrees
      *
      * @return the angle in degrees
      */
@@ -135,7 +169,14 @@ public interface Entity {
     void rotate(Point2D center, double angle);
 
     /**
-     * Gets the center point of this object
+     * Sets the rotation of the object in degrees
+     *
+     * @param rotation the rotation in degrees
+     */
+    void setRotation(double rotation);
+
+    /**
+     * Gets the center point of this object using its real bounds
      *
      * @return the center point
      */
@@ -156,9 +197,32 @@ public interface Entity {
      */
     void scale(double sx, double sy);
 
-    void setRotation(double rotation);
-
+    /**
+     * Returns the name of the entity which can be used by the user to describe it in a list of entities.
+     *
+     * @return the name
+     */
     String getName();
 
+    /**
+     * Sets the name of the entity
+     *
+     * @param name the name
+     */
     void setName(String name);
+
+    /**
+     * Returns true if the object intersects with the given shape
+     *
+     * @param shape the shape to check against
+     * @return true if it is intersecting
+     */
+    boolean isIntersecting(Shape shape);
+
+    /**
+     * Makes a copy of this entity
+     *
+     * @return a copy of the entity
+     */
+    Entity copy();
 }

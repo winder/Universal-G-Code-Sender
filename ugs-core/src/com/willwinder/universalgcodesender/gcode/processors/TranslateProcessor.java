@@ -101,11 +101,10 @@ public class TranslateProcessor implements CommandProcessor {
 
                     Position end = gcodeMeta.point.point()
                             .getPositionIn(currentUnits);
-                    end.sub(offset.getPositionIn(currentUnits));
+                    end.add(offset.getPositionIn(currentUnits));
 
                     String adjustedCommand = GcodePreprocessorUtils.generateLineFromPoints(
-                            gcodeMeta.code, start, end, gcodeMeta.state.inAbsoluteMode, null);
-
+                                gcodeMeta.code, start, end, gcodeMeta.state.inAbsoluteMode, null);
                     try {
                         return normalizeCommand(adjustedCommand, gcodeMeta.state);
                     } catch (GcodeParserException e) {

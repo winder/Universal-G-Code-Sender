@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.entities;
 
+import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
@@ -25,7 +26,6 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -33,7 +33,7 @@ import java.util.Set;
  */
 public abstract class AbstractEntity implements Entity {
 
-    private Set<EntityListener> listeners = new HashSet<>();
+    private final Set<EntityListener> listeners = Sets.newConcurrentHashSet();
 
     private AffineTransform transform = new AffineTransform();
     private String name = "AbstractEntity";
@@ -71,10 +71,28 @@ public abstract class AbstractEntity implements Entity {
         return getShape().contains(point);
     }
 
+    public boolean isIntersecting(Shape shape) {
+        return shape.intersects(getShape().getBounds2D());
+    }
+
     @Override
     public Size getSize() {
         Rectangle2D bounds = getShape().getBounds2D();
-        return new Size( bounds.getWidth(),  bounds.getHeight());
+        return new Size(bounds.getWidth(), bounds.getHeight());
+    }
+
+    @Override
+    public void setSize(Size size) {
+        if (size.getWidth() < 0.1) {
+            size = new Size(0.1, size.getHeight());
+        }
+
+        if (size.getHeight() < 0.1) {
+            size = new Size(size.getWidth(), 0.1);
+        }
+
+        Size currentSize = getSize();
+        scale(size.getWidth() / currentSize.getWidth(), size.getHeight() / currentSize.getHeight());
     }
 
     @Override
@@ -89,7 +107,8 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public Point2D getPosition() {
-        return new Point2D.Double(getBounds().getX(), getBounds().getY());
+        Rectangle2D bounds = getBounds();
+        return new Point2D.Double(bounds.getX(), bounds.getY());
     }
 
     @Override
@@ -106,7 +125,8 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void setCenter(Point2D center) {
-        setPosition(new Point2D.Double(center.getX() - (getSize().getWidth() / 2d), center.getY() - (getSize().getHeight() / 2d)));
+        Size size = getSize();
+        setPosition(new Point2D.Double(center.getX() - (size.getWidth() / 2d), center.getY() - (size.getHeight() / 2d)));
     }
 
 
@@ -136,7 +156,7 @@ public abstract class AbstractEntity implements Entity {
             transform.preConcatenate(AffineTransform.getTranslateInstance(deltaMovement.getX(), deltaMovement.getY()));
             notifyEvent(new EntityEvent(this, EventType.MOVED));
         } catch (Exception e) {
-            throw new RuntimeException("Could not make inverse transform of point", e);
+            throw new EntityException("Could not make inverse transform of point", e);
         }
     }
 
@@ -160,8 +180,9 @@ public abstract class AbstractEntity implements Entity {
     @Override
     public void scale(double sx, double sy) {
         Point2D originalPosition = getPosition();
-        transform.concatenate(AffineTransform.getScaleInstance(sx, sy));
+        transform.preConcatenate(AffineTransform.getScaleInstance(sx, sy));
 
+        // Restore position
         Point2D currentPosition = getPosition();
         transform.preConcatenate(AffineTransform.getTranslateInstance(originalPosition.getX() - currentPosition.getX(), originalPosition.getY() - currentPosition.getY()));
         notifyEvent(new EntityEvent(this, EventType.RESIZED));
@@ -174,7 +195,6 @@ public abstract class AbstractEntity implements Entity {
             rotate(deltaRotation);
         }
     }
-
 
     @Override
     public void rotate(Point2D center, double angle) {
@@ -198,5 +218,15 @@ public abstract class AbstractEntity implements Entity {
 
     public String toString() {
         return getName();
+    }
+
+    public void setWidth(double width) {
+        Size size = getSize();
+        setSize(new Size(width, size.getHeight()));
+    }
+
+    public void setHeight(double height) {
+        Size size = getSize();
+        setSize(new Size(size.getWidth(), height));
     }
 }

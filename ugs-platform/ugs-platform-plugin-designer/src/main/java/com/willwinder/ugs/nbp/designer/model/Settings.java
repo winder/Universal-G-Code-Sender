@@ -1,14 +1,32 @@
+/*
+    Copyright 2021 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.designer.model;
 
+import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.logic.SettingsListener;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class Settings {
-    private Set<SettingsListener> listeners = new HashSet<>();
+    private final Set<SettingsListener> listeners = Sets.newConcurrentHashSet();
     private int feedSpeed = 1000;
     private int plungeSpeed = 400;
     private double toolDiameter = 3d;
@@ -17,6 +35,13 @@ public class Settings {
     private UnitUtils.Units preferredUnits = UnitUtils.Units.MM;
     private double toolStepOver = 0.3;
     private double depthPerPass = 1;
+
+    public Settings() {
+    }
+
+    public Settings(Settings settings) {
+        applySettings(settings);
+    }
 
     public int getFeedSpeed() {
         return feedSpeed;

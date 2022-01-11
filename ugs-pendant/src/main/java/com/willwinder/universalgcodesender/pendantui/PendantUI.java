@@ -40,6 +40,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * This class will launch a local webserver which will provide a simple pendant interface
@@ -50,6 +51,7 @@ public class PendantUI {
     private BackendAPI mainWindow;
     private Server server = null;
     private int port = 8080;
+    private static final Logger LOG = Logger.getLogger(PendantUI.class.getSimpleName());
 
     public PendantUI(BackendAPI mainWindow) {
         this.mainWindow = mainWindow;
@@ -129,7 +131,7 @@ public class PendantUI {
                     String url = "http://" + hostAddress + ":" + port;
                     ByteArrayOutputStream bout = QRCode.from(url).to(ImageType.PNG).stream();
                     out.add(new PendantURLBean(url, bout.toByteArray()));
-                    System.out.println("Listening on: " + url);
+                    LOG.info("Listening on: " + url);
                 }
             }
         }

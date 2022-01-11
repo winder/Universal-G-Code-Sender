@@ -22,135 +22,63 @@ import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
-import com.willwinder.ugs.nbp.designer.gui.DrawingEvent;
-import com.willwinder.ugs.nbp.designer.gui.DrawingListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
-import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Joacim Breiler
  */
-public class EntitiesTree extends JPanel implements DrawingListener, ControllerListener, SelectionListener {
+public class EntitiesTree extends JPanel implements TreeSelectionListener, SelectionListener {
 
-    private final DefaultMutableTreeNode topNode = new DefaultMutableTreeNode("Drawing");
     private transient Controller controller;
     private final JTree tree;
 
     public EntitiesTree(Controller controller) {
         setLayout(new BorderLayout());
-        tree = new JTree(topNode);
+        tree = new JTree();
         tree.setEditable(true);
         tree.setRootVisible(false);
         tree.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         tree.setCellRenderer(new EntityCellRenderer(tree));
-        setBackground(tree.getBackground());
-
-        tree.addTreeSelectionListener(e -> {
-            TreePath[] selectionPaths = tree.getSelectionPaths();
-            if (selectionPaths != null && controller != null) {
-                List<Entity> entities = Arrays.stream(selectionPaths)
-                        .filter(path -> ((DefaultMutableTreeNode) path.getLastPathComponent()).getUserObject() instanceof Entity)
-                        .map(path -> (Entity) ((DefaultMutableTreeNode) path.getLastPathComponent()).getUserObject())
-                        .collect(Collectors.toList());
-                controller.getSelectionManager().setSelection(entities);
-            }
-        });
-
+        tree.setModel(new EntityTreeModel(controller));
+        tree.addTreeSelectionListener(this);
         tree.expandRow(0);
 
+        setBackground(tree.getBackground());
         add(tree, BorderLayout.CENTER);
         updateController(controller);
     }
 
     private void updateController(Controller controller) {
-        if (this.controller != null && this.controller != controller) {
-            this.controller.removeListener(this);
-            this.controller.getDrawing().removeListener(this);
-            this.controller.getSelectionManager().removeSelectionListener(this);
-        }
-
         this.controller = controller;
-        this.controller.addListener(this);
-        this.controller.getDrawing().addListener(this);
-        this.controller.getSelectionManager().addSelectionListener(this);
-        reloadTree();
+        controller.getSelectionManager().addSelectionListener(this);
     }
 
     @Override
-    public void onDrawingEvent(DrawingEvent event) {
-        reloadTree();
-    }
-
-    public void reloadTree() {
-        topNode.removeAllChildren();
-        ((EntityGroup) controller.getDrawing().getRootEntity()).getChildren().forEach(child -> addNode(topNode, child));
-        tree.setModel(new DefaultTreeModel(topNode));
-        tree.expandRow(0);
-    }
-
-    private void addNode(DefaultMutableTreeNode parent, Entity entity) {
-        EntityTreeNode node = new EntityTreeNode(entity);
-        if (entity instanceof EntityGroup) {
-            ((EntityGroup) entity).getChildren().forEach(childEntity -> addNode(node, childEntity));
-        }
-
-        parent.add(node);
-    }
-
-    @Override
-    public void onControllerEvent(ControllerEventType event) {
-        if (event == ControllerEventType.NEW_DRAWING) {
-            controller.getDrawing().addListener(this);
-            reloadTree();
-        }
+    public void valueChanged(TreeSelectionEvent e) {
+        Arrays.asList(e.getPaths()).forEach(p -> {
+            Entity entity = (Entity) p.getLastPathComponent();
+            if (e.isAddedPath(p) && !controller.getSelectionManager().isSelected(entity)) {
+                controller.getSelectionManager().addSelection(entity);
+            } else if (!e.isAddedPath(p) && controller.getSelectionManager().isSelected(entity)) {
+                controller.getSelectionManager().removeSelection(entity);
+            }
+        });
     }
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getModel().getRoot();
-        List<DefaultMutableTreeNode> selectedNodes = getSelectedNodes(node);
-        TreePath[] treePathList = selectedNodes.stream().map(this::getPath).toArray(TreePath[]::new);
-        tree.setSelectionPaths(treePathList);
-    }
-
-    public TreePath getPath(TreeNode treeNode) {
-        List<Object> nodes = new ArrayList<>();
-        if (treeNode != null) {
-            nodes.add(treeNode);
-            treeNode = treeNode.getParent();
-            while (treeNode != null) {
-                nodes.add(0, treeNode);
-                treeNode = treeNode.getParent();
-            }
-        }
-
-        return nodes.isEmpty() ? null : new TreePath(nodes.toArray());
-    }
-
-    private List<DefaultMutableTreeNode> getSelectedNodes(DefaultMutableTreeNode root) {
-
-        List<DefaultMutableTreeNode> treeNodes = new ArrayList<>();
-        for (int i = 0; i < root.getChildCount(); i++) {
-            DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(i);
-            Entity userObject = (Entity) child.getUserObject();
-            if (controller != null && controller.getSelectionManager().isSelected(userObject)) {
-                treeNodes.add(child);
-            }
-            treeNodes.addAll(getSelectedNodes(child));
-        }
-
-        return treeNodes;
+        EntityGroup rootEntity = (EntityGroup) controller.getDrawing().getRootEntity();
+        List<TreePath> treePathList = EntityTreeUtils.getSelectedPaths(controller, rootEntity, Collections.emptyList());
+        TreePath[] treePaths = treePathList.toArray(new TreePath[0]);
+        tree.setSelectionPaths(treePaths);
     }
 }

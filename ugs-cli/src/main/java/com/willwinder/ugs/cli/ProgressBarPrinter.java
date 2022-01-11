@@ -19,6 +19,7 @@
 package com.willwinder.ugs.cli;
 
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
@@ -93,6 +94,13 @@ public class ProgressBarPrinter implements ControllerListener, UGSEventListener 
 
     @Override
     public void statusStringListener(ControllerStatus status) {
+        if (pb != null) {
+            if (status.getState() == ControllerState.HOLD) {
+                pb.setExtraMessage("[PAUSED] 'ENTER' to resume");
+            } else {
+                pb.setExtraMessage("[" + status.getState() + "]");
+            }
+        }
     }
 
     @Override
@@ -104,7 +112,6 @@ public class ProgressBarPrinter implements ControllerListener, UGSEventListener 
                     .setTaskName(backend.getGcodeFile().getName())
                     .setPrintStream(System.out)
                     .build();
-
         }
     }
 }

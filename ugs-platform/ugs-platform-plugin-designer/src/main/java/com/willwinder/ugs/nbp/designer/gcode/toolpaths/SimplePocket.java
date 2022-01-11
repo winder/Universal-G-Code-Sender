@@ -18,23 +18,23 @@
  */
 package com.willwinder.ugs.nbp.designer.gcode.toolpaths;
 
-import com.willwinder.ugs.nbp.designer.gcode.path.Axis;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
-import com.willwinder.ugs.nbp.designer.gcode.path.NumericCoordinate;
-import com.willwinder.ugs.nbp.designer.gcode.path.PathGenerator;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Polygon;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.awt.geom.Area;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import static com.willwinder.ugs.nbp.designer.gcode.toolpaths.ToolPathUtils.*;
 
 /**
  * @author Joacim Breiler
  */
 public class SimplePocket extends AbstractToolPath {
-    private final PathGenerator source;
+    private final Cuttable source;
 
     /**
      * How much should the tool cut for each pass. Should be larger than 0 and smaller than 1.
@@ -42,70 +42,46 @@ public class SimplePocket extends AbstractToolPath {
      */
     private double stepOver = 0.3;
 
-
-    public SimplePocket(PathGenerator source) {
+    public SimplePocket(Cuttable source) {
         this.source = source;
     }
 
     @Override
     public GcodePath toGcodePath() {
-        LinearRing linearRing = pathToLinearRing(source.toGcodePath());
-        Polygon polygon = new Polygon(linearRing, new LinearRing[0], getGeometryFactory());
+        List<List<PartialPosition>> coordinateList = new ArrayList<>();
 
-        List<List<NumericCoordinate>> coordinateList = new ArrayList<>();
-        double currentDepth = 0;
-        while (currentDepth < getTargetDepth()) {
-            currentDepth += getDepthPerPass();
-            if (currentDepth > getTargetDepth()) {
-                currentDepth = getTargetDepth();
-            }
-
-            double buffer = getToolDiameter() / 2d;
-
-            while (true) {
-                final double depth = currentDepth;
-
-                Geometry bufferedGeometry = simplifyGeometry(polygon.buffer(-buffer));
-                List<List<NumericCoordinate>> bufferedCoordinateLists = toGeometryList(bufferedGeometry).stream()
-                        .map(geometry -> {
-                            List<NumericCoordinate> bufferedCoordinates = geometryToCoordinates(geometry)
-                                    .stream()
-                                    .map(coordinate -> new NumericCoordinate(coordinate.get(Axis.X), coordinate.get(Axis.Y), -depth))
-                                    .collect(Collectors.toList());
-
-                            if (bufferedCoordinates.isEmpty() || bufferedCoordinates.size() <= 1) {
-                                return null;
-                            }
-
-                            return bufferedCoordinates;
-                        })
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-
-
-                if(bufferedCoordinateLists.isEmpty()) {
-                    break;
+        Geometry geometryCollection = convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
+        for (int i = 0; i < geometryCollection.getNumGeometries(); i++) {
+            List<Geometry> geometries = bufferAndCollectGeometries(geometryCollection.getGeometryN(i));
+            double currentDepth = getStartDepth();
+            while (currentDepth < getTargetDepth()) {
+                currentDepth += getDepthPerPass();
+                if (currentDepth > getTargetDepth()) {
+                    currentDepth = getTargetDepth();
                 }
 
-                coordinateList.addAll(bufferedCoordinateLists);
-
-                buffer = buffer + (getToolDiameter() * stepOver);
+                List<List<PartialPosition>> geometriesCoordinates = geometriesToCoordinates(geometries, currentDepth);
+                coordinateList.addAll(geometriesCoordinates);
             }
         }
 
         return toGcodePath(coordinateList);
     }
 
-    private List<Geometry> toGeometryList(Geometry geometry) {
-        if (geometry instanceof MultiPolygon) {
-            List<Geometry> geometryList = new ArrayList<>();
-            for (int i = 0; i < geometry.getNumGeometries(); i++) {
-                geometryList.add(geometry.getGeometryN(i));
+    private List<Geometry> bufferAndCollectGeometries(Geometry geometry) {
+        List<Geometry> geometries = new ArrayList<>();
+        double buffer = getToolDiameter() / 2d;
+        while (true) {
+            Geometry bufferedGeometry = geometry.buffer(-buffer);
+            List<Geometry> bufferedGeometries = toGeometryList(bufferedGeometry);
+            if(bufferedGeometries.isEmpty()) {
+                geometries.sort(Comparator.comparingDouble(o -> o.getEnvelope().getArea()));
+                return geometries;
             }
-            return geometryList;
-        }
 
-        return Collections.singletonList(geometry);
+            geometries.addAll(bufferedGeometries);
+            buffer = buffer + (getToolDiameter() * stepOver);
+        }
     }
 
     public void setStepOver(double stepOver) {

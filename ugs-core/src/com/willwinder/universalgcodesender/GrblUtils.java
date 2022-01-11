@@ -39,8 +39,8 @@ import java.util.regex.Pattern;
  */
 public class GrblUtils {
     
-    // Note: 5 characters of this buffer reserved for real time commands.
-    public static final int GRBL_RX_BUFFER_SIZE= 123;
+    // Note: The Grbl RX buffer is not consumed by real-time commands
+    public static final int GRBL_RX_BUFFER_SIZE= 128;
 
     /**
      * Grbl commands

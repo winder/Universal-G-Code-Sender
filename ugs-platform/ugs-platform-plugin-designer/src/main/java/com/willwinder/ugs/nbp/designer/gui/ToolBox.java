@@ -18,10 +18,11 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
+import com.willwinder.ugs.nbp.core.ui.ToolBar;
 import com.willwinder.ugs.nbp.designer.actions.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
-import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 
@@ -33,13 +34,13 @@ import static org.openide.NotifyDescriptor.OK_OPTION;
 /**
  * @author Joacim Breiler
  */
-public class ToolBox extends JToolBar {
+public class ToolBox extends ToolBar {
 
     public ToolBox(Controller controller) {
-        super("Tools");
         setFloatable(false);
 
         JToggleButton select = new JToggleButton(new ToolSelectAction(controller));
+        select.setSelected(true);
         select.setText("");
         select.setToolTipText("Select and move shapes");
         add(select);
@@ -54,21 +55,76 @@ public class ToolBox extends JToolBar {
         circle.setToolTipText("Draw circles and ellipses");
         add(circle);
 
+        JToggleButton text = new JToggleButton(new ToolDrawTextAction(controller));
+        text.setText("");
+        text.setToolTipText("Write text");
+        add(text);
 
-        JToggleButton insert = new JToggleButton(new ToolInsertAction(controller));
+        JButton insert = new JButton(new ToolInsertAction(controller));
         insert.setText("");
         insert.setToolTipText("Inserts a drawing");
         insert.setContentAreaFilled(false);
+        insert.setBorderPainted(false);
         add(insert);
+
+        addSeparator();
+
+        JButton flipHorizontal = new JButton(new FlipHorizontallyAction(controller));
+        flipHorizontal.setText("");
+        flipHorizontal.setToolTipText("Flips horizontally");
+        flipHorizontal.setBorderPainted(false);
+        add(flipHorizontal);
+
+        JButton flipVertical = new JButton(new FlipVerticallyAction(controller));
+        flipVertical.setText("");
+        flipVertical.setToolTipText("Flips vertically");
+        flipVertical.setBorderPainted(false);
+        add(flipVertical);
+
+        addSeparator();
+
+        JButton union = new JButton(new UnionAction(controller));
+        union.setText("");
+        union.setToolTipText("Unions two or more entities with each other");
+        union.setBorderPainted(false);
+        add(union);
+
+        JButton subtract = new JButton(new SubtractAction(controller));
+        subtract.setText("");
+        subtract.setToolTipText("Subtracts one entity with another");
+        subtract.setBorderPainted(false);
+        add(subtract);
+
+        JButton intersection = new JButton(new IntersectionAction(controller));
+        intersection.setText("");
+        intersection.setToolTipText("Makes an intersection between two entities");
+        intersection.setBorderPainted(false);
+        add(intersection);
+
+        JButton breakApart = new JButton(new BreakApartAction(controller));
+        breakApart.setText("");
+        breakApart.setToolTipText("Breaks apart multiple entities");
+        breakApart.setBorderPainted(false);
+        add(breakApart);
+
+        addSeparator();
+
+        JButton multiply = new JButton(new MultiplyAction(controller));
+        multiply.setText("");
+        multiply.setToolTipText("Multiplies the selection");
+        multiply.setBorderPainted(false);
+        add(multiply);
+
+        addSeparator();
 
         add(Box.createRigidArea(new Dimension(10, 10)));
         add(Box.createHorizontalGlue());
 
-        JSlider zoomSlider = new JSlider(80, 800, 400);
-        zoomSlider.addChangeListener(event -> {
+        JSlider zoomSlider = new JSlider(1, 2000, 400);
+        zoomSlider.addChangeListener(event -> ThreadHelper.invokeLater(() -> {
             double scale = ((double) zoomSlider.getValue()) / 100d;
             controller.getDrawing().setScale(scale);
-        });
+        }));
         zoomSlider.setValue((int) (controller.getDrawing().getScale() * 100));
 
         zoomSlider.setMaximumSize(new Dimension(100, 32));
@@ -76,11 +132,12 @@ public class ToolBox extends JToolBar {
 
         add(Box.createHorizontalStrut(6));
         PanelButton toolButton = new PanelButton("Tool", controller.getSettings().getToolDescription());
+        controller.getSettings().addListener(() -> toolButton.setText(controller.getSettings().getToolDescription()));
         toolButton.addActionListener(e -> {
             ToolSettingsPanel toolSettingsPanel = new ToolSettingsPanel(controller);
             DialogDescriptor dialogDescriptor = new DialogDescriptor(toolSettingsPanel, "Tool settings", true, null);
             if (DialogDisplayer.getDefault().notify(dialogDescriptor) == OK_OPTION) {
-                ChangeToolSettingsAction changeStockSettings = new ChangeToolSettingsAction(controller, toolSettingsPanel.getToolDiameter(), toolSettingsPanel.getFeedSpeed(), toolSettingsPanel.getPlungeSpeed(), toolSettingsPanel.getDepthPerPass(), toolSettingsPanel.getStepOver());
+                ChangeToolSettingsAction changeStockSettings = new ChangeToolSettingsAction(controller, toolSettingsPanel.getSettings());
                 changeStockSettings.actionPerformed(null);
                 controller.getUndoManager().addAction(changeStockSettings);
                 toolButton.setText(controller.getSettings().getToolDescription());
@@ -90,6 +147,7 @@ public class ToolBox extends JToolBar {
 
         add(Box.createHorizontalStrut(6));
         PanelButton stockButton = new PanelButton("Stock", controller.getSettings().getStockSizeDescription());
+        controller.getSettings().addListener(() -> stockButton.setText(controller.getSettings().getStockSizeDescription()));
         stockButton.addActionListener(e -> {
             StockSettingsPanel stockSettingsPanel = new StockSettingsPanel(controller);
             DialogDescriptor dialogDescriptor = new DialogDescriptor(stockSettingsPanel, "Stock settings", true, null);
@@ -102,16 +160,12 @@ public class ToolBox extends JToolBar {
             }
         });
         add(stockButton);
-        controller.getSettings().addListener(() -> {
-            double thickness = controller.getSettings().getStockThickness();
-            stockButton.setText(Utils.formatter.format(thickness));
-        });
-
 
         ButtonGroup buttons = new ButtonGroup();
         buttons.add(select);
         buttons.add(circle);
         buttons.add(rectangle);
+        buttons.add(text);
         buttons.add(insert);
 
         controller.addListener(event -> {
@@ -127,6 +181,9 @@ public class ToolBox extends JToolBar {
                         break;
                     case CIRCLE:
                         circle.setSelected(true);
+                        break;
+                    case TEXT:
+                        text.setSelected(true);
                         break;
                     case INSERT:
                         insert.setSelected(true);

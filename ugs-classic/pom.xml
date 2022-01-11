@@ -5,11 +5,10 @@
     <parent>
         <groupId>com.willwinder.universalgcodesender</groupId>
         <artifactId>ugs-parent</artifactId>
-        <version>2.0-SNAPSHOT</version>
+        <version>${revision}${changelist}</version>
     </parent>
 
     <artifactId>ugs-classic</artifactId>
-    <version>2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
@@ -17,9 +16,6 @@
     <url>https://github.com/winder/Universal-G-Code-Sender/tree/master/ugs-classic</url>
 
     <properties>
-        <timestamp>${maven.build.timestamp}</timestamp>
-        <maven.build.timestamp.format>MMM dd, yyyy</maven.build.timestamp.format>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.releaseSourceDirectory>release_files</project.build.releaseSourceDirectory>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -42,16 +38,6 @@
             <artifactId>ugs-cli</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <!-- ************************* -->
-        <!-- *** TEST dependencies ***-->
-
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>3.4</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -66,7 +52,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.5</version>
+                <version>${ugs.maven-jar-plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -81,7 +67,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>${ugs.maven-shade-plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -98,6 +84,7 @@
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>
+                                        <exclude>module-info.*</exclude>
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
@@ -113,7 +100,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.3</version>
+                <version>${ugs.maven-assembly-plugin.version}</version>
                 <configuration>
                     <finalName>UniversalGcodeSender</finalName>
                     <appendAssemblyId>false</appendAssemblyId>

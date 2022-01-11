@@ -23,6 +23,8 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.openide.windows.TopComponent;
 
+import javax.swing.*;
+
 /**
  * @author Joacim Breiler
  */
@@ -34,15 +36,18 @@ import org.openide.windows.TopComponent;
 public class EntitiesTreeTopComponent extends TopComponent {
     private static final long serialVersionUID = 432423498723987873L;
 
-    private EntitiesTree entitiesTree;
-
     public EntitiesTreeTopComponent() {
         setMinimumSize(new java.awt.Dimension(50, 50));
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());
         setDisplayName("Design objects");
+    }
+
+    @Override
+    protected void componentOpened() {
+        super.componentOpened();
+        removeAll();
         Controller controller = CentralLookup.getDefault().lookup(Controller.class);
-        entitiesTree = new EntitiesTree(controller);
-        add(entitiesTree);
+        add(new JScrollPane(new EntitiesTree(controller)));
     }
 }

@@ -1,12 +1,13 @@
 package com.willwinder.ugs.nbp.designer.entities;
 
-import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
 import com.willwinder.ugs.nbp.designer.entities.controls.MoveControl;
-import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
-import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.geom.AffineTransform;
@@ -24,7 +25,8 @@ public class MoveControlTest {
         SelectionManager selectionManager = new SelectionManager();
         selectionManager.addSelection(rectangle);
 
-        MoveControl target = new MoveControl(selectionManager);
+        Controller controller = new Controller(selectionManager, new SimpleUndoManager());
+        MoveControl target = new MoveControl(controller);
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_PRESSED, new Point2D.Double(10, 10), new Point2D.Double(10, 10)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(12, 12)));
@@ -44,7 +46,8 @@ public class MoveControlTest {
         SelectionManager selectionManager = new SelectionManager();
         selectionManager.addSelection(rectangle);
 
-        MoveControl target = new MoveControl(selectionManager);
+        Controller controller = new Controller(selectionManager, new SimpleUndoManager());
+        MoveControl target = new MoveControl(controller);
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_PRESSED, new Point2D.Double(10, 10), new Point2D.Double(10, 10)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(12, 12)));
@@ -69,7 +72,8 @@ public class MoveControlTest {
         SelectionManager selectionManager = new SelectionManager();
         selectionManager.addSelection(rectangle);
 
-        MoveControl target = new MoveControl(selectionManager);
+        Controller controller = new Controller(selectionManager, new SimpleUndoManager());
+        MoveControl target = new MoveControl(controller);
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_PRESSED, new Point2D.Double(10, 10), new Point2D.Double(10, 10)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(12, 12)));
@@ -90,7 +94,8 @@ public class MoveControlTest {
         SelectionManager selectionManager = new SelectionManager();
         selectionManager.addSelection(rectangle);
 
-        MoveControl target = new MoveControl(selectionManager);
+        Controller controller = new Controller(selectionManager, new SimpleUndoManager());
+        MoveControl target = new MoveControl(controller);
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_PRESSED, new Point2D.Double(10, 10), new Point2D.Double(10, 10)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(12, 12)));
@@ -119,7 +124,8 @@ public class MoveControlTest {
         Assert.assertEquals(0, selectionManager.getPosition().getX(), 0.1);
         Assert.assertEquals(0, selectionManager.getPosition().getY(), 0.1);
 
-        MoveControl target = new MoveControl(selectionManager);
+        Controller controller = new Controller(selectionManager, new SimpleUndoManager());
+        MoveControl target = new MoveControl(controller);
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_PRESSED, new Point2D.Double(10, 10), new Point2D.Double(10, 10)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(12, 12)));
@@ -152,7 +158,8 @@ public class MoveControlTest {
         Assert.assertEquals(0, selectionManager.getPosition().getX(), 0.1);
         Assert.assertEquals(0, selectionManager.getPosition().getY(), 0.1);
 
-        MoveControl target = new MoveControl(selectionManager);
+        Controller controller = new Controller(selectionManager, new SimpleUndoManager());
+        MoveControl target = new MoveControl(controller);
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_PRESSED, new Point2D.Double(10, 10), new Point2D.Double(10, 10)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(11, 11)));
         target.onEvent(new MouseEntityEvent(target, EventType.MOUSE_DRAGGED, new Point2D.Double(10, 10), new Point2D.Double(12, 12)));

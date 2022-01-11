@@ -25,13 +25,10 @@ import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import org.openide.util.Lookup;
 
-import javax.swing.JEditorPane;
+import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.Element;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Listens for editor events to notify visualizer, puts changes on the
@@ -41,7 +38,6 @@ import java.util.Collections;
  */
 public class EditorListener implements CaretListener {
     private Highlight highlight = null;
-    private EditorPosition position = null;
 
     public EditorListener() {
         reset();
@@ -56,17 +52,8 @@ public class EditorListener implements CaretListener {
             int startIndex = map.getElementIndex(jep.getSelectionStart());
             int endIndex = map.getElementIndex(jep.getSelectionEnd());
 
-            Collection<Integer> selectedLines = new ArrayList<>();
-            for (int i = startIndex; i <= endIndex; i++) {
-                selectedLines.add(i);
-            }
-
             if (highlight != null) {
-                highlight.setHighlightedLines(selectedLines);
-            }
-
-            if (position != null) {
-                position.setLineNumber(endIndex);
+                highlight.setHighlightedLines(startIndex, endIndex);
             }
         }
     }
@@ -82,17 +69,10 @@ public class EditorListener implements CaretListener {
 
         if (gcodeModel != null) {
             if (highlight != null) {
-                highlight.setHighlightedLines(Collections.emptyList());
+                highlight.setHighlightedLines(0, 0);
             } else {
                 highlight = new Highlight(gcodeModel, Localization.getString("platform.visualizer.renderable.highlight"));
                 RenderableUtils.registerRenderable(highlight);
-            }
-
-            if (position != null) {
-                position.setLineNumber(-1);
-            } else {
-                position = new EditorPosition(gcodeModel, Localization.getString("platform.visualizer.renderable.editor-position"));
-                RenderableUtils.registerRenderable(position);
             }
         }
     }

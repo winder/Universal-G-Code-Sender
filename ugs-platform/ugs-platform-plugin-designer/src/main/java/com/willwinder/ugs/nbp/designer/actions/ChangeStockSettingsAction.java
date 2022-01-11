@@ -55,4 +55,9 @@ public class ChangeStockSettingsAction extends AbstractAction implements Undoabl
         this.controller.getSettings().setStockThickness(newThickness);
         this.controller.getDrawing().repaint();
     }
+
+    @Override
+    public String toString() {
+        return "stock settings";
+    }
 }

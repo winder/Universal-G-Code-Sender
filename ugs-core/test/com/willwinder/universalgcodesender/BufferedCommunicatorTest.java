@@ -31,7 +31,6 @@ import org.easymock.EasyMock;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -90,16 +89,6 @@ public class BufferedCommunicatorTest {
         f.set(instance, false);
 
         EasyMock.reset(mockConnection, mockScl);
-    }
-
-    /**
-     * Test of getBufferSize method, of class BufferedCommunicator.
-     */
-    @Test
-    @Ignore
-    public void testSingleStepMode() {
-        System.out.println("testSingleStepMode");
-        fail("Not implemented yet.");
     }
 
     /**

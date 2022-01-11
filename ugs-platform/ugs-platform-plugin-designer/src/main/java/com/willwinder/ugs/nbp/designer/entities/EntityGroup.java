@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.entities;
 
 import com.willwinder.ugs.nbp.designer.Utils;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
@@ -32,8 +33,8 @@ import java.util.stream.Stream;
 /**
  * @author Joacim Breiler
  */
-public class EntityGroup extends AbstractEntity {
-    private List<Entity> children = new ArrayList<>();
+public class EntityGroup extends AbstractEntity implements EntityListener {
+    private final List<Entity> children = Collections.synchronizedList(new ArrayList<>());
 
     private double groupRotation = 0;
     private Point2D cachedCenter = new Point2D.Double(0, 0);
@@ -44,8 +45,8 @@ public class EntityGroup extends AbstractEntity {
     }
 
     @Override
-    public void render(Graphics2D graphics) {
-        children.forEach(node -> node.render(graphics));
+    public void render(Graphics2D graphics, Drawing drawing) {
+        children.forEach(node -> node.render(graphics, drawing));
     }
 
     @Override
@@ -61,7 +62,7 @@ public class EntityGroup extends AbstractEntity {
             getAllChildren().forEach(entity -> entity.rotate(getCenter(), angle));
             notifyEvent(new EntityEvent(this, EventType.ROTATED));
         } catch (Exception e) {
-            throw new RuntimeException("Couldn't set the rotation", e);
+            throw new EntityException("Couldn't set the rotation", e);
         }
     }
 
@@ -73,18 +74,17 @@ public class EntityGroup extends AbstractEntity {
             notifyEvent(new EntityEvent(this, EventType.ROTATED));
             invalidateCenter();
         } catch (Exception e) {
-            throw new RuntimeException("Couldn't set the rotation", e);
+            throw new EntityException("Couldn't set the rotation", e);
         }
     }
 
     @Override
     public Shape getShape() {
-        Area area = new Area();
+        final Area area = new Area();
         List<Entity> allChildren = getAllChildren();
         allChildren.stream()
                 .filter(c -> c != this)
-                .forEach(c -> area.add(new Area(c.getShape())));
-
+                .forEach(c -> area.add(new Area(c.getBounds())));
         return area.getBounds2D();
     }
 
@@ -93,13 +93,14 @@ public class EntityGroup extends AbstractEntity {
         try {
             return getTransform().createInverse().createTransformedShape(getShape());
         } catch (NoninvertibleTransformException e) {
-            throw new RuntimeException("Could not create inverse transformer");
+            throw new EntityException("Could not create inverse transformer");
         }
     }
 
     public void addChild(Entity node) {
         if (!containsChild(node)) {
             children.add(node);
+            node.addListener(this);
             invalidateCenter();
         }
     }
@@ -119,7 +120,12 @@ public class EntityGroup extends AbstractEntity {
     }
 
     public void addAll(List<Entity> entities) {
-        entities.forEach(this::addChild);
+        entities.forEach(entity -> {
+            if (!containsChild(entity)) {
+                children.add(entity);
+                entity.addListener(this);
+            }
+        });
         invalidateCenter();
     }
 
@@ -138,7 +144,7 @@ public class EntityGroup extends AbstractEntity {
             notifyEvent(new EntityEvent(this, EventType.MOVED));
             invalidateCenter();
         } catch (Exception e) {
-            throw new RuntimeException("Could not make inverse transform of point", e);
+            throw new EntityException("Could not make inverse transform of point", e);
         }
     }
 
@@ -153,6 +159,7 @@ public class EntityGroup extends AbstractEntity {
     }
 
     public void removeChild(Entity entity) {
+        entity.removeListener(this);
         children.remove(entity);
         children.stream()
                 .filter(EntityGroup.class::isInstance)
@@ -168,12 +175,9 @@ public class EntityGroup extends AbstractEntity {
         children.forEach(Entity::destroy);
     }
 
-    public void removeAll(List<? extends Entity> shapes) {
-        this.children.removeAll(shapes);
-    }
-
     public void removeAll() {
         this.groupRotation = 0;
+        this.children.forEach(entity -> entity.removeListener(this));
         this.children.clear();
         invalidateCenter();
     }
@@ -194,10 +198,26 @@ public class EntityGroup extends AbstractEntity {
         return Collections.unmodifiableList(result);
     }
 
+    public List<Entity> getChildrenIntersecting(Shape shape) {
+        List<Entity> result = this.children
+                .stream()
+                .flatMap(s -> {
+                    if (s instanceof EntityGroup) {
+                        return ((EntityGroup) s).getChildrenIntersecting(shape).stream();
+                    } else if (s.isIntersecting(shape)) {
+                        return Stream.of(s);
+                    } else {
+                        return Stream.empty();
+                    }
+                }).collect(Collectors.toList());
+
+        return Collections.unmodifiableList(result);
+    }
+
     /**
      * Get a list of all direct children of this group
      *
-     * @return a list of children entites
+     * @return a list of children entities
      */
     public final List<Entity> getChildren() {
         return Collections.unmodifiableList(this.children);
@@ -252,5 +272,17 @@ public class EntityGroup extends AbstractEntity {
         });
         notifyEvent(new EntityEvent(this, EventType.RESIZED));
         invalidateCenter();
+    }
+
+    @Override
+    public void onEvent(EntityEvent entityEvent) {
+        notifyEvent(entityEvent);
+    }
+
+    @Override
+    public Entity copy() {
+        EntityGroup group = new EntityGroup();
+        getChildren().stream().map(Entity::copy).forEach(group::addChild);
+        return group;
     }
 }

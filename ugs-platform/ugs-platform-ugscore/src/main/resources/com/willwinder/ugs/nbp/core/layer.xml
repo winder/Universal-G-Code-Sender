@@ -141,8 +141,8 @@
         </folder>
     </folder>
     <folder name="Shortcuts">
-        <file name="M-S.shadow">
-            <attr name="originalFile" stringvalue="Menu/File/org-openide-actions-SaveAction.instance"/>
+        <file name="D-S.shadow">
+            <attr name="originalFile" stringvalue="Menu/File/org-openide-actions-SaveAction.shadow"/>
         </file>
     </folder>
 </filesystem>

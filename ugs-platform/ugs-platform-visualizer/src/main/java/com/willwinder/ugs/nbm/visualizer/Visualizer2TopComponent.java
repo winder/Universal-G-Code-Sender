@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2018 Will Winder
+    Copyright 2015-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -38,6 +38,7 @@ import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.util.logging.Level;
@@ -105,8 +106,16 @@ public final class Visualizer2TopComponent extends TopComponent {
         setName(VisualizerTitle);
         setToolTipText(VisualizerTooltip);
         super.componentOpened();
+
+        removeAll();
+        add(new VisualizerToolBar(), BorderLayout.NORTH);
         panel = makeWindow();
-        add(panel, BorderLayout.CENTER);
+
+        JPanel borderedPanel = new JPanel();
+        borderedPanel.setLayout(new BorderLayout());
+        borderedPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
+        borderedPanel.add(panel, BorderLayout.CENTER);
+        add(borderedPanel, BorderLayout.CENTER);
     }
 
     @Override

@@ -33,29 +33,27 @@ public class FeedRateMissingErrorParser implements ErrorParser {
     private final FileObject fileObject;
     private int firstFeedRateLine = 0;
     private int firstMovementLine = 0;
-    private Token<GcodeTokenId> firstMovementToken;
-    private Token<GcodeTokenId> firstFeedRateToken;
+    private Token<?> firstMovementToken;
+    private Token<?> firstFeedRateToken;
 
     public FeedRateMissingErrorParser(FileObject fileObject) {
         this.fileObject = fileObject;
     }
 
     @Override
-    public void handleToken(Token<GcodeTokenId> token, int line) {
+    public void handleToken(Token<?> token, int line) {
         if (GcodeTokenId.MOVEMENT.equals(token.id())) {
             if (isMovementCommand(token) && firstMovementToken == null) {
                 firstMovementToken = token;
                 firstMovementLine = line;
             }
-        } else if (GcodeTokenId.PARAMETER.equals(token.id())) {
-            if (StringUtils.startsWithIgnoreCase(token.text(), "F") && firstFeedRateToken == null) {
-                firstFeedRateToken = token;
-                firstFeedRateLine = line;
-            }
+        } else if (GcodeTokenId.PARAMETER.equals(token.id()) && StringUtils.startsWithIgnoreCase(token.text(), "F") && firstFeedRateToken == null) {
+            firstFeedRateToken = token;
+            firstFeedRateLine = line;
         }
     }
 
-    private boolean isMovementCommand(Token<GcodeTokenId> token) {
+    private boolean isMovementCommand(Token<?> token) {
         return StringUtils.equalsIgnoreCase(token.text(), Code.G1.name()) ||
                 StringUtils.equalsIgnoreCase(token.text(), "G01") ||
                 StringUtils.equalsIgnoreCase(token.text(), Code.G2.name()) ||

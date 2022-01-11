@@ -16,17 +16,18 @@
  */
 package com.willwinder.ugs.nbp.designer.gcode.path;
 
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * A toolpath.
- * <p>Paths can be divided into two types: numeric or symbolic. A numeric path contains
- * only numeric coordinates, while a symbolic path may contain a mixture of numeric and symbolic coordinates.
- * Some path manipulation functions can only be used on numeric paths.
+ * A tool path with segment steps.
  *
  * @author Calle Laakkonen
+ * @author Joacim Breiler
  */
 public class GcodePath implements PathGenerator {
 
@@ -36,88 +37,18 @@ public class GcodePath implements PathGenerator {
         segments = new ArrayList<>();
     }
 
-    private GcodePath(List<Segment> segments) {
-        this.segments = segments;
-    }
-
     /**
      * Add a new segment
      *
      * @param type  segment type
      * @param point segment coordinates
      */
-    public void addSegment(SegmentType type, Coordinate point) {
+    public void addSegment(SegmentType type, PartialPosition point) {
         segments.add(new Segment(type, point));
-    }
-
-    /**
-     * Add a new labeled segment
-     *
-     * @param type
-     * @param point
-     * @param label
-     */
-    public void addSegment(SegmentType type, Coordinate point, String label) {
-        segments.add(new Segment(type, point, label));
     }
 
     public List<Segment> getSegments() {
         return Collections.unmodifiableList(segments);
-    }
-
-    /**
-     * Split this path at the seams.
-     *
-     * @return new paths
-     */
-    public List<GcodePath> splitAtSeams() {
-        List<GcodePath> subpaths = new ArrayList<>();
-        GcodePath sp = new GcodePath();
-        for (Segment s : segments) {
-            if (s.type == SegmentType.SEAM) {
-                if (!sp.isEmpty())
-                    subpaths.add(sp);
-                sp = new GcodePath();
-            } else
-                sp.segments.add(s);
-        }
-        if (!sp.isEmpty())
-            subpaths.add(sp);
-        return subpaths;
-    }
-
-    /**
-     * Split this path at move commands.
-     *
-     * @return new paths
-     */
-    public List<GcodePath> splitAtSubpaths() {
-        List<GcodePath> subpaths = new ArrayList<>();
-        GcodePath sp = new GcodePath();
-        for (Segment s : segments) {
-            if (s.type == SegmentType.MOVE) {
-                if (!sp.isEmpty()) {
-                    if (sp.segments.get(0).getType() == SegmentType.SEAM) {
-                        // No use starting a path with a seam
-                        sp.segments.remove(0);
-                    }
-                    if (!sp.isEmpty())
-                        subpaths.add(sp);
-                    sp = new GcodePath();
-                }
-            }
-
-            sp.segments.add(s);
-        }
-        if (!sp.isEmpty()) {
-            if (sp.segments.get(0).getType() == SegmentType.SEAM) {
-                // No use starting a path with a seam
-                sp.segments.remove(0);
-            }
-            if (!sp.isEmpty())
-                subpaths.add(sp);
-        }
-        return subpaths;
     }
 
     /**
@@ -137,19 +68,6 @@ public class GcodePath implements PathGenerator {
     public boolean isEmpty() {
         return segments.isEmpty();
     }
-
-    /**
-     * Is this a closed path? I.e. are the XY coordinates of the first and last point the same?
-     *
-     * @return true if path is closed
-     */
-    public boolean isClosed() {
-        Segment first = segments.get(0);
-        Segment last = segments.get(segments.size() - 1);
-
-        return first.point.get(Axis.X) == last.point.get(Axis.X) && first.point.get(Axis.Y) == last.point.get(Axis.Y);
-    }
-
 
     /**
      * @return this

@@ -18,11 +18,10 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
-import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
-import com.willwinder.ugs.nbp.designer.entities.EventType;
-import com.willwinder.ugs.nbp.designer.model.Size;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 
-import java.awt.*;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -54,25 +53,12 @@ public class Rectangle extends AbstractCuttable {
     }
 
     @Override
-    public void setSize(Size size) {
-        if (size.getWidth() < 2) {
-            size = new Size(2, size.getHeight());
-        }
-
-        if (size.getHeight() < 2) {
-            size = new Size(size.getWidth(), 2);
-        }
-        shape.setFrame(0, 0, size.getWidth(), size.getHeight());
-        notifyEvent(new EntityEvent(this, EventType.RESIZED));
-    }
-
-    public void setWidth(double width) {
-        shape.setFrame(0, 0, width, shape.getHeight());
-        notifyEvent(new EntityEvent(this, EventType.RESIZED));
-    }
-
-    public void setHeight(double height) {
-        shape.setFrame(0, 0, shape.getWidth(), height);
-        notifyEvent(new EntityEvent(this, EventType.RESIZED));
+    public Entity copy() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setTransform(new AffineTransform(getTransform()));
+        rectangle.setStartDepth(getStartDepth());
+        rectangle.setTargetDepth(getTargetDepth());
+        rectangle.setCutType(getCutType());
+        return rectangle;
     }
 }

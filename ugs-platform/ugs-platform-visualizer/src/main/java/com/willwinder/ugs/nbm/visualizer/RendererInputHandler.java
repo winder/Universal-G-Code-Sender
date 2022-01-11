@@ -22,8 +22,8 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
-import com.willwinder.ugs.nbm.visualizer.shared.RotationService;
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
+import com.willwinder.ugs.nbm.visualizer.shared.RotationService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -42,7 +42,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
-import javax.swing.SwingUtilities;
+
+import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
 
 /**
  * Process all the listeners and call methods in the renderer.
@@ -116,19 +117,13 @@ public class RendererInputHandler implements
      */
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse.isFileChangeEvent()) {
+        if (cse.isFileChangeEvent() && cse.getFileState() == FILE_LOADED) {
             animator.pause();
-
-            switch (cse.getFileState()) {
-                case FILE_LOADED:
-                    setGcodeFile(cse.getFile());
-                    break;
-            }
-
+            setGcodeFile(cse.getFile());
             animator.resume();
         }
 
-        if(cse.isSettingChangeEvent()) {
+        if (cse.isSettingChangeEvent()) {
             sizeDisplay.setUnits(settings.getPreferredUnits());
         }
     }
@@ -363,8 +358,11 @@ public class RendererInputHandler implements
 
     @Override
     public void commandComplete(GcodeCommand command) {
-        gcodeModel.setCurrentCommandNumber(command.getCommandNumber());
-        // TODO: When to redraw??
+        if (command.isGenerated()) {
+            gcodeModel.setCurrentCommandNumber(0);
+        } else {
+            gcodeModel.setCurrentCommandNumber(command.getCommandNumber());
+        }
     }
 
     @Override

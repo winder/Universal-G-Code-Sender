@@ -5,11 +5,10 @@
   <parent>
     <groupId>com.willwinder.universalgcodesender</groupId>
     <artifactId>ugs-parent</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>${revision}${changelist}</version>
   </parent>
 
   <artifactId>ugs-core</artifactId>
-  <version>2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
@@ -17,9 +16,6 @@
   <url>https://github.com/winder/Universal-G-Code-Sender/tree/master/ugs-core</url>
 
   <properties>
-    <timestamp>${maven.build.timestamp}</timestamp>
-    <maven.build.timestamp.format>MMM dd, yyyy</maven.build.timestamp.format>
-
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.build.releaseSourceDirectory>release_files</project.build.releaseSourceDirectory>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -27,11 +23,6 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>javax.websocket</groupId>
-      <artifactId>javax.websocket-client-api</artifactId>
-      <version>1.0</version>
-    </dependency>
     <dependency>
       <groupId>org.glassfish.tyrus.bundles</groupId>
       <artifactId>tyrus-standalone-client</artifactId>
@@ -113,17 +104,6 @@
       <groupId>com.google.zxing</groupId>
       <artifactId>core</artifactId>
       <version>${zxing.version}</version>
-    </dependency>
-
-
-    <!-- ************************* -->
-    <!-- *** TEST dependencies ***-->
-
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-      <version>3.4</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 

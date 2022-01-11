@@ -7,6 +7,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -15,11 +16,16 @@ import java.awt.geom.Point2D;
 import java.util.List;
 
 public class FlipVerticallyAction extends AbstractAction implements SelectionListener {
+    private static final String SMALL_ICON_PATH = "img/flip-vertical.svg";
+    private static final String LARGE_ICON_PATH = "img/flip-vertical24.svg";
     private final transient Controller controller;
 
     public FlipVerticallyAction(Controller controller) {
         putValue("menuText", "Flip vertically");
         putValue(NAME, "Flip vertically");
+        putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
+        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
 
         this.controller = controller;
 

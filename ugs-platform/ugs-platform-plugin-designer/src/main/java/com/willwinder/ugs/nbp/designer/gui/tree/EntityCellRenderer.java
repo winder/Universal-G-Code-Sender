@@ -34,7 +34,7 @@ public class EntityCellRenderer extends DefaultTreeCellRenderer {
         if (leaf && treeObject instanceof Cuttable) {
             Cuttable cuttable = (Cuttable) treeObject;
             CutType cutType = cuttable.getCutType();
-            double cutDepth = UnitUtils.scaleUnits(UnitUtils.Units.MM, preferredUnits) * cuttable.getCutDepth();
+            double cutDepth = UnitUtils.scaleUnits(UnitUtils.Units.MM, preferredUnits) * cuttable.getTargetDepth();
             setIcon(new CutTypeIcon(cutType, CutTypeIcon.Size.SMALL));
 
             if (cutType == CutType.NONE) {
