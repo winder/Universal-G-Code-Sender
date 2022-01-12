@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -134,54 +135,56 @@ public class SimpleGcodeRouter {
                 .map(Cuttable.class::cast)
                 .sorted(new EntityComparator(width, height))
                 .map(cuttable -> {
-                    GcodePath gcodePath = cuttable.toGcodePath();
                     switch (cuttable.getCutType()) {
                         case POCKET:
-                            SimplePocket simplePocket = new SimplePocket(gcodePath);
-                            simplePocket.setTargetDepth(cuttable.getCutDepth());
+                            SimplePocket simplePocket = new SimplePocket(cuttable);
+                            simplePocket.setStartDepth(cuttable.getStartDepth());
+                            simplePocket.setTargetDepth(cuttable.getTargetDepth());
                             simplePocket.setToolDiameter(toolDiameter);
                             simplePocket.setDepthPerPass(depthPerPass);
                             simplePocket.setSafeHeight(safeHeight);
                             simplePocket.setStepOver(toolStepOver);
-                            gcodePath = simplePocket.toGcodePath();
-                            break;
-                        case ON_PATH:
-                            SimplePath simpleOnPath = new SimplePath(gcodePath);
-                            simpleOnPath.setTargetDepth(cuttable.getCutDepth());
-                            simpleOnPath.setToolDiameter(toolDiameter);
-                            simpleOnPath.setDepthPerPass(depthPerPass);
-                            simpleOnPath.setSafeHeight(safeHeight);
-                            gcodePath = simpleOnPath.toGcodePath();
-                            break;
+                            return simplePocket.toGcodePath();
                         case OUTSIDE_PATH:
-                            SimplePath simpleOutsidePath = new SimplePath(gcodePath);
+                            SimplePath simpleOutsidePath = new SimplePath(cuttable);
                             simpleOutsidePath.setOffset(toolDiameter / 2d);
-                            simpleOutsidePath.setTargetDepth(cuttable.getCutDepth());
+                            simpleOutsidePath.setStartDepth(cuttable.getStartDepth());
+                            simpleOutsidePath.setTargetDepth(cuttable.getTargetDepth());
                             simpleOutsidePath.setToolDiameter(toolDiameter);
                             simpleOutsidePath.setDepthPerPass(depthPerPass);
                             simpleOutsidePath.setSafeHeight(safeHeight);
-                            gcodePath = simpleOutsidePath.toGcodePath();
-                            break;
+                            return simpleOutsidePath.toGcodePath();
                         case INSIDE_PATH:
-                            SimplePath simpleInsidePath = new SimplePath(gcodePath);
+                            SimplePath simpleInsidePath = new SimplePath(cuttable);
                             simpleInsidePath.setOffset(-toolDiameter / 2d);
-                            simpleInsidePath.setTargetDepth(cuttable.getCutDepth());
+                            simpleInsidePath.setStartDepth(cuttable.getStartDepth());
+                            simpleInsidePath.setTargetDepth(cuttable.getTargetDepth());
                             simpleInsidePath.setToolDiameter(toolDiameter);
                             simpleInsidePath.setDepthPerPass(depthPerPass);
                             simpleInsidePath.setSafeHeight(safeHeight);
-                            gcodePath = simpleInsidePath.toGcodePath();
-                            break;
+                            return simpleInsidePath.toGcodePath();
+                        case ON_PATH:
+                            SimplePath simpleOnPath = new SimplePath(cuttable);
+                            simpleOnPath.setStartDepth(cuttable.getStartDepth());
+                            simpleOnPath.setTargetDepth(cuttable.getTargetDepth());
+                            simpleOnPath.setToolDiameter(toolDiameter);
+                            simpleOnPath.setDepthPerPass(depthPerPass);
+                            simpleOnPath.setSafeHeight(safeHeight);
+                            return simpleOnPath.toGcodePath();
                         default:
-                            return "";
+                            return null;
                     }
-
+                })
+                .filter(Objects::nonNull)
+                .map(gcodePath -> {
                     try {
                         return toGcode(gcodePath);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                     return "";
-                }).filter(line -> !line.isEmpty())
+                })
+                .filter(line -> !line.isEmpty())
                 .collect(Collectors.toList());
 
         return Code.G21.name() + "\n" +
@@ -215,7 +218,7 @@ public class SimpleGcodeRouter {
                     // and the end point is the same as the starting point.
                     writer.write(SegmentType.MOVE.gcode);
                     writer.write(" ");
-                    writer.write(s.point.toGcode());
+                    writer.write(s.point.getFormattedGCode());
                     writer.write("\n");
                     hasFeedRateSet = false;
 
@@ -226,7 +229,7 @@ public class SimpleGcodeRouter {
                     writer.write(SegmentType.POINT.gcode);
                     writer.write(" ");
                     writer.write("F" + plungeSpeed + " ");
-                    writer.write(s.point.toGcode());
+                    writer.write(s.point.getFormattedGCode());
                     writer.write("\n");
                     break;
 
@@ -244,7 +247,7 @@ public class SimpleGcodeRouter {
                         hasFeedRateSet = true;
                     }
 
-                    writer.write(s.point.toGcode());
+                    writer.write(s.point.getFormattedGCode());
                     writer.write("\n");
                     break;
                 default:

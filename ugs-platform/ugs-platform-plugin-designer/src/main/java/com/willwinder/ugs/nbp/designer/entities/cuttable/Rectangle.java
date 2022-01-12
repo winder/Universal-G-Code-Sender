@@ -56,7 +56,8 @@ public class Rectangle extends AbstractCuttable {
     public Entity copy() {
         Rectangle rectangle = new Rectangle();
         rectangle.setTransform(new AffineTransform(getTransform()));
-        rectangle.setCutDepth(getCutDepth());
+        rectangle.setStartDepth(getStartDepth());
+        rectangle.setTargetDepth(getTargetDepth());
         rectangle.setCutType(getCutType());
         return rectangle;
     }

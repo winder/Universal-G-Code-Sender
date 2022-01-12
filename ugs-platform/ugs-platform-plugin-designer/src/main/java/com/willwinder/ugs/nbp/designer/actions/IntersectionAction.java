@@ -88,7 +88,8 @@ public class IntersectionAction extends AbstractAction implements SelectionListe
             if (entities.get(0) instanceof Cuttable) {
                 Cuttable cuttable = (Cuttable) entities.get(0);
                 path.setCutType(cuttable.getCutType());
-                path.setCutDepth(cuttable.getCutDepth());
+                path.setStartDepth(cuttable.getStartDepth());
+                path.setTargetDepth(cuttable.getTargetDepth());
                 path.setName(cuttable.getName());
             }
             path.append(area);

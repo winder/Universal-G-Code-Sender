@@ -67,7 +67,7 @@ public class PartialPositionTest {
         PartialPosition same = p.getPositionIn(UnitUtils.Units.MM);
         PartialPosition inch = p.getPositionIn(UnitUtils.Units.INCH);
 
-        assertEquals(p.getX(), same.getX());
+        assertEquals(p.getX(), same.getX(), 0.1d);
         assertEquals(p.getFormattedGCode(), same.getFormattedGCode());
         assertEquals(p, same);
 
@@ -83,13 +83,13 @@ public class PartialPositionTest {
         PartialPosition same = p.getPositionIn(UnitUtils.Units.MM);
         PartialPosition inch = p.getPositionIn(UnitUtils.Units.INCH);
 
-        assertEquals(p.getA(), same.getA());
-        assertEquals(p.getB(), same.getB());
-        assertEquals(p.getC(), same.getC());
+        assertEquals(p.getA(), same.getA(), 0.1d);
+        assertEquals(p.getB(), same.getB(), 0.1d);
+        assertEquals(p.getC(), same.getC(), 0.1d);
 
-        assertEquals(p.getA(), inch.getA());
-        assertEquals(p.getB(), inch.getB());
-        assertEquals(p.getC(), inch.getC());
+        assertEquals(p.getA(), inch.getA(), 0.1d);
+        assertEquals(p.getB(), inch.getB(), 0.1d);
+        assertEquals(p.getC(), inch.getC(), 0.1d);
     }
 
     @Test

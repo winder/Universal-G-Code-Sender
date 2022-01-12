@@ -1,6 +1,5 @@
 package com.willwinder.ugs.nbp.editor.parser.errors;
 
-import com.willwinder.ugs.nbp.editor.lexer.GcodeTokenId;
 import com.willwinder.ugs.nbp.editor.parser.GcodeError;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
@@ -17,8 +16,7 @@ public class MovementInMachineCoordinatesErrorParser implements ErrorParser {
 
     private final FileObject fileObject;
     private final BackendAPI backend;
-
-    private List<GcodeError> errorList = new ArrayList<>();
+    private final List<GcodeError> errorList = new ArrayList<>();
 
     public MovementInMachineCoordinatesErrorParser(FileObject fileObject) {
         this.fileObject = fileObject;
@@ -27,7 +25,7 @@ public class MovementInMachineCoordinatesErrorParser implements ErrorParser {
     }
 
     @Override
-    public void handleToken(Token<GcodeTokenId> token, int line) {
+    public void handleToken(Token<?> token, int line) {
         if (StringUtils.equalsIgnoreCase("G53", token.text()) && !isHomingEnabled()) {
             int offset = token.offset(null);
             GcodeError error = new GcodeError("movement-in-machine-coordinates-without-homing",

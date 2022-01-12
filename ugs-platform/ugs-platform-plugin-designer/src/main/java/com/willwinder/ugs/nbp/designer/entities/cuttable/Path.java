@@ -21,11 +21,8 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityException;
 
-import java.awt.Shape;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
+import java.awt.*;
+import java.awt.geom.*;
 
 /**
  * @author Joacim Breiler
@@ -88,13 +85,37 @@ public class Path extends AbstractCuttable {
         shape.append(s, true);
     }
 
+    /**
+     * Returns true if the path contains multiple paths (such as holes)
+     *
+     * @return true if path is compound path
+     */
+    public boolean isCompoundPath() {
+        PathIterator pathIterator = shape.getPathIterator(getTransform());
+        int numberOfCompunds = 0;
+        double[] params = new double[6];
+        while (!pathIterator.isDone() && numberOfCompunds <= 1) {
+            pathIterator.next();
+            int type = pathIterator.currentSegment(params);
+            if (type == PathIterator.SEG_CLOSE) {
+                numberOfCompunds++;
+            }
+        }
+        return numberOfCompunds > 1;
+    }
+
     @Override
     public Entity copy() {
         Path path = new Path();
         path.append(getRelativeShape());
         path.setTransform(new AffineTransform(getTransform()));
-        path.setCutDepth(getCutDepth());
+        path.setStartDepth(getStartDepth());
+        path.setTargetDepth(getTargetDepth());
         path.setCutType(getCutType());
         return path;
+    }
+
+    public void close() {
+        shape.closePath();
     }
 }

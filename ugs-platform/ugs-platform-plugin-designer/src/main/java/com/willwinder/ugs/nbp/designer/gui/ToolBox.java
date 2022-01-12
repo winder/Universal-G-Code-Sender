@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
+import com.willwinder.ugs.nbp.core.ui.ToolBar;
 import com.willwinder.ugs.nbp.designer.actions.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
@@ -33,10 +34,9 @@ import static org.openide.NotifyDescriptor.OK_OPTION;
 /**
  * @author Joacim Breiler
  */
-public class ToolBox extends JToolBar {
+public class ToolBox extends ToolBar {
 
     public ToolBox(Controller controller) {
-        super("Tools");
         setFloatable(false);
 
         JToggleButton select = new JToggleButton(new ToolSelectAction(controller));
@@ -100,6 +100,12 @@ public class ToolBox extends JToolBar {
         intersection.setToolTipText("Makes an intersection between two entities");
         intersection.setBorderPainted(false);
         add(intersection);
+
+        JButton breakApart = new JButton(new BreakApartAction(controller));
+        breakApart.setText("");
+        breakApart.setToolTipText("Breaks apart multiple entities");
+        breakApart.setBorderPainted(false);
+        add(breakApart);
 
         addSeparator();
 

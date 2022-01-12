@@ -1,6 +1,7 @@
 package com.willwinder.ugs.nbp.editor.actions;
 
 import com.willwinder.ugs.nbp.editor.GcodeDataObject;
+import com.willwinder.ugs.nbp.editor.GcodeLanguageConfig;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.gcode.processors.MirrorProcessor;
@@ -17,13 +18,13 @@ import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
+import org.netbeans.api.editor.EditorActionRegistration;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
-import org.openide.util.ImageUtilities;
 import org.openide.util.actions.CookieAction;
 
 import java.awt.*;
@@ -37,7 +38,7 @@ import java.util.stream.Stream;
         category = LocalizingService.CATEGORY_PROGRAM,
         id = "MirrorAction")
 @ActionRegistration(
-        iconBase = AbstractRotateAction.ICON_BASE,
+        iconBase = MirrorAction.ICON_BASE,
         displayName = MirrorAction.NAME,
         lazy = false)
 @ActionReferences({
@@ -45,17 +46,23 @@ import java.util.stream.Stream;
                 path = LocalizingService.MENU_PROGRAM,
                 position = 1220)
 })
+@EditorActionRegistration(
+        name = "mirror-gcode",
+        toolBarPosition = 12,
+        mimeType = GcodeLanguageConfig.MIME_TYPE,
+        iconResource = MirrorAction.ICON_BASE
+)
 public class MirrorAction extends CookieAction implements UGSEventListener {
 
     public static final String ICON_BASE = "icons/mirror.svg";
+
     public static final String NAME = "Mirror";
     public static final double ARC_SEGMENT_LENGTH = 0.5;
-    private transient BackendAPI backend;
+    private final transient BackendAPI backend;
 
     public MirrorAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
-        setIcon(ImageUtilities.loadImageIcon(ICON_BASE, false));
         setEnabled(isEnabled());
     }
 
@@ -79,6 +86,11 @@ public class MirrorAction extends CookieAction implements UGSEventListener {
     @Override
     public HelpCtx getHelpCtx() {
         return null;
+    }
+
+    @Override
+    protected String iconResource() {
+        return ICON_BASE;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,34 +18,45 @@
  */
 package com.willwinder.ugs.nbp.editor.renderer;
 
-import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
-import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL2ES3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_HIGHLIGHT;
+import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
+import com.willwinder.universalgcodesender.gcode.util.Plane;
+import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
+import com.willwinder.universalgcodesender.model.CNCPoint;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.visualizer.LineSegment;
-import java.awt.Color;
+
+import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_HIGHLIGHT;
+import static com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.getAngle;
 
 /**
+ * Highlights the selected lines in the editor. It will attempt to buffer the lines with quads to make them more visible
+ * because GL's line width is platform dependant and is also deprecated.
  *
  * @author wwinder
  */
 public class Highlight extends Renderable {
 
-    private GcodeModel model;
+    public static final double LINE_WIDTH = 0.004d;
 
-    private Collection<Integer> highlightedLines = null;
-
-    private int numberOfVertices = -1;
-    private float[] lineVertexData = null;
+    private final GcodeModel model;
+    private final List<CNCPoint> points = Collections.synchronizedList(new ArrayList<>());
 
     // Preferences
-    private Color highlightColor;
+    private Color highlightColor = Color.YELLOW;
+    private double scaleFactor = 0.1;
+    private int startLine = 0;
+    private int endLine = 0;
 
     public Highlight(GcodeModel model, String title) {
         super(9, title);
@@ -54,9 +65,8 @@ public class Highlight extends Renderable {
     }
 
     @Override
-    final public void reloadPreferences(VisualizerOptions vo) {
+    public final void reloadPreferences(VisualizerOptions vo) {
         highlightColor = vo.getOptionForKey(VISUALIZER_OPTION_HIGHLIGHT).value;
-
     }
 
     @Override
@@ -76,64 +86,59 @@ public class Highlight extends Renderable {
 
     @Override
     public void init(GLAutoDrawable drawable) {
+        // Not used
     }
 
     @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
-        if (lineVertexData == null || highlightedLines == null || highlightedLines.isEmpty()) {
+        if (points.isEmpty() && startLine > 0 && endLine > 0) {
             return;
         }
 
-        GL2 gl = drawable.getGL().getGL2();
-
-        //gl.glEnable(GL2.GL_LINE_SMOOTH);
-        gl.glBegin(GL_LINES);
-        gl.glLineWidth(2.0f);
-
-        float[] c = VisualizerOptions.colorToFloatArray(Color.YELLOW);
-        for (int verts = 0; verts < (this.numberOfVertices * 3); ) {
-            gl.glColor4fv(c, 0);
-            gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
-            gl.glColor4fv(c, 0);
-            gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
+        // Scale was changed since last render, regenerate points
+        if (this.scaleFactor != scaleFactor) {
+            this.scaleFactor = scaleFactor;
+            generateBufferedLines();
         }
 
+        float[] c = VisualizerOptions.colorToFloatArray(highlightColor);
+        GL2 gl = drawable.getGL().getGL2();
+        gl.glBegin(GL2ES3.GL_QUADS);
+            gl.glColor4fv(c, 0);
+            points.forEach(point -> gl.glVertex3d(point.x, point.y, point.z));
         gl.glEnd();
     }
 
-    public void setHighlightedLines(Collection<Integer> lines) {
-        this.highlightedLines = lines;
 
-        if (lines.isEmpty()) {
-            this.numberOfVertices = -1;
-            this.lineVertexData = null;
+    public void setHighlightedLines(int startLine, int endLine) {
+        if( this.startLine == startLine && this.endLine == endLine) {
             return;
         }
 
-        ArrayList<LineSegment> highlights = new ArrayList<>();
-        int vertIndex = 0;
-        for (LineSegment ls : model.getLineList()) {
-            if (lines.contains(ls.getLineNumber() -1)) {
-                highlights.add(ls);
-            }
-        }
+        this.startLine = startLine;
+        this.endLine = endLine;
+        generateBufferedLines();
+    }
 
-        this.numberOfVertices = highlights.size() * 2;
-        this.lineVertexData = new float[numberOfVertices * 3];
+    private void generateBufferedLines() {
+        points.clear();
+        double offset = LINE_WIDTH / scaleFactor / 2d;
+        double halfPI = Math.PI / 2d;
+        List<CNCPoint> newPoints = model.getLineList().stream()
+                .filter(ls -> ls.getLineNumber() > startLine && ls.getLineNumber() - 1 <= endLine)
+                .flatMap(lineSegment -> {
+                    double angle = getAngle(lineSegment.getStart(), lineSegment.getEnd(), new PlaneFormatter(Plane.XY));
+                    Position xyOffset = new Position(offset * Math.cos(angle - halfPI), offset * Math.sin(angle - halfPI), 0.0);
+                    Position zOffset = new Position(0, 0, 0.01);
 
-        for (LineSegment ls : highlights) {
-            //System.out.println("Line number: " + ls.getLineNumber());
-            Position p1 = ls.getStart();
-            Position p2 = ls.getEnd();
+                    CNCPoint aPoint = new Position(lineSegment.getStart()).sub(xyOffset).add(zOffset);
+                    CNCPoint bPoint = new Position(lineSegment.getEnd()).sub(xyOffset).add(zOffset);
+                    CNCPoint cPoint = new Position(lineSegment.getEnd()).add(xyOffset).add(zOffset);
+                    CNCPoint dPoint = new Position(lineSegment.getStart()).add(xyOffset).add(zOffset);
+                    return Stream.of(aPoint, bPoint, cPoint, dPoint);
+                })
+                .collect(Collectors.toList());
 
-            // p1 location
-            lineVertexData[vertIndex++] = (float)p1.x;
-            lineVertexData[vertIndex++] = (float)p1.y;
-            lineVertexData[vertIndex++] = (float)p1.z;
-            //p2
-            lineVertexData[vertIndex++] = (float)p2.x;
-            lineVertexData[vertIndex++] = (float)p2.y;
-            lineVertexData[vertIndex++] = (float)p2.z;
-        }
+        points.addAll(newPoints);
     }
 }

@@ -30,7 +30,7 @@ import java.util.List;
  * @author Joacim Breiler
  */
 public interface ErrorParser {
-    void handleToken(Token<GcodeTokenId> token, int line);
+    void handleToken(Token<?> token, int line);
 
     List<GcodeError> getErrors();
 }

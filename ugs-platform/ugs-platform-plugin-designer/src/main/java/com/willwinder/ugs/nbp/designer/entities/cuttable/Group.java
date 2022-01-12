@@ -19,7 +19,6 @@
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
-import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,26 +61,40 @@ public class Group extends EntityGroup implements Cuttable {
     }
 
     @Override
-    public double getCutDepth() {
+    public double getTargetDepth() {
         return getChildren().stream()
                 .filter(Cuttable.class::isInstance)
                 .map(Cuttable.class::cast)
-                .mapToDouble(Cuttable::getCutDepth)
+                .mapToDouble(Cuttable::getTargetDepth)
                 .max()
                 .orElse(0);
     }
 
     @Override
-    public void setCutDepth(double cutDepth) {
+    public void setTargetDepth(double cutDepth) {
         getChildren().forEach(child -> {
             if (child instanceof Cuttable) {
-                ((Cuttable) child).setCutDepth(cutDepth);
+                ((Cuttable) child).setTargetDepth(cutDepth);
             }
         });
     }
 
     @Override
-    public GcodePath toGcodePath() {
-        return new GcodePath();
+    public double getStartDepth() {
+        return getChildren().stream()
+                .filter(Cuttable.class::isInstance)
+                .map(Cuttable.class::cast)
+                .mapToDouble(Cuttable::getStartDepth)
+                .max()
+                .orElse(0);
+    }
+
+    @Override
+    public void setStartDepth(double startDepth) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable) {
+                ((Cuttable) child).setStartDepth(startDepth);
+            }
+        });
     }
 }

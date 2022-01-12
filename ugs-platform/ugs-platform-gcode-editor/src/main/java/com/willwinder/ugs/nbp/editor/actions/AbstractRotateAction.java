@@ -38,7 +38,6 @@ import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
-import org.openide.util.ImageUtilities;
 import org.openide.util.actions.CookieAction;
 
 import java.awt.*;
@@ -52,18 +51,15 @@ import java.util.stream.Stream;
  * An abstract action for applying rotation to a loaded model
  */
 public abstract class AbstractRotateAction extends CookieAction implements UGSEventListener {
-
-    public static final String ICON_BASE = "icons/rotation0.svg";
     public static final double ARC_SEGMENT_LENGTH = 0.5;
     private final double rotation;
-    private transient BackendAPI backend;
+    private final transient BackendAPI backend;
 
-    public AbstractRotateAction(double rotation) {
+    protected AbstractRotateAction(double rotation) {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
         this.rotation = rotation;
         setEnabled(isEnabled());
-        setIcon(ImageUtilities.loadImageIcon(ICON_BASE, false));
     }
 
     @Override

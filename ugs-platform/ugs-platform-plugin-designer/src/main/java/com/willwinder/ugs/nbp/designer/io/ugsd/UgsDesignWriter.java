@@ -2,38 +2,24 @@ package com.willwinder.ugs.nbp.designer.io.ugsd;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.*;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.CutTypeV1;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.CuttableEntityV1;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.DesignV1;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityEllipseV1;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityGroupV1;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathSegmentV1;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathTypeV1;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathV1;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityRectangleV1;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityTextV1;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityV1;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.SettingsV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,7 +49,7 @@ public class UgsDesignWriter implements DesignWriter {
 
             EntityGroup rootEntity = (EntityGroup) controller.getDrawing().getRootEntity();
             design.setEntities(rootEntity.getChildren().stream().map(this::convertToEntity).collect(Collectors.toList()));
-            IOUtils.write(gson.toJson(design), outputStream);
+            IOUtils.write(gson.toJson(design), outputStream, StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -90,7 +76,8 @@ public class UgsDesignWriter implements DesignWriter {
         }
 
         if (entity instanceof Cuttable && result instanceof CuttableEntityV1) {
-            ((CuttableEntityV1) result).setCutDepth(((Cuttable) entity).getCutDepth());
+            ((CuttableEntityV1) result).setStartDepth(((Cuttable) entity).getStartDepth());
+            ((CuttableEntityV1) result).setCutDepth(((Cuttable) entity).getTargetDepth());
             ((CuttableEntityV1) result).setCutType(CutTypeV1.fromCutType(((Cuttable) entity).getCutType()));
         }
         return result;

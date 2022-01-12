@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.Utils;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.*;
 import java.text.ParseException;
 
 /**
@@ -41,6 +42,8 @@ public class ToolSettingsPanel extends JPanel {
     public ToolSettingsPanel(Controller controller) {
         this.controller = controller;
         initComponents();
+        setMinimumSize(new Dimension(300, 300));
+        setPreferredSize(new Dimension(300, 300));
     }
 
     private void initComponents() {
