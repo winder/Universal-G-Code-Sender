@@ -125,7 +125,6 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         PlatformUtils.openEntitesTree(controller);
 
         drawingContainer = new DrawingContainer(controller);
-        controller.addListener(drawingContainer);
         controller.getSelectionManager().addSelectionListener(this);
         toolbox = new ToolBox(controller);
 
@@ -153,7 +152,6 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     @Override
     protected void componentClosed() {
         super.componentClosed();
-        controller.removeListener(drawingContainer);
         controller.getUndoManager().removeListener(this);
     }
 

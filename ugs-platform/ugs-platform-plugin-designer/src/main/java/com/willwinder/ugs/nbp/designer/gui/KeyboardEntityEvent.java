@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,26 +21,21 @@ package com.willwinder.ugs.nbp.designer.gui;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
-import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 
-import java.awt.geom.Point2D;
+import java.awt.event.KeyEvent;
 
 /**
  * @author Joacim Breiler
  */
-public class KeyEntityEvent extends EntityEvent {
+public class KeyboardEntityEvent extends EntityEvent {
+    private final KeyEvent event;
 
-    private final char key;
-    private boolean shiftPressed;
-    private boolean altPressed;
-    private boolean ctrlPressed;
-
-    public KeyEntityEvent(Entity entity, EventType type, char key) {
-        super(entity, type);
-        this.key = key;
+    public KeyboardEntityEvent(Entity target, EventType type, KeyEvent event) {
+        super(target, type);
+        this.event = event;
     }
 
-    public char getKey() {
-        return key;
+    public int getKeyCode() {
+        return event.getKeyCode();
     }
 }

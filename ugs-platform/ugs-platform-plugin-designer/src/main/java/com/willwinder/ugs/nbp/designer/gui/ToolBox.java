@@ -22,14 +22,8 @@ import com.willwinder.ugs.nbp.core.ui.ToolBar;
 import com.willwinder.ugs.nbp.designer.actions.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
 
 import javax.swing.*;
-import java.awt.*;
-
-import static org.openide.NotifyDescriptor.OK_OPTION;
 
 /**
  * @author Joacim Breiler
@@ -117,49 +111,11 @@ public class ToolBox extends ToolBar {
 
         addSeparator();
 
-        add(Box.createRigidArea(new Dimension(10, 10)));
-        add(Box.createHorizontalGlue());
-
-        JSlider zoomSlider = new JSlider(1, 2000, 400);
-        zoomSlider.addChangeListener(event -> ThreadHelper.invokeLater(() -> {
-            double scale = ((double) zoomSlider.getValue()) / 100d;
-            controller.getDrawing().setScale(scale);
-        }));
-        zoomSlider.setValue((int) (controller.getDrawing().getScale() * 100));
-
-        zoomSlider.setMaximumSize(new Dimension(100, 32));
-        add(zoomSlider);
-
-        add(Box.createHorizontalStrut(6));
-        PanelButton toolButton = new PanelButton("Tool", controller.getSettings().getToolDescription());
-        controller.getSettings().addListener(() -> toolButton.setText(controller.getSettings().getToolDescription()));
-        toolButton.addActionListener(e -> {
-            ToolSettingsPanel toolSettingsPanel = new ToolSettingsPanel(controller);
-            DialogDescriptor dialogDescriptor = new DialogDescriptor(toolSettingsPanel, "Tool settings", true, null);
-            if (DialogDisplayer.getDefault().notify(dialogDescriptor) == OK_OPTION) {
-                ChangeToolSettingsAction changeStockSettings = new ChangeToolSettingsAction(controller, toolSettingsPanel.getSettings());
-                changeStockSettings.actionPerformed(null);
-                controller.getUndoManager().addAction(changeStockSettings);
-                toolButton.setText(controller.getSettings().getToolDescription());
-            }
-        });
-        add(toolButton);
-
-        add(Box.createHorizontalStrut(6));
-        PanelButton stockButton = new PanelButton("Stock", controller.getSettings().getStockSizeDescription());
-        controller.getSettings().addListener(() -> stockButton.setText(controller.getSettings().getStockSizeDescription()));
-        stockButton.addActionListener(e -> {
-            StockSettingsPanel stockSettingsPanel = new StockSettingsPanel(controller);
-            DialogDescriptor dialogDescriptor = new DialogDescriptor(stockSettingsPanel, "Stock settings", true, null);
-            if (DialogDisplayer.getDefault().notify(dialogDescriptor) == OK_OPTION) {
-                double stockThickness = stockSettingsPanel.getStockThickness();
-                ChangeStockSettingsAction changeStockSettingsAction = new ChangeStockSettingsAction(controller, stockThickness);
-                changeStockSettingsAction.actionPerformed(null);
-                controller.getUndoManager().addAction(changeStockSettingsAction);
-                stockButton.setText(controller.getSettings().getStockSizeDescription());
-            }
-        });
-        add(stockButton);
+        JToggleButton zoom = new JToggleButton(new ToolZoomAction(controller));
+        zoom.setText("");
+        zoom.setToolTipText("Controls zoom");
+        zoom.setBorderPainted(false);
+        add(zoom);
 
         ButtonGroup buttons = new ButtonGroup();
         buttons.add(select);
@@ -167,6 +123,7 @@ public class ToolBox extends ToolBar {
         buttons.add(rectangle);
         buttons.add(text);
         buttons.add(insert);
+        buttons.add(zoom);
 
         controller.addListener(event -> {
             if (event == ControllerEventType.TOOL_SELECTED) {
@@ -187,6 +144,9 @@ public class ToolBox extends ToolBar {
                         break;
                     case INSERT:
                         insert.setSelected(true);
+                        break;
+                    case ZOOM:
+                        zoom.setSelected(true);
                         break;
                 }
                 repaint();

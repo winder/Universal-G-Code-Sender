@@ -20,7 +20,8 @@ package com.willwinder.ugs.nbp.designer.gui;
 
 import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.Throttler;
-import com.willwinder.ugs.nbp.designer.entities.*;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -31,8 +32,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.awt.RenderingHints.*;
@@ -43,20 +45,20 @@ import static java.awt.RenderingHints.*;
 public class Drawing extends JPanel {
 
     private static final long serialVersionUID = 1298712398723987873L;
+    private static final int MARGIN = 100;
     private final transient EntityGroup globalRoot;
     private final transient EntityGroup entitiesRoot;
-    private final EntityGroup controlsRoot;
-    private double scale;
+    private final transient EntityGroup controlsRoot;
     private final transient Set<DrawingListener> listeners  = Sets.newConcurrentHashSet();
-    private int margin = 100;
-    private Throttler refreshThrottler;
+    private final transient Throttler refreshThrottler;
+    private double scale;
 
     public Drawing(Controller controller) {
         refreshThrottler = new Throttler(this::refresh, 2000);
 
         globalRoot = new EntityGroup();
         globalRoot.addChild(new GridControl(controller));
-        globalRoot.addListener((event) -> refreshThrottler.run());
+        globalRoot.addListener(event -> refreshThrottler.run());
 
         entitiesRoot = new EntityGroup();
         globalRoot.addChild(entitiesRoot);
@@ -80,6 +82,7 @@ public class Drawing extends JPanel {
         controlsRoot.addChild(new CreateEllipseControl(controller));
         controlsRoot.addChild(new CreateTextControl(controller));
         controlsRoot.addChild(new EditTextControl(controller));
+        controlsRoot.addChild(new ZoomControl(controller));
 
         setBackground(Colors.BACKGROUND);
         setScale(2);
@@ -171,7 +174,7 @@ public class Drawing extends JPanel {
     @Override
     public Dimension getMinimumSize() {
         Rectangle2D bounds = globalRoot.getBounds();
-        return new Dimension((int) (bounds.getMaxX() * scale) + (margin * 2), (int) (bounds.getMaxY() * scale) + (margin * 2));
+        return new Dimension((int) (bounds.getMaxX() * scale) + (MARGIN * 2), (int) (bounds.getMaxY() * scale) + (MARGIN * 2));
     }
 
     @Override
@@ -180,7 +183,7 @@ public class Drawing extends JPanel {
     }
 
     public void setScale(double scale) {
-        this.scale = scale;
+        this.scale = Math.abs(scale);
         listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.SCALE_CHANGED));
         refresh();
     }
@@ -200,7 +203,7 @@ public class Drawing extends JPanel {
     public AffineTransform getTransform() {
         AffineTransform transform = AffineTransform.getScaleInstance(1, -1);
         transform.translate(0, -getHeight());
-        transform.translate(margin, margin);
+        transform.translate(MARGIN, MARGIN);
         transform.scale(scale, scale);
         return transform;
     }
@@ -220,5 +223,9 @@ public class Drawing extends JPanel {
         entities.forEach(globalRoot::removeChild);
         ThreadHelper.invokeLater(() -> listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED)));
         refresh();
+    }
+
+    public void clear() {
+        entitiesRoot.removeAll();
     }
 }

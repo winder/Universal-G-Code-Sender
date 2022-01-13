@@ -42,7 +42,6 @@ public class DesignerMain extends JFrame {
         CentralLookup.getDefault().add(controller);
 
         DrawingContainer drawingContainer = new DrawingContainer(controller);
-        controller.addListener(drawingContainer);
         selectionManager.addSelectionListener(e -> drawingContainer.repaint());
 
         JSplitPane toolsSplit = createRightPanel(controller);
