@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -97,7 +98,7 @@ public final class OutlineAction extends AbstractAction implements UGSEventListe
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse instanceof ControllerStateEvent) {
+        if (cse instanceof ControllerStateEvent || cse instanceof FileStateEvent) {
             java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
         }
     }
@@ -105,7 +106,6 @@ public final class OutlineAction extends AbstractAction implements UGSEventListe
     @Override
     public boolean isEnabled() {
         return backend != null &&
-                backend.isIdle() &&
                 backend.getControllerState() == ControllerState.IDLE &&
                 backend.getGcodeFile() != null;
     }
