@@ -33,12 +33,7 @@ import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
-import com.willwinder.universalgcodesender.utils.MathUtils;
-import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
+import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
@@ -48,8 +43,8 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -145,9 +140,12 @@ public final class OutlineAction extends AbstractAction implements UGSEventListe
                 .distinct()
                 .collect(Collectors.toList());
 
+        UnitUtils.Units preferredUnits = backend.getSettings().getPreferredUnits();
+        double jogFeedRateInMM = backend.getSettings().getJogFeedRate() * UnitUtils.scaleUnits(preferredUnits, UnitUtils.Units.MM);
+
         List<PartialPosition> outline = MathUtils.generateConvexHull(pointList);
         return outline.stream()
-                .map(point -> new GcodeCommand(GcodeUtils.generateMoveToCommand(Code.G0.name(), point)))
+                .map(point -> new GcodeCommand(GcodeUtils.generateMoveToCommand(Code.G1.name(), point, jogFeedRateInMM)))
                 .collect(Collectors.toList());
     }
 
