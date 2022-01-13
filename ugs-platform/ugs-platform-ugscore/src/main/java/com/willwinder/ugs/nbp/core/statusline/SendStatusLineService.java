@@ -21,7 +21,9 @@ package com.willwinder.ugs.nbp.core.statusline;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.toolbars.SendStatusLine;
+
 import java.awt.Component;
+
 import org.openide.awt.StatusLineElementProvider;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -32,7 +34,7 @@ import javax.swing.*;
  *
  * @author wwinder
  */
-@ServiceProvider(service = StatusLineElementProvider.class, position=1)
+@ServiceProvider(service = StatusLineElementProvider.class, position = 3)
 public class SendStatusLineService implements StatusLineElementProvider {
 
     @Override

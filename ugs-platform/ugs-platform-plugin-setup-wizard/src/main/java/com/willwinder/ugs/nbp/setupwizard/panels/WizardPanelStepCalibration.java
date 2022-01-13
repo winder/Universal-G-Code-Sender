@@ -25,39 +25,34 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.events.AlarmEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 import com.willwinder.universalgcodesender.utils.MathUtils;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import java.awt.Dimension;
-import java.awt.Font;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * A wizard step panel for configuring step length on a controller
  *
  * @author Joacim Breiler
  */
-public class WizardPanelStepCalibration extends AbstractWizardPanel implements UGSEventListener, ControllerStateListener {
+public class WizardPanelStepCalibration extends AbstractWizardPanel implements UGSEventListener {
 
     private static final long TIME_BEFORE_RESET_ON_ALARM = 500;
-    private final DecimalFormat decimalFormat;
+    public static final String DECIMAL_FORMAT_PATTERN = "0.###";
     private NavigationButtons navigationButtons;
     private JLabel labelEstimatedStepsX;
     private JLabel labelPositionX;
@@ -74,11 +69,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     private JLabel labelEstimatedStepsZ;
     private JTextField textFieldSettingStepsZ;
     private JLabel labelPositionZ;
-    private Timer updateTimer;
 
     public WizardPanelStepCalibration(BackendAPI backend) {
         super(backend, Localization.getString("platform.plugin.setupwizard.calibration.title"));
-        decimalFormat = new DecimalFormat("0.0", Localization.dfs);
 
         initComponents();
         initLayout();
@@ -262,6 +255,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     private void updateEstimationFromMesurement(JTextField textFieldMesurement, Axis axis, JLabel label) {
         if (getBackend().getWorkPosition() != null) {
             try {
+                DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT_PATTERN, Localization.dfs);
                 double measured = decimalFormat.parse(textFieldMesurement.getText()).doubleValue();
                 double real = getBackend().getWorkPosition().get(axis);
                 double stepsPerMM = getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(axis);
@@ -280,30 +274,10 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     @Override
     public void initialize() {
         getBackend().addUGSEventListener(this);
-        getBackend().addControllerStateListener(this);
         WizardUtils.killAlarm(getBackend());
         updateMeasurementEstimatesFields();
         updateSettingFieldsFromFirmware();
         checkPulseIntervalLimits();
-
-        if (updateTimer != null) {
-            updateTimer.cancel();
-        }
-
-        updateTimer = new Timer();
-        updateTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                Position currentPosition = getBackend().getWorkPosition();
-                if (currentPosition != null) {
-                    labelPositionX.setText(StringUtils.leftPad(decimalFormat.format(currentPosition.get(Axis.X)) + " mm", 8, ' '));
-                    labelPositionY.setText(StringUtils.leftPad(decimalFormat.format(currentPosition.get(Axis.Y)) + " mm", 8, ' '));
-                    labelPositionZ.setText(StringUtils.leftPad(decimalFormat.format(currentPosition.get(Axis.Z)) + " mm", 8, ' '));
-                    updateMeasurementEstimatesFields();
-                }
-                WizardUtils.killAlarm(getBackend());
-            }
-        }, 0, 200);
     }
 
     @Override
@@ -314,40 +288,42 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
 
     @Override
     public void destroy() {
-        if (updateTimer != null) {
-            updateTimer.cancel();
-        }
-
         getBackend().removeUGSEventListener(this);
-        getBackend().removeControllerStateListener(this);
     }
 
     @Override
     public void UGSEvent(UGSEvent event) {
-        if (getBackend().getController() != null &&
-                getBackend().isConnected() &&
-                (event.isControllerStatusEvent() || event.isStateChangeEvent())) {
-            WizardUtils.killAlarm(getBackend());
-        } else if (event.isSettingChangeEvent() || event.isStateChangeEvent()) {
+        if (event instanceof ControllerStatusEvent) {
             ThreadHelper.invokeLater(() -> {
-                updateMeasurementEstimatesFields();
-                updateSettingFieldsFromFirmware();
-                checkPulseIntervalLimits();
-                checkUpdatedValues();
+                WizardUtils.killAlarm(getBackend());
+                Position workPosition = getBackend().getWorkPosition();
+                Position machinePosition = getBackend().getMachinePosition();
+                updatePosition(workPosition, machinePosition);
             });
-        } else if (event.getEventType() == UGSEvent.EventType.ALARM_EVENT && event.getAlarm() == Alarm.HARD_LIMIT) {
+        } else if(event instanceof FirmwareSettingEvent || event instanceof ControllerStateEvent) {
+            ThreadHelper.invokeLater(() -> {
+                checkUpdatedValues();
+                updateMeasurementEstimatesFields();
+                checkPulseIntervalLimits();
+            });
+        } else if (event instanceof AlarmEvent && ((AlarmEvent) event).getAlarm() == Alarm.HARD_LIMIT) {
             ThreadHelper.invokeLater(() -> {
                 try {
                     getBackend().issueSoftReset();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    // Never mind
                 }
             }, TIME_BEFORE_RESET_ON_ALARM);
         }
+    }
 
-        if (event.isControllerStatusEvent()) {
-            navigationButtons.refresh(event.getControllerStatus().getMachineCoord());
-        }
+    private void updatePosition(Position currentPosition, Position machinePosition) {
+        DecimalFormat decimalFormat = new DecimalFormat("0.0", Localization.dfs);
+        labelPositionX.setText(StringUtils.leftPad(decimalFormat.format(currentPosition.get(Axis.X)) + " mm", 8, ' '));
+        labelPositionY.setText(StringUtils.leftPad(decimalFormat.format(currentPosition.get(Axis.Y)) + " mm", 8, ' '));
+        labelPositionZ.setText(StringUtils.leftPad(decimalFormat.format(currentPosition.get(Axis.Z)) + " mm", 8, ' '));
+        updateMeasurementEstimatesFields();
+        navigationButtons.refresh(machinePosition);
     }
 
     /**
@@ -369,6 +345,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
 
                     buttonUpdateSettings.setEnabled(false);
                     try {
+                        DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT_PATTERN, Localization.dfs);
                         double newValue = decimalFormat.parse(textField.getText()).doubleValue();
                         if (stepsPerMillimeter != newValue) {
                             buttonUpdateSettings.setEnabled(true);
@@ -454,6 +431,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
 
     private double parseDouble(String text) {
         try {
+            DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT_PATTERN, Localization.dfs);
             return decimalFormat.parse(text).doubleValue();
         } catch (ParseException ignored) {
             // Never mind
@@ -473,6 +451,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     private void updateSettingFieldsFromFirmware() {
         if (getBackend().getController() != null && getBackend().getController().getFirmwareSettings() != null) {
             try {
+                DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT_PATTERN, Localization.dfs);
                 textFieldSettingStepsX.setText(decimalFormat.format(getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(Axis.X)));
                 textFieldSettingStepsY.setText(decimalFormat.format(getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(Axis.Y)));
                 textFieldSettingStepsZ.setText(decimalFormat.format(getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(Axis.Z)));

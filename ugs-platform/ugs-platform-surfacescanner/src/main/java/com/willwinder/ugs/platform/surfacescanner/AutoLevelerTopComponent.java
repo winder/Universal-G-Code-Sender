@@ -24,7 +24,6 @@ import com.google.gson.GsonBuilder;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
@@ -37,28 +36,31 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.model.events.ProbeEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.AutoLevelSettings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import org.netbeans.api.options.OptionsDisplayer;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.modules.OnStart;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 
 /**
  * Top component which displays something.
@@ -159,10 +161,10 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isProbeEvent()) {
+        if (evt instanceof ProbeEvent) {
             if (!scanner.isCollectedAllProbe()) return;
             
-            Position probe = evt.getProbePosition();
+            Position probe = ((ProbeEvent)evt).getProbePosition();
             Position offset = this.settings.getAutoLevelSettings().autoLevelProbeOffset;
 
             if (probe.getUnits() == Units.UNKNOWN || offset.getUnits() == Units.UNKNOWN) {
@@ -178,11 +180,11 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
                     probe.getUnits()));
         }
 
-        else if(evt.isSettingChangeEvent()) {
+        else if(evt instanceof SettingChangedEvent) {
             updateSettings();
         }
         
-        else if(evt.isFileChangeEvent()){
+        else if(evt instanceof FileStateEvent){
             applyToGcode.setEnabled(true);
         }
     }

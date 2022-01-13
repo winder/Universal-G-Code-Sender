@@ -2,8 +2,10 @@ package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.MacroHelper;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.util.Exceptions;
@@ -23,21 +25,22 @@ public class MacroAction extends AbstractAction implements Serializable {
     public MacroAction() {
     }
 
-    public MacroAction(BackendAPI b, Macro macro) {
+    public MacroAction(Macro macro) {
         this.macro = macro;
-        getBackend().addUGSEventListener(this::onEvent);
+        this.backend = getBackend();
     }
 
     private BackendAPI getBackend() {
         if (backend == null) {
             backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+            backend.addUGSEventListener(this::onEvent);
         }
         return backend;
     }
 
     private void onEvent(UGSEvent event) {
-        if (event != null && event.isStateChangeEvent()) {
-            EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        if (event instanceof ControllerStateEvent) {
+           setEnabled(isEnabled());
         }
     }
 
@@ -57,6 +60,6 @@ public class MacroAction extends AbstractAction implements Serializable {
 
     @Override
     public boolean isEnabled() {
-        return getBackend().isConnected() && getBackend().isIdle();
+        return getBackend().getControllerState() == ControllerState.IDLE;
     }
 }

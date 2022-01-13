@@ -23,11 +23,14 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -95,12 +98,16 @@ public final class OutlineAction extends AbstractAction implements UGSEventListe
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        if (cse instanceof ControllerStateEvent || cse instanceof FileStateEvent) {
+            java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        }
     }
 
     @Override
     public boolean isEnabled() {
-        return backend != null && backend.isIdle() && backend.getGcodeFile() != null;
+        return backend != null &&
+                backend.getControllerState() == ControllerState.IDLE &&
+                backend.getGcodeFile() != null;
     }
 
     @Override

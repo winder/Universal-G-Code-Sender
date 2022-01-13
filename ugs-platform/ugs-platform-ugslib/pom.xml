@@ -118,6 +118,7 @@
                         <package>com.willwinder.universalgcodesender.i18n</package>
                         <package>com.willwinder.universalgcodesender.listeners</package>
                         <package>com.willwinder.universalgcodesender.model</package>
+                        <package>com.willwinder.universalgcodesender.model.events</package>
                         <package>com.willwinder.universalgcodesender.model.GUIBackend</package>
                         <package>com.willwinder.universalgcodesender.pendantui</package>
                         <package>com.willwinder.universalgcodesender.services</package>

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,9 +20,10 @@ package com.willwinder.universalgcodesender.listeners;
 
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- *
  * @author wwinder
  */
 public class ControllerStatus {
@@ -40,10 +41,10 @@ public class ControllerStatus {
     /**
      * Baseline constructor. This data should always be present. Represents the
      * controller status.
-     * 
-     * @param state controller state, i.e. {@link ControllerState#IDLE}/{@link ControllerState#HOLD}/{@link ControllerState#RUN}
+     *
+     * @param state        controller state, i.e. {@link ControllerState#IDLE}/{@link ControllerState#HOLD}/{@link ControllerState#RUN}
      * @param machineCoord controller machine coordinates
-     * @param workCoord controller work coordinates
+     * @param workCoord    controller work coordinates
      */
     public ControllerStatus(ControllerState state, Position machineCoord, Position workCoord) {
         this(state, machineCoord, workCoord, 0d, UnitUtils.Units.MM, 0d, null, null, null, null);
@@ -66,6 +67,10 @@ public class ControllerStatus {
         this.overrides = overrides;
         this.pins = pins;
         this.accessoryStates = states;
+    }
+
+    public ControllerStatus() {
+        this(ControllerState.DISCONNECTED, Position.ZERO, Position.ZERO);
     }
 
     public ControllerState getState() {
@@ -108,6 +113,16 @@ public class ControllerStatus {
         return feedSpeedUnits;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
     public static class EnabledPins {
         final public boolean X;
         final public boolean Y;
@@ -135,6 +150,16 @@ public class ControllerStatus {
             SoftReset = enabledUpper.contains("R");
             CycleStart = enabledUpper.contains("S");
         }
+
+        @Override
+        public boolean equals(Object o) {
+            return EqualsBuilder.reflectionEquals(this, o);
+        }
+
+        @Override
+        public int hashCode() {
+            return HashCodeBuilder.reflectionHashCode(this);
+        }
     }
 
     public static class AccessoryStates {
@@ -150,16 +175,37 @@ public class ControllerStatus {
             Flood = enabledUpper.contains("F");
             Mist = enabledUpper.contains("M");
         }
+
+        @Override
+        public boolean equals(Object o) {
+            return EqualsBuilder.reflectionEquals(this, o);
+        }
+
+        @Override
+        public int hashCode() {
+            return HashCodeBuilder.reflectionHashCode(this);
+        }
     }
 
     public static class OverridePercents {
         final public int feed;
         final public int rapid;
         final public int spindle;
+
         public OverridePercents(int feed, int rapid, int spindle) {
             this.feed = feed;
             this.rapid = rapid;
             this.spindle = spindle;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return EqualsBuilder.reflectionEquals(this, o);
+        }
+
+        @Override
+        public int hashCode() {
+            return HashCodeBuilder.reflectionHashCode(this);
         }
     }
 }

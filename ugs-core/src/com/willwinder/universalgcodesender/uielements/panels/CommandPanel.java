@@ -24,6 +24,8 @@ import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.uielements.components.CommandTextArea;
 import com.willwinder.universalgcodesender.uielements.components.LengthLimitedDocument;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
@@ -109,11 +111,9 @@ public class CommandPanel extends JPanel implements UGSEventListener, MessageLis
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isSettingChangeEvent()) {
+        if (evt instanceof SettingChangedEvent) {
             loadSettings();
-        }
-
-        if (evt.isStateChangeEvent()) {
+        } else if (evt instanceof ControllerStateEvent) {
             commandLabel.setEnabled(backend.isIdle());
         }
     }

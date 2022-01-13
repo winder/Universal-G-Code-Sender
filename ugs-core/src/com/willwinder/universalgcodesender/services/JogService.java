@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.services;
 
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -287,7 +288,7 @@ public class JogService {
 
     public boolean canJog() {
         return backend.isConnected() &&
-                !backend.isSendingFile() &&
+                (backend.getControllerState() == ControllerState.IDLE || backend.getControllerState() == ControllerState.JOG) &&
                 backend.getController().getCapabilities().hasJogging();
     }
 

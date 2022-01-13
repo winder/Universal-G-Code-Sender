@@ -28,7 +28,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.*;
-import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import com.willwinder.universalgcodesender.model.CommunicatorState;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
@@ -40,8 +40,8 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
 
 /**
  * GRBL Control layer, coordinates all aspects of control.
@@ -92,7 +92,7 @@ public class GrblController extends AbstractController {
     }
 
     @Override
-    public Boolean handlesAllStateChangeEvents() {
+    public boolean handlesAllStateChangeEvents() {
         return capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME);
     }
 
@@ -194,7 +194,7 @@ public class GrblController extends AbstractController {
                 // controller status because we need to know the previous state for resetting
                 // single step mode
                 if (getControlState() != COMM_CHECK) {
-                    this.controllerStatus = null;
+                    this.controllerStatus = ControllerStatusBuilder.newInstance().setState(ControllerState.UNKNOWN).build();
                 }
 
                 positionPollTimer.stop();
@@ -340,7 +340,7 @@ public class GrblController extends AbstractController {
         else if (!paused && this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             try {
                 this.pauseStreaming();
-                this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
+                this.dispatchStateChange(CommunicatorState.COMM_SENDING_PAUSED);
             } catch (Exception e) {
                 // Oh well, was worth a shot.
                 System.out.println("Exception while trying to issue a soft reset: " + e.getMessage());
@@ -368,7 +368,7 @@ public class GrblController extends AbstractController {
     }
 
     @Override
-    public ControlState getControlState() {
+    public CommunicatorState getControlState() {
         if (!this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             return super.getControlState();
         }
@@ -377,28 +377,28 @@ public class GrblController extends AbstractController {
         switch(state) {
             case JOG:
             case RUN:
-                return ControlState.COMM_SENDING;
+                return CommunicatorState.COMM_SENDING;
             case HOLD:
             case DOOR:
-                return ControlState.COMM_SENDING_PAUSED;
+                return CommunicatorState.COMM_SENDING_PAUSED;
             case IDLE:
                 if (isStreaming()){
-                    return ControlState.COMM_SENDING_PAUSED;
+                    return CommunicatorState.COMM_SENDING_PAUSED;
                 } else {
-                    return ControlState.COMM_IDLE;
+                    return CommunicatorState.COMM_IDLE;
                 }
             case ALARM:
-                return ControlState.COMM_IDLE;
+                return CommunicatorState.COMM_IDLE;
             case CHECK:
                 if (isStreaming() && comm.isPaused()) {
-                    return ControlState.COMM_SENDING_PAUSED;
+                    return CommunicatorState.COMM_SENDING_PAUSED;
                 } else if (isStreaming() && !comm.isPaused()) {
-                    return ControlState.COMM_SENDING;
+                    return CommunicatorState.COMM_SENDING;
                 } else {
                     return COMM_CHECK;
                 }
             default:
-                return ControlState.COMM_IDLE;
+                return CommunicatorState.COMM_IDLE;
         }
     }
 
@@ -601,7 +601,7 @@ public class GrblController extends AbstractController {
             return;
         }
 
-        ControlState before = getControlState();
+        CommunicatorState before = getControlState();
         ControllerState beforeState = controllerStatus == null ? ControllerState.UNKNOWN : controllerStatus.getState();
 
         controllerStatus = GrblUtils.getStatusFromStatusString(

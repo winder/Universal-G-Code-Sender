@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.statusline;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import org.openide.awt.StatusLineElementProvider;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -56,7 +57,7 @@ public class LoadedFileStatusLineService implements StatusLineElementProvider {
     }
 
     private void onEvent(UGSEvent event) {
-        if (event.isFileChangeEvent()) {
+        if (event instanceof FileStateEvent) {
             updateText();
         }
     }

@@ -38,11 +38,11 @@ public class GcodeCommand {
     private String command;
     private String originalCommand;
     private String response;
-    private Boolean sent = false;
-    private Boolean isOk = false;
-    private Boolean isError = false;
+    private boolean sent = false;
+    private boolean isOk = false;
+    private boolean isError = false;
     private Integer commandNum = -1;
-    private Boolean isSkipped = false;
+    private boolean isSkipped = false;
 
     /**
      * If this is a generated command not apart of any program such as jog or settings commands
@@ -121,19 +121,19 @@ public class GcodeCommand {
         return this.response;
     }
     
-    public Boolean isSent() {
+    public boolean isSent() {
         return this.sent;
     }
     
-    public Boolean isOk() {
+    public boolean isOk() {
         return this.isOk;
     }
     
-    public Boolean isError() {
+    public boolean isError() {
         return this.isError;
     }
     
-    public Boolean isSkipped() {
+    public boolean isSkipped() {
         return this.isSkipped;
     }
 
@@ -159,7 +159,7 @@ public class GcodeCommand {
         this.isTemporaryParserModalChange = isGUICommand;
     }
     
-    public Boolean isDone() {
+    public boolean isDone() {
         return (this.response != null);
     }
 

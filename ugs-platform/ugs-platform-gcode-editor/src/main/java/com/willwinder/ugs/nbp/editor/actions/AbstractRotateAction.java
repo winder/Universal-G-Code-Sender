@@ -28,6 +28,9 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.FileState;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper;
 import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
@@ -37,6 +40,7 @@ import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.actions.CookieAction;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -60,8 +64,8 @@ public abstract class AbstractRotateAction extends CookieAction implements UGSEv
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse.isStateChangeEvent() || cse.isFileChangeEvent()) {
-            java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        if (cse instanceof ControllerStateEvent || cse instanceof FileStateEvent) {
+            EventQueue.invokeLater(() -> setEnabled(isEnabled()));
         }
     }
 

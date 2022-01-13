@@ -19,22 +19,19 @@
 package com.willwinder.universalgcodesender.uielements.jog;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.services.JogService;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
-public class JogPanel extends JPanel implements UGSEventListener, ControllerListener {
+public class JogPanel extends JPanel implements UGSEventListener {
 
     private final StepSizeSpinner xyStepSizeSpinner = new StepSizeSpinner();
     private final StepSizeSpinner zStepSizeSpinner = new StepSizeSpinner();
@@ -67,7 +64,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
         if (this.backend != null) {
             this.backend.addUGSEventListener(this);
-            this.backend.addControllerListener(this);
             loadSettings();
         }
 
@@ -135,8 +131,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isStateChangeEvent() || evt.isSettingChangeEvent()) {
-            syncWithJogService();
+        if (evt instanceof ControllerStateEvent || evt instanceof SettingChangedEvent) {
             updateControls();
         }
     }
@@ -146,26 +141,13 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         xyStepSizeSpinner.setValue(s.getManualModeStepSize());
         zStepSizeSpinner.setValue(s.getZJogStepSize());
         feedRateSpinner.setValue(s.getJogFeedRate());
+        updateUnitButton();
     }
 
     private void updateControls() {
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
         syncWithJogService();
-
-        updateUnitButton();
-
-        switch (backend.getControlState()) {
-            case COMM_DISCONNECTED:
-            case COMM_SENDING_PAUSED:
-            case COMM_CHECK:
-            default:
-                updateManualControls(false);
-                break;
-            case COMM_IDLE:
-            case COMM_SENDING:
-                updateManualControls(!backend.isSendingFile());
-                break;
-        }
+        updateManualControls(jogService.canJog());
     }
 
     private void toggleUnits() {
@@ -203,47 +185,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     public void divideStepActionPerformed() {
         jogService.divideXYStepSize();
         xyStepSizeSpinner.setValue(getXYStepSize());
-    }
-
-    @Override
-    public void controlStateChange(UGSEvent.ControlState state) {
-    }
-
-    @Override
-    public void fileStreamComplete(String filename, boolean success) {
-
-    }
-
-    @Override
-    public void receivedAlarm(Alarm alarm) {
-
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-
-    }
-
-    @Override
-    public void commandSent(GcodeCommand command) {
-
-    }
-
-    @Override
-    public void commandComment(String comment) {
-    }
-
-    @Override
-    public void probeCoordinates(Position p) {
-    }
-
-    @Override
-    public void commandComplete(GcodeCommand command) {
-
-    }
-
-    @Override
-    public void statusStringListener(ControllerStatus status) {
     }
 
     public void saveSettings() {

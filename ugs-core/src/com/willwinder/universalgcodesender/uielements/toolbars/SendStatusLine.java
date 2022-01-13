@@ -19,32 +19,28 @@
 package com.willwinder.universalgcodesender.uielements.toolbars;
 
 import com.willwinder.universalgcodesender.Utils;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
-import javax.swing.JLabel;
-import javax.swing.Timer;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
+import static com.willwinder.universalgcodesender.model.events.FileState.FILE_LOADED;
+import static com.willwinder.universalgcodesender.model.events.FileState.FILE_STREAM_COMPLETE;
 
 /**
  * A component which should be embedded in a status bar.
  *
  * @author wwinder
  */
-public class SendStatusLine extends JLabel implements UGSEventListener, ControllerListener {
+public class SendStatusLine extends JLabel implements UGSEventListener {
     private static final String SEND_PREFIX = "Send Status: ";
     private static final String LOAD_PREFIX = "Loaded File: ";
     private static final String NO_FILE_LOADED = "No file loaded";
@@ -59,7 +55,6 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
         backend = b;
         if (backend != null) {
             backend.addUGSEventListener(this);
-            backend.addControllerListener(this);
         }
 
         if (backend.isSendingFile()) {
@@ -70,28 +65,13 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
     }
 
     private void beginSend() {
-        // Timer for updating duration labels.
-        ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                java.awt.EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            setText(String.format(SEND_FORMAT, 
-                                    backend.getNumSentRows(),
-                                    backend.getNumRows(),
-                                    Utils.formattedMillis(backend.getSendDuration()),
-                                    Utils.formattedMillis(backend.getSendRemainingDuration())));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-        };
+        updateStatusText();
+        if (isUpdateTimerRunning()) {
+            timer.stop();
+        }
 
-        if (timer != null){ timer.stop(); }
+        // Timer for updating duration labels.
+        ActionListener actionListener = actionEvent -> updateStatusText();
         timer = new Timer(1000, actionListener);
 
         try {
@@ -102,8 +82,24 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
         }
     }
 
+    private boolean isUpdateTimerRunning() {
+        return timer != null && timer.isRunning();
+    }
+
+    private void updateStatusText() {
+        try {
+            setText(String.format(SEND_FORMAT,
+                    backend.getNumSentRows(),
+                    backend.getNumRows(),
+                    Utils.formattedMillis(backend.getSendDuration()),
+                    Utils.formattedMillis(backend.getSendRemainingDuration())));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void endSend() {
-        if (timer != null && timer.isRunning()) {
+        if (isUpdateTimerRunning()) {
             timer.stop();
             setText(String.format(COMPLETED_FORMAT, Utils.formattedMillis(backend.getSendDuration())));
         }
@@ -115,7 +111,8 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
                 try (IGcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
                     setText(String.format(ROWS_FORMAT, gsr.getNumRows()));
                 }
-            } catch (GcodeStreamReader.NotGcodeStreamFile | IOException ex){}
+            } catch (GcodeStreamReader.NotGcodeStreamFile | IOException ex) {
+            }
         } else {
             setText(NO_FILE_LOADED);
         }
@@ -124,65 +121,22 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
 
     @Override
     public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
-        // Start/Restart timer when sending starts.
-        if (evt.isStateChangeEvent()) {
-            switch (evt.getControlState()) {
-                case COMM_SENDING:
-                    if (backend.isSendingFile()) {
-                        beginSend();
-                    }
-                    break;
-                default:
-                    endSend();
-                    break;
+        if (evt instanceof ControllerStatusEvent) {
+            if (!isUpdateTimerRunning() && backend.isSendingFile()) {
+                beginSend();
+            } else if (isUpdateTimerRunning() && !backend.isSendingFile()) {
+                endSend();
             }
         }
 
         // Display the number of rows when a file is loaded.
-        if (evt.isFileChangeEvent() && evt.getFileState() == FILE_LOADED) {
-            setRows();
+        if (evt instanceof FileStateEvent) {
+            FileStateEvent fileStateEvent = (FileStateEvent) evt;
+            if (fileStateEvent.getFileState() == FILE_LOADED) {
+                setRows();
+            } else if (fileStateEvent.getFileState() == FILE_STREAM_COMPLETE) {
+                endSend();
+            }
         }
-    }
-
-    ///////////////////////////////
-    // ControllerListener events //
-    ///////////////////////////////
-
-    @Override
-    public void controlStateChange(UGSEvent.ControlState state) {
-    }
-
-    @Override
-    public void fileStreamComplete(String filename, boolean success) {
-        endSend();
-    }
-
-    @Override
-    public void receivedAlarm(Alarm alarm) {
-
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-    }
-
-    @Override
-    public void commandSent(GcodeCommand command) {
-    }
-
-    @Override
-    public void commandComplete(GcodeCommand command) {
-    }
-
-    @Override
-    public void commandComment(String comment) {
-    }
-
-    @Override
-    public void probeCoordinates(Position p) {
-    }
-
-    @Override
-    public void statusStringListener(ControllerStatus status) {
     }
 }

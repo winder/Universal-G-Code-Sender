@@ -74,14 +74,13 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
 
   private void initComponents() {
     this.labels.put("backend:isConnected", new JLabel("-----"));
-    this.labels.put("backend:isActive", new JLabel("-----"));
     this.labels.put("backend:isSendingFile", new JLabel("-----"));
     this.labels.put("backend:isIdle", new JLabel("-----"));
     this.labels.put("backend:isPaused", new JLabel("-----"));
     this.labels.put("backend:canPause", new JLabel("-----"));
     this.labels.put("backend:canCancel", new JLabel("-----"));
     this.labels.put("backend:canSend", new JLabel("-----"));
-    this.labels.put("backend:getControlState", new JLabel("-----"));
+    this.labels.put("backend:getControllerState", new JLabel("-----"));
 
     this.labels.put("controller:isPaused", new JLabel("-----"));
     this.labels.put("controller:isIdle", new JLabel("-----"));
@@ -93,6 +92,7 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
     this.labels.put("controller:getSingleStepMode", new JLabel("-----"));
     this.labels.put("controller:getStatusUpdatesEnabled", new JLabel("-----"));
     this.labels.put("controller:getStatusUpdateRate", new JLabel("-----"));
+    this.labels.put("controller:getControlState", new JLabel("-----"));
 
     this.labels.put("communicator:numActiveCommands", new JLabel("-----"));
     this.labels.put("communicator:isPaused", new JLabel("-----"));
@@ -122,14 +122,13 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
   private void refreshValues() {
     try {
       labels.get("backend:isConnected").setText(String.valueOf(backend.isConnected()));
-      labels.get("backend:isActive").setText(String.valueOf(backend.isActive()));
       labels.get("backend:isSendingFile").setText(String.valueOf(backend.isSendingFile()));
       labels.get("backend:isIdle").setText(String.valueOf(backend.isIdle()));
       labels.get("backend:isPaused").setText(String.valueOf(backend.isPaused()));
       labels.get("backend:canPause").setText(String.valueOf(backend.canPause()));
       labels.get("backend:canCancel").setText(String.valueOf(backend.canCancel()));
       labels.get("backend:canSend").setText(String.valueOf(backend.canSend()));
-      labels.get("backend:getControlState").setText(String.valueOf(backend.getControlState().toString()));
+      labels.get("backend:getControllerState").setText(String.valueOf(backend.getControllerState().toString()));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -147,6 +146,7 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
         labels.get("controller:getSingleStepMode").setText(String.valueOf(controller.getSingleStepMode()));
         labels.get("controller:getStatusUpdatesEnabled").setText(String.valueOf(controller.getStatusUpdatesEnabled()));
         labels.get("controller:getStatusUpdateRate").setText(String.valueOf(controller.getStatusUpdateRate()));
+        labels.get("controller:getControlState").setText(String.valueOf(controller.getControlState()));
 
         IFirmwareSettings firmwareSettings = controller.getFirmwareSettings();
         if(firmwareSettings != null) {

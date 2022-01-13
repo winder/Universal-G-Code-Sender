@@ -26,6 +26,8 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
@@ -107,9 +109,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     protected void componentClosed() {
         super.componentClosed();
         backend.removeUGSEventListener(this);
-
-        continuousJogWorker.stop();
-        backend.removeControllerListener(continuousJogWorker);
+        continuousJogWorker.destroy();
     }
 
     @Override
@@ -121,11 +121,9 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
 
     @Override
     public void UGSEvent(UGSEvent event) {
-        if (event.isStateChangeEvent()) {
+        if (event instanceof ControllerStateEvent) {
             updateControls();
-        }
-
-        if (event.isSettingChangeEvent()) {
+        } else if (event instanceof SettingChangedEvent) {
             updateSettings();
         }
     }

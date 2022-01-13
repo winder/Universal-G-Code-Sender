@@ -11,6 +11,8 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper;
 import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
@@ -66,7 +68,7 @@ public class MirrorAction extends CookieAction implements UGSEventListener {
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse.isStateChangeEvent() || cse.isFileChangeEvent()) {
+        if (cse instanceof ControllerStateEvent || cse instanceof FileStateEvent) {
             EventQueue.invokeLater(() -> setEnabled(isEnabled()));
         }
     }

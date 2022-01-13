@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,14 +16,28 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.listeners;
+package com.willwinder.universalgcodesender.model.events;
 
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 /**
- *
- * @author wwinder
+ * Event for notifying state changes for commands
  */
-public interface ControllerStateListener {
-    void UGSEvent(UGSEvent evt);
+public class CommandEvent implements UGSEvent {
+    private final CommandEventType commandEventType;
+    private final GcodeCommand command;
+
+    public CommandEvent(CommandEventType commandEventType, GcodeCommand command) {
+        this.commandEventType = commandEventType;
+        this.command = command;
+    }
+
+    public CommandEventType getCommandEventType() {
+        return commandEventType;
+    }
+
+    public GcodeCommand getCommand() {
+        return command;
+    }
 }

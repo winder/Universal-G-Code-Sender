@@ -22,22 +22,15 @@ import com.google.common.base.Strings;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.Macro;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
-import javax.swing.AbstractAction;
-import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
@@ -87,7 +80,7 @@ public final class MacroService {
                         text = macro.getNameAndDescription();
                     }
 
-                    ars.registerAction(MacroAction.class.getCanonicalName() + "." + macro.getName(), text, actionCategory, null, menuPath, index, localized, new MacroAction(backend, macro));
+                    ars.registerAction(MacroAction.class.getCanonicalName() + "." + macro.getName(), text, actionCategory, null, menuPath, index, localized, new MacroAction(macro));
                 } catch (IOException e) {
                     logger.log(Level.WARNING, "Couldn't register macro action: \"" + macro.getName() + "\"", e);
                 }

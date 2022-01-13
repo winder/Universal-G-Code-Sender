@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 
 import static com.jogamp.opengl.GL.GL_LINES;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_X;
@@ -89,7 +90,7 @@ public class MachineBoundries extends Renderable {
         // This will prevent us from accessing the firmware settings before the init
         // processes has finished and it will also prevent us from accessing the
         // controller after it has disconnected
-        return backendAPI.isConnected() && backendAPI.isIdle() && event.isFirmwareSettingEvent();
+        return backendAPI.isConnected() && backendAPI.isIdle() && event instanceof FirmwareSettingEvent;
     }
 
     @Override

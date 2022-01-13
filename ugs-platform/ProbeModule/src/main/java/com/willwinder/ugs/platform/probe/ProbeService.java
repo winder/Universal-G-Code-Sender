@@ -21,12 +21,15 @@ package com.willwinder.ugs.platform.probe;
 import com.google.common.base.Preconditions;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.ProbeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -409,43 +412,34 @@ public class ProbeService implements UGSEventListener {
     public void UGSEvent(UGSEvent evt) {
         if (this.currentOperation == ProbeOperation.NONE) return;
 
-        switch (evt.getEventType()) {
-            case STATE_EVENT:
-                switch(evt.getControlState()) {
-                  case COMM_DISCONNECTED:
-                      resetProbe();
-                      break;
-                  case COMM_IDLE:
-                      // Finalize
-                      if (this.currentOperation.getNumProbes() <= this.probePositions.size()) {
-                          try {
-                              continuation.execute();
-                          } catch (Exception e) {
-                              logger.log(Level.SEVERE,
-                                      "Exception finalizing " + this.currentOperation + " probe operation.", e);
-                          } finally {
-                              params.endPosition = this.backend.getMachinePosition();
-                              this.resetProbe();
-                          }
-                      }
-                      break;
-                  default:
-                      break;
+        if (evt instanceof ControllerStateEvent) {
+            ControllerStateEvent controllerStateEvent = (ControllerStateEvent) evt;
+            ControllerState state = controllerStateEvent.getState();
+            if (state == ControllerState.DISCONNECTED || state == ControllerState.UNKNOWN) {
+                resetProbe();
+            } else if (state == ControllerState.IDLE) {
+                // Finalize
+                if (this.currentOperation.getNumProbes() <= this.probePositions.size()) {
+                    try {
+                        continuation.execute();
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE,
+                                "Exception finalizing " + this.currentOperation + " probe operation.", e);
+                    } finally {
+                        params.endPosition = this.backend.getMachinePosition();
+                        this.resetProbe();
+                    }
                 }
-                break;
-            case PROBE_EVENT:
-                this.probePositions.add(evt.getProbePosition());
-                try {
-                    continuation.execute();
-                } catch (Exception e) {
-                    logger.log(Level.SEVERE,
-                            "Exception during " + this.currentOperation + " probe operation.", e);
-                    resetProbe();
-                }
-                break;
-            case FILE_EVENT:
-            default:
-                return;
+            }
+        } else if (evt instanceof ProbeEvent) {
+            this.probePositions.add(((ProbeEvent)evt).getProbePosition());
+            try {
+                continuation.execute();
+            } catch (Exception e) {
+                logger.log(Level.SEVERE,
+                        "Exception during " + this.currentOperation + " probe operation.", e);
+                resetProbe();
+            }
         }
     }
 }

@@ -18,11 +18,12 @@
  */
 package com.willwinder.ugs.nbp.dro.panels;
 
+import com.willwinder.ugs.nbp.dro.FontManager;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
-import com.willwinder.ugs.nbp.dro.FontManager;
 import com.willwinder.universalgcodesender.uielements.helpers.MouseClickListener;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -31,19 +32,22 @@ import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
 
 /**
- * A panel that shows the machine and work position for a axis together with a reset button.
+ * A panel that shows the machine and work position for an axis together with a reset button.
  */
 public class AxisPanel extends JPanel {
 
     private static final int COMMON_RADIUS = 7;
+    public static final int HIGHLIGHT_TIME = 300;
 
     private final DecimalFormat decimalFormatter = new DecimalFormat("0.000");
     private final JLabel work = new JLabel("0.000");
     private final JLabel machine = new JLabel("0.000");
     private final RoundedPanel resetPanel;
     private final Set<AxisPanelListener> axisPanelListenerList = new HashSet<>();
+    private transient ScheduledFuture<?> highlightLabelsFuture;
 
     public AxisPanel(Axis axis, FontManager fontManager) {
         super(new BorderLayout());
@@ -105,11 +109,25 @@ public class AxisPanel extends JPanel {
     private void setLabelValue(JLabel label, double value) {
         String newValue = decimalFormatter.format(value);
         if (!label.getText().equals(newValue)) {
-            label.setForeground(ThemeColors.RED);
+            highlightLabels();
             label.setText(newValue);
-        } else {
-            label.setForeground(ThemeColors.LIGHT_BLUE);
         }
+    }
+
+    private void highlightLabels() {
+        work.setForeground(ThemeColors.RED);
+        machine.setForeground(ThemeColors.RED);
+
+        // Disable any old future
+        if (highlightLabelsFuture != null && !highlightLabelsFuture.isDone()) {
+            highlightLabelsFuture.cancel(false);
+        }
+
+        // Start new future
+        highlightLabelsFuture = ThreadHelper.invokeLater(() -> {
+            work.setForeground(ThemeColors.LIGHT_BLUE);
+            machine.setForeground(ThemeColors.LIGHT_BLUE);
+        }, HIGHLIGHT_TIME);
     }
 
     @Override
@@ -125,7 +143,7 @@ public class AxisPanel extends JPanel {
          * When the reset click button is pressed
          *
          * @param component - the button component being pressed
-         * @param axis - the axis that should be reset
+         * @param axis      - the axis that should be reset
          */
         void onResetClick(JComponent component, Axis axis);
 
@@ -133,7 +151,7 @@ public class AxisPanel extends JPanel {
          * When the work position is being clicked
          *
          * @param component - the label being clicked
-         * @param axis - the axis that the label is showing
+         * @param axis      - the axis that the label is showing
          */
         void onWorkPositionClick(JComponent component, Axis axis);
     }

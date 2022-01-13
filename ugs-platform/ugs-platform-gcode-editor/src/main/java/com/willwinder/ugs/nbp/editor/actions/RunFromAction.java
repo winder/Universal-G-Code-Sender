@@ -25,6 +25,7 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.services.RunFromService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
@@ -66,7 +67,7 @@ public final class RunFromAction extends CookieAction implements UGSEventListene
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse.isStateChangeEvent()) {
+        if (cse instanceof ControllerStateEvent) {
             EventQueue.invokeLater(() -> setEnabled(isEnabled()));
         }
     }

@@ -24,7 +24,10 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.FileState;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.apache.commons.io.FileUtils;
@@ -34,6 +37,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -107,9 +111,10 @@ public class GUIBackendTest {
         verify(controller, times(1)).probe(anyString(), anyDouble(), anyDouble(), any(UnitUtils.Units.class));
     }
 
+
     @Test
     public void pauseResumeWhenInIdleShouldThrowException() throws Exception {
-        when(controller.getControlState()).thenReturn(ControlState.COMM_IDLE);
+        when(controller.getControlState()).thenReturn(CommunicatorState.COMM_IDLE);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
         try {
@@ -125,7 +130,7 @@ public class GUIBackendTest {
 
     @Test
     public void pauseResumeWhenDisconnectedShouldThrowException() throws Exception {
-        when(controller.getControlState()).thenReturn(ControlState.COMM_DISCONNECTED);
+        when(controller.getControlState()).thenReturn(CommunicatorState.COMM_DISCONNECTED);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
         try {
@@ -141,7 +146,7 @@ public class GUIBackendTest {
 
     @Test
     public void pauseResumeWhenSendingShouldPause() throws Exception {
-        when(controller.getControlState()).thenReturn(ControlState.COMM_SENDING);
+        when(controller.getControlState()).thenReturn(CommunicatorState.COMM_SENDING);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
         instance.pauseResume();
@@ -152,7 +157,7 @@ public class GUIBackendTest {
 
     @Test
     public void pauseResumeWhenPausedShouldResume() throws Exception {
-        when(controller.getControlState()).thenReturn(ControlState.COMM_SENDING_PAUSED);
+        when(controller.getControlState()).thenReturn(CommunicatorState.COMM_SENDING_PAUSED);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
         instance.pauseResume();
@@ -240,6 +245,79 @@ public class GUIBackendTest {
         assertFalse(instance.isConnected());
     }
 
+    @Test
+    public void isIdleShouldReturnFalseIfNotConnected() {
+        assertFalse(instance.isIdle());
+    }
+
+    @Test
+    public void isIdleShouldReturnTrueIfControllerIsInStateIdle() throws Exception {
+        // Given
+        when(controller.isCommOpen()).thenReturn(true);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.IDLE, new Position(0,0,0), new Position(0,0,0));
+        when(controller.getControllerStatus()).thenReturn(controllerStatus);
+
+        assertTrue(instance.isIdle());
+    }
+
+    @Test
+    public void isIdleShouldReturnTrueIfControllerIsInStateCheck() throws Exception {
+        // Given
+        when(controller.isCommOpen()).thenReturn(true);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.CHECK, new Position(0,0,0), new Position(0,0,0));
+        when(controller.getControllerStatus()).thenReturn(controllerStatus);
+
+        assertTrue(instance.isIdle());
+    }
+
+    @Test
+    public void isIdleShouldReturnFalseIfControllerIsInStateRun() throws Exception {
+        // Given
+        when(controller.isCommOpen()).thenReturn(true);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.RUN, new Position(0,0,0), new Position(0,0,0));
+        when(controller.getControllerStatus()).thenReturn(controllerStatus);
+
+        assertFalse(instance.isIdle());
+    }
+
+    @Test
+    public void canSendShouldReturnTrueIfIdleAndFileLoaded() throws Exception {
+        // Given
+        when(controller.isCommOpen()).thenReturn(true);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.IDLE, new Position(0,0,0), new Position(0,0,0));
+        when(controller.getControllerStatus()).thenReturn(controllerStatus);
+
+        File tempFile = File.createTempFile("ugs-", ".gcode");
+        FileUtils.writeStringToFile(tempFile, "G0 X0 Y0\n", StandardCharsets.UTF_8);
+        instance.setGcodeFile(tempFile);
+
+        assertTrue(instance.canSend());
+    }
+
+    @Test
+    public void canSendShouldReturnFalseIfIdleAndNoFileLoaded() throws Exception {
+        // Given
+        when(controller.isCommOpen()).thenReturn(true);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.IDLE, new Position(0,0,0), new Position(0,0,0));
+        when(controller.getControllerStatus()).thenReturn(controllerStatus);
+
+        assertFalse(instance.canSend());
+    }
+
+    @Test
+    public void canSendShouldReturnFalseIfNotConnectedAndFileLoaded() throws Exception {
+        // Given
+        File tempFile = File.createTempFile("ugs-", ".gcode");
+        FileUtils.writeStringToFile(tempFile, "G0 X0 Y0\n", StandardCharsets.UTF_8);
+        instance.setGcodeFile(tempFile);
+
+        assertFalse(instance.canSend());
+    }
 
     @Test
     public void disconnectShouldCloseTheConnection() throws Exception {
@@ -252,12 +330,12 @@ public class GUIBackendTest {
         // Then
         verify(controller).closeCommPort();
         assertNull("The instance should now be null", instance.getController());
-        assertEquals(ControlState.COMM_DISCONNECTED, instance.getControlState());
+        assertEquals(CommunicatorState.COMM_DISCONNECTED, instance.getControlState());
         assertFalse(instance.isConnected());
 
         assertEquals("Only one event should have been fired", 1, eventArgumentCaptor.getAllValues().size());
-        assertTrue(eventArgumentCaptor.getValue().isStateChangeEvent());
-        assertEquals(ControlState.COMM_DISCONNECTED, eventArgumentCaptor.getValue().getControlState());
+        assertEquals(ControllerStateEvent.class, eventArgumentCaptor.getAllValues().get(0).getClass());
+        assertEquals(ControllerState.DISCONNECTED, ((ControllerStateEvent) eventArgumentCaptor.getAllValues().get(0)).getState());
     }
 
     @Test
@@ -301,15 +379,15 @@ public class GUIBackendTest {
     public void getControlStateShouldBeOkWhenConnected() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
-        when(controller.getControlState()).thenReturn(ControlState.COMM_IDLE);
-        ControlState result = instance.getControlState();
-        assertEquals(ControlState.COMM_IDLE, result);
+        when(controller.getControlState()).thenReturn(CommunicatorState.COMM_IDLE);
+        CommunicatorState result = instance.getControlState();
+        assertEquals(CommunicatorState.COMM_IDLE, result);
     }
 
     @Test
     public void getControlStateShouldReturnStateDisconnectedWhenNotConnected() {
-        ControlState result = instance.getControlState();
-        assertEquals(ControlState.COMM_DISCONNECTED, result);
+        CommunicatorState result = instance.getControlState();
+        assertEquals(CommunicatorState.COMM_DISCONNECTED, result);
     }
 
     @Test
@@ -330,7 +408,7 @@ public class GUIBackendTest {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
         File tempFile = File.createTempFile("ugs-", ".gcode");
-        FileUtils.writeStringToFile(tempFile, "G0 X0 Y0\n");
+        FileUtils.writeStringToFile(tempFile, "G0 X0 Y0\n", StandardCharsets.UTF_8);
 
         // When
         instance.setGcodeFile(tempFile);
@@ -338,10 +416,10 @@ public class GUIBackendTest {
         // Then
         List<UGSEvent> events = eventArgumentCaptor.getAllValues();
         assertEquals(4, events.size());
-        assertEquals(UGSEvent.FileState.OPENING_FILE, events.get(0).getFileState());
-        assertEquals(UGSEvent.FileState.FILE_LOADING, events.get(1).getFileState());
-        assertEquals(UGSEvent.EventType.SETTING_EVENT, events.get(2).getEventType());
-        assertEquals(UGSEvent.FileState.FILE_LOADED, events.get(3).getFileState());
+        assertEquals(FileState.OPENING_FILE, ((FileStateEvent)events.get(0)).getFileState());
+        assertEquals(FileState.FILE_LOADING, ((FileStateEvent)events.get(1)).getFileState());
+        assertEquals(SettingChangedEvent.class, events.get(2).getClass());
+        assertEquals(FileState.FILE_LOADED, ((FileStateEvent) events.get(3)).getFileState());
 
         assertNotNull(instance.getProcessedGcodeFile());
     }

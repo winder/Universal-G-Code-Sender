@@ -18,9 +18,10 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.events.CommandEvent;
+import com.willwinder.universalgcodesender.model.events.CommandEventType;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
@@ -43,7 +44,7 @@ import java.util.concurrent.Future;
  *
  * @author Joacim Breiler
  */
-public class ContinuousJogWorker implements ControllerListener {
+public class ContinuousJogWorker implements UGSEventListener {
     private static final long JOG_COMMAND_INTERVAL = 100;
     private final JogService jogService;
     private final ExecutorService executorService;
@@ -64,7 +65,7 @@ public class ContinuousJogWorker implements ControllerListener {
         this.z = 0f;
 
         // Registers itself as a listener for completed commands
-        this.backendAPI.addControllerListener(this);
+        this.backendAPI.addUGSEventListener(this);
     }
 
     /**
@@ -75,7 +76,7 @@ public class ContinuousJogWorker implements ControllerListener {
         if (future != null) {
             future.cancel(false);
         }
-        backendAPI.removeControllerListener(this);
+        backendAPI.removeUGSEventListener(this);
     }
 
     /**
@@ -156,55 +157,20 @@ public class ContinuousJogWorker implements ControllerListener {
         this.z = z;
     }
 
-    @Override
-    public void controlStateChange(UGSEvent.ControlState state) {
 
-    }
 
     @Override
-    public void fileStreamComplete(String filename, boolean success) {
-
-    }
-
-    @Override
-    public void receivedAlarm(Alarm alarm) {
-
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-
-    }
-
-    @Override
-    public void commandSent(GcodeCommand command) {
-
-    }
-
-    @Override
-    public void commandComplete(GcodeCommand command) {
-        isWaitingForCommandComplete = false;
-        if (command.isError()) {
-            stop();
-            if (future != null) {
-                future.cancel(false);
+    public void UGSEvent(UGSEvent event) {
+        if (event instanceof CommandEvent && ((CommandEvent) event).getCommandEventType() == CommandEventType.COMMAND_COMPLETE) {
+            GcodeCommand command = ((CommandEvent) event).getCommand();
+            isWaitingForCommandComplete = false;
+            if (command.isError()) {
+                stop();
+                if (future != null) {
+                    future.cancel(false);
+                }
             }
         }
-    }
-
-    @Override
-    public void commandComment(String comment) {
-
-    }
-
-    @Override
-    public void probeCoordinates(Position p) {
-
-    }
-
-    @Override
-    public void statusStringListener(ControllerStatus status) {
-
     }
 
     public void setDirection(Axis axis, float value) {

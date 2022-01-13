@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.actions;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
@@ -30,6 +31,9 @@ import java.awt.FlowLayout;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -95,13 +99,13 @@ public class BaudRateAction extends CallableSystemAction implements UGSEventList
         }
 
         // If a setting has changed elsewhere, update the combo boxes.
-        if (evt.isSettingChangeEvent()) {
+        if (evt instanceof SettingChangedEvent) {
             updateBaudRate();
         }
 
         // if the state has changed, check if the baud box should be displayed.
-        else if (evt.isStateChangeEvent()) {
-            c.setVisible(!backend.isConnected());
+        else if (evt instanceof ControllerStateEvent) {
+            c.setVisible(backend.getControllerState() == ControllerState.DISCONNECTED);
         }
     }
     

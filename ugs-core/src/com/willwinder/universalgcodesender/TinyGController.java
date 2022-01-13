@@ -37,10 +37,10 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING_PAUSED;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_SENDING;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_SENDING_PAUSED;
 
 /**
  * TinyG Control layer, coordinates all aspects of control.
@@ -77,7 +77,7 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public Boolean handlesAllStateChangeEvents() {
+    public boolean handlesAllStateChangeEvents() {
         return false;
     }
 
@@ -249,22 +249,31 @@ public class TinyGController extends AbstractController {
     private void updateControllerStatus(JsonObject jo) {
         // Save the old state
         ControllerState previousState = controllerStatus.getState();
-        UGSEvent.ControlState previousControlState = getControlState(previousState);
+        CommunicatorState previousControlState = getControlState(previousState);
 
         // Update the internal state
         List<String> gcodeList = TinyGUtils.convertStatusReportToGcode(jo);
         gcodeList.forEach(gcode -> updateParserModalState(new GcodeCommand(gcode)));
 
         // Notify our listeners about the new status
-        controllerStatus = TinyGUtils.updateControllerStatus(controllerStatus, jo);
+        controllerStatus = parseControllerStatus(jo);
         dispatchStatusString(controllerStatus);
 
         // Notify state change to our listeners
-        UGSEvent.ControlState newControlState = getControlState(controllerStatus.getState());
+        CommunicatorState newControlState = getControlState(controllerStatus.getState());
         if (!previousControlState.equals(newControlState)) {
             LOGGER.log(Level.FINE, "Changing state from " + previousControlState + " to " + newControlState);
             setCurrentState(newControlState);
         }
+    }
+
+    /**
+     * Parse the controller status response and return the current controller status
+     * @param jo a json object with the controller status
+     * @return the new current controller status
+     */
+    protected ControllerStatus parseControllerStatus(JsonObject jo) {
+        return TinyGUtils.updateControllerStatus(controllerStatus, jo);
     }
 
     protected void sendInitCommands() {
@@ -342,7 +351,7 @@ public class TinyGController extends AbstractController {
         comm.cancelSend();
         comm.sendByteImmediately(TinyGUtils.COMMAND_RESET);
 
-        setCurrentState(UGSEvent.ControlState.COMM_DISCONNECTED);
+        setCurrentState(CommunicatorState.COMM_DISCONNECTED);
         controllerStatus = ControllerStatusBuilder.newInstance(controllerStatus)
                 .setState(ControllerState.DISCONNECTED)
                 .build();
@@ -384,7 +393,7 @@ public class TinyGController extends AbstractController {
         Optional<GcodeCommand> gcodeCommand = TinyGUtils.createOverrideCommand(currentOverrides, command);
         if (gcodeCommand.isPresent()) {
             sendCommandImmediately(gcodeCommand.get());
-	}
+	    }
     }
 
     @Override
@@ -398,11 +407,11 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public UGSEvent.ControlState getControlState() {
+    public CommunicatorState getControlState() {
         return getControlState(getControllerStatus().getState());
     }
 
-    protected UGSEvent.ControlState getControlState(ControllerState controllerState) {
+    protected CommunicatorState getControlState(ControllerState controllerState) {
         switch (controllerState) {
             case JOG:
             case RUN:

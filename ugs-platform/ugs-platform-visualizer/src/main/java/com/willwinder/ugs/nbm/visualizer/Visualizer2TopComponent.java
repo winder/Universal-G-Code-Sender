@@ -123,7 +123,6 @@ public final class Visualizer2TopComponent extends TopComponent {
         super.componentClosed();
 
         if (rih != null) {
-            backend.removeControllerListener(rih);
             backend.removeUGSEventListener(rih);
         }
 
@@ -173,11 +172,7 @@ public final class Visualizer2TopComponent extends TopComponent {
         }
 
         // Install listeners...
-        backend.addControllerListener(this.rih);
         backend.addUGSEventListener(this.rih);
-
-        // shutdown hook...
-        //frame.addWindowListener(this.rih);
 
         // key listener...
         p.addKeyListener(this.rih);

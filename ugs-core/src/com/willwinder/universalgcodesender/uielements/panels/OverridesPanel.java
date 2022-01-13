@@ -19,39 +19,29 @@
 package com.willwinder.universalgcodesender.uielements.panels;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import java.awt.Color;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 
 /**
  * Send speed override commands to the backend.
  *
  * @author wwinder
  */
-public final class OverridesPanel extends JPanel implements UGSEventListener, ControllerListener {
+public final class OverridesPanel extends JPanel implements UGSEventListener {
     private final BackendAPI backend;
     private final ArrayList<Component> components = new ArrayList<>();
 
@@ -78,27 +68,26 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
     private final ArrayList<RealTimeAction> spindleActions = new ArrayList<>();
     private final ArrayList<RealTimeAction> feedActions = new ArrayList<>();
 
-    public final static String FEED_SHORT = Localization.getString("overrides.feed.short");
-    public final static String SPINDLE_SHORT = Localization.getString("overrides.spindle.short");
-    public final static String RAPID_SHORT = Localization.getString("overrides.rapid.short");
-    public final static String TOGGLE_SHORT = Localization.getString("overrides.toggle.short");
-    public final static String RESET_SPINDLE = Localization.getString("overrides.spindle.reset");
-    public final static String RESET_FEED = Localization.getString("overrides.feed.reset");
-    public final static String MINUS_COARSE = "--";
-    public final static String MINUS_FINE = "-";
-    public final static String PLUS_COARSE = "++";
-    public final static String PLUS_FINE = "+";
-    public final static String RAPID_LOW = Localization.getString("overrides.rapid.low");
-    public final static String RAPID_MEDIUM = Localization.getString("overrides.rapid.medium");
-    public final static String RAPID_FULL = Localization.getString("overrides.rapid.full");
-    public final static String MIST = Localization.getString("overrides.mist");
-    public final static String FLOOD = Localization.getString("overrides.flood");
+    public static final String FEED_SHORT = Localization.getString("overrides.feed.short");
+    public static final String SPINDLE_SHORT = Localization.getString("overrides.spindle.short");
+    public static final String RAPID_SHORT = Localization.getString("overrides.rapid.short");
+    public static final String TOGGLE_SHORT = Localization.getString("overrides.toggle.short");
+    public static final String RESET_SPINDLE = Localization.getString("overrides.spindle.reset");
+    public static final String RESET_FEED = Localization.getString("overrides.feed.reset");
+    public static final String MINUS_COARSE = "--";
+    public static final String MINUS_FINE = "-";
+    public static final String PLUS_COARSE = "++";
+    public static final String PLUS_FINE = "+";
+    public static final String RAPID_LOW = Localization.getString("overrides.rapid.low");
+    public static final String RAPID_MEDIUM = Localization.getString("overrides.rapid.medium");
+    public static final String RAPID_FULL = Localization.getString("overrides.rapid.full");
+    public static final String MIST = Localization.getString("overrides.mist");
+    public static final String FLOOD = Localization.getString("overrides.flood");
 
     public OverridesPanel(BackendAPI backend) {
         this.backend = backend;
         if (backend != null) {
             backend.addUGSEventListener(this);
-            backend.addControllerListener(this);
         }
 
         initComponents();
@@ -124,9 +113,27 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
     }
 
     @Override
-    public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
-        if (evt.isStateChangeEvent()) {
+    public void UGSEvent(UGSEvent evt) {
+        if (evt instanceof ControllerStateEvent) {
             updateControls();
+        } else if (evt instanceof ControllerStatusEvent) {
+            ControllerStatus status = ((ControllerStatusEvent) evt).getStatus();
+            if (status.getOverrides() != null) {
+                this.feedSpeed.setText(status.getOverrides().feed + "%");
+                this.spindleSpeed.setText(status.getOverrides().spindle + "%");
+                this.rapidSpeed.setText(status.getOverrides().rapid + "%");
+            }
+            if (status.getAccessoryStates() != null) {
+                AccessoryStates states = status.getAccessoryStates();
+
+                toggleSpindle.setBackground((states.SpindleCW || states.SpindleCCW) ? Color.GREEN : Color.RED);
+                toggleFloodCoolant.setBackground(states.Flood ? Color.GREEN : Color.RED);
+                toggleMistCoolant.setBackground(states.Mist ? Color.GREEN : Color.RED);
+
+                toggleSpindle.setOpaque(true);
+                toggleFloodCoolant.setOpaque(true);
+                toggleMistCoolant.setOpaque(true);
+            }
         }
     }
 
@@ -251,59 +258,6 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
         this.add(toggleSpindle);
         this.add(toggleFloodCoolant);
         this.add(toggleMistCoolant);
-    }
-
-    @Override
-    public void controlStateChange(com.willwinder.universalgcodesender.model.UGSEvent.ControlState state) {
-    }
-
-    @Override
-    public void fileStreamComplete(String filename, boolean success) {
-    }
-
-    @Override
-    public void receivedAlarm(Alarm alarm) {
-
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-    }
-
-    @Override
-    public void commandSent(GcodeCommand command) {
-    }
-
-    @Override
-    public void commandComplete(GcodeCommand command) {
-    }
-
-    @Override
-    public void commandComment(String comment) {
-    }
-
-    @Override
-    public void probeCoordinates(Position p) {
-    }
-
-    @Override
-    public void statusStringListener(ControllerStatus status) {
-        if (status.getOverrides() != null) {
-            this.feedSpeed.setText(status.getOverrides().feed + "%");
-            this.spindleSpeed.setText(status.getOverrides().spindle + "%");
-            this.rapidSpeed.setText(status.getOverrides().rapid + "%");
-        }
-        if (status.getAccessoryStates() != null) {
-            AccessoryStates states = status.getAccessoryStates();
-
-            toggleSpindle.setBackground((states.SpindleCW || states.SpindleCCW) ? Color.GREEN : Color.RED);
-            toggleFloodCoolant.setBackground(states.Flood ? Color.GREEN : Color.RED);
-            toggleMistCoolant.setBackground(states.Mist ? Color.GREEN : Color.RED);
-
-            toggleSpindle.setOpaque(true);
-            toggleFloodCoolant.setOpaque(true);
-            toggleMistCoolant.setOpaque(true);
-        }
     }
 
     private static class RealTimeAction extends AbstractAction {

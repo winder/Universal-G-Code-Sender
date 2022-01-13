@@ -24,12 +24,15 @@ import com.willwinder.ugs.nbp.setupwizard.WizardUtils;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.AlarmEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -38,16 +41,14 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * A wizard step panel for configuring motor wiring on a controller
  *
  * @author Joacim Breiler
  */
-public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEventListener, ControllerStateListener {
+public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEventListener {
 
     private static final long TIME_BEFORE_RESET_ON_ALARM = 500;
 
@@ -137,7 +138,6 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     @Override
     public void initialize() {
         getBackend().addUGSEventListener(this);
-        getBackend().addControllerStateListener(this);
         refreshReverseDirectionCheckboxes();
         refreshSoftLimitMessage();
 
@@ -152,17 +152,16 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
 
     @Override
     public void destroy() {
-        getBackend().removeControllerStateListener(this);
         getBackend().removeUGSEventListener(this);
     }
 
     @Override
     public void UGSEvent(UGSEvent event) {
-        if (event.isFirmwareSettingEvent()) {
+        if (event instanceof FirmwareSettingEvent) {
             ThreadHelper.invokeLater(this::refreshReverseDirectionCheckboxes);
-        } else if (event.isControllerStatusEvent() || event.isStateChangeEvent()) {
+        } else if (event instanceof ControllerStateEvent) {
             WizardUtils.killAlarm(getBackend());
-        } else if (event.getEventType() == UGSEvent.EventType.ALARM_EVENT && event.getAlarm() == Alarm.HARD_LIMIT) {
+        } else if (event instanceof AlarmEvent && ((AlarmEvent) event).getAlarm() == Alarm.HARD_LIMIT) {
             ThreadHelper.invokeLater(() -> {
                 try {
                     getBackend().issueSoftReset();
@@ -172,8 +171,8 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
             }, TIME_BEFORE_RESET_ON_ALARM);
         }
 
-        if (event.isControllerStatusEvent()) {
-           navigationButtons.refresh(event.getControllerStatus().getMachineCoord());
+        if ((event instanceof ControllerStatusEvent)) {
+           navigationButtons.refresh(((ControllerStatusEvent) event).getStatus().getMachineCoord());
         }
     }
 

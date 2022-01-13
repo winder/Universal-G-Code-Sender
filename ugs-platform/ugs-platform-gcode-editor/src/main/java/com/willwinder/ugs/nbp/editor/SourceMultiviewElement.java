@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.netbeans.editor.EditorUI;
@@ -105,8 +106,8 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
     @Override
     public void UGSEvent(UGSEvent ugsEvent) {
         // Disable the editor if not idle or disconnected
-        if (ugsEvent.isStateChangeEvent() && backend.getController() != null && backend.getController().getControllerStatus() != null) {
-            ControllerState state = backend.getController().getControllerStatus().getState();
+        if (ugsEvent instanceof ControllerStateEvent) {
+            ControllerState state = backend.getControllerState();
             getEditorPane().setEditable(state == ControllerState.IDLE || state == ControllerState.DISCONNECTED);
         }
     }

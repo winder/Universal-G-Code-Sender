@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbm.visualizer.actions;
 
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
@@ -38,7 +39,7 @@ public class SetWorkingCoordinatesHereAction extends AbstractAction {
     public SetWorkingCoordinatesHereAction(BackendAPI backend, Position position) {
         this.backend = backend;
         this.position = position;
-        if (position == null || !backend.isConnected()) {
+        if (position == null || backend.getControllerState() != ControllerState.IDLE) {
             setEnabled(false);
         }
     }

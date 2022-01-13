@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
@@ -59,7 +60,6 @@ public final class UnlockAction extends AbstractAction implements UGSEventListen
     public UnlockAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
-        this.backend.addControllerStateListener(this::UGSEvent);
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
@@ -70,11 +70,7 @@ public final class UnlockAction extends AbstractAction implements UGSEventListen
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse.isControllerStatusEvent()) {
-            java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
-        }
-
-        if (cse.isStateChangeEvent()) {
+        if (cse instanceof ControllerStateEvent) {
             java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
         }
     }
@@ -82,9 +78,7 @@ public final class UnlockAction extends AbstractAction implements UGSEventListen
     @Override
     public boolean isEnabled() {
         return backend.isIdle() &&
-                backend.getController() != null &&
-                backend.getController().getControllerStatus() != null &&
-                backend.getController().getControllerStatus().getState() == ControllerState.ALARM;
+                backend.getControllerState() == ControllerState.ALARM;
     }
 
     @Override

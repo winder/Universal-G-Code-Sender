@@ -21,8 +21,8 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.model.CommunicatorState;
 import com.willwinder.universalgcodesender.model.PartialPosition;
-import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.junit.Before;
@@ -146,55 +146,55 @@ public class G2CoreControllerTest {
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 1}}");
         assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
-        assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 2}}");
         assertEquals(ControllerState.ALARM, controller.getControllerStatus().getState());
-        assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 3}}");
         assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
-        assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 4}}");
         assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
-        assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 5}}");
         assertEquals(ControllerState.RUN, controller.getControllerStatus().getState());
-        assertEquals(UGSEvent.ControlState.COMM_SENDING, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_SENDING, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 6}}");
         assertEquals(ControllerState.HOLD, controller.getControllerStatus().getState());
-        assertEquals(UGSEvent.ControlState.COMM_SENDING_PAUSED, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_SENDING_PAUSED, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 7}}");
         assertEquals(ControllerState.UNKNOWN, controller.getControllerStatus().getState());
-        assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 8}}");
         assertEquals(ControllerState.UNKNOWN, controller.getControllerStatus().getState());
-        assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 9}}");
         assertEquals(ControllerState.HOME, controller.getControllerStatus().getState());
-        assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 10}}");
         assertEquals(ControllerState.JOG, controller.getControllerStatus().getState());
-        assertEquals(UGSEvent.ControlState.COMM_SENDING, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_SENDING, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 11}}");
         assertEquals(ControllerState.UNKNOWN, controller.getControllerStatus().getState());
-        assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 12}}");
         assertEquals(ControllerState.UNKNOWN, controller.getControllerStatus().getState());
-        assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 13}}");
         assertEquals(ControllerState.ALARM, controller.getControllerStatus().getState());
-        assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
     }
 
     @Test
@@ -303,5 +303,44 @@ public class G2CoreControllerTest {
         assertEquals("G20G90G1X0.039Y0.079Z0.118F39.37", command.getCommandString());
         assertTrue(command.isGenerated());
         assertTrue(command.isTemporaryParserModalChange());
+    }
+
+    @Test
+    public void jogMachineShouldEmulateRunStateAsJog() throws Exception {
+        // Given
+        when(communicator.isConnected()).thenReturn(true);
+        controller.jogMachine(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000d);
+
+        // When
+        controller.rawResponseHandler("{\"sr\":{\"stat\": 5}}"); // receive RUN
+
+        // Then
+        assertEquals(ControllerState.JOG, controller.getControllerStatus().getState());
+    }
+
+    @Test
+    public void jogMachineShouldTurnBackToIdleWhenDone() throws Exception {
+        // Given
+        when(communicator.isConnected()).thenReturn(true);
+        controller.jogMachine(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000d);
+        controller.rawResponseHandler("{\"sr\":{\"stat\": 1}}"); // receive IDLE
+
+        // Then
+        assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
+    }
+
+    @Test
+    public void jogMachineShouldTurnSwitchOfIsJoggingWhenComplete() throws Exception {
+        // Given
+        when(communicator.isConnected()).thenReturn(true);
+        controller.jogMachine(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000d);
+        controller.rawResponseHandler("{\"sr\":{\"stat\": 1}}"); // receive IDLE
+
+        // When
+        controller.sendCommandImmediately(new GcodeCommand("G0 X1"));
+        controller.rawResponseHandler("{\"sr\":{\"stat\": 5}}"); // receive RUN
+
+        // Then
+        assertEquals("Should now consider send commands as a normal run state", ControllerState.RUN, controller.getControllerStatus().getState());
     }
 }

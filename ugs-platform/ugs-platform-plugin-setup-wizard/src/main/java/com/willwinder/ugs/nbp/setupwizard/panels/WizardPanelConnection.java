@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -258,11 +259,8 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isStateChangeEvent()) {
+        if (evt instanceof ControllerStateEvent) {
             firmwareUpdated();
-        }
-
-        if (evt.isStateChangeEvent()) {
             refreshComponents();
             startConnectTimer();
         }

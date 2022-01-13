@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JButton;
@@ -98,7 +99,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isStateChangeEvent()) {
+        if (evt instanceof ControllerStateEvent) {
             updateControls();
         }
     }

@@ -25,15 +25,12 @@ import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.willwinder.ugs.nbm.visualizer.shared.RotationService;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.model.events.*;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 
@@ -43,8 +40,6 @@ import java.awt.event.*;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 
-import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
-
 /**
  * Process all the listeners and call methods in the renderer.
  *
@@ -52,8 +47,7 @@ import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_
  */
 public class RendererInputHandler implements
         WindowListener, MouseWheelListener, MouseMotionListener,
-        MouseListener, KeyListener, PreferenceChangeListener,
-        ControllerListener, UGSEventListener {
+        MouseListener, KeyListener, PreferenceChangeListener, UGSEventListener {
     final private GcodeRenderer gcodeRenderer;
     final private FPSAnimator animator;
     private final BackendAPI backend;
@@ -117,14 +111,30 @@ public class RendererInputHandler implements
      */
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse.isFileChangeEvent() && cse.getFileState() == FILE_LOADED) {
+        if (cse instanceof FileStateEvent) {
             animator.pause();
-            setGcodeFile(cse.getFile());
-            animator.resume();
-        }
+            FileStateEvent fileStateEvent = (FileStateEvent) cse;
+            switch (fileStateEvent.getFileState()) {
+                case FILE_LOADED:
+                    setGcodeFile(fileStateEvent.getFile());
+                    break;
+                case FILE_STREAM_COMPLETE:
+                    gcodeModel.setCurrentCommandNumber(0);
+                    break;
+            }
 
-        if (cse.isSettingChangeEvent()) {
+            animator.resume();
+        } else if (cse instanceof SettingChangedEvent) {
             sizeDisplay.setUnits(settings.getPreferredUnits());
+        } else if (cse instanceof ControllerStatusEvent) {
+            ControllerStatusEvent controllerStatusEvent = (ControllerStatusEvent) cse;
+            gcodeRenderer.setMachineCoordinate(controllerStatusEvent.getStatus().getMachineCoord());
+            gcodeRenderer.setWorkCoordinate(controllerStatusEvent.getStatus().getWorkCoord());
+        } else if (cse instanceof CommandEvent) {
+            CommandEvent commandEvent = (CommandEvent) cse;
+            if (commandEvent.getCommandEventType() == CommandEventType.COMMAND_COMPLETE && !commandEvent.getCommand().isGenerated()) {
+                gcodeModel.setCurrentCommandNumber(commandEvent.getCommand().getCommandNumber());
+            }
         }
     }
 
@@ -323,53 +333,5 @@ public class RendererInputHandler implements
     @Override
     public void keyReleased(KeyEvent ke) {
         setFPS(LOW_FPS);
-    }
-
-    /**
-     * Controller listener methods
-     */
-    @Override
-    public void statusStringListener(ControllerStatus status) {
-        gcodeRenderer.setMachineCoordinate(status.getMachineCoord());
-        gcodeRenderer.setWorkCoordinate(status.getWorkCoord());
-    }
-
-    @Override
-    public void controlStateChange(UGSEvent.ControlState state) {
-    }
-
-    @Override
-    public void fileStreamComplete(String filename, boolean success) {
-        gcodeModel.setCurrentCommandNumber(0);
-    }
-
-    @Override
-    public void receivedAlarm(Alarm alarm) {
-
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-    }
-
-    @Override
-    public void commandSent(GcodeCommand command) {
-    }
-
-    @Override
-    public void commandComplete(GcodeCommand command) {
-        if (command.isGenerated()) {
-            gcodeModel.setCurrentCommandNumber(0);
-        } else {
-            gcodeModel.setCurrentCommandNumber(command.getCommandNumber());
-        }
-    }
-
-    @Override
-    public void commandComment(String comment) {
-    }
-
-    @Override
-    public void probeCoordinates(Position p) {
     }
 }

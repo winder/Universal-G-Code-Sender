@@ -23,6 +23,8 @@ import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -166,12 +168,12 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isSettingChangeEvent()) {
+        if (evt instanceof SettingChangedEvent) {
             ThreadHelper.invokeLater(() -> {
                 macros = backend.getSettings().getMacros();
                 doLayout();
             });
-        } else {
+        } else if (evt instanceof ControllerStateEvent){
             updateEnabledState();
         }
     }

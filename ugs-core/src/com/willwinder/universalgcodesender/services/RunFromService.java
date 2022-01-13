@@ -22,6 +22,8 @@ import com.willwinder.universalgcodesender.gcode.processors.RunFromProcessor;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.FileState;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -67,7 +69,8 @@ public class RunFromService implements UGSEventListener {
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isFileChangeEvent() && evt.getFileState() == UGSEvent.FileState.OPENING_FILE) {
+
+        if (evt instanceof FileStateEvent && ((FileStateEvent)evt).getFileState() == FileState.OPENING_FILE) {
             runFromProcessor.setLineNumber(0);
         }
     }

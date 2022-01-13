@@ -21,13 +21,14 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Version;
 
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import java.awt.EventQueue;
+import java.awt.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -81,6 +82,31 @@ public class Utils {
         return text;
     }
 
+    /**
+     * Returns a background color suited for a specific state
+     *
+     * @param state the state
+     * @return a background color
+     */
+    public static Color getControllerStateBackgroundColor(ControllerState state) {
+        if (state == ControllerState.ALARM) {
+            return ThemeColors.RED;
+        } else if (state == ControllerState.HOLD) {
+            return ThemeColors.ORANGE;
+        } else if (state == ControllerState.DOOR) {
+            return ThemeColors.ORANGE;
+        } else if (state == ControllerState.RUN) {
+            return ThemeColors.GREEN;
+        } else if (state == ControllerState.JOG) {
+            return ThemeColors.GREEN;
+        } else if (state == ControllerState.HOME) {
+            return ThemeColors.GREEN;
+        } else if (state == ControllerState.CHECK) {
+            return ThemeColors.LIGHT_BLUE;
+        }
+        return ThemeColors.GREY;
+    }
+
 
     public static void checkNightlyBuild(Settings settings) {
         if (settings.isShowNightlyWarning() && Version.isNightlyBuild()) {
@@ -92,7 +118,7 @@ public class Utils {
                 JCheckBox checkbox = new JCheckBox(doNotShowAgainText);
                 Object[] params = {message, checkbox};
                 JOptionPane.showMessageDialog(new JFrame(), params,
-                        title , JOptionPane.INFORMATION_MESSAGE);
+                        title, JOptionPane.INFORMATION_MESSAGE);
 
                 boolean showNightlyWarning = !checkbox.isSelected();
                 settings.setShowNightlyWarning(showNightlyWarning);

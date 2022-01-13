@@ -25,9 +25,9 @@ package com.willwinder.universalgcodesender.listeners;
  */
 public enum ControllerState {
     /**
-     * When an serious error has occured on the controller. This occurs when a limit switch
+     * When a serious error has occurred on the controller. This occurs when a limit switch
      * has been triggered or if an operation would make the machine travel beyond soft limits.
-     * This types of errors often requires a controller reset.
+     * This types of errors often requires a controller reset or maybe unlocked
      */
     ALARM,
 

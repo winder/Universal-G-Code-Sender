@@ -22,12 +22,14 @@ import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.AlarmEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 import com.willwinder.universalgcodesender.uielements.components.RoundedBorder;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -36,11 +38,8 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import java.awt.Color;
-import java.awt.Font;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * A wizard step panel for configuring hard limits on a controller.
@@ -48,7 +47,7 @@ import java.awt.Font;
  *
  * @author Joacim Breiler
  */
-public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEventListener, ControllerStateListener {
+public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEventListener {
     private static final int TIME_BEFORE_RESET_ON_ALARM = 600;
     private JCheckBox checkboxEnableHardLimits;
     private JLabel labelHardLimitsNotSupported;
@@ -140,14 +139,12 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
     @Override
     public void initialize() {
         getBackend().addUGSEventListener(this);
-        getBackend().addControllerStateListener(this);
         refreshComponents();
     }
 
     @Override
     public void destroy() {
         getBackend().removeUGSEventListener(this);
-        getBackend().removeControllerStateListener(this);
     }
 
     @Override
@@ -158,16 +155,16 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isFirmwareSettingEvent()) {
+        if (evt instanceof FirmwareSettingEvent) {
             refreshComponents();
-        } else if (evt.isControllerStatusEvent()) {
+        } else if (evt instanceof ControllerStatusEvent) {
             ThreadHelper.invokeLater(() -> {
-                ControllerStatus controllerStatus = evt.getControllerStatus();
+                ControllerStatus controllerStatus = ((ControllerStatusEvent) evt).getStatus();
                 labelLimitX.setBackground(controllerStatus.getEnabledPins().X ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
                 labelLimitY.setBackground(controllerStatus.getEnabledPins().Y ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
                 labelLimitZ.setBackground(controllerStatus.getEnabledPins().Z ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
             });
-        } else if (evt.getEventType() == UGSEvent.EventType.ALARM_EVENT && evt.getAlarm() == Alarm.HARD_LIMIT) {
+        } else if (evt instanceof AlarmEvent && ((AlarmEvent) evt).getAlarm() == Alarm.HARD_LIMIT) {
             ThreadHelper.invokeLater(() -> {
                 try {
                     getBackend().issueSoftReset();

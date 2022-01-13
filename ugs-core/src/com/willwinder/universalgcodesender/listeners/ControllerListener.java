@@ -20,7 +20,7 @@ package com.willwinder.universalgcodesender.listeners;
 
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import com.willwinder.universalgcodesender.model.CommunicatorState;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 /**
@@ -33,7 +33,7 @@ public interface ControllerListener {
      * The controller has modified the state by itself, such as pausing a job on
      * an error.
      */
-    void controlStateChange(ControlState state);
+    void controlStateChange(CommunicatorState state);
 
     /**
      * The file streaming has completed.
@@ -61,11 +61,6 @@ public interface ControllerListener {
      * A command has been processed by the the controller.
      */
     void commandComplete(GcodeCommand command);
-    
-    /**
-     * A comment has been processed.
-     */
-    void commandComment(String comment);
 
     /**
      * Probe coordinates received.

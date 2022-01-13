@@ -24,9 +24,9 @@ import com.willwinder.universalgcodesender.actions.OpenMacroSettingsAction;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.events.*;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.macros.MacroActionPanel;
 import com.willwinder.universalgcodesender.uielements.panels.CommandPanel;
@@ -45,13 +45,11 @@ import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
-import java.awt.Color;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -61,6 +59,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -68,14 +67,12 @@ import javax.swing.Timer;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import static com.willwinder.universalgcodesender.model.Axis.*;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import java.awt.BorderLayout;
-import java.awt.Toolkit;
+
 import javax.swing.text.DefaultEditorKit;
 import org.apache.commons.lang3.SystemUtils;
 
@@ -84,7 +81,7 @@ import org.apache.commons.lang3.SystemUtils;
  *
  * @author wwinder
  */
-public class MainWindow extends JFrame implements ControllerListener, UGSEventListener {
+public class MainWindow extends JFrame implements UGSEventListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
     private PendantUI pendantUI;
@@ -132,7 +129,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.jogPanelPanel.add(jogPanel, BorderLayout.CENTER);
         initProgram();
         Utils.checkNightlyBuild(settings);
-        backend.addControllerListener(this);
         backend.addUGSEventListener(this);
         KeepAwakeUtils.start(backend);
 
@@ -1203,7 +1199,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             setVisualizerFile();
 
             // Add listener
-            this.backend.addControllerListener(vw);
+            this.backend.addUGSEventListener(vw);
         }
 
         // Display the form
@@ -1272,6 +1268,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         //       the rowsValueLabel that was just reset.
 
         try {
+            if (commandTableScrollPane.isEnabled()) {
+                commandTable.clear();
+            }
             this.backend.send();
             this.resetSentRowLabels(backend.getNumRows());
             timer.start();
@@ -1602,25 +1601,22 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             this.visualizeButton.setEnabled(true);
         }
         
-        switch (backend.getControlState()) {
-            case COMM_DISCONNECTED:
+        switch (backend.getControllerState()) {
+            case DISCONNECTED:
+            case UNKNOWN:
                 this.updateConnectionControlsStateOpen(false);
                 this.updateWorkflowControls(false);
                 this.setStatusColorForState(ControllerState.UNKNOWN);
                 break;
-            case COMM_IDLE:
+            case IDLE:
+            case CHECK:
+            case ALARM:
                 this.updateConnectionControlsStateOpen(true);
                 this.updateWorkflowControls(true);
                 break;
-            case COMM_SENDING:
-                // Workflow tab
+            default:
                 this.updateWorkflowControls(false);
                 break;
-            case COMM_SENDING_PAUSED:
-
-                break;
-            default:
-                
         }
     }
     
@@ -1764,92 +1760,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     void clearTable() {
         this.commandTable.clear();
     }
-        
-    /** 
-     * SerialCommunicatorListener implementation.
-     */
-    
-    @Override
-    public void controlStateChange(ControlState state) {
 
-    }
-
-    @Override
-    public void fileStreamComplete(String filename, boolean success) {
-        remainingTimeValueLabel.setText(Utils.formattedMillis(0));
-        remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
-
-        if (success) {
-            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
-                JOptionPane.showMessageDialog(new JFrame(),
-                        Localization.getString("mainWindow.ui.jobComplete") + " " + Utils.formattedMillis(backend.getSendDuration()),
-                        Localization.getString("success"), JOptionPane.INFORMATION_MESSAGE);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {}
-
-                // Stop the timer after a delay to make sure it is updated.
-                timer.stop();
-            }});
-        } else {
-            displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));
-        }
-    }
-
-    @Override
-    public void receivedAlarm(Alarm alarm) {
-
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-        commandSent(command);
-    }
-     
-    @Override
-    public void commandSent(final GcodeCommand command) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                // sent
-                if (commandTableScrollPane.isEnabled()) {
-                    commandTable.addRow(command);
-                }
-                //commandTable.updateRow(command);
-            }});
-    }
-    
-    @Override
-    public void commandComment(String comment) {
-        latestCommentValueLabel.setText(comment);
-    }
-    
-    @Override
-    public void commandComplete(final GcodeCommand command) {
-        //String gcodeString = command.getCommandString().toLowerCase();
-        
-        // update gui
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                if (commandTableScrollPane.isEnabled()) {
-                    commandTable.updateRow(command);
-                }
-
-                if (backend.isSendingFile()) {
-                    if (vw != null) {
-                        vw.setCompletedCommandNumber(command.getCommandNumber());
-                    }
-                }
-            }});
-    }
-
-    @Override
-    public void probeCoordinates(Position p) {
-    }
-    
-    @Override
-    public void statusStringListener(ControllerStatus status) {
+    public void updateControllerStatus(ControllerStatus status) {
         if (status == null) {
             return;
         }
@@ -1892,43 +1804,94 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isFileChangeEvent() || evt.isStateChangeEvent()) {
+        if (evt instanceof FileStateEvent || evt instanceof ControllerStateEvent) {
             this.updateControls();
         }
 
         // If we changed settings such as the preferred unit settings we may need to refresh the GUI
-        if (evt.isSettingChangeEvent() && backend.getController() != null && backend.getController().getControllerStatus() != null) {
-            statusStringListener(backend.getController().getControllerStatus());
+        if (evt instanceof SettingChangedEvent && backend.getController() != null && backend.getController().getControllerStatus() != null) {
+            updateControllerStatus(backend.getController().getControllerStatus());
         }
 
-        if (evt.isSettingChangeEvent()) {
+        if (evt instanceof SettingChangedEvent) {
             scrollWindowCheckBox.setSelected(backend.getSettings().isScrollWindowEnabled());
             showVerboseOutputCheckBox.setSelected(backend.getSettings().isVerboseOutputEnabled());
             commandTable.setAutoWindowScroll(backend.getSettings().isScrollWindowEnabled());
         }
 
-        if (evt.isFileChangeEvent()) {
-            switch(evt.getFileState()) {
+        if (evt instanceof ControllerStatusEvent) {
+            ControllerStatusEvent controllerStatusEvent = (ControllerStatusEvent) evt;
+            updateControllerStatus(controllerStatusEvent.getStatus());
+        } else if (evt instanceof FileStateEvent) {
+            FileStateEvent fileStateEvent = (FileStateEvent) evt;
+            switch(fileStateEvent.getFileState()) {
                 case FILE_LOADING:
-                    File f = backend.getGcodeFile();
                     fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel") + ": " + backend.getGcodeFile().getName()));
                     fileModePanel.setToolTipText(backend.getGcodeFile().getAbsolutePath());
                     processedGcodeFile = null;
-                    gcodeFile = evt.getFile();
+                    gcodeFile = fileStateEvent.getFile();
                     break;
                 case FILE_LOADED:
-                    processedGcodeFile = evt.getFile();
-                    try {
-                        try (IGcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
-                            resetSentRowLabels(gsr.getNumRows());
-                        }
+                    processedGcodeFile = fileStateEvent.getFile();
+                    if (commandTableScrollPane.isEnabled()) {
+                        commandTable.clear();
+                    }
+                    try (IGcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
+                        resetSentRowLabels(gsr.getNumRows());
                     } catch (IOException | GcodeStreamReader.NotGcodeStreamFile ex) {}
+                    break;
+                case FILE_STREAM_COMPLETE:
+                    remainingTimeValueLabel.setText(Utils.formattedMillis(0));
+                    remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
+                    if (fileStateEvent.isSuccess()) {
+                        EventQueue.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(new JFrame(),
+                                    Localization.getString("mainWindow.ui.jobComplete") + " " + Utils.formattedMillis(backend.getSendDuration()),
+                                    Localization.getString("success"), JOptionPane.INFORMATION_MESSAGE);
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException ex) {}
+
+                            // Stop the timer after a delay to make sure it is updated.
+                            timer.stop();
+                        });
+                    } else {
+                        displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));
+                    }
                     break;
                 default:
                     break;
             }
 
             setVisualizerFile();
+        } else if (evt instanceof CommandEvent) {
+            CommandEvent commandEvent = (CommandEvent) evt;
+            GcodeCommand command = commandEvent.getCommand();
+            if ((commandEvent.getCommandEventType() == CommandEventType.COMMAND_SKIPPED ||
+                    commandEvent.getCommandEventType() == CommandEventType.COMMAND_SENT) && command.hasComment()) {
+                latestCommentValueLabel.setText(command.getComment());
+            }
+
+            if(!command.isGenerated()) {
+                if (commandEvent.getCommandEventType() == CommandEventType.COMMAND_COMPLETE) {
+                    // update gui
+                    EventQueue.invokeLater(() -> {
+                        if (commandTableScrollPane.isEnabled()) {
+                            commandTable.updateRow(command);
+                        }
+
+                        if (backend.isSendingFile() && vw != null && !command.isGenerated()) {
+                            vw.setCompletedCommandNumber(command.getCommandNumber());
+                        }
+                    });
+                } else if (commandEvent.getCommandEventType() == CommandEventType.COMMAND_SENT || commandEvent.getCommandEventType() == CommandEventType.COMMAND_SKIPPED) {
+                    EventQueue.invokeLater(() -> {
+                            if (commandTableScrollPane.isEnabled()) {
+                                commandTable.addRow(command);
+                            }
+                        });
+                }
+            }
         }
     }
 

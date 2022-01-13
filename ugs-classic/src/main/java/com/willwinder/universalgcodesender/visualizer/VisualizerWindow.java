@@ -27,16 +27,13 @@ package com.willwinder.universalgcodesender.visualizer;
 
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.Alarm;
-import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.types.WindowSettings;
 
-import javax.swing.JFrame;
-import java.awt.Dimension;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -44,8 +41,7 @@ import java.awt.event.WindowListener;
  *
  * @author wwinder
  */
-public class VisualizerWindow extends javax.swing.JFrame 
-implements ControllerListener, WindowListener {
+public class VisualizerWindow extends JFrame implements UGSEventListener, WindowListener {
 
     private static String TITLE = Localization.getString("visualizer.title");  // window's title
     private static final int FPS = 20; // animator's target frames per second
@@ -119,51 +115,14 @@ implements ControllerListener, WindowListener {
     }
 
     @Override
-    public void statusStringListener(ControllerStatus status) {
-        // Give coordinates to canvas.
-        this.canvas.setMachineCoordinate(status.getMachineCoord());
-        this.canvas.setWorkCoordinate(status.getWorkCoord());
-    }
-    
-    @Override
-    public void controlStateChange(UGSEvent.ControlState state) {
+    public void UGSEvent(UGSEvent evt) {
+        if (evt instanceof ControllerStatusEvent) {
+            ControllerStatusEvent controllerStatusEvent = (ControllerStatusEvent) evt;
+            this.canvas.setMachineCoordinate(controllerStatusEvent.getStatus().getMachineCoord());
+            this.canvas.setWorkCoordinate(controllerStatusEvent.getStatus().getWorkCoord());
+        }
     }
 
-    @Override
-    public void fileStreamComplete(String filename, boolean success) {
-        //throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void receivedAlarm(Alarm alarm) {
-
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-        // TODO: When canned cycles are handled in the controller I'll need to
-        //       update the visualizer to use commands sniffed from this queue.
-    }
-
-    @Override
-    public void commandSent(GcodeCommand command) {
-        //throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void commandComplete(GcodeCommand command) {
-        //throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void commandComment(String comment) {
-        //throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void probeCoordinates(Position p) {
-    }
-    
     // Window Listener Events.
 
     @Override
@@ -186,26 +145,21 @@ implements ControllerListener, WindowListener {
 
     @Override
     public void windowOpened(WindowEvent we) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void windowClosed(WindowEvent we) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void windowIconified(WindowEvent we) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void windowDeiconified(WindowEvent we) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void windowDeactivated(WindowEvent we) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 }

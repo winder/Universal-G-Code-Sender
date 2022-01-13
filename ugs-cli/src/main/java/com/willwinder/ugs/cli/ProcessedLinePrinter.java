@@ -18,11 +18,11 @@
  */
 package com.willwinder.ugs.cli;
 
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.Alarm;
-import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.AlarmEvent;
+import com.willwinder.universalgcodesender.model.events.CommandEvent;
+import com.willwinder.universalgcodesender.model.events.CommandEventType;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 /**
@@ -30,28 +30,30 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
  *
  * @author Joacim Breiler
  */
-public class ProcessedLinePrinter implements ControllerListener {
+public class ProcessedLinePrinter implements UGSEventListener {
 
     @Override
-    public void controlStateChange(UGSEvent.ControlState state) {
+    public void UGSEvent(UGSEvent event) {
+        if (event instanceof CommandEvent) {
+            CommandEvent commandEvent = ((CommandEvent) event);
+            GcodeCommand command = commandEvent.getCommand();
+            if (commandEvent.getCommandEventType() == CommandEventType.COMMAND_COMPLETE) {
+                onCommandComplete(command);
+            } else if (commandEvent.getCommandEventType() == CommandEventType.COMMAND_SENT) {
+                onCommandSent(command);
+            } else if (commandEvent.getCommandEventType() == CommandEventType.COMMAND_SKIPPED) {
+                onCommandSkipped(command);
+            }
+        } else if (event instanceof AlarmEvent) {
+            System.err.println("Alarm: " + ((AlarmEvent) event).getAlarm().name());
+        }
     }
 
-    @Override
-    public void fileStreamComplete(String filename, boolean success) {
-    }
-
-    @Override
-    public void receivedAlarm(Alarm alarm) {
-        System.err.println("Alarm: " + alarm.name());
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
+    private void onCommandSkipped(GcodeCommand command) {
         System.out.println("#" + command.getCommandNumber() + " - " + command.getOriginalCommandString() + " [skipped]");
     }
 
-    @Override
-    public void commandSent(GcodeCommand command) {
+    private void onCommandSent(GcodeCommand command) {
         if (command.getCommandNumber() > 0 && !command.isGenerated()) {
             System.out.println("#" + command.getCommandNumber() + " - " + command.getOriginalCommandString());
         } else {
@@ -59,24 +61,9 @@ public class ProcessedLinePrinter implements ControllerListener {
         }
     }
 
-    @Override
-    public void commandComplete(GcodeCommand command) {
+    private void onCommandComplete(GcodeCommand command) {
         if (command.getCommandNumber() > 0 && (command.isError() || command.isSkipped())) {
             System.err.println("#" + command.getCommandNumber() + " - " + command.getOriginalCommandString() + " [" + command.getResponse() + "]");
         }
-    }
-
-    @Override
-    public void commandComment(String comment) {
-
-    }
-
-    @Override
-    public void probeCoordinates(Position p) {
-
-    }
-
-    @Override
-    public void statusStringListener(ControllerStatus status) {
     }
 }

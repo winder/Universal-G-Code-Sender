@@ -24,10 +24,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.PartialPosition;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -204,6 +201,7 @@ public class AbstractControllerTest {
         startStreamExpectation(port, rate);
         expect(mockCommunicator.numActiveCommands()).andReturn(1);
         expect(mockCommunicator.numActiveCommands()).andReturn(0);
+        expect(instance.getControllerStatus()).andReturn(new ControllerStatus(ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
         expect(instance.getControllerStatus()).andReturn(new ControllerStatus(ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
         replay(instance, mockCommunicator);
 
@@ -423,9 +421,10 @@ public class AbstractControllerTest {
         mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall());
         mockListener.fileStreamComplete("queued commands", true);
-        mockListener.controlStateChange(UGSEvent.ControlState.COMM_IDLE);
+        mockListener.controlStateChange(CommunicatorState.COMM_IDLE);
         expect(expectLastCall());
 
+        expect(instance.getControllerStatus()).andReturn(new ControllerStatus(ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
         expect(instance.getControllerStatus()).andReturn(new ControllerStatus(ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
         expect(mockCommunicator.areActiveCommands()).andReturn(true);
         expect(mockCommunicator.areActiveCommands()).andReturn(false);
