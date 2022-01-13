@@ -90,18 +90,22 @@ public class MouseListener extends MouseAdapter {
                 hoveredControls.add(control);
 
                 control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_IN, lastPos, lastPos, shiftPressed, ctrlPressed, altPressed));
-                control.getHoverCursor().ifPresent(cursor -> controller.setCursor(cursor));
+                control.getHoverCursor().ifPresent(controller::setCursor);
+            } else {
+                control.onEvent(new MouseEntityEvent(control, EventType.MOUSE_MOVED, lastPos, lastPos, shiftPressed, ctrlPressed, altPressed));
             }
         });
 
+        updateCursor();
+    }
+
+    private void updateCursor() {
         hoveredControls.stream()
-                .filter(c -> c.getHoverCursor().isPresent())
                 .map(Control::getHoverCursor)
+                .filter(Optional::isPresent)
                 .findFirst()
                 .orElse(Optional.of(Cursor.getDefaultCursor()))
-                .ifPresent(c -> controller.setCursor(c));
-
-        controller.getDrawing().repaint();
+                .ifPresent(controller::setCursor);
     }
 
     private Point2D toRelativePoint(MouseEvent m) {
@@ -141,5 +145,9 @@ public class MouseListener extends MouseAdapter {
             selectedControl = null;
             controller.getDrawing().repaint();
         }
+    }
+
+    public Set<Control> getHoveredControls() {
+        return hoveredControls;
     }
 }

@@ -82,7 +82,7 @@ public class Controller {
     }
 
     public void newDrawing() {
-        drawing = new Drawing(this);
+        drawing.clear();
         notifyListeners(ControllerEventType.NEW_DRAWING);
     }
 
