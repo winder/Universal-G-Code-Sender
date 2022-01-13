@@ -13,6 +13,7 @@ import org.junit.Test;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
+@Ignore("Need to figure out how to run these tests on build server")
 public class MoveControlTest {
 
     @Test
