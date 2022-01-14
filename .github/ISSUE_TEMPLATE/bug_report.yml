@@ -1,0 +1,90 @@
+---
+name: Bug report
+description: Problems and issues with Universal Gcode Sender
+body:
+  - type: markdown
+    attributes:
+      value: "
+Thank you for finding the time to report the problem!
+
+We really appreciate community efforts to improve Universal Gcode Sender.
+
+It is usually helpful to have the log file from UGS, locations for different types of operating systems can be found here:<br/>
+<ul>
+  <li>**Windows 7 and higher**: C:/Users/[your username>]/.ugsplatform/2.X/var/log/messages.log</li>
+  <li>**Windows XP**: C:/Documents and Settings/[your username>]/.ugsplatform/2.X/var/log/messages.log</li>
+  <li>**Mac**: ~/Library/Application Support/ugsplatform/2.X/dev/var/log/messages.log</li>
+  <li>**Linux**: ~/.ugsplatform/2.X/var/log/messages.log</li>
+</ul>"
+  - type: dropdown
+    attributes:
+      label: Version
+      description: >
+        Which UGS version are you using?
+      multiple: false
+      options:
+        - "2.0.10"
+        - "2.0.9"
+        - "2.0.8"
+        - "2.0.7"
+        - "Other"
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Hardware / Firmware
+      description: >
+        What kind of hardware / firmware are you using
+      multiple: false
+      options:
+        - "GRBL 1.1"
+        - "GRBL 0.9"
+        - "GRBL 0.8"
+        - "Grbl_ESP32"
+        - "FluidNC"
+        - "TinyG"
+        - "g2core"
+        - "GrblHAL"
+        - "Smoothieware"
+        - "Other (add details about it below)"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What happened
+      description: Describe what happened, what you expected to happen, and what went wrong.
+      placeholder: >
+        Please provide the context in which the problem occurred and explain what happened.
+        Explain why you think the behaviour is erroneous. It is extremely helpful if you copy&paste
+        the fragment of logs showing the exact error messages or wrong behaviour and screenshots for
+        UI problems or YouTube link to a video of you demonstrating the problem. You can include files by
+        dragging and dropping them here.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: How to reproduce
+      description: >
+        What should we do to reproduce the problem? If you are not able to provide a reproducible case,
+        please open a [Discussion](https://github.com/winder/Universal-G-Code-Sender/discussions) instead.
+      placeholder: >
+        Please make sure you provide a reproducible step-by-step case of how to reproduce the problem
+        as minimally and precisely as possible. Remember that non-reproducible issues may be closed or
+        converted into discussions. If we cannot reproduce an issue we cannot fix it!
+  - type: input
+    attributes:
+      label: Operating System
+      description: What Operating System are you using?
+      placeholder: "Please be as specific as you can - version, distribution, architecture, etc."
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Anything else
+      description: Anything else we need to know?
+      placeholder: >
+        How often does this problem occur? (Once? Every time? Only when certain conditions are met?)
+        Any relevant logs to include? Put them here inside fenced
+        ``` ``` blocks or inside a foldable details tag if it's long:
+        <details><summary>x.log</summary> lots of stuff </details>
+ 
