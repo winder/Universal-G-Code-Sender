@@ -1,0 +1,9 @@
+---
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question (GitHub Discussions)
+    url: https://github.com/winder/Universal-G-Code-Sender/discussions
+    about: Ask a question or request support for using Universal Gcode Sender.
+  - name: Mailing list
+    url: https://groups.google.com/forum/#!forum/universal-gcode-sender
+    about: Subscribe to the mailing list for Universal Gcode Sender.

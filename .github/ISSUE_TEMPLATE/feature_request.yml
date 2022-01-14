@@ -1,0 +1,14 @@
+---
+name: Feature request
+description: Request new features or changes in Universal Gcode Sender
+title: Describe the feature
+body:
+  - type: markdown
+    attributes:
+      value: "Thank you for finding the time creating a feature request! We really appreciate community efforts to improve Universal Gcode Sender."
+  - type: textarea
+    attributes:
+      label: Description
+      description: "Describe what new feature or change you would like to see in UGS"
+    validations:
+      required: true
