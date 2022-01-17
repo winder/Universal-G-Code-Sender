@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -77,7 +78,10 @@ public final class SoftResetAction extends AbstractAction implements UGSEventLis
 
     @Override
     public boolean isEnabled() {
-        return backend.isIdle() || backend.isPaused();
+        return backend.getControllerState() == ControllerState.IDLE ||
+                backend.getControllerState() == ControllerState.HOLD ||
+                backend.getControllerState() == ControllerState.CHECK ||
+                backend.getControllerState() == ControllerState.ALARM;
     }
 
     @Override
