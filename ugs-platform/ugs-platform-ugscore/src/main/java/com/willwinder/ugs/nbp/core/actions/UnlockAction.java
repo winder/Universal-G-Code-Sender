@@ -77,8 +77,7 @@ public final class UnlockAction extends AbstractAction implements UGSEventListen
 
     @Override
     public boolean isEnabled() {
-        return backend.isIdle() &&
-                backend.getControllerState() == ControllerState.ALARM;
+        return backend.getControllerState() == ControllerState.ALARM;
     }
 
     @Override
