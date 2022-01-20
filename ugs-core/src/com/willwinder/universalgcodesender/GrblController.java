@@ -331,11 +331,20 @@ public class GrblController extends AbstractController {
             throw new Exception("Cannot cancel while paused with this version of GRBL. Reconnect to reset GRBL.");
         }
 
-        // If we're canceling a "jog" just send the door hold command.
+        // If we're canceling a "jog" state
         if (capabilities.hasJogging() && controllerStatus != null &&
                 controllerStatus.getState() == ControllerState.JOG) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_JOG_CANCEL_COMMAND);
         }
+
+        // If we are canceling a "DOOR" state
+        else if (capabilities.hasOpenDoor() && controllerStatus != null &&
+                controllerStatus.getState() == ControllerState.DOOR) {
+            this.comm.sendByteImmediately(GrblUtils.GRBL_RESUME_COMMAND);
+            this.pauseStreaming();
+            this.dispatchStateChange(CommunicatorState.COMM_SENDING_PAUSED);
+        }
+
         // Otherwise, check if we can get fancy with a soft reset.
         else if (!paused && this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             try {

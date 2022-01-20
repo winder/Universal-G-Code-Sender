@@ -599,7 +599,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public boolean isPaused() {
         return isConnected() &&
                 controller.getControllerStatus() != null &&
-                (controller.getControllerStatus().getState() == ControllerState.HOLD);
+                (controller.getControllerStatus().getState() == ControllerState.HOLD ||controller.getControllerStatus().getState() == ControllerState.DOOR);
     }
 
     @Override

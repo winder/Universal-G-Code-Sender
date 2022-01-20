@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -78,7 +79,12 @@ public final class OpenDoorAction extends AbstractAction implements UGSEventList
     @Override
     public boolean isEnabled() {
         return backend.getController() != null &&
-                backend.getController().getCapabilities().hasOpenDoor();
+                (backend.getControllerState() == ControllerState.RUN ||
+                        backend.getControllerState() == ControllerState.IDLE ||
+                        backend.getControllerState() == ControllerState.HOME ||
+                        backend.getControllerState() == ControllerState.JOG ||
+                        backend.getControllerState() == ControllerState.HOLD) &&
+                        backend.getController().getCapabilities().hasOpenDoor();
     }
 
     @Override
