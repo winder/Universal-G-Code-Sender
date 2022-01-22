@@ -10,16 +10,20 @@ import {Settings} from '../../model/settings'
 })
 export class JogComponent implements OnInit {
 
-    private settings: Settings;
+    private _settings: Settings;
 
     constructor(private machineService: MachineService, private settingsService: SettingsService) {
-        this.settings = new Settings();
+        this._settings = new Settings();
+    }
+
+    get settings(): Settings {
+        return this._settings;
     }
 
     ngOnInit() {
         this.settingsService.getSettings()
             .subscribe((settings) => {
-                this.settings = settings;
+                this._settings = settings;
             })
     }
 
@@ -36,25 +40,25 @@ export class JogComponent implements OnInit {
 
     onFeedRateChange(feedRate: string) {
         feedRate = feedRate.replace(',', '.');
-        if (!feedRate.endsWith('.') && !feedRate.endsWith('.0') && !feedRate.endsWith('.00') && this.settings.jogFeedRate !== parseFloat(feedRate)) {
-            this.settings.jogFeedRate = parseFloat(feedRate);
-            this.settingsService.setSettings(this.settings).subscribe();
+        if (!feedRate.endsWith('.') && !feedRate.endsWith('.0') && !feedRate.endsWith('.00') && this._settings.jogFeedRate !== parseFloat(feedRate)) {
+            this._settings.jogFeedRate = parseFloat(feedRate);
+            this.settingsService.setSettings(this._settings).subscribe();
         }
     }
 
     onStepSizeXYChange(stepSize: string) {
         stepSize = stepSize.replace(',', '.');
-        if (!stepSize.endsWith('.') && !stepSize.endsWith('.0') && !stepSize.endsWith('.00') && this.settings.jogStepSizeXY !== parseFloat(stepSize)) {
-            this.settings.jogStepSizeXY = parseFloat(stepSize);
-            this.settingsService.setSettings(this.settings).subscribe();
+        if (!stepSize.endsWith('.') && !stepSize.endsWith('.0') && !stepSize.endsWith('.00') && this._settings.jogStepSizeXY !== parseFloat(stepSize)) {
+            this._settings.jogStepSizeXY = parseFloat(stepSize);
+            this.settingsService.setSettings(this._settings).subscribe();
         }
     }
 
     onStepSizeZChange(stepSize: string) {
         stepSize = stepSize.replace(',', '.');
-        if (!stepSize.endsWith('.') && !stepSize.endsWith('.0') && !stepSize.endsWith('.00') && this.settings.jogStepSizeZ !== parseFloat(stepSize)) {
-            this.settings.jogStepSizeZ = parseFloat(stepSize);
-            this.settingsService.setSettings(this.settings).subscribe();
+        if (!stepSize.endsWith('.') && !stepSize.endsWith('.0') && !stepSize.endsWith('.00') && this._settings.jogStepSizeZ !== parseFloat(stepSize)) {
+            this._settings.jogStepSizeZ = parseFloat(stepSize);
+            this.settingsService.setSettings(this._settings).subscribe();
         }
     }
 }

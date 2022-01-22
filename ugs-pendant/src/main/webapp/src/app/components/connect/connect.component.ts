@@ -1,77 +1,111 @@
-import { Component, OnInit } from '@angular/core';
-import { MachineService } from '../../services/machine.service'
-import { FormsModule } from '@angular/forms';
+import {Component, OnInit} from '@angular/core';
+import {MachineService} from '../../services/machine.service'
 
 @Component({
-  selector: 'app-connect',
-  templateUrl: './connect.component.html',
-  styleUrls: ['./connect.component.scss']
+    selector: 'app-connect',
+    templateUrl: './connect.component.html',
+    styleUrls: ['./connect.component.scss']
 })
 export class ConnectComponent implements OnInit {
 
-  private firmwareList:string[];
-  private selectedFirmware:string;
+    private _firmwareList: string[];
+    private _selectedFirmware: string;
+    private _portList: string[];
+    private _selectedPort: string;
+    private _baudRateList: string[];
+    private _selectedBaudRate: string;
 
-  private portList:string[];
-  private selectedPort:string;
+    constructor(private machineService: MachineService) {
+    }
 
-  private baudRateList:string[];
-  private selectedBaudRate:string;
+    ngOnInit() {
+        this.updateData();
+    }
 
-  constructor(private machineService:MachineService) { }
+    updateData() {
+        this.machineService.getSelectedFirmware().subscribe(selectedFirmware => {
+            this._selectedFirmware = selectedFirmware;
+        });
 
-  ngOnInit() {
-    this.updateData();
-  }
+        this.machineService.getFirmwareList().subscribe(firmwareList => {
+            this._firmwareList = firmwareList;
+        });
 
-  updateData() {
-    this.machineService.getSelectedFirmware().subscribe(selectedFirmware => {
-      this.selectedFirmware = selectedFirmware;
-    });
+        this.machineService.getSelectedPort().subscribe(selectedPort => {
+            this._selectedPort = selectedPort;
+        });
 
-    this.machineService.getFirmwareList().subscribe(firmwareList => {
-      this.firmwareList = firmwareList;
-    });
+        this.machineService.getPortList().subscribe(portList => {
+            this._portList = portList;
+        });
 
-    this.machineService.getSelectedPort().subscribe(selectedPort => {
-      this.selectedPort = selectedPort;
-    });
+        this.machineService.getBaudRateList().subscribe(baudRateList => {
+            this._baudRateList = baudRateList;
+        });
 
-    this.machineService.getPortList().subscribe(portList => {
-      this.portList = portList;
-    });
+        this.machineService.getSelectedBaudRate().subscribe(baudRate => {
+            console.log(baudRate);
+            this._selectedBaudRate = baudRate;
+        });
+    }
 
-    this.machineService.getBaudRateList().subscribe(baudRateList => {
-      this.baudRateList = baudRateList;
-    });
+    onSelectFirmware($event) {
+        this.machineService
+            .setSelectedFirmware(this._selectedFirmware)
+            .subscribe();
+    }
 
-    this.machineService.getSelectedBaudRate().subscribe(baudRate => {
-      console.log(baudRate);
-      this.selectedBaudRate = baudRate;
-    });
-  }
+    onSelectBaudRate($event) {
+        this.machineService
+            .setSelectedBaudRate(this._selectedBaudRate)
+            .subscribe();
+    }
 
-  onSelectFirmware($event) {
-    this.machineService
-      .setSelectedFirmware(this.selectedFirmware)
-      .subscribe();
-  }
+    onSelectPort($event) {
+        this.machineService
+            .setSelectedPort(this._selectedPort)
+            .subscribe();
+    }
 
-  onSelectBaudRate($event) {
-    this.machineService
-      .setSelectedBaudRate(this.selectedBaudRate)
-      .subscribe();
-  }
+    connect() {
+        this.machineService
+            .connect()
+            .subscribe();
+    }
 
-  onSelectPort($event) {
-    this.machineService
-      .setSelectedPort(this.selectedPort)
-      .subscribe();
-  }
+    get selectedFirmware() {
+        return this._selectedFirmware;
+    }
 
-  connect() {
-    this.machineService
-      .connect()
-      .subscribe();
-  }
+    set selectedFirmware(selectedFirmware: string) {
+        this._selectedFirmware = selectedFirmware;
+    }
+
+    get selectedPort(): string {
+        return this._selectedPort;
+    }
+
+    set selectedPort(selectedPort: string) {
+        this._selectedPort = selectedPort;
+    }
+
+    get firmwareList() {
+        return this._firmwareList;
+    }
+
+    get selectedBaudRate(): string {
+        return this._selectedBaudRate;
+    }
+
+    set selectedBaudRate(selectedBaudRate: string) {
+        this._selectedBaudRate = selectedBaudRate;
+    }
+
+    get portList(): string[] {
+        return this._portList;
+    }
+
+    get baudRateList(): string[] {
+        return this._baudRateList;
+    }
 }
