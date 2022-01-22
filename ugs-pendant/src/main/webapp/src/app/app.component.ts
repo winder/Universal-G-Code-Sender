@@ -1,31 +1,32 @@
-import { Component, OnInit } from '@angular/core';
-import { StatusService } from './services/status.service';
-import { Status } from './model/status';
-import { StateEnum } from './model/state-enum';
-import { SettingsService } from './services/settings.service';
-import { Settings } from './model/settings';
+import {Component, OnInit} from '@angular/core';
+import {StatusService} from './services/status.service';
+import {Status} from './model/status';
+import {StateEnum} from './model/state-enum';
+import {SettingsService} from './services/settings.service';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  private status: Status = new Status();
-  constructor(private statusService:StatusService, private settingsService:SettingsService) { }
+    private status: Status = new Status();
 
-  ngOnInit() {
-    this.statusService.start();
-    this.statusService.getStatus().subscribe(status => this.status = status);
+    constructor(private statusService: StatusService, private settingsService: SettingsService) {
+    }
 
-    this.settingsService.start();
-  }
+    ngOnInit() {
+        this.statusService.start();
+        this.statusService.getStatus().subscribe(status => this.status = status);
 
-  isConnectedToPendantAPI():boolean {
-    return this.status.state != StateEnum.UNAVAILABLE;
-  }
+        this.settingsService.start();
+    }
 
-  isConnectedToController():boolean {
-    return this.status.state != StateEnum.UNAVAILABLE && this.status.state != StateEnum.DISCONNECTED;
-  }
+    isConnectedToPendantAPI(): boolean {
+        return this.status.state != StateEnum.UNAVAILABLE;
+    }
+
+    isConnectedToController(): boolean {
+        return this.status.state != StateEnum.UNAVAILABLE && this.status.state != StateEnum.DISCONNECTED;
+    }
 }

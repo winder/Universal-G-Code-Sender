@@ -1,34 +1,43 @@
-import { Component, OnInit } from '@angular/core';
-import { MachineService } from '../../services/machine.service'
-import { StatusService } from '../../services/status.service';
-import { Status } from '../../model/status';
-import { StateEnum } from '../../model/state-enum';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {MachineService} from '../../services/machine.service'
+import {StatusService} from '../../services/status.service';
+import {Status} from '../../model/status';
+import {StateEnum} from '../../model/state-enum';
 
 
 @Component({
-  selector: 'app-send-commands',
-  templateUrl: './send-commands.component.html',
-  styleUrls: ['./send-commands.component.scss']
+    selector: 'app-send-commands',
+    templateUrl: './send-commands.component.html',
+    styleUrls: ['./send-commands.component.scss']
 })
 export class SendCommandsComponent implements OnInit {
-  private status:Status;
-  private gcodeCommands:string = "";
-  constructor(private machineService:MachineService, private statusService:StatusService) { }
+    private status: Status;
+    private _gcodeCommands: string = "";
 
-  public ngOnInit() {
-  this.status = new Status();
-      this.statusService.getStatus()
-        .subscribe(data => {
-          this.status = data;
-        });
-  }
+    constructor(private machineService: MachineService, private statusService: StatusService) {
+    }
 
-  public sendCommands() {
-    this.machineService.sendCommands(this.gcodeCommands).subscribe();
-  }
+    public ngOnInit() {
+        this.status = new Status();
+        this.statusService.getStatus()
+            .subscribe(data => {
+                this.status = data;
+            });
+    }
 
-  public canSend() {
-    return this.status.state == StateEnum.IDLE || this.status.state == StateEnum.CHECK;
-  }
+    public sendCommands() {
+        this.machineService.sendCommands(this._gcodeCommands).subscribe();
+    }
+
+    public canSend() {
+        return this.status.state == StateEnum.IDLE || this.status.state == StateEnum.CHECK;
+    }
+
+    get gcodeCommands(): string {
+        return this._gcodeCommands;
+    }
+
+    set gcodeCommands(value: string) {
+        this._gcodeCommands = value;
+    }
 }

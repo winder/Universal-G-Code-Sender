@@ -51,3 +51,4 @@ ugs-pendant/src/main/webapp/node/node_modules
 ugs-pendant/src/main/webapp/node
 /ugs-platform/ugs-platform-plugin-cloud-storage/nbproject/
 .flattened-pom.xml
+ugs-pendant/src/main/webapp/.angular/cache

@@ -14,8 +14,9 @@ Technical details:
 
 * [JSSC](https://github.com/scream3r/java-simple-serial-connector) or [JSerialComm](https://github.com/Fazecast/jSerialComm) for serial communication
 * [JogAmp](https://jogamp.org/) for OpenGL
-* Built with [Netbeans Platform](https://netbeans.org/features/platform/)
-* Developed with NetBeans 8.0.2 or later
+* [Netbeans Platform](https://netbeans.org/features/platform/)
+* [JTS](https://github.com/locationtech/jts) for geometric transformations
+* [Batik](https://xmlgraphics.apache.org/batik/) for reading SVG
 
 ## Downloads
 Below you will find the latest release of UGS.<br/> For older releases please visit the [releases page](https://github.com/winder/Universal-G-Code-Sender/releases).
@@ -69,6 +70,11 @@ Basic gcode editor
 
 ![Basic gcode editor](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_editor.png "Basic gcode editor")
 
+Vector graphics designer for generating GCode toolpaths
+
+![Designer](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_designer.png "Basic gcode editor")
+
+
 ### UGS Classic
 
 UGS Classic main window
@@ -79,11 +85,14 @@ UGS Classic with visualizer
 
 ![Classic visualizer](https://winder.github.io/ugs_website/img/screenshots/visualizer.png)
 
+
 ## Development
+<details><summary>Show details on how to compile the software</summary>
+<p>
 
-For development the [Maven](http://maven.apache.org) build tool is used.
+For development we use [Maven](http://maven.apache.org) and [Java](https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/tag/jdk-13.0.1%2B9) for compiling. We rely on a specific version of Java 13.0.1-9 is needed due to compatibility issues with a library we depend on.
 
-#### Start the application
+#### Compiling and starting the application
 
 UGS Classic: 
 ```bash
@@ -109,7 +118,7 @@ mvn test
 
 ```bash
 mvn install
-mvn package -pl ugs-core
+mvn package -pl ugs-classic
 ```
 
 
@@ -132,3 +141,6 @@ If you are more used to IntelliJ, you can also build, run and debug it there.
   - Working dir: `$ProjectFileDir$`
   - Use classpath of module: `ugs-platform-app` 
 - There is a [runConfiguration](.idea/runConfigurations/UGS_Platform.xml) in the repository, which should be available after importing the project
+
+</p>
+</details>
