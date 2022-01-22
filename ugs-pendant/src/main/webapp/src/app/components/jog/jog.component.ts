@@ -2,6 +2,13 @@ import {Component, OnInit} from '@angular/core';
 import {MachineService} from '../../services/machine.service'
 import {SettingsService} from '../../services/settings.service'
 import {Settings} from '../../model/settings'
+import {
+    faChevronCircleUp,
+    faChevronCircleDown,
+    faChevronCircleLeft,
+    faChevronCircleRight,
+    faArrowCircleUp, faArrowCircleDown
+} from "@fortawesome/free-solid-svg-icons";
 
 @Component({
     selector: 'app-jog',
@@ -9,6 +16,12 @@ import {Settings} from '../../model/settings'
     styleUrls: ['./jog.component.scss']
 })
 export class JogComponent implements OnInit {
+    public faChevronCircleUp = faChevronCircleUp;
+    public faChevronCircleDown = faChevronCircleDown;
+    public faChevronCircleLeft = faChevronCircleLeft;
+    public faChevronCircleRight = faChevronCircleRight;
+    public faArrowCircleUp = faArrowCircleUp;
+    public faArrowCircleDown = faArrowCircleDown;
 
     private _settings: Settings;
 

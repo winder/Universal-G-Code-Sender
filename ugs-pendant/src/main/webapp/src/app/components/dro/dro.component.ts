@@ -7,6 +7,7 @@ import {Status} from '../../model/status';
 import {Settings} from '../../model/settings';
 import {StateEnum} from '../../model/state-enum';
 import {AxisEnum} from '../../model/axis-enum';
+import {faBackspace} from "@fortawesome/free-solid-svg-icons";
 
 @Component({
     selector: 'app-dro',
@@ -15,6 +16,7 @@ import {AxisEnum} from '../../model/axis-enum';
 })
 export class DroComponent implements OnInit {
     public AxisEnum = AxisEnum;
+    public faBackspace = faBackspace;
     private _status: Status;
     private _settings: Settings;
     private _stateClass: string;

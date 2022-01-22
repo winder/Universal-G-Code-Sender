@@ -1,42 +1,42 @@
 <div *ngIf="isReadyToOpen()">
-  <div class="container">
-    <span class="fileContainer" *ngIf="isReadyToOpen() && !isSendingFile()">
-        <input id="file" type="file" (change)="open($event)" accept=".cnc,.nc,.ngc,.tap,.txt,.gcode"/>
+    <div class="container">
+    <span *ngIf="isReadyToOpen() && !isSendingFile()" class="fileContainer">
+        <input (change)="open($event)" accept=".cnc,.nc,.ngc,.tap,.txt,.gcode" id="file" type="file"/>
     </span>
-    <div *ngIf="status.fileName"><strong>{{status.fileName}}</strong></div>
-    <div *ngIf="status.fileName">Time left: {{formatTime(status.sendRemainingDuration)}}</div>
-    <div *ngIf="status.fileName">Time spent: {{formatTime(status.sendDuration)}}</div>
-    <div class="row" *ngIf="isSendingFile()">
-      <div class="col">
-        <div class="progress">
-          <div class="progress-bar progress-bar bg-info" [attr.aria-valuenow]="progress" aria-valuemin="0"
-               aria-valuemax="100" [style.width]="(progress/100)*100 + '%'">{{progress}}%
-          </div>
+        <div *ngIf="status.fileName"><strong>{{status.fileName}}</strong></div>
+        <div *ngIf="status.fileName">Time left: {{formatTime(status.sendRemainingDuration)}}</div>
+        <div *ngIf="status.fileName">Time spent: {{formatTime(status.sendDuration)}}</div>
+        <div *ngIf="isSendingFile()" class="row">
+            <div class="col">
+                <div class="progress">
+                    <div [attr.aria-valuenow]="progress" [style.width]="(progress/100)*100 + '%'" aria-valuemax="100"
+                         aria-valuemin="0" class="progress-bar progress-bar bg-info">{{progress}}%
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+        <div>
+            <button (click)="send()" *ngIf="isReadyToSend()" class="btn btn-secondary">
+                <fa-icon [icon]="faPlay"></fa-icon>
+                <br/> Send
+            </button>
+
+            <button (click)="send()" *ngIf="isReadyToResume() || isReadyToPause()" [disabled]="!isReadyToResume()"
+                    class="btn btn-secondary">
+                <fa-icon [icon]="faPlay"></fa-icon>
+                <br/> Resume
+            </button>
+
+            <button (click)="pause()" *ngIf="isReadyToResume() || isReadyToPause()" [disabled]="isReadyToResume()"
+                    class="btn btn-secondary">
+                <fa-icon [icon]="faPause"></fa-icon>
+                <br/> Pause
+            </button>
+
+            <button (click)="cancel()" *ngIf="isReadyToCancel()" class="btn btn-secondary">
+                <fa-icon [icon]="faStop"></fa-icon>
+                <br/> Stop
+            </button>
+        </div>
     </div>
-    <div>
-      <button class="btn btn-secondary" (click)="send()" *ngIf="isReadyToSend()">
-        <fa-icon icon="play"></fa-icon>
-        <br/> Send
-      </button>
-
-      <button class="btn btn-secondary" (click)="send()" [disabled]="!isReadyToResume()"
-              *ngIf="isReadyToResume() || isReadyToPause()">
-        <fa-icon icon="play"></fa-icon>
-        <br/> Resume
-      </button>
-
-      <button class="btn btn-secondary" (click)="pause()" [disabled]="isReadyToResume()"
-              *ngIf="isReadyToResume() || isReadyToPause()">
-        <fa-icon icon="pause"></fa-icon>
-        <br/> Pause
-      </button>
-
-      <button class="btn btn-secondary" (click)="cancel()" *ngIf="isReadyToCancel()">
-        <fa-icon icon="stop"></fa-icon>
-        <br/> Stop
-      </button>
-    </div>
-  </div>
 </div>

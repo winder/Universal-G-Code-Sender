@@ -14,17 +14,17 @@
     </div>
     <div class="row axis-row">
       <div class="col-2 axis-label">X</div>
-      <div class="col-6 work-coord">{{status.workCoord.x.toFixed(3)}} <a href="#" (click)="resetToZero(AxisEnum.X)"><fa-icon icon="backspace"></fa-icon></a></div>
+      <div class="col-6 work-coord">{{status.workCoord.x.toFixed(3)}} <a href="#" (click)="resetToZero(AxisEnum.X)"><fa-icon [icon]="faBackspace"></fa-icon></a></div>
       <div class="col-4 machine-coord">{{status.machineCoord.x.toFixed(3)}}</div>
     </div>
     <div class="row axis-row">
       <div class="col-2 axis-label">Y</div>
-      <div class="col-6 work-coord">{{status.workCoord.y.toFixed(3)}} <a href="#" (click)="resetToZero(AxisEnum.Y)"><fa-icon icon="backspace"></fa-icon></a></div>
+      <div class="col-6 work-coord">{{status.workCoord.y.toFixed(3)}} <a href="#" (click)="resetToZero(AxisEnum.Y)"><fa-icon [icon]="faBackspace"></fa-icon></a></div>
       <div class="col-4 machine-coord">{{status.machineCoord.y.toFixed(3)}}</div>
     </div>
     <div class="row axis-row">
       <div class="col-2 axis-label">Z</div>
-      <div class="col-6 work-coord">{{status.workCoord.z.toFixed(3)}} <a href="#" (click)="resetToZero(AxisEnum.Z)"><fa-icon icon="backspace"></fa-icon></a></div>
+      <div class="col-6 work-coord">{{status.workCoord.z.toFixed(3)}} <a href="#" (click)="resetToZero(AxisEnum.Z)"><fa-icon [icon]="faBackspace"></fa-icon></a></div>
       <div class="col-4 machine-coord">{{status.machineCoord.z.toFixed(3)}}</div>
     </div>
   </div>
