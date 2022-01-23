@@ -39,7 +39,6 @@ import org.netbeans.spi.options.OptionsPanelController;
 public class ControllerPanelController extends AbstractOptionsPanelController {
     @Override
     public AbstractUGSSettings initPanel() {
-        //return new UGSControllerOptionPanel(this);
         return new ControllerProcessorSettingsPanel(settings, this, FirmwareUtils.getConfigFiles());
     }
     
