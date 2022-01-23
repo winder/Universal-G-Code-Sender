@@ -1,8 +1,5 @@
-/**
- * Configure the controller settings.
- */
 /*
-    Copyright 2016 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -47,33 +44,37 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Configure the controller settings
  *
  * @author wwinder
  */
 public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
     private static Logger logger = Logger.getLogger(ControllerProcessorSettingsPanel.class.getName());
-
-    private final Map<String,ConfigTuple> configFiles;
-    JComboBox controllerConfigs;
-    final JTable customRemoverTable;
-    final JButton add = new JButton(Localization.getString("settings.processors.add"));
-    final JButton remove = new JButton(Localization.getString("settings.processors.remove"));
+    private final JTable customRemoverTable;
+    private final JButton add = new JButton(Localization.getString("settings.processors.add"));
+    private final JButton remove = new JButton(Localization.getString("settings.processors.remove"));
+    private final Map<String, ConfigTuple> configFiles;
+    private final JComboBox<String> controllerConfigs;
     private boolean updatingCombo = false;
 
-    public ControllerProcessorSettingsPanel(Settings settings, IChanged changer, Map<String,ConfigTuple> configFiles) {
+    public ControllerProcessorSettingsPanel(Settings settings, IChanged changer, Map<String, ConfigTuple> configFiles) {
         super(settings, changer);
         this.configFiles = configFiles;
 
-        this.controllerConfigs = new JComboBox(configFiles.keySet().toArray());
-        this.customRemoverTable = initCustomRemoverTable(new JTable());
+        controllerConfigs = new JComboBox<>(configFiles.keySet().toArray(new String[]{}));
+        controllerConfigs.setSelectedItem(settings.getFirmwareVersion());
+        customRemoverTable = initCustomRemoverTable(new JTable());
         super.updateComponents();
 
-        controllerConfigs.addActionListener(e -> { if (!updatingCombo) super.updateComponents();});
+        controllerConfigs.setSelectedItem(settings.getFirmwareVersion());
+        controllerConfigs.addActionListener(e -> {
+            if (!updatingCombo) super.updateComponents();
+        });
         add.addActionListener(e -> this.addNewPatternRemover());
         remove.addActionListener(e -> this.removeSelectedPatternRemover());
     }
 
-    public ControllerProcessorSettingsPanel(Settings settings, Map<String,ConfigTuple> configFiles) {
+    public ControllerProcessorSettingsPanel(Settings settings, Map<String, ConfigTuple> configFiles) {
         this(settings, null, configFiles);
     }
 
@@ -88,7 +89,7 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
 
         DefaultTableModel model = (DefaultTableModel) this.customRemoverTable.getModel();
         for (int i = rows.length; i > 0; i--) {
-            int row = rows[i-1];
+            int row = rows[i - 1];
             model.removeRow(row);
         }
     }
@@ -130,7 +131,7 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
 
     @Override
     synchronized public void restoreDefaults() throws Exception {
-        FirmwareUtils.restoreDefaults((String)controllerConfigs.getSelectedItem());
+        FirmwareUtils.restoreDefaults((String) controllerConfigs.getSelectedItem());
 
         updatingCombo = true;
         String selected = (String) controllerConfigs.getSelectedItem();
@@ -155,7 +156,7 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
      *  | [ ] front processor 2      |
      *  | [ ] end processor 1        |
      *  | [ ] end processor 2        |
-     * 
+     *
      *  | [+]                   [-]  |
      *  |  ________________________  |
      *  | | Enabled | Pattern      | |
@@ -213,7 +214,7 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
             Localization.getString("PatternRemover")
         };
 
-        final Class[] columnTypes =  {
+        final Class[] columnTypes = {
             Boolean.class,
             String.class
         };
