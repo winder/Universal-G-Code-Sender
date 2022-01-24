@@ -838,7 +838,7 @@ public class GrblControllerTest {
     }
 
     @Test
-    public void cancelSendOnDoorStateShouldResumeAndPauseAndThenCancel() throws Exception {
+    public void cancelSendOnDoorStateShouldCancelCommandAndIssueReset() throws Exception {
         this.mgc = new MockGrblCommunicator();
         GrblController instance = new GrblController(mgc);
 
@@ -847,13 +847,27 @@ public class GrblControllerTest {
         instance.rawResponseHandler("<Door|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
         mgc.sentBytes.clear();
 
+        // Set internal state to cancelling
         instance.cancelSend();
 
         assertEquals(1, mgc.numCancelSendCalls);
-        assertEquals(1, mgc.numPauseSendCalls);
-        assertEquals(2, mgc.sentBytes.size());
-        assertEquals(new Byte(GRBL_RESUME_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size() - 2));
-        assertEquals(new Byte(GRBL_PAUSE_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size() - 1));
+        assertEquals(0, mgc.numPauseSendCalls);
+        assertEquals(0, mgc.sentBytes.size());
+
+        // First round we will store the last position
+        instance.rawResponseHandler("<Door|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+
+        assertEquals(1, mgc.numCancelSendCalls);
+        assertEquals(0, mgc.numPauseSendCalls);
+        assertEquals(0, mgc.sentBytes.size());
+
+        // Now we will do the actual cancel
+        instance.rawResponseHandler("<Door|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+
+        assertEquals(2, mgc.numCancelSendCalls);
+        assertEquals(0, mgc.numPauseSendCalls);
+        assertEquals(1, mgc.sentBytes.size());
+        assertEquals(Byte.valueOf(GRBL_RESET_COMMAND), mgc.sentBytes.get(0));
     }
 
     private void sendStuff(GrblController instance) throws Exception {

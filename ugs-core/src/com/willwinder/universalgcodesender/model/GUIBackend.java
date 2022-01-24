@@ -301,14 +301,19 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void adjustManualLocation(PartialPosition distance, double feedRate) throws Exception {
-        boolean empty = !Arrays.stream(Axis.values())
+        // Do not allow jogging if we are not idle or already jogging
+        boolean canJog = getControllerState() == ControllerState.IDLE || getControllerState() == ControllerState.JOG;
+        if (!canJog) {
+            logger.fine("Skipping jog as controller state was not IDLE or JOG");
+            return;
+        }
+
+        boolean isEmpty = Arrays.stream(Axis.values())
                 .map(axis -> distance.hasAxis(axis) ? distance.getAxis(axis) : 0)
-                .filter(aDouble -> aDouble != 0.0)
-                .findAny()
-                .isPresent();
+                .allMatch(aDouble -> aDouble == 0.0);
 
         // Don't send empty commands.
-        if (empty) {
+        if (isEmpty) {
             return;
         }
 
@@ -599,7 +604,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public boolean isPaused() {
         return isConnected() &&
                 controller.getControllerStatus() != null &&
-                (controller.getControllerStatus().getState() == ControllerState.HOLD ||controller.getControllerStatus().getState() == ControllerState.DOOR);
+                (controller.getControllerStatus().getState() == ControllerState.HOLD || controller.getControllerStatus().getState() == ControllerState.DOOR);
     }
 
     @Override

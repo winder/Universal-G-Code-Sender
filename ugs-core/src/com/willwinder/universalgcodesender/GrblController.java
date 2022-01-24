@@ -40,8 +40,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
-import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.*;
 
 /**
  * GRBL Control layer, coordinates all aspects of control.
@@ -336,15 +335,6 @@ public class GrblController extends AbstractController {
                 controllerStatus.getState() == ControllerState.JOG) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_JOG_CANCEL_COMMAND);
         }
-
-        // If we are canceling a "DOOR" state
-        else if (capabilities.hasOpenDoor() && controllerStatus != null &&
-                controllerStatus.getState() == ControllerState.DOOR) {
-            this.comm.sendByteImmediately(GrblUtils.GRBL_RESUME_COMMAND);
-            this.pauseStreaming();
-            this.dispatchStateChange(CommunicatorState.COMM_SENDING_PAUSED);
-        }
-
         // Otherwise, check if we can get fancy with a soft reset.
         else if (!paused && this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             try {
@@ -496,6 +486,7 @@ public class GrblController extends AbstractController {
             throw new RuntimeException("Not connected to the controller");
         }
 
+        pauseStreaming(); // Pause the file stream and stop the time
         comm.sendByteImmediately(GrblUtils.GRBL_DOOR_COMMAND);
     }
 
@@ -648,7 +639,7 @@ public class GrblController extends AbstractController {
                     this.dispatchStateChange(getControlState());
                 }
                 // Otherwise check if the machine is Hold/Queue and stopped.
-                else if (controllerStatus.getState() == ControllerState.HOLD && lastLocation.equals(this.controllerStatus.getMachineCoord())) {
+                else if ((controllerStatus.getState() == ControllerState.HOLD || controllerStatus.getState() == ControllerState.DOOR) && lastLocation.equals(this.controllerStatus.getMachineCoord())) {
                     try {
                         this.issueSoftReset();
                     } catch(Exception e) {

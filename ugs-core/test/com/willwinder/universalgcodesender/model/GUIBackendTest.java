@@ -89,17 +89,61 @@ public class GUIBackendTest {
     }
 
     @Test
-    public void adjustManualLocationShouldBeOk() throws Exception {
+    public void adjustManualLocationWhenIdleShouldBeOk() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        when(instance.getControllerState()).thenReturn(ControllerState.IDLE);
+
         PartialPosition p = new PartialPosition(10., 0., 0., UnitUtils.Units.MM);
         instance.adjustManualLocation(p, 10);
         verify(controller, times(1)).jogMachine(p, 10);
     }
 
     @Test
+    public void adjustManualLocationWhenAlreadyJoggingShouldBeOk() throws Exception {
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        when(instance.getControllerState()).thenReturn(ControllerState.JOG);
+
+        PartialPosition p = new PartialPosition(10., 0., 0., UnitUtils.Units.MM);
+        instance.adjustManualLocation(p, 10);
+        verify(controller, times(1)).jogMachine(p, 10);
+    }
+
+    @Test
+    public void adjustManualLocationWhenControllerStateIsDoorShouldBeSkipped() throws Exception {
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        when(instance.getControllerState()).thenReturn(ControllerState.DOOR);
+
+        PartialPosition p = new PartialPosition(10., 0., 0., UnitUtils.Units.MM);
+        instance.adjustManualLocation(p, 10);
+        verify(controller, times(0)).jogMachine(any(), anyDouble());
+    }
+
+    @Test
+    public void adjustManualLocationWhenControllerStateIsRunShouldBeSkipped() throws Exception {
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        when(instance.getControllerState()).thenReturn(ControllerState.RUN);
+
+        PartialPosition p = new PartialPosition(10., 0., 0., UnitUtils.Units.MM);
+        instance.adjustManualLocation(p, 10);
+        verify(controller, times(0)).jogMachine(any(), anyDouble());
+    }
+
+    @Test
+    public void adjustManualLocationWithZeroDirectionShouldNotMoveTheMachine() throws Exception {
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        when(instance.getControllerState()).thenReturn(ControllerState.IDLE);
+
+        PartialPosition p = new PartialPosition(0., 0., 0., UnitUtils.Units.MM);
+        instance.adjustManualLocation(p, 10);
+        verify(controller, times(0)).jogMachine(any(), anyDouble());
+    }
+
+    @Test
     public void adjustManualLocationWithNoDirectionShouldNotMoveTheMachine() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        PartialPosition p = new PartialPosition(0., 0., 0., UnitUtils.Units.MM);
+        when(instance.getControllerState()).thenReturn(ControllerState.IDLE);
+
+        PartialPosition p = new PartialPosition(null, null, UnitUtils.Units.MM);
         instance.adjustManualLocation(p, 10);
         verify(controller, times(0)).jogMachine(any(), anyDouble());
     }
