@@ -290,10 +290,10 @@
 
                                         <!-- Unzip archive -->
                                         <mkdir dir="${project.build.directory}/${brandingToken}-win/jdk"/>
-                                        <exec dir="${project.build.directory}" executable="unzip" failonerror="true">
-                                            <arg line="-e"/>
+                                        <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+                                            <arg line="-xf"/>
                                             <arg line="jre-win.zip"/>
-                                            <arg line="-d &quot;${brandingToken}-win/jdk&quot;"/>
+                                            <arg line="-C &quot;${brandingToken}-win/jdk&quot;"/>
                                         </exec>
 
                                         <!-- Get the JRE folder name -->
@@ -307,8 +307,9 @@
                                         <replace file="${project.build.directory}/${brandingToken}-win/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>
 
                                         <!-- Create Archive -->
-                                        <exec dir="${project.build.directory}" executable="zip" failonerror="true">
-                                            <arg value="-r"/>
+                                        <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+                                            <arg value="-a"/>
+                                            <arg value="-cf"/>
                                             <arg value="win-${project.artifactId}-${project.version}.zip"/>
                                             <arg value="${brandingToken}-win"/>
                                         </exec>
