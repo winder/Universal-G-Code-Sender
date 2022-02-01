@@ -1,8 +1,8 @@
-package com.willwinder.ugs.nbp.designer.gcode.toolpaths;
+package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
-import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
-import com.willwinder.ugs.nbp.designer.gcode.path.PathGenerator;
-import com.willwinder.ugs.nbp.designer.gcode.path.SegmentType;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.PathGenerator;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;

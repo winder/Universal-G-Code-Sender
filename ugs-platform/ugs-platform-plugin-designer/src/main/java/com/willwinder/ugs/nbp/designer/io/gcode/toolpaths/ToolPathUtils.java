@@ -1,8 +1,6 @@
-package com.willwinder.ugs.nbp.designer.gcode.toolpaths;
+package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
-import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.PartialPosition;
-import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.geom.*;

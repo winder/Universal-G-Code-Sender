@@ -18,40 +18,45 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
-import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
+import com.willwinder.ugs.nbp.designer.io.DesignWriter;
+import com.willwinder.ugs.nbp.designer.io.gcode.GcodeDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.logging.Logger;
+import java.io.File;
+import java.util.Optional;
 
 /**
  * @author Joacim Breiler
  */
 public class ExportGcodeAction extends AbstractAction {
-    private static final Logger LOGGER = Logger.getLogger(ExportGcodeAction.class.getSimpleName());
-    private static final String SMALL_ICON_PATH = "img/export.svg";
-    private static final String LARGE_ICON_PATH = "img/export24.svg";
-    private final Controller controller;
+    public static final String SMALL_ICON_PATH = "img/export.svg";
+    public static final String LARGE_ICON_PATH = "img/export24.svg";
 
-    public ExportGcodeAction(Controller controller) {
+    public ExportGcodeAction() {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Export Gcode");
         putValue(NAME, "Export Gcode");
-
-        this.controller = controller;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        SimpleGcodeRouter simpleGcodeRouter = new SimpleGcodeRouter();
-        simpleGcodeRouter.setSafeHeight(controller.getSettings().getSafeHeight());
-        simpleGcodeRouter.setFeedSpeed(controller.getSettings().getFeedSpeed());
-        simpleGcodeRouter.setPlungeSpeed(controller.getSettings().getPlungeSpeed());
-        String gcode = simpleGcodeRouter.toGcode(controller.getDrawing().getEntities());
-        LOGGER.info(gcode);
+        Optional<File> fileOptional = SwingHelpers.createFile("");
+        if (fileOptional.isPresent()) {
+            String path = fileOptional.get().getAbsolutePath();
+            boolean hasGcodeFileEnding = path.endsWith(".gcode") || path.endsWith(".nc") || path.endsWith(".txt");
+            if (!hasGcodeFileEnding) {
+                path = path + ".gcode";
+            }
+            Controller controller = CentralLookup.getDefault().lookup(Controller.class);
+            DesignWriter designWriter = new GcodeDesignWriter();
+            designWriter.write(new File(path), controller);
+        }
     }
 }

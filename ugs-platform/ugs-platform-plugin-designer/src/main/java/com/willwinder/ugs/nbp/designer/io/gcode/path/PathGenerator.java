@@ -14,49 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with JGCGen.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gcode.path;
-
-import com.willwinder.universalgcodesender.gcode.util.Code;
+package com.willwinder.ugs.nbp.designer.io.gcode.path;
 
 /**
- * Segment types
+ * Interface for classes that generate paths
  *
  * @author Calle Laakkonen
  */
-public enum SegmentType {
-    /**
-     * A marker for splitting the path
-     */
-    SEAM("---"),
-
-    /**
-     * Drill down at this point
-     */
-    POINT(Code.G1.name()),
-
-    /**
-     * Move in a straight line
-     */
-    LINE(Code.G1.name()),
-
-    /**
-     * Clockwise arc
-     */
-    CWARC(Code.G2.name()),
-
-    /**
-     * Counter clockwise arc
-     */
-    CCWARC(Code.G3.name()),
-
-    /**
-     * Rapid to location (usually through safe height)
-     */
-    MOVE(Code.G0.name());
-
-    public final String gcode;
-
-    SegmentType(String gc) {
-        gcode = gc;
-    }
+public interface PathGenerator {
+	/**
+	 * Generate the path
+	 * @return path
+	 */
+	GcodePath toGcodePath();
 }

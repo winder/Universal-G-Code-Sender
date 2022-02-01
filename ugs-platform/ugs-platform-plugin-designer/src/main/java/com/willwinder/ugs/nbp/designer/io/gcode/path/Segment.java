@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JGCGen.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gcode.path;
+package com.willwinder.ugs.nbp.designer.io.gcode.path;
 
 import com.willwinder.universalgcodesender.model.PartialPosition;
 
@@ -32,6 +32,7 @@ public final class Segment {
      * The segment point. This can be null when type is SEAM
      */
     public final PartialPosition point;
+
     /**
      * The segment label. This is usually with SEAM to identify subpaths,
      * but can be used with points too as general purpose comments.
@@ -39,9 +40,17 @@ public final class Segment {
     public final String label;
 
     public Segment(SegmentType type, PartialPosition point) {
+        this(type, point, null);
+    }
+
+    public Segment(String label) {
+        this(SegmentType.SEAM, null, label);
+    }
+
+    public Segment(SegmentType type, PartialPosition point, String label) {
         this.type = type;
         this.point = point;
-        this.label = null;
+        this.label = label;
     }
 
     @Override

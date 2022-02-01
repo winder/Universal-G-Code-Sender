@@ -14,23 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with JGCGen.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gcode;
+package com.willwinder.ugs.nbp.designer.io.gcode;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
-import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
-import com.willwinder.ugs.nbp.designer.gcode.path.Segment;
-import com.willwinder.ugs.nbp.designer.gcode.path.SegmentType;
-import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimplePath;
-import com.willwinder.ugs.nbp.designer.gcode.toolpaths.SimplePocket;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
+import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.SimplePath;
+import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.SimplePocket;
 import com.willwinder.universalgcodesender.gcode.util.Code;
+import com.willwinder.universalgcodesender.utils.Version;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
  * @author Joacim Breiler
  */
 public class SimpleGcodeRouter {
+    private static final String HEADER = "; This file was generated with \"Universal Gcode Sender " + Version.getVersionString() + "\"\n;\n";
+
     /**
      * The feed rate to move tool in material as mm/min
      */
@@ -130,65 +132,90 @@ public class SimpleGcodeRouter {
         double width = entities.stream().map(e -> e.getBounds().getMaxX()).max(Double::compareTo).orElse((double) 0);
         double height = entities.stream().map(e -> e.getBounds().getMaxX()).max(Double::compareTo).orElse((double) 0);
 
-        List<String> collect = entities.stream()
+
+        List<Cuttable> cuttables = entities.stream()
                 .filter(Cuttable.class::isInstance)
                 .map(Cuttable.class::cast)
                 .sorted(new EntityComparator(width, height))
-                .map(cuttable -> {
-                    switch (cuttable.getCutType()) {
-                        case POCKET:
-                            SimplePocket simplePocket = new SimplePocket(cuttable);
-                            simplePocket.setStartDepth(cuttable.getStartDepth());
-                            simplePocket.setTargetDepth(cuttable.getTargetDepth());
-                            simplePocket.setToolDiameter(toolDiameter);
-                            simplePocket.setDepthPerPass(depthPerPass);
-                            simplePocket.setSafeHeight(safeHeight);
-                            simplePocket.setStepOver(toolStepOver);
-                            return simplePocket.toGcodePath();
-                        case OUTSIDE_PATH:
-                            SimplePath simpleOutsidePath = new SimplePath(cuttable);
-                            simpleOutsidePath.setOffset(toolDiameter / 2d);
-                            simpleOutsidePath.setStartDepth(cuttable.getStartDepth());
-                            simpleOutsidePath.setTargetDepth(cuttable.getTargetDepth());
-                            simpleOutsidePath.setToolDiameter(toolDiameter);
-                            simpleOutsidePath.setDepthPerPass(depthPerPass);
-                            simpleOutsidePath.setSafeHeight(safeHeight);
-                            return simpleOutsidePath.toGcodePath();
-                        case INSIDE_PATH:
-                            SimplePath simpleInsidePath = new SimplePath(cuttable);
-                            simpleInsidePath.setOffset(-toolDiameter / 2d);
-                            simpleInsidePath.setStartDepth(cuttable.getStartDepth());
-                            simpleInsidePath.setTargetDepth(cuttable.getTargetDepth());
-                            simpleInsidePath.setToolDiameter(toolDiameter);
-                            simpleInsidePath.setDepthPerPass(depthPerPass);
-                            simpleInsidePath.setSafeHeight(safeHeight);
-                            return simpleInsidePath.toGcodePath();
-                        case ON_PATH:
-                            SimplePath simpleOnPath = new SimplePath(cuttable);
-                            simpleOnPath.setStartDepth(cuttable.getStartDepth());
-                            simpleOnPath.setTargetDepth(cuttable.getTargetDepth());
-                            simpleOnPath.setToolDiameter(toolDiameter);
-                            simpleOnPath.setDepthPerPass(depthPerPass);
-                            simpleOnPath.setSafeHeight(safeHeight);
-                            return simpleOnPath.toGcodePath();
-                        default:
-                            return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .map(gcodePath -> {
-                    try {
-                        return toGcode(gcodePath);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                    return "";
-                })
-                .filter(line -> !line.isEmpty())
                 .collect(Collectors.toList());
 
-        return Code.G21.name() + "\n" +
-                String.join("\n", collect);
+        StringBuilder result = new StringBuilder(HEADER +
+                generateToolHeader() + "\n" +
+                Code.G21.name() + " ; millimeters\n" +
+                Code.G90.name() + " ; absolute coordinate\n" +
+                Code.G17.name() + " ; XY plane\n" +
+                Code.G94.name() + " ; units per minute feed rate mode\n\n"
+        );
+
+        try {
+            result.append(toGcode(getGcodePathFromCuttables(cuttables)));
+        } catch (IOException e) {
+            throw new RuntimeException("An error occured while trying to generate gcode", e);
+        }
+
+        return result.toString();
+    }
+
+    private GcodePath getGcodePathFromCuttables(List<Cuttable> cuttables) {
+        GcodePath gcodePath = new GcodePath();
+        int index = 0;
+        for (Cuttable cuttable : cuttables) {
+            index++;
+            gcodePath.addSegment(new Segment(" " + cuttable.getName() + " - " + cuttable.getCutType().getName()  + " (" + index + "/" + cuttables.size() + ")"));
+            switch (cuttable.getCutType()) {
+                case POCKET:
+                    SimplePocket simplePocket = new SimplePocket(cuttable);
+                    simplePocket.setStartDepth(cuttable.getStartDepth());
+                    simplePocket.setTargetDepth(cuttable.getTargetDepth());
+                    simplePocket.setToolDiameter(toolDiameter);
+                    simplePocket.setDepthPerPass(depthPerPass);
+                    simplePocket.setSafeHeight(safeHeight);
+                    simplePocket.setStepOver(toolStepOver);
+
+                    gcodePath.appendGcodePath(simplePocket.toGcodePath());
+                    break;
+                case OUTSIDE_PATH:
+                    SimplePath simpleOutsidePath = new SimplePath(cuttable);
+                    simpleOutsidePath.setOffset(toolDiameter / 2d);
+                    simpleOutsidePath.setStartDepth(cuttable.getStartDepth());
+                    simpleOutsidePath.setTargetDepth(cuttable.getTargetDepth());
+                    simpleOutsidePath.setToolDiameter(toolDiameter);
+                    simpleOutsidePath.setDepthPerPass(depthPerPass);
+                    simpleOutsidePath.setSafeHeight(safeHeight);
+                    gcodePath.appendGcodePath(simpleOutsidePath.toGcodePath());
+                    break;
+                case INSIDE_PATH:
+                    SimplePath simpleInsidePath = new SimplePath(cuttable);
+                    simpleInsidePath.setOffset(-toolDiameter / 2d);
+                    simpleInsidePath.setStartDepth(cuttable.getStartDepth());
+                    simpleInsidePath.setTargetDepth(cuttable.getTargetDepth());
+                    simpleInsidePath.setToolDiameter(toolDiameter);
+                    simpleInsidePath.setDepthPerPass(depthPerPass);
+                    simpleInsidePath.setSafeHeight(safeHeight);
+                    gcodePath.appendGcodePath(simpleInsidePath.toGcodePath());
+                    break;
+                case ON_PATH:
+                    SimplePath simpleOnPath = new SimplePath(cuttable);
+                    simpleOnPath.setStartDepth(cuttable.getStartDepth());
+                    simpleOnPath.setTargetDepth(cuttable.getTargetDepth());
+                    simpleOnPath.setToolDiameter(toolDiameter);
+                    simpleOnPath.setDepthPerPass(depthPerPass);
+                    simpleOnPath.setSafeHeight(safeHeight);
+                    gcodePath.appendGcodePath(simpleOnPath.toGcodePath());
+                    break;
+                default:
+            }
+        }
+        return gcodePath;
+    }
+
+    private String generateToolHeader() {
+        return "; Tool: " + getToolDiameter() + "mm\n" +
+                "; Depth per pass: " + getDepthPerPass() + "mm\n" +
+                "; Feed speed: " + getFeedSpeed() + "mm/min\n" +
+                "; Plunge speed: " + getPlungeSpeed() + "mm/min\n" +
+                "; Safe height: " + getSafeHeight() + "mm\n" +
+                "; Tool step over: " + getToolStepOver() + "mm\n";
     }
 
     protected void toGcode(Writer writer, GcodePath path) throws IOException {
@@ -203,7 +230,7 @@ public class SimpleGcodeRouter {
         for (Segment s : segments) {
             // Write any label
             if (StringUtils.isNotEmpty(s.getLabel())) {
-                writer.write("(" + s.getLabel() + ")\n");
+                writer.write(";" + s.getLabel() + "\n");
             }
 
             switch (s.type) {

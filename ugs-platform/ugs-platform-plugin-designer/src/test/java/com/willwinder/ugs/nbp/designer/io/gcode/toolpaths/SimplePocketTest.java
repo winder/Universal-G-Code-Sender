@@ -1,7 +1,8 @@
-package com.willwinder.ugs.nbp.designer.gcode.toolpaths;
+package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
-import com.willwinder.ugs.nbp.designer.gcode.path.*;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.PartialPosition;

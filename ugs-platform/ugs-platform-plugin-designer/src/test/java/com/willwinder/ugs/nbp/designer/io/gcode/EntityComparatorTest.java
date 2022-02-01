@@ -1,7 +1,8 @@
-package com.willwinder.ugs.nbp.designer.gcode;
+package com.willwinder.ugs.nbp.designer.io.gcode;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.nbp.designer.io.gcode.EntityComparator;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
