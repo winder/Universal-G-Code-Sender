@@ -19,22 +19,22 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
 import com.google.common.io.Files;
+import com.willwinder.ugs.nbp.designer.Throttler;
 import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
 import com.willwinder.ugs.nbp.designer.actions.UndoManagerListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
-import com.willwinder.ugs.nbp.designer.gcode.SimpleGcodeRouter;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.PopupMenuFactory;
-import com.willwinder.ugs.nbp.designer.Throttler;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
+import com.willwinder.ugs.nbp.designer.io.DesignWriter;
+import com.willwinder.ugs.nbp.designer.io.gcode.GcodeDesignWriter;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import org.apache.commons.io.IOUtils;
 import org.openide.awt.UndoRedo;
 import org.openide.cookies.CloseCookie;
 import org.openide.loaders.DataNode;
@@ -44,8 +44,6 @@ import org.openide.windows.TopComponent;
 
 import java.awt.*;
 import java.io.File;
-import java.io.FileWriter;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,15 +60,12 @@ import java.util.logging.Logger;
 public class DesignerTopComponent extends TopComponent implements UndoManagerListener, SelectionListener {
     private static final long serialVersionUID = 3123334398723987873L;
     private static final Logger LOGGER = Logger.getLogger(DesignerTopComponent.class.getSimpleName());
-    private static final ArrayBlockingQueue<Runnable> JOB_QUEUE = new ArrayBlockingQueue<>(1);
-
-    private final Throttler refreshThrottler;
+    private final transient Throttler refreshThrottler;
     private final transient UndoManagerAdapter undoManagerAdapter;
     private final transient BackendAPI backend;
-    private transient DrawingContainer drawingContainer;
-    private transient ToolBox toolbox;
     private transient Controller controller;
     private final UgsDataObject dataObject;
+    private static DrawingContainer drawingContainer;
 
     public DesignerTopComponent(UgsDataObject dataObject) {
         super();
@@ -85,7 +80,14 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
             CentralLookup.getDefault().add(controller.getSelectionManager());
         }
 
+        // We need to reuse the drawing container for each loaded file
+        if (drawingContainer == null) {
+            drawingContainer = new DrawingContainer(controller);
+        }
+
         undoManagerAdapter = new UndoManagerAdapter(controller.getUndoManager());
+        controller.getSelectionManager().addSelectionListener(this);
+        controller.getDrawing().setComponentPopupMenu(new PopupMenuFactory().createPopupMenu(controller));
         setActivatedNodes(new DataNode[]{new DataNode(dataObject, Children.LEAF, dataObject.getLookup())});
         dataObject.addPropertyChangeListener(evt -> updateFilename());
         loadDesign(dataObject);
@@ -101,7 +103,6 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
                 UgsDesignReader reader = new UgsDesignReader();
                 design = reader.read(file).orElse(design);
             }
-
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Couldn't load design from file " + dataObject.getPrimaryFile(), e);
         }
@@ -117,24 +118,20 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     @Override
     protected void componentOpened() {
         super.componentOpened();
+        removeAll();
         setMinimumSize(new java.awt.Dimension(50, 50));
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());
 
         PlatformUtils.openSettings(controller);
         PlatformUtils.openEntitesTree(controller);
-
-        drawingContainer = new DrawingContainer(controller);
-        controller.getSelectionManager().addSelectionListener(this);
-        toolbox = new ToolBox(controller);
-
+        ToolBox toolbox = new ToolBox(controller);
         add(toolbox, BorderLayout.NORTH);
         add(drawingContainer, BorderLayout.CENTER);
 
         setVisible(true);
 
         controller.getUndoManager().addListener(this);
-        controller.getDrawing().setComponentPopupMenu(new PopupMenuFactory().createPopupMenu(controller));
         controller.getDrawing().repaint();
         refreshThrottler.run();
     }
@@ -162,21 +159,13 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     }
 
     private void generateGcode() {
-        SimpleGcodeRouter simpleGcodeRouter = new SimpleGcodeRouter();
-        simpleGcodeRouter.setSafeHeight(controller.getSettings().getSafeHeight());
-        simpleGcodeRouter.setDepthPerPass(controller.getSettings().getDepthPerPass());
-        simpleGcodeRouter.setToolDiameter(controller.getSettings().getToolDiameter());
-        simpleGcodeRouter.setToolStepOver(controller.getSettings().getToolStepOver());
-
-        String gcode = simpleGcodeRouter.toGcode(controller.getDrawing().getEntities());
+        DesignWriter designWriter = new GcodeDesignWriter();
         try {
             File file = new File(Files.createTempDir(), dataObject.getName() + ".gcode");
-            FileWriter fileWriter = new FileWriter(file);
-            IOUtils.write(gcode, fileWriter);
-            fileWriter.close();
+            designWriter.write(file, controller);
             backend.setGcodeFile(file);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Could not genereate gcode");
         }
     }
 

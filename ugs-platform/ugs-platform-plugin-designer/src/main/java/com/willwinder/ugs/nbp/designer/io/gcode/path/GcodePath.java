@@ -14,10 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with JGCGen.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gcode.path;
+package com.willwinder.ugs.nbp.designer.io.gcode.path;
 
 import com.willwinder.universalgcodesender.model.PartialPosition;
-import com.willwinder.universalgcodesender.model.Position;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,8 +46,20 @@ public class GcodePath implements PathGenerator {
         segments.add(new Segment(type, point));
     }
 
+    public void addSegment(SegmentType type, PartialPosition point, String comment) {
+        segments.add(new Segment(type, point, comment));
+    }
+
+    public void addSegment(Segment segment) {
+        segments.add(segment);
+    }
+
     public List<Segment> getSegments() {
         return Collections.unmodifiableList(segments);
+    }
+
+    public void appendGcodePath(GcodePath gcodePath) {
+        segments.addAll(gcodePath.getSegments());
     }
 
     /**

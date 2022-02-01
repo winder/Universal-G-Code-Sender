@@ -30,17 +30,19 @@ import java.io.IOException;
 
 @MIMEResolver.ExtensionRegistration(
         displayName = "UGS design",
-        mimeType = "application/x-ugs",
+        mimeType = UgsDataObject.MIME_TYPE,
         extension = {"ugsd", "UGSD"},
         position = 2
 )
 @DataObject.Registration(
-        mimeType = "application/x-ugs",
+        mimeType = UgsDataObject.MIME_TYPE,
         iconBase = "com/willwinder/ugs/nbp/designer/platform/edit.png",
         displayName = "UGS design",
         position = 300
 )
 public class UgsDataObject extends MultiDataObject {
+
+    public static final String MIME_TYPE = "application/x-ugs";
 
     public UgsDataObject(FileObject pf, MultiFileLoader loader) throws IOException {
         super(pf, loader);

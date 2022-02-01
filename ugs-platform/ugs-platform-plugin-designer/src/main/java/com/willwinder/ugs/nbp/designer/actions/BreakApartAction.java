@@ -24,7 +24,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
-import com.willwinder.ugs.nbp.designer.gcode.toolpaths.ToolPathUtils;
+import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.Geometry;
@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 public class BreakApartAction extends AbstractAction implements SelectionListener {
     private static final String SMALL_ICON_PATH = "img/break.svg";
     private static final String LARGE_ICON_PATH = "img/break24.svg";
-    private transient final Controller controller;
+    private final transient Controller controller;
 
     public BreakApartAction(Controller controller) {
         putValue("menuText", "Break apart");

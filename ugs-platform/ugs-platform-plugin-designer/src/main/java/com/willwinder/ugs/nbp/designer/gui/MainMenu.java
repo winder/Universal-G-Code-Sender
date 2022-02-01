@@ -40,7 +40,7 @@ public class MainMenu extends JMenuBar {
         JMenuItem open = new JMenuItem(new OpenAction());
         JMenuItem save = new JMenuItem(new SaveAction(controller));
         JMenuItem export = new JMenuItem(new ExportPngAction(controller));
-        JMenuItem exportGcode = new JMenuItem(new ExportGcodeAction(controller));
+        JMenuItem exportGcode = new JMenuItem(new ExportGcodeAction());
         JMenuItem quit = new JMenuItem(new QuitAction());
 
         JMenuItem undo = new JMenuItem(new UndoAction());

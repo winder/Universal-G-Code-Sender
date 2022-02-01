@@ -16,10 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gcode.toolpaths;
+package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
-import com.willwinder.ugs.nbp.designer.gcode.path.GcodePath;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import org.locationtech.jts.geom.Geometry;
 
@@ -28,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.willwinder.ugs.nbp.designer.gcode.toolpaths.ToolPathUtils.*;
+import static com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils.*;
 
 /**
  * @author Joacim Breiler
