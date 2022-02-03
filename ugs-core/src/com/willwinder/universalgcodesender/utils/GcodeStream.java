@@ -40,7 +40,7 @@ public abstract class GcodeStream {
     protected final int COL_COMMAND_NUMBER    = 2;
     protected final int COL_COMMENT           = 3;
 
-    protected final String separator = "++";
+    protected final String separator = "¶¶";
     protected final Pattern splitPattern = Pattern.compile(Pattern.quote(separator));
     protected final String metaPrefix = "gsw_meta:";
 }

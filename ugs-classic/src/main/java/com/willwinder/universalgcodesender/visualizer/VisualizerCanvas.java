@@ -520,7 +520,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
             this.vertexArrayDirty = true;
         } catch (GcodeParserException | IOException | GcodeStreamReader.NotGcodeStreamFile e) {
             String error = Localization.getString("mainWindow.error.openingFile") + " : " + e.getLocalizedMessage();
-            System.out.println(error);
+            logger.log(Level.SEVERE, error, e);
             GUIHelpers.displayErrorDialog(error);
         }
 
