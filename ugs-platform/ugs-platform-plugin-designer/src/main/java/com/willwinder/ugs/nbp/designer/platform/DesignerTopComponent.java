@@ -123,8 +123,6 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());
 
-        PlatformUtils.openSettings(controller);
-        PlatformUtils.openEntitesTree(controller);
         ToolBox toolbox = new ToolBox(controller);
         add(toolbox, BorderLayout.NORTH);
         add(drawingContainer, BorderLayout.CENTER);
@@ -158,6 +156,13 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         PlatformUtils.registerActions(getActionMap(), controller, this);
     }
 
+    @Override
+    protected void componentShowing() {
+        super.componentShowing();
+        PlatformUtils.openSettings(controller);
+        PlatformUtils.openEntitesTree(controller);
+    }
+
     private void generateGcode() {
         DesignWriter designWriter = new GcodeDesignWriter();
         try {
@@ -165,7 +170,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
             designWriter.write(file, controller);
             backend.setGcodeFile(file);
         } catch (Exception e) {
-            throw new RuntimeException("Could not genereate gcode");
+            throw new RuntimeException("Could not generate gcode");
         }
     }
 

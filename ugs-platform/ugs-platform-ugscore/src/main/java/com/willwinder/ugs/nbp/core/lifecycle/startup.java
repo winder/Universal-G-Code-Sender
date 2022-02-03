@@ -18,41 +18,44 @@
  */
 package com.willwinder.ugs.nbp.core.lifecycle;
 
-import com.willwinder.ugs.nbp.core.services.*;
 import com.willwinder.ugs.nbp.core.control.MacroService;
+import com.willwinder.ugs.nbp.core.services.*;
 import com.willwinder.ugs.nbp.core.statusline.SendStatusLineService;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.Utils;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
-
-import java.io.File;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
-
 import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
 import org.netbeans.spi.sendopts.OptionProcessor;
+import org.openide.cookies.OpenCookie;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.modules.OnStart;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.windows.WindowManager;
 
+import java.io.File;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author wwinder
  */
-@ServiceProvider(service=OptionProcessor.class)
+@ServiceProvider(service = OptionProcessor.class)
 @OnStart
 public class startup extends OptionProcessor implements Runnable {
     private static final Logger logger = Logger.getLogger(startup.class.getName());
 
     private final Option openOption = Option.additionalArguments('o', "open");
+    private final Option defaultOpenOption = Option.defaultArguments();
 
     @Override
     public void run() {
@@ -93,10 +96,11 @@ public class startup extends OptionProcessor implements Runnable {
     /**
      * Register interest in the "open" option.
      */
-    @Override       
-    public Set getOptions() {
-        HashSet set = new HashSet();
+    @Override
+    public Set<Option> getOptions() {
+        HashSet<Option> set = new HashSet<>();
         set.add(openOption);
+        set.add(defaultOpenOption);
         return set;
     }
 
@@ -104,23 +108,32 @@ public class startup extends OptionProcessor implements Runnable {
      * CLI Handler.
      */
     @Override
-    protected void process(Env env, Map<Option, String[]> maps) throws CommandException {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+    protected void process(Env env, Map<Option, String[]> optionsMap) throws CommandException {
+        Optional<String> fileToOpen = getFileToOpen(optionsMap, openOption);
+        if (!fileToOpen.isPresent()) {
+            fileToOpen = getFileToOpen(optionsMap, defaultOpenOption);
+        }
 
-        String inputFile = null;
-        int count = 0;
-        for (String[] files : maps.values()) {
-            for (String file : files) {
-                count++;
-                inputFile = file;
+        if (fileToOpen.isPresent()) {
+            String inputFile = fileToOpen.get();
+            logger.info("File to open: " + inputFile);
+            try {
+                DataObject.find(FileUtil.toFileObject(new File(inputFile)))
+                        .getLookup()
+                        .lookup(OpenCookie.class)
+                        .open();
+            } catch (DataObjectNotFoundException e) {
+                logger.log(Level.SEVERE, "Could not open file " + inputFile, e);
             }
         }
+    }
 
-        if (count == 0 || count > 1) {
-            throw new CommandException(1, "Too many input files provided.");
+    private Optional<String> getFileToOpen(Map<Option, String[]> optionsMap, Option option) {
+        String[] files = optionsMap.getOrDefault(option, new String[0]);
+
+        if (files.length > 0) {
+            return Optional.of(files[0]);
         }
-
-        logger.info("File to open: " + inputFile);
-        GUIHelpers.openGcodeFile(new File(inputFile), backend);
+        return Optional.empty();
     }
 }
