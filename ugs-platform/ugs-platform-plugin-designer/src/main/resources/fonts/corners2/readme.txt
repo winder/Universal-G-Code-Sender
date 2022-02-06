@@ -1,0 +1,1 @@
+https://www.fontspace.com/corners-2-font-f5917

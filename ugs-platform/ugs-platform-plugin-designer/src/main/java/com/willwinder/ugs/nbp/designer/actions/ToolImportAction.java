@@ -37,18 +37,18 @@ import java.util.Optional;
 /**
  * @author Joacim Breiler
  */
-public final class ToolInsertAction extends AbstractAction {
+public final class ToolImportAction extends AbstractAction {
 
     public static final String SMALL_ICON_PATH = "img/import.svg";
     public static final String LARGE_ICON_PATH = "img/import24.svg";
     private final Controller controller;
 
-    public ToolInsertAction(Controller controller) {
+    public ToolImportAction(Controller controller) {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
-        putValue("menuText", "Insert");
-        putValue(NAME, "Insert");
+        putValue("menuText", "Import");
+        putValue(NAME, "Import");
         this.controller = controller;
     }
 

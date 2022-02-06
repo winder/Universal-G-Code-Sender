@@ -54,12 +54,19 @@ public class ToolBox extends ToolBar {
         text.setToolTipText("Write text");
         add(text);
 
-        JButton insert = new JButton(new ToolInsertAction(controller));
-        insert.setText("");
-        insert.setToolTipText("Inserts a drawing");
-        insert.setContentAreaFilled(false);
-        insert.setBorderPainted(false);
-        add(insert);
+        JButton importButton = new JButton(new ToolImportAction(controller));
+        importButton.setText("");
+        importButton.setToolTipText("Imports a drawing");
+        importButton.setContentAreaFilled(false);
+        importButton.setBorderPainted(false);
+        add(importButton);
+
+        JButton insertButton = new JButton(new ToolClipartAction(controller));
+        insertButton.setText("");
+        insertButton.setToolTipText("Inserts a clipart");
+        insertButton.setContentAreaFilled(false);
+        insertButton.setBorderPainted(false);
+        add(insertButton);
 
         addSeparator();
 
@@ -122,7 +129,7 @@ public class ToolBox extends ToolBar {
         buttons.add(circle);
         buttons.add(rectangle);
         buttons.add(text);
-        buttons.add(insert);
+        buttons.add(importButton);
         buttons.add(zoom);
 
         controller.addListener(event -> {
@@ -143,7 +150,7 @@ public class ToolBox extends ToolBar {
                         text.setSelected(true);
                         break;
                     case INSERT:
-                        insert.setSelected(true);
+                        importButton.setSelected(true);
                         break;
                     case ZOOM:
                         zoom.setSelected(true);
