@@ -176,11 +176,15 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     }
 
     public void setWorkCoordinate(Position p) {
-        this.workCoord.set(p.getPositionIn(UnitUtils.Units.MM));
+        if (p != null) {
+            this.workCoord.set(p.getPositionIn(UnitUtils.Units.MM));
+        }
     }
     
     public void setMachineCoordinate(Position p) {
-        this.machineCoord.set(p.getPositionIn(UnitUtils.Units.MM));
+        if (p != null) {
+            this.machineCoord.set(p.getPositionIn(UnitUtils.Units.MM));
+        }
     }
 
     final public void reloadPreferences() {
