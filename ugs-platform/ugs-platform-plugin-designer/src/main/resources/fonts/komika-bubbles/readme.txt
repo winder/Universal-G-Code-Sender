@@ -1,0 +1,1 @@
+https://www.fontspace.com/komika-bubbles-font-f404
