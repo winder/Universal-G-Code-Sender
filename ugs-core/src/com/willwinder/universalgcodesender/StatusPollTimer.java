@@ -1,6 +1,24 @@
+/*
+    Copyright 2013-2020 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender;
 
-import javax.swing.*;
+import javax.swing.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,8 +34,8 @@ public class StatusPollTimer {
     private static final Logger LOGGER = Logger.getLogger(StatusPollTimer.class.getName());
     private static final int MAX_OUTSTANDING_POLLS = 20;
 
+    private final IController controller;
     private Timer timer;
-    private IController controller;
     private int outstandingPolls;
 
     public StatusPollTimer(IController controller) {

@@ -51,6 +51,7 @@ import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 public abstract class AbstractController implements CommunicatorListener, IController {
     private static final Logger logger = Logger.getLogger(AbstractController.class.getName());
     private final GcodeParser parser = new GcodeParser();
+    private final ConnectionWatchTimer connectionWatchTimer = new ConnectionWatchTimer(this);
 
     // These abstract objects are initialized in concrete class.
     protected final ICommunicator comm;
@@ -95,7 +96,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     // Maintain the current state given actions performed.
     // Concrete classes with a status field should override getControlState.
     private CommunicatorState currentState = COMM_DISCONNECTED;
-
 
     /** API Interface. */
 
@@ -391,6 +391,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
                     "**** Connected to " + port + " @ " + portRate + " baud ****\n");
         }
 
+        connectionWatchTimer.start();
         return isCommOpen();
     }
 
@@ -399,7 +400,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     @Override
     public Boolean closeCommPort() throws Exception {
         // Already closed.
-        if (!isCommOpen()) {
+        if (!isCommOpen() && getControllerStatus().getState() == ControllerState.DISCONNECTED) {
             return true;
         }
 
@@ -419,6 +420,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
 
         this.closeCommAfterEvent();
         this.setControllerState(ControllerState.DISCONNECTED);
+        this.connectionWatchTimer.stop();
         return true;
     }
 

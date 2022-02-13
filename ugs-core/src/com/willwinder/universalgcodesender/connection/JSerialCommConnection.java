@@ -53,6 +53,10 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
             throw new ConnectionException("The connection wasn't initialized");
         }
 
+        if (serialPort.isOpen()) {
+            throw new ConnectionException("Can not connect, serial port is already open");
+        }
+
         return serialPort.openPort();
     }
 
