@@ -28,7 +28,6 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.*;
-import com.willwinder.universalgcodesender.model.CommunicatorState;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
@@ -40,7 +39,8 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.willwinder.universalgcodesender.model.CommunicatorState.*;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
 
 /**
  * GRBL Control layer, coordinates all aspects of control.
@@ -193,7 +193,7 @@ public class GrblController extends AbstractController {
                 // controller status because we need to know the previous state for resetting
                 // single step mode
                 if (getControlState() != COMM_CHECK) {
-                    this.controllerStatus = ControllerStatusBuilder.newInstance().setState(ControllerState.UNKNOWN).build();
+                    this.controllerStatus = ControllerStatusBuilder.newInstance().setState(ControllerState.CONNECTING).build();
                 }
 
                 positionPollTimer.stop();
@@ -372,7 +372,7 @@ public class GrblController extends AbstractController {
             return super.getControlState();
         }
 
-        ControllerState state = this.controllerStatus == null ? ControllerState.UNKNOWN : this.controllerStatus.getState();
+        ControllerState state = this.controllerStatus == null ? ControllerState.DISCONNECTED : this.controllerStatus.getState();
         switch(state) {
             case JOG:
             case RUN:
@@ -602,7 +602,7 @@ public class GrblController extends AbstractController {
         }
 
         CommunicatorState before = getControlState();
-        ControllerState beforeState = controllerStatus == null ? ControllerState.UNKNOWN : controllerStatus.getState();
+        ControllerState beforeState = controllerStatus == null ? ControllerState.DISCONNECTED : controllerStatus.getState();
 
         controllerStatus = GrblUtils.getStatusFromStatusString(
                 controllerStatus, string, capabilities, getFirmwareSettings().getReportingUnits());
@@ -671,6 +671,16 @@ public class GrblController extends AbstractController {
     protected void statusUpdatesRateValueChanged() {
         positionPollTimer.stop();
         positionPollTimer.start();
+    }
+
+    @Override
+    protected void setControllerState(ControllerState controllerState) {
+        controllerStatus = ControllerStatusBuilder
+                .newInstance(controllerStatus)
+                .setState(controllerState)
+                .build();
+
+        dispatchStatusString(controllerStatus);
     }
 
     @Override

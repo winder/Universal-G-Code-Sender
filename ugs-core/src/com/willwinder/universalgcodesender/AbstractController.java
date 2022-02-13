@@ -382,6 +382,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         // No point in checking response, it throws an exception on errors.
         this.comm.connect(connectionDriver, port, portRate);
         this.setCurrentState(COMM_IDLE);
+        this.setControllerState(ControllerState.CONNECTING);
 
         if (isCommOpen()) {
             this.openCommAfterEvent();
@@ -392,6 +393,8 @@ public abstract class AbstractController implements CommunicatorListener, IContr
 
         return isCommOpen();
     }
+
+    protected abstract void setControllerState(ControllerState controllerState);
 
     @Override
     public Boolean closeCommPort() throws Exception {
@@ -415,6 +418,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         this.comm.disconnect();
 
         this.closeCommAfterEvent();
+        this.setControllerState(ControllerState.DISCONNECTED);
         return true;
     }
 

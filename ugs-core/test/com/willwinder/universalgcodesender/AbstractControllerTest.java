@@ -135,6 +135,8 @@ public class AbstractControllerTest {
         expect(expectLastCall()).anyTimes();
         mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall()).anyTimes();
+        instance.setControllerState(eq(ControllerState.CONNECTING));
+        expect(expectLastCall()).once();
         mockCommunicator.connect(or(eq(ConnectionDriver.JSERIALCOMM), eq(ConnectionDriver.JSSC)), eq(port), eq(portRate));
         expect(instance.isCommOpen()).andReturn(false).once();
         expect(instance.isCommOpen()).andReturn(true).anyTimes();

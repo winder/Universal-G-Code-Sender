@@ -245,7 +245,7 @@ public class TinyGUtils {
     private static ControllerState getState(int state) {
         switch (state) {
             case 0: // Machine is initializing
-                return ControllerState.UNKNOWN;
+                return ControllerState.CONNECTING;
             case 1: // Machine is ready for use
                 return ControllerState.IDLE;
             case 2: // Machine is in alarm state

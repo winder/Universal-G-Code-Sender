@@ -139,7 +139,7 @@ public class G2CoreControllerTest {
 
     @Test
     public void rawResponseWithStatusReportStateFromControllerShouldUpdateControllerState() {
-        assertEquals("The controller should begin in an unkown state", ControllerState.UNKNOWN, controller.getControllerStatus().getState());
+        assertEquals("The controller should begin in an disconnected state", ControllerState.DISCONNECTED, controller.getControllerStatus().getState());
 
         ControllerListener controllerListener = mock(ControllerListener.class);
         controller.addListener(controllerListener);

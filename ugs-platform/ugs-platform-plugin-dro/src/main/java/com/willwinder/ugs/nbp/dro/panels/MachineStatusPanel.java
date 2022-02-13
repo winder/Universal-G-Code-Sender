@@ -209,10 +209,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
 
     private Timer createTimer() {
         return new Timer((int) REFRESH_RATE.toMillis(), (ae) -> EventQueue.invokeLater(() -> {
-            if (!backend.isConnected()) {
-                activeStateValueLabel.setText(OFFLINE);
-                activeStatePanel.setBackground(Color.BLACK);
-            }
             GcodeState state = backend.getGcodeState();
             if (state == null) {
                 gStatesLabel.setText("--");
@@ -265,7 +261,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
             });
 
             // Clear out the status color.
-            this.updateStatePanel(ControllerState.UNKNOWN);
+            this.updateStatePanel(ControllerState.DISCONNECTED);
             resetStatePinComponents();
             return;
         }

@@ -520,7 +520,7 @@ public class GrblUtils {
             case "sleep":
                 return ControllerState.SLEEP;
             default:
-                return ControllerState.UNKNOWN;
+                return ControllerState.DISCONNECTED;
         }
     }
 
