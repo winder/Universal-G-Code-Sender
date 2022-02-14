@@ -46,6 +46,17 @@ public class ThreadHelper {
     }
 
     /**
+     * Schedules a timer that will be executed at a fixed interval given in milliseconds
+     *
+     * @param command the command to execute
+     * @param interval the interval in milliseconds
+     * @return the future of the timer
+     */
+    static public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long interval) {
+        return scheduledExecutor.scheduleAtFixedRate(command, 0, interval, TimeUnit.MILLISECONDS);
+    }
+
+    /**
      * This method will wait for the given supplier to become true.
      * It will wait for the maximum given timeout and units and then throw a
      * timeout exception

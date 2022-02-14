@@ -58,7 +58,7 @@ public class SmoothieController extends AbstractController {
         super(communicator);
         capabilities = new Capabilities();
         firmwareSettings = new SmoothieFirmwareSettings();
-        controllerStatus = new ControllerStatus(ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+        controllerStatus = new ControllerStatus(ControllerState.DISCONNECTED, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
         commandCreator = new GcodeCommandCreator();
         statusPollTimer = new StatusPollTimer(this);
     }
@@ -103,7 +103,7 @@ public class SmoothieController extends AbstractController {
         comm.cancelSend();
         comm.sendByteImmediately(SmoothieUtils.RESET_COMMAND);
 
-        setCurrentState(CommunicatorState.COMM_DISCONNECTED);
+        setCurrentState(COMM_DISCONNECTED);
         controllerStatus = ControllerStatusBuilder.newInstance(controllerStatus)
                 .setState(ControllerState.DISCONNECTED)
                 .build();
@@ -278,27 +278,36 @@ public class SmoothieController extends AbstractController {
         switch(state) {
             case JOG:
             case RUN:
-                return CommunicatorState.COMM_SENDING;
+                return COMM_SENDING;
             case HOLD:
             case DOOR:
-                return CommunicatorState.COMM_SENDING_PAUSED;
+                return COMM_SENDING_PAUSED;
             case IDLE:
                 if (isStreaming()){
-                    return CommunicatorState.COMM_SENDING_PAUSED;
+                    return COMM_SENDING_PAUSED;
                 } else {
-                    return CommunicatorState.COMM_IDLE;
+                    return COMM_IDLE;
                 }
             case CHECK:
                 if (isStreaming() && comm.isPaused()) {
-                    return CommunicatorState.COMM_SENDING_PAUSED;
+                    return COMM_SENDING_PAUSED;
                 } else if (isStreaming() && !comm.isPaused()) {
-                    return CommunicatorState.COMM_SENDING;
+                    return COMM_SENDING;
                 } else {
                     return COMM_CHECK;
                 }
             case ALARM:
             default:
-                return CommunicatorState.COMM_IDLE;
+                return COMM_IDLE;
         }
+    }
+
+    @Override
+    protected void setControllerState(ControllerState controllerState) {
+        controllerStatus = ControllerStatusBuilder
+                .newInstance(controllerStatus)
+                .setState(controllerState)
+                .build();
+        dispatchStatusString(controllerStatus);
     }
 }

@@ -238,7 +238,7 @@ public class GrblControllerTest {
         GrblController instance = new GrblController(mgc);
         instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
         instance.rawResponseHandler("Grbl 0.9");
-        assertEquals(ControllerState.UNKNOWN, instance.getControllerStatus().getState());
+        assertEquals(ControllerState.CONNECTING, instance.getControllerStatus().getState());
 
         instance.performHomingCycle();
         assertEquals(ControllerState.HOME, instance.getControllerStatus().getState());
@@ -248,7 +248,7 @@ public class GrblControllerTest {
      * Test of issueSoftReset method, of class GrblController.
      */
     @Test
-    public void testIssueSoftReset() throws IOException, Exception {
+    public void testIssueSoftReset() throws Exception {
         System.out.println("issueSoftReset");
         GrblController instance = new GrblController(mgc);
 
@@ -1416,7 +1416,7 @@ public class GrblControllerTest {
 
         // Then
         assertEquals(COMM_IDLE, instance.getControlState());
-        assertEquals(ControllerState.UNKNOWN, instance.getControllerStatus().getState());
+        assertEquals(ControllerState.CONNECTING, instance.getControllerStatus().getState());
     }
 
     /**

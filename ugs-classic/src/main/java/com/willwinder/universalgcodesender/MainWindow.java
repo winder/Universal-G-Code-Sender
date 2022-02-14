@@ -1603,7 +1603,6 @@ public class MainWindow extends JFrame implements UGSEventListener {
         
         switch (backend.getControllerState()) {
             case DISCONNECTED:
-            case UNKNOWN:
                 this.updateConnectionControlsStateOpen(false);
                 this.updateWorkflowControls(false);
                 this.setStatusColorForState(ControllerState.UNKNOWN);
@@ -1611,6 +1610,7 @@ public class MainWindow extends JFrame implements UGSEventListener {
             case IDLE:
             case CHECK:
             case ALARM:
+            case CONNECTING:
                 this.updateConnectionControlsStateOpen(true);
                 this.updateWorkflowControls(true);
                 break;

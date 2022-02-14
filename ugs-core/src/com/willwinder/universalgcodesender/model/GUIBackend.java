@@ -814,7 +814,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         } catch (Exception e) {
             logger.log(Level.INFO, "Exception in openCommConnection.", e);
             throw new Exception(Localization.getString("mainWindow.error.connection")
-                    + " (" + e.getClass().getName() + "): " + e.getMessage());
+                    + ": " + e.getMessage());
         }
         return connected;
     }

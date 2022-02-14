@@ -78,6 +78,11 @@ public enum ControllerState {
     DISCONNECTED,
 
     /**
+     * When attempting to establish a connection to the controller
+     */
+    CONNECTING,
+
+    /**
      * When the machine is in an unknown state
      */
     UNKNOWN

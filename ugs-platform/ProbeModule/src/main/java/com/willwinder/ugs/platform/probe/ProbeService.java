@@ -415,7 +415,7 @@ public class ProbeService implements UGSEventListener {
         if (evt instanceof ControllerStateEvent) {
             ControllerStateEvent controllerStateEvent = (ControllerStateEvent) evt;
             ControllerState state = controllerStateEvent.getState();
-            if (state == ControllerState.DISCONNECTED || state == ControllerState.UNKNOWN) {
+            if (state == ControllerState.DISCONNECTED) {
                 resetProbe();
             } else if (state == ControllerState.IDLE) {
                 // Finalize

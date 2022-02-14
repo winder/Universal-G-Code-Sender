@@ -81,8 +81,8 @@ public abstract class AbstractCommunicator implements ICommunicator {
     //do common operations (related to the connection, that is shared by all communicators)
     @Override
     public void connect(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
+        String url = connectionDriver.getProtocol() + name + ":" + baud;
         if (connection == null) {
-            String url = connectionDriver.getProtocol() + name + ":" + baud;
             connection = ConnectionFactory.getConnection(url);
             logger.info("Connecting to controller using class: " + connection.getClass().getSimpleName() + " with url " + url);
         }
@@ -99,7 +99,9 @@ public abstract class AbstractCommunicator implements ICommunicator {
         this.eventThread.start();
 
         //open it
-        connection.openPort();
+        if (!connection.openPort()) {
+           throw new Exception("Could not connect to controller on port " + url);
+        }
     }
 
     @Override
