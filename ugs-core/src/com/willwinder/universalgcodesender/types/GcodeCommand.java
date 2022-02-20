@@ -1,5 +1,5 @@
 /*
-    Copyright 2012-2019 Will Winder
+    Copyright 2012-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,6 +25,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -35,46 +38,46 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class GcodeCommand {
     private static final AtomicInteger ID_GENERATOR = new AtomicInteger(0);
+    private Set<CommandListener> listeners;
     private String command;
     private String originalCommand;
     private String response;
-    private boolean sent = false;
+
+    private boolean isSent = false;
     private boolean isOk = false;
     private boolean isError = false;
-    private Integer commandNum = -1;
     private boolean isSkipped = false;
+    private boolean isDone = false;
+    private int commandNum;
 
     /**
      * If this is a generated command not apart of any program such as jog or settings commands
      */
-    private boolean isGenerated = true;
+    private boolean isGenerated;
     private String comment;
     private boolean isTemporaryParserModalChange = false;
-    private Integer id = ID_GENERATOR.getAndIncrement();
+    private int id = ID_GENERATOR.getAndIncrement();
 
     public GcodeCommand(String command) {
         this(command, -1);
     }
-    
-    public GcodeCommand(String command, int num) {
-        this.command = command;
-        this.commandNum = num;
-        this.comment = GcodePreprocessorUtils.parseComment(command);
+
+    public GcodeCommand(String command, int commandNumber) {
+        this(command, null, GcodePreprocessorUtils.parseComment(command), commandNumber, true);
     }
 
     /**
-     *
-     * @param command
-     * @param originalCommand
-     * @param comment
-     * @param num
-     * @param isGenerated If this is a generated command not a part of any program (ie. jog, action or settings commands).
+     * @param command         the command that will be sent to the controller
+     * @param originalCommand the
+     * @param comment         either a comment
+     * @param commandNumber   the index of command, usually the line number in a file
+     * @param isGenerated     if this is a generated command not a part of any program (ie. jog, action or settings commands).
      */
-    public GcodeCommand(String command, String originalCommand, String comment, int num, boolean isGenerated) {
+    public GcodeCommand(String command, String originalCommand, String comment, int commandNumber, boolean isGenerated) {
         this.command = command;
         this.originalCommand = originalCommand;
         this.comment = comment;
-        this.commandNum = num;
+        this.commandNum = commandNumber;
         this.isGenerated = isGenerated;
     }
 
@@ -90,19 +93,45 @@ public class GcodeCommand {
     public void setResponse(String response) {
         this.response = response;
     }
-    
-    public void setSent(Boolean sent) {
-        this.sent = sent;
+
+    public void appendResponse(String response) {
+        if (this.response == null) {
+            this.response = response;
+        } else {
+            this.response += response;
+        }
     }
-    
-    public void setSkipped(Boolean skipped) {
+
+    public void setSent(boolean sent) {
+        this.isSent = sent;
+    }
+
+    public void setSkipped(boolean skipped) {
         this.isSkipped = skipped;
     }
-    
-    /** Getters. */
+
+    public void addListener(CommandListener commandListener) {
+        if (listeners == null) {
+            listeners = Collections.synchronizedSet(new HashSet<>());
+        }
+        listeners.add(commandListener);
+    }
+
+    /**
+     * Releases any resources allocated for this, making it eligible for garbage collection
+     */
+    public void dispose() {
+        if (listeners != null) {
+            listeners.clear();
+        }
+    }
+
+    /**
+     * Getters.
+     */
     @Override
     public String toString() {
-        return ToStringBuilder.reflectionToString(this,  ToStringStyle.SHORT_PREFIX_STYLE);
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
     
     public String getCommandString() {
@@ -122,7 +151,7 @@ public class GcodeCommand {
     }
     
     public boolean isSent() {
-        return this.sent;
+        return this.isSent;
     }
     
     public boolean isOk() {
@@ -135,6 +164,10 @@ public class GcodeCommand {
     
     public boolean isSkipped() {
         return this.isSkipped;
+    }
+
+    public boolean isDone() {
+        return isDone;
     }
 
     public boolean hasComment() {
@@ -158,9 +191,13 @@ public class GcodeCommand {
     public void setTemporaryParserModalChange(boolean isGUICommand) {
         this.isTemporaryParserModalChange = isGUICommand;
     }
-    
-    public boolean isDone() {
-        return (this.response != null);
+
+    public void setDone(boolean isDone) {
+        this.isDone = isDone;
+        if (isDone && listeners != null) {
+            listeners.forEach(commandListener -> commandListener.onDone(this));
+            listeners.clear();
+        }
     }
 
     public void setOk(boolean isOk) {
@@ -171,7 +208,7 @@ public class GcodeCommand {
         this.isError = isError;
     }
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 

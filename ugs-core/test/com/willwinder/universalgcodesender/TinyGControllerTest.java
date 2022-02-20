@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -31,6 +31,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -266,5 +268,20 @@ public class TinyGControllerTest {
         assertEquals("G20G90G1X0.039Y0.079Z0.118F39.37", command.getCommandString());
         assertTrue(command.isGenerated());
         assertTrue(command.isTemporaryParserModalChange());
+    }
+
+    @Test
+    public void commandCompleteShouldDispatchCommandEvent() throws Exception {
+        when(communicator.isConnected()).thenReturn(true);
+
+        AtomicBoolean eventDispatched = new AtomicBoolean(false);
+        GcodeCommand command = new GcodeCommand("blah");
+        command.addListener(c -> eventDispatched.set(true));
+
+        // Simulate sending and completing the command
+        controller.commandSent(command);
+        controller.commandComplete("{}");
+
+        assertTrue("Should have sent an event notifying that the command has completed", eventDispatched.get());
     }
 }

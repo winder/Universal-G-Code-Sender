@@ -34,6 +34,8 @@ import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -87,7 +89,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     private IGcodeStreamReader streamCommands;    // The stream of commands to send.
 
     // Listeners
-    private ArrayList<ControllerListener> listeners;
+    private List<ControllerListener> listeners;
 
     //Track current mode to restore after jogging
     private String distanceModeCode = null;
@@ -329,7 +331,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         this.comm.addListener(this);
 
         this.activeCommands = new ArrayList<>();
-        this.listeners = new ArrayList<>();
+        this.listeners = Collections.synchronizedList(new ArrayList<>());
     }
 
     @Override
@@ -783,6 +785,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         this.dispatchConsoleMessage(MessageType.INFO, message.toString());
         command.setResponse("<skipped by application>");
         command.setSkipped(true);
+        command.setDone(true);
         dispatchCommandSkipped(command);
 
         checkStreamFinished();
@@ -799,10 +802,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         }
 
         GcodeCommand command = this.activeCommands.remove(0);
-
-        command.setResponse(response);
-        GrblUtils.updateGcodeCommandFromResponse(command, response);
-
+        updateCommandFromResponse(command, response);
         updateParserModalState(command);
 
         this.numCommandsCompleted++;
@@ -814,6 +814,8 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         dispatchCommandComplete(command);
         checkStreamFinished();
     }
+
+    protected abstract void updateCommandFromResponse(GcodeCommand command, String response);
 
     @Override
     public void rawResponseListener(String response) {

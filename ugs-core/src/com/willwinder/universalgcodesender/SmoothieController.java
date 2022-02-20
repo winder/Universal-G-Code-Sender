@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -309,5 +309,10 @@ public class SmoothieController extends AbstractController {
                 .setState(controllerState)
                 .build();
         dispatchStatusString(controllerStatus);
+    }
+
+    @Override
+    protected void updateCommandFromResponse(GcodeCommand command, String response) {
+        GrblUtils.updateGcodeCommandFromResponse(command, response);
     }
 }

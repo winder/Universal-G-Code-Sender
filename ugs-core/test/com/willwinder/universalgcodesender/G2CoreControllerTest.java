@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -31,6 +31,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -342,5 +344,18 @@ public class G2CoreControllerTest {
 
         // Then
         assertEquals("Should now consider send commands as a normal run state", ControllerState.RUN, controller.getControllerStatus().getState());
+    }
+
+    @Test
+    public void commandCompleteShouldDispatchCommandEvent() throws Exception {
+        AtomicBoolean eventDispatched = new AtomicBoolean(false);
+        GcodeCommand command = new GcodeCommand("{}");
+        command.addListener(c -> eventDispatched.set(true));
+
+        // Simulate sending and completing the command
+        controller.commandSent(command);
+        controller.commandComplete("{}");
+
+        assertTrue("Should have sent an event notifying that the command has completed", eventDispatched.get());
     }
 }

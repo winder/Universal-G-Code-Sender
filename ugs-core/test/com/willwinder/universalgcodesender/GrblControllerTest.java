@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2018 Will Winder
+    Copyright 2013-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.willwinder.universalgcodesender.GrblUtils.*;
 import static com.willwinder.universalgcodesender.model.CommunicatorState.*;
@@ -1034,6 +1035,23 @@ public class GrblControllerTest {
         // TODO: Test that command complete triggers a listener event.
 
         // TODO: Test that command complete triggers fileStreamComplete.
+    }
+
+    @Test
+    public void commandCompleteShouldDispatchCommandEvent() throws Exception {
+        GrblController instance = new GrblController(mgc);
+        instance.openCommPort(getSettings().getConnectionDriver(), "foo", 2400);
+        instance.rawResponseHandler("Grbl 1.1c");
+
+        AtomicBoolean eventDispatched = new AtomicBoolean(false);
+        GcodeCommand command = new GcodeCommand("blah");
+        command.addListener(c -> eventDispatched.set(true));
+
+        // Simulate sending and completing the command
+        instance.commandSent(command);
+        instance.commandComplete("ok");
+
+        assertTrue("Should have sent an event notifying that the command has completed", eventDispatched.get());
     }
 
     /**
