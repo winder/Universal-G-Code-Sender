@@ -1,5 +1,5 @@
 /*
-    Copyright 2012-2020 Will Winder
+    Copyright 2012-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -654,5 +654,7 @@ public class GrblUtils {
             gcodeCommand.setOk(false);
             gcodeCommand.setError(true);
         }
+
+        gcodeCommand.setDone(true);
     }
 }

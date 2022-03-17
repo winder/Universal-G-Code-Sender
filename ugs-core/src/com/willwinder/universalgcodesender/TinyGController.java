@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2020 Will Winder
+    Copyright 2013-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -447,5 +447,20 @@ public class TinyGController extends AbstractController {
             default:
                 return COMM_IDLE;
         }
+    }
+
+    @Override
+    protected void updateCommandFromResponse(GcodeCommand command, String response) {
+        JsonObject jo = TinyGUtils.jsonToObject(response);
+        command.setResponse(response);
+        if (TinyGUtils.isErrorResponse(jo)) {
+            command.setOk(false);
+            command.setError(true);
+        } else {
+            command.setOk(true);
+            command.setError(false);
+        }
+
+        command.setDone(true);
     }
 }

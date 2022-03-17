@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2018 Will Winder
+    Copyright 2013-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -60,6 +60,7 @@ public class TinyGUtils {
     public static final String FIELD_STATUS_REPORT = "sr";
     private static final String FIELD_FIRMWARE_VERSION = "fv";
     private static final String FIELD_RESPONSE = "r";
+    private static final String FIELD_STATUS_ERROR = "err";
     private static final String FIELD_STATUS_REPORT_UNIT = "unit";
     private static final String FIELD_STATUS_REPORT_POSX = "posx";
     private static final String FIELD_STATUS_REPORT_POSY = "posy";
@@ -143,6 +144,10 @@ public class TinyGUtils {
 
     public static boolean isStatusResponse(JsonObject response) {
         return response.has(TinyGUtils.FIELD_STATUS_REPORT) && response.get(TinyGUtils.FIELD_STATUS_REPORT).isJsonObject();
+    }
+
+    public static boolean isErrorResponse(JsonObject response) {
+        return response.has(TinyGUtils.FIELD_RESPONSE) && response.get(TinyGUtils.FIELD_RESPONSE).getAsJsonObject().has(FIELD_STATUS_ERROR);
     }
 
     /**

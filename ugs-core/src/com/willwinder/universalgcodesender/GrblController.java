@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2020 Will Winder
+    Copyright 2013-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -75,7 +75,7 @@ public class GrblController extends AbstractController {
      */
     private boolean temporaryCheckSingleStepMode = false;
 
-    public GrblController(AbstractCommunicator comm) {
+    public GrblController(ICommunicator comm) {
         super(comm);
         
         this.commandCreator = new GcodeCommandCreator();
@@ -690,5 +690,10 @@ public class GrblController extends AbstractController {
             this.dispatchConsoleMessage(MessageType.INFO, String.format(">>> 0x%02x\n", realTimeCommand));
             this.comm.sendByteImmediately(realTimeCommand);
         }
+    }
+
+    @Override
+    protected void updateCommandFromResponse(GcodeCommand command, String response) {
+        GrblUtils.updateGcodeCommandFromResponse(command, response);
     }
 }

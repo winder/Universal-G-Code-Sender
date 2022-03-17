@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,6 +32,11 @@ public class GrblEsp32Controller extends GrblController {
 
     public GrblEsp32Controller() {
         super();
+        this.capabilities.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
+    }
+
+    public GrblEsp32Controller(ICommunicator communicator) {
+        super(communicator);
         this.capabilities.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
     }
 
