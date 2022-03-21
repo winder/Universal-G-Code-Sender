@@ -47,28 +47,13 @@ public class PopupEditor extends JDialog {
         setResizable(false);
         JPanel panel = new JPanel(new MigLayout("fill, wrap 2, inset 2, gap 6, wmin 200, hmin 48", "[70%][30%]"));
         textField = new TextField(text);
+        textField.setSelectionStart(0);
+        textField.setSelectionEnd(text.length());
         textField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
-        textField.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    dispose();
-                } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    notifyListenersAndDispose();
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-            }
-        });
+        textField.addKeyListener(new PopupEditorKeyListener());
         JButton button = new JButton("Set");
         button.setMinimumSize(new Dimension(10, 10));
-        button.addActionListener((event) -> notifyListenersAndDispose());
+        button.addActionListener(event -> notifyListenersAndDispose());
 
         panel.add(textField, "grow");
         panel.add(button, "grow");
@@ -102,5 +87,26 @@ public class PopupEditor extends JDialog {
 
     public interface PopupEditorListener {
         void onValue(String value);
+    }
+
+    private class PopupEditorKeyListener implements KeyListener {
+        @Override
+        public void keyTyped(KeyEvent e) {
+            // Not used
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                dispose();
+            } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                notifyListenersAndDispose();
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+            // Not used
+        }
     }
 }
