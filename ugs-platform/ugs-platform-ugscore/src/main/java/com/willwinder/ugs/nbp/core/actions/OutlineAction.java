@@ -88,6 +88,7 @@ public final class OutlineAction extends AbstractAction implements UGSEventListe
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", LocalizingService.OutlineTitle);
         putValue(NAME, LocalizingService.OutlineTitle);
+        putValue(Action.SHORT_DESCRIPTION, LocalizingService.OutlineToolTip);
         setEnabled(isEnabled());
     }
 
