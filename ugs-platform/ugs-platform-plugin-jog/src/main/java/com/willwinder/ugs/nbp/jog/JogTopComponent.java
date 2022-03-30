@@ -72,6 +72,8 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     private final JogService jogService;
     private final ContinuousJogWorker continuousJogWorker;
 
+    private boolean ignoreLongClick = false;
+
     public JogTopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         jogService = CentralLookup.getDefault().lookup(JogService.class);
@@ -146,6 +148,12 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
 
     @Override
     public void onJogButtonClicked(JogPanelButtonEnum button) {
+        // Ignore the "click" event when a long button press is released
+        if (ignoreLongClick) {
+            ignoreLongClick = false;
+            return;
+        }
+
         switch (button) {
             case BUTTON_XNEG:
                 jogService.adjustManualLocationXY(-1, 0);
@@ -184,8 +192,12 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     @Override
     public void onJogButtonLongPressed(JogPanelButtonEnum button) {
         if (backend.getController().getCapabilities().hasContinuousJogging()) {
+            ignoreLongClick = true;
             continuousJogWorker.setDirection(button.getX(), button.getY(), button.getZ());
             continuousJogWorker.start();
+
+            // set flag so when we release the long press we don't add 
+            // an extra jog step through the click event
         }
     }
 

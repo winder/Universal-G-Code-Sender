@@ -28,23 +28,24 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.lang.System;
 
 /**
- * A continuous jog worker that will send small jog commands at a fixed interval so that
- * it will achieve the jog feed rate set in the {@link JogService#getFeedRate()}.
+ * A continuous jog worker that will send small jog commands at a fixed interval
+ * so that it will achieve the jog feed rate set in the
+ * {@link JogService#getFeedRate()}.
  * <p>
- * It will attempt to listen to completed commands to determine if a new jog command
- * can be sent.
+ * It will attempt to listen to completed commands to determine if a new jog
+ * command can be sent.
  * <p>
- * Example usage:
- * ContinuousJogWorker worker = new ContinuousJogWorker(backendAPI, jogService);
- * worker.setDirection(1, 0, 0)
- * worker.start();
- * worker.stop();
+ * Example usage: ContinuousJogWorker worker = new
+ * ContinuousJogWorker(backendAPI, jogService); worker.setDirection(1, 0, 0)
+ * worker.start(); worker.stop();
  *
  * @author Joacim Breiler
  */
 public class ContinuousJogWorker implements UGSEventListener {
+
     private static final long JOG_COMMAND_INTERVAL = 100;
     private final JogService jogService;
     private final ExecutorService executorService;
@@ -53,7 +54,7 @@ public class ContinuousJogWorker implements UGSEventListener {
     private float y;
     private float z;
     private boolean isRunning;
-    private boolean isWaitingForCommandComplete;
+    private int outstandingCommands = 0;
     private Future<?> future;
 
     public ContinuousJogWorker(BackendAPI backendAPI, JogService jogService) {
@@ -80,8 +81,8 @@ public class ContinuousJogWorker implements UGSEventListener {
     }
 
     /**
-     * Starts sending continuous jogging commands at a fixed interval.
-     * Use {@link #stop()} to stop sending jog commands
+     * Starts sending continuous jogging commands at a fixed interval. Use
+     * {@link #stop()} to stop sending jog commands
      */
     public void start() {
         if (!isRunning && future == null) {
@@ -97,55 +98,72 @@ public class ContinuousJogWorker implements UGSEventListener {
     }
 
     /**
-     * Calculates how long we could theoretically move within the defined jog command interval.
-     * This will make a jogging event that's short but long enough to fill the controllers buffer
-     * to make the movement smooth.
+     * Calculates how long we could theoretically move within the defined jog
+     * command interval. This will make a jogging event that's short but long
+     * enough to fill the controllers buffer to make the movement smooth.
      * <p>
-     * The step size is given using the current units of {@link Settings#getJogFeedRate()}.
+     * The step size is given using the current units of
+     * {@link Settings#getJogFeedRate()}.
      *
      * @return the step size in the units of {@link Settings#getJogFeedRate()}
      */
     private double calculateStepSize() {
         double maxFeedRate = jogService.getFeedRate();
-
-        // Calculate how long we should be able to move at the given interval and add 20%
-        return (maxFeedRate / 60.0) * (JOG_COMMAND_INTERVAL / 1000.0) * 1.2;
+        return (maxFeedRate / 60.0) * (JOG_COMMAND_INTERVAL / 1000.0);
     }
 
     private void sendContinuousJogCommands() {
-        try {
-            isRunning = true;
-            final double stepSize = calculateStepSize();
-            final UnitUtils.Units units = jogService.getUnits();
-            while (isRunning) {
-                // Ensure that we only send one command at the time, waiting for it to complete
-                if (!isWaitingForCommandComplete) {
-                    isWaitingForCommandComplete = true;
-                    jogService.adjustManualLocation(new PartialPosition(x * stepSize, y * stepSize, z * stepSize, units));
-                } else {
-                    Thread.sleep(JOG_COMMAND_INTERVAL);
-                }
+        long nextCommandMillis = System.currentTimeMillis();
+        isRunning = true;
+        final double stepSize = calculateStepSize() / Math.sqrt(Math.abs(x) + Math.abs(y) + Math.abs(z));
+        final UnitUtils.Units units = jogService.getUnits();
+
+        // Preload 4 jog commands into the planning buffer...
+        for (int i = 0; i < 4; i++) {
+            outstandingCommands++;
+            jogService.adjustManualLocation(new PartialPosition(x * stepSize, y * stepSize, z * stepSize, units));
+        }        
+
+        // At this point, we replace a command in the buffer every jog command interval, with
+        // reference to System.currentTimeMillis() to calculate the amount of time to sleep.
+        while (isRunning) {
+            nextCommandMillis += JOG_COMMAND_INTERVAL;
+            // Sleep the jog interval before sending the next command
+            try {
+                long sleepDuration = nextCommandMillis - System.currentTimeMillis();
+                if (sleepDuration > 0) Thread.sleep(sleepDuration);
+            } catch (InterruptedException e) {
+                // The timers got interrupted, never mind...
             }
 
-            waitForCommandToComplete();
-        } catch (InterruptedException e) {
-            // The timers got interrupted, never mind...
+            // Ensure that we only send one command at the time, waiting for it to complete
+            if (outstandingCommands == 0) {
+                outstandingCommands++;
+                jogService.adjustManualLocation(new PartialPosition(x * stepSize, y * stepSize, z * stepSize, units));
+            }
+
+        }
+
+        // at this point, isRunning == false, so we cancel the jog.
+        // we have to wait for any outstanding commands to be completed
+        // before we cancel the jog, in order to handle the race between
+        // the jog command and the cancel.
+        while (outstandingCommands > 0) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                // do nothing
+            }
         }
 
         jogService.cancelJog();
         future = null;
     }
 
-    private void waitForCommandToComplete() throws InterruptedException {
-        while (isWaitingForCommandComplete && isRunning) {
-            Thread.sleep(10);
-        }
-    }
-
     /**
-     * Sets the direction to jog in a value between 1.0 to -1.0.
-     * The value 0.5 would mean that that axis would move half the step distance.
-     * Zero means that the axis shouldn't be moved at all.
+     * Sets the direction to jog in a value between 1.0 to -1.0. The value 0.5
+     * would mean that that axis would move half the step distance. Zero means
+     * that the axis shouldn't be moved at all.
      *
      * @param x the direction to move (1.0 to -1.0)
      * @param y the direction to move (1.0 to -1.0)
@@ -157,13 +175,13 @@ public class ContinuousJogWorker implements UGSEventListener {
         this.z = z;
     }
 
-
-
     @Override
     public void UGSEvent(UGSEvent event) {
         if (event instanceof CommandEvent && ((CommandEvent) event).getCommandEventType() == CommandEventType.COMMAND_COMPLETE) {
             GcodeCommand command = ((CommandEvent) event).getCommand();
-            isWaitingForCommandComplete = false;
+            if (outstandingCommands > 0) {
+                outstandingCommands--;
+            }
             if (command.isError()) {
                 stop();
                 if (future != null) {
