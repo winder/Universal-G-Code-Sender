@@ -31,21 +31,21 @@ import java.util.concurrent.Future;
 import java.lang.System;
 
 /**
- * A continuous jog worker that will send small jog commands at a fixed interval
- * so that it will achieve the jog feed rate set in the
- * {@link JogService#getFeedRate()}.
+ * A continuous jog worker that will send small jog commands at a fixed interval so that
+ * it will achieve the jog feed rate set in the {@link JogService#getFeedRate()}.
  * <p>
- * It will attempt to listen to completed commands to determine if a new jog
- * command can be sent.
+ * It will attempt to listen to completed commands to determine if a new jog command
+ * can be sent.
  * <p>
- * Example usage: ContinuousJogWorker worker = new
- * ContinuousJogWorker(backendAPI, jogService); worker.setDirection(1, 0, 0)
- * worker.start(); worker.stop();
+ * Example usage:
+ * ContinuousJogWorker worker = new ContinuousJogWorker(backendAPI, jogService);
+ * worker.setDirection(1, 0, 0)
+ * worker.start();
+ * worker.stop();
  *
  * @author Joacim Breiler
  */
 public class ContinuousJogWorker implements UGSEventListener {
-
     private static final long JOG_COMMAND_INTERVAL = 100;
     private final JogService jogService;
     private final ExecutorService executorService;
@@ -81,8 +81,8 @@ public class ContinuousJogWorker implements UGSEventListener {
     }
 
     /**
-     * Starts sending continuous jogging commands at a fixed interval. Use
-     * {@link #stop()} to stop sending jog commands
+     * Starts sending continuous jogging commands at a fixed interval.
+     * Use {@link #stop()} to stop sending jog commands
      */
     public void start() {
         if (!isRunning && future == null) {
@@ -98,12 +98,11 @@ public class ContinuousJogWorker implements UGSEventListener {
     }
 
     /**
-     * Calculates how long we could theoretically move within the defined jog
-     * command interval. This will make a jogging event that's short but long
-     * enough to fill the controllers buffer to make the movement smooth.
+     * Calculates how long we could theoretically move within the defined jog command interval.
+     * This will make a jogging event that's short but long enough to fill the controllers buffer
+     * to make the movement smooth.
      * <p>
-     * The step size is given using the current units of
-     * {@link Settings#getJogFeedRate()}.
+     * The step size is given using the current units of {@link Settings#getJogFeedRate()}.
      *
      * @return the step size in the units of {@link Settings#getJogFeedRate()}
      */
@@ -160,10 +159,10 @@ public class ContinuousJogWorker implements UGSEventListener {
         future = null;
     }
 
-    /**
-     * Sets the direction to jog in a value between 1.0 to -1.0. The value 0.5
-     * would mean that that axis would move half the step distance. Zero means
-     * that the axis shouldn't be moved at all.
+      /**
+     * Sets the direction to jog in a value between 1.0 to -1.0.
+     * The value 0.5 would mean that that axis would move half the step distance.
+     * Zero means that the axis shouldn't be moved at all.
      *
      * @param x the direction to move (1.0 to -1.0)
      * @param y the direction to move (1.0 to -1.0)
