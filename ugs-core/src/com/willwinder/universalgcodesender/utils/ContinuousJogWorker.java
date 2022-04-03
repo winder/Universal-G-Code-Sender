@@ -18,18 +18,12 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
-import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.events.CommandEvent;
 import com.willwinder.universalgcodesender.model.events.CommandEventType;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.lang.System;
 
 /**
  * A continuous jog worker that will send small jog commands at a fixed interval so that
@@ -95,19 +89,31 @@ public class ContinuousJogWorker implements UGSEventListener {
         isRunning = false;
     }
 
-    // puts one jog command in the buffer that will take JOG_COMMAND_INTERVAL ms to execute (excluding accelleration)
+    /**
+     * puts one jog command in the buffer that will take JOG_COMMAND_INTERVAL ms to execute (excluding accelleration)
+     * 
+     * This function calculates the feedrate and magnitude of an individual jog command based
+     * on the algorithm described here: https://github.com/gnea/grbl/wiki/Grbl-v1.1-Jogging
+     * The algorithm has been simplified by reducing consideration for:
+     *    dt > v^2 / (2 * a * (N-1))
+     * Instead, we make some assumptions that are expected for good jog performance:
+     *  1) The latency from when we send a jog command to GRBL and receive the "ok" back is less than 10ms (typically 1-7ms).
+     *  2) The Jog feedrate and machine acceleration are such that the machine can accelerate to it's full jog rate within
+     *     the length of the command buffer (N=15 for regular GRBL).
+     *  3) The command buffer isn't larger than N=15 (if it is, we'll get increasing lag in response to direction/rate changes on the joystick)
+     * command to take 10ms to execute excluding acceleration time.
+     *
+     * Note: the jog command total feedrate may exceed the set feedrate if moving in more than one axis at the same time. The max rate
+     * in any 1 axis will never exceed the jog feedrate.
+     *
+     */
     private void sendJogCommand() {
         final UnitUtils.Units units = jogService.getUnits();
         final double jogVectorLength = Math.sqrt((x * x) + (y * y) + (z * z));
         final double speedFactor = jogVectorLength; //FIXME? Double.min(jogVectorLength, 1.0); // caps jog speed at 100% (1.0) of maxFeedRate
         final double maxFeedRate = jogService.getFeedRate() / 60.0; // maximum jog feed rate in units per second
         final double v = maxFeedRate * speedFactor; // scaled jog feed rate in units per second
-        final double N = 15; // FIXME: get from controller
-        final double stepSize = 1;
-        final double a = 20; // 20 in/s^2 accelleration (508mm/s^2) FIXME get from controller in the right units
-        final double dtLat = 0.010; // minimum dt in ms for grbl command latency
-        final double dtAcc = 0;//Math.pow(v, 2) / (2 * a * (N-1)); // minimum dt in ms to ensure the jog feed rate will be achieved
-        final double dt = Double.max(dtLat, dtAcc); // final dt in ms
+        final double dt = 0.010; // minimum dt in ms for grbl command latency
         final double s = v * dt; // s = distance in units that this jog command should travel
         final double scaleFactor = s / jogVectorLength; // determine scaleFactor required to scale jogVectorLength to s
         jogService.adjustManualLocation(new PartialPosition(x * scaleFactor, y * scaleFactor, z * scaleFactor, units), speedFactor);
