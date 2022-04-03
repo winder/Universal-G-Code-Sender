@@ -174,6 +174,7 @@ public interface IController {
     Boolean isPaused();
     Boolean isIdle();
     void cancelSend() throws Exception;
+    void cancelJog() throws Exception;
     CommunicatorState getControlState();
 
     /**

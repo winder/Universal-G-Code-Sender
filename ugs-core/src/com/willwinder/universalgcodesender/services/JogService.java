@@ -208,9 +208,9 @@ public class JogService {
     /**
      * Adjusts the location for each axises.
      */
-    public void adjustManualLocation(PartialPosition distance) {
+    public void adjustManualLocation(PartialPosition distance, double speedFactor) {
         try {
-            double feedRate = getSettings().getJogFeedRate();
+            double feedRate = getSettings().getJogFeedRate() * speedFactor;
             Units units = getSettings().getPreferredUnits();
             backend.adjustManualLocation(distance.getPositionIn(units), feedRate);
         } catch (Exception e) {
@@ -306,7 +306,7 @@ public class JogService {
 
     public void cancelJog() {
         try {
-            backend.getController().cancelSend();
+            backend.getController().cancelJog();
         } catch (Exception e) {
             logger.log(Level.WARNING, "Couldn't cancel the jog", e);
         }
