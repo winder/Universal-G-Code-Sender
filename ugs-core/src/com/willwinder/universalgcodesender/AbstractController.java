@@ -658,6 +658,12 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         cancelCommands();
         cancelSendAfterEvent();
     }
+    
+    // Default implementation just calls cancelSend()
+    @Override
+    public void cancelJog() throws Exception {
+        cancelSend();
+    }
 
     @Override
     public void cancelCommands() {
