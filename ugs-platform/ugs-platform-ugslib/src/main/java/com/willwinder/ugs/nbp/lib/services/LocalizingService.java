@@ -233,6 +233,8 @@ public class LocalizingService {
 
     public final static String OutlineTitleKey = "platform.action.outline";
     public final static String OutlineTitle = Localization.getString(OutlineTitleKey, lang);
+    public final static String OutlineToolTipKey = "platform.action.outline.tooltip";
+    public final static String OutlineToolTip = Localization.getString(OutlineToolTipKey, lang);
     public final static String OutlineWindowPath = MENU_MACHINE_ACTIONS;
     public final static String OutlineActionId = "com.willwinder.ugs.nbp.core.actions.OutlineAction";
     public final static String OutlineCategory = CATEGORY_PROGRAM;
