@@ -136,10 +136,10 @@ public class AbstractControllerTest {
         expect(expectLastCall()).anyTimes();
         instance.setControllerState(eq(ControllerState.CONNECTING));
         expect(expectLastCall()).once();
+        expect(mockCommunicator.isConnected()).andReturn(true).anyTimes();
         mockCommunicator.connect(or(eq(ConnectionDriver.JSERIALCOMM), eq(ConnectionDriver.JSSC)), eq(port), eq(portRate));
         expect(instance.isCommOpen()).andReturn(false).once();
         expect(instance.isCommOpen()).andReturn(true).anyTimes();
-        expect(mockCommunicator.isConnected()).andReturn(true).anyTimes();
         expect(instance.handlesAllStateChangeEvents()).andReturn(handleStateChange).anyTimes();
     }
     private void streamInstanceExpectUtility() throws Exception {
