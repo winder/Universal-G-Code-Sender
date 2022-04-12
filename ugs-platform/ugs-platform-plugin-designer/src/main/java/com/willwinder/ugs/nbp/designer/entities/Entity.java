@@ -107,11 +107,27 @@ public interface Entity {
     Point2D getPosition();
 
     /**
+     * Returns the real position of the entity at the given anchor
+     *
+     * @param anchor
+     * @return the real position at the anchor
+     */
+    Point2D getPosition(Anchor anchor);
+
+    /**
      * Sets the real position of the entity
      *
      * @param position the new position
      */
     void setPosition(Point2D position);
+
+    /**
+     * Sets the real position of the entity at the given anchor
+     *
+     * @param anchor the anchor to set the position of
+     * @param position the new position
+     */
+    void setPosition(Anchor anchor, Point2D position);
 
     /**
      * Destroys this entity freeing up any allocated resources

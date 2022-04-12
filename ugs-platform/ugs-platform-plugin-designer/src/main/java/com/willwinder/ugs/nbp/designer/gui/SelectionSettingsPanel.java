@@ -29,30 +29,22 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
+import com.willwinder.ugs.nbp.designer.entities.Anchor;
+import com.willwinder.ugs.nbp.designer.gui.anchor.AnchorListener;
+import com.willwinder.ugs.nbp.designer.gui.anchor.AnchorSelectorPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
+import org.openide.util.ImageUtilities;
 
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultFormatter;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
@@ -63,55 +55,74 @@ import java.util.stream.Collectors;
 /**
  * @author Joacim Breiler
  */
-public class SelectionSettingsPanel extends JPanel implements SelectionListener, DocumentListener, EntityListener, ChangeListener, ItemListener {
-    private final JTextField widthTextField;
-    private final JTextField rotation;
-    private final JTextField posXTextField;
-    private final JTextField posYTextField;
-    private final JLabel startDepthLabel;
-    private final JLabel targetDepthLabel;
-    private final JComboBox<CutType> cutTypeComboBox;
-    private final JSpinner startDepthSpinner;
-    private final JSpinner targetDepthSpinner;
-    private final JTextField heightTextField;
+public class SelectionSettingsPanel extends JPanel implements SelectionListener, DocumentListener, EntityListener, ChangeListener, ItemListener, AnchorListener {
+    private JTextField widthTextField;
+    private JTextField rotation;
+    private JTextField posXTextField;
+    private JTextField posYTextField;
+    private JLabel startDepthLabel;
+    private JLabel targetDepthLabel;
+    private JComboBox<CutType> cutTypeComboBox;
+    private JSpinner startDepthSpinner;
+    private JSpinner targetDepthSpinner;
+    private JTextField heightTextField;
     private JLabel textLabel;
     private JComboBox<String> fontDropDown;
     private JLabel fontLabel;
     private JSeparator fontSeparator;
     private JTextField textTextField;
     private transient Controller controller;
+    private JToggleButton lockRatioButton;
+    private Anchor anchor = Anchor.CENTER;
 
     public SelectionSettingsPanel(Controller controller) {
-        setLayout(new MigLayout("fill, wrap 2, hidemode 3", "[sg label] 10 [grow]"));
-
+        setLayout(new MigLayout("fill, hidemode 3, insets 5", "[sg label] 5 [grow] 5 [60px]"));
         addTextSettingFields();
+        addPositionSettings();
+        addCutSettings(controller);
+    }
 
-        posXTextField = new JTextField("0");
+    private void addPositionSettings() {
+        posXTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
         posXTextField.getDocument().addDocumentListener(this);
-        posYTextField = new JTextField("0");
+        posYTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
         posYTextField.getDocument().addDocumentListener(this);
+
+
         add(new JLabel("X", SwingConstants.RIGHT), "grow");
         add(posXTextField, "grow");
-        add(new JLabel("Y", SwingConstants.RIGHT), "grow");
-        add(posYTextField, "grow");
 
-        widthTextField = new JTextField("0");
+        AnchorSelectorPanel anchorSelector = new AnchorSelectorPanel();
+        anchorSelector.setAnchor(anchor);
+        anchorSelector.addListener(this);
+        add(anchorSelector, "span 1 2, grow, wrap");
+
+        add(new JLabel("Y", SwingConstants.RIGHT), "grow");
+        add(posYTextField, "grow, wrap");
+
+
+        widthTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
+        heightTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
         widthTextField.getDocument().addDocumentListener(this);
-        heightTextField = new JTextField("0");
         heightTextField.getDocument().addDocumentListener(this);
         add(new JLabel("Width", SwingConstants.RIGHT), "grow");
         add(widthTextField, "grow");
+        lockRatioButton = new JToggleButton(ImageUtilities.loadImageIcon("img/link.svg", false));
+        lockRatioButton.setSelectedIcon(ImageUtilities.loadImageIcon("img/link-off.svg", false));
+        add(lockRatioButton, "span 1 2, growy, wrap");
         add(new JLabel("Height", SwingConstants.RIGHT), "grow");
-        add(heightTextField, "grow");
+        add(heightTextField, "grow, wrap");
 
 
-        rotation = new JTextField("0");
+        rotation = new TextFieldWithUnit(Unit.DEGREE, 4, 0);
         rotation.getDocument().addDocumentListener(this);
         add(new JLabel("Rotation", SwingConstants.RIGHT), "grow");
-        add(rotation, "grow");
+        add(rotation, "grow, wrap");
 
         add(new JSeparator(), "grow, spanx, wrap");
+    }
 
+    private void addCutSettings(Controller controller) {
         cutTypeComboBox = new JComboBox<>();
         Arrays.stream(CutType.values()).forEach(cutTypeComboBox::addItem);
         cutTypeComboBox.setSelectedItem(CutType.NONE);
@@ -126,11 +137,12 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             }
         });
         cutTypeComboBox.addItemListener(this);
+        cutTypeComboBox.setMinimumSize(new Dimension(100, 24));
 
 
         JLabel cutTypeLabel = new JLabel("Cut type", SwingConstants.RIGHT);
-        add(cutTypeLabel);
-        add(cutTypeComboBox, " grow, wrap");
+        add(cutTypeLabel, "grow");
+        add(cutTypeComboBox, "grow, wrap");
 
         SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(0d, 0d, 100.0d, 0.1d);
         startDepthSpinner = new JSpinner(spinnerNumberModel);
@@ -160,11 +172,11 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         targetDepthSpinner.addChangeListener(this);
 
         startDepthLabel = new JLabel("Start depth", SwingConstants.RIGHT);
-        add(startDepthLabel);
+        add(startDepthLabel, "grow");
         add(startDepthSpinner, "grow, wrap");
 
         targetDepthLabel = new JLabel("Target depth", SwingConstants.RIGHT);
-        add(targetDepthLabel);
+        add(targetDepthLabel, "grow");
         add(targetDepthSpinner, "grow, wrap");
         setEnabled(false);
 
@@ -199,15 +211,16 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         fontSeparator.setVisible(false);
 
         add(textLabel, "grow");
-        add(textTextField, "grow");
+        add(textTextField, "grow, wrap");
         add(fontLabel, "grow");
-        add(fontDropDown, "grow");
+        add(fontDropDown, "grow, wrap");
         add(fontSeparator, "grow, spanx, wrap");
     }
 
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
+        requestFocus();
         Arrays.stream(getComponents()).forEach(component -> component.setEnabled(enabled));
         if (!enabled) {
             setFieldValue(targetDepthSpinner, 0d);
@@ -276,7 +289,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         if (StringUtils.isNotEmpty(posXTextField.getText()) && StringUtils.isNotEmpty(posYTextField.getText()) && (e.getDocument() == posXTextField.getDocument() || e.getDocument() == posYTextField.getDocument())) {
             double x = Utils.parseDouble(posXTextField.getText());
             double y = Utils.parseDouble(posYTextField.getText());
-            Point2D position = controller.getSelectionManager().getPosition();
+            Point2D position = controller.getSelectionManager().getPosition(anchor);
             position.setLocation(x - position.getX(), y - position.getY());
             controller.getSelectionManager().move(position);
             controller.getDrawing().repaint();
@@ -286,9 +299,22 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             try {
                 double width = Utils.parseDouble(widthTextField.getText());
                 double height = Utils.parseDouble(heightTextField.getText());
-                if (width <= 1 || height <= 0) {
+
+                if (width <= 0 || height <= 0) {
                     return;
                 }
+
+                if (!lockRatioButton.isSelected()) {
+                    double ratio = controller.getSelectionManager().getSize().getRatio();
+                    if (e.getDocument() == widthTextField.getDocument()) {
+                        height = width / ratio;
+                        setFieldValue(heightTextField, Utils.toString(height));
+                    } else {
+                        width = height * ratio;
+                        setFieldValue(widthTextField, Utils.toString(width));
+                    }
+                }
+
                 controller.getSelectionManager().setSize(new Size(width, height));
                 controller.getDrawing().repaint();
             } catch (NumberFormatException ex) {
@@ -373,7 +399,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             setFieldValue(fontDropDown, ((Text) selectedEntity).getFontFamily());
         }
 
-        Point2D position = controller.getSelectionManager().getPosition();
+        Point2D position = controller.getSelectionManager().getPosition(anchor);
         setFieldValue(posXTextField, Utils.toString(position.getX()));
         setFieldValue(posYTextField, Utils.toString(position.getY()));
 
@@ -386,5 +412,11 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     @Override
     public void itemStateChanged(ItemEvent e) {
         stateChanged(null);
+    }
+
+    @Override
+    public void onAnchorChanged(Anchor anchor) {
+        this.anchor = anchor;
+        onEvent(new EntityEvent(controller.getSelectionManager(), EventType.MOVED));
     }
 }

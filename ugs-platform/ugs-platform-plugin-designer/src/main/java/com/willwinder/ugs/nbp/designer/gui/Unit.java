@@ -27,7 +27,8 @@ public enum Unit {
     MM_PER_MINUTE("mm/min"),
     INCHES_PER_MINUTE("inches/min"),
     ROTATIONS_PER_MINUTE("rpm"),
-    PERCENT("%");
+    PERCENT("%"),
+    DEGREE("°");
 
     private final String abbreviation;
 

@@ -51,7 +51,7 @@ public class SimplePath extends AbstractToolPath {
         geometries.forEach(g -> {
             List<PartialPosition> geometryCoordinates = ToolPathUtils.geometryToCoordinates(g);
 
-            double currentDepth = getStartDepth();
+            double currentDepth = getStartDepth() - getDepthPerPass();
             while (currentDepth < getTargetDepth()) {
 
                 currentDepth += getDepthPerPass();

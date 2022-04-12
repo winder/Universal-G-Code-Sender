@@ -55,7 +55,7 @@ public class SimplePocket extends AbstractToolPath {
         Geometry geometryCollection = convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
         for (int i = 0; i < geometryCollection.getNumGeometries(); i++) {
             List<Geometry> geometries = bufferAndCollectGeometries(geometryCollection.getGeometryN(i));
-            double currentDepth = getStartDepth();
+            double currentDepth = getStartDepth() - getDepthPerPass();
             while (currentDepth < getTargetDepth()) {
                 currentDepth += getDepthPerPass();
                 if (currentDepth > getTargetDepth()) {
