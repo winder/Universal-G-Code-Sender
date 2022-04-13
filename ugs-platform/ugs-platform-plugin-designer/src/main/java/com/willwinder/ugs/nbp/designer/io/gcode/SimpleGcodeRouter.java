@@ -21,8 +21,9 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
-import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.SimplePath;
-import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.SimplePocket;
+import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.DrillCenterToolPath;
+import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.OutlineToolPath;
+import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.PocketToolPath;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.utils.Version;
 import org.apache.commons.lang3.StringUtils;
@@ -164,7 +165,7 @@ public class SimpleGcodeRouter {
             gcodePath.addSegment(new Segment(" " + cuttable.getName() + " - " + cuttable.getCutType().getName()  + " (" + index + "/" + cuttables.size() + ")"));
             switch (cuttable.getCutType()) {
                 case POCKET:
-                    SimplePocket simplePocket = new SimplePocket(cuttable);
+                    PocketToolPath simplePocket = new PocketToolPath(cuttable);
                     simplePocket.setStartDepth(cuttable.getStartDepth());
                     simplePocket.setTargetDepth(cuttable.getTargetDepth());
                     simplePocket.setToolDiameter(toolDiameter);
@@ -175,7 +176,7 @@ public class SimpleGcodeRouter {
                     gcodePath.appendGcodePath(simplePocket.toGcodePath());
                     break;
                 case OUTSIDE_PATH:
-                    SimplePath simpleOutsidePath = new SimplePath(cuttable);
+                    OutlineToolPath simpleOutsidePath = new OutlineToolPath(cuttable);
                     simpleOutsidePath.setOffset(toolDiameter / 2d);
                     simpleOutsidePath.setStartDepth(cuttable.getStartDepth());
                     simpleOutsidePath.setTargetDepth(cuttable.getTargetDepth());
@@ -185,7 +186,7 @@ public class SimpleGcodeRouter {
                     gcodePath.appendGcodePath(simpleOutsidePath.toGcodePath());
                     break;
                 case INSIDE_PATH:
-                    SimplePath simpleInsidePath = new SimplePath(cuttable);
+                    OutlineToolPath simpleInsidePath = new OutlineToolPath(cuttable);
                     simpleInsidePath.setOffset(-toolDiameter / 2d);
                     simpleInsidePath.setStartDepth(cuttable.getStartDepth());
                     simpleInsidePath.setTargetDepth(cuttable.getTargetDepth());
@@ -195,13 +196,22 @@ public class SimpleGcodeRouter {
                     gcodePath.appendGcodePath(simpleInsidePath.toGcodePath());
                     break;
                 case ON_PATH:
-                    SimplePath simpleOnPath = new SimplePath(cuttable);
+                    OutlineToolPath simpleOnPath = new OutlineToolPath(cuttable);
                     simpleOnPath.setStartDepth(cuttable.getStartDepth());
                     simpleOnPath.setTargetDepth(cuttable.getTargetDepth());
                     simpleOnPath.setToolDiameter(toolDiameter);
                     simpleOnPath.setDepthPerPass(depthPerPass);
                     simpleOnPath.setSafeHeight(safeHeight);
                     gcodePath.appendGcodePath(simpleOnPath.toGcodePath());
+                    break;
+                case CENTER_DRILL:
+                    DrillCenterToolPath drillToolPath = new DrillCenterToolPath(cuttable);
+                    drillToolPath.setStartDepth(cuttable.getStartDepth());
+                    drillToolPath.setTargetDepth(cuttable.getTargetDepth());
+                    drillToolPath.setToolDiameter(toolDiameter);
+                    drillToolPath.setDepthPerPass(depthPerPass);
+                    drillToolPath.setSafeHeight(safeHeight);
+                    gcodePath.appendGcodePath(drillToolPath.toGcodePath());
                     break;
                 default:
             }

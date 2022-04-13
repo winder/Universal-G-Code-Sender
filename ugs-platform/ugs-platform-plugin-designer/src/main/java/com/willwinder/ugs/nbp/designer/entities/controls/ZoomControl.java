@@ -51,7 +51,6 @@ public class ZoomControl extends AbstractControl {
                 if(isShiftPressed) {
                     zoomFactor = -zoomFactor;
                 }
-                mouseEntityEvent.getCurrentMousePosition();
                 controller.getDrawing().setScale(controller.getDrawing().getScale() + zoomFactor);
             }
         } else if (entityEvent instanceof KeyboardEntityEvent) {

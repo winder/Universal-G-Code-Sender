@@ -18,14 +18,20 @@
  */
 package com.willwinder.ugs.nbp.core.control;
 
+import com.willwinder.ugs.nbp.core.actions.EditMacrosAction;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.macros.MacroActionPanel;
-import java.awt.BorderLayout;
+
+import java.awt.*;
+
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
+
+import javax.swing.*;
 
 /**
  * Top component which displays something.
@@ -47,6 +53,10 @@ public final class MacrosTopComponent extends TopComponent {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         super.setLayout(new BorderLayout());
         super.add(new MacroActionPanel(backend), BorderLayout.CENTER);
+
+        JPopupMenu popupMenu = new JPopupMenu();
+        popupMenu.add(new EditMacrosAction());
+        SwingHelpers.traverse(this, comp -> comp.setComponentPopupMenu(popupMenu));
     }
 
     @Override

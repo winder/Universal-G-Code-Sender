@@ -68,7 +68,7 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public boolean isWithin(Point2D point) {
-        return getShape().contains(point);
+        return getShape().contains(point) || getShape().intersects(point.getX() - 1, point.getY() - 1, 2, 2);
     }
 
     public boolean isIntersecting(Shape shape) {
