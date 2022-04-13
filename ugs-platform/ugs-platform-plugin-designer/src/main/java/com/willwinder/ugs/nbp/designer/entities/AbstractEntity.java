@@ -68,7 +68,7 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public boolean isWithin(Point2D point) {
-        return getShape().contains(point);
+        return getShape().contains(point) || getShape().intersects(point.getX() - 1, point.getY() - 1, 2, 2);
     }
 
     public boolean isIntersecting(Shape shape) {
@@ -107,13 +107,35 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public Point2D getPosition() {
+        return getPosition(Anchor.BOTTOM_LEFT);
+    }
+
+    @Override
+    public Point2D getPosition(Anchor anchor) {
         Rectangle2D bounds = getBounds();
+        if (anchor == Anchor.TOP_LEFT) {
+            return new Point2D.Double(bounds.getX(), bounds.getY() + bounds.getHeight());
+        } else if (anchor == Anchor.TOP_RIGHT) {
+            return new Point2D.Double(bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight());
+        } else if (anchor == Anchor.CENTER) {
+            return new Point2D.Double(bounds.getX() + (bounds.getWidth() / 2), bounds.getY() + (bounds.getHeight() / 2));
+        } else if (anchor == Anchor.BOTTOM_LEFT) {
+            return new Point2D.Double(bounds.getX(), bounds.getY());
+        } else if (anchor == Anchor.BOTTOM_RIGHT) {
+            return new Point2D.Double(bounds.getX() + bounds.getWidth(), bounds.getY());
+        }
+
         return new Point2D.Double(bounds.getX(), bounds.getY());
     }
 
     @Override
     public void setPosition(Point2D position) {
-        Point2D currentPosition = getPosition();
+        setPosition(Anchor.BOTTOM_LEFT, position);
+    }
+
+    @Override
+    public void setPosition(Anchor anchor, Point2D position) {
+        Point2D currentPosition = getPosition(anchor);
         move(new Point2D.Double(position.getX() - currentPosition.getX(), position.getY() - currentPosition.getY()));
     }
 

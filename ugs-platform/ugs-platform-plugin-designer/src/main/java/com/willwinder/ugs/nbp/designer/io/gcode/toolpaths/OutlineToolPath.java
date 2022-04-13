@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
-import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import org.locationtech.jts.geom.Geometry;
 
@@ -32,26 +31,32 @@ import java.util.stream.Collectors;
 /**
  * @author Joacim Breiler
  */
-public class SimplePath extends AbstractToolPath {
+public class OutlineToolPath extends AbstractToolPath {
     private final Cuttable source;
 
     private double offset;
 
-    public SimplePath(Cuttable source) {
+    public OutlineToolPath(Cuttable source) {
         this.source = source;
     }
 
     @Override
     public GcodePath toGcodePath() {
-        Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
-        Geometry bufferedGeometry = geometry.buffer(offset);
-        List<Geometry> geometries = ToolPathUtils.toGeometryList(bufferedGeometry);
+        List<Geometry> geometries;
+        if (ToolPathUtils.isClosedGeometry(source.getShape())) {
+            Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
+            Geometry bufferedGeometry = geometry.buffer(offset);
+            geometries = ToolPathUtils.toGeometryList(bufferedGeometry);
+        } else {
+            geometries = ToolPathUtils.convertShapeToGeometry(source.getShape(), getGeometryFactory());
+        }
+
 
         ArrayList<List<PartialPosition>> coordinateList = new ArrayList<>();
         geometries.forEach(g -> {
             List<PartialPosition> geometryCoordinates = ToolPathUtils.geometryToCoordinates(g);
 
-            double currentDepth = getStartDepth();
+            double currentDepth = getStartDepth() - getDepthPerPass();
             while (currentDepth < getTargetDepth()) {
 
                 currentDepth += getDepthPerPass();

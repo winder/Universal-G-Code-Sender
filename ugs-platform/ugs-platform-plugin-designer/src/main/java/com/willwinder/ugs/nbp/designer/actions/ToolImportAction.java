@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
+import com.willwinder.ugs.nbp.designer.io.c2d.C2dReader;
 import com.willwinder.ugs.nbp.designer.io.dxf.DxfReader;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
 import com.willwinder.ugs.nbp.designer.model.Design;
@@ -41,7 +42,7 @@ public final class ToolImportAction extends AbstractAction {
 
     public static final String SMALL_ICON_PATH = "img/import.svg";
     public static final String LARGE_ICON_PATH = "img/import24.svg";
-    private final Controller controller;
+    private final transient Controller controller;
 
     public ToolImportAction(Controller controller) {
         putValue("iconBase", SMALL_ICON_PATH);
@@ -56,8 +57,9 @@ public final class ToolImportAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         JFileChooser fileDialog = new JFileChooser();
         fileDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileDialog.addChoosableFileFilter(new FileNameExtensionFilter(".svg", "svg"));
-        fileDialog.addChoosableFileFilter(new FileNameExtensionFilter(".dxf", "dxf"));
+        fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Scalable Vector Graphics (.svg)", "svg"));
+        fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Autodesk CAD (.dxf)", "dxf"));
+        fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Carbide Create (.c2d)", "c2d"));
         fileDialog.showOpenDialog(null);
 
         ThreadHelper.invokeLater(() -> {
@@ -71,15 +73,15 @@ public final class ToolImportAction extends AbstractAction {
                 } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".dxf")) {
                     DxfReader reader = new DxfReader();
                     optionalDesign = reader.read(f);
+                } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".c2d")) {
+                    C2dReader reader = new C2dReader();
+                    optionalDesign = reader.read(f);
                 }
 
                 if (optionalDesign.isPresent()) {
                     Design design = optionalDesign.get();
-
-                    design.getEntities().forEach(entity -> {
-                        controller.addEntity(entity);
-                        controller.getSelectionManager().addSelection(entity);
-                    });
+                    controller.addEntities(design.getEntities());
+                    controller.getSelectionManager().addSelection(design.getEntities());
 
                     controller.getDrawing().repaint();
                     controller.setTool(Tool.SELECT);

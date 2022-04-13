@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.toolbox.settings.ISettingsListener;
 import com.willwinder.ugs.nbp.toolbox.settings.Settings;
 import com.willwinder.universalgcodesender.uielements.panels.ButtonGridPanel;
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.Lookup;
@@ -30,8 +31,6 @@ import org.openide.windows.TopComponent;
 
 import javax.swing.*;
 import java.awt.*;
-
-import static javax.swing.BorderFactory.createEmptyBorder;
 
 /**
  * A component that displays a toolbox menu
@@ -56,7 +55,7 @@ public final class ToolboxTopComponent extends TopComponent implements ISettings
     public static final String WINOW_PATH = LocalizingService.MENU_WINDOW_PLUGIN;
     public static final String CATEGORY = LocalizingService.CATEGORY_WINDOW;
     public static final String ACTION_ID = "com.willwinder.ugs.nbp.toolbox.ToolboxTopComponent";
-    private final ActionRegistrationService actionRegistrationService;
+    private final transient ActionRegistrationService actionRegistrationService;
     private final ButtonGridPanel buttonGridPanel;
 
     public ToolboxTopComponent() {
@@ -100,6 +99,10 @@ public final class ToolboxTopComponent extends TopComponent implements ISettings
                             button.setMinimumSize(new Dimension(100, 16));
                             buttonGridPanel.add(button);
                         }));
+
+        JPopupMenu popupMenu = new JPopupMenu();
+        popupMenu.add(new ToolboxSettingsAction());
+        SwingHelpers.traverse(this, comp -> comp.setComponentPopupMenu(popupMenu));
 
         revalidate();
     }

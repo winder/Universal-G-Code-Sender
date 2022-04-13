@@ -80,16 +80,16 @@ public class DrawingContainer extends JPanel implements ComponentListener {
         buttonPanel.setOpaque(false);
 
         PanelButton toolButton = new PanelButton("Tool", controller.getSettings().getToolDescription());
-        toolButton.setMinimumSize(new Dimension(60, 48));
-        toolButton.setPreferredSize(new Dimension(70, 48));
+        toolButton.setMinimumSize(new Dimension(50, 36));
+        toolButton.setPreferredSize(new Dimension(70, 36));
         controller.getSettings().addListener(() -> toolButton.setText(controller.getSettings().getToolDescription()));
         toolButton.addActionListener(new OpenToolSettingsAction(controller));
         buttonPanel.add(toolButton);
 
         add(Box.createHorizontalStrut(6));
         PanelButton stockButton = new PanelButton("Stock", controller.getSettings().getStockSizeDescription());
-        stockButton.setMinimumSize(new Dimension(60, 48));
-        stockButton.setPreferredSize(new Dimension(70, 48));
+        stockButton.setMinimumSize(new Dimension(50, 36));
+        stockButton.setPreferredSize(new Dimension(70, 36));
         controller.getSettings().addListener(() -> stockButton.setText(controller.getSettings().getStockSizeDescription()));
         stockButton.addActionListener(new OpenStockSettingsAction(controller));
         buttonPanel.add(stockButton);

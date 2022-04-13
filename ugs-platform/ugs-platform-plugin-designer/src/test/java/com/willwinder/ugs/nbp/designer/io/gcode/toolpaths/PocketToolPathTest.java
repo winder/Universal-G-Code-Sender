@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
-public class SimplePocketTest {
+public class PocketToolPathTest {
 
     @Test
     public void pocketShouldNotExceedTheGeometry() {
@@ -26,7 +26,7 @@ public class SimplePocketTest {
         Rectangle rectangle = new Rectangle();
         rectangle.setSize(new Size(geometrySize, geometrySize));
 
-        SimplePocket simplePocket = new SimplePocket(rectangle);
+        PocketToolPath simplePocket = new PocketToolPath(rectangle);
         simplePocket.setTargetDepth(targetDepth);
         simplePocket.setDepthPerPass(depthPerPass);
         simplePocket.setToolDiameter(toolRadius * 2);
@@ -53,14 +53,14 @@ public class SimplePocketTest {
                     assertTrue("Point was outside boundary of 10x10 shape: Y=" + segment.getPoint().getAxis(Axis.Y), segment.getPoint().getAxis(Axis.Y) >= toolRadius);
                     assertTrue("Point was outside boundary of 10x10 shape: X=" + segment.getPoint().getAxis(Axis.X), segment.getPoint().getAxis(Axis.X) <= geometrySize - toolRadius);
                     assertTrue("Point was outside boundary of 10x10 shape: Y=" + segment.getPoint().getAxis(Axis.Y), segment.getPoint().getAxis(Axis.Y) <= geometrySize - toolRadius);
-                    assertTrue("Point was outside boundary of 10x10 shape: Z=" + segment.getPoint().getAxis(Axis.Z), segment.getPoint().getAxis(Axis.Z) < 0);
+                    assertTrue("Point was outside boundary of 10x10 shape: Z=" + segment.getPoint().getAxis(Axis.Z), segment.getPoint().getAxis(Axis.Z) <= 0);
                     assertTrue("Point was outside boundary of 10x10 shape: Z=" + segment.getPoint().getAxis(Axis.Z), segment.getPoint().getAxis(Axis.Z) >= targetDepth);
                 });
 
         List<Segment> drillOperations = segmentList.stream()
                 .filter(segment -> segment.type == SegmentType.POINT)
                 .collect(Collectors.toList());
-        assertEquals("There should be a number of drill operations when making a pocket", Math.abs(targetDepth / depthPerPass), drillOperations.size(), 0.1);
+        assertEquals("There should be a number of drill operations when making a pocket", Math.abs((targetDepth - depthPerPass) / depthPerPass), drillOperations.size(), 0.1);
 
         PartialPosition point = drillOperations.get(drillOperations.size() - 1).getPoint();
         assertEquals("Last operation should reach the target depth", targetDepth, point.getAxis(Axis.Z), 0.1);

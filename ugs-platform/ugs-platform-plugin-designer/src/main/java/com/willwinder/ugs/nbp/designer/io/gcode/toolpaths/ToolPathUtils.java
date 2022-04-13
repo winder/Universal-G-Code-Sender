@@ -3,9 +3,11 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.locationtech.jts.awt.ShapeReader;
+import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.operation.polygonize.Polygonizer;
 
+import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.PathIterator;
 import java.util.ArrayList;
@@ -86,5 +88,35 @@ public class ToolPathUtils {
         }
         polygonizer.add(factory.buildGeometry(geometries).union());
         return polygonizer.getGeometry();
+    }
+
+    public static List<Geometry> convertShapeToGeometry(Shape shape, GeometryFactory factory) {
+        PathIterator iter = shape.getPathIterator(null, FLATNESS_PRECISION);
+        PrecisionModel precisionModel = factory.getPrecisionModel();
+
+        List<Coordinate[]> coords = ShapeReader.toCoordinates(iter);
+        List<Geometry> geometries = new ArrayList<>();
+        for (Coordinate[] array : coords) {
+            for (Coordinate c : array)
+                precisionModel.makePrecise(c);
+
+            LineString lineString = factory.createLineString(array);
+            geometries.add(lineString);
+        }
+        return geometries;
+    }
+
+    public static boolean isClosedGeometry(Shape shape) {
+        final PathIterator path = shape.getPathIterator(null);
+        final double[] crd = new double[6];
+
+        while (!path.isDone()) {
+            if (path.currentSegment(crd) == PathIterator.SEG_CLOSE)
+                return true;
+
+            path.next();
+        }
+
+        return false;
     }
 }

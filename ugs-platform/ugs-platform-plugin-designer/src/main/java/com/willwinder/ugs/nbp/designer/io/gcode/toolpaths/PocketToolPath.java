@@ -20,8 +20,6 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
-import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
-import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import org.locationtech.jts.geom.Geometry;
 
@@ -35,7 +33,7 @@ import static com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils.*
 /**
  * @author Joacim Breiler
  */
-public class SimplePocket extends AbstractToolPath {
+public class PocketToolPath extends AbstractToolPath {
     private final Cuttable source;
 
     /**
@@ -44,7 +42,7 @@ public class SimplePocket extends AbstractToolPath {
      */
     private double stepOver = 0.3;
 
-    public SimplePocket(Cuttable source) {
+    public PocketToolPath(Cuttable source) {
         this.source = source;
     }
 
@@ -55,7 +53,7 @@ public class SimplePocket extends AbstractToolPath {
         Geometry geometryCollection = convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
         for (int i = 0; i < geometryCollection.getNumGeometries(); i++) {
             List<Geometry> geometries = bufferAndCollectGeometries(geometryCollection.getGeometryN(i));
-            double currentDepth = getStartDepth();
+            double currentDepth = getStartDepth() - getDepthPerPass();
             while (currentDepth < getTargetDepth()) {
                 currentDepth += getDepthPerPass();
                 if (currentDepth > getTargetDepth()) {

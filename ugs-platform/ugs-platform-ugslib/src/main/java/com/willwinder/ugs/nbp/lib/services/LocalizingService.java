@@ -116,6 +116,12 @@ public class LocalizingService {
     public final static String OpenActionId = "com.willwinder.ugs.nbp.core.actions.OpenAction";
     public final static String OpenCategory = CATEGORY_FILE;
 
+    public final static String SaveTitleKey = "platform.menu.save";
+    public final static String SaveTitle = Localization.getString(SaveTitleKey, lang);
+    public final static String SaveWindowPath = MENU_FILE;
+    public final static String SaveActionId = "com.willwinder.ugs.nbp.core.actions.SaveAction";
+    public final static String SaveCategory = CATEGORY_FILE;
+
     public final static String ReloadGcodeTitleKey = "platform.menu.reload";
     public final static String ReloadGcodeTitle = Localization.getString(ReloadGcodeTitleKey, lang);
     public final static String ReloadGcodeWindowPath = MENU_FILE;
@@ -292,6 +298,7 @@ public class LocalizingService {
 
     public final static String ToolboxTitle = Localization.getString("platform.plugin.toolbox.title", lang);
     public final static String ToolboxTooltip = Localization.getString("platform.plugin.toolbox.tooltip", lang);
+    public final static String ToolboxSettingsTitle =  Localization.getString("platform.plugin.toolbox.settings.title", lang);
 
 
     public LocalizingService() throws IOException {

@@ -25,6 +25,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
 
 /**
  * @author Joacim Breiler
@@ -90,6 +91,16 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             graphics.setStroke(new BasicStroke(strokeWidth));
             graphics.setColor(getCutColor());
             graphics.draw(getShape());
+        } else if (getCutType() == CutType.CENTER_DRILL) {
+            Shape shape = getShape();
+            double centerX = getShape().getBounds2D().getCenterX();
+            double centerY = getShape().getBounds2D().getCenterY();
+            graphics.setStroke(new BasicStroke(strokeWidth));
+            graphics.setColor(Colors.SHAPE_HINT);
+            graphics.draw(shape);
+            graphics.setColor(getCutColor());
+            graphics.draw(new Line2D.Double(shape.getBounds2D().getX() + 1, centerY, shape.getBounds2D().getX() + shape.getBounds2D().getWidth() - 1.0, centerY));
+            graphics.draw(new Line2D.Double(centerX, shape.getBounds2D().getY() + 1, centerX, shape.getBounds2D().getY() + shape.getBounds2D().getHeight() - 1.0));
         } else {
             graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
             graphics.setColor(Colors.SHAPE_OUTLINE);

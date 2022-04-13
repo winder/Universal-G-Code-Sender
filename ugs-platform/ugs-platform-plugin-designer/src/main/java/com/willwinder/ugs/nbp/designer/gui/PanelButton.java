@@ -26,7 +26,8 @@ import java.awt.*;
  */
 public class PanelButton extends JButton {
 
-    public static final float TITLE_SCALE = 0.8f;
+    public static final float TITLE_SCALE = 0.6f;
+    public static final float TEXT_SCALE = 0.8f;
     public static final String TITLE_FOREGROUND_COLOR_KEY = "Label.disabledForeground";
     private final JLabel textLabel;
 
@@ -43,8 +44,11 @@ public class PanelButton extends JButton {
         titleLabel.setFont(font);
 
         add(titleLabel, BorderLayout.NORTH);
-        this.textLabel = new JLabel(text);
-        add(this.textLabel, BorderLayout.CENTER);
+        textLabel = new JLabel(text);
+        font = textLabel.getFont();
+        font = font.deriveFont(font.getSize() * TEXT_SCALE);
+        textLabel.setFont(font);
+        add(textLabel, BorderLayout.CENTER);
     }
 
     @Override

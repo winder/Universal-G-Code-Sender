@@ -41,6 +41,13 @@ public class Size implements Serializable {
         return height;
     }
 
+    public double getRatio() {
+        if (width == 0 || height == 0) {
+            return 1;
+        }
+        return width / height;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

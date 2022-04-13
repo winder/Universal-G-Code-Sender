@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,26 +16,25 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.entities.cuttable;
+package com.willwinder.ugs.nbp.designer.io.c2d.model;
 
 /**
  * @author Joacim Breiler
  */
-public enum CutType {
-    NONE("None"),
-    POCKET("Pocket"),
-    ON_PATH("On path"),
-    INSIDE_PATH("Inside path"),
-    OUTSIDE_PATH("Outside path"),
-    CENTER_DRILL("Center drill");
+public class C2dRectangleObject {
+    private Double[] position;
+    private Double width;
+    private Double height;
 
-    private final String name;
-
-    CutType(String name) {
-        this.name = name;
+    public Double[] getPosition() {
+        return position;
     }
 
-    public String getName() {
-        return name;
+    public Double getHeight() {
+        return height;
+    }
+
+    public Double getWidth() {
+        return width;
     }
 }

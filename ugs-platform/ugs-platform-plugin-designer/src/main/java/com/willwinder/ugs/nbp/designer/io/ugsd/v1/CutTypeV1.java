@@ -28,7 +28,8 @@ public enum CutTypeV1 {
     POCKET,
     ON_PATH,
     INSIDE_PATH,
-    OUTSIDE_PATH;
+    OUTSIDE_PATH,
+    CENTER_DRILL;
 
     public static CutTypeV1 fromCutType(CutType cutType) {
         if (cutType == CutType.POCKET) {
@@ -39,7 +40,9 @@ public enum CutTypeV1 {
             return INSIDE_PATH;
         } else if (cutType == CutType.OUTSIDE_PATH) {
             return OUTSIDE_PATH;
-        } else {
+        } else if (cutType == CutType.CENTER_DRILL) {
+            return CENTER_DRILL;
+        }else {
             return NONE;
         }
     }
@@ -53,6 +56,8 @@ public enum CutTypeV1 {
             return CutType.INSIDE_PATH;
         } else if (cutType == OUTSIDE_PATH) {
             return CutType.OUTSIDE_PATH;
+        } else if (cutType == CENTER_DRILL) {
+            return CutType.CENTER_DRILL;
         } else {
             return CutType.NONE;
         }

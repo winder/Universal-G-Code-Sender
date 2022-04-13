@@ -48,6 +48,10 @@ public class CutTypeIcon extends ImageIcon {
                 icon = ImageUtilities.loadImageIcon("img/cutonpath" + size.value + ".svg", false);
                 setDescription("On path");
                 break;
+            case CENTER_DRILL:
+                icon = ImageUtilities.loadImageIcon("img/centerdrill" + size.value + ".svg", false);
+                setDescription("Center drill");
+                break;
         }
     }
 
