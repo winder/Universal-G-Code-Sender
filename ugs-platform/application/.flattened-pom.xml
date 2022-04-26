@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.willwinder</groupId>
+    <artifactId>ugs-platform-parent</artifactId>
+    <version>2.0-SNAPSHOT</version>
+  </parent>
+  <groupId>com.willwinder</groupId>
+  <artifactId>ugs-platform-app</artifactId>
+  <version>2.0-SNAPSHOT</version>
+  <packaging>nbm-application</packaging>
+  <name>ugs-platform-app</name>
+  <licenses>
+    <license>
+      <name>GNU General Public License, version 3 (GPL-3.0)</name>
+      <url>https://opensource.org/licenses/GPL-3.0</url>
+    </license>
+  </licenses>
+  <dependencies>
+    <dependency>
+      <groupId>org.netbeans.cluster</groupId>
+      <artifactId>platform</artifactId>
+      <version>${netbeans.version}</version>
+      <type>pom</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-branding</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.netbeans.api</groupId>
+      <artifactId>org-netbeans-modules-nbjunit</artifactId>
+      <version>${netbeans.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-visualizer</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-ugscore</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-ugslib</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-plugin-workflow</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-gcode-editor</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-surfacescanner</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ProbeModule</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>DowelModule</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>GcodeTools</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-plugin-jog</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-plugin-setup-wizard</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-welcome-page</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-plugin-joystick</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-plugin-cloud-storage</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-plugin-toolbox</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-plugin-dro</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ugs-platform-plugin-designer</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.netbeans.utilities</groupId>
+        <artifactId>nbm-maven-plugin</artifactId>
+        <configuration>
+          <etcConfFile>${basedir}/target/${brandingToken}.conf</etcConfFile>
+          <installerOsMacosx>false</installerOsMacosx>
+          <installerOsSolaris>false</installerOsSolaris>
+          <templateFile>${basedir}/installer/template.xml</templateFile>
+          <installerPack200Enable>false</installerPack200Enable>
+          <userSettings>
+            <configuration.logic.file>${basedir}/installer/ConfigurationLogic.java</configuration.logic.file>
+            <nbi.stub.buildfile>${basedir}/installer/build.xml</nbi.stub.buildfile>
+          </userSettings>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${ugs.surefire.version}</version>
+        <configuration>
+          <systemPropertyVariables>
+            <all.clusters>${all.clusters}</all.clusters>
+            <branding.token>${brandingToken}</branding.token>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>generate-app-conf-file</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/resources</directory>
+                  <includes>
+                    <include>${brandingToken}.conf</include>
+                    <include>Info.plist</include>
+                  </includes>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+              <escapeString>\</escapeString>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
+    <profile>
+      <id>deployment</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>build-jre-bundles</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+                    <ant antfile="${basedir}/build-jre-bundles.xml" />
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>ant-contrib</groupId>
+                <artifactId>ant-contrib</artifactId>
+                <version>20020829</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>create-win-package</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>create-win-app-bundle</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true" failonerror="false">
+                      <fileset dir="${project.build.directory}/${brandingToken}-win" followsymlinks="false" />
+                      <fileset dir="${project.build.directory}/${ugs.app.title}" followsymlinks="false" />
+                      <fileset dir="${project.build.directory}/${project.artifactId}-${project.version}.zip" followsymlinks="false" />
+                    </delete>
+                    <mkdir dir="${project.build.directory}/${brandingToken}-win" />
+                    <copy todir="${project.build.directory}/${brandingToken}-win">
+                      <fileset dir="${project.build.directory}/${brandingToken}" />
+                    </copy>
+                    <exec failonerror="true" dir="${project.build.directory}" executable="curl">
+                      <arg line="-L" />
+                      <arg line="${ugs.bundle.java.win.url}" />
+                      <arg line="-o" />
+                      <arg line="jre-win.zip" />
+                    </exec>
+                    <mkdir dir="${project.build.directory}/${brandingToken}-win/jdk" />
+                    <exec failonerror="true" dir="${project.build.directory}" executable="unzip">
+                      <arg line="-e" />
+                      <arg line="jre-win.zip" />
+                      <arg line="-d &quot;${brandingToken}-win/jdk&quot;" />
+                    </exec>
+                    <path id="jre_name">
+                      <dirset includes="jdk*" dir="${project.build.directory}/${brandingToken}-win/jdk" />
+                    </path>
+                    <property name="bundle.jvm.path" refid="jre_name" />
+                    <basename file="${bundle.jvm.path}" property="bundle.jvm.name" />
+                    <replace file="${project.build.directory}/${brandingToken}-win/etc/${brandingToken}.conf" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;" token="#jdkhome=&quot;/path/to/jdk&quot;" />
+                    <exec failonerror="true" dir="${project.build.directory}" executable="zip">
+                      <arg value="-r" />
+                      <arg value="win-${project.artifactId}-${project.version}.zip" />
+                      <arg value="${brandingToken}-win" />
+                    </exec>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>create-macosx-package</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>create-mac-app-bundle</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true" failonerror="false">
+                      <fileset dir="${project.build.directory}/${ugs.appbundle.name}.app" followsymlinks="false" />
+                      <fileset dir="${project.build.directory}/${ugs.app.title}" followsymlinks="false" />
+                      <fileset dir="${project.build.directory}/${project.artifactId}-${project.version}.dmg" followsymlinks="false" />
+                    </delete>
+                    <delete file="${project.build.directory}/${project.artifactId}-${project.version}.dmg" failonerror="false" />
+                    <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.app" />
+                    <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS" />
+                    <copy todir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}">
+                      <fileset dir="${project.build.directory}/${brandingToken}" />
+                    </copy>
+                    <copy file="src/main/app-resources/${brandingToken}.icns" tofile="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}.icns" />
+                    <copy file="${project.build.directory}/Info.plist" tofile="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Info.plist" />
+                    <move file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" todir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS" />
+                    <replace file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS/${brandingToken}" value="`dirname &quot;$PRG&quot;`&quot;/../Resources/${brandingToken}/bin&quot;" token="`dirname &quot;$PRG&quot;`" />
+                    <chmod file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS/${brandingToken}" perm="ugo+rx" />
+                    <exec failonerror="true" dir="${project.build.directory}" executable="curl">
+                      <arg line="-L" />
+                      <arg line="${ugs.bundle.java.mac.url}" />
+                      <arg line="-o" />
+                      <arg line="jre-mac.tar.gz" />
+                    </exec>
+                    <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns" />
+                    <exec failonerror="true" dir="${project.build.directory}" executable="tar">
+                      <arg line="-zxf" />
+                      <arg line="jre-mac.tar.gz" />
+                      <arg line="-C &quot;${ugs.appbundle.name}.app/Contents/PlugIns&quot;" />
+                    </exec>
+                    <path id="jre_name_osx">
+                      <dirset includes="jdk*" dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns" />
+                    </path>
+                    <property name="bundle.mac.jvm.path" refid="jre_name_osx" />
+                    <basename file="${bundle.mac.jvm.path}" property="bundle.mac.jvm.name" />
+                    <replace file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}/etc/${brandingToken}.conf" value="jdkhome=&quot;../../PlugIns/${bundle.mac.jvm.name}/Contents/Home&quot;" token="#jdkhome=&quot;/path/to/jdk&quot;" />
+                    <chmod file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns/**" perm="+x" type="both" />
+                    <mkdir dir="${project.build.directory}/${ugs.app.title}" />
+                    <move file="${project.build.directory}/${ugs.appbundle.name}.app" todir="${project.build.directory}/${ugs.app.title}/" />
+                    <symlink resource="/Applications" link="${project.build.directory}/${ugs.app.title}/Applications" failonerror="false" />
+                    <exec failonerror="true" dir="${project.build.directory}" executable="mkisofs">
+                      <arg value="-V" />
+                      <arg value="${ugs.appbundle.name}" />
+                      <arg value="-r" />
+                      <arg value="-o" />
+                      <arg value="ios-${project.artifactId}-${project.version}.dmg" />
+                      <arg value="${project.build.directory}/${ugs.app.title}" />
+                    </exec>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>create-pi-package</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>create-rpi-bundle</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true" failonerror="false">
+                      <fileset dir="${project.build.directory}/${brandingToken}-pi" followsymlinks="false" />
+                    </delete>
+                    <delete file="${project.build.directory}/${project.artifactId}-${project.version}-pi.tar.gz" failonerror="false" />
+                    <mkdir dir="${project.build.directory}/${brandingToken}-pi" />
+                    <copy todir="${project.build.directory}/${brandingToken}-pi">
+                      <fileset dir="${project.build.directory}/${brandingToken}" />
+                    </copy>
+                    <exec failonerror="true" dir="${project.build.directory}" executable="curl">
+                      <arg line="-L" />
+                      <arg line="${ugs.bundle.java.rpi.url}" />
+                      <arg line="-o" />
+                      <arg line="jre-rpi.tar.gz" />
+                    </exec>
+                    <mkdir dir="${project.build.directory}/${brandingToken}-pi/jdk" />
+                    <exec failonerror="true" dir="${project.build.directory}" executable="tar">
+                      <arg line="-zxf" />
+                      <arg line="jre-rpi.tar.gz" />
+                      <arg line="-C &quot;${brandingToken}-pi/jdk&quot;" />
+                    </exec>
+                    <path id="jre_name">
+                      <dirset includes="jdk*" dir="${project.build.directory}/${brandingToken}-pi/jdk" />
+                    </path>
+                    <property name="bundle.jvm.path" refid="jre_name" />
+                    <basename file="${bundle.jvm.path}" property="bundle.jvm.name" />
+                    <replace file="${project.build.directory}/${brandingToken}-pi/etc/${brandingToken}.conf" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;" token="#jdkhome=&quot;/path/to/jdk&quot;" />
+                    <chmod file="${project.build.directory}/${brandingToken}-pi/bin/**" perm="+x" type="both" />
+                    <exec failonerror="true" dir="${project.build.directory}" executable="tar">
+                      <env value="-9" key="GZIP" />
+                      <arg value="-czvf" />
+                      <arg value="pi-${project.artifactId}-${project.version}.tar.gz" />
+                      <arg value="-C" />
+                      <arg value="${project.build.directory}" />
+                      <arg value="${brandingToken}-pi" />
+                    </exec>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>create-linux-package</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>create-rpi-bundle</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true" failonerror="false">
+                      <fileset dir="${project.build.directory}/${brandingToken}-linux" followsymlinks="false" />
+                    </delete>
+                    <delete file="${project.build.directory}/${project.artifactId}-${project.version}-linux.tar.gz" failonerror="false" />
+                    <mkdir dir="${project.build.directory}/${brandingToken}-linux" />
+                    <copy todir="${project.build.directory}/${brandingToken}-linux">
+                      <fileset dir="${project.build.directory}/${brandingToken}" />
+                    </copy>
+                    <exec failonerror="true" dir="${project.build.directory}" executable="curl">
+                      <arg line="-L" />
+                      <arg line="${ugs.bundle.java.linux.url}" />
+                      <arg line="-o" />
+                      <arg line="jre-linux.tar.gz" />
+                    </exec>
+                    <mkdir dir="${project.build.directory}/${brandingToken}-linux/jdk" />
+                    <exec failonerror="true" dir="${project.build.directory}" executable="tar">
+                      <arg line="-zxf" />
+                      <arg line="jre-linux.tar.gz" />
+                      <arg line="-C &quot;${brandingToken}-linux/jdk&quot;" />
+                    </exec>
+                    <path id="jre_name">
+                      <dirset includes="jdk*" dir="${project.build.directory}/${brandingToken}-linux/jdk" />
+                    </path>
+                    <property name="bundle.jvm.path" refid="jre_name" />
+                    <basename file="${bundle.jvm.path}" property="bundle.jvm.name" />
+                    <replace file="${project.build.directory}/${brandingToken}-linux/etc/${brandingToken}.conf" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;" token="#jdkhome=&quot;/path/to/jdk&quot;" />
+                    <chmod file="${project.build.directory}/${brandingToken}-linux/bin/**" perm="+x" type="both" />
+                    <exec failonerror="true" dir="${project.build.directory}" executable="tar">
+                      <env value="-9" key="GZIP" />
+                      <arg value="-czvf" />
+                      <arg value="linux-${project.artifactId}-${project.version}.tar.gz" />
+                      <arg value="-C" />
+                      <arg value="${project.build.directory}" />
+                      <arg value="${brandingToken}-linux" />
+                    </exec>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>create-autoupdate</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.netbeans.utilities</groupId>
+            <artifactId>nbm-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>autoupdate</id>
+                <goals>
+                  <goal>autoupdate</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${project.build.directory}/site</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>push-autoupdate-sf</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-to-sourceforge</id>
+                <phase>install</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <delete failonerror="false" dir="${project.build.directory}/site/${project.version}/" />
+                    <copy todir="${project.build.directory}/site/${project.version}">
+                      <fileset includes="**" dir="${project.build.directory}/site/netbeans_site/" />
+                    </copy>
+                    <scp trust="true" todir="${sourceforge.login}:${sourceforge.password}@frs.sourceforge.net:${sourceforge.path}" sftp="true">
+                      <fileset dir="${project.build.directory}/site/">
+                        <include name="**/${project.version}/" />
+                      </fileset>
+                    </scp>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant-jsch</artifactId>
+                <version>1.10.1</version>
+              </dependency>
+              <dependency>
+                <groupId>com.jcraft</groupId>
+                <artifactId>jsch</artifactId>
+                <version>0.1.54</version>
+              </dependency>
+              <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>1.4.1</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant-commons-net</artifactId>
+                <version>1.8.1</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+      <properties>
+        <sourceforge.path>/home/frs/project/u/ug/ugs-update-center/</sourceforge.path>
+      </properties>
+    </profile>
+    <profile>
+      <id>push-autoupdate-gh</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.github</groupId>
+            <artifactId>site-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>install</phase>
+                <goals>
+                  <goal>site</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <message>Creating site for ${project.version}</message>
+              <path>${project.version}</path>
+              <merge>true</merge>
+              <repositoryName>gh-site-test</repositoryName>
+              <repositoryOwner>winder</repositoryOwner>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+      <properties>
+        <github.global.server>github</github.global.server>
+      </properties>
+    </profile>
+  </profiles>
+</project>
