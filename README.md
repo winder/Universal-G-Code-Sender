@@ -21,7 +21,10 @@ Technical details:
 
 ## Downloads
 
-🚩 There is currently a problem with the download server please use the download links under the latest release page [here](https://github.com/winder/Universal-G-Code-Sender/releases/tag/v2.0.11). Sorry for the inconvenience.
+🚩 There is currently a problem with the download server. 
+Please use the download links under the latest release page [here](https://github.com/winder/Universal-G-Code-Sender/releases/tag/v2.0.11). 
+
+Sorry for the inconvenience.
 
 ## Screenshots
 
