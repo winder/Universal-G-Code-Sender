@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   height="16"
+   width="16"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="trace.svg">
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1118"
+     inkscape:window-height="760"
+     id="namedview6"
+     showgrid="false"
+     inkscape:zoom="12.12"
+     inkscape:cx="-8.1334377"
+     inkscape:cy="7.4983498"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <rect
+     style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:5;stroke-opacity:1"
+     id="rect4145"
+     width="12.561888"
+     height="12.561881"
+     x="1.5775577"
+     y="1.6439769" />
+  <path
+     d="m 3.2555557,11.947222 9.5083293,0 L 9.9055552,8.1361106 7.3388887,11.461111 5.5305555,8.9916664 Z M 2.1666673,15 Q 1.7,15 1.35,14.65 1,14.3 1,13.833334 L 1,2.1666666 Q 1,1.7 1.35,1.35 1.7,1 2.1666673,1 L 13.833327,1 Q 14.3,1 14.65,1.35 15,1.7 15,2.1666666 L 15,13.833334 Q 15,14.3 14.65,14.65 14.3,15 13.833327,15 Z m 0,-1.166666 11.6666597,0 q 0,0 0,0 0,0 0,0 l 0,-11.6666674 q 0,0 0,0 0,0 0,0 l -11.6666597,0 q 0,0 0,0 0,0 0,0 l 0,11.6666674 q 0,0 0,0 0,0 0,0 z m 0,-11.6666674 q 0,0 0,0 0,0 0,0 l 0,11.6666674 q 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 l 0,-11.6666674 q 0,0 0,0 0,0 0,0 z"
+     id="path4"
+     style="fill:#353a40;fill-opacity:1"
+     inkscape:connector-curvature="0" />
+</svg>

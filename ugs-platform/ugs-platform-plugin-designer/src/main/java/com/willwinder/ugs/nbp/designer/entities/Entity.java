@@ -241,4 +241,18 @@ public interface Entity {
      * @return a copy of the entity
      */
     Entity copy();
+
+    /**
+     * An optional description
+     *
+     * @param description
+     */
+    void setDescription(String description);
+
+    /**
+     * Returns an optional description
+     *
+     * @return the description or null
+     */
+    String getDescription();
 }

@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
@@ -53,7 +54,7 @@ public class SubtractAction extends AbstractAction implements SelectionListener 
         this.controller = controller;
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);
-        setEnabled(selectionManager.getSelection().size() == 2);
+        setEnabled(selectionManager.getSelection().size() >= 2);
     }
 
     @Override
@@ -67,7 +68,7 @@ public class SubtractAction extends AbstractAction implements SelectionListener 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
         SelectionManager selectionManager = controller.getSelectionManager();
-        setEnabled(selectionManager.getSelection().size() == 2);
+        setEnabled(selectionManager.getSelection().size() >= 2);
     }
 
     private class UndoableSubtractAction implements UndoableAction {
@@ -81,7 +82,16 @@ public class SubtractAction extends AbstractAction implements SelectionListener 
         @Override
         public void redo() {
             Area area = new Area(entities.get(0).getShape());
-            area.subtract(new Area(entities.get(1).getShape()));
+            for (int i = 1; i < entities.size(); i++) {
+                Entity entity = entities.get(i);
+                if (entity instanceof Group) {
+                   ((Group) entity).getAllChildren().forEach(groupEntity -> {
+                       area.subtract(new Area(groupEntity.getShape()));
+                   });
+                } else {
+                    area.subtract(new Area(entity.getShape()));
+                }
+            }
 
             path = new Path();
             if (entities.get(0) instanceof Cuttable) {

@@ -68,6 +68,13 @@ public class ToolBox extends ToolBar {
         insertButton.setBorderPainted(false);
         add(insertButton);
 
+        insertButton = new JButton(new TraceImageAction(controller));
+        insertButton.setText("");
+        insertButton.setToolTipText("Traces a bitmap image");
+        insertButton.setContentAreaFilled(false);
+        insertButton.setBorderPainted(false);
+        add(insertButton);
+
         addSeparator();
 
         JButton flipHorizontal = new JButton(new FlipHorizontallyAction(controller));

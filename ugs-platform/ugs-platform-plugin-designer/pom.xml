@@ -181,5 +181,10 @@
             <version>${netbeans.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>jide-oss</artifactId>
+            <version>${ugs.jide.version}</version>
+        </dependency>
     </dependencies>
 </project>
