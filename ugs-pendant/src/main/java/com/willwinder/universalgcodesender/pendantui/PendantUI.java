@@ -18,7 +18,10 @@
  */
 package com.willwinder.universalgcodesender.pendantui;
 
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
 import org.eclipse.jetty.server.Handler;
@@ -47,15 +50,16 @@ import java.util.logging.Logger;
  *
  * @author bobj
  */
-public class PendantUI {
-    private BackendAPI mainWindow;
+public class PendantUI implements UGSEventListener {
+    private BackendAPI backendAPI;
     private Server server = null;
     private int port = 8080;
     private static final Logger LOG = Logger.getLogger(PendantUI.class.getSimpleName());
 
-    public PendantUI(BackendAPI mainWindow) {
-        this.mainWindow = mainWindow;
-        BackendAPIFactory.getInstance().register(mainWindow);
+    public PendantUI(BackendAPI backendAPI) {
+        this.backendAPI = backendAPI;
+        backendAPI.addUGSEventListener(this);
+        BackendAPIFactory.getInstance().register(backendAPI);
     }
 
     public Resource getBaseResource(String directory) {
@@ -74,6 +78,7 @@ public class PendantUI {
      * @return the url for the pendant interface
      */
     public List<PendantURLBean> start() {
+        int port = backendAPI.getSettings().getPendantPort();
         server = new Server(port);
 
         ResourceHandler staticResourceHandler = new ResourceHandler();
@@ -149,19 +154,25 @@ public class PendantUI {
         }
     }
 
-    public int getPort() {
-        return port;
+    public boolean isStarted() {
+        return server != null && server.isStarted();
     }
 
-    public void setPort(int port) {
-        this.port = port;
+    public BackendAPI getBackendAPI() {
+        return backendAPI;
     }
 
-    public BackendAPI getMainWindow() {
-        return mainWindow;
+    public void setBackendAPI(BackendAPI backendAPI) {
+        this.backendAPI = backendAPI;
     }
 
-    public void setMainWindow(BackendAPI mainWindow) {
-        this.mainWindow = mainWindow;
+    @Override
+    public void UGSEvent(UGSEvent evt) {
+        if (evt instanceof SettingChangedEvent) {
+            if (backendAPI.getSettings().getPendantPort() != port && isStarted()) {
+                stop();
+                start();
+            }
+        }
     }
 }

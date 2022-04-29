@@ -57,6 +57,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
             Localization.getString("sender.nightly-warning"));
     private final Checkbox autoStartPendant = new Checkbox(
             Localization.getString("sender.autostartpendant"));
+    private final Textfield pendantPort = new Textfield(Localization.getString("settings.pendantPort"));
     private final JComboBox<Language> languageCombo = new JComboBox<>(AvailableLanguages.getAvailableLanguages().toArray(new Language[0]));
     private final JComboBox<String> connectionDriver = new JComboBox<>(ConnectionDriver.getPrettyNames());
     private final JTextField workspaceDirectory = new JTextField();
@@ -92,6 +93,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         //settings.setAutoConnectEnabled(autoConnect.getValue());
         settings.setShowNightlyWarning(showNightlyWarning.getValue());
         settings.setAutoStartPendant(autoStartPendant.getValue());
+        settings.setPendantPort(Integer.parseInt(pendantPort.getValue().toString()));
         settings.setLanguage(((Language) languageCombo.getSelectedItem()).getLanguageCode());
         settings.setConnectionDriver(ConnectionDriver.prettyNameToEnum(connectionDriver.getSelectedItem().toString()));
         settings.setWorkspaceDirectory(workspaceDirectory.getText());
@@ -134,6 +136,9 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         autoStartPendant.setSelected(s.isAutoStartPendant());
         add(autoStartPendant, "spanx, wrap");
 
+        pendantPort.setValue(String.valueOf(s.getPendantPort()));
+        add(pendantPort, "spanx, grow");
+
         for (int i = 0; i < languageCombo.getItemCount(); i++) {
             Language l = languageCombo.getItemAt(i);
             if (l.getLanguageCode().equals(s.getLanguage())) {
@@ -151,8 +156,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
         workspaceDirectory.setText(settings.getWorkspaceDirectory());
         JPanel panel = new JPanel();
-        panel.setLayout(new MigLayout("insets 0", "fill"));
-        panel.add(workspaceDirectory, "gapright 0");
+        panel.setLayout(new MigLayout("insets 0, fill"));
+        panel.add(workspaceDirectory, "grow");
         panel.add(workspaceDirectoryBrowseButton);
         workspaceDirectoryBrowseButton.setAction(createBrowseDirectoryAction());
 

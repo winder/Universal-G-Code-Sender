@@ -77,6 +77,7 @@ public class Settings {
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
     private boolean autoStartPendant = false;
+    private int pendantPort = 8080;
     private boolean autoConnect = false;
     private boolean autoReconnect = false;
 
@@ -521,6 +522,15 @@ public class Settings {
 
     public void setSafetyHeight(double safetyHeight) {
         this.safetyHeight = safetyHeight;
+    }
+
+    public int getPendantPort() {
+        return pendantPort;
+    }
+
+    public void setPendantPort(int pendantPort) {
+        this.pendantPort = pendantPort;
+        changed();
     }
 
     public static class AutoLevelSettings {

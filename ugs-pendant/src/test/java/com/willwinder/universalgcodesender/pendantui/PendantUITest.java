@@ -22,7 +22,7 @@ public class PendantUITest {
 	}
 	@Test
 	public void testPendantUI() {
-            assertSame(mockBackend, pendantUI.getMainWindow());
+            assertSame(mockBackend, pendantUI.getBackendAPI());
 	}
 
 	@Test
@@ -31,17 +31,5 @@ public class PendantUITest {
 
         assertTrue(test.startsWith("http://"));
         assertTrue(test.contains("8080"));
-	}
-
-	@Test
-	public void testGetPort() {
-        pendantUI.setPort(999);
-        assertEquals(999, pendantUI.getPort());
-	}
-
-	@Test
-	public void testSetPort() {
-        pendantUI.setPort(999);
-        assertEquals(999, pendantUI.getPort());
 	}
 }

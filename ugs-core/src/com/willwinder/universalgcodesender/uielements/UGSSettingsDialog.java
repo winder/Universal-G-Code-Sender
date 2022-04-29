@@ -66,7 +66,7 @@ public class UGSSettingsDialog extends JDialog {
         initComponents();
         setLocationRelativeTo(parent);
 
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         saveChanges = false;
     }
     
