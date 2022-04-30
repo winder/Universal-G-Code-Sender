@@ -1,4 +1,4 @@
-#Fri Apr 29 17:10:45 BST 2022
+#Fri Apr 29 17:31:03 BST 2022
 com.willwinder.ugs.platform.plugin.setup.wizard.OpenIDE-Module-Deprecated=\u0000
 com.willwinder.ugs.platform.ugslib.OpenIDE-Module-Deprecated=\u0000
 com.willwinder.ugs.platform.plugin.dro.OpenIDE-Module-Deprecated=\u0000
@@ -116,8 +116,8 @@ com.willwinder.DowelModule.OpenIDE-Module-Install=\u0000
 org.openide.nodes.AutoUpdate-Show-In-Client=false
 com.willwinder.ugs.platform.plugin.setup.wizard.OpenIDE-Module-Install=\u0000
 org.openide.execution.AutoUpdate-Show-In-Client=false
-org.netbeans.libs.asm.AutoUpdate-Show-In-Client=false
 org.netbeans.modules.editor.settings.storage.AutoUpdate-Show-In-Client=false
+org.netbeans.libs.asm.AutoUpdate-Show-In-Client=false
 org.netbeans.html.xhr4j.AutoUpdate-Show-In-Client=\u0000
 org.openide.text.OpenIDE-Module-Description=\u0000
 org.openide.util.ui.AutoUpdate-Show-In-Client=false
@@ -172,8 +172,8 @@ org.netbeans.modules.projectapi.nb.OpenIDE-Module-Deprecated=\u0000
 org.netbeans.modules.editor.plain.AutoUpdate-Show-In-Client=false
 org.netbeans.modules.core.kit.OpenIDE-Module-Install=\u0000
 org.netbeans.api.io.OpenIDE-Module-Deprecated=\u0000
-org.netbeans.modules.javahelp.AutoUpdate-Show-In-Client=false
 org.openide.filesystems.AutoUpdate-Show-In-Client=false
+org.netbeans.modules.javahelp.AutoUpdate-Show-In-Client=false
 org.netbeans.api.java.classpath.OpenIDE-Module-Install=\u0000
 org.netbeans.modules.options.editor.OpenIDE-Module-Deprecated=\u0000
 org.netbeans.swing.outline.OpenIDE-Module-Install=\u0000
@@ -606,8 +606,8 @@ org.netbeans.libs.felix.OpenIDE-Module-Hide-Classpath-Packages=\u0000
 org.netbeans.swing.tabcontrol.OpenIDE-Module-Install=\u0000
 com.willwinder.ProbeModule.OpenIDE-Module-Description=\u0000
 org.netbeans.modules.masterfs.nio2.AutoUpdate-Show-In-Client=false
-org.netbeans.api.search.AutoUpdate-Show-In-Client=false
 com.willwinder.ugs.platform.visualizer.AutoUpdate-Show-In-Client=\u0000
+org.netbeans.api.search.AutoUpdate-Show-In-Client=false
 org.netbeans.modules.editor.fold.OpenIDE-Module-Install=\u0000
 org.netbeans.modules.editor.mimelookup.OpenIDE-Module-Install=\u0000
 org.netbeans.api.progress.compat8.AutoUpdate-Show-In-Client=false
