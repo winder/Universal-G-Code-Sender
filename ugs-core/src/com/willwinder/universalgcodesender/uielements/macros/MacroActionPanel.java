@@ -163,7 +163,9 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
     }
 
     private void updateCustomGcodeControls(boolean enabled) {
-        customGcodeButtons.forEach((button -> button.setEnabled(enabled)));
+        synchronized (this) {
+            customGcodeButtons.forEach((button -> button.setEnabled(enabled)));
+        }
     }
 
     @Override

@@ -35,6 +35,7 @@ import org.openide.windows.TopComponent;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 @MultiViewElement.Registration(
         displayName = "#platform.window.editor.source",
@@ -51,6 +52,7 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
     private final GcodeFileListener fileListener;
     private final transient BackendAPI backend;
     private static final Component TOOLBAR_PADDING = Box.createRigidArea(new Dimension(1, 30));
+    private static final Logger LOGGER = Logger.getLogger(SourceMultiviewElement.class.getName());
 
     public SourceMultiviewElement(Lookup lookup) {
         super(lookup);
@@ -108,7 +110,13 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
         // Disable the editor if not idle or disconnected
         if (ugsEvent instanceof ControllerStateEvent) {
             ControllerState state = backend.getControllerState();
-            getEditorPane().setEditable(state == ControllerState.IDLE || state == ControllerState.DISCONNECTED);
+            try {
+                getEditorPane().setEditable(state == ControllerState.IDLE || state == ControllerState.DISCONNECTED);
+            } catch(AssertionError e) {
+                LOGGER.warning(String.format("AssertionError(%s) in getEditorPane().setEditable " +
+                        "- verify that you use required JVM version." +
+                        " Application can exhibit misbehaviour.", e.getMessage()));
+            }
         }
     }
 }

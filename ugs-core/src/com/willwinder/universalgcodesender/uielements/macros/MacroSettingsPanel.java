@@ -353,7 +353,15 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
 
     private String findUniqueMacroName(int index) {
         final String macroName = "Macro #" + index;
-        if(macros.stream().noneMatch(m -> m.getName().equalsIgnoreCase(macroName))) {
+        if (macros.stream().noneMatch(m ->
+                {
+                    if (m.getName() != null) {
+                        return m.getName().equalsIgnoreCase(macroName);
+                    }
+                    return false;
+                }
+            ))
+        {
             return macroName;
         }
         return findUniqueMacroName(index + 1);
