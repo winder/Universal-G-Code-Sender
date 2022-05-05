@@ -20,11 +20,27 @@ Technical details:
 * [Batik](https://xmlgraphics.apache.org/batik/) for reading SVG
 
 ## Downloads
+Below you will find the latest release of UGS.<br/> For older releases please visit the [releases page](https://github.com/winder/Universal-G-Code-Sender/releases).
 
-🚩 There is currently a problem with the download server. 
-Please use the download links under the latest release page [here](https://github.com/winder/Universal-G-Code-Sender/releases/tag/v2.0.11). 
+**UGS Platform**<br>
+The next generation, feature packed variant based on the Netbeans Platform.<br>
+Unpack and start the program ```bin/ugsplatform```
 
-Sorry for the inconvenience.
+| Latest release (v2.0.11) | Previous release (v2.0.9) | Nightly build  |
+|:------------------------|:---------------|:--------------|
+| [![Windows](pictures/os_windows.png) Windows](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-win.zip)           | [![Windows](pictures/os_windows.png) Windows](https://ugs.jfrog.io/ugs/UGS/v2.0.9/ugs-platform-app-win.zip)           | [![Windows](pictures/os_windows.png) Windows](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-win.zip)  |
+| [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-ios.dmg)               | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/v2.0.9/ugs-platform-app-ios.dmg)               | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-ios.dmg) |
+| [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-linux.tar.gz)        | [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/v2.0.9/ugs-platform-app-linux.tar.gz)        | [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-linux.tar.gz) |
+| [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-pi.tar.gz) | [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/v2.0.9/ugs-platform-app-pi.tar.gz) | [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-pi.tar.gz) |
+| [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app.zip)                    | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.9/ugs-platform-app.zip)                    | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app.zip) |
+
+**UGS Classic**<br>
+A clean and lightweight variant of UGS (requires [Java](https://java.com/en/download/manual.jsp)). <br>
+Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. <br>
+
+| Latest release (v2.0.11) | Previous release (v2.0.9) | Nightly build  |
+|:---------------|:---------------|:--------------|
+| [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.11/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.9/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](http://bit.ly/2HhJIir) |
 
 ## Screenshots
 
