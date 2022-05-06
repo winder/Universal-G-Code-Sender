@@ -144,6 +144,7 @@ public class UgsDesignWriter implements DesignWriter {
         settings.setSafeHeight(controller.getSettings().getSafeHeight());
         settings.setToolDiameter(controller.getSettings().getToolDiameter());
         settings.setToolStepOver(controller.getSettings().getToolStepOver());
+        settings.setSpindleSpeed(controller.getSettings().getSpindleSpeed());
         return settings;
     }
 

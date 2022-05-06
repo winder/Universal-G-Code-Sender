@@ -55,6 +55,7 @@ public class GcodeDesignWriter implements DesignWriter {
             gcodeRouter.setPlungeSpeed(controller.getSettings().getPlungeSpeed());
             gcodeRouter.setSafeHeight(controller.getSettings().getSafeHeight());
             gcodeRouter.setFeedSpeed(controller.getSettings().getFeedSpeed());
+            gcodeRouter.setSpindleSpeed(controller.getSettings().getSpindleSpeed());
 
             String gcode = gcodeRouter.toGcode(controller.getDrawing().getEntities());
             IOUtils.write(gcode, outputStream, StandardCharsets.UTF_8);

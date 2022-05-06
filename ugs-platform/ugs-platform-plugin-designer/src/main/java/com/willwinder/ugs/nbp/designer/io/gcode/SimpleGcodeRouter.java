@@ -73,6 +73,11 @@ public class SimpleGcodeRouter {
      */
     private double safeHeight = 1;
 
+    /**
+     * The spindle speed in RPM
+     */
+    private double spindleSpeed = 1000;
+
     public int getFeedSpeed() {
         return feedSpeed;
     }
@@ -121,6 +126,15 @@ public class SimpleGcodeRouter {
         this.depthPerPass = depthPerPass;
     }
 
+
+    public void setSpindleSpeed(double spindleSpeed) {
+        this.spindleSpeed = spindleSpeed;
+    }
+
+    private double getSpindleSpeed() {
+        return this.spindleSpeed;
+    }
+
     protected String toGcode(GcodePath gcodePath) throws IOException {
         StringWriter stringWriter = new StringWriter();
         toGcode(stringWriter, gcodePath);
@@ -145,7 +159,8 @@ public class SimpleGcodeRouter {
                 Code.G21.name() + " ; millimeters\n" +
                 Code.G90.name() + " ; absolute coordinate\n" +
                 Code.G17.name() + " ; XY plane\n" +
-                Code.G94.name() + " ; units per minute feed rate mode\n\n"
+                Code.G94.name() + " ; units per minute feed rate mode\n" +
+                Code.M3.name() + " S" + Math.round(getSpindleSpeed()) + " ; Turning on spindle\n\n"
         );
 
         try {
@@ -154,6 +169,9 @@ public class SimpleGcodeRouter {
             throw new RuntimeException("An error occured while trying to generate gcode", e);
         }
 
+        result.append("\n" + "; Turning off spindle and end program\n")
+                .append(Code.M5.name()).append("\n")
+                .append(Code.G30.name()).append("\n");
         return result.toString();
     }
 
@@ -225,7 +243,8 @@ public class SimpleGcodeRouter {
                 "; Feed speed: " + getFeedSpeed() + "mm/min\n" +
                 "; Plunge speed: " + getPlungeSpeed() + "mm/min\n" +
                 "; Safe height: " + getSafeHeight() + "mm\n" +
-                "; Tool step over: " + getToolStepOver() + "mm\n";
+                "; Tool step over: " + getToolStepOver() + "mm\n" +
+                "; Spindle speed: " + Math.round(getSpindleSpeed()) + "rpm\n";
     }
 
     protected void toGcode(Writer writer, GcodePath path) throws IOException {

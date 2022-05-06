@@ -1,7 +1,6 @@
 package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
 
 import com.willwinder.ugs.nbp.designer.model.Settings;
-import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
 public class SettingsV1 {
@@ -13,6 +12,7 @@ public class SettingsV1 {
     private UnitUtils.Units preferredUnits = UnitUtils.Units.MM;
     private double toolStepOver = 0.3;
     private double depthPerPass = 1;
+    private double spindleSpeed = 0;
 
     public int getPlungeSpeed() {
         return plungeSpeed;
@@ -78,6 +78,14 @@ public class SettingsV1 {
         return depthPerPass;
     }
 
+    public double getSpindleSpeed() {
+        return spindleSpeed;
+    }
+
+    public void setSpindleSpeed(double spindleSpeed) {
+        this.spindleSpeed = spindleSpeed;
+    }
+
     public Settings toInternal() {
         Settings settings = new Settings();
         settings.setSafeHeight(safeHeight);
@@ -88,6 +96,7 @@ public class SettingsV1 {
         settings.setPlungeSpeed(plungeSpeed);
         settings.setDepthPerPass(depthPerPass);
         settings.setFeedSpeed(feedSpeed);
+        settings.setSpindleSpeed(spindleSpeed);
         return settings;
     }
 }
