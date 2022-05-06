@@ -35,19 +35,22 @@ import javax.swing.*;
 @TopComponent.Registration(mode = "bottom_left", openAtStartup = false)
 public class EntitiesTreeTopComponent extends TopComponent {
     private static final long serialVersionUID = 432423498723987873L;
+    private final EntitiesTree entitesTree;
 
     public EntitiesTreeTopComponent() {
         setMinimumSize(new java.awt.Dimension(50, 50));
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());
         setDisplayName("Design objects");
+
+        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
+        entitesTree = new EntitiesTree(controller);
     }
 
     @Override
     protected void componentOpened() {
         super.componentOpened();
         removeAll();
-        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
-        add(new JScrollPane(new EntitiesTree(controller)));
+        add(new JScrollPane(entitesTree));
     }
 }

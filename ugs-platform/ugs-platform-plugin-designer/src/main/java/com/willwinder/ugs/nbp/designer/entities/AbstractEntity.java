@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Set;
@@ -37,6 +38,7 @@ public abstract class AbstractEntity implements Entity {
 
     private AffineTransform transform = new AffineTransform();
     private String name = "AbstractEntity";
+    private String description;
 
     protected AbstractEntity() {
         this(0, 0);
@@ -236,6 +238,16 @@ public abstract class AbstractEntity implements Entity {
 
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public String getDescription() {
+        return this.description;
     }
 
     public String toString() {

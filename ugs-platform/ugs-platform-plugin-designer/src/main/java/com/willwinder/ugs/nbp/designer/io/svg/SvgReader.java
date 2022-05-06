@@ -177,6 +177,10 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
                     if (id != null) {
                         createdShape.setName(createdShape.getName() + " (" + id.getFirstChild().getNodeValue() + ")");
                     }
+                    Node desc = node.getAttributes().getNamedItem("desc");
+                    if (desc != null) {
+                        createdShape.setDescription(desc.getFirstChild().getNodeValue());
+                    }
                     createdShape.setTransform(groupTransform);
                     group.addChild(createdShape);
                 }
