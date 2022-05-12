@@ -35,6 +35,7 @@ public class Settings {
     private UnitUtils.Units preferredUnits = UnitUtils.Units.MM;
     private double toolStepOver = 0.3;
     private double depthPerPass = 1;
+    private double spindleSpeed;
 
     public Settings() {
     }
@@ -156,6 +157,14 @@ public class Settings {
         this.depthPerPass = depthPerPass;
     }
 
+    public double getSpindleSpeed() {
+        return spindleSpeed;
+    }
+
+    public void setSpindleSpeed(double spindleSpeed) {
+        this.spindleSpeed = spindleSpeed;
+    }
+
     public void applySettings(Settings settings) {
         if (settings != null) {
             setDepthPerPass(settings.getDepthPerPass());
@@ -166,6 +175,7 @@ public class Settings {
             setToolStepOver(settings.getToolStepOver());
             setPreferredUnits(settings.getPreferredUnits());
             setSafeHeight(settings.getSafeHeight());
+            setSpindleSpeed(settings.getSpindleSpeed());
         }
     }
 }

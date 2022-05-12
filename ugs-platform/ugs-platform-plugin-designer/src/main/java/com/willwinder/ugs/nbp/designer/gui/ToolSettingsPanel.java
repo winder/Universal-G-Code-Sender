@@ -38,6 +38,7 @@ public class ToolSettingsPanel extends JPanel {
     private JTextField depthPerPass;
     private JTextField stepOver;
     private JTextField safeHeight;
+    private JTextField spindleSpeed;
 
     public ToolSettingsPanel(Controller controller) {
         this.controller = controller;
@@ -73,6 +74,11 @@ public class ToolSettingsPanel extends JPanel {
         add(new JLabel("Safe height"));
         safeHeight = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getSafeHeight());
         add(safeHeight, "grow, wrap");
+
+        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap");
+        add(new JLabel("Spindle speed"));
+        spindleSpeed =  new TextFieldWithUnit(Unit.ROTATIONS_PER_MINUTE, 0, controller.getSettings().getSpindleSpeed());
+        add(spindleSpeed, "grow, wrap");
     }
 
     public double getToolDiameter() {
@@ -123,6 +129,14 @@ public class ToolSettingsPanel extends JPanel {
         }
     }
 
+    public double getSpindleSpeed() {
+        try {
+            return Utils.formatter.parse(spindleSpeed.getText()).doubleValue();
+        } catch (ParseException e) {
+            return controller.getSettings().getSpindleSpeed();
+        }
+    }
+
     public Settings getSettings() {
         Settings settings = new Settings();
         settings.applySettings(controller.getSettings());
@@ -132,6 +146,7 @@ public class ToolSettingsPanel extends JPanel {
         settings.setToolDiameter(getToolDiameter());
         settings.setToolStepOver(getStepOver());
         settings.setPlungeSpeed(getPlungeSpeed());
+        settings.setSpindleSpeed(getSpindleSpeed());
         return settings;
     }
 }
