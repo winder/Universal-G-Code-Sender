@@ -1569,6 +1569,44 @@ public class GrblControllerTest {
         }
     }
 
+    @Test
+    public void commandSentShouldNotifyListeners() throws Exception {
+        GrblController instance = initializeAndConnectController("foo", 2400, VERSION_GRBL_0_8);
+
+        GcodeCommand command = new GcodeCommand("command");
+        ControllerListener controllerListener = mock(ControllerListener.class);
+        instance.addListener(controllerListener);
+        instance.commandSent(command);
+
+        verify(controllerListener, times(1)).commandSent(any());
+        assertTrue(command.isSent());
+        assertTrue(instance.getActiveCommand().isPresent());
+    }
+
+    @Test(expected = UnexpectedCommand.class)
+    public void commandCompleteWithNoSentCommandsShouldThrowError() throws Exception {
+        GrblController instance = initializeAndConnectController("foo", 2400, VERSION_GRBL_0_8);
+
+        ControllerListener controllerListener = mock(ControllerListener.class);
+        instance.addListener(controllerListener);
+        instance.commandComplete("done");
+    }
+
+    @Test
+    public void commandCompleteShouldNotifyListeners() throws Exception {
+        GrblController instance = initializeAndConnectController("foo", 2400, VERSION_GRBL_0_8);
+
+        GcodeCommand command = new GcodeCommand("command");
+        ControllerListener controllerListener = mock(ControllerListener.class);
+        instance.addListener(controllerListener);
+        instance.commandSent(command);
+        instance.commandComplete("done");
+
+        verify(controllerListener, times(1)).commandComplete(any());
+        assertTrue(command.isDone());
+        assertFalse(instance.getActiveCommand().isPresent());
+    }
+
     /**
      * Helper function for initializing a grbl controller for testing
      *

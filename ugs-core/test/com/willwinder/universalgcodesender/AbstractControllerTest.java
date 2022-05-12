@@ -24,7 +24,8 @@ import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
@@ -32,7 +33,6 @@ import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
-import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.easymock.IMockBuilder;
 import org.junit.AfterClass;
@@ -280,86 +280,5 @@ public class AbstractControllerTest {
         instance.beginStreaming();
 
         verify(mockCommunicator, instance);
-    }
-
-    /**
-     * Test of commandSent method, of class AbstractController.
-     */
-    @Test
-    public void testCommandSent() throws Exception {
-        System.out.println("commandSent");
-
-        String port = "/some/port";
-        int baud = 1234;
-        String command = "command";
-
-        // Setup instance with commands buffered on the communicator.
-        startStreamExpectation(port, baud);
-        replay(instance, mockCommunicator);
-        startStream(port, baud, command);
-        reset(instance, mockCommunicator, mockListener);
-
-        // Make sure the events are triggered.
-        Capture<GcodeCommand> gc1 = EasyMock.newCapture();
-        Capture<GcodeCommand> gc2 = EasyMock.newCapture();
-        mockListener.commandSent(EasyMock.capture(gc1));
-        expect(expectLastCall());
-        mockListener.commandSent(EasyMock.capture(gc2));
-        expect(expectLastCall());
-
-        replay(instance, mockCommunicator, mockListener);
-
-        // Run test.
-        //assertEquals(0, instance.rowsSent());
-        instance.commandSent(new GcodeCommand(command));
-        //assertEquals(1, instance.rowsSent());
-        instance.commandSent(new GcodeCommand(command));
-        //assertEquals(2, instance.rowsSent());
-        assertTrue(gc1.getValue().isSent());
-        assertTrue(gc2.getValue().isSent());
-
-        verify(mockListener);
-    }
-
-    /**
-     * Test of commandComplete method, of class AbstractController.
-     */
-    @Test
-    public void testCommandComplete() throws Exception {
-        // Setup test with commands sent by communicator waiting on response.
-        testCommandSent();
-        reset(instance, mockCommunicator, mockListener, mockMessageService);
-        expect(mockCommunicator.isConnected()).andReturn(true).anyTimes();
-        expect(instance.handlesAllStateChangeEvents()).andReturn(true).anyTimes();
-        instance.updateCommandFromResponse(anyObject(), eq("ok"));
-        expect(expectLastCall()).times(2);
-
-        // Make sure the events are triggered.
-        Capture<GcodeCommand> gc1 = newCapture();
-        Capture<GcodeCommand> gc2 = newCapture();
-        mockListener.commandComplete(capture(gc1));
-        expect(expectLastCall());
-        mockListener.commandComplete(capture(gc2));
-        expect(expectLastCall());
-        expect(expectLastCall());
-        mockMessageService.dispatchMessage(anyObject(), anyString());
-        expect(expectLastCall());
-        mockListener.fileStreamComplete("queued commands", true);
-        mockListener.controlStateChange(CommunicatorState.COMM_IDLE);
-        expect(expectLastCall());
-
-        expect(instance.getControllerStatus()).andReturn(new ControllerStatus(ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
-        expect(instance.getControllerStatus()).andReturn(new ControllerStatus(ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
-        expect(mockCommunicator.areActiveCommands()).andReturn(true);
-        expect(mockCommunicator.areActiveCommands()).andReturn(false);
-        expect(mockCommunicator.numActiveCommands()).andReturn(0);
-        replay(instance, mockCommunicator, mockListener);
-
-        instance.getActiveCommand().orElseThrow(() -> new RuntimeException("Couldn't find first command"));
-        instance.commandComplete("ok");
-        instance.getActiveCommand().orElseThrow(() -> new RuntimeException("Couldn't find second command"));
-        instance.commandComplete("ok");
-
-        verify(mockListener);
     }
 }
