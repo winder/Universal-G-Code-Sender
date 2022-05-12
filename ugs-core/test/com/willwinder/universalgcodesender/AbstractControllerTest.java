@@ -24,22 +24,18 @@ import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
-import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
-import org.easymock.Capture;
-import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.easymock.IMockBuilder;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -47,8 +43,6 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collection;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.assertEquals;
@@ -65,10 +59,9 @@ public class AbstractControllerTest {
     private final static MessageService mockMessageService = EasyMock.createMock(MessageService.class);
     private final static GcodeCommandCreator gcodeCreator = new GcodeCommandCreator();
 
-    private Settings settings = new Settings();
+    private final Settings settings = new Settings();
 
     private static AbstractController instance;
-    private static AbstractController niceInstance;
 
     private static File tempDir = null;
 
@@ -94,7 +87,7 @@ public class AbstractControllerTest {
                 .withArgs(mockCommunicator);
 
         instance = instanceBuilder.createMock();
-        niceInstance = instanceBuilder.createNiceMock();
+        AbstractController niceInstance = instanceBuilder.createNiceMock();
 
         // Initialize private variable.
         Field f = AbstractController.class.getDeclaredField("commandCreator");
@@ -178,18 +171,6 @@ public class AbstractControllerTest {
     }
 
     /**
-     * Test of isStreamingFile method, of class AbstractController.
-     */
-    @Test
-    public void testIsStreaming() throws Exception {
-        System.out.println("isStreaming");
-
-        assertEquals(false, instance.isStreaming());
-        testQueueCommands();
-        assertEquals(true, instance.isStreaming());
-    }
-
-    /**
      * Test of getSendDuration method, of class AbstractController.
      */
     @Test
@@ -243,59 +224,6 @@ public class AbstractControllerTest {
         assertEquals( time, newtime );
 
         verify(mockCommunicator, instance);
-    }
-
-    @Test
-    public void testRowStats() throws Exception {
-        testQueueStreamForComm();
-
-        Assert.assertEquals(0, instance.rowsSent());
-        Assert.assertEquals(2, instance.rowsRemaining());
-        Assert.assertEquals(2, instance.rowsInSend());
-    }
-
-    /**
-     * Test of queueStream method, of class AbstractController.
-     */
-    @Test
-    public void testQueueStreamForComm() throws Exception {
-        System.out.println("queueStream");
-
-        String command = "command";
-        Collection<String> commands = Arrays.asList(command, command);
-        String port = "/some/port";
-        int rate = 1234;
-
-        File f = new File(tempDir,"gcodeFile");
-        try {
-            try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
-                for (String i : commands) {
-                    gsw.addLine("blah", command, null, -1);
-                }
-            }
-
-            try (IGcodeStreamReader gsr = new GcodeStreamReader(f)) {
-                openInstanceExpectUtility(port, rate, false);
-                streamInstanceExpectUtility();
-
-                // TODO Fix this
-                // Making sure the commands get queued.
-                mockCommunicator.queueStreamForComm(gsr);
-
-                expect(expectLastCall()).times(1);
-
-                replay(instance, mockCommunicator);
-
-                // Open port, send some commands, make sure they are streamed.
-                instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
-                instance.queueStream(gsr);
-                instance.beginStreaming();
-            }
-
-            verify(mockCommunicator, instance);
-        } finally {
-            FileUtils.forceDelete(f);
-        }
     }
 
     /**
@@ -352,120 +280,5 @@ public class AbstractControllerTest {
         instance.beginStreaming();
 
         verify(mockCommunicator, instance);
-    }
-
-    /**
-     * Test of commandSent method, of class AbstractController.
-     */
-    @Test
-    public void testCommandSent() throws Exception {
-        System.out.println("commandSent");
-
-        String port = "/some/port";
-        int baud = 1234;
-        String command = "command";
-
-        // Setup instance with commands buffered on the communicator.
-        startStreamExpectation(port, baud);
-        replay(instance, mockCommunicator);
-        startStream(port, baud, command);
-        reset(instance, mockCommunicator, mockListener);
-
-        // Make sure the events are triggered.
-        Capture<GcodeCommand> gc1 = EasyMock.newCapture();
-        Capture<GcodeCommand> gc2 = EasyMock.newCapture();
-        mockListener.commandSent(EasyMock.capture(gc1));
-        expect(expectLastCall());
-        mockListener.commandSent(EasyMock.capture(gc2));
-        expect(expectLastCall());
-
-        replay(instance, mockCommunicator, mockListener);
-
-        // Run test.
-        //assertEquals(0, instance.rowsSent());
-        instance.commandSent(new GcodeCommand(command));
-        //assertEquals(1, instance.rowsSent());
-        instance.commandSent(new GcodeCommand(command));
-        //assertEquals(2, instance.rowsSent());
-        assertTrue(gc1.getValue().isSent());
-        assertTrue(gc2.getValue().isSent());
-
-        verify(mockListener);
-    }
-
-    /**
-     * Test of commandComplete method, of class AbstractController.
-     */
-    @Test
-    public void testCommandComplete() throws Exception {
-        // Setup test with commands sent by communicator waiting on response.
-        testCommandSent();
-        reset(instance, mockCommunicator, mockListener, mockMessageService);
-        expect(mockCommunicator.isConnected()).andReturn(true).anyTimes();
-        expect(instance.handlesAllStateChangeEvents()).andReturn(true).anyTimes();
-        instance.updateCommandFromResponse(anyObject(), eq("ok"));
-        expect(expectLastCall()).times(2);
-
-        // Make sure the events are triggered.
-        Capture<GcodeCommand> gc1 = newCapture();
-        Capture<GcodeCommand> gc2 = newCapture();
-        mockListener.commandComplete(capture(gc1));
-        expect(expectLastCall());
-        mockListener.commandComplete(capture(gc2));
-        expect(expectLastCall());
-        expect(expectLastCall());
-        mockMessageService.dispatchMessage(anyObject(), anyString());
-        expect(expectLastCall());
-        mockListener.fileStreamComplete("queued commands", true);
-        mockListener.controlStateChange(CommunicatorState.COMM_IDLE);
-        expect(expectLastCall());
-
-        expect(instance.getControllerStatus()).andReturn(new ControllerStatus(ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
-        expect(instance.getControllerStatus()).andReturn(new ControllerStatus(ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
-        expect(mockCommunicator.areActiveCommands()).andReturn(true);
-        expect(mockCommunicator.areActiveCommands()).andReturn(false);
-        expect(mockCommunicator.numActiveCommands()).andReturn(0);
-        replay(instance, mockCommunicator, mockListener);
-
-        GcodeCommand first = instance.getActiveCommand().orElseThrow(() -> new RuntimeException("Couldn't find first command"));
-        instance.commandComplete("ok");
-        GcodeCommand second = instance.getActiveCommand().orElseThrow(() -> new RuntimeException("Couldn't find second command"));
-        instance.commandComplete("ok");
-
-        verify(mockListener);
-    }
-
-    /**
-     * Test of jogMachine method, of class AbstractController.
-     */
-    @Test
-    public void testJogMachine() throws Exception {
-        System.out.println("jogMachine");
-
-        expect(niceInstance.handlesAllStateChangeEvents()).andReturn(true).anyTimes();
-        expect(niceInstance.isCommOpen()).andReturn(true).anyTimes();
-        mockCommunicator.streamCommands();
-        expect(expectLastCall()).anyTimes();
-
-        Capture<GcodeCommand> gcodeCommandCapture = EasyMock.newCapture(CaptureType.ALL);
-        mockCommunicator.queueCommand(capture(gcodeCommandCapture));
-        expect(expectLastCall()).times(4);
-
-        replay(niceInstance, mockCommunicator);
-
-        niceInstance.setDistanceModeCode("G90");
-        niceInstance.setUnitsCode("G21");
-
-        niceInstance.jogMachine(new PartialPosition(-10., null, 10., UnitUtils.Units.INCH), 11);
-        niceInstance.jogMachine(new PartialPosition(null, 10., null, UnitUtils.Units.MM), 11);
-
-        assertEquals(4, gcodeCommandCapture.getValues().size());
-        assertEquals("G20G91G1X-10Z10F11", gcodeCommandCapture.getValues().get(0).getCommandString());
-        assertTrue(gcodeCommandCapture.getValues().get(0).isTemporaryParserModalChange());
-
-        assertEquals("G90 G21 ", gcodeCommandCapture.getValues().get(1).getCommandString());
-        assertEquals("G21G91G1Y10F11", gcodeCommandCapture.getValues().get(2).getCommandString());
-        assertEquals("G90 G21 ", gcodeCommandCapture.getValues().get(3).getCommandString());
-        assertTrue(gcodeCommandCapture.getValues().get(3).isTemporaryParserModalChange());
     }
 }
