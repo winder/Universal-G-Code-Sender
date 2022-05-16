@@ -111,6 +111,11 @@ public class Settings {
     private Double safetyHeight = 5d;
 
     /**
+     * If the mouse zoom should be inverted
+     */
+    private boolean invertMouseZoom = false;
+
+    /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
      */
     public Settings() {
@@ -530,6 +535,15 @@ public class Settings {
 
     public void setPendantPort(int pendantPort) {
         this.pendantPort = pendantPort;
+        changed();
+    }
+
+    public boolean isInvertMouseZoom() {
+        return invertMouseZoom;
+    }
+
+    public void setInvertMouseZoom(boolean invertMouseZoom) {
+        this.invertMouseZoom = invertMouseZoom;
         changed();
     }
 
