@@ -114,6 +114,8 @@ public class EntityTreeModel implements TreeModel, ControllerListener, DrawingLi
 
     @Override
     public void onDrawingEvent(DrawingEvent event) {
-        fireTreeStructureChanged(controller.getDrawing().getRootEntity());
+        if (event == DrawingEvent.ENTITY_ADDED || event == DrawingEvent.ENTITY_REMOVED) {
+            fireTreeStructureChanged(controller.getDrawing().getRootEntity());
+        }
     }
 }

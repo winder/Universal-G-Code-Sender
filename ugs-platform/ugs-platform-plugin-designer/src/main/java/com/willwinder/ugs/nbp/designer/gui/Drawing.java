@@ -46,10 +46,11 @@ public class Drawing extends JPanel {
 
     private static final long serialVersionUID = 1298712398723987873L;
     private static final int MARGIN = 100;
+    public static final double MIN_SCALE = 0.05;
     private final transient EntityGroup globalRoot;
     private final transient EntityGroup entitiesRoot;
     private final transient EntityGroup controlsRoot;
-    private final transient Set<DrawingListener> listeners  = Sets.newConcurrentHashSet();
+    private final transient Set<DrawingListener> listeners = Sets.newConcurrentHashSet();
     private final transient Throttler refreshThrottler;
     private double scale;
 
@@ -183,9 +184,12 @@ public class Drawing extends JPanel {
     }
 
     public void setScale(double scale) {
-        this.scale = Math.abs(scale);
-        listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.SCALE_CHANGED));
-        refresh();
+        double newScale = Math.max(Math.abs(scale), MIN_SCALE);
+        if (this.scale != newScale) {
+            this.scale = newScale;
+            listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.SCALE_CHANGED));
+            refresh();
+        }
     }
 
     private void refresh() {

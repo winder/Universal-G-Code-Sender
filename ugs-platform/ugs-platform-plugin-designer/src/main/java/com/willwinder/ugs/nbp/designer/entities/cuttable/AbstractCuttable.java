@@ -77,24 +77,24 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     public void render(Graphics2D graphics, Drawing drawing) {
         float strokeWidth = Double.valueOf(1.2 / drawing.getScale()).floatValue();
         float dashWidth = Double.valueOf(2 / drawing.getScale()).floatValue();
+        Shape shape = getShape();
 
         if (getCutType() != CutType.NONE && getTargetDepth() == 0) {
             graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
             graphics.setColor(Colors.SHAPE_HINT);
-            graphics.draw(getShape());
+            graphics.draw(shape);
         } else if (getCutType() == CutType.POCKET) {
             graphics.setStroke(new BasicStroke(strokeWidth));
             graphics.setColor(getCutColor());
-            graphics.fill(getShape());
-            graphics.draw(getShape());
+            graphics.fill(shape);
+            graphics.draw(shape);
         } else if (getCutType() == CutType.INSIDE_PATH || getCutType() == CutType.ON_PATH || getCutType() == CutType.OUTSIDE_PATH) {
             graphics.setStroke(new BasicStroke(strokeWidth));
             graphics.setColor(getCutColor());
-            graphics.draw(getShape());
+            graphics.draw(shape);
         } else if (getCutType() == CutType.CENTER_DRILL) {
-            Shape shape = getShape();
-            double centerX = getShape().getBounds2D().getCenterX();
-            double centerY = getShape().getBounds2D().getCenterY();
+            double centerX = shape.getBounds2D().getCenterX();
+            double centerY = shape.getBounds2D().getCenterY();
             graphics.setStroke(new BasicStroke(strokeWidth));
             graphics.setColor(Colors.SHAPE_HINT);
             graphics.draw(shape);
@@ -104,7 +104,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         } else {
             graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
             graphics.setColor(Colors.SHAPE_OUTLINE);
-            graphics.draw(getShape());
+            graphics.draw(shape);
         }
     }
 
