@@ -46,16 +46,16 @@ public class ZoomControl extends AbstractControl {
             MouseEntityEvent mouseEntityEvent = (MouseEntityEvent) entityEvent;
             isShiftPressed = mouseEntityEvent.isShiftPressed();
 
-            if(mouseEntityEvent.getType() == EventType.MOUSE_PRESSED) {
+            if (mouseEntityEvent.getType() == EventType.MOUSE_PRESSED) {
                 double zoomFactor = ZOOM_FACTOR;
-                if(isShiftPressed) {
+                if (isShiftPressed) {
                     zoomFactor = -zoomFactor;
                 }
                 controller.getDrawing().setScale(controller.getDrawing().getScale() + zoomFactor);
             }
         } else if (entityEvent instanceof KeyboardEntityEvent) {
             KeyboardEntityEvent keyboardEntityEvent = (KeyboardEntityEvent) entityEvent;
-            if(keyboardEntityEvent.getKeyCode() == KeyEvent.VK_SHIFT){
+            if (keyboardEntityEvent.getKeyCode() == KeyEvent.VK_SHIFT) {
                 isShiftPressed = keyboardEntityEvent.getType() == EventType.KEY_PRESSED;
                 controller.getDrawing().repaint();
             }
