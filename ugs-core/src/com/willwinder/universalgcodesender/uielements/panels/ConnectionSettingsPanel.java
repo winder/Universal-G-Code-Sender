@@ -53,11 +53,13 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
     private final Spinner safetyHeight = new Spinner(
             Localization.getString("sender.safety-height"),
             new SpinnerNumberModel(1, 1, null, 1));
+    private final Checkbox invertMouseZoom = new Checkbox(
+            Localization.getString("sender.invertMouseZoom"));
     private final Checkbox showNightlyWarning = new Checkbox(
             Localization.getString("sender.nightly-warning"));
     private final Checkbox autoStartPendant = new Checkbox(
             Localization.getString("sender.autostartpendant"));
-    private final Textfield pendantPort = new Textfield(Localization.getString("settings.pendantPort"));
+    private final JTextField pendantPort = new JTextField();
     private final JComboBox<Language> languageCombo = new JComboBox<>(AvailableLanguages.getAvailableLanguages().toArray(new Language[0]));
     private final JComboBox<String> connectionDriver = new JComboBox<>(ConnectionDriver.getPrettyNames());
     private final JTextField workspaceDirectory = new JTextField();
@@ -93,10 +95,11 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         //settings.setAutoConnectEnabled(autoConnect.getValue());
         settings.setShowNightlyWarning(showNightlyWarning.getValue());
         settings.setAutoStartPendant(autoStartPendant.getValue());
-        settings.setPendantPort(Integer.parseInt(pendantPort.getValue().toString()));
+        settings.setPendantPort(Integer.parseInt(pendantPort.getText()));
         settings.setLanguage(((Language) languageCombo.getSelectedItem()).getLanguageCode());
         settings.setConnectionDriver(ConnectionDriver.prettyNameToEnum(connectionDriver.getSelectedItem().toString()));
         settings.setWorkspaceDirectory(workspaceDirectory.getText());
+        settings.setInvertMouseZoom(invertMouseZoom.getValue());
         SettingsFactory.saveSettings(settings);
     }
 
@@ -130,14 +133,18 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         safetyHeight.setValue((int) s.getSafetyHeight());
         add(safetyHeight, "spanx, wrap");
 
+        invertMouseZoom.setSelected(s.isInvertMouseZoom());
+        add(invertMouseZoom, "spanx, wrap");
+
         showNightlyWarning.setSelected(s.isShowNightlyWarning());
         add(showNightlyWarning, "spanx, wrap");
 
         autoStartPendant.setSelected(s.isAutoStartPendant());
         add(autoStartPendant, "spanx, wrap");
 
-        pendantPort.setValue(String.valueOf(s.getPendantPort()));
-        add(pendantPort, "spanx, grow");
+        pendantPort.setText(String.valueOf(s.getPendantPort()));
+        add(new JLabel(Localization.getString("settings.pendantPort")), "gapleft 56");
+        add(pendantPort, "grow, wrap");
 
         for (int i = 0; i < languageCombo.getItemCount(); i++) {
             Language l = languageCombo.getItemAt(i);

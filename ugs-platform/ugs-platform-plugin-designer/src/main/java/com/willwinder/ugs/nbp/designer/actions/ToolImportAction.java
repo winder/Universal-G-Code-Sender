@@ -80,11 +80,10 @@ public final class ToolImportAction extends AbstractAction {
 
                 if (optionalDesign.isPresent()) {
                     Design design = optionalDesign.get();
+                    controller.setTool(Tool.SELECT);
                     controller.addEntities(design.getEntities());
                     controller.getSelectionManager().addSelection(design.getEntities());
-
                     controller.getDrawing().repaint();
-                    controller.setTool(Tool.SELECT);
                 } else {
                     throw new RuntimeException("Could not open: " + f.getName());
                 }

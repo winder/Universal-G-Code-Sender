@@ -21,12 +21,12 @@ package com.willwinder.ugs.nbp.designer.gui;
 import com.willwinder.ugs.nbp.designer.actions.OpenStockSettingsAction;
 import com.willwinder.ugs.nbp.designer.actions.OpenToolSettingsAction;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 
 /**
  * A simple container that contains a Drawing instance and keeps it
@@ -34,7 +34,7 @@ import java.awt.event.KeyEvent;
  *
  * @author Alex Lagerstedt
  */
-public class DrawingContainer extends JPanel implements ComponentListener {
+public class DrawingContainer extends JPanel implements ComponentListener, MouseWheelListener {
 
     private static final long serialVersionUID = 0;
     private final transient Controller controller;
@@ -50,7 +50,7 @@ public class DrawingContainer extends JPanel implements ComponentListener {
         MouseListener mouseListener = new MouseListener(controller);
         controller.getDrawing().addMouseListener(mouseListener);
         controller.getDrawing().addMouseMotionListener(mouseListener);
-        controller.getDrawing().addMouseWheelListener(e -> controller.getDrawing().setScale(controller.getDrawing().getScale() + (e.getPreciseWheelRotation() * 0.1)));
+        controller.getDrawing().addMouseWheelListener(this);
 
         KeyboardListener keyboardListener = new KeyboardListener(controller, mouseListener);
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
@@ -69,12 +69,19 @@ public class DrawingContainer extends JPanel implements ComponentListener {
 
     public void setDrawing(Drawing d) {
         removeAll();
-        scrollPane = new JScrollPane(d, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scrollPane = new JScrollPane(d, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS) {
+            @Override
+            protected void processMouseWheelEvent(MouseWheelEvent e) {
+                if (getParent() != null) {
+                    // Prevent mouse scroll events to on scrollbars as it is used for zooming.
+                    getParent().dispatchEvent(SwingUtilities.convertMouseEvent(this, e, getParent()));
+                }
+            }
+        };
         scrollPane.getVerticalScrollBar().setUnitIncrement(5);
         scrollPane.getHorizontalScrollBar().setUnitIncrement(5);
         scrollPane.setPreferredSize(getSize());
         scrollPane.setBounds(0, 0, getWidth(), getHeight());
-
 
         buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.setOpaque(false);
@@ -106,7 +113,7 @@ public class DrawingContainer extends JPanel implements ComponentListener {
         SwingUtilities.invokeLater(() -> {
             Rectangle bounds = getBounds();
             scrollPane.setBounds(0, 0, bounds.width, bounds.height);
-            buttonPanel.setBounds(0, bounds.height - 80,  bounds.width - 20, 80);
+            buttonPanel.setBounds(0, bounds.height - 80, bounds.width - 20, 80);
             revalidate();
         });
     }
@@ -124,5 +131,24 @@ public class DrawingContainer extends JPanel implements ComponentListener {
     @Override
     public void componentHidden(ComponentEvent e) {
         // Not used
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        double scaleFactor = (e.getPreciseWheelRotation() * 0.1) * (backend.getSettings().isInvertMouseZoom() ? -1d : 1d);
+        controller.getDrawing().setScale(controller.getDrawing().getScale() + scaleFactor);
+
+        double currentViewPortCenterX = (scrollPane.getHorizontalScrollBar().getValue() + (scrollPane.getWidth() / 2d)) / controller.getDrawing().getScale();
+        double currentViewPortCenterY = (scrollPane.getVerticalScrollBar().getValue() + (scrollPane.getHeight() / 2d)) / controller.getDrawing().getScale();
+
+        double mouseX = e.getPoint().getX() / controller.getDrawing().getScale();
+        double mouseY = e.getPoint().getY() / controller.getDrawing().getScale();
+
+        double x = ((mouseX - currentViewPortCenterX) * controller.getDrawing().getScale()) * scaleFactor;
+        double y = ((mouseY - currentViewPortCenterY) * controller.getDrawing().getScale()) * scaleFactor;
+
+        scrollPane.getHorizontalScrollBar().setValue(scrollPane.getHorizontalScrollBar().getValue() + (int) Math.round(x + 0.5));
+        scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getValue() + (int) Math.round(y + 0.5));
     }
 }

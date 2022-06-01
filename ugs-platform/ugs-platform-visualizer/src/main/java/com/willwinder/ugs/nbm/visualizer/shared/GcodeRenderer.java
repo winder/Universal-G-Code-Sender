@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2018 Will Winder
+    Copyright 2013-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,16 +24,16 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import com.willwinder.ugs.nbm.visualizer.renderables.Grid;
-import com.willwinder.ugs.nbm.visualizer.renderables.MachineBoundries;
-import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
-import com.willwinder.ugs.nbm.visualizer.renderables.OrientationCube;
-import com.willwinder.ugs.nbm.visualizer.renderables.Tool;
+import com.willwinder.ugs.nbm.visualizer.renderables.*;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.uielements.helpers.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.helpers.Overlay;
+import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.visualizer.MouseProjectionUtils;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import org.openide.util.lookup.ServiceProvider;
@@ -47,7 +47,6 @@ import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.jogamp.opengl.GL.GL_LINES;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BG;
@@ -63,25 +62,25 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
         @ServiceProvider(service = GcodeRenderer.class)})
 public class GcodeRenderer implements GLEventListener, IRenderableRegistrationService {
     private static final Logger logger = Logger.getLogger(GcodeRenderer.class.getName());
-    
+
     private static boolean ortho = true;
-    private static double orthoRotation = -45;
-    private static boolean forceOldStyle = false;
     private static boolean debugCoordinates = false; // turn on coordinate debug output
 
     // Machine data
     private final Position machineCoord;
     private final Position workCoord;
-    
+
     // GL Utility
     private GLU glu;
-    private GLAutoDrawable drawable = null;
-    
+
     // Projection variables
-    private Position center, eye;
-    private Position objectMin, objectMax;
+    private Position center;
+    private Position eye;
+    private Position objectMin;
+    private Position objectMax;
     private double maxSide;
-    private int xSize, ySize;
+    private int xSize;
+    private int ySize;
     private double minArcLength;
     private double arcLength;
 
@@ -89,7 +88,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     private double scaleFactor = 1;
     private double scaleFactorBase = 1;
     private double zoomMultiplier = 1;
-    private final boolean invertZoom = false; // TODO: Make configurable
+    private boolean invertZoom = false;
     // const values until added to settings
     private final double minZoomMultiplier = .1;
     private final double maxZoomMultiplier = 50;
@@ -107,7 +106,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     private Point mouseCurrentWindow;
     private Position mouseWorldXY;
     private Position rotation;
-    
+
     private FPSCounter fpsCounter;
     private Overlay overlay;
     private final String dimensionsLabel = "";
@@ -117,19 +116,19 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
 
     // Preferences
     private java.awt.Color clearColor;
-    
+
     /**
      * Constructor.
      */
     public GcodeRenderer() {
         eye = new Position(0, 0, 1.5);
         center = new Position(0, 0, 0);
-        objectMin = new Position(-10,-10,-10);
-        objectMax = new Position( 10, 10, 10);
-       
+        objectMin = new Position(-10, -10, -10);
+        objectMax = new Position(10, 10, 10);
+
         workCoord = new Position(0, 0, 0);
         machineCoord = new Position(0, 0, 0);
-       
+
         rotation = new Position(0.0, -30.0, 0.0);
         setVerticalTranslationVector();
         setHorizontalTranslationVector();
@@ -143,6 +142,19 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         Collections.sort(objects);
 
         reloadPreferences();
+        listenForSettingsEvents();
+    }
+
+    private void listenForSettingsEvents() {
+        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        Settings settings = backendAPI.getSettings();
+        invertZoom = settings.isInvertMouseZoom();
+
+        backendAPI.addUGSEventListener(event -> {
+            if (event instanceof SettingChangedEvent) {
+                invertZoom = backendAPI.getSettings().isInvertMouseZoom();
+            }
+        });
     }
 
     @Override
@@ -153,7 +165,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     @Override
     public void registerRenderable(Renderable r) {
         if (r == null) return;
-        if( !objects.contains(r) ) {
+        if (!objects.contains(r)) {
             objects.add(r);
             Collections.sort(objects);
         }
@@ -162,12 +174,12 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     @Override
     public void removeRenderable(Renderable r) {
         if (r == null) return;
-        if( objects.contains(r) ) {
+        if (objects.contains(r)) {
             objects.remove(r);
             Collections.sort(objects);
         }
     }
-    
+
     /**
      * Get the location on the XY plane of the mouse.
      */
@@ -180,7 +192,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
             this.workCoord.set(p.getPositionIn(UnitUtils.Units.MM));
         }
     }
-    
+
     public void setMachineCoordinate(Position p) {
         if (p != null) {
             this.machineCoord.set(p.getPositionIn(UnitUtils.Units.MM));
@@ -207,9 +219,6 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     @Override
     public void init(GLAutoDrawable drawable) {
         logger.log(Level.INFO, "Initializing OpenGL context.");
-
-        this.drawable = drawable;
-
         // TODO: Figure out scale factor / dimensions label based on GcodeRenderer
         /*
             this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
@@ -232,7 +241,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
         glu = new GLU();                         // get GL Utilities
         gl.glShadeModel(GL2.GL_SMOOTH); // blends colors nicely, and smoothes out lighting
-        gl.glClearColor(clearColor.getRed()/255f, clearColor.getGreen()/255f, clearColor.getBlue()/255f, clearColor.getAlpha()/255f);
+        gl.glClearColor(clearColor.getRed() / 255f, clearColor.getGreen() / 255f, clearColor.getBlue() / 255f, clearColor.getAlpha() / 255f);
         gl.glClearDepth(1.0f);      // set clear depth value to farthest
         gl.glEnable(GL2.GL_BLEND);
         gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
@@ -247,28 +256,26 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         */
 
         // init lighting
-        float ambient[] = { .6f, .6f, .6f, 1.f };
-        float diffuse[] = { .6f, .6f, .6f, 1.0f };
-        float position[] = { 0f, 0f, 20f, 1.0f };
+        float[] ambient = {.6f, .6f, .6f, 1.f};
+        float[] diffuse = {.6f, .6f, .6f, 1.0f};
+        float[] position = {0f, 0f, 20f, 1.0f};
 
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
-        gl.glEnable(GL2.GL_LIGHT0);  
+        gl.glEnable(GL2.GL_LIGHT0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position, 0);
 
         // Allow glColor to set colors
-        gl.glEnable (GL2.GL_COLOR_MATERIAL) ;
+        gl.glEnable(GL2.GL_COLOR_MATERIAL);
         gl.glColorMaterial(GL.GL_FRONT, GL2.GL_DIFFUSE);
         gl.glColorMaterial(GL.GL_FRONT, GL2.GL_AMBIENT);
         //gl.glColorMaterial(GL.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE);
         //gl.glColorMaterial(GL.GL_FRONT, GL2.GL_SPECULAR);
 
 
-        float mat_specular[] =
-            { 1.0f, 1.0f, 1.0f, 1.0f };
         float diffuseMaterial[] =
-            { 0.5f, 0.5f, 0.5f, 1.0f };
-     
+                {0.5f, 0.5f, 0.5f, 1.0f};
+
         gl.glMaterialfv(GL.GL_FRONT, GL2.GL_DIFFUSE, diffuseMaterial, 0);
         //gl.glMaterialfv(GL.GL_FRONT, GL2.GL_SPECULAR, mat_specular, 0);
         //gl.glMaterialf(GL.GL_FRONT, GL2.GL_SHININESS, 25.0f);
@@ -276,8 +283,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         //gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE);
 
 
-
-        gl.glEnable(GL2.GL_LIGHTING); 
+        gl.glEnable(GL2.GL_LIGHTING);
         for (Renderable r : objects) {
             r.init(drawable);
         }
@@ -303,8 +309,8 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
 
     public void setObjectSize(Position min, Position max) {
         if (min == null || max == null) {
-            this.objectMin = new Position(-10,-10,-10);
-            this.objectMax = new Position( 10, 10, 10);
+            this.objectMin = new Position(-10, -10, -10);
+            this.objectMax = new Position(10, 10, 10);
             idle = true;
         } else {
             this.objectMin = min;
@@ -320,7 +326,9 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     public void zoomToRegion(Position min, Position max, double bufferFactor) {
         if (min == null || max == null) return;
 
-        if (this.ySize == 0){ this.ySize = 1; }  // prevent divide by zero
+        if (this.ySize == 0) {
+            this.ySize = 1;
+        }  // prevent divide by zero
 
         // Figure out offset compared to the current center.
         Position regionCenter = VisualizerUtils.findCenter(min, max);
@@ -332,7 +340,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         double _scaleFactor = _scaleFactorBase * this.zoomMultiplier;
 
         // Calculate the zoomMultiplier needed to get to that scale, and set it.
-        this.zoomMultiplier = _scaleFactor/this.scaleFactorBase;
+        this.zoomMultiplier = _scaleFactor / this.scaleFactorBase;
         this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
     }
 
@@ -342,7 +350,9 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     private void resizeForCamera(Position min, Position max, double bufferFactor) {
         if (min == null || max == null) return;
 
-        if (this.ySize == 0){ this.ySize = 1; }  // prevent divide by zero
+        if (this.ySize == 0) {
+            this.ySize = 1;
+        }  // prevent divide by zero
 
         this.center = VisualizerUtils.findCenter(min, max);
         this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, min, max, bufferFactor);
@@ -363,16 +373,16 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
         // Update normals when an object is scaled
-        gl.glEnable(GL2.GL_NORMALIZE); 
+        gl.glEnable(GL2.GL_NORMALIZE);
 
         // Setup the current matrix so that the projection can be done.
         if (mouseLastWindow != null) {
             gl.glPushMatrix();
-                gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
-                gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
-                gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
-                this.mouseWorldXY = MouseProjectionUtils.intersectPointWithXYPlane(
-                        drawable, mouseLastWindow.x, mouseLastWindow.y);
+            gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
+            gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
+            gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
+            this.mouseWorldXY = MouseProjectionUtils.intersectPointWithXYPlane(
+                    drawable, mouseLastWindow.x, mouseLastWindow.y);
             gl.glPopMatrix();
         } else {
             this.mouseWorldXY = new Position(0, 0, 0);
@@ -384,86 +394,37 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
             if (!r.isEnabled()) continue;
 
             gl.glPushMatrix();
-                // in case a renderable sets the color, set it back to gray and opaque.
-                gl.glColor4f(0.5f, 0.5f, 0.5f, 1f);
+            // in case a renderable sets the color, set it back to gray and opaque.
+            gl.glColor4f(0.5f, 0.5f, 0.5f, 1f);
 
-                if (r.rotate()) {
-                    gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
-                    gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
-                }
-                if (r.center()) {
-                    gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
-                }
+            if (r.rotate()) {
+                gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
+                gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
+            }
+            if (r.center()) {
+                gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
+            }
 
-                if (!r.enableLighting()) {
-                    gl.glDisable(GL2.GL_LIGHTING);
-                }
-                try {
-                    r.draw(drawable, idle, machineCoord, workCoord, objectMin, objectMax, scaleFactor, mouseWorldXY, rotation);
-                } catch (Exception e) {
-                    logger.log(Level.SEVERE, "An exception occurred while drawing " + r.getClass().getSimpleName(), e);
-                }
-                if (!r.enableLighting()) {
-                    gl.glEnable(GL2.GL_LIGHTING);
-                    gl.glEnable(GL2.GL_LIGHT0);
-                }
+            if (!r.enableLighting()) {
+                gl.glDisable(GL2.GL_LIGHTING);
+            }
+            try {
+                r.draw(drawable, idle, machineCoord, workCoord, objectMin, objectMax, scaleFactor, mouseWorldXY, rotation);
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "An exception occurred while drawing " + r.getClass().getSimpleName(), e);
+            }
+            if (!r.enableLighting()) {
+                gl.glEnable(GL2.GL_LIGHTING);
+                gl.glEnable(GL2.GL_LIGHT0);
+            }
             gl.glPopMatrix();
         }
-        
+
         this.fpsCounter.draw();
         this.overlay.draw(this.dimensionsLabel);
-    
+
         gl.glLoadIdentity();
         update();
-    }
-
-    private void renderCornerAxes(GLAutoDrawable drawable) {
-        final GL2 gl = drawable.getGL().getGL2();
-        gl.glLineWidth(4);
-
-        float ar = (float)xSize/ySize;
-
-        float size = 0.1f;
-        float size2 = size/2;
-        float fromEdge = 0.8f;
-
-        gl.glPushMatrix();
-            gl.glTranslated(-0.51*ar*fromEdge, 0.51*fromEdge, -0.5f);
-            gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
-            gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
-            
-            gl.glBegin(GL_LINES);
-
-            // X-Axis
-            gl.glColor3f( 1, 0, 0 );
-            gl.glVertex3f( 0, 0f, 0f );
-            gl.glVertex3f( 1, 0f, 0f );
-
-            // Y-Axis
-            gl.glColor3f( 0, 1, 0 );
-            gl.glVertex3f( 0, 0f, 0f );
-            gl.glVertex3f( 0, 1f, 0f );
-            
-            // Z-Axis
-            gl.glColor3f( 0, 1, 1 );
-            gl.glVertex3f( 0, 0f, 0f );
-            gl.glVertex3f( 0, 0f, 1f );
-            
-            gl.glEnd();
-        
-        gl.glPopMatrix();
-        //# Draw number 50 on x/y-axis line.
-        //glRasterPos2f(50,-5)
-        //glutInit()
-        //A = 53
-        //glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, A)
-        //glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 48)
-
-        //glRasterPos2f(-5,50)
-        //glutInit()
-        //A = 53
-        //glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, A)
-        //glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 48)
     }
 
     /**
@@ -471,13 +432,13 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      */
     private void setupPerpective(int x, int y, GLAutoDrawable drawable, boolean ortho) {
         final GL2 gl = drawable.getGL().getGL2();
-        float aspectRatio = (float)x / y;
+        float aspectRatio = (float) x / y;
 
         if (ortho) {
             gl.glMatrixMode(GL_PROJECTION);
             gl.glLoadIdentity();
-            gl.glOrtho(-0.60*aspectRatio/scaleFactor,0.60*aspectRatio/scaleFactor,-0.60/scaleFactor,0.60/scaleFactor,
-                    -10/scaleFactor,10/scaleFactor);
+            gl.glOrtho(-0.60 * aspectRatio / scaleFactor, 0.60 * aspectRatio / scaleFactor, -0.60 / scaleFactor, 0.60 / scaleFactor,
+                    -10 / scaleFactor, 10 / scaleFactor);
             gl.glMatrixMode(GL_MODELVIEW);
             gl.glLoadIdentity();
         } else {
@@ -487,16 +448,16 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
 
             glu.gluPerspective(45.0, aspectRatio, 0.1, 20000.0); // fovy, aspect, zNear, zFar
             // Move camera out and point it at the origin
-            glu.gluLookAt(this.eye.x,  this.eye.y,  this.eye.z,
-                          0, 0, 0,
-                          0, 1, 0);
-            
+            glu.gluLookAt(this.eye.x, this.eye.y, this.eye.z,
+                    0, 0, 0,
+                    0, 1, 0);
+
             // Enable the model-view transform
             gl.glMatrixMode(GL_MODELVIEW);
             gl.glLoadIdentity(); // reset
         }
     }
-    
+
     /**
      * Called after each render.
      */
@@ -507,17 +468,17 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
             System.out.println("-----------------");
         }
     }
-    
+
     /**
-     * Called back before the OpenGL context is destroyed. 
+     * Called back before the OpenGL context is destroyed.
      * Release resource such as buffers.
      * GLEventListener method.
      */
     @Override
-    synchronized public void dispose(GLAutoDrawable drawable) { 
+    synchronized public void dispose(GLAutoDrawable drawable) {
         logger.log(Level.INFO, "Disposing OpenGL context.");
     }
-   
+
     private void setHorizontalTranslationVector() {
         double x = Math.cos(Math.toRadians(this.rotation.x));
         double xz = Math.sin(Math.toRadians(this.rotation.x));
@@ -529,7 +490,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         translationVectorH.normalizeXYZ();
     }
 
-    private void setVerticalTranslationVector(){
+    private void setVerticalTranslationVector() {
         double y = Math.cos(Math.toRadians(this.rotation.y));
         double yz = Math.sin(Math.toRadians(this.rotation.y));
 
@@ -540,7 +501,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     public void mouseMoved(Point lastPoint) {
         mouseLastWindow = lastPoint;
     }
-    
+
     public void mouseRotate(Point point) {
         this.mouseCurrentWindow = point;
         if (this.mouseLastWindow != null) {
@@ -555,11 +516,11 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
                 setVerticalTranslationVector();
             }
         }
-        
+
         // Now that the motion has been accumulated, reset last.
         this.mouseLastWindow = this.mouseCurrentWindow;
     }
-    
+
     public void mousePan(Point point) {
         this.mouseCurrentWindow = point;
         int dx = this.mouseCurrentWindow.x - this.mouseLastWindow.x;
@@ -577,11 +538,11 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
             this.eye.x += dx;
             this.eye.y += dy;
         }
-        
+
         // Now that the motion has been accumulated, reset last.
         this.mouseLastWindow = this.mouseCurrentWindow;
     }
-    
+
     public void zoom(int delta) {
         if (delta == 0)
             return;
@@ -641,7 +602,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      *
      * @param position to the given position
      * @param rotation directs the camera given this rotation
-     * @param zoom the zoom level
+     * @param zoom     the zoom level
      */
     public void moveCamera(Position position, Position rotation, double zoom) {
         this.zoomMultiplier = Math.min(Math.max(zoom, minZoomMultiplier), maxZoomMultiplier);
