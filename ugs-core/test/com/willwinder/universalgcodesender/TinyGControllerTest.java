@@ -35,9 +35,16 @@ import org.mockito.MockitoAnnotations;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Test TinyG controller implementation
@@ -104,6 +111,20 @@ public class TinyGControllerTest {
 
         // Then
         verify(controllerListener, times(1)).commandComplete(any());
+    }
+
+    @Test
+    public void rawResponseWithResultAndStatusReportShouldCompleteCommand() throws Exception {
+        controller = spy(controller);
+        when(communicator.isConnected()).thenReturn(true);
+        controller.commandSent(new GcodeCommand("blah"));
+        assertTrue(controller.getActiveCommand().isPresent());
+
+        String response = "{\"r\": {\"sr\": {\"stat\": 1}}}";
+        controller.rawResponseHandler(response);
+
+        verify(controller, times(1)).commandComplete(response);
+        assertFalse(controller.getActiveCommand().isPresent());
     }
 
     @Test
