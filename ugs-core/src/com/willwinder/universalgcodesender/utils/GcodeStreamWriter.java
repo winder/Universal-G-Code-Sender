@@ -27,7 +27,7 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import java.io.Closeable;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -83,7 +83,7 @@ public class GcodeStreamWriter extends GcodeStream implements IGcodeWriter {
                 default:
                     break;
             }
-            sep = separator;
+            sep = FIELD_SEPARATOR;
         }
         fileWriter.append("\n");
     }
@@ -115,7 +115,7 @@ public class GcodeStreamWriter extends GcodeStream implements IGcodeWriter {
                 default:
                     break;
             }
-            sep = separator;
+            sep = FIELD_SEPARATOR;
         }
         fileWriter.append("\n");
     }

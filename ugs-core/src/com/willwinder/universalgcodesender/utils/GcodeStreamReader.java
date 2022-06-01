@@ -44,17 +44,12 @@ public class GcodeStreamReader extends GcodeStream implements IGcodeStreamReader
         this.reader = reader;
         
         try {
-            String line = reader.readLine();
-            if (StringUtils.isEmpty(line)) {
-                return;
-            }
-
-            String metadata = line.trim();
-            if (!metadata.startsWith(super.metaPrefix)) {
+            String metadata = StringUtils.trimToEmpty(reader.readLine());
+            if (!metadata.startsWith(super.META_PREFIX)) {
                 throw new NotGcodeStreamFile();
             }
 
-            metadata = metadata.substring(super.metaPrefix.length());
+            metadata = metadata.substring(super.META_PREFIX.length());
             numRows = Integer.parseInt(metadata);
             numRowsRemaining = numRows;
         } catch (IOException | NumberFormatException e) {
@@ -82,7 +77,7 @@ public class GcodeStreamReader extends GcodeStream implements IGcodeStreamReader
     }
 
     private String[] parseLine(String line) {
-        return splitPattern.split(line, -1);
+        return SPLIT_PATTERN.split(line, -1);
     }
 
     @Override
