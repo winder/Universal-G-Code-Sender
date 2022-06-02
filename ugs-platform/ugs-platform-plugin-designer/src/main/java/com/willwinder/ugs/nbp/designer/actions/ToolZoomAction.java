@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
+import org.openide.awt.StatusDisplayer;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
@@ -44,6 +45,7 @@ public class ToolZoomAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        StatusDisplayer.getDefault().setStatusText("Click to Zoom in, SHIFT + Click to Zoom out");
         controller.setTool(Tool.ZOOM);
     }
 }
