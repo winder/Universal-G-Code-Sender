@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public class ChangeCutSettingsAction extends AbstractAction implements UndoableA
     private final List<Cuttable> cuttableList;
 
     public ChangeCutSettingsAction(Controller controller, List<Cuttable> cuttableList, double startDepth, double targetDepth, CutType cutType) {
-        this.cuttableList = cuttableList;
+        this.cuttableList = new ArrayList<>(cuttableList);
         previousStartDepth = cuttableList.stream().map(Cuttable::getStartDepth).collect(Collectors.toList());
         previousCutDepth = cuttableList.stream().map(Cuttable::getTargetDepth).collect(Collectors.toList());
         previousCutType = cuttableList.stream().map(Cuttable::getCutType).collect(Collectors.toList());

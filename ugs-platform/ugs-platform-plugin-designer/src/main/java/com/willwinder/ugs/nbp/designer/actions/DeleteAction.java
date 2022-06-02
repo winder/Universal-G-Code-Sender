@@ -31,6 +31,8 @@ import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -98,7 +100,7 @@ public class DeleteAction extends AbstractAction implements SelectionListener {
 
         public UndoableDeleteAction(Drawing drawing, List<Entity> entities) {
             this.drawing = drawing;
-            this.entities = entities;
+            this.entities = new ArrayList<>(entities);
         }
 
         @Override
