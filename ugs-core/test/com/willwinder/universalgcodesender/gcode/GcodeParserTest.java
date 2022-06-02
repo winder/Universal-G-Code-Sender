@@ -56,6 +56,7 @@ import java.util.List;
 
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -97,7 +98,6 @@ public class GcodeParserTest {
      */
     @Test
     public void testAddCommand_String() throws Exception {
-        System.out.println("addCommand");
         List<GcodeMeta> results;
         GcodeParser instance = new GcodeParser();
 
@@ -155,7 +155,6 @@ public class GcodeParserTest {
      */
     @Test
     public void testAddCommand_String_int() throws Exception {
-        System.out.println("addCommand");
         GcodeParser instance = new GcodeParser();
 
         // More or less the same thing as the above test, so just make sure the
@@ -169,14 +168,13 @@ public class GcodeParserTest {
      */
     @Test
     public void testGetCurrentState() throws Exception {
-        System.out.println("getCurrentPoint");
         GcodeParser instance = new GcodeParser();
 
         instance.addCommand("G17 G21 G90 G94 G54 M0 M5 M9");
         GcodeState state = instance.getCurrentState();
         assertEquals(Plane.XY, state.plane);
-        assertEquals(true, state.isMetric);
-        assertEquals(true, state.inAbsoluteMode);
+        assertTrue(state.isMetric);
+        assertTrue(state.inAbsoluteMode);
     }
 
     /**
@@ -287,7 +285,7 @@ public class GcodeParserTest {
         gcp.addCommandProcessor(new CommentProcessor());
         gcp.addCommandProcessor(new ArcExpander(true, 0.1));
         gcp.addCommandProcessor(new LineSplitter(1));
-        Position grid[][] = {
+        Position[][] grid = {
             { new Position(-5,-5,0, MM), new Position(-5,35,0, MM) },
             { new Position(35,-5,0, MM), new Position(35,35,0, MM) }
         };

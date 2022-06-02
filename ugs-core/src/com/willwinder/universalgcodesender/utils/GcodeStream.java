@@ -33,14 +33,14 @@ import java.util.regex.Pattern;
  * @author wwinder
  */
 public abstract class GcodeStream {
-    protected final int NUM_COLUMNS           = 4;
+    protected final static int NUM_COLUMNS           = 4;
 
-    protected final int COL_ORIGINAL_COMMAND  = 0;
-    protected final int COL_PROCESSED_COMMAND = 1;
-    protected final int COL_COMMAND_NUMBER    = 2;
-    protected final int COL_COMMENT           = 3;
+    protected final static int COL_ORIGINAL_COMMAND  = 0;
+    protected final static int COL_PROCESSED_COMMAND = 1;
+    protected final static int COL_COMMAND_NUMBER    = 2;
+    protected final static int COL_COMMENT           = 3;
 
-    protected final String separator = "¶¶";
-    protected final Pattern splitPattern = Pattern.compile(Pattern.quote(separator));
-    protected final String metaPrefix = "gsw_meta:";
+    protected final static String FIELD_SEPARATOR = "¶¶";
+    protected final static Pattern SPLIT_PATTERN = Pattern.compile(Pattern.quote(FIELD_SEPARATOR));
+    protected final static String META_PREFIX = "gsw_meta:";
 }
