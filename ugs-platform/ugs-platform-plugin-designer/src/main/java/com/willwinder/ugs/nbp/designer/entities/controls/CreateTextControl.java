@@ -91,8 +91,6 @@ public class CreateTextControl extends AbstractControl {
         double startY = Math.min(startPosition.getY(), endPosition.getY());
 
         Text text = new Text(startX, startY);
-        AddAction addAction = new AddAction(controller, text);
-        addAction.actionPerformed(new ActionEvent(this, 0, ""));
         controller.addEntity(text);
         controller.setTool(Tool.SELECT);
         controller.getSelectionManager().addSelection(text);

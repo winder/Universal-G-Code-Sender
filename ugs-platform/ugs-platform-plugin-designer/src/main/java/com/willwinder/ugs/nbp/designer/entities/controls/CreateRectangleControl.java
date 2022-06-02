@@ -96,8 +96,6 @@ public class CreateRectangleControl extends AbstractControl {
         Rectangle rectangle = new Rectangle(startX, startY);
         rectangle.setWidth(endX - startX);
         rectangle.setHeight(endY - startY);
-        AddAction addAction = new AddAction(controller, rectangle);
-        addAction.actionPerformed(new ActionEvent(this, 0, ""));
         controller.addEntity(rectangle);
     }
 
