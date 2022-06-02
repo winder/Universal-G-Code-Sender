@@ -207,8 +207,9 @@ public class TinyGController extends AbstractController {
         } else if (TinyGGcodeCommand.isOkErrorResponse(response)) {
             if (jo.get("r").getAsJsonObject().has(TinyGUtils.FIELD_STATUS_REPORT)) {
                 updateControllerStatus(jo.get("r").getAsJsonObject());
-                checkStreamFinished();
-            } else if (getActiveCommand().isPresent()) {
+            }
+
+            if (getActiveCommand().isPresent()) {
                 try {
                     commandComplete(response);
                 } catch (Exception e) {
@@ -362,7 +363,7 @@ public class TinyGController extends AbstractController {
 
         setCurrentState(CommunicatorState.COMM_DISCONNECTED);
         controllerStatus = ControllerStatusBuilder.newInstance(controllerStatus)
-                .setState(ControllerState.DISCONNECTED)
+                .setState(ControllerState.CONNECTING)
                 .build();
 
         dispatchStatusString(controllerStatus);

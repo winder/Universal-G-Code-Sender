@@ -101,8 +101,9 @@ public class TinyGUtils {
     }
 
     public static boolean isTinyGVersion(JsonObject response) {
-        if (response.has(FIELD_RESPONSE)) {
-            JsonObject jo = response.getAsJsonObject(FIELD_RESPONSE);
+        Optional<JsonObject> responseObjectOptional = getResponseObject(response);
+        if (responseObjectOptional.isPresent()) {
+            JsonObject jo = responseObjectOptional.get();
             if (jo.has(FIELD_FIRMWARE_VERSION)) {
                 return true;
             }
@@ -111,8 +112,9 @@ public class TinyGUtils {
     }
 
     public static double getVersion(JsonObject response) {
-        if (response.has(FIELD_RESPONSE)) {
-            JsonObject jo = response.getAsJsonObject(FIELD_RESPONSE);
+        Optional<JsonObject> responseObjectOptional = getResponseObject(response);
+        if (responseObjectOptional.isPresent()) {
+            JsonObject jo = responseObjectOptional.get();
             if (jo.has(FIELD_FIRMWARE_VERSION)) {
                 return jo.get(FIELD_FIRMWARE_VERSION).getAsDouble();
             }
@@ -121,8 +123,9 @@ public class TinyGUtils {
     }
 
     public static boolean isRestartingResponse(JsonObject response) {
-        if (response.has(FIELD_RESPONSE)) {
-            JsonObject jo = response.getAsJsonObject(FIELD_RESPONSE);
+        Optional<JsonObject> responseObjectOptional = getResponseObject(response);
+        if (responseObjectOptional.isPresent()) {
+            JsonObject jo = responseObjectOptional.get();
             if (jo.has("msg")) {
                 String msg = jo.get("msg").getAsString();
                 return StringUtils.equals(msg, "Loading configs from EEPROM");
@@ -132,14 +135,24 @@ public class TinyGUtils {
     }
 
     public static boolean isReadyResponse(JsonObject response) {
-        if (response.has(FIELD_RESPONSE)) {
-            JsonObject jo = response.getAsJsonObject(FIELD_RESPONSE);
+        Optional<JsonObject> responseObjectOptional = getResponseObject(response);
+        if (responseObjectOptional.isPresent()) {
+            JsonObject jo = responseObjectOptional.get();
             if (jo.has("msg")) {
                 String msg = jo.get("msg").getAsString();
                 return StringUtils.equals(msg, "SYSTEM READY");
             }
         }
         return false;
+    }
+
+    private static Optional<JsonObject> getResponseObject(JsonObject response) {
+        if (response.has(FIELD_RESPONSE)) {
+            return Optional.of(response.getAsJsonObject(FIELD_RESPONSE));
+        } else if (response.has(FIELD_STATUS_REPORT)) {
+            return Optional.of(response.getAsJsonObject(FIELD_STATUS_REPORT));
+        }
+        return Optional.empty();
     }
 
     public static boolean isStatusResponse(JsonObject response) {
