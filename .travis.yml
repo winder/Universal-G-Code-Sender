@@ -21,7 +21,7 @@ before_script:
 - curl -fL https://getcli.jfrog.io | sh
 
 script:
-  - jdk_switcher use openjdk13
+  - echo "${JAVA_HOME}"
   # Default to a snapshot build
   - export REVISION="2.0"
   - export CHANGELIST="-SNAPSHOT"
