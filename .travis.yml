@@ -1,7 +1,6 @@
 dist: focal
 language: java
 os: linux
-jdk: openjdk13
 
 # Prevent running default install script
 install: true
