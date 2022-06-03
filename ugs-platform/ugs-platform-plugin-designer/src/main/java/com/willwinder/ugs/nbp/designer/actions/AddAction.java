@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,7 +57,7 @@ public class AddAction extends AbstractAction implements DrawAction, UndoableAct
      */
     public AddAction(Controller controller, List<Entity> entities) {
         this.controller = controller;
-        this.entities = entities;
+        this.entities = new ArrayList<>(entities);
     }
 
     public void execute() {

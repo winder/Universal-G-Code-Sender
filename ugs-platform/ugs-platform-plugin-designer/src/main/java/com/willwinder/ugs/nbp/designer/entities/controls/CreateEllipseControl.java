@@ -96,8 +96,6 @@ public class CreateEllipseControl extends AbstractControl {
 
         Ellipse ellipse = new Ellipse(startX, startY);
         ellipse.setSize(new Size(endX - startX, endY - startY));
-        AddAction addAction = new AddAction(controller, ellipse);
-        addAction.actionPerformed(new ActionEvent(this, 0, ""));
         controller.addEntity(ellipse);
     }
 

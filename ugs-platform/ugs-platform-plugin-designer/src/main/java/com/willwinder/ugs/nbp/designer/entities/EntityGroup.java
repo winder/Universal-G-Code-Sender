@@ -154,18 +154,18 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         invalidateCenter();
     }
 
-    public boolean containsChild(Entity node) {
-        return children.contains(node);
+    public boolean containsChild(Entity entity) {
+        return children.contains(entity);
     }
 
+    /**
+     * Removes a direct child entity from the group. If it exists as a grand child it will be left alone.
+     *
+     * @param entity the entity to remove
+     */
     public void removeChild(Entity entity) {
         entity.removeListener(this);
         children.remove(entity);
-        children.stream()
-                .filter(EntityGroup.class::isInstance)
-                .map(EntityGroup.class::cast)
-                .forEach(c -> c.removeChild(entity));
-
         invalidateCenter();
     }
 

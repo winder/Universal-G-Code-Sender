@@ -22,31 +22,51 @@ import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.Throttler;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
-import com.willwinder.ugs.nbp.designer.entities.controls.*;
+import com.willwinder.ugs.nbp.designer.entities.controls.Control;
+import com.willwinder.ugs.nbp.designer.entities.controls.CreateEllipseControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.CreateRectangleControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.CreateTextControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.EditTextControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.GridControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.HighlightModelControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.Location;
+import com.willwinder.ugs.nbp.designer.entities.controls.MoveControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.ResizeControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.RotationControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.SelectionControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.ZoomControl;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.awt.RenderingHints.*;
+import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
+import static java.awt.RenderingHints.KEY_ANTIALIASING;
+import static java.awt.RenderingHints.KEY_RENDERING;
+import static java.awt.RenderingHints.KEY_TEXT_ANTIALIASING;
 
 /**
  * @author Joacim Breiler
  */
 public class Drawing extends JPanel {
 
+    public static final double MIN_SCALE = 0.05;
     private static final long serialVersionUID = 1298712398723987873L;
     private static final int MARGIN = 100;
-    public static final double MIN_SCALE = 0.05;
     private final transient EntityGroup globalRoot;
     private final transient EntityGroup entitiesRoot;
     private final transient EntityGroup controlsRoot;
@@ -157,10 +177,24 @@ public class Drawing extends JPanel {
         g2.setTransform(previousTransform);
     }
 
-    public void removeEntity(Entity s) {
-        globalRoot.removeChild(s);
+    public void removeEntity(Entity entity) {
+        removeEntities(Collections.singletonList(entity));
+    }
+
+    public void removeEntities(List<Entity> entities) {
+        removeEntitiesRecursively(globalRoot, entities);
         ThreadHelper.invokeLater(() -> listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED)));
         refresh();
+    }
+
+    private void removeEntitiesRecursively(EntityGroup parent, List<Entity> entities) {
+        parent.getChildren().forEach(child -> {
+            if (child instanceof EntityGroup) {
+                removeEntitiesRecursively((EntityGroup) child, entities);
+            }
+        });
+
+        entities.forEach(parent::removeChild);
     }
 
     /**
@@ -172,6 +206,15 @@ public class Drawing extends JPanel {
         return scale;
     }
 
+    public void setScale(double scale) {
+        double newScale = Math.max(Math.abs(scale), MIN_SCALE);
+        if (this.scale != newScale) {
+            this.scale = newScale;
+            listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.SCALE_CHANGED));
+            refresh();
+        }
+    }
+
     @Override
     public Dimension getMinimumSize() {
         Rectangle2D bounds = globalRoot.getBounds();
@@ -181,15 +224,6 @@ public class Drawing extends JPanel {
     @Override
     public Dimension getPreferredSize() {
         return getMinimumSize();
-    }
-
-    public void setScale(double scale) {
-        double newScale = Math.max(Math.abs(scale), MIN_SCALE);
-        if (this.scale != newScale) {
-            this.scale = newScale;
-            listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.SCALE_CHANGED));
-            refresh();
-        }
     }
 
     private void refresh() {
@@ -221,12 +255,6 @@ public class Drawing extends JPanel {
                 .filter(Control.class::isInstance)
                 .map(Control.class::cast)
                 .collect(Collectors.toList());
-    }
-
-    public void removeEntities(List<Entity> entities) {
-        entities.forEach(globalRoot::removeChild);
-        ThreadHelper.invokeLater(() -> listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED)));
-        refresh();
     }
 
     public void clear() {
