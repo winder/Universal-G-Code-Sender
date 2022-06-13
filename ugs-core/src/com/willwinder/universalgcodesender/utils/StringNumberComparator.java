@@ -14,15 +14,13 @@ public class StringNumberComparator implements Comparator<String> {
     @Override
     public int compare(String o1, String o2) {
         // Try to extract only numbers from the strings
-        String num1 = o1.replaceAll("\\D", "");
-        String num2 = o2.replaceAll("\\D", "");
+        String num1 = o1.replaceFirst("$", "");
+        String num2 = o2.replaceFirst("$", "");
 
-        // If any of them is empty, just do a string compare
-        if(StringUtils.isEmpty(num1) || StringUtils.isEmpty(num2)) {
+        if (StringUtils.isNumeric(num1) && StringUtils.isNumeric(num2)) {
+            return Integer.parseInt(num1) - Integer.parseInt(num2);
+        } else {
             return o1.compareTo(o2);
         }
-
-        // Compare only the numbers
-        return Integer.parseInt(num1) - Integer.parseInt(num2);
     }
 }

@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.utils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.willwinder.universalgcodesender.*;
+import com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCController;
 import com.willwinder.universalgcodesender.gcode.util.CommandProcessorLoader;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,7 @@ public class ControllerSettings {
     public enum CONTROLLER {
         GRBL("GRBL"),
         GRBL_ESP32("GRBL ESP32"),
+        FLUIDNC("FluidNC"),
         SMOOTHIE("SmoothieBoard"),
         TINYG("TinyG"),
         G2CORE("g2core"),
@@ -122,6 +124,8 @@ public class ControllerSettings {
                 return new GrblController(new LoopBackCommunicator());
             case LOOPBACK_SLOW:
                 return new GrblController(new LoopBackCommunicator(100));
+            case FLUIDNC:
+                return new FluidNCController();
             default:
                 throw new AssertionError(controller.name());
         }

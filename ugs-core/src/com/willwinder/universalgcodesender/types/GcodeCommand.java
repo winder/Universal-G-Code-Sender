@@ -98,7 +98,7 @@ public class GcodeCommand {
         if (this.response == null) {
             this.response = response;
         } else {
-            this.response += response;
+            this.response += "\n" + response;
         }
     }
 

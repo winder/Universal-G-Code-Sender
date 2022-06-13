@@ -39,7 +39,7 @@ public class ControllerUtils {
      * @param maxExecutionTime the max number of milliseconds to wait before throwing a timeout error
      * @throws Exception if the command could not be sent or a timeout occurred
      */
-    public static void sendAndWaitForCompletion(IController controller, GcodeCommand command, long maxExecutionTime) throws Exception {
+    public static GcodeCommand sendAndWaitForCompletion(IController controller, GcodeCommand command, long maxExecutionTime) throws Exception {
         final AtomicBoolean isDone = new AtomicBoolean(false);
         CommandListener listener = c -> isDone.set(c.isDone());
         command.addListener(listener);
@@ -52,6 +52,8 @@ public class ControllerUtils {
             }
             Thread.sleep(10);
         }
+
+        return command;
     }
 
     /**
@@ -61,7 +63,7 @@ public class ControllerUtils {
      * @param command    a command
      * @throws Exception if the command could not be sent or a timeout occurred
      */
-    public static void sendAndWaitForCompletion(IController controller, GcodeCommand command) throws Exception {
-        sendAndWaitForCompletion(controller, command, MAX_EXECUTION_TIME);
+    public static GcodeCommand sendAndWaitForCompletion(IController controller, GcodeCommand command) throws Exception {
+        return sendAndWaitForCompletion(controller, command, MAX_EXECUTION_TIME);
     }
 }

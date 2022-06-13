@@ -71,6 +71,7 @@
     <ugs.easymock.version>3.4</ugs.easymock.version>
     <ugs.maven-assembly-plugin.version>2.5.3</ugs.maven-assembly-plugin.version>
     <ugs.jide.version>3.7.12</ugs.jide.version>
+    <ugs.snakeyaml.version>1.30</ugs.snakeyaml.version>
 
     <!-- Sets the timestamp format -->
     <maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>

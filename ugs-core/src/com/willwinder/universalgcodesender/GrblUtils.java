@@ -78,7 +78,7 @@ public class GrblUtils {
     /**
      * Checks if the string contains the GRBL version.
      */
-    static Boolean isGrblVersionString(final String response) {
+    public static Boolean isGrblVersionString(final String response) {
         boolean version = response.startsWith("Grbl ") || response.startsWith("CarbideMotion ") || response.startsWith("GrblHAL ") || response.startsWith("gCarvin ");
         return version && (getVersionDouble(response) != -1);
     }
@@ -88,7 +88,7 @@ public class GrblUtils {
      */
     final static String VERSION_DOUBLE_REGEX = "[0-9]*\\.[0-9]*";
     final static Pattern VERSION_DOUBLE_PATTERN = Pattern.compile(VERSION_DOUBLE_REGEX);
-    static protected double getVersionDouble(final String response) {
+    public static double getVersionDouble(final String response) {
         double retValue = -1;
         
         // Search for a version.
@@ -102,7 +102,7 @@ public class GrblUtils {
     
     final static String VERSION_LETTER_REGEX = "(?<=[0-9]\\.[0-9])[a-zA-Z]";
     final static Pattern VERSION_LETTER_PATTERN = Pattern.compile(VERSION_LETTER_REGEX);
-    static protected Character getVersionLetter(final String response) {
+    public static Character getVersionLetter(final String response) {
         Character retValue = null;
         
         // Search for a version.
@@ -126,8 +126,8 @@ public class GrblUtils {
             return "";
         }
     }
-    
-    static protected String getResetCoordsToZeroCommand(final double version, final Character letter) {
+
+    public static String getResetCoordsToZeroCommand(final double version, final Character letter) {
         if (version >= 0.9) {
             return GrblUtils.GCODE_RESET_COORDINATES_TO_ZERO_V9;
         }
@@ -152,7 +152,7 @@ public class GrblUtils {
      * @param grblVersionLetter the GRBL build version
      * @return a string with the gcode command
      */
-    protected static String getResetCoordToZeroCommand(final Axis axis, Units units, final double grblVersion, final Character grblVersionLetter) {
+    public static String getResetCoordToZeroCommand(final Axis axis, Units units, final double grblVersion, final Character grblVersionLetter) {
         return getSetCoordCommand(PartialPosition.from(axis, 0.0, units), grblVersion, grblVersionLetter);
     }
 
@@ -164,7 +164,7 @@ public class GrblUtils {
      * @param grblVersionLetter the GRBL build version
      * @return a string with the gcode command
      */
-    protected static String getSetCoordCommand(PartialPosition offsets, final double grblVersion, final Character grblVersionLetter) {
+    public static String getSetCoordCommand(PartialPosition offsets, final double grblVersion, final Character grblVersionLetter) {
         String coordsString = offsets.getFormattedGCode();
         if (grblVersion >= 0.9) {
             return GrblUtils.GCODE_SET_COORDINATE_V9 + " " + coordsString;
@@ -267,7 +267,7 @@ public class GrblUtils {
      */
     private static final String STATUS_REGEX = "<.*>";
     private static final Pattern STATUS_PATTERN = Pattern.compile(STATUS_REGEX);
-    static protected Boolean isGrblStatusString(final String response) {
+    public static Boolean isGrblStatusString(final String response) {
         return STATUS_PATTERN.matcher(response).find();
     }
 
@@ -279,22 +279,29 @@ public class GrblUtils {
 
     private static final String FEEDBACK_REGEX = "\\[.*]";
     private static final Pattern FEEDBACK_PATTERN = Pattern.compile(FEEDBACK_REGEX);
-    static protected Boolean isGrblFeedbackMessage(final String response, Capabilities c) {
+    public static Boolean isGrblFeedbackMessage(final String response, Capabilities c) {
         if (c.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)) {
-            return response.startsWith("[GC:");
+            return isGrblFeedbackMessageV1(response);
         } else {
             return FEEDBACK_PATTERN.matcher(response).find();
         }
     }
 
+    public static Boolean isGrblFeedbackMessageV1(final String response) {
+        return response.startsWith("[GC:");
+    }
+
     static protected String parseFeedbackMessage(final String response, Capabilities c) {
         if (c.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)) {
-            return response.substring(4, response.length() - 1);
+            return parseFeedbackMessageV1(response);
         } else {
             return response.substring(1, response.length() - 1);
         }
     }
 
+    public static String parseFeedbackMessageV1(final String response) {
+        return response.substring(4, response.length() - 1);
+    }
 
     private static final String SETTING_REGEX = "\\$\\d+=.+";
     private static final Pattern SETTING_PATTERN = Pattern.compile(SETTING_REGEX);
@@ -459,7 +466,7 @@ public class GrblUtils {
      * @param part the part to parse
      * @return the parsed feed speed
      */
-    private static double parseFeedSpeed(String part) {
+    public static double parseFeedSpeed(String part) {
         if(!part.startsWith("F:")) {
             return Double.NaN;
         }
@@ -545,7 +552,7 @@ public class GrblUtils {
         }
     }
     
-    static private Position getPositionFromStatusString(final String status, final Pattern pattern, Units reportingUnits) {
+    public static Position getPositionFromStatusString(final String status, final Pattern pattern, Units reportingUnits) {
         Matcher matcher = pattern.matcher(status);
         if (matcher.find()) {
             Position result = new Position(Double.parseDouble(matcher.group(1)),

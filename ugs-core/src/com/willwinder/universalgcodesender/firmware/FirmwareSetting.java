@@ -75,6 +75,10 @@ public class FirmwareSetting implements Serializable {
         this.shortDescription = shortDescription;
     }
 
+    public FirmwareSetting(String key, String value) {
+        this(key, value, "", "", "");
+    }
+
     public String getKey() {
         return key;
     }
