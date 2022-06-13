@@ -194,7 +194,7 @@ public class GrblController extends AbstractController {
                 // When exiting COMM_CHECK mode a soft reset is done, do not clear the
                 // controller status because we need to know the previous state for resetting
                 // single step mode
-                if (getControlState() != COMM_CHECK) {
+                if (getCommunicatorState() != COMM_CHECK) {
                     this.controllerStatus = ControllerStatusBuilder.newInstance().setState(ControllerState.CONNECTING).build();
                 }
 
@@ -371,16 +371,16 @@ public class GrblController extends AbstractController {
     @Override
     protected Boolean isIdleEvent() {
         if (this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
-            return getControlState() == COMM_IDLE || getControlState() == COMM_CHECK;
+            return getCommunicatorState() == COMM_IDLE || getCommunicatorState() == COMM_CHECK;
         }
         // Otherwise let the abstract controller decide.
         return true;
     }
 
     @Override
-    public CommunicatorState getControlState() {
+    public CommunicatorState getCommunicatorState() {
         if (!this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
-            return super.getControlState();
+            return super.getCommunicatorState();
         }
 
         ControllerState state = this.controllerStatus == null ? ControllerState.DISCONNECTED : this.controllerStatus.getState();
@@ -612,15 +612,15 @@ public class GrblController extends AbstractController {
             return;
         }
 
-        CommunicatorState before = getControlState();
+        CommunicatorState before = getCommunicatorState();
         ControllerState beforeState = controllerStatus == null ? ControllerState.DISCONNECTED : controllerStatus.getState();
 
         controllerStatus = GrblUtils.getStatusFromStatusString(
                 controllerStatus, string, capabilities, getFirmwareSettings().getReportingUnits());
 
         // Make UGS more responsive to the state being reported by GRBL.
-        if (before != getControlState()) {
-            this.dispatchStateChange(getControlState());
+        if (before != getCommunicatorState()) {
+            this.dispatchStateChange(getCommunicatorState());
         }
 
         // GRBL 1.1 jog complete transition
@@ -629,9 +629,9 @@ public class GrblController extends AbstractController {
         }
 
         // Set and restore the step mode when transitioning from CHECK mode to IDLE.
-        if (before == COMM_CHECK && getControlState() != COMM_CHECK) {
+        if (before == COMM_CHECK && getCommunicatorState() != COMM_CHECK) {
             setSingleStepMode(temporaryCheckSingleStepMode);
-        } else if (before != COMM_CHECK && getControlState() == COMM_CHECK) {
+        } else if (before != COMM_CHECK && getCommunicatorState() == COMM_CHECK) {
             temporaryCheckSingleStepMode = getSingleStepMode();
             setSingleStepMode(true);
         }
@@ -647,7 +647,7 @@ public class GrblController extends AbstractController {
                     isCanceling = false;
 
                     // Make sure the GUI gets updated
-                    this.dispatchStateChange(getControlState());
+                    this.dispatchStateChange(getCommunicatorState());
                 }
                 // Otherwise check if the machine is Hold/Queue and stopped.
                 else if ((controllerStatus.getState() == ControllerState.HOLD || controllerStatus.getState() == ControllerState.DOOR) && lastLocation.equals(this.controllerStatus.getMachineCoord())) {

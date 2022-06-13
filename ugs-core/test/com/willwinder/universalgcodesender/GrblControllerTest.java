@@ -1378,7 +1378,7 @@ public class GrblControllerTest {
         // Then
         assertTrue(instance.isIdle());
         assertTrue(instance.isIdleEvent());
-        assertEquals(COMM_CHECK, instance.getControlState());
+        assertEquals(COMM_CHECK, instance.getCommunicatorState());
         assertEquals(ControllerState.CHECK, instance.getControllerStatus().getState());
     }
 
@@ -1387,14 +1387,14 @@ public class GrblControllerTest {
         // Given
         GrblController instance = initializeAndConnectController("foo", 2400, VERSION_GRBL_1_1F);
         instance.rawResponseHandler("<Run|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
-        assertEquals("We should be in sending mode", COMM_SENDING, instance.getControlState());
+        assertEquals("We should be in sending mode", COMM_SENDING, instance.getCommunicatorState());
         assertEquals(ControllerState.RUN, instance.getControllerStatus().getState());
 
         // When
         instance.rawResponseHandler(VERSION_GRBL_1_1F);
 
         // Then
-        assertEquals(COMM_IDLE, instance.getControlState());
+        assertEquals(COMM_IDLE, instance.getCommunicatorState());
         assertEquals(ControllerState.CONNECTING, instance.getControllerStatus().getState());
     }
 
@@ -1408,13 +1408,13 @@ public class GrblControllerTest {
         // Given
         GrblController instance = initializeAndConnectController("foo", 2400, VERSION_GRBL_1_1F);
         instance.rawResponseHandler("<Check|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
-        assertEquals("We should be in check mode", COMM_CHECK, instance.getControlState());
+        assertEquals("We should be in check mode", COMM_CHECK, instance.getCommunicatorState());
 
         // When
         instance.rawResponseHandler(VERSION_GRBL_1_1F);
 
         // Then
-        assertEquals(COMM_CHECK, instance.getControlState());
+        assertEquals(COMM_CHECK, instance.getCommunicatorState());
     }
 
     @Test
@@ -1443,7 +1443,7 @@ public class GrblControllerTest {
         // Then
         assertFalse(instance.isIdle());
         assertFalse(instance.isPaused());
-        assertEquals(COMM_SENDING, instance.getControlState());
+        assertEquals(COMM_SENDING, instance.getCommunicatorState());
     }
 
     @Test
@@ -1464,7 +1464,7 @@ public class GrblControllerTest {
         // Then
         assertTrue(instance.isIdle());
         assertTrue(instance.isIdleEvent());
-        assertEquals(COMM_CHECK, instance.getControlState());
+        assertEquals(COMM_CHECK, instance.getCommunicatorState());
         assertEquals(ControllerState.CHECK, instance.getControllerStatus().getState());
     }
 
@@ -1482,7 +1482,7 @@ public class GrblControllerTest {
         gc.rawResponseHandler("error:1");
 
         // Then
-        assertEquals(COMM_CHECK, gc.getControlState());
+        assertEquals(COMM_CHECK, gc.getCommunicatorState());
         assertEquals(ControllerState.CHECK, gc.getControllerStatus().getState());
         assertFalse(gc.isPaused());
         verify(communicator, times(1)).resumeSend();
@@ -1507,7 +1507,7 @@ public class GrblControllerTest {
         gc.rawResponseHandler("error:1");
 
         // Then
-        assertEquals(COMM_SENDING, gc.getControlState());
+        assertEquals(COMM_SENDING, gc.getCommunicatorState());
         assertEquals(ControllerState.CHECK, gc.getControllerStatus().getState());
         assertFalse(gc.isPaused());
         verify(communicator, times(1)).sendByteImmediately(GRBL_PAUSE_COMMAND);

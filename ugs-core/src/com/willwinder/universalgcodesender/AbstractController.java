@@ -633,19 +633,19 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     }
 
     @Override
-    public CommunicatorState getControlState() {
+    public CommunicatorState getCommunicatorState() {
         return this.currentState;
     }
 
     @Override
     public Boolean isPaused() {
-        return getControlState() == COMM_SENDING_PAUSED;
+        return getCommunicatorState() == COMM_SENDING_PAUSED;
     }
 
     @Override
     public Boolean isIdle() {
         try {
-            return (getControlState() == COMM_IDLE || getControlState() == COMM_CHECK) && isIdleEvent();
+            return (getCommunicatorState() == COMM_IDLE || getCommunicatorState() == COMM_CHECK) && isIdleEvent();
         } catch (Exception e) {
             return false;
         }
@@ -747,7 +747,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
             String streamName = "queued commands";
 
             // Make sure the GUI gets updated when the file finishes
-            this.dispatchStateChange(getControlState());
+            this.dispatchStateChange(getCommunicatorState());
             this.fileStreamComplete(streamName, true);
         }
     }

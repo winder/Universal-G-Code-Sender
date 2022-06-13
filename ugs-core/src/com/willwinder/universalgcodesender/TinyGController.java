@@ -177,7 +177,7 @@ public class TinyGController extends AbstractController {
 
     @Override
     protected Boolean isIdleEvent() {
-        return getControlState() == COMM_IDLE || getControlState() == COMM_CHECK;
+        return getCommunicatorState() == COMM_IDLE || getCommunicatorState() == COMM_CHECK;
     }
 
     @Override
@@ -417,7 +417,7 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public CommunicatorState getControlState() {
+    public CommunicatorState getCommunicatorState() {
         return getControlState(getControllerStatus().getState());
     }
 

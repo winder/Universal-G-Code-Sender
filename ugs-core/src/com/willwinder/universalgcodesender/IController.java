@@ -74,7 +74,7 @@ public interface IController {
      */
     void returnToHome(double safetyHeightInMm) throws Exception;
     void resetCoordinatesToZero() throws Exception;
-    void resetCoordinateToZero(final Axis coord) throws Exception;
+    void resetCoordinateToZero(final Axis axis) throws Exception;
 
     /**
      * Sets the work position for any given axis to the position
@@ -175,7 +175,7 @@ public interface IController {
     Boolean isIdle();
     void cancelSend() throws Exception;
     void cancelJog() throws Exception;
-    CommunicatorState getControlState();
+    CommunicatorState getCommunicatorState();
 
     /**
      * In case a controller reset is detected.
