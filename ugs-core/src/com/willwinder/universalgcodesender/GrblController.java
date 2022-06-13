@@ -52,7 +52,7 @@ public class GrblController extends AbstractController {
 
     private static final GrblLookups ALARMS = new GrblLookups("alarm_codes");
     private static final GrblLookups ERRORS = new GrblLookups("error_codes");
-    private StatusPollTimer positionPollTimer;
+    private final StatusPollTimer positionPollTimer;
 
     // Grbl state
     private double grblVersion = 0.0;           // The 0.8 in 'Grbl 0.8c'
@@ -669,22 +669,6 @@ public class GrblController extends AbstractController {
     }
 
     @Override
-    protected void statusUpdatesEnabledValueChanged() {
-        if (getStatusUpdatesEnabled()) {
-            positionPollTimer.stop();
-            positionPollTimer.start();
-        } else {
-            positionPollTimer.stop();
-        }
-    }
-
-    @Override
-    protected void statusUpdatesRateValueChanged() {
-        positionPollTimer.stop();
-        positionPollTimer.start();
-    }
-
-    @Override
     protected void setControllerState(ControllerState controllerState) {
         controllerStatus = ControllerStatusBuilder
                 .newInstance(controllerStatus)
@@ -701,6 +685,26 @@ public class GrblController extends AbstractController {
             this.dispatchConsoleMessage(MessageType.INFO, String.format(">>> 0x%02x\n", realTimeCommand));
             this.comm.sendByteImmediately(realTimeCommand);
         }
+    }
+
+    @Override
+    public boolean getStatusUpdatesEnabled() {
+        return positionPollTimer.isEnabled();
+    }
+
+    @Override
+    public void setStatusUpdatesEnabled(boolean enabled) {
+        positionPollTimer.setEnabled(enabled);
+    }
+
+    @Override
+    public int getStatusUpdateRate() {
+        return positionPollTimer.getUpdateInterval();
+    }
+
+    @Override
+    public void setStatusUpdateRate(int rate) {
+        positionPollTimer.setUpdateInterval(rate);
     }
 
     @Override

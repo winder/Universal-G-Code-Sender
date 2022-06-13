@@ -59,6 +59,7 @@ public class TinyGController extends AbstractController {
     protected ControllerStatus controllerStatus;
     protected String firmwareVersion;
     protected double firmwareVersionNumber;
+    private int statusUpdateRate;
 
     public TinyGController() {
         this(new TinyGCommunicator());
@@ -387,13 +388,22 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    protected void statusUpdatesEnabledValueChanged() {
-        // We don't care about this
+    public boolean getStatusUpdatesEnabled() {
+        return false;
     }
 
     @Override
-    protected void statusUpdatesRateValueChanged() {
-        // Status report interval in milliseconds (50ms minimum interval)
+    public void setStatusUpdatesEnabled(boolean enabled) {
+    }
+
+    @Override
+    public int getStatusUpdateRate() {
+        return statusUpdateRate;
+    }
+
+    @Override
+    public void setStatusUpdateRate(int statusUpdateRate) {
+        this.statusUpdateRate = statusUpdateRate;
         comm.queueCommand(new GcodeCommand("{si:" + getStatusUpdateRate() + "}"));
     }
 
