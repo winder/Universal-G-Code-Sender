@@ -8,13 +8,12 @@ import java.util.regex.Pattern;
 
 public final class SemanticVersion implements Comparable<SemanticVersion> {
 
-    private static final String VERSION_REGEX = "(?<major>[0-9]*)(.(?<minor>[0-9]+)(.(?<patch>[0-9]+))?)?([a-zA-Z]+)?";
+    private static final String VERSION_REGEX = "(?<major>[0-9]*)(.(?<minor>[0-9]+)(.(?<patch>[0-9]+))?)?";
     private static final Pattern VERSION_PATTERN = Pattern.compile(VERSION_REGEX, Pattern.CASE_INSENSITIVE);
 
     private final int major;
     private final int minor;
     private final int patch;
-    private final String buildMeta;
 
     /**
      * Construct a fully featured version object with all bells and whistles.
@@ -31,7 +30,6 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
         this.major = major;
         this.minor = minor;
         this.patch = patch;
-        this.buildMeta = "";
     }
 
     /**
@@ -48,14 +46,12 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
         major = Integer.parseInt(StringUtils.defaultString(matcher.group("major"), "0"));
         minor = Integer.parseInt(StringUtils.defaultString(matcher.group("minor"), "0"));
         patch = Integer.parseInt(StringUtils.defaultString(matcher.group("patch"), "0"));
-        buildMeta = matcher.group(4);
     }
 
     public SemanticVersion() {
         major = 0;
         minor = 0;
         patch = 0;
-        buildMeta = "";
     }
 
     @Override
@@ -102,9 +98,5 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
 
     public int getPatch() {
         return patch;
-    }
-
-    public String getBuildMeta() {
-        return buildMeta;
     }
 }

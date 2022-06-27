@@ -695,7 +695,7 @@ public class GrblControllerTest {
         instance.cancelSend();
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
-        assertEquals(2, mgc.numCancelSendCalls);
+        assertEquals(1, mgc.numCancelSendCalls);
         assertEquals(1, mgc.numPauseSendCalls);
         instance.resumeStreaming();
     }
@@ -730,6 +730,7 @@ public class GrblControllerTest {
         // 2nd cancel is from a soft reset.
         this.mgc = new MockGrblCommunicator();
         GrblController instance = initializeAndConnectController("blah", 1234, "Grbl 0.8c");
+        instance.setStatusUpdatesEnabled(true);
         List<GcodeCommand> commands = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
             commands.add(instance.createCommand("G0X" + i));
@@ -786,6 +787,7 @@ public class GrblControllerTest {
         // Add 30 commands, start send, cancel after sending 15. (Grbl 0.8c)
         this.mgc = new MockGrblCommunicator();
         GrblController instance = initializeAndConnectController("blah", 1234, "Grbl 0.8c");
+        instance.setStatusUpdatesEnabled(true);
         List<GcodeCommand> commands = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
             commands.add(instance.createCommand("G0X" + i));
@@ -821,6 +823,7 @@ public class GrblControllerTest {
     public void cancelSendOnDoorStateShouldCancelCommandAndIssueReset() throws Exception {
         this.mgc = new MockGrblCommunicator();
         GrblController instance = initializeAndConnectController("blah", 1234, VERSION_GRBL_1_1F);
+        instance.setStatusUpdatesEnabled(true);
         instance.rawResponseHandler("<Door|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
         mgc.sentBytes.clear();
 
@@ -888,7 +891,7 @@ public class GrblControllerTest {
         instance.cancelSend();
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
-        assertEquals(2, mgc.numCancelSendCalls);
+        assertEquals(1, mgc.numCancelSendCalls);
         instance.resumeStreaming();
 
         // Test 2.1
@@ -945,8 +948,8 @@ public class GrblControllerTest {
         instance.cancelSend();
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
-        assertEquals(0, instance.rowsInSend());
-        assertEquals(0, instance.rowsRemaining());
+        assertEquals(30, instance.rowsInSend());
+        assertEquals(30, instance.rowsRemaining());
         instance.resumeStreaming();
 
         // Test 3.1 - N/A, exception thrown.
@@ -981,10 +984,10 @@ public class GrblControllerTest {
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
         assertEquals(15, instance.rowsSent());
-        assertEquals(0, instance.rowsInSend());
+        assertEquals(30, instance.rowsInSend());
         // Left this failing because it should be possible to make it work
         // this way someday.
-        assertEquals(0, instance.rowsRemaining());
+        assertEquals(30, instance.rowsRemaining());
     }
 
     /**

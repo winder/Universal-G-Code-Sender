@@ -82,7 +82,7 @@ public class G2CoreControllerTest {
         controller.rawResponseHandler("{\"ack\":true}");
 
         // Then
-        verify(communicator, times(11)).queueCommand(any(GcodeCommand.class));
+        verify(communicator, times(12)).queueCommand(any(GcodeCommand.class));
         verify(communicator).streamCommands();
 
         assertEquals("{ej:1}", queueCommandArgumentCaptor.getAllValues().get(0).getCommandString());

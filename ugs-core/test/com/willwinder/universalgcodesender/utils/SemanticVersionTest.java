@@ -26,16 +26,6 @@ public class SemanticVersionTest {
 		new SemanticVersion(".1.2");
 	}
 
-	@Test(expected = NumberFormatException.class)
-	public void testEmptyMinor() throws ParseException {
-		new SemanticVersion("1..2");
-	}
-
-	@Test(expected = NumberFormatException.class)
-	public void testEmptyPatch() throws ParseException {
-		new SemanticVersion("1.2.");
-	}
-
 	@Test(expected = IllegalArgumentException.class)
 	public void testOutOfBounds() {
 		new SemanticVersion(-1, 0, 0);
@@ -54,36 +44,6 @@ public class SemanticVersionTest {
 		assertEquals(22, v.getMinor());
 		assertEquals(33, v.getPatch());
 		assertEquals("11.22.33", v.toString());
-	}
-
-	@Test
-	public void testParseRelease() throws ParseException {
-		SemanticVersion v = new SemanticVersion("1.2.3-alpha.1");
-		assertEquals(1, v.getMajor());
-		assertEquals(2, v.getMinor());
-		assertEquals(3, v.getPatch());
-		assertEquals("alpha", v.getBuildMeta());
-		assertEquals("1.2.3-alpha.1", v.toString());
-	}
-
-	@Test
-	public void testParseMeta() throws ParseException {
-		SemanticVersion v = new SemanticVersion("1.2.3+build.1");
-		assertEquals(1, v.getMajor());
-		assertEquals(2, v.getMinor());
-		assertEquals(3, v.getPatch());
-		assertEquals("build", v.getBuildMeta());
-		assertEquals("1.2.3+build.1", v.toString());
-	}
-
-	@Test
-	public void testParseReleaseMeta() throws ParseException {
-		SemanticVersion v = new SemanticVersion("1.2.3-alpha.1+build.1");
-		assertEquals(1, v.getMajor());
-		assertEquals(2, v.getMinor());
-		assertEquals(3, v.getPatch());
-		assertEquals("build", v.getBuildMeta());
-		assertEquals("1.2.3-alpha.1+build.1", v.toString());
 	}
 
 	@Test

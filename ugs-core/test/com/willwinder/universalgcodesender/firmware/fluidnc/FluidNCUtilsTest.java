@@ -25,7 +25,7 @@ public class FluidNCUtilsTest {
     @Test
     public void isWelcomeResponseShouldRecognizeWelcomeMessages() {
         assertTrue(FluidNCUtils.isWelcomeResponse("Grbl 3.4 [FluidNC v3.4.2 (wifi) '$' for help]"));
-        assertFalse(FluidNCUtils.isWelcomeResponse("GrblHal 3.4 [FluidNC v3.4.2 (wifi) '$' for help]"));
+        assertTrue(FluidNCUtils.isWelcomeResponse("GrblHal 3.4 [FluidNC v3.4.2 (wifi) '$' for help]"));
         assertFalse(FluidNCUtils.isWelcomeResponse(""));
     }
 

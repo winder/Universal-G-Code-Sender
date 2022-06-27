@@ -1,16 +1,13 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc.commands;
 
 import com.willwinder.universalgcodesender.GrblUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class GetFirmwareSettingsCommand extends SystemCommand {
@@ -23,7 +20,6 @@ public class GetFirmwareSettingsCommand extends SystemCommand {
     @Override
     public void appendResponse(String response) {
         if (GrblUtils.isOkResponse(response)) {
-
             Yaml yaml = new Yaml();
             Map<String, Object> settingsTree = yaml.load(getResponse());
             settings = flatten(settingsTree);

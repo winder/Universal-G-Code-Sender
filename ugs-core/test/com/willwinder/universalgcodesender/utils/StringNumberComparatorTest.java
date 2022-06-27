@@ -32,4 +32,20 @@ public class StringNumberComparatorTest {
         assertEquals(-9, stringNumberComparator.compare("a1", "b10"));
         assertEquals(9, stringNumberComparator.compare("b10", "a1"));
     }
+
+    @Test
+    public void compareTwoStringsWithGrblSetting() {
+        StringNumberComparator stringNumberComparator = new StringNumberComparator();
+        assertEquals(-1, stringNumberComparator.compare("$1", "$2"));
+        assertEquals(1, stringNumberComparator.compare("$2", "1"));
+    }
+
+    @Test
+    public void compareTwoStringsWithFluidNcSetting() {
+        StringNumberComparator stringNumberComparator = new StringNumberComparator();
+        assertEquals(1, stringNumberComparator.compare("/test/test1", "/test/test"));
+        assertEquals(-1, stringNumberComparator.compare("/test/test", "/test/test1"));
+        assertEquals(-1, stringNumberComparator.compare("/test/test1", "/test/test2"));
+        assertEquals(1, stringNumberComparator.compare("/test/test2", "/test/test1"));
+    }
 }
