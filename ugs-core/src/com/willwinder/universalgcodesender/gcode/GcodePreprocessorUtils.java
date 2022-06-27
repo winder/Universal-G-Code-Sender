@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2020 Will Winder
+    Copyright 2013-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -480,12 +480,12 @@ public class GcodePreprocessorUtils {
      * @param numPoints number of points to generate
      * @param plane helper to select values for arcs across different planes
      */
-    static private List<Position> generatePointsAlongArcBDring(
+    public static List<Position> generatePointsAlongArcBDring(
             final Position p1,
             final Position p2,
             final Position center,
             boolean isCw,
-            double radius, 
+            double radius,
             double startAngle,
             double sweep,
             int numPoints,

@@ -23,20 +23,31 @@ import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
-import com.willwinder.ugs.nbm.visualizer.shared.RotationService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.model.events.*;
+import com.willwinder.universalgcodesender.model.events.CommandEvent;
+import com.willwinder.universalgcodesender.model.events.CommandEventType;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.SwingUtilities;
+import java.awt.Point;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowListener;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 
@@ -54,7 +65,7 @@ public class RendererInputHandler implements
     private final GcodeModel gcodeModel;
     private final SizeDisplay sizeDisplay;
     private final Selection selection;
-    private Settings settings;
+    private final Settings settings;
 
     private static final int HIGH_FPS = 15;
     private static final int LOW_FPS = 4;
@@ -66,8 +77,7 @@ public class RendererInputHandler implements
         animator.start();
         settings = backend.getSettings();
 
-        RotationService rs = new RotationService();
-        gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"), rs);
+        gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"));
         sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
         selection = new Selection(Localization.getString("platform.visualizer.renderable.selection"));
         sizeDisplay.setUnits(settings.getPreferredUnits());

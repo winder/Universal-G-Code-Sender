@@ -2,7 +2,7 @@
  * Helper functions for visualizer routines.
  */
 /*
-    Copyright 2013 Will Winder
+    Copyright 2013-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,7 +21,12 @@
  */
 package com.willwinder.universalgcodesender.visualizer;
 
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.types.PointSegment;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -29,35 +34,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- *
  * @author wwinder
  */
 public class VisualizerUtils {
-    
-    public enum Color {
-        RED(255,100,100), 
-        BLUE(0,255,255), 
-        PURPLE(242,0,255), 
-        YELLOW(237,255,0), 
-        OTHER_YELLOW(234,212,7), 
-        GREEN(33,255,0), 
-        WHITE(255,255,255),
-        GRAY(80,80,80),
-        BLACK(0,0,0);
+    private static final Logger LOGGER = Logger.getLogger(VisualizerUtils.class.getSimpleName());
 
-        final byte[] rgb;
-
-        Color(int r, int g, int b) {
-            rgb = new byte[]{(byte)r,(byte)g,(byte)b};
-        }
-
-        public byte[] getBytes() {
-            return rgb;
-        }
-    }
-    
     /**
      * Returns the maximum side dimension of a box containing two points.
      */
@@ -82,9 +68,9 @@ public class VisualizerUtils {
      */
     public static Position findCenter(Position min, Position max) {
         Position center = new Position(
-            (min.x + max.x) / 2.0,
-            (min.y + max.y) / 2.0,
-            (min.z + max.z) / 2.0);
+                (min.x + max.x) / 2.0,
+                (min.y + max.y) / 2.0,
+                (min.z + max.z) / 2.0);
         return center;
     }
 
@@ -93,7 +79,7 @@ public class VisualizerUtils {
      * The buffer factor is how much of a border to leave.
      */
     public static double findScaleFactor(double x, double y, Position min, Position max, double bufferFactor) {
-        
+
         if (y == 0 || x == 0 || min == null || max == null) {
             return 1;
         }
@@ -108,11 +94,13 @@ public class VisualizerUtils {
         }
     }
 
-    /** Constructor to setup the GUI for this Component */
+    /**
+     * Constructor to setup the GUI for this Component
+     */
     public static ArrayList<String> readFiletoArrayList(String gCode) throws IOException {
         ArrayList<String> vect = new ArrayList<>();
         File gCodeFile = new File(gCode);
-        try(FileInputStream fstream = new FileInputStream(gCodeFile)) {
+        try (FileInputStream fstream = new FileInputStream(gCodeFile)) {
             DataInputStream dis = new DataInputStream(fstream);
             BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
             String line;
@@ -126,8 +114,9 @@ public class VisualizerUtils {
 
     /**
      * Determine the ratio of mouse movement to model movement for panning operations on a single axis.
-     * @param objectMin The lowest value on the axis from the model's size.
-     * @param objectMax The highest point on the axis from the model's size.
+     *
+     * @param objectMin     The lowest value on the axis from the model's size.
+     * @param objectMax     The highest point on the axis from the model's size.
      * @param movementRange The length of the axis in the window displaying the model.
      * @return the ratio of the model size to the display size on that axis.
      */
@@ -137,7 +126,193 @@ public class VisualizerUtils {
 
         double objectAxis = Math.abs(objectMax - objectMin);
 
-        return objectAxis / (double)movementRange;
+        return objectAxis / (double) movementRange;
     }
-    
+
+    /**
+     * Helper to create a line segment with flags initialized.
+     */
+    private static LineSegment createLineSegment(Position a, Position b, PointSegment meta) {
+        LineSegment ls = new LineSegment(a, b, meta.getLineNumber());
+        ls.setIsArc(meta.isArc());
+        ls.setIsFastTraverse(meta.isFastTraverse());
+        ls.setIsZMovement(meta.isZMovement());
+        ls.setIsRotation(meta.isRotation());
+        return ls;
+    }
+
+    /**
+     * Turns a point segment into one or more LineSegment. Arcs and rotations around axes are expanded
+     */
+    public static void addLinesFromPointSegment(final Position start, final PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret) {
+        // For a line segment list ALL arcs must be converted to lines.
+        double minArcLength = 0;
+        endSegment.convertToMetric();
+
+        try {
+            // start is null for the first iteration.
+            if (start != null) {
+                // Expand arc for graphics.
+                if (endSegment.isArc()) {
+                    expandArc(start, endSegment, arcSegmentLength, ret, minArcLength);
+                } else if (endSegment.isRotation()) {
+                    expandRotationalLineSegment(start, endSegment, ret);
+                } else {
+                    // Line
+                    ret.add(createLineSegment(start, endSegment.point(), endSegment));
+                }
+            }
+        } catch (Exception e) {
+            String message = endSegment.getLineNumber() + ": " + e.getMessage();
+            GUIHelpers.displayErrorDialog(message, true);
+            LOGGER.log(Level.SEVERE, message, e);
+        }
+    }
+
+    private static void expandArc(Position start, PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret, double minArcLength) {
+        List<Position> points =
+                GcodePreprocessorUtils.generatePointsAlongArcBDring(
+                        start, endSegment.point(), endSegment.center(), endSegment.isClockwise(),
+                        endSegment.getRadius(), minArcLength, arcSegmentLength, new PlaneFormatter(endSegment.getPlaneState()));
+        // Create line segments from points.
+        if (points != null) {
+            Position startPoint = start;
+            for (Position nextPoint : points) {
+                ret.add(createLineSegment(startPoint, nextPoint, endSegment));
+                startPoint = nextPoint;
+            }
+        }
+    }
+
+    private static void expandRotationalLineSegment(Position start, PointSegment endSegment, List<LineSegment> ret) {
+        double maxDegreesPerStep = 5;
+        double deltaA = endSegment.point().a - start.a;
+        double deltaB = endSegment.point().b - start.b;
+        double deltaC = endSegment.point().c - start.c;
+        double steps = Math.max(Math.abs(deltaA), Math.max(Math.abs(deltaB), Math.abs(deltaC))) / maxDegreesPerStep;
+
+        Position startPoint = start;
+        for (int i = 0; i < steps; i++) {
+            Position end = new Position(endSegment.point());
+            if (deltaA != 0) {
+                end.setA(start.a + ((deltaA / steps) * i));
+            }
+            if (deltaB != 0) {
+                end.setA(start.b + ((deltaA / steps) * i));
+            }
+            if (deltaC != 0) {
+                end.setA(start.c + ((deltaA / steps) * i));
+            }
+            ret.add(createLineSegment(startPoint, end, endSegment));
+            startPoint = end;
+        }
+
+        ret.add(createLineSegment(startPoint, endSegment.point(), endSegment));
+    }
+
+    private static double sinIfNotZero(double angle) {
+        return angle == 0 ? 0.0 : Math.sin(Math.toRadians(angle));
+    }
+
+    private static double cosIfNotZero(double angle) {
+        return angle == 0 ? 0.0 : Math.cos(Math.toRadians(angle));
+    }
+
+    public static LineSegment toCartesian(LineSegment p) {
+        Position start = new Position(p.getStart().x, p.getStart().y, p.getStart().z);
+        Position end = new Position(p.getEnd().x, p.getEnd().y, p.getEnd().z);
+
+        if (p.getStart().hasRotation() || p.getEnd().hasRotation()) {
+            start = toCartesian(p.getStart());
+            end = toCartesian(p.getEnd());
+        }
+
+        // TODO: Somehow figure out how to optimize the way Position, Point3d, PointSegment and LineSegment are used.
+        LineSegment next = new LineSegment(start, end, p.getLineNumber());
+        next.setIsArc(p.isArc());
+        next.setIsFastTraverse(p.isFastTraverse());
+        next.setIsRotation(p.isFastTraverse());
+        next.setIsZMovement(p.isZMovement());
+        next.setSpeed(p.getSpeed());
+
+        return next;
+    }
+
+    /**
+     * Converts a position with rotations on either X, Y or Z axes to a cartesian coordinate.
+     *
+     * @param position the position to convert
+     * @return the new position
+     */
+    public static Position toCartesian(Position position) {
+        // There are no rotations happening in the position
+        if (!position.hasRotation()) {
+            return position;
+        }
+
+        Position result = new Position(position.x, position.y, position.z, position.getUnits());
+        double sx = position.x;
+        double sy = position.y;
+        double sz = position.z;
+        double sa = position.a;
+        double sb = position.b;
+        double sc = position.c;
+        double sSinA = sinIfNotZero(sa);
+        double sCosA = cosIfNotZero(sa);
+        double sSinB = sinIfNotZero(sb);
+        double sCosB = cosIfNotZero(sb);
+        double sSinC = sinIfNotZero(sc);
+        double sCosC = cosIfNotZero(sc);
+
+        // X-Axis rotation
+        // x1 = x0
+        // y1 = y0cos(u) − z0sin(u)
+        // z1 = y0sin(u) + z0cos(u)
+        if (sa != 0) {
+            result.y = sy * sCosA - sz * sSinA;
+            result.z = sy * sSinA + sz * sCosA;
+        }
+
+        // Y-Axis rotation
+        // x2 = x1cos(v) + z1sin(v)
+        // y2 = y1
+        // z2 = − x1sin(v) + z1cos(v)
+        if (sb != 0) {
+            result.x = sx * sCosB + sz * sSinB;
+            result.z = -1 * sx * sSinB + sz * sCosB;
+        }
+
+        // Z-Axis rotation
+        // x3 = x2cos(w) − y2sin(w)
+        // y3 = x2sin(w) + y2cos(w)
+        // z3 = z2
+        if (sc != 0) {
+            result.x = sx * sCosC - sy * sSinC;
+            result.y = sx * sSinC + sy * sCosC;
+        }
+        return result;
+    }
+
+    public enum Color {
+        RED(255, 100, 100),
+        BLUE(0, 255, 255),
+        PURPLE(242, 0, 255),
+        YELLOW(237, 255, 0),
+        OTHER_YELLOW(234, 212, 7),
+        GREEN(33, 255, 0),
+        WHITE(255, 255, 255),
+        GRAY(80, 80, 80),
+        BLACK(0, 0, 0);
+
+        final byte[] rgb;
+
+        Color(int r, int g, int b) {
+            rgb = new byte[]{(byte) r, (byte) g, (byte) b};
+        }
+
+        public byte[] getBytes() {
+            return rgb;
+        }
+    }
+
 }
