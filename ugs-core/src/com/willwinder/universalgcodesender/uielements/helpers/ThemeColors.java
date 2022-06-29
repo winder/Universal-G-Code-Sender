@@ -24,6 +24,7 @@ public class ThemeColors {
 
     // Daryl's UI color scheme, compatible with Darcula and most light grey-ish LAF's
     public static final Color VERY_DARK_GREY = new Color(42, 44, 45);
+    public static final Color DARK_GREY = new Color(60, 63, 65);
     public static final Color GREY = new Color(128, 128, 128);
     public static final Color LIGHT_GREY = new Color(201, 201, 201);;
     public static final Color ORANGE = new Color(255, 151, 11);

@@ -19,42 +19,50 @@
 
 package com.willwinder.ugp.welcome.content;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
+import com.willwinder.ugp.welcome.Constants;
+import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
+
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
 
 /**
  * Base class for inner tabs in the Welcome Page
- * 
+ *
  * @author S. Aubrecht
  */
-public abstract class AbstractTab extends JPanel implements Constants {
+public abstract class AbstractTab extends JPanel {
 
     private boolean initialized = false;
-    
-    public AbstractTab( String title ) {
-        super( new BorderLayout() );
-        setName( title );
+
+    public AbstractTab(String title) {
+        super(new BorderLayout());
+        setName(title);
         setOpaque(false);
     }
 
     @Override
     public void addNotify() {
         super.addNotify();
-        if( !initialized ) {
-            add( new ContentHeader(getName()), BorderLayout.NORTH );
-            add( buildContent(), BorderLayout.CENTER );
-            add( new BottomBar(), BorderLayout.SOUTH );
+        if (!initialized) {
+            JComponent component = buildContent();
+
+            if (isDarkLaF()) {
+                component.setForeground(Constants.COLOR_TEXT_DARK_LAF);
+                component.setBackground(Constants.COLOR_CONTENT_BACKGROUND_DARK_LAF);
+            } else {
+                component.setForeground(Constants.COLOR_TEXT);
+                component.setBackground(Constants.COLOR_CONTENT_BACKGROUND);
+            }
+
+            add(component, BorderLayout.CENTER);
             initialized = true;
         }
     }
 
-    protected JLabel getLabel(Font font, String message) {
-        JLabel label = new JLabel("<html>" + message + "</html>");
-        label.setFont(font);
-        return label;
+    protected boolean isDarkLaF() {
+        return UIManager.getBoolean("nb.dark.theme");
     }
 
     protected abstract JComponent buildContent();

@@ -127,11 +127,11 @@ public class FirmwareUtils {
      * @return 
      */
     public static Optional<IController> getControllerFor(String firmware) {
-        if (!configFiles.containsKey(firmware)) {
+        if (!configFiles.containsKey(firmware) || configFiles.get(firmware).loader == null) {
             return Optional.empty();
         }
 
-        return Optional.of(configFiles.get(firmware).loader.getController());
+        return configFiles.get(firmware).loader.getController();
     }
 
     /**
