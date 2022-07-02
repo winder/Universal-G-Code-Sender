@@ -19,63 +19,65 @@
 
 package com.willwinder.ugp.welcome.content;
 
+import com.willwinder.ugp.welcome.Constants;
+import com.willwinder.ugp.welcome.WelcomePageOptions;
+
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import com.willwinder.ugp.welcome.WelcomePageOptions;
 
 /**
- *
  * @author S. Aubrecht
  */
 class ShowNextTime extends JPanel
-        implements ActionListener, Constants, PropertyChangeListener {
+        implements ActionListener, PropertyChangeListener {
 
-    private JCheckBox button;
+    private final JCheckBox button;
 
-    /** Creates a new instance of RecentProjects */
+    /**
+     * Creates a new instance of RecentProjects
+     */
     public ShowNextTime() {
-        super( new BorderLayout() );
+        super(new BorderLayout());
         setOpaque(false);
 
-        button = new JCheckBox( "Show Next Time" ); // NOI18N
-        button.setSelected(WelcomePageOptions.getDefault().isShowOnStartup() );
-        button.setOpaque( false );
-        button.setForeground( Color.white );
-        button.setHorizontalTextPosition( SwingConstants.LEFT );
+        button = new JCheckBox("Show Next Time"); // NOI18N
+        button.setSelected(WelcomePageOptions.getDefault().isShowOnStartup());
+        button.setOpaque(false);
+        button.setForeground(Color.white);
+        button.setHorizontalTextPosition(SwingConstants.LEFT);
+        button.setFont(Constants.TAB_FONT);
         // TODO: tooltips?
         //BundleSupport.setAccessibilityProperties( button, "ShowOnStartup" ); //NOI18N
-        add( button, BorderLayout.CENTER );
-        button.addActionListener( this );
+        add(button, BorderLayout.CENTER);
+        button.addActionListener(this);
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        WelcomePageOptions.getDefault().setShowOnStartup( button.isSelected() );
+        WelcomePageOptions.getDefault().setShowOnStartup(button.isSelected());
     }
 
     @Override
     public void addNotify() {
         super.addNotify();
-        WelcomePageOptions.getDefault().addPropertyChangeListener( this );
+        WelcomePageOptions.getDefault().addPropertyChangeListener(this);
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        WelcomePageOptions.getDefault().removePropertyChangeListener( this );
+        WelcomePageOptions.getDefault().removePropertyChangeListener(this);
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        button.setSelected(WelcomePageOptions.getDefault().isShowOnStartup() );
+        button.setSelected(WelcomePageOptions.getDefault().isShowOnStartup());
     }
-    
-    
 }

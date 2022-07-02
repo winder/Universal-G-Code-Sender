@@ -178,7 +178,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     protected IController fetchControllerFromFirmware(String firmware) throws Exception {
         Optional<IController> c = FirmwareUtils.getControllerFor(firmware);
         if (!c.isPresent()) {
-            throw new Exception("Unable to create handler for: " + firmware);
+            throw new Exception(String.format("Could not find controller implementation for the firmware \"%s\"", firmware));
         }
         return c.get();
     }
