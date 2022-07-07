@@ -1,0 +1,3 @@
+ignore:
+  - "ugs-platform/ugs-platform-plugin-designer/src/main/java/org/kabeja"
+  - "ugs-platform/ugs-platform-plugin-designer/src/main/java/jankovicsandras"

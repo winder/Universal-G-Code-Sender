@@ -19,30 +19,48 @@
 
 package com.willwinder.universalgcodesender.uielements.components;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.Area;
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class RoundedPanel extends JPanel implements MouseListener {
 
-    private int radius;
+    private final int bottomLeft;
+    private final int bottomRight;
+    private final int topLeftRadius;
+    private final int topRightRadius;
+
     private Color hoverBackground;
     private Color pressedBackground;
     private Color backgroundDisabled;
     private Color foregroundDisabled;
     private boolean mouseOver = false;
     private boolean mousePressed = false;
-    private List<RoundedPanelClickListener> listeners = new ArrayList<>();
+    private final List<RoundedPanelClickListener> listeners = new ArrayList<>();
     private Component pressedComponent;
 
     public RoundedPanel(int radius) {
+        this(radius, radius, radius,radius);
+    }
+
+    public RoundedPanel(int bottomLeftRadius, int bottomRightRadius, int topLeftRadius, int topRightRadius) {
         super();
+        this.bottomLeft = bottomLeftRadius;
+        this.bottomRight = bottomRightRadius;
+        this.topLeftRadius = topLeftRadius;
+        this.topRightRadius = topRightRadius;
         setOpaque(false);
-        this.radius = radius;
         addMouseListener(this);
     }
 
@@ -75,7 +93,6 @@ public class RoundedPanel extends JPanel implements MouseListener {
     @Override
     protected void paintComponent(Graphics gfx) {
         super.paintComponent(gfx);
-        Dimension arcs = new Dimension(radius, radius);
         Graphics2D gfx2d = (Graphics2D) gfx;
         gfx2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         gfx2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -95,12 +112,31 @@ public class RoundedPanel extends JPanel implements MouseListener {
             foreground = foregroundDisabled;
         }
 
+        Shape roundedRectangle = createRoundedRectangle();
         gfx2d.setColor(background);
-        gfx2d.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arcs.width, arcs.height);
+        gfx2d.fill(roundedRectangle);
 
         // border
         gfx2d.setColor(foreground);
-        gfx2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arcs.width, arcs.height);
+        gfx2d.draw(roundedRectangle);
+    }
+
+    private Shape createRoundedRectangle() {
+        int width = getWidth() - 1;
+        int height = getHeight() - 1;
+
+        Area area = new Area();
+        Path2D path2D = new Path2D.Double();
+        path2D.moveTo(0, height - bottomLeft);
+        path2D.curveTo(0, height, 0, height, bottomLeft, height);
+        path2D.lineTo(width - bottomRight, height);
+        path2D.curveTo(width, height, width, height, width, height - bottomRight);
+        path2D.lineTo(width, topRightRadius);
+        path2D.curveTo(width, 0, width, 0, width - topRightRadius, 0);
+        path2D.lineTo(topLeftRadius, 0);
+        path2D.curveTo(0, 0, 0, 0, 0, topLeftRadius);
+        area.add(new Area(path2D));
+        return area;
     }
 
     @Override
@@ -127,7 +163,7 @@ public class RoundedPanel extends JPanel implements MouseListener {
         if (!isEnabled()) return;
         listeners.forEach(RoundedPanelClickListener::onReleased);
 
-        if(pressedComponent.contains(exc.getPoint())) {
+        if (pressedComponent.contains(exc.getPoint())) {
             listeners.forEach(RoundedPanelClickListener::onClick);
         }
     }

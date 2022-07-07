@@ -146,7 +146,7 @@ if __name__ == '__main__':
     checkForMissingMapping()
 
     if not args.upload and not args.download:
-        print("Usage: run with 'upload' and/or 'download' argument to upload terms and/or download translations.")
+        print("Usage: run with '--upload' and/or '--download' argument to upload terms and/or download translations.")
         sys.exit(0)
 
     # Upload new terms.
