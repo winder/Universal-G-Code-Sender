@@ -37,6 +37,8 @@ public class StatusPollTimer {
     private final IController controller;
     private Timer timer;
     private int outstandingPolls;
+    private int updateInterval;
+    private boolean isEnabled = false;
 
     public StatusPollTimer(IController controller) {
         this.controller = controller;
@@ -46,7 +48,7 @@ public class StatusPollTimer {
      * Begin issuing status request commands.
      */
     public void start() {
-        if (controller.getStatusUpdatesEnabled()) {
+        if (isEnabled) {
             if (timer == null) {
                 timer = createTimer();
             }
@@ -64,7 +66,7 @@ public class StatusPollTimer {
     private Timer createTimer() {
         stop();
 
-        return new Timer(controller.getStatusUpdateRate(), actionEvent -> {
+        return new Timer(updateInterval, actionEvent -> {
             try {
                 if (outstandingPolls == 0) {
                     outstandingPolls++;
@@ -99,5 +101,35 @@ public class StatusPollTimer {
      */
     public void receivedStatus() {
         outstandingPolls = 0;
+    }
+
+    /**
+     * Sets the update interval in milliseconds minimum value allowed is 10ms
+     *
+     * @param updateInterval the update interval in milliseconds
+     */
+    public void setUpdateInterval(int updateInterval) {
+        this.updateInterval = Math.max(updateInterval, 10);
+        if (timer.isRunning()) {
+            stop();
+            start();
+        }
+    }
+
+    public int getUpdateInterval() {
+        return updateInterval;
+    }
+
+    public void setEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
+        if (isEnabled) {
+            start();
+        } else {
+            stop();
+        }
+    }
+
+    public boolean isEnabled() {
+        return this.isEnabled;
     }
 }

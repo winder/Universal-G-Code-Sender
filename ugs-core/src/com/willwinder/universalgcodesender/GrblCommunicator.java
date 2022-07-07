@@ -32,13 +32,13 @@ public class GrblCommunicator extends BufferedCommunicator {
     private final static String EEPROM_COMMAND_PATTERN = "G10|G28|G30|\\$x=|\\$I|\\$N|\\$RST=|G5[456789]|\\$\\$|\\$#";
     private final static Pattern EEPROM_COMMAND = Pattern.compile(EEPROM_COMMAND_PATTERN, Pattern.CASE_INSENSITIVE);
     
-    protected GrblCommunicator() {}
+    public GrblCommunicator() {}
 
     /**
      * This constructor is for dependency injection so a mock serial device can
      * act as GRBL.
      */
-    protected GrblCommunicator(LinkedBlockingDeque<GcodeCommand> cb, LinkedBlockingDeque<GcodeCommand> asl, Connection c) {
+    public GrblCommunicator(LinkedBlockingDeque<GcodeCommand> cb, LinkedBlockingDeque<GcodeCommand> asl, Connection c) {
         super(cb, asl);
         this.connection = c;
         this.connection.addListener(this);

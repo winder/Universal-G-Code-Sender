@@ -340,7 +340,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public CommunicatorState getControlState() {
         logger.log(Level.FINEST, "Getting control state.");
         return this.controller == null ?
-                CommunicatorState.COMM_DISCONNECTED : this.controller.getControlState();
+                CommunicatorState.COMM_DISCONNECTED : this.controller.getCommunicatorState();
     }
 
     @Override

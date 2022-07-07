@@ -37,6 +37,7 @@ public class ControllerStatus {
     private final AccessoryStates accessoryStates;
     private final ControllerState state;
     private final UnitUtils.Units feedSpeedUnits;
+    private final String subState;
 
     /**
      * Baseline constructor. This data should always be present. Represents the
@@ -57,7 +58,18 @@ public class ControllerStatus {
                             Position workCoord, Double feedSpeed, UnitUtils.Units feedSpeedUnits, Double spindleSpeed,
                             OverridePercents overrides, Position workCoordinateOffset,
                             EnabledPins pins, AccessoryStates states) {
+        this(state, "", machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, pins, states);
+    }
+
+    /**
+     * Additional parameters
+     */
+    public ControllerStatus(ControllerState state, String subState, Position machineCoord,
+                            Position workCoord, Double feedSpeed, UnitUtils.Units feedSpeedUnits, Double spindleSpeed,
+                            OverridePercents overrides, Position workCoordinateOffset,
+                            EnabledPins pins, AccessoryStates states) {
         this.state = state;
+        this.subState = subState;
         this.machineCoord = machineCoord;
         this.workCoord = workCoord;
         this.workCoordinateOffset = workCoordinateOffset;
@@ -121,6 +133,10 @@ public class ControllerStatus {
     @Override
     public int hashCode() {
         return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    public String getSubState() {
+        return subState;
     }
 
     public static class EnabledPins {

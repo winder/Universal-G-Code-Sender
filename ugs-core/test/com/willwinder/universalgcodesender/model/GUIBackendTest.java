@@ -158,7 +158,7 @@ public class GUIBackendTest {
 
     @Test
     public void pauseResumeWhenInIdleShouldThrowException() throws Exception {
-        when(controller.getControlState()).thenReturn(CommunicatorState.COMM_IDLE);
+        when(controller.getCommunicatorState()).thenReturn(CommunicatorState.COMM_IDLE);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
         try {
@@ -174,7 +174,7 @@ public class GUIBackendTest {
 
     @Test
     public void pauseResumeWhenDisconnectedShouldThrowException() throws Exception {
-        when(controller.getControlState()).thenReturn(CommunicatorState.COMM_DISCONNECTED);
+        when(controller.getCommunicatorState()).thenReturn(CommunicatorState.COMM_DISCONNECTED);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
         try {
@@ -190,7 +190,7 @@ public class GUIBackendTest {
 
     @Test
     public void pauseResumeWhenSendingShouldPause() throws Exception {
-        when(controller.getControlState()).thenReturn(CommunicatorState.COMM_SENDING);
+        when(controller.getCommunicatorState()).thenReturn(CommunicatorState.COMM_SENDING);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
         instance.pauseResume();
@@ -201,7 +201,7 @@ public class GUIBackendTest {
 
     @Test
     public void pauseResumeWhenPausedShouldResume() throws Exception {
-        when(controller.getControlState()).thenReturn(CommunicatorState.COMM_SENDING_PAUSED);
+        when(controller.getCommunicatorState()).thenReturn(CommunicatorState.COMM_SENDING_PAUSED);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
         instance.pauseResume();
@@ -423,7 +423,7 @@ public class GUIBackendTest {
     public void getControlStateShouldBeOkWhenConnected() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
-        when(controller.getControlState()).thenReturn(CommunicatorState.COMM_IDLE);
+        when(controller.getCommunicatorState()).thenReturn(CommunicatorState.COMM_IDLE);
         CommunicatorState result = instance.getControlState();
         assertEquals(CommunicatorState.COMM_IDLE, result);
     }

@@ -132,8 +132,8 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
         JScrollPane settingsTableScrollPane = new JScrollPane();
         settingsTableScrollPane.setViewportView(settingsTable);
         settingsTable.getTableHeader().setReorderingAllowed(false);
-        settingsTable.getColumnModel().getColumn(0).setMinWidth(60);
-        settingsTable.getColumnModel().getColumn(0).setMaxWidth(80);
+        settingsTable.getColumnModel().getColumn(0).setMinWidth(200);
+        settingsTable.getColumnModel().getColumn(0).setMaxWidth(500);
         settingsTable.getColumnModel().getColumn(2).setPreferredWidth(85);
 
         GroupLayout layout = new GroupLayout(getContentPane());

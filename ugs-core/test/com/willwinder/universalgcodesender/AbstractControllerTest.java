@@ -80,8 +80,6 @@ public class AbstractControllerTest {
                         "isReadyToStreamCommandsEvent",
                         "isReadyToSendCommandsEvent",
                         "rawResponseHandler",
-                        "statusUpdatesEnabledValueChanged",
-                        "statusUpdatesRateValueChanged",
                         "isCommOpen")
                 .withConstructor(ICommunicator.class)
                 .withArgs(mockCommunicator);

@@ -60,15 +60,11 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     protected MessageService messageService;
     protected GcodeCommandCreator commandCreator;
 
-    // Outside influence
-    private boolean statusUpdatesEnabled = true;
-    private int statusUpdateRate = 200;
-
     // Added value
     private Boolean isStreaming = false;
 
     // For keeping track of the time spent streaming a file
-    private StopWatch streamStopWatch = new StopWatch();
+    private final StopWatch streamStopWatch = new StopWatch();
 
     // This metadata needs to be cached instead of looked up from queues and
     // streams, because those sources may be compromised during a cancel.
@@ -85,11 +81,11 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     //   2) As commands are sent by the Communicator create a GCodeCommand
     //      (with command number) object and add it to the activeCommands list.
     //   3) As commands are completed remove them from the activeCommand list.
-    private ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
+    private final ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
     private IGcodeStreamReader streamCommands;    // The stream of commands to send.
 
     // Listeners
-    private List<ControllerListener> listeners;
+    private final List<ControllerListener> listeners;
 
     //Track current mode to restore after jogging
     private String distanceModeCode = null;
@@ -304,18 +300,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     }
 
     /**
-     * Notifies that the status update has been enabled or disabled.
-     * The rate can be retrieved from {@link #getStatusUpdatesEnabled()}
-     */
-    abstract protected void statusUpdatesEnabledValueChanged();
-
-    /**
-     * Notifies that the status update rate has changed.
-     * The rate can be retrieved from {@link #getStatusUpdateRate()}
-     */
-    abstract protected void statusUpdatesRateValueChanged();
-
-    /**
      * Accessible so that it can be configured.
      * @return
      */
@@ -347,32 +331,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
             return this.comm.getSingleStepMode();
         }
         return false;
-    }
-
-    @Override
-    public void setStatusUpdatesEnabled(boolean enabled) {
-        if (this.statusUpdatesEnabled != enabled) {
-            this.statusUpdatesEnabled = enabled;
-            statusUpdatesEnabledValueChanged();
-        }
-    }
-
-    @Override
-    public boolean getStatusUpdatesEnabled() {
-        return this.statusUpdatesEnabled;
-    }
-
-    @Override
-    public void setStatusUpdateRate(int rate) {
-        if (this.statusUpdateRate != rate) {
-            this.statusUpdateRate = rate;
-            statusUpdatesRateValueChanged();
-        }
-    }
-
-    @Override
-    public int getStatusUpdateRate() {
-        return this.statusUpdateRate;
     }
 
     @Override
@@ -633,19 +591,19 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     }
 
     @Override
-    public CommunicatorState getControlState() {
+    public CommunicatorState getCommunicatorState() {
         return this.currentState;
     }
 
     @Override
     public Boolean isPaused() {
-        return getControlState() == COMM_SENDING_PAUSED;
+        return getCommunicatorState() == COMM_SENDING_PAUSED;
     }
 
     @Override
     public Boolean isIdle() {
         try {
-            return (getControlState() == COMM_IDLE || getControlState() == COMM_CHECK) && isIdleEvent();
+            return (getCommunicatorState() == COMM_IDLE || getCommunicatorState() == COMM_CHECK) && isIdleEvent();
         } catch (Exception e) {
             return false;
         }
@@ -747,7 +705,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
             String streamName = "queued commands";
 
             // Make sure the GUI gets updated when the file finishes
-            this.dispatchStateChange(getControlState());
+            this.dispatchStateChange(getCommunicatorState());
             this.fileStreamComplete(streamName, true);
         }
     }

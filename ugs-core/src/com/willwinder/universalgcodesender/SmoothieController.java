@@ -65,7 +65,7 @@ public class SmoothieController extends AbstractController {
 
     @Override
     protected Boolean isIdleEvent() {
-        return getControlState() == COMM_IDLE || getControlState() == COMM_CHECK;
+        return getCommunicatorState() == COMM_IDLE || getCommunicatorState() == COMM_CHECK;
     }
 
     @Override
@@ -195,29 +195,33 @@ public class SmoothieController extends AbstractController {
 
         UnitUtils.Units currentUnits = getCurrentGcodeState().getUnits();
         controllerStatus = SmoothieUtils.getStatusFromStatusString(controllerStatus, response, currentUnits);
-        dispatchStateChange(getControlState());
+        dispatchStateChange(getCommunicatorState());
         dispatchStatusString(controllerStatus);
-    }
-
-    @Override
-    protected void statusUpdatesEnabledValueChanged() {
-        if (getStatusUpdatesEnabled()) {
-            statusPollTimer.stop();
-            statusPollTimer.start();
-        } else {
-            statusPollTimer.stop();
-        }
-    }
-
-    @Override
-    protected void statusUpdatesRateValueChanged() {
-        statusPollTimer.stop();
-        statusPollTimer.start();
     }
 
     @Override
     public void sendOverrideCommand(Overrides command) {
 
+    }
+
+    @Override
+    public boolean getStatusUpdatesEnabled() {
+        return statusPollTimer.isEnabled();
+    }
+
+    @Override
+    public void setStatusUpdatesEnabled(boolean enabled) {
+        statusPollTimer.setEnabled(enabled);
+    }
+
+    @Override
+    public int getStatusUpdateRate() {
+        return statusPollTimer.getUpdateInterval();
+    }
+
+    @Override
+    public void setStatusUpdateRate(int rate) {
+        statusPollTimer.setUpdateInterval(rate);
     }
 
     @Override
@@ -273,7 +277,7 @@ public class SmoothieController extends AbstractController {
     }
 
     @Override
-    public CommunicatorState getControlState() {
+    public CommunicatorState getCommunicatorState() {
         ControllerState state = controllerStatus.getState();
         switch(state) {
             case JOG:

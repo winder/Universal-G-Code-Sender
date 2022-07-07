@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbp.core.windows;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.AbstractCommunicator;
 import com.willwinder.universalgcodesender.ICommunicator;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
@@ -146,7 +145,7 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
         labels.get("controller:getSingleStepMode").setText(String.valueOf(controller.getSingleStepMode()));
         labels.get("controller:getStatusUpdatesEnabled").setText(String.valueOf(controller.getStatusUpdatesEnabled()));
         labels.get("controller:getStatusUpdateRate").setText(String.valueOf(controller.getStatusUpdateRate()));
-        labels.get("controller:getControlState").setText(String.valueOf(controller.getControlState()));
+        labels.get("controller:getCommunicatorState").setText(String.valueOf(controller.getCommunicatorState()));
 
         IFirmwareSettings firmwareSettings = controller.getFirmwareSettings();
         if(firmwareSettings != null) {

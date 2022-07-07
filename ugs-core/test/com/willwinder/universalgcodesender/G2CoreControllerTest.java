@@ -82,7 +82,7 @@ public class G2CoreControllerTest {
         controller.rawResponseHandler("{\"ack\":true}");
 
         // Then
-        verify(communicator, times(11)).queueCommand(any(GcodeCommand.class));
+        verify(communicator, times(12)).queueCommand(any(GcodeCommand.class));
         verify(communicator).streamCommands();
 
         assertEquals("{ej:1}", queueCommandArgumentCaptor.getAllValues().get(0).getCommandString());
@@ -148,55 +148,55 @@ public class G2CoreControllerTest {
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 1}}");
         assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getCommunicatorState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 2}}");
         assertEquals(ControllerState.ALARM, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getCommunicatorState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 3}}");
         assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getCommunicatorState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 4}}");
         assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getCommunicatorState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 5}}");
         assertEquals(ControllerState.RUN, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_SENDING, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_SENDING, controller.getCommunicatorState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 6}}");
         assertEquals(ControllerState.HOLD, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_SENDING_PAUSED, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_SENDING_PAUSED, controller.getCommunicatorState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 7}}");
         assertEquals(ControllerState.UNKNOWN, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getCommunicatorState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 8}}");
         assertEquals(ControllerState.UNKNOWN, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getCommunicatorState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 9}}");
         assertEquals(ControllerState.HOME, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getCommunicatorState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 10}}");
         assertEquals(ControllerState.JOG, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_SENDING, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_SENDING, controller.getCommunicatorState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 11}}");
         assertEquals(ControllerState.UNKNOWN, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getCommunicatorState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 12}}");
         assertEquals(ControllerState.UNKNOWN, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getCommunicatorState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 13}}");
         assertEquals(ControllerState.ALARM, controller.getControllerStatus().getState());
-        assertEquals(CommunicatorState.COMM_IDLE, controller.getControlState());
+        assertEquals(CommunicatorState.COMM_IDLE, controller.getCommunicatorState());
     }
 
     @Test

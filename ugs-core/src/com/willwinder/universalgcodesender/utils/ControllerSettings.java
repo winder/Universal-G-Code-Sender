@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCController;
 import com.willwinder.universalgcodesender.G2CoreController;
 import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.GrblEsp32Controller;
@@ -45,6 +46,32 @@ public class ControllerSettings {
     Integer Version = 0;
     ControllerConfig Controller;
     ProcessorConfigGroups GcodeProcessors;
+
+    public enum CONTROLLER {
+        GRBL("GRBL"),
+        GRBL_ESP32("GRBL ESP32"),
+        FLUIDNC("FluidNC"),
+        SMOOTHIE("SmoothieBoard"),
+        TINYG("TinyG"),
+        G2CORE("g2core"),
+        XLCD("XLCD"),
+        LOOPBACK("Loopback"),
+        LOOPBACK_SLOW("Loopback_Slow");
+
+        final String name;
+        CONTROLLER(String name) {
+            this.name = name;
+        }
+
+        public static CONTROLLER fromString(String name) {
+            for (CONTROLLER c : values()) {
+                if (c.name.equalsIgnoreCase(name)) {
+                    return c;
+                }
+            }
+            return null;
+        }
+    }
 
     public String getName() {
         return Name;
@@ -86,6 +113,8 @@ public class ControllerSettings {
                 return Optional.of(new GrblController(new LoopBackCommunicator()));
             case LOOPBACK_SLOW:
                 return Optional.of(new GrblController(new LoopBackCommunicator(100)));
+            case FLUIDNC:
+                return Optional.of(new FluidNCController());
             default:
                 return Optional.empty();
         }
@@ -109,32 +138,6 @@ public class ControllerSettings {
 
     public ProcessorConfigGroups getProcessorConfigs() {
         return this.GcodeProcessors;
-    }
-
-    public enum CONTROLLER {
-        GRBL("GRBL"),
-        GRBL_ESP32("GRBL ESP32"),
-        SMOOTHIE("SmoothieBoard"),
-        TINYG("TinyG"),
-        G2CORE("g2core"),
-        XLCD("XLCD"),
-        LOOPBACK("Loopback"),
-        LOOPBACK_SLOW("Loopback_Slow");
-
-        final String name;
-
-        CONTROLLER(String name) {
-            this.name = name;
-        }
-
-        public static CONTROLLER fromString(String name) {
-            for (CONTROLLER c : values()) {
-                if (c.name.equalsIgnoreCase(name)) {
-                    return c;
-                }
-            }
-            return null;
-        }
     }
 
     static public class ProcessorConfig {
