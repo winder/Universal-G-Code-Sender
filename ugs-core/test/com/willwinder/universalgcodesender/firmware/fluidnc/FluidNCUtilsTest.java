@@ -44,7 +44,4 @@ public class FluidNCUtilsTest {
         assertEquals(semanticVersion.getMinor(), 4);
         assertEquals(semanticVersion.getPatch(), 0);
     }
-
-    public void testGetVersion() {
-    }
 }
