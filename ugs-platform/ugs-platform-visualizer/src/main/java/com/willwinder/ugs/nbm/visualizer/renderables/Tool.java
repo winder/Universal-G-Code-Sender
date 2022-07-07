@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,10 +23,13 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
+
 import java.awt.Color;
+
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL;
 
 /**
  *
@@ -43,7 +46,7 @@ public final class Tool extends Renderable {
     }
 
     @Override
-    final public void reloadPreferences(VisualizerOptions vo) {
+    public void reloadPreferences(VisualizerOptions vo) {
         toolColor = vo.getOptionForKey(VISUALIZER_OPTION_TOOL).value;
     }
 
@@ -66,11 +69,17 @@ public final class Tool extends Renderable {
     @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
         GL2 gl = drawable.getGL().getGL2();
-        
+
+        Position position = VisualizerUtils.toCartesian(workCoord);
+
         double scale = 1. / scaleFactor;
         gl.glPushMatrix();
-            gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
+            gl.glTranslated(position.x, position.y, position.z);
             gl.glScaled(scale, scale, scale);
+
+            gl.glRotated(workCoord.a, 1.0d, 0.0d, 0.0d);   //X
+            gl.glRotated(workCoord.b, 0.0d, 1.0d, 0.0d);   //Y
+            gl.glRotated(workCoord.c, 0.0d, 0.0d, 1.0d);   //Z
 
             gl.glColor4fv(VisualizerOptions.colorToFloatArray(toolColor), 0);
             glu.gluQuadricNormals(gq, GLU.GLU_SMOOTH);

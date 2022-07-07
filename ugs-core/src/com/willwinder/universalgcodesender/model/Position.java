@@ -142,6 +142,15 @@ public class Position extends CNCPoint {
         return (this.a != next.a) || (this.b != next.b) || (this.c != next.c);
     }
 
+    /**
+     * Returns true if the position has any rotation
+     *
+     * @return true if the position contains rotations
+     */
+    public boolean hasRotation() {
+        return a != 0 || b != 0 || c != 0;
+    }
+
     public void set(Axis axis, double value) {
         switch (axis) {
             case X:

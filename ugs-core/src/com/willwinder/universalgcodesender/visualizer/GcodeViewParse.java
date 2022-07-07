@@ -5,7 +5,7 @@
  */
 
 /*
-    Copyright 2013-2017 Noah Levy, William Winder
+    Copyright 2013-2022 Noah Levy, William Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,28 +27,20 @@ package com.willwinder.universalgcodesender.visualizer;
 
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
-import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
-import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.types.PointSegment;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class GcodeViewParse {
-    Logger LOGGER = Logger.getLogger(GcodeViewParse.class.getName());
-
     // Parsed object
     private final Position min;
     private final Position max;
@@ -65,12 +57,12 @@ public class GcodeViewParse {
     {
         return min;
     }
-    
+
     public Position getMaximumExtremes()
     {
         return max;
     }
-    
+
     /**
      * Test a point and update min/max coordinates if appropriate.
      */
@@ -78,7 +70,7 @@ public class GcodeViewParse {
     {
         testExtremes(p3d.x, p3d.y, p3d.z);
     }
-    
+
     /**
      * Test a point and update min/max coordinates if appropriate.
      */
@@ -118,7 +110,6 @@ public class GcodeViewParse {
         GcodeParser gp = new GcodeParser();
         gp.addCommandProcessor(new CommentProcessor());
         gp.addCommandProcessor(new WhitespaceProcessor());
-        //gp.addCommandProcessor(new ArcExpander(true, arcSegmentLength, 4));
         return gp;
     }
 
@@ -127,7 +118,7 @@ public class GcodeViewParse {
      * I've tried refactoring this, but the function is so small that merging
      * toObjFromReader and toObjRedux adds more complexity than having these two
      * methods.
-     * 
+     *
      * @param reader a stream with commands to parse.
      * @param arcSegmentLength length of line segments when expanding an arc.
      */
@@ -146,16 +137,25 @@ public class GcodeViewParse {
                 List<GcodeMeta> points = gp.addCommand(command, commandObject.getCommandNumber());
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
-                        addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
+                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
                         start = meta.point.point();
                     }
                 }
             }
         }
 
+        recalculateBoundaries();
         return lines;
     }
-    
+
+    private void recalculateBoundaries() {
+        // Calculate the boundaries
+        lines.forEach(lineSegment -> {
+            testExtremes(lineSegment.getStart());
+            testExtremes(lineSegment.getEnd());
+        });
+    }
+
     /**
      * The original (working) gcode to LineSegment collection code.
      *
@@ -176,7 +176,7 @@ public class GcodeViewParse {
                 List<GcodeMeta> points = gp.addCommand(command);
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
-                        addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
+                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
                         // if the last set point is in a different or unknown unit, crate a new point-instance with the correct unit set
                         if (start.getUnits() != UnitUtils.Units.MM && gp.getCurrentState().isMetric){
                             start=new Position(
@@ -196,60 +196,8 @@ public class GcodeViewParse {
                 }
             }
         }
-        
+
+        recalculateBoundaries();
         return lines;
-    }
-    
-    /**
-     * Helper to create a line segment with flags initialized.
-     */
-    private static LineSegment createLineSegment(Position a, Position b, PointSegment meta) {
-      LineSegment ls = new LineSegment(a, b, meta.getLineNumber());
-      ls.setIsArc(meta.isArc());
-      ls.setIsFastTraverse(meta.isFastTraverse());
-      ls.setIsZMovement(meta.isZMovement());
-      ls.setIsRotation(meta.isRotation());
-      return ls;
-    }
-
-    /**
-     * Turns a point segment into one or more LineSegment. Arcs are expanded.
-     * Keeps track of the minimum and maximum x/y/z locations.
-     */
-    private void addLinesFromPointSegment(final Position start, final PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret) {
-        // For a line segment list ALL arcs must be converted to lines.
-        double minArcLength = 0;
-        LineSegment ls;
-        endSegment.convertToMetric();
-
-        try {
-            // start is null for the first iteration.
-            if (start != null) {
-                // Expand arc for graphics.
-                if (endSegment.isArc()) {
-                    List<Position> points =
-                        GcodePreprocessorUtils.generatePointsAlongArcBDring(
-                            start, endSegment.point(), endSegment.center(), endSegment.isClockwise(),
-                            endSegment.getRadius(), minArcLength, arcSegmentLength, new PlaneFormatter(endSegment.getPlaneState()));
-                    // Create line segments from points.
-                    if (points != null) {
-                        Position startPoint = start;
-                        for (Position nextPoint : points) {
-                            ret.add(createLineSegment(startPoint, nextPoint, endSegment));
-                            this.testExtremes(nextPoint);
-                            startPoint = nextPoint;
-                        }
-                    }
-                // Line
-                } else {
-                    ret.add(createLineSegment(start, endSegment.point(), endSegment));
-                    this.testExtremes(endSegment.point());
-                }
-            }
-        } catch (Exception e) {
-            String message = endSegment.getLineNumber() + ": " + e.getMessage();
-            GUIHelpers.displayErrorDialog(message, true);
-            LOGGER.log(Level.SEVERE, message, e);
-        }
     }
 }
