@@ -34,8 +34,11 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import java.awt.event.ActionEvent;
+import java.io.File;
 
 @ActionID(
         category = LocalizingService.OpenCategory,
@@ -63,6 +66,10 @@ public final class OpenAction extends AbstractAction {
     private final JFileChooser fileChooser;
 
     public OpenAction() {
+        this(CentralLookup.getDefault().lookup(BackendAPI.class).getSettings().getLastOpenedFilename());
+    }
+
+    public OpenAction(String directory) {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.fileFilterService = Lookup.getDefault().lookup(FileFilterService.class);
 
@@ -71,7 +78,7 @@ public final class OpenAction extends AbstractAction {
         putValue("menuText", LocalizingService.OpenTitle);
         putValue(NAME, LocalizingService.OpenTitle);
 
-        fileChooser = createFileChooser();
+        fileChooser = createFileChooser(directory);
     }
 
     @Override
@@ -87,23 +94,26 @@ public final class OpenAction extends AbstractAction {
         int returnVal = fileChooser.showOpenDialog(new JFrame());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
-                if (EditorUtils.closeOpenEditors()) {
-                    backend.getSettings().setLastOpenedFilename(fileChooser.getSelectedFile().getAbsolutePath());
-                    DataObject.find(FileUtil.toFileObject(fileChooser.getSelectedFile()))
-                            .getLookup()
-                            .lookup(OpenCookie.class)
-                            .open();
-                }
+                File selectedFile = fileChooser.getSelectedFile();
+                openFile(selectedFile);
             } catch (DataObjectNotFoundException ex) {
                 ex.printStackTrace();
             }
         }
     }
 
-    private JFileChooser createFileChooser() {
-        String sourceDir = backend.getSettings().getLastOpenedFilename();
+    public void openFile(File selectedFile) throws DataObjectNotFoundException {
+        if (EditorUtils.closeOpenEditors()) {
+            backend.getSettings().setLastOpenedFilename(selectedFile.getAbsolutePath());
+            DataObject.find(FileUtil.toFileObject(selectedFile))
+                    .getLookup()
+                    .lookup(OpenCookie.class)
+                    .open();
+        }
+    }
 
-        JFileChooser fileChooser = new JFileChooser(sourceDir);
+    private JFileChooser createFileChooser(String directory) {
+        JFileChooser fileChooser = new JFileChooser(directory);
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setFileHidingEnabled(true);
         fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);

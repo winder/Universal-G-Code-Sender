@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,80 +19,114 @@
 package com.willwinder.ugp.welcome;
 
 import com.willwinder.ugp.welcome.content.AbstractTab;
-import com.willwinder.ugp.welcome.content.Constants;
-import com.willwinder.ugp.welcome.content.ContentSection;
 import com.willwinder.ugp.welcome.content.JLinkButton;
+import com.willwinder.ugs.nbp.core.actions.OpenAction;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.utils.SwingHelpers;
+import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
+import net.miginfocom.swing.MigLayout;
+import org.openide.loaders.DataObjectNotFoundException;
+
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import net.miginfocom.swing.MigLayout;
 
 /**
- *
  * @author wwinder
  */
-public class RecentWorkTab extends AbstractTab implements Constants {
-  private static Logger logger = Logger.getLogger(RecentWorkTab.class.getName());
-  private final BackendAPI backend;
+public class RecentWorkTab extends AbstractTab {
+    private static final Logger LOGGER = Logger.getLogger(RecentWorkTab.class.getName());
+    private final BackendAPI backend;
 
-  public RecentWorkTab() {
-    super("Recent Work");
-    backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-  }
-
-  @Override
-  protected JComponent buildContent() {
-    JPanel recentFiles = new JPanel(new MigLayout("fillx, wrap 1"));
-    JLabel fileLabel = new JLabel("Files");
-    fileLabel.setFont(RecentWorkTab.CONTENT_HEADER_FONT);
-    recentFiles.add(fileLabel);
-    Collection<String> files = backend.getSettings().getRecentFiles();
-    if (files != null && !files.isEmpty()) {
-      for (String file : files) {
-        final Path p = Paths.get(file);
-        JLinkButton button = new JLinkButton(p.getFileName().toString());
-        button.addActionListener(l -> GUIHelpers.openGcodeFile(p.toFile(), backend));
-        recentFiles.add(button);
-      }
-    } else {
-      logger.log(Level.INFO, "No files for recent work tab.");
-      recentFiles.add(new JLabel("none yet."));
+    public RecentWorkTab() {
+        super("Recent Work");
+        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
     }
 
-    JPanel recentDirectories = new JPanel(new MigLayout("fillx, wrap 1"));
-    JLabel dirLabel = new JLabel("Directories");
-    dirLabel.setFont(RecentWorkTab.CONTENT_HEADER_FONT);
-    recentDirectories.add(dirLabel);
-    Collection<String> directories = backend.getSettings().getRecentDirectories();
-    if (directories != null && !directories.isEmpty()) {
-      for (String directory : directories) {
+    @Override
+    protected JComponent buildContent() {
+        JPanel recentFiles = new JPanel(new MigLayout("fillx, wrap 1"));
+        recentFiles.setOpaque(false);
+        JLabel fileLabel = new JLabel("Files");
+        fileLabel.setFont(Constants.CONTENT_HEADER_FONT);
+        fileLabel.setForeground(Constants.COLOR_TEXT);
+        recentFiles.add(fileLabel);
+
+        Collection<String> files = backend.getSettings().getRecentFiles();
+        if (files != null && !files.isEmpty()) {
+            for (String file : files) {
+                final Path p = Paths.get(file);
+                if (p.toFile().exists()) {
+                    recentFiles.add(createFileButton(p));
+                }
+            }
+        } else {
+            LOGGER.log(Level.INFO, "No files for recent work tab.");
+            recentFiles.add(new JLabel("none yet."));
+        }
+
+        JPanel recentDirectories = new JPanel(new MigLayout("fillx, wrap 1"));
+        recentDirectories.setOpaque(false);
+        JLabel dirLabel = new JLabel("Directories");
+        dirLabel.setFont(Constants.CONTENT_HEADER_FONT);
+        dirLabel.setForeground(Constants.COLOR_TEXT);
+        recentDirectories.add(dirLabel);
+
+        Collection<String> directories = backend.getSettings().getRecentDirectories();
+        if (directories != null && !directories.isEmpty()) {
+            for (String directory : directories) {
+                recentDirectories.add(createOpenDirectoryButton(directory));
+            }
+        } else {
+            LOGGER.log(Level.INFO, "No directories for recent work tab.");
+            recentDirectories.add(new JLabel("none yet."));
+        }
+
+        JPanel panel = new JPanel(new GridLayout(1, 0));
+        panel.setOpaque(true);
+        panel.add(recentDirectories);
+        panel.add(recentFiles);
+        return panel;
+    }
+
+    private JLinkButton createOpenDirectoryButton(String directory) {
         JLinkButton button = new JLinkButton(directory);
+        button.setToolTipText(directory);
+        button.setBorder(BorderFactory.createEmptyBorder(4, 0, 4, 0));
+        if (isDarkLaF()) {
+            button.setLinkColor(ThemeColors.LIGHT_BLUE_GREY);
+        }
+
         button.addActionListener(l -> {
-            SwingHelpers
-                .openFile(directory)
-                .ifPresent((c) ->  GUIHelpers.openGcodeFile(c.getAbsoluteFile(), backend));
+            OpenAction openAction = new OpenAction(directory);
+            openAction.actionPerformed(new ActionEvent(this, 0, ""));
         });
-        recentDirectories.add(button);
-      }
-    } else {
-      logger.log(Level.INFO, "No directories for recent work tab.");
-      recentDirectories.add(new JLabel("none yet."));
+        return button;
     }
 
-    JPanel panel = new JPanel(new GridLayout(1,0));
-    panel.setOpaque(false);
-    panel.add(new ContentSection( recentDirectories, false ));
-    panel.add(new ContentSection( recentFiles, false ));
-    return panel;
-  }
+    private JLinkButton createFileButton(Path p) {
+        JLinkButton button = new JLinkButton(p.getFileName().toString());
+        button.setToolTipText(p.toFile().getAbsolutePath());
+        button.setBorder(BorderFactory.createEmptyBorder(4, 0, 4, 0));
+        if (isDarkLaF()) {
+            button.setLinkColor(ThemeColors.LIGHT_BLUE_GREY);
+        }
+
+        button.addActionListener(l -> {
+            try {
+                new OpenAction().openFile(p.toFile());
+            } catch (DataObjectNotFoundException e) {
+                LOGGER.log(Level.SEVERE, "Could not open file " + p, e);
+            }
+        });
+        return button;
+    }
 }
