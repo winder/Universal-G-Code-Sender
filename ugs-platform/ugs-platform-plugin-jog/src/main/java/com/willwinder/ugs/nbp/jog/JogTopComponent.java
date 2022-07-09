@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbp.jog.actions.UseSeparateStepSizeAction;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -30,15 +31,15 @@ import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
+import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 
-import java.awt.*;
-import org.openide.util.Lookup;
-
 import javax.swing.JPopupMenu;
+import java.awt.BorderLayout;
 
 /**
  * The jog control panel in NetBeans
@@ -123,10 +124,9 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
 
     @Override
     public void UGSEvent(UGSEvent event) {
-        if (event instanceof ControllerStateEvent) {
-            updateControls();
-        } else if (event instanceof SettingChangedEvent) {
+        if (event instanceof ControllerStateEvent || event instanceof SettingChangedEvent) {
             updateSettings();
+            updateControls();
         }
     }
 
@@ -137,6 +137,15 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         jogPanel.setStepSizeABC(jogService.getStepSizeABC());
         jogPanel.setUnit(jogService.getUnits());
         jogPanel.enabledStepSizes(jogService.useStepSizeZ(), jogService.showABCStepSize());
+
+        checkAxisEnabled(Axis.A);
+        checkAxisEnabled(Axis.B);
+        checkAxisEnabled(Axis.C);
+    }
+
+    private void checkAxisEnabled(Axis axis) {
+        Settings settings = backend.getSettings();
+        jogPanel.setButtonsVisible(axis, settings.isAxisEnabled(axis) && backend.getController() != null && backend.getController().getCapabilities().hasAxis(axis));
     }
 
     private void updateControls() {
@@ -185,6 +194,24 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
             case BUTTON_ZPOS:
                 jogService.adjustManualLocationZ(1);
                 break;
+            case BUTTON_ANEG:
+                jogService.adjustManualLocationABC(-1, 0, 0);
+                break;
+            case BUTTON_APOS:
+                jogService.adjustManualLocationABC(1, 0, 0);
+                break;
+            case BUTTON_BNEG:
+                jogService.adjustManualLocationABC(0, -1, 0);
+                break;
+            case BUTTON_BPOS:
+                jogService.adjustManualLocationABC(0, 1, 0);
+                break;
+            case BUTTON_CNEG:
+                jogService.adjustManualLocationABC(0, 0, -1);
+                break;
+            case BUTTON_CPOS:
+                jogService.adjustManualLocationABC(0, 0, 1);
+                break;
             default:
         }
     }
@@ -193,7 +220,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     public void onJogButtonLongPressed(JogPanelButtonEnum button) {
         if (backend.getController().getCapabilities().hasContinuousJogging()) {
             ignoreLongClick = true;
-            continuousJogWorker.setDirection(button.getX(), button.getY(), button.getZ());
+            continuousJogWorker.setDirection(button.getX(), button.getY(), button.getZ(), button.getA(), button.getB(), button.getC());
             continuousJogWorker.start();
 
             // set flag so when we release the long press we don't add 

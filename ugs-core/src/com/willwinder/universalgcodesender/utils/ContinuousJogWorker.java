@@ -19,7 +19,11 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.CommandEvent;
 import com.willwinder.universalgcodesender.model.events.CommandEventType;
 import com.willwinder.universalgcodesender.services.JogService;
@@ -46,6 +50,9 @@ public class ContinuousJogWorker implements UGSEventListener {
     private float x;
     private float y;
     private float z;
+    private float a;
+    private float b;
+    private float c;
     private boolean isRunning = false;
     private boolean jogCanceled = true;
 
@@ -56,6 +63,9 @@ public class ContinuousJogWorker implements UGSEventListener {
         this.x = 0f;
         this.y = 0f;
         this.z = 0f;
+        this.a = 0f;
+        this.b = 0f;
+        this.c = 0f;
 
         // Registers itself as a listener for completed commands
         this.backendAPI.addUGSEventListener(this);
@@ -109,16 +119,16 @@ public class ContinuousJogWorker implements UGSEventListener {
      */
     private void sendJogCommand() {
         final UnitUtils.Units units = jogService.getUnits();
-        final double jogVectorLength = Math.sqrt((x * x) + (y * y) + (z * z));
+        final double jogVectorLength = Math.sqrt((x * x) + (y * y) + (z * z) + (a * a) + (b * b) + (c * c));
         final double speedFactor = jogVectorLength; //FIXME? Double.min(jogVectorLength, 1.0); // caps jog speed at 100% (1.0) of maxFeedRate
         final double maxFeedRate = jogService.getFeedRate() / 60.0; // maximum jog feed rate in units per second
         final double v = maxFeedRate * speedFactor; // scaled jog feed rate in units per second
         final double dt = 0.010; // minimum dt in ms for grbl command latency
         final double s = v * dt; // s = distance in units that this jog command should travel
         final double scaleFactor = s / jogVectorLength; // determine scaleFactor required to scale jogVectorLength to s
-        jogService.adjustManualLocation(new PartialPosition(x * scaleFactor, y * scaleFactor, z * scaleFactor, units), speedFactor);
+        jogService.adjustManualLocation(new PartialPosition(x * scaleFactor, y * scaleFactor, z * scaleFactor, a * scaleFactor, b * scaleFactor, c * scaleFactor, units), speedFactor);
     }
-    
+
     /**
      * Sets the direction to jog in a value between 1.0 to -1.0.
      * The value 0.5 would mean that that axis would move half the step distance.
@@ -129,15 +139,33 @@ public class ContinuousJogWorker implements UGSEventListener {
      * @param z the direction to move (1.0 to -1.0)
      */
     public void setDirection(float x, float y, float z) {
+        this.setDirection(x, y, z, 0, 0, 0);
+    }
+
+    /**
+     * Sets the direction to jog in a value between 1.0 to -1.0.
+     * The value 0.5 would mean that that axis would move half the step distance.
+     * Zero means that the axis shouldn't be moved at all.
+     *
+     * @param x the direction to move (1.0 to -1.0)
+     * @param y the direction to move (1.0 to -1.0)
+     * @param z the direction to move (1.0 to -1.0)
+     * @param a the direction to move (1.0 to -1.0)
+     * @param b the direction to move (1.0 to -1.0)
+     * @param c the direction to move (1.0 to -1.0)
+     */
+    public void setDirection(float x, float y, float z, float a, float b, float c) {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.a = a;
+        this.b = b;
+        this.c = c;
     }
 
     @Override
     public void UGSEvent(UGSEvent event) {
         if (event instanceof CommandEvent && ((CommandEvent) event).getCommandEventType() == CommandEventType.COMMAND_COMPLETE) {
-            GcodeCommand command = ((CommandEvent) event).getCommand();
             if (isRunning) {
                 // still running, send the next jog command
                 sendJogCommand();
@@ -161,11 +189,20 @@ public class ContinuousJogWorker implements UGSEventListener {
             case Z:
                 z = value;
                 break;
+            case A:
+                a = value;
+                break;
+            case B:
+                b = value;
+                break;
+            case C:
+                c = value;
+                break;
         }
     }
 
     public void update() {
-        if (x != 0 || y != 0 || z != 0) {
+        if (x != 0 || y != 0 || z != 0 || a != 0 || b != 0 || c != 0) {
             start();
         } else {
             stop();
