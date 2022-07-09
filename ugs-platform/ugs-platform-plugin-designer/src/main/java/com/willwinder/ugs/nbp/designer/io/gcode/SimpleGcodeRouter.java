@@ -169,9 +169,8 @@ public class SimpleGcodeRouter {
             throw new RuntimeException("An error occured while trying to generate gcode", e);
         }
 
-        result.append("\n" + "; Turning off spindle and end program\n")
-                .append(Code.M5.name()).append("\n")
-                .append(Code.G30.name()).append("\n");
+        result.append("\n" + "; Turning off spindle\n")
+                .append(Code.M5.name()).append("\n");
         return result.toString();
     }
 
