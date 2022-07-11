@@ -85,13 +85,12 @@ public class ConnectDisconnectAction extends AbstractAction implements UGSEventL
     }
 
     private void updateIconAndText() {
+        putValue(NAME, LocalizingService.ConnectDisconnectActionTitle);
         if (backend.getControllerState() == ControllerState.DISCONNECTED) {
-            putValue(NAME, LocalizingService.ConnectDisconnectTitleConnect);
             putValue("menuText", LocalizingService.ConnectDisconnectTitleConnect);
             putValue("iconBase", ICON_BASE_DISCONNECT);
             putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE_DISCONNECT, false));
         } else {
-            putValue(NAME, LocalizingService.ConnectDisconnectTitleDisconnect);
             putValue("menuText", LocalizingService.ConnectDisconnectTitleDisconnect);
             putValue("iconBase", ICON_BASE);
             putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));

@@ -248,6 +248,7 @@ public class LocalizingService {
     public final static String ConnectDisconnectTitleConnect = Localization.getString("mainWindow.ui.connect", lang);
     public final static String ConnectDisconnectTitleDisconnect = Localization.getString("mainWindow.ui.disconnect", lang);
     public final static String ConnectDisconnectActionTitleKey = "mainWindow.ui.connectDisconnect";
+    public final static String ConnectDisconnectActionTitle = Localization.getString("mainWindow.ui.connectDisconnect", lang);
     public final static String ConnectWindowPath = MENU_MACHINE;
     public final static String ConnectDisconnectActionId = "com.willwinder.ugs.nbp.core.actions.ConnectDisconnectAction";
     public final static String ConnectDisconnectCategory = CATEGORY_MACHINE;
