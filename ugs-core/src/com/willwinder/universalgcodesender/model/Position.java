@@ -38,12 +38,12 @@ public class Position extends CNCPoint {
     }
 
     public Position(double x, double y, double z) {
-        super(x, y, z, 0, 0, 0);
+        super(x, y, z, Double.NaN, Double.NaN, Double.NaN);
         this.units = Units.UNKNOWN;
     }
 
     public Position(double x, double y, double z, Units units) {
-        super(x, y, z, 0, 0, 0);
+        super(x, y, z, Double.NaN, Double.NaN, Double.NaN);
         this.units = units;
     }
 
@@ -121,25 +121,27 @@ public class Position extends CNCPoint {
 
     /**
      * Determine if the motion between Positions is a Z plunge.
+     *
      * @param next the Position to compare with the current object.
      * @return True if it only requires a Z motion to reach next.
      */
     public boolean isZMotionTo(Position next) {
-        return (this.z != next.z) &&
-                (this.x == next.x) &&
-                (this.y == next.y) &&
-                (this.a == next.a) &&
-                (this.b == next.b) &&
-                (this.c == next.c);
+        return !equals(this.z, next.z) &&
+                equals(this.x, next.x) &&
+                equals(this.y, next.y) &&
+                equals(this.a, next.a) &&
+                equals(this.b, next.b) &&
+                equals(this.c, next.c);
     }
 
     /**
      * Determine if the motion between Positions contains a rotation.
+     *
      * @param next the Position to compare with the current object.
      * @return True if a rotation occurs
      */
     public boolean hasRotationTo(Position next) {
-        return (this.a != next.a) || (this.b != next.b) || (this.c != next.c);
+        return !equals(this.a, next.a) || !equals(this.b, next.b) || equals(this.c, next.c);
     }
 
     /**
@@ -148,7 +150,9 @@ public class Position extends CNCPoint {
      * @return true if the position contains rotations
      */
     public boolean hasRotation() {
-        return a != 0 || b != 0 || c != 0;
+        return (a != 0 && !Double.isNaN(a)) ||
+                (b != 0 && !Double.isNaN(b)) ||
+                (c != 0 && !Double.isNaN(c));
     }
 
     public void set(Axis axis, double value) {
@@ -169,7 +173,7 @@ public class Position extends CNCPoint {
     /**
      * Rotates this point around the center with the given angle in radians and returns a new position
      *
-     * @param center the XY position to rotate around
+     * @param center  the XY position to rotate around
      * @param radians the radians to rotate clock wise
      * @return a new rotated position
      */
@@ -178,7 +182,7 @@ public class Position extends CNCPoint {
         double sinA = Math.sin(radians);
 
         return new Position(
-                center.x + (cosA * (x -  center.x) + sinA * (y - center.y)),
+                center.x + (cosA * (x - center.x) + sinA * (y - center.y)),
                 center.y + (-sinA * (x - center.x) + cosA * (y - center.y)),
                 z,
                 units);

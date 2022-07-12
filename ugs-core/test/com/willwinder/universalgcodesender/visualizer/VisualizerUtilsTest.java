@@ -8,13 +8,22 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class VisualizerUtilsTest {
 
+    public static void assertPosition(double x, double y, double z, double a, double b, double c, Position position) {
+        assertEquals("Expected position X", x, position.x, 0.1d);
+        assertEquals("Expected position Y", y, position.y, 0.1d);
+        assertEquals("Expected position Z", z, position.z, 0.1d);
+        assertEquals("Expected position A", a, position.a, 0.1d);
+        assertEquals("Expected position B", b, position.b, 0.1d);
+        assertEquals("Expected position C", c, position.c, 0.1d);
+    }
+
     @Test
     public void toCartesianShouldNotApplyRotationIfZero() {
-        Position position = new Position(10, 11, 12, UnitUtils.Units.MM);
+        Position position = new Position(10, 11, 12, 0, 0, 0, UnitUtils.Units.MM);
         Position position1 = VisualizerUtils.toCartesian(position);
         assertEquals(10d, position1.x, 0.1);
         assertEquals(11d, position1.y, 0.1);
@@ -65,6 +74,60 @@ public class VisualizerUtilsTest {
     }
 
     @Test
+    public void expandRotationalLineSegmentWithoutABCAxesShouldBeIgnored() {
+        Position startPosition = new Position(0, 0, 10, UnitUtils.Units.MM);
+        Position endPosition = new Position(0, 0, 10, UnitUtils.Units.MM);
+        PointSegment endSegment = new PointSegment(endPosition, 0);
+
+        List<LineSegment> result = new ArrayList<>();
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
+
+        assertEquals(1, result.size());
+        assertPosition(0, 0, 10, Double.NaN, Double.NaN, Double.NaN, result.get(0).getEnd());
+    }
+
+    @Test
+    public void expandRotationalLineSegmentWithStartingAShouldBeIgnored() {
+        Position startPosition = new Position(0, 0, 10, 0, Double.NaN, Double.NaN, UnitUtils.Units.MM);
+        Position endPosition = new Position(0, 0, 10, UnitUtils.Units.MM);
+        PointSegment endSegment = new PointSegment(endPosition, 0);
+
+        List<LineSegment> result = new ArrayList<>();
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
+
+        assertEquals(1, result.size());
+        assertPosition(0, 0, 10, Double.NaN, Double.NaN, Double.NaN, result.get(0).getEnd());
+    }
+
+    @Test
+    public void expandRotationalLineSegmentWithEndingAZeroShouldBeZero() {
+        Position startPosition = new Position(0, 0, 10,  UnitUtils.Units.MM);
+        Position endPosition = new Position(0, 0, 10, 0, Double.NaN, Double.NaN, UnitUtils.Units.MM);
+        PointSegment endSegment = new PointSegment(endPosition, 0);
+
+        List<LineSegment> result = new ArrayList<>();
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
+
+        assertEquals(1, result.size());
+        assertPosition(0, 0, 10, 0.0, Double.NaN, Double.NaN, result.get(0).getEnd());
+    }
+
+    @Test
+    public void expandRotationalLineSegmentWithEndingAShouldBeInterpolated() {
+        Position startPosition = new Position(0, 0, 10,  UnitUtils.Units.MM);
+        Position endPosition = new Position(0, 0, 10, 10, Double.NaN, Double.NaN, UnitUtils.Units.MM);
+        PointSegment endSegment = new PointSegment(endPosition, 0);
+
+        List<LineSegment> result = new ArrayList<>();
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
+
+        assertEquals(3, result.size());
+        assertPosition(0, 0, 10, 0, Double.NaN, Double.NaN, result.get(0).getEnd());
+        assertPosition(0, 0, 10, 5.0, Double.NaN, Double.NaN, result.get(1).getEnd());
+        assertPosition(0, 0, 10, 10.0, Double.NaN, Double.NaN, result.get(2).getEnd());
+    }
+
+    @Test
     public void expandRotationalLineSegmentRotationAroundAShouldInterpolateWithFiveDegreeSteps() {
         Position startPosition = new Position(0, 0, 10, 0, 0, 0, UnitUtils.Units.MM);
         Position endPosition = new Position(0, 0, 10, 90, 0, 0, UnitUtils.Units.MM);
@@ -74,10 +137,10 @@ public class VisualizerUtilsTest {
         VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(19, result.size());
-        assertPosition(0,0,10,0,0,0, result.get(0).getEnd());
-        assertPosition(0,0,10,5,0,0, result.get(1).getEnd());
-        assertPosition(0,0,10,10,0,0, result.get(2).getEnd());
-        assertPosition(0,0,10,90,0,0, result.get(18).getEnd());
+        assertPosition(0, 0, 10, 0, 0, 0, result.get(0).getEnd());
+        assertPosition(0, 0, 10, 5, 0, 0, result.get(1).getEnd());
+        assertPosition(0, 0, 10, 10, 0, 0, result.get(2).getEnd());
+        assertPosition(0, 0, 10, 90, 0, 0, result.get(18).getEnd());
     }
 
     @Test
@@ -90,10 +153,10 @@ public class VisualizerUtilsTest {
         VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(19, result.size());
-        assertPosition(0,0,10,0,0,0, result.get(0).getEnd());
-        assertPosition(0,0,10,0,5,0, result.get(1).getEnd());
-        assertPosition(0,0,10,0,10,0, result.get(2).getEnd());
-        assertPosition(0,0,10,0,90,0, result.get(18).getEnd());
+        assertPosition(0, 0, 10, 0, 0, 0, result.get(0).getEnd());
+        assertPosition(0, 0, 10, 0, 5, 0, result.get(1).getEnd());
+        assertPosition(0, 0, 10, 0, 10, 0, result.get(2).getEnd());
+        assertPosition(0, 0, 10, 0, 90, 0, result.get(18).getEnd());
     }
 
     @Test
@@ -106,10 +169,10 @@ public class VisualizerUtilsTest {
         VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(19, result.size());
-        assertPosition(0,0,10,0,0,0, result.get(0).getEnd());
-        assertPosition(0,0,10,0,0,5, result.get(1).getEnd());
-        assertPosition(0,0,10,0,0,10, result.get(2).getEnd());
-        assertPosition(0,0,10,0,0,90, result.get(18).getEnd());
+        assertPosition(0, 0, 10, 0, 0, 0, result.get(0).getEnd());
+        assertPosition(0, 0, 10, 0, 0, 5, result.get(1).getEnd());
+        assertPosition(0, 0, 10, 0, 0, 10, result.get(2).getEnd());
+        assertPosition(0, 0, 10, 0, 0, 90, result.get(18).getEnd());
     }
 
     @Test
@@ -122,21 +185,12 @@ public class VisualizerUtilsTest {
         VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(7, result.size());
-        assertPosition(0,0,10,0,0,0, result.get(0).getEnd());
-        assertPosition(0,0,10,1.6,3.3,5, result.get(1).getEnd());
-        assertPosition(0,0,10,3.3,6.6,10, result.get(2).getEnd());
-        assertPosition(0,0,10,5,10,15, result.get(3).getEnd());
-        assertPosition(0,0,10,6.6,13.3,20, result.get(4).getEnd());
-        assertPosition(0,0,10,8.3,16.6,25, result.get(5).getEnd());
-        assertPosition(0,0,10,10,20,30, result.get(6).getEnd());
-    }
-
-    public static void assertPosition(double x, double y, double z, double a, double b, double c, Position position) {
-        assertEquals("Expected position X", x, position.x, 0.1d);
-        assertEquals("Expected position Y", y, position.y, 0.1d);
-        assertEquals("Expected position Z", z, position.z, 0.1d);
-        assertEquals("Expected position A", a, position.a, 0.1d);
-        assertEquals("Expected position B", b, position.b, 0.1d);
-        assertEquals("Expected position C", c, position.c, 0.1d);
+        assertPosition(0, 0, 10, 0, 0, 0, result.get(0).getEnd());
+        assertPosition(0, 0, 10, 1.6, 3.3, 5, result.get(1).getEnd());
+        assertPosition(0, 0, 10, 3.3, 6.6, 10, result.get(2).getEnd());
+        assertPosition(0, 0, 10, 5, 10, 15, result.get(3).getEnd());
+        assertPosition(0, 0, 10, 6.6, 13.3, 20, result.get(4).getEnd());
+        assertPosition(0, 0, 10, 8.3, 16.6, 25, result.get(5).getEnd());
+        assertPosition(0, 0, 10, 10, 20, 30, result.get(6).getEnd());
     }
 }

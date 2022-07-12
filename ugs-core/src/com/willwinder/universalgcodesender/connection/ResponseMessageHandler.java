@@ -18,6 +18,8 @@
  */
 package com.willwinder.universalgcodesender.connection;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -47,7 +49,7 @@ public class ResponseMessageHandler {
      * @param response a complete or part of a response message
      */
     public void handleResponse(String response) {
-        inputBuffer.append(response);
+        inputBuffer.append(StringUtils.remove(response, '\r'));
 
         // Only continue if there is a line terminator and split out command(response).
         if (!inputBuffer.toString().contains("\n")) {
@@ -56,7 +58,7 @@ public class ResponseMessageHandler {
 
         // Split with the -1 option will give an empty string at
         // the end if there is a terminator there as well.
-        String[] messages = inputBuffer.toString().split("\\r?\\n", -1);
+        String[] messages = inputBuffer.toString().split("\\n", -1);
         for (int i = 0; i < messages.length; i++) {
             // Make sure this isn't the last command.
             if ((i + 1) < messages.length) {

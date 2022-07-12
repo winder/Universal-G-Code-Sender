@@ -383,9 +383,13 @@ public class CNCPoint {
   public boolean equals(CNCPoint t1)
   {
     try {
-      return(this.x == t1.x && this.y == t1.y && this.z == t1.z && this.a == t1.a && this.b == t1.b && this.c == t1.c);
+      return equals(this.x, t1.x) && equals(this.y, t1.y) && equals(this.z, t1.z) && equals(this.a, t1.a) && equals(this.b, t1.b) && equals(this.c, t1.c);
     }
     catch (NullPointerException e2) {return false;}
+  }
+
+  protected boolean equals(double v1, double v2) {
+    return (Double.isNaN(v1) && Double.isNaN(v2)) || v1 == v2;
   }
 
   /**

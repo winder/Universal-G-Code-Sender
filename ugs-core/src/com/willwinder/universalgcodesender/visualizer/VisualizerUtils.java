@@ -186,28 +186,38 @@ public class VisualizerUtils {
 
     public static void expandRotationalLineSegment(Position start, PointSegment endSegment, List<LineSegment> ret) {
         double maxDegreesPerStep = 5;
-        double deltaA = endSegment.point().a - start.a;
-        double deltaB = endSegment.point().b - start.b;
-        double deltaC = endSegment.point().c - start.c;
+        double deltaA = defaultZero(endSegment.point().a) - defaultZero(start.a);
+        double deltaB = defaultZero(endSegment.point().b) - defaultZero(start.b);
+        double deltaC = defaultZero(endSegment.point().c) - defaultZero(start.c);
         double steps = Math.max(Math.abs(deltaA), Math.max(Math.abs(deltaB), Math.abs(deltaC))) / maxDegreesPerStep;
 
         Position startPoint = start;
         for (int i = 0; i < steps; i++) {
             Position end = new Position(endSegment.point());
             if (deltaA != 0) {
-                end.setA(start.a + ((deltaA / steps) * i));
+                end.setA(defaultZero(start.a) + ((deltaA / steps) * i));
             }
             if (deltaB != 0) {
-                end.setB(start.b + ((deltaB / steps) * i));
+                end.setB(defaultZero(start.b) + ((deltaB / steps) * i));
             }
             if (deltaC != 0) {
-                end.setC(start.c + ((deltaC / steps) * i));
+                end.setC(defaultZero(start.c) + ((deltaC / steps) * i));
             }
             ret.add(createLineSegment(startPoint, end, endSegment));
             startPoint = end;
         }
 
         ret.add(createLineSegment(startPoint, endSegment.point(), endSegment));
+    }
+
+    /**
+     * If a double value is NaN this method will return a zero.
+     *
+     * @param value a value that is either a double or a Double.NaN
+     * @return a zero or a double.
+     */
+    private static double defaultZero(double value) {
+        return Double.isNaN(value) ? 0 : value;
     }
 
     private static double sinIfNotZero(double angle) {
@@ -250,13 +260,13 @@ public class VisualizerUtils {
             return position;
         }
 
-        Position result = new Position(position.x, position.y, position.z, position.getUnits());
+        Position result = new Position(position.x, position.y, position.z, 0, 0, 0, position.getUnits());
         double sx = position.x;
         double sy = position.y;
         double sz = position.z;
-        double sa = position.a;
-        double sb = position.b;
-        double sc = position.c;
+        double sa = defaultZero(position.a);
+        double sb = defaultZero(position.b);
+        double sc = defaultZero(position.c);
         double sSinA = sinIfNotZero(sa);
         double sCosA = cosIfNotZero(sa);
         double sSinB = sinIfNotZero(sb);
