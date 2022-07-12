@@ -81,12 +81,14 @@ public class SettingsFactory {
             // Save json file.
             File jsonFile = getSettingsFile();
             try (FileWriter fileWriter = new FileWriter(jsonFile)) {
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                Gson gson = new GsonBuilder()
+                        .setPrettyPrinting()
+                        .serializeSpecialFloatingPointValues()
+                        .create();
                 fileWriter.write(gson.toJson(settings, Settings.class));
             }
          } catch (Exception e) {
-            e.printStackTrace();
-            logger.warning(Localization.getString("settings.log.saveerror"));
+            logger.log(Level.SEVERE, Localization.getString("settings.log.saveerror"), e);
         }
     }
 

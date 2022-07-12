@@ -345,10 +345,9 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         this.setControllerState(ControllerState.CONNECTING);
 
         if (isCommOpen()) {
-            this.openCommAfterEvent();
-
-            this.dispatchConsoleMessage(MessageType.INFO,
+            dispatchConsoleMessage(MessageType.INFO,
                     "**** Connected to " + port + " @ " + portRate + " baud ****\n");
+            openCommAfterEvent();
         }
 
         connectionWatchTimer.start();

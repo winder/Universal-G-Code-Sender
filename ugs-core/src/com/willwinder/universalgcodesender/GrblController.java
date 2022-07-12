@@ -247,7 +247,7 @@ public class GrblController extends AbstractController {
                 GrblFeedbackMessage grblFeedbackMessage = new GrblFeedbackMessage(response);
                 // Convert feedback message to raw commands to update modal state.
                 this.updateParserModalState(new GcodeCommand(GrblUtils.parseFeedbackMessage(response, capabilities)));
-                this.dispatchConsoleMessage(MessageType.VERBOSE, grblFeedbackMessage.toString() + "\n");
+                this.dispatchConsoleMessage(MessageType.VERBOSE, grblFeedbackMessage + "\n");
                 setDistanceModeCode(grblFeedbackMessage.getDistanceMode());
                 setUnitsCode(grblFeedbackMessage.getUnits());
                 dispatchStateChange(COMM_IDLE);
@@ -305,7 +305,8 @@ public class GrblController extends AbstractController {
 
     @Override
     protected void openCommAfterEvent() throws Exception {
-        this.comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
+        dispatchConsoleMessage(MessageType.VERBOSE, String.format(">>> 0x%02x\n", GrblUtils.GRBL_RESET_COMMAND));
+        comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
     }
 
     @Override
@@ -335,7 +336,8 @@ public class GrblController extends AbstractController {
         // If we're canceling a "jog" state
         if (capabilities.hasJogging() && controllerStatus != null &&
                 controllerStatus.getState() == ControllerState.JOG) {
-            this.comm.sendByteImmediately(GrblUtils.GRBL_JOG_CANCEL_COMMAND);
+            dispatchConsoleMessage(MessageType.VERBOSE, String.format(">>> 0x%02x\n", GrblUtils.GRBL_JOG_CANCEL_COMMAND));
+            comm.sendByteImmediately(GrblUtils.GRBL_JOG_CANCEL_COMMAND);
         }
         // Otherwise, check if we can get fancy with a soft reset.
         else if (!paused && this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
@@ -362,7 +364,8 @@ public class GrblController extends AbstractController {
     @Override
     public void cancelJog() throws Exception {
         if (capabilities.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)) {
-            this.comm.sendByteImmediately(GrblUtils.GRBL_JOG_CANCEL_COMMAND);
+            dispatchConsoleMessage(MessageType.VERBOSE, String.format(">>> 0x%02x\n", GrblUtils.GRBL_JOG_CANCEL_COMMAND));
+            comm.sendByteImmediately(GrblUtils.GRBL_JOG_CANCEL_COMMAND);
         } else {
             cancelSend();
         }
@@ -498,6 +501,7 @@ public class GrblController extends AbstractController {
         }
 
         pauseStreaming(); // Pause the file stream and stop the time
+        dispatchConsoleMessage(MessageType.VERBOSE, String.format(">>> 0x%02x\n", GrblUtils.GRBL_DOOR_COMMAND));
         comm.sendByteImmediately(GrblUtils.GRBL_DOOR_COMMAND);
     }
 
@@ -543,10 +547,11 @@ public class GrblController extends AbstractController {
      */
     @Override
     public void softReset() throws Exception {
-        if (this.isCommOpen() && this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
-            this.comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
+        if (isCommOpen() && capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
+            dispatchConsoleMessage(MessageType.VERBOSE, String.format(">>> 0x%02x\n", GrblUtils.GRBL_RESET_COMMAND));
+            comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
             //Does GRBL need more time to handle the reset?
-            this.comm.cancelSend();
+            comm.cancelSend();
         }
     }
 
@@ -618,6 +623,11 @@ public class GrblController extends AbstractController {
         controllerStatus = GrblUtils.getStatusFromStatusString(
                 controllerStatus, string, capabilities, getFirmwareSettings().getReportingUnits());
 
+        // Add extra axis capabilities if the status report contains ABC axes
+        detectAxisCapabilityFromControllerStatus(Axis.A, CapabilitiesConstants.A_AXIS);
+        detectAxisCapabilityFromControllerStatus(Axis.B, CapabilitiesConstants.B_AXIS);
+        detectAxisCapabilityFromControllerStatus(Axis.C, CapabilitiesConstants.C_AXIS);
+
         // Make UGS more responsive to the state being reported by GRBL.
         if (before != getCommunicatorState()) {
             this.dispatchStateChange(getCommunicatorState());
@@ -666,6 +676,22 @@ public class GrblController extends AbstractController {
         }
 
         dispatchStatusString(controllerStatus);
+    }
+
+    /**
+     * Checks the controller status machine and work coordinate if they contain coordinates for the given axis.
+     * If found the capability for that axis will be added.
+     *
+     * @param axis the axis to check
+     * @param capability the capability to add if found
+     */
+    private void detectAxisCapabilityFromControllerStatus(Axis axis, String capability) {
+        boolean hasAxisCoordinate = (controllerStatus.getMachineCoord() != null && !Double.isNaN(controllerStatus.getMachineCoord().get(axis))) ||
+                (controllerStatus.getWorkCoord() != null && !Double.isNaN(controllerStatus.getWorkCoord().get(axis)));
+
+        if (!capabilities.hasAxis(axis) && hasAxisCoordinate) {
+            capabilities.addCapability(capability);
+        }
     }
 
     @Override

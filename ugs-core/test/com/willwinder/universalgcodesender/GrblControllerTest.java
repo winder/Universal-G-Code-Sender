@@ -1386,6 +1386,52 @@ public class GrblControllerTest {
     }
 
     @Test
+    public void controllerShouldGetAxisCapabilitiesOnStatusStringWithMachinePosition() throws Exception {
+        // Given
+        GrblController instance = new GrblController(mgc);
+        instance.openCommPort(getSettings().getConnectionDriver(), "foo", 2400);
+        instance.rawResponseHandler(VERSION_GRBL_1_1F);
+
+        assertFalse("We should not start with A axis capabilities", instance.getCapabilities().hasCapability(CapabilitiesConstants.A_AXIS));
+        assertFalse("We should not start with B axis capabilities", instance.getCapabilities().hasCapability(CapabilitiesConstants.B_AXIS));
+        assertFalse("We should not start with C axis capabilities", instance.getCapabilities().hasCapability(CapabilitiesConstants.C_AXIS));
+
+        // When
+        instance.rawResponseHandler("<Idle|MPos:1.000,2.000,3.000,4.000,5.000,6.0000|FS:0,0|Pn:XYZ>");
+
+        // Then
+        assertTrue("We should now have A axis capability", instance.getCapabilities().hasCapability(CapabilitiesConstants.A_AXIS));
+        assertTrue("We should now have B axis capability", instance.getCapabilities().hasCapability(CapabilitiesConstants.B_AXIS));
+        assertTrue("We should now have C axis capability", instance.getCapabilities().hasCapability(CapabilitiesConstants.C_AXIS));
+        assertEquals(4, instance.getControllerStatus().getMachineCoord().a, 0.1);
+        assertEquals(5, instance.getControllerStatus().getMachineCoord().b, 0.1);
+        assertEquals(6, instance.getControllerStatus().getMachineCoord().c, 0.1);
+    }
+
+    @Test
+    public void controllerShouldGetAxisCapabilitiesOnStatusStringWithWorkPosition() throws Exception {
+        // Given
+        GrblController instance = new GrblController(mgc);
+        instance.openCommPort(getSettings().getConnectionDriver(), "foo", 2400);
+        instance.rawResponseHandler(VERSION_GRBL_1_1F);
+
+        assertFalse("We should not start with A axis capabilities", instance.getCapabilities().hasCapability(CapabilitiesConstants.A_AXIS));
+        assertFalse("We should not start with B axis capabilities", instance.getCapabilities().hasCapability(CapabilitiesConstants.B_AXIS));
+        assertFalse("We should not start with C axis capabilities", instance.getCapabilities().hasCapability(CapabilitiesConstants.C_AXIS));
+
+        // When
+        instance.rawResponseHandler("<Idle|WPos:1.000,2.000,3.000,4.000,5.000,6.0000|FS:0,0|Pn:XYZ>");
+
+        // Then
+        assertTrue("We should now have A axis capability", instance.getCapabilities().hasCapability(CapabilitiesConstants.A_AXIS));
+        assertTrue("We should now have B axis capability", instance.getCapabilities().hasCapability(CapabilitiesConstants.B_AXIS));
+        assertTrue("We should now have C axis capability", instance.getCapabilities().hasCapability(CapabilitiesConstants.C_AXIS));
+        assertEquals(4, instance.getControllerStatus().getWorkCoord().a, 0.1);
+        assertEquals(5, instance.getControllerStatus().getWorkCoord().b, 0.1);
+        assertEquals(6, instance.getControllerStatus().getWorkCoord().c, 0.1);
+    }
+
+    @Test
     public void versionStringShouldResetStatus() throws Exception {
         // Given
         GrblController instance = initializeAndConnectController("foo", 2400, VERSION_GRBL_1_1F);

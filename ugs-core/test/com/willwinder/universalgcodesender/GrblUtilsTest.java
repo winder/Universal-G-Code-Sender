@@ -466,7 +466,7 @@ public class GrblUtilsTest {
 
         assertEquals(new Position(1.1, 2.2, 3.3, MM), controllerStatus.getMachineCoord());
         assertEquals(new Position(4.4, 5.5, 6.6, MM), controllerStatus.getWorkCoord());
-        assertEquals(new Position(0, 0, 0, MM), controllerStatus.getWorkCoordinateOffset());
+        assertEquals(new Position(0, 0, 0, 0, 0, 0, MM), controllerStatus.getWorkCoordinateOffset());
     }
 
     @Test
@@ -599,9 +599,9 @@ public class GrblUtilsTest {
 
         assertEquals(ControllerState.IDLE, controllerStatus.getState());
 
-        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 5.5, 0.0, MM), controllerStatus.getMachineCoord());
-        assertEquals(new Position(7.7, 8.8, 9.9, 10.10, 11.11, 0.0, MM), controllerStatus.getWorkCoord());
-        assertEquals(new Position(13.13, 14.14, 15.15, 16.16, 17.17, 0.0, MM), controllerStatus.getWorkCoordinateOffset());
+        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 5.5, Double.NaN, MM), controllerStatus.getMachineCoord());
+        assertEquals(new Position(7.7, 8.8, 9.9, 10.10, 11.11, Double.NaN, MM), controllerStatus.getWorkCoord());
+        assertEquals(new Position(13.13, 14.14, 15.15, 16.16, 17.17, Double.NaN, MM), controllerStatus.getWorkCoordinateOffset());
         assertTrue(controllerStatus.getEnabledPins().A);
         assertTrue(controllerStatus.getEnabledPins().B);
         assertFalse(controllerStatus.getEnabledPins().C);
@@ -618,9 +618,9 @@ public class GrblUtilsTest {
 
         assertEquals(ControllerState.IDLE, controllerStatus.getState());
 
-        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 0.0, 0.0, MM), controllerStatus.getMachineCoord());
-        assertEquals(new Position(7.7, 8.8, 9.9, 10.10, 0.0, 0.0, MM), controllerStatus.getWorkCoord());
-        assertEquals(new Position(13.13, 14.14, 15.15, 16.16, 0.0, 0.0, MM), controllerStatus.getWorkCoordinateOffset());
+        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, Double.NaN, Double.NaN, MM), controllerStatus.getMachineCoord());
+        assertEquals(new Position(7.7, 8.8, 9.9, 10.10, Double.NaN, Double.NaN, MM), controllerStatus.getWorkCoord());
+        assertEquals(new Position(13.13, 14.14, 15.15, 16.16, Double.NaN, Double.NaN, MM), controllerStatus.getWorkCoordinateOffset());
 
         assertTrue(controllerStatus.getEnabledPins().A);
         assertFalse(controllerStatus.getEnabledPins().B);
@@ -641,9 +641,9 @@ public class GrblUtilsTest {
         String ThreeAxis = "[PRB:1.1,2.2,3.3:1]";
         assertEquals(new Position(1.1, 2.2, 3.3, MM), GrblUtils.parseProbePosition(ThreeAxis, MM));
         String FourAxis = "[PRB:1.1,2.2,3.3,4.4:1]";
-        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 0.0, 0.0, MM), GrblUtils.parseProbePosition(FourAxis, MM));
+        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, Double.NaN, Double.NaN, MM), GrblUtils.parseProbePosition(FourAxis, MM));
         String FiveAxis = "[PRB:1.1,2.2,3.3,4.4,5.5:1]";
-        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 5.5, 0.0, MM), GrblUtils.parseProbePosition(FiveAxis, MM));
+        assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 5.5, Double.NaN, MM), GrblUtils.parseProbePosition(FiveAxis, MM));
         String SixAxis = "[PRB:1.1,2.2,3.3,4.4,5.5,6.6:1]";
         assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 5.5, 6.6, MM), GrblUtils.parseProbePosition(SixAxis, MM));
     }

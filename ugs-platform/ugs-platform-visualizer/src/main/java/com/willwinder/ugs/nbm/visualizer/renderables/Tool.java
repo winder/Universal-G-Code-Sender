@@ -77,9 +77,15 @@ public final class Tool extends Renderable {
             gl.glTranslated(position.x, position.y, position.z);
             gl.glScaled(scale, scale, scale);
 
-            gl.glRotated(workCoord.a, 1.0d, 0.0d, 0.0d);   //X
-            gl.glRotated(workCoord.b, 0.0d, 1.0d, 0.0d);   //Y
-            gl.glRotated(workCoord.c, 0.0d, 0.0d, 1.0d);   //Z
+            if (!Double.isNaN(workCoord.a)) {
+                gl.glRotated(workCoord.a, 1.0d, 0.0d, 0.0d);   //X
+            }
+            if (!Double.isNaN(workCoord.b)) {
+                gl.glRotated(workCoord.b, 0.0d, 1.0d, 0.0d);   //Y
+            }
+            if (!Double.isNaN(workCoord.c)) {
+                gl.glRotated(workCoord.c, 0.0d, 0.0d, 1.0d);   //Z
+            }
 
             gl.glColor4fv(VisualizerOptions.colorToFloatArray(toolColor), 0);
             glu.gluQuadricNormals(gq, GLU.GLU_SMOOTH);
