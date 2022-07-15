@@ -1,6 +1,6 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc.commands;
 
-import com.willwinder.universalgcodesender.GrblUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.AbstractMap;
@@ -11,25 +11,20 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class GetFirmwareSettingsCommand extends SystemCommand {
-    private Map<String, String> settings = new HashMap<>();
 
     public GetFirmwareSettingsCommand() {
         super("$Config/Dump");
     }
 
-    @Override
-    public void appendResponse(String response) {
-        if (GrblUtils.isOkResponse(response)) {
-            Yaml yaml = new Yaml();
-            Map<String, Object> settingsTree = yaml.load(getResponse());
-            settings = flatten(settingsTree);
-        }
-
-        super.appendResponse(response);
-    }
-
     public Map<String, String> getSettings() {
-        return settings;
+        if (!isOk()) {
+            return new HashMap<>();
+        }
+        
+        String response = StringUtils.removeEnd(getResponse(), "ok");
+        Yaml yaml = new Yaml();
+        Map<String, Object> settingsTree = yaml.load(response);
+        return flatten(settingsTree);
     }
 
     private Map<String, String> flatten(Map<String, Object> mapToFlatten) {

@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.platform;
 import com.willwinder.ugs.nbp.designer.gui.SelectionSettingsPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.windows.TopComponent;
 
 /**
@@ -33,7 +34,8 @@ import org.openide.windows.TopComponent;
 @TopComponent.Registration(mode = "top_left", openAtStartup = false)
 public class SettingsTopComponent extends TopComponent {
     private static final long serialVersionUID = 324234398723987873L;
-    private SelectionSettingsPanel selectionSettingsPanel;
+
+    private transient final SelectionSettingsPanel selectionSettingsPanel;
 
     public SettingsTopComponent() {
         setMinimumSize(new java.awt.Dimension(50, 50));

@@ -19,6 +19,8 @@ public class GetStatusCommand extends SystemCommand {
         super.appendResponse(response);
         if (GrblUtils.isGrblStatusString(response)) {
             controllerStatus = GrblUtils.getStatusFromStatusStringV1(new ControllerStatus(ControllerState.DISCONNECTED, Position.ZERO, Position.ZERO), response, UnitUtils.Units.MM);
+        } else {
+            setError(true);
         }
         setDone(true);
     }

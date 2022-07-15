@@ -24,17 +24,6 @@ public class FluidNCUtils {
     private static final Pattern MACHINE_PATTERN = Pattern.compile("(?<=MPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
     private static final Pattern WORK_PATTERN = Pattern.compile("(?<=WPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
     private static final Pattern WCO_PATTERN = Pattern.compile("(?<=WCO:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
-    /**
-     * Parses a GRBL status string in in the v1.x format:
-     * 1.x: <status|WPos:1,2,3|Bf:0,0|WCO:0,0,0>
-     *
-     * @param lastStatus required for the 1.x version which requires WCO coords
-     * and override status from previous status updates.
-     * @param status the raw status string
-     * @param reportingUnits units
-     * @return the parsed controller status
-     */
-    static Pattern PROBE_POSITION_PATTERN = Pattern.compile("\\[PRB:(-?\\d*\\.\\d*),(-?\\d*\\.\\d*),(-?\\d*\\.\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?:\\d?]");
 
     public static boolean isMessageResponse(String response) {
         return MESSAGE_PATTERN.matcher(response).find();
@@ -175,6 +164,5 @@ public class FluidNCUtils {
         ControllerState state = getControllerStateFromStateString(stateString);
 
         return new ControllerStatus(state, subStateString, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates);
-
     }
 }

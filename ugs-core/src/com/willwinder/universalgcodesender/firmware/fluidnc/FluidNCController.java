@@ -14,9 +14,9 @@ import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetAlarmCodesCommand;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetErrorCodesCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetFirmwareVersionCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetParserStateCommand;
-import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetErrorCodesCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SystemCommand;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
@@ -55,6 +55,7 @@ import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
 
 public class FluidNCController implements IController, CommunicatorListener {
 
@@ -189,7 +190,7 @@ public class FluidNCController implements IController, CommunicatorListener {
     public void issueSoftReset() throws Exception {
         messageService.dispatchMessage(MessageType.INFO, "*** Resetting controller\n");
         positionPollTimer.stop();
-        setControllerState(ControllerState.CONNECTING);
+        setControllerState(ControllerState.DISCONNECTED);
         resetBuffers();
         communicator.cancelSend();
         communicator.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
@@ -495,10 +496,22 @@ public class FluidNCController implements IController, CommunicatorListener {
     private void initializeController() {
         positionPollTimer.stop();
         gcodeParser.reset();
+        resetBuffers();
+
         setControllerState(ControllerState.CONNECTING);
         try {
-            messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status\n");
-            GetStatusCommand statusCommand = (GetStatusCommand) sendAndWaitForCompletion(this, new GetStatusCommand(), 5000);
+            GetStatusCommand statusCommand = sendAndWaitForCompletionWithRetry(GetStatusCommand::new, this, 4000, 10, (executionNumber) -> {
+                if (executionNumber == 1) {
+                    messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status\n");
+                } else {
+                    messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status (" + executionNumber + " of 10)...\n");
+                }
+            });
+
+            if (!statusCommand.isDone() || statusCommand.isError()) {
+                throw new IllegalStateException("Could not query the device status");
+            }
+
             if (statusCommand.getControllerStatus().getState() == ControllerState.HOLD) {
                 messageService.dispatchMessage(MessageType.INFO, "*** Device is in a holding state it needs to be reset\n");
                 issueSoftReset();
@@ -506,8 +519,7 @@ public class FluidNCController implements IController, CommunicatorListener {
             }
 
             messageService.dispatchMessage(MessageType.INFO, "*** Fetching device firmware version\n");
-            GetFirmwareVersionCommand getFirmwareVersionCommand = new GetFirmwareVersionCommand();
-            sendAndWaitForCompletion(this, getFirmwareVersionCommand);
+            GetFirmwareVersionCommand getFirmwareVersionCommand = sendAndWaitForCompletion(this, new GetFirmwareVersionCommand());
             firmwareVariant = getFirmwareVersionCommand.getFirmware();
             semanticVersion = getFirmwareVersionCommand.getVersion();
             capabilities.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
@@ -540,8 +552,7 @@ public class FluidNCController implements IController, CommunicatorListener {
 
             // Fetch the gcode state
             messageService.dispatchMessage(MessageType.INFO, "*** Fetching device state\n");
-            GetParserStateCommand getParserStateCommand = new GetParserStateCommand();
-            sendAndWaitForCompletion(this,getParserStateCommand);
+            GetParserStateCommand getParserStateCommand = sendAndWaitForCompletion(this, new GetParserStateCommand());
             String state = getParserStateCommand.getState().orElseThrow(() -> new ConnectionException("Could not get controller state"));
             gcodeParser.addCommand(state);
 
@@ -550,7 +561,7 @@ public class FluidNCController implements IController, CommunicatorListener {
             setControllerState(ControllerState.IDLE);
 
             messageService.dispatchMessage(MessageType.INFO, String.format("*** Connected to %s\n", getFirmwareVersion()));
-
+            requestStatusReport();
             positionPollTimer.start();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Could not initialize the connection", e);
@@ -694,6 +705,12 @@ public class FluidNCController implements IController, CommunicatorListener {
                 }
             });
             positionPollTimer.receivedStatus();
+
+            // Don't update the state from status command if we are connecting
+            if (controllerStatus.getState() == ControllerState.CONNECTING) {
+                return;
+            }
+
             controllerStatus = FluidNCUtils.getStatusFromStatusResponse(controllerStatus, response, getFirmwareSettings().getReportingUnits());
             setControllerState(controllerStatus.getState());
             listeners.forEach(l -> l.statusStringListener(controllerStatus));
@@ -730,15 +747,12 @@ public class FluidNCController implements IController, CommunicatorListener {
                 }
             }
         } else if (FluidNCUtils.isWelcomeResponse(response)) {
-            try {
-                positionPollTimer.stop();
-                messageService.dispatchMessage(MessageType.VERBOSE, response + "\n");
-                resetBuffers();
-                Thread.sleep(1000);
-                ThreadHelper.invokeLater(this::initializeController);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            messageService.dispatchMessage(MessageType.VERBOSE, response + "\n");
+            if (controllerStatus.getState() == ControllerState.CONNECTING) {
+                LOGGER.info("We got a welcome string, but are already in a connection phase. Do not initialize another connection phase...");
+                return;
             }
+            ThreadHelper.invokeLater(this::initializeController);
         } else if (GrblUtils.isGrblVersionString(response)) {
             messageService.dispatchMessage(MessageType.INFO, "*** Detected an old GRBL version\n");
         } else if (FluidNCUtils.isMessageResponse(response)) {
