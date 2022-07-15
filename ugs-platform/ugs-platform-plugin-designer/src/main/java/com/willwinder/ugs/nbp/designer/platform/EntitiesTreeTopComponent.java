@@ -35,7 +35,7 @@ import javax.swing.*;
 @TopComponent.Registration(mode = "bottom_left", openAtStartup = false)
 public class EntitiesTreeTopComponent extends TopComponent {
     private static final long serialVersionUID = 432423498723987873L;
-    private final EntitiesTree entitesTree;
+    private transient final EntitiesTree entitesTree;
 
     public EntitiesTreeTopComponent() {
         setMinimumSize(new java.awt.Dimension(50, 50));

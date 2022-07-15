@@ -23,6 +23,8 @@ import com.willwinder.universalgcodesender.types.CommandListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author Joacim Breiler
@@ -39,7 +41,7 @@ public class ControllerUtils {
      * @param maxExecutionTime the max number of milliseconds to wait before throwing a timeout error
      * @throws Exception if the command could not be sent or a timeout occurred
      */
-    public static GcodeCommand sendAndWaitForCompletion(IController controller, GcodeCommand command, long maxExecutionTime) throws Exception {
+    public static <T extends GcodeCommand> T sendAndWaitForCompletion(IController controller, T command, long maxExecutionTime) throws Exception {
         final AtomicBoolean isDone = new AtomicBoolean(false);
         CommandListener listener = c -> isDone.set(c.isDone());
         command.addListener(listener);
@@ -61,9 +63,57 @@ public class ControllerUtils {
      *
      * @param controller the controller to send the command through
      * @param command    a command
+     * @param <T>        a class extending from {@link GcodeCommand}
+     * @return the executed command with the response
      * @throws Exception if the command could not be sent or a timeout occurred
      */
-    public static GcodeCommand sendAndWaitForCompletion(IController controller, GcodeCommand command) throws Exception {
+
+    public static <T extends GcodeCommand> T sendAndWaitForCompletion(IController controller, T command) throws Exception {
         return sendAndWaitForCompletion(controller, command, MAX_EXECUTION_TIME);
+    }
+
+    /**
+     * Sends a command and blocks the thread until the command is done and was ok. It will retry to send the command in case of a timeout or an error.
+     *
+     * @param commandSupplier  a supplier for creating gcode commands to send
+     * @param controller       the controller to send through
+     * @param maxExecutionTime the maximum execution time in milliseconds
+     * @param retryCount       the number of times to retry and send
+     * @param onExecute        an action that should be executed before sending
+     * @param <T>              a class extending from {@link GcodeCommand}
+     * @return the last executed command with the response
+     * @throws InterruptedException
+     */
+    public static <T extends GcodeCommand> T sendAndWaitForCompletionWithRetry(Supplier<T> commandSupplier, IController controller, long maxExecutionTime, int retryCount, Consumer<Integer> onExecute) throws InterruptedException {
+        int times = 0;
+
+        T command = null;
+        while (times < retryCount) {
+            long startTime = System.currentTimeMillis();
+            try {
+                onExecute.accept(times + 1);
+                command = commandSupplier.get();
+                if (command == null) {
+                    throw new IllegalArgumentException("The command generated was null");
+                }
+
+                command = sendAndWaitForCompletion(controller, command, maxExecutionTime);
+            } catch (Exception e) {
+                // Never mind
+            }
+
+            if (!command.isDone() || command.isError()) {
+                // Make sure that we sleep at least the max execution time in case the command got a wierd response.
+                if (startTime + maxExecutionTime > System.currentTimeMillis()) {
+                    long sleepTime = startTime + maxExecutionTime - System.currentTimeMillis();
+                    Thread.sleep(sleepTime);
+                }
+            } else if (command.isDone() && !command.isError()) {
+                break;
+            }
+            times++;
+        }
+
+        return command;
     }
 }

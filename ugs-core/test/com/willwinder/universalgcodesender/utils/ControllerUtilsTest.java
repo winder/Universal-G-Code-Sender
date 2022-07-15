@@ -23,9 +23,19 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class ControllerUtilsTest {
 
@@ -62,5 +72,65 @@ public class ControllerUtilsTest {
         IController controller = mock(IController.class);
         GcodeCommand command = new GcodeCommand("blah");
         assertThrows("The command \"blah\" has timed out as it wasn't finished within 100ms", RuntimeException.class, () -> ControllerUtils.sendAndWaitForCompletion(controller, command, 100));
+    }
+
+    @Test
+    public void sendAndWaitForCompletionWithRetryShouldRetryOnErrors() throws Exception {
+        IController controller = mock(IController.class);
+
+        // First command will generate an error, the second will succeed
+        doAnswer(answer -> {
+            GcodeCommand gcodeCommand = answer.getArgument(0);
+            if (gcodeCommand.getCommandString().equals("0")) {
+                gcodeCommand.setError(true);
+                gcodeCommand.setDone(true);
+            } else {
+                gcodeCommand.setOk(true);
+                gcodeCommand.setDone(true);
+            }
+            return answer;
+        }).when(controller).sendCommandImmediately(any(GcodeCommand.class));
+
+        // Function that will create new commands and count up
+        AtomicInteger commandNumber = new AtomicInteger();
+        Supplier<? extends GcodeCommand> supplier = (Supplier<GcodeCommand>) () -> {
+            int number = commandNumber.getAndAdd(1);
+            return new GcodeCommand("" + number);
+        };
+
+        GcodeCommand gcodeCommand = ControllerUtils.sendAndWaitForCompletionWithRetry(supplier, controller, 1000, 10, integer -> {});
+
+        verify(controller, times(2)).sendCommandImmediately(any());
+        assertEquals("1", gcodeCommand.getCommandString());
+    }
+
+    @Test
+    public void sendAndWaitForCompletionWithRetryShouldRetryOnTimeout() throws Exception {
+        IController controller = mock(IController.class);
+
+        // First command will time out, the second will succeed
+        doAnswer(answer -> {
+            GcodeCommand gcodeCommand = answer.getArgument(0);
+            if (gcodeCommand.getCommandString().equals("0")) {
+                // Make the first command time out
+                Thread.sleep(300);
+            } else {
+                gcodeCommand.setOk(true);
+                gcodeCommand.setDone(true);
+            }
+            return answer;
+        }).when(controller).sendCommandImmediately(any(GcodeCommand.class));
+
+        // Function that will create new commands and count up
+        AtomicInteger commandNumber = new AtomicInteger();
+        Supplier<? extends GcodeCommand> supplier = (Supplier<GcodeCommand>) () -> {
+            int number = commandNumber.getAndAdd(1);
+            return new GcodeCommand("" + number);
+        };
+
+        GcodeCommand gcodeCommand = ControllerUtils.sendAndWaitForCompletionWithRetry(supplier, controller, 200, 10, integer -> {});
+
+        verify(controller, times(2)).sendCommandImmediately(any());
+        assertEquals("1", gcodeCommand.getCommandString());
     }
 }
