@@ -103,6 +103,9 @@ public class JoystickServiceImpl implements JoystickService {
         actionManager.registerAction("continuousJogXAction", "Actions/Machine", new AnalogJogAction(continuousJogWorker, Axis.X));
         actionManager.registerAction("continuousJogYAction", "Actions/Machine", new AnalogJogAction(continuousJogWorker, Axis.Y));
         actionManager.registerAction("continuousJogZAction", "Actions/Machine", new AnalogJogAction(continuousJogWorker, Axis.Z));
+        actionManager.registerAction("continuousJogAAction", "Actions/Machine", new AnalogJogAction(continuousJogWorker, Axis.A));
+        actionManager.registerAction("continuousJogBAction", "Actions/Machine", new AnalogJogAction(continuousJogWorker, Axis.B));
+        actionManager.registerAction("continuousJogCAction", "Actions/Machine", new AnalogJogAction(continuousJogWorker, Axis.C));
 
         joystickActionDispatcher = new ActionDispatcher(actionManager, continuousJogWorker);
         addListener(joystickActionDispatcher);

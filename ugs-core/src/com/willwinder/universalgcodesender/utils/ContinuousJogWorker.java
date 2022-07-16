@@ -27,7 +27,6 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.CommandEvent;
 import com.willwinder.universalgcodesender.model.events.CommandEventType;
 import com.willwinder.universalgcodesender.services.JogService;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 /**
  * A continuous jog worker that will send small jog commands at a fixed interval so that
@@ -57,7 +56,6 @@ public class ContinuousJogWorker implements UGSEventListener {
     private boolean jogCanceled = true;
 
     public ContinuousJogWorker(BackendAPI backendAPI, JogService jogService) {
-//        this.executorService = Executors.newSingleThreadExecutor();
         this.jogService = jogService;
         this.backendAPI = backendAPI;
         this.x = 0f;
@@ -126,7 +124,21 @@ public class ContinuousJogWorker implements UGSEventListener {
         final double dt = 0.010; // minimum dt in ms for grbl command latency
         final double s = v * dt; // s = distance in units that this jog command should travel
         final double scaleFactor = s / jogVectorLength; // determine scaleFactor required to scale jogVectorLength to s
-        jogService.adjustManualLocation(new PartialPosition(x * scaleFactor, y * scaleFactor, z * scaleFactor, a * scaleFactor, b * scaleFactor, c * scaleFactor, units), speedFactor);
+
+        PartialPosition.Builder builder = PartialPosition.builder().setUnits(units);
+        setAxisIfNotZero(builder, Axis.X, x * scaleFactor);
+        setAxisIfNotZero(builder, Axis.Y, y * scaleFactor);
+        setAxisIfNotZero(builder, Axis.Z, z * scaleFactor);
+        setAxisIfNotZero(builder, Axis.A, a * scaleFactor);
+        setAxisIfNotZero(builder, Axis.B, b * scaleFactor);
+        setAxisIfNotZero(builder, Axis.C, c * scaleFactor);
+        jogService.adjustManualLocation(builder.build(), speedFactor);
+    }
+
+    private void setAxisIfNotZero(PartialPosition.Builder builder, Axis axis, double value) {
+        if (value != 0 && backendAPI.getController().getCapabilities().hasAxis(axis)) {
+            builder.setValue(axis, value);
+        }
     }
 
     /**
