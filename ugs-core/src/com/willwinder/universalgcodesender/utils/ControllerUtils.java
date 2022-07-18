@@ -88,7 +88,7 @@ public class ControllerUtils {
         int times = 0;
 
         T command = null;
-        while (times < retryCount) {
+        while (times < retryCount && controller.isCommOpen()) {
             long startTime = System.currentTimeMillis();
             try {
                 onExecute.accept(times + 1);

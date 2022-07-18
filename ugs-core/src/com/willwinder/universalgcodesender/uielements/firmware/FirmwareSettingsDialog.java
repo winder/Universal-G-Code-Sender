@@ -26,7 +26,7 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.components.FirmwareSettingsFileTypeFilter;
-import com.willwinder.universalgcodesender.utils.StringNumberComparator;
+import com.willwinder.universalgcodesender.utils.SettingsComparator;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -125,7 +125,7 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
         settingsTable.setModel(firmwareSettingsTableModel);
 
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(settingsTable.getModel());
-        sorter.setComparator(COL_INDEX_SETTING, new StringNumberComparator());
+        sorter.setComparator(COL_INDEX_SETTING, new SettingsComparator());
         sorter.toggleSortOrder(COL_INDEX_SETTING);
         settingsTable.setRowSorter(sorter);
 

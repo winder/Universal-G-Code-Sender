@@ -21,11 +21,14 @@ package com.willwinder.universalgcodesender.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.swing.JOptionPane;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,12 +53,8 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-import javax.swing.JOptionPane;
-import org.apache.commons.io.FileUtils;
-import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 
 /**
- *
  * @author wwinder
  */
 public class FirmwareUtils {
@@ -63,44 +62,26 @@ public class FirmwareUtils {
     private static final Logger logger = Logger.getLogger(FirmwareUtils.class.getName());
     private static boolean userNotified = false;
     private static boolean overwriteOldFiles = false;
-    private static Map<String,ConfigTuple> configFiles = new HashMap<>();
-
-    /**
-     * Need a simple way to map the config loader (JSON in POJO format) to the
-     * file it was generated from.
-     */
-    public static class ConfigTuple {
-        public ControllerSettings loader;
-        public File file;
-        public ConfigTuple(ControllerSettings l, File f) {
-            this.loader = l;
-            this.file = f;
-        }
-        public void reload() {
-            try {
-                loader = new Gson().fromJson(new FileReader(file), ControllerSettings.class);
-            } catch (FileNotFoundException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    public static Map<String,ConfigTuple> getConfigFiles() {
-        return configFiles;
-    }
+    private static final Map<String, ConfigTuple> configFiles = new HashMap<>();
 
     static {
         initialize();
     }
-    
-    public static ArrayList<String> getFirmwareList() {
-        return new ArrayList<>(configFiles.keySet());
+
+    public static Map<String, ConfigTuple> getConfigFiles() {
+        return configFiles;
     }
-    
+
+    public static List<String> getFirmwareList() {
+        List<String> firmwares = new ArrayList<>(configFiles.keySet());
+        firmwares.sort(StringUtils::compareIgnoreCase);
+        return firmwares;
+    }
+
     /**
      * Gets a list of command processors initialized with user settings.
      */
-    public static Optional<List<CommandProcessor>> getParserFor(String firmware, Settings settings)
+    public static Optional<List<CommandProcessor>> getParserFor(String firmware)
             throws Exception {
         if (!configFiles.containsKey(firmware)) {
             throw new Exception("Missing config file.");
@@ -108,23 +89,11 @@ public class FirmwareUtils {
         return Optional.of(configFiles.get(firmware).loader.getProcessors());
     }
 
-    public static void addPatternRemoverForFirmware(String firmware, String pattern) throws IOException {
-        if (!configFiles.containsKey(firmware)) {
-            return;
-        }
-        ConfigTuple tuple = configFiles.get(firmware);
-        JsonObject args = new JsonObject();
-        args.addProperty("pattern", pattern);
-        tuple.loader.getProcessorConfigs().Custom.add(
-                new ControllerSettings.ProcessorConfig("PatternRemover",
-                        true, true, args));
-        save(tuple.file, tuple.loader);
-    }
-
     /**
      * Gets a new controller object from a firmware config.
+     *
      * @param firmware
-     * @return 
+     * @return
      */
     public static Optional<IController> getControllerFor(String firmware) {
         if (!configFiles.containsKey(firmware) || configFiles.get(firmware).loader == null) {
@@ -148,7 +117,7 @@ public class FirmwareUtils {
 
     private static ControllerSettings getSettingsForStream(InputStream is)
             throws IOException {
-        try(BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
             return new Gson().fromJson(br, ControllerSettings.class);
         }
     }
@@ -192,13 +161,13 @@ public class FirmwareUtils {
             }
 
             Stream<Path> files = Files.walk(myPath, 1);
-            for (Path path : (Iterable<Path>) () -> files.iterator()) {
+            for (Path path : (Iterable<Path>) files::iterator) {
                 logger.info(path.toString());
                 final String name = path.getFileName().toString();
                 File fwConfig = new File(firmwareConfig, name);
                 if (name.endsWith(".json")) {
                     boolean copyFile = !fwConfig.exists();
-                    ControllerSettings jarSetting = 
+                    ControllerSettings jarSetting =
                             getSettingsForStream(Files.newInputStream(path));
 
                     // If the file is outdated... ask the user (once).
@@ -207,7 +176,7 @@ public class FirmwareUtils {
                                 getSettingsForStream(new FileInputStream(fwConfig));
                         boolean outOfDate =
                                 current.getVersion() < jarSetting.getVersion();
-                        if (outOfDate && !userNotified && !overwriteOldFiles) { 
+                        if (outOfDate && !userNotified && !overwriteOldFiles) {
                             int result = NarrowOptionPane.showNarrowConfirmDialog(
                                     200,
                                     Localization.getString("settings.file.outOfDate.message"),
@@ -255,7 +224,6 @@ public class FirmwareUtils {
         for (File f : firmwareConfig.listFiles()) {
             try {
                 ControllerSettings config = new Gson().fromJson(new FileReader(f), ControllerSettings.class);
-                //ConfigLoader config = new ConfigLoader(f);
                 configFiles.put(config.getName(), new ConfigTuple(config, f));
             } catch (FileNotFoundException | JsonSyntaxException | JsonIOException ex) {
                 GUIHelpers.displayErrorDialog("Unable to load configuration files: " + f.getAbsolutePath());
@@ -270,5 +238,27 @@ public class FirmwareUtils {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(cs, ControllerSettings.class);
         FileUtils.writeStringToFile(f, json);
+    }
+
+    /**
+     * Need a simple way to map the config loader (JSON in POJO format) to the
+     * file it was generated from.
+     */
+    public static class ConfigTuple {
+        public ControllerSettings loader;
+        public File file;
+
+        public ConfigTuple(ControllerSettings l, File f) {
+            this.loader = l;
+            this.file = f;
+        }
+
+        public void reload() {
+            try {
+                loader = new Gson().fromJson(new FileReader(file), ControllerSettings.class);
+            } catch (FileNotFoundException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        }
     }
 }

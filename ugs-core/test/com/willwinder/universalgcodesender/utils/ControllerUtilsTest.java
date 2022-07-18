@@ -36,6 +36,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 public class ControllerUtilsTest {
 
@@ -77,6 +78,7 @@ public class ControllerUtilsTest {
     @Test
     public void sendAndWaitForCompletionWithRetryShouldRetryOnErrors() throws Exception {
         IController controller = mock(IController.class);
+        when(controller.isCommOpen()).thenReturn(true);
 
         // First command will generate an error, the second will succeed
         doAnswer(answer -> {
@@ -107,6 +109,7 @@ public class ControllerUtilsTest {
     @Test
     public void sendAndWaitForCompletionWithRetryShouldRetryOnTimeout() throws Exception {
         IController controller = mock(IController.class);
+        when(controller.isCommOpen()).thenReturn(true);
 
         // First command will time out, the second will succeed
         doAnswer(answer -> {
@@ -132,5 +135,21 @@ public class ControllerUtilsTest {
 
         verify(controller, times(2)).sendCommandImmediately(any());
         assertEquals("1", gcodeCommand.getCommandString());
+    }
+
+    @Test
+    public void sendAndWaitForCompletionWithWhenDisconnectedShouldReturn() throws Exception {
+        IController controller = mock(IController.class);
+        when(controller.isCommOpen()).thenReturn(false);
+
+        // Function that will create new commands and count up
+        AtomicInteger commandNumber = new AtomicInteger();
+        Supplier<? extends GcodeCommand> supplier = (Supplier<GcodeCommand>) () -> {
+            int number = commandNumber.getAndAdd(1);
+            return new GcodeCommand("" + number);
+        };
+
+        ControllerUtils.sendAndWaitForCompletionWithRetry(supplier, controller, 200, 10, integer -> {});
+        verify(controller, times(0)).sendCommandImmediately(any());
     }
 }
