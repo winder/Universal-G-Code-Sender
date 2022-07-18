@@ -2,6 +2,7 @@ package com.willwinder.universalgcodesender.firmware.fluidnc;
 
 import com.willwinder.universalgcodesender.Capabilities;
 import com.willwinder.universalgcodesender.CapabilitiesConstants;
+import com.willwinder.universalgcodesender.ConnectionWatchTimer;
 import com.willwinder.universalgcodesender.GrblCapabilitiesConstants;
 import com.willwinder.universalgcodesender.GrblCommunicator;
 import com.willwinder.universalgcodesender.GrblUtils;
@@ -11,6 +12,7 @@ import com.willwinder.universalgcodesender.StatusPollTimer;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionException;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
+import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetAlarmCodesCommand;
@@ -45,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -55,7 +56,6 @@ import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
-import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
 
 public class FluidNCController implements IController, CommunicatorListener {
 
@@ -66,16 +66,15 @@ public class FluidNCController implements IController, CommunicatorListener {
     private final Set<ControllerListener> listeners = Collections.synchronizedSet(new HashSet<>());
     private final List<GcodeCommand> activeCommands = new ArrayList<>();
     private final ICommunicator communicator;
-    private final FluidNCSettings firmwareSettings;
+    private final FluidNCSettings firmwareSettings = new FluidNCSettings(this);
     private final Capabilities capabilities = new Capabilities();
-    private final StatusPollTimer positionPollTimer;
+    private final StatusPollTimer positionPollTimer = new StatusPollTimer(this);
+    private final ConnectionWatchTimer connectionWatchTimer = new ConnectionWatchTimer(this);
     private final StopWatch streamStopWatch = new StopWatch();
     private MessageService messageService = new MessageService();
     private ControllerStatus controllerStatus;
-
     private SemanticVersion semanticVersion = new SemanticVersion();
     private String firmwareVariant;
-    private Map<Integer, String> errorCodes;
     private IGcodeStreamReader streamCommands;
     private String distanceModeCode;
     private String unitsCode;
@@ -85,14 +84,11 @@ public class FluidNCController implements IController, CommunicatorListener {
     }
 
     public FluidNCController(ICommunicator communicator) {
-        this.communicator = communicator;
-        this.firmwareSettings = new FluidNCSettings(this);
         this.controllerStatus = ControllerStatusBuilder.newInstance()
                 .setState(ControllerState.DISCONNECTED)
                 .build();
-
+        this.communicator = communicator;
         this.communicator.addListener(this);
-        this.positionPollTimer = new StatusPollTimer(this);
     }
 
     @Override
@@ -280,7 +276,7 @@ public class FluidNCController implements IController, CommunicatorListener {
                 initializeController();
             }
         }, 1000);
-
+        connectionWatchTimer.start();
         return isCommOpen();
     }
 
@@ -299,6 +295,7 @@ public class FluidNCController implements IController, CommunicatorListener {
     @Override
     public Boolean closeCommPort() throws Exception {
         positionPollTimer.stop();
+        connectionWatchTimer.stop();
         if (!isCommOpen() && getControllerStatus().getState() == ControllerState.DISCONNECTED) {
             return true;
         }
@@ -500,22 +497,17 @@ public class FluidNCController implements IController, CommunicatorListener {
 
         setControllerState(ControllerState.CONNECTING);
         try {
-            GetStatusCommand statusCommand = sendAndWaitForCompletionWithRetry(GetStatusCommand::new, this, 4000, 10, (executionNumber) -> {
-                if (executionNumber == 1) {
-                    messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status\n");
-                } else {
-                    messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status (" + executionNumber + " of 10)...\n");
-                }
-            });
-
+            GetStatusCommand statusCommand = FluidNCUtils.queryForStatusReport(this, messageService);
             if (!statusCommand.isDone() || statusCommand.isError()) {
                 throw new IllegalStateException("Could not query the device status");
             }
 
-            if (statusCommand.getControllerStatus().getState() == ControllerState.HOLD) {
-                messageService.dispatchMessage(MessageType.INFO, "*** Device is in a holding state it needs to be reset\n");
+            if (statusCommand.getControllerStatus().getState() == ControllerState.HOLD || statusCommand.getControllerStatus().getState() == ControllerState.ALARM) {
+                messageService.dispatchMessage(MessageType.INFO, "*** Device is in a holding or alarm state and needs to be reset\n");
                 issueSoftReset();
-                return;
+                setControllerState(ControllerState.CONNECTING);
+                Thread.sleep(1000);
+                FluidNCUtils.queryForStatusReport(this, messageService);
             }
 
             messageService.dispatchMessage(MessageType.INFO, "*** Fetching device firmware version\n");
@@ -529,8 +521,8 @@ public class FluidNCController implements IController, CommunicatorListener {
             }
 
             messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status codes\n");
-            sendAndWaitForCompletion(this, new GetErrorCodesCommand());
-            sendAndWaitForCompletion(this, new GetAlarmCodesCommand());
+            sendAndWaitForCompletion(this, new GetErrorCodesCommand(), 3000);
+            sendAndWaitForCompletion(this, new GetAlarmCodesCommand(), 3000);
 
             capabilities.addCapability(CapabilitiesConstants.JOGGING);
             capabilities.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);
@@ -539,16 +531,7 @@ public class FluidNCController implements IController, CommunicatorListener {
             capabilities.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
             capabilities.addCapability(CapabilitiesConstants.OVERRIDES);
 
-            messageService.dispatchMessage(MessageType.INFO, "*** Fetching device settings\n");
-            firmwareSettings.refresh();
-            firmwareSettings.getAllSettings().forEach(setting -> {
-                addCapabilityIfSettingStartsWith(setting, "axes/a", CapabilitiesConstants.A_AXIS);
-                addCapabilityIfSettingStartsWith(setting, "axes/b", CapabilitiesConstants.B_AXIS);
-                addCapabilityIfSettingStartsWith(setting, "axes/c", CapabilitiesConstants.C_AXIS);
-                addCapabilityIfSettingStartsWith(setting, "axes/x", CapabilitiesConstants.X_AXIS);
-                addCapabilityIfSettingStartsWith(setting, "axes/y", CapabilitiesConstants.Y_AXIS);
-                addCapabilityIfSettingStartsWith(setting, "axes/z", CapabilitiesConstants.Z_AXIS);
-            });
+            refreshFirmwareSettings();
 
             // Fetch the gcode state
             messageService.dispatchMessage(MessageType.INFO, "*** Fetching device state\n");
@@ -572,6 +555,19 @@ public class FluidNCController implements IController, CommunicatorListener {
                 // Never mind...
             }
         }
+    }
+
+    private void refreshFirmwareSettings() throws FirmwareSettingsException {
+        messageService.dispatchMessage(MessageType.INFO, "*** Fetching device settings\n");
+        firmwareSettings.refresh();
+        firmwareSettings.getAllSettings().forEach(setting -> {
+            addCapabilityIfSettingStartsWith(setting, "axes/a", CapabilitiesConstants.A_AXIS);
+            addCapabilityIfSettingStartsWith(setting, "axes/b", CapabilitiesConstants.B_AXIS);
+            addCapabilityIfSettingStartsWith(setting, "axes/c", CapabilitiesConstants.C_AXIS);
+            addCapabilityIfSettingStartsWith(setting, "axes/x", CapabilitiesConstants.X_AXIS);
+            addCapabilityIfSettingStartsWith(setting, "axes/y", CapabilitiesConstants.Y_AXIS);
+            addCapabilityIfSettingStartsWith(setting, "axes/z", CapabilitiesConstants.Z_AXIS);
+        });
     }
 
     /**
@@ -714,7 +710,7 @@ public class FluidNCController implements IController, CommunicatorListener {
             controllerStatus = FluidNCUtils.getStatusFromStatusResponse(controllerStatus, response, getFirmwareSettings().getReportingUnits());
             setControllerState(controllerStatus.getState());
             listeners.forEach(l -> l.statusStringListener(controllerStatus));
-            messageService.dispatchMessage(MessageType.VERBOSE, response + "\n");
+            messageService.dispatchMessage( MessageType.VERBOSE, response + "\n");
         } else if (getActiveCommand().isPresent()) {
             GcodeCommand command = getActiveCommand().get();
             command.appendResponse(response);
@@ -726,10 +722,7 @@ public class FluidNCController implements IController, CommunicatorListener {
 
                     listeners.forEach(l -> l.commandComplete(command));
 
-                    if (command instanceof GetErrorCodesCommand) {
-                        errorCodes = ((GetErrorCodesCommand) command).getErrorCodes();
-                        messageService.dispatchMessage(MessageType.VERBOSE, command.getResponse() + "\n");
-                    } else if (command instanceof GetStatusCommand) {
+                    if (command instanceof GetStatusCommand) {
                         messageService.dispatchMessage(MessageType.VERBOSE, command.getResponse() + "\n");
                     } else if (command instanceof SystemCommand) {
                         messageService.dispatchMessage(MessageType.VERBOSE, command.getResponse() + "\n");
@@ -753,10 +746,14 @@ public class FluidNCController implements IController, CommunicatorListener {
                 return;
             }
             ThreadHelper.invokeLater(this::initializeController);
-        } else if (GrblUtils.isGrblVersionString(response)) {
-            messageService.dispatchMessage(MessageType.INFO, "*** Detected an old GRBL version\n");
-        } else if (FluidNCUtils.isMessageResponse(response)) {
-            messageService.dispatchMessage(MessageType.VERBOSE, FluidNCUtils.parseMessageResponse(response).get() + "\n");
+        }
+
+        if (FluidNCUtils.isMessageResponse(response)) {
+            MessageType messageType = MessageType.INFO;
+            if (controllerStatus.getState() == ControllerState.CONNECTING) {
+                messageType = MessageType.VERBOSE;
+            }
+            messageService.dispatchMessage(messageType, FluidNCUtils.parseMessageResponse(response).orElse("") + "\n");
         } else {
             messageService.dispatchMessage(MessageType.VERBOSE, "Other: " + response + "\n");
         }

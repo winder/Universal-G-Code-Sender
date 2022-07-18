@@ -132,7 +132,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         gcp.clearCommandProcessors();
 
         try {
-            List<CommandProcessor> processors = FirmwareUtils.getParserFor(firmware, settings).orElse(null);
+            List<CommandProcessor> processors = FirmwareUtils.getParserFor(firmware).orElse(null);
             for (CommandProcessor p : processors) {
                 gcp.addCommandProcessor(p);
             }
@@ -146,7 +146,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
         // Load command processors for this firmware.
         try {
-            FirmwareUtils.getParserFor(firmware, settings);
+            FirmwareUtils.getParserFor(firmware);
         } catch (Exception e) {
             disconnect();
             throw new Exception("Bad configuration file for: " + firmware + " (" + e.getMessage() + ")");

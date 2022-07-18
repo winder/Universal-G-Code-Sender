@@ -1,10 +1,14 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc;
 
 import com.willwinder.universalgcodesender.GrblUtils;
+import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.utils.SemanticVersion;
 
 import java.text.ParseException;
@@ -13,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.willwinder.universalgcodesender.GrblUtils.getControllerStateFromStateString;
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
 
 public class FluidNCUtils {
     public static final double GRBL_COMPABILITY_VERSION = 1.1d;
@@ -164,5 +169,15 @@ public class FluidNCUtils {
         ControllerState state = getControllerStateFromStateString(stateString);
 
         return new ControllerStatus(state, subStateString, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates);
+    }
+
+    public static GetStatusCommand queryForStatusReport(IController controller, MessageService messageService) throws InterruptedException {
+        return sendAndWaitForCompletionWithRetry(GetStatusCommand::new, controller, 4000, 10, (executionNumber) -> {
+            if (executionNumber == 1) {
+                messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status\n");
+            } else {
+                messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status (" + executionNumber + " of 10)...\n");
+            }
+        });
     }
 }
