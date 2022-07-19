@@ -354,7 +354,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
     @Override
     public void onWorkPositionClick(JComponent component, Axis axis) {
         if (backend.isConnected() && backend.isIdle()) {
-            String text = decimalFormatter.format(backend.getWorkPosition().get(axis));
+            String text = decimalFormatter.format(backend.getWorkPosition().getPositionIn(units).get(axis));
             PopupEditor popupEditor = new PopupEditor(component, "Set " + axis + " work position", text);
             popupEditor.setVisible(true);
             popupEditor.addPopupListener((value) -> {
