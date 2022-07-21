@@ -62,11 +62,9 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
         setLayout(new BorderLayout());
 
         tableModel = new FileTableModel();
-        refreshFileList();
-
         fileTable = new FileTable(tableModel);
+        fileTable.getSelectionModel().addListSelectionListener(this);
         fileTable.addMouseListener(this);
-
 
         add(new JScrollPane(fileTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 
@@ -86,7 +84,7 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
         buttonPanel.add(uploadButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
-
+        refreshFileList();
         setResizable(true);
         pack();
     }

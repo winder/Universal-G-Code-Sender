@@ -33,7 +33,6 @@ public class FileTable extends JTable {
     public FileTable(FileTableModel tableModel) {
         super(tableModel);
         setAutoCreateRowSorter(true);
-        getSelectionModel().addListSelectionListener(this);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(getModel());
