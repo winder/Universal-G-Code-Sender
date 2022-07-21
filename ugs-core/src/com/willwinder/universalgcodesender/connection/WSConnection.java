@@ -20,7 +20,7 @@ public class WSConnection  extends AbstractConnection implements Connection  {
     public void setUri(String uri) {
         try {
             host = StringUtils.substringBetween(uri, ConnectionDriver.WS.getProtocol(), ":");
-            port = Integer.valueOf(StringUtils.substringAfterLast(uri, ":"));
+            port = Integer.parseInt(StringUtils.substringAfterLast(uri, ":"));
             this.uri = URI.create(
                     ConnectionDriver.WS.getProtocol()+
                             StringUtils.substringBetween(uri, ConnectionDriver.WS.getProtocol(), "/")+
@@ -50,7 +50,7 @@ public class WSConnection  extends AbstractConnection implements Connection  {
 
     @OnMessage
     public void onMessage(String message) throws IOException {
-        responseMessageHandler.handleResponse(message + "\n");
+        responseMessageHandler.handleResponse(message.getBytes(), 0, message.length());
     }
 
     @Override

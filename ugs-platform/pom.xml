@@ -156,5 +156,6 @@
     <module>ugs-platform-plugin-cloud-storage</module>
     <module>ugs-platform-plugin-toolbox</module>
     <module>ugs-platform-plugin-dro</module>
+    <module>ugs-platform-plugin-filebrowser</module>
   </modules>
 </project>

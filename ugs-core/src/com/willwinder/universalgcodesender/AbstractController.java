@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.IOException;
+import java.io.NotActiveException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -952,6 +953,11 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     @Override
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
+    }
+
+    @Override
+    public IFileService getFileService() {
+        throw new RuntimeException("The file service is not available for this type of controller");
     }
 
     public class UnexpectedCommand extends Exception {

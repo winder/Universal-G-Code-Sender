@@ -31,24 +31,18 @@ import java.util.Set;
  * @author wwinder
  * @author Joacim Breiler
  */
-public class ResponseMessageHandler {
+public class ResponseMessageHandler implements IResponseMessageHandler {
 
     private final StringBuilder inputBuffer;
-    private Set<IConnectionListener> listeners = new HashSet<>();
+    private final Set<IConnectionListener> listeners = new HashSet<>();
 
     public ResponseMessageHandler() {
         inputBuffer = new StringBuilder();
     }
 
-
-
-    /**
-     * Appends the response data to a buffer, then splits out response rows and sends them
-     * to the communicator using the {@link IConnectionListener#handleResponseMessage(String)}
-     *
-     * @param response a complete or part of a response message
-     */
-    public void handleResponse(String response) {
+    @Override
+    public void handleResponse(byte[] buffer, int offset, int length) {
+        String response = new String(buffer, offset, length);
         inputBuffer.append(StringUtils.remove(response, '\r'));
 
         // Only continue if there is a line terminator and split out command(response).
@@ -74,9 +68,7 @@ public class ResponseMessageHandler {
     }
 
     public void notifyListeners(String message) {
-        listeners.forEach(listener -> {
-            listener.handleResponseMessage(message);
-        });
+        listeners.forEach(listener -> listener.handleResponseMessage(message));
     }
 
     public void addListener(IConnectionListener connectionListener) {

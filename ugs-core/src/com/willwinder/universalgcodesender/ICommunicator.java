@@ -25,6 +25,8 @@ import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
+import java.io.IOException;
+
 /**
  * An interface for describing a communicator, responsible for handling gcode command
  * queues and its streaming to a hardware connection.
@@ -168,8 +170,8 @@ public interface ICommunicator extends IConnectionListener {
      * Connects to the hardware
      *
      * @param connectionDriver the connection driver to use
-     * @param port the port adress to use (i.e. /dev/ttyUSB0)
-     * @param portRate the port rate to use
+     * @param port             the port adress to use (i.e. /dev/ttyUSB0)
+     * @param portRate         the port rate to use
      * @throws Exception if the connection couldn't be established
      */
     void connect(ConnectionDriver connectionDriver, String port, int portRate) throws Exception;
@@ -180,4 +182,22 @@ public interface ICommunicator extends IConnectionListener {
      * @throws Exception if the hardware couldn't be disconnected
      */
     void disconnect() throws Exception;
+
+    /**
+     * Enters a mode for receiving files using the xmodem protocol and return the data as a byte array.
+     * This mode will block until the file stream has been received or until the protocol times out or an error occurs.
+     *
+     * @return a byte array with the received file
+     * @throws IOException if there is a protocol error or a timeout occurs.
+     */
+    byte[] xmodemReceive() throws IOException;
+
+    /**
+     * Enters a mode for sending files using the xmodem protocol as a byte array.
+     * This mode will block until the file stream has been sent or until the protocol times out or an error occurs.
+     *
+     * @param data the data to send
+     * @throws IOException if there is a protocol error or a timeout occurs.
+     */
+    void xmodemSend(byte[] data) throws IOException;
 }

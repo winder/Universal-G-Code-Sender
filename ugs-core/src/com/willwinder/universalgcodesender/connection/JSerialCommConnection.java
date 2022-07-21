@@ -33,14 +33,14 @@ import java.util.stream.Collectors;
  */
 public class JSerialCommConnection extends AbstractConnection implements SerialPortDataListener {
 
-    private final byte[] buffer = new byte[1024];
+    private final byte[] buffer = new byte[2048];
     private SerialPort serialPort;
 
     @Override
     public void setUri(String uri) {
         try {
             String portName = StringUtils.substringBetween(uri, ConnectionDriver.JSERIALCOMM.getProtocol(), ":");
-            int baudRate = Integer.valueOf(StringUtils.substringAfterLast(uri, ":"));
+            int baudRate = Integer.parseInt(StringUtils.substringAfterLast(uri, ":"));
             initSerialPort(portName, baudRate);
         } catch (Exception e) {
             throw new ConnectionException("Couldn't parse connection string " + uri, e);
@@ -121,8 +121,6 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
         }
 
         int bytesRead = serialPort.readBytes(buffer, Math.min(buffer.length, bytesAvailable));
-        String response = new String(buffer, 0, bytesRead);
-
-        responseMessageHandler.handleResponse(response);
+        getResponseMessageHandler().handleResponse(buffer, 0, bytesRead);
     }
 }

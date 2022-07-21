@@ -30,7 +30,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * A diagnostic class to test application speed, this is a connection that
  * responds with "ok" as fast as possible.
- * 
+ *
  * @author wwinder
  */
 public class LoopBackConnection extends AbstractConnection {
@@ -41,11 +41,15 @@ public class LoopBackConnection extends AbstractConnection {
     private int ms = 0;
 
     private void initialize() {
-        responseMessageHandler.handleResponse(" ");
-        responseMessageHandler.handleResponse("Grbl 0.9z [ugs diagnostic mode]");
-        responseMessageHandler.handleResponse(" ");
-        responseMessageHandler.handleResponse("This is a diagnostic end point which responds to each gcode");
-        responseMessageHandler.handleResponse("command as fast as possible while doing nothing else.");
+        handleResponse(" ");
+        handleResponse("Grbl 0.9z [ugs diagnostic mode]");
+        handleResponse(" ");
+        handleResponse("This is a diagnostic end point which responds to each gcode");
+        handleResponse("command as fast as possible while doing nothing else.");
+    }
+
+    private void handleResponse(String response) {
+        responseMessageHandler.handleResponse(response.getBytes(), 0, response.length());
     }
 
     Runnable okRunnable = () -> {
@@ -68,9 +72,9 @@ public class LoopBackConnection extends AbstractConnection {
                     if (lastCommand != null) {
                         xyz = String.format("%f,%f,%f", lastCommand.x, lastCommand.y, lastCommand.z);
                     }
-                    responseMessageHandler.handleResponse(String.format("<Idle,MPos:%s,WPos:%s>", xyz, xyz));
+                    handleResponse(String.format("<Idle,MPos:%s,WPos:%s>", xyz, xyz));
                 } else if (command.equals("G61")) {
-                    responseMessageHandler.handleResponse("error: G61 not supported.");
+                    handleResponse("error: G61 not supported.");
                 } else {
                     count++;
                     if (count == 2) {
@@ -82,7 +86,7 @@ public class LoopBackConnection extends AbstractConnection {
                             lastCommand = gcp.getCurrentState().currentPoint;
                         } catch (Exception e) {
                         }
-                        responseMessageHandler.handleResponse("ok");
+                        handleResponse("ok");
                     }
                 }
             } catch (InterruptedException ex) {
@@ -97,7 +101,7 @@ public class LoopBackConnection extends AbstractConnection {
         sent = new LinkedBlockingQueue<>();
         okThread = new Thread(okRunnable);
     }
-    
+
     public LoopBackConnection(String terminator) {
     }
 
@@ -131,12 +135,12 @@ public class LoopBackConnection extends AbstractConnection {
         open = false;
         okThread.interrupt();
     }
-    
+
     @Override
     public void sendStringToComm(String command) throws Exception {
         this.sent.put(command);
     }
-        
+
     @Override
     public void sendByteImmediately(byte b) throws Exception {
         this.sent.put(Byte.toString(b));

@@ -44,7 +44,7 @@ public class JSSCConnection extends AbstractConnection implements SerialPortEven
     public void setUri(String uri) {
         try {
             portName = StringUtils.substringBetween(uri, ConnectionDriver.JSSC.getProtocol(), ":");
-            baudRate = Integer.valueOf(StringUtils.substringAfterLast(uri, ":"));
+            baudRate = Integer.parseInt(StringUtils.substringAfterLast(uri, ":"));
         } catch (Exception e) {
             throw new ConnectionException("Couldn't parse connection string " + uri, e);
         }
@@ -119,9 +119,8 @@ public class JSSCConnection extends AbstractConnection implements SerialPortEven
             if (buf == null || buf.length <= 0) {
                 return;
             }
-
-            String s = new String(buf, 0, buf.length);
-            responseMessageHandler.handleResponse(s);
+            
+            responseMessageHandler.handleResponse(buf, 0, buf.length);
         } catch ( Exception e ) {
             e.printStackTrace();
             System.exit(-1);

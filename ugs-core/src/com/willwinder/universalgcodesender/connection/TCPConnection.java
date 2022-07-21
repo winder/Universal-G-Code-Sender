@@ -18,17 +18,19 @@
 */
 package com.willwinder.universalgcodesender.connection;
 
-import java.io.OutputStream;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.net.*;
-import java.net.Socket;
-
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.BindException;
+import java.net.ConnectException;
+import java.net.NoRouteToHostException;
+import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * A TCP connection object implementing the connection API.
@@ -37,21 +39,22 @@ import java.util.ArrayList;
  */
 public class TCPConnection extends AbstractConnection implements Runnable, Connection {
 
+    private static final Logger LOGGER = Logger.getLogger(TCPConnection.class.getSimpleName());
+
 	private String host;
 	private int port;
 
 	// General variables
 	private Socket client;
-	private BufferedReader bufIn;
 	private OutputStream bufOut;
-	private InputStreamReader inStream;
+	private BufferedInputStream inStream;
 	private Thread replyThread;
 
-	@Override
+    @Override
 	public void setUri(String uri) {
 		try {
 			host = StringUtils.substringBetween(uri, ConnectionDriver.TCP.getProtocol(), ":");
-			port = Integer.valueOf(StringUtils.substringAfterLast(uri, ":"));
+			port = Integer.parseInt(StringUtils.substringAfterLast(uri, ":"));
 		} catch (Exception e) {
 			throw new ConnectionException("Couldn't parse connection string " + uri, e);
 		}
@@ -75,14 +78,9 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		} catch( ConnectException e) {
 			throw new ConnectionException("The port is unreachable on the remote host. The server may not be running, or blocked by a firewall.", e);
 		}
-		
-		if (client == null) {
-			throw new ConnectionException("Socket unable to connect.");
-		}
 
-		bufOut = client.getOutputStream();
-		inStream = new InputStreamReader(client.getInputStream());
-		bufIn = new BufferedReader(inStream);
+        bufOut = client.getOutputStream();
+		inStream = new BufferedInputStream(client.getInputStream());
 
 		// start thread so replies can be handled
 		replyThread = new Thread(this);
@@ -122,14 +120,11 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		try {
 			bufOut.write(command.getBytes());
 			bufOut.flush();
-		} catch (SocketException e) {
-			closePort(); // very likely we got disconnected, attempt to disconnect gracefully
-			throw e;
 		} catch (IOException e) {
 			closePort(); // very likely we got disconnected, attempt to disconnect gracefully
 			throw e;
 		}
-	}
+    }
 
 	/**
 	 * Immediately sends a byte, used for real-time commands.
@@ -138,36 +133,29 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		try {
 			bufOut.write(b);
 			bufOut.flush();
-		} catch (SocketException e) {
-			closePort(); // very likely we got disconnected, attempt to disconnect gracefully
-			throw e;
 		} catch (IOException e) {
 			closePort(); // very likely we got disconnected, attempt to disconnect gracefully
 			throw e;
 		}
-	}
+    }
 
 	/**
 	 * Thread to accept data from remote host, and pass it to responseHandler
 	 */
 	public void run() {
-		String resp;
+        byte[] buffer = new byte[1024];
 		while(!Thread.interrupted() && !client.isClosed())
 		{
 			try {
-				if(inStream.ready() && (resp = bufIn.readLine()) != null) {
-					responseMessageHandler.handleResponse(resp + "\n");
+                int readBytes = inStream.read(buffer);
+				if(readBytes > 0) {
+					responseMessageHandler.handleResponse(buffer, 0, readBytes);
 				}
-			} catch (SocketException e) {
-				e.printStackTrace();
-				return; // terminate thread if disconnected
-						//TODO: at some point, reconnecting should be considered
 			} catch (IOException e) {
-				e.printStackTrace();
+                LOGGER.info("Got a socket exception: " + e.getMessage());
 				return; // terminate thread if disconnected
-						//TODO: at some point, reconnecting should be considered
 			}
-		}
+        }
 	}
 
 	/**
@@ -178,7 +166,6 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 	 */
 	@Override
 	public List<String> getPortNames() {
-		ArrayList<String> retval = new ArrayList<String>();
-		return retval;
+        return new ArrayList<>();
 	}
 }
