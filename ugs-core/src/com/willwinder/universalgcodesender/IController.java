@@ -235,4 +235,13 @@ public interface IController {
      * @return the current controller status
      */
     ControllerStatus getControllerStatus();
+
+
+    /**
+     * Returns a file service for managing files on the controller. This service will be available if the controller
+     * reports the capability {@link CapabilitiesConstants#FILE_SYSTEM}
+     *
+     * @return a file service
+     */
+    IFileService getFileService();
 }

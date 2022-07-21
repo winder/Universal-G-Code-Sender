@@ -73,6 +73,23 @@ public class ControllerUtils {
     }
 
     /**
+     * Waits for all commands to complete before continuing
+     *
+     * @param controller the controller to check for active commands
+     */
+    public static void waitOnActiveCommands(IController controller) throws InterruptedException {
+        long maxExecutionTime = MAX_EXECUTION_TIME;
+        long startTime = System.currentTimeMillis();
+        while (controller.getActiveCommand().isPresent()) {
+            if (startTime + maxExecutionTime < System.currentTimeMillis()) {
+                throw new RuntimeException("The command \"" + controller.getActiveCommand().get().getCommandString() + "\" has timed out as it wasn't finished within " + maxExecutionTime + "ms");
+            }
+
+            Thread.sleep(10);
+        }
+    }
+
+    /**
      * Sends a command and blocks the thread until the command is done and was ok. It will retry to send the command in case of a timeout or an error.
      *
      * @param commandSupplier  a supplier for creating gcode commands to send

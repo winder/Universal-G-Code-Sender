@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -202,6 +203,16 @@ public abstract class AbstractCommunicator implements ICommunicator {
             }
         }
     });
+
+    @Override
+    public byte[] xmodemReceive() throws IOException {
+        return connection.xmodemReceive();
+    }
+
+    @Override
+    public void xmodemSend(byte[] data) throws IOException {
+        connection.xmodemSend(data);
+    }
 
     // Simple data class used to pass data to the event thread.
     private class EventData {

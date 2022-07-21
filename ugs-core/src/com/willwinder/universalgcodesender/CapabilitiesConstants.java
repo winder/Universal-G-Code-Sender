@@ -86,4 +86,9 @@ public class CapabilitiesConstants {
     public static final String A_AXIS = "A_AXIS";
     public static final String B_AXIS = "B_AXIS";
     public static final String C_AXIS = "C_AXIS";
+
+    /**
+     * A key for identifying if the firmware supports handling the device file system
+     */
+    public static final String FILE_SYSTEM = "FILE_SYSTEM";
 }
