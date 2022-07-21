@@ -31,6 +31,10 @@ final public class VisualizerOptionsPanel extends AbstractOptionsPanel {
     }
 
     @Override
+    public void cancel() {
+    }
+
+    @Override
     public void load() {
         vo = new VisualizerOptions();
         for (Option op : vo) {

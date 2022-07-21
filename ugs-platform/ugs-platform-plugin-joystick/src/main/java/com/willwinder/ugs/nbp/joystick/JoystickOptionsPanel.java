@@ -133,6 +133,11 @@ public class JoystickOptionsPanel extends AbstractOptionsPanel implements Joysti
     }
 
     @Override
+    public void cancel() {
+        joystickService.setActivateActionDispatcher(true);
+    }
+
+    @Override
     public void onUpdate(JoystickState state) {
         for (JoystickControl control : JoystickControl.getDigitalControls()) {
             StatusLabel label = statusLabelMap.get(control);
