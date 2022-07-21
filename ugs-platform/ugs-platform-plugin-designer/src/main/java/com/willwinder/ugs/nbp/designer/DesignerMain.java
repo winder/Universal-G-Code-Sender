@@ -5,6 +5,7 @@ import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.*;
 import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTree;
+import com.willwinder.ugs.nbp.designer.gui.tree.EntityTreeModel;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
@@ -68,7 +69,8 @@ public class DesignerMain extends JFrame {
     }
 
     private JSplitPane createRightPanel(Controller controller) {
-        JSplitPane toolsSplit = new JSplitPane( JSplitPane.VERTICAL_SPLIT, new JScrollPane(new EntitiesTree(controller)), new SelectionSettingsPanel(controller));
+        EntityTreeModel entityTreeModel = new EntityTreeModel(controller);
+        JSplitPane toolsSplit = new JSplitPane( JSplitPane.VERTICAL_SPLIT, new JScrollPane(new EntitiesTree(controller, entityTreeModel)), new SelectionSettingsPanel(controller));
         toolsSplit.setResizeWeight(0.9);
         return toolsSplit;
     }

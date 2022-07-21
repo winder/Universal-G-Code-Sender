@@ -45,6 +45,11 @@ public class EntityTreeModel implements TreeModel, ControllerListener, DrawingLi
         controller.getDrawing().addListener(this);
     }
 
+    public void release() {
+        controller.removeListener(this);
+        controller.getDrawing().removeListener(this);
+    }
+
     @Override
     public Object getRoot() {
         return controller.getDrawing().getRootEntity();
@@ -93,11 +98,7 @@ public class EntityTreeModel implements TreeModel, ControllerListener, DrawingLi
 
     protected void fireTreeStructureChanged(Object object) {
         List<Entity> selection = controller.getSelectionManager().getSelection();
-        TreeModelEvent e = new TreeModelEvent(this,
-                new Object[]{object});
-        for (TreeModelListener tml : treeModelListeners) {
-            tml.treeStructureChanged(e);
-        }
+        notifyTreeStructureChanged(object);
 
         // Restore old selection
         List<Entity> existingEntities = controller.getDrawing().getEntities();
@@ -105,6 +106,14 @@ public class EntityTreeModel implements TreeModel, ControllerListener, DrawingLi
                 .filter(existingEntities::contains)
                 .collect(Collectors.toList());
         controller.getSelectionManager().setSelection(newSelection);
+    }
+
+    public void notifyTreeStructureChanged(Object object) {
+        TreeModelEvent e = new TreeModelEvent(this,
+                new Object[]{object});
+        for (TreeModelListener tml : treeModelListeners) {
+            tml.treeStructureChanged(e);
+        }
     }
 
     @Override

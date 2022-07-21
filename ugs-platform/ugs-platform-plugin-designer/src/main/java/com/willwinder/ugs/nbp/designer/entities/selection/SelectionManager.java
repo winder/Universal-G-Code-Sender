@@ -119,9 +119,7 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
 
 
     public void removeSelectionListener(SelectionListener selectionListener) {
-        if (!listeners.contains(selectionListener)) {
-            listeners.remove(selectionListener);
-        }
+        listeners.remove(selectionListener);
     }
 
     private void fireSelectionEvent(SelectionEvent selectionEvent) {

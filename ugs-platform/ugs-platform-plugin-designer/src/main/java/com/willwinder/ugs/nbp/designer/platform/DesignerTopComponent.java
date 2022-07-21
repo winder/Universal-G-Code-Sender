@@ -148,6 +148,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     protected void componentClosed() {
         super.componentClosed();
         controller.getUndoManager().removeListener(this);
+        controller.release();
     }
 
     @Override

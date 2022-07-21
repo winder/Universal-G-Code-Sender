@@ -87,8 +87,7 @@ public class Controller {
     }
 
     private void notifyListeners(ControllerEventType event) {
-        new ArrayList<>(listeners)
-                .forEach(l -> l.onControllerEvent(event));
+        listeners.forEach(l -> l.onControllerEvent(event));
     }
 
     public Settings getSettings() {
@@ -117,5 +116,9 @@ public class Controller {
 
     public void setCursor(Cursor cursor) {
         drawing.setCursor(cursor);
+    }
+
+    public void release() {
+        notifyListeners(ControllerEventType.RELEASE);
     }
 }
