@@ -98,4 +98,6 @@ public abstract class AbstractOptionsPanel extends JPanel implements TableModelL
                 .addComponent(jScrollPane2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
         );
     }
+
+    public abstract void cancel();
 }
