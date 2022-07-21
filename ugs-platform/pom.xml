@@ -33,7 +33,8 @@
       <!-- JVMS can be found here: https://adoptopenjdk.net/archive.html?variant=openjdk12&jvmVariant=hotspot -->
       <ugs.bundle.java.mac.url>https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jre_x64_mac_hotspot_13.0.1_9.tar.gz</ugs.bundle.java.mac.url>
       <!-- Using 32-bit JRE as there are still many 32-bit systems -->
-      <ugs.bundle.java.win.url>https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jre_x86-32_windows_hotspot_13.0.1_9.zip</ugs.bundle.java.win.url>
+      <ugs.bundle.java.win32.url>https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jre_x86-32_windows_hotspot_13.0.1_9.zip</ugs.bundle.java.win32.url>
+      <ugs.bundle.java.win64.url>https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jre_x64_windows_hotspot_13.0.1_9.zip</ugs.bundle.java.win64.url>
       <!-- Using JRE8 as a bug in JRE13 makes the PI to consume 100% cpu -->
       <ugs.bundle.java.rpi.url>https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u275-b01/OpenJDK8U-jre_arm_linux_hotspot_8u275b01.tar.gz</ugs.bundle.java.rpi.url>
       <ugs.bundle.java.linux.url>https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jre_x64_linux_hotspot_13.0.1_9.tar.gz</ugs.bundle.java.linux.url>
