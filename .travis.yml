@@ -34,7 +34,8 @@ script:
   - mvn package -pl ugs-classic assembly:assembly -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
   - mvn package -pl ugs-platform/application -P create-autoupdate -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
   - mvn package -pl ugs-platform/application -P create-macosx-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
-  - mvn package -pl ugs-platform/application -P create-win-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
+  - mvn package -pl ugs-platform/application -P create-win32-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
+  - mvn package -pl ugs-platform/application -P create-win64-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
   - mvn package -pl ugs-platform/application -P create-linux-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
   - mvn package -pl ugs-platform/application -P create-pi-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 

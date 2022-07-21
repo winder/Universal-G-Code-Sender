@@ -249,7 +249,7 @@
         </profile>
 
         <profile>
-            <id>create-win-package</id>
+            <id>create-win32-package</id>
             <build>
                 <plugins>
                     <plugin>
@@ -258,7 +258,7 @@
                         <executions>
                             <!-- Create the Windows application bundle -->
                             <execution>
-                                <id>create-win-app-bundle</id>
+                                <id>create-win32-app-bundle</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>run</goal>
@@ -283,7 +283,7 @@
                                         <!-- Download and unzip JRE -->
                                         <exec dir="${project.build.directory}" executable="curl" failonerror="true">
                                             <arg line="-L"/>
-                                            <arg line="${ugs.bundle.java.win.url}"/>
+                                            <arg line="${ugs.bundle.java.win32.url}"/>
                                             <arg line="-o"/>
                                             <arg line="jre-win.zip"/>
                                         </exec>
@@ -313,6 +313,79 @@
                                             <arg value="${brandingToken}-win"/>
                                         </exec>
 
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>create-win64-package</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <!-- Create the Windows application bundle -->
+                            <execution>
+                                <id>create-win64-app-bundle</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <!-- Clean -->
+                                        <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
+                                            <fileset dir="${project.build.directory}/${brandingToken}-win" followsymlinks="false"/>
+                                            <fileset dir="${project.build.directory}/${ugs.app.title}" followsymlinks="false"/>
+                                            <fileset dir="${project.build.directory}/${project.artifactId}-${project.version}.zip" followsymlinks="false"/>
+                                        </delete>
+
+                                        <!-- Create folders -->
+                                        <mkdir dir="${project.build.directory}/${brandingToken}-win"/>
+
+                                        <!-- Copy application -->
+                                        <copy todir="${project.build.directory}/${brandingToken}-win">
+                                            <fileset dir="${project.build.directory}/${brandingToken}"/>
+                                        </copy>
+
+                                        <!-- Download and unzip JRE -->
+                                        <exec dir="${project.build.directory}" executable="curl" failonerror="true">
+                                            <arg line="-L"/>
+                                            <arg line="${ugs.bundle.java.win64.url}"/>
+                                            <arg line="-o"/>
+                                            <arg line="jre-win.zip"/>
+                                        </exec>
+
+                                        <!-- Unzip archive -->
+                                        <mkdir dir="${project.build.directory}/${brandingToken}-win/jdk"/>
+                                        <exec dir="${project.build.directory}" executable="unzip" failonerror="true">
+                                            <arg line="-e"/>
+                                            <arg line="jre-win.zip"/>
+                                            <arg line="-d &quot;${brandingToken}-win/jdk&quot;"/>
+                                        </exec>
+
+                                        <!-- Get the JRE folder name -->
+                                        <path id="jre_name">
+                                            <dirset dir="${project.build.directory}/${brandingToken}-win/jdk" includes="jdk*" />
+                                        </path>
+                                        <property name="bundle.jvm.path" refid="jre_name" />
+                                        <basename property="bundle.jvm.name" file="${bundle.jvm.path}"/>
+
+                                        <!-- Configure relative JRE path into ugsplatform.conf -->
+                                        <replace file="${project.build.directory}/${brandingToken}-win/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>
+
+                                        <!-- Create Archive -->
+                                        <exec dir="${project.build.directory}" executable="zip" failonerror="true">
+                                            <arg value="-r"/>
+                                            <arg value="win64-${project.artifactId}-${project.version}.zip"/>
+                                            <arg value="${brandingToken}-win"/>
+                                        </exec>
                                     </target>
                                 </configuration>
                             </execution>
