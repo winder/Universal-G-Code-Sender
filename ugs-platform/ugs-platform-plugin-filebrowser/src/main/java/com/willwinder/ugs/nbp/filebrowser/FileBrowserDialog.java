@@ -196,8 +196,8 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
             setEnabled(false);
             LoaderDialogHelper.showDialog("Deleting file", 1500, this);
             try {
-
-                File file = tableModel.get(fileTable.getSelectedRow());
+                int index = fileTable.getSelectionModel().getMinSelectionIndex();
+                File file = tableModel.get(index);
                 fileService.deleteFile(file);
                 refreshFileList();
             } catch (IOException ex) {

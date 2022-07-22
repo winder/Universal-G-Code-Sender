@@ -186,6 +186,9 @@ public class VisualizerUtils {
 
     public static void expandRotationalLineSegment(Position start, PointSegment endSegment, List<LineSegment> ret) {
         double maxDegreesPerStep = 5;
+        double deltaX = defaultZero(endSegment.point().x) - defaultZero(start.x);
+        double deltaY = defaultZero(endSegment.point().y) - defaultZero(start.y);
+        double deltaZ = defaultZero(endSegment.point().z) - defaultZero(start.z);
         double deltaA = defaultZero(endSegment.point().a) - defaultZero(start.a);
         double deltaB = defaultZero(endSegment.point().b) - defaultZero(start.b);
         double deltaC = defaultZero(endSegment.point().c) - defaultZero(start.c);
@@ -194,6 +197,15 @@ public class VisualizerUtils {
         Position startPoint = start;
         for (int i = 0; i < steps; i++) {
             Position end = new Position(endSegment.point());
+            if (deltaX != 0) {
+                end.setX(defaultZero(start.x) + ((deltaX / steps) * i));
+            }
+            if (deltaY != 0) {
+                end.setY(defaultZero(start.y) + ((deltaY / steps) * i));
+            }
+            if (deltaZ != 0) {
+                end.setZ(defaultZero(start.z) + ((deltaZ / steps) * i));
+            }
             if (deltaA != 0) {
                 end.setA(defaultZero(start.a) + ((deltaA / steps) * i));
             }
