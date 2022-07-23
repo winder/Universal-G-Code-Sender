@@ -32,9 +32,7 @@ public class EditorUtils {
     public static void openFile(FileObject pf) {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         try {
-            if (backend.getGcodeFile() == null || !backend.getGcodeFile().getAbsolutePath().equalsIgnoreCase(pf.getPath())) {
-                backend.setGcodeFile(new File((pf.getPath())));
-            }
+            backend.setGcodeFile(new File((pf.getPath())));
         } catch (Exception e) {
             ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
         }
