@@ -144,6 +144,22 @@ public class VisualizerUtilsTest {
     }
 
     @Test
+    public void expandRotationalLineSegmentRotationAroundAAndXShouldInterpolateWithFiveDegreeSteps() {
+        Position startPosition = new Position(0, 0, 10, 0, 0, 0, UnitUtils.Units.MM);
+        Position endPosition = new Position(10, 0, 10, 90, 0, 0, UnitUtils.Units.MM);
+        PointSegment endSegment = new PointSegment(endPosition, 0);
+
+        List<LineSegment> result = new ArrayList<>();
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
+
+        assertEquals(19, result.size());
+        assertPosition(0, 0, 10, 0, 0, 0, result.get(0).getEnd());
+        assertPosition(0.5, 0, 10, 5, 0, 0, result.get(1).getEnd());
+        assertPosition(1.1, 0, 10, 10, 0, 0, result.get(2).getEnd());
+        assertPosition(10, 0, 10, 90, 0, 0, result.get(18).getEnd());
+    }
+
+    @Test
     public void expandRotationalLineSegmentRotationAroundBShouldInterpolateWithFiveDegreeSteps() {
         Position startPosition = new Position(0, 0, 10, 0, 0, 0, UnitUtils.Units.MM);
         Position endPosition = new Position(0, 0, 10, 0, 90, 0, UnitUtils.Units.MM);
@@ -157,6 +173,22 @@ public class VisualizerUtilsTest {
         assertPosition(0, 0, 10, 0, 5, 0, result.get(1).getEnd());
         assertPosition(0, 0, 10, 0, 10, 0, result.get(2).getEnd());
         assertPosition(0, 0, 10, 0, 90, 0, result.get(18).getEnd());
+    }
+
+    @Test
+    public void expandRotationalLineSegmentRotationAroundBAndYShouldInterpolateWithFiveDegreeSteps() {
+        Position startPosition = new Position(0, 0, 10, 0, 0, 0, UnitUtils.Units.MM);
+        Position endPosition = new Position(0, 10, 10, 0, 90, 0, UnitUtils.Units.MM);
+        PointSegment endSegment = new PointSegment(endPosition, 0);
+
+        List<LineSegment> result = new ArrayList<>();
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
+
+        assertEquals(19, result.size());
+        assertPosition(0, 0, 10, 0, 0, 0, result.get(0).getEnd());
+        assertPosition(0, 0.5, 10, 0, 5, 0, result.get(1).getEnd());
+        assertPosition(0, 1.1, 10, 0, 10, 0, result.get(2).getEnd());
+        assertPosition(0, 10, 10, 0, 90, 0, result.get(18).getEnd());
     }
 
     @Test

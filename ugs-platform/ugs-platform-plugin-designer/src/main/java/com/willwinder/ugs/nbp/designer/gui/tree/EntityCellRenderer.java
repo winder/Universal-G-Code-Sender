@@ -49,13 +49,6 @@ public class EntityCellRenderer extends DefaultTreeCellRenderer {
         return this;
     }
 
-    @Override
-    public Dimension getPreferredSize() {
-        Dimension preferredSize = super.getPreferredSize();
-        preferredSize.width = tree.getWidth();
-        return preferredSize;
-    }
-
     private Object getUserObject(Object value) {
         if (value instanceof DefaultMutableTreeNode) {
             return ((DefaultMutableTreeNode) value).getUserObject();

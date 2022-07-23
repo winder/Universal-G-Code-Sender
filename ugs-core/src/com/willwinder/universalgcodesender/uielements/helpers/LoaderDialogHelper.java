@@ -83,6 +83,9 @@ public class LoaderDialogHelper {
 
         startTime = System.currentTimeMillis();
         Window window = SwingUtilities.getWindowAncestor(parent);
+        if (parent instanceof JDialog) {
+            window = (JDialog) parent;
+        }
         dialog = new JDialog(window, title, ModalityType.APPLICATION_MODAL);
         dialog.setUndecorated(true);
 

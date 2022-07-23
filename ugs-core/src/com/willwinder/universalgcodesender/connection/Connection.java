@@ -19,6 +19,7 @@
 
 package com.willwinder.universalgcodesender.connection;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -94,4 +95,22 @@ public interface Connection {
      * @return a list of available port names
      */
     List<String> getPortNames();
+
+    /**
+     * Enters a mode for receiving using the xmodem protocol and return the file stream as an byte array.
+     * This mode will block until the file stream has been received or until the protocol times out or an error occurs.
+     *
+     * @return a byte array with the received file
+     * @throws IOException if there is a protocol error or a timeout occurs.
+     */
+    byte[] xmodemReceive() throws IOException;
+
+    /**
+     * Enters a mode for sending file data using the xmodem. This mode will block until the file stream has been sent
+     * or until the protocol times out or an error occurs.
+     *
+     * @param data the raw file data to send
+     * @throws IOException if there is a protocol error or a timeout occurs.
+     */
+    void xmodemSend(byte[] data) throws IOException;
 }

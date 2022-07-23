@@ -8,6 +8,7 @@ import com.willwinder.universalgcodesender.GrblCommunicator;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.ICommunicator;
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.IFileService;
 import com.willwinder.universalgcodesender.StatusPollTimer;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionException;
@@ -71,6 +72,8 @@ public class FluidNCController implements IController, CommunicatorListener {
     private final StatusPollTimer positionPollTimer = new StatusPollTimer(this);
     private final ConnectionWatchTimer connectionWatchTimer = new ConnectionWatchTimer(this);
     private final StopWatch streamStopWatch = new StopWatch();
+    private final IFileService fileService;
+
     private MessageService messageService = new MessageService();
     private ControllerStatus controllerStatus;
     private SemanticVersion semanticVersion = new SemanticVersion();
@@ -89,6 +92,7 @@ public class FluidNCController implements IController, CommunicatorListener {
                 .build();
         this.communicator = communicator;
         this.communicator.addListener(this);
+        this.fileService = new FluidNCFileService(this, positionPollTimer);
     }
 
     @Override
@@ -530,6 +534,7 @@ public class FluidNCController implements IController, CommunicatorListener {
             capabilities.addCapability(CapabilitiesConstants.HOMING);
             capabilities.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
             capabilities.addCapability(CapabilitiesConstants.OVERRIDES);
+            capabilities.addCapability(CapabilitiesConstants.FILE_SYSTEM);
 
             refreshFirmwareSettings();
 
@@ -761,6 +766,8 @@ public class FluidNCController implements IController, CommunicatorListener {
 
     @Override
     public void commandSent(GcodeCommand command) {
+        command.setSent(true);
+
         if (command instanceof SystemCommand) {
             messageService.dispatchMessage(MessageType.VERBOSE, String.format("> %s\n", command.getCommandString()));
         } else {
@@ -790,4 +797,8 @@ public class FluidNCController implements IController, CommunicatorListener {
         }
     }
 
+    @Override
+    public IFileService getFileService() {
+        return fileService;
+    }
 }

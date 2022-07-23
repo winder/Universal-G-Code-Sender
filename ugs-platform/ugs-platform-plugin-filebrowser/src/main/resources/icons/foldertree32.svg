@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 32 32"
+   version="1.1"
+   id="svg832"
+   sodipodi:docname="foldertree32.svg"
+   inkscape:version="1.1-dev (0486c1a, 2020-10-10)"
+   width="32"
+   height="32"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs836" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1525"
+     inkscape:window-height="956"
+     id="namedview834"
+     showgrid="false"
+     inkscape:zoom="16.672454"
+     inkscape:cx="14.724887"
+     inkscape:cy="15.294689"
+     inkscape:window-x="284"
+     inkscape:window-y="156"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg832"
+     width="16px" />
+  <!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
+  <path
+     d="M 30.222221,3.5777501 H 23.999999 L 22.222222,1.8 H 17.777778 C 16.798889,1.8 16,2.5988765 16,3.5777501 V 12.4665 c 0,0.978873 0.798889,1.777749 1.777778,1.777749 h 12.444443 c 0.97889,0 1.777778,-0.798876 1.777778,-1.777749 V 5.3555001 c 0,-0.9788737 -0.8,-1.77775 -1.777778,-1.77775 z m 0,15.9997519 H 23.999999 L 22.222222,17.799753 H 17.777778 C 16.798889,17.799753 16,18.598627 16,19.577502 v 8.888749 c 0,0.978873 0.798889,1.777749 1.777778,1.777749 h 12.444443 c 0.97889,0 1.777778,-0.798876 1.777778,-1.777749 v -7.110999 c 0,-0.977762 -0.8,-1.77775 -1.777778,-1.77775 z M 3.5555555,2.688875 C 3.5555555,2.1958272 3.1599999,1.8 2.6666666,1.8 H 0.88888888 C 0.39583332,1.8 0,2.1958272 0,2.688875 V 24.91075 c 0,0.978874 0.79888889,1.77775 1.7777778,1.77775 H 14.222222 V 23.133002 H 3.5555555 V 10.68875 H 14.222222 V 7.1332503 H 3.5555555 Z"
+     id="path830"
+     style="fill:#353a40;fill-opacity:1;stroke-width:1" />
+</svg>

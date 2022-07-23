@@ -50,7 +50,10 @@ public abstract class AbstractOptionPanelController<T extends AbstractOptionsPan
 
     @Override
     public void cancel() {
-        // need not do anything special, if no changes have been persisted yet
+        SwingUtilities.invokeLater(() -> {
+            getPanel().cancel();
+            changed = false;
+        });
     }
 
     @Override

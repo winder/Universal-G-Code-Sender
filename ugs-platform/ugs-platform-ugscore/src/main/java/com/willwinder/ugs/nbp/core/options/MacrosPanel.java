@@ -64,4 +64,8 @@ final class MacrosPanel extends AbstractOptionsPanel {
         // TODO check whether form is consistent and complete
         return true;
     }
+
+    @Override
+    public void cancel() {
+    }
 }

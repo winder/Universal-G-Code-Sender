@@ -23,12 +23,14 @@ import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
-import java.awt.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -36,30 +38,30 @@ import java.util.List;
 /**
  * @author Joacim Breiler
  */
-public class EntitiesTree extends JPanel implements TreeSelectionListener, SelectionListener {
+public class EntitiesTree extends JTree implements TreeSelectionListener, SelectionListener {
 
     private transient Controller controller;
-    private final JTree tree;
 
-    public EntitiesTree(Controller controller) {
-        setLayout(new BorderLayout());
-        tree = new JTree();
-        tree.setEditable(true);
-        tree.setRootVisible(false);
-        tree.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        tree.setCellRenderer(new EntityCellRenderer(tree));
-        tree.setModel(new EntityTreeModel(controller));
-        tree.addTreeSelectionListener(this);
-        tree.expandRow(0);
+    public EntitiesTree(Controller controller, TreeModel treeModel) {
+        super(treeModel);
 
-        setBackground(tree.getBackground());
-        add(tree, BorderLayout.CENTER);
+        setEditable(true);
+        setRootVisible(false);
+        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        setCellRenderer(new EntityCellRenderer(this));
+        addTreeSelectionListener(this);
+        expandRow(0);
         updateController(controller);
+        ((EntityTreeModel) getModel()).notifyTreeStructureChanged(controller.getDrawing().getRootEntity());
     }
 
     private void updateController(Controller controller) {
         this.controller = controller;
         controller.getSelectionManager().addSelectionListener(this);
+    }
+
+    public void release() {
+        controller.getSelectionManager().removeSelectionListener(this);
     }
 
     @Override
@@ -79,6 +81,6 @@ public class EntitiesTree extends JPanel implements TreeSelectionListener, Selec
         EntityGroup rootEntity = (EntityGroup) controller.getDrawing().getRootEntity();
         List<TreePath> treePathList = EntityTreeUtils.getSelectedPaths(controller, rootEntity, Collections.emptyList());
         TreePath[] treePaths = treePathList.toArray(new TreePath[0]);
-        tree.setSelectionPaths(treePaths);
+        setSelectionPaths(treePaths);
     }
 }

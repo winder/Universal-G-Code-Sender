@@ -20,6 +20,8 @@ package com.willwinder.ugs.nbp.designer.platform;
 
 import com.willwinder.ugs.nbp.designer.gui.SelectionSettingsPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
+import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.windows.TopComponent;
@@ -32,7 +34,7 @@ import org.openide.windows.TopComponent;
         persistenceType = TopComponent.PERSISTENCE_NEVER
 )
 @TopComponent.Registration(mode = "top_left", openAtStartup = false)
-public class SettingsTopComponent extends TopComponent {
+public class SettingsTopComponent extends TopComponent implements ControllerListener {
     private static final long serialVersionUID = 324234398723987873L;
 
     private transient final SelectionSettingsPanel selectionSettingsPanel;
@@ -45,6 +47,7 @@ public class SettingsTopComponent extends TopComponent {
 
         Controller controller = CentralLookup.getDefault().lookup(Controller.class);
         selectionSettingsPanel = new SelectionSettingsPanel(controller);
+        controller.addListener(this);
     }
 
     @Override
@@ -52,5 +55,12 @@ public class SettingsTopComponent extends TopComponent {
         super.componentOpened();
         removeAll();
         add(selectionSettingsPanel);
+    }
+
+    @Override
+    public void onControllerEvent(ControllerEventType event) {
+        if (event == ControllerEventType.RELEASE) {
+            close();
+        }
     }
 }

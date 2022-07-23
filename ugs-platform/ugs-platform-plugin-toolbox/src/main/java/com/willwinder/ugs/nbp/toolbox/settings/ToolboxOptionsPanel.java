@@ -151,6 +151,10 @@ public class ToolboxOptionsPanel extends AbstractOptionsPanel {
         add(panel, BorderLayout.CENTER);
     }
 
+    @Override
+    public void cancel() {
+    }
+
     /**
      * Swap two elements in the list.
      *
