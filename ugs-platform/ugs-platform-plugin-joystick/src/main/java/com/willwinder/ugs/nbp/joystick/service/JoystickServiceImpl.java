@@ -147,31 +147,13 @@ public class JoystickServiceImpl implements JoystickService {
             return;
         }
 
-        controllerManager.initSDLGamepad();
-        int numControllers = controllerManager.getNumControllers();
-        if (numControllers > 0) {
-            try {
-                LOGGER.info(String.format("Found %d gamepad controllers, will use the first one with the name \"%s\"", numControllers, controllerManager.getControllerIndex(0).getName()));
-            } catch (ControllerUnpluggedException e) {
-                LOGGER.severe("Couldn't get the name of the first gamepad controller");
-            }
-        } else {
-            LOGGER.info("Couldn't find any gamepad controllers");
-        }
-
+        isRunning = true; // mainLoop will run until this flag is set false
         joystickReadThread.execute(this::mainLoop);
     }
 
     @Override
     public void destroy() {
-        isRunning = false;
-        try {
-            if (controllerManager != null && controllerManager.getNumControllers() > 0) {
-                controllerManager.quitSDLGamepad();
-            }
-        } catch (IllegalStateException e) {
-            LOGGER.fine("Couldn't release the joystick manager: " + e.getMessage());
-        }
+        isRunning = false; // causes the mainLoop to exit gracefully
     }
 
     @Override
@@ -200,34 +182,54 @@ public class JoystickServiceImpl implements JoystickService {
     }
 
     private void mainLoop() {
-        isRunning = true;
+        LOGGER.info("initializing SDL...");
+        controllerManager.initSDLGamepad();
+
         while (isRunning) {
             controllerManager.update();
-            if (controllerManager.getNumControllers() > 0) {
-                readDataLoop();
-            }
+            int numControllers = controllerManager.getNumControllers();
+            if (numControllers > 0) {
+                try {
+                    LOGGER.info(String.format("Found %d gamepad controllers, will use the first one with the name \"%s\"", numControllers, controllerManager.getControllerIndex(0).getName()));
+                } catch (ControllerUnpluggedException e) {
+                    LOGGER.severe("Couldn't get the name of the first gamepad controller");
+                }
 
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                // Never mind this
+                LOGGER.info("Starting readDataLoop...");
+                readDataLoop();
+                LOGGER.info("readDataLoop returned - possible controller unplug/replug");
+            } else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    // Never mind this
+                }
             }
+        }
+
+        LOGGER.info("shutting down SDL...");
+        try {
+            controllerManager.quitSDLGamepad();
+        } catch (IllegalStateException e) {
+            LOGGER.fine("Couldn't release the joystick manager: " + e.getMessage());
         }
     }
 
     private void readDataLoop() {
         currentController = controllerManager.getControllerIndex(0);
         try {
-            while (isRunning && currentController.isConnected()) {
+            while (isRunning) {
                 readData();
                 Thread.sleep(READ_DELAY_MILLISECONDS);
             }
+        } catch (JoystickException e) {
+            LOGGER.info("JoystickException - possible controller unplug/replug");
         } catch (InterruptedException e) {
-            LOGGER.log(Level.WARNING, "Controller unplugged or interrupted", e);
+            // ok, nbd...
         }
     }
 
-    private void readData() {
+    private void readData() throws JoystickException {
         joystickState.setDirty(false);
         Arrays.asList(ControllerButton.values()).forEach(this::updateJoystickButtonState);
         Arrays.asList(ControllerAxis.values()).forEach(this::updateJoystickAxisState);
@@ -247,7 +249,7 @@ public class JoystickServiceImpl implements JoystickService {
         });
     }
 
-    private void updateJoystickAxisState(ControllerAxis controllerAxis) {
+    private void updateJoystickAxisState(ControllerAxis controllerAxis) throws JoystickException {
         try {
             // We might have rounding errors from the controller, ignore the low value range
             float value = currentController.getAxisState(controllerAxis);
@@ -264,7 +266,7 @@ public class JoystickServiceImpl implements JoystickService {
         }
     }
 
-    private void updateJoystickButtonState(ControllerButton controllerButton) {
+    private void updateJoystickButtonState(ControllerButton controllerButton) throws JoystickException {
         try {
             boolean value = currentController.isButtonPressed(controllerButton);
             JoystickControl button = Utils.getJoystickButtonFromControllerButton(controllerButton);
