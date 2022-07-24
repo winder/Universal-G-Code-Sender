@@ -126,7 +126,7 @@ mvn package -pl ugs-classic
 #### Build a UniversalGcodeSender.zip release file
 
 ```bash
-mvn package assembly:assembly
+mvn package -pl ugs-classic assembly:assembly
 ```
 
 #### Develop via IntelliJ
