@@ -16,53 +16,54 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.connection;
+package com.willwinder.universalgcodesender.connection.xmodem;
 
+import com.willwinder.universalgcodesender.connection.xmodem.XModemResponseMessageHandler;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class AbstractConnectionTest {
+public class XModemResponseMessageHandlerTest {
 
     @Test
     public void trimEOFOnEmptyBuffer() {
         byte[] buffer = new byte[0];
-        byte[] bytes = AbstractConnection.trimEOF(buffer);
+        byte[] bytes = XModemResponseMessageHandler.trimEOF(buffer);
         assertEquals(0, bytes.length);
     }
 
     @Test
     public void trimEOFWithoutEOF() {
         byte[] buffer = new byte[]{0x00, 0x01, 0x03};
-        byte[] bytes = AbstractConnection.trimEOF(buffer);
+        byte[] bytes = XModemResponseMessageHandler.trimEOF(buffer);
         assertEquals(3, bytes.length);
     }
 
     @Test
     public void trimEOFOnBufferWithOneEOF() {
         byte[] buffer = new byte[]{0x1A};
-        byte[] bytes = AbstractConnection.trimEOF(buffer);
+        byte[] bytes = XModemResponseMessageHandler.trimEOF(buffer);
         assertEquals(0, bytes.length);
     }
 
     @Test
     public void trimEOFOnBufferWithMultipleEOF() {
         byte[] buffer = new byte[]{0x1A, 0x1A, 0x1A};
-        byte[] bytes = AbstractConnection.trimEOF(buffer);
+        byte[] bytes = XModemResponseMessageHandler.trimEOF(buffer);
         assertEquals(0, bytes.length);
     }
 
     @Test
     public void trimEOFOnlyTrailingEOF() {
         byte[] buffer = new byte[]{0x1A, 0x1A, 0x00, 0x1A};
-        byte[] bytes = AbstractConnection.trimEOF(buffer);
+        byte[] bytes = XModemResponseMessageHandler.trimEOF(buffer);
         assertEquals(3, bytes.length);
     }
 
     @Test
     public void trimEOFAllTrailingEOF() {
         byte[] buffer = new byte[]{0x1A, 0x1A, 0x00, 0x1A, 0x1A, 0x1A, 0x1A};
-        byte[] bytes = AbstractConnection.trimEOF(buffer);
+        byte[] bytes = XModemResponseMessageHandler.trimEOF(buffer);
         assertEquals(3, bytes.length);
     }
 }

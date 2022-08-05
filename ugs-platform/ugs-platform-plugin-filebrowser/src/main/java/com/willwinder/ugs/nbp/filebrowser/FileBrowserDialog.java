@@ -43,8 +43,11 @@ import java.awt.event.MouseListener;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class FileBrowserDialog extends JDialog implements MouseListener, ListSelectionListener {
+    private final Logger LOGGER = Logger.getLogger(FileBrowserDialog.class.getSimpleName());
+
     private final FileTableModel tableModel;
     private final IFileService fileService;
     private final JTable fileTable;
@@ -166,7 +169,7 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
     }
 
     private void handleFileDownload() {
-        File file = tableModel.get(fileTable.getSelectedRow());
+        File file = tableModel.get(getSelectedModelIndex());
         JFileChooser fileDialog = new JFileChooser();
         fileDialog.setDialogTitle("Download as...");
         fileDialog.setSelectedFile(new java.io.File(fileDialog.getCurrentDirectory().getAbsolutePath() + java.io.File.separatorChar + file.getName()));
@@ -196,8 +199,8 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
             setEnabled(false);
             LoaderDialogHelper.showDialog("Deleting file", 1500, this);
             try {
-                int index = fileTable.getSelectionModel().getMinSelectionIndex();
-                File file = tableModel.get(index);
+                File file = tableModel.get(getSelectedModelIndex());
+                LOGGER.info("Deleting file " + file.getAbsolutePath());
                 fileService.deleteFile(file);
                 refreshFileList();
             } catch (IOException ex) {
@@ -207,6 +210,10 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
                 setEnabled(true);
             }
         });
+    }
+
+    protected int getSelectedModelIndex() {
+        return fileTable.getRowSorter().convertRowIndexToModel(fileTable.getSelectedRow());
     }
 
     @Override

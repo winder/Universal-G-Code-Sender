@@ -37,7 +37,7 @@ import javax.swing.*;
 public class TableCellListener implements PropertyChangeListener, Runnable
 {
 	private final JTable table;
-	private Action action;
+	private ActionListener action;
 
 	private int row;
 	private int column;
@@ -48,12 +48,12 @@ public class TableCellListener implements PropertyChangeListener, Runnable
 	 *  Create a TableCellListener.
 	 *
 	 *  @param table   the table to be monitored for data changes
-	 *  @param action  the Action to invoke when cell data is changed
+	 *  @param actionListener  the Action to invoke when cell data is changed
 	 */
-	public TableCellListener(JTable table, Action action)
+	public TableCellListener(JTable table, ActionListener actionListener)
 	{
 		this.table = table;
-		this.action = action;
+		this.action = actionListener;
 		this.table.addPropertyChangeListener( this );
 	}
 

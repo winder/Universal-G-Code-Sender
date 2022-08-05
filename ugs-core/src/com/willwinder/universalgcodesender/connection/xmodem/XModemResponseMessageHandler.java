@@ -25,11 +25,13 @@ import io.github.neonSonOfXenon.JXmodem.JXmodem;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 /**
  * A response message handler for handling XModem communication to upload and download files from the controller.
  */
 public class XModemResponseMessageHandler implements IResponseMessageHandler {
+    public static final int EOF = 0x1A;
     private final RingBuffer buffer = new RingBuffer(4096);
     private final JXmodem modem;
 
@@ -62,10 +64,25 @@ public class XModemResponseMessageHandler implements IResponseMessageHandler {
     }
 
     public byte[] xmodemReceive() throws IOException {
-        return modem.receive();
+        return trimEOF(modem.receive());
     }
 
     public void xmodemSend(byte[] data) throws IOException {
         modem.send(data);
+    }
+
+    /**
+     * Trims any trailing EOF bytes from the byte buffer
+     * @param buffer a byte array buffer that should be trimmed
+     * @return a trimmed byte buffer
+     */
+    protected static byte[] trimEOF(byte[] buffer) {
+        // Trim any trailing EOF
+        int i = buffer.length - 1;
+        while (i >= 0 && buffer[i] == EOF) {
+            i--;
+        }
+
+        return Arrays.copyOfRange(buffer, 0, i + 1);
     }
 }

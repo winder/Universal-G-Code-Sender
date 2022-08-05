@@ -528,14 +528,7 @@ public class FluidNCController implements IController, CommunicatorListener {
             sendAndWaitForCompletion(this, new GetErrorCodesCommand(), 3000);
             sendAndWaitForCompletion(this, new GetAlarmCodesCommand(), 3000);
 
-            capabilities.addCapability(CapabilitiesConstants.JOGGING);
-            capabilities.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);
-            capabilities.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
-            capabilities.addCapability(CapabilitiesConstants.HOMING);
-            capabilities.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
-            capabilities.addCapability(CapabilitiesConstants.OVERRIDES);
-            capabilities.addCapability(CapabilitiesConstants.FILE_SYSTEM);
-
+            FluidNCUtils.addCapabilities(capabilities, semanticVersion);
             refreshFirmwareSettings();
 
             // Fetch the gcode state
@@ -715,7 +708,7 @@ public class FluidNCController implements IController, CommunicatorListener {
             controllerStatus = FluidNCUtils.getStatusFromStatusResponse(controllerStatus, response, getFirmwareSettings().getReportingUnits());
             setControllerState(controllerStatus.getState());
             listeners.forEach(l -> l.statusStringListener(controllerStatus));
-            messageService.dispatchMessage( MessageType.VERBOSE, response + "\n");
+            messageService.dispatchMessage(MessageType.VERBOSE, response + "\n");
         } else if (getActiveCommand().isPresent()) {
             GcodeCommand command = getActiveCommand().get();
             command.appendResponse(response);

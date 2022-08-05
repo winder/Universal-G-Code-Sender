@@ -18,142 +18,69 @@
  */
 package com.willwinder.universalgcodesender.connection.xmodem;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.nio.BufferOverflowException;
 
-/**
- * A simple ring buffer borrowed from here:
- * https://en.wikibooks.org/wiki/Serial_Programming/Serial_Java#A_simple,_thread-safe_Ring_Buffer_Implementation
- */
 public class RingBuffer extends InputStream {
 
-    /**
-     * internal buffer to hold the data
-     **/
-    private final byte[] buffer;
+    private static final int DEFAULT_CAPACITY = 8;
 
-    /**
-     * size of the buffer
-     **/
-    private final int size;
+    private final int capacity;
+    private final byte[] data;
+    private int writeSequence;
+    private int readSequence;
 
-    /**
-     * current start of data area
-     **/
-    private int start;
-
-    /**
-     * current end of data area
-     **/
-    private int end;
-
-    /**
-     * Construct a RingBuffer with a certain buffer size.
-     *
-     * @param size Buffer size in bytes
-     */
-    public RingBuffer(int size) {
-        this.size = size;
-        buffer = new byte[size];
-        clear();
+    public RingBuffer(int capacity) {
+        this.capacity = (capacity < 1) ? DEFAULT_CAPACITY : capacity;
+        this.data = new byte[this.capacity];
+        this.readSequence = 0;
+        this.writeSequence = -1;
     }
 
-    /**
-     * Clear the buffer contents. All data still in the buffer is lost.
-     */
-    public void clear() {
-        // Just reset the pointers. The remaining data fragments, if any,
-        // will be overwritten during normal operation.
-        start = end = 0;
-    }
-
-    /**
-     * Write as much data as possible to the buffer.
-     *
-     * @param data Data to be written
-     * @return Amount of data actually written
-     */
-    public int write(byte[] data) {
-        return write(data, 0, data.length);
-    }
-
-    /**
-     * Write as much data as possible to the buffer.
-     *
-     * @param data   Array holding data to be written
-     * @param off    Offset of data in array
-     * @param length Amount of data to write, starting from <code>off</code>.
-     * @return Amount of data actually written
-     */
-    public int write(byte[] data, int off, int length) {
-        if (length <= 0) return 0;
-        int remain = length;
-
-        int i = Math.min(remain, (end < start ? start : buffer.length) - end);
-        if (i > 0) {
-            System.arraycopy(data, off, buffer, end, i);
-            off += i;
-            remain -= i;
-            end += i;
+    public int read() {
+        if (!isEmpty()) {
+            byte nextValue = data[readSequence % capacity];
+            readSequence++;
+            return nextValue;
         }
 
-        i = Math.min(remain, end >= start ? start : 0);
-        if (i > 0) {
-            System.arraycopy(data, off, buffer, 0, i);
-            remain -= i;
-            end = i;
+        return -1;
+    }
+
+    public void write(byte element) {
+        if (isFull()) {
+            throw new BufferOverflowException();
         }
-        return length - remain;
+
+        int nextWriteSeq = writeSequence + 1;
+        data[nextWriteSeq % capacity] = element;
+        writeSequence++;
+    }
+
+    public void write(byte[] buffer, int offset, int length) {
+        for (int i = 0; i < length; i++) {
+            write(buffer[offset + i]);
+        }
+    }
+
+    public void write(byte[] buffer) {
+        write(buffer, 0, buffer.length);
+    }
+
+    public int capacity() {
+        return capacity;
     }
 
     @Override
-    public int read() throws IOException {
-        if (available() == 0) {
-            return -1;
-        }
-        byte[] buffer = new byte[1];
-        int bytesRead = read(buffer);
-        if (bytesRead == 0) {
-            return -1;
-        }
-        return buffer[0];
+    public int available() {
+        return (writeSequence - readSequence) + 1;
     }
 
-    @Override
-    public int available() throws IOException {
-        return start <= end
-                ? end - start
-                : end - start + size;
+    public boolean isEmpty() {
+        return writeSequence < readSequence;
     }
 
-    @Override
-    public int read(byte[] data) {
-        return read(data, 0, data.length);
-    }
-
-    @Override
-    public int read(byte[] data, int off, int n) {
-        if (n <= 0) return 0;
-        int remain = n;
-        // @todo check if off is valid: 0= <= off < data.length; throw exception if not
-
-        int i = Math.min(remain, (end < start ? buffer.length : end) - start);
-        if (i > 0) {
-            System.arraycopy(buffer, start, data, off, i);
-            off += i;
-            remain -= i;
-            start += i;
-            if (start >= buffer.length) {
-                start = 0;
-            }
-        }
-
-        i = Math.min(remain, end >= start ? 0 : end);
-        if (i > 0) {
-            System.arraycopy(buffer, 0, data, off, i);
-            remain -= i;
-            start = i;
-        }
-        return n - remain;
+    public boolean isFull() {
+        return available() >= capacity;
     }
 }

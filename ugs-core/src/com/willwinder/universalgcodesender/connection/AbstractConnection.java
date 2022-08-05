@@ -21,7 +21,6 @@ package com.willwinder.universalgcodesender.connection;
 import com.willwinder.universalgcodesender.connection.xmodem.XModemResponseMessageHandler;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * Abstract Connection
@@ -43,25 +42,13 @@ public abstract class AbstractConnection implements Connection {
         // Switch to a special XModem response handler
         IResponseMessageHandler previousResponseMessageHandler = responseMessageHandler;
         try {
-            XModemResponseMessageHandler reader = new XModemResponseMessageHandler(this);
-            responseMessageHandler = reader;
-            byte[] result = reader.xmodemReceive();
-
-            return trimEOF(result);
+            XModemResponseMessageHandler xModemResponseMessageHandler = new XModemResponseMessageHandler(this);
+            responseMessageHandler = xModemResponseMessageHandler;
+            return xModemResponseMessageHandler.xmodemReceive();
         } finally {
             // Restore the old response message handler
             responseMessageHandler = previousResponseMessageHandler;
         }
-    }
-
-    protected static byte[] trimEOF(byte[] result) {
-        // The result contains trailing EOF, trim those
-        int i = result.length - 1;
-        while(i >= 0 && result[i] == 0x1A) {
-            i--;
-        }
-
-        return Arrays.copyOfRange(result, 0, i + 1);
     }
 
     @Override
@@ -69,9 +56,9 @@ public abstract class AbstractConnection implements Connection {
         // Switch to a special XModem response handler
         IResponseMessageHandler previousResponseMessageHandler = responseMessageHandler;
         try {
-            XModemResponseMessageHandler reader = new XModemResponseMessageHandler(this);
-            responseMessageHandler = reader;
-            reader.xmodemSend(data);
+            XModemResponseMessageHandler xModemResponseMessageHandler = new XModemResponseMessageHandler(this);
+            responseMessageHandler = xModemResponseMessageHandler;
+            xModemResponseMessageHandler.xmodemSend(data);
         } finally {
             // Restore the old response message handler
             responseMessageHandler = previousResponseMessageHandler;
