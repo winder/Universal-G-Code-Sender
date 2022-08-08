@@ -1,5 +1,7 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc;
 
+import com.willwinder.universalgcodesender.Capabilities;
+import com.willwinder.universalgcodesender.CapabilitiesConstants;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCommand;
@@ -179,5 +181,18 @@ public class FluidNCUtils {
                 messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status (" + executionNumber + " of 10)...\n");
             }
         });
+    }
+
+    public static void addCapabilities(Capabilities capabilities, SemanticVersion version) {
+        capabilities.addCapability(CapabilitiesConstants.JOGGING);
+        capabilities.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);
+        capabilities.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
+        capabilities.addCapability(CapabilitiesConstants.HOMING);
+        capabilities.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
+        capabilities.addCapability(CapabilitiesConstants.OVERRIDES);
+
+        if (version.compareTo(new SemanticVersion(3, 5, 2)) >= 0) {
+            capabilities.addCapability(CapabilitiesConstants.FILE_SYSTEM);
+        }
     }
 }
