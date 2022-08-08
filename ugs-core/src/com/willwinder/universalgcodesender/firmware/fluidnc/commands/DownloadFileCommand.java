@@ -30,7 +30,9 @@ public class DownloadFileCommand extends SystemCommand {
     public void appendResponse(String response) {
         super.appendResponse(response);
 
-        if (StringUtils.startsWithIgnoreCase(response, "[MSG:INFO: Sending")) {
+        if (response.equalsIgnoreCase(getCommandString())) {
+            // Never mind
+        } else if (StringUtils.startsWithIgnoreCase(response, "[MSG:INFO: Sending")) {
             setOk(true);
             setDone(true);
         } else {

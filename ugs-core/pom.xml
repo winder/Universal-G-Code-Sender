@@ -94,12 +94,6 @@
       <version>${commons-csv.version}</version>
     </dependency>
 
-      <dependency>
-          <groupId>io.github.neonSonOfXenon.JXmodem</groupId>
-          <artifactId>JXmodem</artifactId>
-          <version>${jxmodem.version}</version>
-      </dependency>
-
     <!-- PendantUI -->
     <dependency>
       <groupId>net.glxn</groupId>
