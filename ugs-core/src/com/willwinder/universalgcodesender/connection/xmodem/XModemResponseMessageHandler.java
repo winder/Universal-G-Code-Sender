@@ -21,20 +21,25 @@ package com.willwinder.universalgcodesender.connection.xmodem;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.IConnectionListener;
 import com.willwinder.universalgcodesender.connection.IResponseMessageHandler;
-import io.github.neonSonOfXenon.JXmodem.JXmodem;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import static com.willwinder.universalgcodesender.connection.xmodem.XModemUtils.trimEOF;
+
 /**
  * A response message handler for handling XModem communication to upload and download files from the controller.
+ *
+ * @author Joacim Breiler
  */
 public class XModemResponseMessageHandler implements IResponseMessageHandler {
     private final RingBuffer buffer = new RingBuffer(4096);
-    private final JXmodem modem;
+    private final XModem modem;
 
     public XModemResponseMessageHandler(Connection connection) {
-        modem = new JXmodem(buffer, new OutputStream() {
+        modem = new XModem(buffer, new OutputStream() {
             @Override
             public void write(int b) throws IOException {
                 try {
@@ -62,10 +67,12 @@ public class XModemResponseMessageHandler implements IResponseMessageHandler {
     }
 
     public byte[] xmodemReceive() throws IOException {
-        return modem.receive();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        modem.receive(outputStream, false);
+        return trimEOF(outputStream.toByteArray());
     }
 
     public void xmodemSend(byte[] data) throws IOException {
-        modem.send(data);
+        modem.send(new ByteArrayInputStream(data), false);
     }
 }
