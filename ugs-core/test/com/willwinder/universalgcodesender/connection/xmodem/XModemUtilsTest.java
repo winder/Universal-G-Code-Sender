@@ -18,52 +18,51 @@
  */
 package com.willwinder.universalgcodesender.connection.xmodem;
 
-import com.willwinder.universalgcodesender.connection.xmodem.XModemResponseMessageHandler;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class XModemResponseMessageHandlerTest {
+public class XModemUtilsTest {
 
     @Test
     public void trimEOFOnEmptyBuffer() {
         byte[] buffer = new byte[0];
-        byte[] bytes = XModemResponseMessageHandler.trimEOF(buffer);
+        byte[] bytes = XModemUtils.trimEOF(buffer);
         assertEquals(0, bytes.length);
     }
 
     @Test
     public void trimEOFWithoutEOF() {
         byte[] buffer = new byte[]{0x00, 0x01, 0x03};
-        byte[] bytes = XModemResponseMessageHandler.trimEOF(buffer);
+        byte[] bytes = XModemUtils.trimEOF(buffer);
         assertEquals(3, bytes.length);
     }
 
     @Test
     public void trimEOFOnBufferWithOneEOF() {
         byte[] buffer = new byte[]{0x1A};
-        byte[] bytes = XModemResponseMessageHandler.trimEOF(buffer);
+        byte[] bytes = XModemUtils.trimEOF(buffer);
         assertEquals(0, bytes.length);
     }
 
     @Test
     public void trimEOFOnBufferWithMultipleEOF() {
         byte[] buffer = new byte[]{0x1A, 0x1A, 0x1A};
-        byte[] bytes = XModemResponseMessageHandler.trimEOF(buffer);
+        byte[] bytes = XModemUtils.trimEOF(buffer);
         assertEquals(0, bytes.length);
     }
 
     @Test
     public void trimEOFOnlyTrailingEOF() {
         byte[] buffer = new byte[]{0x1A, 0x1A, 0x00, 0x1A};
-        byte[] bytes = XModemResponseMessageHandler.trimEOF(buffer);
+        byte[] bytes = XModemUtils.trimEOF(buffer);
         assertEquals(3, bytes.length);
     }
 
     @Test
     public void trimEOFAllTrailingEOF() {
         byte[] buffer = new byte[]{0x1A, 0x1A, 0x00, 0x1A, 0x1A, 0x1A, 0x1A};
-        byte[] bytes = XModemResponseMessageHandler.trimEOF(buffer);
+        byte[] bytes = XModemUtils.trimEOF(buffer);
         assertEquals(3, bytes.length);
     }
 }

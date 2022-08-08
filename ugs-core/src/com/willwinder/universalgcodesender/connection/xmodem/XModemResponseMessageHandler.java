@@ -21,22 +21,25 @@ package com.willwinder.universalgcodesender.connection.xmodem;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.IConnectionListener;
 import com.willwinder.universalgcodesender.connection.IResponseMessageHandler;
-import io.github.neonSonOfXenon.JXmodem.JXmodem;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
+
+import static com.willwinder.universalgcodesender.connection.xmodem.XModemUtils.trimEOF;
 
 /**
  * A response message handler for handling XModem communication to upload and download files from the controller.
+ *
+ * @author Joacim Breiler
  */
 public class XModemResponseMessageHandler implements IResponseMessageHandler {
-    public static final int EOF = 0x1A;
     private final RingBuffer buffer = new RingBuffer(4096);
-    private final JXmodem modem;
+    private final XModem modem;
 
     public XModemResponseMessageHandler(Connection connection) {
-        modem = new JXmodem(buffer, new OutputStream() {
+        modem = new XModem(buffer, new OutputStream() {
             @Override
             public void write(int b) throws IOException {
                 try {
@@ -64,25 +67,12 @@ public class XModemResponseMessageHandler implements IResponseMessageHandler {
     }
 
     public byte[] xmodemReceive() throws IOException {
-        return trimEOF(modem.receive());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        modem.receive(outputStream, false);
+        return trimEOF(outputStream.toByteArray());
     }
 
     public void xmodemSend(byte[] data) throws IOException {
-        modem.send(data);
-    }
-
-    /**
-     * Trims any trailing EOF bytes from the byte buffer
-     * @param buffer a byte array buffer that should be trimmed
-     * @return a trimmed byte buffer
-     */
-    protected static byte[] trimEOF(byte[] buffer) {
-        // Trim any trailing EOF
-        int i = buffer.length - 1;
-        while (i >= 0 && buffer[i] == EOF) {
-            i--;
-        }
-
-        return Arrays.copyOfRange(buffer, 0, i + 1);
+        modem.send(new ByteArrayInputStream(data), false);
     }
 }

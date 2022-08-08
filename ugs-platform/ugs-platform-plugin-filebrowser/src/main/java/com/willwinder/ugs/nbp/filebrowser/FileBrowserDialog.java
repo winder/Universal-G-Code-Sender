@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
@@ -54,6 +55,7 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
     private final JButton uploadButton;
     private final JButton deleteButton;
     private final JButton downloadButton;
+    private final JFileChooser fileChooser = new JFileChooser();
 
     public FileBrowserDialog(IFileService fileService) {
         super((JFrame) null, true);
@@ -73,17 +75,17 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         deleteButton = new JButton("Delete", ImageUtilities.loadImageIcon("icons/delete.svg", false));
-        deleteButton.addActionListener(e -> handleFileDelete());
+        deleteButton.addActionListener(e -> SwingUtilities.invokeLater(this::handleFileDelete));
         deleteButton.setEnabled(false);
         buttonPanel.add(deleteButton);
 
         downloadButton = new JButton("Download", ImageUtilities.loadImageIcon("icons/download.svg", false));
-        downloadButton.addActionListener(e -> handleFileDownload());
+        downloadButton.addActionListener(e -> SwingUtilities.invokeLater(this::handleFileDownload));
         downloadButton.setEnabled(false);
         buttonPanel.add(downloadButton);
 
         uploadButton = new JButton("Upload", ImageUtilities.loadImageIcon("icons/upload.svg", false));
-        uploadButton.addActionListener(e -> handleFileUpload());
+        uploadButton.addActionListener(e -> SwingUtilities.invokeLater(this::handleFileUpload));
         buttonPanel.add(uploadButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
@@ -107,19 +109,17 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
 
 
     private void handleFileUpload() {
-        JFileChooser fileDialog = new JFileChooser();
-        fileDialog.setDialogTitle("Upload file");
-        fileDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileDialog.setAcceptAllFileFilterUsed(true);
-
-        int status = fileDialog.showOpenDialog(this);
+        fileChooser.setDialogTitle("Upload file");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setAcceptAllFileFilterUsed(true);
+        int status = fileChooser.showOpenDialog(this);
         if (status == JFileChooser.APPROVE_OPTION) {
+            setEnabled(false);
+            LoaderDialogHelper.showDialog("Uploading file", 1500, this);
             ThreadHelper.invokeLater(() -> {
-                setEnabled(false);
-                LoaderDialogHelper.showDialog("Uploading file", 1500, this);
                 try {
-                    byte[] buffer = IOUtils.toByteArray(new FileInputStream(fileDialog.getSelectedFile()));
-                    fileService.uploadFile(fileDialog.getSelectedFile().getName(), buffer);
+                    byte[] buffer = IOUtils.toByteArray(new FileInputStream(fileChooser.getSelectedFile()));
+                    fileService.uploadFile(fileChooser.getSelectedFile().getName(), buffer);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 } finally {
@@ -135,7 +135,7 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() > 1) {
-            handleFileDownload();
+            SwingUtilities.invokeLater(this::handleFileDownload);
         }
     }
 
@@ -170,19 +170,19 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
 
     private void handleFileDownload() {
         File file = tableModel.get(getSelectedModelIndex());
-        JFileChooser fileDialog = new JFileChooser();
-        fileDialog.setDialogTitle("Download as...");
-        fileDialog.setSelectedFile(new java.io.File(fileDialog.getCurrentDirectory().getAbsolutePath() + java.io.File.separatorChar + file.getName()));
-        fileDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-        int status = fileDialog.showSaveDialog(this);
+        fileChooser.setDialogTitle("Download as...");
+        fileChooser.setSelectedFile(new java.io.File(fileChooser.getCurrentDirectory().getAbsolutePath() + java.io.File.separatorChar + file.getName()));
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+        int status = fileChooser.showSaveDialog(this);
         if (status == JFileChooser.APPROVE_OPTION) {
+            setEnabled(false);
+            LoaderDialogHelper.showDialog("Downloading file", 1500, this);
             ThreadHelper.invokeLater(() -> {
-                setEnabled(false);
-                LoaderDialogHelper.showDialog("Downloading file", 1500, this);
                 try {
                     byte[] bytes = fileService.downloadFile(file);
-                    IOUtils.write(bytes, new FileOutputStream(fileDialog.getSelectedFile()));
+                    IOUtils.write(bytes, new FileOutputStream(fileChooser.getSelectedFile()));
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 } finally {
@@ -195,9 +195,10 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
 
 
     private void handleFileDelete() {
+        setEnabled(false);
+        LoaderDialogHelper.showDialog("Deleting file", 1500, this);
+
         ThreadHelper.invokeLater(() -> {
-            setEnabled(false);
-            LoaderDialogHelper.showDialog("Deleting file", 1500, this);
             try {
                 File file = tableModel.get(getSelectedModelIndex());
                 LOGGER.info("Deleting file " + file.getAbsolutePath());
