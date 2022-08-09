@@ -50,7 +50,7 @@ public class SettingsTest {
         assertEquals("mm", target.getPreferredUnits().abbreviation);
         assertNotNull(target.getFileStats());
         assertEquals("GRBL", target.getFirmwareVersion());
-        assertEquals(Double.valueOf(10.0), Double.valueOf(target.getJogFeedRate()));
+        assertEquals(Double.valueOf(100.0), Double.valueOf(target.getJogFeedRate()));
         assertEquals("en_US", target.getLanguage());
         assertNotNull(target.getMainWindowSettings());
         assertFalse(target.isManualModeEnabled());
