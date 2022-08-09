@@ -43,18 +43,18 @@ public class MainMenu extends JMenuBar {
         JMenuItem exportGcode = new JMenuItem(new ExportGcodeAction());
         JMenuItem quit = new JMenuItem(new QuitAction());
 
-        JMenuItem undo = new JMenuItem(new UndoAction());
-        JMenuItem redo = new JMenuItem(new RedoAction());
+        JMenuItem undo = new JMenuItem(controller.getAction(UndoAction.class));
+        JMenuItem redo = new JMenuItem(controller.getAction(RedoAction.class));
 
-        JMenuItem copy = new JMenuItem(new CopyAction(controller));
-        JMenuItem paste = new JMenuItem(new PasteAction(controller));
+        JMenuItem copy = new JMenuItem(controller.getAction(CopyAction.class));
+        JMenuItem paste = new JMenuItem(controller.getAction(PasteAction.class));
 
-        JMenuItem flipHorizontal = new JMenuItem(new FlipHorizontallyAction(controller));
-        JMenuItem flipVertical = new JMenuItem(new FlipVerticallyAction(controller));
+        JMenuItem flipHorizontal = new JMenuItem(controller.getAction(FlipHorizontallyAction.class));
+        JMenuItem flipVertical = new JMenuItem(controller.getAction(FlipVerticallyAction.class));
 
-        JMenuItem all = new JMenuItem(new SelectAllAction(controller));
-        JMenuItem clear = new JMenuItem(new ClearSelectionAction(controller));
-        JMenuItem delete = new JMenuItem(new DeleteAction(controller));
+        JMenuItem all = new JMenuItem(controller.getAction(SelectAllAction.class));
+        JMenuItem clear = new JMenuItem(controller.getAction(ClearSelectionAction.class));
+        JMenuItem delete = new JMenuItem(controller.getAction(DeleteAction.class));
 
         open.setAccelerator(Utilities.stringToKey("D-O"));
         save.setAccelerator(Utilities.stringToKey("D-S"));

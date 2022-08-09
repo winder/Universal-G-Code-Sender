@@ -58,7 +58,7 @@ public class Settings {
     private boolean showABCStepSize = true;
     private double zJogStepSize = 1;
     private double abcJogStepSize = 1;
-    private double jogFeedRate = 10;
+    private double jogFeedRate = 100;
 
     // Console
     private boolean scrollWindowEnabled = true;
