@@ -11,20 +11,20 @@ import javax.swing.*;
 public class PopupMenuFactory {
     public JPopupMenu createPopupMenu(Controller controller) {
         JPopupMenu popupMenu = new JPopupMenu();
-        popupMenu.add(new SelectAllAction(controller));
-        popupMenu.add(new ClearSelectionAction(controller));
-        popupMenu.add(new DeleteAction(controller));
+        popupMenu.add(controller.getAction(SelectAllAction.class));
+        popupMenu.add(controller.getAction(ClearSelectionAction.class));
+        popupMenu.add(controller.getAction(DeleteAction.class));
         popupMenu.addSeparator();
-        popupMenu.add(new CopyAction(controller));
-        popupMenu.add(new PasteAction(controller));
+        popupMenu.add(controller.getAction(CopyAction.class));
+        popupMenu.add(controller.getAction(PasteAction.class));
         popupMenu.addSeparator();
-        popupMenu.add(new UnionAction(controller));
-        popupMenu.add(new SubtractAction(controller));
-        popupMenu.add(new IntersectionAction(controller));
-        popupMenu.add(new BreakApartAction(controller));
+        popupMenu.add(controller.getAction(UnionAction.class));
+        popupMenu.add(controller.getAction(SubtractAction.class));
+        popupMenu.add(controller.getAction(IntersectionAction.class));
+        popupMenu.add(controller.getAction(BreakApartAction.class));
         popupMenu.addSeparator();
-        popupMenu.add(new FlipHorizontallyAction(controller));
-        popupMenu.add(new FlipVerticallyAction(controller));
+        popupMenu.add(controller.getAction(FlipHorizontallyAction.class));
+        popupMenu.add(controller.getAction(FlipVerticallyAction.class));
         return popupMenu;
     }
 }

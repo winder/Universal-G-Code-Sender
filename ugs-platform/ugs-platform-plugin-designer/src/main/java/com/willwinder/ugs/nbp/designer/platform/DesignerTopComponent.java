@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.platform;
 import com.google.common.io.Files;
 import com.willwinder.ugs.nbp.designer.Throttler;
 import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
+import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.actions.UndoManagerListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
@@ -73,8 +74,12 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         refreshThrottler = new Throttler(this::generateGcode, 1000);
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         controller = CentralLookup.getDefault().lookup(Controller.class);
+
+        UndoManager undoManager = new SimpleUndoManager();
+        CentralLookup.getDefault().add(undoManager);
+
         if (controller == null) {
-            controller = new Controller(new SelectionManager(), new SimpleUndoManager());
+            controller = new Controller(new SelectionManager(), undoManager);
             CentralLookup.getDefault().add(controller);
             CentralLookup.getDefault().add(controller.getUndoManager());
             CentralLookup.getDefault().add(controller.getSelectionManager());

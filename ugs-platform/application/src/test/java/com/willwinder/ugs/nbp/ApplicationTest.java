@@ -1,4 +1,4 @@
-package com.willwinder;
+package com.willwinder.ugs.nbp;
 
 import java.util.logging.Level;
 import junit.framework.Test;
