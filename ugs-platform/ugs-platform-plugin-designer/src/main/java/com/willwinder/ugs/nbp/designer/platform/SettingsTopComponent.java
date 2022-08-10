@@ -23,7 +23,6 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.windows.TopComponent;
 
 /**
@@ -37,24 +36,33 @@ import org.openide.windows.TopComponent;
 public class SettingsTopComponent extends TopComponent implements ControllerListener {
     private static final long serialVersionUID = 324234398723987873L;
 
-    private transient final SelectionSettingsPanel selectionSettingsPanel;
+    private transient SelectionSettingsPanel selectionSettingsPanel;
 
     public SettingsTopComponent() {
         setMinimumSize(new java.awt.Dimension(50, 50));
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());
         setDisplayName("Cut settings");
+    }
+
+    @Override
+    protected void componentClosed() {
+        super.componentClosed();
+        selectionSettingsPanel.release();
+        selectionSettingsPanel = null;
 
         Controller controller = CentralLookup.getDefault().lookup(Controller.class);
-        selectionSettingsPanel = new SelectionSettingsPanel(controller);
-        controller.addListener(this);
+        controller.removeListener(this);
     }
 
     @Override
     protected void componentOpened() {
         super.componentOpened();
         removeAll();
+        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
+        selectionSettingsPanel = new SelectionSettingsPanel(controller);
         add(selectionSettingsPanel);
+        controller.addListener(this);
     }
 
     @Override

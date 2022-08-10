@@ -20,11 +20,13 @@ package com.willwinder.ugs.nbp.filebrowser;
 
 import com.willwinder.universalgcodesender.File;
 import com.willwinder.universalgcodesender.IFileService;
+import com.willwinder.universalgcodesender.uielements.components.TableCellListener;
 import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.io.IOUtils;
 import org.openide.util.ImageUtilities;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -39,14 +41,13 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.ActionEvent;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-public class FileBrowserDialog extends JDialog implements MouseListener, ListSelectionListener {
+public class FileBrowserDialog extends JDialog implements ListSelectionListener {
     private final Logger LOGGER = Logger.getLogger(FileBrowserDialog.class.getSimpleName());
 
     private final FileTableModel tableModel;
@@ -63,13 +64,22 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
         setTitle("File browser");
         setPreferredSize(new Dimension(300, 400));
         setMinimumSize(new Dimension(200, 300));
-
         setLayout(new BorderLayout());
 
         tableModel = new FileTableModel();
         fileTable = new FileTable(tableModel);
         fileTable.getSelectionModel().addListSelectionListener(this);
-        fileTable.addMouseListener(this);
+        new TableCellListener(fileTable, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() instanceof TableCellListener) {
+                    TableCellListener tableCellListener = (TableCellListener) e.getSource();
+                    String currentFilename = (String) tableCellListener.getOldValue();
+                    String newFileName = (String) tableCellListener.getNewValue();
+                    handleFileRename(currentFilename, newFileName);
+                }
+            }
+        });
 
         add(new JScrollPane(fileTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 
@@ -92,6 +102,28 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
         refreshFileList();
         setResizable(true);
         pack();
+    }
+
+    private void handleFileRename(String currentFilename, String newFilename) {
+        setEnabled(false);
+        LoaderDialogHelper.showDialog("Renaming file", 1500, this);
+        LOGGER.info("Renaming file " + currentFilename + " to " + newFilename);
+        ThreadHelper.invokeLater(() -> {
+            try {
+                File currentFile = new File(currentFilename, currentFilename, 0);
+                byte[] bytes = fileService.downloadFile(currentFile);
+                Thread.sleep(2000);
+                fileService.uploadFile(newFilename, bytes);
+                Thread.sleep(2000);
+                fileService.deleteFile(currentFile);
+            } catch (IOException | InterruptedException ex) {
+                ex.printStackTrace();
+            } finally {
+                LoaderDialogHelper.closeDialog();
+                setEnabled(true);
+                refreshFileList();
+            }
+        });
     }
 
     private void refreshFileList() {
@@ -133,33 +165,6 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
     }
 
     @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() > 1) {
-            SwingUtilities.invokeLater(this::handleFileDownload);
-        }
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
-
-    @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         fileTable.setEnabled(enabled);
@@ -192,7 +197,6 @@ public class FileBrowserDialog extends JDialog implements MouseListener, ListSel
             });
         }
     }
-
 
     private void handleFileDelete() {
         setEnabled(false);

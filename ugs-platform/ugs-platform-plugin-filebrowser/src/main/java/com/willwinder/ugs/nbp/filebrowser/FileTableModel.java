@@ -71,7 +71,7 @@ public class FileTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return false;
+        return columnIndex == 0;
     }
 
     @Override
@@ -89,11 +89,13 @@ public class FileTableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-
+        File file = fileList.get(rowIndex);
+        if (columnIndex == 0) {
+            file.setAbsolutePath((String) aValue);
+        }
     }
 
     public File get(int index) {
         return fileList.get(index);
-
     }
 }

@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
-
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -69,7 +68,7 @@ public class ThreadHelper {
      * // Will wait ten seconds and then throw a TimeoutException as true will never be equal to false
      * ThreadHelper.waitUntil(() -> { return true == false}, 10, TimeUnit.SECONDS);
      *
-     * // Will return almost immediatly
+     * // Will return almost immediately
      * ThreadHelper.waitUntil(() -> { return true == true}, 10, TimeUnit.SECONDS);
      * }</pre>
      *
@@ -88,7 +87,7 @@ public class ThreadHelper {
                 }
             }).get(timeout, units);
         } catch (InterruptedException | ExecutionException e) {
-            logger.log(Level.WARNING, "An error occured while waiting for the thread to finnish", e);
+            logger.log(Level.WARNING, "An error occurred while waiting for the thread to finnish", e);
         }
     }
 
