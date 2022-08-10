@@ -80,6 +80,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         addTextSettingFields();
         addPositionSettings();
         addCutSettings(controller);
+        registerControllerListeners(controller);
     }
 
     private void addPositionSettings() {
@@ -180,13 +181,16 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         add(targetDepthSpinner, "grow, wrap");
         setEnabled(false);
 
+        targetDepthSpinner.setModel(new SpinnerNumberModel(controller.getSettings().getStockThickness(), 0d, controller.getSettings().getStockThickness(), 0.1d));
+    }
+
+    private void registerControllerListeners(Controller controller) {
         if (this.controller != null) {
             this.controller.getSelectionManager().removeSelectionListener(this);
         }
         this.controller = controller;
         this.controller.getSelectionManager().addSelectionListener(this);
         this.controller.getSelectionManager().addListener(this);
-        targetDepthSpinner.setModel(new SpinnerNumberModel(controller.getSettings().getStockThickness(), 0d, controller.getSettings().getStockThickness(), 0.1d));
     }
 
     private void addTextSettingFields() {
@@ -418,5 +422,10 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     public void onAnchorChanged(Anchor anchor) {
         this.anchor = anchor;
         onEvent(new EntityEvent(controller.getSelectionManager(), EventType.MOVED));
+    }
+
+    public void release() {
+        this.controller.getSelectionManager().removeSelectionListener(this);
+        this.controller.getSelectionManager().removeListener(this);
     }
 }
