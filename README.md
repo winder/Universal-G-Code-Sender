@@ -26,22 +26,23 @@ Below you will find the latest release of UGS.<br/> For older releases please vi
 The next generation, feature packed variant based on the Netbeans Platform.<br>
 Unpack and start the program ```bin/ugsplatform```
 
-| Latest release (v2.0.11) | Previous release (v2.0.9) | Nightly build  |
-|:------------------------|:---------------|:--------------|
-| [![Windows 32-bit](pictures/os_windows.png) Windows 32-bit](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-win.zip)           | [![Windows 32-bit](pictures/os_windows.png) Windows 32-bit](https://ugs.jfrog.io/ugs/UGS/v2.0.9/ugs-platform-app-win.zip)           | [![Windows 32-bit](pictures/os_windows.png) Windows 32-bit](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-win.zip)  |
-|            |           | [![Windows 64-bit](pictures/os_windows.png) Windows 64-bit](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-win64.zip)  |
-| [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-ios.dmg)               | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/v2.0.9/ugs-platform-app-ios.dmg)               | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-ios.dmg) |
-| [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-linux.tar.gz)        | [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/v2.0.9/ugs-platform-app-linux.tar.gz)        | [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-linux.tar.gz) |
-| [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-pi.tar.gz) | [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/v2.0.9/ugs-platform-app-pi.tar.gz) | [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-pi.tar.gz) |
-| [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app.zip)                    | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.9/ugs-platform-app.zip)                    | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app.zip) |
+
+| Latest release (v2.0.12) | Previous release (v2.0.11) | Nightly build |
+|:-------------------------|:---------------------------|:--------------|
+| [![Windows 32-bit](pictures/os_windows.png) Windows 32-bit](https://ugs.jfrog.io/ugs/UGS/v2.0.12/ugs-platform-app-win.zip)    | [![Windows 32-bit](pictures/os_windows.png) Windows 32-bit](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-win.zip)  | [![Windows 32-bit](pictures/os_windows.png) Windows 32-bit](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-win.zip)  |
+| [![Windows 64-bit](pictures/os_windows.png) Windows 64-bit](https://ugs.jfrog.io/ugs/UGS/v2.0.12/ugs-platform-app-win64.zip)  |                                                                                                                             | [![Windows 64-bit](pictures/os_windows.png) Windows 64-bit](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-win64.zip)  |
+| [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/v2.0.12/ugs-platform-app-ios.dmg)                      | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-ios.dmg)                    | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-ios.dmg) |
+| [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/v2.0.12/ugs-platform-app-linux.tar.gz)               | [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-linux.tar.gz)             | [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-linux.tar.gz) |
+| [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/v2.0.12/ugs-platform-app-pi.tar.gz)        | [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-pi.tar.gz)      | [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-pi.tar.gz) |
+| [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.12/ugs-platform-app.zip)                           | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app.zip)                         | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app.zip) |
 
 **UGS Classic**<br>
 A clean and lightweight variant of UGS (requires [Java](https://java.com/en/download/manual.jsp)). <br>
 Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. <br>
 
-| Latest release (v2.0.11) | Previous release (v2.0.9) | Nightly build  |
+| Latest release (v2.0.12) | Previous release (v2.0.11) | Nightly build  |
 |:---------------|:---------------|:--------------|
-| [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.11/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.9/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](http://bit.ly/2HhJIir) |
+| [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.12/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.11/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](http://bit.ly/2HhJIir) |
 
 ## Screenshots
 
