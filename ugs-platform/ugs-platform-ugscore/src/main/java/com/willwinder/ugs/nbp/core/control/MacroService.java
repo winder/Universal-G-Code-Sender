@@ -80,7 +80,7 @@ public final class MacroService {
                         text = macro.getNameAndDescription();
                     }
 
-                    ars.registerAction(MacroAction.class.getCanonicalName() + "." + macro.getName(), text, actionCategory, null, menuPath, index, localized, new MacroAction(macro));
+                    ars.registerAction(MacroAction.class.getCanonicalName() + "." + macro.getUuid(), text, actionCategory, null, menuPath, index, localized, new MacroAction(macro));
                 } catch (IOException e) {
                     logger.log(Level.WARNING, "Couldn't register macro action: \"" + macro.getName() + "\"", e);
                 }
@@ -89,6 +89,4 @@ public final class MacroService {
             logger.log(Level.WARNING, "Couldn't register macro actions", e);
         }
     }
-
-
 }

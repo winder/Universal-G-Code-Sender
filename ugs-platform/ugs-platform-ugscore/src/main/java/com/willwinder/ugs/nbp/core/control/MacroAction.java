@@ -6,12 +6,14 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import org.apache.commons.lang3.StringUtils;
 import org.openide.util.Exceptions;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.io.Serializable;
 
@@ -28,6 +30,7 @@ public class MacroAction extends AbstractAction implements Serializable {
     public MacroAction(Macro macro) {
         this.macro = macro;
         this.backend = getBackend();
+        updateMacroName();
     }
 
     private BackendAPI getBackend() {
@@ -40,8 +43,19 @@ public class MacroAction extends AbstractAction implements Serializable {
 
     private void onEvent(UGSEvent event) {
         if (event instanceof ControllerStateEvent) {
-           setEnabled(isEnabled());
+            setEnabled(isEnabled());
+        } else if (event instanceof SettingChangedEvent && macro != null) {
+            backend.getSettings().getMacros().stream().filter(m -> StringUtils.equalsIgnoreCase(m.getUuid(), macro.getUuid())).findFirst().ifPresent(m -> {
+                macro = m;
+                updateMacroName();
+            });
         }
+    }
+
+    private void updateMacroName() {
+        String name = macro.getName();
+        putValue(NAME, name);
+        putValue("menuText", name);
     }
 
     @Override

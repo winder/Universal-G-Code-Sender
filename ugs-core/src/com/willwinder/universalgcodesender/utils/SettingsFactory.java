@@ -140,11 +140,11 @@ public class SettingsFactory {
                 out.setSingleStepMode(Boolean.valueOf(properties.getProperty("singleStepMode", FALSE)));
                 out.setStatusUpdatesEnabled(Boolean.valueOf(properties.getProperty("statusUpdatesEnabled", "true")));
                 out.setStatusUpdateRate(Integer.valueOf(properties.getProperty("statusUpdateRate", "200")));
-                out.updateMacro(1, null, null, properties.getProperty("customGcode1", "G0 X0 Y0;"));
-                out.updateMacro(2, null, null, properties.getProperty("customGcode2", "G0 G91 X10;G0 G91 Y10;"));
-                out.updateMacro(3, null, null, properties.getProperty("customGcode3", ""));
-                out.updateMacro(4, null, null, properties.getProperty("customGcode4", ""));
-                out.updateMacro(5, null, null, properties.getProperty("customGcode5", ""));
+                out.updateMacro("customGcode1", 1, null, null, properties.getProperty("customGcode1", "G0 X0 Y0;"));
+                out.updateMacro("customGcode2", 2, null, null, properties.getProperty("customGcode2", "G0 G91 X10;G0 G91 Y10;"));
+                out.updateMacro("customGcode3", 3, null, null, properties.getProperty("customGcode3", ""));
+                out.updateMacro("customGcode4", 4, null, null, properties.getProperty("customGcode4", ""));
+                out.updateMacro("customGcode5", 5, null, null, properties.getProperty("customGcode5", ""));
                 out.setLanguage(properties.getProperty("language", "en_US"));
                 saveSettings(out);
 

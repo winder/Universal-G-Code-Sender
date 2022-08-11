@@ -5,11 +5,13 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * Created by Phil on 9/6/2015.
  */
 public class Macro implements Serializable {
+    private String uuid = UUID.randomUUID().toString();
     private String name;
     private String description;
     private String gcode;
@@ -17,10 +19,15 @@ public class Macro implements Serializable {
     public Macro() {
     }
 
-    public Macro(String name, String description, String gcode) {
+    public Macro(String uuid, String name, String description, String gcode) {
+        this.uuid = uuid;
         this.name = name;
         this.description = description;
         this.gcode = gcode;
+    }
+
+    public String getUuid() {
+        return uuid;
     }
 
     public String getName() {
@@ -63,6 +70,7 @@ public class Macro implements Serializable {
     @Override
     public String toString() {
         return "Macro{" +
+                "uuid='" + uuid + '\'' +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", gcode='" + gcode + '\'' +

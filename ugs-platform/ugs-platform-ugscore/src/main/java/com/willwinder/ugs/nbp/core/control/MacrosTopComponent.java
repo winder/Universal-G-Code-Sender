@@ -19,27 +19,30 @@
 package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.core.actions.EditMacrosAction;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.macros.MacroActionPanel;
-
-import java.awt.*;
-
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.uielements.panels.ButtonGridPanel;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JPopupMenu;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.util.concurrent.Future;
 
 /**
  * Top component which displays something.
  */
 @TopComponent.Description(
-        preferredID = "MacrosTopComponent",
-        //iconBase="SET/PATH/TO/ICON/HERE", 
-        persistenceType = TopComponent.PERSISTENCE_ALWAYS
+        preferredID = "MacrosTopComponent"
 )
 @TopComponent.Registration(mode = "bottom_left", openAtStartup = true)
 @ActionID(category = LocalizingService.MacrosCategory, id = LocalizingService.MacrosActionId)
@@ -48,26 +51,61 @@ import javax.swing.*;
         displayName = "<Not localized:MacrosTopComponent>",
         preferredID = "MacrosTopComponent"
 )
-public final class MacrosTopComponent extends TopComponent {
+public final class MacrosTopComponent extends TopComponent implements UGSEventListener {
+    private final ButtonGridPanel buttonGridPanel;
+    private Future<?> settingsChangedFuture;
+
     public MacrosTopComponent() {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         super.setLayout(new BorderLayout());
-        super.add(new MacroActionPanel(backend), BorderLayout.CENTER);
+        buttonGridPanel = new ButtonGridPanel();
+        add(buttonGridPanel, BorderLayout.CENTER);
+        settingsChanged();
+    }
+
+    private void settingsChanged() {
+        buttonGridPanel.removeAll();
+
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend.getSettings().getMacros().forEach(macro -> {
+            JButton button = new JButton(new MacroAction(macro));
+            button.setMinimumSize(new Dimension(100, 16));
+            buttonGridPanel.add(button);
+        });
 
         JPopupMenu popupMenu = new JPopupMenu();
         popupMenu.add(new EditMacrosAction());
         SwingHelpers.traverse(this, comp -> comp.setComponentPopupMenu(popupMenu));
+
+        revalidate();
+        settingsChangedFuture = null;
     }
 
     @Override
-    public void componentOpened() {
+    protected void componentActivated() {
+        super.componentActivated();
+        revalidate();
+    }
+
+    @Override
+    protected void componentOpened() {
         setName(LocalizingService.MacrosTitle);
         setToolTipText(LocalizingService.MacrosTooltip);
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend.addUGSEventListener(this);
     }
 
     @Override
-    public void componentClosed() {
-      // Unused for this TopComponent
+    protected void componentClosed() {
+        super.componentClosed();
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend.removeUGSEventListener(this);
+    }
+
+    @Override
+    public void UGSEvent(UGSEvent evt) {
+        if (evt instanceof SettingChangedEvent && settingsChangedFuture == null) {
+            settingsChangedFuture = ThreadHelper.invokeLater(this::settingsChanged, 2000);
+        }
     }
 
     public void writeProperties(java.util.Properties p) {
@@ -81,4 +119,5 @@ public final class MacrosTopComponent extends TopComponent {
         //String version = p.getProperty("version");
         // TODO read your settings according to their version
     }
+
 }

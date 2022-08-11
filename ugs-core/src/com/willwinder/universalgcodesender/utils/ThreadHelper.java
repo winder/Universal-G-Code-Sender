@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.utils;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -40,8 +41,8 @@ public class ThreadHelper {
 
     private static final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
 
-    static public void invokeLater(Runnable r) {
-        scheduledExecutor.submit(r);
+    static public Future<?> invokeLater(Runnable r) {
+        return scheduledExecutor.submit(r);
     }
 
     /**
