@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -303,7 +304,7 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
 
         this.addButton.addActionListener(l -> {
             String macroName = findUniqueMacroName(macros.size());
-            macros.add(new Macro(macroName, null, ""));
+            macros.add(new Macro(UUID.randomUUID().toString(), macroName, null, ""));
             doLayout();
         });
 
@@ -352,7 +353,7 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
     }
 
     private String findUniqueMacroName(int index) {
-        final String macroName = "Macro #" + index;
+        final String macroName = "Macro #" + (index + 1);
         if (macros.stream().noneMatch(m ->
                 {
                     if (m.getName() != null) {

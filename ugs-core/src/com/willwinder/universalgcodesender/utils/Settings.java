@@ -122,7 +122,7 @@ public class Settings {
         logger.fine("Initializing...");
 
         // Initialize macros with a default macro
-        macros.put(1, new Macro(null, null, "G91 X0 Y0;"));
+        macros.put(1, new Macro(UUID.randomUUID().toString(), "Go to XY zero", null, "G90 X0 Y0;"));
     }
 
     /**
@@ -130,23 +130,23 @@ public class Settings {
      */
     public void finalizeInitialization() {
         if (customGcode1 != null) {
-            updateMacro(1, null, null, customGcode1);
+            updateMacro("customGcode1", 1, null, null, customGcode1);
             customGcode1 = null;
         }
         if (customGcode2 != null) {
-            updateMacro(2, null, null, customGcode2);
+            updateMacro("customGcode2",2, null, null, customGcode2);
             customGcode2 = null;
         }
         if (customGcode3 != null) {
-            updateMacro(3, null, null, customGcode3);
+            updateMacro("customGcode3",3, null, null, customGcode3);
             customGcode3 = null;
         }
         if (customGcode4 != null) {
-            updateMacro(4, null, null, customGcode4);
+            updateMacro("customGcode4", 4, null, null, customGcode4);
             customGcode4 = null;
         }
         if (customGcode5 != null) {
-            updateMacro(5, null, null, customGcode5);
+            updateMacro("customGcode5", 5, null, null, customGcode5);
             customGcode5 = null;
         }
     }
@@ -323,7 +323,7 @@ public class Settings {
     public WindowSettings getMainWindowSettings() {
         return this.mainWindowSettings;
     }
-    
+
     public void setMainWindowSettings(WindowSettings ws) {
         this.mainWindowSettings = ws;
         changed();
@@ -332,7 +332,7 @@ public class Settings {
     public WindowSettings getVisualizerWindowSettings() {
         return this.visualizerWindowSettings;
     }
-    
+
     public void setVisualizerWindowSettings(WindowSettings vw) {
         this.visualizerWindowSettings = vw;
         changed();
@@ -364,7 +364,7 @@ public class Settings {
         this.statusUpdateRate = statusUpdateRate;
         changed();
     }
-        
+
     public Units getPreferredUnits() {
         return (preferredUnits == null) ? Units.MM : preferredUnits;
     }
@@ -414,14 +414,14 @@ public class Settings {
         return Collections.unmodifiableList(new ArrayList<>(macros.values()));
     }
 
-    public void updateMacro(Integer index, String name, String description, String gcode) {
+    public void updateMacro(String uuid, Integer index, String name, String description, String gcode) {
         if (gcode == null) {
             macros.remove(index);
         } else {
             if (name == null) {
                 name = index.toString();
             }
-            macros.put(index, new Macro(name, description, gcode));
+            macros.put(index, new Macro(uuid, name, description, gcode));
         }
         changed();
     }
@@ -434,7 +434,7 @@ public class Settings {
 
         return this.language;
     }
-    
+
     public void setLanguage (String language) {
         this.language = language;
         changed();
