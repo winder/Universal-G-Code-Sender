@@ -105,10 +105,10 @@ public final class OpenAction extends AbstractAction {
     public void openFile(File selectedFile) throws DataObjectNotFoundException {
         if (EditorUtils.closeOpenEditors()) {
             backend.getSettings().setLastOpenedFilename(selectedFile.getAbsolutePath());
-            DataObject.find(FileUtil.toFileObject(selectedFile))
+            OpenCookie c = DataObject.find(FileUtil.toFileObject(selectedFile))
                     .getLookup()
-                    .lookup(OpenCookie.class)
-                    .open();
+                    .lookup(OpenCookie.class);
+            if (c != null) c.open();
         }
     }
 
