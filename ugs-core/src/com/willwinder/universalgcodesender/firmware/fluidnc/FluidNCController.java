@@ -53,9 +53,11 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.willwinder.universalgcodesender.Utils.formatter;
 import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.GRBL_COMPABILITY_VERSION;
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
+import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 
 public class FluidNCController implements IController, CommunicatorListener {
@@ -217,12 +219,39 @@ public class FluidNCController implements IController, CommunicatorListener {
 
     @Override
     public void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception {
+        LOGGER.log(Level.INFO,
+                String.format("Probing. axis: %s, feedRate: %s, distance: %s, units: %s",
+                        axis, feedRate, distance, units));
 
+        String probePattern = "G38.2 %s%s F%s";
+        String probeCommand = String.format(probePattern, axis, formatter.format(distance), formatter.format(feedRate));
+
+        GcodeCommand state = createCommand(GcodeUtils.unitCommand(units) + " G91 G49");
+        state.setTemporaryParserModalChange(true);
+
+        GcodeCommand probe = createCommand(probeCommand);
+        probe.setTemporaryParserModalChange(true);
+
+        sendCommandImmediately(state);
+        sendCommandImmediately(probe);
+
+        restoreParserModalState();
     }
 
     @Override
     public void offsetTool(String axis, double offset, UnitUtils.Units units) throws Exception {
+        String offsetPattern = "G43.1 %s%s";
+        String offsetCommand = String.format(offsetPattern,
+                axis,
+                formatter.format(offset * scaleUnits(units, MM)));
 
+        GcodeCommand state = createCommand("G21 G90");
+        state.setTemporaryParserModalChange(true);
+
+        sendCommandImmediately(state);
+        sendCommandImmediately(createCommand(offsetCommand));
+
+        restoreParserModalState();
     }
 
     @Override
