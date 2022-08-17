@@ -29,7 +29,7 @@ import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.model.CNCPoint;
 import com.willwinder.universalgcodesender.model.Position;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_HIGHLIGHT;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_HIGHLIGHT_COLOR;
 import static com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.getAngle;
 
 /**
@@ -66,7 +67,7 @@ public class Highlight extends Renderable {
 
     @Override
     public final void reloadPreferences(VisualizerOptions vo) {
-        highlightColor = vo.getOptionForKey(VISUALIZER_OPTION_HIGHLIGHT).value;
+        highlightColor = vo.getOptionForKey(VISUALIZER_OPTION_HIGHLIGHT_COLOR).value;
     }
 
     @Override
@@ -140,5 +141,15 @@ public class Highlight extends Renderable {
                 .collect(Collectors.toList());
 
         points.addAll(newPoints);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_HIGHLIGHT, enabled);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_HIGHLIGHT, true);
     }
 }

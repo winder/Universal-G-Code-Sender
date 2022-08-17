@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,6 +23,8 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.universalgcodesender.model.Position;
+
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_SELECTION;
 
 /**
  *
@@ -74,7 +76,6 @@ public class Selection extends Renderable {
         GL2 gl = drawable.getGL().getGL2();
 
         gl.glColor4f(.3f,.3f,.3f, .09f);
-        //gl.glColor4fv(gridPlaneColor, 0);
 
         // floor - cover entire model and a little extra.
         gl.glBegin(GL2.GL_QUADS);
@@ -84,5 +85,14 @@ public class Selection extends Renderable {
             gl.glVertex3d(end.x  , start.y, 0);
         gl.glEnd();
     }
-    
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_SELECTION, enabled);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_SELECTION, true);
+    }
 }

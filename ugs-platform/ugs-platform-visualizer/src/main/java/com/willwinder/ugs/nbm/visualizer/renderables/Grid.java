@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,6 +22,8 @@ import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_GRID;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_X;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_XY_GRID;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_XY_PLANE;
@@ -110,7 +112,6 @@ public class Grid extends Renderable {
         if (maxSide == 0) {
             maxSide = 1;
         }
-        double buffer = maxSide * 0.05;
         Position bottomLeft = new Position(focusMin);
         Position topRight = new Position(focusMax);
 
@@ -185,5 +186,15 @@ public class Grid extends Renderable {
                 gl.glVertex3d(topRight.x  , bottomLeft.y, 0);
             gl.glEnd();
         gl.glPopMatrix();
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_GRID, enabled);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_GRID, true);
     }
 }

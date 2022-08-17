@@ -1,6 +1,7 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc;
 
 import com.willwinder.universalgcodesender.Capabilities;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.utils.SemanticVersion;
 import org.junit.Test;
 
@@ -8,6 +9,7 @@ import static com.willwinder.universalgcodesender.CapabilitiesConstants.FILE_SYS
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 public class FluidNCUtilsTest {
 
@@ -50,10 +52,11 @@ public class FluidNCUtilsTest {
     @Test
     public void addCapabilitiesShouldAddFileSystem() {
         Capabilities capabilities = new Capabilities();
-        FluidNCUtils.addCapabilities(capabilities, new SemanticVersion(3, 5, 1));
+        IFirmwareSettings firmwareSettings = mock(IFirmwareSettings.class);
+        FluidNCUtils.addCapabilities(capabilities, new SemanticVersion(3, 5, 1), firmwareSettings);
         assertFalse(capabilities.hasCapability(FILE_SYSTEM));
 
-        FluidNCUtils.addCapabilities(capabilities, new SemanticVersion(3, 5, 2));
+        FluidNCUtils.addCapabilities(capabilities, new SemanticVersion(3, 5, 2), firmwareSettings);
         assertTrue(capabilities.hasCapability(FILE_SYSTEM));
     }
 }

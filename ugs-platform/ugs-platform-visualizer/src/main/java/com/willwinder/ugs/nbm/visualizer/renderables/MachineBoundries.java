@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -29,6 +29,11 @@ import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 
 import static com.jogamp.opengl.GL.GL_LINES;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_X;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_Y;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_Z;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDRY;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_X;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Y;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
@@ -90,7 +95,7 @@ public class MachineBoundries extends Renderable {
         // This will prevent us from accessing the firmware settings before the init
         // processes has finished and it will also prevent us from accessing the
         // controller after it has disconnected
-        return backendAPI.isConnected() && backendAPI.isIdle() && event instanceof FirmwareSettingEvent;
+        return backendAPI.isConnected() && event instanceof FirmwareSettingEvent;
     }
 
     @Override
@@ -127,12 +132,15 @@ public class MachineBoundries extends Renderable {
         if (!softLimitsEnabled) {
             return;
         }
-
         double xOffset = workCoord.x - machineCoord.x;
         double yOffset = workCoord.y - machineCoord.y;
         double zOffset = workCoord.z - machineCoord.z;
 
-        Position bottomLeft = new Position(-maxPosition.getX() + xOffset, -maxPosition.getY() + yOffset, -maxPosition.getZ() + zOffset);
+        double invertX = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_X, false) ? -1 : 1;
+        double invertY = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_Y, false) ? -1 : 1;
+        double invertZ = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_Z, false) ? -1 : 1;
+
+        Position bottomLeft = new Position((maxPosition.getX() * invertX) + xOffset, (maxPosition.getY() * invertY) + yOffset, (maxPosition.getZ() * invertZ) + zOffset);
         Position topRight = new Position(xOffset, yOffset, zOffset);
 
         GL2 gl = drawable.getGL().getGL2();
@@ -216,5 +224,15 @@ public class MachineBoundries extends Renderable {
             gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ());
             gl.glVertex3d(topRight.x, topRight.y, topRight.getZ());
         gl.glEnd();
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_BOUNDRY, enabled);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDRY, true);
     }
 }

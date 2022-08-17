@@ -4,6 +4,9 @@ import com.willwinder.universalgcodesender.Capabilities;
 import com.willwinder.universalgcodesender.CapabilitiesConstants;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
+import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -12,6 +15,7 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.utils.SemanticVersion;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.ParseException;
 import java.util.Optional;
@@ -183,7 +187,7 @@ public class FluidNCUtils {
         });
     }
 
-    public static void addCapabilities(Capabilities capabilities, SemanticVersion version) {
+    public static void addCapabilities(Capabilities capabilities, SemanticVersion version, IFirmwareSettings firmwareSettings) {
         capabilities.addCapability(CapabilitiesConstants.JOGGING);
         capabilities.addCapability(CapabilitiesConstants.RETURN_TO_ZERO);
         capabilities.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
@@ -191,8 +195,38 @@ public class FluidNCUtils {
         capabilities.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
         capabilities.addCapability(CapabilitiesConstants.OVERRIDES);
 
+        try {
+            if (firmwareSettings.isSoftLimitsEnabled()) {
+                capabilities.addCapability(CapabilitiesConstants.SOFT_LIMITS);
+            }
+
+            firmwareSettings.getAllSettings().forEach(setting -> {
+                addCapabilityIfSettingStartsWith(capabilities, setting, "axes/a", CapabilitiesConstants.A_AXIS);
+                addCapabilityIfSettingStartsWith(capabilities, setting, "axes/b", CapabilitiesConstants.B_AXIS);
+                addCapabilityIfSettingStartsWith(capabilities, setting, "axes/c", CapabilitiesConstants.C_AXIS);
+                addCapabilityIfSettingStartsWith(capabilities, setting, "axes/x", CapabilitiesConstants.X_AXIS);
+                addCapabilityIfSettingStartsWith(capabilities, setting, "axes/y", CapabilitiesConstants.Y_AXIS);
+                addCapabilityIfSettingStartsWith(capabilities, setting, "axes/z", CapabilitiesConstants.Z_AXIS);
+            });
+        } catch (FirmwareSettingsException e) {
+            // Never mind
+        }
+
         if (version.compareTo(new SemanticVersion(3, 5, 2)) >= 0) {
             capabilities.addCapability(CapabilitiesConstants.FILE_SYSTEM);
+        }
+    }
+
+    /**
+     * Adds a capability if there is a setting which key starts with the given setting key.
+     *
+     * @param setting              the setting to check
+     * @param settingKey           the key which the setting key should start with
+     * @param capabilitiesConstant the capabilities constant to add
+     */
+    private static void addCapabilityIfSettingStartsWith(Capabilities capabilities, FirmwareSetting setting, String settingKey, String capabilitiesConstant) {
+        if (StringUtils.startsWith(setting.getKey().toLowerCase(), settingKey.toLowerCase())) {
+            capabilities.addCapability(capabilitiesConstant);
         }
     }
 }
