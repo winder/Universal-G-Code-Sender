@@ -25,6 +25,8 @@ import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
 
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PROBE_PREVIEW;
+
 /**
  *
  * @author wwinder
@@ -97,5 +99,15 @@ public class ZProbePathPreview extends Renderable {
         glut.glutSolidCylinder(.1, zAbs - 0.5, slices, stacks);
         gl.glTranslated(0, 0, zAbs - 1);
         glut.glutSolidCone(.2, 1, slices, stacks);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_PROBE_PREVIEW, true);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_PROBE_PREVIEW, enabled);
     }
 }

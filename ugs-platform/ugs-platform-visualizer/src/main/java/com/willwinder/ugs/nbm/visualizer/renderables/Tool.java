@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.awt.Color;
 
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL_COLOR;
 
 /**
  *
@@ -47,7 +48,7 @@ public final class Tool extends Renderable {
 
     @Override
     public void reloadPreferences(VisualizerOptions vo) {
-        toolColor = vo.getOptionForKey(VISUALIZER_OPTION_TOOL).value;
+        toolColor = vo.getOptionForKey(VISUALIZER_OPTION_TOOL_COLOR).value;
     }
 
     @Override
@@ -93,5 +94,15 @@ public final class Tool extends Renderable {
             gl.glTranslated(0, 0, 0.2);
             glu.gluCylinder(gq, 0.03f, .0f, .01, 16, 1);
         gl.glPopMatrix();
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_TOOL, enabled);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_TOOL, true);
     }
 }

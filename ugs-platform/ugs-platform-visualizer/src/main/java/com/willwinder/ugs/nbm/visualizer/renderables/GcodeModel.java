@@ -52,6 +52,7 @@ import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_ARC;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_COMPLETE;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_LINEAR;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_MODEL;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PLUNGE;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_RAPID;
 
@@ -62,7 +63,6 @@ public class GcodeModel extends Renderable {
     public static final double ARC_SEGMENT_LENGTH = 0.8;
     private static final Logger logger = Logger.getLogger(GcodeModel.class.getName());
 
-    private boolean forceOldStyle = false;
     private boolean colorArrayDirty, vertexArrayDirty, vertexBufferDirty;
 
     // Gcode file data
@@ -411,5 +411,15 @@ public class GcodeModel extends Renderable {
         lineColorBuffer.put(lineColorData);
         ((Buffer) lineColorBuffer).flip();
         gl.glColorPointer(3, GL.GL_UNSIGNED_BYTE, 0, lineColorBuffer);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_MODEL, enabled);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_MODEL, true);
     }
 }

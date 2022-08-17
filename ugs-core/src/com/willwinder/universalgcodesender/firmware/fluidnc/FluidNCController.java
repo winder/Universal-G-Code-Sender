@@ -1,7 +1,6 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc;
 
 import com.willwinder.universalgcodesender.Capabilities;
-import com.willwinder.universalgcodesender.CapabilitiesConstants;
 import com.willwinder.universalgcodesender.ConnectionWatchTimer;
 import com.willwinder.universalgcodesender.GrblCapabilitiesConstants;
 import com.willwinder.universalgcodesender.GrblCommunicator;
@@ -12,7 +11,6 @@ import com.willwinder.universalgcodesender.IFileService;
 import com.willwinder.universalgcodesender.StatusPollTimer;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionException;
-import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
@@ -381,7 +379,7 @@ public class FluidNCController implements IController, CommunicatorListener {
     }
 
     @Override
-    public void beginStreaming() throws Exception {
+    public void beginStreaming() {
         // Send all queued commands and streams then kick off the stream.
         try {
             if (streamCommands != null) {
@@ -528,15 +526,14 @@ public class FluidNCController implements IController, CommunicatorListener {
             sendAndWaitForCompletion(this, new GetErrorCodesCommand(), 3000);
             sendAndWaitForCompletion(this, new GetAlarmCodesCommand(), 3000);
 
-            FluidNCUtils.addCapabilities(capabilities, semanticVersion);
-
-            refreshFirmwareSettings();
-
             // Fetch the gcode state
             messageService.dispatchMessage(MessageType.INFO, "*** Fetching device state\n");
             GetParserStateCommand getParserStateCommand = sendAndWaitForCompletion(this, new GetParserStateCommand());
             String state = getParserStateCommand.getState().orElseThrow(() -> new ConnectionException("Could not get controller state"));
             gcodeParser.addCommand(state);
+
+            refreshFirmwareSettings();
+            FluidNCUtils.addCapabilities(capabilities, semanticVersion, firmwareSettings);
 
             // Toggle the state to force UI update
             setControllerState(ControllerState.CONNECTING);
@@ -559,27 +556,6 @@ public class FluidNCController implements IController, CommunicatorListener {
     private void refreshFirmwareSettings() throws FirmwareSettingsException {
         messageService.dispatchMessage(MessageType.INFO, "*** Fetching device settings\n");
         firmwareSettings.refresh();
-        firmwareSettings.getAllSettings().forEach(setting -> {
-            addCapabilityIfSettingStartsWith(setting, "axes/a", CapabilitiesConstants.A_AXIS);
-            addCapabilityIfSettingStartsWith(setting, "axes/b", CapabilitiesConstants.B_AXIS);
-            addCapabilityIfSettingStartsWith(setting, "axes/c", CapabilitiesConstants.C_AXIS);
-            addCapabilityIfSettingStartsWith(setting, "axes/x", CapabilitiesConstants.X_AXIS);
-            addCapabilityIfSettingStartsWith(setting, "axes/y", CapabilitiesConstants.Y_AXIS);
-            addCapabilityIfSettingStartsWith(setting, "axes/z", CapabilitiesConstants.Z_AXIS);
-        });
-    }
-
-    /**
-     * Adds a capability if there is a setting which key starts with the given setting key.
-     *
-     * @param setting              the setting to check
-     * @param settingKey           the key which the setting key should start with
-     * @param capabilitiesConstant the capabilities constant to add
-     */
-    private void addCapabilityIfSettingStartsWith(FirmwareSetting setting, String settingKey, String capabilitiesConstant) {
-        if (StringUtils.startsWith(setting.getKey().toLowerCase(), settingKey.toLowerCase())) {
-            capabilities.addCapability(capabilitiesConstant);
-        }
     }
 
     @Override
