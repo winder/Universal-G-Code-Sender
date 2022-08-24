@@ -24,6 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -33,7 +35,9 @@ import java.util.stream.Collectors;
  */
 public class JSerialCommConnection extends AbstractConnection implements SerialPortDataListener {
 
-    private final byte[] buffer = new byte[2048];
+    private static final Logger LOGGER = Logger.getLogger(JSerialCommConnection.class.getName());
+
+    private final byte[] buffer = new byte[256];
     private SerialPort serialPort;
 
     @Override
@@ -56,6 +60,7 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
         if (serialPort.isOpen()) {
             throw new ConnectionException("Can not connect, serial port is already open");
         }
+        LOGGER.log(Level.INFO, "openPort: called");
 
         return serialPort.openPort();
     }
@@ -84,11 +89,13 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
     @Override
     public void sendByteImmediately(byte b) throws Exception {
         serialPort.writeBytes(new byte[]{b}, 1);
+                LOGGER.log(Level.INFO, String.format("sendByteImmediately: byte=0x%0x", b));
     }
 
     @Override
     public void sendStringToComm(String command) throws Exception {
         serialPort.writeBytes(command.getBytes(), command.length());
+        LOGGER.log(Level.INFO, "sendStringToComm: command=" + command);
     }
 
     @Override
@@ -103,7 +110,6 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public int getListeningEvents() {
         return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
@@ -111,16 +117,19 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
 
     @Override
     public void serialEvent(com.fazecast.jSerialComm.SerialPortEvent event) {
+        LOGGER.log(Level.INFO, String.format("type=0x%0x", event.getEventType()));
         if (event.getEventType() != SerialPort.LISTENING_EVENT_DATA_AVAILABLE) {
             return;
         }
 
         int bytesAvailable = serialPort.bytesAvailable();
+        LOGGER.log(Level.INFO, "serialEvent: bytesAvailable=" + bytesAvailable);
         if (bytesAvailable <= 0) {
             return;
         }
 
         int bytesRead = serialPort.readBytes(buffer, Math.min(buffer.length, bytesAvailable));
+        LOGGER.log(Level.INFO, "serialEvent: bytesRead=" + bytesRead);
         getResponseMessageHandler().handleResponse(buffer, 0, bytesRead);
     }
 }
