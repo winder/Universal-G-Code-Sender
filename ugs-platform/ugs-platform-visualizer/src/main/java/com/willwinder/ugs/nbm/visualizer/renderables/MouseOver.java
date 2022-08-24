@@ -1,11 +1,5 @@
-/**
- * Draws a vertical line along the Z axis at the (X,Y) coordinate where the
- * mouse is considered to be.
- * 
- * Ray - Plane intersection: http://stackoverflow.com/a/21114992/204023
- */
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -34,8 +28,13 @@ import com.willwinder.universalgcodesender.model.Position;
 import java.awt.Color;
 import java.util.logging.Logger;
 
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_MOUSE_OVER;
+
 /**
+ * Draws a vertical line along the Z axis at the (X,Y) coordinate where the
+ * mouse is considered to be.
  *
+ * Ray - Plane intersection: http://stackoverflow.com/a/21114992/204023
  * @author wwinder
  */
 public class MouseOver extends Renderable {
@@ -93,5 +92,15 @@ public class MouseOver extends Renderable {
                 GLU.gluCylinder(GQ, 0.03f, .0f, .01, 16, 1);
             gl.glPopMatrix();
         }
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_MOUSE_OVER, enabled);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_MOUSE_OVER, true);
     }
 }

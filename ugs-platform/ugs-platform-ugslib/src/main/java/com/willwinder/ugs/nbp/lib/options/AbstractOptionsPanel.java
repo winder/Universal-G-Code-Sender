@@ -18,31 +18,40 @@
  */
 package com.willwinder.ugs.nbp.lib.options;
 
-import com.willwinder.ugs.nbp.lib.options.OptionTable.Option;
 import com.willwinder.universalgcodesender.uielements.IChanged;
 
-import javax.swing.*;
+import javax.swing.GroupLayout;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.LayoutStyle;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 /**
- *
  * @author wwinder
  */
-public abstract class AbstractOptionsPanel extends JPanel implements TableModelListener {
+public abstract class AbstractOptionsPanel extends JPanel implements TableModelListener, ListSelectionListener {
 
     protected final IChanged changer;
     protected OptionTable optionTable;
-
-    public abstract void load();
-    public abstract void store();
-    public abstract boolean valid();
+    private JTextArea preferenceDescriptionTextArea;
 
     public AbstractOptionsPanel(IChanged change) {
         changer = change;
         initComponents();
         optionTable.getModel().addTableModelListener(this);
+        optionTable.getSelectionModel().addListSelectionListener(this);
     }
+
+    public abstract void load();
+
+    public abstract void store();
+
+    public abstract boolean valid();
 
     @Override
     public void tableChanged(TableModelEvent e) {
@@ -71,7 +80,6 @@ public abstract class AbstractOptionsPanel extends JPanel implements TableModelL
         optionTable = new OptionTable();
         JScrollPane jScrollPane1 = new JScrollPane();
         JScrollPane jScrollPane2 = new JScrollPane();
-        JTextArea preferenceDescriptionTextArea = new JTextArea();
 
         jScrollPane1.setViewportView(optionTable);
         optionTable.getColumnModel().getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -79,6 +87,9 @@ public abstract class AbstractOptionsPanel extends JPanel implements TableModelL
             optionTable.getColumnModel().getColumn(0).setResizable(false);
         }
 
+        preferenceDescriptionTextArea = new JTextArea();
+        preferenceDescriptionTextArea.setLineWrap(true);
+        preferenceDescriptionTextArea.setWrapStyleWord(true);
         preferenceDescriptionTextArea.setColumns(20);
         preferenceDescriptionTextArea.setRows(5);
         jScrollPane2.setViewportView(preferenceDescriptionTextArea);
@@ -86,18 +97,26 @@ public abstract class AbstractOptionsPanel extends JPanel implements TableModelL
         GroupLayout layout = new GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
-            .addComponent(jScrollPane2)
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jScrollPane2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
         );
     }
 
     public abstract void cancel();
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        if (optionTable.getModel().getRowCount() > 0) {
+            Option<?> option = optionTable.getOption(optionTable.getSelectedRow());
+            preferenceDescriptionTextArea.setText(option.getDescription());
+        }
+    }
 }

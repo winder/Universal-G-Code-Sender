@@ -70,4 +70,12 @@ class DowelPreview(val description: String, val generator: DowelGenerator) : Ren
         }
       }
     }
+
+    override fun isEnabled(): Boolean {
+        return VisualizerOptions.getBooleanOption(VisualizerOptions.VISUALIZER_OPTION_DOWEL_PREVIEW, true)
+    }
+
+    override fun setEnabled(enabled: Boolean) {
+        VisualizerOptions.setBooleanOption(VisualizerOptions.VISUALIZER_OPTION_DOWEL_PREVIEW, enabled)
+    }
 }

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,8 +19,9 @@
 package com.willwinder.ugs.nbm.visualizer.options;
 
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
-import com.willwinder.ugs.nbp.lib.options.OptionTable.Option;
+import com.willwinder.ugs.nbp.lib.options.Option;
 import com.willwinder.universalgcodesender.uielements.IChanged;
+
 import java.awt.Color;
 
 final public class VisualizerOptionsPanel extends AbstractOptionsPanel {
@@ -44,13 +45,14 @@ final public class VisualizerOptionsPanel extends AbstractOptionsPanel {
 
     @Override
     public void store() {
-        // n^2 whoop whoo
         for (int i = 0; i < optionTable.getModel().getRowCount(); i++) {
-            String preference = (String) optionTable.getModel().getValueAt(i, 0);
-            for (Option op : vo) {
-                if (op.localized.equals(preference)) {
-                    VisualizerOptions.setColorOption(op.option, (Color)optionTable.getModel().getValueAt(i,1));
-                }
+            Option<?> op = optionTable.getOption(i);
+            if (op.value instanceof Color) {
+                VisualizerOptions.setColorOption(op.option, (Color) op.getValue());
+            } else if (op.value instanceof Boolean) {
+                VisualizerOptions.setStringOption(op.option, op.getValue().toString());
+            } else {
+                VisualizerOptions.setStringOption(op.option, (String) op.getValue());
             }
         }
     }

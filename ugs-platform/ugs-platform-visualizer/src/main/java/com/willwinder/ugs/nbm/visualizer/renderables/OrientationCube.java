@@ -1,9 +1,5 @@
-/**
- * Draw a cube with the orientation labeled on the sides.
- */
-
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,6 +23,8 @@ import static com.jogamp.opengl.GL.GL_CULL_FACE;
 import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
 import com.jogamp.opengl.GL2;
 import static com.jogamp.opengl.GL2ES3.GL_QUADS;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_ORIENTATION_CUBE;
+
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import com.jogamp.opengl.util.awt.TextRenderer;
@@ -36,6 +34,11 @@ import com.willwinder.universalgcodesender.model.Position;
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 
+/**
+ * Draw a cube with the orientation labeled on the sides.
+ * 
+ * @author wwinder
+ */
 public class OrientationCube extends Renderable {
   private final float size;
   private final float[] color = {0.8f, 0.8f, 0.8f};
@@ -193,4 +196,14 @@ public class OrientationCube extends Renderable {
     gl.glDisable(GL_CULL_FACE);
     gl.glEnable(GL_DEPTH_TEST);
   }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_ORIENTATION_CUBE, enabled);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_ORIENTATION_CUBE, true);
+    }
 }

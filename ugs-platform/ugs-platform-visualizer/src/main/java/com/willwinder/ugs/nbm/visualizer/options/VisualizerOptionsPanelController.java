@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,13 +22,18 @@ import com.willwinder.ugs.nbp.lib.options.AbstractOptionPanelController;
 import org.netbeans.spi.options.OptionsPanelController;
 
 @OptionsPanelController.SubRegistration(
+        id = "Visualizer",
         location = "UGS",
         displayName = "#AdvancedOption_DisplayName_Visualizer",
         keywords = "#AdvancedOption_Keywords_Visualizer",
-        keywordsCategory = "UGS/Visualizer"
+        keywordsCategory = VisualizerOptionsPanelController.KEYWORDS_CATEGORY
+
 )
 @org.openide.util.NbBundle.Messages({"AdvancedOption_DisplayName_Visualizer=Visualizer", "AdvancedOption_Keywords_Visualizer=Visualizer"})
 public class VisualizerOptionsPanelController extends AbstractOptionPanelController<VisualizerOptionsPanel> {
+
+    public static final String KEYWORDS_CATEGORY = "UGS/Visualizer";
+
     @Override
     public VisualizerOptionsPanel getPanel() {
         if (panel == null) {
