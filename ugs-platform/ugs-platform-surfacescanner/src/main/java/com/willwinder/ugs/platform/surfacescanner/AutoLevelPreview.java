@@ -29,6 +29,8 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_AUTOLEVEL_PREVIEW;
+
 /**
  *
  * @author wwinder
@@ -220,5 +222,15 @@ public class AutoLevelPreview extends Renderable {
         }
 
         gl.glEnd();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_AUTOLEVEL_PREVIEW, true);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_AUTOLEVEL_PREVIEW, enabled);
     }
 }

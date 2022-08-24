@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -47,7 +47,7 @@ public abstract class Renderable implements Comparable<Renderable> {
         if (this == obj) return true;
         if (!(obj instanceof Renderable)) return false;
         Renderable that = (Renderable)obj;
-        return 
+        return
                 Objects.equals(this.title, that.title) &&
                 Objects.equals(this.enabled, that.enabled) &&
                 Objects.equals(this.priority, that.priority);
@@ -63,13 +63,19 @@ public abstract class Renderable implements Comparable<Renderable> {
         return -1 * this.priority.compareTo(o.priority);
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+    /**
+     * Enables the feature in the configuration
+     *
+     * @param enabled set to true for enabling it in the configuration
+     */
+    public abstract void setEnabled(boolean enabled);
 
-    public boolean isEnabled() {
-        return this.enabled;
-    }
+    /**
+     * Returns true if the setting for the renderable is enabled
+     *
+     * @return true if enabled in the configuration
+     */
+    public abstract boolean isEnabled();
 
     public String getTitle() {
         return this.title;

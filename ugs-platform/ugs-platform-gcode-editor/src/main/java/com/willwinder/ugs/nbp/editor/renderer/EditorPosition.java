@@ -29,6 +29,8 @@ import com.willwinder.universalgcodesender.model.Position;
 
 import java.awt.Color;
 
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_EDITOR_POSITION;
+
 /**
  * Displays a pointer on the given line number
  *
@@ -85,7 +87,7 @@ public class EditorPosition extends Renderable {
     }
 
     public void setLineNumber(int lineNumber) {
-        if(lineNumber < 0) {
+        if (lineNumber < 0) {
             position = null;
             return;
         }
@@ -94,5 +96,15 @@ public class EditorPosition extends Renderable {
                 .filter(lineSegment -> lineSegment.getLineNumber() == lineNumber + 1)
                 .findFirst()
                 .ifPresent(lineSegment -> position = lineSegment.getEnd());
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_EDITOR_POSITION, true);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_EDITOR_POSITION, enabled);
     }
 }

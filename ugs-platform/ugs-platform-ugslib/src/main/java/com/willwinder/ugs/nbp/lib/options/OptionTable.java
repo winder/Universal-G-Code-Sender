@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,21 +18,18 @@
  */
 package com.willwinder.ugs.nbp.lib.options;
 
-import com.willwinder.universalgcodesender.i18n.Language;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- *
  * @author wwinder
  */
 public class OptionTable extends JTable {
-    private final DefaultTableModel model;
+    private final OptionTableModel model;
     private final List<Class> types;
     private ArrayList<TableCellRenderer> editors = new ArrayList<>();
 
@@ -41,37 +38,25 @@ public class OptionTable extends JTable {
 
     public OptionTable() {
         types = new ArrayList<>();
-        model = new DefaultTableModel(new String[] { "Setting", "Value" },0) {
-            boolean[] canEdit = new boolean [] {
-                false, true
-            };
-
-            @Override
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return columnIndex == 1;
-            }
-        };
-
+        model = new OptionTableModel();
+        setRowHeight(20);
         super.setModel(model);
         super.setColumnSelectionAllowed(true);
         super.getTableHeader().setReorderingAllowed(false);
     }
 
-    public void addRow(Option o) {
-        model.addRow(new Object[]{o.localized, o.getValue()});
+    public void addRow(Option<?> o) {
+        model.addRow(o);
         types.add(o.getValue().getClass());
         editors.add(null);
     }
 
     public void clear() {
-        while (model.getRowCount()>0){
-            model.removeRow(0);
-        }
+        model.clear();
     }
 
     @Override
-    public TableCellRenderer getCellRenderer(int row, int column)
-    {
+    public TableCellRenderer getCellRenderer(int row, int column) {
         editingClass = null;
 
         int modelColumn = convertColumnIndexToModel(column);
@@ -120,32 +105,7 @@ public class OptionTable extends JTable {
     }
 
 
-    public static class Option<T> {
-        public String option;
-        public String localized;
-        public String description;
-        public T value;
-
-        public Option(String name, String l, String d) {
-            option = name;
-            localized = l;
-            description = d;
-        }
-        public Option(String name, String l, String d, T v) {
-            option = name;
-            localized = l;
-            description = d;
-            value = v;
-        }
-        public void setValue(T v) {
-            if (v.getClass() == Language.class) {
-                System.out.println("What?");
-            }
-            value = v;
-        }
-
-        public T getValue() {
-            return value;
-        }
+    public Option<?> getOption(int index) {
+        return model.get(index);
     }
 }

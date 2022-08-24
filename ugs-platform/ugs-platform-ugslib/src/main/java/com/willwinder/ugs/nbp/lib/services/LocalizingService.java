@@ -301,6 +301,8 @@ public class LocalizingService {
     public final static String ToolboxTooltip = Localization.getString("platform.plugin.toolbox.tooltip", lang);
     public final static String ToolboxSettingsTitle =  Localization.getString("platform.plugin.toolbox.settings.title", lang);
 
+    public final static String EditVisualizerOptionsTitleKey = "platform.visualizer.edit.options.title";
+    public final static String EditVisualizerOptionsTitle = Localization.getString(EditVisualizerOptionsTitleKey, lang);
 
     public LocalizingService() throws IOException {
         ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);

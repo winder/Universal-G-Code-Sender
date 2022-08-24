@@ -1,7 +1,6 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc;
 
 import com.willwinder.universalgcodesender.Capabilities;
-import com.willwinder.universalgcodesender.CapabilitiesConstants;
 import com.willwinder.universalgcodesender.ConnectionWatchTimer;
 import com.willwinder.universalgcodesender.GrblCapabilitiesConstants;
 import com.willwinder.universalgcodesender.GrblCommunicator;
@@ -12,7 +11,6 @@ import com.willwinder.universalgcodesender.IFileService;
 import com.willwinder.universalgcodesender.StatusPollTimer;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionException;
-import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
@@ -53,9 +51,11 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.willwinder.universalgcodesender.Utils.formatter;
 import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.GRBL_COMPABILITY_VERSION;
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
+import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 
 public class FluidNCController implements IController, CommunicatorListener {
@@ -217,12 +217,39 @@ public class FluidNCController implements IController, CommunicatorListener {
 
     @Override
     public void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception {
+        LOGGER.log(Level.INFO,
+                String.format("Probing. axis: %s, feedRate: %s, distance: %s, units: %s",
+                        axis, feedRate, distance, units));
 
+        String probePattern = "G38.2 %s%s F%s";
+        String probeCommand = String.format(probePattern, axis, formatter.format(distance), formatter.format(feedRate));
+
+        GcodeCommand state = createCommand(GcodeUtils.unitCommand(units) + " G91 G49");
+        state.setTemporaryParserModalChange(true);
+
+        GcodeCommand probe = createCommand(probeCommand);
+        probe.setTemporaryParserModalChange(true);
+
+        sendCommandImmediately(state);
+        sendCommandImmediately(probe);
+
+        restoreParserModalState();
     }
 
     @Override
     public void offsetTool(String axis, double offset, UnitUtils.Units units) throws Exception {
+        String offsetPattern = "G43.1 %s%s";
+        String offsetCommand = String.format(offsetPattern,
+                axis,
+                formatter.format(offset * scaleUnits(units, MM)));
 
+        GcodeCommand state = createCommand("G21 G90");
+        state.setTemporaryParserModalChange(true);
+
+        sendCommandImmediately(state);
+        sendCommandImmediately(createCommand(offsetCommand));
+
+        restoreParserModalState();
     }
 
     @Override
@@ -381,7 +408,7 @@ public class FluidNCController implements IController, CommunicatorListener {
     }
 
     @Override
-    public void beginStreaming() throws Exception {
+    public void beginStreaming() {
         // Send all queued commands and streams then kick off the stream.
         try {
             if (streamCommands != null) {
@@ -528,15 +555,14 @@ public class FluidNCController implements IController, CommunicatorListener {
             sendAndWaitForCompletion(this, new GetErrorCodesCommand(), 3000);
             sendAndWaitForCompletion(this, new GetAlarmCodesCommand(), 3000);
 
-            FluidNCUtils.addCapabilities(capabilities, semanticVersion);
-
-            refreshFirmwareSettings();
-
             // Fetch the gcode state
             messageService.dispatchMessage(MessageType.INFO, "*** Fetching device state\n");
             GetParserStateCommand getParserStateCommand = sendAndWaitForCompletion(this, new GetParserStateCommand());
             String state = getParserStateCommand.getState().orElseThrow(() -> new ConnectionException("Could not get controller state"));
             gcodeParser.addCommand(state);
+
+            refreshFirmwareSettings();
+            FluidNCUtils.addCapabilities(capabilities, semanticVersion, firmwareSettings);
 
             // Toggle the state to force UI update
             setControllerState(ControllerState.CONNECTING);
@@ -559,27 +585,6 @@ public class FluidNCController implements IController, CommunicatorListener {
     private void refreshFirmwareSettings() throws FirmwareSettingsException {
         messageService.dispatchMessage(MessageType.INFO, "*** Fetching device settings\n");
         firmwareSettings.refresh();
-        firmwareSettings.getAllSettings().forEach(setting -> {
-            addCapabilityIfSettingStartsWith(setting, "axes/a", CapabilitiesConstants.A_AXIS);
-            addCapabilityIfSettingStartsWith(setting, "axes/b", CapabilitiesConstants.B_AXIS);
-            addCapabilityIfSettingStartsWith(setting, "axes/c", CapabilitiesConstants.C_AXIS);
-            addCapabilityIfSettingStartsWith(setting, "axes/x", CapabilitiesConstants.X_AXIS);
-            addCapabilityIfSettingStartsWith(setting, "axes/y", CapabilitiesConstants.Y_AXIS);
-            addCapabilityIfSettingStartsWith(setting, "axes/z", CapabilitiesConstants.Z_AXIS);
-        });
-    }
-
-    /**
-     * Adds a capability if there is a setting which key starts with the given setting key.
-     *
-     * @param setting              the setting to check
-     * @param settingKey           the key which the setting key should start with
-     * @param capabilitiesConstant the capabilities constant to add
-     */
-    private void addCapabilityIfSettingStartsWith(FirmwareSetting setting, String settingKey, String capabilitiesConstant) {
-        if (StringUtils.startsWith(setting.getKey().toLowerCase(), settingKey.toLowerCase())) {
-            capabilities.addCapability(capabilitiesConstant);
-        }
     }
 
     @Override

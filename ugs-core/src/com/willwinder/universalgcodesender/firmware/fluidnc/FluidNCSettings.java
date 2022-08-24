@@ -1,17 +1,19 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc;
 
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetFirmwareSettingsCommand;
-import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SystemCommand;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -65,6 +67,7 @@ public class FluidNCSettings implements IFirmwareSettings {
                 if (systemCommand.isOk()) {
                     FirmwareSetting firmwareSetting = new FirmwareSetting(key, value, "", "", "");
                     settings.put(key, firmwareSetting);
+                    listeners.forEach(l -> l.onUpdatedFirmwareSetting(firmwareSetting));
                 }
             }
         } catch (Exception e) {
@@ -125,7 +128,9 @@ public class FluidNCSettings implements IFirmwareSettings {
 
     @Override
     public boolean isSoftLimitsEnabled() throws FirmwareSettingsException {
-        return false;
+        return getSetting("axes/x/soft_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
+                getSetting("axes/y/soft_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
+                getSetting("axes/z/soft_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent();
     }
 
     @Override
@@ -155,12 +160,20 @@ public class FluidNCSettings implements IFirmwareSettings {
 
     @Override
     public void setSoftLimit(Axis axis, double limit) throws FirmwareSettingsException {
-
+        setValue("axes/" + axis.name().toLowerCase() + "/max_travel_mm", Utils.formatter.format(limit));
     }
 
     @Override
     public double getSoftLimit(Axis axis) throws FirmwareSettingsException {
-        return 0;
+        return getSetting("axes/" + axis.name().toLowerCase() + "/max_travel_mm")
+                .map(s -> {
+                    try {
+                        return Utils.formatter.parse(s.getValue()).doubleValue();
+                    } catch (ParseException e) {
+                        return 0d;
+                    }
+                })
+                .orElse(0d);
     }
 
     @Override
