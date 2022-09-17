@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
  */
 public class JSerialCommConnection extends AbstractConnection implements SerialPortDataListener {
 
-    private final byte[] buffer = new byte[2048];
     private SerialPort serialPort;
 
     @Override
@@ -115,12 +114,8 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
             return;
         }
 
-        int bytesAvailable = serialPort.bytesAvailable();
-        if (bytesAvailable <= 0) {
-            return;
-        }
-
-        int bytesRead = serialPort.readBytes(buffer, Math.min(buffer.length, bytesAvailable));
-        getResponseMessageHandler().handleResponse(buffer, 0, bytesRead);
+        byte[] newData = new byte[serialPort.bytesAvailable()];
+        int numRead = serialPort.readBytes(newData, newData.length);
+        getResponseMessageHandler().handleResponse(newData, 0, numRead);
     }
 }
