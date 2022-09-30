@@ -15,12 +15,6 @@
     <description>Web based pendant for controlling UGS</description>
     <url>https://github.com/winder/Universal-G-Code-Sender/tree/master/ugs-pendant</url>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.willwinder.universalgcodesender</groupId>
@@ -41,6 +35,11 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
             <version>${jetty.version}</version>
         </dependency>
 
