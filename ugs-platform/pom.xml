@@ -15,7 +15,7 @@
 
     <properties>
       <maven.build.timestamp.format>yyyy.MM.dd.HH.mm</maven.build.timestamp.format>
-      <netbeans.version>RELEASE122</netbeans.version>
+      <netbeans.version>RELEASE150</netbeans.version>
       <ugs.app.title>Universal Gcode Platform ${project.version}</ugs.app.title>
       <ugs.appbundle.name>Universal Gcode Platform</ugs.appbundle.name>
       <parsedVersion.majorVersion>2</parsedVersion.majorVersion>
@@ -49,7 +49,7 @@
       <!--==== Plugin Versions ====-->
       <ugs.maven-antrun-plugin.version>1.8</ugs.maven-antrun-plugin.version>
 
-      <ugs.nbm-maven-plugin.version>4.4</ugs.nbm-maven-plugin.version>
+      <ugs.nbm-maven-plugin.version>4.8</ugs.nbm-maven-plugin.version>
     </properties>
 
     <build>

@@ -16,10 +16,7 @@
     <url>https://github.com/winder/Universal-G-Code-Sender/tree/master/ugs-classic</url>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.releaseSourceDirectory>release_files</project.build.releaseSourceDirectory>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <dependencies>

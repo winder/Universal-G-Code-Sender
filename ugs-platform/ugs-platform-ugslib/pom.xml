@@ -18,6 +18,7 @@
                 <version>${ugs.nbm-maven-plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
+                    <verifyRuntime>false</verifyRuntime>
                     <publicPackages>
                         <publicPackage>com.willwinder.ugs.nbp.lib</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.lib.options</publicPackage>
