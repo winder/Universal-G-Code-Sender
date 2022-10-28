@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.gcode.processors;
 
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.model.Position;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import java.util.Arrays;
@@ -48,7 +49,19 @@ public class LineSplitterTest {
         List<String> result = instance.processCommand(command, state);
         assertEquals(expected, result);
     }
-    
+
+    private static void splitterHarnessRelativeMode(
+            double splitterLength, Position start, String command, List<String> expected) throws Exception {
+        LineSplitter instance = new LineSplitter(splitterLength);
+
+        GcodeState state = new GcodeState();
+        state.currentPoint = start;
+        state.inAbsoluteMode = false;
+
+        List<String> result = instance.processCommand(command, state);
+        assertEquals(expected, result);
+    }
+
     /**
      * Lines being split across each X/Y/Z axis.
      */
@@ -66,6 +79,25 @@ public class LineSplitterTest {
 
         expected = Arrays.asList("G1X0Y0Z0", "G1X0Y0Z1");
         splitterHarness(1, new Position(0, 0, -1, MM), "G1Z1", expected);
+    }
+
+    /**
+     * Lines being split across each X/Y/Z axis.
+     */
+    @Test
+    public void testSingleAxisRelative() throws Exception {
+        System.out.println("splitSingleAxis");
+
+        List<String> expected;
+
+        expected = Arrays.asList("G1X1Y0Z0", "G1X1Y0Z0");
+        splitterHarnessRelativeMode(1, new Position(-1, 0, 0, MM), "G1X2", expected);
+
+        expected = Arrays.asList("G1X0Y1Z0", "G1X0Y1Z0");
+        splitterHarnessRelativeMode(1, new Position(0, -1, 0, MM), "G1Y2", expected);
+
+        expected = Arrays.asList("G1X0Y0Z1", "G1X0Y0Z1");
+        splitterHarnessRelativeMode(1, new Position(0, 0, -1, MM), "G1Z2", expected);
     }
 
     /**
@@ -180,4 +212,5 @@ public class LineSplitterTest {
         List<String> expected = Arrays.asList("G1X0.3333Y0Z0", "G1X0.6667Y0Z0", "G1X1Y0Z0");
         splitterHarness(maxSegmentLength, new Position(0, 0, 0, MM), command, expected);
     }
+
 }
