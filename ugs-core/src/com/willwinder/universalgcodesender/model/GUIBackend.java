@@ -463,7 +463,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void applyCommandProcessor(CommandProcessor commandProcessor) throws Exception {
-        logger.log(Level.INFO, "Applying new command processor");
+        logger.log(Level.INFO, String.format("Applying new command processor %s", commandProcessor.getClass().getSimpleName()));
         gcp.addCommandProcessor(commandProcessor);
 
         if (gcodeFile != null) {
@@ -489,13 +489,13 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public File getProcessedGcodeFile() {
-        logger.log(Level.INFO, "Getting processed gcode file.");
+        logger.log(Level.INFO, String.format("Getting processed gcode file (%s).", this.processedGcodeFile));
         return this.processedGcodeFile;
     }
 
     @Override
     public void send() throws Exception {
-        logger.log(Level.INFO, "Sending gcode file.");
+        logger.log(Level.INFO, String.format("Sending gcode file (%s).", this.processedGcodeFile));
         // Note: there is a divide by zero error in the timer because it uses
         //       the rowsValueLabel that was just reset.
 
