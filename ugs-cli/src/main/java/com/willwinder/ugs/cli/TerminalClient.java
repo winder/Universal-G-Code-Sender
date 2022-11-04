@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import com.willwinder.universalgcodesender.utils.Version;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
 /**
@@ -173,9 +175,7 @@ public class TerminalClient {
         try {
             backend.performHomingCycle();
             Thread.sleep(WAIT_DURATION);
-            while (backend.getControllerState() == ControllerState.HOME) {
-                Thread.sleep(10);
-            }
+            ThreadHelper.waitUntil(() -> backend.getControllerState() != ControllerState.HOME, 1, TimeUnit.MINUTES);
         } catch (Exception e) {
             throw new RuntimeException("Couldn't home machine", e);
         }

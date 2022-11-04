@@ -19,15 +19,18 @@
 package com.willwinder.ugs.cli;
 
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Helper for initializing the backend. It will attempt to connect to controller using the given
@@ -74,8 +77,8 @@ public class BackendInitializerHelper implements UGSEventListener {
                 backend.connect(firmware, port, baudRate);
             }
 
-            // TODO Wait until controller is finnished and in state IDLE or ALARM
-            Thread.sleep(3000);
+            ThreadHelper.waitUntil(() -> backend.getControllerState() == ControllerState.IDLE || backend.getControllerState() == ControllerState.ALARM, 8000, TimeUnit.MILLISECONDS);
+            Thread.sleep(4000);
 
             if (backend.isConnected()) {
                 System.out.println("Connected to \"" + backend.getController().getFirmwareVersion() + "\" on " + port + " baud " + baudRate);
