@@ -30,9 +30,12 @@ public class FluidNCUtils {
 
     private static final String MESSAGE_REGEX = "\\[MSG:.*]";
     private static final Pattern MESSAGE_PATTERN = Pattern.compile(MESSAGE_REGEX);
+    private static final String PROBE_REGEX = "\\[PRB:.*]";
+    private static final Pattern PROBE_PATTERN = Pattern.compile(PROBE_REGEX);
     private static final String WELCOME_REGEX = "(?<protocolvendor>.*)\\s(?<protocolversion>[0-9a-z.]*)\\s\\[((?<fncvariant>[a-zA-Z]*)?\\s(v(?<fncversion>[0-9.]*))?)+.*]";
     private static final Pattern WELCOME_PATTERN = Pattern.compile(WELCOME_REGEX, Pattern.CASE_INSENSITIVE);
     private static final Pattern MACHINE_PATTERN = Pattern.compile("(?<=MPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
+    private static final Pattern PROBE_POSITION_PATTERN = Pattern.compile("\\[PRB:(-?\\d*\\.\\d*),(-?\\d*\\.\\d*),(-?\\d*\\.\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?:\\d?]");
     private static final Pattern WORK_PATTERN = Pattern.compile("(?<=WPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
     private static final Pattern WCO_PATTERN = Pattern.compile("(?<=WCO:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
 
@@ -46,6 +49,19 @@ public class FluidNCUtils {
         }
 
         return Optional.of(response.substring(5, response.length() - 1));
+    }
+
+    public static boolean isProbeMessage(String response) {
+        return PROBE_PATTERN.matcher(response).find();
+    }
+
+    static protected Position parseProbePosition(final String response, final UnitUtils.Units units) {
+        // Don't parse failed probe response.
+        if (response.endsWith(":0]")) {
+            return Position.INVALID;
+        }
+
+        return GrblUtils.getPositionFromStatusString(response, PROBE_POSITION_PATTERN, units);
     }
 
     public static boolean isWelcomeResponse(String response) {
