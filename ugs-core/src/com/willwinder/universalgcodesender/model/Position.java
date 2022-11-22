@@ -26,6 +26,7 @@ import java.util.Objects;
 public class Position extends CNCPoint {
 
     public static final Position ZERO = new Position(0, 0, 0, 0, 0, 0, Units.MM);
+    public static final Position INVALID = new Position(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Units.MM);
 
     private final Units units;
 
