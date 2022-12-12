@@ -95,11 +95,6 @@
         </dependency>
         <dependency>
             <groupId>org.jogamp.gluegen</groupId>
-            <artifactId>gluegen-rt-natives-macosx-universal</artifactId>
-            <version>${gluegen.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.gluegen</groupId>
             <artifactId>gluegen-rt-natives-windows-amd64</artifactId>
             <version>${gluegen.version}</version>
         </dependency>
