@@ -4,14 +4,15 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class GcodeFileWriter implements IGcodeWriter {
     private final File file;
     private final PrintWriter fileWriter;
 
-    public GcodeFileWriter(File f) throws FileNotFoundException {
+    public GcodeFileWriter(File f) throws FileNotFoundException, UnsupportedEncodingException {
         file = f;
-        fileWriter = new PrintWriter(f);
+        fileWriter = new PrintWriter(f, StandardCharsets.UTF_8.name());
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
-    Copyright 2012-2018 Will Winder
+    Copyright 2012-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,18 +26,18 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.JOptionPane;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
@@ -60,9 +60,9 @@ import java.util.stream.Stream;
 public class FirmwareUtils {
     final private static String FIRMWARE_CONFIG_DIRNAME = "firmware_config";
     private static final Logger logger = Logger.getLogger(FirmwareUtils.class.getName());
+    private static final Map<String, ConfigTuple> configFiles = new HashMap<>();
     private static boolean userNotified = false;
     private static boolean overwriteOldFiles = false;
-    private static final Map<String, ConfigTuple> configFiles = new HashMap<>();
 
     static {
         initialize();
@@ -117,7 +117,7 @@ public class FirmwareUtils {
 
     private static ControllerSettings getSettingsForStream(InputStream is)
             throws IOException {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             return new Gson().fromJson(br, ControllerSettings.class);
         }
     }
@@ -222,10 +222,10 @@ public class FirmwareUtils {
 
         configFiles.clear();
         for (File f : firmwareConfig.listFiles()) {
-            try {
-                ControllerSettings config = new Gson().fromJson(new FileReader(f), ControllerSettings.class);
+            try (InputStream fileInputStream = new FileInputStream(f)) {
+                ControllerSettings config = new Gson().fromJson(new InputStreamReader(fileInputStream, StandardCharsets.UTF_8), ControllerSettings.class);
                 configFiles.put(config.getName(), new ConfigTuple(config, f));
-            } catch (FileNotFoundException | JsonSyntaxException | JsonIOException ex) {
+            } catch (JsonSyntaxException | JsonIOException | IOException ex) {
                 GUIHelpers.displayErrorDialog("Unable to load configuration files: " + f.getAbsolutePath());
             }
         }
@@ -237,7 +237,7 @@ public class FirmwareUtils {
         }
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(cs, ControllerSettings.class);
-        FileUtils.writeStringToFile(f, json);
+        FileUtils.writeStringToFile(f, json, StandardCharsets.UTF_8);
     }
 
     /**
@@ -254,9 +254,9 @@ public class FirmwareUtils {
         }
 
         public void reload() {
-            try {
-                loader = new Gson().fromJson(new FileReader(file), ControllerSettings.class);
-            } catch (FileNotFoundException ex) {
+            try (InputStream fileInputStream = new FileInputStream(file)){
+                loader = new Gson().fromJson(IOUtils.toString(fileInputStream, StandardCharsets.UTF_8), ControllerSettings.class);
+            } catch (IOException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
         }

@@ -1,5 +1,5 @@
 /*
-    Copyright 2017-2018 Will Winder
+    Copyright 2017-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -44,8 +44,8 @@ import org.openide.windows.TopComponent;
 import java.awt.*;
 import java.io.PrintWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -215,7 +215,7 @@ public final class DowelTopComponent extends TopComponent {
 
   private void generateAndLoadGcode(File file) {
     try {
-      try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
+      try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8.name())) {
         generator.generate(writer);
       }
       backend.setGcodeFile(file);

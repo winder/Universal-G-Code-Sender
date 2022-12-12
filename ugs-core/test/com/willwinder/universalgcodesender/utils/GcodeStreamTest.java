@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.utils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 import org.apache.commons.io.FileUtils;
@@ -60,7 +61,7 @@ public class GcodeStreamTest {
     @Test(expected=GcodeStreamReader.NotGcodeStreamFile.class)
     public void testNotGcodeStream() throws FileNotFoundException, IOException, GcodeStreamReader.NotGcodeStreamFile {
         File f = new File(tempDir,"gcodeFile");
-        try (PrintWriter writer = new PrintWriter(f)) {
+        try (PrintWriter writer = new PrintWriter(f, StandardCharsets.UTF_8.name())) {
             writer.println("invalid format");
         }
        
@@ -120,7 +121,8 @@ public class GcodeStreamTest {
             }
         }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
+        try (InputStream fileInputStream = new FileInputStream(f)) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream, StandardCharsets.UTF_8));
             int i = 0;
             while (reader.ready()) {
                 String c = "";

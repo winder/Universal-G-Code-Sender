@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,18 +53,14 @@ public class SettingsFactory {
             if (!settingsFile.exists()) {
                 settings = new Settings();
             } else {
-                try {
-                    //logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
+                try (InputStream fileInputStream = new FileInputStream(settingsFile)){
                     logger.log(Level.INFO, "Log location: {0}", settingsFile.getAbsolutePath());
                     logger.info("Loading settings.");
-                    settings = new Gson().fromJson(new FileReader(settingsFile), Settings.class);
+                    settings = new Gson().fromJson(new InputStreamReader(fileInputStream, StandardCharsets.UTF_8), Settings.class);
                     if (settings != null) {
                         settings.finalizeInitialization();
                     }
-                    // Localized setting not available here.
-                    //logger.info(Localization.getString("settings.log.loading"));
-                } catch (FileNotFoundException ex) {
-                    //logger.warning(Localization.getString("settings.log.error"));
+                } catch (IOException ex) {
                     logger.log(Level.SEVERE, "Can't load settings, using defaults.", ex);
                 }
             }
@@ -80,12 +77,12 @@ public class SettingsFactory {
         try {
             // Save json file.
             File jsonFile = getSettingsFile();
-            try (FileWriter fileWriter = new FileWriter(jsonFile)) {
+            try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
                 Gson gson = new GsonBuilder()
                         .setPrettyPrinting()
                         .serializeSpecialFloatingPointValues()
                         .create();
-                fileWriter.write(gson.toJson(settings, Settings.class));
+                writer.write(gson.toJson(settings, Settings.class));
             }
          } catch (Exception e) {
             logger.log(Level.SEVERE, Localization.getString("settings.log.saveerror"), e);
