@@ -43,8 +43,6 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -822,9 +820,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private void initializeProcessedLines(boolean forceReprocess, File startFile, GcodeParser gcodeParser)
             throws Exception {
         if (startFile != null) {
-            try (FileReader fr = new FileReader(startFile)) {
-                Charset.forName(fr.getEncoding());
-            }
             logger.info("Start preprocessing");
             long start = System.currentTimeMillis();
             if (this.processedGcodeFile == null || forceReprocess) {

@@ -1,13 +1,5 @@
 /*
- * GcodeStreamReader.java
- *
- * Reads a 'GcodeStream' file containing command processing information, actual
- * command to send and other metadata like total number of commands.
- *
- * Created on Jan 7, 2016
- */
-/*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -33,9 +25,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
- * Writes a "GcodeStream" file in a machine readable format.
+ * Writes a "GcodeStream" file in a machine readable format containing command processing
+ * information, actual command to send and other metadata like total number of commands.
+ *
  * @author wwinder
  */
 public class GcodeStreamWriter extends GcodeStream implements IGcodeWriter {
@@ -47,10 +43,14 @@ public class GcodeStreamWriter extends GcodeStream implements IGcodeWriter {
 
     public GcodeStreamWriter(File f) throws FileNotFoundException {
         file = f;
-        fileWriter = new PrintWriter(f);
-        // 50 bytes at the beginning of the file to store metadata
-        fileWriter.append(metadataReservedSize);
-        fileWriter.append("\n");
+        try {
+            fileWriter = new PrintWriter(f, StandardCharsets.UTF_8.name());
+            // 50 bytes at the beginning of the file to store metadata
+            fileWriter.append(metadataReservedSize);
+            fileWriter.append("\n");
+        } catch (UnsupportedEncodingException e) {
+            throw new FileNotFoundException("Could not use UTF-8 to output gcode stream file");
+        }
     }
 
     private String getString(String str) {
@@ -89,7 +89,7 @@ public class GcodeStreamWriter extends GcodeStream implements IGcodeWriter {
     }
 
     public void addLine(String original, String processed, String comment, int commandNumber) {
-        if (    (original != null && original.trim().contains("\n")) || 
+        if ((original != null && original.trim().contains("\n")) ||
                 (processed != null && processed.trim().contains("\n")) ||
                 (comment != null && comment.trim().contains("\n"))) {
             throw new IllegalArgumentException("Cannot include newlines in gcode stream.");

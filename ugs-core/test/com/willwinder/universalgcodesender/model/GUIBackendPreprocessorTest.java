@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -117,7 +118,7 @@ public class GUIBackendPreprocessorTest {
 
         // Create GcodeStream input file by putting it through the preprocessor.
         List<String> lines = Arrays.asList("line one", "line two");
-        Files.write(outputFile, lines, Charset.defaultCharset(), StandardOpenOption.WRITE);
+        Files.write(outputFile, lines, StandardCharsets.UTF_8, StandardOpenOption.WRITE);
         try (IGcodeWriter gcw = new GcodeStreamWriter(inputFile.toFile())) {
             backend.preprocessAndExportToFile(gcp, outputFile.toFile(), gcw);
         }
