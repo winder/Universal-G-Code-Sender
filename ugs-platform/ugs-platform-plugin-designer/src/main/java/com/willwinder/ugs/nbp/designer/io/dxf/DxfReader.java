@@ -7,24 +7,37 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.model.Size;
-import org.kabeja.dxf.*;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.utils.Settings;
+import org.kabeja.dxf.DXFCircle;
+import org.kabeja.dxf.DXFConstants;
+import org.kabeja.dxf.DXFDocument;
+import org.kabeja.dxf.DXFLayer;
+import org.kabeja.dxf.DXFLine;
+import org.kabeja.dxf.DXFPoint;
 import org.kabeja.dxf.helpers.Point;
 import org.kabeja.parser.DXFParser;
 import org.kabeja.parser.ParseException;
 import org.kabeja.parser.Parser;
 import org.kabeja.parser.ParserBuilder;
 
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 public class DxfReader implements DesignReader {
 
     public static final double MILLIMETERS_PER_INCH = 25.4;
+    private final Settings settings;
+
+    public DxfReader(Settings settings) {
+        this.settings = settings;
+    }
 
     @Override
     public Optional<Design> read(File file) {
@@ -53,6 +66,12 @@ public class DxfReader implements DesignReader {
             Group layerGroup = new Group();
             layerGroup.setName(layer.getName());
 
+            Group pointsGroup = parsePoints(layer);
+            pointsGroup.setName("Points");
+            if (!pointsGroup.getChildren().isEmpty()) {
+                layerGroup.addChild(pointsGroup);
+            }
+
             Group circlesGroup = parseCircles(layer);
             circlesGroup.setName("Circles");
             if (!circlesGroup.getChildren().isEmpty()) {
@@ -70,9 +89,7 @@ public class DxfReader implements DesignReader {
                 group.addChild(layerGroup);
             }
         }
-
-        group.setPosition(new Point2D.Double(0, 0));
-
+        
         Design design = new Design();
         List<Entity> entities = new ArrayList<>();
         if (!group.getChildren().isEmpty()) {
@@ -95,14 +112,21 @@ public class DxfReader implements DesignReader {
                 }
 
                 if (lastPoint == null) {
-                    path.moveTo(line.getStartPoint().getX() * MILLIMETERS_PER_INCH, line.getStartPoint().getY() * MILLIMETERS_PER_INCH);
+                    path.moveTo(convertCoordinate(line.getStartPoint().getX()), convertCoordinate(line.getStartPoint().getY()));
                 }
 
-                path.lineTo(line.getEndPoint().getX() * MILLIMETERS_PER_INCH, line.getEndPoint().getY() * MILLIMETERS_PER_INCH);
+                path.lineTo(convertCoordinate(line.getEndPoint().getX()), convertCoordinate(line.getEndPoint().getY()));
                 lastPoint = line.getEndPoint();
             }
             linesGroup.addChild(path);
         }
+    }
+
+    private double convertCoordinate(double value) {
+        if (settings.getPreferredUnits() == UnitUtils.Units.INCH) {
+            return value * MILLIMETERS_PER_INCH;
+        }
+        return value;
     }
 
     private Group parseCircles(DXFLayer layer) {
@@ -110,12 +134,23 @@ public class DxfReader implements DesignReader {
         List<DXFCircle> circles = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_CIRCLE);
         if (circles != null) {
             for (DXFCircle circle : circles) {
-                double radius = circle.getRadius() * MILLIMETERS_PER_INCH;
-                Ellipse ellipse = new Ellipse((circle.getCenterPoint().getX() * MILLIMETERS_PER_INCH) - radius, (circle.getCenterPoint().getY() * MILLIMETERS_PER_INCH) - radius);
+                double radius = convertCoordinate(circle.getRadius());
+                Ellipse ellipse = new Ellipse(convertCoordinate(circle.getCenterPoint().getX()) - radius, convertCoordinate(circle.getCenterPoint().getY()) - radius);
                 ellipse.setSize(new Size(radius * 2, radius * 2));
                 circlesGroup.addChild(ellipse);
             }
         }
         return circlesGroup;
+    }
+
+    private Group parsePoints(DXFLayer layer) {
+        Group pointsGroup = new Group();
+        List<DXFPoint> points = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_POINT);
+        if (points != null) {
+            for (DXFPoint point : points) {
+                pointsGroup.addChild(new com.willwinder.ugs.nbp.designer.entities.cuttable.Point(convertCoordinate(point.getX()), convertCoordinate(point.getY())));
+            }
+        }
+        return pointsGroup;
     }
 }

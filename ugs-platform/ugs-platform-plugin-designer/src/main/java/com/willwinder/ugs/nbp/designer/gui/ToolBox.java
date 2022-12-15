@@ -39,6 +39,11 @@ public class ToolBox extends ToolBar {
         select.setToolTipText("Select and move shapes");
         add(select);
 
+        JToggleButton point = new JToggleButton(new ToolDrawPointAction(controller));
+        point.setText("");
+        point.setToolTipText("Draw points");
+        add(point);
+
         JToggleButton rectangle = new JToggleButton(new ToolDrawRectangleAction(controller));
         rectangle.setText("");
         rectangle.setToolTipText("Draw squares and rectangles");
@@ -146,6 +151,9 @@ public class ToolBox extends ToolBar {
                 switch (controller.getTool()) {
                     case SELECT:
                         select.setSelected(true);
+                        break;
+                    case POINT:
+                        point.setSelected(true);
                         break;
                     case RECTANGLE:
                         rectangle.setSelected(true);

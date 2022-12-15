@@ -18,9 +18,22 @@
  */
 package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
 
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
+
 /**
  * @author Joacim Breiler
  */
-public enum EntityTypeV1 {
-    PATH, GROUP, ELLIPSE, RECTANGLE, POINT, TEXT
+public class EntityPointV1 extends CuttableEntityV1 {
+    public EntityPointV1() {
+        super(EntityTypeV1.POINT);
+    }
+
+    @Override
+    public Entity toInternal() {
+        Point point = new Point();
+        applyCommonAttributes(point);
+        return point;
+    }
 }
