@@ -34,6 +34,7 @@ import org.kabeja.parser.entities.DXFLeaderHandler;
 import org.kabeja.parser.entities.DXFLineHandler;
 import org.kabeja.parser.entities.DXFMLineHandler;
 import org.kabeja.parser.entities.DXFMTextHandler;
+import org.kabeja.parser.entities.DXFPointHandler;
 import org.kabeja.parser.entities.DXFPolylineHandler;
 import org.kabeja.parser.entities.DXFRayHandler;
 import org.kabeja.parser.entities.DXFRegionHandler;
@@ -128,6 +129,9 @@ public class ParserBuilder {
         h = new DXFXLineHandler();
         handlerManager.addHandler(h);
 
+        h = new DXFPointHandler();
+        handlerManager.addHandler(h);
+
         h = new DXFRegionHandler();
         handlerManager.addHandler(h);
 
@@ -180,6 +184,9 @@ public class ParserBuilder {
 
         // the entity handlers
         h = new DXFLineHandler();
+        handlerManager.addHandler(h);
+
+        h = new DXFPointHandler();
         handlerManager.addHandler(h);
 
         h = new DXFCircleHandler();

@@ -24,6 +24,8 @@ import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.ImageUtilities;
@@ -62,6 +64,8 @@ public final class ToolImportAction extends AbstractAction {
         fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Carbide Create (.c2d)", "c2d"));
         fileDialog.showOpenDialog(null);
 
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+
         ThreadHelper.invokeLater(() -> {
             File f = fileDialog.getSelectedFile();
             if (f != null) {
@@ -71,7 +75,7 @@ public final class ToolImportAction extends AbstractAction {
                     SvgReader svgReader = new SvgReader();
                     optionalDesign = svgReader.read(f);
                 } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".dxf")) {
-                    DxfReader reader = new DxfReader();
+                    DxfReader reader = new DxfReader(backend.getSettings());
                     optionalDesign = reader.read(f);
                 } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".c2d")) {
                     C2dReader reader = new C2dReader();

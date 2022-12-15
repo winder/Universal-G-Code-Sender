@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.entities.controls.CreateEllipseControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.CreatePointControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.CreateRectangleControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.CreateTextControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.EditTextControl;
@@ -99,6 +100,7 @@ public class Drawing extends JPanel {
         controlsRoot.addChild(new MoveControl(controller));
         controlsRoot.addChild(new RotationControl(controller.getSelectionManager()));
         controlsRoot.addChild(new SelectionControl(controller));
+        controlsRoot.addChild(new CreatePointControl(controller));
         controlsRoot.addChild(new CreateRectangleControl(controller));
         controlsRoot.addChild(new CreateEllipseControl(controller));
         controlsRoot.addChild(new CreateTextControl(controller));

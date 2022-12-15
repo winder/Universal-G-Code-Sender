@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
@@ -42,7 +43,6 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 /**
  * @author Joacim Breiler
@@ -51,7 +51,6 @@ public class ResizeControl extends AbstractControl {
     public static final int SIZE = 8;
     public static final int MARGIN = 6;
     public static final double ARC_SIZE = 1d;
-    private static final Logger LOGGER = Logger.getLogger(ResizeControl.class.getSimpleName());
     private final Location location;
     private final RoundRectangle2D.Double shape;
     private AffineTransform transform = new AffineTransform();
@@ -102,6 +101,11 @@ public class ResizeControl extends AbstractControl {
     @Override
     public void render(Graphics2D graphics, Drawing drawing) {
         if (getSelectionManager().getSelection().isEmpty()) {
+            return;
+        }
+
+        if (getSelectionManager().getSelection().size() == 1 &&
+                getSelectionManager().getSelection().get(0) instanceof Point) {
             return;
         }
 

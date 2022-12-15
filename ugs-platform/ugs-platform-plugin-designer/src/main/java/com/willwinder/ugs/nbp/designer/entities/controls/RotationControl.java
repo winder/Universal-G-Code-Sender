@@ -31,8 +31,17 @@ import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.openide.util.ImageUtilities;
 
-import java.awt.*;
-import java.awt.geom.*;
+import java.awt.Cursor;
+import java.awt.Graphics2D;
+import java.awt.HeadlessException;
+import java.awt.Point;
+import java.awt.Shape;
+import java.awt.Toolkit;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -102,6 +111,11 @@ public class RotationControl extends AbstractControl {
     @Override
     public void render(Graphics2D graphics, Drawing drawing) {
         if (getSelectionManager().getSelection().isEmpty()) {
+            return;
+        }
+
+        if (getSelectionManager().getSelection().size() == 1 &&
+                getSelectionManager().getSelection().get(0) instanceof com.willwinder.ugs.nbp.designer.entities.cuttable.Point) {
             return;
         }
 
