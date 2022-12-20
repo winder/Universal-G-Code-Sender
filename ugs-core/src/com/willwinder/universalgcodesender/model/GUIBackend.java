@@ -461,7 +461,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void applyCommandProcessor(CommandProcessor commandProcessor) throws Exception {
-        logger.log(Level.INFO, "Applying new command processor");
+        logger.log(Level.INFO, "Applying new command processor: {0}", commandProcessor.getClass().getSimpleName());
         gcp.addCommandProcessor(commandProcessor);
 
         if (gcodeFile != null) {
@@ -487,7 +487,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public File getProcessedGcodeFile() {
-        logger.log(Level.INFO, "Getting processed gcode file.");
+        logger.log(Level.FINEST, "Getting processed gcode file.");
         return this.processedGcodeFile;
     }
 
