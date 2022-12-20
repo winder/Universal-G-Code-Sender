@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class DesignV1 extends UgsDesign implements Serializable {
     public static final String VERSION = "1";
 
-    private SettingsV1 settings = new SettingsV1();
+    private transient SettingsV1 settings = new SettingsV1();
     private List<EntityV1> entities = Collections.emptyList();
 
     public DesignV1() {
@@ -28,14 +28,15 @@ public class DesignV1 extends UgsDesign implements Serializable {
         this.entities = entities;
     }
 
+    @Override
     public Design toInternal() {
         Design design = new Design();
         if (entities != null) {
-            List<Entity> entities = getEntities().stream()
+            List<Entity> internalEntities = getEntities().stream()
                     .filter(Objects::nonNull)
                     .map(EntityV1::toInternal)
                     .collect(Collectors.toList());
-            design.setEntities(entities);
+            design.setEntities(internalEntities);
         }
         design.setSettings(settings.toInternal());
         return design;

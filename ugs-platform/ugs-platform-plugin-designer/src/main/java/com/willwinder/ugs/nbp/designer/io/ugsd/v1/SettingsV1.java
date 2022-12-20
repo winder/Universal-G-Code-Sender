@@ -3,7 +3,9 @@ package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
 import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
-public class SettingsV1 {
+import java.io.Serializable;
+
+public class SettingsV1 implements Serializable {
     private int feedSpeed = 1000;
     private int plungeSpeed = 400;
     private double toolDiameter = 3d;

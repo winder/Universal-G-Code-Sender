@@ -31,6 +31,10 @@ import java.util.stream.Collectors;
  * @author Joacim Breiler
  */
 public class EntityTreeUtils {
+
+    private EntityTreeUtils() {
+    }
+
     public static List<TreePath> getSelectedPaths(Controller controller, Entity entity, List<Entity> currentTreePath) {
         ArrayList<TreePath> result = new ArrayList<>();
         if (controller.getSelectionManager().isSelected(entity)) {

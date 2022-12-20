@@ -37,7 +37,7 @@ public class ZoomControl extends AbstractControl {
 
     @Override
     public void render(Graphics2D graphics, Drawing drawing) {
-
+        // Not applicable
     }
 
     @Override

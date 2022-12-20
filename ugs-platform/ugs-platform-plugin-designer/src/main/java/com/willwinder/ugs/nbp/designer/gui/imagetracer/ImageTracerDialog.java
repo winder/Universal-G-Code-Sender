@@ -40,10 +40,10 @@ import java.util.List;
  * @author Joacim Breiler
  */
 public class ImageTracerDialog extends JDialog {
-    private List<Entity> entities = new ArrayList<>();
+    private transient List<Entity> entities = new ArrayList<>();
+    private final transient Throttler refreshThrottler;
     private final SVGCanvas svgCanvas = new SVGCanvas();
     private final TraceSettingsPanel settingsPanel = new TraceSettingsPanel();
-    private final Throttler refreshThrottler;
 
     private File selectedFile;
     private String generatedSvgData;

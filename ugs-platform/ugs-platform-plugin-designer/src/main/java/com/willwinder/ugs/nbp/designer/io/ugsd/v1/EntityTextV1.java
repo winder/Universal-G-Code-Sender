@@ -42,10 +42,10 @@ public class EntityTextV1 extends CuttableEntityV1 {
 
     @Override
     public Entity toInternal() {
-        Text text = new Text();
-        text.setFontFamily(fontName);
-        text.setText(this.text);
-        applyCommonAttributes(text);
-        return text;
+        Text result = new Text();
+        result.setFontFamily(fontName);
+        result.setText(this.text);
+        applyCommonAttributes(result);
+        return result;
     }
 }

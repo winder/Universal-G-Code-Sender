@@ -22,6 +22,7 @@ import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
+import com.willwinder.ugs.nbp.designer.entities.EntityException;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
@@ -221,6 +222,6 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
 
     @Override
     public Entity copy() {
-        throw new RuntimeException("Not implemented");
+        throw new EntityException("Not implemented");
     }
 }

@@ -46,7 +46,7 @@ public class FontClipart implements Clipart {
         this.text = text;
         label = new JLabel(text);
         label.setFont(font);
-        label.setHorizontalAlignment(JLabel.CENTER);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setForeground(ThemeColors.VERY_DARK_GREY);
         this.font = font;
     }

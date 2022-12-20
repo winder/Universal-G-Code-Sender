@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.io.gcode;
 
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
+import com.willwinder.ugs.nbp.designer.io.DesignWriterException;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.apache.commons.io.IOUtils;
 
@@ -40,7 +41,7 @@ public class GcodeDesignWriter implements DesignWriter {
         try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
             write(fileOutputStream, controller);
         } catch (IOException e) {
-            throw new RuntimeException("Could not write gcode to file: " + file.getAbsolutePath(), e);
+            throw new DesignWriterException("Could not write gcode to file: " + file.getAbsolutePath(), e);
         }
     }
 
@@ -60,7 +61,7 @@ public class GcodeDesignWriter implements DesignWriter {
             String gcode = gcodeRouter.toGcode(controller.getDrawing().getEntities());
             IOUtils.write(gcode, outputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new RuntimeException("Could not write gcode to stream", e);
+            throw new DesignWriterException("Could not write gcode to stream", e);
         }
     }
 }

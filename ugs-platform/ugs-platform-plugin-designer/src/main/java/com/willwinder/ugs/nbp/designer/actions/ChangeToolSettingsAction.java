@@ -29,8 +29,8 @@ import java.awt.event.ActionEvent;
  */
 public class ChangeToolSettingsAction extends AbstractAction implements UndoableAction {
 
-    private final Settings previousSettings;
-    private final Settings newSettings;
+    private final transient Settings previousSettings;
+    private final transient Settings newSettings;
     private final transient Controller controller;
 
     public ChangeToolSettingsAction(Controller controller, Settings settings) {

@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public class RemixIconSource implements ClipartSource {
     private final Font font;
 
-    private final Map<Category, List<? extends Clipart>> cliparts;
+    private final EnumMap<Category, List<Clipart>> cliparts;
 
     public RemixIconSource() {
         try {
@@ -44,7 +44,7 @@ public class RemixIconSource implements ClipartSource {
                     .createFont(Font.TRUETYPE_FONT, InsertClipartDialog.class.getResourceAsStream("/fonts/remixicon/remixicon.ttf"))
                     .deriveFont(FONT_SIZE);
         } catch (IOException | FontFormatException e) {
-            throw new RuntimeException("Could not load font", e);
+            throw new ClipartSourceException("Could not load font", e);
         }
 
         Gson gson = new GsonBuilder().create();
@@ -76,11 +76,11 @@ public class RemixIconSource implements ClipartSource {
         categoryMap.put("Weather", Category.WEATHER);
         categoryMap.put("Others", Category.UNSORTED);
 
-        cliparts = new HashMap<>();
+        cliparts = new EnumMap<>(Category.class);
         categories.keySet().forEach(categoryName -> {
             Set<String> iconNames = categories.get(categoryName).keySet();
             Category category = categoryMap.get(categoryName);
-            List<FontClipart> categoryIcons = iconNames.stream()
+            List<Clipart> categoryIcons = iconNames.stream()
                     .map(iconName -> new FontClipart(iconName, category, font, icons.get(iconName)))
                     .collect(Collectors.toList());
             cliparts.put(category, categoryIcons);
@@ -103,7 +103,7 @@ public class RemixIconSource implements ClipartSource {
     }
 
     @Override
-    public List<? extends Clipart> getCliparts(Category category) {
+    public List<Clipart> getCliparts(Category category) {
         return cliparts.getOrDefault(category, Collections.emptyList());
     }
 }

@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
-import com.willwinder.ugs.nbp.designer.actions.AddAction;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
@@ -30,7 +29,6 @@ import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 

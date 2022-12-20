@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,16 +18,15 @@
  */
 package com.willwinder.ugs.nbp.designer.io;
 
-import com.willwinder.ugs.nbp.designer.logic.Controller;
-
-import java.io.File;
-import java.io.OutputStream;
-
 /**
  * @author Joacim Breiler
  */
-public interface DesignWriter {
-    void write(File file, Controller controller);
+public class DesignReaderException extends RuntimeException {
+    public DesignReaderException(String message, Exception e) {
+        super(message, e);
+    }
 
-    void write(OutputStream outputStream, Controller controller);
+    public DesignReaderException(String message) {
+        super(message);
+    }
 }

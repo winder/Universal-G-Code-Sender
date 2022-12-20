@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,18 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.io;
-
-import com.willwinder.ugs.nbp.designer.logic.Controller;
-
-import java.io.File;
-import java.io.OutputStream;
+package com.willwinder.ugs.nbp.designer.gui.clipart;
 
 /**
  * @author Joacim Breiler
  */
-public interface DesignWriter {
-    void write(File file, Controller controller);
-
-    void write(OutputStream outputStream, Controller controller);
+public class ClipartSourceException extends RuntimeException {
+    public ClipartSourceException(String message, Exception e) {
+        super(message, e);
+    }
 }

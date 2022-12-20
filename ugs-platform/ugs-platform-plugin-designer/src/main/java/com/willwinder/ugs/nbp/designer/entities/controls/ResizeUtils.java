@@ -24,6 +24,10 @@ import com.willwinder.ugs.nbp.designer.model.Size;
 import java.awt.geom.Point2D;
 
 public class ResizeUtils {
+
+    private ResizeUtils() {
+    }
+
     public static Point2D getDeltaMovement(Location location, Size size, Size newSize) {
         Size deltaSize = new Size(size.getWidth() - newSize.getWidth(), size.getHeight() - newSize.getHeight());
         Point2D movement = new Point2D.Double(0, 0);

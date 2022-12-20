@@ -36,6 +36,6 @@ public class HighlightModelControl extends AbstractControl {
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
-
+        // Not applicable
     }
 }

@@ -31,7 +31,7 @@ import java.text.ParseException;
  * @author Joacim Breiler
  */
 public class ToolSettingsPanel extends JPanel {
-    private final Controller controller;
+    private final transient Controller controller;
     private JTextField toolDiameter;
     private JTextField feedSpeed;
     private JTextField plungeSpeed;
