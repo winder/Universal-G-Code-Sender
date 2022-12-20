@@ -31,7 +31,7 @@ import static com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.n
 
 public class RunFromProcessor implements CommandProcessor {
     private int lineNumber;
-    private GcodeParser parser = new GcodeParser();
+    private final GcodeParser parser = new GcodeParser();
     private Double clearanceHeight = 0.0;
     /**
      * Truncates gcode to the specified line, and rewrites the preamble with the GcodeState.
@@ -53,7 +53,7 @@ public class RunFromProcessor implements CommandProcessor {
     @Override
     public List<String> processCommand(String command, GcodeState state) throws GcodeParserException {
         // The processor is not activated
-        if (lineNumber == 0) {
+        if (lineNumber <= 0) {
             return Collections.singletonList(command);
         }
 
@@ -73,7 +73,13 @@ public class RunFromProcessor implements CommandProcessor {
             String plunge = "G1Z" + pos.z;
 
             GcodeState s = parser.getCurrentState();
-            String normalized = normalizeCommand(command, s);
+            String normalized = command;
+            try {
+                normalized = normalizeCommand(command, s);
+            } catch (GcodeParserException e) {
+                // If command couldn't be normalized, send as is
+            }
+
             return ImmutableList.of(
                     // Initialize state
                     s.machineStateCode(),

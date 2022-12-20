@@ -37,7 +37,7 @@ import java.util.Set;
 public class RunFromService implements UGSEventListener {
     private final BackendAPI backend;
     private final Set<RunFromServiceListener> listeners = new HashSet<>();
-    private RunFromProcessor runFromProcessor = new RunFromProcessor(0);
+    private final RunFromProcessor runFromProcessor = new RunFromProcessor(0);
 
     public RunFromService(BackendAPI backend) {
         this.backend = backend;
@@ -69,9 +69,8 @@ public class RunFromService implements UGSEventListener {
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-
         if (evt instanceof FileStateEvent && ((FileStateEvent)evt).getFileState() == FileState.OPENING_FILE) {
-            runFromProcessor.setLineNumber(0);
+            runFromLine(0);
         }
     }
 

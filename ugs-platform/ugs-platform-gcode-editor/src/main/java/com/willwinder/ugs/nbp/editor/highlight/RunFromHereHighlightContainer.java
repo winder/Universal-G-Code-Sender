@@ -53,7 +53,7 @@ public class RunFromHereHighlightContainer extends AbstractHighlightsContainer i
 
         EditorCookie pane = dataObject.getLookup().lookup(EditorCookie.class);
         JEditorPane[] panes = pane.getOpenedPanes();
-        if (panes == null || panes.length == 0) {
+        if (panes == null || panes.length == 0 || lineNumber == 0) {
             clearHighlights();
             return;
         }
