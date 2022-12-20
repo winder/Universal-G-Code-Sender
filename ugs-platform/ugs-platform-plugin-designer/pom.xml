@@ -35,7 +35,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>1.18.2</version>
+            <version>${jts.version}</version>
         </dependency>
 
         <!-- For reading SVG -->
@@ -63,6 +63,13 @@
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-util</artifactId>
             <version>${batik.version}</version>
+        </dependency>
+
+        <!-- For special graphical components -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>jide-oss</artifactId>
+            <version>${ugs.jide.version}</version>
         </dependency>
 
         <!-- UGS dependencies -->
@@ -180,11 +187,6 @@
             <artifactId>org-openide-filesystems-nb</artifactId>
             <version>${netbeans.version}</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.formdev</groupId>
-            <artifactId>jide-oss</artifactId>
-            <version>${ugs.jide.version}</version>
         </dependency>
     </dependencies>
 </project>
