@@ -74,7 +74,7 @@
     <ugs.flatten-maven-plugin.version>1.2.2</ugs.flatten-maven-plugin.version>
     <ugs.junit.version>4.13.2</ugs.junit.version>
     <ugs.hamcrest-core.version>2.2</ugs.hamcrest-core.version>
-    <ugs.maven-shade-plugin.version>2.4.1</ugs.maven-shade-plugin.version>
+    <ugs.maven-shade-plugin.version>3.4.1</ugs.maven-shade-plugin.version>
     <ugs.progressbar.version>0.7.2</ugs.progressbar.version>
     <ugs.commons-cli.version>1.4</ugs.commons-cli.version>
     <ugs.easymock.version>3.4</ugs.easymock.version>
