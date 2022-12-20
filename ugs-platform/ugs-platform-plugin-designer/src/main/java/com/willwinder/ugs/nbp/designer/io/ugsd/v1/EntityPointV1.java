@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 
 /**
  * @author Joacim Breiler

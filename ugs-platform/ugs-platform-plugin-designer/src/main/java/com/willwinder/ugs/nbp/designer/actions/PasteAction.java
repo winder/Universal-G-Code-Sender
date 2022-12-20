@@ -4,8 +4,6 @@ import com.google.gson.JsonSyntaxException;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -32,7 +30,7 @@ import java.util.logging.Logger;
 public class PasteAction extends AbstractAction {
 
     private static final Logger LOGGER = Logger.getLogger(PasteAction.class.getSimpleName());
-    private final Controller controller;
+    private final transient Controller controller;
 
     public PasteAction(Controller controller) {
         putValue("menuText", "Paste");

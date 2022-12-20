@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.gui.clipart.sources;
 import com.willwinder.ugs.nbp.designer.gui.clipart.Category;
 import com.willwinder.ugs.nbp.designer.gui.clipart.Clipart;
 import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSourceException;
 import com.willwinder.ugs.nbp.designer.gui.clipart.FontClipart;
 
 import java.awt.*;
@@ -43,7 +44,7 @@ public class EasterArtSource implements ClipartSource {
                     .createFont(Font.TRUETYPE_FONT, EasterArtSource.class.getResourceAsStream("/fonts/easterart/EasterArt.ttf"))
                     .deriveFont(FONT_SIZE);
         } catch (IOException | FontFormatException e) {
-            throw new RuntimeException("Could not load font", e);
+            throw new ClipartSourceException("Could not load font", e);
         }
         cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "A"));
         cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "B"));
@@ -113,7 +114,7 @@ public class EasterArtSource implements ClipartSource {
     }
 
     @Override
-    public List<? extends Clipart> getCliparts(Category category) {
+    public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
     }
 }

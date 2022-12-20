@@ -56,7 +56,7 @@ public class CutTypeIcon extends ImageIcon {
     }
 
     @Override
-    public void paintIcon(Component c, Graphics g, int x, int y) {
+    public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
         icon.paintIcon(c, g, x, y);
     }
 

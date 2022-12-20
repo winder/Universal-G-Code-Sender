@@ -29,7 +29,7 @@ import java.text.ParseException;
  * @author Joacim Breiler
  */
 public class StockSettingsPanel extends JPanel {
-    private final Controller controller;
+    private final transient Controller controller;
     private JTextField stockThickness;
 
 

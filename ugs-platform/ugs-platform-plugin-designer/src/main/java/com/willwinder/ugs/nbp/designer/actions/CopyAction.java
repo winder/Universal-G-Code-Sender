@@ -26,7 +26,7 @@ import java.awt.event.ActionEvent;
 })
 public class CopyAction extends AbstractAction implements SelectionListener {
 
-    private final Controller controller;
+    private final transient Controller controller;
 
     public CopyAction(Controller controller) {
         putValue("menuText", "Copy");

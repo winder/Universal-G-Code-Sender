@@ -27,7 +27,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Area;
 import java.util.List;
@@ -41,7 +41,7 @@ import java.util.List;
 public class UnionAction extends AbstractAction implements SelectionListener {
     private static final String SMALL_ICON_PATH = "img/union.svg";
     private static final String LARGE_ICON_PATH = "img/union24.svg";
-    private final Controller controller;
+    private final transient Controller controller;
 
     public UnionAction(Controller controller) {
         putValue("menuText", "Union");
@@ -82,9 +82,8 @@ public class UnionAction extends AbstractAction implements SelectionListener {
         @Override
         public void redo() {
             Area area = new Area();
-            entities.forEach(entity -> {
-                area.add(new Area(entity.getShape()));
-            });
+            entities.forEach(entity ->
+                    area.add(new Area(entity.getShape())));
 
             path = new Path();
             if (entities.get(0) instanceof Cuttable) {

@@ -24,10 +24,10 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import net.miginfocom.swing.MigLayout;
 import org.openide.windows.TopComponent;
 
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import java.awt.BorderLayout;
 
 /**
@@ -68,7 +68,7 @@ public class EntitiesTreeTopComponent extends TopComponent implements Controller
         entitesTree = new EntitiesTree(controller, entitiesTreeModel);
 
         removeAll();
-        add(new JScrollPane(entitesTree, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
+        add(new JScrollPane(entitesTree, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
     }
 
     @Override

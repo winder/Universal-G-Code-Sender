@@ -45,6 +45,7 @@ public class CreatePointControl extends AbstractControl {
 
     @Override
     public void render(Graphics2D graphics, Drawing drawing) {
+        // This controller has nothing to render
     }
 
     @Override

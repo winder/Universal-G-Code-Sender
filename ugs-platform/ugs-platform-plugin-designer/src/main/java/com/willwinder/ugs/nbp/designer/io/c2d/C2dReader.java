@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
+import com.willwinder.ugs.nbp.designer.io.DesignReaderException;
 import com.willwinder.ugs.nbp.designer.io.c2d.model.C2dFile;
 import com.willwinder.ugs.nbp.designer.io.c2d.model.C2dPointType;
 import com.willwinder.ugs.nbp.designer.model.Design;
@@ -57,7 +58,7 @@ public class C2dReader implements DesignReader {
         try {
             return read(new FileInputStream(file));
         } catch (FileNotFoundException e) {
-            throw new IllegalStateException("Could not read file", e);
+            throw new DesignReaderException("Could not read file", e);
         }
     }
 
@@ -82,7 +83,7 @@ public class C2dReader implements DesignReader {
             design.setEntities(entities);
             return Optional.of(design);
         } catch (Exception e) {
-            throw new IllegalStateException("Couldn't read from stream", e);
+            throw new DesignReaderException("Couldn't read from stream", e);
         }
     }
 
@@ -128,7 +129,7 @@ public class C2dReader implements DesignReader {
                 } else if (curveObject.getPointType()[index] == C2dPointType.CLOSE.getTypeId()) {
                     path.close();
                 } else {
-                    throw new IllegalStateException("Unknown point type " + curveObject.getPointType()[index]);
+                    throw new DesignReaderException("Unknown point type " + curveObject.getPointType()[index]);
                 }
             }
 

@@ -42,7 +42,7 @@ import java.util.List;
 public class SubtractAction extends AbstractAction implements SelectionListener {
     private static final String SMALL_ICON_PATH = "img/subtract.svg";
     private static final String LARGE_ICON_PATH = "img/subtract24.svg";
-    private final Controller controller;
+    private final transient Controller controller;
 
     public SubtractAction(Controller controller) {
         putValue("menuText", "Subtract");
@@ -85,9 +85,7 @@ public class SubtractAction extends AbstractAction implements SelectionListener 
             for (int i = 1; i < entities.size(); i++) {
                 Entity entity = entities.get(i);
                 if (entity instanceof Group) {
-                   ((Group) entity).getAllChildren().forEach(groupEntity -> {
-                       area.subtract(new Area(groupEntity.getShape()));
-                   });
+                   ((Group) entity).getAllChildren().forEach(groupEntity -> area.subtract(new Area(groupEntity.getShape())));
                 } else {
                     area.subtract(new Area(entity.getShape()));
                 }

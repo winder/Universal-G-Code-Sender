@@ -51,7 +51,7 @@ public class InsertClipartDialog extends JDialog implements ListSelectionListene
         categoriesList = new JList<>(Category.values());
         categoriesList.addListSelectionListener(this);
         categoriesList.setCellRenderer(new CategoryCellRenderer());
-        add(new JScrollPane(categoriesList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), "grow");
+        add(new JScrollPane(categoriesList, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), "grow");
 
         shapePreviewListPanel = new PreviewListPanel(this);
         add(shapePreviewListPanel, "grow");
@@ -71,7 +71,7 @@ public class InsertClipartDialog extends JDialog implements ListSelectionListene
         insertShapeDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         Optional<Clipart> clipart = insertShapeDialog.showDialog();
         if (clipart.isPresent()) {
-            LOGGER.info("Selected: " + clipart);
+            LOGGER.info(() -> "Selected: " + clipart);
         } else {
             LOGGER.info("Cancelled");
         }

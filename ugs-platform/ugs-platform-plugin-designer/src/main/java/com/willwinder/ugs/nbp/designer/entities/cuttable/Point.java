@@ -33,7 +33,7 @@ public class Point extends AbstractCuttable {
     public Point(double relativeX, double relativeY) {
         super(relativeX - RADIUS, relativeY - RADIUS);
         setName("Point");
-        this.shape = new Ellipse2D.Double(0, 0, RADIUS * 2, RADIUS * 2);
+        this.shape = new Ellipse2D.Double(0, 0, RADIUS * 2.0, RADIUS * 2.0);
     }
 
     public Point() {

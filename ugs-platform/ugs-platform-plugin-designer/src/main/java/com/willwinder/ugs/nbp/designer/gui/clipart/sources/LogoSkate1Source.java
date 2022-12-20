@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.gui.clipart.sources;
 import com.willwinder.ugs.nbp.designer.gui.clipart.Category;
 import com.willwinder.ugs.nbp.designer.gui.clipart.Clipart;
 import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSourceException;
 import com.willwinder.ugs.nbp.designer.gui.clipart.FontClipart;
 
 import java.awt.*;
@@ -43,7 +44,7 @@ public class LogoSkate1Source implements ClipartSource {
                     .createFont(Font.TRUETYPE_FONT, LogoSkate1Source.class.getResourceAsStream("/fonts/logoskate-1/Logoskate-Md4x.ttf"))
                     .deriveFont(FONT_SIZE);
         } catch (IOException | FontFormatException e) {
-            throw new RuntimeException("Could not load font", e);
+            throw new ClipartSourceException("Could not load font", e);
         }
 
         cliparts.add(new FontClipart("sign", Category.LOGOS, font, "0"));
@@ -123,7 +124,7 @@ public class LogoSkate1Source implements ClipartSource {
     }
 
     @Override
-    public List<? extends Clipart> getCliparts(Category category) {
+    public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
     }
 }

@@ -19,8 +19,6 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
 import com.willwinder.ugs.nbp.designer.actions.OpenAction;
-import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignWriter;
-import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -64,7 +62,7 @@ public final class NewDesignAction extends AbstractAction {
 
     public static final String SMALL_ICON_PATH = "img/new.svg";
     public static final String LARGE_ICON_PATH = "img/new32.svg";
-    private BackendAPI backend;
+    private final transient BackendAPI backend;
 
     public NewDesignAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);

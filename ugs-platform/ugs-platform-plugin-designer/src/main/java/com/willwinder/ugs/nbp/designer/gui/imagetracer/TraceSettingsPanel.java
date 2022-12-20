@@ -31,15 +31,15 @@ import java.util.List;
  * @author Joacim Breiler
  */
 public class TraceSettingsPanel extends JPanel {
-    private JSlider colors = new JSlider(2, 10, 5);
-    private JSlider lineThreshold = new JSlider(0, 100, 0);
-    private JSlider curveThreshold = new JSlider(0, 100, 0);
-    private JSlider colorsQuantization = new JSlider(1, 100, 1);
-    private JSlider pathOmit = new JSlider(0, 100, 0);
-    private JSlider blurRadius = new JSlider(0, 5, 0);
-    private JSlider blurDelta = new JSlider(0, 1014, 0);
-    private RangeSlider colorRange = new RangeSlider(0, 255, 0, 255);
-    private final List<ChangeListener> listenerList = new ArrayList<>();
+    private final JSlider colors = new JSlider(2, 10, 5);
+    private final JSlider lineThreshold = new JSlider(0, 100, 0);
+    private final JSlider curveThreshold = new JSlider(0, 100, 0);
+    private final JSlider colorsQuantization = new JSlider(1, 100, 1);
+    private final JSlider pathOmit = new JSlider(0, 100, 0);
+    private final JSlider blurRadius = new JSlider(0, 5, 0);
+    private final JSlider blurDelta = new JSlider(0, 1014, 0);
+    private final RangeSlider colorRange = new RangeSlider(0, 255, 0, 255);
+    private final List<ChangeListener> changeListeners = new ArrayList<>();
 
     public TraceSettingsPanel() {
         setLayout(new MigLayout("fill, insets 0, wrap 1"));
@@ -60,7 +60,7 @@ public class TraceSettingsPanel extends JPanel {
         add(new JLabel("Color quantization"));
         add(colorsQuantization);
 
-        add(new JSeparator(JSeparator.HORIZONTAL), "grow");
+        add(new JSeparator(SwingConstants.HORIZONTAL), "grow");
 
         lineThreshold.addChangeListener(this::updateValues);
         lineThreshold.setMinorTickSpacing(5);
@@ -79,7 +79,7 @@ public class TraceSettingsPanel extends JPanel {
         add(new JLabel("Filter noise"));
         add(pathOmit);
 
-        add(new JSeparator(JSeparator.HORIZONTAL), "grow");
+        add(new JSeparator(SwingConstants.HORIZONTAL), "grow");
 
 
         blurRadius.addChangeListener(this::updateValues);
@@ -101,7 +101,7 @@ public class TraceSettingsPanel extends JPanel {
             }
 
         if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
-            listenerList.forEach(l -> l.stateChanged(e));
+            changeListeners.forEach(l -> l.stateChanged(e));
         }
     }
 
@@ -134,6 +134,6 @@ public class TraceSettingsPanel extends JPanel {
     }
 
     public void addListener(ChangeListener listener) {
-        listenerList.add(listener);
+        changeListeners.add(listener);
     }
 }

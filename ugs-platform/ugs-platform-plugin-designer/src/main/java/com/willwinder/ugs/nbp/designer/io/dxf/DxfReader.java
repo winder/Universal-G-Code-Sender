@@ -5,6 +5,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
+import com.willwinder.ugs.nbp.designer.io.DesignReaderException;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -44,7 +45,7 @@ public class DxfReader implements DesignReader {
         try {
             return read(new FileInputStream(file));
         } catch (FileNotFoundException e) {
-            throw new RuntimeException("Could not read file", e);
+            throw new DesignReaderException("Could not read file", e);
         }
     }
 
@@ -54,7 +55,7 @@ public class DxfReader implements DesignReader {
         try {
             parser.parse(resourceAsStream, DXFParser.DEFAULT_ENCODING);
         } catch (ParseException e) {
-            throw new RuntimeException("Could not parse file", e);
+            throw new DesignReaderException("Could not parse file", e);
         }
 
         DXFDocument doc = parser.getDocument();
@@ -63,31 +64,7 @@ public class DxfReader implements DesignReader {
         Iterator layerIterator = doc.getDXFLayerIterator();
         while (layerIterator.hasNext()) {
             DXFLayer layer = (DXFLayer) layerIterator.next();
-            Group layerGroup = new Group();
-            layerGroup.setName(layer.getName());
-
-            Group pointsGroup = parsePoints(layer);
-            pointsGroup.setName("Points");
-            if (!pointsGroup.getChildren().isEmpty()) {
-                layerGroup.addChild(pointsGroup);
-            }
-
-            Group circlesGroup = parseCircles(layer);
-            circlesGroup.setName("Circles");
-            if (!circlesGroup.getChildren().isEmpty()) {
-                layerGroup.addChild(circlesGroup);
-            }
-
-            Group linesGroup = new Group();
-            linesGroup.setName("Lines");
-            parseLines(layer, linesGroup);
-            if (!linesGroup.getChildren().isEmpty()) {
-                layerGroup.addChild(linesGroup);
-            }
-
-            if (!layerGroup.getChildren().isEmpty()) {
-                group.addChild(layerGroup);
-            }
+            parseAndAddLayerGroup(group, layer);
         }
         
         Design design = new Design();
@@ -97,6 +74,34 @@ public class DxfReader implements DesignReader {
         }
         design.setEntities(entities);
         return Optional.of(design);
+    }
+
+    private void parseAndAddLayerGroup(Group group, DXFLayer layer) {
+        Group layerGroup = new Group();
+        layerGroup.setName(layer.getName());
+
+        Group pointsGroup = parsePoints(layer);
+        pointsGroup.setName("Points");
+        if (!pointsGroup.getChildren().isEmpty()) {
+            layerGroup.addChild(pointsGroup);
+        }
+
+        Group circlesGroup = parseCircles(layer);
+        circlesGroup.setName("Circles");
+        if (!circlesGroup.getChildren().isEmpty()) {
+            layerGroup.addChild(circlesGroup);
+        }
+
+        Group linesGroup = new Group();
+        linesGroup.setName("Lines");
+        parseLines(layer, linesGroup);
+        if (!linesGroup.getChildren().isEmpty()) {
+            layerGroup.addChild(linesGroup);
+        }
+
+        if (!layerGroup.getChildren().isEmpty()) {
+            group.addChild(layerGroup);
+        }
     }
 
     private void parseLines(DXFLayer layer, Group linesGroup) {

@@ -38,7 +38,7 @@ import java.awt.event.ActionEvent;
 public class MultiplyAction extends AbstractAction implements SelectionListener {
     private static final String SMALL_ICON_PATH = "img/multiply.svg";
     private static final String LARGE_ICON_PATH = "img/multiply24.svg";
-    private final Controller controller;
+    private final transient Controller controller;
 
     public MultiplyAction(Controller controller) {
         putValue("menuText", "Multiply");

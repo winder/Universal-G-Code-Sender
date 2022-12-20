@@ -33,7 +33,7 @@ import java.io.File;
 public class SaveAction extends AbstractAction {
     private static final String ICON_SMALL_PATH = "img/save.svg";
     private static final String ICON_LARGE_PATH = "img/save24.svg";
-    private final Controller controller;
+    private final transient Controller controller;
 
     public SaveAction(Controller controller) {
         putValue("iconBase", ICON_SMALL_PATH);
