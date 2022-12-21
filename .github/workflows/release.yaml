@@ -34,6 +34,9 @@ jobs:
     - name: Package
       run: |
         sudo apt-get install -qq genisoimage
+        export REVISION=${GITHUB_REF_NAME:1}
+        export CHANGELIST=""
+        echo "Packaging version ${REVISION}${CHANGELIST}"
         mvn package -pl ugs-classic assembly:assembly -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
         mvn package -pl ugs-platform/application -P create-macosx-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
         mvn package -pl ugs-platform/application -P create-win32-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
