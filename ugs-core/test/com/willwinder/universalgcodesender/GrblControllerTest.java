@@ -1560,7 +1560,6 @@ public class GrblControllerTest {
         assertEquals(ControllerState.CHECK, gc.getControllerStatus().getState());
         assertFalse(gc.isPaused());
         verify(communicator, times(1)).sendByteImmediately(GRBL_PAUSE_COMMAND);
-        verify(controllerListener, times(1)).controlStateChange(COMM_SENDING_PAUSED);
     }
 
     @Test

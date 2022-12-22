@@ -33,7 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.IOException;
-import java.io.NotActiveException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -652,7 +651,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     }
 
     // No longer a listener event
-    protected void fileStreamComplete(String filename, boolean success) {
+    protected void fileStreamComplete(String filename) {
 
         String duration =
                 com.willwinder.universalgcodesender.Utils.
@@ -661,7 +660,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         this.dispatchConsoleMessage(MessageType.INFO,"\n**** Finished sending file in "+duration+" ****\n\n");
         this.streamStopWatch.stop();
         this.isStreaming = false;
-        dispatchStreamComplete(filename, success);
+        dispatchStreamComplete(filename);
     }
 
     @Override
@@ -687,8 +686,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
             }
             else {
                 this.pauseStreaming();
-                // In check mode there is no state transition, so we need to manually make the notification.
-                this.dispatchStateChange(COMM_SENDING_PAUSED);
             }
         } catch (Exception ignored) {
             logger.log(Level.SEVERE, "Couldn't set the state to paused.");
@@ -703,10 +700,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
                 rowsRemaining() <= 0 &&
                 (state == ControllerState.CHECK || state == ControllerState.IDLE)) {
             String streamName = "queued commands";
-
-            // Make sure the GUI gets updated when the file finishes
-            this.dispatchStateChange(getCommunicatorState());
-            this.fileStreamComplete(streamName, true);
+            this.fileStreamComplete(streamName);
         }
     }
 
@@ -788,9 +782,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
 
     protected void setCurrentState(CommunicatorState state) {
         this.currentState = state;
-        if (!this.handlesAllStateChangeEvents()) {
-            this.dispatchStateChange(state);
-        }
     }
 
     @Override
@@ -810,11 +801,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     }
 
     protected void dispatchStatusString(ControllerStatus status) {
-        if (listeners != null) {
-            for (ControllerListener c : listeners) {
-                c.statusStringListener(status);
-            }
-        }
+        listeners.forEach(l -> l.statusStringListener(status));
     }
 
     protected void dispatchConsoleMessage(MessageType type, String message) {
@@ -825,58 +812,28 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         }
     }
 
-    protected void dispatchStateChange(CommunicatorState state) {
-        if (listeners != null) {
-            for (ControllerListener c : listeners) {
-                c.controlStateChange(state);
-            }
-        }
-    }
-
-    protected void dispatchStreamComplete(String filename, Boolean success) {
-        if (listeners != null) {
-            for (ControllerListener c : listeners) {
-                c.fileStreamComplete(filename, success);
-            }
-        }
+    protected void dispatchStreamComplete(String filename) {
+        listeners.forEach(l -> l.fileStreamComplete(filename));
     }
 
     protected void dispatchCommandSkipped(GcodeCommand command) {
-        if (listeners != null) {
-            for (ControllerListener c : listeners) {
-                c.commandSkipped(command);
-            }
-        }
+        listeners.forEach(l -> l.commandSkipped(command));
     }
 
     protected void dispatchCommandSent(GcodeCommand command) {
-        if (listeners != null) {
-            for (ControllerListener c : listeners) {
-                c.commandSent(command);
-            }
-        }
+        listeners.forEach(l -> l.commandSent(command));
     }
 
     protected void dispatchCommandComplete(GcodeCommand command) {
-        if (listeners != null) {
-            for (ControllerListener c : listeners) {
-                c.commandComplete(command);
-            }
-        }
+        listeners.forEach(l -> l.commandComplete(command));
     }
 
     protected void dispatchAlarm(Alarm alarm) {
-        if (listeners != null) {
-            listeners.forEach(l -> l.receivedAlarm(alarm));
-        }
+        listeners.forEach(l -> l.receivedAlarm(alarm));
     }
 
     protected void dispatchProbeCoordinates(Position p) {
-        if (listeners != null) {
-            for (ControllerListener c : listeners) {
-                c.probeCoordinates(p);
-            }
-        }
+        listeners.forEach(l -> l.probeCoordinates(p));
     }
 
     protected String getUnitsCode() {

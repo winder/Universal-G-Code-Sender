@@ -87,11 +87,6 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public boolean handlesAllStateChangeEvents() {
-        return false;
-    }
-
-    @Override
     public Capabilities getCapabilities() {
         return capabilities;
     }

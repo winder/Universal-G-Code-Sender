@@ -590,11 +590,6 @@ public class FluidNCController implements IController, CommunicatorListener {
     }
 
     @Override
-    public boolean handlesAllStateChangeEvents() {
-        return true;
-    }
-
-    @Override
     public GcodeCommand createCommand(String command) throws Exception {
         return new FluidNCCommand(command);
     }

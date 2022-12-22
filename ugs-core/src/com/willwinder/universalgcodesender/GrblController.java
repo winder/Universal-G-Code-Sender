@@ -91,11 +91,6 @@ public class GrblController extends AbstractController {
     }
 
     @Override
-    public boolean handlesAllStateChangeEvents() {
-        return capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME);
-    }
-
-    @Override
     public Capabilities getCapabilities() {
         return capabilities;
     }
@@ -163,7 +158,6 @@ public class GrblController extends AbstractController {
                     Alarm alarm = GrblUtils.parseAlarmResponse(response);
                     dispatchAlarm(alarm);
                     dispatchStatusString(controllerStatus);
-                    dispatchStateChange(COMM_IDLE);
                 }
 
                 // If there is an active command, mark it as completed with error
@@ -250,7 +244,6 @@ public class GrblController extends AbstractController {
                 this.dispatchConsoleMessage(MessageType.VERBOSE, grblFeedbackMessage + "\n");
                 setDistanceModeCode(grblFeedbackMessage.getDistanceMode());
                 setUnitsCode(grblFeedbackMessage.getUnits());
-                dispatchStateChange(COMM_IDLE);
             }
 
             else if (GrblUtils.isGrblSettingMessage(response)) {
@@ -343,7 +336,6 @@ public class GrblController extends AbstractController {
         else if (!paused && this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             try {
                 this.pauseStreaming();
-                this.dispatchStateChange(CommunicatorState.COMM_SENDING_PAUSED);
             } catch (Exception e) {
                 // Oh well, was worth a shot.
                 System.out.println("Exception while trying to issue a soft reset: " + e.getMessage());
@@ -628,11 +620,6 @@ public class GrblController extends AbstractController {
         detectAxisCapabilityFromControllerStatus(Axis.B, CapabilitiesConstants.B_AXIS);
         detectAxisCapabilityFromControllerStatus(Axis.C, CapabilitiesConstants.C_AXIS);
 
-        // Make UGS more responsive to the state being reported by GRBL.
-        if (before != getCommunicatorState()) {
-            this.dispatchStateChange(getCommunicatorState());
-        }
-
         // GRBL 1.1 jog complete transition
         if (beforeState == ControllerState.JOG && controllerStatus.getState() == ControllerState.IDLE) {
             this.comm.cancelSend();
@@ -655,9 +642,6 @@ public class GrblController extends AbstractController {
                 // If the machine goes into idle, we no longer need to cancel.
                 if (controllerStatus.getState() == ControllerState.IDLE || controllerStatus.getState() == ControllerState.CHECK) {
                     isCanceling = false;
-
-                    // Make sure the GUI gets updated
-                    this.dispatchStateChange(getCommunicatorState());
                 }
                 // Otherwise check if the machine is Hold/Queue and stopped.
                 else if ((controllerStatus.getState() == ControllerState.HOLD || controllerStatus.getState() == ControllerState.DOOR) && lastLocation.equals(this.controllerStatus.getMachineCoord())) {

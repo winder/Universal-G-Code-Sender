@@ -1843,21 +1843,17 @@ public class MainWindow extends JFrame implements UGSEventListener {
                 case FILE_STREAM_COMPLETE:
                     remainingTimeValueLabel.setText(Utils.formattedMillis(0));
                     remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
-                    if (fileStateEvent.isSuccess()) {
-                        EventQueue.invokeLater(() -> {
-                            JOptionPane.showMessageDialog(new JFrame(),
-                                    Localization.getString("mainWindow.ui.jobComplete") + " " + Utils.formattedMillis(backend.getSendDuration()),
-                                    Localization.getString("success"), JOptionPane.INFORMATION_MESSAGE);
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException ex) {}
+                    EventQueue.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(new JFrame(),
+                                Localization.getString("mainWindow.ui.jobComplete") + " " + Utils.formattedMillis(backend.getSendDuration()),
+                                Localization.getString("success"), JOptionPane.INFORMATION_MESSAGE);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ex) {}
 
-                            // Stop the timer after a delay to make sure it is updated.
-                            timer.stop();
-                        });
-                    } else {
-                        displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));
-                    }
+                        // Stop the timer after a delay to make sure it is updated.
+                        timer.stop();
+                    });
                     break;
                 default:
                     break;
