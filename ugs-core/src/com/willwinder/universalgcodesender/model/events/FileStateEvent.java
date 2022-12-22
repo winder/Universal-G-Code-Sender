@@ -49,8 +49,4 @@ public class FileStateEvent implements UGSEvent {
     public String getFile() {
         return file;
     }
-
-    public boolean isSuccess() {
-        return true;
-    }
 }
