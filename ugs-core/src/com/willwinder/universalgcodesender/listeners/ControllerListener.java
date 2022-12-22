@@ -20,7 +20,6 @@ package com.willwinder.universalgcodesender.listeners;
 
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.CommunicatorState;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 /**
@@ -30,15 +29,9 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
  */
 public interface ControllerListener {
     /**
-     * The controller has modified the state by itself, such as pausing a job on
-     * an error.
-     */
-    void controlStateChange(CommunicatorState state);
-
-    /**
      * The file streaming has completed.
      */
-    void fileStreamComplete(String filename, boolean success);
+    void fileStreamComplete(String filename);
 
     /**
      * If an alarm is received from the controller
@@ -51,12 +44,12 @@ public interface ControllerListener {
      * A command in the stream has been skipped.
      */
     void commandSkipped(GcodeCommand command);
-    
+
     /**
      * A command has successfully been sent to the controller.
      */
     void commandSent(GcodeCommand command);
-    
+
     /**
      * A command has been processed by the the controller.
      */

@@ -74,7 +74,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private boolean streamFailed = false;
     private boolean autoconnect = false;
 
-    private GcodeParser gcp = new GcodeParser();
+    private final GcodeParser gcp = new GcodeParser();
     private ControllerStatus controllerStatus = new ControllerStatus();
 
     @Override
@@ -675,12 +675,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     // Controller Listener //
     /////////////////////////
     @Override
-    public void controlStateChange(CommunicatorState state) {
-    }
-
-    @Override
-    public void fileStreamComplete(String filename, boolean success) {
-        this.sendUGSEvent(new FileStateEvent(FileState.FILE_STREAM_COMPLETE, filename, success));
+    public void fileStreamComplete(String filename) {
+        this.sendUGSEvent(new FileStateEvent(FileState.FILE_STREAM_COMPLETE, filename));
     }
 
     @Override
