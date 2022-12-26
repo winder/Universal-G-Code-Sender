@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2021 Will Winder
+    Copyright 2015-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,22 +20,36 @@ package com.willwinder.universalgcodesender.model;
 
 import com.google.common.io.Files;
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.connection.ConnectionFactory;
-import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
-import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
-import com.willwinder.universalgcodesender.gcode.processors.*;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
+import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.*;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.MessageListener;
+import com.willwinder.universalgcodesender.listeners.MessageType;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.model.events.*;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.FileState;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.model.events.StreamEvent;
+import com.willwinder.universalgcodesender.model.events.StreamEventType;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.*;
+import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import com.willwinder.universalgcodesender.utils.GcodeFileWriter;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
+import com.willwinder.universalgcodesender.utils.IGcodeWriter;
+import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
+import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.script.ScriptEngine;
@@ -43,7 +57,10 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -53,44 +70,41 @@ import java.util.stream.Collectors;
 /**
  * @author wwinder
  */
-public class GUIBackend implements BackendAPI, ControllerListener, SettingChangeListener, IFirmwareSettingsListener {
+public class GUIBackend implements BackendAPI {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
     private static final String NEW_LINE = "\n    ";
 
     private final MessageService messageService = new MessageService();
-
+    private final GcodeParser gcp = new GcodeParser();
+    private final UGSEventDispatcher eventDispatcher;
     private IController controller = null;
     private Settings settings = null;
-
-    private final Collection<UGSEventListener> ugsEventListener = Collections.synchronizedList(new ArrayList<>());
-
     // GUI State
     private File gcodeFile = null;
     private File processedGcodeFile = null;
     private File tempDir = null;
     private String firmware = null;
 
-    private long lastResponse = Long.MIN_VALUE;
-    private boolean streamFailed = false;
-    private boolean autoconnect = false;
+    public GUIBackend() {
+        this(new UGSEventDispatcher());
+    }
 
-    private final GcodeParser gcp = new GcodeParser();
-    private ControllerStatus controllerStatus = new ControllerStatus();
+    public GUIBackend(UGSEventDispatcher eventDispatcher) {
+        this.eventDispatcher = eventDispatcher;
+    }
+
+    /////////////
+    // GUI API //
+    /////////////
 
     @Override
     public void addUGSEventListener(UGSEventListener listener) {
-        if (!ugsEventListener.contains(listener)) {
-            logger.log(Level.INFO, "Adding UGSEvent listener: " + listener.getClass().getSimpleName());
-            ugsEventListener.add(listener);
-        }
+        eventDispatcher.addListener(listener);
     }
 
     @Override
     public void removeUGSEventListener(UGSEventListener listener) {
-        if (ugsEventListener.contains(listener)) {
-            logger.log(Level.INFO, "Removing UGSEvent listener: " + listener.getClass().getSimpleName());
-            ugsEventListener.remove(listener);
-        }
+        eventDispatcher.removeListener(listener);
     }
 
     @Override
@@ -102,10 +116,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public void removeMessageListener(MessageListener listener) {
         this.messageService.removeListener(listener);
     }
-
-    /////////////
-    // GUI API //
-    /////////////
 
     @Override
     public void preprocessAndExportToFile(File f) throws Exception {
@@ -161,39 +171,30 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         logger.log(Level.INFO, "Connecting to {0} on port {1}", new Object[]{firmware, port});
         updateWithFirmware(firmware);
 
-        this.controller = fetchControllerFromFirmware(firmware);
-        this.controller.setMessageService(messageService);
+        controller = fetchControllerFromFirmware(firmware);
+        controller.setMessageService(messageService);
         applySettings(settings);
 
-        this.controller.addListener(this);
-        this.controller.getFirmwareSettings().addListener(this);
+        controller.addListener(eventDispatcher);
+        controller.getFirmwareSettings().addListener(eventDispatcher);
 
-        if (openCommConnection(port, baudRate)) {
-            streamFailed = false;   //reset
-        }
+        openCommConnection(port, baudRate);
     }
 
     protected IController fetchControllerFromFirmware(String firmware) throws Exception {
-        Optional<IController> c = FirmwareUtils.getControllerFor(firmware);
-        if (!c.isPresent()) {
-            throw new Exception(String.format("Could not find controller implementation for the firmware \"%s\"", firmware));
-        }
-        return c.get();
+        return FirmwareUtils.getControllerFor(firmware)
+                .orElseThrow(() -> new Exception(String.format("Could not find controller implementation for the firmware \"%s\"", firmware)));
     }
 
     @Override
     public boolean isConnected() {
-        boolean isConnected = this.controller != null && this.controller.isCommOpen();
-        logger.log(Level.FINEST, "Is connected: {0}", isConnected);
-        return isConnected;
+        return controller != null && controller.isCommOpen();
     }
 
     @Override
     public void disconnect() throws Exception {
-        autoconnect = false;
-        ControllerState previousState = controllerStatus.getState();
-        controllerStatus = new ControllerStatus();
-        sendUGSEvent(new ControllerStateEvent(ControllerState.DISCONNECTED, previousState));
+        ControllerState previousState = controller != null ? controller.getControllerStatus().getState() : ControllerState.UNKNOWN;
+        eventDispatcher.sendUGSEvent(new ControllerStateEvent(ControllerState.DISCONNECTED, previousState));
         disconnectInternal();
     }
 
@@ -201,45 +202,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         logger.log(Level.INFO, "Disconnecting.");
         if (this.controller != null) {
             this.controller.closeCommPort();
-            this.controller.removeListener(this);
-            this.controller.getFirmwareSettings().removeListener(this);
+            this.controller.removeListener(eventDispatcher);
+            this.controller.getFirmwareSettings().removeListener(eventDispatcher);
             this.controller = null;
-        }
-    }
-
-    public void autoconnect() {
-        if (!autoconnect) {
-            return;
-        }
-
-        if (!isConnected()) {
-            if (settings == null || streamFailed) {
-                return;
-            }
-            if (lastResponse == Long.MIN_VALUE && autoconnect) {
-                logger.log(Level.INFO, "Attempting auto connect.");
-            } else if (lastResponse > Long.MIN_VALUE && settings.isAutoReconnect()) {
-                logger.log(Level.INFO, "Attempting auto reconnect.");
-            } else {
-                return;
-            }
-
-            try {
-                List<String> portList = ConnectionFactory.getPortNames(getSettings().getConnectionDriver());
-                boolean portMatch = false;
-                for (String port : portList) {
-                    if (port.equals(settings.getPort())) {
-                        portMatch = true;
-                        break;
-                    }
-                }
-
-                if (portMatch) {
-                    connect(settings.getFirmwareVersion(), settings.getPort(), Integer.parseInt(settings.getPortRate()));
-                }
-            } catch (Exception e) {
-                logger.log(Level.WARNING, "Auto connect failed", e);
-            }
         }
     }
 
@@ -247,7 +212,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public void applySettings(Settings settings) throws Exception {
         logger.log(Level.INFO, "Applying settings.");
         this.settings = settings;
-        this.settings.setSettingChangeListener(this);
+        this.settings.setSettingChangeListener(eventDispatcher);
         if (this.controller != null) {
             applySettingsToController(this.settings, this.controller);
         }
@@ -343,17 +308,17 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public Position getWorkPosition() {
-        return controllerStatus.getWorkCoord();
+        return controller != null ? controller.getControllerStatus().getWorkCoord() : new Position(0, 0, 0, Units.MM);
     }
 
     @Override
     public Position getMachinePosition() {
-        return controllerStatus.getMachineCoord();
+        return controller != null ? controller.getControllerStatus().getMachineCoord() : new Position(0, 0, 0, Units.MM);
     }
 
     @Override
     public ControllerState getControllerState() {
-        return controllerStatus.getState();
+        return controller != null ? controller.getControllerStatus().getState() : ControllerState.DISCONNECTED;
     }
 
     @Override
@@ -380,7 +345,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void setGcodeFile(File file) throws Exception {
         logger.log(Level.INFO, "Setting gcode file.");
-        this.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE, file.getAbsolutePath()));
+        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE, file.getAbsolutePath()));
         initGcodeParser();
         this.gcodeFile = file;
         processGcodeFile();
@@ -389,19 +354,19 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void reloadGcodeFile() throws Exception {
         logger.log(Level.INFO, "Reloading gcode file.");
-        this.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE, gcodeFile.getAbsolutePath()));
+        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE, gcodeFile.getAbsolutePath()));
         processGcodeFile();
     }
 
     private void processGcodeFile() throws Exception {
         this.processedGcodeFile = null;
 
-        this.sendUGSEvent(new FileStateEvent(FileState.FILE_LOADING,
+        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.FILE_LOADING,
                 this.gcodeFile.getAbsolutePath()));
 
         initializeProcessedLines(true, this.gcodeFile, this.gcp);
 
-        this.sendUGSEvent(new FileStateEvent(FileState.FILE_LOADED,
+        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.FILE_LOADED,
                 processedGcodeFile.getAbsolutePath()));
     }
 
@@ -494,9 +459,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void send() throws Exception {
         logger.log(Level.INFO, "Sending gcode file.");
-        // Note: there is a divide by zero error in the timer because it uses
-        //       the rowsValueLabel that was just reset.
-
         try {
             // This will throw an exception and prevent that other stuff from
             // happening (clearing the table before its ready for clearing.
@@ -666,61 +628,14 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.controller.issueSoftReset();
     }
 
+    ///////////////////////
+    // Utility functions //
+    ///////////////////////
+
     @Override
     public void requestParserState() throws Exception {
         this.controller.viewParserState();
     }
-
-    /////////////////////////
-    // Controller Listener //
-    /////////////////////////
-    @Override
-    public void fileStreamComplete(String filename) {
-        this.sendUGSEvent(new FileStateEvent(FileState.FILE_STREAM_COMPLETE, filename));
-    }
-
-    @Override
-    public void receivedAlarm(Alarm alarm) {
-        this.sendUGSEvent(new AlarmEvent(alarm));
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-        sendUGSEvent(new CommandEvent(CommandEventType.COMMAND_SKIPPED, command));
-    }
-
-    @Override
-    public void commandSent(GcodeCommand command) {
-        sendUGSEvent(new CommandEvent(CommandEventType.COMMAND_SENT, command));
-    }
-
-    @Override
-    public void commandComplete(GcodeCommand command) {
-        sendUGSEvent(new CommandEvent(CommandEventType.COMMAND_COMPLETE, command));
-    }
-
-    @Override
-    public void probeCoordinates(Position p) {
-        this.sendUGSEvent(new ProbeEvent(p));
-    }
-
-    @Override
-    public void statusStringListener(ControllerStatus status) {
-        this.lastResponse = System.currentTimeMillis();
-        ControllerStatus oldStatus = this.controllerStatus;
-        this.controllerStatus = status;
-        if (oldStatus.getState() != status.getState()) {
-            sendUGSEvent(new ControllerStateEvent(status.getState(), oldStatus.getState()));
-        }
-
-        if (!oldStatus.equals(status)) {
-            sendUGSEvent(new ControllerStatusEvent(status, oldStatus));
-        }
-    }
-
-    ///////////////////////
-    // Utility functions //
-    ///////////////////////
 
     /**
      * This would be static but I want to define it in the interface.
@@ -734,9 +649,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         if (settings == null) {
             throw new Exception("Programmer error.");
         }
-        autoconnect = settings.isAutoConnectEnabled();
-        // Apply settings settings to controller.
 
+        // Apply settings settings to controller.
         try {
             controller.setSingleStepMode(settings.isSingleStepMode());
             controller.setStatusUpdatesEnabled(settings.isStatusUpdatesEnabled());
@@ -845,23 +759,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         }
     }
 
-    private void sendUGSEvent(UGSEvent event) {
-        logger.log(Level.FINE, "Sending event {0}.", event.getClass().getSimpleName());
-        ugsEventListener.forEach(l -> l.UGSEvent(event));
-    }
-
     @Override
     public void sendOverrideCommand(Overrides override) throws Exception {
         this.controller.sendOverrideCommand(override);
-    }
-
-    @Override
-    public void settingChanged() {
-        this.sendUGSEvent(new SettingChangedEvent());
-    }
-
-    @Override
-    public void onUpdatedFirmwareSetting(FirmwareSetting setting) {
-        this.sendUGSEvent(new FirmwareSettingEvent(setting));
     }
 }
