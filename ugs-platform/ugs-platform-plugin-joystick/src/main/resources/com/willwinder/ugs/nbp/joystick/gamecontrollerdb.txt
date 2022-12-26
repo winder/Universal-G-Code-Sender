@@ -885,3 +885,4 @@ xinput,XInput Controller,a:b0,b:b1,back:b6,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,
 
 # Custom UGS controllers
 03000000412300003780000000000000,Arduino Micro,a:b0,b:b1,x:b2,y:b3,back:b4,guide:b5,start:b6,leftstick:b7,rightstick:b8,leftshoulder:b9,rightshoulder:b10,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,-leftx:a0,+leftx:a1,-lefty:a2,+lefty:a3,-rightx:a4,+rightx:a5,-righty:a6,-righty:a7,lefttrigger:b11,righttrigger:b12,platform:Windows,
+03000000412300003e00000000000000,Arduino Due,platform:Windows,a:b10,b:b8,x:b9,y:b11,guide:b12,leftshoulder:b0,rightshoulder:b1,dpup:-a1,dpdown:+a1,dpleft:-a0,dpright:+a0,
