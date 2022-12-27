@@ -17,7 +17,7 @@ For version <strong>UGS 2.0.13</strong> or later:
   <li>**Windows XP**: C:/Documents and Settings/[your username>]/AppData/ugsplatform/var/log/messages.log</li>
   <li>**Mac**: ~/Library/Application Support/ugsplatform/var/log/messages.log</li>
   <li>**Linux**: ~/.cache/ugsplatform/var/log/messages.log</li>
-</ul><br/>
+</ul>
 
 For version <strong>UGS 2.0.12</strong> or earlier:
 <ul>
