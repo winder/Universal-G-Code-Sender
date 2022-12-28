@@ -367,12 +367,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
 
         this.dispatchConsoleMessage(MessageType.INFO,"**** Connection closed ****\n");
 
-        // I was noticing odd behavior, such as continuing to send 'ok's after
-        // closing and reopening the comm port.
-        // Note: The "Configuring-Grbl-v0.8" documentation recommends frequent
-        //       soft resets, but also warns that the "startup" block will run
-        //       on a reset and startup blocks may include motion commands.
-        //this.issueSoftReset();
         this.flushSendQueues();
         this.commandCreator.resetNum();
         this.comm.disconnect();
@@ -535,12 +529,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
             throw new Exception("There are no commands queued for streaming.");
         }
 
-        // Grbl's "Configuring-Grbl-v0.8" documentation recommends a soft reset
-        // prior to starting a job. But will this cause GRBL to reset all the
-        // way to reporting version info? Need to double check that before
-        // enabling.
-        //this.issueSoftReset();
-
         this.isStreaming = true;
         this.streamStopWatch.reset();
         this.streamStopWatch.start();
@@ -552,6 +540,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
 
         // Send all queued commands and streams then kick off the stream.
         try {
+            listeners.forEach(ControllerListener::streamStarted);
             if (this.streamCommands != null) {
                 comm.queueStreamForComm(this.streamCommands);
             }
@@ -569,6 +558,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     public void pauseStreaming() throws Exception {
         this.dispatchConsoleMessage(MessageType.INFO,"\n**** Pausing file transfer. ****\n\n");
         pauseStreamingEvent();
+        listeners.forEach(ControllerListener::streamPaused);
         this.comm.pauseSend();
         this.setCurrentState(COMM_SENDING_PAUSED);
 
@@ -581,6 +571,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     public void resumeStreaming() throws Exception {
         this.dispatchConsoleMessage(MessageType.INFO, "\n**** Resuming file transfer. ****\n\n");
         resumeStreamingEvent();
+        listeners.forEach(ControllerListener::streamResumed);
         this.comm.resumeSend();
         this.setCurrentState(COMM_SENDING);
 
@@ -612,6 +603,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     public void cancelSend() throws Exception {
         this.dispatchConsoleMessage(MessageType.INFO, "\n**** Canceling file transfer. ****\n\n");
         cancelSendBeforeEvent();
+        listeners.forEach(ControllerListener::streamCanceled);
         cancelCommands();
         cancelSendAfterEvent();
     }
@@ -813,7 +805,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     }
 
     protected void dispatchStreamComplete(String filename) {
-        listeners.forEach(l -> l.fileStreamComplete(filename));
+        listeners.forEach(l -> l.streamComplete(filename));
     }
 
     protected void dispatchCommandSkipped(GcodeCommand command) {

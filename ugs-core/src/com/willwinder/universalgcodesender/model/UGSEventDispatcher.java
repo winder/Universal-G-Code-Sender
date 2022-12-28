@@ -54,6 +54,10 @@ public class UGSEventDispatcher implements ControllerListener, IFirmwareSettings
     private static final Logger LOGGER = Logger.getLogger(UGSEventDispatcher.class.getSimpleName());
 
     private final List<UGSEventListener> listeners = Collections.synchronizedList(new ArrayList<>());
+
+    /**
+     * A cached instance of the controller status for preventing duplicate status events to be dispatched
+     */
     private ControllerStatus controllerStatus = new ControllerStatus();
 
     public void sendUGSEvent(UGSEvent event) {
@@ -62,27 +66,48 @@ public class UGSEventDispatcher implements ControllerListener, IFirmwareSettings
             try {
                 l.UGSEvent(event);
             } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Could not dispatch the event {0} to the listener {1}", new String[]{event.getClass().getSimpleName(), l.getClass().getSimpleName()});
+                LOGGER.log(Level.SEVERE, "Could not dispatch the event {0} to the listener {1}",
+                        new String[]{event.getClass().getSimpleName(), l.getClass().getSimpleName()});
             }
         });
     }
 
     public void addListener(UGSEventListener listener) {
         if (!listeners.contains(listener)) {
-            LOGGER.log(Level.INFO, "Adding UGSEvent listener: {}", listener.getClass().getSimpleName());
+            LOGGER.log(Level.INFO, "Adding UGSEvent listener: {0}", listener.getClass().getSimpleName());
             listeners.add(listener);
         }
     }
 
     public void removeListener(UGSEventListener listener) {
         if (listeners.contains(listener)) {
-            LOGGER.log(Level.INFO, "Removing UGSEvent listener: {}", listener.getClass().getSimpleName());
+            LOGGER.log(Level.INFO, "Removing UGSEvent listener: {0}", listener.getClass().getSimpleName());
             listeners.remove(listener);
         }
     }
 
     @Override
-    public void fileStreamComplete(String filename) {
+    public void streamCanceled() {
+        sendUGSEvent(new StreamEvent(StreamEventType.STREAM_CANCELED));
+    }
+
+    @Override
+    public void streamStarted() {
+        sendUGSEvent(new StreamEvent(StreamEventType.STREAM_STARTED));
+    }
+
+    @Override
+    public void streamPaused() {
+        sendUGSEvent(new StreamEvent(StreamEventType.STREAM_PAUSED));
+    }
+
+    @Override
+    public void streamResumed() {
+        sendUGSEvent(new StreamEvent(StreamEventType.STREAM_RESUMED));
+    }
+
+    @Override
+    public void streamComplete(String filename) {
         sendUGSEvent(new StreamEvent(StreamEventType.STREAM_COMPLETE));
         sendUGSEvent(new FileStateEvent(FileState.FILE_STREAM_COMPLETE, filename));
     }

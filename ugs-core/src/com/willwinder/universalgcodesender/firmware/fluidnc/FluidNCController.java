@@ -18,6 +18,7 @@ import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetAlarmCod
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetErrorCodesCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetFirmwareVersionCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetParserStateCommand;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStartupMessagesCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SystemCommand;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
@@ -411,6 +412,7 @@ public class FluidNCController implements IController, CommunicatorListener {
                 streamStopWatch.reset();
                 streamStopWatch.start();
                 setControllerState(ControllerState.RUN);
+                listeners.forEach(ControllerListener::streamStarted);
                 communicator.queueStreamForComm(streamCommands);
                 communicator.streamCommands();
             }
@@ -422,6 +424,7 @@ public class FluidNCController implements IController, CommunicatorListener {
 
     @Override
     public void pauseStreaming() throws Exception {
+        listeners.forEach(ControllerListener::streamPaused);
         communicator.sendByteImmediately(GrblUtils.GRBL_PAUSE_COMMAND);
         communicator.pauseSend();
 
@@ -432,6 +435,7 @@ public class FluidNCController implements IController, CommunicatorListener {
 
     @Override
     public void resumeStreaming() throws Exception {
+        listeners.forEach(ControllerListener::streamResumed);
         communicator.sendByteImmediately(GrblUtils.GRBL_RESUME_COMMAND);
         communicator.resumeSend();
 
@@ -467,6 +471,7 @@ public class FluidNCController implements IController, CommunicatorListener {
                 }
             }
 
+            listeners.forEach(ControllerListener::streamCanceled);
             ThreadHelper.invokeLater(() -> {
                 try {
                     // Make sure we reached HOLD (1 -> Starting hold, 0 => On hold)
@@ -546,6 +551,8 @@ public class FluidNCController implements IController, CommunicatorListener {
                 messageService.dispatchMessage(MessageType.INFO, String.format("*** Expected a 'FluidNC %s' or later but got '%s %s'\n", MINIMUM_VERSION, firmwareVariant, semanticVersion));
                 throw new IllegalStateException("Unknown controller version: " + this.semanticVersion.toString());
             }
+
+            sendAndWaitForCompletion(this, new GetStartupMessagesCommand(), 3000);
 
             messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status codes\n");
             sendAndWaitForCompletion(this, new GetErrorCodesCommand(), 3000);
