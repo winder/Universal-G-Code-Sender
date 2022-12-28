@@ -30,7 +30,7 @@ import java.awt.event.ActionEvent;
 public class UndoAction extends AbstractAction implements UndoManagerListener {
     public static final String SMALL_ICON_PATH = "img/undo.svg";
     public static final String LARGE_ICON_PATH = "img/undo24.svg";
-    private final UndoManager undoManager;
+    private final transient UndoManager undoManager;
 
     public UndoAction() {
         undoManager = CentralLookup.getDefault().lookup(UndoManager.class);

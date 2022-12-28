@@ -62,6 +62,7 @@ public class GcodeParser extends Parser {
         errorParserList.add(new InvalidGrblCommandErrorParser(fileObject));
         errorParserList.add(new MovementInMachineCoordinatesErrorParser(fileObject));
         errorParserList.add(new InvalidG2CommandErrorParser(fileObject));
+        errorParserList.add(new InvalidGcodeErrorParser(fileObject));
 
         TokenSequence<?> tokenSequence = snapshot.getTokenHierarchy().tokenSequence();
         tokenSequence.moveStart();

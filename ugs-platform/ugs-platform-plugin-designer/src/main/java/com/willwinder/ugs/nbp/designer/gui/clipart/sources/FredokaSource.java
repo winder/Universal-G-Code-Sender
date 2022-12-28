@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.gui.clipart.sources;
 import com.willwinder.ugs.nbp.designer.gui.clipart.Category;
 import com.willwinder.ugs.nbp.designer.gui.clipart.Clipart;
 import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSourceException;
 import com.willwinder.ugs.nbp.designer.gui.clipart.FontClipart;
 
 import java.awt.*;
@@ -43,7 +44,7 @@ public class FredokaSource implements ClipartSource {
                     .createFont(Font.TRUETYPE_FONT, FredokaSource.class.getResourceAsStream("/fonts/fredoka-one/Fredoka-dingbats.ttf"))
                     .deriveFont(FONT_SIZE);
         } catch (IOException | FontFormatException e) {
-            throw new RuntimeException("Could not load font", e);
+            throw new ClipartSourceException("Could not load font", e);
         }
 
         cliparts.add(new FontClipart("elephant", Category.ANIMALS, font, "\u0061"));
@@ -96,7 +97,7 @@ public class FredokaSource implements ClipartSource {
     }
 
     @Override
-    public List<? extends Clipart> getCliparts(Category category) {
+    public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
     }
 }

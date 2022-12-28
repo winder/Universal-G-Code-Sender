@@ -2,7 +2,7 @@
 
 
 [![Last commit](https://img.shields.io/github/last-commit/winder/Universal-G-Code-Sender.svg?maxAge=1800)](https://github.com/winder/Universal-G-Code-Sender/commits/master)
-[![Build Status](https://app.travis-ci.com/winder/Universal-G-Code-Sender.svg?branch=master)](https://app.travis-ci.com/github/winder/Universal-G-Code-Sender)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/winder/Universal-G-code-sender/nightly.yaml?branch=master)](https://github.com/winder/Universal-G-Code-Sender/actions/workflows/nightly.yaml)
 [![Codebeat badge](https://codebeat.co/badges/48cc1265-2f6b-4163-8a8a-964acc073100)](https://codebeat.co/projects/github-com-winder-universal-g-code-sender-master)
 [![Releases](https://img.shields.io/github/v/release/winder/Universal-G-Code-Sender)](https://github.com/winder/Universal-G-Code-Sender/releases)
 
@@ -27,22 +27,22 @@ The next generation, feature packed variant based on the Netbeans Platform.<br>
 Unpack and start the program ```bin/ugsplatform```
 
 
-| Latest release (v2.0.12) | Previous release (v2.0.11) | Nightly build |
+| Latest release (v2.0.13) | Previous release (v2.0.12) | Nightly build |
 |:-------------------------|:---------------------------|:--------------|
-| [![Windows 32-bit](pictures/os_windows.png) Windows 32-bit](https://ugs.jfrog.io/ugs/UGS/v2.0.12/ugs-platform-app-win.zip)    | [![Windows 32-bit](pictures/os_windows.png) Windows 32-bit](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-win.zip)  | [![Windows 32-bit](pictures/os_windows.png) Windows 32-bit](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-win.zip)  |
-| [![Windows 64-bit](pictures/os_windows.png) Windows 64-bit](https://ugs.jfrog.io/ugs/UGS/v2.0.12/ugs-platform-app-win64.zip)  |                                                                                                                             | [![Windows 64-bit](pictures/os_windows.png) Windows 64-bit](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-win64.zip)  |
-| [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/v2.0.12/ugs-platform-app-ios.dmg)                      | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-ios.dmg)                    | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-ios.dmg) |
-| [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/v2.0.12/ugs-platform-app-linux.tar.gz)               | [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-linux.tar.gz)             | [![Linux x64](pictures/os_linux.png) Linux](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-linux.tar.gz) |
-| [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/v2.0.12/ugs-platform-app-pi.tar.gz)        | [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app-pi.tar.gz)      | [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app-pi.tar.gz) |
-| [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.12/ugs-platform-app.zip)                           | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.11/ugs-platform-app.zip)                         | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/nightly/ugs-platform-app.zip) |
+| [![Windows 32-bit](pictures/os_windows.png) Windows 32-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.13/win-ugs-platform-app-2.0.13.zip)    | [![Windows 32-bit](pictures/os_windows.png) Windows 32-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.12/ugs-platform-app-win.zip)         | [![Windows 32-bit](pictures/os_windows.png) Windows 32-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/win-ugs-platform-app-2.0-SNAPSHOT.zip)  |
+| [![Windows 64-bit](pictures/os_windows.png) Windows 64-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.13/win64-ugs-platform-app-2.0.13.zip)  | [![Windows 64-bit](pictures/os_windows.png) Windows 64-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.12/ugs-platform-app-win64.zip)       | [![Windows 64-bit](pictures/os_windows.png) Windows 64-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/win64-ugs-platform-app-2.0-SNAPSHOT.zip)  |
+| [![Mac OSX](pictures/os_mac.png) Mac OSX](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.13/ios-ugs-platform-app-2.0.13.dmg)                      | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.12/ugs-platform-app-ios.dmg)                           | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/ios-ugs-platform-app-2.0-SNAPSHOT.dmg) |
+| [![Linux x64](pictures/os_linux.png) Linux](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.13/linux-ugs-platform-app-2.0.13.tar.gz)               | [![Linux x64](pictures/os_linux.png) Linux](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.12/ugs-platform-app-linux.tar.gz)                    | [![Linux x64](pictures/os_linux.png) Linux](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/linux-ugs-platform-app-2.0-SNAPSHOT.tar.gz) |
+| [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.13/pi-ugs-platform-app-2.0.13.tar.gz)        | [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.12/ugs-platform-app-pi.tar.gz)             | [![Linux ARM](pictures/os_linux_arm.png) RaspberryPI](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/pi-ugs-platform-app-2.0-SNAPSHOT.tar.gz) |
+| [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.13/ugs-platform-app-2.0.13.zip)                           | [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.12/ugs-platform-app.zip)                                | [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/ugs-platform-app-2.0-SNAPSHOT.zip) |
 
 **UGS Classic**<br>
 A clean and lightweight variant of UGS (requires [Java](https://java.com/en/download/manual.jsp)). <br>
 Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. <br>
 
-| Latest release (v2.0.12) | Previous release (v2.0.11) | Nightly build  |
+| Latest release (v2.0.13) | Previous release (v2.0.12) | Nightly build  |
 |:---------------|:---------------|:--------------|
-| [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.12/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](https://ugs.jfrog.io/ugs/UGS/v2.0.11/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](http://bit.ly/2HhJIir) |
+| [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.13/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.0.12/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/UniversalGcodeSender.zip) |
 
 ## Screenshots
 

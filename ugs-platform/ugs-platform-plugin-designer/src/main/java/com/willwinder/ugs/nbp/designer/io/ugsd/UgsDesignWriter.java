@@ -4,9 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.*;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
+import com.willwinder.ugs.nbp.designer.io.DesignWriterException;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.apache.commons.io.IOUtils;
@@ -36,7 +38,7 @@ public class UgsDesignWriter implements DesignWriter {
         try {
             write(new FileOutputStream(file), controller);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            throw new DesignWriterException("Could not write to file", e);
         }
     }
 
@@ -51,7 +53,7 @@ public class UgsDesignWriter implements DesignWriter {
             design.setEntities(rootEntity.getChildren().stream().map(this::convertToEntity).collect(Collectors.toList()));
             IOUtils.write(gson.toJson(design), outputStream, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DesignWriterException("Could not write to file", e);
         }
     }
 
@@ -65,6 +67,8 @@ public class UgsDesignWriter implements DesignWriter {
             result = parseEllipse(entity);
         } else if (entity instanceof Path) {
             result = parsePath(entity);
+        } else if (entity instanceof Point) {
+            result = parsePoint(entity);
         } else if (entity instanceof Text) {
             result = parseText((Text) entity);
         } else {
@@ -108,6 +112,12 @@ public class UgsDesignWriter implements DesignWriter {
         EntityRectangleV1 rectangle = new EntityRectangleV1();
         rectangle.setTransform(entity.getTransform());
         return rectangle;
+    }
+
+    private EntityV1 parsePoint(Entity entity) {
+        EntityPointV1 point = new EntityPointV1();
+        point.setTransform(entity.getTransform());
+        return point;
     }
 
     private EntityV1 parseGroup(EntityGroup entity) {

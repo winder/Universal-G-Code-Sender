@@ -27,6 +27,9 @@ import java.text.ParseException;
  * @author Joacim Breiler
  */
 public class Utils {
+    private Utils() {
+    }
+
     public static double normalizeRotation(double degrees) {
         if (degrees >= 360) {
             return degrees % 360;

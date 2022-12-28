@@ -29,11 +29,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.CommunicatorState;
-import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.PartialPosition;
-import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
@@ -594,11 +590,6 @@ public class FluidNCController implements IController, CommunicatorListener {
     }
 
     @Override
-    public boolean handlesAllStateChangeEvents() {
-        return true;
-    }
-
-    @Override
     public GcodeCommand createCommand(String command) throws Exception {
         return new FluidNCCommand(command);
     }
@@ -750,6 +741,11 @@ public class FluidNCController implements IController, CommunicatorListener {
                 return;
             }
             ThreadHelper.invokeLater(this::initializeController);
+        }
+
+        if (FluidNCUtils.isProbeMessage(response)) {
+            Position p = FluidNCUtils.parseProbePosition(response, getFirmwareSettings().getReportingUnits());
+            listeners.forEach(l -> l.probeCoordinates(p));
         }
 
         if (FluidNCUtils.isMessageResponse(response)) {

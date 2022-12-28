@@ -34,5 +34,5 @@ public interface ClipartSource {
 
     String getUrl();
 
-    List<? extends Clipart> getCliparts(Category category);
+    List<Clipart> getCliparts(Category category);
 }

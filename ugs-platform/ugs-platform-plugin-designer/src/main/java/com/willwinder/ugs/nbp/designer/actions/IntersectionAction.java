@@ -41,7 +41,7 @@ import java.util.List;
 public class IntersectionAction extends AbstractAction implements SelectionListener {
     private static final String SMALL_ICON_PATH = "img/intersection.svg";
     private static final String LARGE_ICON_PATH = "img/intersection24.svg";
-    private final Controller controller;
+    private final transient Controller controller;
 
     public IntersectionAction(Controller controller) {
         putValue("menuText", "Intersection");

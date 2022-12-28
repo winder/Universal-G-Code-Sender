@@ -43,8 +43,6 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,7 +74,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private boolean streamFailed = false;
     private boolean autoconnect = false;
 
-    private GcodeParser gcp = new GcodeParser();
+    private final GcodeParser gcp = new GcodeParser();
     private ControllerStatus controllerStatus = new ControllerStatus();
 
     @Override
@@ -677,12 +675,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     // Controller Listener //
     /////////////////////////
     @Override
-    public void controlStateChange(CommunicatorState state) {
-    }
-
-    @Override
-    public void fileStreamComplete(String filename, boolean success) {
-        this.sendUGSEvent(new FileStateEvent(FileState.FILE_STREAM_COMPLETE, filename, success));
+    public void fileStreamComplete(String filename) {
+        this.sendUGSEvent(new FileStateEvent(FileState.FILE_STREAM_COMPLETE, filename));
     }
 
     @Override
@@ -822,9 +816,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private void initializeProcessedLines(boolean forceReprocess, File startFile, GcodeParser gcodeParser)
             throws Exception {
         if (startFile != null) {
-            try (FileReader fr = new FileReader(startFile)) {
-                Charset.forName(fr.getEncoding());
-            }
             logger.info("Start preprocessing");
             long start = System.currentTimeMillis();
             if (this.processedGcodeFile == null || forceReprocess) {

@@ -34,6 +34,14 @@
     </developer>
   </developers>
 
+  <repositories>
+    <repository>
+      <id>jzy3d</id>
+      <name>JOGL alternative repository</name>
+      <url>https://maven.jzy3d.org/releases/</url>
+    </repository>
+  </repositories>
+
   <properties>
     <revision>2.0</revision>
     <changelist>-SNAPSHOT</changelist>
@@ -41,16 +49,16 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jetty.version>9.4.41.v20210516</jetty.version>
     <jersey.version>2.29.1</jersey.version>
-    <gluegen.version>2.3.2</gluegen.version>
-    <jogl.version>2.3.2</jogl.version>
+    <gluegen.version>v2.4.0-rc-20210111</gluegen.version>
+    <jogl.version>v2.4.0-rc-20210111</jogl.version>
     <miglayout.version>3.7.4</miglayout.version>
     <guava.version>28.1-jre</guava.version>
     <jssc.version>2.8.0</jssc.version>
     <jserialcomm.version>2.9.2</jserialcomm.version>
-    <commons-lang3.version>3.9</commons-lang3.version>
+    <commons-lang3.version>3.12.0</commons-lang3.version>
     <commons-io.version>2.11.0</commons-io.version>
     <commons-csv.version>1.9.0</commons-csv.version>
-    <gson.version>2.8.7</gson.version>
+    <gson.version>2.10</gson.version>
     <jmf.version>2.1.1e</jmf.version>
     <zxing.version>3.4.0</zxing.version>
     <qrgen.version>1.4</qrgen.version>
@@ -61,12 +69,13 @@
     <mockito.version>3.2.4</mockito.version>
     <batik.version>1.14</batik.version>
     <jxmodem.version>0.1a</jxmodem.version>
+    <jts.version>1.19.0</jts.version>
     <ugs.maven-resources-plugin.version>3.1.0</ugs.maven-resources-plugin.version>
     <ugs.maven-jar-plugin.version>3.2.0</ugs.maven-jar-plugin.version>
     <ugs.flatten-maven-plugin.version>1.2.2</ugs.flatten-maven-plugin.version>
     <ugs.junit.version>4.13.2</ugs.junit.version>
     <ugs.hamcrest-core.version>2.2</ugs.hamcrest-core.version>
-    <ugs.maven-shade-plugin.version>2.4.1</ugs.maven-shade-plugin.version>
+    <ugs.maven-shade-plugin.version>3.4.1</ugs.maven-shade-plugin.version>
     <ugs.progressbar.version>0.7.2</ugs.progressbar.version>
     <ugs.commons-cli.version>1.4</ugs.commons-cli.version>
     <ugs.easymock.version>3.4</ugs.easymock.version>

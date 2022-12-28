@@ -19,18 +19,26 @@
 package com.willwinder.ugs.nbp.designer.entities.selection;
 
 import com.google.common.collect.Sets;
-import com.willwinder.ugs.nbp.designer.entities.*;
+import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
+import com.willwinder.ugs.nbp.designer.entities.EntityException;
+import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
-import java.util.*;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,7 +47,7 @@ import java.util.stream.Stream;
  */
 public class SelectionManager extends AbstractEntity implements EntityListener {
 
-    private final Set<SelectionListener> listeners  = Sets.newConcurrentHashSet();
+    private final Set<SelectionListener> listeners = Sets.newConcurrentHashSet();
     private final EntityGroup entityGroup;
 
     public SelectionManager() {
@@ -96,17 +104,6 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
         fireSelectionEvent(new SelectionEvent());
     }
 
-    public void setSelection(List<Entity> entities) {
-        List<Entity> selection = entities.stream()
-                .filter(e -> e != this)
-                .filter(e -> !(e instanceof Control))
-                .collect(Collectors.toList());
-
-        entityGroup.removeAll();
-        entityGroup.addAll(selection);
-        fireSelectionEvent(new SelectionEvent());
-    }
-
     public void removeSelection(Entity entity) {
         entityGroup.removeChild(entity);
         entity.removeListener(this);
@@ -117,14 +114,13 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
         this.listeners.add(selectionListener);
     }
 
-
     public void removeSelectionListener(SelectionListener selectionListener) {
         listeners.remove(selectionListener);
     }
 
     private void fireSelectionEvent(SelectionEvent selectionEvent) {
         listeners.forEach(listener -> listener.
-                        onSelectionEvent(selectionEvent));
+                onSelectionEvent(selectionEvent));
     }
 
     public boolean isSelected(Entity entity) {
@@ -142,6 +138,17 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
                 })
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    public void setSelection(List<Entity> entities) {
+        List<Entity> selection = entities.stream()
+                .filter(e -> e != this)
+                .filter(e -> !(e instanceof Control))
+                .collect(Collectors.toList());
+
+        entityGroup.removeAll();
+        entityGroup.addAll(selection);
+        fireSelectionEvent(new SelectionEvent());
     }
 
     public List<Entity> getChildren() {
@@ -185,6 +192,9 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
 
     @Override
     public Size getSize() {
+        if (entityGroup.getChildren().size() == 1 && entityGroup.getChildren().get(0) instanceof Point) {
+            return new Size(0, 0);
+        }
         return entityGroup.getSize();
     }
 
@@ -212,6 +222,6 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
 
     @Override
     public Entity copy() {
-        throw new RuntimeException("Not implemented");
+        throw new EntityException("Not implemented");
     }
 }

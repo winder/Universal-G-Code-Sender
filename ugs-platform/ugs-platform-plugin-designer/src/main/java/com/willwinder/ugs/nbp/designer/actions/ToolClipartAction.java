@@ -36,7 +36,7 @@ public final class ToolClipartAction extends AbstractAction {
 
     public static final String SMALL_ICON_PATH = "img/clipart.svg";
     public static final String LARGE_ICON_PATH = "img/clipart24.svg";
-    private final Controller controller;
+    private final transient Controller controller;
 
     public ToolClipartAction(Controller controller) {
         putValue("iconBase", SMALL_ICON_PATH);

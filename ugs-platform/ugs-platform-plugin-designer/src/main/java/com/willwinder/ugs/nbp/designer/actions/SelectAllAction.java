@@ -47,7 +47,7 @@ public class SelectAllAction extends AbstractAction implements DrawingListener {
     public static final String SMALL_ICON_PATH = "img/select-all.svg";
     public static final String LARGE_ICON_PATH = "img/select-all24.svg";
 
-    private final Controller controller;
+    private final transient Controller controller;
 
     public SelectAllAction(Controller controller) {
         putValue("iconBase", SMALL_ICON_PATH);

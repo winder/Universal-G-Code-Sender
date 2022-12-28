@@ -20,6 +20,9 @@ public class ToolPathUtils {
 
     public static final double FLATNESS_PRECISION = 0.1d;
 
+    private ToolPathUtils() {
+    }
+
     public static List<Geometry> toGeometryList(Geometry geometry) {
         List<Geometry> geometryList = new ArrayList<>();
         recursivlyCollectGeometries(geometry, geometryList);

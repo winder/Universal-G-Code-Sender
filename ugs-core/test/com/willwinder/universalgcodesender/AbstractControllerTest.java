@@ -120,7 +120,7 @@ public class AbstractControllerTest {
     ///////////////
     // UTILITIES //
     ///////////////
-    private void openInstanceExpectUtility(String port, int portRate, boolean handleStateChange) throws Exception {
+    private void openInstanceExpectUtility(String port, int portRate) throws Exception {
         instance.openCommAfterEvent();
         expect(expectLastCall()).anyTimes();
         mockMessageService.dispatchMessage(anyObject(), anyString());
@@ -131,7 +131,6 @@ public class AbstractControllerTest {
         mockCommunicator.connect(or(eq(ConnectionDriver.JSERIALCOMM), eq(ConnectionDriver.JSSC)), eq(port), eq(portRate));
         expect(instance.isCommOpen()).andReturn(false).once();
         expect(instance.isCommOpen()).andReturn(true).anyTimes();
-        expect(instance.handlesAllStateChangeEvents()).andReturn(handleStateChange).anyTimes();
     }
     private void streamInstanceExpectUtility() throws Exception {
         expect(mockCommunicator.areActiveCommands()).andReturn(false).anyTimes();
@@ -141,7 +140,7 @@ public class AbstractControllerTest {
         expect(expectLastCall()).once();
     }
     private void startStreamExpectation(String port, int rate) throws Exception {
-        openInstanceExpectUtility(port, rate, false);
+        openInstanceExpectUtility(port, rate);
         streamInstanceExpectUtility();
         
         // Making sure the commands get queued.
@@ -235,7 +234,7 @@ public class AbstractControllerTest {
         String port = "/some/port";
         int rate = 1234;
 
-        openInstanceExpectUtility(port, rate, false);
+        openInstanceExpectUtility(port, rate);
         streamInstanceExpectUtility();
         
         // Making sure the commands get queued.
@@ -263,7 +262,7 @@ public class AbstractControllerTest {
         String port = "/some/port";
         int rate = 1234;
 
-        openInstanceExpectUtility(port, rate, false);
+        openInstanceExpectUtility(port, rate);
         streamInstanceExpectUtility();
         
         // Making sure the commands get queued.

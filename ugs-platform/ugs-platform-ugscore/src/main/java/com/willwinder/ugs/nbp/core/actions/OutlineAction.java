@@ -33,7 +33,12 @@ import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper;
-import com.willwinder.universalgcodesender.utils.*;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.MathUtils;
+import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
@@ -43,8 +48,8 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Action;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -73,12 +78,12 @@ import java.util.stream.Stream;
                 position = 1200,
                 separatorBefore = 1199)
 })
-public final class OutlineAction extends AbstractAction implements UGSEventListener {
+public final class OutlineAction extends ProgramAction implements UGSEventListener {
 
     public static final String ICON_BASE = "resources/icons/outline.svg";
     public static final double ARC_SEGMENT_LENGTH = 0.5;
     private static final Logger LOGGER = Logger.getLogger(OutlineAction.class.getSimpleName());
-    private BackendAPI backend;
+    private final transient BackendAPI backend;
 
     public OutlineAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -103,7 +108,8 @@ public final class OutlineAction extends AbstractAction implements UGSEventListe
     public boolean isEnabled() {
         return backend != null &&
                 backend.getControllerState() == ControllerState.IDLE &&
-                backend.getGcodeFile() != null;
+                backend.getGcodeFile() != null &&
+                super.isEnabled();
     }
 
     @Override

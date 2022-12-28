@@ -22,5 +22,5 @@ package com.willwinder.ugs.nbp.designer.logic;
  * @author Joacim Breiler
  */
 public enum Tool {
-    CIRCLE, RECTANGLE, LINE, SELECT, INSERT, TEXT, ZOOM;
+    POINT, CIRCLE, RECTANGLE, LINE, SELECT, INSERT, TEXT, ZOOM;
 }

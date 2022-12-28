@@ -44,9 +44,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -316,12 +322,14 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
                 try {
                     Collection<Macro> macros = backend.getSettings().getMacros();
 
-                    try (FileWriter fileWriter = new FileWriter(fileChooser.getSelectedFile())) {
+                    try (OutputStream fileOutputStream = new FileOutputStream(fileChooser.getSelectedFile())) {
+                        Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
                         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                        fileWriter.write(gson.toJson(macros, Collection.class));
+                        writer.write(gson.toJson(macros, Collection.class));
+                        writer.flush();
                     }
                 } catch (Exception ex) {
-                    logger.log(Level.SEVERE, "Problem while browsing.", ex);
+                    logger.log(Level.SEVERE, "Problem while saving macros.", ex);
                     GUIHelpers.displayErrorDialog(ex.getMessage());
                 }
             }
@@ -333,9 +341,9 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
                 try {
                     File importFile = fileChooser.getSelectedFile();
 
-                    try (FileReader reader = new FileReader(importFile)) {
+                    try (InputStream reader = new FileInputStream(importFile)) {
                         Type type = new TypeToken<ArrayList<Macro>>(){}.getType();
-                        List<Macro> macros = new Gson().fromJson(reader, type);
+                        List<Macro> macros = new Gson().fromJson(new InputStreamReader(reader, StandardCharsets.UTF_8), type);
                         this.macros.addAll(macros);
 
                         // Update the window.

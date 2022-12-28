@@ -1,19 +1,29 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
-import com.willwinder.ugs.nbp.designer.actions.*;
+import com.willwinder.ugs.nbp.designer.actions.CopyAction;
+import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
+import com.willwinder.ugs.nbp.designer.actions.PasteAction;
+import com.willwinder.ugs.nbp.designer.actions.RedoAction;
+import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
+import com.willwinder.ugs.nbp.designer.actions.UndoAction;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.openide.util.Utilities;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-import javax.swing.*;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.text.DefaultEditorKit;
 
 public class PlatformUtils {
     public static final String UNDO_KEY = "undo";
     public static final String REDO_KEY = "redo";
     public static final String DELETE_KEY = "delete";
+
+    private PlatformUtils() {
+    }
 
     public static void registerActions(ActionMap actionMap, Controller controller, TopComponent component) {
         actionMap.put(DELETE_KEY, controller.getAction(DeleteAction.class));

@@ -49,10 +49,10 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -186,7 +186,7 @@ public final class GcodeTilerTopComponent extends TopComponent {
   private void generateAndLoadGcode(File file) {
     try {
       if (this.outputFile == null) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
+        try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8.name())) {
           double padding = SwingHelpers.getDouble(this.padding);
           double stepX = padding + GcodeTilerTopComponent.xWidth;
           double stepY = padding + GcodeTilerTopComponent.yWidth;
@@ -267,7 +267,7 @@ public final class GcodeTilerTopComponent extends TopComponent {
         try (
             FileInputStream fstream = new FileInputStream(file);
             DataInputStream dis = new DataInputStream(fstream);
-            BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis))) {
+            BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis, StandardCharsets.UTF_8))) {
           String line;
           while ((line = fileStream.readLine()) != null) {
             applyTranslation(line, parser, output);

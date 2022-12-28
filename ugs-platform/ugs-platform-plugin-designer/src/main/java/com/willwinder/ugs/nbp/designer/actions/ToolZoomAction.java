@@ -32,7 +32,7 @@ import java.awt.event.ActionEvent;
 public class ToolZoomAction extends AbstractAction {
     private static final String ICON_SMALL_PATH = "img/zoom.svg";
     private static final String ICON_LARGE_PATH = "img/zoom24.svg";
-    private final Controller controller;
+    private final transient Controller controller;
 
     public ToolZoomAction(Controller controller) {
         putValue("iconBase", ICON_SMALL_PATH);

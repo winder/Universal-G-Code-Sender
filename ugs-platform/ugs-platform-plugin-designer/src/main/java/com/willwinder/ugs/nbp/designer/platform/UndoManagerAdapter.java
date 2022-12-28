@@ -22,9 +22,7 @@ UndoManagerAdapter implements UndoRedo {
 
         undoManager.addListener(() ->
                 listeners.forEach(l ->
-                        SwingUtilities.invokeLater(() -> {
-                            l.stateChanged(new ChangeEvent(this));
-                        })));
+                        SwingUtilities.invokeLater(() -> l.stateChanged(new ChangeEvent(this)))));
     }
 
     @Override

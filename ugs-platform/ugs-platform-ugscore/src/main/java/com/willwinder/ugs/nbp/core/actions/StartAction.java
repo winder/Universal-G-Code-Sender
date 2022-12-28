@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2016 Will Winder
+    Copyright 2015-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,8 +22,8 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
@@ -32,7 +32,7 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 
 @ActionID(
@@ -50,14 +50,18 @@ import java.awt.event.ActionEvent;
                 path = "Toolbars/StartPauseStop",
                 position = 1000)
 })
-public final class StartAction extends AbstractAction implements UGSEventListener {
+public final class StartAction extends ProgramAction implements UGSEventListener {
 
     public static final String ICON_BASE = "resources/icons/start.svg";
 
-    private BackendAPI backend;
+    private final transient BackendAPI backend;
 
     public StartAction() {
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this(CentralLookup.getDefault().lookup(BackendAPI.class));
+    }
+
+    public StartAction(BackendAPI backendAPI) {
+        this.backend = backendAPI;
         this.backend.addUGSEventListener(this);
 
         putValue("iconBase", ICON_BASE);
@@ -70,13 +74,13 @@ public final class StartAction extends AbstractAction implements UGSEventListene
     @Override
     public void UGSEvent(UGSEvent cse) {
         if (cse instanceof ControllerStateEvent || cse instanceof FileStateEvent) {
-            java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+            EventQueue.invokeLater(() -> setEnabled(isEnabled()));
         }
     }
 
     @Override
     public boolean isEnabled() {
-        return backend.canSend() || backend.isPaused();
+        return (backend.canSend() && super.isEnabled()) || backend.isPaused();
     }
 
     @Override

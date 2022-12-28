@@ -31,7 +31,7 @@ import java.awt.event.ActionEvent;
 public class ToolSelectAction extends AbstractAction {
     private static final String SMALL_ICON_PATH = "img/pointer.svg";
     private static final String LARGE_ICON_PATH = "img/pointer24.svg";
-    private final Controller controller;
+    private final transient Controller controller;
 
     public ToolSelectAction(Controller controller) {
         putValue("iconBase", SMALL_ICON_PATH);

@@ -1,0 +1,49 @@
+name: Nightly build
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+
+    - name: Cache the Maven packages to speed up build
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2      
+
+    - name: Build and test
+      run: mvn clean install
+      
+    - name: Package
+      run: |
+        sudo apt-get install -qq genisoimage
+        mvn package -pl ugs-classic assembly:assembly -DskipTests=true          
+        mvn package -pl ugs-platform/application -P create-macosx-package -DskipTests=true
+        mvn package -pl ugs-platform/application -P create-win32-package -DskipTests=true
+        mvn package -pl ugs-platform/application -P create-win64-package -DskipTests=true
+        mvn package -pl ugs-platform/application -P create-linux-package -DskipTests=true 
+        mvn package -pl ugs-platform/application -P create-pi-package -DskipTests=true
+    
+    # https://github.com/marketplace/actions/upload-to-github-release
+    - name: Upload binaries to snapshot release
+      uses: xresloader/upload-to-github-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        file: "ugs-classic/target/UniversalGcodeSender.zip;ugs-platform/application/target/ios-ugs-platform-app-*.dmg;ugs-platform/application/target/linux-ugs-platform-app*.tar.gz;ugs-platform/application/target/pi-ugs-platform-app*.tar.gz;ugs-platform/application/target/win-ugs-platform-app-*.zip;ugs-platform/application/target/win64-ugs-platform-app-*.zip;ugs-platform/application/target/ugs-platform-app-*.zip"
+        prerelease: true
+        tag_name: "nightly"
+        overwrite: true

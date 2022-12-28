@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
+import com.willwinder.ugs.nbp.designer.io.DesignReaderException;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.Utils;
@@ -44,6 +45,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGRect;
+import org.yaml.snakeyaml.reader.ReaderException;
 
 import java.awt.*;
 import java.awt.geom.*;
@@ -69,7 +71,7 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
     @Override
     public Optional<Design> read(File f) {
         if (EventQueue.isDispatchThread()) {
-            throw new RuntimeException("Method can not be executed in dispatch thread");
+            throw new DesignReaderException("Method can not be executed in dispatch thread");
         }
         result = null;
         svgCanvas = new JSVGCanvas();
@@ -81,7 +83,7 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
             // Wait for svg loader to finish processing the SVG
             ThreadHelper.waitUntil(() -> result != null, 10, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
-            throw new RuntimeException("It took to long to load file");
+            throw new DesignReaderException("It took to long to load file");
             // Never mind
         }
 
@@ -93,7 +95,7 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
     @Override
     public Optional<Design> read(InputStream inputStream) {
         if (EventQueue.isDispatchThread()) {
-            throw new RuntimeException("Method can not be executed in dispatch thread");
+            throw new DesignReaderException("Method can not be executed in dispatch thread");
         }
 
         String parser = XMLResourceDescriptor.getXMLParserClassName();
@@ -103,7 +105,7 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
         try {
             doc = f.createSVGDocument(null, inputStream);
         } catch (IOException ex) {
-            throw new RuntimeException("Couldn't load stream");
+            throw new DesignReaderException("Couldn't load stream");
         }
 
         result = null;
@@ -117,7 +119,7 @@ public class SvgReader implements GVTTreeBuilderListener, DesignReader {
             // Wait for svg loader to finish processing the SVG
             ThreadHelper.waitUntil(() -> result != null, 10, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
-            throw new RuntimeException("It took to long to load file");
+            throw new DesignReaderException("It took to long to load file");
         }
 
         Design design = new Design();

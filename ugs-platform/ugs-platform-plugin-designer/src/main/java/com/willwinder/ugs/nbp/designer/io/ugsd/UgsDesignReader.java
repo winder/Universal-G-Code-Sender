@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
+import com.willwinder.ugs.nbp.designer.io.DesignReaderException;
 import com.willwinder.ugs.nbp.designer.io.RuntimeTypeAdapterFactory;
 import com.willwinder.ugs.nbp.designer.io.ugsd.common.UgsDesign;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.*;
@@ -51,7 +52,7 @@ public class UgsDesignReader implements DesignReader {
         try (FileInputStream inputStream = new FileInputStream(file)) {
             return read(inputStream);
         } catch (Exception e) {
-            throw new RuntimeException("Couldn't load file " + file, e);
+            throw new DesignReaderException("Couldn't load file " + file, e);
         }
     }
 
@@ -70,10 +71,10 @@ public class UgsDesignReader implements DesignReader {
                 return parseV1(designFileContent);
             }
 
-            throw new RuntimeException("Unknown version " + design.getVersion());
+            throw new DesignReaderException("Unknown version " + design.getVersion());
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Couldn't load stream", e);
-            throw new RuntimeException("Couldn't read from stream", e);
+            LOGGER.log(Level.SEVERE, "Could not load stream", e);
+            throw new DesignReaderException("Could not read from stream", e);
         }
     }
 
@@ -90,6 +91,7 @@ public class UgsDesignReader implements DesignReader {
         entityAdapterFactory.registerSubtype(EntityRectangleV1.class, EntityTypeV1.RECTANGLE.name());
         entityAdapterFactory.registerSubtype(EntityEllipseV1.class, EntityTypeV1.ELLIPSE.name());
         entityAdapterFactory.registerSubtype(EntityTextV1.class, EntityTypeV1.TEXT.name());
+        entityAdapterFactory.registerSubtype(EntityPointV1.class, EntityTypeV1.POINT.name());
 
         return new GsonBuilder()
                 .registerTypeAdapterFactory(entityAdapterFactory)

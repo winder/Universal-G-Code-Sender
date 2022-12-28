@@ -195,7 +195,6 @@ public class SmoothieController extends AbstractController {
 
         UnitUtils.Units currentUnits = getCurrentGcodeState().getUnits();
         controllerStatus = SmoothieUtils.getStatusFromStatusString(controllerStatus, response, currentUnits);
-        dispatchStateChange(getCommunicatorState());
         dispatchStatusString(controllerStatus);
     }
 
@@ -233,11 +232,6 @@ public class SmoothieController extends AbstractController {
                 .setState(ControllerState.HOME)
                 .build();
         dispatchStatusString(controllerStatus);
-    }
-
-    @Override
-    public boolean handlesAllStateChangeEvents() {
-        return false;
     }
 
     @Override

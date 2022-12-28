@@ -18,9 +18,10 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Stack;
 
 /**
  * UndoManager is a simplistic reusable component to support an undo-redo
@@ -35,16 +36,16 @@ public class SimpleUndoManager implements UndoManager {
     // When a new action is made it is put in the undo stack. When an operation
     // is undone, it is places in the redo stack.
 
-    private Stack<UndoableAction> undoStack;
-    private Stack<UndoableAction> redoStack;
-    private Set<UndoManagerListener> listeners;
+    private final Deque<UndoableAction> undoStack;
+    private final Deque<UndoableAction> redoStack;
+    private final Set<UndoManagerListener> listeners;
 
     /**
      * Constructs a empty Undo Manager.
      */
     public SimpleUndoManager() {
-        undoStack = new Stack<>();
-        redoStack = new Stack<>();
+        undoStack = new ArrayDeque<>();
+        redoStack = new ArrayDeque<>();
         listeners = new HashSet<>();
     }
 

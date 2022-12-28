@@ -69,6 +69,24 @@ public class GcodeParserUtilsTest {
     }
 
     @Test
+    public void g28_1WithAxes() throws Exception {
+        // No exception
+        GcodeParserUtils.processCommand("G28.1 X1 Y2 Z3", 0, new GcodeState());
+    }
+
+    @Test
+    public void g28_2WithAxes() throws Exception {
+        // No exception
+        GcodeParserUtils.processCommand("G28.2 X1 Y2 Z3", 0, new GcodeState());
+    }
+
+    @Test
+    public void g28_3WithAxes() throws Exception {
+        // No exception
+        GcodeParserUtils.processCommand("G28.3 X1 Y2 Z3", 0, new GcodeState());
+    }
+
+    @Test
     public void motionNoAxes() throws Exception {
         List<GcodeParser.GcodeMeta> metaList = GcodeParserUtils.processCommand("G3", 0, new GcodeState());
         GcodeParser.GcodeMeta meta = Iterables.getOnlyElement(metaList);

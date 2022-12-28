@@ -61,6 +61,6 @@ public class EditTextControl extends AbstractControl {
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
-
+        // Not applicable
     }
 }

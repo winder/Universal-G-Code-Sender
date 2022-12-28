@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.io.png;
 
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
+import com.willwinder.ugs.nbp.designer.io.DesignWriterException;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 
 import javax.imageio.ImageIO;
@@ -34,7 +35,7 @@ public class PngWriter implements DesignWriter {
         try {
             write(new FileOutputStream(file), controller);
         } catch (FileNotFoundException e) {
-            throw new RuntimeException("Couldn't write to file", e);
+            throw new DesignWriterException("Couldn't write to file", e);
         }
     }
 
@@ -45,7 +46,7 @@ public class PngWriter implements DesignWriter {
             BufferedImage bi = controller.getDrawing().getImage();
             ImageIO.write(bi, "png", outputStream);
         } catch (IOException e) {
-            throw new RuntimeException("Couldn't write to file", e);
+            throw new DesignWriterException("Couldn't write to file", e);
         }
     }
 }

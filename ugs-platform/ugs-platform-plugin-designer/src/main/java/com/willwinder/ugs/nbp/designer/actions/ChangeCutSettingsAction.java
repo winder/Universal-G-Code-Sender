@@ -40,7 +40,7 @@ public class ChangeCutSettingsAction extends AbstractAction implements UndoableA
     private final double newStartDepth;
     private final double newCutDepth;
     private final CutType newCutType;
-    private final List<Cuttable> cuttableList;
+    private final transient List<Cuttable> cuttableList;
 
     public ChangeCutSettingsAction(Controller controller, List<Cuttable> cuttableList, double startDepth, double targetDepth, CutType cutType) {
         this.cuttableList = new ArrayList<>(cuttableList);

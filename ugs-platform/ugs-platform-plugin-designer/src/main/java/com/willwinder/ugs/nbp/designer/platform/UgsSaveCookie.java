@@ -24,7 +24,6 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openide.cookies.SaveCookie;
-import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
@@ -47,13 +46,6 @@ public class UgsSaveCookie implements Icon, SaveCookie {
         Controller controller = CentralLookup.getDefault().lookup(Controller.class);
         if (controller == null) {
             throw new IllegalStateException("Couldn't find an instance of the drawing controller");
-        }
-
-        try {
-            boolean valid = dataObject.getPrimaryFile().getFileSystem().isValid();
-
-        } catch (FileStateInvalidException e) {
-            e.printStackTrace();
         }
 
         UgsDesignWriter writer = new UgsDesignWriter();

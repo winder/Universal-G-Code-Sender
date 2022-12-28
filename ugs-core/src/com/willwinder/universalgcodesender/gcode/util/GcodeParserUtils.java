@@ -34,8 +34,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -365,13 +367,13 @@ public class GcodeParserUtils {
      */
     public static void processAndExport(GcodeParser gcp, File input, IGcodeWriter output)
             throws IOException, GcodeParserException {
-        try(BufferedReader br = new BufferedReader(new FileReader(input))) {
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(input), StandardCharsets.UTF_8.name()))) {
             if (processAndExportGcodeStream(gcp, br, output)) {
                 return;
             }
         }
 
-        try(BufferedReader br = new BufferedReader(new FileReader(input))) {
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(input), StandardCharsets.UTF_8.name()))) {
             processAndExportText(gcp, br, output);
         }
     }
