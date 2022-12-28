@@ -40,8 +40,22 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyDouble;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit test for GUIBackend
@@ -71,7 +85,8 @@ public class GUIBackendTest {
     public void setUp() throws Exception {
 
         // We need to mock the method that loads the controller
-        instance = spy(new GUIBackend());
+        UGSEventDispatcher eventDispatcher = new UGSEventDispatcher();
+        instance = spy(new GUIBackend(eventDispatcher));
         IFirmwareSettings firmwareSettings = mock(IFirmwareSettings.class);
         controller = mock(AbstractController.class);
         doReturn(controller).when(instance).fetchControllerFromFirmware(any());
@@ -91,7 +106,7 @@ public class GUIBackendTest {
     @Test
     public void adjustManualLocationWhenIdleShouldBeOk() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        when(instance.getControllerState()).thenReturn(ControllerState.IDLE);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE));
 
         PartialPosition p = new PartialPosition(10., 0., 0., UnitUtils.Units.MM);
         instance.adjustManualLocation(p, 10);
@@ -101,7 +116,7 @@ public class GUIBackendTest {
     @Test
     public void adjustManualLocationWhenAlreadyJoggingShouldBeOk() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        when(instance.getControllerState()).thenReturn(ControllerState.JOG);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.JOG));
 
         PartialPosition p = new PartialPosition(10., 0., 0., UnitUtils.Units.MM);
         instance.adjustManualLocation(p, 10);
@@ -111,7 +126,7 @@ public class GUIBackendTest {
     @Test
     public void adjustManualLocationWhenControllerStateIsDoorShouldBeSkipped() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        when(instance.getControllerState()).thenReturn(ControllerState.DOOR);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.DOOR));
 
         PartialPosition p = new PartialPosition(10., 0., 0., UnitUtils.Units.MM);
         instance.adjustManualLocation(p, 10);
@@ -121,7 +136,7 @@ public class GUIBackendTest {
     @Test
     public void adjustManualLocationWhenControllerStateIsRunShouldBeSkipped() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        when(instance.getControllerState()).thenReturn(ControllerState.RUN);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.RUN));
 
         PartialPosition p = new PartialPosition(10., 0., 0., UnitUtils.Units.MM);
         instance.adjustManualLocation(p, 10);
@@ -131,7 +146,7 @@ public class GUIBackendTest {
     @Test
     public void adjustManualLocationWithZeroDirectionShouldNotMoveTheMachine() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        when(instance.getControllerState()).thenReturn(ControllerState.IDLE);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE));
 
         PartialPosition p = new PartialPosition(0., 0., 0., UnitUtils.Units.MM);
         instance.adjustManualLocation(p, 10);
@@ -141,7 +156,7 @@ public class GUIBackendTest {
     @Test
     public void adjustManualLocationWithNoDirectionShouldNotMoveTheMachine() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        when(instance.getControllerState()).thenReturn(ControllerState.IDLE);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE));
 
         PartialPosition p = new PartialPosition(null, null, UnitUtils.Units.MM);
         instance.adjustManualLocation(p, 10);
@@ -285,7 +300,7 @@ public class GUIBackendTest {
     }
 
     @Test
-    public void isConnectedShouldReturnFalseIfNeverConnected() throws Exception {
+    public void isConnectedShouldReturnFalseIfNeverConnected() {
         assertFalse(instance.isConnected());
     }
 
@@ -299,7 +314,7 @@ public class GUIBackendTest {
         // Given
         when(controller.isCommOpen()).thenReturn(true);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.IDLE, new Position(0,0,0), new Position(0,0,0));
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0), new Position(0, 0, 0));
         when(controller.getControllerStatus()).thenReturn(controllerStatus);
 
         assertTrue(instance.isIdle());
@@ -310,7 +325,7 @@ public class GUIBackendTest {
         // Given
         when(controller.isCommOpen()).thenReturn(true);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.CHECK, new Position(0,0,0), new Position(0,0,0));
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.CHECK, new Position(0, 0, 0), new Position(0, 0, 0));
         when(controller.getControllerStatus()).thenReturn(controllerStatus);
 
         assertTrue(instance.isIdle());
@@ -321,7 +336,7 @@ public class GUIBackendTest {
         // Given
         when(controller.isCommOpen()).thenReturn(true);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.RUN, new Position(0,0,0), new Position(0,0,0));
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.RUN, new Position(0, 0, 0), new Position(0, 0, 0));
         when(controller.getControllerStatus()).thenReturn(controllerStatus);
 
         assertFalse(instance.isIdle());
@@ -332,7 +347,7 @@ public class GUIBackendTest {
         // Given
         when(controller.isCommOpen()).thenReturn(true);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.IDLE, new Position(0,0,0), new Position(0,0,0));
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0), new Position(0, 0, 0));
         when(controller.getControllerStatus()).thenReturn(controllerStatus);
 
         File tempFile = File.createTempFile("ugs-", ".gcode");
@@ -347,7 +362,7 @@ public class GUIBackendTest {
         // Given
         when(controller.isCommOpen()).thenReturn(true);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.IDLE, new Position(0,0,0), new Position(0,0,0));
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0), new Position(0, 0, 0));
         when(controller.getControllerStatus()).thenReturn(controllerStatus);
 
         assertFalse(instance.canSend());
@@ -367,6 +382,7 @@ public class GUIBackendTest {
     public void disconnectShouldCloseTheConnection() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE));
 
         // When
         instance.disconnect();
@@ -460,8 +476,8 @@ public class GUIBackendTest {
         // Then
         List<UGSEvent> events = eventArgumentCaptor.getAllValues();
         assertEquals(4, events.size());
-        assertEquals(FileState.OPENING_FILE, ((FileStateEvent)events.get(0)).getFileState());
-        assertEquals(FileState.FILE_LOADING, ((FileStateEvent)events.get(1)).getFileState());
+        assertEquals(FileState.OPENING_FILE, ((FileStateEvent) events.get(0)).getFileState());
+        assertEquals(FileState.FILE_LOADING, ((FileStateEvent) events.get(1)).getFileState());
         assertEquals(SettingChangedEvent.class, events.get(2).getClass());
         assertEquals(FileState.FILE_LOADED, ((FileStateEvent) events.get(3)).getFileState());
 
@@ -505,8 +521,7 @@ public class GUIBackendTest {
     public void setWorkPositionWithValueExpressionShouldSetPosition() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
-        instance.statusStringListener(status);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE, new Position(11, 11, 11, UnitUtils.Units.MM)));
 
         // When
         instance.setWorkPositionUsingExpression(Axis.X, "10.1");
@@ -519,8 +534,7 @@ public class GUIBackendTest {
     public void setWorkPositionWithExpressionShouldSetPosition() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
-        instance.statusStringListener(status);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE, new Position(11, 11, 11, UnitUtils.Units.MM)));
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Y, "10.1 * 10");
@@ -533,8 +547,7 @@ public class GUIBackendTest {
     public void setWorkPositionWithExpressionShouldSetNegativePosition() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
-        instance.statusStringListener(status);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE, new Position(11, 11, 11, UnitUtils.Units.MM)));
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Y, "-10.1");
@@ -547,8 +560,7 @@ public class GUIBackendTest {
     public void setWorkPositionWithAdditionExpression() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
-        instance.statusStringListener(status);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE, new Position(11, 11, 11, UnitUtils.Units.MM)));
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Y, "# + 10");
@@ -561,8 +573,7 @@ public class GUIBackendTest {
     public void setWorkPositionWithMultiplicationExpression() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
-        instance.statusStringListener(status);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE, new Position(11, 11, 11, UnitUtils.Units.MM)));
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Z, "# * 10");
@@ -575,8 +586,7 @@ public class GUIBackendTest {
     public void setWorkPositionWithMultiplicationExpressionWithoutValue() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
-        instance.statusStringListener(status);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE, new Position(11, 11, 11, UnitUtils.Units.MM)));
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Z, "* 10");
@@ -589,8 +599,7 @@ public class GUIBackendTest {
     public void setWorkPositionWithDivisionExpression() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
-        instance.statusStringListener(status);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE, new Position(11, 11, 11, UnitUtils.Units.MM)));
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Z, "# / 10");
@@ -603,8 +612,7 @@ public class GUIBackendTest {
     public void setWorkPositionWithDivisionExpressionhouldConvertHashToWorkPositionUnits() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(10, 10,10, UnitUtils.Units.INCH));
-        instance.statusStringListener(status);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE, new Position(10, 10, 10, UnitUtils.Units.INCH)));
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Z, "# / 10");
@@ -617,8 +625,7 @@ public class GUIBackendTest {
     public void setWorkPositionWithDivisionExpressionWithoutValue() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
-        instance.statusStringListener(status);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE, new Position(11, 11, 11, UnitUtils.Units.MM)));
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Z, "/ 10");
@@ -631,8 +638,7 @@ public class GUIBackendTest {
     public void setWorkPositionWithDivisionExpressionShouldConvertToWorkPositionUnits() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.INCH), new Position(10, 10,10, UnitUtils.Units.INCH));
-        instance.statusStringListener(status);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE, new Position(10, 10, 10, UnitUtils.Units.INCH)));
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Z, "/ 10");
@@ -641,13 +647,11 @@ public class GUIBackendTest {
         verify(controller, times(1)).setWorkPosition(PartialPosition.from(Axis.Z, 25.4, UnitUtils.Units.MM));
     }
 
-
     @Test
     public void setWorkPositionWithSubtractionExpression() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
-        instance.statusStringListener(status);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE, new Position(11, 11, 11, UnitUtils.Units.MM)));
 
         // When
         instance.setWorkPositionUsingExpression(Axis.X, "# - 10");
@@ -660,13 +664,20 @@ public class GUIBackendTest {
     public void setWorkPositionMultipleAxes() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
-        ControllerStatus status = new ControllerStatus(ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
-        instance.statusStringListener(status);
+        when(controller.getControllerStatus()).thenReturn(createControllerStatus(ControllerState.IDLE, new Position(11, 11, 11, UnitUtils.Units.MM)));
 
         // When
-        instance.setWorkPosition(new PartialPosition(25.0,99.0, UnitUtils.Units.MM));
+        instance.setWorkPosition(new PartialPosition(25.0, 99.0, UnitUtils.Units.MM));
 
         // Then
-        verify(controller, times(1)).setWorkPosition(new PartialPosition(25.0,99.0, UnitUtils.Units.MM));
+        verify(controller, times(1)).setWorkPosition(new PartialPosition(25.0, 99.0, UnitUtils.Units.MM));
+    }
+
+    private ControllerStatus createControllerStatus(ControllerState state) {
+        return new ControllerStatus(state, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+    }
+
+    private ControllerStatus createControllerStatus(ControllerState state, Position machinePosition) {
+        return new ControllerStatus(state, new Position(0, 0, 0, UnitUtils.Units.MM), machinePosition);
     }
 }

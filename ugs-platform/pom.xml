@@ -157,5 +157,6 @@
     <module>ugs-platform-plugin-toolbox</module>
     <module>ugs-platform-plugin-dro</module>
     <module>ugs-platform-plugin-filebrowser</module>
+    <module>ugs-platform-plugin-console</module>
   </modules>
 </project>
