@@ -57,7 +57,7 @@ public class LocalizingService {
 
     public final static String SerialConsoleTitle = Localization.getString("platform.window.serialconsole", lang);
     public final static String SerialConsoleTooltip = Localization.getString("platform.window.serialconsole.tooltip", lang);
-    public final static String SerialConsoleWindowPath = MENU_WINDOW;
+    public final static String SerialConsoleWindowPath = MENU_WINDOW_CLASSIC;
     public final static String SerialConsoleActionId = "com.willwinder.universalgcodesender.nbp.console.SerialConsoleTopComponent";
     public final static String SerialConsoleCategory = CATEGORY_WINDOW;
 

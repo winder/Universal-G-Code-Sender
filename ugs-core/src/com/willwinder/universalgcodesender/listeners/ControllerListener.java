@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2018 Will Winder
+    Copyright 2013-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,10 +28,31 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
  * @author wwinder
  */
 public interface ControllerListener {
+
+    /**
+     * An event triggered when a stream is stopped
+     */
+    void streamCanceled();
+
+    /**
+     * An event triggered when a stream is started
+     */
+    void streamStarted();
+
+    /**
+     * An event triggered when a started stream is paused
+     */
+    void streamPaused();
+
+    /**
+     * An event triggered when a paused stream is resumed
+     */
+    void streamResumed();
+
     /**
      * The file streaming has completed.
      */
-    void fileStreamComplete(String filename);
+    void streamComplete(String filename);
 
     /**
      * If an alarm is received from the controller

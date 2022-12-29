@@ -88,10 +88,10 @@
         </folder>
         <folder name="Window">
             <folder name="Classic">
-                <attr name="position" intvalue="20001"/>
+                <attr name="position" intvalue="90001"/>
             </folder>
             <folder name="Plugins">
-                <attr name="position" intvalue="20002"/>
+                <attr name="position" intvalue="90002"/>
             </folder>
             <file name="org-netbeans-core-windows-actions-ToggleFullScreenAction.instance"/>
             <file name="Web_hidden"/>
@@ -105,6 +105,8 @@
             <file name="CloseWindowAction.shadow_hidden"/>
             <file name="DocumentsAction.shadow_hidden"/>
             <file name="GroupsMenuAction.shadow_hidden"/>
+            <file name="org-netbeans-modules-navigator-ShowNavigatorAction.shadow_hidden"/>
+            <file name="org-netbeans-core-io-ui-IOWindowAction.shadow_hidden"/>
         </folder>
         <folder name="Help">
             <file name="org-netbeans-modules-autoupdate-ui-actions-CheckForUpdatesAction.shadow_hidden"/>

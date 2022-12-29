@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2018 Will Winder
+    Copyright 2015-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -35,7 +35,7 @@ import org.openide.windows.TopComponent;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "output", openAtStartup = true)
+@TopComponent.Registration(mode = "output", openAtStartup = false)
 @ActionID(category = LocalizingService.SerialConsoleCategory, id = LocalizingService.SerialConsoleActionId)
 @ActionReference(path = LocalizingService.SerialConsoleWindowPath)
 @TopComponent.OpenActionRegistration(
