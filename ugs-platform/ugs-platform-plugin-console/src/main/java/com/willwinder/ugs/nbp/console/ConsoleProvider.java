@@ -25,6 +25,7 @@ import org.openide.windows.IOContainer;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 import javax.swing.text.JTextComponent;
 
 /**
@@ -97,8 +98,9 @@ public class ConsoleProvider implements IOContainer.Provider {
     }
 
     public JTextComponent getTextComponent() {
-        AbstractOutputTab outputTab = (AbstractOutputTab) getSelected();
-        AbstractOutputPane outputPane = outputTab.getOutputPane();
-        return outputPane.getTextView();
+        // A workaround to get the output pane text component
+        JComponent outputTab = getSelected();
+        JScrollPane outputPane = (JScrollPane) outputTab.getComponent(0);
+        return (JTextComponent) outputPane.getViewport().getComponent(0);
     }
 }
