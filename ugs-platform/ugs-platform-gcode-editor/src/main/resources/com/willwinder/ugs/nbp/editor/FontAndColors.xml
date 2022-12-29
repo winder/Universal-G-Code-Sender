@@ -18,4 +18,7 @@
 
     <!-- GCode that is inactive, for instance if lines should be skipped -->
     <fontcolor name="INACTIVE" default="comment"/>
+
+    <!-- GCode that has been executed -->
+    <fontcolor name="EXECUTED" default="comment"/>
 </fontscolors>
