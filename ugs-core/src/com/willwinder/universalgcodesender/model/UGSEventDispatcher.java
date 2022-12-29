@@ -38,9 +38,8 @@ import com.willwinder.universalgcodesender.model.events.StreamEventType;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.SettingChangeListener;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,7 +52,7 @@ import java.util.logging.Logger;
 public class UGSEventDispatcher implements ControllerListener, IFirmwareSettingsListener, SettingChangeListener {
     private static final Logger LOGGER = Logger.getLogger(UGSEventDispatcher.class.getSimpleName());
 
-    private final List<UGSEventListener> listeners = Collections.synchronizedList(new ArrayList<>());
+    private final List<UGSEventListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
      * A cached instance of the controller status for preventing duplicate status events to be dispatched
