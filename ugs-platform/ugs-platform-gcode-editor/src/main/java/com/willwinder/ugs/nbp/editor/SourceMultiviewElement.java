@@ -18,6 +18,7 @@
 */
 package com.willwinder.ugs.nbp.editor;
 
+import com.willwinder.ugs.nbp.editor.highlight.GcodeHighlightsLayerFactory;
 import com.willwinder.ugs.nbp.editor.renderer.EditorListener;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -32,8 +33,10 @@ import org.netbeans.editor.Utilities;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Box;
+import javax.swing.JToolBar;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -48,11 +51,11 @@ import java.util.logging.Logger;
 public class SourceMultiviewElement extends MultiViewEditorElement implements UGSEventListener {
     private static final long serialVersionUID = 7255236202190135442L;
     private static final EditorListener editorListener = new EditorListener();
+    private static final Component TOOLBAR_PADDING = Box.createRigidArea(new Dimension(1, 30));
+    private static final Logger LOGGER = Logger.getLogger(SourceMultiviewElement.class.getName());
     private final GcodeDataObject obj;
     private final GcodeFileListener fileListener;
     private final transient BackendAPI backend;
-    private static final Component TOOLBAR_PADDING = Box.createRigidArea(new Dimension(1, 30));
-    private static final Logger LOGGER = Logger.getLogger(SourceMultiviewElement.class.getName());
 
     public SourceMultiviewElement(Lookup lookup) {
         super(lookup);
@@ -95,6 +98,7 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
         obj.getPrimaryFile().removeFileChangeListener(fileListener);
         if (getEditorPane() != null) {
             getEditorPane().removeCaretListener(editorListener);
+            GcodeHighlightsLayerFactory.release(getEditorPane().getDocument());
         }
         editorListener.reset();
         super.componentClosed();
@@ -107,12 +111,12 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
 
     @Override
     public void UGSEvent(UGSEvent ugsEvent) {
-        // Disable the editor if not idle or disconnected
-        if (ugsEvent instanceof ControllerStateEvent) {
+         if (ugsEvent instanceof ControllerStateEvent) {
+            // Disable the editor if not idle or disconnected
             ControllerState state = backend.getControllerState();
             try {
                 getEditorPane().setEditable(state == ControllerState.IDLE || state == ControllerState.DISCONNECTED);
-            } catch(AssertionError e) {
+            } catch (AssertionError e) {
                 LOGGER.warning(String.format("AssertionError(%s) in getEditorPane().setEditable " +
                         "- verify that you use required JVM version." +
                         " Application can exhibit misbehaviour.", e.getMessage()));
