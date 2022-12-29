@@ -277,11 +277,11 @@ public class GcodePreprocessorUtils {
             }
             if (!Double.isNaN(end.y)) {
                 sb.append("Y");
-                sb.append(df.format(end.y-start.x));
+                sb.append(df.format(end.y-start.y));
             }
             if (!Double.isNaN(end.z)) {
                 sb.append("Z");
-                sb.append(df.format(end.z-start.x));
+                sb.append(df.format(end.z-start.z));
             }
         }
         

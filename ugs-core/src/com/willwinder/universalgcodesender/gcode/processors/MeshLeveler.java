@@ -42,8 +42,6 @@ public class MeshLeveler implements CommandProcessor {
     final private int xLen, yLen;
     final private double resolution;
 
-    // Used during processing.
-    private double lastZHeight;
     private Units unit;
 
     public final static String ERROR_MESH_SHAPE= "Surface mesh must be a rectangular 2D array.";
@@ -54,10 +52,10 @@ public class MeshLeveler implements CommandProcessor {
     public final static String ERROR_X_ASCENTION = "Found a x coordinate that isn't ascending.";
 
     public final static String ERROR_UNEXPECTED_ARC = "The mesh leveler cannot process arcs. Enable the arc expander.";
-    public final static String ERROR_MISSING_POINT_DATA = "Internal parser error: missing data.";
+    public final static String ERROR_MISSING_POINT_DATA = "Internal parser error: missing data. ";
 
     /**
-     * @param materialSurfaceHeight Z height used in offset.
+     * @param materialSurfaceHeightMM Z height used in offset.
      * @param surfaceMesh 2D array in the format Position[x][y]
      */
     public MeshLeveler(double materialSurfaceHeightMM, Position[][] surfaceMesh, Units unit) {
@@ -155,30 +153,36 @@ public class MeshLeveler implements CommandProcessor {
 
         GcodeMeta command = commands.get(0);
 
-        if (command == null || command.point == null) {
-            throw new GcodeParserException(ERROR_MISSING_POINT_DATA);
+        if (command == null) {
+            throw new GcodeParserException(ERROR_MISSING_POINT_DATA + commandString);
+        }
+        if (command.point == null) {
+            return Collections.singletonList(commandString);
         }
 
         Position start = state.currentPoint;
         Position end = command.point.point();
 
-        if (start.z != end.z) {
-            this.lastZHeight = end.z;
-        }
-
         // Get offset relative to the expected surface height.
         // Visualizer normalizes everything to MM but probe mesh might be INCH
         double probeScaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, this.unit);
         double zScaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, state.isMetric ? Units.MM : Units.INCH);
-        double zPointOffset =
-                surfaceHeightAt(end.x / zScaleFactor, end.y / zScaleFactor) -
-                (this.materialSurfaceHeight / probeScaleFactor);
+
+        double zPointOffset;
+        if (state.inAbsoluteMode) {
+            zPointOffset = surfaceHeightAt(end.x, end.y, zScaleFactor) - (this.materialSurfaceHeight / probeScaleFactor);
+        } else {
+            // TODO: If the first move in the gcode file is relative it won't properly take the materialSurfaceHeight
+            // into account. To fix the CommandProcessor needs to inject an adjustment before that first relative move
+            // happens. Until that happens the user must make sure the materialSurfaceHeight is zero.
+
+            // In relative mode we only need to adjust by the z delta between the starting and ending point
+            zPointOffset = surfaceHeightAt(end.x, end.y, zScaleFactor) - surfaceHeightAt(start.x, start.y, zScaleFactor);
+        }
         zPointOffset *= zScaleFactor;
 
-
         // Update z coordinate.
-        end.z = this.lastZHeight + zPointOffset;
-        //end.z /= resultScaleFactor;
+        end.z += zPointOffset;
 
         String adjustedCommand = GcodePreprocessorUtils.generateLineFromPoints(
                 command.code, start, end, command.state.inAbsoluteMode, null);
@@ -214,7 +218,9 @@ public class MeshLeveler implements CommandProcessor {
      * Bilinear interpolation:
      * http://supercomputingblog.com/graphics/coding-bilinear-interpolation/
      */
-    protected double surfaceHeightAt(double x, double y) throws GcodeParserException {
+    protected double surfaceHeightAt(double unscaledX, double unscaledY, double zScaleFactor) throws GcodeParserException {
+        double x = unscaledX / zScaleFactor;
+        double y = unscaledY / zScaleFactor;
         Position[][] q = findBoundingArea(x, y);
 
         Position Q11 = q[0][0];

@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.platform.surfacescanner;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -25,9 +26,8 @@ import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
-import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
-import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -93,6 +93,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     public final static String AutoLevelerActionId = "com.willwinder.ugs.platform.surfacescanner.AutoLevelerTopComponent";
     public final static String AutoLevelerCategory = LocalizingService.CATEGORY_WINDOW;
 
+    private ImmutableList<CommandProcessor> activeCommandProcessors = ImmutableList.of();
+
     @OnStart
     public static class Localizer extends TopComponentLocalizer {
       public Localizer() {
@@ -119,6 +121,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         yMax.addChangeListener(cl);
         zMin.addChangeListener(cl);
         zMax.addChangeListener(cl);
+        zSurface.addChangeListener(cl);
         unitInch.addItemListener(this);
         unitMM.addItemListener(this);
 
@@ -163,8 +166,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     public void UGSEvent(UGSEvent evt) {
         if (evt instanceof ProbeEvent) {
             if (!scanner.isCollectedAllProbe()) return;
-            
-            Position probe = ((ProbeEvent)evt).getProbePosition();
+
+            Position probe = ((ProbeEvent) evt).getProbePosition();
             Position offset = this.settings.getAutoLevelSettings().autoLevelProbeOffset;
 
             if (probe.getUnits() == Units.UNKNOWN || offset.getUnits() == Units.UNKNOWN) {
@@ -178,13 +181,9 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
                     probe.y + offset.y,
                     probe.z + offset.z,
                     probe.getUnits()));
-        }
-
-        else if(evt instanceof SettingChangedEvent) {
+        } else if (evt instanceof SettingChangedEvent) {
             updateSettings();
-        }
-        
-        else if(evt instanceof FileStateEvent){
+        } else if (evt instanceof FileStateEvent) {
             applyToGcode.setEnabled(true);
         }
     }
@@ -193,7 +192,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         Object o = spinner.getValue();
         try {
             return Double.parseDouble(o.toString());
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
         return 0.0f;
     }
@@ -225,7 +224,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
     /**
      * JRadioButton's have strange state changes, so using item change.
-     * @param e 
+     *
+     * @param e
      */
     @Override
     public void itemStateChanged(ItemEvent e) {
@@ -563,12 +563,12 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
         try {
             scanner.enableCollectProbe(backend.getWorkPosition(), backend.getMachinePosition());
-            
+
             AutoLevelSettings als = settings.getAutoLevelSettings();
             for (Position p : scanner.getProbeStartPositions()) {
-                backend.sendGcodeCommand(true, String.format("G90 G2%d G0 X%f Y%f Z%f",(p.getUnits() == Units.MM)? 1:0, p.x, p.y, p.z));
+                backend.sendGcodeCommand(true, String.format("G90 G2%d G0 X%f Y%f Z%f", (p.getUnits() == Units.MM) ? 1 : 0, p.x, p.y, p.z));
                 backend.probe("Z", als.probeSpeed, this.scanner.getProbeDistance(), u);
-                backend.sendGcodeCommand(true, String.format("G90 G2%d G0 Z%f",(p.getUnits() == Units.MM)? 1:0, p.z));
+                backend.sendGcodeCommand(true, String.format("G90 G2%d G0 Z%f", (p.getUnits() == Units.MM) ? 1 : 0, p.z));
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
@@ -576,7 +576,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     }//GEN-LAST:event_scanSurfaceButtonActionPerformed
 
     private void dataViewerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dataViewerActionPerformed
-        List<Map<String,Double>> probeData = new ArrayList<>();
+        List<Map<String, Double>> probeData = new ArrayList<>();
 
         // Collect data from grid.
         if (scanner != null && scanner.getProbePositionGrid() != null) {
@@ -599,26 +599,32 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     }//GEN-LAST:event_dataViewerActionPerformed
 
     private void applyToGcodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applyToGcodeActionPerformed
-        GcodeParser gcp = new GcodeParser();
         Settings.AutoLevelSettings autoLevelSettings = this.settings.getAutoLevelSettings();
 
-        // Step 0: Get rid of comments.
-        gcp.addCommandProcessor(new  CommentProcessor());
-
-        // Step 1: The arc processor and line processors NO LONGER need to be split!
-
-        // Step 2: Must convert arcs to line segments.
-        gcp.addCommandProcessor(new ArcExpander(true, autoLevelSettings.autoLevelArcSliceLength));
-
-        // Step 3: Line splitter. No line should be longer than some fraction of "resolution"
-        gcp.addCommandProcessor(new LineSplitter(getValue(stepResolution)/10));
-
-        // Step 4: Adjust Z heights codes based on mesh offsets.
-        gcp.addCommandProcessor(new MeshLeveler(getValue(this.zSurface), scanner.getProbePositionGrid(), scanner.getUnits()));
-
+        ImmutableList.Builder<CommandProcessor> commandProcessors = ImmutableList.builder();
         try {
-            backend.applyGcodeParser(gcp);
-            applyToGcode.setEnabled(false);
+            for(CommandProcessor p : activeCommandProcessors) {
+                backend.removeCommandProcessor(p);
+            }
+
+            // Step 1: Convert arcs to line segments.
+            commandProcessors.add(new ArcExpander(true, autoLevelSettings.autoLevelArcSliceLength));
+
+            // Step 2: Line splitter. No line should be longer than some fraction of "resolution"
+            commandProcessors.add(new LineSplitter(getValue(stepResolution) / 10));
+
+            // Step 3: Adjust Z heights codes based on mesh offsets.
+            commandProcessors.add(
+                    new MeshLeveler(getValue(this.zSurface),
+                    scanner.getProbePositionGrid(),
+                    scanner.getUnits()));
+
+            activeCommandProcessors = commandProcessors.build();
+            for(CommandProcessor p : activeCommandProcessors) {
+                backend.applyCommandProcessor(p);
+            }
+            GUIHelpers.displayHelpDialog(
+                    "The autoleveler feature is under development and may not work properly, use at your own risk.");
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getMessage());
             Exceptions.printStackTrace(ex);
@@ -650,11 +656,11 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     }//GEN-LAST:event_useLoadedFileActionPerformed
 
     private void generateTestDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateTestDataButtonActionPerformed
-        if(scanner.getProbeStartPositions() == null)
+        if (scanner.getProbeStartPositions() == null)
             return;
 
         scanner.enableTestProbe();
-        
+
         // Generate some random test data.
         Random random = new Random();
 
@@ -702,7 +708,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
     @Override
     public void componentOpened() {
-        GUIHelpers.displayHelpDialog("The autoleveler feature currently doesn't work properly, close the autoleveler window to disable this message in the future.");
         scanner = new SurfaceScanner();
         if (r == null) {
             r = new AutoLevelPreview(Localization.getString("platform.visualizer.renderable.autolevel-preview"));
@@ -718,10 +723,10 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     }
 
     public void writeProperties(java.util.Properties p) {
-      // No properties
+        // No properties
     }
 
     public void readProperties(java.util.Properties p) {
-      // No properties
+        // No properties
     }
 }

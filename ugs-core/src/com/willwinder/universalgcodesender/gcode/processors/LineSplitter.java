@@ -84,8 +84,12 @@ public class LineSplitter implements CommandProcessor {
 
         GcodeMeta command = Iterables.getLast(commands);
 
-        if (command == null || command.point == null) {
-            throw new GcodeParserException("Internal parser error: missing data.");
+        if (command == null) {
+            throw new GcodeParserException("Internal parser error: missing data. " + commandString);
+        }
+        if (command.point == null) {
+            // No point data associated with this command (Maybe just setting feed rate), leave it as-is
+            return Collections.singletonList(commandString);
         }
 
         // line length
