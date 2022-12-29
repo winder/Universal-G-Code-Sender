@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.console;
 
+import com.willwinder.universalgcodesender.utils.CommandHistory;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.text.BadLocationException;

@@ -22,14 +22,13 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.utils.CommandHistory;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 
@@ -38,9 +37,8 @@ import org.apache.commons.lang3.StringUtils;
  * @author wwinder
  */
 public class CommandTextArea extends JTextField implements KeyEventDispatcher, UGSEventListener {
-    private BackendAPI backend;
-    private List<String> commandHistory = new ArrayList<>();
-    private int commandNum = -1;
+    private transient BackendAPI backend;
+    private final CommandHistory commandHistory = new CommandHistory();
 
     // This is needed for unit testing.
     protected boolean focusNotNeeded = false;
@@ -66,7 +64,7 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
             this.setEnabled(backend.isConnected());
         }
 
-        this.addActionListener((ActionEvent evt) -> action(evt));
+        addActionListener(this::action);
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
             .addKeyEventDispatcher(this);
     }
@@ -102,8 +100,7 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
             });
 
             setText("");
-            this.commandHistory.add(str);
-            this.commandNum = -1;
+            commandHistory.add(str);
         }
     }
     
@@ -122,35 +119,14 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
     @Override
     public boolean dispatchKeyEvent(KeyEvent e) {
         if (e.getID() == KeyEvent.KEY_PRESSED
-                && commandHistory.size() > 0
                 && (this.hasFocus() || focusNotNeeded)
                 && isArrowKey(e)) {
-            boolean pressed = false;
-            
+
             if (e.getKeyCode() == KeyEvent.VK_UP) {
-                pressed = true;
-                commandNum++;
+                setText(commandHistory.previous());
             }
             else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                pressed = true;
-                commandNum--;
-            }
-
-            if (pressed) {
-                if (commandNum < 0) {
-                    commandNum = -1;
-                    setText("");
-                    java.awt.Toolkit.getDefaultToolkit().beep();
-                    return true;
-                } else if (commandNum > (commandHistory.size()-1)) {
-                    commandNum = commandHistory.size()-1;
-                    java.awt.Toolkit.getDefaultToolkit().beep();
-                }
-
-                // Get index from end.
-                int index = commandHistory.size() - 1 - commandNum;
-                String text = this.commandHistory.get(index);
-                setText(text);
+                setText(commandHistory.next());
             }
 
             return true;

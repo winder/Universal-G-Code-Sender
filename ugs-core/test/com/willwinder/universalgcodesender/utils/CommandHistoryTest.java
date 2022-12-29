@@ -1,4 +1,4 @@
-package com.willwinder.ugs.nbp.console;
+package com.willwinder.universalgcodesender.utils;
 
 import org.junit.Test;
 
