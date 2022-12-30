@@ -24,8 +24,7 @@ public class CommunicatorEventDispatcherTest {
         ICommunicatorListener listener = mock(ICommunicatorListener.class);
         eventDispatcher.addListener(listener);
 
-        CommunicatorEvent event = new CommunicatorEvent(CommunicatorEventType.PAUSED, null, null);
-        eventDispatcher.dispatch(event);
+        eventDispatcher.communicatorPausedOnError();
 
         verify(listener, times(1)).communicatorPausedOnError();
         verifyNoMoreInteractions(listener);
@@ -36,8 +35,7 @@ public class CommunicatorEventDispatcherTest {
         ICommunicatorListener listener = mock(ICommunicatorListener.class);
         eventDispatcher.addListener(listener);
 
-        CommunicatorEvent event = new CommunicatorEvent(CommunicatorEventType.COMMAND_SENT, null, null);
-        eventDispatcher.dispatch(event);
+        eventDispatcher.commandSent(null);
 
         verify(listener, times(1)).commandSent(any());
         verifyNoMoreInteractions(listener);
@@ -48,8 +46,7 @@ public class CommunicatorEventDispatcherTest {
         ICommunicatorListener listener = mock(ICommunicatorListener.class);
         eventDispatcher.addListener(listener);
 
-        CommunicatorEvent event = new CommunicatorEvent(CommunicatorEventType.COMMAND_SKIPPED, null, null);
-        eventDispatcher.dispatch(event);
+        eventDispatcher.commandSkipped(null);
 
         verify(listener, times(1)).commandSkipped(any());
         verifyNoMoreInteractions(listener);
@@ -61,8 +58,7 @@ public class CommunicatorEventDispatcherTest {
         eventDispatcher.addListener(listener);
         eventDispatcher.removeListener(listener);
 
-        CommunicatorEvent event = new CommunicatorEvent(CommunicatorEventType.COMMAND_SKIPPED, null, null);
-        eventDispatcher.dispatch(event);
+        eventDispatcher.commandSkipped(null);
 
         verifyNoMoreInteractions(listener);
     }

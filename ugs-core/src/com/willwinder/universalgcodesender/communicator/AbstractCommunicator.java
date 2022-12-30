@@ -19,20 +19,14 @@
 package com.willwinder.universalgcodesender.communicator;
 
 import com.willwinder.universalgcodesender.communicator.event.AsyncCommunicatorEventDispatcher;
-import com.willwinder.universalgcodesender.communicator.event.CommunicatorEvent;
 import com.willwinder.universalgcodesender.communicator.event.ICommunicatorEventDispatcher;
-import com.willwinder.universalgcodesender.communicator.event.CommunicatorEventType;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import java.io.IOException;
 import java.util.logging.Logger;
-
-import static com.willwinder.universalgcodesender.communicator.event.CommunicatorEventType.COMMAND_SENT;
-import static com.willwinder.universalgcodesender.communicator.event.CommunicatorEventType.COMMAND_SKIPPED;
 
 /**
  * An Abstract communicator interface which implements listeners.
@@ -52,6 +46,10 @@ public abstract class AbstractCommunicator implements ICommunicator {
 
     protected AbstractCommunicator(ICommunicatorEventDispatcher eventDispatcher) {
         this.eventDispatcher = eventDispatcher;
+    }
+
+    protected ICommunicatorEventDispatcher getEventDispatcher() {
+        return eventDispatcher;
     }
 
     /*********************/
@@ -85,11 +83,9 @@ public abstract class AbstractCommunicator implements ICommunicator {
             throw new Exception(Localization.getString("communicator.exception.port") + ": " + name);
         }
 
-        eventDispatcher.start();
-
         //open it
         if (!connection.openPort()) {
-           throw new Exception("Could not connect to controller on port " + url);
+            throw new Exception("Could not connect to controller on port " + url);
         }
     }
 
@@ -102,7 +98,7 @@ public abstract class AbstractCommunicator implements ICommunicator {
     //do common things (related to the connection, that is shared by all communicators)
     @Override
     public void disconnect() throws Exception {
-        eventDispatcher.stop();
+        eventDispatcher.reset();
         connection.closePort();
     }
 
@@ -116,30 +112,6 @@ public abstract class AbstractCommunicator implements ICommunicator {
     @Override
     public void addListener(ICommunicatorListener scl) {
         eventDispatcher.addListener(scl);
-    }
-
-    /**
-     * A bunch of methods to dispatch listener events with various arguments.
-     */
-    protected void dispatchListenerEvents(final CommunicatorEventType event, final String message) {
-        dispatchListenerEvents(event, message, null);
-    }
-
-    protected void dispatchListenerEvents(final CommunicatorEventType event, final GcodeCommand command) {
-        dispatchListenerEvents(event, null, command);
-    }
-
-    private void dispatchListenerEvents(final CommunicatorEventType event,
-                                        final String string, final GcodeCommand command) {
-        if (event == COMMAND_SENT || event == COMMAND_SKIPPED) {
-            if (command == null) {
-                throw new IllegalArgumentException("Dispatching a COMMAND_SENT event requires a GcodeCommand object.");
-            }
-        } else if (string == null) {
-            throw new IllegalArgumentException("Dispatching a " + event + " event requires a String object.");
-        }
-
-        eventDispatcher.dispatch(new CommunicatorEvent(event, string, command));
     }
 
     @Override

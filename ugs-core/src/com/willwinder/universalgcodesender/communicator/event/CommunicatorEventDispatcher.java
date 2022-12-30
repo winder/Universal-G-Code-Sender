@@ -41,16 +41,6 @@ public class CommunicatorEventDispatcher implements ICommunicatorEventDispatcher
     protected final Set<ICommunicatorListener> communicatorListeners = new HashSet<>();
 
     @Override
-    public void start() {
-        // Not implemented
-    }
-
-    @Override
-    public void stop() {
-        // Not implemented
-    }
-
-    @Override
     public void removeListener(ICommunicatorListener listener) {
         communicatorListeners.remove(listener);
     }
@@ -61,33 +51,27 @@ public class CommunicatorEventDispatcher implements ICommunicatorEventDispatcher
     }
 
     @Override
-    public void dispatch(CommunicatorEvent event) {
-        sendEvent(event.event, event.string, event.command);
-    }
-
-    protected final void sendEvent(CommunicatorEventType event, String string, GcodeCommand command) {
-        switch (event) {
-            case COMMAND_SENT:
-                for (ICommunicatorListener scl : communicatorListeners)
-                    scl.commandSent(command);
-                break;
-            case COMMAND_SKIPPED:
-                for (ICommunicatorListener scl : communicatorListeners)
-                    scl.commandSkipped(command);
-                break;
-            case RAW_RESPONSE:
-                for (ICommunicatorListener scl : communicatorListeners)
-                    scl.rawResponseListener(string);
-                break;
-            case PAUSED:
-                communicatorListeners.forEach(ICommunicatorListener::communicatorPausedOnError);
-                break;
-            default:
-        }
+    public void reset() {
+        // Not implemented
     }
 
     @Override
-    public void reset() {
-        // Not implemented
+    public void rawResponseListener(String response) {
+        communicatorListeners.forEach(l -> l.rawResponseListener(response));
+    }
+
+    @Override
+    public void commandSent(GcodeCommand command) {
+        communicatorListeners.forEach(l -> l.commandSent(command));
+    }
+
+    @Override
+    public void commandSkipped(GcodeCommand command) {
+        communicatorListeners.forEach(l -> l.commandSkipped(command));
+    }
+
+    @Override
+    public void communicatorPausedOnError() {
+        communicatorListeners.forEach(ICommunicatorListener::communicatorPausedOnError);
     }
 }

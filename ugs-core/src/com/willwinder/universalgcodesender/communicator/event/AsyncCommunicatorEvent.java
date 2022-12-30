@@ -25,17 +25,17 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
  *
  * @author winder
  */
-public class CommunicatorEvent {
-    public final CommunicatorEventType event;
+public class AsyncCommunicatorEvent {
+    public final AsyncCommunicatorEventType event;
     public final GcodeCommand command;
-    public final String string;
+    public final String response;
 
-    public CommunicatorEvent(
-            CommunicatorEventType event,
-            String string,
+    public AsyncCommunicatorEvent(
+            AsyncCommunicatorEventType event,
+            String response,
             GcodeCommand command) {
         this.event = event;
         this.command = command;
-        this.string = string;
+        this.response = response;
     }
 }

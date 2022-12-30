@@ -23,9 +23,10 @@ package com.willwinder.universalgcodesender.communicator.event;
  *
  * @author winder
  */
-public enum CommunicatorEventType {
+public enum AsyncCommunicatorEventType {
     COMMAND_SENT,
     COMMAND_SKIPPED,
+    COMMAND_DONE,
     RAW_RESPONSE,
     PAUSED
 }

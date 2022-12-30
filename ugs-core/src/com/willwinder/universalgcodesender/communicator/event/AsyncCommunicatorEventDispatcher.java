@@ -18,13 +18,16 @@
  */
 package com.willwinder.universalgcodesender.communicator.event;
 
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * An asynchronous communicator event dispatcher that will dispatch events
- * from the communicator to all listeners.
+ * A communicator event dispatcher that will dispatch events asynchronously
+ * to all listeners in its own thread as soon as an event is queued.
  * <p>
  * If commands complete very fast, like several comments in a row being
  * skipped, then multiple event handlers could process them out of order. To
@@ -40,28 +43,23 @@ import java.util.logging.Logger;
 public class AsyncCommunicatorEventDispatcher extends CommunicatorEventDispatcher implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(AsyncCommunicatorEventDispatcher.class.getSimpleName());
 
-    private final LinkedBlockingDeque<CommunicatorEvent> eventQueue = new LinkedBlockingDeque<>();
-    private final Thread eventThread = new Thread(this);
-    private boolean stop = false;
+    private final LinkedBlockingDeque<AsyncCommunicatorEvent> eventQueue = new LinkedBlockingDeque<>();
+    private Thread eventThread;
 
-    @Override
-    public void start() {
-        eventThread.start();
-    }
-
-    @Override
-    public void stop() {
-        stop = true;
-        eventThread.interrupt();
-    }
-
-    @Override
-    public void dispatch(CommunicatorEvent event) {
-        this.eventQueue.add(event);
+    private void start() {
+        if (isStopped()) {
+            eventThread = Executors.defaultThreadFactory().newThread(this);
+            eventThread.setName(AsyncCommunicatorEventDispatcher.class.getSimpleName());
+            eventThread.start();
+        }
     }
 
     @Override
     public void reset() {
+        if (eventThread != null) {
+            eventThread.interrupt();
+            eventThread = null;
+        }
         eventQueue.clear();
     }
 
@@ -71,20 +69,63 @@ public class AsyncCommunicatorEventDispatcher extends CommunicatorEventDispatche
 
     @Override
     public void run() {
-        while (!stop) {
+        boolean isRunning = true;
+        while (isRunning) {
             try {
-                CommunicatorEvent e = eventQueue.take();
-                sendEvent(e.event, e.string, e.command);
+                AsyncCommunicatorEvent e = eventQueue.take();
+                dispatchEvent(e.event, e.response, e.command);
             } catch (InterruptedException ignored) {
-                stop = true;
+                isRunning = false;
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Couldn't send event", e);
-                stop = true;
+                LOGGER.log(Level.WARNING, "Could not send event", e);
+                isRunning = false;
             }
         }
     }
 
     public boolean isStopped() {
-        return stop;
+        return eventThread == null || !eventThread.isAlive();
+    }
+
+    @Override
+    public void rawResponseListener(String response) {
+        eventQueue.add(new AsyncCommunicatorEvent(AsyncCommunicatorEventType.RAW_RESPONSE, response, null));
+        start();
+    }
+
+    @Override
+    public void commandSent(GcodeCommand command) {
+        eventQueue.add(new AsyncCommunicatorEvent(AsyncCommunicatorEventType.COMMAND_SENT, null, command));
+        start();
+    }
+
+    @Override
+    public void commandSkipped(GcodeCommand command) {
+        eventQueue.add(new AsyncCommunicatorEvent(AsyncCommunicatorEventType.COMMAND_SKIPPED, null, command));
+        start();
+    }
+
+    @Override
+    public void communicatorPausedOnError() {
+        eventQueue.add(new AsyncCommunicatorEvent(AsyncCommunicatorEventType.PAUSED, null, null));
+        start();
+    }
+
+    private void dispatchEvent(AsyncCommunicatorEventType event, String response, GcodeCommand command) {
+        switch (event) {
+            case COMMAND_SENT:
+                super.commandSent(command);
+                break;
+            case COMMAND_SKIPPED:
+                super.commandSkipped(command);
+                break;
+            case RAW_RESPONSE:
+                super.rawResponseListener(response);
+                break;
+            case PAUSED:
+                super.communicatorPausedOnError();
+                break;
+            default:
+        }
     }
 }

@@ -19,10 +19,7 @@
 
 package com.willwinder.universalgcodesender.communicator;
 
-import static com.willwinder.universalgcodesender.communicator.event.CommunicatorEventType.*;
-
 import com.willwinder.universalgcodesender.communicator.event.AsyncCommunicatorEventDispatcher;
-import com.willwinder.universalgcodesender.communicator.event.CommunicatorEventType;
 import com.willwinder.universalgcodesender.communicator.event.ICommunicatorEventDispatcher;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -199,7 +196,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             GcodeCommand command = this.getNextCommand();
 
             if (command.getCommandString().isEmpty()) {
-                dispatchListenerEvents(COMMAND_SKIPPED, command);
+                getEventDispatcher().commandSkipped(command);
                 nextCommand = null;
                 continue;
             }
@@ -212,7 +209,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             try {
                 this.sendingCommand(commandString);
                 connection.sendStringToComm(commandString + "\n");
-                dispatchListenerEvents(COMMAND_SENT, command);
+                getEventDispatcher().commandSent(command);
                 nextCommand = null;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -277,7 +274,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     @Override
     public void handleResponseMessage(String response) {
         // Send this information back up to the Controller.
-        dispatchListenerEvents(CommunicatorEventType.RAW_RESPONSE, response);
+        getEventDispatcher().rawResponseListener(response);
 
 
         // Pause if there was an error and if there are more commands queued
@@ -288,7 +285,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
                     || (commandBuffer != null && commandBuffer.size() > 0))) { // No commands in buffer
 
             pauseSend();
-            dispatchListenerEvents(PAUSED, "");
+            getEventDispatcher().communicatorPausedOnError();
         }
 
         // Keep the data flow going in case of an "ok" or an "error".

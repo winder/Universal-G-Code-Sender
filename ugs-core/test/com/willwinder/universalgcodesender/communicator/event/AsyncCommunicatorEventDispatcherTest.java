@@ -27,7 +27,6 @@ public class AsyncCommunicatorEventDispatcherTest {
 
     @After
     public void tearDown() {
-        eventDispatcher.stop();
         eventDispatcher.reset();
     }
 
@@ -36,12 +35,10 @@ public class AsyncCommunicatorEventDispatcherTest {
         ICommunicatorListener listener = mock(ICommunicatorListener.class);
         eventDispatcher.addListener(listener);
 
-        CommunicatorEvent event = new CommunicatorEvent(CommunicatorEventType.PAUSED, null, null);
-        eventDispatcher.dispatch(event);
+        eventDispatcher.communicatorPausedOnError();
 
         assertEquals(1, eventDispatcher.getEventCount());
 
-        eventDispatcher.start();
         waitUntil(() -> eventDispatcher.getEventCount() == 0, 1, TimeUnit.SECONDS);
     }
 
@@ -54,12 +51,12 @@ public class AsyncCommunicatorEventDispatcherTest {
             return null;
         }).when(listener).commandSent(any());
         eventDispatcher.addListener(listener);
-        eventDispatcher.dispatch(new CommunicatorEvent(CommunicatorEventType.COMMAND_SENT, null, null));
-        eventDispatcher.start();
+        eventDispatcher.commandSent(null);
+
         Thread.sleep(100);
 
         assertFalse(eventDispatcher.isStopped());
-        eventDispatcher.stop();
+        eventDispatcher.reset();
 
         assertTrue(eventDispatcher.isStopped());
     }
@@ -71,8 +68,7 @@ public class AsyncCommunicatorEventDispatcherTest {
         doThrow(new RuntimeException()).when(listener).commandSent(any());
         eventDispatcher.addListener(listener);
 
-        eventDispatcher.dispatch(new CommunicatorEvent(CommunicatorEventType.COMMAND_SENT, null, null));
-        eventDispatcher.start();
+        eventDispatcher.commandSent(null);
 
         Thread.sleep(100);
         assertTrue(eventDispatcher.isStopped());
