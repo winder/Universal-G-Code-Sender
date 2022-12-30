@@ -38,25 +38,51 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class GcodeCommand {
     private static final AtomicInteger ID_GENERATOR = new AtomicInteger(0);
-    private Set<CommandListener> listeners;
-    private String command;
-    private String originalCommand;
-    private String response;
-
-    private boolean isSent = false;
-    private boolean isOk = false;
-    private boolean isError = false;
-    private boolean isSkipped = false;
-    private boolean isDone = false;
-    private int commandNum;
 
     /**
-     * If this is a generated command not apart of any program such as jog or settings commands
+     * A unique id for the command
      */
-    private boolean isGenerated;
-    private String comment;
+    private final int id = ID_GENERATOR.getAndIncrement();
+
+    private final String command;
+    private final String originalCommand;
+    private final int commandNum;
+    private final String comment;
+
+    /**
+     * If this is a generated command not a part of any program, typically used with jog or settings commands
+     */
+    private final boolean isGenerated;
+
+    private Set<CommandListener> listeners;
+    private String response;
+
+    /**
+     * If the command has been sent to the controller
+     */
+    private boolean isSent = false;
+
+    /**
+     * If controller response for the command was ok
+     */
+    private boolean isOk = false;
+
+    /**
+     * If controller response for the command resulted in an error
+     */
+    private boolean isError = false;
+
+    /**
+     * If the command was skipped and not sent to the controller
+     */
+    private boolean isSkipped = false;
+
+    /**
+     * If the command is done and no more controller processing is needed
+     */
+    private boolean isDone = false;
+
     private boolean isTemporaryParserModalChange = false;
-    private int id = ID_GENERATOR.getAndIncrement();
 
     public GcodeCommand(String command) {
         this(command, -1);
@@ -74,7 +100,7 @@ public class GcodeCommand {
      * @param isGenerated     if this is a generated command not a part of any program (ie. jog, action or settings commands).
      */
     public GcodeCommand(String command, String originalCommand, String comment, int commandNumber, boolean isGenerated) {
-        this.command = command;
+        this.command = command.trim();
         this.originalCommand = originalCommand;
         this.comment = comment;
         this.commandNum = commandNumber;
@@ -82,14 +108,6 @@ public class GcodeCommand {
     }
 
     /** Setters. */
-    public void setCommand(String command) {
-        this.command = command;
-    }
-    
-    public void setCommandNumber(int i) {
-        this.commandNum = i;
-    }
-    
     public void setResponse(String response) {
         this.response = response;
     }
@@ -214,10 +232,6 @@ public class GcodeCommand {
 
     public boolean isGenerated() {
         return isGenerated;
-    }
-
-    public void setGenerated(boolean generated) {
-        isGenerated = generated;
     }
 
     @Override

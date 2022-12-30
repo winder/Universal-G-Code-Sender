@@ -32,8 +32,6 @@ import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 public class TinyGGcodeCommandCreator extends GcodeCommandCreator {
     @Override
     public GcodeCommand createCommand(String commandString) {
-        TinyGGcodeCommand command = new TinyGGcodeCommand(commandString);
-        command.setCommandNumber(this.numCommands++);
-        return command;
+        return new TinyGGcodeCommand(commandString, this.numCommands++);
     }
 }

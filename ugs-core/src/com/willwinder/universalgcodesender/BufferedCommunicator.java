@@ -166,9 +166,6 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         }
 
         if (nextCommand != null) {
-            if (nextCommand.getCommandString().endsWith("\n")) {
-                nextCommand.setCommand(nextCommand.getCommandString().trim());
-            }
             return nextCommand;
         }
         return null;

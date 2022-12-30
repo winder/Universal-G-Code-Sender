@@ -24,6 +24,5 @@ package com.willwinder.universalgcodesender.firmware.fluidnc.commands;
 public class SystemCommand extends FluidNCCommand {
     public SystemCommand(String command) {
         super(command);
-        setGenerated(true);
     }
 }
