@@ -18,6 +18,10 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.communicator.event.AsyncCommunicatorEventDispatcher;
+import com.willwinder.universalgcodesender.communicator.event.CommunicatorEvent;
+import com.willwinder.universalgcodesender.communicator.event.ICommunicatorEventDispatcher;
+import com.willwinder.universalgcodesender.communicator.event.CommunicatorEventType;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
@@ -26,14 +30,10 @@ import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCommunicatorEvent.COMMAND_SENT;
-import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCommunicatorEvent.COMMAND_SKIPPED;
+import static com.willwinder.universalgcodesender.communicator.event.CommunicatorEventType.COMMAND_SENT;
+import static com.willwinder.universalgcodesender.communicator.event.CommunicatorEventType.COMMAND_SKIPPED;
 
 /**
  * An Abstract communicator interface which implements listeners.
@@ -43,24 +43,16 @@ import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCom
 public abstract class AbstractCommunicator implements ICommunicator {
     private static final Logger logger = Logger.getLogger(AbstractCommunicator.class.getName());
 
+    private final ICommunicatorEventDispatcher eventDispatcher;
+
     protected Connection connection;
 
-    // Allow events to be sent from same thread for unit tests.
-    private boolean launchEventsInDispatchThread = true;
-
-    // Serial Communicator Listener Events
-    enum SerialCommunicatorEvent {
-        COMMAND_SENT,
-        COMMAND_SKIPPED,
-        RAW_RESPONSE,
-        PAUSED
+    protected AbstractCommunicator() {
+        this(new AsyncCommunicatorEventDispatcher());
     }
 
-    // Callback interfaces
-    private Set<CommunicatorListener> communicatorListeners;
-
-    public AbstractCommunicator() {
-        this.communicatorListeners = new HashSet<>();
+    protected AbstractCommunicator(ICommunicatorEventDispatcher eventDispatcher) {
+        this.eventDispatcher = eventDispatcher;
     }
 
     /*********************/
@@ -68,9 +60,7 @@ public abstract class AbstractCommunicator implements ICommunicator {
     /*********************/
     @Override
     public void resetBuffers() {
-        if (eventQueue != null) {
-            eventQueue.clear();
-        }
+        eventDispatcher.reset();
     }
 
     @Override
@@ -96,8 +86,7 @@ public abstract class AbstractCommunicator implements ICommunicator {
             throw new Exception(Localization.getString("communicator.exception.port") + ": " + name);
         }
 
-        // Handle all events in a single thread.
-        this.eventThread.start();
+        eventDispatcher.start();
 
         //open it
         if (!connection.openPort()) {
@@ -114,8 +103,7 @@ public abstract class AbstractCommunicator implements ICommunicator {
     //do common things (related to the connection, that is shared by all communicators)
     @Override
     public void disconnect() throws Exception {
-        this.stop = true;
-        this.eventThread.interrupt();
+        eventDispatcher.stop();
         connection.closePort();
     }
 
@@ -123,26 +111,26 @@ public abstract class AbstractCommunicator implements ICommunicator {
 
     @Override
     public void removeListener(CommunicatorListener scl) {
-        this.communicatorListeners.remove(scl);
+        eventDispatcher.removeListener(scl);
     }
 
     @Override
     public void addListener(CommunicatorListener scl) {
-        this.communicatorListeners.add(scl);
+        eventDispatcher.addListener(scl);
     }
 
     /**
      * A bunch of methods to dispatch listener events with various arguments.
      */
-    protected void dispatchListenerEvents(final SerialCommunicatorEvent event, final String message) {
+    protected void dispatchListenerEvents(final CommunicatorEventType event, final String message) {
         dispatchListenerEvents(event, message, null);
     }
 
-    protected void dispatchListenerEvents(final SerialCommunicatorEvent event, final GcodeCommand command) {
+    protected void dispatchListenerEvents(final CommunicatorEventType event, final GcodeCommand command) {
         dispatchListenerEvents(event, null, command);
     }
 
-    private void dispatchListenerEvents(final SerialCommunicatorEvent event,
+    private void dispatchListenerEvents(final CommunicatorEventType event,
                                         final String string, final GcodeCommand command) {
         if (event == COMMAND_SENT || event == COMMAND_SKIPPED) {
             if (command == null) {
@@ -152,57 +140,8 @@ public abstract class AbstractCommunicator implements ICommunicator {
             throw new IllegalArgumentException("Dispatching a " + event + " event requires a String object.");
         }
 
-        if (launchEventsInDispatchThread) {
-            this.eventQueue.add(new EventData(event, string, command));
-        } else {
-            sendEventToListeners(event, string, command);
-        }
+        eventDispatcher.dispatch(new CommunicatorEvent(event, string, command));
     }
-
-    private void sendEventToListeners(final SerialCommunicatorEvent event,
-                                      String string, GcodeCommand command) {
-        switch (event) {
-            case COMMAND_SENT:
-                for (CommunicatorListener scl : communicatorListeners)
-                    scl.commandSent(command);
-                break;
-            case COMMAND_SKIPPED:
-                for (CommunicatorListener scl : communicatorListeners)
-                    scl.commandSkipped(command);
-                break;
-            case RAW_RESPONSE:
-                for (CommunicatorListener scl : communicatorListeners)
-                    scl.rawResponseListener(string);
-                break;
-            case PAUSED:
-                communicatorListeners.forEach(CommunicatorListener::communicatorPausedOnError);
-                break;
-            default:
-
-        }
-    }
-
-    /**
-     * If commands complete very fast, like several comments in a row being
-     * skipped, then multiple event handlers could process them out of order. To
-     * prevent that from happening we use a blocking queue to add events in the
-     * main thread, and process them in order a single event thread.
-     */
-    private final LinkedBlockingDeque<EventData> eventQueue = new LinkedBlockingDeque<>();
-    private boolean stop = false;
-    private Thread eventThread = new Thread(() -> {
-        while (!stop) {
-            try {
-                EventData e = eventQueue.take();
-                sendEventToListeners(e.event, e.string, e.command);
-            } catch (InterruptedException ignored) {
-                stop = true;
-            } catch (Exception e) {
-                logger.log(Level.WARNING, "Couldn't send event", e);
-                stop = true;
-            }
-        }
-    });
 
     @Override
     public byte[] xmodemReceive() throws IOException {
@@ -212,21 +151,5 @@ public abstract class AbstractCommunicator implements ICommunicator {
     @Override
     public void xmodemSend(byte[] data) throws IOException {
         connection.xmodemSend(data);
-    }
-
-    // Simple data class used to pass data to the event thread.
-    private class EventData {
-        public EventData(
-                SerialCommunicatorEvent event,
-                String string,
-                GcodeCommand command) {
-            this.event = event;
-            this.command = command;
-            this.string = string;
-        }
-
-        public SerialCommunicatorEvent event;
-        public GcodeCommand command;
-        public String string;
     }
 }

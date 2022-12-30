@@ -41,7 +41,7 @@ import java.util.logging.Logger;
 
 /**
  * Handles the firmware settings on a GRBL controller. It needs to be registered as a listener
- * to {@link com.willwinder.universalgcodesender.AbstractCommunicator#setListenAll(CommunicatorListener)}
+ * to {@link com.willwinder.universalgcodesender.AbstractCommunicator#addListener(CommunicatorListener)}
  * for it to be able to process all commands to/from the controller.
  *
  * @author Joacim Breiler

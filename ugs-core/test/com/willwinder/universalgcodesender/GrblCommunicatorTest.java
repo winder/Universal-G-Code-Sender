@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.communicator.event.CommunicatorEventDispatcher;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.mockobjects.MockConnection;
 import com.willwinder.universalgcodesender.mockobjects.MockGrbl;
@@ -48,24 +49,6 @@ public class GrblCommunicatorTest {
     }
 
     /**
-     * Test of openCommPort method, of class GrblCommunicator.
-     */
-    @Test
-    public void testOpenCommPort() throws Exception {
-        System.out.println("openCommPort");
-        System.out.println("-not testing RXTX.");
-    }
-
-    /**
-     * Test of closeCommPort method, of class GrblCommunicator.
-     */
-    @Test
-    public void testCloseCommPort() {
-        System.out.println("closeCommPort");
-        System.out.println("-not testing RXTX.");
-    }
-
-    /**
      * Test of queueStringForComm method, of class GrblCommunicator.
      */
     @Test
@@ -74,7 +57,7 @@ public class GrblCommunicatorTest {
         System.out.println("queueStringForComm");
         String input = "someCommand";
         MockConnection mc = new MockConnection(mg.in, mg.out);
-        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
         
         try {
             instance.queueCommand(new GcodeCommand(input));
@@ -93,7 +76,7 @@ public class GrblCommunicatorTest {
             input = "someCommand";
             cb = new LinkedBlockingDeque<>();
             mc = new MockConnection(mg.in, mg.out);
-            instance = new GrblCommunicator(cb, asl, mc);
+            instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
 
             instance.queueCommand(new GcodeCommand(input));
             // Test that instance doesn't add superfluous newlines.
@@ -104,24 +87,6 @@ public class GrblCommunicatorTest {
         }
     }
 
-    
-    /**
-     * Test of sendStringToComm method, of class GrblCommunicator.
-     */
-    /* This function is private...
-    @Test
-    public void testSendStringToComm() {
-        System.out.println("sendStringToComm");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
-
-        
-        String command = "someCommand";
-        instance.sendStringToComm(command);
-        
-        // Make sure the string made it to GRBL.
-        assertEquals(command, mg.readStringFromGrblBuffer());
-    }
-    */
     /**
      * Test of sendByteImmediately method, of class GrblCommunicator.
      */
@@ -129,7 +94,7 @@ public class GrblCommunicatorTest {
     public void testSendByteImmediately() {
         System.out.println("sendByteImmediately");
         MockConnection mc = new MockConnection(mg.in, mg.out);
-        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
 
         // Ctrl-C is a common byte to send immediately.
         byte b = 0x18;
@@ -172,8 +137,8 @@ public class GrblCommunicatorTest {
     public void testAreActiveCommands() {
         System.out.println("areActiveCommands");
         MockConnection mc = new MockConnection(mg.in, mg.out);
-        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
-        
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
+
         boolean expResult = false;
         boolean result = instance.areActiveCommands();
         
@@ -210,7 +175,7 @@ public class GrblCommunicatorTest {
     public void testStreamCommands() {
         System.out.println("streamCommands");
         MockConnection mc = new MockConnection(mg.in, mg.out);
-        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
         String term = "\n";
         String thirtyCharString = "thirty character command......";
 
@@ -278,7 +243,7 @@ public class GrblCommunicatorTest {
     public void testPauseSendAndResumeSend() {
         System.out.println("pauseSend");
         MockConnection mc = new MockConnection(mg.in, mg.out);
-        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
         String twentyCharString = "twenty characters...";
         String grblReceiveString;
         String arr[];
@@ -327,7 +292,7 @@ public class GrblCommunicatorTest {
     public void testCancelSend() {
         System.out.println("cancelSend");
         MockConnection mc = new MockConnection(mg.in, mg.out);
-        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
         String twentyCharString = "twenty characters...";
         String grblReceiveString;
         String arr[];
@@ -382,9 +347,8 @@ public class GrblCommunicatorTest {
     public void testSoftReset() {
         System.out.println("softReset");
         MockConnection mc = new MockConnection(mg.in, mg.out);
-        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
         String twentyCharString = "twenty characters...";
-        int expectedInt;
         Boolean expectedBool;
         
         // This is essentially a cancel that "un sends" commands.
@@ -403,7 +367,7 @@ public class GrblCommunicatorTest {
     public void errorResponseShouldPauseTheCommunicator() {
         System.out.println("streamCommands");
         MockConnection mc = new MockConnection(mg.in, mg.out);
-        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
         instance.setSingleStepMode(true);
         String thirtyEightCharString = "thirty-nine character command here....";
 
@@ -460,7 +424,7 @@ public class GrblCommunicatorTest {
     public void errorResponseOnLastCommandInStreamShouldNotPauseTheCommunicator() {
         System.out.println("streamCommands");
         MockConnection mc = new MockConnection(mg.in, mg.out);
-        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
         instance.setSingleStepMode(true);
         String thirtyEightCharString = "thirty-nine character command here....";
 

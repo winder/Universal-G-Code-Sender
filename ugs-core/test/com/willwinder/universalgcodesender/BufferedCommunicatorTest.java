@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.communicator.event.CommunicatorEventDispatcher;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
@@ -36,13 +37,11 @@ import org.mockito.ArgumentCaptor;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -82,12 +81,6 @@ public class BufferedCommunicatorTest {
         instance = new BufferedCommunicatorImpl(cb, asl);
         instance.setConnection(mockConnection);
         instance.addListener(mockScl);
-
-        // Initialize private variable.
-        Field f = AbstractCommunicator.class.getDeclaredField("launchEventsInDispatchThread");
-        f.setAccessible(true);
-        f.set(instance, false);
-
         EasyMock.reset(mockConnection, mockScl);
     }
 
@@ -565,7 +558,7 @@ public class BufferedCommunicatorTest {
 
     public class BufferedCommunicatorImpl extends BufferedCommunicator {
         BufferedCommunicatorImpl(LinkedBlockingDeque<GcodeCommand> cb, LinkedBlockingDeque<GcodeCommand> asl) {
-            super(cb, asl);
+            super(cb, asl, new CommunicatorEventDispatcher());
         }
 
         public int getBufferSize() {
