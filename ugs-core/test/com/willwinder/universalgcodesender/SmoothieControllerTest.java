@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.junit.Test;
 

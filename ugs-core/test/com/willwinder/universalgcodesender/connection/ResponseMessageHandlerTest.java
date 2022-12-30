@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.connection;
 
-import com.willwinder.universalgcodesender.AbstractCommunicator;
+import com.willwinder.universalgcodesender.communicator.AbstractCommunicator;
 import org.junit.Before;
 import org.junit.Test;
 

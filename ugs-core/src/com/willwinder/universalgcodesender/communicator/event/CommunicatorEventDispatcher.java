@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.communicator.event;
 
-import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
+import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import java.util.HashSet;
@@ -38,7 +38,7 @@ import java.util.Set;
  * @author Joacim Breiler
  */
 public class CommunicatorEventDispatcher implements ICommunicatorEventDispatcher {
-    protected final Set<CommunicatorListener> communicatorListeners = new HashSet<>();
+    protected final Set<ICommunicatorListener> communicatorListeners = new HashSet<>();
 
     @Override
     public void start() {
@@ -51,12 +51,12 @@ public class CommunicatorEventDispatcher implements ICommunicatorEventDispatcher
     }
 
     @Override
-    public void removeListener(CommunicatorListener listener) {
+    public void removeListener(ICommunicatorListener listener) {
         communicatorListeners.remove(listener);
     }
 
     @Override
-    public void addListener(CommunicatorListener listener) {
+    public void addListener(ICommunicatorListener listener) {
         communicatorListeners.add(listener);
     }
 
@@ -68,19 +68,19 @@ public class CommunicatorEventDispatcher implements ICommunicatorEventDispatcher
     protected final void sendEvent(CommunicatorEventType event, String string, GcodeCommand command) {
         switch (event) {
             case COMMAND_SENT:
-                for (CommunicatorListener scl : communicatorListeners)
+                for (ICommunicatorListener scl : communicatorListeners)
                     scl.commandSent(command);
                 break;
             case COMMAND_SKIPPED:
-                for (CommunicatorListener scl : communicatorListeners)
+                for (ICommunicatorListener scl : communicatorListeners)
                     scl.commandSkipped(command);
                 break;
             case RAW_RESPONSE:
-                for (CommunicatorListener scl : communicatorListeners)
+                for (ICommunicatorListener scl : communicatorListeners)
                     scl.rawResponseListener(string);
                 break;
             case PAUSED:
-                communicatorListeners.forEach(CommunicatorListener::communicatorPausedOnError);
+                communicatorListeners.forEach(ICommunicatorListener::communicatorPausedOnError);
                 break;
             default:
         }

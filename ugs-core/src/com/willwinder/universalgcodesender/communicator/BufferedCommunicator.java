@@ -17,7 +17,7 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.communicator;
 
 import static com.willwinder.universalgcodesender.communicator.event.CommunicatorEventType.*;
 

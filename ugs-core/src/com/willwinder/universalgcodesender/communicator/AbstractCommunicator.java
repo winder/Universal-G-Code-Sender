@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.communicator;
 
 import com.willwinder.universalgcodesender.communicator.event.AsyncCommunicatorEventDispatcher;
 import com.willwinder.universalgcodesender.communicator.event.CommunicatorEvent;
@@ -26,7 +26,6 @@ import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import java.io.IOException;
@@ -110,12 +109,12 @@ public abstract class AbstractCommunicator implements ICommunicator {
     /* ****************** */
 
     @Override
-    public void removeListener(CommunicatorListener scl) {
+    public void removeListener(ICommunicatorListener scl) {
         eventDispatcher.removeListener(scl);
     }
 
     @Override
-    public void addListener(CommunicatorListener scl) {
+    public void addListener(ICommunicatorListener scl) {
         eventDispatcher.addListener(scl);
     }
 

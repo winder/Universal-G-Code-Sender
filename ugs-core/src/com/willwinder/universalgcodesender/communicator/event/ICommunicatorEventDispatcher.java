@@ -1,6 +1,6 @@
 package com.willwinder.universalgcodesender.communicator.event;
 
-import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
+import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 
 /**
  * An event dispatcher responsible for notifying listeners with events
@@ -26,14 +26,14 @@ public interface ICommunicatorEventDispatcher {
      *
      * @param listener a listener for communicator events
      */
-    void removeListener(CommunicatorListener listener);
+    void removeListener(ICommunicatorListener listener);
 
     /**
      * Adds a communicator listener
      *
      * @param listener a listener for communicator events
      */
-    void addListener(CommunicatorListener listener);
+    void addListener(ICommunicatorListener listener);
 
     /**
      * Dispatches the communicator event to all listeners

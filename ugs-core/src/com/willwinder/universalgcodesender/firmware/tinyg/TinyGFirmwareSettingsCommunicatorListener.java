@@ -25,7 +25,7 @@ import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettingsCommunicatorListener;
-import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
+import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -44,7 +44,7 @@ import java.util.concurrent.TimeoutException;
  *
  * @author Joacim Breiler
  */
-public class TinyGFirmwareSettingsCommunicatorListener implements CommunicatorListener {
+public class TinyGFirmwareSettingsCommunicatorListener implements ICommunicatorListener {
 
     /**
      * Number of seconds to wait until the controller has persisted the setting

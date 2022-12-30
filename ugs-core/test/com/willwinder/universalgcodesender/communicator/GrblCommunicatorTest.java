@@ -16,8 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.communicator;
 
+import com.willwinder.universalgcodesender.GrblUtils;
+import com.willwinder.universalgcodesender.communicator.GrblCommunicator;
 import com.willwinder.universalgcodesender.communicator.event.CommunicatorEventDispatcher;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.mockobjects.MockConnection;
@@ -26,6 +28,8 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingDeque;
 import static org.junit.Assert.*;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -188,7 +192,7 @@ public class GrblCommunicatorTest {
         assertEquals(13, CommUtils.getSizeOfBuffer(l));
 
         // Make sure GrblUtils hasn't updated RX buffer size.
-        assertEquals(128, GrblUtils.GRBL_RX_BUFFER_SIZE);
+        Assert.assertEquals(128, GrblUtils.GRBL_RX_BUFFER_SIZE);
 
         // Add a bunch of commands so that the buffer is full.
         // (30 characters + 1 newline + 1 commUtils safety character) * 4 = 128

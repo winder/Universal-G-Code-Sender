@@ -1,5 +1,5 @@
 /*
-    Copyright 2013 Will Winder
+    Copyright 2013-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,9 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.utils;
 
-import com.willwinder.universalgcodesender.utils.CommUtils;
+import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.util.LinkedList;
 import java.util.List;
@@ -67,7 +67,7 @@ public class CommUtilsTest {
         // 100 characters + 5 for newlines, 18 characters remaining in buffer.
         
         StringBuilder biggestString = new StringBuilder();
-        for (int i=0; i < (GrblUtils.GRBL_RX_BUFFER_SIZE - 105 - 1); i++) {
+        for (int i = 0; i < (GrblUtils.GRBL_RX_BUFFER_SIZE - 105 - 1); i++) {
             biggestString.append('.');
         }
         

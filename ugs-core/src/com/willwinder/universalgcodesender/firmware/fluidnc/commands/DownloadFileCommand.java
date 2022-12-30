@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.firmware.fluidnc.commands;
 
-import com.willwinder.universalgcodesender.File;
+import com.willwinder.universalgcodesender.model.File;
 import org.apache.commons.lang3.StringUtils;
 
 public class DownloadFileCommand extends SystemCommand {

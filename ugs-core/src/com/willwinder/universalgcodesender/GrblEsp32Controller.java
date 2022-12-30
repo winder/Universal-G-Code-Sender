@@ -18,6 +18,8 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.communicator.ICommunicator;
+
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;

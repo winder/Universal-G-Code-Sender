@@ -1,6 +1,6 @@
 package com.willwinder.universalgcodesender.communicator.event;
 
-import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
+import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ public class CommunicatorEventDispatcherTest {
 
     @Test
     public void dispatchPauseEventShouldTriggerListener() {
-        CommunicatorListener listener = mock(CommunicatorListener.class);
+        ICommunicatorListener listener = mock(ICommunicatorListener.class);
         eventDispatcher.addListener(listener);
 
         CommunicatorEvent event = new CommunicatorEvent(CommunicatorEventType.PAUSED, null, null);
@@ -33,7 +33,7 @@ public class CommunicatorEventDispatcherTest {
 
     @Test
     public void dispatchSentEventShouldTriggerListener() {
-        CommunicatorListener listener = mock(CommunicatorListener.class);
+        ICommunicatorListener listener = mock(ICommunicatorListener.class);
         eventDispatcher.addListener(listener);
 
         CommunicatorEvent event = new CommunicatorEvent(CommunicatorEventType.COMMAND_SENT, null, null);
@@ -45,7 +45,7 @@ public class CommunicatorEventDispatcherTest {
 
     @Test
     public void dispatchSkippedEventShouldTriggerListener() {
-        CommunicatorListener listener = mock(CommunicatorListener.class);
+        ICommunicatorListener listener = mock(ICommunicatorListener.class);
         eventDispatcher.addListener(listener);
 
         CommunicatorEvent event = new CommunicatorEvent(CommunicatorEventType.COMMAND_SKIPPED, null, null);
@@ -57,7 +57,7 @@ public class CommunicatorEventDispatcherTest {
 
     @Test
     public void removeListenerShouldMakeEventsNoLongerDispatch() {
-        CommunicatorListener listener = mock(CommunicatorListener.class);
+        ICommunicatorListener listener = mock(ICommunicatorListener.class);
         eventDispatcher.addListener(listener);
         eventDispatcher.removeListener(listener);
 

@@ -1,6 +1,6 @@
 package com.willwinder.universalgcodesender.communicator.event;
 
-import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
+import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class AsyncCommunicatorEventDispatcherTest {
 
     @Test
     public void dispatchShouldQueueEventsUntilStarted() throws TimeoutException {
-        CommunicatorListener listener = mock(CommunicatorListener.class);
+        ICommunicatorListener listener = mock(ICommunicatorListener.class);
         eventDispatcher.addListener(listener);
 
         CommunicatorEvent event = new CommunicatorEvent(CommunicatorEventType.PAUSED, null, null);
@@ -48,7 +48,7 @@ public class AsyncCommunicatorEventDispatcherTest {
     @Test
     public void stopShouldInterruptListener() throws InterruptedException {
         // Simulate a long running listener
-        CommunicatorListener listener = mock(CommunicatorListener.class);
+        ICommunicatorListener listener = mock(ICommunicatorListener.class);
         doAnswer(invocation -> {
             Thread.sleep(1000);
             return null;
@@ -67,7 +67,7 @@ public class AsyncCommunicatorEventDispatcherTest {
     @Test
     public void dispatchShouldStopOnListenerException() throws InterruptedException {
         // Simulate a long running listener
-        CommunicatorListener listener = mock(CommunicatorListener.class);
+        ICommunicatorListener listener = mock(ICommunicatorListener.class);
         doThrow(new RuntimeException()).when(listener).commandSent(any());
         eventDispatcher.addListener(listener);
 

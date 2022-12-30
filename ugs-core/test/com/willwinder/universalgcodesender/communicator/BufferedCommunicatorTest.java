@@ -16,12 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.communicator;
 
+import com.willwinder.universalgcodesender.communicator.AbstractCommunicator;
+import com.willwinder.universalgcodesender.communicator.BufferedCommunicator;
 import com.willwinder.universalgcodesender.communicator.event.CommunicatorEventDispatcher;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
-import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
+import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
@@ -54,7 +56,7 @@ public class BufferedCommunicatorTest {
 
     private static File tempDir;
     private final static Connection mockConnection = EasyMock.createMock(Connection.class);
-    private final static CommunicatorListener mockScl = EasyMock.createMock(CommunicatorListener.class);
+    private final static ICommunicatorListener mockScl = EasyMock.createMock(ICommunicatorListener.class);
     private BufferedCommunicator instance;
     private LinkedBlockingDeque<GcodeCommand> cb;
     private LinkedBlockingDeque<GcodeCommand> asl;
@@ -448,7 +450,7 @@ public class BufferedCommunicatorTest {
         Connection connection = mock(Connection.class);
         instance.setConnection(connection);
 
-        CommunicatorListener communicatorListener = mock(CommunicatorListener.class);
+        ICommunicatorListener communicatorListener = mock(ICommunicatorListener.class);
         instance.addListener(communicatorListener);
 
         asl.add(new GcodeCommand("G0"));

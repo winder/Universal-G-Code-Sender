@@ -18,6 +18,8 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.model.File;
+
 import java.io.IOException;
 import java.util.List;
 

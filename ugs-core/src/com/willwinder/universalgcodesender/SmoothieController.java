@@ -18,6 +18,8 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.communicator.ICommunicator;
+import com.willwinder.universalgcodesender.communicator.SmoothieCommunicator;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.smoothie.SmoothieFirmwareSettings;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;

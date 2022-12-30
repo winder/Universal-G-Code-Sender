@@ -1,6 +1,6 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc;
 
-import com.willwinder.universalgcodesender.ICommunicator;
+import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;

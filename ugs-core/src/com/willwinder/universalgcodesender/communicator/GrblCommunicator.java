@@ -16,8 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.communicator;
 
+import com.willwinder.universalgcodesender.GrblUtils;
+import com.willwinder.universalgcodesender.communicator.BufferedCommunicator;
 import com.willwinder.universalgcodesender.communicator.event.ICommunicatorEventDispatcher;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.types.GcodeCommand;

@@ -18,6 +18,8 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
+import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
@@ -50,7 +52,7 @@ import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
  *
  * @author wwinder
  */
-public abstract class AbstractController implements CommunicatorListener, IController {
+public abstract class AbstractController implements ICommunicatorListener, IController {
     private static final Logger logger = Logger.getLogger(AbstractController.class.getName());
     private final GcodeParser parser = new GcodeParser();
     private final ConnectionWatchTimer connectionWatchTimer = new ConnectionWatchTimer(this);
