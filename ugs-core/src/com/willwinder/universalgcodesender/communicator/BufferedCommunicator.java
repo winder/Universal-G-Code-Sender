@@ -1,5 +1,5 @@
 /*
-    Copyright 2012-2018 Will Winder
+    Copyright 2012-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -17,10 +17,10 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.communicator;
 
-import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCommunicatorEvent.*;
-
+import com.willwinder.universalgcodesender.communicator.event.AsyncCommunicatorEventDispatcher;
+import com.willwinder.universalgcodesender.communicator.event.ICommunicatorEventDispatcher;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.CommUtils;
@@ -32,7 +32,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * GRBL serial port interface class.
+ * A communicator that implements the GRBL streaming protocol which will keep track of the number of sent bytes to the
+ * controller making sure it has enough data in its buffers to plan for smooth movement.
+ * (https://github.com/gnea/grbl/wiki/Grbl-v1.1-Interface#streaming-a-g-code-program-to-grbl)
  *
  * @author wwinder
  */
@@ -46,17 +48,17 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     private final LinkedBlockingDeque<GcodeCommand> commandBuffer;     // Manually specified commands
     private final LinkedBlockingDeque<GcodeCommand> activeCommandList;  // Currently running commands
     private int sentBufferSize = 0;
-    
+
     private Boolean singleStepModeEnabled = false;
-    
+
     abstract public int getBufferSize();
 
     public BufferedCommunicator() {
-        this.commandBuffer = new LinkedBlockingDeque<>();
-        this.activeCommandList = new LinkedBlockingDeque<>();
+        this(new LinkedBlockingDeque<>(), new LinkedBlockingDeque<>(), new AsyncCommunicatorEventDispatcher());
     }
 
-    public BufferedCommunicator(LinkedBlockingDeque<GcodeCommand> cb, LinkedBlockingDeque<GcodeCommand> asl) {
+    public BufferedCommunicator(LinkedBlockingDeque<GcodeCommand> cb, LinkedBlockingDeque<GcodeCommand> asl, ICommunicatorEventDispatcher dispatcher) {
+        super(dispatcher);
         this.commandBuffer = cb;
         this.activeCommandList = asl;
     }
@@ -81,18 +83,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     public void queueStreamForComm(final IGcodeStreamReader input) {
         commandStream = input;
     }
-       
-    /*
-    // TODO: Figure out why this isn't working ...
-    boolean isCommPortOpen() throws NoSuchPortException {
-            CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(this.commPort.getName());
-            String owner = portIdentifier.getCurrentOwner();
-            String thisClass = this.getClass().getName();
-            
-            return portIdentifier.isCurrentlyOwned() && owner.equals(thisClass);                    
-    }
-    */
-    
+
     /** File Stream Methods. **/
     @Override
     public void resetBuffers() {
@@ -172,9 +163,6 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         }
 
         if (nextCommand != null) {
-            if (nextCommand.getCommandString().endsWith("\n")) {
-                nextCommand.setCommand(nextCommand.getCommandString().trim());
-            }
             return nextCommand;
         }
         return null;
@@ -208,7 +196,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             GcodeCommand command = this.getNextCommand();
 
             if (command.getCommandString().isEmpty()) {
-                dispatchListenerEvents(COMMAND_SKIPPED, command);
+                getEventDispatcher().commandSkipped(command);
                 nextCommand = null;
                 continue;
             }
@@ -221,7 +209,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             try {
                 this.sendingCommand(commandString);
                 connection.sendStringToComm(commandString + "\n");
-                dispatchListenerEvents(COMMAND_SENT, command);
+                getEventDispatcher().commandSent(command);
                 nextCommand = null;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -286,7 +274,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     @Override
     public void handleResponseMessage(String response) {
         // Send this information back up to the Controller.
-        dispatchListenerEvents(SerialCommunicatorEvent.RAW_RESPONSE, response);
+        getEventDispatcher().rawResponseListener(response);
 
 
         // Pause if there was an error and if there are more commands queued
@@ -297,7 +285,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
                     || (commandBuffer != null && commandBuffer.size() > 0))) { // No commands in buffer
 
             pauseSend();
-            dispatchListenerEvents(PAUSED, "");
+            getEventDispatcher().communicatorPausedOnError();
         }
 
         // Keep the data flow going in case of an "ok" or an "error".

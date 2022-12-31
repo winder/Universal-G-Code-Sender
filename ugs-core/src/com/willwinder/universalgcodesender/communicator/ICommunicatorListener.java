@@ -17,7 +17,7 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.universalgcodesender.listeners;
+package com.willwinder.universalgcodesender.communicator;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
@@ -27,7 +27,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
  *
  * @author wwinder
  */
-public interface CommunicatorListener {
+public interface ICommunicatorListener {
 
     /**
      * Is called when a raw response message is received from the controller

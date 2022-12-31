@@ -3,9 +3,9 @@ package com.willwinder.universalgcodesender.firmware.fluidnc;
 import com.willwinder.universalgcodesender.Capabilities;
 import com.willwinder.universalgcodesender.ConnectionWatchTimer;
 import com.willwinder.universalgcodesender.GrblCapabilitiesConstants;
-import com.willwinder.universalgcodesender.GrblCommunicator;
+import com.willwinder.universalgcodesender.communicator.GrblCommunicator;
 import com.willwinder.universalgcodesender.GrblUtils;
-import com.willwinder.universalgcodesender.ICommunicator;
+import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.IFileService;
 import com.willwinder.universalgcodesender.StatusPollTimer;
@@ -24,7 +24,7 @@ import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SystemComma
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
-import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
+import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -55,7 +55,7 @@ import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 
-public class FluidNCController implements IController, CommunicatorListener {
+public class FluidNCController implements IController, ICommunicatorListener {
 
     private static final Logger LOGGER = Logger.getLogger(FluidNCController.class.getSimpleName());
     private static final SemanticVersion MINIMUM_VERSION = new SemanticVersion(3, 3, 0);

@@ -19,6 +19,8 @@
 package com.willwinder.universalgcodesender;
 
 import com.google.gson.JsonObject;
+import com.willwinder.universalgcodesender.communicator.ICommunicator;
+import com.willwinder.universalgcodesender.communicator.TinyGCommunicator;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.tinyg.TinyGFirmwareSettings;
 import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;

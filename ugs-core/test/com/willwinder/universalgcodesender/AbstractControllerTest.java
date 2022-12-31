@@ -19,6 +19,8 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.communicator.AbstractCommunicator;
+import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;

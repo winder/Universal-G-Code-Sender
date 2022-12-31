@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.firmware.fluidnc;
 
-import com.willwinder.universalgcodesender.File;
+import com.willwinder.universalgcodesender.model.File;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.IFileService;
 import com.willwinder.universalgcodesender.StatusPollTimer;

@@ -16,12 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.communicator;
 
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.IConnectionListener;
-import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
@@ -157,14 +156,14 @@ public interface ICommunicator extends IConnectionListener {
      *
      * @param listener a listener to remove
      */
-    void removeListener(CommunicatorListener listener);
+    void removeListener(ICommunicatorListener listener);
 
     /**
      * Adds listeners to notify about the progress for sending commands.
      *
      * @param listener a listener to add
      */
-    void addListener(CommunicatorListener listener);
+    void addListener(ICommunicatorListener listener);
 
     /**
      * Connects to the hardware

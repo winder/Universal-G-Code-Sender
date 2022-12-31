@@ -112,29 +112,18 @@
                         <package>com.willwinder.universalgcodesender</package>
                         <package>com.willwinder.universalgcodesender.CLI</package>
                         <package>com.willwinder.universalgcodesender.connection</package>
-                        <package>com.willwinder.universalgcodesender.gcode</package>
-                        <package>com.willwinder.universalgcodesender.gcode.util</package>
-                        <package>com.willwinder.universalgcodesender.gcode.processors</package>
+                        <package>com.willwinder.universalgcodesender.communicator.*</package>
+                        <package>com.willwinder.universalgcodesender.gcode.*</package>
                         <package>com.willwinder.universalgcodesender.firmware</package>
                         <package>com.willwinder.universalgcodesender.i18n</package>
                         <package>com.willwinder.universalgcodesender.listeners</package>
-                        <package>com.willwinder.universalgcodesender.model</package>
-                        <package>com.willwinder.universalgcodesender.model.events</package>
-                        <package>com.willwinder.universalgcodesender.model.GUIBackend</package>
+                        <package>com.willwinder.universalgcodesender.model.*</package>
                         <package>com.willwinder.universalgcodesender.pendantui</package>
                         <package>com.willwinder.universalgcodesender.services</package>
                         <package>com.willwinder.universalgcodesender.types</package>
-                        <package>com.willwinder.universalgcodesender.uielements</package>
+                        <package>com.willwinder.universalgcodesender.uielements.*</package>
                         <package>com.willwinder.universalgcodesender.actions</package>
-                        <package>com.willwinder.universalgcodesender.uielements.components</package>
-                        <package>com.willwinder.universalgcodesender.uielements.helpers</package>
-                        <package>com.willwinder.universalgcodesender.uielements.jog</package>
-                        <package>com.willwinder.universalgcodesender.uielements.macros</package>
-                        <package>com.willwinder.universalgcodesender.uielements.panels</package>
-                        <package>com.willwinder.universalgcodesender.uielements.firmware</package>
-                        <package>com.willwinder.universalgcodesender.uielements.toolbars</package>
-                        <package>com.willwinder.universalgcodesender.utils</package>
-                        <package>com.willwinder.universalgcodesender.utils.SettingsFactory</package>
+                        <package>com.willwinder.universalgcodesender.utils.*</package>
                         <package>com.willwinder.universalgcodesender.visualizer</package>
                         <package>jssc</package>
                         <package>net.miginfocom.layout</package>

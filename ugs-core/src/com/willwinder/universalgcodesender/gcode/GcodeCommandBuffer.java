@@ -62,19 +62,6 @@ public class GcodeCommandBuffer {
         return this.currentCommand();
     }
     
-    public GcodeCommand appendCommandString(String commandString) {
-        GcodeCommand command = new GcodeCommand(commandString);
-        command.setCommandNumber(this.numCommands++);
-        this.commandQueue.add(command);
-        
-        // Preload first command, or next command if the first batch finished.
-        if (this.currentCommand == null || this.currentCommand.isSent()) {
-            this.nextCommand();
-        }
-        
-        return command;
-    }
-    
     public void clearBuffer() {
         this.currentCommand = null;
         this.commandQueue.clear();

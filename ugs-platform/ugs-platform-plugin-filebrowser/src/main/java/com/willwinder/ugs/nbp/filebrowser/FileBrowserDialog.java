@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.filebrowser;
 
-import com.willwinder.universalgcodesender.File;
+import com.willwinder.universalgcodesender.model.File;
 import com.willwinder.universalgcodesender.IFileService;
 import com.willwinder.universalgcodesender.uielements.components.TableCellListener;
 import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper;

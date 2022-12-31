@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.AbstractController.UnexpectedCommand;
+import com.willwinder.universalgcodesender.communicator.AbstractCommunicator;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -466,8 +467,7 @@ public class GrblControllerTest {
      */
     @Test
     public void testSendCommandImmediately() throws Exception {
-        System.out.println("queueStringForComm");
-        String str = "G0 X0 ";
+        String str = "G0 X0";
         GrblController instance = initializeAndConnectController("blah", 123, "Grbl 0.8c");
         //$G and $$ get queued on startup
         assertEquals(2, mgc.numQueueStringForCommCalls);
@@ -596,9 +596,9 @@ public class GrblControllerTest {
         assertEquals(2, mgc.numQueueStringForCommCalls);
         // Wrap up test 3.
         for (int i = 0; i < 30; i++) {
-            command.setCommand("G0X" + i);
-            instance.commandSent(command);
-            instance.commandComplete(command.getCommandString());
+            GcodeCommand newCommand = new GcodeCommand("G0X" + i);
+            instance.commandSent(newCommand);
+            instance.commandComplete(newCommand.getCommandString());
         }
     }
 
@@ -1064,72 +1064,10 @@ public class GrblControllerTest {
     }
 
     /**
-     * Test of rawResponseListener method, of class GrblController.
-     */
-    @Test
-    public void testRawResponseListener() throws Exception {
-        System.out.println("rawResponseListener");
-        initializeAndConnectController("foo", 2400, "Grbl 0.8c");
-
-        // TODO: Test that ok/error trigger listener events.
-
-        // TODO: Test that version strings update versions.
-
-        // TODO: Test that status strings trigger both listener events
-        //          (verbose console and position event)
-    }
-
-    /**
-     * Test of rawResponseListener method, of class GrblController.
-     */
-    @Ignore("This has problems on the CI server.")
-    public void testPolling() {
-        System.out.println("testPolling (via rawResponseListener)");
-        GrblController instance = new GrblController(mgc);
-
-        // Test 1. Check that polling works. (Grbl 0.8c)
-        instance.rawResponseHandler("Grbl 0.8c");
-        try {
-
-            // Enough time for a few polling callsthe next poll to be sent.
-            Thread.sleep(600);
-        } catch (InterruptedException ex) {
-            fail("Unexpected exception while testing rawResponseListener: " + ex.getMessage());
-        }
-        assertTrue(1 <= mgc.numSendByteImmediatelyCalls);
-        //assertEquals(1, mgc.numSendByteImmediatelyCalls);
-        assertEquals(new Byte(GrblUtils.GRBL_STATUS_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size() - 1));
-
-        // Test 2. Check that another poll is sent shortly after receiving a
-        //         status message.
-        instance.rawResponseHandler("<blah blah blah>");
-        try {
-            // Enough time for a few polling callsthe next poll to be sent.
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            fail("Unexpected exception while testing rawResponseListener: " + ex.getMessage());
-        }
-        assertEquals(2, mgc.numSendByteImmediatelyCalls);
-        assertEquals(new Byte(GrblUtils.GRBL_STATUS_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size() - 1));
-
-        // Test 3. Check that after a long enough delay, additional polls are
-        //         sent even without responses.
-        try {
-            // Enough time for a few polling callsthe next poll to be sent.
-            Thread.sleep(5000);
-        } catch (InterruptedException ex) {
-            fail("Unexpected exception while testing rawResponseListener: " + ex.getMessage());
-        }
-        assert (2 < mgc.numSendByteImmediatelyCalls);
-        assertEquals(new Byte(GrblUtils.GRBL_STATUS_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size() - 1));
-    }
-
-    /**
      * Test of jogMachine method, of class AbstractController.
      */
     @Test
     public void testJogMachine() throws Exception {
-        System.out.println("jogMachine");
         GrblController instance = new GrblController(mgc);
 
         instance.setDistanceModeCode("G90");
@@ -1140,11 +1078,11 @@ public class GrblControllerTest {
         instance.rawResponseHandler("Grbl 0.8c");
         instance.jogMachine(new PartialPosition(-10., null, 10., UnitUtils.Units.INCH), 11);
         assertEquals("G20G91G1X-10Z10F11", mgc.queuedStrings.get(2));
-        assertEquals("G90 G21 ", mgc.queuedStrings.get(3));
+        assertEquals("G90 G21", mgc.queuedStrings.get(3));
 
         instance.jogMachine(new PartialPosition(null, 10., null, UnitUtils.Units.MM), 11);
         assertEquals("G21G91G1Y10F11", mgc.queuedStrings.get(4));
-        assertEquals("G90 G21 ", mgc.queuedStrings.get(5));
+        assertEquals("G90 G21", mgc.queuedStrings.get(5));
 
         instance.rawResponseHandler("Grbl 1.1a");
         instance.jogMachine(new PartialPosition(-10., null, 10., UnitUtils.Units.INCH), 11);
@@ -1159,7 +1097,6 @@ public class GrblControllerTest {
      */
     @Test
     public void testJogMachineTo() throws Exception {
-        System.out.println("jogMachineTo");
         GrblController instance = new GrblController(mgc);
 
         instance.setDistanceModeCode("G90");
@@ -1170,19 +1107,19 @@ public class GrblControllerTest {
         instance.rawResponseHandler("Grbl 0.8c");
         instance.jogMachineTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 200);
         assertEquals("G21G90G1X1Y2Z3F200", mgc.queuedStrings.get(2));
-        assertEquals("G90 G21 ", mgc.queuedStrings.get(3));
+        assertEquals("G90 G21", mgc.queuedStrings.get(3));
 
         instance.jogMachineTo(new PartialPosition(1.0, 2.0, UnitUtils.Units.MM), 200);
         assertEquals("G21G90G1X1Y2F200", mgc.queuedStrings.get(4));
-        assertEquals("G90 G21 ", mgc.queuedStrings.get(5));
+        assertEquals("G90 G21", mgc.queuedStrings.get(5));
 
         instance.jogMachineTo(new PartialPosition(1.2345678, 2.0, UnitUtils.Units.MM), 200);
         assertEquals("G21G90G1X1.235Y2F200", mgc.queuedStrings.get(6));
-        assertEquals("G90 G21 ", mgc.queuedStrings.get(7));
+        assertEquals("G90 G21", mgc.queuedStrings.get(7));
 
         instance.jogMachineTo(new PartialPosition(1.0, 2.0, UnitUtils.Units.INCH), 200);
         assertEquals("G20G90G1X1Y2F200", mgc.queuedStrings.get(8));
-        assertEquals("G90 G21 ", mgc.queuedStrings.get(9));
+        assertEquals("G90 G21", mgc.queuedStrings.get(9));
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2017 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,27 +16,37 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.communicator;
+
+import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 
 /**
+ * TinyG serial port interface class.
+ *
  * @author wwinder
  */
-public class XLCDCommunicator extends GrblCommunicator {
-
-    private int UGSCommandCount = 0;
-    public XLCDCommunicator() {}
+public class TinyGCommunicator extends BufferedCommunicator {
 
     @Override
-    protected void sendingCommand(String command) {
-        UGSCommandCount++;
+    public int getBufferSize() {
+        return 254;
     }
 
     @Override
     protected boolean processedCommand(String response) {
-        if (UGSCommandCount > 0 && GrblUtils.isOkErrorAlarmResponse(response)) {
-            UGSCommandCount--;
-            return true;
-        }
+        return TinyGGcodeCommand.isOkErrorResponse(response);
+    }
+
+    /**
+     * Allows detecting errors and pausing the stream.
+     */
+    @Override
+    protected boolean processedCommandIsError(String response) {
         return false;
-    }    
+    }
+
+    @Override
+    protected void sendingCommand(String response) {
+        // no-op for this protocol.
+    }
 }

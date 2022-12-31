@@ -16,11 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.communicator;
 
+import com.willwinder.universalgcodesender.communicator.AbstractCommunicator;
+import com.willwinder.universalgcodesender.communicator.BufferedCommunicator;
+import com.willwinder.universalgcodesender.communicator.event.CommunicatorEventDispatcher;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
-import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
+import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
@@ -36,13 +39,11 @@ import org.mockito.ArgumentCaptor;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -55,7 +56,7 @@ public class BufferedCommunicatorTest {
 
     private static File tempDir;
     private final static Connection mockConnection = EasyMock.createMock(Connection.class);
-    private final static CommunicatorListener mockScl = EasyMock.createMock(CommunicatorListener.class);
+    private final static ICommunicatorListener mockScl = EasyMock.createMock(ICommunicatorListener.class);
     private BufferedCommunicator instance;
     private LinkedBlockingDeque<GcodeCommand> cb;
     private LinkedBlockingDeque<GcodeCommand> asl;
@@ -82,12 +83,6 @@ public class BufferedCommunicatorTest {
         instance = new BufferedCommunicatorImpl(cb, asl);
         instance.setConnection(mockConnection);
         instance.addListener(mockScl);
-
-        // Initialize private variable.
-        Field f = AbstractCommunicator.class.getDeclaredField("launchEventsInDispatchThread");
-        f.setAccessible(true);
-        f.set(instance, false);
-
         EasyMock.reset(mockConnection, mockScl);
     }
 
@@ -455,7 +450,7 @@ public class BufferedCommunicatorTest {
         Connection connection = mock(Connection.class);
         instance.setConnection(connection);
 
-        CommunicatorListener communicatorListener = mock(CommunicatorListener.class);
+        ICommunicatorListener communicatorListener = mock(ICommunicatorListener.class);
         instance.addListener(communicatorListener);
 
         asl.add(new GcodeCommand("G0"));
@@ -565,7 +560,7 @@ public class BufferedCommunicatorTest {
 
     public class BufferedCommunicatorImpl extends BufferedCommunicator {
         BufferedCommunicatorImpl(LinkedBlockingDeque<GcodeCommand> cb, LinkedBlockingDeque<GcodeCommand> asl) {
-            super(cb, asl);
+            super(cb, asl, new CommunicatorEventDispatcher());
         }
 
         public int getBufferSize() {

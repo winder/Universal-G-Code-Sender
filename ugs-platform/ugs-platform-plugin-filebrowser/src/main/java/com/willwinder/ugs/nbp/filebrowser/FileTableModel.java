@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.filebrowser;
 
-import com.willwinder.universalgcodesender.File;
+import com.willwinder.universalgcodesender.model.File;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;

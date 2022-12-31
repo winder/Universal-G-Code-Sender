@@ -1,5 +1,5 @@
 /*
-    Copyright 2022 Will Winder
+    Copyright 2012-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,13 +16,26 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.firmware.fluidnc.commands;
+package com.willwinder.universalgcodesender.communicator.event;
+
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 /**
- * The system command is used for backend operations. This will cause the command to only log with verbose logging.
+ * Simple data class used to pass data to the event thread.
+ *
+ * @author winder
  */
-public class SystemCommand extends FluidNCCommand {
-    public SystemCommand(String command) {
-        super(command);
+public class AsyncCommunicatorEvent {
+    public final AsyncCommunicatorEventType event;
+    public final GcodeCommand command;
+    public final String response;
+
+    public AsyncCommunicatorEvent(
+            AsyncCommunicatorEventType event,
+            String response,
+            GcodeCommand command) {
+        this.event = event;
+        this.command = command;
+        this.response = response;
     }
 }

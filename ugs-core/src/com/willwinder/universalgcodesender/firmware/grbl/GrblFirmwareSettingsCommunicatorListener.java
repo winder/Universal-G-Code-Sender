@@ -23,7 +23,7 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
-import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
+import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GrblLookups;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
  *
  * @author Joacim Breiler
  */
-public class GrblFirmwareSettingsCommunicatorListener implements CommunicatorListener {
+public class GrblFirmwareSettingsCommunicatorListener implements ICommunicatorListener {
     private static final Logger logger = Logger.getLogger(GrblFirmwareSettingsCommunicatorListener.class.getName());
 
     /**

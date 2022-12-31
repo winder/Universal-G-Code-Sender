@@ -25,10 +25,10 @@ import com.willwinder.universalgcodesender.G2CoreController;
 import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.GrblEsp32Controller;
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.LoopBackCommunicator;
+import com.willwinder.universalgcodesender.communicator.LoopBackCommunicator;
 import com.willwinder.universalgcodesender.SmoothieController;
 import com.willwinder.universalgcodesender.TinyGController;
-import com.willwinder.universalgcodesender.XLCDCommunicator;
+import com.willwinder.universalgcodesender.communicator.XLCDCommunicator;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.gcode.util.CommandProcessorLoader;
 

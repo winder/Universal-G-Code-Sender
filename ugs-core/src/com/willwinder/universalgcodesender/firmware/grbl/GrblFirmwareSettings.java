@@ -19,12 +19,13 @@
 package com.willwinder.universalgcodesender.firmware.grbl;
 
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.communicator.AbstractCommunicator;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
+import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -41,13 +42,13 @@ import java.util.logging.Logger;
 
 /**
  * Handles the firmware settings on a GRBL controller. It needs to be registered as a listener
- * to {@link com.willwinder.universalgcodesender.AbstractCommunicator#setListenAll(CommunicatorListener)}
+ * to {@link AbstractCommunicator#addListener(ICommunicatorListener)}
  * for it to be able to process all commands to/from the controller.
  *
  * @author Joacim Breiler
  * @author MerrellM
  */
-public class GrblFirmwareSettings implements CommunicatorListener, IFirmwareSettingsListener, IFirmwareSettings {
+public class GrblFirmwareSettings implements ICommunicatorListener, IFirmwareSettingsListener, IFirmwareSettings {
     private static final Logger LOGGER = Logger.getLogger(GrblFirmwareSettings.class.getName());
 
     /**
