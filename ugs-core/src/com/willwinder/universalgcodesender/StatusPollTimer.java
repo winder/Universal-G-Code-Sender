@@ -68,22 +68,30 @@ public class StatusPollTimer {
 
         return new Timer(updateInterval, actionEvent -> {
             try {
-                if (outstandingPolls == 0) {
-                    outstandingPolls++;
-                    controller.requestStatusReport();
-                } else {
-                    // If a poll is somehow lost after 20 intervals,
-                    // reset for sending another.
-                    outstandingPolls++;
-                    if (outstandingPolls >= MAX_OUTSTANDING_POLLS) {
-                        outstandingPolls = 0;
-                    }
-                }
+                performPolling();
             } catch (Exception ex) {
                 LOGGER.log(Level.SEVERE, "Couldn't poll for status reports", ex);
                 stop();
             }
         });
+    }
+
+    private void performPolling() throws Exception {
+        if (!controller.isCommOpen()) {
+            return;
+        }
+
+        if (outstandingPolls == 0) {
+            outstandingPolls++;
+            controller.requestStatusReport();
+        } else {
+            // If a poll is somehow lost after 20 intervals,
+            // reset for sending another.
+            outstandingPolls++;
+            if (outstandingPolls >= MAX_OUTSTANDING_POLLS) {
+                outstandingPolls = 0;
+            }
+        }
     }
 
     /**

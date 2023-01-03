@@ -37,7 +37,7 @@ import java.util.logging.Logger;
  */
 public class ThreadHelper {
     private static final Logger logger = Logger.getLogger(ThreadHelper.class.getName());
-    private static final int THREAD_POOL_SIZE = 1024;
+    private static final int THREAD_POOL_SIZE = 10;
 
     private static final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
 
