@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2021 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -52,24 +52,24 @@ import java.util.stream.Stream;
 /**
  * DRO style display panel with current controller state.
  */
-public class MachineStatusPanel extends JPanel implements UGSEventListener, AxisPanel.AxisPanelListener {
+public class MachineStatusPanel extends JPanel implements UGSEventListener, AxisPanelListener {
     private static final Logger LOGGER = Logger.getLogger(MachineStatusPanel.class.getName());
     private static final int COMMON_RADIUS = 7;
     private static final Duration REFRESH_RATE = Duration.ofSeconds(1);
 
-    private final String OFFLINE = Localization.getString("mainWindow.status.offline").toUpperCase();
-    private final String ALARM = Localization.getString("mainWindow.status.alarm").toUpperCase();
-    private final String PIN_X = Localization.getString("machineStatus.pin.x").toUpperCase();
-    private final String PIN_Y = Localization.getString("machineStatus.pin.y").toUpperCase();
-    private final String PIN_Z = Localization.getString("machineStatus.pin.z").toUpperCase();
-    private final String PIN_A = Localization.getString("machineStatus.pin.a").toUpperCase();
-    private final String PIN_B = Localization.getString("machineStatus.pin.b").toUpperCase();
-    private final String PIN_C = Localization.getString("machineStatus.pin.c").toUpperCase();
-    private final String PIN_PROBE = Localization.getString("machineStatus.pin.probe").toUpperCase();
-    private final String PIN_DOOR = Localization.getString("machineStatus.pin.door").toUpperCase();
-    private final String PIN_HOLD = Localization.getString("machineStatus.pin.hold").toUpperCase();
-    private final String PIN_SOFT_RESET = Localization.getString("machineStatus.pin.softReset").toUpperCase();
-    private final String PIN_CYCLE_STARY = Localization.getString("machineStatus.pin.cycleStart").toUpperCase();
+    private final static String OFFLINE = Localization.getString("mainWindow.status.offline").toUpperCase();
+    private final static String ALARM = Localization.getString("mainWindow.status.alarm").toUpperCase();
+    private final static String PIN_X = Localization.getString("machineStatus.pin.x").toUpperCase();
+    private final static String PIN_Y = Localization.getString("machineStatus.pin.y").toUpperCase();
+    private final static String PIN_Z = Localization.getString("machineStatus.pin.z").toUpperCase();
+    private final static String PIN_A = Localization.getString("machineStatus.pin.a").toUpperCase();
+    private final static String PIN_B = Localization.getString("machineStatus.pin.b").toUpperCase();
+    private final static String PIN_C = Localization.getString("machineStatus.pin.c").toUpperCase();
+    private final static String PIN_PROBE = Localization.getString("machineStatus.pin.probe").toUpperCase();
+    private final static String PIN_DOOR = Localization.getString("machineStatus.pin.door").toUpperCase();
+    private final static String PIN_HOLD = Localization.getString("machineStatus.pin.hold").toUpperCase();
+    private final static String PIN_SOFT_RESET = Localization.getString("machineStatus.pin.softReset").toUpperCase();
+    private final static String PIN_CYCLE_STARY = Localization.getString("machineStatus.pin.cycleStart").toUpperCase();
 
     private final RoundedPanel activeStatePanel = new RoundedPanel(COMMON_RADIUS);
     private final JLabel activeStateValueLabel = new JLabel(" ");
@@ -205,6 +205,11 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
 
     private void setAllCaps(JLabel... labels) {
         Arrays.stream(labels).forEach(l -> l.setText(l.getText().toUpperCase()));
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+
     }
 
     private Timer createTimer() {
