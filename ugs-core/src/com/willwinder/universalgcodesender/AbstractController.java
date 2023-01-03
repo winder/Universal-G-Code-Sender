@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -83,7 +85,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
     //   2) As commands are sent by the Communicator create a GCodeCommand
     //      (with command number) object and add it to the activeCommands list.
     //   3) As commands are completed remove them from the activeCommand list.
-    private final ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
+    private final BlockingDeque<GcodeCommand> activeCommands;    // The list of active commands.
     private IGcodeStreamReader streamCommands;    // The stream of commands to send.
 
     // Listeners
@@ -316,7 +318,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         this.comm = comm;
         this.comm.addListener(this);
 
-        this.activeCommands = new ArrayList<>();
+        this.activeCommands = new LinkedBlockingDeque<>();
         this.listeners = Collections.synchronizedList(new ArrayList<>());
     }
 
@@ -451,10 +453,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
 
     @Override
     public Optional<GcodeCommand> getActiveCommand() {
-        if (activeCommands.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(activeCommands.get(0));
+        return Optional.ofNullable(activeCommands.peekFirst());
     }
 
     @Override
@@ -748,19 +747,19 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
      * that the stream is complete once the last command has finished.
      */
     public void commandComplete(String response) throws UnexpectedCommand {
-        if (this.activeCommands.isEmpty()) {
+        if (activeCommands.isEmpty()) {
             throw new UnexpectedCommand(
                     Localization.getString("controller.exception.unexpectedCommand"));
         }
 
-        GcodeCommand command = this.activeCommands.remove(0);
+        GcodeCommand command = activeCommands.pollFirst();
         updateCommandFromResponse(command, response);
         updateParserModalState(command);
 
-        this.numCommandsCompleted++;
+        numCommandsCompleted++;
 
-        if (this.activeCommands.isEmpty()) {
-            this.setCurrentState(COMM_IDLE);
+        if (activeCommands.isEmpty()) {
+            setCurrentState(COMM_IDLE);
         }
 
         dispatchCommandComplete(command);

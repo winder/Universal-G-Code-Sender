@@ -39,12 +39,12 @@ import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,7 +62,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     private final GcodeParser gcodeParser = new GcodeParser();
     private final Set<ControllerListener> listeners = Collections.synchronizedSet(new HashSet<>());
-    private final List<GcodeCommand> activeCommands = new ArrayList<>();
+    private final BlockingDeque<GcodeCommand> activeCommands = new LinkedBlockingDeque<>();
     private final ICommunicator communicator;
     private final FluidNCSettings firmwareSettings = new FluidNCSettings(this);
     private final Capabilities capabilities = new Capabilities();
@@ -393,10 +393,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     @Override
     public Optional<GcodeCommand> getActiveCommand() {
-        if (activeCommands.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(activeCommands.get(0));
+        return Optional.ofNullable(activeCommands.peekFirst());
     }
 
     @Override
@@ -693,7 +690,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
         if (GrblUtils.isGrblStatusString(response)) {
             getActiveCommand().filter(command -> command instanceof GetStatusCommand || command.getCommandString().contains("?")).ifPresent(command -> {
                 command.appendResponse(response);
-                activeCommands.remove(0);
+                activeCommands.removeFirst();
                 listeners.forEach(l -> l.commandComplete(command));
 
                 if (command instanceof SystemCommand) {
@@ -719,7 +716,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
             if (command instanceof FluidNCCommand) {
                 if (command.isDone()) {
-                    activeCommands.remove(0);
+                    activeCommands.removeFirst();
                     updateParserModalState(command);
 
                     listeners.forEach(l -> l.commandComplete(command));
@@ -736,7 +733,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
                 if (response.startsWith("ok") || response.startsWith("error") || response.startsWith("alarm")) {
                     command.setDone(true);
 
-                    activeCommands.remove(0);
+                    activeCommands.removeFirst();
                     listeners.forEach(l -> l.commandComplete(command));
                     messageService.dispatchMessage(MessageType.INFO, command.getResponse() + "\n");
                 }
