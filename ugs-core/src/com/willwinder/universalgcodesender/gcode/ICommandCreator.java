@@ -42,8 +42,7 @@ public interface ICommandCreator {
      * @param originalCommand an optional original command that was used by the preprocessing engine
      * @param comment an optional comment that is associated with the command
      * @param lineNumber an optional line number that this command originates from
-     * @param isGenerated if the command was generated and not a part of a gcode program
      * @return the created command
      */
-    GcodeCommand createCommand(String command, String originalCommand, String comment, int lineNumber, boolean isGenerated);
+    GcodeCommand createCommand(String command, String originalCommand, String comment, int lineNumber);
 }

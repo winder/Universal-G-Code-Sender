@@ -32,7 +32,7 @@ public class TinyGGcodeCommandCreator implements ICommandCreator {
     }
 
     @Override
-    public GcodeCommand createCommand(String command, String originalCommand, String comment, int lineNumber, boolean isGenerated) {
-        return new GcodeCommand(command, originalCommand, comment, lineNumber, isGenerated);
+    public GcodeCommand createCommand(String command, String originalCommand, String comment, int lineNumber) {
+        return new GcodeCommand(command, originalCommand, comment, lineNumber);
     }
 }

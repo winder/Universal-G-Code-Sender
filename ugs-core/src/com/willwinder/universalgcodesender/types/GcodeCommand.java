@@ -93,13 +93,27 @@ public class GcodeCommand {
     }
 
     /**
+     * Constructor for creating a gcode command that is a part of a gcode program
+     *
      * @param command         the command that will be sent to the controller
-     * @param originalCommand the
+     * @param originalCommand the original command before it was preprocessed
+     * @param comment         either a comment
+     * @param commandNumber   the index of command, usually the line number in a file
+     */
+    public GcodeCommand(String command, String originalCommand, String comment, int commandNumber) {
+        this(command, originalCommand, comment, commandNumber, false);
+    }
+
+    /**
+     * Constructor for creating a gcode command
+     *
+     * @param command         the command that will be sent to the controller
+     * @param originalCommand the original command before it was preprocessed
      * @param comment         either a comment
      * @param commandNumber   the index of command, usually the line number in a file
      * @param isGenerated     if this is a generated command not a part of any program (ie. jog, action or settings commands).
      */
-    public GcodeCommand(String command, String originalCommand, String comment, int commandNumber, boolean isGenerated) {
+    protected GcodeCommand(String command, String originalCommand, String comment, int commandNumber, boolean isGenerated) {
         this.command = command.trim();
         this.originalCommand = originalCommand;
         this.comment = comment;

@@ -147,14 +147,16 @@ public final class OutlineAction extends ProgramAction implements UGSEventListen
     }
 
     private List<GcodeCommand> generateConvexHullCommands(List<PartialPosition> pointList) {
-        UnitUtils.Units preferredUnits = backend.getSettings().getPreferredUnits();
-        double jogFeedRateInMM = backend.getSettings().getJogFeedRate() * UnitUtils.scaleUnits(preferredUnits, UnitUtils.Units.MM);
-
         List<PartialPosition> outline = MathUtils.generateConvexHull(pointList);
         ICommandCreator commandCreator = backend.getCommandCreator();
         return outline.stream()
-                .map(point -> commandCreator.createCommand(GcodeUtils.generateMoveToCommand(Code.G1.name(), point, jogFeedRateInMM)))
+                .map(point -> commandCreator.createCommand(GcodeUtils.generateMoveToCommand(Code.G1.name(), point, getJogFeedRate())))
                 .collect(Collectors.toList());
+    }
+
+    private double getJogFeedRate() {
+        UnitUtils.Units preferredUnits = backend.getSettings().getPreferredUnits();
+        return backend.getSettings().getJogFeedRate() * UnitUtils.scaleUnits(preferredUnits, UnitUtils.Units.MM);
     }
 
     private List<LineSegment> parseGcodeLinesFromFile(File gcodeFile) throws IOException, GcodeParserException {

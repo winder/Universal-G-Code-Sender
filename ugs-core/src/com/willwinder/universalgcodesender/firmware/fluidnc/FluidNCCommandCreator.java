@@ -32,7 +32,7 @@ public class FluidNCCommandCreator implements ICommandCreator {
     }
 
     @Override
-    public GcodeCommand createCommand(String command, String originalCommand, String comment, int lineNumber, boolean isGenerated) {
-        return new FluidNCCommand(command, originalCommand, comment, lineNumber, isGenerated);
+    public GcodeCommand createCommand(String command, String originalCommand, String comment, int lineNumber) {
+        return new FluidNCCommand(command, originalCommand, comment, lineNumber);
     }
 }
