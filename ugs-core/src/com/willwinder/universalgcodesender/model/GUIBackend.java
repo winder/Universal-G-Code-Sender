@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2022 Will Winder
+    Copyright 2015-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,6 +20,8 @@ package com.willwinder.universalgcodesender.model;
 
 import com.google.common.io.Files;
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
@@ -677,6 +679,15 @@ public class GUIBackend implements BackendAPI {
     @Override
     public void openDoor() throws Exception {
         controller.openDoor();
+    }
+
+    @Override
+    public ICommandCreator getCommandCreator() {
+        if (controller == null) {
+            return new DefaultCommandCreator();
+        }
+
+        return controller.getCommandCreator();
     }
 
     @Override

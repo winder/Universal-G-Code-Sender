@@ -1,9 +1,5 @@
 /*
- * Simple class to increment gcode command numbers.
- */
-
-/*
-    Copyright 2013 Will Winder
+    Copyright 2013-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,28 +21,17 @@ package com.willwinder.universalgcodesender.gcode;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 /**
- *
  * @author wwinder
  */
-public class GcodeCommandCreator {
-    protected int numCommands = 0;
-    
-    public GcodeCommandCreator() {
-    }
-    
-    public GcodeCommandCreator(int num) {
-        this.numCommands = num;
-    }
-    
-    public void resetNum() {
-        this.numCommands = 0;
+public class DefaultCommandCreator implements ICommandCreator {
+
+    @Override
+    public GcodeCommand createCommand(String command) {
+        return new GcodeCommand(command);
     }
 
-    public int nextCommandNum() {
-        return this.numCommands;
-    }
-    
-    public GcodeCommand createCommand(String commandString) throws Exception {
-        return new GcodeCommand(commandString, this.numCommands++);
+    @Override
+    public GcodeCommand createCommand(String command, String originalCommand, String comment, int lineNumber, boolean isGenerated) {
+        return new GcodeCommand(command, originalCommand, comment, lineNumber, isGenerated);
     }
 }

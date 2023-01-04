@@ -1,5 +1,5 @@
 /*
-    Copyright 2019 Will Winder
+    Copyright 2019-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,7 +26,6 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
 import com.willwinder.universalgcodesender.model.PartialPosition;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
 
@@ -108,36 +107,36 @@ public class G2CoreController extends TinyGController {
     protected void sendInitCommands() {
         // Enable JSON mode
         // 0=text mode, 1=JSON mode
-        comm.queueCommand(new GcodeCommand("{ej:1}"));
+        comm.queueCommand(getCommandCreator().createCommand("{ej:1}"));
 
         // Configure status reports
-        comm.queueCommand(new GcodeCommand(STATUS_REPORT_CONFIG));
+        comm.queueCommand(getCommandCreator().createCommand(STATUS_REPORT_CONFIG));
 
         // JSON verbosity
         // 0=silent, 1=footer, 2=messages, 3=configs, 4=linenum, 5=verbose
-        comm.queueCommand(new GcodeCommand("{jv:4}"));
+        comm.queueCommand(getCommandCreator().createCommand("{jv:4}"));
 
         // Queue report verbosity
         // 0=off, 1=filtered, 2=verbose
-        comm.queueCommand(new GcodeCommand("{qv:0}"));
+        comm.queueCommand(getCommandCreator().createCommand("{qv:0}"));
 
         // Status report verbosity
         // 0=off, 1=filtered, 2=verbose
-        comm.queueCommand(new GcodeCommand("{sv:1}"));
+        comm.queueCommand(getCommandCreator().createCommand("{sv:1}"));
 
         // Request firmware settings
-        comm.queueCommand(new GcodeCommand("$$"));
+        comm.queueCommand(getCommandCreator().createCommand("$$"));
 
         // Enable feed overrides
-        comm.queueCommand(new GcodeCommand("{mfoe:1}"));
-        comm.queueCommand(new GcodeCommand("{mtoe:1}"));
-        comm.queueCommand(new GcodeCommand("{ssoe:1}"));
+        comm.queueCommand(getCommandCreator().createCommand("{mfoe:1}"));
+        comm.queueCommand(getCommandCreator().createCommand("{mtoe:1}"));
+        comm.queueCommand(getCommandCreator().createCommand("{ssoe:1}"));
 
         // Activate motors by default
-        comm.queueCommand(new GcodeCommand("{xam:1, yam:1, zam:1}"));
+        comm.queueCommand(getCommandCreator().createCommand("{xam:1, yam:1, zam:1}"));
 
         // Request initial status report
-        comm.queueCommand(new GcodeCommand("{sr:n}"));
+        comm.queueCommand(getCommandCreator().createCommand("{sr:n}"));
 
         comm.streamCommands();
 

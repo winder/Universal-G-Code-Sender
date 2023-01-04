@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2022 Will Winder
+    Copyright 2013-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -413,11 +414,13 @@ public class TinyGUtils {
     /**
      * Creates an override gcode command based on the current override state.
      *
+     *
+     * @param commandCreator
      * @param currentOverrides the current override state
      * @param command          the command which we want to build a gcode command from
      * @return the gcode command
      */
-    public static Optional<GcodeCommand> createOverrideCommand(ControllerStatus.OverridePercents currentOverrides, Overrides command) {
+    public static Optional<GcodeCommand> createOverrideCommand(ICommandCreator commandCreator, ControllerStatus.OverridePercents currentOverrides, Overrides command) {
         double feedOverride = OVERRIDE_DEFAULT;
         double spindleOverride = OVERRIDE_DEFAULT;
         if (currentOverrides != null) {
@@ -425,66 +428,66 @@ public class TinyGUtils {
             spindleOverride = ((double) currentOverrides.spindle) / 100.0;
         }
 
-        Optional<GcodeCommand> result = Optional.empty();
+        GcodeCommand result = null;
         switch (command) {
             case CMD_FEED_OVR_COARSE_MINUS:
                 if (feedOverride > OVERRIDE_MIN) {
-                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(feedOverride - 0.10) + "}"));
+                    result = commandCreator.createCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(feedOverride - 0.10) + "}");
                 }
                 break;
             case CMD_FEED_OVR_COARSE_PLUS:
                 if (feedOverride < OVERRIDE_MAX) {
-                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(feedOverride + 0.10) + "}"));
+                    result = commandCreator.createCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(feedOverride + 0.10) + "}");
                 }
                 break;
             case CMD_FEED_OVR_FINE_MINUS:
                 if (feedOverride > OVERRIDE_MIN) {
-                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(feedOverride - 0.05) + "}"));
+                    result = commandCreator.createCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(feedOverride - 0.05) + "}");
                 }
                 break;
             case CMD_FEED_OVR_FINE_PLUS:
                 if (feedOverride < OVERRIDE_MAX) {
-                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(feedOverride + 0.05) + "}"));
+                    result = commandCreator.createCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(feedOverride + 0.05) + "}");
                 }
                 break;
             case CMD_FEED_OVR_RESET:
-                result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(OVERRIDE_DEFAULT) + "}"));
+                result = commandCreator.createCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(OVERRIDE_DEFAULT) + "}");
                 break;
 
             case CMD_SPINDLE_OVR_COARSE_MINUS:
                 if (spindleOverride > OVERRIDE_MIN) {
-                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(spindleOverride - 0.10) + "}"));
+                    result = commandCreator.createCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(spindleOverride - 0.10) + "}");
                 }
                 break;
             case CMD_SPINDLE_OVR_COARSE_PLUS:
                 if (spindleOverride < OVERRIDE_MAX) {
-                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(spindleOverride + 0.10) + "}"));
+                    result = commandCreator.createCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(spindleOverride + 0.10) + "}");
                 }
                 break;
             case CMD_SPINDLE_OVR_FINE_MINUS:
                 if (spindleOverride > OVERRIDE_MIN) {
-                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(spindleOverride - 0.05) + "}"));
+                    result = commandCreator.createCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(spindleOverride - 0.05) + "}");
                 }
                 break;
             case CMD_SPINDLE_OVR_FINE_PLUS:
                 if (spindleOverride < OVERRIDE_MAX) {
-                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(spindleOverride + 0.05) + "}"));
+                    result = commandCreator.createCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(spindleOverride + 0.05) + "}");
                 }
                 break;
             case CMD_SPINDLE_OVR_RESET:
-                result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(OVERRIDE_DEFAULT) + "}"));
+                result = commandCreator.createCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(OVERRIDE_DEFAULT) + "}");
                 break;
             case CMD_RAPID_OVR_LOW:
-                result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MTO + ":" + Utils.formatter.format(0.25) + "}"));
+                result = commandCreator.createCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MTO + ":" + Utils.formatter.format(0.25) + "}");
                 break;
             case CMD_RAPID_OVR_MEDIUM:
-                result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MTO + ":" + Utils.formatter.format(0.50) + "}"));
+                result = commandCreator.createCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MTO + ":" + Utils.formatter.format(0.50) + "}");
                 break;
             case CMD_RAPID_OVR_RESET:
-                result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MTO + ":" + Utils.formatter.format(1.00) + "}"));
+                result = commandCreator.createCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MTO + ":" + Utils.formatter.format(1.00) + "}");
                 break;
             default:
         }
-        return result;
+        return Optional.ofNullable(result);
     }
 }

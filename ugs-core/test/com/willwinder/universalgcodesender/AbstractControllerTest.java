@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2020 Will Winder
+    Copyright 2015-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,7 +22,8 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.communicator.AbstractCommunicator;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
-import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -44,7 +45,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.assertEquals;
@@ -59,7 +59,7 @@ public class AbstractControllerTest {
     private final static AbstractCommunicator mockCommunicator = EasyMock.createMock(AbstractCommunicator.class);
     private final static ControllerListener mockListener = EasyMock.createMock(ControllerListener.class);
     private final static MessageService mockMessageService = EasyMock.createMock(MessageService.class);
-    private final static GcodeCommandCreator gcodeCreator = new GcodeCommandCreator();
+    private final static ICommandCreator gcodeCreator = new DefaultCommandCreator();
 
     private final Settings settings = new Settings();
 
@@ -68,7 +68,7 @@ public class AbstractControllerTest {
     private static File tempDir = null;
 
     //@BeforeClass
-    public static void init() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+    public static void init() throws IllegalArgumentException {
         IMockBuilder<AbstractController> instanceBuilder = EasyMock
                 .createMockBuilder(AbstractController.class)
                 .addMockedMethods(
@@ -83,18 +83,10 @@ public class AbstractControllerTest {
                         "isReadyToSendCommandsEvent",
                         "rawResponseHandler",
                         "isCommOpen")
-                .withConstructor(ICommunicator.class)
-                .withArgs(mockCommunicator);
+                .withConstructor(ICommunicator.class, ICommandCreator.class)
+                .withArgs(mockCommunicator, gcodeCreator);
 
         instance = instanceBuilder.createMock();
-        AbstractController niceInstance = instanceBuilder.createNiceMock();
-
-        // Initialize private variable.
-        Field f = AbstractController.class.getDeclaredField("commandCreator");
-        f.setAccessible(true);
-        f.set(instance, gcodeCreator);
-        f.set(niceInstance, gcodeCreator);
-        
         instance.addListener(mockListener);
         instance.setMessageService(mockMessageService);
     }
@@ -165,7 +157,7 @@ public class AbstractControllerTest {
     @Test
     public void testGetCommandCreator() {
         System.out.println("getCommandCreator");
-        GcodeCommandCreator result = instance.getCommandCreator();
+        ICommandCreator result = instance.getCommandCreator();
         assertEquals(gcodeCreator, result);
     }
 

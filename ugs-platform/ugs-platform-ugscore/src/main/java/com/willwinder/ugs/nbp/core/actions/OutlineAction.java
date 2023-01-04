@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Will Winder
+    Copyright 2020-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
@@ -36,6 +37,7 @@ import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
+import com.willwinder.universalgcodesender.visualizer.LineSegmentToPartialPositionMapper;
 import com.willwinder.universalgcodesender.utils.MathUtils;
 import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -56,7 +58,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * An action that will parse the loaded gcode file and generate a movement path for outlining
@@ -138,21 +139,21 @@ public final class OutlineAction extends ProgramAction implements UGSEventListen
         // We only care about carving motion, filter those commands out
         List<PartialPosition> pointList = gcodeLineList.parallelStream()
                 .filter(lineSegment -> !lineSegment.isFastTraverse())
-                .flatMap(lineSegment -> {
-                    // We map both the start and end points in MM
-                    PartialPosition start = PartialPosition.fromXY(lineSegment.getStart().getPositionIn(UnitUtils.Units.MM));
-                    PartialPosition end = PartialPosition.fromXY(lineSegment.getEnd().getPositionIn(UnitUtils.Units.MM));
-                    return Stream.of(start, end);
-                })
+                .flatMap(new LineSegmentToPartialPositionMapper())
                 .distinct()
                 .collect(Collectors.toList());
 
+        return generateConvexHullCommands(pointList);
+    }
+
+    private List<GcodeCommand> generateConvexHullCommands(List<PartialPosition> pointList) {
         UnitUtils.Units preferredUnits = backend.getSettings().getPreferredUnits();
         double jogFeedRateInMM = backend.getSettings().getJogFeedRate() * UnitUtils.scaleUnits(preferredUnits, UnitUtils.Units.MM);
 
         List<PartialPosition> outline = MathUtils.generateConvexHull(pointList);
+        ICommandCreator commandCreator = backend.getCommandCreator();
         return outline.stream()
-                .map(point -> new GcodeCommand(GcodeUtils.generateMoveToCommand(Code.G1.name(), point, jogFeedRateInMM)))
+                .map(point -> commandCreator.createCommand(GcodeUtils.generateMoveToCommand(Code.G1.name(), point, jogFeedRateInMM)))
                 .collect(Collectors.toList());
     }
 

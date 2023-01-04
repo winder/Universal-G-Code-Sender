@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2021 Will Winder
+    Copyright 2015-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Axis;
@@ -237,4 +238,12 @@ public interface IController {
      * @return a file service
      */
     IFileService getFileService();
+
+    /**
+     * A command creator responsible for creating commands specifically for this
+     * type of controller.
+     *
+     * @return a command creator for this controller
+     */
+    ICommandCreator getCommandCreator();
 }

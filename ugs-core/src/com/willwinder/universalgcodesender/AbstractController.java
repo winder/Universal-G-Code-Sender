@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2020 Will Winder
+    Copyright 2013-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,9 +21,9 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
-import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.*;
@@ -58,11 +58,11 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
     private static final Logger logger = Logger.getLogger(AbstractController.class.getName());
     private final GcodeParser parser = new GcodeParser();
     private final ConnectionWatchTimer connectionWatchTimer = new ConnectionWatchTimer(this);
+    private final ICommandCreator commandCreator;
 
     // These abstract objects are initialized in concrete class.
     protected final ICommunicator comm;
     protected MessageService messageService;
-    protected GcodeCommandCreator commandCreator;
 
     // Added value
     private Boolean isStreaming = false;
@@ -303,23 +303,21 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         restoreParserModalState();
     }
 
-    /**
-     * Accessible so that it can be configured.
-     * @return
-     */
-    public GcodeCommandCreator getCommandCreator() {
+    @Override
+    public ICommandCreator getCommandCreator() {
         return commandCreator;
     }
 
     /**
      * Dependency injection constructor to allow a mock communicator.
      */
-    protected AbstractController(ICommunicator comm) {
+    protected AbstractController(ICommunicator comm, ICommandCreator commandCreator) {
         this.comm = comm;
         this.comm.addListener(this);
 
         this.activeCommands = new LinkedBlockingDeque<>();
         this.listeners = Collections.synchronizedList(new ArrayList<>());
+        this.commandCreator = commandCreator;
     }
 
     @Override
@@ -372,7 +370,6 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         this.dispatchConsoleMessage(MessageType.INFO,"**** Connection closed ****\n");
 
         this.flushSendQueues();
-        this.commandCreator.resetNum();
         this.comm.disconnect();
 
         this.closeCommAfterEvent();

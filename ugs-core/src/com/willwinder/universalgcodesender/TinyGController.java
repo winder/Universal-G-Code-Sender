@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2022 Will Winder
+    Copyright 2013-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.communicator.TinyGCommunicator;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.tinyg.TinyGFirmwareSettings;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -68,9 +69,8 @@ public class TinyGController extends AbstractController {
     }
 
     public TinyGController(ICommunicator communicator) {
-        super(communicator);
+        super(communicator, new TinyGGcodeCommandCreator());
         capabilities = new Capabilities();
-        commandCreator = new TinyGGcodeCommandCreator();
 
         firmwareSettings = new TinyGFirmwareSettings(this);
         communicator.addListener(firmwareSettings);
@@ -261,7 +261,7 @@ public class TinyGController extends AbstractController {
 
         // Update the internal state
         List<String> gcodeList = TinyGUtils.convertStatusReportToGcode(jo);
-        gcodeList.forEach(gcode -> updateParserModalState(new GcodeCommand(gcode)));
+        gcodeList.forEach(gcode -> updateParserModalState(getCommandCreator().createCommand(gcode)));
 
         // Notify our listeners about the new status
         controllerStatus = parseControllerStatus(jo);
@@ -285,27 +285,28 @@ public class TinyGController extends AbstractController {
     }
 
     protected void sendInitCommands() {
+        ICommandCreator commandCreator = getCommandCreator();
         // Enable JSON mode
         // 0=text mode, 1=JSON mode
-        comm.queueCommand(new GcodeCommand("{ej:1}"));
+        comm.queueCommand(commandCreator.createCommand("{ej:1}"));
 
         // Configure status reports
-        comm.queueCommand(new GcodeCommand(STATUS_REPORT_CONFIG));
+        comm.queueCommand(commandCreator.createCommand(STATUS_REPORT_CONFIG));
 
         // JSON verbosity
         // 0=silent, 1=footer, 2=messages, 3=configs, 4=linenum, 5=verbose
-        comm.queueCommand(new GcodeCommand("{jv:4}"));
+        comm.queueCommand(commandCreator.createCommand("{jv:4}"));
 
         // Queue report verbosity
         // 0=off, 1=filtered, 2=verbose
-        comm.queueCommand(new GcodeCommand("{qv:0}"));
+        comm.queueCommand(commandCreator.createCommand("{qv:0}"));
 
         // Status report verbosity
         // 0=off, 1=filtered, 2=verbose
-        comm.queueCommand(new GcodeCommand("{sv:1}"));
+        comm.queueCommand(commandCreator.createCommand("{sv:1}"));
 
         // Request initial status report
-        comm.queueCommand(new GcodeCommand("{sr:n}"));
+        comm.queueCommand(commandCreator.createCommand("{sr:n}"));
 
         comm.streamCommands();
 
@@ -323,18 +324,18 @@ public class TinyGController extends AbstractController {
 
     @Override
     public void performHomingCycle() throws Exception {
-        sendCommandImmediately(new GcodeCommand("G28.2 Z0 X0 Y0"));
+        sendCommandImmediately(getCommandCreator().createCommand("G28.2 Z0 X0 Y0"));
     }
 
     @Override
     public void resetCoordinatesToZero() throws Exception {
         String command = TinyGUtils.generateResetCoordinatesToZeroCommand(controllerStatus, getCurrentGcodeState());
-        sendCommandImmediately(new GcodeCommand(command));
+        sendCommandImmediately(getCommandCreator().createCommand(command));
     }
 
     @Override
     public void killAlarmLock() throws Exception {
-        sendCommandImmediately(new GcodeCommand(TinyGUtils.COMMAND_KILL_ALARM_LOCK));
+        sendCommandImmediately(getCommandCreator().createCommand(TinyGUtils.COMMAND_KILL_ALARM_LOCK));
     }
 
     @Override
@@ -345,7 +346,7 @@ public class TinyGController extends AbstractController {
     @Override
     public void viewParserState() throws Exception {
         if (this.isCommOpen()) {
-            sendCommandImmediately(new GcodeCommand(TinyGUtils.COMMAND_STATUS_REPORT));
+            sendCommandImmediately(getCommandCreator().createCommand(TinyGUtils.COMMAND_STATUS_REPORT));
         }
     }
 
@@ -371,7 +372,7 @@ public class TinyGController extends AbstractController {
     @Override
     public void setWorkPosition(PartialPosition axisPosition) throws Exception {
         String command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, getCurrentGcodeState(), axisPosition);
-        sendCommandImmediately(new GcodeCommand(command));
+        sendCommandImmediately(getCommandCreator().createCommand(command));
     }
 
     @Override
@@ -401,13 +402,13 @@ public class TinyGController extends AbstractController {
     @Override
     public void setStatusUpdateRate(int statusUpdateRate) {
         this.statusUpdateRate = statusUpdateRate;
-        comm.queueCommand(new GcodeCommand("{si:" + getStatusUpdateRate() + "}"));
+        comm.queueCommand(getCommandCreator().createCommand("{si:" + getStatusUpdateRate() + "}"));
     }
 
     @Override
     public void sendOverrideCommand(Overrides command) throws Exception {
         ControllerStatus.OverridePercents currentOverrides = controllerStatus.getOverrides();
-        Optional<GcodeCommand> gcodeCommand = TinyGUtils.createOverrideCommand(currentOverrides, command);
+        Optional<GcodeCommand> gcodeCommand = TinyGUtils.createOverrideCommand(getCommandCreator(), currentOverrides, command);
         if (gcodeCommand.isPresent()) {
             sendCommandImmediately(gcodeCommand.get());
 	    }

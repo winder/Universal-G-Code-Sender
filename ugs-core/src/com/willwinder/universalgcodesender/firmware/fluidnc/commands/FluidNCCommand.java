@@ -28,6 +28,10 @@ public class FluidNCCommand extends GcodeCommand {
         super(command);
     }
 
+    public FluidNCCommand(String command, String originalCommand, String comment, int lineNumber, boolean isGenerated) {
+        super(command, originalCommand, comment, lineNumber, isGenerated);
+    }
+
     @Override
     public void setResponse(String response) {
         super.setResponse("");

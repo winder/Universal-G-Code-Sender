@@ -1,3 +1,21 @@
+/*
+    Copyright 2022-2023 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.firmware.fluidnc;
 
 import com.willwinder.universalgcodesender.Capabilities;
@@ -23,6 +41,7 @@ import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCo
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SystemCommand;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -55,6 +74,9 @@ import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 
+/**
+ * @author Joacim Breiler
+ */
 public class FluidNCController implements IController, ICommunicatorListener {
 
     private static final Logger LOGGER = Logger.getLogger(FluidNCController.class.getSimpleName());
@@ -78,6 +100,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     private IGcodeStreamReader streamCommands;
     private String distanceModeCode;
     private String unitsCode;
+    private final ICommandCreator commandCreator;
 
     public FluidNCController() {
         this(new GrblCommunicator());
@@ -90,6 +113,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
         this.communicator = communicator;
         this.communicator.addListener(this);
         this.fileService = new FluidNCFileService(this, positionPollTimer);
+        this.commandCreator = new FluidNCCommandCreator();
     }
 
     @Override
@@ -595,7 +619,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     @Override
     public GcodeCommand createCommand(String command) throws Exception {
-        return new FluidNCCommand(command);
+        return commandCreator.createCommand(command);
     }
 
     @Override
@@ -799,5 +823,10 @@ public class FluidNCController implements IController, ICommunicatorListener {
     @Override
     public IFileService getFileService() {
         return fileService;
+    }
+
+    @Override
+    public ICommandCreator getCommandCreator() {
+        return commandCreator;
     }
 }
