@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender.communicator;
 
 import com.willwinder.universalgcodesender.GrblUtils;
-import com.willwinder.universalgcodesender.communicator.GrblCommunicator;
 import com.willwinder.universalgcodesender.communicator.event.CommunicatorEventDispatcher;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.mockobjects.MockConnection;

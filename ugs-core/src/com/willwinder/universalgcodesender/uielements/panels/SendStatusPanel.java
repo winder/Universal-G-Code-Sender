@@ -29,15 +29,11 @@ import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.logging.Logger;
 
 import static com.willwinder.universalgcodesender.model.events.FileState.FILE_LOADED;
 import static com.willwinder.universalgcodesender.model.events.FileState.FILE_STREAM_COMPLETE;
@@ -49,7 +45,6 @@ import static com.willwinder.universalgcodesender.model.events.FileState.FILE_ST
  */
 public class SendStatusPanel extends JPanel implements UGSEventListener {
     private static final String AL_RIGHT = "al right";
-    private static final Logger LOGGER = Logger.getLogger(SendStatusPanel.class.getSimpleName());
     private final BackendAPI backend;
 
     private final JLabel rowsLabel = new JLabel(Localization.getString("mainWindow.swing.rowsLabel"));
@@ -67,10 +62,6 @@ public class SendStatusPanel extends JPanel implements UGSEventListener {
     private final JTextArea latestCommentValueLabel = new JTextArea();
 
     private Timer timer;
-
-    public SendStatusPanel() {
-        this(null);
-    }
 
     public SendStatusPanel(BackendAPI b) {
         backend = b;
@@ -170,22 +161,13 @@ public class SendStatusPanel extends JPanel implements UGSEventListener {
     }
 
     private void resetSentRowLabels() {
-        long numRows = 0;
-        if (backend.getProcessedGcodeFile() != null) {
-            try {
-                try (IGcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
-                    numRows = gsr.getNumRows();
-                    LOGGER.fine("NUM ROWS: " + numRows);
-                }
-            } catch (GcodeStreamReader.NotGcodeStreamFile | IOException ex) {
-            }
-        }
+        String numRows = String.valueOf(backend.getNumRows());
+
         // Reset labels
-        String totalRows = String.valueOf(numRows);
         resetTimerLabels();
-        this.sentRowsValue.setText("0");
-        this.remainingRowsValue.setText(totalRows);
-        this.rowsValue.setText(totalRows);
+        sentRowsValue.setText("0");
+        remainingRowsValue.setText(numRows);
+        rowsValue.setText(numRows);
     }
 
     private void initComponents() {

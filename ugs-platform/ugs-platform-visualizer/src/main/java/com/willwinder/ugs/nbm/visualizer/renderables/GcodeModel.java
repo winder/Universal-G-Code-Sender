@@ -24,6 +24,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
@@ -236,8 +237,7 @@ public class GcodeModel extends Renderable {
         try {
             GcodeViewParse gcvp = new GcodeViewParse();
             logger.log(Level.INFO, "About to process {}", gcodeFile);
-            try {
-                IGcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile));
+            try (IGcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile), new DefaultCommandCreator())) {
                 gcodeLineList = gcvp.toObjFromReader(gsr, ARC_SEGMENT_LENGTH);
             } catch (GcodeStreamReader.NotGcodeStreamFile e) {
                 List<String> linesInFile;

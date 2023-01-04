@@ -1,5 +1,5 @@
 /*
-    Copyright 2017-2020 Will Winder
+    Copyright 2017-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.gcode.util;
 
 import com.google.common.collect.Iterables;
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
@@ -36,6 +37,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -367,13 +369,13 @@ public class GcodeParserUtils {
      */
     public static void processAndExport(GcodeParser gcp, File input, IGcodeWriter output)
             throws IOException, GcodeParserException {
-        try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(input), StandardCharsets.UTF_8.name()))) {
-            if (processAndExportGcodeStream(gcp, br, output)) {
+        try (InputStream inputStream = new FileInputStream(input)) {
+            if (processAndExportGcodeStream(gcp, inputStream, output)) {
                 return;
             }
         }
 
-        try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(input), StandardCharsets.UTF_8.name()))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(input), StandardCharsets.UTF_8.name()))) {
             processAndExportText(gcp, br, output);
         }
     }
@@ -405,11 +407,11 @@ public class GcodeParserUtils {
      * Attempts to read the input file in GcodeStream format.
      * @return whether or not we succeed processing the file.
      */
-    private static boolean processAndExportGcodeStream(GcodeParser gcp, BufferedReader input, IGcodeWriter output)
+    private static boolean processAndExportGcodeStream(GcodeParser gcp, InputStream input, IGcodeWriter output)
             throws IOException, GcodeParserException {
 
         // Preprocess a GcodeStream file.
-        try (IGcodeStreamReader gsr = new GcodeStreamReader(input)) {
+        try (IGcodeStreamReader gsr = new GcodeStreamReader(input, new DefaultCommandCreator())) {
             int i = 0;
             while (gsr.getNumRowsRemaining() > 0) {
                 i++;

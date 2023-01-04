@@ -1,24 +1,31 @@
 package com.willwinder.universalgcodesender.utils;
 
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.junit.Test;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class GcodeStreamReaderTest {
+
+    private InputStream stringToStream(String data) {
+        return new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
+    }
+
     @Test(expected = GcodeStreamReader.NotGcodeStreamFile.class)
     public void readingEmptyFileShouldThrowNotGcodeStreamException() throws GcodeStreamReader.NotGcodeStreamFile {
-        new GcodeStreamReader(new BufferedReader(new StringReader("")));
+        new GcodeStreamReader(stringToStream(""), new DefaultCommandCreator());
     }
 
     @Test
     public void readingEmptyPreprocessedFile() throws GcodeStreamReader.NotGcodeStreamFile, IOException {
-        GcodeStreamReader gcodeStreamReader = new GcodeStreamReader(new BufferedReader(new StringReader("gsw_meta:0")));
+        GcodeStreamReader gcodeStreamReader = new GcodeStreamReader(stringToStream("gsw_meta:0"), new DefaultCommandCreator());
         assertEquals(0, gcodeStreamReader.getNumRows());
         assertEquals(0, gcodeStreamReader.getNumRowsRemaining());
         assertNull(gcodeStreamReader.getNextCommand());
@@ -26,7 +33,7 @@ public class GcodeStreamReaderTest {
 
     @Test
     public void readingPreprocessedFileShouldReturnCommand() throws GcodeStreamReader.NotGcodeStreamFile, IOException {
-        GcodeStreamReader gcodeStreamReader = new GcodeStreamReader(new BufferedReader(new StringReader("gsw_meta:1\n" + "G01; test" + GcodeStream.FIELD_SEPARATOR + "G01" + GcodeStream.FIELD_SEPARATOR + "1" + GcodeStream.FIELD_SEPARATOR + "test")));
+        GcodeStreamReader gcodeStreamReader = new GcodeStreamReader(stringToStream("gsw_meta:1\n" + "G01; test" + GcodeStream.FIELD_SEPARATOR + "G01" + GcodeStream.FIELD_SEPARATOR + "1" + GcodeStream.FIELD_SEPARATOR + "test"), new DefaultCommandCreator());
         assertEquals(1, gcodeStreamReader.getNumRows());
         assertEquals(1, gcodeStreamReader.getNumRowsRemaining());
 

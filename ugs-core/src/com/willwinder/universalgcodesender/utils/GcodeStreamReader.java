@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2020 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,8 +27,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+
+import static com.willwinder.universalgcodesender.utils.GcodeStream.COL_COMMAND_NUMBER;
+import static com.willwinder.universalgcodesender.utils.GcodeStream.COL_COMMENT;
+import static com.willwinder.universalgcodesender.utils.GcodeStream.COL_ORIGINAL_COMMAND;
+import static com.willwinder.universalgcodesender.utils.GcodeStream.COL_PROCESSED_COMMAND;
+import static com.willwinder.universalgcodesender.utils.GcodeStream.META_PREFIX;
+import static com.willwinder.universalgcodesender.utils.GcodeStream.NUM_COLUMNS;
+import static com.willwinder.universalgcodesender.utils.GcodeStream.SPLIT_PATTERN;
 
 /**
  * Reads a 'GcodeStream' file containing command processing information, actual
@@ -35,23 +45,25 @@ import java.nio.charset.StandardCharsets;
  *
  * @author wwinder
  */
-public class GcodeStreamReader extends GcodeStream implements IGcodeStreamReader {
-    private BufferedReader reader;
-    private int numRows = 0;
-    private int numRowsRemaining = 0;
+public class GcodeStreamReader implements IGcodeStreamReader {
+    private final ICommandCreator commandCreator;
+    private final BufferedReader reader;
+    private final int numRows;
+    private int numRowsRemaining;
 
     public static class NotGcodeStreamFile extends Exception {}
 
-    public GcodeStreamReader(BufferedReader reader) throws NotGcodeStreamFile {
-        this.reader = reader;
-        
+    public GcodeStreamReader(InputStream inputStream, ICommandCreator commandCreator) throws NotGcodeStreamFile {
+        this.commandCreator = commandCreator;
+
         try {
+            reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
             String metadata = StringUtils.trimToEmpty(reader.readLine());
-            if (!metadata.startsWith(super.META_PREFIX)) {
+            if (!metadata.startsWith(META_PREFIX)) {
                 throw new NotGcodeStreamFile();
             }
 
-            metadata = metadata.substring(super.META_PREFIX.length());
+            metadata = metadata.substring(META_PREFIX.length());
             numRows = Integer.parseInt(metadata);
             numRowsRemaining = numRows;
         } catch (IOException | NumberFormatException e) {
@@ -59,8 +71,8 @@ public class GcodeStreamReader extends GcodeStream implements IGcodeStreamReader
         }
     }
 
-    public GcodeStreamReader(File f) throws NotGcodeStreamFile, FileNotFoundException {
-        this(new BufferedReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8)));
+    public GcodeStreamReader(File f, ICommandCreator commandCreator) throws NotGcodeStreamFile, FileNotFoundException {
+        this(new FileInputStream(f), commandCreator);
     }
     
     @Override
@@ -92,7 +104,7 @@ public class GcodeStreamReader extends GcodeStream implements IGcodeStreamReader
             throw new IOException("Corrupt data found while processing gcode stream: " + line);
         }
         numRowsRemaining--;
-        return new GcodeCommand(
+        return commandCreator.createCommand(
                 nextLine[COL_PROCESSED_COMMAND],
                 nextLine[COL_ORIGINAL_COMMAND],
                 nextLine[COL_COMMENT],
@@ -101,6 +113,7 @@ public class GcodeStreamReader extends GcodeStream implements IGcodeStreamReader
 
     @Override
     public void close() throws IOException {
+        numRowsRemaining = 0;
         reader.close();
     }
 }

@@ -148,7 +148,7 @@ public class TranslateToZeroAction extends CookieAction implements UGSEventListe
         List<LineSegment> result;
 
         GcodeViewParse gcvp = new GcodeViewParse();
-        try (IGcodeStreamReader gsr = new GcodeStreamReader(gcodeFile)) {
+        try (IGcodeStreamReader gsr = new GcodeStreamReader(gcodeFile, backend.getCommandCreator())) {
             result = gcvp.toObjFromReader(gsr, ARC_SEGMENT_LENGTH);
         } catch (GcodeStreamReader.NotGcodeStreamFile e) {
             List<String> linesInFile = VisualizerUtils.readFiletoArrayList(gcodeFile.getAbsolutePath());

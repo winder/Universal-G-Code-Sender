@@ -22,6 +22,7 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.actions.ConfigureFirmwareAction;
 import com.willwinder.universalgcodesender.actions.OpenMacroSettingsAction;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
@@ -1836,7 +1837,7 @@ public class MainWindow extends JFrame implements UGSEventListener {
                     if (commandTableScrollPane.isEnabled()) {
                         commandTable.clear();
                     }
-                    try (IGcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
+                    try (IGcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile(), new DefaultCommandCreator())) {
                         resetSentRowLabels(gsr.getNumRows());
                     } catch (IOException | GcodeStreamReader.NotGcodeStreamFile ex) {}
                     break;

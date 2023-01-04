@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.AbstractController.UnexpectedCommand;
 import com.willwinder.universalgcodesender.communicator.AbstractCommunicator;
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -1423,7 +1424,7 @@ public class GrblControllerTest {
         gcodeStreamWriter.close();
 
         // When
-        instance.queueStream(new GcodeStreamReader(gcodeFile));
+        instance.queueStream(new GcodeStreamReader(gcodeFile, new DefaultCommandCreator()));
         instance.beginStreaming();
 
         // Then
@@ -1534,7 +1535,7 @@ public class GrblControllerTest {
             }
 
             reset(mgc);
-            try (IGcodeStreamReader gsr = new GcodeStreamReader(f)) {
+            try (IGcodeStreamReader gsr = new GcodeStreamReader(f, new DefaultCommandCreator())) {
                 // Open port, send some commands, make sure they are streamed.
                 instance.queueStream(gsr);
                 instance.beginStreaming();
