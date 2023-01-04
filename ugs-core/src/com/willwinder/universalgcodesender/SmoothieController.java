@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2022 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,7 +22,7 @@ import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.communicator.SmoothieCommunicator;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.smoothie.SmoothieFirmwareSettings;
-import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -57,11 +57,10 @@ public class SmoothieController extends AbstractController {
     }
 
     public SmoothieController(ICommunicator communicator) {
-        super(communicator);
+        super(communicator, new DefaultCommandCreator());
         capabilities = new Capabilities();
         firmwareSettings = new SmoothieFirmwareSettings();
         controllerStatus = new ControllerStatus(ControllerState.DISCONNECTED, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
-        commandCreator = new GcodeCommandCreator();
         statusPollTimer = new StatusPollTimer(this);
     }
 
@@ -131,7 +130,8 @@ public class SmoothieController extends AbstractController {
 
     @Override
     public void viewParserState() {
-        comm.queueCommand(new GcodeCommand(SmoothieUtils.VIEW_PARSER_STATE_COMMAND));
+        GcodeCommand command = getCommandCreator().createCommand(SmoothieUtils.VIEW_PARSER_STATE_COMMAND);
+        comm.queueCommand(command);
         comm.streamCommands();
     }
 
@@ -148,7 +148,7 @@ public class SmoothieController extends AbstractController {
                 dispatchConsoleMessage(MessageType.INFO, response + "\n");
                 return;
             } else if (isSmoothieReady && !isReady && response.equalsIgnoreCase("ok")) {
-                comm.queueCommand(new GcodeCommand("version"));
+                comm.queueCommand(getCommandCreator().createCommand("version"));
                 comm.streamCommands();
                 return;
             } else if (isSmoothieReady && !isReady && response.startsWith("Build version:")) {
@@ -182,7 +182,7 @@ public class SmoothieController extends AbstractController {
             } else if(SmoothieUtils.isParserStateResponse(response)) {
                 String parserStateCode = StringUtils.substringBetween(response, "[", "]");
                 dispatchConsoleMessage(MessageType.INFO, response + "\n");
-                updateParserModalState(new GcodeCommand(parserStateCode));
+                updateParserModalState(getCommandCreator().createCommand(parserStateCode));
             } else {
                 dispatchConsoleMessage(MessageType.INFO, response + "\n");
             }
@@ -259,7 +259,7 @@ public class SmoothieController extends AbstractController {
     @Override
     public void setWorkPosition(PartialPosition axisPosition) throws Exception {
         String command = SmoothieUtils.generateSetWorkPositionCommand(controllerStatus, getCurrentGcodeState(), axisPosition);
-        sendCommandImmediately(new GcodeCommand(command));
+        sendCommandImmediately(getCommandCreator().createCommand(command));
     }
 
     @Override

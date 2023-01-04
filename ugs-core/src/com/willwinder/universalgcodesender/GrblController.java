@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2022 Will Winder
+    Copyright 2013-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,7 +22,7 @@ import com.willwinder.universalgcodesender.communicator.GrblCommunicator;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
-import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -78,9 +78,7 @@ public class GrblController extends AbstractController {
     private boolean temporaryCheckSingleStepMode = false;
 
     public GrblController(ICommunicator comm) {
-        super(comm);
-
-        this.commandCreator = new GcodeCommandCreator();
+        super(comm, new DefaultCommandCreator());
         this.positionPollTimer = new StatusPollTimer(this);
 
         // Add our controller settings manager
@@ -242,8 +240,8 @@ public class GrblController extends AbstractController {
             else if (GrblUtils.isGrblFeedbackMessage(response, capabilities)) {
                 GrblFeedbackMessage grblFeedbackMessage = new GrblFeedbackMessage(response);
                 // Convert feedback message to raw commands to update modal state.
-                this.updateParserModalState(new GcodeCommand(GrblUtils.parseFeedbackMessage(response, capabilities)));
-                this.dispatchConsoleMessage(MessageType.VERBOSE, grblFeedbackMessage + "\n");
+                updateParserModalState(getCommandCreator().createCommand(GrblUtils.parseFeedbackMessage(response, capabilities)));
+                dispatchConsoleMessage(MessageType.VERBOSE, grblFeedbackMessage + "\n");
                 setDistanceModeCode(grblFeedbackMessage.getDistanceMode());
                 setUnitsCode(grblFeedbackMessage.getUnits());
             }

@@ -19,16 +19,15 @@
 package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 
 /**
- *
  * @author wwinder
  */
-public class TinyGGcodeCommandCreator implements ICommandCreator {
+public class DefaultCommandCreator implements ICommandCreator {
+
     @Override
     public GcodeCommand createCommand(String command) {
-        return new TinyGGcodeCommand(command);
+        return new GcodeCommand(command);
     }
 
     @Override

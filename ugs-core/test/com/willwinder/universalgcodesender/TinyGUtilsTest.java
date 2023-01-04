@@ -1,5 +1,5 @@
 /*
-    Copyright 2018-2020 Will Winder
+    Copyright 2018-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.google.gson.JsonObject;
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -204,32 +205,32 @@ public class TinyGUtilsTest {
     @Test
     public void createOverrideCommandForFeedOverride() {
         ControllerStatus.OverridePercents overridePercents = new ControllerStatus.OverridePercents(100, 150, 175);
-        Optional<GcodeCommand> overrideCommand = TinyGUtils.createOverrideCommand(overridePercents, Overrides.CMD_FEED_OVR_COARSE_PLUS);
+        Optional<GcodeCommand> overrideCommand = TinyGUtils.createOverrideCommand(new DefaultCommandCreator(), overridePercents, Overrides.CMD_FEED_OVR_COARSE_PLUS);
         assertEquals("{mfo:1.1}", overrideCommand.get().getCommandString());
 
-        overrideCommand = TinyGUtils.createOverrideCommand(overridePercents, Overrides.CMD_FEED_OVR_COARSE_MINUS);
+        overrideCommand = TinyGUtils.createOverrideCommand(new DefaultCommandCreator(), overridePercents, Overrides.CMD_FEED_OVR_COARSE_MINUS);
         assertEquals("{mfo:0.9}", overrideCommand.get().getCommandString());
 
-        overrideCommand = TinyGUtils.createOverrideCommand(overridePercents, Overrides.CMD_FEED_OVR_FINE_MINUS);
+        overrideCommand = TinyGUtils.createOverrideCommand(new DefaultCommandCreator(), overridePercents, Overrides.CMD_FEED_OVR_FINE_MINUS);
         assertEquals("{mfo:0.95}", overrideCommand.get().getCommandString());
 
-        overrideCommand = TinyGUtils.createOverrideCommand(overridePercents, Overrides.CMD_FEED_OVR_FINE_PLUS);
+        overrideCommand = TinyGUtils.createOverrideCommand(new DefaultCommandCreator(), overridePercents, Overrides.CMD_FEED_OVR_FINE_PLUS);
         assertEquals("{mfo:1.05}", overrideCommand.get().getCommandString());
     }
 
     @Test
     public void createOverrideCommandForSpindleOverride() {
         ControllerStatus.OverridePercents overridePercents = new ControllerStatus.OverridePercents(150, 175, 100);
-        Optional<GcodeCommand> overrideCommand = TinyGUtils.createOverrideCommand(overridePercents, Overrides.CMD_SPINDLE_OVR_COARSE_PLUS);
+        Optional<GcodeCommand> overrideCommand = TinyGUtils.createOverrideCommand(new DefaultCommandCreator(), overridePercents, Overrides.CMD_SPINDLE_OVR_COARSE_PLUS);
         assertEquals("{sso:1.1}", overrideCommand.get().getCommandString());
 
-        overrideCommand = TinyGUtils.createOverrideCommand(overridePercents, Overrides.CMD_SPINDLE_OVR_COARSE_MINUS);
+        overrideCommand = TinyGUtils.createOverrideCommand(new DefaultCommandCreator(), overridePercents, Overrides.CMD_SPINDLE_OVR_COARSE_MINUS);
         assertEquals("{sso:0.9}", overrideCommand.get().getCommandString());
 
-        overrideCommand = TinyGUtils.createOverrideCommand(overridePercents, Overrides.CMD_SPINDLE_OVR_FINE_MINUS);
+        overrideCommand = TinyGUtils.createOverrideCommand(new DefaultCommandCreator(), overridePercents, Overrides.CMD_SPINDLE_OVR_FINE_MINUS);
         assertEquals("{sso:0.95}", overrideCommand.get().getCommandString());
 
-        overrideCommand = TinyGUtils.createOverrideCommand(overridePercents, Overrides.CMD_SPINDLE_OVR_FINE_PLUS);
+        overrideCommand = TinyGUtils.createOverrideCommand(new DefaultCommandCreator(), overridePercents, Overrides.CMD_SPINDLE_OVR_FINE_PLUS);
         assertEquals("{sso:1.05}", overrideCommand.get().getCommandString());
     }
 

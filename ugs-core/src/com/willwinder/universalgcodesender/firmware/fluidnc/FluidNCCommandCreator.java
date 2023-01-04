@@ -1,9 +1,5 @@
 /*
- * Simple class to increment gcode command numbers.
- */
-
-/*
-    Copyright 2013 Will Winder
+    Copyright 2022-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,33 +16,23 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.gcode;
+package com.willwinder.universalgcodesender.firmware.fluidnc;
 
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 /**
- *
- * @author wwinder
+ * @author Joacim Breiler
  */
-public class GcodeCommandCreator {
-    protected int numCommands = 0;
-    
-    public GcodeCommandCreator() {
-    }
-    
-    public GcodeCommandCreator(int num) {
-        this.numCommands = num;
-    }
-    
-    public void resetNum() {
-        this.numCommands = 0;
+public class FluidNCCommandCreator implements ICommandCreator {
+    @Override
+    public GcodeCommand createCommand(String command) {
+        return new FluidNCCommand(command);
     }
 
-    public int nextCommandNum() {
-        return this.numCommands;
-    }
-    
-    public GcodeCommand createCommand(String commandString) throws Exception {
-        return new GcodeCommand(commandString, this.numCommands++);
+    @Override
+    public GcodeCommand createCommand(String command, String originalCommand, String comment, int lineNumber) {
+        return new FluidNCCommand(command, originalCommand, comment, lineNumber);
     }
 }

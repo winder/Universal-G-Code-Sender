@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2018 Will Winder
+    Copyright 2015-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageListener;
@@ -188,4 +189,11 @@ public interface BackendAPI extends BackendAPIReadOnly {
      * @throws Exception
      */
     void openDoor() throws Exception;
+
+    /**
+     * Returns the current command creator for the connected controller or a default one if not connected.
+     *
+     * @return a command creator
+     */
+    ICommandCreator getCommandCreator();
 }
