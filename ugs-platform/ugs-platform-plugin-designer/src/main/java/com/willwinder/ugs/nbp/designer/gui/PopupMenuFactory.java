@@ -25,6 +25,8 @@ public class PopupMenuFactory {
         popupMenu.addSeparator();
         popupMenu.add(controller.getAction(FlipHorizontallyAction.class));
         popupMenu.add(controller.getAction(FlipVerticallyAction.class));
+        popupMenu.addSeparator();
+        popupMenu.add(controller.getAction(JogMachineToCenterAction.class));
         return popupMenu;
     }
 }
