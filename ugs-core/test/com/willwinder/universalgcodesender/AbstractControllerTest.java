@@ -56,10 +56,10 @@ import static org.junit.Assert.assertTrue;
  */
 public class AbstractControllerTest {
     
-    private final static AbstractCommunicator mockCommunicator = EasyMock.createMock(AbstractCommunicator.class);
-    private final static ControllerListener mockListener = EasyMock.createMock(ControllerListener.class);
-    private final static MessageService mockMessageService = EasyMock.createMock(MessageService.class);
-    private final static ICommandCreator gcodeCreator = new DefaultCommandCreator();
+    private AbstractCommunicator mockCommunicator;
+    private ControllerListener mockListener;
+    private MessageService mockMessageService;
+    private ICommandCreator gcodeCreator;
 
     private final Settings settings = new Settings();
 
@@ -67,8 +67,12 @@ public class AbstractControllerTest {
 
     private static File tempDir = null;
 
-    //@BeforeClass
-    public static void init() throws IllegalArgumentException {
+    public void init() throws IllegalArgumentException {
+        mockCommunicator = EasyMock.createMock(AbstractCommunicator.class);
+        mockListener = EasyMock.createMock(ControllerListener.class);
+        mockMessageService = EasyMock.createMock(MessageService.class);
+        gcodeCreator = new DefaultCommandCreator();
+
         IMockBuilder<AbstractController> instanceBuilder = EasyMock
                 .createMockBuilder(AbstractController.class)
                 .addMockedMethods(

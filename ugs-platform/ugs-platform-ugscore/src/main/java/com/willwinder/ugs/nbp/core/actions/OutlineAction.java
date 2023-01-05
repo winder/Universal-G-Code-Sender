@@ -37,12 +37,12 @@ import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
-import com.willwinder.universalgcodesender.visualizer.LineSegmentToPartialPositionMapper;
 import com.willwinder.universalgcodesender.utils.MathUtils;
 import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
+import com.willwinder.universalgcodesender.visualizer.LineSegmentToPartialPositionMapper;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -150,7 +150,7 @@ public final class OutlineAction extends ProgramAction implements UGSEventListen
         List<PartialPosition> outline = MathUtils.generateConvexHull(pointList);
         ICommandCreator commandCreator = backend.getCommandCreator();
         return outline.stream()
-                .map(point -> commandCreator.createCommand(GcodeUtils.generateMoveToCommand(Code.G1.name(), point, getJogFeedRate())))
+                .map(point -> commandCreator.createCommand(GcodeUtils.generateMoveToCommand(Code.G90.name() + Code.G1.name(), point, getJogFeedRate())))
                 .collect(Collectors.toList());
     }
 

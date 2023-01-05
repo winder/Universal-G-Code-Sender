@@ -54,10 +54,10 @@ public class OutlineActionTest {
         URL resource = OutlineActionTest.class.getResource("/square.nc");
         List<GcodeCommand> gcodeCommands = outlineAction.generateOutlineCommands(new File(resource.getPath()));
         assertEquals(gcodeCommands.size(), 4);
-        assertEquals("G21G1X0Y0F1000", gcodeCommands.get(0).getCommandString());
-        assertEquals("G21G1X1000Y0F1000", gcodeCommands.get(1).getCommandString());
-        assertEquals("G21G1X1000Y1000F1000", gcodeCommands.get(2).getCommandString());
-        assertEquals("G21G1X0Y1000F1000", gcodeCommands.get(3).getCommandString());
+        assertEquals("G21G90G1X0Y0F1000", gcodeCommands.get(0).getCommandString());
+        assertEquals("G21G90G1X1000Y0F1000", gcodeCommands.get(1).getCommandString());
+        assertEquals("G21G90G1X1000Y1000F1000", gcodeCommands.get(2).getCommandString());
+        assertEquals("G21G90G1X0Y1000F1000", gcodeCommands.get(3).getCommandString());
     }
 
     @Test
@@ -69,12 +69,11 @@ public class OutlineActionTest {
         URL resource = OutlineActionTest.class.getResource("/mixing_units.nc");
         List<GcodeCommand> gcodeCommands = outlineAction.generateOutlineCommands(new File(resource.getPath()));
         assertEquals(gcodeCommands.size(), 4);
-        assertEquals("G21G1X0Y0F1000", gcodeCommands.get(0).getCommandString());
-        assertEquals("G21G1X25.4Y0F1000", gcodeCommands.get(1).getCommandString());
-        assertEquals("G21G1X25.4Y25.4F1000", gcodeCommands.get(2).getCommandString());
-        assertEquals("G21G1X0Y25.4F1000", gcodeCommands.get(3).getCommandString());
+        assertEquals("G21G90G1X0Y0F1000", gcodeCommands.get(0).getCommandString());
+        assertEquals("G21G90G1X25.4Y0F1000", gcodeCommands.get(1).getCommandString());
+        assertEquals("G21G90G1X25.4Y25.4F1000", gcodeCommands.get(2).getCommandString());
+        assertEquals("G21G90G1X0Y25.4F1000", gcodeCommands.get(3).getCommandString());
     }
-
 
     @Test
     public void generatingOutlineWithJogFeedRateInInchPerMinute() throws IOException, GcodeParserException {
@@ -85,9 +84,9 @@ public class OutlineActionTest {
         URL resource = OutlineActionTest.class.getResource("/mixing_units.nc");
         List<GcodeCommand> gcodeCommands = outlineAction.generateOutlineCommands(new File(resource.getPath()));
         assertEquals(gcodeCommands.size(), 4);
-        assertEquals("G21G1X0Y0F25.4", gcodeCommands.get(0).getCommandString());
-        assertEquals("G21G1X25.4Y0F25.4", gcodeCommands.get(1).getCommandString());
-        assertEquals("G21G1X25.4Y25.4F25.4", gcodeCommands.get(2).getCommandString());
-        assertEquals("G21G1X0Y25.4F25.4", gcodeCommands.get(3).getCommandString());
+        assertEquals("G21G90G1X0Y0F25.4", gcodeCommands.get(0).getCommandString());
+        assertEquals("G21G90G1X25.4Y0F25.4", gcodeCommands.get(1).getCommandString());
+        assertEquals("G21G90G1X25.4Y25.4F25.4", gcodeCommands.get(2).getCommandString());
+        assertEquals("G21G90G1X0Y25.4F25.4", gcodeCommands.get(3).getCommandString());
     }
 }

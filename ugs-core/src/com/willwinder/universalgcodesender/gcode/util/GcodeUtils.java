@@ -77,18 +77,7 @@ public class GcodeUtils {
      *
      * @param command  the base command to use, ie: G91G1 or G1
      * @param position the position to move to
-     * @return a command string
-     */
-    public static String generateMoveToCommand(String command, PartialPosition position) {
-        return generateMoveToCommand(command, position, 0);
-    }
-
-    /**
-     * Generate a command to move to a specific coordinate
-     *
-     * @param command  the base command to use, ie: G91G1 or G1
-     * @param position the position to move to
-     * @param feedRate the feed rate to use using the position units / minute
+     * @param feedRate the feed rate to use, using the position units / minute
      * @return a command string
      */
     public static String generateMoveToCommand(String command, PartialPosition position, double feedRate) {

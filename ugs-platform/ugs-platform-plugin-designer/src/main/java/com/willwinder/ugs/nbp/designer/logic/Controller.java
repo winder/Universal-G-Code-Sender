@@ -27,6 +27,7 @@ import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
 import com.willwinder.ugs.nbp.designer.actions.FlipHorizontallyAction;
 import com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction;
 import com.willwinder.ugs.nbp.designer.actions.IntersectionAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToCenterAction;
 import com.willwinder.ugs.nbp.designer.actions.PasteAction;
 import com.willwinder.ugs.nbp.designer.actions.RedoAction;
 import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
@@ -84,6 +85,7 @@ public class Controller {
         actionMap.put(BreakApartAction.class, new BreakApartAction(this));
         actionMap.put(FlipHorizontallyAction.class, new FlipHorizontallyAction(this));
         actionMap.put(FlipVerticallyAction.class, new FlipVerticallyAction(this));
+        actionMap.put(JogMachineToCenterAction.class, new JogMachineToCenterAction(this));
     }
 
     public void addEntity(Entity s) {
