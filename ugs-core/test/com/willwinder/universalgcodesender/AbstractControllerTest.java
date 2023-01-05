@@ -109,7 +109,6 @@ public class AbstractControllerTest {
     public void setUp() throws Exception {
         // AbstractCommunicator calls a function on mockCommunicator that I
         // don't want to deal with.
-        reset(mockCommunicator, mockListener, mockMessageService);
         init();
         reset(mockCommunicator, mockListener, mockMessageService);
     }
