@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import java.io.*;
@@ -65,7 +66,7 @@ public class GcodeStreamTest {
             writer.println("invalid format");
         }
        
-        new GcodeStreamReader(f);
+        new GcodeStreamReader(f, new DefaultCommandCreator());
     }
 
     /**
@@ -83,7 +84,7 @@ public class GcodeStreamTest {
                 }
             }
 
-            try (IGcodeStreamReader gsr = new GcodeStreamReader(f)) {
+            try (IGcodeStreamReader gsr = new GcodeStreamReader(f, new DefaultCommandCreator())) {
                 Assert.assertEquals(rows, gsr.getNumRows());
 
                 int count = 0;

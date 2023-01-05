@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2022 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,17 +28,23 @@ import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
+import static com.willwinder.universalgcodesender.utils.GcodeStream.COL_COMMAND_NUMBER;
+import static com.willwinder.universalgcodesender.utils.GcodeStream.COL_COMMENT;
+import static com.willwinder.universalgcodesender.utils.GcodeStream.COL_ORIGINAL_COMMAND;
+import static com.willwinder.universalgcodesender.utils.GcodeStream.COL_PROCESSED_COMMAND;
+import static com.willwinder.universalgcodesender.utils.GcodeStream.FIELD_SEPARATOR;
+import static com.willwinder.universalgcodesender.utils.GcodeStream.METADATA_RESERVED_SIZE;
+import static com.willwinder.universalgcodesender.utils.GcodeStream.NUM_COLUMNS;
+
 /**
  * Writes a "GcodeStream" file in a machine readable format containing command processing
  * information, actual command to send and other metadata like total number of commands.
  *
  * @author wwinder
  */
-public class GcodeStreamWriter extends GcodeStream implements IGcodeWriter {
+public class GcodeStreamWriter implements IGcodeWriter {
     private final File file;
     private final PrintWriter fileWriter;
-    private final String metadataReservedSize = "                                                  ";
-
     private Integer lineCount = 0;
 
     public GcodeStreamWriter(File f) throws FileNotFoundException {
@@ -46,7 +52,7 @@ public class GcodeStreamWriter extends GcodeStream implements IGcodeWriter {
         try {
             fileWriter = new PrintWriter(f, StandardCharsets.UTF_8.name());
             // 50 bytes at the beginning of the file to store metadata
-            fileWriter.append(metadataReservedSize);
+            fileWriter.append(METADATA_RESERVED_SIZE);
             fileWriter.append("\n");
         } catch (UnsupportedEncodingException e) {
             throw new FileNotFoundException("Could not use UTF-8 to output gcode stream file");
@@ -62,6 +68,7 @@ public class GcodeStreamWriter extends GcodeStream implements IGcodeWriter {
         return file.getCanonicalPath();
     }
 
+    @Override
     public void addLine(GcodeCommand command) {
         lineCount++;
         String sep = "";
@@ -88,6 +95,7 @@ public class GcodeStreamWriter extends GcodeStream implements IGcodeWriter {
         fileWriter.append("\n");
     }
 
+    @Override
     public void addLine(String original, String processed, String comment, int commandNumber) {
         if ((original != null && original.trim().contains("\n")) ||
                 (processed != null && processed.trim().contains("\n")) ||
@@ -126,7 +134,7 @@ public class GcodeStreamWriter extends GcodeStream implements IGcodeWriter {
         try (RandomAccessFile raw = new RandomAccessFile(file, "rw")) {
             raw.seek(0);
             String metadata = "gsw_meta:" + lineCount.toString();
-            if (metadata.length() > metadataReservedSize.length()) {
+            if (metadata.length() > METADATA_RESERVED_SIZE.length()) {
                 throw new IOException("Too many lines to write metadata for GcodeStreamWriter!");
             }
             raw.write(metadata.getBytes(), 0, metadata.length());

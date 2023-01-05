@@ -257,7 +257,7 @@ public final class GcodeTilerTopComponent extends TopComponent {
     try {
       File file = new File(gcodeFile);
       try {
-          try (IGcodeStreamReader gsr = new GcodeStreamReader(file)) {
+          try (IGcodeStreamReader gsr = new GcodeStreamReader(file, backend.getCommandCreator())) {
             while (gsr.getNumRowsRemaining() > 0) {
               GcodeCommand next = gsr.getNextCommand();
               applyTranslation(next.getCommandString(), parser, output);

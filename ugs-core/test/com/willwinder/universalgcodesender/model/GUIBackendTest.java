@@ -228,6 +228,8 @@ public class GUIBackendTest {
     @Test
     public void getSendRemainingDuration() throws Exception {
         // Given
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.RUN, Position.ZERO, Position.ZERO);
+        when(controller.getControllerStatus()).thenReturn(controllerStatus);
         when(controller.rowsCompleted()).thenReturn(10);
         when(controller.getSendDuration()).thenReturn(10L);
         when(controller.rowsInSend()).thenReturn(1000);
@@ -492,8 +494,10 @@ public class GUIBackendTest {
     }
 
     @Test
-    public void getNumRowsShouldReturnNumberFromController() throws Exception {
+    public void getNumRowsShouldReturnNumberFromControllerWhenInStateRun() throws Exception {
         // Given
+        ControllerStatus controllerStatus = new ControllerStatus(ControllerState.RUN, Position.ZERO, Position.ZERO);
+        when(controller.getControllerStatus()).thenReturn(controllerStatus);
         when(controller.rowsInSend()).thenReturn(42);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
 

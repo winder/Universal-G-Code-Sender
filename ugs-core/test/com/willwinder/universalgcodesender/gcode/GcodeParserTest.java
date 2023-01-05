@@ -302,7 +302,7 @@ public class GcodeParserTest {
             GcodeParserUtils.processAndExport(gcp, tempFile, gcw);
         }
 
-        IGcodeStreamReader reader = new GcodeStreamReader(output.toFile());
+        IGcodeStreamReader reader = new GcodeStreamReader(output.toFile(), new DefaultCommandCreator());
 
         file = this.getClass().getClassLoader().getResource("./gcode/circle_test.nc.processed");
         Files.lines(Paths.get(file.toURI())).forEach((t) -> {

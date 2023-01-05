@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.communicator.event.CommunicatorEventD
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
@@ -154,7 +155,7 @@ public class BufferedCommunicatorTest {
             }
         }
 
-        IGcodeStreamReader gsr = new GcodeStreamReader(f);
+        IGcodeStreamReader gsr = new GcodeStreamReader(f, new DefaultCommandCreator());
  
         instance.queueStreamForComm(gsr);
         instance.streamCommands();
@@ -394,7 +395,7 @@ public class BufferedCommunicatorTest {
         gcodeStreamWriter.addLine("G0", "G0", null, 0);
         gcodeStreamWriter.close();
 
-        instance.queueStreamForComm(new GcodeStreamReader(gcodeFile));
+        instance.queueStreamForComm(new GcodeStreamReader(gcodeFile, new DefaultCommandCreator()));
         instance.queueCommand(new GcodeCommand("G1"));
 
         // When
@@ -525,7 +526,7 @@ public class BufferedCommunicatorTest {
         gcodeStreamWriter.close();
 
         // Stream
-        instance.queueStreamForComm(new GcodeStreamReader(gcodeFile));
+        instance.queueStreamForComm(new GcodeStreamReader(gcodeFile, new DefaultCommandCreator()));
         instance.streamCommands();
 
         // When
@@ -548,7 +549,7 @@ public class BufferedCommunicatorTest {
         gcodeStreamWriter.close();
 
         // Stream
-        instance.queueStreamForComm(new GcodeStreamReader(gcodeFile));
+        instance.queueStreamForComm(new GcodeStreamReader(gcodeFile, new DefaultCommandCreator()));
         instance.streamCommands();
 
         // When

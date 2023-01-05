@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.google.common.collect.ImmutableList;
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
@@ -98,7 +99,7 @@ public class GUIBackendPreprocessorTest {
 
         List<String> expectedResults = Arrays.asList("line one", "line one", "", "", "line two", "line two");
 
-        try (IGcodeStreamReader reader = new GcodeStreamReader(outputFile.toFile())) {
+        try (IGcodeStreamReader reader = new GcodeStreamReader(outputFile.toFile(), new DefaultCommandCreator())) {
             Assert.assertEquals(expectedResults.size(), reader.getNumRows());
 
             for (String expected : expectedResults) {
@@ -133,7 +134,7 @@ public class GUIBackendPreprocessorTest {
                 "line one", "line one", "line one", "line one", 
                 "line two", "line two", "line two", "line two");
 
-        try (IGcodeStreamReader reader = new GcodeStreamReader(outputFile.toFile())) {
+        try (IGcodeStreamReader reader = new GcodeStreamReader(outputFile.toFile(), new DefaultCommandCreator())) {
             Assert.assertEquals(expectedResults.size(), reader.getNumRows());
 
             for (String expected : expectedResults) {

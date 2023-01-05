@@ -85,6 +85,11 @@ public class GUIBackend implements BackendAPI {
     private File tempDir = null;
     private String firmware = null;
 
+    /**
+     * A temporary pointer to the active gcode stream. This is needed to make sure it is closed
+     */
+    private GcodeStreamReader gcodeStream;
+
     public GUIBackend() {
         this(new UGSEventDispatcher());
     }
@@ -344,6 +349,10 @@ public class GUIBackend implements BackendAPI {
 
     @Override
     public void setGcodeFile(File file) throws Exception {
+        if (gcodeStream != null) {
+            gcodeStream.close();
+        }
+
         logger.log(Level.INFO, "Setting gcode file.");
         eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE, file.getAbsolutePath()));
         initGcodeParser();
@@ -460,20 +469,30 @@ public class GUIBackend implements BackendAPI {
     public void send() throws Exception {
         logger.log(Level.INFO, String.format("Sending gcode file (%s).", this.processedGcodeFile));
         try {
+            // Reset the stream and queue it again
+            if (gcodeStream != null) {
+                gcodeStream.close();
+            }
+            gcodeStream = new GcodeStreamReader(this.processedGcodeFile, getCommandCreator());
+
             // This will throw an exception and prevent that other stuff from
-            // happening (clearing the table before its ready for clearing.
-            this.controller.isReadyToStreamFile();
-            this.controller.queueStream(new GcodeStreamReader(this.processedGcodeFile));
-            this.controller.beginStreaming();
+            // happening (clearing the table before it is ready for clearing.
+            controller.isReadyToStreamFile();
+            controller.queueStream(gcodeStream);
+            controller.beginStreaming();
         } catch (Exception e) {
+            logger.log(Level.SEVERE, Localization.getString("mainWindow.error.startingStream"), e);
             throw new Exception(Localization.getString("mainWindow.error.startingStream"), e);
         }
     }
 
     @Override
     public long getNumRows() {
-        logger.log(Level.FINEST, "Getting number of rows.");
-        return controller == null ? 0 : this.controller.rowsInSend();
+        if (getControllerState() == ControllerState.RUN) {
+            return this.controller.rowsInSend();
+        }
+
+        return gcodeStream == null ? 0 : gcodeStream.getNumRows();
     }
 
     @Override
@@ -511,7 +530,7 @@ public class GUIBackend implements BackendAPI {
         long elapsedTime = getSendDuration();
         long timePerRow = elapsedTime / completedRows;
         long estimate = numberOfRows * timePerRow;
-        return estimate - elapsedTime;
+        return Math.max(0, estimate - elapsedTime);
     }
 
     @Override

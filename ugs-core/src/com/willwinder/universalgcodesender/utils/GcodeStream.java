@@ -1,13 +1,5 @@
 /*
- * GcodeStreamReader.java
- *
- * Reads a 'GcodeStream' file containing command processing information, actual
- * command to send and other metadata like total number of commands.
- *
- * Created on Jan 7, 2016
- */
-/*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -29,18 +21,22 @@ package com.willwinder.universalgcodesender.utils;
 import java.util.regex.Pattern;
 
 /**
+ * Reads a 'GcodeStream' file containing command processing information, actual
+ * command to send and other metadata like total number of commands.
  *
  * @author wwinder
  */
-public abstract class GcodeStream {
-    protected final static int NUM_COLUMNS           = 4;
+public class GcodeStream {
+    private GcodeStream() {}
+    protected static final int NUM_COLUMNS           = 4;
 
-    protected final static int COL_ORIGINAL_COMMAND  = 0;
-    protected final static int COL_PROCESSED_COMMAND = 1;
-    protected final static int COL_COMMAND_NUMBER    = 2;
-    protected final static int COL_COMMENT           = 3;
+    protected static final int COL_ORIGINAL_COMMAND  = 0;
+    protected static final int COL_PROCESSED_COMMAND = 1;
+    protected static final int COL_COMMAND_NUMBER    = 2;
+    protected static final int COL_COMMENT           = 3;
 
-    protected final static String FIELD_SEPARATOR = "¶¶";
-    protected final static Pattern SPLIT_PATTERN = Pattern.compile(Pattern.quote(FIELD_SEPARATOR));
-    protected final static String META_PREFIX = "gsw_meta:";
+    protected static final String FIELD_SEPARATOR = "¶¶";
+    protected static final Pattern SPLIT_PATTERN = Pattern.compile(Pattern.quote(FIELD_SEPARATOR));
+    protected static final String META_PREFIX = "gsw_meta:";
+    protected static final String METADATA_RESERVED_SIZE = "                                                  ";
 }

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,13 +24,9 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import static com.willwinder.universalgcodesender.model.events.FileState.FILE_LOADED;
 import static com.willwinder.universalgcodesender.model.events.FileState.FILE_STREAM_COMPLETE;
@@ -48,7 +44,7 @@ public class SendStatusLine extends JLabel implements UGSEventListener {
     private static final String COMPLETED_FORMAT = SEND_PREFIX + "completed after %s";
     private static final String ROWS_FORMAT = LOAD_PREFIX + "%d rows";
 
-    private final BackendAPI backend;
+    private final transient BackendAPI backend;
     private Timer timer;
 
     public SendStatusLine(BackendAPI b) {
@@ -89,7 +85,7 @@ public class SendStatusLine extends JLabel implements UGSEventListener {
     private void updateStatusText() {
         try {
             setText(String.format(SEND_FORMAT,
-                    backend.getNumSentRows(),
+                    backend.getNumCompletedRows(),
                     backend.getNumRows(),
                     Utils.formattedMillis(backend.getSendDuration()),
                     Utils.formattedMillis(backend.getSendRemainingDuration())));
@@ -107,12 +103,7 @@ public class SendStatusLine extends JLabel implements UGSEventListener {
 
     private void setRows() {
         if (backend.getProcessedGcodeFile() != null) {
-            try {
-                try (IGcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
-                    setText(String.format(ROWS_FORMAT, gsr.getNumRows()));
-                }
-            } catch (GcodeStreamReader.NotGcodeStreamFile | IOException ex) {
-            }
+            setText(String.format(ROWS_FORMAT, backend.getNumRows()));
         } else {
             setText(NO_FILE_LOADED);
         }

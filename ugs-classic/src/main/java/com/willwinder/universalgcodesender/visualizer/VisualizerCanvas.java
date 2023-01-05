@@ -40,6 +40,7 @@ import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.glu.GLU;
+import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
@@ -472,7 +473,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
             // Load from stream
             if (this.processedGcodeFile) {
-                IGcodeStreamReader gsr = new GcodeStreamReader(new File(this.gcodeFile));
+                IGcodeStreamReader gsr = new GcodeStreamReader(new File(this.gcodeFile), new DefaultCommandCreator());
                 gcodeLineList = gcvp.toObjFromReader(gsr, 0.3);
             }
             // Load raw file
