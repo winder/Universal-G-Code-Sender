@@ -27,7 +27,6 @@ import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
@@ -238,7 +237,6 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        requestFocus();
         Arrays.stream(getComponents()).forEach(component -> component.setEnabled(enabled));
         if (!enabled) {
             setFieldValue(targetDepthSpinner, 0d);

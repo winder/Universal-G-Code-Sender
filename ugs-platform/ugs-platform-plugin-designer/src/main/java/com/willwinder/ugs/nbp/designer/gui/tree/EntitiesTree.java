@@ -52,6 +52,7 @@ public class EntitiesTree extends JTree implements TreeSelectionListener, Select
         expandRow(0);
         updateController(controller);
         ((EntityTreeModel) getModel()).notifyTreeStructureChanged(controller.getDrawing().getRootEntity());
+        addMouseListener(new EntitiesTreePopupListener());
     }
 
     private void updateController(Controller controller) {

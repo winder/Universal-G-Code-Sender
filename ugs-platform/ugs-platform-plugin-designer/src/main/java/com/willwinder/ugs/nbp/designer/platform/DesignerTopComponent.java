@@ -78,7 +78,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
 
         undoManagerAdapter = new UndoManagerAdapter(controller.getUndoManager());
         controller.getSelectionManager().addSelectionListener(this);
-        controller.getDrawing().setComponentPopupMenu(new PopupMenuFactory().createPopupMenu());
+        controller.getDrawing().setComponentPopupMenu(PopupMenuFactory.createPopupMenu());
         setActivatedNodes(new DataNode[]{new DataNode(dataObject, Children.LEAF, dataObject.getLookup())});
         dataObject.addPropertyChangeListener(evt -> updateFilename());
         loadDesign(dataObject);

@@ -187,6 +187,7 @@ public class ToolBox extends ToolBar {
                     case ZOOM:
                         zoom.setSelected(true);
                         break;
+                    default:
                 }
                 repaint();
             }
