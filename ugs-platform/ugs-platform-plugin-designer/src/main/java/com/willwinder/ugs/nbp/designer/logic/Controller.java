@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,32 +20,18 @@ package com.willwinder.ugs.nbp.designer.logic;
 
 import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.actions.AddAction;
-import com.willwinder.ugs.nbp.designer.actions.BreakApartAction;
-import com.willwinder.ugs.nbp.designer.actions.ClearSelectionAction;
-import com.willwinder.ugs.nbp.designer.actions.CopyAction;
-import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
-import com.willwinder.ugs.nbp.designer.actions.FlipHorizontallyAction;
-import com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction;
-import com.willwinder.ugs.nbp.designer.actions.IntersectionAction;
-import com.willwinder.ugs.nbp.designer.actions.JogMachineToCenterAction;
-import com.willwinder.ugs.nbp.designer.actions.PasteAction;
-import com.willwinder.ugs.nbp.designer.actions.RedoAction;
-import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
-import com.willwinder.ugs.nbp.designer.actions.SubtractAction;
-import com.willwinder.ugs.nbp.designer.actions.UndoAction;
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
-import com.willwinder.ugs.nbp.designer.actions.UnionAction;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
+import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
+import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignWriter;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.model.Settings;
 
-import javax.swing.Action;
 import java.awt.Cursor;
-import java.util.HashMap;
+import java.io.File;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -57,7 +43,6 @@ public class Controller {
     private final Settings settings = new Settings();
     private final Set<ControllerListener> listeners = Sets.newConcurrentHashSet();
     private final UndoManager undoManager;
-    private final Map<Class<? extends Action>, Action> actionMap = new HashMap<>();
     private final Drawing drawing;
     private Tool tool;
 
@@ -67,25 +52,7 @@ public class Controller {
         this.drawing = new Drawing(this);
         this.undoManager.addListener(this.drawing::repaint);
 
-        registerActions();
         setTool(Tool.SELECT);
-    }
-
-    private void registerActions() {
-        actionMap.put(DeleteAction.class, new DeleteAction(this));
-        actionMap.put(SelectAllAction.class, new SelectAllAction(this));
-        actionMap.put(ClearSelectionAction.class, new ClearSelectionAction(this));
-        actionMap.put(CopyAction.class, new CopyAction(this));
-        actionMap.put(PasteAction.class, new PasteAction(this));
-        actionMap.put(UndoAction.class, new UndoAction());
-        actionMap.put(RedoAction.class, new RedoAction());
-        actionMap.put(UnionAction.class, new UnionAction(this));
-        actionMap.put(SubtractAction.class, new SubtractAction(this));
-        actionMap.put(IntersectionAction.class, new IntersectionAction(this));
-        actionMap.put(BreakApartAction.class, new BreakApartAction(this));
-        actionMap.put(FlipHorizontallyAction.class, new FlipHorizontallyAction(this));
-        actionMap.put(FlipVerticallyAction.class, new FlipVerticallyAction(this));
-        actionMap.put(JogMachineToCenterAction.class, new JogMachineToCenterAction(this));
     }
 
     public void addEntity(Entity s) {
@@ -158,10 +125,13 @@ public class Controller {
         notifyListeners(ControllerEventType.RELEASE);
     }
 
-    public Action getAction(Class<? extends Action> actionClass) {
-        if (!actionMap.containsKey(actionClass)) {
-            throw new RuntimeException("Could not find action with the name " + actionClass.getName());
-        }
-        return actionMap.get(actionClass);
+    public void loadFile(File file) {
+        UgsDesignReader reader = new UgsDesignReader();
+        setDesign(reader.read(file).orElse(new Design()));
+    }
+
+    public void saveFile(File file) {
+        UgsDesignWriter writer = new UgsDesignWriter();
+        writer.write(file, this);
     }
 }

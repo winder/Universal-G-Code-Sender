@@ -29,17 +29,17 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
+import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Optional;
 
-public class OpenAction extends AbstractAction {
+public class OpenAction extends AbstractDesignAction {
+    public static final FileFilter DESIGN_FILE_FILTER = new FileNameExtensionFilter("UGS Design (ugsd)", "ugsd");
     private static final String ICON_SMALL_PATH = "img/open.svg";
     private static final String ICON_LARGE_PATH = "img/open24.svg";
-    public static final FileFilter DESIGN_FILE_FILTER = new FileNameExtensionFilter("UGS Design (ugsd)", "ugsd");
     private static final FileFilter SVG_FILE_FILTER = new FileNameExtensionFilter("Scalable Vector Graphics (svg)", "svg");
     private static final FileFilter C2D_FILE_FILTER = new FileNameExtensionFilter("Carbide Create (c2d)", "c2d");
     private final JFileChooser fileChooser;

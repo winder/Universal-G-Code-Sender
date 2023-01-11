@@ -51,6 +51,7 @@ public class LocalizingService {
     public static final String CATEGORY_FILE = "File";
     public static final String CATEGORY_VISUALIZER = "Visualizer";
     public static final String CATEGORY_EDIT = "Edit";
+    public static final String CATEGORY_DESIGNER = "Designer";
 
     // Initialize backend (locale setting) before we load localized strings.
     public static final String lang = CentralLookup.getDefault().lookup(BackendAPI.class).getSettings().getLanguage();

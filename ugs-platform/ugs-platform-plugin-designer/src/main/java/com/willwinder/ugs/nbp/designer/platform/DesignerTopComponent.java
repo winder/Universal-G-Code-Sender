@@ -20,20 +20,16 @@ package com.willwinder.ugs.nbp.designer.platform;
 
 import com.google.common.io.Files;
 import com.willwinder.ugs.nbp.designer.Throttler;
-import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
-import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.actions.UndoManagerListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
-import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.PopupMenuFactory;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
 import com.willwinder.ugs.nbp.designer.io.gcode.GcodeDesignWriter;
-import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.model.Design;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.openide.awt.UndoRedo;
@@ -43,7 +39,7 @@ import org.openide.nodes.Children;
 import org.openide.text.DataEditorSupport;
 import org.openide.windows.TopComponent;
 
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,29 +57,19 @@ import java.util.logging.Logger;
 public class DesignerTopComponent extends TopComponent implements UndoManagerListener, SelectionListener {
     private static final long serialVersionUID = 3123334398723987873L;
     private static final Logger LOGGER = Logger.getLogger(DesignerTopComponent.class.getSimpleName());
+    private static DrawingContainer drawingContainer;
     private final transient Throttler refreshThrottler;
     private final transient UndoManagerAdapter undoManagerAdapter;
     private final transient BackendAPI backend;
-    private transient Controller controller;
+    private final transient Controller controller;
     private final UgsDataObject dataObject;
-    private static DrawingContainer drawingContainer;
 
     public DesignerTopComponent(UgsDataObject dataObject) {
         super();
         this.dataObject = dataObject;
         refreshThrottler = new Throttler(this::generateGcode, 1000);
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        controller = CentralLookup.getDefault().lookup(Controller.class);
-
-        UndoManager undoManager = new SimpleUndoManager();
-        CentralLookup.getDefault().add(undoManager);
-
-        if (controller == null) {
-            controller = new Controller(new SelectionManager(), undoManager);
-            CentralLookup.getDefault().add(controller);
-            CentralLookup.getDefault().add(controller.getUndoManager());
-            CentralLookup.getDefault().add(controller.getSelectionManager());
-        }
+        controller = ControllerFactory.getController();
 
         // We need to reuse the drawing container for each loaded file
         if (drawingContainer == null) {
@@ -92,26 +78,23 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
 
         undoManagerAdapter = new UndoManagerAdapter(controller.getUndoManager());
         controller.getSelectionManager().addSelectionListener(this);
-        controller.getDrawing().setComponentPopupMenu(new PopupMenuFactory().createPopupMenu(controller));
+        controller.getDrawing().setComponentPopupMenu(new PopupMenuFactory().createPopupMenu());
         setActivatedNodes(new DataNode[]{new DataNode(dataObject, Children.LEAF, dataObject.getLookup())});
         dataObject.addPropertyChangeListener(evt -> updateFilename());
         loadDesign(dataObject);
         updateFilename();
-        PlatformUtils.registerActions(getActionMap(), controller, this);
+        PlatformUtils.registerActions(getActionMap(), this);
     }
 
     private void loadDesign(UgsDataObject dataObject) {
-        Design design = new Design();
         try {
             File file = new File(dataObject.getPrimaryFile().getPath());
             if (file.exists()) {
-                UgsDesignReader reader = new UgsDesignReader();
-                design = reader.read(file).orElse(design);
+                controller.loadFile(file);
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Couldn't load design from file " + dataObject.getPrimaryFile(), e);
         }
-        controller.setDesign(design);
     }
 
     private void updateFilename() {
@@ -159,7 +142,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     @Override
     protected void componentActivated() {
         super.componentActivated();
-        PlatformUtils.registerActions(getActionMap(), controller, this);
+        PlatformUtils.registerActions(getActionMap(), this);
     }
 
     @Override

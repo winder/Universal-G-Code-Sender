@@ -1,17 +1,26 @@
 package com.willwinder.ugs.nbp.designer;
 
-import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
-import com.willwinder.ugs.nbp.designer.gui.*;
+import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
+import com.willwinder.ugs.nbp.designer.gui.MainMenu;
+import com.willwinder.ugs.nbp.designer.gui.PopupMenuFactory;
+import com.willwinder.ugs.nbp.designer.gui.SelectionSettingsPanel;
+import com.willwinder.ugs.nbp.designer.gui.ToolBox;
 import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTree;
 import com.willwinder.ugs.nbp.designer.gui.tree.EntityTreeModel;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JMenuBar;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.WindowConstants;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 /**
  * A test implementation of the gcode designer tool that works in stand alone mode
@@ -21,26 +30,28 @@ import java.awt.*;
 public class DesignerMain extends JFrame {
 
     private static final long serialVersionUID = 0;
+    public static final String PROPERTY_IS_STANDALONE = "ugs.designer.standalone";
+    public static final String PROPERTY_USE_SCREEN_MENU = "apple.laf.useScreenMenuBar";
 
     /**
      * Constructs a new graphical user interface for the program and shows it.
      */
     public DesignerMain() {
-        System.setProperty("apple.laf.useScreenMenuBar", "true");
-
+        System.setProperty(PROPERTY_USE_SCREEN_MENU, "true");
+        System.setProperty(PROPERTY_IS_STANDALONE, "true");
 
         setTitle("UGS Designer");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new Dimension(1024, 768));
 
-        UndoManager undoManager = new SimpleUndoManager();
+        Controller controller = ControllerFactory.getController();
+        CentralLookup.getDefault().add(controller);
+
+        UndoManager undoManager = ControllerFactory.getUndoManager();
         CentralLookup.getDefault().add(undoManager);
 
-        SelectionManager selectionManager = new SelectionManager();
+        SelectionManager selectionManager = ControllerFactory.getSelectionManager();
         CentralLookup.getDefault().add(selectionManager);
-
-        Controller controller = new Controller(selectionManager, undoManager);
-        CentralLookup.getDefault().add(controller);
 
         DrawingContainer drawingContainer = new DrawingContainer(controller);
         selectionManager.addSelectionListener(e -> drawingContainer.repaint());
@@ -64,13 +75,13 @@ public class DesignerMain extends JFrame {
         setVisible(true);
 
         loadExample(controller);
-        controller.getDrawing().setComponentPopupMenu(new PopupMenuFactory().createPopupMenu(controller));
+        controller.getDrawing().setComponentPopupMenu(new PopupMenuFactory().createPopupMenu());
         controller.getDrawing().repaint();
     }
 
     private JSplitPane createRightPanel(Controller controller) {
         EntityTreeModel entityTreeModel = new EntityTreeModel(controller);
-        JSplitPane toolsSplit = new JSplitPane( JSplitPane.VERTICAL_SPLIT, new JScrollPane(new EntitiesTree(controller, entityTreeModel)), new SelectionSettingsPanel(controller));
+        JSplitPane toolsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(new EntitiesTree(controller, entityTreeModel)), new SelectionSettingsPanel(controller));
         toolsSplit.setResizeWeight(0.9);
         return toolsSplit;
     }

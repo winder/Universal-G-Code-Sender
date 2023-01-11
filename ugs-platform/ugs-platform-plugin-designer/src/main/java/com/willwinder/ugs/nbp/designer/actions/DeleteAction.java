@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -48,7 +49,7 @@ import java.util.List;
                 path = "Shortcuts",
                 name = "BACK_SPACE")
 })
-public class DeleteAction extends AbstractAction implements SelectionListener {
+public class DeleteAction extends AbstractDesignAction implements SelectionListener {
 
     private static final String SMALL_ICON_PATH = "img/delete.svg";
     private static final String LARGE_ICON_PATH = "img/delete24.svg";
@@ -58,14 +59,14 @@ public class DeleteAction extends AbstractAction implements SelectionListener {
      * Creates an DeleteAction that removes all shapes in the given Selection
      * from the given Drawing.
      */
-    public DeleteAction(Controller controller) {
+    public DeleteAction() {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Delete");
         putValue(NAME, "Delete");
 
-        this.controller = controller;
+        this.controller = ControllerFactory.getController();
 
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);

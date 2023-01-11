@@ -23,6 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.awt.geom.Point2D;
 import java.text.ParseException;
 
+import static com.willwinder.ugs.nbp.designer.DesignerMain.PROPERTY_IS_STANDALONE;
+
 /**
  * @author Joacim Breiler
  */
@@ -112,5 +114,15 @@ public class Utils {
             power = 1;
         }
         return Math.round(value * power) / power;
+    }
+
+    /**
+     * Returns if the application is stand alone. This is a work around for
+     * the netbeans platform that uses DataObjects to open files.
+     *
+     * @return true if we are running in our own main
+     */
+    public static boolean isStandalone() {
+        return Boolean.parseBoolean(System.getProperty(PROPERTY_IS_STANDALONE));
     }
 }

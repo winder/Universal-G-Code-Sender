@@ -4,12 +4,12 @@ import com.google.gson.JsonSyntaxException;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -27,15 +27,15 @@ import java.util.logging.Logger;
                 path = "Shortcuts",
                 name = "D-V")
 })
-public class PasteAction extends AbstractAction {
+public class PasteAction extends AbstractDesignAction {
 
     private static final Logger LOGGER = Logger.getLogger(PasteAction.class.getSimpleName());
     private final transient Controller controller;
 
-    public PasteAction(Controller controller) {
+    public PasteAction() {
         putValue("menuText", "Paste");
         putValue(NAME, "Paste");
-        this.controller = controller;
+        this.controller = ControllerFactory.getController();
     }
 
     @Override

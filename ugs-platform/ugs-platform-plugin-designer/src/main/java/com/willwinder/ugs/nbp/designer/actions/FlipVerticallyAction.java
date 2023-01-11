@@ -7,27 +7,37 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.List;
 
-public class FlipVerticallyAction extends AbstractAction implements SelectionListener {
-    private static final String SMALL_ICON_PATH = "img/flip-vertical.svg";
+@ActionID(
+        category = LocalizingService.CATEGORY_DESIGNER,
+        id = "FlipVerticallyAction")
+@ActionRegistration(
+        iconBase = FlipVerticallyAction.SMALL_ICON_PATH,
+        displayName = "Flip vertically",
+        lazy = false)
+public class FlipVerticallyAction extends AbstractDesignAction implements SelectionListener {
+    public static final String SMALL_ICON_PATH = "img/flip-vertical.svg";
     private static final String LARGE_ICON_PATH = "img/flip-vertical24.svg";
     private final transient Controller controller;
 
-    public FlipVerticallyAction(Controller controller) {
+    public FlipVerticallyAction() {
         putValue("menuText", "Flip vertically");
         putValue(NAME, "Flip vertically");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
 
-        this.controller = controller;
+        this.controller = ControllerFactory.getController();
 
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);

@@ -19,7 +19,11 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.ImageUtilities;
 
@@ -29,23 +33,28 @@ import java.awt.event.ActionEvent;
 /**
  * @author Joacim Breiler
  */
+@ActionID(
+        category = LocalizingService.CATEGORY_DESIGNER,
+        id = "ToolZoomAction")
+@ActionRegistration(
+        iconBase = ToolZoomAction.ICON_SMALL_PATH,
+        displayName = "Zoom",
+        lazy = false)
 public class ToolZoomAction extends AbstractAction {
-    private static final String ICON_SMALL_PATH = "img/zoom.svg";
+    public static final String ICON_SMALL_PATH = "img/zoom.svg";
     private static final String ICON_LARGE_PATH = "img/zoom24.svg";
-    private final transient Controller controller;
 
-    public ToolZoomAction(Controller controller) {
+    public ToolZoomAction() {
         putValue("iconBase", ICON_SMALL_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_SMALL_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(ICON_LARGE_PATH, false));
         putValue("menuText", "Draw circle");
         putValue(NAME, "Draw circle");
-        this.controller = controller;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         StatusDisplayer.getDefault().setStatusText("Click to Zoom in, SHIFT + Click to Zoom out");
-        controller.setTool(Tool.ZOOM);
+        ControllerFactory.getController().setTool(Tool.ZOOM);
     }
 }

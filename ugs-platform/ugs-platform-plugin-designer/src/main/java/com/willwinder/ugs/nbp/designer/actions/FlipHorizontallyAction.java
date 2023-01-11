@@ -7,20 +7,30 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.List;
 
-public class FlipHorizontallyAction extends AbstractAction implements SelectionListener {
-    private static final String SMALL_ICON_PATH = "img/flip-horizontal.svg";
+@ActionID(
+        category = LocalizingService.CATEGORY_DESIGNER,
+        id = "FlipHorizontallyAction")
+@ActionRegistration(
+        iconBase = FlipHorizontallyAction.SMALL_ICON_PATH,
+        displayName = "Flip horizontally",
+        lazy = false)
+public class FlipHorizontallyAction extends AbstractDesignAction implements SelectionListener {
+    public static final String SMALL_ICON_PATH = "img/flip-horizontal.svg";
     private static final String LARGE_ICON_PATH = "img/flip-horizontal24.svg";
     private final transient Controller controller;
 
-    public FlipHorizontallyAction(Controller controller) {
+    public FlipHorizontallyAction() {
         putValue("menuText", "Flip horizontally");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
@@ -28,7 +38,7 @@ public class FlipHorizontallyAction extends AbstractAction implements SelectionL
 
         putValue(NAME, "Flip horizontally");
 
-        this.controller = controller;
+        this.controller = ControllerFactory.getController();
 
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);

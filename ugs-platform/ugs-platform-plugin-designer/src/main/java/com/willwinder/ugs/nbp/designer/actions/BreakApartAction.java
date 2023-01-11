@@ -26,14 +26,17 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Area;
 import java.util.ArrayList;
@@ -47,19 +50,26 @@ import java.util.stream.Collectors;
  *
  * @author Joacim Breiler
  */
-public class BreakApartAction extends AbstractAction implements SelectionListener {
-    private static final String SMALL_ICON_PATH = "img/break.svg";
+@ActionID(
+        category = LocalizingService.CATEGORY_DESIGNER,
+        id = "BreakApartAction")
+@ActionRegistration(
+        iconBase = BreakApartAction.SMALL_ICON_PATH,
+        displayName = "Break apart",
+        lazy = false)
+public class BreakApartAction extends AbstractDesignAction implements SelectionListener {
+    public static final String SMALL_ICON_PATH = "img/break.svg";
     private static final String LARGE_ICON_PATH = "img/break24.svg";
     private final transient Controller controller;
 
-    public BreakApartAction(Controller controller) {
+    public BreakApartAction() {
         putValue("menuText", "Break apart");
         putValue(NAME, "Break apart");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
 
-        this.controller = controller;
+        this.controller = ControllerFactory.getController();
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);
         onSelectionEvent(new SelectionEvent());

@@ -21,7 +21,6 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +32,7 @@ import java.util.List;
  *
  * @author Joacim Breiler
  */
-public class AddAction extends AbstractAction implements DrawAction, UndoableAction {
+public class AddAction extends AbstractDesignAction implements DrawAction, UndoableAction {
 
     private final transient Controller controller;
     private final transient List<Entity> entities;

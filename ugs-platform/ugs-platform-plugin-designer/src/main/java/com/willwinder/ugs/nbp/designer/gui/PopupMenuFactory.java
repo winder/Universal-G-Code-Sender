@@ -1,32 +1,42 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
-import com.willwinder.ugs.nbp.designer.actions.*;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.actions.BreakApartAction;
+import com.willwinder.ugs.nbp.designer.actions.ClearSelectionAction;
+import com.willwinder.ugs.nbp.designer.actions.CopyAction;
+import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
+import com.willwinder.ugs.nbp.designer.actions.FlipHorizontallyAction;
+import com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction;
+import com.willwinder.ugs.nbp.designer.actions.IntersectionAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToCenterAction;
+import com.willwinder.ugs.nbp.designer.actions.PasteAction;
+import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
+import com.willwinder.ugs.nbp.designer.actions.SubtractAction;
+import com.willwinder.ugs.nbp.designer.actions.UnionAction;
 
-import javax.swing.*;
+import javax.swing.JPopupMenu;
 
 /**
  * @author Joacim Breiler
  */
 public class PopupMenuFactory {
-    public JPopupMenu createPopupMenu(Controller controller) {
+    public JPopupMenu createPopupMenu() {
         JPopupMenu popupMenu = new JPopupMenu();
-        popupMenu.add(controller.getAction(SelectAllAction.class));
-        popupMenu.add(controller.getAction(ClearSelectionAction.class));
-        popupMenu.add(controller.getAction(DeleteAction.class));
+        popupMenu.add(new SelectAllAction());
+        popupMenu.add(new ClearSelectionAction());
+        popupMenu.add(new DeleteAction());
         popupMenu.addSeparator();
-        popupMenu.add(controller.getAction(CopyAction.class));
-        popupMenu.add(controller.getAction(PasteAction.class));
+        popupMenu.add(new CopyAction());
+        popupMenu.add(new PasteAction());
         popupMenu.addSeparator();
-        popupMenu.add(controller.getAction(UnionAction.class));
-        popupMenu.add(controller.getAction(SubtractAction.class));
-        popupMenu.add(controller.getAction(IntersectionAction.class));
-        popupMenu.add(controller.getAction(BreakApartAction.class));
+        popupMenu.add(new UnionAction());
+        popupMenu.add(new SubtractAction());
+        popupMenu.add(new IntersectionAction());
+        popupMenu.add(new BreakApartAction());
         popupMenu.addSeparator();
-        popupMenu.add(controller.getAction(FlipHorizontallyAction.class));
-        popupMenu.add(controller.getAction(FlipVerticallyAction.class));
+        popupMenu.add(new FlipHorizontallyAction());
+        popupMenu.add(new FlipVerticallyAction());
         popupMenu.addSeparator();
-        popupMenu.add(controller.getAction(JogMachineToCenterAction.class));
+        popupMenu.add(new JogMachineToCenterAction());
         return popupMenu;
     }
 }

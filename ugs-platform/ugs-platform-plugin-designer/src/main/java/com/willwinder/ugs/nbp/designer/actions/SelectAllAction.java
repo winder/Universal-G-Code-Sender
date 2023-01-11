@@ -18,17 +18,17 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.DrawingEvent;
 import com.willwinder.ugs.nbp.designer.gui.DrawingListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 /**
@@ -42,21 +42,21 @@ import java.awt.event.ActionEvent;
                 path = "Shortcuts",
                 name = "D-A")
 })
-public class SelectAllAction extends AbstractAction implements DrawingListener {
+public class SelectAllAction extends AbstractDesignAction implements DrawingListener {
 
     public static final String SMALL_ICON_PATH = "img/select-all.svg";
     public static final String LARGE_ICON_PATH = "img/select-all24.svg";
 
     private final transient Controller controller;
 
-    public SelectAllAction(Controller controller) {
+    public SelectAllAction() {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Select all");
         putValue(NAME, "Select all");
 
-        this.controller = controller;
+        this.controller = ControllerFactory.getController();
 
         setEnabled(!this.controller.getDrawing().getEntities().isEmpty());
         this.controller.getDrawing().addListener(this);

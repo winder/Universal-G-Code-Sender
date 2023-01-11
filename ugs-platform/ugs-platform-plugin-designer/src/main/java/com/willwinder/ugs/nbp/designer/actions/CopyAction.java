@@ -5,6 +5,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -24,15 +25,15 @@ import java.awt.event.ActionEvent;
                 path = "Shortcuts",
                 name = "D-C")
 })
-public class CopyAction extends AbstractAction implements SelectionListener {
+public class CopyAction extends AbstractDesignAction implements SelectionListener {
 
     private final transient Controller controller;
 
-    public CopyAction(Controller controller) {
+    public CopyAction() {
         putValue("menuText", "Copy");
         putValue(NAME, "Copy");
 
-        this.controller = controller;
+        this.controller = ControllerFactory.getController();
 
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);

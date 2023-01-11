@@ -21,13 +21,12 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
 /**
  * @author Joacim Breiler
  */
-public class RedoAction extends AbstractAction implements UndoManagerListener {
+public class RedoAction extends AbstractDesignAction implements UndoManagerListener {
     public static final String SMALL_ICON_PATH = "img/redo.svg";
     public static final String LARGE_ICON_PATH = "img/redo24.svg";
 

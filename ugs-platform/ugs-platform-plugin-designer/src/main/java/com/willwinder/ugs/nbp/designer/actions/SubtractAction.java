@@ -26,9 +26,12 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Area;
 import java.util.List;
@@ -39,19 +42,26 @@ import java.util.List;
  *
  * @author Joacim Breiler
  */
-public class SubtractAction extends AbstractAction implements SelectionListener {
-    private static final String SMALL_ICON_PATH = "img/subtract.svg";
-    private static final String LARGE_ICON_PATH = "img/subtract24.svg";
+@ActionID(
+        category = LocalizingService.CATEGORY_DESIGNER,
+        id = "SubtractAction")
+@ActionRegistration(
+        iconBase = SubtractAction.SMALL_ICON_PATH,
+        displayName = "Subtract",
+        lazy = false)
+public class SubtractAction extends AbstractDesignAction implements SelectionListener {
+    public static final String SMALL_ICON_PATH = "img/subtract.svg";
+    public static final String LARGE_ICON_PATH = "img/subtract24.svg";
     private final transient Controller controller;
 
-    public SubtractAction(Controller controller) {
+    public SubtractAction() {
         putValue("menuText", "Subtract");
         putValue(NAME, "Subtract");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
 
-        this.controller = controller;
+        this.controller = ControllerFactory.getController();
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);
         setEnabled(selectionManager.getSelection().size() >= 2);
@@ -85,7 +95,7 @@ public class SubtractAction extends AbstractAction implements SelectionListener 
             for (int i = 1; i < entities.size(); i++) {
                 Entity entity = entities.get(i);
                 if (entity instanceof Group) {
-                   ((Group) entity).getAllChildren().forEach(groupEntity -> area.subtract(new Area(groupEntity.getShape())));
+                    ((Group) entity).getAllChildren().forEach(groupEntity -> area.subtract(new Area(groupEntity.getShape())));
                 } else {
                     area.subtract(new Area(entity.getShape()));
                 }

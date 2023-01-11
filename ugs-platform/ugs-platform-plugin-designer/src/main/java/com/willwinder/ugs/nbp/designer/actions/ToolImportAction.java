@@ -21,16 +21,19 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.io.c2d.C2dReader;
 import com.willwinder.ugs.nbp.designer.io.dxf.DxfReader;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
-import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
+import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.StringUtils;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
@@ -40,19 +43,26 @@ import java.util.Optional;
 /**
  * @author Joacim Breiler
  */
-public final class ToolImportAction extends AbstractAction {
+@ActionID(
+        category = LocalizingService.CATEGORY_DESIGNER,
+        id = "ToolImportAction")
+@ActionRegistration(
+        iconBase = ToolImportAction.SMALL_ICON_PATH,
+        displayName = "Import",
+        lazy = false)
+public final class ToolImportAction extends AbstractDesignAction {
 
     public static final String SMALL_ICON_PATH = "img/import.svg";
     public static final String LARGE_ICON_PATH = "img/import24.svg";
     private final transient Controller controller;
 
-    public ToolImportAction(Controller controller) {
+    public ToolImportAction() {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Import");
         putValue(NAME, "Import");
-        this.controller = controller;
+        this.controller = ControllerFactory.getController();
     }
 
     @Override

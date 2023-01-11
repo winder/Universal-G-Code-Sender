@@ -19,31 +19,40 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
 /**
  * @author Joacim Breiler
  */
-public class ToolDrawRectangleAction extends AbstractAction {
-    private static final String SMALL_ICON_PATH = "img/rectangle.png";
-    private static final String LARGE_ICON_PATH = "img/rectangle24.png";
-    private final transient Controller controller;
+@ActionID(
+        category = LocalizingService.CATEGORY_DESIGNER,
+        id = "ToolDrawRectangleAction")
+@ActionRegistration(
+        iconBase = ToolDrawRectangleAction.SMALL_ICON_PATH,
+        displayName = "Draw Rectangle",
+        lazy = false)
+public class ToolDrawRectangleAction extends AbstractDesignAction {
+    public static final String SMALL_ICON_PATH = "img/rectangle.png";
+    public static final String LARGE_ICON_PATH = "img/rectangle24.png";
 
-    public ToolDrawRectangleAction(Controller controller) {
+    public ToolDrawRectangleAction() {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Draw rectangle");
         putValue(NAME, "Draw rectangle");
-        this.controller = controller;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        Controller controller = ControllerFactory.getController();
         controller.setTool(Tool.RECTANGLE);
     }
 }

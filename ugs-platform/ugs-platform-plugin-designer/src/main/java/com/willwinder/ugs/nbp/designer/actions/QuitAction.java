@@ -20,13 +20,12 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
 /**
  * @author Joacim Breiler
  */
-public class QuitAction extends AbstractAction {
+public class QuitAction extends AbstractDesignAction {
     private static final String ICON_SMALL_PATH = "img/exit.svg";
     private static final String ICON_LARGE_PATH = "img/exit24.svg";
 
@@ -37,7 +36,7 @@ public class QuitAction extends AbstractAction {
         putValue("menuText", "Quit");
         putValue(NAME, "Quit");
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         System.exit(0);
