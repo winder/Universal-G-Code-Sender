@@ -25,15 +25,15 @@ public class PlatformUtils {
     private PlatformUtils() {
     }
 
-    public static void registerActions(ActionMap actionMap, Controller controller, TopComponent component) {
-        actionMap.put(DELETE_KEY, controller.getAction(DeleteAction.class));
-        actionMap.put(DefaultEditorKit.selectAllAction, controller.getAction(SelectAllAction.class));
-        actionMap.put(DefaultEditorKit.copyAction, controller.getAction(CopyAction.class));
-        actionMap.put(DefaultEditorKit.pasteAction, controller.getAction(PasteAction.class));
-        actionMap.put(UNDO_KEY, controller.getAction(UndoAction.class));
-        actionMap.put(REDO_KEY, controller.getAction(RedoAction.class));
+    public static void registerActions(ActionMap actionMap, TopComponent component) {
+        actionMap.put(DELETE_KEY, new DeleteAction());
+        actionMap.put(DefaultEditorKit.selectAllAction, new SelectAllAction());
+        actionMap.put(DefaultEditorKit.copyAction, new CopyAction());
+        actionMap.put(DefaultEditorKit.pasteAction, new PasteAction());
+        actionMap.put(UNDO_KEY, new UndoAction());
+        actionMap.put(REDO_KEY, new RedoAction());
 
-        // Need to make special input maps as this normally is handled by the a texteditor
+        // Need to make special input maps as this normally is handled by the texteditor
         InputMap inputMap = component.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         inputMap.put(Utilities.stringToKey("BACK_SPACE"), DELETE_KEY);
         inputMap.put(Utilities.stringToKey("D-C"), DefaultEditorKit.copyAction);

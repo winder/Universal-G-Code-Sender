@@ -19,11 +19,28 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.core.ui.ToolBar;
-import com.willwinder.ugs.nbp.designer.actions.*;
+import com.willwinder.ugs.nbp.designer.actions.BreakApartAction;
+import com.willwinder.ugs.nbp.designer.actions.FlipHorizontallyAction;
+import com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction;
+import com.willwinder.ugs.nbp.designer.actions.IntersectionAction;
+import com.willwinder.ugs.nbp.designer.actions.MultiplyAction;
+import com.willwinder.ugs.nbp.designer.actions.SubtractAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolClipartAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolDrawCircleAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolDrawPointAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolDrawRectangleAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolDrawTextAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolImportAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolSelectAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolZoomAction;
+import com.willwinder.ugs.nbp.designer.actions.TraceImageAction;
+import com.willwinder.ugs.nbp.designer.actions.UnionAction;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 
-import javax.swing.*;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JToggleButton;
 
 /**
  * @author Joacim Breiler
@@ -33,47 +50,47 @@ public class ToolBox extends ToolBar {
     public ToolBox(Controller controller) {
         setFloatable(false);
 
-        JToggleButton select = new JToggleButton(new ToolSelectAction(controller));
+        JToggleButton select = new JToggleButton(new ToolSelectAction());
         select.setSelected(true);
         select.setText("");
         select.setToolTipText("Select and move shapes");
         add(select);
 
-        JToggleButton point = new JToggleButton(new ToolDrawPointAction(controller));
+        JToggleButton point = new JToggleButton(new ToolDrawPointAction());
         point.setText("");
         point.setToolTipText("Draw points");
         add(point);
 
-        JToggleButton rectangle = new JToggleButton(new ToolDrawRectangleAction(controller));
+        JToggleButton rectangle = new JToggleButton(new ToolDrawRectangleAction());
         rectangle.setText("");
         rectangle.setToolTipText("Draw squares and rectangles");
         add(rectangle);
 
-        JToggleButton circle = new JToggleButton(new ToolDrawCircleAction(controller));
+        JToggleButton circle = new JToggleButton(new ToolDrawCircleAction());
         circle.setText("");
         circle.setToolTipText("Draw circles and ellipses");
         add(circle);
 
-        JToggleButton text = new JToggleButton(new ToolDrawTextAction(controller));
+        JToggleButton text = new JToggleButton(new ToolDrawTextAction());
         text.setText("");
         text.setToolTipText("Write text");
         add(text);
 
-        JButton importButton = new JButton(new ToolImportAction(controller));
+        JButton importButton = new JButton(new ToolImportAction());
         importButton.setText("");
         importButton.setToolTipText("Imports a drawing");
         importButton.setContentAreaFilled(false);
         importButton.setBorderPainted(false);
         add(importButton);
 
-        JButton insertButton = new JButton(new ToolClipartAction(controller));
+        JButton insertButton = new JButton(new ToolClipartAction());
         insertButton.setText("");
         insertButton.setToolTipText("Inserts a clipart");
         insertButton.setContentAreaFilled(false);
         insertButton.setBorderPainted(false);
         add(insertButton);
 
-        insertButton = new JButton(new TraceImageAction(controller));
+        insertButton = new JButton(new TraceImageAction());
         insertButton.setText("");
         insertButton.setToolTipText("Traces a bitmap image");
         insertButton.setContentAreaFilled(false);
@@ -82,13 +99,13 @@ public class ToolBox extends ToolBar {
 
         addSeparator();
 
-        JButton flipHorizontal = new JButton(new FlipHorizontallyAction(controller));
+        JButton flipHorizontal = new JButton(new FlipHorizontallyAction());
         flipHorizontal.setText("");
         flipHorizontal.setToolTipText("Flips horizontally");
         flipHorizontal.setBorderPainted(false);
         add(flipHorizontal);
 
-        JButton flipVertical = new JButton(new FlipVerticallyAction(controller));
+        JButton flipVertical = new JButton(new FlipVerticallyAction());
         flipVertical.setText("");
         flipVertical.setToolTipText("Flips vertically");
         flipVertical.setBorderPainted(false);
@@ -96,25 +113,25 @@ public class ToolBox extends ToolBar {
 
         addSeparator();
 
-        JButton union = new JButton(new UnionAction(controller));
+        JButton union = new JButton(new UnionAction());
         union.setText("");
         union.setToolTipText("Unions two or more entities with each other");
         union.setBorderPainted(false);
         add(union);
 
-        JButton subtract = new JButton(new SubtractAction(controller));
+        JButton subtract = new JButton(new SubtractAction());
         subtract.setText("");
         subtract.setToolTipText("Subtracts one entity with another");
         subtract.setBorderPainted(false);
         add(subtract);
 
-        JButton intersection = new JButton(new IntersectionAction(controller));
+        JButton intersection = new JButton(new IntersectionAction());
         intersection.setText("");
         intersection.setToolTipText("Makes an intersection between two entities");
         intersection.setBorderPainted(false);
         add(intersection);
 
-        JButton breakApart = new JButton(new BreakApartAction(controller));
+        JButton breakApart = new JButton(new BreakApartAction());
         breakApart.setText("");
         breakApart.setToolTipText("Breaks apart multiple entities");
         breakApart.setBorderPainted(false);
@@ -122,7 +139,7 @@ public class ToolBox extends ToolBar {
 
         addSeparator();
 
-        JButton multiply = new JButton(new MultiplyAction(controller));
+        JButton multiply = new JButton(new MultiplyAction());
         multiply.setText("");
         multiply.setToolTipText("Multiplies the selection");
         multiply.setBorderPainted(false);
@@ -130,7 +147,7 @@ public class ToolBox extends ToolBar {
 
         addSeparator();
 
-        JToggleButton zoom = new JToggleButton(new ToolZoomAction(controller));
+        JToggleButton zoom = new JToggleButton(new ToolZoomAction());
         zoom.setText("");
         zoom.setToolTipText("Controls zoom");
         zoom.setBorderPainted(false);
@@ -170,6 +187,7 @@ public class ToolBox extends ToolBar {
                     case ZOOM:
                         zoom.setSelected(true);
                         break;
+                    default:
                 }
                 repaint();
             }

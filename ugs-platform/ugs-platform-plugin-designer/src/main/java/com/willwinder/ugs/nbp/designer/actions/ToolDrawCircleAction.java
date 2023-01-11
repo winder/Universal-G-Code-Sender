@@ -19,31 +19,40 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
 /**
  * @author Joacim Breiler
  */
-public class ToolDrawCircleAction extends AbstractAction {
-    private static final String ICON_SMALL_PATH = "img/circle.svg";
-    private static final String ICON_LARGE_PATH = "img/circle24.svg";
-    private final transient Controller controller;
+@ActionID(
+        category = LocalizingService.CATEGORY_DESIGNER,
+        id = "ToolDrawCircleAction")
+@ActionRegistration(
+        iconBase = ToolDrawCircleAction.ICON_SMALL_PATH,
+        displayName = "Draw circle",
+        lazy = false)
+public class ToolDrawCircleAction extends AbstractDesignAction {
+    public static final String ICON_SMALL_PATH = "img/circle.svg";
+    public static final String ICON_LARGE_PATH = "img/circle24.svg";
 
-    public ToolDrawCircleAction(Controller controller) {
+    public ToolDrawCircleAction() {
         putValue("iconBase", ICON_SMALL_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_SMALL_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(ICON_LARGE_PATH, false));
         putValue("menuText", "Draw circle");
         putValue(NAME, "Draw circle");
-        this.controller = controller;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        Controller controller = ControllerFactory.getController();
         controller.setTool(Tool.CIRCLE);
     }
 }

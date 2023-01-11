@@ -25,7 +25,6 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Optional;
@@ -33,7 +32,7 @@ import java.util.Optional;
 /**
  * @author Joacim Breiler
  */
-public class ExportGcodeAction extends AbstractAction {
+public class ExportGcodeAction extends AbstractDesignAction {
     public static final String SMALL_ICON_PATH = "img/export.svg";
     public static final String LARGE_ICON_PATH = "img/export24.svg";
 

@@ -18,19 +18,18 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
-import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
+import javax.swing.JFileChooser;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
 /**
  * @author Joacim Breiler
  */
-public class SaveAction extends AbstractAction {
+public class SaveAction extends AbstractDesignAction {
     private static final String ICON_SMALL_PATH = "img/save.svg";
     private static final String ICON_LARGE_PATH = "img/save24.svg";
     private final transient Controller controller;
@@ -58,10 +57,7 @@ public class SaveAction extends AbstractAction {
 
         File f = fileDialog.getSelectedFile();
         if (f != null) {
-            ThreadHelper.invokeLater(() -> {
-                UgsDesignWriter writer = new UgsDesignWriter();
-                writer.write(f, controller);
-            });
+            ThreadHelper.invokeLater(() -> controller.saveFile(f));
         }
     }
 }

@@ -1,32 +1,71 @@
+/*
+    Copyright 2023 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.designer.gui;
 
-import com.willwinder.ugs.nbp.designer.actions.*;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.actions.BreakApartAction;
+import com.willwinder.ugs.nbp.designer.actions.ClearSelectionAction;
+import com.willwinder.ugs.nbp.designer.actions.CopyAction;
+import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
+import com.willwinder.ugs.nbp.designer.actions.FlipHorizontallyAction;
+import com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction;
+import com.willwinder.ugs.nbp.designer.actions.IntersectionAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToCenterAction;
+import com.willwinder.ugs.nbp.designer.actions.PasteAction;
+import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
+import com.willwinder.ugs.nbp.designer.actions.SubtractAction;
+import com.willwinder.ugs.nbp.designer.actions.UnionAction;
 
-import javax.swing.*;
+import javax.swing.JPopupMenu;
 
 /**
  * @author Joacim Breiler
  */
 public class PopupMenuFactory {
-    public JPopupMenu createPopupMenu(Controller controller) {
-        JPopupMenu popupMenu = new JPopupMenu();
-        popupMenu.add(controller.getAction(SelectAllAction.class));
-        popupMenu.add(controller.getAction(ClearSelectionAction.class));
-        popupMenu.add(controller.getAction(DeleteAction.class));
+
+    private static JPopupMenu popupMenu;
+
+    private PopupMenuFactory() {
+        // Should not be instanced
+    }
+
+    public static JPopupMenu createPopupMenu() {
+        if (popupMenu != null) {
+            return popupMenu;
+        }
+
+        popupMenu = new JPopupMenu();
+        popupMenu.add(new SelectAllAction());
+        popupMenu.add(new ClearSelectionAction());
+        popupMenu.add(new DeleteAction());
         popupMenu.addSeparator();
-        popupMenu.add(controller.getAction(CopyAction.class));
-        popupMenu.add(controller.getAction(PasteAction.class));
+        popupMenu.add(new CopyAction());
+        popupMenu.add(new PasteAction());
         popupMenu.addSeparator();
-        popupMenu.add(controller.getAction(UnionAction.class));
-        popupMenu.add(controller.getAction(SubtractAction.class));
-        popupMenu.add(controller.getAction(IntersectionAction.class));
-        popupMenu.add(controller.getAction(BreakApartAction.class));
+        popupMenu.add(new UnionAction());
+        popupMenu.add(new SubtractAction());
+        popupMenu.add(new IntersectionAction());
+        popupMenu.add(new BreakApartAction());
         popupMenu.addSeparator();
-        popupMenu.add(controller.getAction(FlipHorizontallyAction.class));
-        popupMenu.add(controller.getAction(FlipVerticallyAction.class));
+        popupMenu.add(new FlipHorizontallyAction());
+        popupMenu.add(new FlipVerticallyAction());
         popupMenu.addSeparator();
-        popupMenu.add(controller.getAction(JogMachineToCenterAction.class));
+        popupMenu.add(new JogMachineToCenterAction());
         return popupMenu;
     }
 }

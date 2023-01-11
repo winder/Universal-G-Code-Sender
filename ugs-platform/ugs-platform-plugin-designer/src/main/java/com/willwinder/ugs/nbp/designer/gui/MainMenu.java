@@ -18,11 +18,28 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
-import com.willwinder.ugs.nbp.designer.actions.*;
+import com.willwinder.ugs.nbp.designer.actions.ClearSelectionAction;
+import com.willwinder.ugs.nbp.designer.actions.CopyAction;
+import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
+import com.willwinder.ugs.nbp.designer.actions.ExportGcodeAction;
+import com.willwinder.ugs.nbp.designer.actions.ExportPngAction;
+import com.willwinder.ugs.nbp.designer.actions.FlipHorizontallyAction;
+import com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction;
+import com.willwinder.ugs.nbp.designer.actions.NewAction;
+import com.willwinder.ugs.nbp.designer.actions.OpenAction;
+import com.willwinder.ugs.nbp.designer.actions.PasteAction;
+import com.willwinder.ugs.nbp.designer.actions.QuitAction;
+import com.willwinder.ugs.nbp.designer.actions.RedoAction;
+import com.willwinder.ugs.nbp.designer.actions.SaveAction;
+import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
+import com.willwinder.ugs.nbp.designer.actions.UndoAction;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.openide.util.Utilities;
 
-import javax.swing.*;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
 
 /**
  * Represents a main menu for a DrawGUI
@@ -35,7 +52,6 @@ public class MainMenu extends JMenuBar {
     private static final long serialVersionUID = 0;
 
     public MainMenu(Controller controller) {
-
         JMenuItem newdrawing = new JMenuItem(new NewAction());
         JMenuItem open = new JMenuItem(new OpenAction());
         JMenuItem save = new JMenuItem(new SaveAction(controller));
@@ -43,18 +59,18 @@ public class MainMenu extends JMenuBar {
         JMenuItem exportGcode = new JMenuItem(new ExportGcodeAction());
         JMenuItem quit = new JMenuItem(new QuitAction());
 
-        JMenuItem undo = new JMenuItem(controller.getAction(UndoAction.class));
-        JMenuItem redo = new JMenuItem(controller.getAction(RedoAction.class));
+        JMenuItem undo = new JMenuItem(new UndoAction());
+        JMenuItem redo = new JMenuItem(new RedoAction());
 
-        JMenuItem copy = new JMenuItem(controller.getAction(CopyAction.class));
-        JMenuItem paste = new JMenuItem(controller.getAction(PasteAction.class));
+        JMenuItem copy = new JMenuItem(new CopyAction());
+        JMenuItem paste = new JMenuItem(new PasteAction());
 
-        JMenuItem flipHorizontal = new JMenuItem(controller.getAction(FlipHorizontallyAction.class));
-        JMenuItem flipVertical = new JMenuItem(controller.getAction(FlipVerticallyAction.class));
+        JMenuItem flipHorizontal = new JMenuItem(new FlipHorizontallyAction());
+        JMenuItem flipVertical = new JMenuItem(new FlipVerticallyAction());
 
-        JMenuItem all = new JMenuItem(controller.getAction(SelectAllAction.class));
-        JMenuItem clear = new JMenuItem(controller.getAction(ClearSelectionAction.class));
-        JMenuItem delete = new JMenuItem(controller.getAction(DeleteAction.class));
+        JMenuItem all = new JMenuItem(new SelectAllAction());
+        JMenuItem clear = new JMenuItem(new ClearSelectionAction());
+        JMenuItem delete = new JMenuItem(new DeleteAction());
 
         open.setAccelerator(Utilities.stringToKey("D-O"));
         save.setAccelerator(Utilities.stringToKey("D-S"));

@@ -18,18 +18,17 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
-import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
 /**
  * @author Joacim Breiler
  */
-public class NewAction extends AbstractAction {
+public class NewAction extends AbstractDesignAction {
 
     public static final String SMALL_ICON_PATH = "img/new.svg";
     public static final String LARGE_ICON_PATH = "img/new24.svg";

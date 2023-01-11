@@ -22,6 +22,10 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
@@ -30,6 +34,13 @@ import java.awt.event.ActionEvent;
 /**
  * @author Joacim Breiler
  */
+@ActionID(
+        category = LocalizingService.CATEGORY_DESIGNER,
+        id = "ClearSelectionAction")
+@ActionRegistration(
+        iconBase = ClearSelectionAction.SMALL_ICON_PATH,
+        displayName = "Clear selection",
+        lazy = false)
 public class ClearSelectionAction extends AbstractAction implements SelectionListener {
 
     public static final String SMALL_ICON_PATH = "img/clear-selection.svg";
@@ -37,14 +48,14 @@ public class ClearSelectionAction extends AbstractAction implements SelectionLis
 
     private final transient SelectionManager selectionManager;
 
-    public ClearSelectionAction(Controller controller) {
+    public ClearSelectionAction() {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Clear selection");
         putValue(NAME, "Clear selection");
 
-        selectionManager = controller.getSelectionManager();
+        selectionManager = ControllerFactory.getSelectionManager();
         selectionManager.addSelectionListener(this);
         setEnabled(!selectionManager.getSelection().isEmpty());
     }

@@ -25,9 +25,12 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Area;
 import java.util.List;
@@ -38,19 +41,26 @@ import java.util.List;
  *
  * @author Joacim Breiler
  */
-public class UnionAction extends AbstractAction implements SelectionListener {
-    private static final String SMALL_ICON_PATH = "img/union.svg";
-    private static final String LARGE_ICON_PATH = "img/union24.svg";
+@ActionID(
+        category = LocalizingService.CATEGORY_DESIGNER,
+        id = "UnionAction")
+@ActionRegistration(
+        iconBase = UnionAction.SMALL_ICON_PATH,
+        displayName = "Union",
+        lazy = false)
+public class UnionAction extends AbstractDesignAction implements SelectionListener {
+    public static final String SMALL_ICON_PATH = "img/union.svg";
+    public static final String LARGE_ICON_PATH = "img/union24.svg";
     private final transient Controller controller;
 
-    public UnionAction(Controller controller) {
+    public UnionAction() {
         putValue("menuText", "Union");
         putValue(NAME, "Union");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
 
-        this.controller = controller;
+        this.controller = ControllerFactory.getController();
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);
         setEnabled(selectionManager.getSelection().size() >= 2);

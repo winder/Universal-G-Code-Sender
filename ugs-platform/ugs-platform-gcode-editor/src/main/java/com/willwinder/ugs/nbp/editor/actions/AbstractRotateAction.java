@@ -29,7 +29,6 @@ import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
-import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.uielements.helpers.LoaderDialogHelper;
 import com.willwinder.universalgcodesender.utils.*;

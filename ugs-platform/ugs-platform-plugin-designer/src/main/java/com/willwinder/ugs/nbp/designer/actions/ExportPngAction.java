@@ -22,7 +22,6 @@ import com.willwinder.ugs.nbp.designer.io.png.PngWriter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -32,7 +31,7 @@ import java.io.File;
 /**
  * @author Joacim Breiler
  */
-public class ExportPngAction extends AbstractAction {
+public class ExportPngAction extends AbstractDesignAction {
 
     private static final String SMALL_ICON_PATH = "img/export.svg";
     private static final String LARGE_ICON_PATH = "img/export24.svg";

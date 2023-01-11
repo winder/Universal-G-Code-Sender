@@ -19,27 +19,37 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
 /**
  * @author Joacim Breiler
  */
-public class ToolSelectAction extends AbstractAction {
-    private static final String SMALL_ICON_PATH = "img/pointer.svg";
+@ActionID(
+        category = LocalizingService.CATEGORY_DESIGNER,
+        id = "ToolSelectAction")
+@ActionRegistration(
+        iconBase = ToolSelectAction.SMALL_ICON_PATH,
+        displayName = "Select",
+        lazy = false)
+public class ToolSelectAction extends AbstractDesignAction {
+    public static final String SMALL_ICON_PATH = "img/pointer.svg";
     private static final String LARGE_ICON_PATH = "img/pointer24.svg";
     private final transient Controller controller;
 
-    public ToolSelectAction(Controller controller) {
+    public ToolSelectAction() {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Select");
         putValue(NAME, "Select");
-        this.controller = controller;
+        this.controller = ControllerFactory.getController();
     }
 
     @Override

@@ -21,30 +21,40 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.gui.imagetracer.ImageTracerDialog;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
 /**
  * @author Joacim Breiler
  */
-public class TraceImageAction extends AbstractAction {
+@ActionID(
+        category = LocalizingService.CATEGORY_DESIGNER,
+        id = "TraceImageAction")
+@ActionRegistration(
+        iconBase = TraceImageAction.SMALL_ICON_PATH,
+        displayName = "Trace image",
+        lazy = false)
+public class TraceImageAction extends AbstractDesignAction {
 
     public static final String SMALL_ICON_PATH = "img/trace.svg";
     public static final String LARGE_ICON_PATH = "img/trace24.svg";
     private final transient Controller controller;
 
-    public TraceImageAction(Controller controller) {
+    public TraceImageAction() {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", "Trace image");
         putValue(NAME, "Trace Image");
-        this.controller = controller;
+        this.controller = ControllerFactory.getController();
     }
 
     @Override
