@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -33,7 +33,7 @@ public class RedoAction extends AbstractDesignAction implements UndoManagerListe
     private final transient UndoManager undoManager;
 
     public RedoAction() {
-        undoManager = CentralLookup.getDefault().lookup(UndoManager.class);
+        undoManager = ControllerFactory.getUndoManager();
         undoManager.addListener(this);
         setEnabled(undoManager.canRedo());
 

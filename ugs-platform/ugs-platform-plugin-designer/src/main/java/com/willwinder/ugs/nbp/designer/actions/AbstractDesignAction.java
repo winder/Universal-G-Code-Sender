@@ -25,12 +25,15 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import org.openide.loaders.DataObject;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.openide.util.Utilities;
+import org.openide.windows.TopComponent;
 
 import javax.swing.AbstractAction;
+import javax.swing.SwingUtilities;
 
 /**
  * An abstract action class for design actions. This will listen if a connected machine is idle or
@@ -40,27 +43,25 @@ import javax.swing.AbstractAction;
  */
 public abstract class AbstractDesignAction extends AbstractAction implements LookupListener, UGSEventListener {
     private final transient BackendAPI backendAPI;
-    private final transient Lookup context;
 
     protected AbstractDesignAction() {
-        this(Utilities.actionsGlobalContext());
-    }
-
-    protected AbstractDesignAction(Lookup context) {
         super();
-        this.context = context;
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         backendAPI.addUGSEventListener(this);
 
-        Lookup.Result<UgsDataObject> lookupResult = context.lookupResult(UgsDataObject.class);
+        Lookup.Result<UgsDataObject> lookupResult = Utilities.actionsGlobalContext().lookupResult(UgsDataObject.class);
         lookupResult.addLookupListener(this);
+
+        DataObject.getRegistry().addChangeListener((e) -> resultChanged(null));
     }
 
     @Override
     public void resultChanged(LookupEvent ev) {
-        boolean isIdleOrDisconnected = (backendAPI.isConnected() && backendAPI.isIdle()) || !backendAPI.isConnected();
-        boolean isFileLoaded = Utils.isStandalone() || (!context.lookupAll(UgsDataObject.class).isEmpty());
-        setEnabled(isIdleOrDisconnected && isFileLoaded);
+        SwingUtilities.invokeLater(() -> {
+            boolean isIdleOrDisconnected = (backendAPI.isConnected() && backendAPI.isIdle()) || !backendAPI.isConnected();
+            boolean isFileLoaded = Utils.isStandalone() || TopComponent.getRegistry().getActivatedNodes().length > 0;
+            setEnabled(isIdleOrDisconnected && isFileLoaded);
+        });
     }
 
     @Override

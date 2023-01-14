@@ -22,8 +22,8 @@ import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTree;
 import com.willwinder.ugs.nbp.designer.gui.tree.EntityTreeModel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.openide.windows.TopComponent;
 
 import javax.swing.JScrollPane;
@@ -61,7 +61,7 @@ public class EntitiesTreeTopComponent extends TopComponent implements Controller
     @Override
     protected void componentOpened() {
         super.componentOpened();
-        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
+        Controller controller = ControllerFactory.getController();
         controller.addListener(this);
         entitiesTreeModel = new EntityTreeModel(controller);
         entitesTree = new EntitiesTree(controller, entitiesTreeModel);

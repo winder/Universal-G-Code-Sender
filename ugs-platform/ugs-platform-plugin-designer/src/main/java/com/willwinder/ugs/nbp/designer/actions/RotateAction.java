@@ -33,7 +33,7 @@ public class RotateAction implements DrawAction, UndoableAction {
 
     private final List<Entity> entityList;
     private final Point2D center;
-    private double rotation;
+    private final double rotation;
 
     /**
      * Creates a MoveAction that moves all Shapes in the given Selection in the

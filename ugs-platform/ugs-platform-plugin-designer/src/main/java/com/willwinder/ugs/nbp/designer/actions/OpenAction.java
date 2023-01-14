@@ -24,8 +24,8 @@ import com.willwinder.ugs.nbp.designer.io.c2d.C2dReader;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.model.Design;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.util.ImageUtilities;
 
@@ -61,13 +61,13 @@ public class OpenAction extends AbstractDesignAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        UndoManager undoManager = CentralLookup.getDefault().lookup(UndoManager.class);
+        UndoManager undoManager = ControllerFactory.getUndoManager();
         undoManager.clear();
 
-        SelectionManager selectionManager = CentralLookup.getDefault().lookup(SelectionManager.class);
+        SelectionManager selectionManager = ControllerFactory.getSelectionManager();
         selectionManager.clearSelection();
 
-        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
+        Controller controller = ControllerFactory.getController();
         fileChooser.showOpenDialog(null);
 
         ThreadHelper.invokeLater(() -> {

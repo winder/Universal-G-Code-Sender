@@ -48,8 +48,8 @@ public class ToolZoomAction extends AbstractAction {
         putValue("iconBase", ICON_SMALL_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_SMALL_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(ICON_LARGE_PATH, false));
-        putValue("menuText", "Draw circle");
-        putValue(NAME, "Draw circle");
+        putValue("menuText", "Zoom");
+        putValue(NAME, "Zoom");
     }
 
     @Override

@@ -29,7 +29,7 @@ import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -148,7 +148,7 @@ public class MoveControl extends AbstractControl {
     }
 
     private void addUndoAction(Point2D deltaMovement, Entity target) {
-        UndoManager undoManager = CentralLookup.getDefault().lookup(UndoManager.class);
+        UndoManager undoManager = ControllerFactory.getUndoManager();
         if (undoManager != null) {
             List<Entity> entityList = new ArrayList<>();
             if (target instanceof SelectionManager) {
