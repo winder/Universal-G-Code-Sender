@@ -39,23 +39,19 @@ import java.util.List;
  */
 public class EntitiesTree extends JTree implements TreeSelectionListener, SelectionListener {
 
-    private transient Controller controller;
+    private final transient Controller controller;
 
     public EntitiesTree(Controller controller, TreeModel treeModel) {
         super(treeModel);
-
         setEditable(true);
         setRootVisible(false);
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        setCellRenderer(new EntityCellRenderer(this));
+        setCellRenderer(new EntityCellRenderer());
         addTreeSelectionListener(this);
         expandRow(0);
-        updateController(controller);
         ((EntityTreeModel) getModel()).notifyTreeStructureChanged(controller.getDrawing().getRootEntity());
         addMouseListener(new EntitiesTreePopupListener());
-    }
 
-    private void updateController(Controller controller) {
         this.controller = controller;
         controller.getSelectionManager().addSelectionListener(this);
     }

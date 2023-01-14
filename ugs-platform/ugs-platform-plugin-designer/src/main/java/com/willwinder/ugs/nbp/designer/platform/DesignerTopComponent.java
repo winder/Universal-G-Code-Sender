@@ -18,16 +18,12 @@
  */
 package com.willwinder.ugs.nbp.designer.platform;
 
-import com.google.common.io.Files;
-import com.willwinder.ugs.nbp.designer.Throttler;
 import com.willwinder.ugs.nbp.designer.actions.UndoManagerListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.PopupMenuFactory;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
-import com.willwinder.ugs.nbp.designer.io.DesignWriter;
-import com.willwinder.ugs.nbp.designer.io.gcode.GcodeDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
@@ -58,7 +54,6 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     private static final long serialVersionUID = 3123334398723987873L;
     private static final Logger LOGGER = Logger.getLogger(DesignerTopComponent.class.getSimpleName());
     private static DrawingContainer drawingContainer;
-    private final transient Throttler refreshThrottler;
     private final transient UndoManagerAdapter undoManagerAdapter;
     private final transient BackendAPI backend;
     private final transient Controller controller;
@@ -67,7 +62,6 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     public DesignerTopComponent(UgsDataObject dataObject) {
         super();
         this.dataObject = dataObject;
-        refreshThrottler = new Throttler(this::generateGcode, 1000);
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         controller = ControllerFactory.getController();
 
@@ -119,7 +113,6 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
 
         controller.getUndoManager().addListener(this);
         controller.getDrawing().repaint();
-        refreshThrottler.run();
     }
 
     @Override
@@ -152,16 +145,6 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         PlatformUtils.openEntitesTree(controller);
     }
 
-    private void generateGcode() {
-        DesignWriter designWriter = new GcodeDesignWriter();
-        try {
-            File file = new File(Files.createTempDir(), dataObject.getName() + ".gcode");
-            designWriter.write(file, controller);
-            backend.setGcodeFile(file);
-        } catch (Exception e) {
-            throw new RuntimeException("Could not generate gcode");
-        }
-    }
 
     @Override
     public UndoRedo getUndoRedo() {
@@ -171,9 +154,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     @Override
     public void onChanged() {
         dataObject.setModified(true);
-        if (!backend.isSendingFile()) {
-            refreshThrottler.run();
-        }
+
     }
 
     @Override

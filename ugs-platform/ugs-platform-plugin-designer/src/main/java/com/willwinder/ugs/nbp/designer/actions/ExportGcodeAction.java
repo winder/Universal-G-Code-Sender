@@ -21,7 +21,7 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
 import com.willwinder.ugs.nbp.designer.io.gcode.GcodeDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.util.ImageUtilities;
 
@@ -53,7 +53,7 @@ public class ExportGcodeAction extends AbstractDesignAction {
             if (!hasGcodeFileEnding) {
                 path = path + ".gcode";
             }
-            Controller controller = CentralLookup.getDefault().lookup(Controller.class);
+            Controller controller = ControllerFactory.getController();
             DesignWriter designWriter = new GcodeDesignWriter();
             designWriter.write(new File(path), controller);
         }

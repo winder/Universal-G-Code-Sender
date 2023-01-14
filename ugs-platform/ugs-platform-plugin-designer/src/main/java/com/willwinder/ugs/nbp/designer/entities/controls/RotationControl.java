@@ -28,7 +28,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import org.openide.util.ImageUtilities;
 
 import java.awt.Cursor;
@@ -163,7 +163,7 @@ public class RotationControl extends AbstractControl {
                 target.rotate(center, deltaAngle);
                 startPosition = mousePosition;
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_RELEASED) {
-                double totalRotation = (startRotation + target.getRotation());
+                double totalRotation = (target.getRotation() - startRotation);
                 addUndoAction(center, totalRotation, target);
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_IN) {
                 isHovered = true;
@@ -174,7 +174,7 @@ public class RotationControl extends AbstractControl {
     }
 
     private void addUndoAction(Point2D center, double rotation, Entity target) {
-        UndoManager undoManager = CentralLookup.getDefault().lookup(UndoManager.class);
+        UndoManager undoManager = ControllerFactory.getUndoManager();
         if (undoManager != null) {
             List<Entity> entityList = new ArrayList<>();
             if (target instanceof SelectionManager) {

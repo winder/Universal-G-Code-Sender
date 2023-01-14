@@ -20,7 +20,7 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -43,13 +43,13 @@ public class NewAction extends AbstractDesignAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        UndoManager undoManager = CentralLookup.getDefault().lookup(UndoManager.class);
+        UndoManager undoManager = ControllerFactory.getUndoManager();
         undoManager.clear();
 
-        SelectionManager selectionManager = CentralLookup.getDefault().lookup(SelectionManager.class);
+        SelectionManager selectionManager = ControllerFactory.getSelectionManager();
         selectionManager.clearSelection();
 
-        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
+        Controller controller = ControllerFactory.getController();
         controller.newDrawing();
     }
 }

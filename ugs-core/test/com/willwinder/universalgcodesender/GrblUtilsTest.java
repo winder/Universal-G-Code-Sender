@@ -423,9 +423,8 @@ public class GrblUtilsTest {
         String status = "<Idle|MPos:1.1,2.2,3.3|WPos:4.4,5.5,6.6|WCO:7.7,8.8,9.9|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZPDHRS|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = MM;
 
-        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
         assertEquals(ControllerState.IDLE, controllerStatus.getState());
 
@@ -460,9 +459,8 @@ public class GrblUtilsTest {
         String status = "<Idle|MPos:1.1,2.2,3.3|WPos:4.4,5.5,6.6|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZPDHRS|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = MM;
 
-        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
         assertEquals(new Position(1.1, 2.2, 3.3, MM), controllerStatus.getMachineCoord());
         assertEquals(new Position(4.4, 5.5, 6.6, MM), controllerStatus.getWorkCoord());
@@ -474,9 +472,8 @@ public class GrblUtilsTest {
         String status = "<Idle|MPos:1.0,2.0,3.0|WCO:7.0,8.0,9.0|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZPDHRS|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = MM;
 
-        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
         assertEquals(new Position(1, 2, 3, MM), controllerStatus.getMachineCoord());
         assertEquals(new Position(-6, -6, -6, MM), controllerStatus.getWorkCoord());
@@ -502,9 +499,8 @@ public class GrblUtilsTest {
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|FS:12345.7,65432.1|F:12345.6|Pn:XYZPDHRS|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = MM;
 
-        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
         assertEquals(Double.valueOf(12345.6), controllerStatus.getFeedSpeed());
         assertEquals(Double.valueOf(65432.1), controllerStatus.getSpindleSpeed());
@@ -515,9 +511,8 @@ public class GrblUtilsTest {
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|F:12345.6,1000.0>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = MM;
 
-        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
         assertEquals(Double.valueOf(0), controllerStatus.getFeedSpeed());
     }
@@ -527,9 +522,8 @@ public class GrblUtilsTest {
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|F:12345.6,1000.0,2000.0>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = MM;
 
-        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
         assertEquals(Double.valueOf(12345.6), controllerStatus.getFeedSpeed());
     }
@@ -539,9 +533,8 @@ public class GrblUtilsTest {
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|FS:12345.7,65432.1|F:12345.6|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = MM;
 
-        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
         assertFalse(controllerStatus.getEnabledPins().CycleStart);
         assertFalse(controllerStatus.getEnabledPins().Door);
@@ -558,10 +551,24 @@ public class GrblUtilsTest {
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|FS:12345.7,65432.1|F:12345.6>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = MM;
 
-        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
+        assertFalse(controllerStatus.getAccessoryStates().Flood);
+        assertFalse(controllerStatus.getAccessoryStates().Mist);
+        assertFalse(controllerStatus.getAccessoryStates().SpindleCCW);
+        assertFalse(controllerStatus.getAccessoryStates().SpindleCW);
+    }
+
+    @Test
+    public void getStatusFromStatusStringShouldBeAbleToProcessEmptyAccessoryState() {
+        String status = "<Idle|A:>";
+        Capabilities version = new Capabilities();
+        version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
+
+        assertEquals(ControllerState.IDLE, controllerStatus.getState());
+        assertNotNull(controllerStatus.getAccessoryStates());
         assertFalse(controllerStatus.getAccessoryStates().Flood);
         assertFalse(controllerStatus.getAccessoryStates().Mist);
         assertFalse(controllerStatus.getAccessoryStates().SpindleCCW);
@@ -573,9 +580,8 @@ public class GrblUtilsTest {
         String status = "<Idle|MPos:1.1,2.2,3.3,4.4,5.5,6.6|WPos:7.7,8.8,9.9,10.10,11.11,12.12|WCO:13.13,14.14,15.15,16.16,17.17,18.18|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZABCPDHRS|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = MM;
 
-        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
         assertEquals(ControllerState.IDLE, controllerStatus.getState());
 
@@ -593,9 +599,8 @@ public class GrblUtilsTest {
         String status = "<Idle|MPos:1.1,2.2,3.3,4.4,5.5|WPos:7.7,8.8,9.9,10.10,11.11|WCO:13.13,14.14,15.15,16.16,17.17|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZABPDHRS|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = MM;
 
-        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
         assertEquals(ControllerState.IDLE, controllerStatus.getState());
 
@@ -612,9 +617,8 @@ public class GrblUtilsTest {
         String status = "<Idle|MPos:1.1,2.2,3.3,4.4|WPos:7.7,8.8,9.9,10.10|WCO:13.13,14.14,15.15,16.16|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZAPDHRS|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = MM;
 
-        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
         assertEquals(ControllerState.IDLE, controllerStatus.getState());
 

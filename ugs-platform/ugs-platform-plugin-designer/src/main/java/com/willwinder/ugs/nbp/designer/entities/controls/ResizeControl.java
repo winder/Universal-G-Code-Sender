@@ -30,8 +30,8 @@ import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.model.Size;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 
 import java.awt.Cursor;
 import java.awt.Graphics2D;
@@ -145,7 +145,7 @@ public class ResizeControl extends AbstractControl {
     }
 
     private void addUndoAction(Entity target, Location location, Size originalSize, Size newSize) {
-        UndoManager undoManager = CentralLookup.getDefault().lookup(UndoManager.class);
+        UndoManager undoManager = ControllerFactory.getUndoManager();
         if (undoManager != null) {
             List<Entity> entityList = new ArrayList<>();
             if (target instanceof SelectionManager) {

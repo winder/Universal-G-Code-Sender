@@ -19,6 +19,7 @@ public class UgsOpenSupport implements OpenCookie, EditorCookie {
             DesignerTopComponent designerTopComponent = new DesignerTopComponent(dobj);
             designerTopComponent.open();
             designerTopComponent.requestActive();
+            PlatformUtils.exportAndLoadGcode(entry.getDataObject().getName());
         }
     }
 }

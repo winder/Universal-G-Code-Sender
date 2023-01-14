@@ -21,8 +21,8 @@ package com.willwinder.ugs.nbp.designer.platform;
 import com.willwinder.ugs.nbp.designer.gui.SelectionSettingsPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.openide.windows.TopComponent;
 
 /**
@@ -51,7 +51,7 @@ public class SettingsTopComponent extends TopComponent implements ControllerList
         selectionSettingsPanel.release();
         selectionSettingsPanel = null;
 
-        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
+        Controller controller = ControllerFactory.getController();
         controller.removeListener(this);
     }
 
@@ -59,7 +59,7 @@ public class SettingsTopComponent extends TopComponent implements ControllerList
     protected void componentOpened() {
         super.componentOpened();
         removeAll();
-        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
+        Controller controller = ControllerFactory.getController();
         selectionSettingsPanel = new SelectionSettingsPanel(controller);
         add(selectionSettingsPanel);
         controller.addListener(this);

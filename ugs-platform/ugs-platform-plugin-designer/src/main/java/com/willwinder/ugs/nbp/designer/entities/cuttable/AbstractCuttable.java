@@ -22,7 +22,7 @@ import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
@@ -114,7 +114,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     }
 
     private double getCutAlpha() {
-        Controller controller = CentralLookup.getDefault().lookup(Controller.class);
+        Controller controller = ControllerFactory.getController();
         if (getTargetDepth() == 0) {
             return 1d;
         }

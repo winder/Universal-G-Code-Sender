@@ -32,7 +32,7 @@ import java.util.List;
 public class MoveAction implements DrawAction, UndoableAction {
 
     private final List<Entity> entityList;
-    private Point2D movement;
+    private final Point2D movement;
 
     /**
      * Creates a MoveAction that moves all Shapes in the given Selection in the
