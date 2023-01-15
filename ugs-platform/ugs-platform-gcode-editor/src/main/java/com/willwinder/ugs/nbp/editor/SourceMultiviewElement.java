@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2021 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,6 +25,8 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.CommandEvent;
+import com.willwinder.universalgcodesender.model.events.CommandEventType;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
@@ -56,12 +58,14 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
     private final GcodeDataObject obj;
     private final GcodeFileListener fileListener;
     private final transient BackendAPI backend;
+    private final transient FollowLineUpdater followLineUpdater;
 
     public SourceMultiviewElement(Lookup lookup) {
         super(lookup);
         obj = lookup.lookup(GcodeDataObject.class);
         fileListener = new GcodeFileListener();
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        followLineUpdater = new FollowLineUpdater();
     }
 
     @Override
@@ -111,16 +115,23 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
 
     @Override
     public void UGSEvent(UGSEvent ugsEvent) {
-         if (ugsEvent instanceof ControllerStateEvent) {
-            // Disable the editor if not idle or disconnected
-            ControllerState state = backend.getControllerState();
-            try {
-                getEditorPane().setEditable(state == ControllerState.IDLE || state == ControllerState.DISCONNECTED);
-            } catch (AssertionError e) {
-                LOGGER.warning(String.format("AssertionError(%s) in getEditorPane().setEditable " +
-                        "- verify that you use required JVM version." +
-                        " Application can exhibit misbehaviour.", e.getMessage()));
-            }
+        if (ugsEvent instanceof ControllerStateEvent) {
+            setEditable();
+        } else if (ugsEvent instanceof CommandEvent && ((CommandEvent) ugsEvent).getCommandEventType() == CommandEventType.COMMAND_COMPLETE) {
+            followLineUpdater.updateCurrentLine(obj, ((CommandEvent) ugsEvent).getCommand().getCommandNumber());
+        }
+    }
+
+    private void setEditable() {
+        // Disable the editor if not idle or disconnected
+        ControllerState state = backend.getControllerState();
+        try {
+            boolean isEditable = state == ControllerState.IDLE || state == ControllerState.DISCONNECTED;
+            getEditorPane().setEditable(isEditable);
+        } catch (AssertionError e) {
+            LOGGER.warning(String.format("AssertionError(%s) in getEditorPane().setEditable " +
+                    "- verify that you use required JVM version." +
+                    " Application can exhibit misbehaviour.", e.getMessage()));
         }
     }
 }
