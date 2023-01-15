@@ -62,7 +62,10 @@ public class FollowAction extends AbstractAction implements UGSEventListener, Pr
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, "Follow the running gcode");
         setEnabled(isEnabled());
+        registerListeners();
+    }
 
+    private void registerListeners() {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
         setEnabled(isEnabled());
