@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,6 +32,8 @@ import com.willwinder.ugs.nbp.designer.actions.QuitAction;
 import com.willwinder.ugs.nbp.designer.actions.RedoAction;
 import com.willwinder.ugs.nbp.designer.actions.SaveAction;
 import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
+import com.willwinder.ugs.nbp.designer.actions.SelectNextAction;
+import com.willwinder.ugs.nbp.designer.actions.SelectPreviousAction;
 import com.willwinder.ugs.nbp.designer.actions.UndoAction;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.openide.util.Utilities;
@@ -69,6 +71,8 @@ public class MainMenu extends JMenuBar {
         JMenuItem flipVertical = new JMenuItem(new FlipVerticallyAction());
 
         JMenuItem all = new JMenuItem(new SelectAllAction());
+        JMenuItem previous = new JMenuItem(new SelectPreviousAction());
+        JMenuItem next = new JMenuItem(new SelectNextAction());
         JMenuItem clear = new JMenuItem(new ClearSelectionAction());
         JMenuItem delete = new JMenuItem(new DeleteAction());
 
@@ -80,7 +84,9 @@ public class MainMenu extends JMenuBar {
         quit.setAccelerator(Utilities.stringToKey("D-Q"));
         export.setAccelerator(Utilities.stringToKey("D-E"));
         clear.setAccelerator(Utilities.stringToKey("O-C"));
+        previous.setAccelerator(Utilities.stringToKey("SD-P"));
         all.setAccelerator(Utilities.stringToKey("D-A"));
+        next.setAccelerator(Utilities.stringToKey("SD-N"));
         delete.setAccelerator(Utilities.stringToKey("BACK_SPACE"));
         copy.setAccelerator(Utilities.stringToKey("D-C"));
         paste.setAccelerator(Utilities.stringToKey("D-V"));
@@ -106,6 +112,8 @@ public class MainMenu extends JMenuBar {
         editMenu.add(flipVertical);
         editMenu.add(new JSeparator());
         editMenu.add(all);
+        editMenu.add(previous);
+        editMenu.add(next);
         editMenu.add(clear);
         editMenu.add(delete);
 
