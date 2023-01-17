@@ -29,6 +29,7 @@ import com.willwinder.ugs.nbp.designer.actions.JogMachineToCenterAction;
 import com.willwinder.ugs.nbp.designer.actions.PasteAction;
 import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
 import com.willwinder.ugs.nbp.designer.actions.SubtractAction;
+import com.willwinder.ugs.nbp.designer.actions.ToggleHidden;
 import com.willwinder.ugs.nbp.designer.actions.UnionAction;
 
 import javax.swing.JPopupMenu;
@@ -64,6 +65,8 @@ public class PopupMenuFactory {
         popupMenu.addSeparator();
         popupMenu.add(new FlipHorizontallyAction());
         popupMenu.add(new FlipVerticallyAction());
+        popupMenu.addSeparator();
+        popupMenu.add(new ToggleHidden());
         popupMenu.addSeparator();
         popupMenu.add(new JogMachineToCenterAction());
         return popupMenu;

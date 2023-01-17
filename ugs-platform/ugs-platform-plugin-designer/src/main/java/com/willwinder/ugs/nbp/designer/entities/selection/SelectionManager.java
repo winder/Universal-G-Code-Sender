@@ -26,12 +26,14 @@ import com.willwinder.ugs.nbp.designer.entities.EntityException;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
@@ -58,14 +60,22 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
 
     @Override
     public final void render(Graphics2D graphics, Drawing drawing) {
-        if (!isEmpty()) {
-            // Highlight the selected models
-            float strokeWidth = Double.valueOf(1.6 / drawing.getScale()).floatValue();
-            float dashWidth = Double.valueOf(2 / drawing.getScale()).floatValue();
-            graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
-            graphics.setColor(Colors.SHAPE_OUTLINE);
-            getSelection().forEach(entity -> graphics.draw(entity.getShape()));
+        if (isEmpty()) {
+            return;
         }
+
+        // Highlight the selected models
+        float strokeWidth = 1.6f / (float) drawing.getScale();
+        float dashWidth = 2f / (float) drawing.getScale();
+        graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
+        getSelection().forEach(entity -> drawEntity(graphics, entity));
+    }
+
+    private void drawEntity(Graphics2D graphics, Entity entity) {
+        boolean isHidden = entity instanceof Cuttable && ((Cuttable) entity).isHidden();
+        Color color = isHidden ? Colors.SHAPE_HINT : Colors.SHAPE_OUTLINE;
+        graphics.setColor(color);
+        graphics.draw(entity.getShape());
     }
 
     @Override

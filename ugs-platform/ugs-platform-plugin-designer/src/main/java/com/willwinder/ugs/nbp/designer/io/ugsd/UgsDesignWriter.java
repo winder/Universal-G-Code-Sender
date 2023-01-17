@@ -80,9 +80,12 @@ public class UgsDesignWriter implements DesignWriter {
         }
 
         if (entity instanceof Cuttable && result instanceof CuttableEntityV1) {
-            ((CuttableEntityV1) result).setStartDepth(((Cuttable) entity).getStartDepth());
-            ((CuttableEntityV1) result).setCutDepth(((Cuttable) entity).getTargetDepth());
-            ((CuttableEntityV1) result).setCutType(CutTypeV1.fromCutType(((Cuttable) entity).getCutType()));
+            Cuttable cuttable = (Cuttable) entity;
+            CuttableEntityV1 cuttableEntity = ((CuttableEntityV1) result);
+            cuttableEntity.setStartDepth(cuttable.getStartDepth());
+            cuttableEntity.setCutDepth(cuttable.getTargetDepth());
+            cuttableEntity.setCutType(CutTypeV1.fromCutType(cuttable.getCutType()));
+            cuttableEntity.setHidden(cuttable.isHidden());
         }
         return result;
     }

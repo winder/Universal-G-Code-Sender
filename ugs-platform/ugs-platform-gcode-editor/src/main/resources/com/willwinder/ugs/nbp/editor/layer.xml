@@ -2,19 +2,8 @@
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
     <folder name="Editors">
-        <folder name="Toolbars">
-            <folder name="Default">
-                <!-- Special case where we need to reference an action instance so that i can be toggled -->
-                <file name="follow-action">
-                    <attr name="position" intvalue="14"/>
-                </file>
-            </folder>
-        </folder>
         <folder name="text">
             <folder name="xgcode">
-                <file name="EditorKit.instance">
-                    <attr name="instanceClass" stringvalue="com.willwinder.ugs.nbp.editor.GcodeEditorKit"/>
-                </file>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="com.willwinder.ugs.nbp.editor.Bundle"/>
                 <folder name="FontsColors">
                     <folder name="NetBeans">

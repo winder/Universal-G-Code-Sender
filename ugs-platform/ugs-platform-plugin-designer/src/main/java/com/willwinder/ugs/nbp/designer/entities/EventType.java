@@ -25,6 +25,7 @@ public enum EventType {
     ROTATED,
     MOVED,
     RESIZED,
+    HIDDEN,
     MOUSE_IN,
     MOUSE_OUT,
     MOUSE_PRESSED,

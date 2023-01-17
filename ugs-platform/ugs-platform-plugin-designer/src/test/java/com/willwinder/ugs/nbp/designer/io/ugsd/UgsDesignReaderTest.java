@@ -17,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.awt.geom.Point2D;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -99,6 +100,21 @@ public class UgsDesignReaderTest {
     }
 
     @Test
+    public void readDesignWithHiddenObject() {
+        Rectangle entity = new Rectangle();
+        entity.setHidden(true);
+        String data = convertEntityToString(entity);
+
+        UgsDesignReader reader = new UgsDesignReader();
+        Design design = reader.read(IOUtils.toInputStream(data)).get();
+
+        assertEquals(1, design.getEntities().size());
+        Cuttable readEntity = (Cuttable) design.getEntities().get(0);
+        assertTrue(readEntity instanceof Rectangle);
+        assertEquals(entity.isHidden(), readEntity.isHidden());
+    }
+
+    @Test
     public void readDesignWithEllipse() {
         Ellipse entity = new Ellipse();
         entity.setSize(new Size(50, 100));
@@ -156,6 +172,33 @@ public class UgsDesignReaderTest {
         assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
     }
 
+
+    @Test
+    public void readDesignWithGroup() {
+        Point point = new Point(10, 20);
+        Group entity = new Group();
+        entity.addChild(point);
+        String data = convertEntityToString(entity);
+
+        UgsDesignReader reader = new UgsDesignReader();
+        Design design = reader.read(IOUtils.toInputStream(data)).get();
+
+        Cuttable readEntity = (Cuttable) design.getEntities().get(0);
+        assertTrue(readEntity instanceof Group);
+        assertEquals(entity.getPosition().getX(), readEntity.getPosition().getX(), 0.1);
+        assertEquals(entity.getPosition().getY(), readEntity.getPosition().getY(), 0.1);
+        assertEquals(entity.getName(), readEntity.getName());
+        assertEquals(entity.getCutType(), readEntity.getCutType());
+        assertEquals(entity.getTargetDepth(), readEntity.getTargetDepth(), 0.1);
+        assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
+
+        List<Entity> readGroupEntities = ((Group) readEntity).getChildren();
+        assertEquals(1, readGroupEntities.size());
+        assertTrue(readGroupEntities.get(0) instanceof Point);
+        assertEquals(point.getPosition().getX(), readGroupEntities.get(0).getPosition().getX(), 0.1);
+        assertEquals(point.getPosition().getY(), readGroupEntities.get(0).getPosition().getY(), 0.1);
+    }
+
     private String convertEntityToString(Entity entity) {
         when(controller.getSettings()).thenReturn(new Settings());
         when(controller.getDrawing()).thenReturn(drawing);
@@ -168,6 +211,6 @@ public class UgsDesignReaderTest {
         UgsDesignWriter writer = new UgsDesignWriter();
         writer.write(baos, controller);
 
-        return new String(baos.toByteArray());
+        return baos.toString();
     }
 }

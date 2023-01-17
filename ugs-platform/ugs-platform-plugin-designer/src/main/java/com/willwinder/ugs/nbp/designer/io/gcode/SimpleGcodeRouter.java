@@ -16,7 +16,6 @@
  */
 package com.willwinder.ugs.nbp.designer.io.gcode;
 
-import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
@@ -126,13 +125,12 @@ public class SimpleGcodeRouter {
         this.depthPerPass = depthPerPass;
     }
 
+    private double getSpindleSpeed() {
+        return this.spindleSpeed;
+    }
 
     public void setSpindleSpeed(double spindleSpeed) {
         this.spindleSpeed = spindleSpeed;
-    }
-
-    private double getSpindleSpeed() {
-        return this.spindleSpeed;
     }
 
     protected String toGcode(GcodePath gcodePath) throws IOException {
@@ -142,15 +140,13 @@ public class SimpleGcodeRouter {
         return stringWriter.toString();
     }
 
-    public String toGcode(List<Entity> entities) {
+    public String toGcode(List<Cuttable> entities) {
         // Try to figure out the size of the drawing
         double width = entities.stream().map(e -> e.getBounds().getMaxX()).max(Double::compareTo).orElse((double) 0);
         double height = entities.stream().map(e -> e.getBounds().getMaxX()).max(Double::compareTo).orElse((double) 0);
 
 
         List<Cuttable> cuttables = entities.stream()
-                .filter(Cuttable.class::isInstance)
-                .map(Cuttable.class::cast)
                 .sorted(new EntityComparator(width, height))
                 .collect(Collectors.toList());
 
@@ -179,7 +175,7 @@ public class SimpleGcodeRouter {
         int index = 0;
         for (Cuttable cuttable : cuttables) {
             index++;
-            gcodePath.addSegment(new Segment(" " + cuttable.getName() + " - " + cuttable.getCutType().getName()  + " (" + index + "/" + cuttables.size() + ")"));
+            gcodePath.addSegment(new Segment(" " + cuttable.getName() + " - " + cuttable.getCutType().getName() + " (" + index + "/" + cuttables.size() + ")"));
             switch (cuttable.getCutType()) {
                 case POCKET:
                     PocketToolPath simplePocket = new PocketToolPath(cuttable);

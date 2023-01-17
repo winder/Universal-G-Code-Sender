@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.io.gcode;
 
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
 import com.willwinder.ugs.nbp.designer.io.DesignWriterException;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -28,6 +29,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Writes the design as generated gcode.
@@ -58,7 +61,13 @@ public class GcodeDesignWriter implements DesignWriter {
             gcodeRouter.setFeedSpeed(controller.getSettings().getFeedSpeed());
             gcodeRouter.setSpindleSpeed(controller.getSettings().getSpindleSpeed());
 
-            String gcode = gcodeRouter.toGcode(controller.getDrawing().getEntities());
+            List<Cuttable> cuttables = controller.getDrawing().getEntities().stream()
+                    .filter(Cuttable.class::isInstance)
+                    .map(Cuttable.class::cast)
+                    .filter(cuttable -> !cuttable.isHidden())
+                    .collect(Collectors.toList());
+
+            String gcode = gcodeRouter.toGcode(cuttables);
             IOUtils.write(gcode, outputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new DesignWriterException("Could not write gcode to stream", e);

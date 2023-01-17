@@ -46,7 +46,7 @@ import java.util.List;
                 path = "Shortcuts",
                 name = "SD-P")
 })
-public class SelectPreviousAction extends AbstractDesignAction {
+public class SelectPreviousAction extends AbstractSelectAction {
 
     public SelectPreviousAction() {
         putValue("menuText", "Select previous");
@@ -55,20 +55,17 @@ public class SelectPreviousAction extends AbstractDesignAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Controller controller = ControllerFactory.getController();
-        List<Entity> entities = controller.getDrawing().getEntities();
-        if (!entities.isEmpty()) {
-            int currentIndex = controller.getSelectionManager()
-                    .getSelection()
-                    .stream()
-                    .findFirst()
-                    .map(entities::indexOf)
-                    .orElse(0);
-
-            if (currentIndex > 0) {
-                currentIndex--;
-            }
-            controller.getSelectionManager().setSelection(Collections.singletonList(entities.get(currentIndex)));
+        List<Entity> entities = getVisibleEntities();
+        if (entities.isEmpty()) {
+            return;
         }
+
+        int currentIndex = getCurrentEntitiesIndex(entities);
+        if (currentIndex > 0) {
+            currentIndex--;
+        }
+
+        Controller controller = ControllerFactory.getController();
+        controller.getSelectionManager().setSelection(Collections.singletonList(entities.get(currentIndex)));
     }
 }

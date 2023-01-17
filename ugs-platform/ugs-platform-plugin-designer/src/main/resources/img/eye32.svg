@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   class="ionicon"
+   viewBox="0 0 32 32"
+   version="1.1"
+   id="svg836"
+   sodipodi:docname="eye32.svg"
+   width="32"
+   height="32"
+   inkscape:version="1.1-dev (0486c1a, 2020-10-10)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs840" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1417"
+     inkscape:window-height="940"
+     id="namedview838"
+     showgrid="false"
+     inkscape:zoom="31.583333"
+     inkscape:cx="11.984169"
+     inkscape:cy="12"
+     inkscape:window-x="223"
+     inkscape:window-y="148"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg836" />
+  <title
+     id="title830">Eye</title>
+  <circle
+     cx="16"
+     cy="16"
+     r="4"
+     id="circle832"
+     style="fill:#353a40;fill-opacity:1;stroke-width:0.0625" />
+  <path
+     d="M 30.6775,14.9125 C 29.023749,12.355 26.878124,10.1825 24.473125,8.6293749 21.8125,6.9093749 18.875,6 15.978751,6 13.32125,6 10.708125,6.7593751 8.2118749,8.2568751 5.66625,9.78375 3.36,12.014375 1.3568749,14.886249 a 1.995,1.995 0 0 0 -0.04,2.221251 c 1.6506251,2.583125 3.7750002,4.758749 6.1425,6.290625 C 10.125,25.125 12.99375,26 15.978751,26 c 2.919374,0 5.863125,-0.901875 8.512498,-2.6075 2.403751,-1.548124 4.545002,-3.728749 6.1925,-6.3075 a 2.0125,2.0125 0 0 0 -0.0063,-2.1725 z M 16,22 a 6,6 0 1 1 6,-6 6.0068749,6.0068749 0 0 1 -6,6 z"
+     id="path834"
+     style="fill:#353a40;fill-opacity:1;stroke-width:0.0625" />
+  <rect
+     style="display:inline;fill:none;fill-rule:evenodd;stroke-width:0.123983;stroke-linecap:round;stroke-linejoin:round"
+     id="rect842"
+     width="32"
+     height="32"
+     x="0"
+     y="0" />
+  <metadata
+     id="metadata844">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>Eye</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+</svg>

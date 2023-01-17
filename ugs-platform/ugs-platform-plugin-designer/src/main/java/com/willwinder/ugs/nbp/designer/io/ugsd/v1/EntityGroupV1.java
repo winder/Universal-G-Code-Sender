@@ -19,7 +19,7 @@
 package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ public class EntityGroupV1 extends EntityV1 {
 
     @Override
     public Entity toInternal() {
-        EntityGroup entityGroup = new EntityGroup();
+        Group entityGroup = new Group();
         children.stream().map(EntityV1::toInternal).forEach(entityGroup::addChild);
         entityGroup.setName(getName());
         return entityGroup;
