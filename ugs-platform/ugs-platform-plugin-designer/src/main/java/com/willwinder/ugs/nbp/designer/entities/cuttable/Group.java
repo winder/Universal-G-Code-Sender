@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Handles a group of entities and enables to set cut settings for all child entites.
@@ -36,9 +37,7 @@ public class Group extends EntityGroup implements Cuttable {
 
     @Override
     public CutType getCutType() {
-        List<CutType> cutTypes = getChildren().stream()
-                .filter(Cuttable.class::isInstance)
-                .map(Cuttable.class::cast)
+        List<CutType> cutTypes = getCuttableStream()
                 .map(Cuttable::getCutType)
                 .filter(cutType -> cutType != CutType.NONE)
                 .distinct()
@@ -62,9 +61,7 @@ public class Group extends EntityGroup implements Cuttable {
 
     @Override
     public double getTargetDepth() {
-        return getChildren().stream()
-                .filter(Cuttable.class::isInstance)
-                .map(Cuttable.class::cast)
+        return getCuttableStream()
                 .mapToDouble(Cuttable::getTargetDepth)
                 .max()
                 .orElse(0);
@@ -81,9 +78,7 @@ public class Group extends EntityGroup implements Cuttable {
 
     @Override
     public double getStartDepth() {
-        return getChildren().stream()
-                .filter(Cuttable.class::isInstance)
-                .map(Cuttable.class::cast)
+        return getCuttableStream()
                 .mapToDouble(Cuttable::getStartDepth)
                 .max()
                 .orElse(0);
@@ -94,6 +89,29 @@ public class Group extends EntityGroup implements Cuttable {
         getChildren().forEach(child -> {
             if (child instanceof Cuttable) {
                 ((Cuttable) child).setStartDepth(startDepth);
+            }
+        });
+    }
+
+    @Override
+    public boolean isHidden() {
+        return getCuttableStream()
+                .findFirst()
+                .map(Cuttable::isHidden)
+                .orElse(false);
+    }
+
+    private Stream<Cuttable> getCuttableStream() {
+        return getChildren().stream()
+                .filter(Cuttable.class::isInstance)
+                .map(Cuttable.class::cast);
+    }
+
+    @Override
+    public void setHidden(boolean hidden) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable) {
+                ((Cuttable) child).setHidden(hidden);
             }
         });
     }

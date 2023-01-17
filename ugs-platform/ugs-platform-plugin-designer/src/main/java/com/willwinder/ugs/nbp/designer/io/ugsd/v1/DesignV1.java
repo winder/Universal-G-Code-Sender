@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class DesignV1 extends UgsDesign implements Serializable {
     public static final String VERSION = "1";
 
-    private transient SettingsV1 settings = new SettingsV1();
+    private SettingsV1 settings = new SettingsV1();
     private List<EntityV1> entities = Collections.emptyList();
 
     public DesignV1() {

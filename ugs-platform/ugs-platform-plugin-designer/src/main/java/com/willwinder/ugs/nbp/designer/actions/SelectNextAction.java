@@ -45,7 +45,7 @@ import java.util.List;
                 path = "Shortcuts",
                 name = "SD-N")
 })
-public class SelectNextAction extends AbstractDesignAction {
+public class SelectNextAction extends AbstractSelectAction {
 
     public SelectNextAction() {
         putValue("menuText", "Select next");
@@ -54,20 +54,17 @@ public class SelectNextAction extends AbstractDesignAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Controller controller = ControllerFactory.getController();
-        List<Entity> entities = controller.getDrawing().getEntities();
-        if (!entities.isEmpty()) {
-            int currentIndex = controller.getSelectionManager()
-                    .getSelection()
-                    .stream()
-                    .findFirst()
-                    .map(entities::indexOf)
-                    .orElse(0);
-
-            if (currentIndex < entities.size() - 1) {
-                currentIndex++;
-            }
-            controller.getSelectionManager().setSelection(Collections.singletonList(entities.get(currentIndex)));
+        List<Entity> entities = getVisibleEntities();
+        if (entities.isEmpty()) {
+            return;
         }
+
+        int currentIndex = getCurrentEntitiesIndex(entities);
+        if (currentIndex < entities.size() - 1) {
+            currentIndex++;
+        }
+
+        Controller controller = ControllerFactory.getController();
+        controller.getSelectionManager().setSelection(Collections.singletonList(entities.get(currentIndex)));
     }
 }

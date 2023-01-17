@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities.controls;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -107,6 +108,7 @@ public class SelectionControl extends AbstractControl {
                 .stream()
                 .filter(e -> e != this)
                 .filter(e -> !(e instanceof Control))
+                .filter(e -> !(e instanceof Cuttable && ((Cuttable) e).isHidden()))
                 .collect(Collectors.toSet());
 
         if (selectMultiple) {
@@ -124,6 +126,7 @@ public class SelectionControl extends AbstractControl {
                 .stream()
                 .filter(e -> e != this)
                 .filter(e -> !(e instanceof Control))
+                .filter(e -> !(e instanceof Cuttable && ((Cuttable) e).isHidden()))
                 .collect(Collectors.toSet());
 
         if (selectMultiple) {

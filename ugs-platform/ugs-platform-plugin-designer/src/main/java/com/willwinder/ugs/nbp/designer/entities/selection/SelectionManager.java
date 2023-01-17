@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.entities.EntityException;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
@@ -59,12 +60,19 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
     @Override
     public final void render(Graphics2D graphics, Drawing drawing) {
         if (!isEmpty()) {
-            // Highlight the selected models
-            float strokeWidth = Double.valueOf(1.6 / drawing.getScale()).floatValue();
-            float dashWidth = Double.valueOf(2 / drawing.getScale()).floatValue();
-            graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
-            graphics.setColor(Colors.SHAPE_OUTLINE);
-            getSelection().forEach(entity -> graphics.draw(entity.getShape()));
+
+            getSelection().forEach(entity -> {
+                // Highlight the selected models
+                float strokeWidth = Double.valueOf(1.6 / drawing.getScale()).floatValue();
+                float dashWidth = Double.valueOf(2 / drawing.getScale()).floatValue();
+                graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
+                if (entity instanceof Cuttable && ((Cuttable) entity).isHidden()) {
+                    graphics.setColor(Colors.SHAPE_HINT);
+                } else {
+                    graphics.setColor(Colors.SHAPE_OUTLINE);
+                }
+                graphics.draw(entity.getShape());
+            });
         }
     }
 

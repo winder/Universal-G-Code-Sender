@@ -34,6 +34,7 @@ import com.willwinder.ugs.nbp.designer.actions.SaveAction;
 import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
 import com.willwinder.ugs.nbp.designer.actions.SelectNextAction;
 import com.willwinder.ugs.nbp.designer.actions.SelectPreviousAction;
+import com.willwinder.ugs.nbp.designer.actions.ToggleHidden;
 import com.willwinder.ugs.nbp.designer.actions.UndoAction;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.openide.util.Utilities;
@@ -75,6 +76,7 @@ public class MainMenu extends JMenuBar {
         JMenuItem next = new JMenuItem(new SelectNextAction());
         JMenuItem clear = new JMenuItem(new ClearSelectionAction());
         JMenuItem delete = new JMenuItem(new DeleteAction());
+        JMenuItem toggleHidden = new JMenuItem(new ToggleHidden());
 
         open.setAccelerator(Utilities.stringToKey("D-O"));
         save.setAccelerator(Utilities.stringToKey("D-S"));
@@ -116,6 +118,8 @@ public class MainMenu extends JMenuBar {
         editMenu.add(next);
         editMenu.add(clear);
         editMenu.add(delete);
+        editMenu.add(new JSeparator());
+        editMenu.add(toggleHidden);
 
         add(fileMenu);
         add(editMenu);

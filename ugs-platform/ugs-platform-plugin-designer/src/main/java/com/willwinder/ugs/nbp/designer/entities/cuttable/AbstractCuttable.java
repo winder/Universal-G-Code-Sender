@@ -19,12 +19,17 @@
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
+import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
+import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.Line2D;
 
 /**
@@ -34,6 +39,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private CutType cutType = CutType.NONE;
     private double targetDepth;
     private double startDepth;
+    private boolean isHidden = false;
 
     protected AbstractCuttable() {
         this(0, 0);
@@ -75,6 +81,10 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
 
     @Override
     public void render(Graphics2D graphics, Drawing drawing) {
+        if (isHidden) {
+            return;
+        }
+
         float strokeWidth = Double.valueOf(1.2 / drawing.getScale()).floatValue();
         float dashWidth = Double.valueOf(2 / drawing.getScale()).floatValue();
         Shape shape = getShape();
@@ -106,6 +116,17 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             graphics.setColor(Colors.SHAPE_OUTLINE);
             graphics.draw(shape);
         }
+    }
+
+    @Override
+    public boolean isHidden() {
+        return isHidden;
+    }
+
+    @Override
+    public void setHidden(boolean hidden) {
+        isHidden = hidden;
+        notifyEvent(new EntityEvent(this, EventType.HIDDEN));
     }
 
     private Color getCutColor() {

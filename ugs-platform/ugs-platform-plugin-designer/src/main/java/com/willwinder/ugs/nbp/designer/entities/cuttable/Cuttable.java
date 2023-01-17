@@ -67,4 +67,19 @@ public interface Cuttable extends Entity {
      * @param startDepth a positive number for a depth to cut from
      */
     void setStartDepth(double startDepth);
+
+    /**
+     * If the entity should be hidden in the design. When hidden the entity is not included
+     * in the output or displayed in the editor.
+     *
+     * @return if the entity is hidden
+     */
+    boolean isHidden();
+
+    /**
+     * Sets if the entity should be hidden.
+     *
+     * @param hidden if the entity is hidden.
+     */
+    void setHidden(boolean hidden);
 }

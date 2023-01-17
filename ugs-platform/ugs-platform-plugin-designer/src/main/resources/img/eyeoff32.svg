@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   class="ionicon"
+   viewBox="0 0 32 32"
+   version="1.1"
+   id="svg884"
+   sodipodi:docname="eye-off32.svg"
+   width="32"
+   height="32"
+   inkscape:version="1.1-dev (0486c1a, 2020-10-10)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs888" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1643"
+     inkscape:window-height="841"
+     id="namedview886"
+     showgrid="false"
+     inkscape:snap-page="true"
+     width="16px"
+     inkscape:zoom="1.1196396"
+     inkscape:cx="255.88591"
+     inkscape:cy="255.88591"
+     inkscape:window-x="61"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg884" />
+  <title
+     id="title878">Eye Off</title>
+  <path
+     d="M 27,28 A 0.995,0.995 0 0 1 26.293125,27.706876 L 4.2931251,5.7068749 A 1,1 0 0 1 5.7068749,4.2931251 L 27.706876,26.293125 A 1,1 0 0 1 27,28 Z M 15.5,19.740625 12.263125,16.503751 a 0.125,0.125 0 0 0 -0.211875,0.105626 4.0068749,4.0068749 0 0 0 3.343125,3.343126 0.125,0.125 0 0 0 0.105626,-0.211875 z m 1,-7.48125 L 19.741875,15.5 a 0.125,0.125 0 0 0 0.2125,-0.105625 A 4.0081249,4.0081249 0 0 0 16.6075,12.0475 0.125,0.125 0 0 0 16.5,12.259375 Z"
+     id="path880"
+     style="fill:#353a40;fill-opacity:1;stroke-width:0.0625" />
+  <path
+     d="M 30.6875,17.085 A 2.0125,2.0125 0 0 0 30.6812,14.9125 C 29.0275,12.355 26.881873,10.1825 24.476876,8.6293749 21.8125,6.9093749 18.875,6 15.98,6 A 14.158751,14.158751 0 0 0 11.49125,6.7368749 0.25,0.25 0 0 0 11.39375,7.15125 l 2.952501,2.9525 a 0.25,0.25 0 0 0 0.238749,0.06563 6,6 0 0 1 7.25,7.250001 0.25,0.25 0 0 0 0.06563,0.238125 l 4.246874,4.250002 a 0.25,0.25 0 0 0 0.337499,0.015 21.488127,21.488127 0 0 0 4.2025,-4.8375 z M 16,22 A 6,6 0 0 1 10.16875,14.585625 0.25,0.25 0 0 0 10.103125,14.3475 L 5.9256249,10.168125 A 0.25,0.25 0 0 0 5.5875,10.15375 C 4.0631251,11.454375 2.65,13.036875 1.3581249,14.886249 a 1.995,1.995 0 0 0 -0.04,2.221251 C 2.96875,19.690625 5.0925,21.866249 7.4606249,23.398125 10.12875,25.125 12.995,26 15.98,26 a 14.888751,14.888751 0 0 0 4.54,-0.721875 0.25,0.25 0 0 0 0.100613,-0.414998 L 17.653749,21.896876 A 0.25,0.25 0 0 0 17.415625,21.831251 6,6 0 0 1 16,22 Z"
+     id="path882"
+     style="fill:#353a40;fill-opacity:1;stroke-width:0.0625" />
+  <rect
+     style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke-width:0.124729;stroke-linecap:round;stroke-linejoin:round"
+     id="rect954"
+     width="32"
+     height="32"
+     x="0"
+     y="0" />
+  <metadata
+     id="metadata956">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>Eye Off</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+</svg>

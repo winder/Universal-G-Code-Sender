@@ -38,6 +38,9 @@ public class CuttableEntityV1 extends EntityV1 {
     private CutTypeV1 cutType;
 
     @Expose
+    private boolean isHidden;
+
+    @Expose
     private AffineTransform transform;
 
     public CuttableEntityV1(EntityTypeV1 type) {
@@ -68,6 +71,14 @@ public class CuttableEntityV1 extends EntityV1 {
         this.cutDepth = cutDepth;
     }
 
+    public boolean isHidden() {
+        return isHidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        isHidden = hidden;
+    }
+
     @Override
     protected void applyCommonAttributes(Entity entity) {
         super.applyCommonAttributes(entity);
@@ -76,9 +87,11 @@ public class CuttableEntityV1 extends EntityV1 {
         entity.setTransform(new AffineTransform(transform.getScaleX(), transform.getShearY(), transform.getShearX(), transform.getScaleY(), transform.getTranslateX(), transform.getTranslateY()));
 
         if (entity instanceof Cuttable) {
-            ((Cuttable) entity).setStartDepth(startDepth);
-            ((Cuttable) entity).setTargetDepth(cutDepth);
-            ((Cuttable) entity).setCutType(CutTypeV1.toCutType(cutType));
+            Cuttable cuttable = ((Cuttable) entity);
+            cuttable.setStartDepth(startDepth);
+            cuttable.setTargetDepth(cutDepth);
+            cuttable.setCutType(CutTypeV1.toCutType(cutType));
+            cuttable.setHidden(isHidden);
         }
     }
 
