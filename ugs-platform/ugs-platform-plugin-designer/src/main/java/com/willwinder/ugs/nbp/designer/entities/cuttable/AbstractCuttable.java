@@ -85,37 +85,36 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             return;
         }
 
-        float strokeWidth = Double.valueOf(1.2 / drawing.getScale()).floatValue();
-        float dashWidth = Double.valueOf(2 / drawing.getScale()).floatValue();
-        Shape shape = getShape();
+        float strokeWidth = 1.2f / (float) drawing.getScale();
+        float dashWidth = 2f / (float) drawing.getScale();
+        BasicStroke dashedStroke = new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0);
 
+        Shape shape = getShape();
         if (getCutType() != CutType.NONE && getTargetDepth() == 0) {
-            graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
-            graphics.setColor(Colors.SHAPE_HINT);
-            graphics.draw(shape);
+            drawShape(graphics, dashedStroke, Colors.SHAPE_HINT, shape);
         } else if (getCutType() == CutType.POCKET) {
             graphics.setStroke(new BasicStroke(strokeWidth));
             graphics.setColor(getCutColor());
             graphics.fill(shape);
             graphics.draw(shape);
         } else if (getCutType() == CutType.INSIDE_PATH || getCutType() == CutType.ON_PATH || getCutType() == CutType.OUTSIDE_PATH) {
-            graphics.setStroke(new BasicStroke(strokeWidth));
-            graphics.setColor(getCutColor());
-            graphics.draw(shape);
+            drawShape(graphics, new BasicStroke(strokeWidth), getCutColor(), shape);
         } else if (getCutType() == CutType.CENTER_DRILL) {
+            drawShape(graphics, new BasicStroke(strokeWidth), Colors.SHAPE_HINT, shape);
             double centerX = shape.getBounds2D().getCenterX();
             double centerY = shape.getBounds2D().getCenterY();
-            graphics.setStroke(new BasicStroke(strokeWidth));
-            graphics.setColor(Colors.SHAPE_HINT);
-            graphics.draw(shape);
             graphics.setColor(getCutColor());
             graphics.draw(new Line2D.Double(shape.getBounds2D().getX() + 1, centerY, shape.getBounds2D().getX() + shape.getBounds2D().getWidth() - 1.0, centerY));
             graphics.draw(new Line2D.Double(centerX, shape.getBounds2D().getY() + 1, centerX, shape.getBounds2D().getY() + shape.getBounds2D().getHeight() - 1.0));
         } else {
-            graphics.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0));
-            graphics.setColor(Colors.SHAPE_OUTLINE);
-            graphics.draw(shape);
+            drawShape(graphics, dashedStroke, Colors.SHAPE_OUTLINE, shape);
         }
+    }
+
+    private void drawShape(Graphics2D graphics, BasicStroke strokeWidth, Color shapeHint, Shape shape) {
+        graphics.setStroke(strokeWidth);
+        graphics.setColor(shapeHint);
+        graphics.draw(shape);
     }
 
     @Override
