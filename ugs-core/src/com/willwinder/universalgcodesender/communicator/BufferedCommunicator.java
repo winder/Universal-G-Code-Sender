@@ -194,13 +194,6 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
                 && allowMoreCommands()) {
 
             GcodeCommand command = this.getNextCommand();
-
-            if (command.getCommandString().isEmpty()) {
-                getEventDispatcher().commandSkipped(command);
-                nextCommand = null;
-                continue;
-            }
-
             String commandString = command.getCommandString();
             
             this.activeCommandList.add(command);

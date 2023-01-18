@@ -1,5 +1,5 @@
 /*
-    Copyright 2022 Will Winder
+    Copyright 2022-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,8 +18,6 @@
  */
 package com.willwinder.ugs.nbp.console;
 
-import org.netbeans.core.output2.ui.AbstractOutputPane;
-import org.netbeans.core.output2.ui.AbstractOutputTab;
 import org.openide.windows.IOContainer;
 
 import javax.swing.Action;
@@ -29,6 +27,8 @@ import javax.swing.JScrollPane;
 import javax.swing.text.JTextComponent;
 
 /**
+ * A hack to be able to get access to the JTextComponent in the
+ *
  * @author Joacim Breiler
  */
 public class ConsoleProvider implements IOContainer.Provider {
