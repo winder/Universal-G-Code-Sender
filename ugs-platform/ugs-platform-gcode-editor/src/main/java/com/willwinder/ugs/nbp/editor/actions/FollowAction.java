@@ -18,7 +18,6 @@
 */
 package com.willwinder.ugs.nbp.editor.actions;
 
-import com.willwinder.ugs.nbp.editor.GcodeLanguageConfig;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -26,7 +25,6 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
-import org.netbeans.api.editor.EditorActionRegistration;
 import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.mimelookup.MimePath;
 import org.openide.awt.ActionID;
@@ -41,7 +39,6 @@ import javax.swing.JToggleButton;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.util.Map;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
@@ -62,20 +59,10 @@ public class FollowAction extends AbstractAction implements UGSEventListener, Pr
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", "Follow");
-        putValue(Action.NAME, "Follow");
+        putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, "Follow the running gcode");
         setEnabled(isEnabled());
         registerListeners();
-    }
-
-    @EditorActionRegistration(
-            name = FollowAction.NAME,
-            mimeType = GcodeLanguageConfig.MIME_TYPE,
-            toolBarPosition = 14,
-            iconResource = FollowAction.ICON_BASE
-    )
-    public static FollowAction create() {
-        return new FollowAction();
     }
 
     private void registerListeners() {
