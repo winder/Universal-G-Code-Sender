@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,25 +24,24 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.utils.CommandHistory;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.swing.JTextField;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import javax.swing.JTextField;
-import org.apache.commons.lang3.StringUtils;
+
+import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 
 /**
- *
  * @author wwinder
  */
 public class CommandTextArea extends JTextField implements KeyEventDispatcher, UGSEventListener {
-    private transient BackendAPI backend;
-    private final CommandHistory commandHistory = new CommandHistory();
-
+    private final transient CommandHistory commandHistory = new CommandHistory();
     // This is needed for unit testing.
     protected boolean focusNotNeeded = false;
-
+    private transient BackendAPI backend;
     /**
      * A variable that indicates if the focus should be regained to this component when
      * its state changes from enabled with focus -> disabled -> enabled.
@@ -55,6 +54,9 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
 
     public CommandTextArea(BackendAPI backend) {
         init(backend);
+
+        // Make it possible to send multiple lines
+        getDocument().putProperty("filterNewlines", Boolean.FALSE);
     }
 
     public final void init(BackendAPI backend) {
@@ -66,7 +68,7 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
 
         addActionListener(this::action);
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
-            .addKeyEventDispatcher(this);
+                .addKeyEventDispatcher(this);
     }
 
     /**
@@ -89,30 +91,39 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
     }
 
     public void action(ActionEvent evt) {
-        final String str = getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
-        if (!StringUtils.isEmpty(str)) {
-            GUIHelpers.invokeLater(() -> {
-                try {
-                    backend.sendGcodeCommand(str);
-                } catch (Exception ex) {
-                    displayErrorDialog(ex.getMessage());
-                }
-            });
+        final String commands = getText().replaceAll("(\\r\\n|\\n\\r|\\r)", "\n");
+        GUIHelpers.invokeLater(() -> {
+            try {
+                sendCommands(StringUtils.split(commands, "\n"));
+            } catch (Exception ex) {
+                displayErrorDialog(ex.getMessage());
+            }
+        });
 
-            setText("");
-            commandHistory.add(str);
+        setText("");
+        commandHistory.add(commands);
+    }
+
+    private void sendCommands(String[] commands) throws Exception {
+        if (commands.length == 0) {
+            backend.sendGcodeCommand("");
+        } else {
+            for (String command : commands) {
+                backend.sendGcodeCommand(command);
+            }
         }
     }
-    
+
     private boolean isArrowKey(KeyEvent e) {
         switch (e.getKeyCode()) {
-                case KeyEvent.VK_UP:
-                case KeyEvent.VK_DOWN:
-                    return true;
-                default:
-                    return false;
+            case KeyEvent.VK_UP:
+            case KeyEvent.VK_DOWN:
+                return true;
+            default:
+                return false;
         }
     }
+
     /**
      * The up/down keyboard events cycle through previous commands.
      */
@@ -124,8 +135,7 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
 
             if (e.getKeyCode() == KeyEvent.VK_UP) {
                 setText(commandHistory.previous());
-            }
-            else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+            } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
                 setText(commandHistory.next());
             }
 

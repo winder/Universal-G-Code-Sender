@@ -127,6 +127,40 @@ public class CommandTextAreaTest {
         EasyMock.verify(backend);
     }
 
+    @Test
+    public void actionShouldSendEmptyCommand() throws Exception {
+        backend.sendGcodeCommand("");
+        EasyMock.expect(EasyMock.expectLastCall()).once();
+        EasyMock.replay(backend);
+
+        cta.setText("");
+        cta.action(null);
+
+        assertEquals("", cta.getText());
+
+        EasyMock.verify(backend);
+    }
+
+    @Test
+    public void actionShouldSendMultilineCommands() throws Exception {
+        backend.sendGcodeCommand("1");
+        EasyMock.expect(EasyMock.expectLastCall()).once();
+        backend.sendGcodeCommand("2");
+        EasyMock.expect(EasyMock.expectLastCall()).once();
+        backend.sendGcodeCommand("3");
+        EasyMock.expect(EasyMock.expectLastCall()).once();
+        backend.sendGcodeCommand("4");
+        EasyMock.expect(EasyMock.expectLastCall()).once();
+        EasyMock.replay(backend);
+
+        cta.setText("1\n2\r\n3\n\r4\r");
+        cta.action(null);
+
+        assertEquals("", cta.getText());
+
+        EasyMock.verify(backend);
+    }
+
     /**
      * Send 10 commands, verify history works.
      * @throws Exception 
