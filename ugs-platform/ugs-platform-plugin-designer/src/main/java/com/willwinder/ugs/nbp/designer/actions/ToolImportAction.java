@@ -48,7 +48,7 @@ import java.util.Optional;
         id = "ToolImportAction")
 @ActionRegistration(
         iconBase = ToolImportAction.SMALL_ICON_PATH,
-        displayName = "Import",
+        displayName = "Import file",
         lazy = false)
 public final class ToolImportAction extends AbstractDesignAction {
 
@@ -60,8 +60,8 @@ public final class ToolImportAction extends AbstractDesignAction {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
-        putValue("menuText", "Import");
-        putValue(NAME, "Import");
+        putValue("menuText", "Import file");
+        putValue(NAME, "Import file");
         this.controller = ControllerFactory.getController();
     }
 

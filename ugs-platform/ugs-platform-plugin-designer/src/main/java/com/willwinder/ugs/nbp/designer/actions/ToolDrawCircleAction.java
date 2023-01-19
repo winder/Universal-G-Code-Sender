@@ -36,7 +36,7 @@ import java.awt.event.ActionEvent;
         id = "ToolDrawCircleAction")
 @ActionRegistration(
         iconBase = ToolDrawCircleAction.ICON_SMALL_PATH,
-        displayName = "Draw circle",
+        displayName = "Draw ellipse",
         lazy = false)
 public class ToolDrawCircleAction extends AbstractDesignAction {
     public static final String ICON_SMALL_PATH = "img/circle.svg";
@@ -46,8 +46,8 @@ public class ToolDrawCircleAction extends AbstractDesignAction {
         putValue("iconBase", ICON_SMALL_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_SMALL_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(ICON_LARGE_PATH, false));
-        putValue("menuText", "Draw circle");
-        putValue(NAME, "Draw circle");
+        putValue("menuText", "Draw ellipse");
+        putValue(NAME, "Draw ellipse");
     }
 
     @Override

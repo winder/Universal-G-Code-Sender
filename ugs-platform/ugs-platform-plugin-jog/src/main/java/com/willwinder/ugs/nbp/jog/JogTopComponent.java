@@ -1,5 +1,5 @@
 /*
-    Copyright 2018-2021 Will Winder
+    Copyright 2018-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -149,10 +149,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     }
 
     private void updateControls() {
-        boolean canJog = jogService.canJog();
-        if (canJog != jogPanel.isEnabled()) {
-            jogPanel.setEnabled(canJog);
-        }
+        jogPanel.setEnabled(jogService.canJog());
     }
 
     @Override

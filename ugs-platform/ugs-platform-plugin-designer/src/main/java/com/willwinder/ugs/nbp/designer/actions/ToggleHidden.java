@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
@@ -46,15 +47,19 @@ import java.util.stream.Stream;
 public class ToggleHidden extends AbstractDesignAction implements SelectionListener {
     public static final String SMALL_ICON_PATH = "img/eye.svg";
     public static final String LARGE_ICON_PATH = "img/eye24.svg";
+    public static final String SMALL_ICON_HIDDEN_PATH = "img/eyeoff.svg";
+    public static final String LARGE_ICON_HIDDEN_PATH = "img/eyeoff24.svg";
+    public static final String PROPERTY_MENU_TEXT = "menuText";
 
     public ToggleHidden() {
-        putValue("menuText", "Toggle hidden");
+        putValue(PROPERTY_MENU_TEXT, "Toggle hidden");
         putValue(NAME, "Toggle hidden");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
 
         ControllerFactory.getSelectionManager().addSelectionListener(this);
+        ControllerFactory.getController().addListener(e -> onSelectionEvent(null));
     }
 
     @Override
@@ -63,7 +68,7 @@ public class ToggleHidden extends AbstractDesignAction implements SelectionListe
                 .findFirst()
                 .map(Cuttable::isHidden)
                 .orElse(true);
-        
+
         UndoableShowHideAction action = new UndoableShowHideAction(getCuttableStream().collect(Collectors.toList()), !isHidden);
         action.redo();
         ControllerFactory.getUndoManager().addAction(action);
@@ -78,6 +83,19 @@ public class ToggleHidden extends AbstractDesignAction implements SelectionListe
     public void onSelectionEvent(SelectionEvent selectionEvent) {
         SelectionManager selectionManager = ControllerFactory.getSelectionManager();
         setEnabled(!selectionManager.getSelection().isEmpty());
+
+        boolean allIsHidden = getCuttableStream().allMatch(Cuttable::isHidden);
+        if (allIsHidden) {
+            putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
+            putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+            putValue(PROPERTY_MENU_TEXT, "Show");
+            putValue(NAME, "Show");
+        } else {
+            putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_HIDDEN_PATH, false));
+            putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_HIDDEN_PATH, false));
+            putValue(PROPERTY_MENU_TEXT, "Hide");
+            putValue(NAME, "Hide");
+        }
     }
 
     private static class UndoableShowHideAction implements UndoableAction {
@@ -92,11 +110,20 @@ public class ToggleHidden extends AbstractDesignAction implements SelectionListe
         @Override
         public void redo() {
             entities.forEach(entity -> entity.setHidden(setAsHidden));
+            triggerSelectionEvent();
         }
 
         @Override
         public void undo() {
             entities.forEach(entity -> entity.setHidden(!setAsHidden));
+            triggerSelectionEvent();
+        }
+
+        private void triggerSelectionEvent() {
+            SelectionManager selectionManager = ControllerFactory.getSelectionManager();
+            List<Entity> selection = selectionManager.getSelection();
+            selectionManager.clearSelection();
+            selectionManager.setSelection(selection);
         }
 
         @Override

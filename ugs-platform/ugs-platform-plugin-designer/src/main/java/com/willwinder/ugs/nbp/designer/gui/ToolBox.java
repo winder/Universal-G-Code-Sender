@@ -23,8 +23,10 @@ import com.willwinder.ugs.nbp.designer.actions.BreakApartAction;
 import com.willwinder.ugs.nbp.designer.actions.FlipHorizontallyAction;
 import com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction;
 import com.willwinder.ugs.nbp.designer.actions.IntersectionAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToCenterAction;
 import com.willwinder.ugs.nbp.designer.actions.MultiplyAction;
 import com.willwinder.ugs.nbp.designer.actions.SubtractAction;
+import com.willwinder.ugs.nbp.designer.actions.ToggleHidden;
 import com.willwinder.ugs.nbp.designer.actions.ToolClipartAction;
 import com.willwinder.ugs.nbp.designer.actions.ToolDrawCircleAction;
 import com.willwinder.ugs.nbp.designer.actions.ToolDrawPointAction;
@@ -37,15 +39,24 @@ import com.willwinder.ugs.nbp.designer.actions.TraceImageAction;
 import com.willwinder.ugs.nbp.designer.actions.UnionAction;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
+import org.openide.awt.DropDownButtonFactory;
+import org.openide.util.ImageUtilities;
 
+import javax.swing.Action;
 import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
+import java.awt.event.ActionListener;
 
 /**
  * @author Joacim Breiler
  */
 public class ToolBox extends ToolBar {
+
+    private JToggleButton toolDropDownButton = null;
 
     public ToolBox(Controller controller) {
         setFloatable(false);
@@ -56,46 +67,7 @@ public class ToolBox extends ToolBar {
         select.setToolTipText("Select and move shapes");
         add(select);
 
-        JToggleButton point = new JToggleButton(new ToolDrawPointAction());
-        point.setText("");
-        point.setToolTipText("Draw points");
-        add(point);
-
-        JToggleButton rectangle = new JToggleButton(new ToolDrawRectangleAction());
-        rectangle.setText("");
-        rectangle.setToolTipText("Draw squares and rectangles");
-        add(rectangle);
-
-        JToggleButton circle = new JToggleButton(new ToolDrawCircleAction());
-        circle.setText("");
-        circle.setToolTipText("Draw circles and ellipses");
-        add(circle);
-
-        JToggleButton text = new JToggleButton(new ToolDrawTextAction());
-        text.setText("");
-        text.setToolTipText("Write text");
-        add(text);
-
-        JButton importButton = new JButton(new ToolImportAction());
-        importButton.setText("");
-        importButton.setToolTipText("Imports a drawing");
-        importButton.setContentAreaFilled(false);
-        importButton.setBorderPainted(false);
-        add(importButton);
-
-        JButton insertButton = new JButton(new ToolClipartAction());
-        insertButton.setText("");
-        insertButton.setToolTipText("Inserts a clipart");
-        insertButton.setContentAreaFilled(false);
-        insertButton.setBorderPainted(false);
-        add(insertButton);
-
-        insertButton = new JButton(new TraceImageAction());
-        insertButton.setText("");
-        insertButton.setToolTipText("Traces a bitmap image");
-        insertButton.setContentAreaFilled(false);
-        insertButton.setBorderPainted(false);
-        add(insertButton);
+        add(createToolDropDownButton());
 
         addSeparator();
 
@@ -139,11 +111,23 @@ public class ToolBox extends ToolBar {
 
         addSeparator();
 
+        JButton visible = new JButton(new ToggleHidden());
+        visible.setToolTipText("Toggles if the object should be hidden");
+        visible.setBorderPainted(false);
+        visible.setHideActionText(true);
+        add(visible);
+
         JButton multiply = new JButton(new MultiplyAction());
         multiply.setText("");
         multiply.setToolTipText("Multiplies the selection");
         multiply.setBorderPainted(false);
         add(multiply);
+
+        JButton jogTo = new JButton(new JogMachineToCenterAction());
+        jogTo.setText("");
+        jogTo.setToolTipText("Jog machine to center");
+        jogTo.setBorderPainted(false);
+        add(jogTo);
 
         addSeparator();
 
@@ -155,10 +139,7 @@ public class ToolBox extends ToolBar {
 
         ButtonGroup buttons = new ButtonGroup();
         buttons.add(select);
-        buttons.add(circle);
-        buttons.add(rectangle);
-        buttons.add(text);
-        buttons.add(importButton);
+        buttons.add(toolDropDownButton);
         buttons.add(zoom);
 
         controller.addListener(event -> {
@@ -170,27 +151,55 @@ public class ToolBox extends ToolBar {
                         select.setSelected(true);
                         break;
                     case POINT:
-                        point.setSelected(true);
-                        break;
                     case RECTANGLE:
-                        rectangle.setSelected(true);
-                        break;
                     case CIRCLE:
-                        circle.setSelected(true);
-                        break;
                     case TEXT:
-                        text.setSelected(true);
-                        break;
-                    case INSERT:
-                        importButton.setSelected(true);
+                        toolDropDownButton.setSelected(true);
                         break;
                     case ZOOM:
                         zoom.setSelected(true);
                         break;
                     default:
+                        toolDropDownButton.setSelected(false);
                 }
                 repaint();
             }
         });
+    }
+
+    private JToggleButton createToolDropDownButton() {
+        // An action listener that listens to the popup menu items and changes the current action
+        ActionListener toolMenuListener = e -> {
+            if (toolDropDownButton == null) {
+                return;
+            }
+
+            JMenuItem source = (JMenuItem) e.getSource();
+            toolDropDownButton.setIcon((Icon) source.getAction().getValue(Action.LARGE_ICON_KEY));
+            toolDropDownButton.setSelected(true);
+            toolDropDownButton.setAction(source.getAction());
+        };
+
+        ToolDrawRectangleAction toolDrawRectangleAction = new ToolDrawRectangleAction();
+        JPopupMenu popupMenu = new JPopupMenu();
+        addDropDownAction(popupMenu, toolDrawRectangleAction, toolMenuListener);
+        addDropDownAction(popupMenu, new ToolDrawCircleAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new ToolDrawPointAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new ToolDrawTextAction(), toolMenuListener);
+        popupMenu.addSeparator();
+        addDropDownAction(popupMenu, new ToolImportAction(), null);
+        addDropDownAction(popupMenu, new ToolClipartAction(), null);
+        addDropDownAction(popupMenu, new TraceImageAction(), null);
+        toolDropDownButton = DropDownButtonFactory.createDropDownToggleButton(ImageUtilities.loadImageIcon(ToolDrawRectangleAction.LARGE_ICON_PATH, false), popupMenu);
+        toolDropDownButton.setAction(toolDrawRectangleAction);
+        return toolDropDownButton;
+    }
+
+    private void addDropDownAction(JPopupMenu popupMenu, Action action, ActionListener actionListener) {
+        JMenuItem menuItem = new JMenuItem(action);
+        if (actionListener != null) {
+            menuItem.addActionListener(actionListener);
+        }
+        popupMenu.add(menuItem);
     }
 }
