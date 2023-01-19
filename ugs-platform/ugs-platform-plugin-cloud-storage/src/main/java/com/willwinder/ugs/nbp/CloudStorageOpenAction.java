@@ -53,7 +53,7 @@ import org.openide.util.NbPreferences;
 @ActionReferences({
     @ActionReference(
             path = LocalizingService.OpenWindowPath,
-            position = 11)
+            position = 12)
 })
 
 public final class CloudStorageOpenAction implements ActionListener {

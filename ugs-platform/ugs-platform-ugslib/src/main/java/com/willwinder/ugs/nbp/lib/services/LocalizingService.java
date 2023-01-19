@@ -117,6 +117,9 @@ public class LocalizingService {
     public final static String OpenActionId = "com.willwinder.ugs.nbp.core.actions.OpenAction";
     public final static String OpenCategory = CATEGORY_FILE;
 
+    public final static String OpenRecentTitleKey = "platform.menu.open.recent";
+    public final static String OpenRecentTitle = Localization.getString(OpenRecentTitleKey, lang);
+
     public final static String SaveTitleKey = "platform.menu.save";
     public final static String SaveTitle = Localization.getString(SaveTitleKey, lang);
     public final static String SaveWindowPath = MENU_FILE;

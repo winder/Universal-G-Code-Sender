@@ -21,11 +21,11 @@ package com.willwinder.ugp.welcome;
 import com.willwinder.ugp.welcome.content.AbstractTab;
 import com.willwinder.ugp.welcome.content.JLinkButton;
 import com.willwinder.ugs.nbp.core.actions.OpenAction;
+import com.willwinder.ugs.nbp.core.actions.OpenFileAction;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import net.miginfocom.swing.MigLayout;
-import org.openide.loaders.DataObjectNotFoundException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -44,7 +44,7 @@ import java.util.logging.Logger;
  */
 public class RecentWorkTab extends AbstractTab {
     private static final Logger LOGGER = Logger.getLogger(RecentWorkTab.class.getName());
-    private final BackendAPI backend;
+    private final transient BackendAPI backend;
 
     public RecentWorkTab() {
         super("Recent Work");
@@ -120,13 +120,7 @@ public class RecentWorkTab extends AbstractTab {
             button.setLinkColor(ThemeColors.LIGHT_BLUE_GREY);
         }
 
-        button.addActionListener(l -> {
-            try {
-                new OpenAction().openFile(p.toFile());
-            } catch (DataObjectNotFoundException e) {
-                LOGGER.log(Level.SEVERE, "Could not open file " + p, e);
-            }
-        });
+        button.addActionListener(l -> new OpenFileAction(p.toFile()).actionPerformed(null));
         return button;
     }
 }
