@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbp.lib.EditorUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -61,8 +62,8 @@ import java.io.File;
 public final class OpenAction extends AbstractAction {
 
     public static final String ICON_BASE = "resources/icons/open.svg";
-    private transient final FileFilterService fileFilterService;
-    private transient final BackendAPI backend;
+    private final transient FileFilterService fileFilterService;
+    private final transient BackendAPI backend;
     private final JFileChooser fileChooser;
 
     public OpenAction() {
@@ -93,31 +94,24 @@ public final class OpenAction extends AbstractAction {
 
         int returnVal = fileChooser.showOpenDialog(new JFrame());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            try {
-                File selectedFile = fileChooser.getSelectedFile();
-                openFile(selectedFile);
-            } catch (DataObjectNotFoundException ex) {
-                ex.printStackTrace();
-            }
+            File selectedFile = fileChooser.getSelectedFile();
+            openFile(selectedFile);
         }
     }
 
-    public void openFile(File selectedFile) throws DataObjectNotFoundException {
-        if (EditorUtils.closeOpenEditors()) {
-            backend.getSettings().setLastOpenedFilename(selectedFile.getAbsolutePath());
-            OpenCookie c = DataObject.find(FileUtil.toFileObject(selectedFile))
-                    .getLookup()
-                    .lookup(OpenCookie.class);
-            if (c != null) c.open();
-        }
+    public void openFile(File selectedFile) {
+        OpenFileAction action = new OpenFileAction(selectedFile);
+        action.actionPerformed(null);
     }
 
     private JFileChooser createFileChooser(String directory) {
-        JFileChooser fileChooser = new JFileChooser(directory);
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileChooser.setFileHidingEnabled(true);
-        fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
-        fileChooser.setAcceptAllFileFilterUsed(true);
-        return fileChooser;
+        JFileChooser chooser = new JFileChooser(directory);
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        chooser.setFileHidingEnabled(true);
+        chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+        chooser.setAcceptAllFileFilterUsed(true);
+        return chooser;
     }
+
+
 }
