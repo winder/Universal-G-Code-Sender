@@ -10,11 +10,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Consumer;
 
 public class CommandProcessorList implements CommandProcessor, Iterable<CommandProcessor> {
 
-    private List<CommandProcessor> commandProcessors = new ArrayList<>();
+    private final BlockingDeque<CommandProcessor> commandProcessors = new LinkedBlockingDeque<>();
 
     /**
      * Applies all command processors to a given command and returns the

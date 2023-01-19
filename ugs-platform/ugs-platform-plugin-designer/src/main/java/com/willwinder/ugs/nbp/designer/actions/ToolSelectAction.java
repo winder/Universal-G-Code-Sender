@@ -40,7 +40,7 @@ import java.awt.event.ActionEvent;
         lazy = false)
 public class ToolSelectAction extends AbstractDesignAction {
     public static final String SMALL_ICON_PATH = "img/pointer.svg";
-    private static final String LARGE_ICON_PATH = "img/pointer24.svg";
+    public static final String LARGE_ICON_PATH = "img/pointer24.svg";
     private final transient Controller controller;
 
     public ToolSelectAction() {

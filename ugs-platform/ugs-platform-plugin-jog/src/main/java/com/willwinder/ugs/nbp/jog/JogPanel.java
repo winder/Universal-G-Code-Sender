@@ -1,5 +1,5 @@
 /*
-    Copyright 2018-2021 Will Winder
+    Copyright 2018-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -34,7 +34,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
