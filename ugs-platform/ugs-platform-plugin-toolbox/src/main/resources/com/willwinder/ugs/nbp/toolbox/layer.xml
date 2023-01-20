@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="OptionsExport">
+        <folder name="UGS">
+            <attr name="displayName" stringvalue="UGS"/>
+            <file name="Toolbox">
+                <attr name="displayName" stringvalue="Toolbox"/>
+                <attr name="include" stringvalue="config/Preferences/com/willwinder/ugs/nbp/toolbox.properties"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

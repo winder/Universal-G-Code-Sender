@@ -37,4 +37,16 @@
             </folder>
         </folder>
     </folder>
+
+    <filesystem>
+        <folder name="OptionsExport">
+            <folder name="UGS">
+                <attr name="displayName" stringvalue="UGS"/>
+                <file name="Gcode editor">
+                    <attr name="displayName" stringvalue="Gcode editor"/>
+                    <attr name="include" stringvalue="config/Preferences/com/willwinder/ugs/nbp/editor.properties"/>
+                </file>
+            </folder>
+        </folder>
+    </filesystem>
 </filesystem>

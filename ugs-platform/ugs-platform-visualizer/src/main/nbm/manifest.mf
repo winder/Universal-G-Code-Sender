@@ -3,3 +3,5 @@ OpenIDE-Module-Localizing-Bundle: com/willwinder/ugs/platform/visualizer/Bundle.
 OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Specification-Version: ${ugs.modules.specification.version}
 AutoUpdate-Essential-Module: true
+OpenIDE-Module-Layer: com/willwinder/ugs/platform/visualizer/layer.xml
+
