@@ -34,6 +34,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
 import com.willwinder.universalgcodesender.types.GrblSettingMessage;
+import com.willwinder.universalgcodesender.utils.ControllerUtils;
 import com.willwinder.universalgcodesender.utils.GrblLookups;
 import org.apache.commons.lang3.StringUtils;
 
@@ -378,33 +379,7 @@ public class GrblController extends AbstractController {
             return super.getCommunicatorState();
         }
 
-        ControllerState state = this.controllerStatus == null ? ControllerState.DISCONNECTED : this.controllerStatus.getState();
-        switch(state) {
-            case JOG:
-            case RUN:
-                return CommunicatorState.COMM_SENDING;
-            case HOLD:
-            case DOOR:
-                return CommunicatorState.COMM_SENDING_PAUSED;
-            case IDLE:
-                if (isStreaming()){
-                    return CommunicatorState.COMM_SENDING_PAUSED;
-                } else {
-                    return CommunicatorState.COMM_IDLE;
-                }
-            case ALARM:
-                return CommunicatorState.COMM_IDLE;
-            case CHECK:
-                if (isStreaming() && comm.isPaused()) {
-                    return CommunicatorState.COMM_SENDING_PAUSED;
-                } else if (isStreaming() && !comm.isPaused()) {
-                    return CommunicatorState.COMM_SENDING;
-                } else {
-                    return COMM_CHECK;
-                }
-            default:
-                return CommunicatorState.COMM_IDLE;
-        }
+        return ControllerUtils.getCommunicatorState(controllerStatus.getState(), this, comm);
     }
 
     /**

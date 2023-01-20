@@ -34,6 +34,7 @@ import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
+import com.willwinder.universalgcodesender.utils.ControllerUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,8 +43,6 @@ import java.util.logging.Logger;
 
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
-import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_SENDING;
-import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_SENDING_PAUSED;
 
 /**
  * TinyG Control layer, coordinates all aspects of control.
@@ -430,32 +429,7 @@ public class TinyGController extends AbstractController {
     }
 
     protected CommunicatorState getControlState(ControllerState controllerState) {
-        switch (controllerState) {
-            case JOG:
-            case RUN:
-                return COMM_SENDING;
-            case HOLD:
-            case DOOR:
-                return COMM_SENDING_PAUSED;
-            case IDLE:
-                if (isStreaming()) {
-                    return COMM_SENDING_PAUSED;
-                } else {
-                    return COMM_IDLE;
-                }
-            case ALARM:
-                return COMM_IDLE;
-            case CHECK:
-                if (isStreaming() && comm.isPaused()) {
-                    return COMM_SENDING_PAUSED;
-                } else if (isStreaming() && !comm.isPaused()) {
-                    return COMM_SENDING;
-                } else {
-                    return COMM_CHECK;
-                }
-            default:
-                return COMM_IDLE;
-        }
+        return ControllerUtils.getCommunicatorState(controllerState, this, comm);
     }
 
     @Override

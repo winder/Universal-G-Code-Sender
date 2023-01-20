@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.ControllerUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import static com.willwinder.universalgcodesender.model.CommunicatorState.*;
@@ -274,32 +275,7 @@ public class SmoothieController extends AbstractController {
 
     @Override
     public CommunicatorState getCommunicatorState() {
-        ControllerState state = controllerStatus.getState();
-        switch(state) {
-            case JOG:
-            case RUN:
-                return COMM_SENDING;
-            case HOLD:
-            case DOOR:
-                return COMM_SENDING_PAUSED;
-            case IDLE:
-                if (isStreaming()){
-                    return COMM_SENDING_PAUSED;
-                } else {
-                    return COMM_IDLE;
-                }
-            case CHECK:
-                if (isStreaming() && comm.isPaused()) {
-                    return COMM_SENDING_PAUSED;
-                } else if (isStreaming() && !comm.isPaused()) {
-                    return COMM_SENDING;
-                } else {
-                    return COMM_CHECK;
-                }
-            case ALARM:
-            default:
-                return COMM_IDLE;
-        }
+        return ControllerUtils.getCommunicatorState(controllerStatus.getState(), this, comm);
     }
 
     @Override

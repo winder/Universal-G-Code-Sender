@@ -52,6 +52,7 @@ import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.ControllerUtils;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.SemanticVersion;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -69,7 +70,6 @@ import java.util.logging.Logger;
 
 import static com.willwinder.universalgcodesender.Utils.formatter;
 import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.GRBL_COMPABILITY_VERSION;
-import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
@@ -139,23 +139,25 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     @Override
     public void returnToHome(double safetyHeightInMm) throws Exception {
-        if (isIdle()) {
-            // Convert the safety height to the same units as the current gcode state
-            UnitUtils.Units currentUnit = getCurrentGcodeState().getUnits();
-            double safetyHeight = safetyHeightInMm * UnitUtils.scaleUnits(MM, currentUnit);
-
-            // If Z is less than zero, raise it before further movement.
-            double currentZPosition = getControllerStatus().getWorkCoord().getPositionIn(currentUnit).get(Axis.Z);
-            if (currentZPosition < safetyHeight) {
-                String moveToSafetyHeightCommand = GcodeUtils.GCODE_RETURN_TO_Z_ZERO_LOCATION;
-                if (safetyHeight > 0) {
-                    moveToSafetyHeightCommand = GcodeUtils.generateMoveCommand("G90 G0", 0, new PartialPosition(null, null, safetyHeight, currentUnit));
-                }
-                sendCommandImmediately(new SystemCommand(moveToSafetyHeightCommand));
-            }
-            sendCommandImmediately(new SystemCommand(GcodeUtils.GCODE_RETURN_TO_XY_ZERO_LOCATION));
-            sendCommandImmediately(new SystemCommand(GcodeUtils.GCODE_RETURN_TO_Z_ZERO_LOCATION));
+        if (!isIdle()) {
+            return;
         }
+
+        // Convert the safety height to the same units as the current gcode state
+        UnitUtils.Units currentUnit = getCurrentGcodeState().getUnits();
+        double safetyHeight = safetyHeightInMm * UnitUtils.scaleUnits(MM, currentUnit);
+
+        // If Z is less than zero, raise it before further movement.
+        double currentZPosition = getControllerStatus().getWorkCoord().getPositionIn(currentUnit).get(Axis.Z);
+        if (currentZPosition < safetyHeight) {
+            String moveToSafetyHeightCommand = GcodeUtils.GCODE_RETURN_TO_Z_ZERO_LOCATION;
+            if (safetyHeight > 0) {
+                moveToSafetyHeightCommand = GcodeUtils.generateMoveCommand("G90 G0", 0, new PartialPosition(null, null, safetyHeight, currentUnit));
+            }
+            sendCommandImmediately(new SystemCommand(moveToSafetyHeightCommand));
+        }
+        sendCommandImmediately(new SystemCommand(GcodeUtils.GCODE_RETURN_TO_XY_ZERO_LOCATION));
+        sendCommandImmediately(new SystemCommand(GcodeUtils.GCODE_RETURN_TO_Z_ZERO_LOCATION));
     }
 
     @Override
@@ -520,32 +522,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     @Override
     public CommunicatorState getCommunicatorState() {
         ControllerState state = this.controllerStatus == null ? ControllerState.DISCONNECTED : this.controllerStatus.getState();
-        switch (state) {
-            case JOG:
-            case RUN:
-                return CommunicatorState.COMM_SENDING;
-            case HOLD:
-            case DOOR:
-                return CommunicatorState.COMM_SENDING_PAUSED;
-            case IDLE:
-                if (isStreaming()) {
-                    return CommunicatorState.COMM_SENDING_PAUSED;
-                } else {
-                    return CommunicatorState.COMM_IDLE;
-                }
-            case ALARM:
-                return CommunicatorState.COMM_IDLE;
-            case CHECK:
-                if (isStreaming() && communicator.isPaused()) {
-                    return CommunicatorState.COMM_SENDING_PAUSED;
-                } else if (isStreaming() && !communicator.isPaused()) {
-                    return CommunicatorState.COMM_SENDING;
-                } else {
-                    return COMM_CHECK;
-                }
-            default:
-                return CommunicatorState.COMM_IDLE;
-        }
+        return ControllerUtils.getCommunicatorState(state, this, communicator);
     }
 
     private void initializeController() {
