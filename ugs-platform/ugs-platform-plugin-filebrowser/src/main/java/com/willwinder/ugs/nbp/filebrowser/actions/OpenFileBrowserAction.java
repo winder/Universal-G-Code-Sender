@@ -72,8 +72,9 @@ public final class OpenFileBrowserAction extends AbstractAction implements UGSEv
 
     @Override
     public boolean isEnabled() {
+        ControllerState state = backend.getControllerState();
         return backend.isConnected() &&
-                backend.getController().getControllerStatus().getState() == ControllerState.IDLE &&
+                (state == ControllerState.IDLE || state == ControllerState.ALARM) &&
                 backend.getController().getCapabilities().hasCapability(CapabilitiesConstants.FILE_SYSTEM);
     }
 

@@ -69,7 +69,6 @@ public class ConsolePanel extends JPanel implements MessageListener {
         // After the IO has been loaded, get the text component and disable some properties
         JTextComponent textView = consoleProvider.getTextComponent();
         textView.setEditable(false);
-        textView.setFocusable(false);
 
         this.backend = backend;
         backend.addMessageListener(this);
