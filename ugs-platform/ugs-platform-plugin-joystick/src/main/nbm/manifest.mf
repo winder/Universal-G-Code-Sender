@@ -2,4 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module-Localizing-Bundle: com/willwinder/ugs/nbp/joystick/Bundle.properties
 OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Specification-Version: ${ugs.modules.specification.version}
+OpenIDE-Module-Layer: com/willwinder/ugs/nbp/joystick/layer.xml
 AutoUpdate-Essential-Module: false

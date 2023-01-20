@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Localizing-Bundle: com/willwinder/ugs/nbp/toolbox/Bundle.properties
 OpenIDE-Module-Specification-Version: ${ugs.modules.specification.version}
+OpenIDE-Module-Layer: com/willwinder/ugs/nbp/toolbox/layer.xml
