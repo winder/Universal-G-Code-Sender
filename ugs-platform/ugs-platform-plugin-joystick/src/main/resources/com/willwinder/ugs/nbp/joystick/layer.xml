@@ -4,8 +4,8 @@
     <folder name="OptionsExport">
         <folder name="UGS">
             <attr name="displayName" stringvalue="UGS"/>
-            <file name="Jog">
-                <attr name="displayName" stringvalue="Jog"/>
+            <file name="Joystick">
+                <attr name="displayName" stringvalue="Joystick"/>
                 <attr name="include" stringvalue="config/Preferences/com/willwinder/ugs/nbp/joystick/.*"/>
             </file>
         </folder>
