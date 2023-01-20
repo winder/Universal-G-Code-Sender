@@ -1,5 +1,5 @@
 /*
-    Copyright 2020-2021 Will Winder
+    Copyright 2020-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -50,6 +50,7 @@ public class UgsDataObject extends MultiDataObject {
         CookieSet cookies = getCookieSet();
         cookies.add(new UgsCloseCookie(this));
         cookies.add(new UgsOpenSupport(getPrimaryEntry()));
+        cookies.add(new UgsSaveAsCookie());
     }
 
     @Override
