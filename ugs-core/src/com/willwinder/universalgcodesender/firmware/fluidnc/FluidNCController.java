@@ -101,6 +101,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     private String distanceModeCode;
     private String unitsCode;
     private final ICommandCreator commandCreator;
+    private boolean isInitialized = false;
 
     public FluidNCController() {
         this(new GrblCommunicator());
@@ -210,6 +211,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     @Override
     public void issueSoftReset() throws Exception {
         messageService.dispatchMessage(MessageType.INFO, "*** Resetting controller\n");
+        isInitialized = false;
         positionPollTimer.stop();
         setControllerState(ControllerState.DISCONNECTED);
         resetBuffers();
@@ -318,6 +320,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
             throw new Exception("Communication port is already open.");
         }
 
+        isInitialized = false;
         positionPollTimer.stop();
         communicator.connect(connectionDriver, port, portRate);
         setControllerState(ControllerState.CONNECTING);
@@ -346,6 +349,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     @Override
     public Boolean closeCommPort() throws Exception {
+        isInitialized = false;
         positionPollTimer.stop();
         connectionWatchTimer.stop();
         if (!isCommOpen() && getControllerStatus().getState() == ControllerState.DISCONNECTED) {
@@ -477,8 +481,8 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     @Override
     public void cancelSend() throws Exception {
-        communicator.cancelSend();
         resetBuffers();
+        communicator.cancelSend();
 
         if (controllerStatus.getState() == ControllerState.JOG) {
             communicator.sendByteImmediately(GrblUtils.GRBL_JOG_CANCEL_COMMAND);
@@ -499,7 +503,8 @@ public class FluidNCController implements IController, ICommunicatorListener {
                     while (!(getControllerStatus().getState() == ControllerState.HOLD && StringUtils.equalsIgnoreCase(getControllerStatus().getSubState(), "0"))) {
                         Thread.sleep(getStatusUpdateRate());
                     }
-                    issueSoftReset();
+                    communicator.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
+                    communicator.resumeSend();
                 } catch (Exception e) {
                     LOGGER.log(Level.WARNING, "Failed waiting for hold and issue soft reset", e);
                 }
@@ -595,6 +600,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
             messageService.dispatchMessage(MessageType.INFO, String.format("*** Connected to %s\n", getFirmwareVersion()));
             requestStatusReport();
             positionPollTimer.start();
+            isInitialized = true;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Could not initialize the connection", e);
             messageService.dispatchMessage(MessageType.INFO, "*** Could not establish connection with the controller\n");
@@ -764,6 +770,11 @@ public class FluidNCController implements IController, ICommunicatorListener {
             }
         } else if (FluidNCUtils.isWelcomeResponse(response)) {
             messageService.dispatchMessage(MessageType.VERBOSE, response + "\n");
+            if (isInitialized) {
+                LOGGER.info("We got a welcome string, but are already initialized, ignoring...");
+                return;
+            }
+
             if (controllerStatus.getState() == ControllerState.CONNECTING) {
                 LOGGER.info("We got a welcome string, but are already in a connection phase. Do not initialize another connection phase...");
                 return;
