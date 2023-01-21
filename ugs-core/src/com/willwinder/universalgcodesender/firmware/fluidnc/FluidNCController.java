@@ -21,12 +21,13 @@ package com.willwinder.universalgcodesender.firmware.fluidnc;
 import com.willwinder.universalgcodesender.Capabilities;
 import com.willwinder.universalgcodesender.ConnectionWatchTimer;
 import com.willwinder.universalgcodesender.GrblCapabilitiesConstants;
-import com.willwinder.universalgcodesender.communicator.GrblCommunicator;
 import com.willwinder.universalgcodesender.GrblUtils;
-import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.IFileService;
 import com.willwinder.universalgcodesender.StatusPollTimer;
+import com.willwinder.universalgcodesender.communicator.GrblCommunicator;
+import com.willwinder.universalgcodesender.communicator.ICommunicator;
+import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionException;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
@@ -43,13 +44,17 @@ import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
-import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.CommunicatorState;
+import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
@@ -80,7 +85,6 @@ import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndW
 public class FluidNCController implements IController, ICommunicatorListener {
 
     private static final Logger LOGGER = Logger.getLogger(FluidNCController.class.getSimpleName());
-    private static final SemanticVersion MINIMUM_VERSION = new SemanticVersion(3, 3, 0);
 
     private final GcodeParser gcodeParser = new GcodeParser();
     private final Set<ControllerListener> listeners = Collections.synchronizedSet(new HashSet<>());
@@ -92,7 +96,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     private final ConnectionWatchTimer connectionWatchTimer = new ConnectionWatchTimer(this);
     private final StopWatch streamStopWatch = new StopWatch();
     private final IFileService fileService;
-
+    private final ICommandCreator commandCreator;
     private MessageService messageService = new MessageService();
     private ControllerStatus controllerStatus;
     private SemanticVersion semanticVersion = new SemanticVersion();
@@ -100,7 +104,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
     private IGcodeStreamReader streamCommands;
     private String distanceModeCode;
     private String unitsCode;
-    private final ICommandCreator commandCreator;
     private boolean isInitialized = false;
 
     public FluidNCController() {
@@ -215,7 +218,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
         messageService.dispatchMessage(MessageType.INFO, "*** Resetting controller\n");
         isInitialized = false;
         positionPollTimer.stop();
-        setControllerState(ControllerState.DISCONNECTED);
+        setControllerState(ControllerState.CONNECTING);
         resetBuffers();
         communicator.cancelSend();
         communicator.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
@@ -532,43 +535,13 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
         setControllerState(ControllerState.CONNECTING);
         try {
-            GetStatusCommand statusCommand = FluidNCUtils.queryForStatusReport(this, messageService);
-            if (!statusCommand.isDone() || statusCommand.isError()) {
-                throw new IllegalStateException("Could not query the device status");
-            }
-
-            if (statusCommand.getControllerStatus().getState() == ControllerState.HOLD || statusCommand.getControllerStatus().getState() == ControllerState.ALARM) {
+            if (!FluidNCUtils.isControllerResponsive(this, messageService)) {
                 messageService.dispatchMessage(MessageType.INFO, "*** Device is in a holding or alarm state and needs to be reset\n");
                 issueSoftReset();
-                setControllerState(ControllerState.CONNECTING);
-                Thread.sleep(1000);
-                FluidNCUtils.queryForStatusReport(this, messageService);
+                return;
             }
-
-            messageService.dispatchMessage(MessageType.INFO, "*** Fetching device firmware version\n");
-            GetFirmwareVersionCommand getFirmwareVersionCommand = sendAndWaitForCompletion(this, new GetFirmwareVersionCommand());
-            firmwareVariant = getFirmwareVersionCommand.getFirmware();
-            semanticVersion = getFirmwareVersionCommand.getVersion();
-            capabilities.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-            if (!firmwareVariant.equalsIgnoreCase("FluidNC") || semanticVersion.compareTo(MINIMUM_VERSION) < 0) {
-                messageService.dispatchMessage(MessageType.INFO, String.format("*** Expected a 'FluidNC %s' or later but got '%s %s'\n", MINIMUM_VERSION, firmwareVariant, semanticVersion));
-                throw new IllegalStateException("Unknown controller version: " + this.semanticVersion.toString());
-            }
-
-            sendAndWaitForCompletion(this, new GetStartupMessagesCommand(), 3000);
-
-            messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status codes\n");
-            sendAndWaitForCompletion(this, new GetErrorCodesCommand(), 3000);
-            sendAndWaitForCompletion(this, new GetAlarmCodesCommand(), 3000);
-
-            // Fetch the gcode state
-            messageService.dispatchMessage(MessageType.INFO, "*** Fetching device state\n");
-            GetParserStateCommand getParserStateCommand = sendAndWaitForCompletion(this, new GetParserStateCommand());
-            String state = getParserStateCommand.getState().orElseThrow(() -> new ConnectionException("Could not get controller state"));
-            gcodeParser.addCommand(state);
-
-            refreshFirmwareSettings();
-            FluidNCUtils.addCapabilities(capabilities, semanticVersion, firmwareSettings);
+            queryFirmwareVersion();
+            queryControllerInformation();
 
             // Toggle the state to force UI update
             setControllerState(ControllerState.CONNECTING);
@@ -587,6 +560,45 @@ public class FluidNCController implements IController, ICommunicatorListener {
                 // Never mind...
             }
         }
+    }
+
+    /**
+     * Attempts to get the current version of the controller. If the controller is not a FluidNC or if the version is
+     * too low this will throw an exception.
+     *
+     * @throws Exception
+     */
+    private void queryFirmwareVersion() throws Exception {
+        // A sleep is required to make the next query reliable
+        Thread.sleep(200);
+        GetFirmwareVersionCommand getFirmwareVersionCommand = FluidNCUtils.queryFirmwareVersion(this, messageService);
+        semanticVersion = getFirmwareVersionCommand.getVersion();
+        firmwareVariant = getFirmwareVersionCommand.getFirmware();
+        capabilities.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
+    }
+
+    /**
+     * Gathers information about the controller
+     *
+     * @throws Exception
+     */
+    private void queryControllerInformation() throws Exception {
+        sendAndWaitForCompletion(this, new GetStartupMessagesCommand(), 3000);
+
+        messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status codes\n");
+        sendAndWaitForCompletion(this, new GetErrorCodesCommand(), 3000);
+        sendAndWaitForCompletion(this, new GetAlarmCodesCommand(), 3000);
+
+        // A sleep is required to make the next query reliable
+        Thread.sleep(200);
+
+        messageService.dispatchMessage(MessageType.INFO, "*** Fetching device state\n");
+        GetParserStateCommand getParserStateCommand = sendAndWaitForCompletion(this, new GetParserStateCommand(), 3000);
+        String state = getParserStateCommand.getState().orElseThrow(() -> new ConnectionException("Could not get controller state"));
+        gcodeParser.addCommand(state);
+
+        refreshFirmwareSettings();
+        FluidNCUtils.addCapabilities(capabilities, semanticVersion, firmwareSettings);
     }
 
     private void refreshFirmwareSettings() throws FirmwareSettingsException {
@@ -716,7 +728,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
             controllerStatus = FluidNCUtils.getStatusFromStatusResponse(controllerStatus, response, getFirmwareSettings().getReportingUnits());
             setControllerState(controllerStatus.getState());
             listeners.forEach(l -> l.statusStringListener(controllerStatus));
-            messageService.dispatchMessage( MessageType.VERBOSE, response + "\n");
+            messageService.dispatchMessage(MessageType.VERBOSE, response + "\n");
         } else if (getActiveCommand().isPresent()) {
             GcodeCommand command = getActiveCommand().get();
             command.appendResponse(response);
@@ -752,10 +764,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
                 return;
             }
 
-            if (controllerStatus.getState() == ControllerState.CONNECTING) {
-                LOGGER.info("We got a welcome string, but are already in a connection phase. Do not initialize another connection phase...");
-                return;
-            }
             ThreadHelper.invokeLater(this::initializeController);
         }
 
