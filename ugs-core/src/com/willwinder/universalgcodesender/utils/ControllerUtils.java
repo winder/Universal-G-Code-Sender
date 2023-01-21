@@ -19,6 +19,9 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.communicator.ICommunicator;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.model.CommunicatorState;
 import com.willwinder.universalgcodesender.types.CommandListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
@@ -30,6 +33,10 @@ import java.util.function.Supplier;
  * @author Joacim Breiler
  */
 public class ControllerUtils {
+
+    private ControllerUtils() {
+        // Can not be instanced
+    }
 
     private static final int MAX_EXECUTION_TIME = 2000;
 
@@ -132,5 +139,42 @@ public class ControllerUtils {
         }
 
         return command;
+    }
+
+    /**
+     * Converts the controller state to a communicator state.
+     *
+     * @param controllerState the current controller state
+     * @param controller      the contrller
+     * @param communicator    the communicator
+     * @return the state of the communicator
+     */
+    public static CommunicatorState getCommunicatorState(ControllerState controllerState, IController controller, ICommunicator communicator) {
+        switch (controllerState) {
+            case JOG:
+            case RUN:
+                return CommunicatorState.COMM_SENDING;
+            case HOLD:
+            case DOOR:
+                return CommunicatorState.COMM_SENDING_PAUSED;
+            case IDLE:
+                if (controller.isStreaming()) {
+                    return CommunicatorState.COMM_SENDING_PAUSED;
+                } else {
+                    return CommunicatorState.COMM_IDLE;
+                }
+            case ALARM:
+                return CommunicatorState.COMM_IDLE;
+            case CHECK:
+                if (controller.isStreaming() && communicator.isPaused()) {
+                    return CommunicatorState.COMM_SENDING_PAUSED;
+                } else if (controller.isStreaming() && !communicator.isPaused()) {
+                    return CommunicatorState.COMM_SENDING;
+                } else {
+                    return CommunicatorState.COMM_CHECK;
+                }
+            default:
+                return CommunicatorState.COMM_IDLE;
+        }
     }
 }

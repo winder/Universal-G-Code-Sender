@@ -27,10 +27,11 @@ import static org.mockito.Mockito.when;
 public class FluidNCControllerTest {
 
     private IController target;
+    private ICommunicator communicator;
 
     @Before
     public void setUp() {
-        ICommunicator communicator = mock(ICommunicator.class);
+        communicator = mock(ICommunicator.class);
         target = spy(new FluidNCController(communicator));
     }
 
@@ -67,6 +68,50 @@ public class FluidNCControllerTest {
         List<GcodeCommand> commands = commandArgumentCaptor.getAllValues();
         assertEquals("G90 G0 X0 Y0", commands.get(0).getCommandString());
         assertEquals("G90 G0 Z0", commands.get(1).getCommandString());
+    }
+
+    @Test
+    public void restoreParserModalStateShouldRestoreUnitsToMM() {
+        target.updateParserModalState(new GcodeCommand("G21"));
+
+        ArgumentCaptor<GcodeCommand> commandArgumentCaptor = ArgumentCaptor.forClass(GcodeCommand.class);
+        doNothing().when(communicator).queueCommand(commandArgumentCaptor.capture());
+        target.restoreParserModalState();
+
+        assertEquals("G21", commandArgumentCaptor.getValue().getCommandString());
+    }
+
+    @Test
+    public void restoreParserModalStateShouldRestoreUnitsToInches() {
+        target.updateParserModalState(new GcodeCommand("G20"));
+
+        ArgumentCaptor<GcodeCommand> commandArgumentCaptor = ArgumentCaptor.forClass(GcodeCommand.class);
+        doNothing().when(communicator).queueCommand(commandArgumentCaptor.capture());
+        target.restoreParserModalState();
+
+        assertEquals("G20", commandArgumentCaptor.getValue().getCommandString());
+    }
+
+    @Test
+    public void restoreParserModalStateShouldRestoreAbsoluteMode() {
+        target.updateParserModalState(new GcodeCommand("G90"));
+
+        ArgumentCaptor<GcodeCommand> commandArgumentCaptor = ArgumentCaptor.forClass(GcodeCommand.class);
+        doNothing().when(communicator).queueCommand(commandArgumentCaptor.capture());
+        target.restoreParserModalState();
+
+        assertEquals("G90", commandArgumentCaptor.getValue().getCommandString());
+    }
+
+    @Test
+    public void restoreParserModalStateShouldRestoreRelativeMode() {
+        target.updateParserModalState(new GcodeCommand("G91"));
+
+        ArgumentCaptor<GcodeCommand> commandArgumentCaptor = ArgumentCaptor.forClass(GcodeCommand.class);
+        doNothing().when(communicator).queueCommand(commandArgumentCaptor.capture());
+        target.restoreParserModalState();
+
+        assertEquals("G91", commandArgumentCaptor.getValue().getCommandString());
     }
 
     private void mockControllerStatus(Position workPosition) {

@@ -7,7 +7,9 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetFirmwareVersionCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCommand;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SystemCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.MessageType;
@@ -23,10 +25,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.willwinder.universalgcodesender.GrblUtils.getControllerStateFromStateString;
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
 
 public class FluidNCUtils {
     public static final double GRBL_COMPABILITY_VERSION = 1.1d;
+    public static final SemanticVersion MINIMUM_VERSION = new SemanticVersion(3, 3, 0);
 
     private static final String MESSAGE_REGEX = "\\[MSG:.*]";
     private static final Pattern MESSAGE_PATTERN = Pattern.compile(MESSAGE_REGEX);
@@ -244,5 +248,53 @@ public class FluidNCUtils {
         if (StringUtils.startsWith(setting.getKey().toLowerCase(), settingKey.toLowerCase())) {
             capabilities.addCapability(capabilitiesConstant);
         }
+    }
+
+    /**
+     * Queries the controller for the firmware version
+     *
+     * @param controller     the current controller that should send the command
+     * @param messageService the message service
+     * @return the command that was executed by the controller containing the parsed version
+     * @throws Exception             if the command couldn't be sent
+     * @throws IllegalStateException if the parsed version is not for a FluidNC controller or the version is too old
+     */
+    public static GetFirmwareVersionCommand queryFirmwareVersion(IController controller, MessageService messageService) throws Exception {
+        messageService.dispatchMessage(MessageType.INFO, "*** Fetching device firmware version\n");
+        GetFirmwareVersionCommand getFirmwareVersionCommand = sendAndWaitForCompletion(controller, new GetFirmwareVersionCommand());
+        String firmwareVariant = getFirmwareVersionCommand.getFirmware();
+        SemanticVersion semanticVersion = getFirmwareVersionCommand.getVersion();
+
+        if (!firmwareVariant.equalsIgnoreCase("FluidNC") || semanticVersion.compareTo(MINIMUM_VERSION) < 0) {
+            messageService.dispatchMessage(MessageType.INFO, String.format("*** Expected a 'FluidNC %s' or later but got '%s %s'\n", MINIMUM_VERSION, firmwareVariant, semanticVersion));
+            throw new IllegalStateException("Unknown controller version: " + semanticVersion.toString());
+        }
+
+        return getFirmwareVersionCommand;
+    }
+
+    /**
+     * Checks if the controller is responsive and not in a locked alarm state.
+     *
+     * @return true if responsive
+     * @throws Exception if we couldn't query for status
+     */
+    public static boolean isControllerResponsive(IController controller, MessageService messageService) throws Exception {
+        GetStatusCommand statusCommand = FluidNCUtils.queryForStatusReport(controller, messageService);
+        if (!statusCommand.isDone() || statusCommand.isError()) {
+            throw new IllegalStateException("Could not query the device status");
+        }
+
+        // The controller is not up and running properly
+        if (statusCommand.getControllerStatus().getState() == ControllerState.HOLD || statusCommand.getControllerStatus().getState() == ControllerState.ALARM) {
+            try {
+                // Figure out if it is still responsive even if it is in HOLD or ALARM state
+                sendAndWaitForCompletion(controller, new SystemCommand(""));
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

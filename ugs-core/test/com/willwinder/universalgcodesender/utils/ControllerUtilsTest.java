@@ -19,6 +19,9 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.communicator.ICommunicator;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.model.CommunicatorState;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.junit.Test;
 
@@ -151,5 +154,28 @@ public class ControllerUtilsTest {
 
         ControllerUtils.sendAndWaitForCompletionWithRetry(supplier, controller, 200, 10, integer -> {});
         verify(controller, times(0)).sendCommandImmediately(any());
+    }
+
+    @Test
+    public void getCommunicatorStateShouldReturnPausedWhenControllerIdleAndStreaming() {
+        IController controller = mock(IController.class);
+        when(controller.isStreaming()).thenReturn(true);
+        ICommunicator communicator = mock(ICommunicator.class);
+
+        CommunicatorState communicatorState = ControllerUtils.getCommunicatorState(ControllerState.IDLE, controller, communicator);
+
+        assertEquals(CommunicatorState.COMM_SENDING_PAUSED, communicatorState);
+    }
+
+    @Test
+    public void getCommunicatorStateShouldReturnPausedWhenControllerCheckAndStreaming() {
+        IController controller = mock(IController.class);
+        when(controller.isStreaming()).thenReturn(true);
+        ICommunicator communicator = mock(ICommunicator.class);
+        when(communicator.isPaused()).thenReturn(true);
+
+        CommunicatorState communicatorState = ControllerUtils.getCommunicatorState(ControllerState.CHECK, controller, communicator);
+
+        assertEquals(CommunicatorState.COMM_SENDING_PAUSED, communicatorState);
     }
 }

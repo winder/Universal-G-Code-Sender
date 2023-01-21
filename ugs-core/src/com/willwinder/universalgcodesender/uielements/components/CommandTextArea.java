@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.uielements.components;
 
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -77,10 +78,12 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
     @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt instanceof ControllerStateEvent) {
-            if (!backend.isIdle() && isEnabled()) {
+            ControllerState state = backend.getControllerState();
+            boolean isIdle = (state == ControllerState.IDLE || state == ControllerState.ALARM || state == ControllerState.CHECK);
+            if (!isIdle && isEnabled()) {
                 regainFocus = hasFocus();
                 setEnabled(false);
-            } else if (backend.isIdle() && !isEnabled()) {
+            } else if (isIdle && !isEnabled()) {
                 setEnabled(true);
                 if (regainFocus) {
                     regainFocus = false;
