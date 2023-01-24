@@ -133,7 +133,7 @@ public class PartialPosition {
 
     public Double getZ() {
         if (z == null) {
-            throw new IllegalArgumentException("Tried to get y-axis which is not set");
+            throw new IllegalArgumentException("Tried to get z-axis which is not set");
         }
         return z;
     }
