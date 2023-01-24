@@ -72,11 +72,8 @@ public class Point extends AbstractCuttable {
 
     @Override
     public Entity copy() {
-        Point ellipse = new Point();
-        ellipse.setTransform(new AffineTransform(getTransform()));
-        ellipse.setStartDepth(getStartDepth());
-        ellipse.setTargetDepth(getTargetDepth());
-        ellipse.setCutType(getCutType());
-        return ellipse;
+        Point point = new Point();
+        copyPropertiesTo(point);
+        return point;
     }
 }

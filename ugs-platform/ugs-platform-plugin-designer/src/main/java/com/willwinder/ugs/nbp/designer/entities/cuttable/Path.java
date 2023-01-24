@@ -108,10 +108,7 @@ public class Path extends AbstractCuttable {
     public Entity copy() {
         Path path = new Path();
         path.append(getRelativeShape());
-        path.setTransform(new AffineTransform(getTransform()));
-        path.setStartDepth(getStartDepth());
-        path.setTargetDepth(getTargetDepth());
-        path.setCutType(getCutType());
+        copyPropertiesTo(path);
         return path;
     }
 

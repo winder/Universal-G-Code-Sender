@@ -18,8 +18,10 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 
+import java.awt.geom.AffineTransform;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -114,5 +116,15 @@ public class Group extends EntityGroup implements Cuttable {
                 ((Cuttable) child).setHidden(hidden);
             }
         });
+    }
+    @Override
+    public Entity copy() {
+        Group copy = new Group();
+        getChildren().stream().map(Entity::copy).forEach(copy::addChild);
+        copy.setTransform(new AffineTransform(getTransform()));
+        copy.setName(getName());
+        copy.setDescription(getDescription());
+        copy.setHidden(isHidden());
+        return copy;
     }
 }

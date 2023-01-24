@@ -69,12 +69,9 @@ public class Text extends AbstractCuttable {
     @Override
     public Entity copy() {
         Text copy = new Text();
+        copyPropertiesTo(copy);
         copy.setText(getText());
         copy.setFontFamily(getFontFamily());
-        copy.setStartDepth(getStartDepth());
-        copy.setTargetDepth(getTargetDepth());
-        copy.setCutType(getCutType());
-        copy.setTransform(new AffineTransform(getTransform()));
         return copy;
     }
 }
