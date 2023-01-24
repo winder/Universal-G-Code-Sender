@@ -41,14 +41,16 @@ public class DrillCenterToolPath extends AbstractToolPath {
 
             final double depth = -currentDepth;
             gcodePath.addSegment(SegmentType.POINT, PartialPosition.builder()
-                    .copy(centerPosition)
                     .setZ(depth)
+                    .setUnits(UnitUtils.Units.MM)
                     .build());
 
-            gcodePath.addSegment(SegmentType.POINT, PartialPosition.builder()
-                    .copy(centerPosition)
-                    .setZ(0d)
-                    .build());
+            if (currentDepth != 0) {
+                gcodePath.addSegment(SegmentType.POINT, PartialPosition.builder()
+                        .setZ(0d)
+                        .setUnits(UnitUtils.Units.MM)
+                        .build());
+            }
         }
 
         addSafeHeightSegment(gcodePath);
