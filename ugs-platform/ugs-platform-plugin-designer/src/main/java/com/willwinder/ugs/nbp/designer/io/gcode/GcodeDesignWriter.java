@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.io.gcode;
 
+import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
 import com.willwinder.ugs.nbp.designer.io.DesignWriterException;
@@ -65,6 +66,7 @@ public class GcodeDesignWriter implements DesignWriter {
                     .filter(Cuttable.class::isInstance)
                     .map(Cuttable.class::cast)
                     .filter(cuttable -> !cuttable.isHidden())
+                    .filter(cuttable -> cuttable.getCutType() != CutType.NONE)
                     .collect(Collectors.toList());
 
             String gcode = gcodeRouter.toGcode(cuttables);
