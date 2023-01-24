@@ -146,7 +146,9 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
 
     @Override
     public void applyTransform(AffineTransform transform) {
-        children.forEach(c -> c.applyTransform(transform));
+        if (children != null) {
+            children.forEach(c -> c.applyTransform(transform));
+        }
         invalidateCenter();
     }
 
@@ -272,6 +274,10 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     }
 
     public final List<Entity> getAllChildren() {
+        if (this.children == null) {
+            return Collections.emptyList();
+        }
+
         List<Entity> result = this.children
                 .stream()
                 .flatMap(s -> {
