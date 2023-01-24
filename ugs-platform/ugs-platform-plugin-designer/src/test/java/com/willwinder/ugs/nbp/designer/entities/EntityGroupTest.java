@@ -1,5 +1,6 @@
 package com.willwinder.ugs.nbp.designer.entities;
 
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import org.junit.Test;
@@ -8,6 +9,8 @@ import java.awt.geom.Point2D;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class EntityGroupTest {
 
@@ -229,5 +232,59 @@ public class EntityGroupTest {
         assertEquals(5, rectangle2.getPosition().getY(), 0.1);
         assertEquals(90, rectangle2.getRotation(), 0.1);
         assertEquals(90, entityGroup.getRotation(), 0.1);
+    }
+
+    @Test
+    public void containsChildShouldReturnFalseWhenEntityNotChild() {
+        EntityGroup entityGroup = new EntityGroup();
+        assertFalse(entityGroup.containsChild(new Point()));
+    }
+
+    @Test
+    public void containsChildShouldReturnTrueWhenEntityIsChild() {
+        EntityGroup entityGroup = new EntityGroup();
+        Entity point = new Point();
+        entityGroup.addChild(point);
+        assertTrue(entityGroup.containsChild(point));
+    }
+
+    @Test
+    public void containsChildShouldReturnTrueWhenEntityIsGrandChild() {
+        EntityGroup subGroup = new EntityGroup();
+        Entity point = new Point();
+        subGroup.addChild(point);
+
+        EntityGroup entityGroup = new EntityGroup();
+        entityGroup.addChild(subGroup);
+
+        assertTrue(entityGroup.containsChild(point));
+    }
+
+    @Test
+    public void addEntityAtNonExistingIndexShouldAddLast() {
+        EntityGroup entityGroup = new EntityGroup();
+        entityGroup.addChild(new Point(), 10);
+        assertEquals(1, entityGroup.getChildren().size());
+    }
+
+    @Test
+    public void addEntityAtIndexShouldInsert() {
+        EntityGroup entityGroup = new EntityGroup();
+        entityGroup.addChild(new Point());
+        entityGroup.addChild(new Point());
+
+        Point point = new Point();
+        entityGroup.addChild(point, 1);
+        assertEquals(3, entityGroup.getChildren().size());
+        assertEquals(1, entityGroup.getChildren().indexOf(point));
+    }
+
+    @Test
+    public void copyShouldCopyProperties() {
+        EntityGroup entityGroup = new EntityGroup();
+        entityGroup.setName("My name");
+
+        Entity copy = entityGroup.copy();
+        assertEquals("My name", copy.getName());
     }
 }

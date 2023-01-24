@@ -111,6 +111,10 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     }
 
     public void addChild(Entity entity, int index) {
+        if (children.size() < index) {
+            index = children.size();
+        }
+
         children.add(index, entity);
         entity.addListener(this);
         invalidateCenter();
@@ -142,9 +146,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
 
     @Override
     public void applyTransform(AffineTransform transform) {
-        if (children != null) {
-            children.forEach(c -> c.applyTransform(transform));
-        }
+        children.forEach(c -> c.applyTransform(transform));
         invalidateCenter();
     }
 
@@ -165,6 +167,12 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         invalidateCenter();
     }
 
+    /**
+     * Returns true if the entity is a direct child or a grand child.
+     *
+     * @param entity the entity to check
+     * @return true if a child or grand child
+     */
     public boolean containsChild(Entity entity) {
         // Find any direct children
         if (children.contains(entity)) {
@@ -264,10 +272,6 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     }
 
     public final List<Entity> getAllChildren() {
-        if (this.children == null) {
-            return Collections.emptyList();
-        }
-
         List<Entity> result = this.children
                 .stream()
                 .flatMap(s -> {
@@ -302,6 +306,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     @Override
     public Entity copy() {
         EntityGroup group = new EntityGroup();
+        group.setName(getName());
         getChildren().stream().map(Entity::copy).forEach(group::addChild);
         return group;
     }
