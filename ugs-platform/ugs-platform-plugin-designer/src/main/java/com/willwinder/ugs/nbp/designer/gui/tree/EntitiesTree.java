@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,6 +25,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 
 import javax.swing.BorderFactory;
+import javax.swing.DropMode;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -48,6 +49,12 @@ public class EntitiesTree extends JTree implements TreeSelectionListener, Select
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setCellRenderer(new EntityCellRenderer());
         addTreeSelectionListener(this);
+
+        // Enable drag and drop
+        setDragEnabled(true);
+        setDropMode(DropMode.ON_OR_INSERT);
+        setTransferHandler(new EntityTransferHandler());
+
         expandRow(0);
         ((EntityTreeModel) getModel()).notifyTreeStructureChanged(controller.getDrawing().getRootEntity());
         addMouseListener(new EntitiesTreePopupListener());
@@ -74,9 +81,20 @@ public class EntitiesTree extends JTree implements TreeSelectionListener, Select
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
-        EntityGroup rootEntity = (EntityGroup) controller.getDrawing().getRootEntity();
+        EntityGroup rootEntity = controller.getDrawing().getRootEntity();
         List<TreePath> treePathList = EntityTreeUtils.getSelectedPaths(controller, rootEntity, Collections.emptyList());
         TreePath[] treePaths = treePathList.toArray(new TreePath[0]);
         setSelectionPaths(treePaths);
+    }
+
+    @Override
+    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        // filter property change of "dropLocation" with newValue==null,
+        // since this will result in a NPE in BasicTreeUI.getDropLineRect(...)
+        if (newValue == null && "dropLocation".equals(propertyName)) {
+            return;
+        }
+
+        super.firePropertyChange(propertyName, oldValue, newValue);
     }
 }

@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.gui.tree;
 import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.DrawingEvent;
 import com.willwinder.ugs.nbp.designer.gui.DrawingListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -126,5 +127,9 @@ public class EntityTreeModel implements TreeModel, ControllerListener, DrawingLi
         if (event == DrawingEvent.ENTITY_ADDED || event == DrawingEvent.ENTITY_REMOVED) {
             fireTreeStructureChanged(controller.getDrawing().getRootEntity());
         }
+    }
+
+    public Drawing getDrawing() {
+        return controller.getDrawing();
     }
 }
