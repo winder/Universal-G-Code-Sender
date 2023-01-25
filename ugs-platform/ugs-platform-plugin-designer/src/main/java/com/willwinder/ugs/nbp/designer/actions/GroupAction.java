@@ -42,6 +42,10 @@ public class GroupAction extends AbstractDesignAction implements SelectionListen
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
 
+        registerSelectionListener();
+    }
+
+    private void registerSelectionListener() {
         SelectionManager selectionManager = ControllerFactory.getController().getSelectionManager();
         selectionManager.addSelectionListener(this);
         setEnabled(!selectionManager.getChildren().isEmpty());

@@ -48,19 +48,25 @@ public class EntitiesTree extends JTree implements TreeSelectionListener, Select
         setRootVisible(false);
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setCellRenderer(new EntityCellRenderer());
-        addTreeSelectionListener(this);
-
-        // Enable drag and drop
-        setDragEnabled(true);
-        setDropMode(DropMode.ON_OR_INSERT);
-        setTransferHandler(new EntityTransferHandler());
+        enableDragAndDrop();
 
         expandRow(0);
         ((EntityTreeModel) getModel()).notifyTreeStructureChanged(controller.getDrawing().getRootEntity());
-        addMouseListener(new EntitiesTreePopupListener());
 
         this.controller = controller;
+        registerListeners();
+    }
+
+    private void registerListeners() {
+        addTreeSelectionListener(this);
+        addMouseListener(new EntitiesTreePopupListener());
         controller.getSelectionManager().addSelectionListener(this);
+    }
+
+    private void enableDragAndDrop() {
+        setDragEnabled(true);
+        setDropMode(DropMode.ON_OR_INSERT);
+        setTransferHandler(new EntityTransferHandler());
     }
 
     public void release() {
