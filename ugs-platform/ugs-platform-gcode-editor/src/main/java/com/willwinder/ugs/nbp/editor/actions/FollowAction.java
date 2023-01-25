@@ -18,6 +18,7 @@
 */
 package com.willwinder.ugs.nbp.editor.actions;
 
+import com.willwinder.ugs.nbp.editor.GcodeLanguageConfig;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -25,6 +26,8 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import org.netbeans.api.editor.EditorActionRegistration;
+import org.netbeans.api.editor.EditorActionRegistrations;
 import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.mimelookup.MimePath;
 import org.openide.awt.ActionID;
@@ -50,6 +53,12 @@ import java.util.prefs.Preferences;
  */
 @ActionID(category = LocalizingService.CATEGORY_PROGRAM, id = "FollowAction")
 @ActionRegistration(iconBase = FollowAction.ICON_BASE, displayName = "Follow", lazy = false)
+@EditorActionRegistration(
+        name = FollowAction.NAME,
+        toolBarPosition = 14,
+        mimeType = GcodeLanguageConfig.MIME_TYPE,
+        iconResource = FollowAction.ICON_BASE
+)
 public class FollowAction extends AbstractAction implements UGSEventListener, PreferenceChangeListener, Presenter.Toolbar {
     public static final String PREFERENCE_KEY = "follow-action";
     public static final String NAME = "follow-action";
