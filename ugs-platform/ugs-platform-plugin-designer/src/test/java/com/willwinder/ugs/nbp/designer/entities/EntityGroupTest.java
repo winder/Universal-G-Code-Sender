@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.awt.geom.Point2D;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -286,5 +287,39 @@ public class EntityGroupTest {
 
         Entity copy = entityGroup.copy();
         assertEquals("My name", copy.getName());
+    }
+
+    @Test
+    public void findParentForShouldReturnItsClosestParent() {
+        EntityGroup entityGroup = new EntityGroup();
+        Point point = new Point();
+        entityGroup.addChild(point);
+
+        Optional<EntityGroup> parentFor = entityGroup.findParentFor(point);
+        assertTrue(parentFor.isPresent());
+        assertEquals(entityGroup, parentFor.get());
+    }
+
+    @Test
+    public void findParentForShouldFindParentInNestedGroups() {
+        EntityGroup subGroup = new EntityGroup();
+        Point point = new Point();
+        subGroup.addChild(point);
+
+        EntityGroup entityGroup = new EntityGroup();
+        entityGroup.addChild(subGroup);
+
+        Optional<EntityGroup> parentFor = entityGroup.findParentFor(point);
+        assertTrue(parentFor.isPresent());
+        assertEquals(subGroup, parentFor.get());
+    }
+
+    @Test
+    public void findParentForShouldNotReturnParentIfNotFound() {
+        Point point = new Point();
+        EntityGroup entityGroup = new EntityGroup();
+
+        Optional<EntityGroup> parentFor = entityGroup.findParentFor(point);
+        assertFalse(parentFor.isPresent());
     }
 }

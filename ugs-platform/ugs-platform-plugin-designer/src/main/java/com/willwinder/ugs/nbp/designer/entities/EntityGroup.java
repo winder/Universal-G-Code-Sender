@@ -31,6 +31,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,13 +40,14 @@ import java.util.stream.Stream;
  * @author Joacim Breiler
  */
 public class EntityGroup extends AbstractEntity implements EntityListener {
-    private final List<Entity> children = new CopyOnWriteArrayList<>();
+    private final List<Entity> children;
 
     private double groupRotation = 0;
     private Point2D cachedCenter = new Point2D.Double(0, 0);
 
     public EntityGroup() {
         super();
+        children = new CopyOnWriteArrayList<>();
         setName("Group");
     }
 
@@ -189,6 +191,26 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     }
 
     /**
+     * Attempts to find the parent that contains the given entity.
+     *
+     * @param entity the child entity to find the parent for
+     * @return an optional with its parent if found
+     */
+    public Optional<EntityGroup> findParentFor(Entity entity) {
+        if (children.contains(entity)) {
+            return Optional.of(this);
+        }
+
+        return children.stream()
+                .filter(EntityGroup.class::isInstance)
+                .map(EntityGroup.class::cast)
+                .map(e -> e.findParentFor(entity))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
+    }
+
+    /**
      * Removes a direct child entity from the group. If it exists as a grand child it will be left alone.
      *
      * @param entity the entity to remove
@@ -312,7 +334,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     @Override
     public Entity copy() {
         EntityGroup group = new EntityGroup();
-        group.setName(getName());
+        copyPropertiesTo(group);
         getChildren().stream().map(Entity::copy).forEach(group::addChild);
         return group;
     }

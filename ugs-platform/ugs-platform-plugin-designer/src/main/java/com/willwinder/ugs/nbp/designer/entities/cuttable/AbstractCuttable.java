@@ -30,7 +30,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
 /**
@@ -143,12 +142,10 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     }
 
     protected void copyPropertiesTo(Cuttable copy) {
+        super.copyPropertiesTo(copy);
         copy.setStartDepth(getStartDepth());
         copy.setTargetDepth(getTargetDepth());
         copy.setCutType(getCutType());
-        copy.setTransform(new AffineTransform(getTransform()));
-        copy.setName(getName());
-        copy.setDescription(getDescription());
         copy.setHidden(isHidden());
     }
 }

@@ -262,4 +262,10 @@ public abstract class AbstractEntity implements Entity {
         Size size = getSize();
         setSize(new Size(size.getWidth(), height));
     }
+
+    protected void copyPropertiesTo(Entity copy) {
+        copy.setTransform(new AffineTransform(getTransform()));
+        copy.setName(getName());
+        copy.setDescription(getDescription());
+    }
 }

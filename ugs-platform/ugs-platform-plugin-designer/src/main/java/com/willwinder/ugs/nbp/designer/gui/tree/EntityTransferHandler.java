@@ -69,14 +69,19 @@ public class EntityTransferHandler extends TransferHandler {
         int[] rows = tree.getSelectionRows() != null ? tree.getSelectionRows() : new int[0];
         for (int row : rows) {
             Entity sourceEntity = (Entity) tree.getPathForRow(row).getLastPathComponent();
-            if (sourceEntity instanceof EntityGroup) {
-                EntityGroup sourceEntityGroup = (EntityGroup) sourceEntity;
-                if(sourceEntityGroup.containsChild(destinationGroup)) {
-                    return true;
-                }
+            if (isEntityAChild(destinationGroup, sourceEntity)) {
+                return true;
             }
         }
 
+        return false;
+    }
+
+    private boolean isEntityAChild(EntityGroup entity, Entity destination) {
+        if (destination instanceof EntityGroup) {
+            EntityGroup destinationGroup = (EntityGroup) destination;
+            return destinationGroup.containsChild(entity);
+        }
         return false;
     }
 

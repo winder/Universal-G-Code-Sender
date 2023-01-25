@@ -22,13 +22,7 @@ public class DrillCenterToolPath extends AbstractToolPath {
 
     @Override
     public GcodePath toGcodePath() {
-        Point2D center = source.getCenter();
-        PartialPosition centerPosition = PartialPosition.builder()
-                .setX(center.getX())
-                .setY(center.getY())
-                .setUnits(UnitUtils.Units.MM)
-                .build();
-
+        PartialPosition centerPosition = getCenterPosition();
         GcodePath gcodePath = new GcodePath();
         addSafeHeightSegmentTo(gcodePath, centerPosition);
 
@@ -40,20 +34,30 @@ public class DrillCenterToolPath extends AbstractToolPath {
             }
 
             final double depth = -currentDepth;
-            gcodePath.addSegment(SegmentType.POINT, PartialPosition.builder()
-                    .setZ(depth)
-                    .setUnits(UnitUtils.Units.MM)
-                    .build());
+            addDepthSegment(gcodePath, depth);
 
             if (currentDepth != 0) {
-                gcodePath.addSegment(SegmentType.POINT, PartialPosition.builder()
-                        .setZ(0d)
-                        .setUnits(UnitUtils.Units.MM)
-                        .build());
+                addDepthSegment(gcodePath, 0d);
             }
         }
 
         addSafeHeightSegment(gcodePath);
         return gcodePath;
+    }
+
+    private void addDepthSegment(GcodePath gcodePath, double depth) {
+        gcodePath.addSegment(SegmentType.POINT, PartialPosition.builder()
+                .setZ(depth)
+                .setUnits(UnitUtils.Units.MM)
+                .build());
+    }
+
+    private PartialPosition getCenterPosition() {
+        Point2D center = source.getCenter();
+        return PartialPosition.builder()
+                .setX(center.getX())
+                .setY(center.getY())
+                .setUnits(UnitUtils.Units.MM)
+                .build();
     }
 }

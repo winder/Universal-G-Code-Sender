@@ -21,7 +21,7 @@ package com.willwinder.ugs.nbp.designer.gui;
 import com.willwinder.ugs.nbp.designer.actions.BreakApartAction;
 import com.willwinder.ugs.nbp.designer.actions.ClearSelectionAction;
 import com.willwinder.ugs.nbp.designer.actions.CopyAction;
-import com.willwinder.ugs.nbp.designer.actions.CreateGroupAction;
+import com.willwinder.ugs.nbp.designer.actions.GroupAction;
 import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
 import com.willwinder.ugs.nbp.designer.actions.FlipHorizontallyAction;
 import com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction;
@@ -55,7 +55,7 @@ public class PopupMenuFactory {
         popupMenu.add(new SelectAllAction());
         popupMenu.add(new ClearSelectionAction());
         popupMenu.add(new DeleteAction());
-        popupMenu.add(new CreateGroupAction());
+        popupMenu.add(new GroupAction());
         popupMenu.addSeparator();
         popupMenu.add(new CopyAction());
         popupMenu.add(new PasteAction());
