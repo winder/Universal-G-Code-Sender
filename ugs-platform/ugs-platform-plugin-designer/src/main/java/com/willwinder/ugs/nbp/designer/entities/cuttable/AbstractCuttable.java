@@ -140,4 +140,12 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         }
         return 1d - Math.max(Float.MIN_VALUE, getTargetDepth() / controller.getSettings().getStockThickness());
     }
+
+    protected void copyPropertiesTo(Cuttable copy) {
+        super.copyPropertiesTo(copy);
+        copy.setStartDepth(getStartDepth());
+        copy.setTargetDepth(getTargetDepth());
+        copy.setCutType(getCutType());
+        copy.setHidden(isHidden());
+    }
 }

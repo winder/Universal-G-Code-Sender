@@ -22,7 +22,6 @@ import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.Shape;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 
 public class Point extends AbstractCuttable {
@@ -72,11 +71,8 @@ public class Point extends AbstractCuttable {
 
     @Override
     public Entity copy() {
-        Point ellipse = new Point();
-        ellipse.setTransform(new AffineTransform(getTransform()));
-        ellipse.setStartDepth(getStartDepth());
-        ellipse.setTargetDepth(getTargetDepth());
-        ellipse.setCutType(getCutType());
-        return ellipse;
+        Point point = new Point();
+        copyPropertiesTo(point);
+        return point;
     }
 }

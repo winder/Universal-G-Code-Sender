@@ -145,7 +145,7 @@ public class Drawing extends JPanel {
         return result;
     }
 
-    public Entity getRootEntity() {
+    public EntityGroup getRootEntity() {
         return entitiesRoot;
     }
 

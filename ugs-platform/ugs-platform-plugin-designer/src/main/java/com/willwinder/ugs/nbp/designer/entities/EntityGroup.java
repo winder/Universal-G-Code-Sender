@@ -22,11 +22,17 @@ import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
-import java.awt.*;
-import java.awt.geom.*;
-import java.util.ArrayList;
+import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,13 +40,14 @@ import java.util.stream.Stream;
  * @author Joacim Breiler
  */
 public class EntityGroup extends AbstractEntity implements EntityListener {
-    private final List<Entity> children = Collections.synchronizedList(new ArrayList<>());
+    private final List<Entity> children;
 
     private double groupRotation = 0;
     private Point2D cachedCenter = new Point2D.Double(0, 0);
 
     public EntityGroup() {
         super();
+        children = new CopyOnWriteArrayList<>();
         setName("Group");
     }
 
@@ -97,12 +104,22 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         }
     }
 
-    public void addChild(Entity node) {
-        if (!containsChild(node)) {
-            children.add(node);
-            node.addListener(this);
+    public void addChild(Entity entity) {
+        if (!containsChild(entity)) {
+            children.add(entity);
+            entity.addListener(this);
             invalidateCenter();
         }
+    }
+
+    public void addChild(Entity entity, int index) {
+        if (children.size() < index) {
+            index = children.size();
+        }
+
+        children.add(index, entity);
+        entity.addListener(this);
+        invalidateCenter();
     }
 
     private void invalidateCenter() {
@@ -154,8 +171,43 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         invalidateCenter();
     }
 
+    /**
+     * Returns true if the entity is a direct child or a grand child.
+     *
+     * @param entity the entity to check
+     * @return true if a child or grand child
+     */
     public boolean containsChild(Entity entity) {
-        return children.contains(entity);
+        // Find any direct children
+        if (children.contains(entity)) {
+            return true;
+        }
+
+        // Find grand children
+        return children.stream()
+                .filter(EntityGroup.class::isInstance)
+                .map(EntityGroup.class::cast)
+                .anyMatch(e -> e.containsChild(entity));
+    }
+
+    /**
+     * Attempts to find the parent that contains the given entity.
+     *
+     * @param entity the child entity to find the parent for
+     * @return an optional with its parent if found
+     */
+    public Optional<EntityGroup> findParentFor(Entity entity) {
+        if (children.contains(entity)) {
+            return Optional.of(this);
+        }
+
+        return children.stream()
+                .filter(EntityGroup.class::isInstance)
+                .map(EntityGroup.class::cast)
+                .map(e -> e.findParentFor(entity))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
     }
 
     /**
@@ -224,6 +276,14 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     }
 
     @Override
+    public double getRotation() {
+        if (children.size() == 1) {
+            groupRotation = children.get(0).getRotation();
+        }
+        return Utils.normalizeRotation(groupRotation);
+    }
+
+    @Override
     public void setRotation(double rotation) {
         Point2D center = getCenter();
         double deltaRotation = rotation - getRotation();
@@ -233,14 +293,6 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         groupRotation += deltaRotation;
         notifyEvent(new EntityEvent(this, EventType.ROTATED));
         invalidateCenter();
-    }
-
-    @Override
-    public double getRotation() {
-        if (children.size() == 1) {
-            groupRotation = children.get(0).getRotation();
-        }
-        return Utils.normalizeRotation(groupRotation);
     }
 
     public final List<Entity> getAllChildren() {
@@ -282,6 +334,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     @Override
     public Entity copy() {
         EntityGroup group = new EntityGroup();
+        copyPropertiesTo(group);
         getChildren().stream().map(Entity::copy).forEach(group::addChild);
         return group;
     }

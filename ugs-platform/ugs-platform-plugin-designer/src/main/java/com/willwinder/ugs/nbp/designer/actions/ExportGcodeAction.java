@@ -23,6 +23,8 @@ import com.willwinder.ugs.nbp.designer.io.gcode.GcodeDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -48,14 +50,20 @@ public class ExportGcodeAction extends AbstractDesignAction {
     public void actionPerformed(ActionEvent e) {
         Optional<File> fileOptional = SwingHelpers.createFile("");
         if (fileOptional.isPresent()) {
-            String path = fileOptional.get().getAbsolutePath();
-            boolean hasGcodeFileEnding = path.endsWith(".gcode") || path.endsWith(".nc") || path.endsWith(".txt");
-            if (!hasGcodeFileEnding) {
-                path = path + ".gcode";
-            }
             Controller controller = ControllerFactory.getController();
             DesignWriter designWriter = new GcodeDesignWriter();
-            designWriter.write(new File(path), controller);
+            designWriter.write(new File(getFilePath(fileOptional.get())), controller);
         }
+    }
+
+    private static String getFilePath(File file) {
+        String path = file.getAbsolutePath();
+
+        // Add file extension if missing
+        String extension = FilenameUtils.getExtension(file.getName());
+        if (StringUtils.isEmpty(extension)) {
+            path = path + ".gcode";
+        }
+        return path;
     }
 }

@@ -1,8 +1,5 @@
 package com.willwinder.ugs.nbp.designer.entities.selection;
 
-import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.MoveControl;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -10,11 +7,11 @@ import com.willwinder.ugs.nbp.designer.model.Size;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class SelectionManagerTest {

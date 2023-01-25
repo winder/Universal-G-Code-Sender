@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 
 import java.util.List;
@@ -114,5 +115,13 @@ public class Group extends EntityGroup implements Cuttable {
                 ((Cuttable) child).setHidden(hidden);
             }
         });
+    }
+    @Override
+    public Entity copy() {
+        Group copy = new Group();
+        super.copyPropertiesTo(copy);
+        getChildren().stream().map(Entity::copy).forEach(copy::addChild);
+        copy.setHidden(isHidden());
+        return copy;
     }
 }
