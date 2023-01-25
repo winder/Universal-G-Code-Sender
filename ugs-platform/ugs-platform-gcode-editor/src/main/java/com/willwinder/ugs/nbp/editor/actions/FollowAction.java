@@ -27,21 +27,22 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import org.netbeans.api.editor.EditorActionRegistration;
-import org.netbeans.api.editor.EditorActionRegistrations;
 import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.mimelookup.MimePath;
+import org.netbeans.spi.editor.AbstractEditorAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionRegistration;
 import org.openide.awt.Actions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.actions.Presenter;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JToggleButton;
+import javax.swing.text.JTextComponent;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
+import java.util.Map;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
@@ -53,13 +54,7 @@ import java.util.prefs.Preferences;
  */
 @ActionID(category = LocalizingService.CATEGORY_PROGRAM, id = "FollowAction")
 @ActionRegistration(iconBase = FollowAction.ICON_BASE, displayName = "Follow", lazy = false)
-@EditorActionRegistration(
-        name = FollowAction.NAME,
-        toolBarPosition = 14,
-        mimeType = GcodeLanguageConfig.MIME_TYPE,
-        iconResource = FollowAction.ICON_BASE
-)
-public class FollowAction extends AbstractAction implements UGSEventListener, PreferenceChangeListener, Presenter.Toolbar {
+public class FollowAction extends AbstractEditorAction implements UGSEventListener, PreferenceChangeListener, Presenter.Toolbar {
     public static final String PREFERENCE_KEY = "follow-action";
     public static final String NAME = "follow-action";
     public static final String ICON_BASE = "icons/follow.svg";
@@ -72,6 +67,15 @@ public class FollowAction extends AbstractAction implements UGSEventListener, Pr
         putValue(Action.SHORT_DESCRIPTION, "Follow the running gcode");
         setEnabled(isEnabled());
         registerListeners();
+    }
+
+    @EditorActionRegistration(
+            name = FollowAction.NAME,
+            toolBarPosition = 14,
+            mimeType = GcodeLanguageConfig.MIME_TYPE,
+            iconResource = FollowAction.ICON_BASE)
+    public static FollowAction create(Map<String,?> attrs) {
+        return new FollowAction();
     }
 
     private void registerListeners() {
@@ -97,7 +101,7 @@ public class FollowAction extends AbstractAction implements UGSEventListener, Pr
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    protected void actionPerformed(ActionEvent evt, JTextComponent component) {
         Preferences preferences = MimeLookup.getLookup(MimePath.EMPTY).lookup(Preferences.class);
         boolean previousValue = preferences.getBoolean(PREFERENCE_KEY, false);
         preferences.putBoolean(PREFERENCE_KEY, !previousValue);
