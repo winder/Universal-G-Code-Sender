@@ -25,6 +25,7 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.text.JTextComponent;
+import java.awt.BorderLayout;
 
 /**
  * A hack to be able to get access to the JTextComponent in the
@@ -59,7 +60,7 @@ public class ConsoleProvider implements IOContainer.Provider {
 
     @Override
     public void add(JComponent comp, IOContainer.CallBacks cb) {
-        component.add(comp);
+        component.add(comp, BorderLayout.CENTER);
     }
 
     @Override

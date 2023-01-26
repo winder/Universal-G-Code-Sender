@@ -76,6 +76,7 @@ public final class ConsoleTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
+        removeAll();
         BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         consolePanel = new ConsolePanel(backendAPI);
         add(consolePanel, BorderLayout.CENTER);
