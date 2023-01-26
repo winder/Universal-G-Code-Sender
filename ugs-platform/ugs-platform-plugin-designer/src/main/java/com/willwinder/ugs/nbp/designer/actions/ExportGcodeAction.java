@@ -37,6 +37,7 @@ import java.util.Optional;
 public class ExportGcodeAction extends AbstractDesignAction {
     public static final String SMALL_ICON_PATH = "img/export.svg";
     public static final String LARGE_ICON_PATH = "img/export24.svg";
+    public static String lastDirectory = "";
 
     public ExportGcodeAction() {
         putValue("iconBase", SMALL_ICON_PATH);
@@ -48,11 +49,13 @@ public class ExportGcodeAction extends AbstractDesignAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Optional<File> fileOptional = SwingHelpers.createFile("");
+        Optional<File> fileOptional = SwingHelpers.createFile(lastDirectory);
         if (fileOptional.isPresent()) {
             Controller controller = ControllerFactory.getController();
+            File file = new File(getFilePath(fileOptional.get()));
+            lastDirectory = file.getAbsolutePath();
             DesignWriter designWriter = new GcodeDesignWriter();
-            designWriter.write(new File(getFilePath(fileOptional.get())), controller);
+            designWriter.write(file, controller);
         }
     }
 
