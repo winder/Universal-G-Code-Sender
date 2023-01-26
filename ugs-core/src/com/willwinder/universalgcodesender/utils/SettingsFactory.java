@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2020 Christian Moll, Will Winder, Bob Jones
+    Copyright 2013-2023 Christian Moll, Will Winder, Bob Jones
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import org.apache.commons.io.FileUtils;
 
@@ -60,7 +61,7 @@ public class SettingsFactory {
                     if (settings != null) {
                         settings.finalizeInitialization();
                     }
-                } catch (IOException ex) {
+                } catch (IOException | IllegalStateException | JsonSyntaxException ex) {
                     logger.log(Level.SEVERE, "Can't load settings, using defaults.", ex);
                 }
             }
