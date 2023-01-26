@@ -123,7 +123,7 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
         labelPort = new JLabel(Localization.getString("platform.plugin.setupwizard.port"));
 
         connectButton = new JButton(Localization.getString("platform.plugin.setupwizard.connect"));
-        connectButton.addActionListener((e) -> {
+        connectButton.addActionListener(e -> {
             try {
                 Settings settings = getBackend().getSettings();
                 getBackend().connect(settings.getFirmwareVersion(), settings.getPort(), Integer.parseInt(settings.getPortRate()));
@@ -135,7 +135,7 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
         labelVersion = new JLabel(Localization.getString("platform.plugin.setupwizard.unknown-version"));
         labelVersion.setVisible(false);
 
-        labelNotSupported = new JLabel(Localization.getString("platform.plugin.setupwizard.connection.not-supported"));
+        labelNotSupported = new JLabel("<html><body><p>" + Localization.getString("platform.plugin.setupwizard.connection.not-supported") + "</p></body></html>");
         labelNotSupported.setIcon(ImageUtilities.loadImageIcon("icons/information24.png", false));
         labelNotSupported.setVisible(false);
     }

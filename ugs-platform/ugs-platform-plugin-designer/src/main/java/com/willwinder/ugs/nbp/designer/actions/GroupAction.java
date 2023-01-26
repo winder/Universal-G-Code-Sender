@@ -6,6 +6,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.gui.DrawingEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import org.openide.awt.ActionID;
@@ -88,7 +89,7 @@ public class GroupAction extends AbstractDesignAction implements SelectionListen
             } else {
                 controller.getDrawing().insertEntity(group);
             }
-
+            controller.getDrawing().notifyListeners(DrawingEvent.ENTITY_ADDED);
             controller.getSelectionManager().setSelection(Collections.singletonList(group));
         }
 
@@ -104,7 +105,7 @@ public class GroupAction extends AbstractDesignAction implements SelectionListen
             } else {
                 controller.getDrawing().insertEntities(entities);
             }
-
+            controller.getDrawing().notifyListeners(DrawingEvent.ENTITY_ADDED);
             controller.getSelectionManager().setSelection(entities);
         }
 

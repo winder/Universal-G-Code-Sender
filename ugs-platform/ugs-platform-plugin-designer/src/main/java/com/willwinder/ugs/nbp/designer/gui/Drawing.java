@@ -129,14 +129,17 @@ public class Drawing extends JPanel {
 
     public void insertEntity(Entity entity) {
         entitiesRoot.addChild(entity);
-        listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_ADDED));
+        notifyListeners(DrawingEvent.ENTITY_ADDED);
+    }
+
+    public void notifyListeners(DrawingEvent event) {
+        listeners.forEach(l -> l.onDrawingEvent(event));
         refresh();
     }
 
     public void insertEntities(List<Entity> entities) {
         entities.forEach(entitiesRoot::addChild);
-        listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_ADDED));
-        refresh();
+        notifyListeners(DrawingEvent.ENTITY_ADDED);
     }
 
     public List<Entity> getEntities() {
@@ -212,8 +215,7 @@ public class Drawing extends JPanel {
         double newScale = Math.max(Math.abs(scale), MIN_SCALE);
         if (this.scale != newScale) {
             this.scale = newScale;
-            listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.SCALE_CHANGED));
-            refresh();
+            notifyListeners(DrawingEvent.SCALE_CHANGED);
         }
     }
 
