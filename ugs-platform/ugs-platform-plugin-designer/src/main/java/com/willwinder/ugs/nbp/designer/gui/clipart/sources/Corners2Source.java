@@ -24,7 +24,8 @@ import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSource;
 import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSourceException;
 import com.willwinder.ugs.nbp.designer.gui.clipart.FontClipart;
 
-import java.awt.*;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,18 +48,18 @@ public class Corners2Source implements ClipartSource {
             throw new ClipartSourceException("Could not load font", e);
         }
 
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "A"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "B"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "C"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "D"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "E"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "F"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "G"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font.deriveFont(font.getSize() * 0.8f), "H"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "I"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "J"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "K"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "L"));
+        cliparts.add(new FontClipart("Corner", Category.DECORATIONS, font, "A", this));
+        cliparts.add(new FontClipart("Corner with flowers 1", Category.DECORATIONS, font, "B", this));
+        cliparts.add(new FontClipart("Corner with fireworks", Category.DECORATIONS, font, "C", this));
+        cliparts.add(new FontClipart("Corner with star and banner", Category.DECORATIONS, font, "D", this));
+        cliparts.add(new FontClipart("Corner with star and leaves", Category.DECORATIONS, font, "E", this));
+        cliparts.add(new FontClipart("Corner with eagle", Category.DECORATIONS, font, "F", this));
+        cliparts.add(new FontClipart("Corner with bells", Category.DECORATIONS, font, "G", this));
+        cliparts.add(new FontClipart("Banner with heart and petals", Category.DECORATIONS, font.deriveFont(font.getSize() * 0.8f), "H", this));
+        cliparts.add(new FontClipart("Banner", Category.DECORATIONS, font, "I", this));
+        cliparts.add(new FontClipart("Corner with flowers 2", Category.DECORATIONS, font, "J", this));
+        cliparts.add(new FontClipart("Corner with fairy", Category.DECORATIONS, font, "K", this));
+        cliparts.add(new FontClipart("Corner with angel", Category.DECORATIONS, font, "L", this));
     }
 
     @Override
@@ -79,5 +80,10 @@ public class Corners2Source implements ClipartSource {
     @Override
     public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getLicense() {
+        return "Free for commercial use";
     }
 }

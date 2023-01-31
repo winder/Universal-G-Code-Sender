@@ -47,30 +47,30 @@ public class SealifeSource implements ClipartSource {
             throw new ClipartSourceException("Could not load font", e);
         }
 
-        cliparts.add(new FontClipart("turtle", Category.ANIMALS, font.deriveFont(font.getSize() * 0.7f), "A"));
-        cliparts.add(new FontClipart("decorations", Category.DECORATIONS, font, "B"));
-        cliparts.add(new FontClipart("decorations", Category.DECORATIONS, font.deriveFont(font.getSize() * 0.4f), "C"));
-        cliparts.add(new FontClipart("decorations", Category.DECORATIONS, font, "D"));
-        cliparts.add(new FontClipart("decorations", Category.DECORATIONS, font, "E"));
-        cliparts.add(new FontClipart("decorations", Category.DECORATIONS, font, "F"));
-        cliparts.add(new FontClipart("seahorse", Category.ANIMALS, font, "G"));
-        cliparts.add(new FontClipart("mythical 1", Category.MYTHICAL, font, "H"));
-        cliparts.add(new FontClipart("mythical 2", Category.MYTHICAL, font, "I"));
-        cliparts.add(new FontClipart("shrimp", Category.ANIMALS, font, "J"));
-        cliparts.add(new FontClipart("flower", Category.DECORATIONS, font.deriveFont(font.getSize() * 0.5f), "K"));
-        cliparts.add(new FontClipart("shell 1", Category.ANIMALS, font, "L"));
-        cliparts.add(new FontClipart("shell", Category.ANIMALS, font, "M"));
-        cliparts.add(new FontClipart("shell 1", Category.ANIMALS, font, "N"));
-        cliparts.add(new FontClipart("shell 1", Category.ANIMALS, font, "O"));
-        cliparts.add(new FontClipart("shell 1", Category.ANIMALS, font, "P"));
-        cliparts.add(new FontClipart("shell 1", Category.ANIMALS, font, "Q"));
-        cliparts.add(new FontClipart("octopus", Category.ANIMALS, font.deriveFont(font.getSize() * 0.9f), "R"));
-        cliparts.add(new FontClipart("lobster", Category.ANIMALS, font, "S"));
-        cliparts.add(new FontClipart("shrimp", Category.ANIMALS, font.deriveFont(font.getSize() * 0.8f), "T"));
-        cliparts.add(new FontClipart("crab", Category.ANIMALS, font.deriveFont(font.getSize() * 0.8f), "U"));
-        cliparts.add(new FontClipart("decorations", Category.DECORATIONS, font, "V"));
-        cliparts.add(new FontClipart("decorations", Category.DECORATIONS, font, "W"));
-        cliparts.add(new FontClipart("decorations", Category.DECORATIONS, font, "X"));
+        cliparts.add(new FontClipart("turtle", Category.ANIMALS, font.deriveFont(font.getSize() * 0.7f), "A", this));
+        cliparts.add(new FontClipart("decorations 1", Category.DECORATIONS, font, "B", this));
+        cliparts.add(new FontClipart("decorations 2", Category.DECORATIONS, font.deriveFont(font.getSize() * 0.4f), "C", this));
+        cliparts.add(new FontClipart("decorations 3", Category.DECORATIONS, font, "D", this));
+        cliparts.add(new FontClipart("decorations 4", Category.DECORATIONS, font, "E", this));
+        cliparts.add(new FontClipart("decorations 5", Category.DECORATIONS, font, "F", this));
+        cliparts.add(new FontClipart("seahorse", Category.ANIMALS, font, "G", this));
+        cliparts.add(new FontClipart("mythical 1", Category.MYTHICAL, font, "H", this));
+        cliparts.add(new FontClipart("mythical 2", Category.MYTHICAL, font, "I", this));
+        cliparts.add(new FontClipart("shrimp", Category.ANIMALS, font, "J", this));
+        cliparts.add(new FontClipart("flower", Category.DECORATIONS, font.deriveFont(font.getSize() * 0.5f), "K", this));
+        cliparts.add(new FontClipart("shell 1", Category.ANIMALS, font, "L", this));
+        cliparts.add(new FontClipart("shell 2", Category.ANIMALS, font, "M", this));
+        cliparts.add(new FontClipart("shell 3", Category.ANIMALS, font, "N", this));
+        cliparts.add(new FontClipart("shell 4", Category.ANIMALS, font, "O", this));
+        cliparts.add(new FontClipart("shell 5", Category.ANIMALS, font, "P", this));
+        cliparts.add(new FontClipart("shell 6", Category.ANIMALS, font, "Q", this));
+        cliparts.add(new FontClipart("octopus", Category.ANIMALS, font.deriveFont(font.getSize() * 0.9f), "R", this));
+        cliparts.add(new FontClipart("lobster", Category.ANIMALS, font, "S", this));
+        cliparts.add(new FontClipart("shrimp", Category.ANIMALS, font.deriveFont(font.getSize() * 0.8f), "T", this));
+        cliparts.add(new FontClipart("crab", Category.ANIMALS, font.deriveFont(font.getSize() * 0.8f), "U", this));
+        cliparts.add(new FontClipart("decorations 6", Category.DECORATIONS, font, "V", this));
+        cliparts.add(new FontClipart("decorations 7", Category.DECORATIONS, font, "W", this));
+        cliparts.add(new FontClipart("decorations 8", Category.DECORATIONS, font, "X", this));
     }
 
     @Override
@@ -91,5 +91,10 @@ public class SealifeSource implements ClipartSource {
     @Override
     public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getLicense() {
+        return "Free for commercial use";
     }
 }

@@ -47,31 +47,30 @@ public class YourSignSource implements ClipartSource {
             throw new ClipartSourceException("Could not load font", e);
         }
 
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "A"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "B"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "C"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "D"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "E"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "F"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "G"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "H"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "I"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "J"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "K"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "L"));
-
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "a"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "b"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "c"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "d"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "e"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "f"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "g"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "h"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "i"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "j"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "k"));
-        cliparts.add(new FontClipart("sign", Category.MYTHICAL, font, "l"));
+        cliparts.add(new FontClipart("Astrology - Aquarius 1", Category.MYTHICAL, font, "A", this));
+        cliparts.add(new FontClipart("Astrology - Pisces 1", Category.MYTHICAL, font, "B ", this));
+        cliparts.add(new FontClipart("Astrology - Aries 1", Category.MYTHICAL, font, "C ", this));
+        cliparts.add(new FontClipart("Astrology - Taurus 1", Category.MYTHICAL, font, "D ", this));
+        cliparts.add(new FontClipart("Astrology - Gemeni 1", Category.MYTHICAL, font, "E ", this));
+        cliparts.add(new FontClipart("Astrology - Cancer 1", Category.MYTHICAL, font, "F ", this));
+        cliparts.add(new FontClipart("Astrology - Leo 1", Category.MYTHICAL, font, "G ", this));
+        cliparts.add(new FontClipart("Astrology - Virgo 1", Category.MYTHICAL, font, "H ", this));
+        cliparts.add(new FontClipart("Astrology - Libra 1", Category.MYTHICAL, font, "I ", this));
+        cliparts.add(new FontClipart("Astrology - Scorpio 1", Category.MYTHICAL, font, "J ", this));
+        cliparts.add(new FontClipart("Astrology - Sagittarius 1", Category.MYTHICAL, font, "K ", this));
+        cliparts.add(new FontClipart("Astrology - Capricorn 1", Category.MYTHICAL, font, "L ", this));
+        cliparts.add(new FontClipart("Astrology - Aquarius 2", Category.MYTHICAL, font, "a ", this));
+        cliparts.add(new FontClipart("Astrology - Pisces 2", Category.MYTHICAL, font, "b ", this));
+        cliparts.add(new FontClipart("Astrology - Aries 2", Category.MYTHICAL, font, "c ", this));
+        cliparts.add(new FontClipart("Astrology - Taurus 2", Category.MYTHICAL, font, "d ", this));
+        cliparts.add(new FontClipart("Astrology - Gemeni 2", Category.MYTHICAL, font, "e ", this));
+        cliparts.add(new FontClipart("Astrology - Cancer 2", Category.MYTHICAL, font.deriveFont(font.getSize() * 0.7f), "f ", this));
+        cliparts.add(new FontClipart("Astrology - Leo 2", Category.MYTHICAL, font, "g ", this));
+        cliparts.add(new FontClipart("Astrology - Virgo 2", Category.MYTHICAL, font, "h ", this));
+        cliparts.add(new FontClipart("Astrology - Libra 2", Category.MYTHICAL, font, "i ", this));
+        cliparts.add(new FontClipart("Astrology - Scorpio 2", Category.MYTHICAL, font, "j ", this));
+        cliparts.add(new FontClipart("Astrology - Sagittarius 2", Category.MYTHICAL, font, "k ", this));
+        cliparts.add(new FontClipart("Astrology - Capricorn 2", Category.MYTHICAL, font, "l ", this));
     }
 
     @Override
@@ -92,5 +91,10 @@ public class YourSignSource implements ClipartSource {
     @Override
     public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getLicense() {
+        return "Free for commercial use";
     }
 }

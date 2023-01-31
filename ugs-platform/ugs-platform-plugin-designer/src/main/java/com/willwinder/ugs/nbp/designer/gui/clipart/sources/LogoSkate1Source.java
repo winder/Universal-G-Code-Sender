@@ -47,65 +47,64 @@ public class LogoSkate1Source implements ClipartSource {
             throw new ClipartSourceException("Could not load font", e);
         }
 
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "0"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "1"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "2"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "3"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "4"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "5"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "6"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "7"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "8"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "9"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "A"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "B"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "C"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "D"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "E"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "F"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "G"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "H"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "I"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "J"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "K"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "L"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "M"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "N"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "O"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "P"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "Q"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "R"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "S"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "T"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "U"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "V"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "W"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "X"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "Y"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "Z"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "a"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "b"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "c"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "d"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "e"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "f"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "g"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "h"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "i"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "j"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "k"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "l"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "m"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "n"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "o"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "p"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "q"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "r"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "s"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "t"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "u"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "v"));
-        cliparts.add(new FontClipart("sign", Category.LOGOS, font, "w"));
+        cliparts.add(new FontClipart("DC", Category.LOGOS, font, "0", this));
+        cliparts.add(new FontClipart("sign2", Category.LOGOS, font, "1", this));
+        cliparts.add(new FontClipart("sign3", Category.LOGOS, font, "2", this));
+        cliparts.add(new FontClipart("sign4", Category.LOGOS, font, "3", this));
+        cliparts.add(new FontClipart("sign5", Category.LOGOS, font, "4", this));
+        cliparts.add(new FontClipart("X games", Category.LOGOS, font, "5", this));
+        cliparts.add(new FontClipart("Royal", Category.LOGOS, font, "6", this));
+        cliparts.add(new FontClipart("Think", Category.LOGOS, font, "7", this));
+        cliparts.add(new FontClipart("Vans off the wall", Category.LOGOS, font, "8", this));
+        cliparts.add(new FontClipart("sign11", Category.LOGOS, font, "A", this));
+        cliparts.add(new FontClipart("Flip", Category.LOGOS, font, "B", this));
+        cliparts.add(new FontClipart("Osiris", Category.LOGOS, font, "C", this));
+        cliparts.add(new FontClipart("Independent Truck Company", Category.LOGOS, font, "D", this));
+        cliparts.add(new FontClipart("Adio", Category.LOGOS, font, "E", this));
+        cliparts.add(new FontClipart("Darkstar", Category.LOGOS, font, "F", this));
+        cliparts.add(new FontClipart("Globe", Category.LOGOS, font, "G", this));
+        cliparts.add(new FontClipart("Fallen", Category.LOGOS, font, "H", this));
+        cliparts.add(new FontClipart("Baker", Category.LOGOS, font, "I", this));
+        cliparts.add(new FontClipart("DVS", Category.LOGOS, font, "J", this));
+        cliparts.add(new FontClipart("Zero", Category.LOGOS, font, "K", this));
+        cliparts.add(new FontClipart("sign22", Category.LOGOS, font, "L", this));
+        cliparts.add(new FontClipart("sign23", Category.LOGOS, font, "M", this));
+        cliparts.add(new FontClipart("Adio", Category.LOGOS, font, "N", this));
+        cliparts.add(new FontClipart("Burton", Category.LOGOS, font, "O", this));
+        cliparts.add(new FontClipart("Mystery", Category.LOGOS, font, "P", this));
+        cliparts.add(new FontClipart("Shorty's", Category.LOGOS, font, "Q", this));
+        cliparts.add(new FontClipart("Ricta", Category.LOGOS, font, "R", this));
+        cliparts.add(new FontClipart("Santa Cruz", Category.LOGOS, font, "S", this));
+        cliparts.add(new FontClipart("Tensor", Category.LOGOS, font, "T", this));
+        cliparts.add(new FontClipart("Thrasher", Category.LOGOS, font, "U", this));
+        cliparts.add(new FontClipart("sign32", Category.LOGOS, font, "V", this));
+        cliparts.add(new FontClipart("Volcom", Category.LOGOS, font, "W", this));
+        cliparts.add(new FontClipart("sign34", Category.LOGOS, font, "X", this));
+        cliparts.add(new FontClipart("Toy machine", Category.LOGOS, font, "Y", this));
+        cliparts.add(new FontClipart("sign36", Category.LOGOS, font, "Z", this));
+        cliparts.add(new FontClipart("Vans", Category.LOGOS, font, "a", this));
+        cliparts.add(new FontClipart("sign38", Category.LOGOS, font, "b", this));
+        cliparts.add(new FontClipart("Sector 9", Category.LOGOS, font, "c", this));
+        cliparts.add(new FontClipart("Rip Curl", Category.LOGOS, font, "d", this));
+        cliparts.add(new FontClipart("sign41", Category.LOGOS, font, "e", this));
+        cliparts.add(new FontClipart("sign42", Category.LOGOS, font, "f", this));
+        cliparts.add(new FontClipart("Es", Category.LOGOS, font, "g", this));
+        cliparts.add(new FontClipart("Path", Category.LOGOS, font, "h", this));
+        cliparts.add(new FontClipart("Bones", Category.LOGOS, font, "i", this));
+        cliparts.add(new FontClipart("Termite", Category.LOGOS, font, "j", this));
+        cliparts.add(new FontClipart("sign47", Category.LOGOS, font, "k", this));
+        cliparts.add(new FontClipart("Supra", Category.LOGOS, font, "l", this));
+        cliparts.add(new FontClipart("Black label", Category.LOGOS, font, "m", this));
+        cliparts.add(new FontClipart("Billabong", Category.LOGOS, font, "n", this));
+        cliparts.add(new FontClipart("Hurley", Category.LOGOS, font, "o", this));
+        cliparts.add(new FontClipart("Chocolate", Category.LOGOS, font, "p", this));
+        cliparts.add(new FontClipart("Habitat", Category.LOGOS, font, "q", this));
+        cliparts.add(new FontClipart("sign54", Category.LOGOS, font, "r", this));
+        cliparts.add(new FontClipart("Gangsta", Category.LOGOS, font, "s", this));
+        cliparts.add(new FontClipart("sign56", Category.LOGOS, font, "t", this));
+        cliparts.add(new FontClipart("Old industries", Category.LOGOS, font, "u", this));
+        cliparts.add(new FontClipart("sign58", Category.LOGOS, font, "v", this));
+        cliparts.add(new FontClipart("Alien workshop", Category.LOGOS, font, "w", this));
     }
 
     @Override
@@ -126,5 +125,10 @@ public class LogoSkate1Source implements ClipartSource {
     @Override
     public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getLicense() {
+        return "Free for commercial use";
     }
 }

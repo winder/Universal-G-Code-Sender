@@ -47,16 +47,16 @@ public class DestinysBordersSource implements ClipartSource {
             throw new ClipartSourceException("Could not load font", e);
         }
 
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "A"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "B"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "C"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "D"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "E"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "F"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "G"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "H"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "I"));
-        cliparts.add(new FontClipart("sign", Category.DECORATIONS, font, "J"));
+        cliparts.add(new FontClipart("sign1", Category.DECORATIONS, font, "A", this));
+        cliparts.add(new FontClipart("sign2", Category.DECORATIONS, font, "B", this));
+        cliparts.add(new FontClipart("sign3", Category.DECORATIONS, font, "C", this));
+        cliparts.add(new FontClipart("sign4", Category.DECORATIONS, font, "D", this));
+        cliparts.add(new FontClipart("sign5", Category.DECORATIONS, font, "E", this));
+        cliparts.add(new FontClipart("sign6", Category.DECORATIONS, font, "F", this));
+        cliparts.add(new FontClipart("sign7", Category.DECORATIONS, font, "G", this));
+        cliparts.add(new FontClipart("sign8", Category.DECORATIONS, font, "H", this));
+        cliparts.add(new FontClipart("sign9", Category.DECORATIONS, font, "I", this));
+        cliparts.add(new FontClipart("sign10", Category.DECORATIONS, font, "J", this));
     }
 
     @Override
@@ -77,5 +77,10 @@ public class DestinysBordersSource implements ClipartSource {
     @Override
     public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getLicense() {
+        return "Free for commercial use";
     }
 }

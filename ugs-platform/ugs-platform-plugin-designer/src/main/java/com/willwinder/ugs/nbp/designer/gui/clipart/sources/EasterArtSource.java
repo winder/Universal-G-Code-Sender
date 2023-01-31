@@ -46,56 +46,55 @@ public class EasterArtSource implements ClipartSource {
         } catch (IOException | FontFormatException e) {
             throw new ClipartSourceException("Could not load font", e);
         }
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "A"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "B"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "C"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "D"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "E"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "F"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "G"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "H"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "I"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "J"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "K"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font.deriveFont(font.getSize() * 0.6f), "L"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "M"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "N"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "O"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "P"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "Q"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "R"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "S"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "T"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "U"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "V"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "W"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "X"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "Y"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "Z"));
-
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "a"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "b"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "c"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "d"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "e"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "f"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "g"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "h"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "i"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "j"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font.deriveFont(font.getSize() * 0.8f), "k"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "l"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "m"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "n"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "o"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "p"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "q"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "r"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "s"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "t"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "u"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "v"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "w"));
+        cliparts.add(new FontClipart("Easter egg 1", Category.HOLIDAY, font, "A", this));
+        cliparts.add(new FontClipart("Easter egg 2", Category.HOLIDAY, font, "J", this));
+        cliparts.add(new FontClipart("Easter egg 4", Category.HOLIDAY, font, "M", this));
+        cliparts.add(new FontClipart("Easter egg 5", Category.HOLIDAY, font, "g", this));
+        cliparts.add(new FontClipart("Easter egg 6", Category.HOLIDAY, font, "h", this));
+        cliparts.add(new FontClipart("Easter egg 7", Category.HOLIDAY, font, "i", this));
+        cliparts.add(new FontClipart("Easter egg 8", Category.HOLIDAY, font, "j", this));
+        cliparts.add(new FontClipart("Easter egg 11", Category.HOLIDAY, font, "f", this));
+        cliparts.add(new FontClipart("Easter egg 12", Category.HOLIDAY, font, "p", this));
+        cliparts.add(new FontClipart("Easter egg 13", Category.HOLIDAY, font, "q", this));
+        cliparts.add(new FontClipart("Easter egg 14", Category.HOLIDAY, font, "r", this));
+        cliparts.add(new FontClipart("Easter eggs 1", Category.HOLIDAY, font.deriveFont(font.getSize() * 0.6f), "L", this));
+        cliparts.add(new FontClipart("Easter eggs 2", Category.HOLIDAY, font.deriveFont(font.getSize() * 0.8f), "k", this));
+        cliparts.add(new FontClipart("Easter eggs 3", Category.HOLIDAY, font, "l", this));
+        cliparts.add(new FontClipart("Easter basket 3", Category.HOLIDAY, font, "P", this));
+        cliparts.add(new FontClipart("Easter eggs 4", Category.HOLIDAY, font, "e", this));
+        cliparts.add(new FontClipart("Easter bunny 4", Category.HOLIDAY, font, "Q", this));
+        cliparts.add(new FontClipart("Easter basket 1", Category.HOLIDAY, font, "R", this));
+        cliparts.add(new FontClipart("Easter basket 2", Category.HOLIDAY, font, "S", this));
+        cliparts.add(new FontClipart("Easter basket 3", Category.HOLIDAY, font, "v", this));
+        cliparts.add(new FontClipart("Easter basket 4", Category.HOLIDAY, font, "m", this));
+        cliparts.add(new FontClipart("Bunny 1", Category.ANIMALS, font, "V", this));
+        cliparts.add(new FontClipart("Bunny 3", Category.ANIMALS, font, "C", this));
+        cliparts.add(new FontClipart("Bunny 7", Category.ANIMALS, font, "n", this));
+        cliparts.add(new FontClipart("Bunny 8", Category.ANIMALS, font, "o", this));
+        cliparts.add(new FontClipart("Bunny 9", Category.ANIMALS, font, "w", this));
+        cliparts.add(new FontClipart("Easter bunny 1", Category.HOLIDAY, font, "K", this));
+        cliparts.add(new FontClipart("Easter bunny 2", Category.HOLIDAY, font, "N", this));
+        cliparts.add(new FontClipart("Easter bunny 3", Category.HOLIDAY, font, "O", this));
+        cliparts.add(new FontClipart("Easter bunny 4", Category.HOLIDAY, font, "T", this));
+        cliparts.add(new FontClipart("Easter bunny 5", Category.HOLIDAY, font, "U", this));
+        cliparts.add(new FontClipart("Easter bunny 6", Category.HOLIDAY, font, "X", this));
+        cliparts.add(new FontClipart("Easter bunny 7", Category.HOLIDAY, font, "Y", this));
+        cliparts.add(new FontClipart("Easter bunny 8", Category.HOLIDAY, font, "Z", this));
+        cliparts.add(new FontClipart("Easter bunny 9", Category.HOLIDAY, font, "a", this));
+        cliparts.add(new FontClipart("Easter bunny 10", Category.HOLIDAY, font, "c", this));
+        cliparts.add(new FontClipart("Easter bunny 11", Category.HOLIDAY, font, "d", this));
+        cliparts.add(new FontClipart("Easter bunny 12", Category.HOLIDAY, font, "s", this));
+        cliparts.add(new FontClipart("Easter bunny 13", Category.HOLIDAY, font, "t", this));
+        cliparts.add(new FontClipart("Easter bunny 14", Category.HOLIDAY, font, "E", this));
+        cliparts.add(new FontClipart("Easter bunny 15", Category.HOLIDAY, font, "F", this));
+        cliparts.add(new FontClipart("Easter bunny 16", Category.HOLIDAY, font, "G", this));
+        cliparts.add(new FontClipart("Easter bunny 17", Category.HOLIDAY, font, "H", this));
+        cliparts.add(new FontClipart("Easter bunny 18", Category.HOLIDAY, font, "I", this));
+        cliparts.add(new FontClipart("Easter bunny 19", Category.HOLIDAY, font, "B", this));
+        cliparts.add(new FontClipart("Easter Bunny 20", Category.HOLIDAY, font, "W", this));
+        cliparts.add(new FontClipart("Easter Bunny 21", Category.HOLIDAY, font, "b", this));
+        cliparts.add(new FontClipart("Easter Bunny 22", Category.HOLIDAY, font, "D", this));
+        cliparts.add(new FontClipart("Easter chickens 1", Category.HOLIDAY, font, "u", this));
     }
 
     @Override
@@ -116,5 +115,10 @@ public class EasterArtSource implements ClipartSource {
     @Override
     public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getLicense() {
+        return "Free for commercial use";
     }
 }

@@ -1,5 +1,5 @@
 /*
-    Copyright 2022 Will Winder
+    Copyright 2022-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,7 +21,7 @@ package com.willwinder.ugs.nbp.designer.gui.clipart;
 import java.util.List;
 
 /**
- * A clipart source for providing cliparts shapes in a category.
+ * A clipart source for providing clipart shapes in a category.
  *
  * @author Joacim Breiler
  */
@@ -35,4 +35,6 @@ public interface ClipartSource {
     String getUrl();
 
     List<Clipart> getCliparts(Category category);
+
+    String getLicense();
 }

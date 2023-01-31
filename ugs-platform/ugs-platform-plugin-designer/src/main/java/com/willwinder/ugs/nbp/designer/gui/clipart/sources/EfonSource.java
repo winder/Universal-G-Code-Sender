@@ -24,7 +24,8 @@ import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSource;
 import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSourceException;
 import com.willwinder.ugs.nbp.designer.gui.clipart.FontClipart;
 
-import java.awt.*;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,49 +48,49 @@ public class EfonSource implements ClipartSource {
             throw new ClipartSourceException("Could not load font", e);
         }
 
-        cliparts.add(new FontClipart("flower", Category.PLANTS, font, "\""));
-        cliparts.add(new FontClipart("petals 1", Category.PLANTS, font, "!"));
-        cliparts.add(new FontClipart("petals 2", Category.PLANTS, font, "#"));
-        cliparts.add(new FontClipart("petals 3", Category.PLANTS, font, "$"));
-        cliparts.add(new FontClipart("plant", Category.PLANTS, font, ")"));
-        cliparts.add(new FontClipart("leaf 1", Category.PLANTS, font, ":"));
-        cliparts.add(new FontClipart("leaf 2", Category.PLANTS, font, "["));
-        cliparts.add(new FontClipart("cactus", Category.PLANTS, font, "@"));
-        cliparts.add(new FontClipart("mouse 3", Category.ANIMALS, font, "^"));
-        cliparts.add(new FontClipart("rabbit", Category.ANIMALS, font, "_"));
-        cliparts.add(new FontClipart("crab", Category.ANIMALS, font, "~"));
-        cliparts.add(new FontClipart("bread", Category.FOOD, font, "+"));
-        cliparts.add(new FontClipart("carrot", Category.FOOD, font, ","));
-        cliparts.add(new FontClipart("strawberry", Category.FOOD, font, "<"));
-        cliparts.add(new FontClipart("frog", Category.ANIMALS, font, "'"));
-        cliparts.add(new FontClipart("hamster", Category.ANIMALS, font, "*"));
-        cliparts.add(new FontClipart("fish 1", Category.ANIMALS, font, "3"));
-        cliparts.add(new FontClipart("polliwog", Category.ANIMALS, font, "A"));
-        cliparts.add(new FontClipart("egg", Category.FOOD, font, "B"));
-        cliparts.add(new FontClipart("fox", Category.ANIMALS, font, "D"));
-        cliparts.add(new FontClipart("telephone", Category.ELECTRONICS, font, "F"));
-        cliparts.add(new FontClipart("tram", Category.TRANSPORTATION, font, "G"));
-        cliparts.add(new FontClipart("bus", Category.TRANSPORTATION, font, "H"));
-        cliparts.add(new FontClipart("car", Category.TRANSPORTATION, font, "I"));
-        cliparts.add(new FontClipart("umbrella", Category.WEATHER, font, "N"));
-        cliparts.add(new FontClipart("plane", Category.TRANSPORTATION, font, "L"));
-        cliparts.add(new FontClipart("sun", Category.WEATHER, font, "M"));
-        cliparts.add(new FontClipart("cat", Category.ANIMALS, font, "P"));
-        cliparts.add(new FontClipart("cat angry", Category.ANIMALS, font, "P"));
-        cliparts.add(new FontClipart("octopus", Category.ANIMALS, font, "Q"));
-        cliparts.add(new FontClipart("fish 2", Category.ANIMALS, font, "S"));
-        cliparts.add(new FontClipart("ant", Category.ANIMALS, font, "T"));
-        cliparts.add(new FontClipart("duck", Category.ANIMALS, font, "U"));
-        cliparts.add(new FontClipart("duckling", Category.ANIMALS, font, "V"));
-        cliparts.add(new FontClipart("mouse 1", Category.ANIMALS, font, "X"));
-        cliparts.add(new FontClipart("mouse 2", Category.ANIMALS, font, "Y"));
-        cliparts.add(new FontClipart("ghost", Category.ANIMALS, font, "Z"));
-        cliparts.add(new FontClipart("robot", Category.ELECTRONICS, font, "x"));
-        cliparts.add(new FontClipart("moon", Category.WEATHER, font, "e"));
-        cliparts.add(new FontClipart("cellphone", Category.ELECTRONICS, font, "f"));
-        cliparts.add(new FontClipart("television", Category.ELECTRONICS, font, "h"));
-        cliparts.add(new FontClipart("coffey", Category.FOOD, font, "r"));
-        cliparts.add(new FontClipart("rain", Category.WEATHER, font, "n"));
+        cliparts.add(new FontClipart("Flower", Category.PLANTS, font, "\"", this));
+        cliparts.add(new FontClipart("Petals 1", Category.PLANTS, font, "!", this));
+        cliparts.add(new FontClipart("Petals 2", Category.PLANTS, font, "#", this));
+        cliparts.add(new FontClipart("Petals 3", Category.PLANTS, font, "$", this));
+        cliparts.add(new FontClipart("Plant", Category.PLANTS, font, ")", this));
+        cliparts.add(new FontClipart("Leaf 1", Category.PLANTS, font, ":", this));
+        cliparts.add(new FontClipart("Leaf 2", Category.PLANTS, font, "[", this));
+        cliparts.add(new FontClipart("Cactus", Category.PLANTS, font, "@", this));
+        cliparts.add(new FontClipart("Mouse 3", Category.ANIMALS, font, "^", this));
+        cliparts.add(new FontClipart("Rabbit", Category.ANIMALS, font, "_", this));
+        cliparts.add(new FontClipart("Crab", Category.ANIMALS, font, "~", this));
+        cliparts.add(new FontClipart("Bread", Category.FOOD, font, "+", this));
+        cliparts.add(new FontClipart("Carrot", Category.FOOD, font, ",", this));
+        cliparts.add(new FontClipart("Strawberry", Category.FOOD, font, "<", this));
+        cliparts.add(new FontClipart("Frog", Category.ANIMALS, font, "'", this));
+        cliparts.add(new FontClipart("Hamster", Category.ANIMALS, font, "*", this));
+        cliparts.add(new FontClipart("Fish 1", Category.ANIMALS, font, "3", this));
+        cliparts.add(new FontClipart("Polliwog", Category.ANIMALS, font, "A", this));
+        cliparts.add(new FontClipart("Egg", Category.FOOD, font, "B", this));
+        cliparts.add(new FontClipart("Fox", Category.ANIMALS, font, "D", this));
+        cliparts.add(new FontClipart("Telephone", Category.ELECTRONICS, font, "F", this));
+        cliparts.add(new FontClipart("Tram", Category.TRANSPORTATION, font, "G", this));
+        cliparts.add(new FontClipart("Bus", Category.TRANSPORTATION, font, "H", this));
+        cliparts.add(new FontClipart("Car", Category.TRANSPORTATION, font, "I", this));
+        cliparts.add(new FontClipart("Umbrella", Category.WEATHER, font, "N", this));
+        cliparts.add(new FontClipart("Plane", Category.TRANSPORTATION, font, "L", this));
+        cliparts.add(new FontClipart("Sun", Category.WEATHER, font, "M", this));
+        cliparts.add(new FontClipart("Cat", Category.ANIMALS, font, "P", this));
+        cliparts.add(new FontClipart("Cat angry", Category.ANIMALS, font, "P", this));
+        cliparts.add(new FontClipart("Octopus", Category.ANIMALS, font, "Q", this));
+        cliparts.add(new FontClipart("Fish 2", Category.ANIMALS, font, "S", this));
+        cliparts.add(new FontClipart("Ant", Category.ANIMALS, font, "T", this));
+        cliparts.add(new FontClipart("Duck", Category.ANIMALS, font, "U", this));
+        cliparts.add(new FontClipart("Duckling", Category.ANIMALS, font, "V", this));
+        cliparts.add(new FontClipart("Mouse 1", Category.ANIMALS, font, "X", this));
+        cliparts.add(new FontClipart("Mouse 2", Category.ANIMALS, font, "Y", this));
+        cliparts.add(new FontClipart("Ghost", Category.MYTHICAL, font, "Z", this));
+        cliparts.add(new FontClipart("Robot", Category.ELECTRONICS, font, "x", this));
+        cliparts.add(new FontClipart("Moon", Category.WEATHER, font, "e", this));
+        cliparts.add(new FontClipart("Cellphone", Category.ELECTRONICS, font, "f", this));
+        cliparts.add(new FontClipart("Television", Category.ELECTRONICS, font, "h", this));
+        cliparts.add(new FontClipart("Coffey", Category.FOOD, font, "r", this));
+        cliparts.add(new FontClipart("Rain", Category.WEATHER, font, "n", this));
     }
 
     @Override
@@ -110,5 +111,10 @@ public class EfonSource implements ClipartSource {
     @Override
     public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getLicense() {
+        return "Free for commercial use";
     }
 }
