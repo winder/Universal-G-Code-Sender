@@ -216,12 +216,12 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     @Override
     public void onJogButtonLongPressed(JogPanelButtonEnum button) {
         if (backend.getController().getCapabilities().hasContinuousJogging()) {
+            // set flag so when we release the long press we don't add
+            // an extra jog step through the click event
             ignoreLongClick = true;
+
             continuousJogWorker.setDirection(button.getX(), button.getY(), button.getZ(), button.getA(), button.getB(), button.getC());
             continuousJogWorker.start();
-
-            // set flag so when we release the long press we don't add 
-            // an extra jog step through the click event
         }
     }
 
