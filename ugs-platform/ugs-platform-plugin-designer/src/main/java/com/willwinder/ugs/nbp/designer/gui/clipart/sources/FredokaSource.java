@@ -47,38 +47,38 @@ public class FredokaSource implements ClipartSource {
             throw new ClipartSourceException("Could not load font", e);
         }
 
-        cliparts.add(new FontClipart("elephant", Category.ANIMALS, font, "\u0061"));
-        cliparts.add(new FontClipart("bird", Category.ANIMALS, font, "\u0062"));
-        cliparts.add(new FontClipart("fish", Category.ANIMALS, font, "\u0063"));
-        cliparts.add(new FontClipart("owl", Category.ANIMALS, font, "\u0064"));
-        cliparts.add(new FontClipart("cat", Category.ANIMALS, font, "\u0065"));
-        cliparts.add(new FontClipart("butterfly", Category.ANIMALS, font, "\u0066"));
-        cliparts.add(new FontClipart("rabbit", Category.ANIMALS, font, "\u0067"));
-        cliparts.add(new FontClipart("fishbowl", Category.ANIMALS, font, "\u0068"));
-        cliparts.add(new FontClipart("mouse", Category.ANIMALS, font, "\u0069"));
-        cliparts.add(new FontClipart("ornament-left", Category.DECORATIONS, font, "\u0028"));
-        cliparts.add(new FontClipart("ornament-right", Category.DECORATIONS, font, "\u0029"));
-        cliparts.add(new FontClipart("ornament-1", Category.DECORATIONS, font, "\u0031"));
-        cliparts.add(new FontClipart("ornament-2", Category.DECORATIONS, font, "\u0032"));
-        cliparts.add(new FontClipart("ornament-3", Category.DECORATIONS, font, "\u0033"));
-        cliparts.add(new FontClipart("ornament-4", Category.DECORATIONS, font, "\u0034"));
-        cliparts.add(new FontClipart("ornament-5", Category.DECORATIONS, font, "\u0035"));
-        cliparts.add(new FontClipart("heart", Category.DECORATIONS, font, "\u0036"));
-        cliparts.add(new FontClipart("ornament-7", Category.DECORATIONS, font, "\u0038"));
-        cliparts.add(new FontClipart("ornament-8", Category.DECORATIONS, font, "\u0039"));
-        cliparts.add(new FontClipart("ornament-9", Category.DECORATIONS, font, "\u003C"));
-        cliparts.add(new FontClipart("flower-1", Category.DECORATIONS, font, "\u0041"));
-        cliparts.add(new FontClipart("flower-2", Category.DECORATIONS, font, "\u0042"));
-        cliparts.add(new FontClipart("flower-3", Category.DECORATIONS, font, "\u0043"));
-        cliparts.add(new FontClipart("leaf", Category.DECORATIONS, font, "\u0044"));
-        cliparts.add(new FontClipart("barley", Category.DECORATIONS, font, "\u0045"));
-        cliparts.add(new FontClipart("rye", Category.DECORATIONS, font, "\u0046"));
-        cliparts.add(new FontClipart("yinyang", Category.DECORATIONS, font, "\u0048"));
-        cliparts.add(new FontClipart("knot", Category.DECORATIONS, font, "\u004B"));
-        cliparts.add(new FontClipart("flower", Category.DECORATIONS, font, "\u0054"));
-        cliparts.add(new FontClipart("old-phone", Category.DECORATIONS, font, "\u004A"));
-        cliparts.add(new FontClipart("cellphone", Category.DECORATIONS, font, "\u0051"));
-        cliparts.add(new FontClipart("tv", Category.DECORATIONS, font, "\u0052"));
+        cliparts.add(new FontClipart("Elephant", Category.ANIMALS, font, "\u0061", this));
+        cliparts.add(new FontClipart("Bird", Category.ANIMALS, font, "\u0062", this));
+        cliparts.add(new FontClipart("Fish", Category.ANIMALS, font, "\u0063", this));
+        cliparts.add(new FontClipart("Owl", Category.ANIMALS, font, "\u0064", this));
+        cliparts.add(new FontClipart("Cat", Category.ANIMALS, font, "\u0065", this));
+        cliparts.add(new FontClipart("Butterfly", Category.ANIMALS, font, "\u0066", this));
+        cliparts.add(new FontClipart("Rabbit", Category.ANIMALS, font, "\u0067", this));
+        cliparts.add(new FontClipart("Fishbowl", Category.ANIMALS, font, "\u0068", this));
+        cliparts.add(new FontClipart("Mouse", Category.ANIMALS, font, "\u0069", this));
+        cliparts.add(new FontClipart("Ornament-left", Category.DECORATIONS, font, "\u0028", this));
+        cliparts.add(new FontClipart("Ornament-right", Category.DECORATIONS, font, "\u0029", this));
+        cliparts.add(new FontClipart("Ornament-1", Category.DECORATIONS, font, "\u0031", this));
+        cliparts.add(new FontClipart("Ornament-2", Category.DECORATIONS, font, "\u0032", this));
+        cliparts.add(new FontClipart("Ornament-3", Category.DECORATIONS, font, "\u0033", this));
+        cliparts.add(new FontClipart("Ornament-4", Category.DECORATIONS, font, "\u0034", this));
+        cliparts.add(new FontClipart("Ornament-5", Category.DECORATIONS, font, "\u0035", this));
+        cliparts.add(new FontClipart("Heart", Category.DECORATIONS, font, "\u0036", this));
+        cliparts.add(new FontClipart("Ornament-7", Category.DECORATIONS, font, "\u0038", this));
+        cliparts.add(new FontClipart("Ornament-8", Category.DECORATIONS, font, "\u0039", this));
+        cliparts.add(new FontClipart("Ornament-9", Category.DECORATIONS, font, "\u003C", this));
+        cliparts.add(new FontClipart("Flower-1", Category.PLANTS, font, "\u0041", this));
+        cliparts.add(new FontClipart("Flower-2", Category.PLANTS, font, "\u0042", this));
+        cliparts.add(new FontClipart("Flower-3", Category.PLANTS, font, "\u0043", this));
+        cliparts.add(new FontClipart("Leaf", Category.PLANTS, font, "\u0044", this));
+        cliparts.add(new FontClipart("Barley", Category.PLANTS, font, "\u0045", this));
+        cliparts.add(new FontClipart("Rye", Category.PLANTS, font, "\u0046", this));
+        cliparts.add(new FontClipart("Yin Yang", Category.SIGNS_AND_SYMBOLS, font, "\u0048", this));
+        cliparts.add(new FontClipart("Knot", Category.DECORATIONS, font, "\u004B", this));
+        cliparts.add(new FontClipart("Flower", Category.DECORATIONS, font, "\u0054", this));
+        cliparts.add(new FontClipart("Old-phone", Category.ELECTRONICS, font, "\u004A", this));
+        cliparts.add(new FontClipart("Cellphone", Category.ELECTRONICS, font, "\u0051", this));
+        cliparts.add(new FontClipart("TV", Category.ELECTRONICS, font, "\u0052", this));
     }
 
     @Override
@@ -99,5 +99,10 @@ public class FredokaSource implements ClipartSource {
     @Override
     public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getLicense() {
+        return "Free for commercial use";
     }
 }

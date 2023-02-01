@@ -47,43 +47,43 @@ public class XmasSource implements ClipartSource {
             throw new ClipartSourceException("Could not load font", e);
         }
 
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "A"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "B"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "C"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "D"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "E"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "F"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "G"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "H"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "I"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "J"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font.deriveFont(font.getSize() * 0.8f), "K"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "L"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "M"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "N"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "O"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "P"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "Q"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "R"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "S"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "T"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "U"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font.deriveFont(font.getSize() * 0.8f), "V"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "W"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "X"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "Y"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "Z"));
+        cliparts.add(new FontClipart("Christmas Candy Cane 1", Category.HOLIDAY, font, "A", this));
+        cliparts.add(new FontClipart("Present 1", Category.HOLIDAY, font, "B", this));
+        cliparts.add(new FontClipart("Christmas Santa 1", Category.HOLIDAY, font, "C", this));
+        cliparts.add(new FontClipart("Christmas bells", Category.HOLIDAY, font, "D", this));
+        cliparts.add(new FontClipart("Christmas ornament 2", Category.HOLIDAY, font, "E", this));
+        cliparts.add(new FontClipart("Snow man 1", Category.HOLIDAY, font, "F", this));
+        cliparts.add(new FontClipart("Snow man 2", Category.HOLIDAY, font, "G", this));
+        cliparts.add(new FontClipart("Present 2", Category.HOLIDAY, font, "H", this));
+        cliparts.add(new FontClipart("Candle 1", Category.HOLIDAY, font, "I", this));
+        cliparts.add(new FontClipart("Present 3", Category.HOLIDAY, font, "J", this));
+        cliparts.add(new FontClipart("Christmas Sled 1", Category.HOLIDAY, font.deriveFont(font.getSize() * 0.8f), "K", this));
+        cliparts.add(new FontClipart("Christmas Santa 3", Category.HOLIDAY, font, "L", this));
+        cliparts.add(new FontClipart("Christmas Sled 2", Category.HOLIDAY, font, "M", this));
+        cliparts.add(new FontClipart("Christmas ball 1", Category.HOLIDAY, font, "N", this));
+        cliparts.add(new FontClipart("Snow man 3", Category.HOLIDAY, font, "O", this));
+        cliparts.add(new FontClipart("Christmas tree 1", Category.HOLIDAY, font, "P", this));
+        cliparts.add(new FontClipart("Christmas Santa 4", Category.HOLIDAY, font, "Q", this));
+        cliparts.add(new FontClipart("Reindeer", Category.ANIMALS, font, "R", this));
+        cliparts.add(new FontClipart("Christmas ornament 1", Category.HOLIDAY, font, "S", this));
+        cliparts.add(new FontClipart("Christmas Santa 5", Category.HOLIDAY, font, "T", this));
+        cliparts.add(new FontClipart("Christmas Santa 6", Category.HOLIDAY, font, "U", this));
+        cliparts.add(new FontClipart("Christmas Elves", Category.HOLIDAY, font.deriveFont(font.getSize() * 0.8f), "V", this));
+        cliparts.add(new FontClipart("Christmas ornament 3", Category.HOLIDAY, font, "W", this));
+        cliparts.add(new FontClipart("Christmas Santa 7", Category.HOLIDAY, font, "X", this));
+        cliparts.add(new FontClipart("Christmas Santa 8", Category.HOLIDAY, font, "Y", this));
+        cliparts.add(new FontClipart("Christmas Santa 9", Category.HOLIDAY, font, "Z", this));
 
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "a"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "b"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "c"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "d"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "e"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "f"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "g"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "h"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font.deriveFont(font.getSize() * 0.8f), "i"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "j"));
+        cliparts.add(new FontClipart("Christmas Santa 10", Category.HOLIDAY, font, "a", this));
+        cliparts.add(new FontClipart("Christmas sock 2", Category.HOLIDAY, font, "b", this));
+        cliparts.add(new FontClipart("Christmas Santa 11", Category.HOLIDAY, font, "c", this));
+        cliparts.add(new FontClipart("Christmas Santa 12", Category.HOLIDAY, font, "d", this));
+        cliparts.add(new FontClipart("Snowman 4", Category.HOLIDAY, font, "e", this));
+        cliparts.add(new FontClipart("Christmas North pole", Category.HOLIDAY, font, "f", this));
+        cliparts.add(new FontClipart("Christmas Santa 14", Category.HOLIDAY, font, "g", this));
+        cliparts.add(new FontClipart("Christmas Santa 15", Category.HOLIDAY, font, "h", this));
+        cliparts.add(new FontClipart("Christmas Sled 3", Category.HOLIDAY, font.deriveFont(font.getSize() * 0.8f), "i", this));
+        cliparts.add(new FontClipart("Christmas sock 1", Category.HOLIDAY, font, "j", this));
     }
 
     @Override
@@ -98,11 +98,16 @@ public class XmasSource implements ClipartSource {
 
     @Override
     public String getUrl() {
-        return "https://www.fontspace.com/xmas-clipart-2-font-f4270s";
+        return "https://www.fontspace.com/xmas-clipart-2-font-f4270";
     }
 
     @Override
     public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getLicense() {
+        return "Free for commercial use";
     }
 }

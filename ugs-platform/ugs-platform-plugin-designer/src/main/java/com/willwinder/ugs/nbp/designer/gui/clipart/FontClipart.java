@@ -39,16 +39,19 @@ public class FontClipart implements Clipart {
     private final String name;
     private final String text;
     private final Font font;
+    private final ClipartSource source;
 
-    public FontClipart(String name, Category category, Font font, String text) {
+    public FontClipart(String name, Category category, Font font, String text, ClipartSource source) {
         this.name = name;
         this.category = category;
         this.text = text;
+        this.font = font;
+        this.source = source;
+
         label = new JLabel(text);
         label.setFont(font);
         label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setForeground(ThemeColors.VERY_DARK_GREY);
-        this.font = font;
     }
 
     @Override
@@ -87,5 +90,9 @@ public class FontClipart implements Clipart {
                 ", text='" + text + '\'' +
                 ", font=" + font +
                 '}';
+    }
+
+    public ClipartSource getSource() {
+        return source;
     }
 }

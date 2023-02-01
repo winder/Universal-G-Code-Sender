@@ -46,21 +46,21 @@ public class InsertClipartDialog extends JDialog implements ListSelectionListene
         super((JFrame) null, true);
         setTitle("Insert clipart");
         setPreferredSize(new Dimension(700, 480));
-        setLayout(new MigLayout("fill, insets 5", "[][grow, fill]", ""));
+        setLayout(new BorderLayout());
 
         categoriesList = new JList<>(Category.values());
         categoriesList.addListSelectionListener(this);
         categoriesList.setCellRenderer(new CategoryCellRenderer());
-        add(new JScrollPane(categoriesList, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), "grow");
-
         shapePreviewListPanel = new PreviewListPanel(this);
-        add(shapePreviewListPanel, "grow");
+
+        JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, new JScrollPane(categoriesList, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), shapePreviewListPanel);
+        add(jSplitPane, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new MigLayout("insets 0", "[right, grow]"));
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(e -> dispose());
         buttonPanel.add(cancelButton);
-        add(buttonPanel, "dock south");
+        add(buttonPanel, BorderLayout.SOUTH);
 
         setResizable(true);
         pack();

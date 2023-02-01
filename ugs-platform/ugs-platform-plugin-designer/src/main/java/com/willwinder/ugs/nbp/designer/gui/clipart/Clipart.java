@@ -36,4 +36,6 @@ public interface Clipart {
     Component getPreview();
 
     Cuttable getCuttable();
+
+    ClipartSource getSource();
 }

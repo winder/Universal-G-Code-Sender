@@ -51,6 +51,10 @@ import java.util.stream.Collectors;
 })
 public class OpenRecentAction extends AbstractAction implements DynamicMenuContent {
 
+    public OpenRecentAction() {
+        putValue(NAME, LocalizingService.OpenRecentTitle);
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         // does nothing, this is a popup menu

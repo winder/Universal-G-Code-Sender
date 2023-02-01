@@ -18,16 +18,46 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.clipart;
 
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.*;
-import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
-import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.BuDingbatsSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.ChristmasSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.Corners2Source;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.CreepyCrawliesSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.DarriansFrames1Source;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.DarriansFrames2Source;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.DestinysBordersSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.EasterArtSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.EfonSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.EvilzSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.FredokaSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.GardenSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.HouseIconsSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.KomikaBubblesSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.LogoSkate1Source;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.LogoSkate2Source;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.MythicalSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.SealifeSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.SugarComaSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.ToolSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.TransdingsSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.TravelconsSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.TropicanaSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.VintageCorners23Source;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.VintageDecorativeSigns2Source;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.WorldOfScifiSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.WwfreebieSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.XmasSource;
+import com.willwinder.ugs.nbp.designer.gui.clipart.sources.YourSignSource;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +68,7 @@ public class PreviewListPanel extends JPanel {
     private final transient List<ClipartSource> sources = new ArrayList<>();
     private final transient ActionListener selectAction;
     private final JPanel buttonsPanel = new JPanel();
+    private final JScrollPane scrollPane;
     private transient Clipart selectedClipart;
 
     public PreviewListPanel(ActionListener selectAction) {
@@ -54,16 +85,28 @@ public class PreviewListPanel extends JPanel {
         sources.add(new KomikaBubblesSource());
         sources.add(new LogoSkate1Source());
         sources.add(new LogoSkate2Source());
-        sources.add(new RemixIconSource());
         sources.add(new SealifeSource());
         sources.add(new TransdingsSource());
         sources.add(new TropicanaSource());
         sources.add(new YourSignSource());
         sources.add(new WwfreebieSource());
         sources.add(new XmasSource());
+        sources.add(new BuDingbatsSource());
+        sources.add(new DarriansFrames1Source());
+        sources.add(new DarriansFrames2Source());
+        sources.add(new WorldOfScifiSource());
+        sources.add(new VintageDecorativeSigns2Source());
+        sources.add(new VintageCorners23Source());
+        sources.add(new CreepyCrawliesSource());
+        sources.add(new SugarComaSource());
+        sources.add(new HouseIconsSource());
+        sources.add(new TravelconsSource());
+        sources.add(new ToolSource());
+        sources.add(new GardenSource());
+
 
         setLayout(new BorderLayout());
-        JScrollPane scrollPane = new JScrollPane(buttonsPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane = new JScrollPane(buttonsPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getVerticalScrollBar().setUnitIncrement(5);
         scrollPane.getHorizontalScrollBar().setUnitIncrement(5);
         add(scrollPane, BorderLayout.CENTER);
@@ -71,19 +114,12 @@ public class PreviewListPanel extends JPanel {
 
     public void setCategory(Category category) {
         buttonsPanel.removeAll();
+        ClipartTooltip tooltip = new ClipartTooltip();
         sources.stream()
                 .flatMap(source -> source.getCliparts(category).stream())
-                .sorted((clipart1, clipart2) -> clipart1.getName().compareTo(clipart2.getName()))
+                .sorted(Comparator.comparing(clipart -> clipart.getName().toLowerCase()))
                 .forEach(clipart -> {
-                    Component preview = clipart.getPreview();
-                    RoundedPanel roundedPanel = new RoundedPanel(12);
-                    roundedPanel.setLayout(new MigLayout("fill, inset 0"));
-                    roundedPanel.setMinimumSize(new Dimension(128, 128));
-                    roundedPanel.setForeground(ThemeColors.LIGHT_GREY);
-                    roundedPanel.setBackground(Color.WHITE);
-                    roundedPanel.setHoverBackground(ThemeColors.LIGHT_GREY);
-                    roundedPanel.setPressedBackground(ThemeColors.VERY_LIGHT_BLUE_GREY);
-                    roundedPanel.add(preview, "grow");
+                    ClipartButton roundedPanel = new ClipartButton(clipart, tooltip);
                     roundedPanel.addClickListener(() -> {
                         selectedClipart = clipart;
                         selectAction.actionPerformed(new ActionEvent(roundedPanel, 0, "selected_clipart"));
@@ -92,6 +128,7 @@ public class PreviewListPanel extends JPanel {
                 });
         buttonsPanel.revalidate();
         buttonsPanel.repaint();
+        SwingUtilities.invokeLater(() -> scrollPane.getVerticalScrollBar().setValue(0));
     }
 
     public Optional<Clipart> getSelectedClipart() {

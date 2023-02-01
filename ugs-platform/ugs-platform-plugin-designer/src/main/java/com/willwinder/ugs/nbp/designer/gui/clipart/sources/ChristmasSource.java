@@ -47,100 +47,95 @@ public class ChristmasSource implements ClipartSource {
             throw new ClipartSourceException("Could not load font", e);
         }
 
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "!"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "\""));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "#"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "$"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "%"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "&"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "'"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "("));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, ")"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "*"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "+"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, ","));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "-"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "."));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "/"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, ":"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, ";"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "<"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "="));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, ">"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "?"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "@"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "["));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "\\"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "]"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "^"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "_"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "`"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "{"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "}"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, ""));
-
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "1"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "2"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "3"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "4"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "5"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "6"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "7"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "8"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "9"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "A"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "B"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "C"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "D"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "E"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "F"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "G"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "H"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "I"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "J"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "K"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "L"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "M"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "N"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "O"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "P"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "Q"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "R"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "S"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "T"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "U"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "V"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "W"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "X"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "Y"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "Z"));
-
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "a"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "b"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "c"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "d"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "e"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "f"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "g"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "h"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "i"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "j"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "k"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "l"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "m"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "n"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "o"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "p"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "q"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "r"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "s"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "t"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "u"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "v"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "w"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "x"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "y"));
-        cliparts.add(new FontClipart("sign", Category.HOLIDAY, font, "z"));
+        cliparts.add(new FontClipart("Lamp 1", Category.HOLIDAY, font, "#", this));
+        cliparts.add(new FontClipart("Lamp 2", Category.HOLIDAY, font, "%", this));
+        cliparts.add(new FontClipart("Lamp 3", Category.HOLIDAY, font, "@", this));
+        cliparts.add(new FontClipart("Star 1", Category.HOLIDAY, font, "*", this));
+        cliparts.add(new FontClipart("Star 2", Category.HOLIDAY, font, "+", this));
+        cliparts.add(new FontClipart("Star shooting", Category.HOLIDAY, font, "_", this));
+        cliparts.add(new FontClipart("Christmas bell 1", Category.HOLIDAY, font, "[", this));
+        cliparts.add(new FontClipart("Christmas bell 2", Category.HOLIDAY, font, "\\", this));
+        cliparts.add(new FontClipart("Christmas bell 3", Category.HOLIDAY, font, "]", this));
+        cliparts.add(new FontClipart("Candle 1", Category.HOLIDAY, font, "!", this));
+        cliparts.add(new FontClipart("Candle 2", Category.HOLIDAY, font, "^", this));
+        cliparts.add(new FontClipart("Candle 5", Category.HOLIDAY, font, "$", this));
+        cliparts.add(new FontClipart("Candle christmas cake", Category.HOLIDAY, font, "`", this));
+        cliparts.add(new FontClipart("Candles", Category.HOLIDAY, font, "&", this));
+        cliparts.add(new FontClipart("Cross 1", Category.SIGNS_AND_SYMBOLS, font, "-", this));
+        cliparts.add(new FontClipart("Cross 2", Category.SIGNS_AND_SYMBOLS, font, "=", this));
+        cliparts.add(new FontClipart("Cross 3", Category.SIGNS_AND_SYMBOLS, font, "1", this));
+        cliparts.add(new FontClipart("Cross 4", Category.SIGNS_AND_SYMBOLS, font, "2", this));
+        cliparts.add(new FontClipart("Cross 5", Category.SIGNS_AND_SYMBOLS, font, "3", this));
+        cliparts.add(new FontClipart("Cross 6", Category.SIGNS_AND_SYMBOLS, font, "4", this));
+        cliparts.add(new FontClipart("Cross 7", Category.SIGNS_AND_SYMBOLS, font, "5", this));
+        cliparts.add(new FontClipart("Cross 8", Category.SIGNS_AND_SYMBOLS, font, "6", this));
+        cliparts.add(new FontClipart("Cross 9", Category.SIGNS_AND_SYMBOLS, font, "7", this));
+        cliparts.add(new FontClipart("Cross 10", Category.SIGNS_AND_SYMBOLS, font, "8", this));
+        cliparts.add(new FontClipart("Cross 11", Category.SIGNS_AND_SYMBOLS, font, "9", this));
+        cliparts.add(new FontClipart("Christmas ball 1", Category.HOLIDAY, font, ":", this));
+        cliparts.add(new FontClipart("Christmas ball 2", Category.HOLIDAY, font, "\"", this));
+        cliparts.add(new FontClipart("Christmas ball 3", Category.HOLIDAY, font, "A", this));
+        cliparts.add(new FontClipart("Christmas ball 4", Category.HOLIDAY, font, "D", this));
+        cliparts.add(new FontClipart("Christmas ball 5", Category.HOLIDAY, font, "F", this));
+        cliparts.add(new FontClipart("Christmas ball 6", Category.HOLIDAY, font, "G", this));
+        cliparts.add(new FontClipart("Christmas ball 7", Category.HOLIDAY, font, "H", this));
+        cliparts.add(new FontClipart("Christmas ball 8", Category.HOLIDAY, font, "K", this));
+        cliparts.add(new FontClipart("Christmas ball 9", Category.HOLIDAY, font, "S", this));
+        cliparts.add(new FontClipart("Christmas ball 10", Category.HOLIDAY, font, "L", this));
+        cliparts.add(new FontClipart("Christmas ball star", Category.HOLIDAY, font, "J", this));
+        cliparts.add(new FontClipart("Present 1", Category.HOLIDAY, font, "{", this));
+        cliparts.add(new FontClipart("Present 2", Category.HOLIDAY, font, "}", this));
+        cliparts.add(new FontClipart("Present 3", Category.HOLIDAY, font, "I", this));
+        cliparts.add(new FontClipart("Present 4", Category.HOLIDAY, font, "O", this));
+        cliparts.add(new FontClipart("Present 5", Category.HOLIDAY, font, "P", this));
+        cliparts.add(new FontClipart("Present 6", Category.HOLIDAY, font, "U", this));
+        cliparts.add(new FontClipart("Snow man 1", Category.HOLIDAY, font, "<", this));
+        cliparts.add(new FontClipart("Snow man 2", Category.HOLIDAY, font, ">", this));
+        cliparts.add(new FontClipart("Snow man 3", Category.HOLIDAY, font, "?", this));
+        cliparts.add(new FontClipart("Snow man 4", Category.HOLIDAY, font, "B", this));
+        cliparts.add(new FontClipart("Snow man 5", Category.HOLIDAY, font, "C", this));
+        cliparts.add(new FontClipart("Snow man 6", Category.HOLIDAY, font, "M", this));
+        cliparts.add(new FontClipart("Snow man 7", Category.HOLIDAY, font, "N", this));
+        cliparts.add(new FontClipart("Christmas sock 1", Category.HOLIDAY, font, "Q", this));
+        cliparts.add(new FontClipart("Christmas sock 2", Category.HOLIDAY, font, "R", this));
+        cliparts.add(new FontClipart("Christmas sock 3", Category.HOLIDAY, font, "T", this));
+        cliparts.add(new FontClipart("Christmas sock 4", Category.HOLIDAY, font, "W", this));
+        cliparts.add(new FontClipart("Christmas sock 5", Category.HOLIDAY, font, "Y", this));
+        cliparts.add(new FontClipart("Christmas sock 6", Category.HOLIDAY, font, "E", this));
+        cliparts.add(new FontClipart("Snow man candy cane", Category.HOLIDAY, font, "V", this));
+        cliparts.add(new FontClipart("Snow man 8", Category.HOLIDAY, font, "X", this));
+        cliparts.add(new FontClipart("Snow man 9", Category.HOLIDAY, font, "Z", this));
+        cliparts.add(new FontClipart("Christmas bell 3", Category.HOLIDAY, font, "e", this));
+        cliparts.add(new FontClipart("Christmas bell 4", Category.HOLIDAY, font, "o", this));
+        cliparts.add(new FontClipart("Christmas bell 5", Category.HOLIDAY, font, "p", this));
+        cliparts.add(new FontClipart("Christmas bell 6", Category.HOLIDAY, font, "q", this));
+        cliparts.add(new FontClipart("Christmas bell 7", Category.HOLIDAY, font, "r", this));
+        cliparts.add(new FontClipart("Christmas bell 8", Category.HOLIDAY, font, "t", this));
+        cliparts.add(new FontClipart("Christmas bell 9", Category.HOLIDAY, font, "u", this));
+        cliparts.add(new FontClipart("Christmas bell 10", Category.HOLIDAY, font, "w", this));
+        cliparts.add(new FontClipart("Christmas bell 11", Category.HOLIDAY, font, "y", this));
+        cliparts.add(new FontClipart("Christmas bell 12", Category.HOLIDAY, font, "i", this));
+        cliparts.add(new FontClipart("Christmas leaves 1", Category.HOLIDAY, font, ";", this));
+        cliparts.add(new FontClipart("Christmas leaves 2", Category.HOLIDAY, font, "'", this));
+        cliparts.add(new FontClipart("Christmas leaves 3", Category.HOLIDAY, font, "a", this));
+        cliparts.add(new FontClipart("Christmas leaves 4", Category.HOLIDAY, font, "d", this));
+        cliparts.add(new FontClipart("Christmas leaves 5", Category.HOLIDAY, font, "f", this));
+        cliparts.add(new FontClipart("Christmas leaves 6", Category.HOLIDAY, font, "g", this));
+        cliparts.add(new FontClipart("Christmas leaves 7", Category.HOLIDAY, font, "h", this));
+        cliparts.add(new FontClipart("Christmas leaves 8", Category.HOLIDAY, font, "j", this));
+        cliparts.add(new FontClipart("Christmas leaves 9", Category.HOLIDAY, font, "k", this));
+        cliparts.add(new FontClipart("Christmas leaves 10", Category.HOLIDAY, font, "l", this));
+        cliparts.add(new FontClipart("Christmas leaves 11", Category.HOLIDAY, font, "s", this));
+        cliparts.add(new FontClipart("Christmas tree simple", Category.HOLIDAY, font, "b", this));
+        cliparts.add(new FontClipart("Christmas tree 1", Category.HOLIDAY, font, ",", this));
+        cliparts.add(new FontClipart("Christmas tree 2", Category.HOLIDAY, font, ".", this));
+        cliparts.add(new FontClipart("Christmas tree 3", Category.HOLIDAY, font, "/", this));
+        cliparts.add(new FontClipart("Christmas tree 4", Category.HOLIDAY, font, "c", this));
+        cliparts.add(new FontClipart("Christmas tree 5", Category.HOLIDAY, font, "m", this));
+        cliparts.add(new FontClipart("Christmas tree 6", Category.HOLIDAY, font, "n", this));
+        cliparts.add(new FontClipart("Christmas tree 7", Category.HOLIDAY, font, "v", this));
+        cliparts.add(new FontClipart("Christmas tree 8", Category.HOLIDAY, font, "x", this));
+        cliparts.add(new FontClipart("Christmas tree 9", Category.HOLIDAY, font, "z", this));
     }
 
     @Override
@@ -158,8 +153,15 @@ public class ChristmasSource implements ClipartSource {
         return "https://www.fontspace.com/christmas-font-f4808";
     }
 
+
+
     @Override
     public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getLicense() {
+        return "Free for commercial use";
     }
 }

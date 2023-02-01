@@ -47,26 +47,26 @@ public class KomikaBubblesSource implements ClipartSource {
             throw new ClipartSourceException("Could not load font", e);
         }
 
-        cliparts.add(new FontClipart("bubble 1", Category.DECORATIONS, font, "A"));
-        cliparts.add(new FontClipart("bubble 2", Category.DECORATIONS, font, "B"));
-        cliparts.add(new FontClipart("bubble 3", Category.DECORATIONS, font, "C"));
-        cliparts.add(new FontClipart("bubble 4", Category.DECORATIONS, font, "D"));
-        cliparts.add(new FontClipart("bubble 5", Category.DECORATIONS, font, "E"));
-        cliparts.add(new FontClipart("bubble 6", Category.DECORATIONS, font, "F"));
-        cliparts.add(new FontClipart("bubble 7", Category.DECORATIONS, font, "G"));
-        cliparts.add(new FontClipart("bubble 8", Category.DECORATIONS, font, "H"));
-        cliparts.add(new FontClipart("bubble 9", Category.DECORATIONS, font, "I"));
-        cliparts.add(new FontClipart("bubble 10", Category.DECORATIONS, font, "J"));
-        cliparts.add(new FontClipart("bubble 11", Category.DECORATIONS, font, "K"));
-        cliparts.add(new FontClipart("bubble 12", Category.DECORATIONS, font, "L"));
-        cliparts.add(new FontClipart("bubble 13", Category.DECORATIONS, font, "M"));
-        cliparts.add(new FontClipart("bubble 14", Category.DECORATIONS, font, "N"));
-        cliparts.add(new FontClipart("bubble 15", Category.DECORATIONS, font, "O"));
-        cliparts.add(new FontClipart("bubble 16", Category.DECORATIONS, font, "P"));
-        cliparts.add(new FontClipart("bubble 17", Category.DECORATIONS, font, "Q"));
-        cliparts.add(new FontClipart("bubble 18", Category.DECORATIONS, font, "R"));
-        cliparts.add(new FontClipart("bubble 19", Category.DECORATIONS, font, "S"));
-        cliparts.add(new FontClipart("bubble 20", Category.DECORATIONS, font, "T"));
+        cliparts.add(new FontClipart("bubble 1", Category.DECORATIONS, font, "A", this));
+        cliparts.add(new FontClipart("bubble 2", Category.DECORATIONS, font, "B", this));
+        cliparts.add(new FontClipart("bubble 3", Category.DECORATIONS, font, "C", this));
+        cliparts.add(new FontClipart("bubble 4", Category.DECORATIONS, font, "D", this));
+        cliparts.add(new FontClipart("bubble 5", Category.DECORATIONS, font, "E", this));
+        cliparts.add(new FontClipart("bubble 6", Category.DECORATIONS, font, "F", this));
+        cliparts.add(new FontClipart("bubble 7", Category.DECORATIONS, font, "G", this));
+        cliparts.add(new FontClipart("bubble 8", Category.DECORATIONS, font, "H", this));
+        cliparts.add(new FontClipart("bubble 9", Category.DECORATIONS, font, "I", this));
+        cliparts.add(new FontClipart("bubble 10", Category.DECORATIONS, font, "J", this));
+        cliparts.add(new FontClipart("bubble 11", Category.DECORATIONS, font, "K", this));
+        cliparts.add(new FontClipart("bubble 12", Category.DECORATIONS, font, "L", this));
+        cliparts.add(new FontClipart("bubble 13", Category.DECORATIONS, font, "M", this));
+        cliparts.add(new FontClipart("bubble 14", Category.DECORATIONS, font, "N", this));
+        cliparts.add(new FontClipart("bubble 15", Category.DECORATIONS, font, "O", this));
+        cliparts.add(new FontClipart("bubble 16", Category.DECORATIONS, font, "P", this));
+        cliparts.add(new FontClipart("bubble 17", Category.DECORATIONS, font, "Q", this));
+        cliparts.add(new FontClipart("bubble 18", Category.DECORATIONS, font, "R", this));
+        cliparts.add(new FontClipart("bubble 19", Category.DECORATIONS, font, "S", this));
+        cliparts.add(new FontClipart("bubble 20", Category.DECORATIONS, font, "T", this));
     }
 
     @Override
@@ -87,5 +87,10 @@ public class KomikaBubblesSource implements ClipartSource {
     @Override
     public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getLicense() {
+        return "Free for commercial use";
     }
 }

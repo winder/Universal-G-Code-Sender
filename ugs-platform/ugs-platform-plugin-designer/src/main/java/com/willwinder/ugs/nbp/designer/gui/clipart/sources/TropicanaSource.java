@@ -24,7 +24,8 @@ import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSource;
 import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSourceException;
 import com.willwinder.ugs.nbp.designer.gui.clipart.FontClipart;
 
-import java.awt.*;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,32 +48,32 @@ public class TropicanaSource implements ClipartSource {
             throw new ClipartSourceException("Could not load font", e);
         }
 
-        cliparts.add(new FontClipart("hibiskus", Category.PLANTS, font, "A"));
-        cliparts.add(new FontClipart("leaf", Category.PLANTS, font, "B"));
-        cliparts.add(new FontClipart("palm tree", Category.PLANTS, font, "F"));
-        cliparts.add(new FontClipart("palm tree", Category.PLANTS, font, "G"));
-        cliparts.add(new FontClipart("flower", Category.PLANTS, font, "V"));
-        cliparts.add(new FontClipart("lanterns", Category.MYTHICAL, font, "H"));
-        cliparts.add(new FontClipart("tiki mask", Category.MYTHICAL, font, "I"));
-        cliparts.add(new FontClipart("pineapple", Category.FOOD, font, "J"));
-        cliparts.add(new FontClipart("coconuts", Category.FOOD, font, "K"));
-        cliparts.add(new FontClipart("drink", Category.FOOD, font, "L"));
-        cliparts.add(new FontClipart("hulu woman", Category.PEOPLE, font, "M"));
-        cliparts.add(new FontClipart("surfer", Category.PEOPLE, font, "N"));
-        cliparts.add(new FontClipart("hulu woman", Category.PEOPLE, font, "U"));
-        cliparts.add(new FontClipart("flower necklace", Category.UNSORTED, font, "C"));
-        cliparts.add(new FontClipart("ukulele", Category.UNSORTED, font, "D"));
-        cliparts.add(new FontClipart("barrel", Category.UNSORTED, font, "E"));
-        cliparts.add(new FontClipart("sandals", Category.UNSORTED, font, "S"));
-        cliparts.add(new FontClipart("pendant", Category.UNSORTED, font, "T"));
-        cliparts.add(new FontClipart("fish", Category.ANIMALS, font, "O"));
-        cliparts.add(new FontClipart("sea star", Category.ANIMALS, font, "P"));
-        cliparts.add(new FontClipart("shell", Category.ANIMALS, font, "Q"));
-        cliparts.add(new FontClipart("parrot", Category.ANIMALS, font, "R"));
-        cliparts.add(new FontClipart("cabin", Category.BUILDINGS, font, "W"));
-        cliparts.add(new FontClipart("machete", Category.TOOLS, font, "X"));
-        cliparts.add(new FontClipart("bamboo", Category.DECORATIONS, font, "Y"));
-        cliparts.add(new FontClipart("bamboo", Category.DECORATIONS, font, "Z"));
+        cliparts.add(new FontClipart("hibiskus", Category.PLANTS, font, "A", this));
+        cliparts.add(new FontClipart("leaf", Category.PLANTS, font, "B", this));
+        cliparts.add(new FontClipart("palm tree", Category.PLANTS, font, "F", this));
+        cliparts.add(new FontClipart("palm tree", Category.PLANTS, font, "G", this));
+        cliparts.add(new FontClipart("flower", Category.PLANTS, font, "V", this));
+        cliparts.add(new FontClipart("lanterns", Category.MYTHICAL, font, "H", this));
+        cliparts.add(new FontClipart("tiki mask", Category.MYTHICAL, font, "I", this));
+        cliparts.add(new FontClipart("pineapple", Category.FOOD, font, "J", this));
+        cliparts.add(new FontClipart("coconuts", Category.FOOD, font, "K", this));
+        cliparts.add(new FontClipart("drink", Category.FOOD, font, "L", this));
+        cliparts.add(new FontClipart("hulu woman", Category.PEOPLE_AND_CHARACTERS, font, "M", this));
+        cliparts.add(new FontClipart("surfer", Category.PEOPLE_AND_CHARACTERS, font, "N", this));
+        cliparts.add(new FontClipart("hulu woman", Category.PEOPLE_AND_CHARACTERS, font, "U", this));
+        cliparts.add(new FontClipart("flower necklace", Category.UNSORTED, font, "C", this));
+        cliparts.add(new FontClipart("ukulele", Category.UNSORTED, font, "D", this));
+        cliparts.add(new FontClipart("barrel", Category.UNSORTED, font, "E", this));
+        cliparts.add(new FontClipart("sandals", Category.UNSORTED, font, "S", this));
+        cliparts.add(new FontClipart("pendant", Category.UNSORTED, font, "T", this));
+        cliparts.add(new FontClipart("fish", Category.ANIMALS, font, "O", this));
+        cliparts.add(new FontClipart("sea star", Category.ANIMALS, font, "P", this));
+        cliparts.add(new FontClipart("shell", Category.ANIMALS, font, "Q", this));
+        cliparts.add(new FontClipart("parrot", Category.ANIMALS, font, "R", this));
+        cliparts.add(new FontClipart("cabin", Category.BUILDINGS, font, "W", this));
+        cliparts.add(new FontClipart("machete", Category.TOOLS, font, "X", this));
+        cliparts.add(new FontClipart("bamboo", Category.DECORATIONS, font, "Y", this));
+        cliparts.add(new FontClipart("bamboo", Category.DECORATIONS, font, "Z", this));
     }
 
     @Override
@@ -93,5 +94,10 @@ public class TropicanaSource implements ClipartSource {
     @Override
     public List<Clipart> getCliparts(Category category) {
         return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getLicense() {
+        return "Free for commercial use";
     }
 }
