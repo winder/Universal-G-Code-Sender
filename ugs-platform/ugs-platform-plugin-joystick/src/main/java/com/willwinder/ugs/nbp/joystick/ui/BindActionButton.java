@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Will Winder
+    Copyright 2020-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -45,7 +45,6 @@ public class BindActionButton extends JButton {
             "Actions/Source",
             "Actions/View",
             "Actions/Window",
-            "Actions/File",
             "Actions/Refactoring",
             "Actions/Tools",
             "Actions/Edit",
