@@ -16,6 +16,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class AsyncCommunicatorEventDispatcherTest {
     private AsyncCommunicatorEventDispatcher eventDispatcher;
@@ -31,15 +33,15 @@ public class AsyncCommunicatorEventDispatcherTest {
     }
 
     @Test
-    public void dispatchShouldQueueEventsUntilStarted() throws TimeoutException {
+    public void dispatchShouldStartWorkerThread() throws TimeoutException, InterruptedException {
         ICommunicatorListener listener = mock(ICommunicatorListener.class);
         eventDispatcher.addListener(listener);
 
         eventDispatcher.communicatorPausedOnError();
 
-        assertEquals(1, eventDispatcher.getEventCount());
-
         waitUntil(() -> eventDispatcher.getEventCount() == 0, 1, TimeUnit.SECONDS);
+
+        verify(listener, times(1)).communicatorPausedOnError();
     }
 
     @Test
@@ -57,7 +59,7 @@ public class AsyncCommunicatorEventDispatcherTest {
 
         assertFalse(eventDispatcher.isStopped());
         eventDispatcher.reset();
-
+        Thread.sleep(100);
         assertTrue(eventDispatcher.isStopped());
     }
 
