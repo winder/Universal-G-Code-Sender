@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,21 +45,22 @@ public class AsyncCommunicatorEventDispatcher extends CommunicatorEventDispatche
     private static final Logger LOGGER = Logger.getLogger(AsyncCommunicatorEventDispatcher.class.getSimpleName());
 
     private final LinkedBlockingDeque<AsyncCommunicatorEvent> eventQueue = new LinkedBlockingDeque<>();
-    private Thread eventThread;
+    private final AtomicReference<Thread> eventThread = new AtomicReference<>();
 
     private void start() {
         if (isStopped()) {
-            eventThread = Executors.defaultThreadFactory().newThread(this);
-            eventThread.setName(AsyncCommunicatorEventDispatcher.class.getSimpleName());
-            eventThread.start();
+            Thread thread = Executors.defaultThreadFactory().newThread(this);
+            thread.setName(AsyncCommunicatorEventDispatcher.class.getSimpleName());
+            eventThread.set(thread);
+            thread.start();
         }
     }
 
     @Override
     public void reset() {
-        if (eventThread != null) {
-            eventThread.interrupt();
-            eventThread = null;
+        Thread thread = eventThread.get();
+        if (thread != null) {
+            thread.interrupt();
         }
         eventQueue.clear();
     }
@@ -81,10 +83,11 @@ public class AsyncCommunicatorEventDispatcher extends CommunicatorEventDispatche
                 isRunning = false;
             }
         }
+        eventThread.set(null);
     }
 
     public boolean isStopped() {
-        return eventThread == null || !eventThread.isAlive();
+        return eventThread.get() == null;
     }
 
     @Override
