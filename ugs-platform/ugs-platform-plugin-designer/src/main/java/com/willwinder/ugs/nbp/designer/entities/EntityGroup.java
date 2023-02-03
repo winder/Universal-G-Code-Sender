@@ -25,7 +25,7 @@ import com.willwinder.ugs.nbp.designer.model.Size;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
+import java.awt.geom.RectangularShape;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -44,6 +44,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
 
     private double groupRotation = 0;
     private Point2D cachedCenter = new Point2D.Double(0, 0);
+    private Rectangle2D cachedBounds = new Rectangle2D.Double(0, 0, 0, 0);
 
     public EntityGroup() {
         super();
@@ -87,12 +88,34 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
 
     @Override
     public Shape getShape() {
-        final Area area = new Area();
+        return getBounds();
+    }
+
+    @Override
+    public Size getSize() {
+        Rectangle2D bounds = getBounds();
+        return new Size(bounds.getWidth(), bounds.getHeight());
+    }
+
+    @Override
+    public Rectangle2D getBounds() {
+        if (cachedBounds != null) {
+            return cachedBounds;
+        }
+
         List<Entity> allChildren = getAllChildren();
-        allChildren.stream()
-                .filter(c -> c != this)
-                .forEach(c -> area.add(new Area(c.getBounds())));
-        return area.getBounds2D();
+        double maxX = allChildren.stream().map(Entity::getBounds).mapToDouble(RectangularShape::getMaxX).max().orElse(0);
+        double maxY = allChildren.stream().map(Entity::getBounds).mapToDouble(RectangularShape::getMaxY).max().orElse(0);
+        double minX = allChildren.stream().map(Entity::getBounds).mapToDouble(RectangularShape::getMinX).min().orElse(0);
+        double minY = allChildren.stream().map(Entity::getBounds).mapToDouble(RectangularShape::getMinY).min().orElse(0);
+        cachedBounds = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
+        return cachedBounds;
+    }
+
+    @Override
+    public Point2D getPosition(Anchor anchor) {
+        Rectangle2D bounds = getBounds();
+        return new Point2D.Double(bounds.getX(), bounds.getY());
     }
 
     @Override
@@ -124,12 +147,13 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
 
     private void invalidateCenter() {
         cachedCenter = null;
+        cachedBounds = null;
     }
 
     @Override
     public Point2D getCenter() {
         if (cachedCenter == null) {
-            Rectangle2D bounds = getShape().getBounds2D();
+            Rectangle2D bounds = getBounds();
             cachedCenter = new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
         }
 

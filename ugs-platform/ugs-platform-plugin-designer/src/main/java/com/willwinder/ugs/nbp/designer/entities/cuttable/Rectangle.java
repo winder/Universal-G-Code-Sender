@@ -43,7 +43,7 @@ public class Rectangle extends AbstractCuttable {
      */
     public Rectangle(double x, double y) {
         super(x, y);
-        this.shape = new Rectangle2D.Double(0, 0, 10, 10);
+        this.shape = new Rectangle2D.Double(0, 0, 1, 1);
         setName("Rectangle");
     }
 

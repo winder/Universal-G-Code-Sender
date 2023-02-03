@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   id="svg2"
+   version="1.1"
+   viewBox="0 0 70.0 50.0"
+   height="50.0mm"
+   width="70.0mm">
+    <g
+     transform="translate(0.000000,50.000000) scale(1,-1)"
+     id="UGS-Test">
+    <path
+       stroke-width="1 px"
+       stroke="#191919"
+       d="M 0.0 0.0 L 70.0 0.0 "
+       id="Shape2DView_nwe0000" />
+    <path
+       stroke-width="1 px"
+       stroke="#191919"
+       d="M 70.0 0.0 L 70.0 50.0 "
+       id="Shape2DView_nwe0001" />
+    <path
+       stroke-width="1 px"
+       stroke="#191919"
+       d="M 70.0 50.0 L 0.0 50.0 "
+       id="Shape2DView_nwe0002" />
+    <path
+       stroke-width="1 px"
+       stroke="#191919"
+       d="M 0.0 50.0 L 0.0 0.0 "
+       id="Shape2DView_nwe0003" />
+  </g>
+</svg>

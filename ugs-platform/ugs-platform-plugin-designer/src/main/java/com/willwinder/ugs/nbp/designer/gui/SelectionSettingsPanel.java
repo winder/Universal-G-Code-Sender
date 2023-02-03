@@ -316,11 +316,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
                 double width = Utils.parseDouble(widthTextField.getText());
                 double height = Utils.parseDouble(heightTextField.getText());
 
-                if (width <= 0 || height <= 0) {
-                    return;
-                }
-
-                if (!lockRatioButton.isSelected()) {
+                if (width >= 0 && height >= 0 & !lockRatioButton.isSelected()) {
                     double ratio = controller.getSelectionManager().getSize().getRatio();
                     if (e.getDocument() == widthTextField.getDocument()) {
                         height = width / ratio;
