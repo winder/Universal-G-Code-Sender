@@ -1,0 +1,925 @@
+{
+  "settings": {
+    "feedSpeed": 1000,
+    "plungeSpeed": 400,
+    "toolDiameter": 1.0,
+    "stockThickness": 10.0,
+    "safeHeight": 5.0,
+    "preferredUnits": "MM",
+    "toolStepOver": 0.5,
+    "depthPerPass": 1.0,
+    "spindleSpeed": 0.0
+  },
+  "entities": [
+    {
+      "startDepth": 1.0,
+      "cutDepth": 1.0,
+      "cutType": "POCKET",
+      "isHidden": false,
+      "transform": {
+        "m00": 10.0,
+        "m10": 0.0,
+        "m01": 0.0,
+        "m11": 10.0,
+        "m02": 10.0,
+        "m12": 10.0
+      },
+      "name": "Rectangle",
+      "type": "RECTANGLE"
+    },
+    {
+      "segments": [
+        {
+          "type": "MOVE_TO",
+          "coordinates": [
+            [
+              30.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              20.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              40.0,
+              20.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              40.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              37.5,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              37.5,
+              15.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              32.5,
+              15.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              32.5,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "CLOSE",
+          "coordinates": []
+        }
+      ],
+      "startDepth": 1.0,
+      "cutDepth": 1.0,
+      "cutType": "POCKET",
+      "isHidden": false,
+      "transform": {
+        "m00": 1.0,
+        "m10": 0.0,
+        "m01": 0.0,
+        "m11": 1.0,
+        "m02": 0.0,
+        "m12": 0.0
+      },
+      "name": "Rectangle",
+      "type": "PATH"
+    },
+    {
+      "segments": [
+        {
+          "type": "MOVE_TO",
+          "coordinates": [
+            [
+              30.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              20.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              40.0,
+              20.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              40.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              37.5,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              37.5,
+              15.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              32.5,
+              15.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              32.5,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "CLOSE",
+          "coordinates": []
+        }
+      ],
+      "startDepth": 1.0,
+      "cutDepth": 1.0,
+      "cutType": "POCKET",
+      "isHidden": false,
+      "transform": {
+        "m00": -0.9999999999999999,
+        "m10": -5.551115123125783E-17,
+        "m01": 5.551115123125783E-17,
+        "m11": -0.9999999999999999,
+        "m02": 90.00000000000001,
+        "m12": 30.000000000000004
+      },
+      "name": "Rectangle",
+      "type": "PATH"
+    },
+    {
+      "segments": [
+        {
+          "type": "MOVE_TO",
+          "coordinates": [
+            [
+              17.5,
+              32.5
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              17.5,
+              37.5
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              12.5,
+              37.5
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              12.5,
+              32.5
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              17.5,
+              32.5
+            ]
+          ]
+        },
+        {
+          "type": "CLOSE",
+          "coordinates": []
+        },
+        {
+          "type": "MOVE_TO",
+          "coordinates": [
+            [
+              10.0,
+              30.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              10.0,
+              40.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              20.0,
+              40.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              20.0,
+              30.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              10.0,
+              30.0
+            ]
+          ]
+        },
+        {
+          "type": "CLOSE",
+          "coordinates": []
+        }
+      ],
+      "startDepth": 1.0,
+      "cutDepth": 1.0,
+      "cutType": "POCKET",
+      "isHidden": false,
+      "transform": {
+        "m00": 1.0,
+        "m10": 0.0,
+        "m01": 0.0,
+        "m11": 1.0,
+        "m02": 0.0,
+        "m12": 0.0
+      },
+      "name": "Rectangle",
+      "type": "PATH"
+    },
+    {
+      "segments": [
+        {
+          "type": "MOVE_TO",
+          "coordinates": [
+            [
+              30.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              20.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              40.0,
+              20.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              40.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              37.5,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              37.5,
+              15.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              32.5,
+              15.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              32.5,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "CLOSE",
+          "coordinates": []
+        }
+      ],
+      "startDepth": 1.0,
+      "cutDepth": 1.0,
+      "cutType": "POCKET",
+      "isHidden": false,
+      "transform": {
+        "m00": 5.551115123125783E-17,
+        "m10": -1.0,
+        "m01": 1.0,
+        "m11": 5.551115123125783E-17,
+        "m02": 20.0,
+        "m12": 70.0
+      },
+      "name": "Rectangle",
+      "type": "PATH"
+    },
+    {
+      "segments": [
+        {
+          "type": "MOVE_TO",
+          "coordinates": [
+            [
+              30.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              20.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              40.0,
+              20.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              40.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              37.5,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              37.5,
+              15.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              32.5,
+              15.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              32.5,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "type": "CLOSE",
+          "coordinates": []
+        }
+      ],
+      "startDepth": 1.0,
+      "cutDepth": 1.0,
+      "cutType": "POCKET",
+      "isHidden": false,
+      "transform": {
+        "m00": 2.7755575615628914E-16,
+        "m10": 1.0,
+        "m01": -1.0,
+        "m11": 2.7755575615628914E-16,
+        "m02": 70.0,
+        "m12": -3.552713678800501E-15
+      },
+      "name": "Rectangle",
+      "type": "PATH"
+    },
+    {
+      "startDepth": 1.0,
+      "cutDepth": 1.0,
+      "cutType": "POCKET",
+      "isHidden": false,
+      "transform": {
+        "m00": 10.0,
+        "m10": 0.0,
+        "m01": 0.0,
+        "m11": 10.0,
+        "m02": 50.0,
+        "m12": 50.0
+      },
+      "name": "Rectangle",
+      "type": "RECTANGLE"
+    },
+    {
+      "segments": [
+        {
+          "type": "MOVE_TO",
+          "coordinates": [
+            [
+              15.0,
+              52.5
+            ]
+          ]
+        },
+        {
+          "type": "CUBIC_TO",
+          "coordinates": [
+            [
+              16.38071187457698,
+              52.5
+            ],
+            [
+              17.5,
+              53.61928812542302
+            ],
+            [
+              17.5,
+              55.0
+            ]
+          ]
+        },
+        {
+          "type": "CUBIC_TO",
+          "coordinates": [
+            [
+              17.5,
+              56.38071187457698
+            ],
+            [
+              16.38071187457698,
+              57.5
+            ],
+            [
+              15.0,
+              57.5
+            ]
+          ]
+        },
+        {
+          "type": "CUBIC_TO",
+          "coordinates": [
+            [
+              13.619288125423017,
+              57.5
+            ],
+            [
+              12.5,
+              56.38071187457698
+            ],
+            [
+              12.5,
+              55.0
+            ]
+          ]
+        },
+        {
+          "type": "CUBIC_TO",
+          "coordinates": [
+            [
+              12.5,
+              53.61928812542302
+            ],
+            [
+              13.619288125423017,
+              52.5
+            ],
+            [
+              15.0,
+              52.5
+            ]
+          ]
+        },
+        {
+          "type": "CLOSE",
+          "coordinates": []
+        },
+        {
+          "type": "MOVE_TO",
+          "coordinates": [
+            [
+              10.0,
+              50.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              10.0,
+              60.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              20.0,
+              60.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              20.0,
+              50.0
+            ]
+          ]
+        },
+        {
+          "type": "CLOSE",
+          "coordinates": []
+        }
+      ],
+      "startDepth": 1.0,
+      "cutDepth": 1.0,
+      "cutType": "POCKET",
+      "isHidden": false,
+      "transform": {
+        "m00": 1.0,
+        "m10": 0.0,
+        "m01": 0.0,
+        "m11": 1.0,
+        "m02": 0.0,
+        "m12": 0.0
+      },
+      "name": "Rectangle",
+      "type": "PATH"
+    },
+    {
+      "segments": [
+        {
+          "type": "MOVE_TO",
+          "coordinates": [
+            [
+              30.0,
+              57.5
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              60.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              32.5,
+              60.0
+            ]
+          ]
+        },
+        {
+          "type": "CUBIC_TO",
+          "coordinates": [
+            [
+              31.119288125423015,
+              60.0
+            ],
+            [
+              30.0,
+              58.88071187457698
+            ],
+            [
+              30.0,
+              57.5
+            ]
+          ]
+        },
+        {
+          "type": "CLOSE",
+          "coordinates": []
+        },
+        {
+          "type": "MOVE_TO",
+          "coordinates": [
+            [
+              30.0,
+              50.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              30.0,
+              57.5
+            ]
+          ]
+        },
+        {
+          "type": "CUBIC_TO",
+          "coordinates": [
+            [
+              30.0,
+              56.11928812542302
+            ],
+            [
+              31.119288125423015,
+              55.0
+            ],
+            [
+              32.5,
+              55.0
+            ]
+          ]
+        },
+        {
+          "type": "CUBIC_TO",
+          "coordinates": [
+            [
+              33.88071187457698,
+              55.0
+            ],
+            [
+              35.0,
+              56.11928812542302
+            ],
+            [
+              35.0,
+              57.5
+            ]
+          ]
+        },
+        {
+          "type": "CUBIC_TO",
+          "coordinates": [
+            [
+              35.0,
+              58.88071187457698
+            ],
+            [
+              33.88071187457698,
+              60.0
+            ],
+            [
+              32.5,
+              60.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              40.0,
+              60.0
+            ]
+          ]
+        },
+        {
+          "type": "LINE_TO",
+          "coordinates": [
+            [
+              40.0,
+              52.5
+            ]
+          ]
+        },
+        {
+          "type": "CUBIC_TO",
+          "coordinates": [
+            [
+              38.61928812542302,
+              52.5
+            ],
+            [
+              37.5,
+              51.38071187457698
+            ],
+            [
+              37.5,
+              50.0
+            ]
+          ]
+        },
+        {
+          "type": "CLOSE",
+          "coordinates": []
+        }
+      ],
+      "startDepth": 1.0,
+      "cutDepth": 1.0,
+      "cutType": "POCKET",
+      "isHidden": false,
+      "transform": {
+        "m00": 1.0,
+        "m10": 0.0,
+        "m01": 0.0,
+        "m11": 1.0,
+        "m02": 0.0,
+        "m12": 0.0
+      },
+      "name": "Rectangle",
+      "type": "PATH"
+    }
+  ],
+  "version": "1"
+}

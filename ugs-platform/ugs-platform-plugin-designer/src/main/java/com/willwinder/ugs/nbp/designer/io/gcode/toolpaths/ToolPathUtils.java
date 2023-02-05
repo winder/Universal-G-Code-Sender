@@ -1,10 +1,37 @@
+/*
+    Copyright 2023 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
+import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
+import com.willwinder.universalgcodesender.model.CNCPoint;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.locationtech.jts.awt.ShapeReader;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Polygon;
-import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.operation.polygonize.Polygonizer;
 
 import java.awt.*;
@@ -19,6 +46,8 @@ import java.util.stream.Collectors;
 public class ToolPathUtils {
 
     public static final double FLATNESS_PRECISION = 0.1d;
+
+    public static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
     private ToolPathUtils() {
     }
@@ -49,7 +78,7 @@ public class ToolPathUtils {
     }
 
     public static List<PartialPosition> geometryToCoordinates(Geometry geometry) {
-        org.locationtech.jts.geom.Coordinate[] coordinates = geometry.getCoordinates();
+        Coordinate[] coordinates = geometry.getCoordinates();
         return Arrays.stream(coordinates)
                 .map(c -> new PartialPosition(c.getX(), c.getY(), c.getZ(), UnitUtils.Units.MM))
                 .collect(Collectors.toList());
@@ -70,6 +99,13 @@ public class ToolPathUtils {
                     return bufferedCoordinates;
                 })
                 .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    public static List<PartialPosition> geometryToCoordinates(Geometry geometry, double depth) {
+        org.locationtech.jts.geom.Coordinate[] coordinates = geometry.getCoordinates();
+        return Arrays.stream(coordinates)
+                .map(c -> toPartialPosition(c, depth))
                 .collect(Collectors.toList());
     }
 
@@ -121,5 +157,58 @@ public class ToolPathUtils {
         }
 
         return false;
+    }
+
+    public static PartialPosition toPartialPosition(Coordinate coordinate, double depth) {
+        return new PartialPosition(coordinate.getX(), coordinate.getY(), -depth, UnitUtils.Units.MM);
+    }
+
+    public static Coordinate toCoordinate(PartialPosition position) {
+        return new Coordinate(position.getX(), position.getY(), position.getZ());
+    }
+
+    public static LineString createLineString(PartialPosition fromPosition, PartialPosition toPosition) {
+        return GEOMETRY_FACTORY.createLineString(new Coordinate[]{toCoordinate(fromPosition), toCoordinate(toPosition)});
+    }
+
+    public static LinearRing createLinearRing(Coordinate[] points) {
+        return GEOMETRY_FACTORY.createLinearRing(points);
+    }
+
+    public static int findNearestCoordinateIndex(Coordinate[] coordinates, Coordinate coordinate) {
+        int index = 0;
+        double shortestDistance = Double.MAX_VALUE;
+        for (int i = 0; i < coordinates.length; i++) {
+            double distance = coordinates[i].distance(coordinate);
+            if (distance < shortestDistance) {
+                index = i;
+                shortestDistance = distance;
+            }
+        }
+        return index;
+    }
+
+
+    private static double distanceBetween(PartialPosition position, PartialPosition point) {
+        CNCPoint point1 = new CNCPoint(position.getX(), position.getY(), position.getZ(), 0, 0, 0);
+        CNCPoint point2 = new CNCPoint(point.hasX() ? point.getX() : position.getX(), point.hasY() ? point.getY() : position.getY(), point.hasZ() ? point.getZ() : position.getZ(), 0, 0, 0);
+        return point1.distanceXYZ(point2);
+    }
+
+    public static ToolPathStats getToolPathStats(GcodePath gcodePath) {
+        PartialPosition position = new PartialPosition(0d, 0d, 0d, UnitUtils.Units.MM);
+        double totalRapidLength = 0;
+        double totalFeedLength = 0;
+        for (Segment segment : gcodePath.getSegments()) {
+            if (segment.getType() == SegmentType.SEAM) {
+                // Do nothing
+            } else if (segment.getType() == SegmentType.MOVE) {
+                totalRapidLength += distanceBetween(position, segment.getPoint());
+            } else {
+                totalFeedLength += distanceBetween(position, segment.getPoint());
+            }
+        }
+
+        return new ToolPathStats(totalFeedLength, totalRapidLength);
     }
 }
