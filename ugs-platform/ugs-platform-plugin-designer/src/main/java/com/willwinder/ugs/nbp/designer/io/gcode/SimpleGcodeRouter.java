@@ -23,6 +23,8 @@ import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.DrillCenterToolPath;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.OutlineToolPath;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.PocketToolPath;
+import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathStats;
+import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.utils.Version;
 import org.apache.commons.lang3.StringUtils;
@@ -31,13 +33,14 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
 
 /**
  * @author Calle Laakkonen
  * @author Joacim Breiler
  */
 public class SimpleGcodeRouter {
+    private static final Logger LOGGER = Logger.getLogger(SimpleGcodeRouter.class.getSimpleName());
     private static final String HEADER = "; This file was generated with \"Universal Gcode Sender " + Version.getVersionString() + "\"\n;\n";
 
     /**
@@ -134,6 +137,9 @@ public class SimpleGcodeRouter {
     }
 
     protected String toGcode(GcodePath gcodePath) throws IOException {
+        ToolPathStats toolPathStats = ToolPathUtils.getToolPathStats(gcodePath);
+        LOGGER.info("Generated a tool path with total length of " +  Math.round(toolPathStats.getTotalFeedLength()) + "mm and " + Math.round(toolPathStats.getTotalRapidLength()) + "mm of rapid movement");
+
         StringWriter stringWriter = new StringWriter();
         toGcode(stringWriter, gcodePath);
         stringWriter.flush();
@@ -141,15 +147,6 @@ public class SimpleGcodeRouter {
     }
 
     public String toGcode(List<Cuttable> entities) {
-        // Try to figure out the size of the drawing
-        double width = entities.stream().map(e -> e.getBounds().getMaxX()).max(Double::compareTo).orElse((double) 0);
-        double height = entities.stream().map(e -> e.getBounds().getMaxX()).max(Double::compareTo).orElse((double) 0);
-
-
-        List<Cuttable> cuttables = entities.stream()
-                .sorted(new EntityComparator(width, height))
-                .collect(Collectors.toList());
-
         StringBuilder result = new StringBuilder(HEADER +
                 generateToolHeader() + "\n" +
                 Code.G21.name() + " ; millimeters\n" +
@@ -160,7 +157,7 @@ public class SimpleGcodeRouter {
         );
 
         try {
-            result.append(toGcode(getGcodePathFromCuttables(cuttables)));
+            result.append(toGcode(getGcodePathFromCuttables(entities)));
         } catch (IOException e) {
             throw new RuntimeException("An error occured while trying to generate gcode", e);
         }
@@ -272,7 +269,6 @@ public class SimpleGcodeRouter {
                     writer.write(s.point.getFormattedGCode());
                     writer.write("\n");
                     hasFeedRateSet = false;
-
                     break;
 
                 // Drill down using the plunge speed
