@@ -18,29 +18,12 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
-import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
-import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
-import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
-import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.listeners.ControllerState;
-import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.PartialPosition;
-import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
-import com.willwinder.universalgcodesender.services.JogService;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.geom.Point2D;
-
-import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 
 /**
  * An action that will jog the machine to the center of the next object in the list
@@ -54,59 +37,22 @@ import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
         iconBase = JogMachineToNextAction.SMALL_ICON_PATH,
         displayName = "Jog machine to next",
         lazy = false)
-public class JogMachineToNextAction extends AbstractDesignAction implements SelectionListener, UGSEventListener {
+public class JogMachineToNextAction extends JogMachineToCenterAction {
     public static final String SMALL_ICON_PATH = "img/jog-to.svg";
     public static final String LARGE_ICON_PATH = "img/jog-to24.svg";
-    private final transient BackendAPI backend;
 
     public JogMachineToNextAction() {
+        super();
         putValue("menuText", "Jog machine to next");
         putValue(NAME, "Jog machine to next");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
-
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backend.addUGSEventListener(this);
-        registerControllerListener();
-        setEnabled(isEnabled());
-    }
-
-    private void registerControllerListener() {
-        SelectionManager selectionManager = ControllerFactory.getController().getSelectionManager();
-        selectionManager.addSelectionListener(this);
-        setEnabled(isEnabled());
-    }
-
-    @Override
-    public boolean isEnabled() {
-        SelectionManager selectionManager = ControllerFactory.getController().getSelectionManager();
-        boolean hasSelection = !selectionManager.getSelection().isEmpty();
-        boolean isIdle = backend.getControllerState() == ControllerState.IDLE;
-        return hasSelection && isIdle;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        ThreadHelper.invokeLater(() -> {
-            new SelectNextAction().actionPerformed(e);
-            Point2D center = ControllerFactory.getController().getSelectionManager().getCenter();
-            PartialPosition centerPosition = new PartialPosition(center.getX(), center.getY(), MM);
-
-            JogService jogService = CentralLookup.getDefault().lookup(JogService.class);
-            jogService.jogTo(centerPosition);
-        });
-    }
-
-    @Override
-    public void onSelectionEvent(SelectionEvent selectionEvent) {
-        setEnabled(isEnabled());
-    }
-
-    @Override
-    public void UGSEvent(UGSEvent event) {
-        if (event instanceof ControllerStateEvent) {
-            SwingUtilities.invokeLater(() -> setEnabled(isEnabled()));
-        }
+        new SelectNextAction().actionPerformed(e);
+        super.actionPerformed(e);
     }
 }
