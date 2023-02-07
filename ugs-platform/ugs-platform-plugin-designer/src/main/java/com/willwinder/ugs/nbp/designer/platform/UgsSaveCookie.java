@@ -18,17 +18,30 @@
  */
 package com.willwinder.ugs.nbp.designer.platform;
 
+import com.google.common.io.Files;
+import com.willwinder.ugs.nbp.designer.actions.OpenAction;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openide.cookies.SaveCookie;
+import org.openide.filesystems.FileChooserBuilder;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataFolder;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.Icon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.io.File;
+import java.io.IOException;
+
+import static com.willwinder.ugs.nbp.designer.platform.UgsDataObject.ATTRIBUTE_TEMPORARY;
 
 /**
  * @author Joacim Breiler
@@ -43,14 +56,59 @@ public class UgsSaveCookie implements Icon, SaveCookie {
 
     @Override
     public void save() {
-        saveDesign();
-        PlatformUtils.exportAndLoadGcode(dataObject.getName());
+        boolean isTemporary = dataObject.getPrimaryFile().getAttribute(ATTRIBUTE_TEMPORARY) != null;
+        if (isTemporary) {
+            displaySaveAsDialog();
+        } else {
+            saveDesign(new File(dataObject.getPrimaryFile().getPath()));
+        }
     }
 
-    private void saveDesign() {
-        UgsDesignWriter writer = new UgsDesignWriter();
-        writer.write(new File(dataObject.getPrimaryFile().getPath()), ControllerFactory.getController());
-        dataObject.setModified(false);
+    private void displaySaveAsDialog() {
+        FileChooserBuilder fcb = new FileChooserBuilder(OpenAction.class);
+        fcb.setFileFilter(OpenAction.DESIGN_FILE_FILTER);
+        JFileChooser fileChooser = fcb.createFileChooser();
+        fileChooser.setFileHidingEnabled(true);
+        fileChooser.setSelectedFile(new File(fileChooser.getCurrentDirectory(), dataObject.getPrimaryFile().getName()));
+
+        if (fileChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        // Removing the old file
+        File file = new File(StringUtils.appendIfMissing(fileChooser.getSelectedFile().getAbsolutePath(), ".ugsd"));
+        if (file.exists()) {
+            if (JOptionPane.showConfirmDialog(null, "Are you sure you want to overwrite the file " + file.getName(), "Overwrite existing file", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
+                file.delete();
+            } else {
+                return;
+            }
+        }
+
+        renameAndSaveDataObject(file);
+    }
+
+    private void renameAndSaveDataObject(File file) {
+        try {
+            FileObject directory = FileUtil.toFileObject(file.getParentFile());
+            dataObject.move(DataFolder.findFolder(directory));
+            dataObject.rename(Files.getNameWithoutExtension(file.getName()));
+            saveDesign(new File(dataObject.getPrimaryFile().getPath()));
+        } catch (IOException e) {
+            GUIHelpers.displayErrorDialog("Could not save file", true);
+        }
+    }
+
+    private void saveDesign(File file) {
+        try {
+            UgsDesignWriter writer = new UgsDesignWriter();
+            writer.write(file, ControllerFactory.getController());
+            dataObject.getPrimaryFile().setAttribute(ATTRIBUTE_TEMPORARY, null);
+            dataObject.setModified(false);
+            PlatformUtils.exportAndLoadGcode(dataObject.getName());
+        } catch (IOException e) {
+            GUIHelpers.displayErrorDialog("Could not save file", true);
+        }
     }
 
     @Override
