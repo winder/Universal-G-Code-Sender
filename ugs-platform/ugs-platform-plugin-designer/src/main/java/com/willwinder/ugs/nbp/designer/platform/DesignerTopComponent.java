@@ -130,6 +130,11 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         super.componentClosed();
         controller.getUndoManager().removeListener(this);
         controller.release();
+        try {
+            backend.unsetGcodeFile();
+        } catch (Exception e) {
+            // Never mind
+        }
     }
 
     @Override

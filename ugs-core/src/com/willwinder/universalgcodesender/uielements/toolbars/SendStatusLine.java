@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 
 import static com.willwinder.universalgcodesender.model.events.FileState.FILE_LOADED;
 import static com.willwinder.universalgcodesender.model.events.FileState.FILE_STREAM_COMPLETE;
+import static com.willwinder.universalgcodesender.model.events.FileState.FILE_UNLOADED;
 
 /**
  * A component which should be embedded in a status bar.
@@ -123,7 +124,7 @@ public class SendStatusLine extends JLabel implements UGSEventListener {
         // Display the number of rows when a file is loaded.
         if (evt instanceof FileStateEvent) {
             FileStateEvent fileStateEvent = (FileStateEvent) evt;
-            if (fileStateEvent.getFileState() == FILE_LOADED) {
+            if (fileStateEvent.getFileState() == FILE_LOADED || fileStateEvent.getFileState() == FILE_UNLOADED) {
                 setRows();
             } else if (fileStateEvent.getFileState() == FILE_STREAM_COMPLETE) {
                 endSend();
