@@ -16,6 +16,7 @@
                 <groupId>org.apache.netbeans.utilities</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
+                    <verifyRuntime>warn</verifyRuntime>
                     <publicPackages>
                     </publicPackages>
                 </configuration>

@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -29,10 +29,36 @@ import java.io.File;
  * @author Joacim Breiler
  */
 public class EditorUtils {
-    public static void openFile(FileObject pf) {
+
+    private EditorUtils() {
+        // Can not be instanced
+    }
+
+    /**
+     * Loads the file into the backend
+     *
+     * @param fileObject the file object to load
+     */
+    public static void openFile(FileObject fileObject) {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         try {
-            backend.setGcodeFile(new File((pf.getPath())));
+            backend.setGcodeFile(new File((fileObject.getPath())));
+        } catch (Exception e) {
+            ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
+        }
+    }
+
+    /**
+     * Unloads the gcode in the backend if all editor panes are closed
+     */
+    public static void unloadFile() {
+        if (com.willwinder.ugs.nbp.lib.EditorUtils.getOpenEditors().size() > 1) {
+            return;
+        }
+
+        try {
+            BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+            backend.unsetGcodeFile();
         } catch (Exception e) {
             ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
         }

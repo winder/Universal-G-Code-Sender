@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 32 32"
+   version="1.1"
+   id="svg960"
+   sodipodi:docname="new32.svg"
+   width="32"
+   height="32"
+   inkscape:version="1.2.2 (b0a8486, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs964" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1436"
+     inkscape:window-height="1051"
+     id="namedview962"
+     showgrid="false"
+     height="16px"
+     inkscape:zoom="7.16"
+     inkscape:cx="47.695531"
+     inkscape:cy="9.5670391"
+     inkscape:window-x="61"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg960"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
+  <!-- Font Awesome Free 5.15.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) -->
+  <path
+     d="M 27.113934,6.123804 21.871276,0.88107792 C 21.308893,0.31868776 20.546553,0 19.752968,0 H 6.9993749 C 5.3434699,0.00624879 4,1.3497364 4,3.0056631 V 29.000585 C 4,30.656512 5.3434699,32 6.9993749,32 H 24.995626 C 26.651529,32 27.995,30.656512 27.995,29.000585 V 8.2483891 C 27.995,7.454794 27.676316,6.6861943 27.113934,6.123804 Z M 24.751925,8.0046865 H 19.996667 V 3.2493653 Z M 6.9993749,29.000585 V 3.0056631 h 9.9979161 v 6.4987306 c 0,0.8310883 0.668612,1.4997073 1.499687,1.4997073 h 6.498648 v 17.996484 z"
+     id="path958"
+     style="fill:#353a40;fill-opacity:1;stroke-width:0.0624873"
+     sodipodi:nodetypes="ssscssssssscccccccssccc" />
+  <g
+     aria-label="G0"
+     id="text5885"
+     style="font-size:12.8724px;line-height:1.25;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#353a40;stroke-width:0.32181">
+    <path
+       d="m 14.920801,22.709926 q -1.087366,0.798239 -2.407289,0.798239 -1.728472,0 -2.6209921,-1.169075 Q 9,21.163729 9,18.907288 q 0,-2.181017 0.8610931,-3.39409 0.8673789,-1.213073 2.6524189,-1.213073 0.641105,0 1.269641,0.163419 0.628535,0.163419 1.011941,0.43369 l -0.339409,0.81081 q -0.886234,-0.502828 -1.942173,-0.502828 -1.219359,0 -1.822752,0.89252 -0.597109,0.89252 -0.597109,2.809552 0,3.695787 2.419861,3.695787 0.911376,0 1.376492,-0.383407 v -2.187302 h -1.59648 v -0.89252 h 2.627277 z"
+       style="font-weight:bold;font-family:monospace;-inkscape-font-specification:'monospace Bold'"
+       id="path5937" />
+    <path
+       d="m 19.773093,14.300125 q 1.407918,0 2.162161,1.213073 0.760527,1.206788 0.760527,3.39409 0,2.118163 -0.735386,3.362663 -0.735386,1.238214 -2.187302,1.238214 -1.401634,0 -2.162161,-1.206787 -0.760528,-1.206788 -0.760528,-3.39409 0,-2.124449 0.735386,-3.362663 0.741672,-1.2445 2.187303,-1.2445 z m 0,8.30295 q 0.930232,0 1.376492,-0.879949 0.452545,-0.886235 0.452545,-2.815838 0,-1.935888 -0.452545,-2.809552 -0.44626,-0.879949 -1.376492,-0.879949 -0.917662,0 -1.370207,0.898805 -0.452545,0.898805 -0.452545,2.790696 0,1.917032 0.44626,2.809552 0.452545,0.886235 1.376492,0.886235 z m -0.02514,-4.63859 q 0.395977,0 0.666248,0.276556 0.276555,0.27027 0.276555,0.666247 0,0.408548 -0.276555,0.703959 -0.276556,0.289127 -0.666248,0.289127 -0.383406,0 -0.659962,-0.289127 -0.27027,-0.295411 -0.27027,-0.703959 0,-0.402263 0.263985,-0.672533 0.27027,-0.27027 0.666247,-0.27027 z"
+       style="font-weight:bold;font-family:monospace;-inkscape-font-specification:'monospace Bold'"
+       id="path5939" />
+  </g>
+</svg>

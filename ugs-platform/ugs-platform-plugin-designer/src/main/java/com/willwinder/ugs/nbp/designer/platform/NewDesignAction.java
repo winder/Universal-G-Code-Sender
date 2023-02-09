@@ -57,7 +57,7 @@ import static com.willwinder.ugs.nbp.designer.platform.UgsDataObject.ATTRIBUTE_T
 public final class NewDesignAction extends AbstractAction {
 
     public static final String SMALL_ICON_PATH = "img/new.svg";
-    public static final String LARGE_ICON_PATH = "img/new32.svg";
+    public static final String LARGE_ICON_PATH = "img/new24.svg";
 
     public NewDesignAction() {
         putValue("iconBase", SMALL_ICON_PATH);
