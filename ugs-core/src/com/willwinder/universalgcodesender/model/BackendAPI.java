@@ -45,6 +45,13 @@ public interface BackendAPI extends BackendAPIReadOnly {
     void setGcodeFile(File file) throws Exception;
 
     /**
+     * Resets the backend and unloads the currently loaded gcode file
+     *
+     * @throws Exception
+     */
+    void unsetGcodeFile() throws Exception;
+
+    /**
      * Reloads the currently loaded gcode file. This will retain the current parser and its processors.
      *
      * @throws Exception

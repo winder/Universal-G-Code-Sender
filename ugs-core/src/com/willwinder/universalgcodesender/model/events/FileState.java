@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,5 +22,6 @@ public enum FileState {
     OPENING_FILE,
     FILE_LOADING,
     FILE_LOADED,
+    FILE_UNLOADED,
     FILE_STREAM_COMPLETE
 }

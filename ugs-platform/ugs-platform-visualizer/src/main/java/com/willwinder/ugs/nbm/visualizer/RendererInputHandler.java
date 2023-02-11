@@ -125,6 +125,9 @@ public class RendererInputHandler implements
             animator.pause();
             FileStateEvent fileStateEvent = (FileStateEvent) cse;
             switch (fileStateEvent.getFileState()) {
+                case FILE_UNLOADED:
+                    setGcodeFile(null);
+                    break;
                 case FILE_LOADED:
                     setGcodeFile(fileStateEvent.getFile());
                     break;

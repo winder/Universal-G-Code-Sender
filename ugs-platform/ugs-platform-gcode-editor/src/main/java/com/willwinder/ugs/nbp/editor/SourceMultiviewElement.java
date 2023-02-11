@@ -105,6 +105,7 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
             GcodeHighlightsLayerFactory.release(getEditorPane().getDocument());
         }
         editorListener.reset();
+        EditorUtils.unloadFile();
         super.componentClosed();
     }
 

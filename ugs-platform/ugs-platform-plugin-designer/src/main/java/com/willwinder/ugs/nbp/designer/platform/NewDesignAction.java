@@ -18,27 +18,26 @@
  */
 package com.willwinder.ugs.nbp.designer.platform;
 
-import com.willwinder.ugs.nbp.designer.actions.OpenAction;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.EditorUtils;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import org.apache.commons.lang3.StringUtils;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.cookies.OpenCookie;
-import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+
+import static com.willwinder.ugs.nbp.designer.platform.UgsDataObject.ATTRIBUTE_TEMPORARY;
 
 @ActionID(
         category = LocalizingService.OpenCategory,
@@ -53,20 +52,14 @@ import java.io.IOException;
                 position = 9),
         @ActionReference(
                 path = "Toolbars/File",
-                position = 9),
-        @ActionReference(
-                path = "Shortcuts",
-                name = "M-O")
+                position = 9)
 })
 public final class NewDesignAction extends AbstractAction {
 
     public static final String SMALL_ICON_PATH = "img/new.svg";
-    public static final String LARGE_ICON_PATH = "img/new32.svg";
-    private final transient BackendAPI backend;
+    public static final String LARGE_ICON_PATH = "img/new24.svg";
 
     public NewDesignAction() {
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
@@ -75,36 +68,18 @@ public final class NewDesignAction extends AbstractAction {
     }
 
     @Override
-    public boolean isEnabled() {
-        return backend != null;
-    }
-
-    @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            FileChooserBuilder fcb = new FileChooserBuilder(OpenAction.class);
-            fcb.setFileFilter(OpenAction.DESIGN_FILE_FILTER);
-
-            JFileChooser fileChooser = fcb.createFileChooser();
-            fileChooser.setFileHidingEnabled(true);
-            if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-                File file = new File(StringUtils.appendIfMissing(fileChooser.getSelectedFile().getAbsolutePath(), ".ugsd"));
-                FileObject dir = FileUtil.toFileObject(fileChooser.getSelectedFile().getParentFile());
-
-                // Removing the old file
-                if (file.exists()) {
-                    if(JOptionPane.showConfirmDialog(SwingUtilities.getRoot((Component)e.getSource()), "Are you sure you want to overwrite the file " + file.getName(), "Overwrite existing file", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
-                        file.delete();
-                    } else {
-                        return;
-                    }
-                }
-
-                FileObject fileObject = dir.createData(file.getName());
-                DataObject.find(fileObject).getLookup().lookup(OpenCookie.class).open();
+            EditorUtils.closeOpenEditors();
+            File file = new File(Files.createTempDirectory("ugsd").toFile().getAbsolutePath(), "unnamed.ugsd");
+            if (!file.createNewFile()) {
+                throw new IOException("Could not create temporary file " + file);
             }
+            FileObject fileObject = FileUtil.toFileObject(file);
+            fileObject.setAttribute(ATTRIBUTE_TEMPORARY, true);
+            DataObject.find(fileObject).getLookup().lookup(OpenCookie.class).open();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            GUIHelpers.displayErrorDialog("Could not create temporary file");
         }
     }
 }

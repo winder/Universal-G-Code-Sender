@@ -486,6 +486,33 @@ public class GUIBackendTest {
         assertNotNull(instance.getProcessedGcodeFile());
     }
 
+    @Test
+    public void unsetGcodeFileShouldUnloadFile() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        File tempFile = File.createTempFile("ugs-", ".gcode");
+        FileUtils.writeStringToFile(tempFile, "G0 X0 Y0\n", StandardCharsets.UTF_8);
+        instance.setGcodeFile(tempFile);
+
+        // When
+        instance.unsetGcodeFile();
+
+        // Then
+        List<UGSEvent> events = eventArgumentCaptor.getAllValues();
+        assertEquals(5, events.size());
+        assertEquals(FileState.OPENING_FILE, ((FileStateEvent) events.get(0)).getFileState());
+        assertEquals(FileState.FILE_LOADING, ((FileStateEvent) events.get(1)).getFileState());
+        assertEquals(SettingChangedEvent.class, events.get(2).getClass());
+        assertEquals(FileState.FILE_LOADED, ((FileStateEvent) events.get(3)).getFileState());
+        assertEquals(FileState.FILE_UNLOADED, ((FileStateEvent) events.get(4)).getFileState());
+
+        assertNull(instance.getProcessedGcodeFile());
+        assertNull(instance.getGcodeFile());
+        assertEquals(0, instance.getNumRemainingRows());
+        assertEquals(0, instance.getNumRows());
+    }
+
     @Test(expected = IOException.class)
     public void getGcodeFileThatDoesNotExistShouldThrowException() throws Exception {
         // Given

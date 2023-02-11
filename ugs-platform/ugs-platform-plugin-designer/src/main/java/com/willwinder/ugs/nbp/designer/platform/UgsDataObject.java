@@ -43,6 +43,7 @@ import java.io.IOException;
 public class UgsDataObject extends MultiDataObject {
 
     public static final String MIME_TYPE = "application/x-ugs";
+    public static final String ATTRIBUTE_TEMPORARY = "temporary-file";
 
     public UgsDataObject(FileObject pf, MultiFileLoader loader) throws IOException {
         super(pf, loader);
@@ -51,6 +52,11 @@ public class UgsDataObject extends MultiDataObject {
         cookies.add(new UgsCloseCookie(this));
         cookies.add(new UgsOpenSupport(getPrimaryEntry()));
         cookies.add(new UgsSaveAsCookie());
+
+        // If this is a temporary new file
+        if (pf.getAttribute(ATTRIBUTE_TEMPORARY) != null) {
+            setModified(true);
+        }
     }
 
     @Override

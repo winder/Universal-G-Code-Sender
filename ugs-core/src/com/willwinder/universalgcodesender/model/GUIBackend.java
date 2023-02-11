@@ -323,7 +323,7 @@ public class GUIBackend implements BackendAPI {
 
     @Override
     public ControllerState getControllerState() {
-        return controller != null ? controller.getControllerStatus().getState() : ControllerState.DISCONNECTED;
+        return controller != null && controller.getControllerStatus() != null ? controller.getControllerStatus().getState() : ControllerState.DISCONNECTED;
     }
 
     @Override
@@ -358,6 +358,18 @@ public class GUIBackend implements BackendAPI {
         initGcodeParser();
         this.gcodeFile = file;
         processGcodeFile();
+    }
+
+    @Override
+    public void unsetGcodeFile() throws Exception {
+        if (gcodeStream != null) {
+            gcodeStream.close();
+        }
+
+        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.FILE_UNLOADED, null));
+        initGcodeParser();
+        this.gcodeFile = null;
+        this.processedGcodeFile = null;
     }
 
     @Override
