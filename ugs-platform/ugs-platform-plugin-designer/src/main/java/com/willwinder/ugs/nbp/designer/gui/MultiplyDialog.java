@@ -87,7 +87,7 @@ public class MultiplyDialog extends JDialog implements ChangeListener, WindowLis
         horizontalPanel.add(xCountSpinner, "wrap");
 
         horizontalPanel.add(new JLabel("X Spacing", SwingConstants.TRAILING), "grow");
-        xSpacingSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
+        xSpacingSpinner = new JSpinner(new SpinnerNumberModel(1d, 0.001, 1000, .1));
         horizontalPanel.add(xSpacingSpinner, "wrap");
         add(horizontalPanel, "grow");
 
@@ -100,7 +100,7 @@ public class MultiplyDialog extends JDialog implements ChangeListener, WindowLis
         verticalPanel.add(yCountSpinner, "wrap");
 
         verticalPanel.add(new JLabel("Y Spacing", SwingConstants.TRAILING), "grow");
-        ySpacingSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
+        ySpacingSpinner = new JSpinner(new SpinnerNumberModel(1d, 0.001, 1000, .1));
         verticalPanel.add(ySpacingSpinner, "wrap");
         add(verticalPanel, "grow, wrap");
 
@@ -151,8 +151,8 @@ public class MultiplyDialog extends JDialog implements ChangeListener, WindowLis
                 if (x >= 1 || y >= 1) {
                     EntityGroup clone = (EntityGroup) selection.copy();
                     Point2D position = clone.getPosition();
-                    double newX = position.getX() + (x * clone.getSize().getWidth()) + (x * (int) xSpacingSpinner.getValue());
-                    double newY = position.getY() + (y * clone.getSize().getHeight()) + (y * (int) ySpacingSpinner.getValue());
+                    double newX = position.getX() + (x * clone.getSize().getWidth()) + (x * (double) xSpacingSpinner.getValue());
+                    double newY = position.getY() + (y * clone.getSize().getHeight()) + (y * (double) ySpacingSpinner.getValue());
                     clone.setPosition(new Point2D.Double(newX, newY));
                     entityGroup.addAll(clone.getChildren());
                 }
