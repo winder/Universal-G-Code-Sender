@@ -41,7 +41,13 @@ public class JogSizeAction extends AbstractAction implements Serializable {
         STEPABC_MULTIPLY,
         STEPABC_DIVIDE,
         FEED_PLUS,
+        FEED_PLUS_TEN,
+        FEED_PLUS_HUNDRED,
+        FEED_PLUS_THOUSAND,
         FEED_MINUS,
+        FEED_MINUS_TEN,
+        FEED_MINUS_HUNDRED,
+        FEED_MINUS_THOUSAND,
         FEED_MULTIPLY,
         FEED_DIVIDE,
         UNITS_TOGGLE
@@ -133,8 +139,26 @@ public class JogSizeAction extends AbstractAction implements Serializable {
                 case FEED_PLUS:
                     getJogService().increaseFeedRate();
                     break;
+                case FEED_PLUS_TEN:
+                    getJogService().increaseFeedRate(10);
+                    break;
+                case FEED_PLUS_HUNDRED:
+                    getJogService().increaseFeedRate(100);
+                    break;
+                case FEED_PLUS_THOUSAND:
+                    getJogService().increaseFeedRate(1000);
+                    break;
                 case FEED_MINUS:
                     getJogService().decreaseFeedRate();
+                    break;
+                case FEED_MINUS_TEN:
+                    getJogService().decreaseFeedRate(10);
+                    break;
+                case FEED_MINUS_HUNDRED:
+                    getJogService().decreaseFeedRate(100);
+                    break;
+                case FEED_MINUS_THOUSAND:
+                    getJogService().decreaseFeedRate(1000);
                     break;
                 case FEED_MULTIPLY:
                     getJogService().multiplyFeedRate();

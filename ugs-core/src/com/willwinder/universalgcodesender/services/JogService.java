@@ -162,10 +162,17 @@ public class JogService {
         setFeedRate(increaseSize(getFeedRate()));
     }
 
+    public void increaseFeedRate(double rate) {
+        setFeedRate(getFeedRate() + rate);
+    }
+
     public void decreaseFeedRate() {
         setFeedRate(decreaseSize(getFeedRate()));
     }
 
+    public void decreaseFeedRate(double rate) {
+        setFeedRate(getFeedRate() - rate);
+    }
 
     private Settings getSettings() {
         return backend.getSettings();
