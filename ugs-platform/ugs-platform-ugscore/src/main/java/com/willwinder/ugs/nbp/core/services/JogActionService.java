@@ -168,15 +168,6 @@ public class JogActionService {
             ars.registerAction(JogSizeAction.class.getCanonicalName() + ".increase.abc", Localization.getString("jogging.increase.abc"),
                     category, "" , menuPath, 0, localized, new JogSizeAction(STEPABC_PLUS));
 
-            // Feed Rate
-            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".decrease.feed", Localization.getString("jogging.decrease.feed"),
-                    category, "" , menuPath, 0, localized, new JogSizeAction(FEED_MINUS));
-            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".increase.feed", Localization.getString("jogging.increase.feed"),
-                    category, "" , menuPath, 0, localized, new JogSizeAction(FEED_PLUS));
-            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".multiply.feed", Localization.getString("jogging.multiply.feed"),
-                    category, "" , menuPath, 0, localized, new JogSizeAction(FEED_MULTIPLY));
-            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".divide.feed", Localization.getString("jogging.divide.feed"),
-                    category, "" , menuPath, 0, localized, new JogSizeAction(FEED_DIVIDE));
 
             // Units
             ars.registerAction(JogSizeAction.class.getCanonicalName() + ".inch", Localization.getString("jogging.units.inch"),
@@ -186,8 +177,44 @@ public class JogActionService {
             ars.registerAction(JogSizeAction.class.getCanonicalName() + ".toggle", Localization.getString("jogging.units.toggle"),
                     category, "" , menuPath, 0, localized, new JogSizeAction(UNITS_TOGGLE));
 
+            registerFeedRateActions(ars);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
+    }
+
+    private void registerFeedRateActions(ActionRegistrationService ars) throws IOException {
+        String localized = String.format("Menu/%s/%s/%s",
+                Localization.getString("platform.menu.machine"),
+                Localization.getString("platform.menu.jog"),
+                Localization.getString("platform.menu.jog.feed"));
+
+        String category = "Machine";
+        String menuPath = "Menu/" + category + "/Jog/Feed rate";
+
+        String increaseFeedRateText = Localization.getString("jogging.increase.feed");
+        String decreaseFeedRateText = Localization.getString("jogging.decrease.feed");
+
+        // Feed Rate
+        ars.registerAction(JogSizeAction.class.getCanonicalName() + ".decrease.feed", decreaseFeedRateText,
+                category, "" , menuPath, 0, localized, new JogSizeAction(FEED_MINUS));
+        ars.registerAction(JogSizeAction.class.getCanonicalName() + ".decrease.feed10", decreaseFeedRateText + " 10",
+                category, "" , menuPath, 0, localized, new JogSizeAction(FEED_MINUS_TEN));
+        ars.registerAction(JogSizeAction.class.getCanonicalName() + ".decrease.feed100", decreaseFeedRateText + " 100",
+                category, "" , menuPath, 0, localized, new JogSizeAction(FEED_MINUS_HUNDRED));
+        ars.registerAction(JogSizeAction.class.getCanonicalName() + ".decrease.feed1000", decreaseFeedRateText + " 1000",
+                category, "" , menuPath, 0, localized, new JogSizeAction(FEED_MINUS_THOUSAND));
+        ars.registerAction(JogSizeAction.class.getCanonicalName() + ".increase.feed", increaseFeedRateText,
+                category, "" , menuPath, 0, localized, new JogSizeAction(FEED_PLUS));
+        ars.registerAction(JogSizeAction.class.getCanonicalName() + ".increase.feed10", increaseFeedRateText + " 10",
+                category, "" , menuPath, 0, localized, new JogSizeAction(FEED_PLUS_TEN));
+        ars.registerAction(JogSizeAction.class.getCanonicalName() + ".increase.feed100", increaseFeedRateText + " 100",
+                category, "" , menuPath, 0, localized, new JogSizeAction(FEED_PLUS_HUNDRED));
+        ars.registerAction(JogSizeAction.class.getCanonicalName() + ".increase.feed1000", increaseFeedRateText + " 1000",
+                category, "" , menuPath, 0, localized, new JogSizeAction(FEED_PLUS_THOUSAND));
+        ars.registerAction(JogSizeAction.class.getCanonicalName() + ".multiply.feed", Localization.getString("jogging.multiply.feed"),
+                category, "" , menuPath, 0, localized, new JogSizeAction(FEED_MULTIPLY));
+        ars.registerAction(JogSizeAction.class.getCanonicalName() + ".divide.feed", Localization.getString("jogging.divide.feed"),
+                category, "" , menuPath, 0, localized, new JogSizeAction(FEED_DIVIDE));
     }
 }

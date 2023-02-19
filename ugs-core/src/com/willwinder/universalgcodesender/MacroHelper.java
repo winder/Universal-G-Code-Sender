@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,15 +21,22 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import net.miginfocom.swing.MigLayout;
+import org.apache.commons.lang3.RegExUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import net.miginfocom.swing.MigLayout;
+import javax.swing.KeyStroke;
+import java.awt.AWTException;
+import java.awt.Robot;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Static helper class for executing custom macros.
@@ -37,20 +44,21 @@ import net.miginfocom.swing.MigLayout;
  * @author wwinder
  */
 public class MacroHelper {
-    static private final Pattern MACHINE_X = Pattern.compile("\\{machine_x\\}");
-    static private final Pattern MACHINE_Y = Pattern.compile("\\{machine_y\\}");
-    static private final Pattern MACHINE_Z = Pattern.compile("\\{machine_z\\}");
-    static private final Pattern WORK_X = Pattern.compile("\\{work_x\\}");
-    static private final Pattern WORK_Y = Pattern.compile("\\{work_y\\}");
-    static private final Pattern WORK_Z = Pattern.compile("\\{work_z\\}");
-    static private final Pattern PROMPT_REGEX = Pattern.compile("\\{prompt\\|([^\\}]+)\\}");
+    private static final Pattern MACHINE_X = Pattern.compile("\\{machine_x}");
+    private static final Pattern MACHINE_Y = Pattern.compile("\\{machine_y}");
+    private static final Pattern MACHINE_Z = Pattern.compile("\\{machine_z}");
+    private static final Pattern WORK_X = Pattern.compile("\\{work_x}");
+    private static final Pattern WORK_Y = Pattern.compile("\\{work_y}");
+    private static final Pattern WORK_Z = Pattern.compile("\\{work_z}");
+    private static final Pattern PROMPT_REGEX = Pattern.compile("\\{prompt\\|([^}]+)}");
+    private static final Pattern KEYPRESS_REGEX = Pattern.compile("\\{keypress\\|([^}]+)}");
 
     /**
      * Process and send a custom gcode string.
-     * 
+     *
      * Not safe to run in the AWT Event Dispatching thread, be sure to use
      * EventQueue.invokeLater() if running in response to a GUI event.
-     * 
+     *
      * Interactive substitutions can be made with special characters:
      *   %machine_x% - The machine X location
      *   %machine_y% - The machine Y location
@@ -59,9 +67,9 @@ public class MacroHelper {
      *   %work_y% - The work Y location
      *   %work_z% - The work Z location
      *   %prompt|name% - Prompt the user for a value named 'name'.
-     * 
-     * @param str 
-     * @param backend 
+     *
+     * @param str
+     * @param backend
      */
     public static void executeCustomGcode(final String str, BackendAPI backend) throws Exception {
         if (str == null) {
@@ -71,15 +79,17 @@ public class MacroHelper {
         command = command.replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
         final String[] parts = command.split(";");
 
-        /* 
+        /*
          * specifically NOT catching exceptions on gCode commands, let them pass to the invoking method
          * so the error handling is aligned to the UI that triggered it (i.e. GUI button press versus Pendant UI http request)
          */
         for (String cmd : parts) {
-            backend.sendGcodeCommand(cmd);
+            if (StringUtils.isNotEmpty(cmd)) {
+                backend.sendGcodeCommand(cmd);
+            }
         }
     }
-    
+
     /**
      * Interactive substitutions can be made with special characters:
      *   {machine_x} - The machine X location
@@ -89,10 +99,11 @@ public class MacroHelper {
      *   {work_y} - The work Y location
      *   {work_z} - The work Z location
      *   {prompt|name} - Prompt the user for a value named 'name'.
-     * 
+     *   {keypress|keys} - Dispatch keyboard press events on the host system. Keys are defined using AWT format, see {@link KeyStroke#getKeyStroke(String)}
+     *
      * @param str
      * @param backend
-     * @return 
+     * @return
      */
     protected static String substituteValues(String str, BackendAPI backend) {
         // Early exit if there is nothing to match.
@@ -112,6 +123,44 @@ public class MacroHelper {
         command = WORK_Y.matcher(command).replaceAll(Utils.formatter.format(workPosition.getY()));
         command = WORK_Z.matcher(command).replaceAll(Utils.formatter.format(workPosition.getZ()));
 
+        command = parsePrompts(command);
+        command = parseKeyPress(command);
+
+        return command;
+    }
+
+    private static String parseKeyPress(String command) {
+        Matcher m = KEYPRESS_REGEX.matcher(command);
+        List<String> keyPressList = new ArrayList<>();
+        while (m.find()) {
+            keyPressList.add(m.group(1));
+        }
+        command = RegExUtils.removeAll(command, m.pattern());
+
+        if (!keyPressList.isEmpty()) {
+            emitKeyPressEvents(keyPressList);
+        }
+
+        return command;
+    }
+
+    private static void emitKeyPressEvents(List<String> keyPressList) {
+        try {
+            Robot robot = new Robot();
+            keyPressList.forEach(keyPress -> {
+                KeyStroke keyStroke = KeyStroke.getKeyStroke(keyPress);
+                if (keyStroke == null) {
+                    GUIHelpers.displayErrorDialog("Could not generate a key press event for key: " + keyPress);
+                    return;
+                }
+                robot.keyPress(keyStroke.getKeyCode());
+            });
+        } catch (AWTException e) {
+            GUIHelpers.displayErrorDialog("Could not generate key press event", true);
+        }
+    }
+
+    private static String parsePrompts(String command) {
         // Prompt for additional substitutions
         Matcher m = PROMPT_REGEX.matcher(command);
         List<String> prompts = new ArrayList<>();
@@ -130,7 +179,7 @@ public class MacroHelper {
                 fields.add(field);
             }
 
-            int result = JOptionPane.showConfirmDialog(null, myPanel, 
+            int result = JOptionPane.showConfirmDialog(null, myPanel,
                      Localization.getString("macro.substitution"),
                     JOptionPane.OK_CANCEL_OPTION,
                     JOptionPane.PLAIN_MESSAGE);
@@ -143,7 +192,6 @@ public class MacroHelper {
                 command = "";
             }
         }
-
         return command;
     }
 }
