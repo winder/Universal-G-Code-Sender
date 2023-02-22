@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2021 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,13 +18,18 @@
  */
 package com.willwinder.ugs.nbp.core.services;
 
+import com.willwinder.ugs.nbp.core.actions.ContinuousAction;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.JogService;
+import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
-public class JogAction extends AbstractAction {
+public class JogAction extends AbstractAction implements ContinuousAction {
+
+    private static ContinuousJogWorker continuousJogWorker;
 
     private transient JogService js;
     private int x, y, z, a, b, c;
@@ -37,6 +42,12 @@ public class JogAction extends AbstractAction {
 
     public JogAction(Integer x, Integer y, Integer z, Integer a, Integer b, Integer c) {
         js = CentralLookup.getDefault().lookup(JogService.class);
+
+        if (continuousJogWorker == null) {
+            BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+            continuousJogWorker = new ContinuousJogWorker(backendAPI, js);
+        }
+
         this.x = x;
         this.y = y;
         this.z = z;
@@ -67,5 +78,16 @@ public class JogAction extends AbstractAction {
         }
 
         return js;
+    }
+
+    @Override
+    public void actionActivate() {
+        continuousJogWorker.setDirection(x, y, z, a, b, c);
+        continuousJogWorker.start();
+    }
+
+    @Override
+    public void actionDeactivated() {
+        continuousJogWorker.stop();
     }
 }
