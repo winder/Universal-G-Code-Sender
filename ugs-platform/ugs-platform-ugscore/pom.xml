@@ -134,7 +134,7 @@
         <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-options-keymap</artifactId>
-            <version>RELEASE150</version>
+            <version>${netbeans.version}</version>
             <scope>compile</scope>
         </dependency>
 
