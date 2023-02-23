@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbp.editor.actions;
 
-import com.willwinder.ugs.nbp.core.actions.OpenAction;
 import com.willwinder.ugs.nbp.lib.EditorUtils;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
@@ -94,7 +93,7 @@ public final class NewGcodeAction extends AbstractAction {
     }
 
     private File chooseFile() throws IOException {
-        FileChooserBuilder fcb = new FileChooserBuilder(OpenAction.class);
+        FileChooserBuilder fcb = new FileChooserBuilder(NewGcodeAction.class);
         fcb.setTitle("Create Gcode file");
         fcb.setFileFilter(new GcodeFileTypeFilter());
         JFileChooser fileChooser = fcb.createFileChooser();
