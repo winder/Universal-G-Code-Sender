@@ -7,9 +7,7 @@ import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
 
 import javax.swing.*;
 import java.util.Optional;

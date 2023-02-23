@@ -1,4 +1,4 @@
-package com.willwinder.ugs.nbp.jog;
+package com.willwinder.universalgcodesender.listeners;
 
 import org.junit.Before;
 import org.junit.Test;

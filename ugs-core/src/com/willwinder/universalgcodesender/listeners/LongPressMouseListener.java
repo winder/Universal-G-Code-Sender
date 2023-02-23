@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.jog;
+package com.willwinder.universalgcodesender.listeners;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
@@ -47,7 +47,7 @@ public abstract class LongPressMouseListener implements MouseListener {
     private static final ScheduledExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
 
     /**
-     * The delay time for how long the button must be pressed before a the mouse
+     * The delay time for how long the button must be pressed before a mouse
      * click event is considered a long press.
      */
     private final long longPressDelay;
@@ -114,7 +114,7 @@ public abstract class LongPressMouseListener implements MouseListener {
             onMouseRelease(e);
         }
 
-        if(pressedComponent.contains(e.getPoint())) {
+        if (pressedComponent.contains(e.getPoint())) {
             onMouseClicked(e);
         }
 

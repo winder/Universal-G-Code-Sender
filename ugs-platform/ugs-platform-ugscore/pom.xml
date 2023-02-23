@@ -18,6 +18,7 @@
                 <version>${ugs.nbm-maven-plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
+                    <verifyRuntime>warn</verifyRuntime>
                     <publicPackages>
                         <publicPackage>com.willwinder.ugs.nbp.core.ui</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.core.actions</publicPackage>
@@ -129,6 +130,12 @@
             <artifactId>org-openide-text</artifactId>
             <version>${netbeans.version}</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-options-keymap</artifactId>
+            <version>${netbeans.version}</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- UGS Module Dependencies -->
