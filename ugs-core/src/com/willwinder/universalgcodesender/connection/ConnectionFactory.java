@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2018 Will Winder
+    Copyright 2015-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -40,7 +40,7 @@ public class ConnectionFactory {
      * @return a connection
      * @throws ConnectionException if something went wron while creating the connection
      */
-    static public Connection getConnection(String uri) throws ConnectionException{
+    static public Connection getConnection(String uri) throws ConnectionException {
         for (ConnectionDriver connectionDriver : ConnectionDriver.values()) {
             if (StringUtils.startsWithIgnoreCase(uri, connectionDriver.getProtocol())) {
                 Connection connection = getConnection(connectionDriver).orElseThrow(() -> new ConnectionException("Couldn't load connection driver " + connectionDriver + " for uri: " + uri));
@@ -52,9 +52,28 @@ public class ConnectionFactory {
         throw new ConnectionException("Couldn't find connection driver for uri: " + uri);
     }
 
+    /**
+     * Returns available ports for this connection driver
+     *
+     * @param connectionDriver the connection driver to use for querying ports
+     * @return a list of port names
+     * @deprecated use {@link #getDevices(ConnectionDriver)} instead
+     */
     public static List<String> getPortNames(ConnectionDriver connectionDriver) {
         return getConnection(connectionDriver)
                 .map(Connection::getPortNames)
+                .orElseGet(Collections::emptyList);
+    }
+
+    /**
+     * Lists found devices for the given connection driver
+     *
+     * @param connectionDriver the connection driver to use for querying devices
+     * @return a list of connection devices
+     */
+    public static List<IConnectionDevice> getDevices(ConnectionDriver connectionDriver) {
+        return getConnection(connectionDriver)
+                .map(Connection::getDevices)
                 .orElseGet(Collections::emptyList);
     }
 

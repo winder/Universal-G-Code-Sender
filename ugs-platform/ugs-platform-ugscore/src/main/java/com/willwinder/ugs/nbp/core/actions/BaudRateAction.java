@@ -1,5 +1,5 @@
 /*
-Copyright 2017 Will Winder
+Copyright 2017-2023 Will Winder
 
 This file is part of Universal Gcode Sender (UGS).
 
@@ -20,18 +20,13 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import org.openide.awt.ActionID;
@@ -42,8 +37,14 @@ import org.openide.util.HelpCtx;
 import org.openide.util.ImageUtilities;
 import org.openide.util.actions.CallableSystemAction;
 
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Component;
+import java.awt.FlowLayout;
+
 /**
- *
  * @author wwinder
  */
 @ActionID(
@@ -61,11 +62,17 @@ import org.openide.util.actions.CallableSystemAction;
 public class BaudRateAction extends CallableSystemAction implements UGSEventListener {
     public static final String ICON_BASE = "resources/icons/baudrate.svg";
 
-    private final BackendAPI backend;
+    private static final String[] TCP_PORTS = {
+            "23",
+            "80"
+    };
+
+    private final transient BackendAPI backend;
     private Component c;
     private JComboBox<String> baudCombo;
+    private JLabel baudLabel;
 
-    public BaudRateAction(){
+    public BaudRateAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
 
@@ -74,7 +81,15 @@ public class BaudRateAction extends CallableSystemAction implements UGSEventList
     }
 
     private void updateBaudRate() {
-        baudCombo.setSelectedItem(this.backend.getSettings().getPortRate());
+        if (backend.getSettings().getConnectionDriver() == ConnectionDriver.TCP || backend.getSettings().getConnectionDriver() == ConnectionDriver.WS) {
+            baudLabel.setText(Localization.getString("mainWindow.swing.portLabel"));
+            baudCombo.setModel(new DefaultComboBoxModel<>(TCP_PORTS));
+        } else {
+            baudLabel.setText(Localization.getString("mainWindow.swing.baudLabel"));
+            baudCombo.setModel(new DefaultComboBoxModel<>(BaudRateEnum.getAllBaudRates()));
+        }
+
+        baudCombo.setSelectedItem(backend.getSettings().getPortRate());
     }
 
     @Override
@@ -89,7 +104,7 @@ public class BaudRateAction extends CallableSystemAction implements UGSEventList
 
     @Override
     public HelpCtx getHelpCtx() {
-        return null; // new HelpCtx("...ID") if you have a help set
+        return null;
     }
 
     @Override
@@ -108,7 +123,7 @@ public class BaudRateAction extends CallableSystemAction implements UGSEventList
             c.setVisible(backend.getControllerState() == ControllerState.DISCONNECTED);
         }
     }
-    
+
     @Override
     public Component getToolbarPresenter() {
         if (c == null) {
@@ -119,10 +134,11 @@ public class BaudRateAction extends CallableSystemAction implements UGSEventList
             baudCombo.setSelectedIndex(6);
             baudCombo.setToolTipText("Select baudrate to use for the serial port.");
 
-            baudCombo.addActionListener(e ->this.performAction());
+            baudCombo.addActionListener(e -> this.performAction());
+            baudLabel = new JLabel(Localization.getString("mainWindow.swing.baudLabel"));
 
             JPanel panel = new JPanel(new FlowLayout());
-            panel.add(new JLabel(Localization.getString("mainWindow.swing.baudLabel")));
+            panel.add(baudLabel);
             panel.add(baudCombo);
             c = panel;
 

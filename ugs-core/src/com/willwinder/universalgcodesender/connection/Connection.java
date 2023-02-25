@@ -38,13 +38,13 @@ public interface Connection {
 
     /**
      * Sets the connection URI for the hardware and driver to connect with.
-     *
+     * <p>
      * Example with a serial port using the JSSC driver and baud rate 9600
      * jssc://dev/tty.usbmodem1421:9600
-     *
+     * <p>
      * Example with a serial port using the JSerialComm driver and baud rate 115200
      * jserialcomm://tty.usbmodem1421:115200
-     *
+     * <p>
      * Example with a TCP port using TCPConnection driver to example.com and port 9001
      * tcp://example.com:9001
      *
@@ -95,6 +95,13 @@ public interface Connection {
      * @return a list of available port names
      */
     List<String> getPortNames();
+
+    /**
+     * Returns a list of all available connection devices
+     *
+     * @return a list of available connection devices
+     */
+    List<IConnectionDevice> getDevices();
 
     /**
      * Enters a mode for receiving using the xmodem protocol and return the file stream as an byte array.
