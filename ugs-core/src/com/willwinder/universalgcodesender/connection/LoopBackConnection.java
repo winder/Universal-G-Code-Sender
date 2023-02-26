@@ -37,25 +37,13 @@ public class LoopBackConnection extends AbstractConnection {
     private BlockingQueue<String> sent;
     private boolean exit = false;
     private boolean open = false;
-    private Thread  okThread;
+    private Thread okThread;
     private int ms = 0;
-
-    private void initialize() {
-        handleResponse(" ");
-        handleResponse("Grbl 0.9z [ugs diagnostic mode]");
-        handleResponse(" ");
-        handleResponse("This is a diagnostic end point which responds to each gcode");
-        handleResponse("command as fast as possible while doing nothing else.");
-    }
-
-    private void handleResponse(String response) {
-        responseMessageHandler.handleResponse(response.getBytes(), 0, response.length());
-    }
-
     Runnable okRunnable = () -> {
         try {
             Thread.sleep(1000);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         // This is nested beneath a GrblController, notify it that we're ready.
         initialize();
 
@@ -79,8 +67,7 @@ public class LoopBackConnection extends AbstractConnection {
                     count++;
                     if (count == 2) {
                         initialize();
-                    }
-                    else if (count > 2) {
+                    } else if (count > 2) {
                         try {
                             gcp.addCommand(command);
                             lastCommand = gcp.getCurrentState().currentPoint;
@@ -105,6 +92,18 @@ public class LoopBackConnection extends AbstractConnection {
     public LoopBackConnection(String terminator) {
     }
 
+    private void initialize() {
+        handleResponse(" ");
+        handleResponse("Grbl 0.9z [ugs diagnostic mode]");
+        handleResponse(" ");
+        handleResponse("This is a diagnostic end point which responds to each gcode");
+        handleResponse("command as fast as possible while doing nothing else.");
+    }
+
+    private void handleResponse(String response) {
+        responseMessageHandler.handleResponse(response.getBytes(), 0, response.length());
+    }
+
     @Override
     public void setUri(String uri) {
 
@@ -127,6 +126,11 @@ public class LoopBackConnection extends AbstractConnection {
     @Override
     public List<String> getPortNames() {
         return Arrays.asList("loopback");
+    }
+
+    @Override
+    public List<IConnectionDevice> getDevices() {
+        return Arrays.asList(new DefaultConnectionDevice("loopback"));
     }
 
     @Override

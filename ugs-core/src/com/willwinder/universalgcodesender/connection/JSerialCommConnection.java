@@ -102,6 +102,12 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<IConnectionDevice> getDevices() {
+        return Arrays.stream(SerialPort.getCommPorts())
+                .map(JSerialCommConnectionDevice::new)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public int getListeningEvents() {
