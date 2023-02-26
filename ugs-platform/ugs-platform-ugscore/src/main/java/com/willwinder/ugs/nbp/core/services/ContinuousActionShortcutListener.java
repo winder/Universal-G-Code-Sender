@@ -91,17 +91,13 @@ public class ContinuousActionShortcutListener implements Runnable, KeyEventDispa
 
     private String getKeyAsString(KeyEvent e) {
         KeyStroke keyStroke = KeyStroke.getKeyStroke(e.getKeyCode(), e.getModifiersEx());
-        return Utilities.keyToString(keyStroke, false);
+        return Utilities.keyToString(keyStroke, true);
     }
 
     private Optional<ActionReference> getContinuousActionByShortcut(String keyAsString) {
-        Optional<String> actionId = shortcutService.getActionIdForShortcut(keyAsString);
-        if (!actionId.isPresent()) {
-            return Optional.empty();
-        }
-
-        Optional<ActionReference> actionById = actionRegistrationService.getActionById(actionId.get());
-        return actionById.filter(action -> actionById.get().getAction() instanceof ContinuousAction);
+        return  shortcutService.getActionIdForShortcut(keyAsString)
+                .flatMap(actionRegistrationService::getActionById)
+                .filter(action -> action.getAction() instanceof ContinuousAction);
     }
 
     @Override
