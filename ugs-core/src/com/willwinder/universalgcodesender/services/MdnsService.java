@@ -22,15 +22,12 @@ import com.willwinder.universalgcodesender.model.MdnsEntry;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.NetworkTopologyDiscovery;
-import javax.jmdns.ServiceEvent;
-import javax.jmdns.ServiceListener;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -66,36 +63,19 @@ public class MdnsService {
         return instance;
     }
 
-    public void registerListener(String mdnsName) {
-        jmdnsList.forEach(jmDNS -> jmDNS.addServiceListener(mdnsName, new ServiceListener() {
-            @Override
-            public void serviceAdded(ServiceEvent event) {
-                Optional<MdnsEntry> entry = mdnsEntries.stream().filter(mdnsEntry -> mdnsEntry.getType().equals(mdnsName) && mdnsEntry.getName().equals(event.getName())).findFirst();
-                if (!entry.isPresent()) {
-                    entry = Optional.of(new MdnsEntry(mdnsName, event.getName()));
-                    mdnsEntries.add(entry.get());
-                }
-
-                entry.get().setPort(event.getInfo().getPort());
-                if (event.getInfo().getInet4Addresses().length > 0) {
-                    entry.get().setHost(event.getInfo().getInet4Addresses()[0].getHostAddress());
-                }
-            }
-
-            @Override
-            public void serviceRemoved(ServiceEvent event) {
-                Optional<MdnsEntry> entry = getServices(mdnsName).stream().filter(mdnsEntry -> mdnsEntry.getName().equals(event.getName())).findFirst();
-                entry.ifPresent(mdnsEntries::remove);
-            }
-
-            @Override
-            public void serviceResolved(ServiceEvent event) {
-                serviceAdded(event);
-            }
-        }));
+    public void registerListener(String serviceType) {
+        jmdnsList.forEach(jmDNS -> jmDNS.addServiceListener(serviceType, new MdnsServiceListener(this, serviceType)));
     }
 
     public List<MdnsEntry> getServices(String mdnsName) {
         return mdnsEntries.stream().filter(mdnsEntry -> mdnsEntry.getType().equals(mdnsName)).collect(Collectors.toList());
+    }
+
+    protected void add(MdnsEntry entry) {
+        mdnsEntries.add(entry);
+    }
+
+    protected void remove(MdnsEntry entry) {
+        mdnsEntries.remove(entry);
     }
 }

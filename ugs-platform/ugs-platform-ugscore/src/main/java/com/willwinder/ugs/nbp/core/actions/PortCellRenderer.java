@@ -23,11 +23,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.Serializable;
 
@@ -37,11 +33,10 @@ import java.io.Serializable;
  * @author Joacim Breiler
  */
 public class PortCellRenderer implements ListCellRenderer<IConnectionDevice>, Serializable {
-    private static final Border DEFAULT_BORDER = new EmptyBorder(5, 5, 5, 5);
 
     public Component getListCellRendererComponent(
             JList<? extends IConnectionDevice> list,
-            IConnectionDevice value,
+            IConnectionDevice device,
             int index,
             boolean isSelected,
             boolean cellHasFocus) {
@@ -50,35 +45,8 @@ public class PortCellRenderer implements ListCellRenderer<IConnectionDevice>, Se
             return new JLabel(Localization.getString("mainWindow.error.noSerialPort"));
         }
 
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setOpaque(true);
-        panel.setBorder(DEFAULT_BORDER);
-        populatePortInfo(value, panel);
-        panel.setComponentOrientation(list.getComponentOrientation());
-
-        if (isSelected) {
-            panel.setBackground(list.getSelectionBackground());
-            panel.setForeground(list.getSelectionForeground());
-        } else {
-            panel.setBackground(list.getBackground());
-            panel.setForeground(list.getForeground());
-        }
-
-        panel.setEnabled(list.isEnabled());
-        panel.setFont(list.getFont());
-        return panel;
+        return new PortCellItem(list, device, isSelected);
     }
 
-    private void populatePortInfo(IConnectionDevice value, JPanel panel) {
-        if (!value.getDescription().isPresent()) {
-            JLabel addressLabel = new JLabel(value.getAddress());
-            panel.add(addressLabel, BorderLayout.CENTER);
-        } else {
-            JLabel descriptionLabel = new JLabel(value.getDescription().get());
-            panel.add(descriptionLabel, BorderLayout.CENTER);
-            JLabel addressLabel = new JLabel(value.getAddress());
-            addressLabel.setFont(addressLabel.getFont().deriveFont(8f));
-            panel.add(addressLabel, BorderLayout.SOUTH);
-        }
-    }
+
 }
