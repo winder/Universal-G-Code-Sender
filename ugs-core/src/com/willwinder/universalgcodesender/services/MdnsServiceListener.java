@@ -19,9 +19,12 @@
 package com.willwinder.universalgcodesender.services;
 
 import com.willwinder.universalgcodesender.model.MdnsEntry;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceListener;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * A service listener that will add or remove entries keeping the {@link MdnsService} updated
@@ -31,6 +34,7 @@ import javax.jmdns.ServiceListener;
 public class MdnsServiceListener implements ServiceListener {
     private final MdnsService service;
     private final String serviceType;
+    private static final Logger LOGGER = Logger.getLogger(MdnsServiceListener.class.getSimpleName());
 
     MdnsServiceListener(MdnsService service, String serviceType) {
         this.service = service;
@@ -39,33 +43,40 @@ public class MdnsServiceListener implements ServiceListener {
 
     @Override
     public void serviceAdded(ServiceEvent event) {
-        MdnsEntry entry = service.getServices(serviceType).stream()
-                .filter(mdnsEntry -> mdnsEntry.getName().equals(event.getName()))
-                .findFirst().orElse(createAndRegisterEntry(event));
-
-        // Update entry information
-        entry.setPort(event.getInfo().getPort());
-        if (event.getInfo().getInet4Addresses().length > 0) {
-            entry.setHost(event.getInfo().getInet4Addresses()[0].getHostAddress());
-        }
+        MdnsEntry entry = findEntry(event).orElse(createAndRegisterEntry(event));
+        LOGGER.finest("Added mDNS entry: " + entry.getName());
     }
 
     @Override
     public void serviceRemoved(ServiceEvent event) {
-        service.getServices(serviceType).stream()
-                .filter(mdnsEntry -> mdnsEntry.getName().equals(event.getName()))
-                .findFirst()
-                .ifPresent(service::remove);
+        findEntry(event).ifPresent(service::remove);
     }
 
     @Override
     public void serviceResolved(ServiceEvent event) {
-        serviceAdded(event);
+        MdnsEntry entry = findEntry(event).orElse(createAndRegisterEntry(event));
+        entry.setPort(event.getInfo().getPort());
+        entry.setHost(getHostAddress(event));
+        LOGGER.finest("Updated mDNS entry: " + entry.getName() + " " + entry.getHost() + ":" + entry.getPort());
     }
 
     private MdnsEntry createAndRegisterEntry(ServiceEvent event) {
         MdnsEntry entry = new MdnsEntry(serviceType, event.getName());
         service.add(entry);
         return entry;
+    }
+
+    private Optional<MdnsEntry> findEntry(ServiceEvent event) {
+        return service.getServices(serviceType).stream()
+                .filter(mdnsEntry -> StringUtils.equals(mdnsEntry.getName(), event.getName()))
+                .findFirst();
+    }
+
+    private String getHostAddress(ServiceEvent event) {
+        if (event.getInfo().getInet4Addresses().length > 0) {
+            return event.getInfo().getInet4Addresses()[0].getHostAddress();
+        }
+
+        return null;
     }
 }

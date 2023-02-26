@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.universalgcodesender.connection.DefaultConnectionDevice;
 import com.willwinder.universalgcodesender.connection.IConnectionDevice;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.AbstractListModel;
 import javax.swing.MutableComboBoxModel;
@@ -39,8 +40,8 @@ public class PortComboBoxModel extends AbstractListModel<IConnectionDevice> impl
 
     @Override
     public void addElement(IConnectionDevice device) {
-        boolean exists = devices.stream().anyMatch(d -> d.getAddress().equals(device.getAddress()));
-        if (!exists) {
+        boolean exists = devices.stream().anyMatch(d -> StringUtils.equals(d.getAddress(), device.getAddress()));
+        if (!exists && device.getAddress() != null) {
             devices.add(device);
             fireIntervalAdded(this, devices.size() - 1, devices.size() - 1);
         }

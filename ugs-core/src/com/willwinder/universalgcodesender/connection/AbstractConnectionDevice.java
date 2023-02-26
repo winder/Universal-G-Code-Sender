@@ -18,6 +18,8 @@
  */
 package com.willwinder.universalgcodesender.connection;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * An abstract connection device implementation
  *
@@ -29,7 +31,8 @@ public abstract class AbstractConnectionDevice implements IConnectionDevice {
         if (this == o) return true;
         if (!(o instanceof IConnectionDevice)) return false;
         IConnectionDevice that = (IConnectionDevice) o;
-        return getAddress().equals(that.getAddress());
+
+        return StringUtils.equals(getAddress(), that.getAddress());
     }
 
     @Override
