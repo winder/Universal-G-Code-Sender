@@ -143,6 +143,7 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
 
     @Override
     public Component getToolbarPresenter() {
+        initializeComponents();
         return panel;
     }
 
@@ -157,6 +158,7 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
         portLabel = new JLabel(Localization.getString("mainWindow.swing.portLabel"));
 
         panel = new JPanel(new FlowLayout());
+        panel.setOpaque(false);
         panel.add(portLabel);
         panel.add(portCombo);
     }

@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
+import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
@@ -69,7 +70,7 @@ public class UnionAction extends AbstractDesignAction implements SelectionListen
     @Override
     public void actionPerformed(ActionEvent e) {
         List<Entity> selection = controller.getSelectionManager().getSelection();
-        UnduableUnionAction action = new UnduableUnionAction(selection);
+        UndoableUnionAction action = new UndoableUnionAction(selection);
         controller.getUndoManager().addAction(action);
         action.redo();
     }
@@ -80,22 +81,24 @@ public class UnionAction extends AbstractDesignAction implements SelectionListen
         setEnabled(selectionManager.getSelection().size() >= 2);
     }
 
-    private class UnduableUnionAction implements UndoableAction {
+    private class UndoableUnionAction implements UndoableAction {
 
         private final List<Entity> entities;
         private Path path;
 
-        private UnduableUnionAction(List<Entity> entities) {
+        private UndoableUnionAction(List<Entity> entities) {
             this.entities = entities;
         }
 
         @Override
         public void redo() {
-            Area area = new Area();
-            entities.forEach(entity ->
-                    area.add(new Area(entity.getShape())));
+            Path temporaryPath = new Path();
+            entities.forEach(e -> temporaryPath.append(e.getShape()));
+            Area area = new Area(temporaryPath.getShape());
 
             path = new Path();
+            path.append(area);
+
             if (entities.get(0) instanceof Cuttable) {
                 Cuttable cuttable = (Cuttable) entities.get(0);
                 path.setCutType(cuttable.getCutType());
@@ -103,7 +106,6 @@ public class UnionAction extends AbstractDesignAction implements SelectionListen
                 path.setTargetDepth(cuttable.getTargetDepth());
                 path.setName(cuttable.getName());
             }
-            path.append(area);
 
             controller.getSelectionManager().clearSelection();
             controller.getDrawing().removeEntities(entities);
