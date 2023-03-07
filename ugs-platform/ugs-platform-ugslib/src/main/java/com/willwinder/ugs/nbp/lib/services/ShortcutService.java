@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.lib.services;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
@@ -55,7 +56,7 @@ public class ShortcutService implements FileChangeListener {
     /**
      * The current keymap used
      */
-    private String currentKeymap;
+    private String currentKeymap = "NetBeans";
 
     public ShortcutService() {
         reloadShortcuts();
@@ -134,7 +135,12 @@ public class ShortcutService implements FileChangeListener {
     }
 
     private void reloadShortcuts() {
-        currentKeymap = FileUtil.getConfigFile("Keymaps").getAttribute("currentKeymap").toString();
+        FileObject keymaps = FileUtil.getConfigFile("Keymaps");
+        if (keymaps == null || keymaps.getAttribute("currentKeymap") == null) {
+            return;
+        }
+
+        currentKeymap = keymaps.getAttribute("currentKeymap").toString();
         LOGGER.fine(() -> String.format("Reloading shortcuts using keymap %s", currentKeymap));
 
         shortcutMap.clear();
