@@ -1,15 +1,19 @@
 package com.willwinder.ugs.nbp.designer.io.dxf;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
 import com.willwinder.ugs.nbp.designer.io.DesignReaderException;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
+import org.kabeja.dxf.Bounds;
+import org.kabeja.dxf.DXFArc;
 import org.kabeja.dxf.DXFCircle;
 import org.kabeja.dxf.DXFConstants;
 import org.kabeja.dxf.DXFDocument;
@@ -22,6 +26,8 @@ import org.kabeja.parser.ParseException;
 import org.kabeja.parser.Parser;
 import org.kabeja.parser.ParserBuilder;
 
+import java.awt.geom.Arc2D;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -99,10 +105,42 @@ public class DxfReader implements DesignReader {
             layerGroup.addChild(linesGroup);
         }
 
+        Group arcsGroup = new Group();
+        arcsGroup.setName("Arcs");
+        parseArcs(layer, arcsGroup);
+        if (!arcsGroup.getChildren().isEmpty()) {
+            layerGroup.addChild(arcsGroup);
+        }
+
         if (!layerGroup.getChildren().isEmpty()) {
             group.addChild(layerGroup);
         }
     }
+
+
+
+    private void parseArcs(DXFLayer layer, Group arcsGroup) {
+        List<DXFArc> arcs = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_ARC);
+        if (arcs == null) {
+            return;
+        }
+
+        for (DXFArc arc : arcs) {
+            // We need to invert and offset the start angle
+            double startAngle = 270 - arc.getStartAngle();
+            if(startAngle < 0) {
+                startAngle += 360;
+            }
+
+            Path path1 = new Path();
+            Arc2D arc2D = new Arc2D.Double();
+            Point center = arc.getCenterPoint();
+            arc2D.setArcByCenter(center.getX(), center.getY(), arc.getRadius(), startAngle, arc.getTotalAngle(), Arc2D.OPEN);
+            path1.append(arc2D);
+            arcsGroup.addChild(path1);
+        }
+    }
+
 
     private void parseLines(DXFLayer layer, Group linesGroup) {
         List<DXFLine> lines = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_LINE);
@@ -139,8 +177,11 @@ public class DxfReader implements DesignReader {
         List<DXFCircle> circles = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_CIRCLE);
         if (circles != null) {
             for (DXFCircle circle : circles) {
+                Bounds circleBound = circle.getBounds();
+                double centerX = (circleBound.getMaximumX() - circleBound.getMinimumX()) / 2 + circleBound.getMinimumX();
+                double centerY = (circleBound.getMaximumY() - circleBound.getMinimumY()) / 2 + circleBound.getMinimumY();
                 double radius = convertCoordinate(circle.getRadius());
-                Ellipse ellipse = new Ellipse(convertCoordinate(circle.getCenterPoint().getX()) - radius, convertCoordinate(circle.getCenterPoint().getY()) - radius);
+                Ellipse ellipse = new Ellipse(convertCoordinate(centerX) - radius, convertCoordinate(centerY) - radius);
                 ellipse.setSize(new Size(radius * 2, radius * 2));
                 circlesGroup.addChild(ellipse);
             }

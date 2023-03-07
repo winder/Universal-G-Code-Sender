@@ -21,8 +21,11 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityException;
 
-import java.awt.*;
-import java.awt.geom.*;
+import java.awt.Shape;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Path2D;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
 
 /**
  * @author Joacim Breiler
