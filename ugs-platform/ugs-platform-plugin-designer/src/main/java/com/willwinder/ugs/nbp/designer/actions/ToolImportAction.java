@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.io.c2d.C2dReader;
 import com.willwinder.ugs.nbp.designer.io.dxf.DxfReader;
+import com.willwinder.ugs.nbp.designer.io.eagle.EaglePnpReader;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
@@ -72,6 +73,7 @@ public final class ToolImportAction extends AbstractDesignAction {
         fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Scalable Vector Graphics (.svg)", "svg"));
         fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Autodesk CAD (.dxf)", "dxf"));
         fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Carbide Create (.c2d)", "c2d"));
+        fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Eagle (.mnt, .mnb)", "mnt", "mnb"));
         fileDialog.showOpenDialog(null);
 
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -89,6 +91,9 @@ public final class ToolImportAction extends AbstractDesignAction {
                     optionalDesign = reader.read(f);
                 } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".c2d")) {
                     C2dReader reader = new C2dReader();
+                    optionalDesign = reader.read(f);
+                } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".mnt") || StringUtils.endsWithIgnoreCase(f.getName(), ".mnb")) {
+                    EaglePnpReader reader = new EaglePnpReader();
                     optionalDesign = reader.read(f);
                 }
 
