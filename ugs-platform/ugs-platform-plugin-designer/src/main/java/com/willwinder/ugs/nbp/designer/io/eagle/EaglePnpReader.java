@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.io.eagle;
 
+import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
@@ -78,7 +79,7 @@ public class EaglePnpReader implements DesignReader {
 
         Point point = new Point();
         point.setName(name);
-        point.setPosition(new Point2D.Double(parseDouble(columns[1]), parseDouble(columns[2])));
+        point.setPosition(Anchor.CENTER, new Point2D.Double(parseDouble(columns[1]), parseDouble(columns[2])));
         point.setRotation(parseDouble(columns[3]));
         return point;
     }
