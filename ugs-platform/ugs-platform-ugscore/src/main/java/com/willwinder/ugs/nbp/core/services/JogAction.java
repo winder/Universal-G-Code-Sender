@@ -29,6 +29,8 @@ import java.awt.event.ActionEvent;
 
 public class JogAction extends AbstractAction implements ContinuousAction {
 
+    private static final long serialVersionUID = -1048901852885046351L;
+
     private static ContinuousJogWorker continuousJogWorker;
 
     private transient JogService js;
