@@ -1,15 +1,48 @@
+/*
+    Copyright 2021-2023 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.designer.io.ugsd;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.*;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
 import com.willwinder.ugs.nbp.designer.io.DesignWriterException;
-import com.willwinder.ugs.nbp.designer.io.ugsd.v1.*;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.CutTypeV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.CuttableEntityV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.DesignV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityEllipseV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityGroupV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathSegmentV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathTypeV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPointV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityRectangleV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityTextV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.SettingsV1;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +78,9 @@ public class UgsDesignWriter implements DesignWriter {
     @Override
     public void write(OutputStream outputStream, Controller controller) {
         try {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(AffineTransform.class, new AffineTransformSerializer())
+                    .setPrettyPrinting().create();
             DesignV1 design = new DesignV1();
             design.setSettings(convertSettings(controller));
 

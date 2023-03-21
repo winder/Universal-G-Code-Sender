@@ -77,11 +77,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>DowelModule</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>GcodeTools</artifactId>
             <version>${project.version}</version>
         </dependency>

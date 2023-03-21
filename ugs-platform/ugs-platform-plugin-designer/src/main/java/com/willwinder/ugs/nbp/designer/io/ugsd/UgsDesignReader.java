@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -30,6 +30,7 @@ import com.willwinder.ugs.nbp.designer.model.Design;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -95,6 +96,7 @@ public class UgsDesignReader implements DesignReader {
 
         return new GsonBuilder()
                 .registerTypeAdapterFactory(entityAdapterFactory)
+                .registerTypeAdapter(AffineTransform.class, new AffineTransformDeserializer())
                 .create();
     }
 

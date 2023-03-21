@@ -43,7 +43,7 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 @MultiViewElement.Registration(
-        displayName = "#platform.window.editor.source",
+        displayName = "Source",
         iconBase = "com/willwinder/ugs/nbp/editor/edit.png",
         mimeType = GcodeLanguageConfig.MIME_TYPE,
         persistenceType = TopComponent.PERSISTENCE_NEVER,
