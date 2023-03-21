@@ -43,7 +43,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        file: "ugs-classic/target/UniversalGcodeSender.zip;ugs-platform/application/target/ios-ugs-platform-app-*.dmg;ugs-platform/application/target/linux-ugs-platform-app*.tar.gz;ugs-platform/application/target/pi-ugs-platform-app*.tar.gz;ugs-platform/application/target/win-ugs-platform-app-*.zip;ugs-platform/application/target/win64-ugs-platform-app-*.zip;ugs-platform/application/target/ugs-platform-app-*.zip"
+        file: "ugs-classic/target/UniversalGcodeSender.zip;ugs-platform/application/target/ios-ugs-platform-app-*.dmg;ugs-platform/application/target/linux*-ugs-platform-app*.tar.gz;ugs-platform/application/target/win-ugs-platform-app-*.zip;ugs-platform/application/target/win64-ugs-platform-app-*.zip;ugs-platform/application/target/ugs-platform-app-*.zip"
         prerelease: true
         tag_name: "nightly"
         overwrite: true

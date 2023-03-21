@@ -36,8 +36,9 @@
       <ugs.bundle.java.win32.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jre_x86-32_windows_hotspot_17.0.6_10.zip</ugs.bundle.java.win32.url>
       <ugs.bundle.java.win64.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jre_x64_windows_hotspot_17.0.6_10.zip</ugs.bundle.java.win64.url>
       <!-- Using JRE8 as a bug in JRE13 makes the PI to consume 100% cpu -->
-      <ugs.bundle.java.rpi.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jre_arm_linux_hotspot_17.0.6_10.tar.gz</ugs.bundle.java.rpi.url>
-      <ugs.bundle.java.linux.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jre_x64_linux_hotspot_17.0.6_10.tar.gz</ugs.bundle.java.linux.url>
+      <ugs.bundle.java.linux.arm.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jre_arm_linux_hotspot_17.0.6_10.tar.gz</ugs.bundle.java.linux.arm.url>
+      <ugs.bundle.java.linux.aarch64.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jre_aarch64_linux_hotspot_17.0.6_10.tar.gz</ugs.bundle.java.linux.aarch64.url>
+      <ugs.bundle.java.linux.x64.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jre_x64_linux_hotspot_17.0.6_10.tar.gz</ugs.bundle.java.linux.x64.url>
 
       <!-- Mac OS X signing identity - must match with a verified Apple developer certificate in the keychain -->
       <ugs.codesign.identity>Developer ID Application</ugs.codesign.identity>
