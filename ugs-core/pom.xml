@@ -18,7 +18,6 @@
     <properties>
         <project.build.releaseSourceDirectory>release_files</project.build.releaseSourceDirectory>
     </properties>
-
     <dependencies>
         <!-- JOGL -->
         <dependency>
@@ -33,7 +32,6 @@
             <artifactId>gluegen-rt-main</artifactId>
             <version>${gluegen.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.glassfish.tyrus.bundles</groupId>
             <artifactId>tyrus-standalone-client</artifactId>
