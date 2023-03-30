@@ -90,6 +90,27 @@ public class FixturesTest {
         });
     }
 
+    @Test
+    public void testRemoveCommentsAndEmptyLinesFixtures() throws Exception {
+        runAllFixturesInPath("./gcode/fixtures/comments/", "EmptyLines", () -> {
+            GcodeParser gcp = new GcodeParser();
+            gcp.addCommandProcessor(new CommentProcessor());
+            gcp.addCommandProcessor(new EmptyLineRemoverProcessor());
+            gcp.addCommandProcessor(new LineSplitter(1));
+            return gcp;
+        });
+    }
+
+    @Test
+    public void testRemoveCommentsFixtures() throws Exception {
+        runAllFixturesInPath("./gcode/fixtures/comments/", "Comments", () -> {
+            GcodeParser gcp = new GcodeParser();
+            gcp.addCommandProcessor(new CommentProcessor());
+            gcp.addCommandProcessor(new LineSplitter(1));
+            return gcp;
+        });
+    }
+
     private void runAllFixturesInPath(String basePath, String parserName, Callable<GcodeParser> initGcp) throws Exception {
         List<String> resourceFiles = getResourceFiles(basePath);
         System.out.printf("Running all fixtures in %s for %s:%n", basePath, parserName);
@@ -101,7 +122,6 @@ public class FixturesTest {
             }
         }
     }
-
 
 
     public void runFixture(String basePath, String fixtureName, String parserName, GcodeParser gcp) throws Exception {

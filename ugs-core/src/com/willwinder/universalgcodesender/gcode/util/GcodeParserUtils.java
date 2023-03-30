@@ -388,19 +388,14 @@ public class GcodeParserUtils {
             LOGGER.log(Level.FINE, "gcode processing line: " + idx);
         }
 
-        if (StringUtils.isEmpty(command)) {
-            gsw.addLine(command, command, comment, idx);
-        }
-        else {
-            // Parse the gcode for the buffer.
-            Collection<String> lines = gcp.preprocessCommand(command, gcp.getCurrentState());
+        // Parse the gcode for the buffer.
+        Collection<String> lines = gcp.preprocessCommand(command, gcp.getCurrentState());
 
-            for(String processedLine : lines) {
-                gsw.addLine(command, processedLine, comment, idx);
-            }
-
-            gcp.addCommand(command);
+        for(String processedLine : lines) {
+            gsw.addLine(command, processedLine, comment, idx);
         }
+
+        gcp.addCommand(command);
     }
 
     /**
