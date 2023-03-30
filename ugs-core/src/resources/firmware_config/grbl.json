@@ -1,6 +1,6 @@
 {
     "Name": "GRBL",
-    "Version": 5,
+    "Version": 6,
     "Controller": {
         "name": "GRBL",
         "args": null
@@ -11,6 +11,10 @@
                 "name": "CommentProcessor",
                 "enabled": true,
                 "optional": false
+            },{
+                "name": "EmptyLineRemoverProcessor",
+                "enabled": true,
+                "optional": true
             },{
                 "name": "FeedOverrideProcessor",
                 "enabled": false,
