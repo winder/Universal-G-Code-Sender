@@ -340,7 +340,7 @@ public class GrblUtils {
      * @return the parsed controller status
      */
     private static ControllerStatus getStatusFromStatusStringLegacy(String status, Capabilities version, Units reportingUnits) {
-        String stateString = StringUtils.defaultString(getStateFromStatusString(status, version), "unknown");
+        String stateString = StringUtils.defaultString(getStateFromStatusString(status), "unknown");
         ControllerState state = getControllerStateFromStateString(stateString);
         return new ControllerStatus(
                 state,
@@ -488,21 +488,14 @@ public class GrblUtils {
     /**
      * Parse state out of position string.
      */
-    final static String STATUS_STATE_REGEX = "(?<=<)[a-zA-z]*(?=[,])";
+    final static String STATUS_STATE_REGEX = "(?<=<)[a-zA-z]*(?=[,>])";
     final static Pattern STATUS_STATE_PATTERN = Pattern.compile(STATUS_STATE_REGEX);
-    static protected String getStateFromStatusString(final String status, final Capabilities version) {
+    protected static String getStateFromStatusString(final String status) {
         String retValue = null;
-        
-        if (!version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
-            return null;
-        }
-        
-        // Search for a version.
         Matcher matcher = STATUS_STATE_PATTERN.matcher(status);
         if (matcher.find()) {
             retValue = matcher.group(0);
         }
-
         return retValue;
     }
 
