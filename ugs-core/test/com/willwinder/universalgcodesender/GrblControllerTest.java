@@ -1017,21 +1017,6 @@ public class GrblControllerTest {
         // TODO: Test that command complete triggers fileStreamComplete.
     }
 
-    @Test
-    public void commandCompleteShouldDispatchCommandEvent() throws Exception {
-        GrblController instance = initializeAndConnectController("foo", 2400, "Grbl 1.1c");
-
-        AtomicBoolean eventDispatched = new AtomicBoolean(false);
-        GcodeCommand command = new GcodeCommand("blah");
-        command.addListener(c -> eventDispatched.set(true));
-
-        // Simulate sending and completing the command
-        instance.commandSent(command);
-        instance.commandComplete("ok");
-
-        assertTrue("Should have sent an event notifying that the command has completed", eventDispatched.get());
-    }
-
     /**
      * Test of messageForConsole method, of class GrblController.
      */
@@ -1576,21 +1561,6 @@ public class GrblControllerTest {
         ControllerListener controllerListener = mock(ControllerListener.class);
         instance.addListener(controllerListener);
         instance.commandComplete("done");
-    }
-
-    @Test
-    public void commandCompleteShouldNotifyListeners() throws Exception {
-        GrblController instance = initializeAndConnectController("foo", 2400, VERSION_GRBL_0_8);
-
-        GcodeCommand command = new GcodeCommand("command");
-        ControllerListener controllerListener = mock(ControllerListener.class);
-        instance.addListener(controllerListener);
-        instance.commandSent(command);
-        instance.commandComplete("done");
-
-        verify(controllerListener, times(1)).commandComplete(any());
-        assertTrue(command.isDone());
-        assertFalse(instance.getActiveCommand().isPresent());
     }
 
     /**

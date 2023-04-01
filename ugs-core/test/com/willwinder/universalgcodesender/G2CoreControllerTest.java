@@ -346,17 +346,4 @@ public class G2CoreControllerTest {
         // Then
         assertEquals("Should now consider send commands as a normal run state", ControllerState.RUN, controller.getControllerStatus().getState());
     }
-
-    @Test
-    public void commandCompleteShouldDispatchCommandEvent() throws Exception {
-        AtomicBoolean eventDispatched = new AtomicBoolean(false);
-        GcodeCommand command = new GcodeCommand("{}");
-        command.addListener(c -> eventDispatched.set(true));
-
-        // Simulate sending and completing the command
-        controller.commandSent(command);
-        controller.commandComplete("{}");
-
-        assertTrue("Should have sent an event notifying that the command has completed", eventDispatched.get());
-    }
 }

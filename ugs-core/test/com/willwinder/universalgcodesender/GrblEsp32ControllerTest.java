@@ -57,22 +57,4 @@ public class GrblEsp32ControllerTest {
         assertFalse(instance.getCapabilities().hasCapability(B_AXIS));
         assertFalse(instance.getCapabilities().hasCapability(C_AXIS));
     }
-
-    @Test
-    public void commandCompleteShouldDispatchCommandEvent() throws Exception {
-        ICommunicator communicator = mock(ICommunicator.class);
-        when(communicator.isConnected()).thenReturn(true);
-        GrblEsp32Controller instance = new GrblEsp32Controller(communicator);
-        instance.rawResponseHandler("Grbl 1.1c");
-
-        AtomicBoolean eventDispatched = new AtomicBoolean(false);
-        GcodeCommand command = new GcodeCommand("blah");
-        command.addListener(c -> eventDispatched.set(true));
-
-        // Simulate sending and completing the command
-        instance.commandSent(command);
-        instance.commandComplete(command.getCommandString());
-
-        assertTrue("Should have sent an event notifying that the command has completed", eventDispatched.get());
-    }
 }

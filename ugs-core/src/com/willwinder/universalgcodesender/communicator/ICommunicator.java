@@ -29,6 +29,10 @@ import java.io.IOException;
 /**
  * An interface for describing a communicator, responsible for handling gcode command
  * queues and its streaming to a hardware connection.
+ * <p>
+ * To make ensure the performance of the stream, the events dispatched from this service should
+ * be sent using a separate queue or else any slow UI operations may starve the command
+ * stream to the service.
  *
  * @author Joacim Breiler
  */
@@ -70,7 +74,7 @@ public interface ICommunicator extends IConnectionListener {
 
     /**
      * Returns if there is any active commands that has been sent or is being processed
-     * by the hardware. These includes streams or single queued commands.
+     * by the hardware. These include streams or single queued commands.
      *
      * @return true if there is active commands being processed
      */

@@ -16,10 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.gcode;
+package com.willwinder.universalgcodesender.firmware.tinyg;
 
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
+import com.willwinder.universalgcodesender.firmware.tinyg.commands.TinyGGcodeCommand;
 
 /**
  *
@@ -33,6 +34,6 @@ public class TinyGGcodeCommandCreator implements ICommandCreator {
 
     @Override
     public GcodeCommand createCommand(String command, String originalCommand, String comment, int lineNumber) {
-        return new GcodeCommand(command, originalCommand, comment, lineNumber);
+        return new TinyGGcodeCommand(command, lineNumber);
     }
 }

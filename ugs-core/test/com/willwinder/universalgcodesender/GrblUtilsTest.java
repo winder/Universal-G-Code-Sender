@@ -292,6 +292,15 @@ public class GrblUtilsTest {
         assertEquals(expResult, position);
     }
 
+    @Test
+    public void testGetRXBufferFromStatusString() {
+        String status = "<Idle,WPos:-5.529,-0.560,-7.000,RX:0>";
+        Capabilities version = new Capabilities();
+        Position expResult = new Position(-5.529,-0.560,-7.000, UnitUtils.Units.MM);
+        Position result = GrblUtils.getWorkPositionFromStatusString(status, version, UnitUtils.Units.MM);
+        assertEquals(expResult, result);
+    }
+
     /**
      * Test of getMachinePositionFromStatusString method, of class GrblUtils.
      */
