@@ -1,5 +1,5 @@
 /*
-    Copyright 2012-2018 Will Winder
+    Copyright 2013-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,26 +16,24 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.communicator;
+package com.willwinder.universalgcodesender.firmware.tinyg;
+
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.firmware.tinyg.commands.TinyGGcodeCommand;
 
 /**
- * TinyG serial port interface class.
  *
  * @author wwinder
  */
-public class TinyGCommunicator extends BufferedCommunicator {
-
-    public TinyGCommunicator() {
-        setSingleStepMode(true);
+public class TinyGGcodeCommandCreator implements ICommandCreator {
+    @Override
+    public GcodeCommand createCommand(String command) {
+        return new TinyGGcodeCommand(command);
     }
 
     @Override
-    public int getBufferSize() {
-        return 254;
-    }
-
-    @Override
-    protected void sendingCommand(String response) {
-        // no-op for this protocol.
+    public GcodeCommand createCommand(String command, String originalCommand, String comment, int lineNumber) {
+        return new TinyGGcodeCommand(command, lineNumber);
     }
 }

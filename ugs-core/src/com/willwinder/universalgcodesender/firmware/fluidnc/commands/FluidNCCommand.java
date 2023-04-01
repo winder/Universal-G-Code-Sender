@@ -19,6 +19,9 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc.commands;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import org.apache.commons.lang3.StringUtils;
+
+import static com.willwinder.universalgcodesender.GrblUtils.isGrblStatusString;
 
 /**
  * A generic command that expects it to end with a command status "ok" or "error" to consider the command done
@@ -42,6 +45,11 @@ public class FluidNCCommand extends GcodeCommand {
     public void appendResponse(String response) {
         // In some cases the controller will echo the commands sent, do not add those to the response.
         if (response.equals(getOriginalCommandString())) {
+            return;
+        }
+
+        // Do not append status strings to non status commands
+        if (!StringUtils.equals(getCommandString(), "?") && isGrblStatusString(response)) {
             return;
         }
 

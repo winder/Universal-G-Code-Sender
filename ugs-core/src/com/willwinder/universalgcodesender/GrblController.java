@@ -21,8 +21,8 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.communicator.GrblCommunicator;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblCommandCreator;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
-import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -79,7 +79,7 @@ public class GrblController extends AbstractController {
     private boolean temporaryCheckSingleStepMode = false;
 
     public GrblController(ICommunicator comm) {
-        super(comm, new DefaultCommandCreator());
+        super(comm, new GrblCommandCreator());
         this.positionPollTimer = new StatusPollTimer(this);
 
         // Add our controller settings manager
@@ -219,7 +219,7 @@ public class GrblController extends AbstractController {
                 Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG,
                         "{0} = {1}", new Object[]{Localization.getString("controller.log.realtime"), this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)});
             }
-            
+
             else if (GrblUtils.isGrblProbeMessage(response)) {
                 Position p = GrblUtils.parseProbePosition(response, getFirmwareSettings().getReportingUnits());
                 if (p != null) {
@@ -690,10 +690,5 @@ public class GrblController extends AbstractController {
     @Override
     public void setStatusUpdateRate(int rate) {
         positionPollTimer.setUpdateInterval(rate);
-    }
-
-    @Override
-    protected void updateCommandFromResponse(GcodeCommand command, String response) {
-        GrblUtils.updateGcodeCommandFromResponse(command, response);
     }
 }

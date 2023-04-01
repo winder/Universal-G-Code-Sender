@@ -708,7 +708,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
     public void rawResponseListener(String response) {
         if (GrblUtils.isGrblStatusString(response)) {
             getActiveCommand().filter(command -> command instanceof GetStatusCommand || command.getCommandString().contains("?")).ifPresent(command -> {
-                command.appendResponse(response);
                 activeCommands.removeFirst();
                 listeners.forEach(l -> l.commandComplete(command));
 
@@ -731,8 +730,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
             messageService.dispatchMessage(MessageType.VERBOSE, response + "\n");
         } else if (getActiveCommand().isPresent()) {
             GcodeCommand command = getActiveCommand().get();
-            command.appendResponse(response);
-
             if (command instanceof FluidNCCommand) {
                 if (command.isDone()) {
                     activeCommands.removeFirst();

@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 public class GcodeCommandTest {
 
     @Test
-    public void shouldNotifyListenerWhenCommandIsDone() {
+    public void shouldNotifyListenerWhenCommandIsDone() throws InterruptedException {
         AtomicInteger timesListenerCalled = new AtomicInteger(0);
         GcodeCommand command = new GcodeCommand("TEST");
         command.addListener(c -> timesListenerCalled.incrementAndGet());
@@ -60,30 +60,52 @@ public class GcodeCommandTest {
         assertEquals(0, timesListenerCalled.get());
 
         command.setDone(true);
+
+        Thread.sleep(10);
         assertEquals(1, timesListenerCalled.get());
     }
 
     @Test
-    public void shouldOnlyNotifyListenersOnceWhenDone() {
+    public void shouldNotifyListenerInOwnThread() throws InterruptedException {
+        final long threadId = Thread.currentThread().getId();
+        AtomicInteger timesListenerCalled = new AtomicInteger(0);
+        GcodeCommand command = new GcodeCommand("TEST");
+        command.addListener(c -> {
+            if(threadId != Thread.currentThread().getId()) {
+                timesListenerCalled.incrementAndGet();
+            }
+        });
+
+        command.setDone(true);
+
+        Thread.sleep(10);
+        assertEquals(1, timesListenerCalled.get());
+    }
+
+    @Test
+    public void shouldOnlyNotifyListenersOnceWhenDone() throws InterruptedException {
         AtomicInteger timesListenerCalled = new AtomicInteger(0);
         GcodeCommand command = new GcodeCommand("TEST");
         command.addListener(c -> timesListenerCalled.incrementAndGet());
 
         command.setDone(true);
+        Thread.sleep(100);
         assertEquals(1, timesListenerCalled.get());
 
         command.setDone(true);
+        Thread.sleep(100);
         assertEquals(1, timesListenerCalled.get());
     }
 
     @Test
-    public void shouldNotifyAllListenersOnceWhenDone() {
+    public void shouldNotifyAllListenersOnceWhenDone() throws InterruptedException {
         AtomicInteger timesListenerCalled = new AtomicInteger(0);
         GcodeCommand command = new GcodeCommand("TEST");
         command.addListener(c -> timesListenerCalled.incrementAndGet());
         command.addListener(c -> timesListenerCalled.incrementAndGet());
 
         command.setDone(true);
+        Thread.sleep(100);
         assertEquals(2, timesListenerCalled.get());
     }
 }

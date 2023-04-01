@@ -64,7 +64,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
 
     // These abstract objects are initialized in concrete class.
     protected final ICommunicator comm;
-    protected MessageService messageService;
+    protected MessageService messageService = new MessageService();
 
     // Added value
     private final AtomicBoolean isStreaming = new AtomicBoolean(false);
@@ -752,7 +752,6 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         }
 
         GcodeCommand command = activeCommands.pollFirst();
-        updateCommandFromResponse(command, response);
         updateParserModalState(command);
 
         numCommandsCompleted.incrementAndGet();
@@ -764,8 +763,6 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         dispatchCommandComplete(command);
         checkStreamFinished();
     }
-
-    protected abstract void updateCommandFromResponse(GcodeCommand command, String response);
 
     @Override
     public void rawResponseListener(String response) {

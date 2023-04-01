@@ -42,17 +42,6 @@ public class SmoothieCommunicator extends BufferedCommunicator {
     }
 
     @Override
-    protected boolean processedCommand(String response) {
-        return SmoothieUtils.isOkErrorAlarmResponse(response) || SmoothieUtils.isVersionResponse(response);
-    }
-
-    @Override
-    protected boolean processedCommandIsError(String response) {
-        return GrblUtils.isErrorResponse(response);
-    }
-
-
-    @Override
     public void setSingleStepMode(boolean enable) {
         // Never mind this
     }

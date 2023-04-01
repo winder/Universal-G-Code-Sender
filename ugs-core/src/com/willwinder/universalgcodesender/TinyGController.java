@@ -24,7 +24,7 @@ import com.willwinder.universalgcodesender.communicator.TinyGCommunicator;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.tinyg.TinyGFirmwareSettings;
 import com.willwinder.universalgcodesender.gcode.ICommandCreator;
-import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
+import com.willwinder.universalgcodesender.firmware.tinyg.TinyGGcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -33,7 +33,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
+import com.willwinder.universalgcodesender.firmware.tinyg.commands.TinyGGcodeCommand;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
 
 import java.util.List;
@@ -430,20 +430,5 @@ public class TinyGController extends AbstractController {
 
     protected CommunicatorState getControlState(ControllerState controllerState) {
         return ControllerUtils.getCommunicatorState(controllerState, this, comm);
-    }
-
-    @Override
-    protected void updateCommandFromResponse(GcodeCommand command, String response) {
-        JsonObject jo = TinyGUtils.jsonToObject(response);
-        command.setResponse(response);
-        if (TinyGUtils.isErrorResponse(jo)) {
-            command.setOk(false);
-            command.setError(true);
-        } else {
-            command.setOk(true);
-            command.setError(false);
-        }
-
-        command.setDone(true);
     }
 }

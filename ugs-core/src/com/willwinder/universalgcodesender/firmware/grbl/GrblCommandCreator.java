@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2023 Will Winder
+    Copyright 2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,23 +16,23 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.gcode;
+package com.willwinder.universalgcodesender.firmware.grbl;
 
+import com.willwinder.universalgcodesender.firmware.grbl.commands.GrblCommand;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 
 /**
- *
- * @author wwinder
+ * @author Joacim Breiler
  */
-public class TinyGGcodeCommandCreator implements ICommandCreator {
+public class GrblCommandCreator implements ICommandCreator {
     @Override
     public GcodeCommand createCommand(String command) {
-        return new TinyGGcodeCommand(command);
+        return new GrblCommand(command);
     }
 
     @Override
     public GcodeCommand createCommand(String command, String originalCommand, String comment, int lineNumber) {
-        return new GcodeCommand(command, originalCommand, comment, lineNumber);
+        return new GrblCommand(command, originalCommand, comment, lineNumber);
     }
 }

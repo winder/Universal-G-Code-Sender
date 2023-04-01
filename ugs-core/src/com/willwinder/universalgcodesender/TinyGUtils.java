@@ -95,7 +95,7 @@ public class TinyGUtils {
      */
     private static final Pattern NUMBER_REGEX = Pattern.compile("^[-]?[\\d]+(\\.\\d+)?");
 
-    private static JsonParser parser = new JsonParser();
+    private static final JsonParser parser = new JsonParser();
 
     public static JsonObject jsonToObject(String response) {
         return parser.parse(response).getAsJsonObject();
