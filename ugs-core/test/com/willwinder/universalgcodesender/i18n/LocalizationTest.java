@@ -54,6 +54,12 @@ public class LocalizationTest {
     }
 
     @Test
+    public void loadCyrillicCharacters() {
+        Localization.initialize("uk", "UA");
+        assertEquals("Версія", Localization.getString("version"));
+    }
+
+    @Test
     public void minusSignsShouldBeConvertedWithRightCharacter() {
         NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
         assertEquals("-1", formatter.format(-1));
