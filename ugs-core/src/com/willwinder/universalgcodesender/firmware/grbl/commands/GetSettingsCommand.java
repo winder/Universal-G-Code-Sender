@@ -18,27 +18,23 @@
  */
 package com.willwinder.universalgcodesender.firmware.grbl.commands;
 
-import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.GrblUtils;
+import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import org.apache.commons.lang3.StringUtils;
 
-import static com.willwinder.universalgcodesender.GrblUtils.isGrblStatusString;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class GrblCommand extends GcodeCommand {
-    public GrblCommand(String command) {
-        super(command);
+public class GetSettingsCommand extends GrblCommand {
+    public GetSettingsCommand() {
+        super(GrblUtils.GRBL_VIEW_SETTINGS_COMMAND);
     }
 
-    public GrblCommand(String command, String originalCommand, String comment, int commandNumber) {
-        super(command, originalCommand, comment, commandNumber);
-    }
-
-    @Override
-    public void appendResponse(String response) {
-        // Do not append status strings to non status commands
-        if (!StringUtils.equals(getCommandString(), "?") && isGrblStatusString(response)) {
-            return;
-        }
-
-        super.appendResponse(response);
+    public List<FirmwareSetting> getSettings() {
+        return Arrays.stream(StringUtils.split(getResponse(), "\n")).filter(line -> line.startsWith("$")).map(line -> {
+            String[] split = line.split("=");
+            return new FirmwareSetting(split[0], split[1]);
+        }).collect(Collectors.toList());
     }
 }

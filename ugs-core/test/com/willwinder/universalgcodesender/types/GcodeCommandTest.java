@@ -61,7 +61,7 @@ public class GcodeCommandTest {
 
         command.setDone(true);
 
-        Thread.sleep(10);
+        Thread.sleep(100);
         assertEquals(1, timesListenerCalled.get());
     }
 
@@ -78,7 +78,7 @@ public class GcodeCommandTest {
 
         command.setDone(true);
 
-        Thread.sleep(10);
+        Thread.sleep(100);
         assertEquals(1, timesListenerCalled.get());
     }
 
