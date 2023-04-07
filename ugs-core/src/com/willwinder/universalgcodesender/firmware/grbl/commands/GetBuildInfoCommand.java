@@ -18,27 +18,26 @@
  */
 package com.willwinder.universalgcodesender.firmware.grbl.commands;
 
-import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.GrblUtils;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblVersion;
 import org.apache.commons.lang3.StringUtils;
 
-import static com.willwinder.universalgcodesender.GrblUtils.isGrblStatusString;
+import java.util.Arrays;
+import java.util.Optional;
 
-public class GrblCommand extends GcodeCommand {
-    public GrblCommand(String command) {
-        super(command);
+/**
+ * Gets the build information of the controller
+ *
+ * @author Joacim Breiler
+ */
+public class GetBuildInfoCommand extends GrblSystemCommand {
+    public GetBuildInfoCommand() {
+        super(GrblUtils.GRBL_BUILD_INFO_COMMAND);
     }
 
-    public GrblCommand(String command, String originalCommand, String comment, int commandNumber) {
-        super(command, originalCommand, comment, commandNumber);
-    }
-
-    @Override
-    public void appendResponse(String response) {
-        // Do not append status strings to non status commands
-        if (!StringUtils.equals(getCommandString(), "?") && isGrblStatusString(response)) {
-            return;
-        }
-
-        super.appendResponse(response);
+    public Optional<GrblVersion> getVersion() {
+        return Arrays.stream(StringUtils.split(getResponse(), "\n"))
+                .filter(line -> line.startsWith("[VER"))
+                .map(GrblVersion::new).findFirst();
     }
 }

@@ -19,18 +19,25 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.firmware.grbl.commands.GetStatusCommand;
+import com.willwinder.universalgcodesender.firmware.grbl.commands.GrblSystemCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
 
 /**
  * Collection of useful Grbl related utilities.
@@ -38,7 +45,7 @@ import java.util.regex.Pattern;
  * @author wwinder
  */
 public class GrblUtils {
-    
+
     // Note: The Grbl RX buffer is not consumed by real-time commands
     public static final int GRBL_RX_BUFFER_SIZE= 128;
 
@@ -57,7 +64,8 @@ public class GrblUtils {
     public static final String GRBL_TOGGLE_CHECK_MODE_COMMAND = "$C";
     public static final String GRBL_VIEW_PARSER_STATE_COMMAND = "$G";
     public static final String GRBL_VIEW_SETTINGS_COMMAND = "$$";
-    
+    public static final String GRBL_BUILD_INFO_COMMAND = "$I";
+
     /**
      * Gcode Commands
      */
@@ -82,35 +90,35 @@ public class GrblUtils {
         boolean version = response.startsWith("Grbl ") || response.startsWith("CarbideMotion ") || response.startsWith("GrblHAL ") || response.startsWith("gCarvin ");
         return version && (getVersionDouble(response) != -1);
     }
-    
-    /** 
+
+    /**
      * Parses the version double out of the version response string.
      */
     final static String VERSION_DOUBLE_REGEX = "[0-9]*\\.[0-9]*";
     final static Pattern VERSION_DOUBLE_PATTERN = Pattern.compile(VERSION_DOUBLE_REGEX);
     public static double getVersionDouble(final String response) {
         double retValue = -1;
-        
+
         // Search for a version.
         Matcher matcher = VERSION_DOUBLE_PATTERN.matcher(response);
         if (matcher.find()) {
             retValue = Double.parseDouble(matcher.group(0));
         }
-        
+
         return retValue;
     }
-    
+
     final static String VERSION_LETTER_REGEX = "(?<=[0-9]\\.[0-9])[a-zA-Z]";
     final static Pattern VERSION_LETTER_PATTERN = Pattern.compile(VERSION_LETTER_REGEX);
     public static Character getVersionLetter(final String response) {
         Character retValue = null;
-        
+
         // Search for a version.
         Matcher matcher = VERSION_LETTER_PATTERN.matcher(response);
         if (matcher.find()) {
             retValue = matcher.group(0).charAt(0);
         }
-        
+
         return retValue;
     }
 
@@ -192,7 +200,7 @@ public class GrblUtils {
             return "";
         }
     }
-    
+
     static protected String getToggleCheckModeCommand(final double version, final Character letter) {
         if ((version >= 0.8 && (letter != null) && letter >= 'c')
                 || version >= 0.9) {
@@ -202,7 +210,7 @@ public class GrblUtils {
             return "";
         }
     }
-    
+
     static protected String getViewParserStateCommand(final double version, final Character letter) {
         if ((version >= 0.8 && (letter != null) && letter >= 'c')
                 || version >= 0.9) {
@@ -212,7 +220,7 @@ public class GrblUtils {
             return "";
         }
     }
-    
+
     /**
      * Determines version of GRBL position capability.
      */
@@ -261,7 +269,7 @@ public class GrblUtils {
 
         return GrblUtils.getPositionFromStatusString(response, PROBE_POSITION_PATTERN, units);
     }
-    
+
     /**
      * Check if a string contains a GRBL position string.
      */
@@ -308,7 +316,7 @@ public class GrblUtils {
     static protected Boolean isGrblSettingMessage(final String response) {
         return SETTING_PATTERN.matcher(response).find();
     }
-    
+
     /**
      * Parses a GRBL status string in the legacy format or v1.x format:
      * legacy: <status,WPos:1,2,3,MPos:1,2,3>
@@ -325,7 +333,7 @@ public class GrblUtils {
             final Capabilities version, Units reportingUnits) {
         // Legacy status.
         if (!version.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)) {
-            return getStatusFromStatusStringLegacy(status, version, reportingUnits);
+            return getStatusFromStatusStringLegacy(status, reportingUnits);
         } else {
             return getStatusFromStatusStringV1(lastStatus, status, reportingUnits);
         }
@@ -335,17 +343,16 @@ public class GrblUtils {
      * Parses a GRBL status string in the legacy format:
      * legacy: <status,WPos:1,2,3,MPos:1,2,3>
      * @param status the raw status string
-     * @param version capabilities flags
      * @param reportingUnits units
      * @return the parsed controller status
      */
-    private static ControllerStatus getStatusFromStatusStringLegacy(String status, Capabilities version, Units reportingUnits) {
+    public static ControllerStatus getStatusFromStatusStringLegacy(String status, Units reportingUnits) {
         String stateString = StringUtils.defaultString(getStateFromStatusString(status), "unknown");
         ControllerState state = getControllerStateFromStateString(stateString);
         return new ControllerStatus(
                 state,
-                getMachinePositionFromStatusString(status, version, reportingUnits),
-                getWorkPositionFromStatusString(status, version, reportingUnits));
+                getMachinePositionFromStatusString(status, reportingUnits),
+                getWorkPositionFromStatusString(status, reportingUnits));
     }
 
     /**
@@ -499,6 +506,13 @@ public class GrblUtils {
         return retValue;
     }
 
+    private  final static String STATUS_VERSION_1_REGEX = "^<[a-zA-Z]+[|]+.*>$";
+    private final static Pattern STATUS_VERSION_1_PATTERN = Pattern.compile(STATUS_VERSION_1_REGEX);
+
+    public static boolean isGrblStatusStringV1(String response) {
+        return STATUS_VERSION_1_PATTERN.matcher(response).matches();
+    }
+
     public static ControllerState getControllerStateFromStateString(String stateString) {
         switch (stateString.toLowerCase()) {
             case "jog":
@@ -529,22 +543,14 @@ public class GrblUtils {
     static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
     static Pattern workPattern = Pattern.compile("(?<=WPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
     static Pattern wcoPattern = Pattern.compile("(?<=WCO:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
-    static protected Position getMachinePositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
-        if (version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
-            return GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
-        } else {
-            return null;
-        }
+    static protected Position getMachinePositionFromStatusString(final String status, Units reportingUnits) {
+        return GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
     }
-    
-    static protected Position getWorkPositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
-        if (version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
-            return GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits);
-        } else {
-            return null;
-        }
+
+    static protected Position getWorkPositionFromStatusString(final String status, Units reportingUnits) {
+        return GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits);
     }
-    
+
     public static Position getPositionFromStatusString(final String status, final Pattern pattern, Units reportingUnits) {
         Matcher matcher = pattern.matcher(status);
         if (matcher.find()) {
@@ -566,7 +572,7 @@ public class GrblUtils {
 
             return result;
         }
-        
+
         return null;
     }
 
@@ -640,21 +646,39 @@ public class GrblUtils {
         }
     }
 
-    public static void updateGcodeCommandFromResponse(GcodeCommand gcodeCommand, String response) {
-        gcodeCommand.setResponse(response);
-
-        // No response? Set it to false or else update it's responses
-        if (StringUtils.isEmpty(response)) {
-            gcodeCommand.setOk(false);
-            gcodeCommand.setError(false);
-        } else if (GrblUtils.isOkResponse(response)) {
-            gcodeCommand.setOk(true);
-            gcodeCommand.setError(false);
-        } else if (GrblUtils.isErrorResponse(response) || GrblUtils.isAlarmResponse(response)) {
-            gcodeCommand.setOk(false);
-            gcodeCommand.setError(true);
+    /**
+     * Checks if the controller is responsive and not in a locked alarm state.
+     *
+     * @return true if responsive
+     * @throws Exception if we couldn't query for status
+     */
+    public static boolean isControllerResponsive(GrblController controller, MessageService messageService) throws Exception {
+        GetStatusCommand statusCommand = GrblUtils.queryForStatusReport(controller, messageService);
+        if (!statusCommand.isDone() || statusCommand.isError()) {
+            controller.closeCommPort();
+            throw new IllegalStateException("Could not query the device status");
         }
 
-        gcodeCommand.setDone(true);
+        // The controller is not up and running properly
+        if (statusCommand.getControllerStatus().getState() == ControllerState.HOLD || statusCommand.getControllerStatus().getState() == ControllerState.ALARM) {
+            try {
+                // Figure out if it is still responsive even if it is in HOLD or ALARM state
+                sendAndWaitForCompletion(controller, new GrblSystemCommand(""));
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static GetStatusCommand queryForStatusReport(GrblController controller, MessageService messageService) throws InterruptedException {
+        return sendAndWaitForCompletionWithRetry(GetStatusCommand::new, controller, 1000, 3, (executionNumber) -> {
+            if (executionNumber == 1) {
+                messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status\n");
+            } else {
+                messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status (" + executionNumber + " of 3)...\n");
+            }
+        });
     }
 }

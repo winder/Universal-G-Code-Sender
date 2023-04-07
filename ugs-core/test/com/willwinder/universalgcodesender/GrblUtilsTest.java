@@ -286,7 +286,7 @@ public class GrblUtilsTest {
         String status = "<Run,MPos:50.400,43.200,0.000,WPos:50000,42.600,0.000>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
-        Position position = GrblUtils.getWorkPositionFromStatusString(status, version, MM);
+        Position position = GrblUtils.getWorkPositionFromStatusString(status, MM);
 
         Position expResult = new Position(50000, 42.6, 0, MM);
         assertEquals(expResult, position);
@@ -298,7 +298,7 @@ public class GrblUtilsTest {
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
         Position expResult = new Position(-5.529,-0.560,-7.000, UnitUtils.Units.MM);
-        Position result = GrblUtils.getWorkPositionFromStatusString(status, version, UnitUtils.Units.MM);
+        Position result = GrblUtils.getWorkPositionFromStatusString(status, UnitUtils.Units.MM);
         assertEquals(expResult, result);
     }
 
@@ -311,7 +311,7 @@ public class GrblUtilsTest {
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
         Position expResult = new Position(5.529, 0.560, 7.000, UnitUtils.Units.MM);
-        Position result = GrblUtils.getMachinePositionFromStatusString(status, version, UnitUtils.Units.MM);
+        Position result = GrblUtils.getMachinePositionFromStatusString(status, UnitUtils.Units.MM);
         assertEquals(expResult, result);
     }
 
@@ -320,7 +320,7 @@ public class GrblUtilsTest {
         String status = "<Run,MPos:5,43.200,1,WPos:50000,42.600,0.000>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
-        Position position = GrblUtils.getMachinePositionFromStatusString(status, version, MM);
+        Position position = GrblUtils.getMachinePositionFromStatusString(status, MM);
 
         Position expResult = new Position(5, 43.2, 1, MM);
         assertEquals(expResult, position);
@@ -343,7 +343,7 @@ public class GrblUtilsTest {
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
         Position expResult = new Position(1.529, -5.440, -0.000, UnitUtils.Units.MM);
-        Position result = GrblUtils.getWorkPositionFromStatusString(status, version, UnitUtils.Units.MM);
+        Position result = GrblUtils.getWorkPositionFromStatusString(status, UnitUtils.Units.MM);
         assertEquals(expResult, result);
     }
 
