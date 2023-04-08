@@ -47,10 +47,10 @@ public class ProbeServiceTest {
     public void testProbeServiceZ() throws Exception {
         doReturn(true).when(backend).isIdle();
 
-        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 10., 1, 1, 1, 100, 25, 5, Units.INCH, G54);
+        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 10., 1, 1, 1, 0, 100, 25, 5, Units.INCH, G54);
         testZProbe(pc);
 
-        pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, -10., 1, 1, 1, 100, 25, 5, Units.INCH, G54);
+        pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, -10., 1, 1, 1, 0, 100, 25, 5, Units.INCH, G54);
         testZProbe(pc);
     }
 
@@ -86,7 +86,7 @@ public class ProbeServiceTest {
 
         ProbeService ps = new ProbeService(backend);
 
-        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 100, 25, 5, Units.MM, G55);
+        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 0, 100, 25, 5, Units.MM, G55);
         ps.performOutsideCornerProbe(pc);
 
         Position probeY = new Position(2.0, 2.0, 0, Units.MM);
@@ -137,7 +137,7 @@ public class ProbeServiceTest {
 
         ProbeService ps = new ProbeService(backend);
 
-        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 100, 25, 5, Units.MM, G55);
+        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 0, 100, 25, 5, Units.MM, G55);
         ps.performXYZProbe(pc);
 
         Position probeY = new Position(2.0, 2.0, 0, Units.MM);

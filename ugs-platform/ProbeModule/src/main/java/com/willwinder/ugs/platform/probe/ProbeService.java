@@ -62,7 +62,7 @@ public class ProbeService implements UGSEventListener {
         OUTSIDE_XY(4),
         OUTSIDE_XYZ(6),
         //INSIDE_XY    (4),
-        //INSIDE_CIRCLE(4)
+        INSIDE_CIRCLE(8)
         ;
 
         private final int numProbes;
@@ -92,6 +92,7 @@ public class ProbeService implements UGSEventListener {
         public final double xOffset;
         public final double yOffset;
         public final double zOffset;
+        public final double holeDiameter;
         public final double feedRate;
         public final double feedRateSlow;
         public final double retractAmount;
@@ -105,6 +106,7 @@ public class ProbeService implements UGSEventListener {
         public ProbeParameters(double diameter, Position start,
                 double xSpacing, double ySpacing, double zSpacing,
                 double xOffset, double yOffset, double zOffset,
+                double holeDiameter,
                 double feedRate, double feedRateSlow, double retractAmount,
                 Units u, WorkCoordinateSystem wcs) {
             this.endPosition = null;
@@ -116,6 +118,7 @@ public class ProbeService implements UGSEventListener {
             this.xOffset = xOffset;
             this.yOffset = yOffset;
             this.zOffset = zOffset;
+            this.holeDiameter = holeDiameter;
             this.feedRate = feedRate;
             this.feedRateSlow = feedRateSlow;
             this.retractAmount = retractAmount;
@@ -375,6 +378,81 @@ public class ProbeService implements UGSEventListener {
         } catch (Exception e) {
             resetProbe();
             logger.log(Level.SEVERE, "Exception during XYZ probe operation.", e);
+        }
+    }
+
+    void performHoleCenterProbe(ProbeParameters params) throws IllegalStateException {
+        validateState();
+        currentOperation = ProbeOperation.INSIDE_CIRCLE;
+        this.params = params;
+        performHoleCenterProbeInternal(0);
+    }
+
+    private void performHoleCenterProbeInternal(int stepNumber) throws IllegalStateException {
+        String g = GcodeUtils.unitCommand(params.units);
+        String g0Abs = "G90 " + g + " G0";
+        String g0Rel = "G91 " + g + " G0";
+
+        continuation = () -> performHoleCenterProbeInternal(stepNumber + 1);
+
+        try {
+            switch (stepNumber) {
+                case 0: {
+                    // Reset (0,0,_) to make it easier to retract.
+                    updateWCS(params.wcsToUpdate, 0.0, 0.0, null);
+
+                    gcode(g0Abs + " X" + params.xSpacing);
+                    probe('Y', params.feedRate, params.ySpacing, params.units);
+                    break;
+                }
+                case 1: {
+                    gcode(g0Rel + " Y" + retractDistance(params.ySpacing, params.retractAmount));
+                    probe('Y', params.feedRateSlow, params.ySpacing, params.units);
+                    break;
+                }
+                case 2: {
+                    gcode(g0Abs + " Y0.0");
+                    gcode(g0Abs + " X0.0");
+                    gcode(g0Abs + " Y" + params.ySpacing);
+                    probe('X', params.feedRate, params.xSpacing, params.units);
+                    break;
+                }
+                case 3: {
+                    gcode(g0Rel + " X" + retractDistance(params.xSpacing, params.retractAmount));
+                    probe('X', params.feedRateSlow, params.xSpacing, params.units);
+                    break;
+                }
+                case 4: {
+                    gcode(g0Abs + " X0.0");
+                    gcode(g0Abs + " Y0.0");
+                    break;
+                }
+                case 5: {
+                    // Once idle, perform calculations.
+                    Preconditions.checkState(probePositions.size() == 4, "Unexpected number of probe positions.");
+
+                    Position probeY = probePositions.get(1).getPositionIn(params.units);
+                    Position probeX = probePositions.get(3).getPositionIn(params.units);
+
+                    double radius = params.probeDiameter / 2;
+                    double xDir = Math.signum(params.xSpacing) * -1;
+                    double yDir = Math.signum(params.ySpacing) * -1;
+                    double xProbedOffset = xDir * (radius + params.xOffset);
+                    double yProbedOffset = yDir * (radius + params.yOffset);
+
+                    Position startPositionInUnits = params.startPosition.getPositionIn(params.units);
+                    updateWCS(params.wcsToUpdate,
+                            startPositionInUnits.x - probeX.x + xProbedOffset,
+                            startPositionInUnits.y - probeY.y + yProbedOffset,
+                            null);
+                    break;
+                }
+                default:
+                    throw new UnsupportedOperationException("Invalid step number: " + stepNumber);
+            }
+        } catch (Exception e) {
+            resetProbe();
+            logger.log(Level.SEVERE, "Exception during outside corner probe operation.", e);
         }
     }
 
