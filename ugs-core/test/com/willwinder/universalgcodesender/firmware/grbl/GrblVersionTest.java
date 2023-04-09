@@ -52,6 +52,24 @@ public class GrblVersionTest {
     }
 
     @Test
+    public void parseVersionStringWithSnapshotBuildDateAndMachine() {
+        GrblVersion version = new GrblVersion("[VER:1.1h-XCP.20220314a:abc]");
+        assertEquals(1.1d, version.getVersionNumber(), 0.001);
+        assertEquals('h', version.getVersionLetter().charValue());
+        assertEquals("20220314a", version.getBuildDate());
+        assertEquals("abc", version.getMachineName());
+    }
+
+    @Test
+    public void parseVersionStringWithSnapshot() {
+        GrblVersion version = new GrblVersion("[VER:1.1h-XCP]");
+        assertEquals(1.1d, version.getVersionNumber(), 0.001);
+        assertEquals('h', version.getVersionLetter().charValue());
+        assertEquals("", version.getBuildDate());
+        assertEquals("", version.getMachineName());
+    }
+
+    @Test
     public void parseOldVersion() {
         GrblVersion version = new GrblVersion("[VER:0.7]");
         assertEquals(0.7d, version.getVersionNumber(), 0.001);
