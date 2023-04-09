@@ -392,59 +392,69 @@ public class ProbeService implements UGSEventListener {
         String g = GcodeUtils.unitCommand(params.units);
         String g0Abs = "G90 " + g + " G0";
         String g0Rel = "G91 " + g + " G0";
+        String g0MCS = "G53 " + g + " G0";
+        double holeRadius = params.holeDiameter / 2.0;
 
         continuation = () -> performHoleCenterProbeInternal(stepNumber + 1);
 
         try {
-            switch (stepNumber) {
-                case 0: {
+            switch (stepNumber) { // NOTE: G code comments are with radius 25 and retract 2, G21, G54
+                case 0: { // find -X
                     // Reset (0,0,_) to make it easier to retract.
-                    updateWCS(params.wcsToUpdate, 0.0, 0.0, null);
-
-                    gcode(g0Abs + " X" + params.xSpacing);
-                    probe('Y', params.feedRate, params.ySpacing, params.units);
+                    updateWCS(params.wcsToUpdate, 0.0, 0.0, null); // G10 L20 P0 X0 Y0
+                    probe('X', params.feedRate, -holeRadius, params.units); // G21 G91 G49; G38.2 X-25.0 F250
                     break;
                 }
-                case 1: {
-                    gcode(g0Rel + " Y" + retractDistance(params.ySpacing, params.retractAmount));
-                    probe('Y', params.feedRateSlow, params.ySpacing, params.units);
+                case 1: { // retract & measure -X
+                    gcode(g0Rel + " X" + params.retractAmount); // G91 G21 G0 X2.0
+                    probe('X', params.feedRateSlow, -holeRadius, params.units); // G21 G91 G49; G38.2 X-25.0 F50
                     break;
                 }
-                case 2: {
-                    gcode(g0Abs + " Y0.0");
-                    gcode(g0Abs + " X0.0");
-                    gcode(g0Abs + " Y" + params.ySpacing);
-                    probe('X', params.feedRate, params.xSpacing, params.units);
+                case 2: { // move to X origin, find +X
+                    gcode(g0Abs + " X0.0"); // G90 G21 G0 X0.0
+                    probe('X', params.feedRate, holeRadius, params.units); // G21 G91 G49; G38.2 X25.0 F250
                     break;
                 }
-                case 3: {
-                    gcode(g0Rel + " X" + retractDistance(params.xSpacing, params.retractAmount));
-                    probe('X', params.feedRateSlow, params.xSpacing, params.units);
+                case 3: { // retract & measure +X
+                    gcode(g0Rel + " X" + (-params.retractAmount)); // G91 G21 G0 X-2.0
+                    probe('X', params.feedRateSlow, holeRadius, params.units); // G21 G91 G49; G38.2 X25.0 F50
                     break;
                 }
-                case 4: {
-                    gcode(g0Abs + " X0.0");
-                    gcode(g0Abs + " Y0.0");
-                    break;
-                }
-                case 5: {
-                    // Once idle, perform calculations.
+                case 4: { // calculate and move to X center, find -Y
                     Preconditions.checkState(probePositions.size() == 4, "Unexpected number of probe positions.");
 
-                    Position probeY = probePositions.get(1).getPositionIn(params.units);
-                    Position probeX = probePositions.get(3).getPositionIn(params.units);
+                    Position min = probePositions.get(1).getPositionIn(params.units);
+                    Position max = probePositions.get(3).getPositionIn(params.units);
+                    double midX = min.x + (max.x - min.x) / 2.0;
 
-                    double radius = params.probeDiameter / 2;
-                    double xDir = Math.signum(params.xSpacing) * -1;
-                    double yDir = Math.signum(params.ySpacing) * -1;
-                    double xProbedOffset = xDir * (radius + params.xOffset);
-                    double yProbedOffset = yDir * (radius + params.yOffset);
+                    gcode(g0MCS + " X" + midX); // G53 G21 G0 X-336.29
+                    probe('Y', params.feedRate, -holeRadius, params.units); // G21 G91 G49; G38.2 Y-25.0 F250
+                    break;
+                }
+                case 5: { // retract & measure -Y
+                    gcode(g0Rel + " Y" + params.retractAmount); // G91 G21 G0 Y2.0
+                    probe('Y', params.feedRateSlow, -holeRadius, params.units); // G21 G91 G49; G38.2 Y-25.0 F50
+                    break;
+                }
+                case 6: { // move to Y origin, find +Y
+                    gcode(g0Abs + " Y0.0"); // G90 G21 G0 Y0.0
+                    probe('Y', params.feedRate, holeRadius, params.units); // G21 G91 G49; G38.2 Y25.0 F250
+                    break;
+                }
+                case 7: { // retract & measure +Y
+                    gcode(g0Rel + " Y" + (-params.retractAmount));// G91 G21 G0 Y-2.0
+                    probe('Y', params.feedRateSlow, holeRadius, params.units);// G21 G91 G49; G38.2 Y25.0 F50
+                    break;
+                }
+                case 8: { // calculate Y center and move to X/Y center, zero X/Y WCS
+                    Preconditions.checkState(probePositions.size() == 8, "Unexpected number of probe positions.");
 
-                    Position startPositionInUnits = params.startPosition.getPositionIn(params.units);
-                    updateWCS(params.wcsToUpdate,
-                            startPositionInUnits.x - probeX.x + xProbedOffset,
-                            startPositionInUnits.y - probeY.y + yProbedOffset,
-                            null);
+                    Position min = probePositions.get(5).getPositionIn(params.units);
+                    Position max = probePositions.get(7).getPositionIn(params.units);
+                    double midY = min.y + (max.y - min.y) / 2.0;
+
+                    gcode(g0MCS + " Y" + midY); // G53 G0 Y-322.116
+                    updateWCS(params.wcsToUpdate, 0.0, 0.0, null); // G10 L20 P0 X0 Y0
                     break;
                 }
                 default:
