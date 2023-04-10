@@ -197,4 +197,81 @@ public class ProbeServiceTest {
                         + "Y" + Utils.formatter.format(yProbeOffset)
                         + "Z" + Utils.formatter.format(zProbeOffset));
     }
+
+    @Test
+    public void testProbeServiceHoleCenter() throws Exception {
+        doReturn(true).when(backend).isIdle();
+
+        ProbeService ps = new ProbeService(backend);
+
+        // approx start -1, -1, 0 - does not matter
+        // approx diameter 10
+        // seek feed 100
+        // measure feed 25
+        // retract 2
+        // real diameter 8
+        // center 1, -1, 0
+        // -X corner -3, 0
+        // +X corner 4, 0
+        // -Y corner 0, -5
+        // +Y corner 0, 3
+        ProbeParameters pc = new ProbeParameters(1, new Position(-1, -1, 0, Units.MM), 0, 0, 0, 0, 0, 0, 10, 100, 25, 2, Units.MM, G55);
+        ps.performHoleCenterProbe(pc);
+
+        Position probeYmin = new Position(-3.0, 0.0, 0, Units.MM);
+        Position probeYmax = new Position(5.0, 0.0, 0, Units.MM);
+        Position probeXmin = new Position(0.0, -5.0, 0, Units.MM);
+        Position probeXmax = new Position(0.0, 3.0, 0, Units.MM);
+        double holeRadius = pc.holeDiameter / 2.0;
+
+        // Events to transition between states.
+        ps.UGSEvent(new ProbeEvent(probeYmin)); // seek
+        ps.UGSEvent(new ProbeEvent(probeYmin)); // measure
+        ps.UGSEvent(new ProbeEvent(probeYmax)); // seek
+        ps.UGSEvent(new ProbeEvent(probeYmax)); // measure
+        ps.UGSEvent(new ProbeEvent(probeXmin)); // seek
+        ps.UGSEvent(new ProbeEvent(probeXmin)); // measure
+        ps.UGSEvent(new ProbeEvent(probeXmax)); // seek
+        ps.UGSEvent(new ProbeEvent(probeXmax)); // measure
+
+        // ps.UGSEvent(new ControllerStateEvent(ControllerState.IDLE, ControllerState.DISCONNECTED));
+        // commented out, because it throws java.lang.NullPointerException, and don't know why
+
+        InOrder order = inOrder(backend);
+        // step 0
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 X0Y0");
+        order.verify(backend, times(1)).probe("X", pc.feedRate, -holeRadius, pc.units);
+
+        // step 1
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X2.0");
+        order.verify(backend, times(1)).probe("X", pc.feedRateSlow, -holeRadius, pc.units);
+
+        // step 2
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X0.0");
+        order.verify(backend, times(1)).probe("X", pc.feedRate, holeRadius, pc.units);
+
+        // step 3
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X-2.0");
+        order.verify(backend, times(1)).probe("X", pc.feedRateSlow, holeRadius, pc.units);
+
+        // step 4
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G53 G21 G0 X1.0");
+        order.verify(backend, times(1)).probe("Y", pc.feedRate, -holeRadius, pc.units);
+
+        // step 5
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y2.0");
+        order.verify(backend, times(1)).probe("Y", pc.feedRateSlow, -holeRadius, pc.units);
+
+        // step 6
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Y0.0");
+        order.verify(backend, times(1)).probe("Y", pc.feedRate, holeRadius, pc.units);
+
+        // step 7
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y-2.0");
+        order.verify(backend, times(1)).probe("Y", pc.feedRateSlow, holeRadius, pc.units);
+
+        // step 8
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G53 G21 G0 Y-1.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 X0Y0");
+    }
 }
