@@ -406,17 +406,17 @@ public class ProbeService implements UGSEventListener {
                     break;
                 }
                 case 1: { // retract & measure -X
-                    gcode(g0Rel + " X" + params.retractAmount); // G91 G21 G0 X2.0
+                    gcode(g0Rel + " X" + Utils.formatter.format(params.retractAmount)); // G91 G21 G0 X2.0
                     probe('X', params.feedRateSlow, -holeRadius, params.units); // G21 G91 G49; G38.2 X-25.0 F50
                     break;
                 }
                 case 2: { // move to X origin, find +X
-                    gcode(g0Abs + " X0.0"); // G90 G21 G0 X0.0
+                    gcode(g0Abs + " X0"); // G90 G21 G0 X0.0
                     probe('X', params.feedRate, holeRadius, params.units); // G21 G91 G49; G38.2 X25.0 F250
                     break;
                 }
                 case 3: { // retract & measure +X
-                    gcode(g0Rel + " X" + (-params.retractAmount)); // G91 G21 G0 X-2.0
+                    gcode(g0Rel + " X" + Utils.formatter.format(-1.0 * params.retractAmount)); // G91 G21 G0 X-2.0
                     probe('X', params.feedRateSlow, holeRadius, params.units); // G21 G91 G49; G38.2 X25.0 F50
                     break;
                 }
@@ -427,22 +427,22 @@ public class ProbeService implements UGSEventListener {
                     Position max = probePositions.get(3).getPositionIn(params.units);
                     double midX = min.x + (max.x - min.x) / 2.0;
 
-                    gcode(g0MCS + " X" + midX); // G53 G21 G0 X-336.29
+                    gcode(g0MCS + " X" + Utils.formatter.format(midX)); // G53 G21 G0 X-336.29
                     probe('Y', params.feedRate, -holeRadius, params.units); // G21 G91 G49; G38.2 Y-25.0 F250
                     break;
                 }
                 case 5: { // retract & measure -Y
-                    gcode(g0Rel + " Y" + params.retractAmount); // G91 G21 G0 Y2.0
+                    gcode(g0Rel + " Y" + Utils.formatter.format(params.retractAmount)); // G91 G21 G0 Y2.0
                     probe('Y', params.feedRateSlow, -holeRadius, params.units); // G21 G91 G49; G38.2 Y-25.0 F50
                     break;
                 }
                 case 6: { // move to Y origin, find +Y
-                    gcode(g0Abs + " Y0.0"); // G90 G21 G0 Y0.0
+                    gcode(g0Abs + " Y0"); // G90 G21 G0 Y0.0
                     probe('Y', params.feedRate, holeRadius, params.units); // G21 G91 G49; G38.2 Y25.0 F250
                     break;
                 }
                 case 7: { // retract & measure +Y
-                    gcode(g0Rel + " Y" + (-params.retractAmount));// G91 G21 G0 Y-2.0
+                    gcode(g0Rel + " Y" + Utils.formatter.format(-1.0 * params.retractAmount));// G91 G21 G0 Y-2.0
                     probe('Y', params.feedRateSlow, holeRadius, params.units);// G21 G91 G49; G38.2 Y25.0 F50
                     break;
                 }
@@ -453,7 +453,7 @@ public class ProbeService implements UGSEventListener {
                     Position max = probePositions.get(7).getPositionIn(params.units);
                     double midY = min.y + (max.y - min.y) / 2.0;
 
-                    gcode(g0MCS + " Y" + midY); // G53 G0 Y-322.116
+                    gcode(g0MCS + " Y" + Utils.formatter.format(midY)); // G53 G0 Y-322.116
                     updateWCS(params.wcsToUpdate, 0.0, 0.0, null); // G10 L20 P0 X0 Y0
                     break;
                 }

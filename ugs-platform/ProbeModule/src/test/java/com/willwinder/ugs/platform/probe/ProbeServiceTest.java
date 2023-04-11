@@ -243,35 +243,35 @@ public class ProbeServiceTest {
         order.verify(backend, times(1)).probe("X", pc.feedRate, -holeRadius, pc.units);
 
         // step 1
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X2.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X2");
         order.verify(backend, times(1)).probe("X", pc.feedRateSlow, -holeRadius, pc.units);
 
         // step 2
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X0.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X0");
         order.verify(backend, times(1)).probe("X", pc.feedRate, holeRadius, pc.units);
 
         // step 3
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X-2.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X-2");
         order.verify(backend, times(1)).probe("X", pc.feedRateSlow, holeRadius, pc.units);
 
         // step 4
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G53 G21 G0 X1.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G53 G21 G0 X1");
         order.verify(backend, times(1)).probe("Y", pc.feedRate, -holeRadius, pc.units);
 
         // step 5
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y2.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y2");
         order.verify(backend, times(1)).probe("Y", pc.feedRateSlow, -holeRadius, pc.units);
 
         // step 6
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Y0.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Y0");
         order.verify(backend, times(1)).probe("Y", pc.feedRate, holeRadius, pc.units);
 
         // step 7
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y-2.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y-2");
         order.verify(backend, times(1)).probe("Y", pc.feedRateSlow, holeRadius, pc.units);
 
         // step 8
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G53 G21 G0 Y-1.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G53 G21 G0 Y-1");
         order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 X0Y0");
     }
 }
