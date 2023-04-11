@@ -75,6 +75,7 @@ public class FirmwareAction extends CallableSystemAction implements UGSEventList
     }
 
     private void firmwareUpdated() {
+        System.out.println("firmware updated " + backend.getSettings().getFirmwareVersion());
         firmwareCombo.setSelectedItem( backend.getSettings().getFirmwareVersion());
     }
 
@@ -99,9 +100,10 @@ public class FirmwareAction extends CallableSystemAction implements UGSEventList
 
             // Load firmware configuration in its own thread to make sure that
             // the splash screen is not covering any firmware upgrade dialogs
-            ThreadHelper.invokeLater(this::loadFirmwareSelector);
-
-            firmwareCombo.addActionListener(a -> setFirmware());
+            ThreadHelper.invokeLater(() -> {
+                loadFirmwareSelector();
+                firmwareCombo.addActionListener(a -> setFirmware());
+            });
         }
         return c;
     }

@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  */
 public class GrblVersion {
     public static final GrblVersion NO_VERSION = new GrblVersion("");
-    public static final String VERSION_REGEX = "^\\[VER:[v]?(?<version>(?<major>\\d+)\\.(?<minor>\\d+))?(?<char>.)?(\\.(?<date>\\d+))?(:(?<name>.*))?]$";
+    public static final String VERSION_REGEX = "^\\[VER:[v]?(?<version>(?<major>\\d+)\\.(?<minor>\\d+)(?<char>.)?(-(?<snapshot>[a-bA-Z]+))?)?(\\.(?<date>[0-9a-z]+))?(:(?<name>.*))?]$";
     private final double versionNumber;           // The 0.8 in '[VER:0.8c.20220620:Machine1]'
     private final Character versionLetter;  // The c in '[VER:0.8c.20220620:Machine1]'
     private final String buildDate;         // The 20220620 in '[VER:0.8c.20220620:Machine1]'
@@ -25,7 +25,7 @@ public class GrblVersion {
         Pattern versionPattern = Pattern.compile(VERSION_REGEX);
         Matcher matcher = versionPattern.matcher(versionString);
         if (matcher.matches()) {
-            versionNumber = Double.parseDouble(StringUtils.defaultString(matcher.group("version"), "0.0"));
+            versionNumber = Double.parseDouble(StringUtils.defaultString(matcher.group("major"), "0") + "." + StringUtils.defaultString(matcher.group("minor"), "0"));
             versionLetter = StringUtils.defaultString(matcher.group("char"), "-").charAt(0);
             buildDate = StringUtils.defaultString(matcher.group("date"), "");
             machineName = StringUtils.defaultString(matcher.group("name"), "");
