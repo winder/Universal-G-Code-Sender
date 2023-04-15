@@ -19,9 +19,7 @@
 package com.willwinder.universalgcodesender.gcode.util;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.*;
 import java.util.List;
 import org.junit.Test;
@@ -34,10 +32,7 @@ import static org.junit.Assert.*;
 public class CommandProcessorLoaderTest {
 
     @Test
-    public void testInvalidProcessors() throws Exception {
-        System.out.println("InvalidProcessor");
-        GcodeParser gcp = new GcodeParser();
-
+    public void testInvalidProcessors() {
         JsonObject args = new JsonObject();
         JsonObject object = new JsonObject();
         object.addProperty("name", "DoesNotExist");
@@ -46,20 +41,12 @@ public class CommandProcessorLoaderTest {
         JsonArray array = new JsonArray();
         array.add(object);
 
-        boolean threwException = false;
-        try {
-            List<CommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(array.toString());
-        } catch (IllegalArgumentException e) {
-            threwException = true;
-        }
-        assertTrue(threwException);
+        List<CommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(array.toString());
+        assertTrue("Invalid processor should be ignored", result.isEmpty());
     }
 
     @Test
-    public void testInvalidParametersToValidProcessor() throws Exception {
-        System.out.println("InvalidProcessor");
-        GcodeParser gcp = new GcodeParser();
-
+    public void testInvalidParametersToValidProcessor() {
         JsonObject args = new JsonObject();
         args.addProperty("segmentLengthMM", "NotANumber");
         JsonObject object = new JsonObject();
@@ -83,8 +70,7 @@ public class CommandProcessorLoaderTest {
      */
     @Test
     public void testAllProcessors() throws Exception {
-        System.out.println("initializeWithProcessors");
-        JsonObject args, name, object;
+        JsonObject args, object;
 
         JsonArray array = new JsonArray();
 
@@ -166,20 +152,5 @@ public class CommandProcessorLoaderTest {
         assertEquals(WhitespaceProcessor.class, processors.get(7).getClass());
         assertEquals(SpindleOnDweller.class, processors.get(8).getClass());
         assertEquals(LineSplitter.class, processors.get(9).getClass());
-    }
-    
-    private static JsonElement with(String name, Boolean enabled) {
-        JsonObject object = new JsonObject();
-        object.addProperty("name", name);
-        object.addProperty("enabled", enabled);
-        return object;
-    }
-
-    private static JsonElement with(String name, Boolean enabled, Boolean optional) {
-        JsonObject object = new JsonObject();
-        object.addProperty("name", name);
-        object.addProperty("enabled", enabled);
-        object.addProperty("optional", optional);
-        return object;
     }
 }

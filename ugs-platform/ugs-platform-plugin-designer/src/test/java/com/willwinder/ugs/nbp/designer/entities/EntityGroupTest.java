@@ -322,4 +322,26 @@ public class EntityGroupTest {
         Optional<EntityGroup> parentFor = entityGroup.findParentFor(point);
         assertFalse(parentFor.isPresent());
     }
+
+    @Test
+    public void onEventShouldUpdateBounds() {
+        EntityGroup entityGroup = new EntityGroup();
+        Rectangle rectangle1 = new Rectangle(0, 0);
+        rectangle1.setSize(new Size(10, 10));
+        entityGroup.addChild(rectangle1);
+
+        Rectangle rectangle2 = new Rectangle(5, 5);
+        entityGroup.addChild(rectangle2);
+        assertEquals(0, entityGroup.getBounds().getX(), 0.1);
+        assertEquals(0, entityGroup.getBounds().getY(), 0.1);
+        assertEquals(10, entityGroup.getBounds().getWidth(), 0.1);
+        assertEquals(10, entityGroup.getBounds().getHeight(), 0.1);
+
+        // Trigger an onEvent which should update the bounds
+        rectangle2.setSize(new Size(10, 10));
+        assertEquals(0, entityGroup.getBounds().getX(), 0.1);
+        assertEquals(0, entityGroup.getBounds().getY(), 0.1);
+        assertEquals(15, entityGroup.getBounds().getWidth(), 0.1);
+        assertEquals(15, entityGroup.getBounds().getHeight(), 0.1);
+    }
 }

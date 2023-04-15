@@ -22,69 +22,83 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.willwinder.universalgcodesender.gcode.processors.*;
+import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
+import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
+import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
+import com.willwinder.universalgcodesender.gcode.processors.PatternRemover;
+import com.willwinder.universalgcodesender.gcode.processors.SpindleOnDweller;
+import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.ControllerSettings.ProcessorConfig;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
- *
  * @author wwinder
  */
 public class CommandProcessorLoader {
+    private static final Logger LOGGER = Logger.getLogger(CommandProcessorLoader.class.getSimpleName());
+
     /**
      * Add any ICommandProcessors specified in a JSON string. Processors are
      * initialized using the application settings if they are enabled.
-     * 
+     * <p>
      * JSON Format:
      * [
-     *     {
-     *         "name":"ArcExpander",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {}
-     *     },{
-     *         "name": "CommandLenghtProcessor",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {}
-     *     },{
-     *         "name": "CommentProcessor",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {}
-     *     },{
-     *         "name": "DecimalProcessor",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {}
-     *     },{
-     *         "name": "FeedOverrideProcessor",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {}
-     *     },{
-     *         "name": "M30Processor",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {}
-     *     },{
-     *         name: "WhitespaceProcessor",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-         "args": {}
-     },{
-         name: "SpindleOnDweller",
-         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {}
-     *     }
-     *  ]
+     * {
+     * "name":"ArcExpander",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {}
+     * },{
+     * "name": "CommandLenghtProcessor",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {}
+     * },{
+     * "name": "CommentProcessor",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {}
+     * },{
+     * "name": "DecimalProcessor",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {}
+     * },{
+     * "name": "FeedOverrideProcessor",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {}
+     * },{
+     * "name": "M30Processor",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {}
+     * },{
+     * name: "WhitespaceProcessor",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {}
+     * },{
+     * name: "SpindleOnDweller",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {}
+     * }
+     * ]
      */
     static private List<ProcessorConfig> getConfigFrom(String jsonConfig) {
         List<ProcessorConfig> list = new ArrayList<>();
-        JsonArray json = new JsonParser().parse(jsonConfig).getAsJsonArray();
+        JsonArray json = JsonParser.parseString(jsonConfig).getAsJsonArray();
         for (JsonElement entry : json) {
             JsonObject object = entry.getAsJsonObject();
 
@@ -115,64 +129,64 @@ public class CommandProcessorLoader {
     /**
      * Add any ICommandProcessors specified in a JSON string. Processors are
      * configured by properties in the JSON file.
-     * 
+     * <p>
      * JSON Format:
      * [   {
-     *         "name":"ArcExpander",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {
-     *             "segmentLengthMM": <double>
-     *         }
-     *     },{
-     *         "name": "CommandLenghtProcessor",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {
-     *             "commandLength": <double>
-     *         }
-     *     },{
-     *         "name": "CommentProcessor",
-     *         "enabled": <enabled>
-     *         "optional": <optional>,
-     *     },{
-     *         "name": "DecimalProcessor",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {
-     *             "decimals": <double>
-     *         }
-     *     },{
-     *         "name": "FeedOverrideProcessor",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {
-     *             "speed": <double>
-     *         }
-     *     },{
-     *         "name": "M30Processor",
-     *         "enabled": <enabled>
-     *         "optional": <optional>,
-     *     },{
-     *         "name": "WhitespaceProcessor",
-     *         "enabled": <enabled>
-     *         "optional": <optional>,
-     *     },{
-     *         "name": "SpindleOnDweller",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {
-     *             "duraion": <double>
-     *         }
-     *     },{
-     *         "name":"LineSplitter",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {
-     *             "segmentLengthMM": <double>
-     *         }
-     *     }
-     *  ]
+     * "name":"ArcExpander",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {
+     * "segmentLengthMM": <double>
+     * }
+     * },{
+     * "name": "CommandLenghtProcessor",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {
+     * "commandLength": <double>
+     * }
+     * },{
+     * "name": "CommentProcessor",
+     * "enabled": <enabled>
+     * "optional": <optional>,
+     * },{
+     * "name": "DecimalProcessor",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {
+     * "decimals": <double>
+     * }
+     * },{
+     * "name": "FeedOverrideProcessor",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {
+     * "speed": <double>
+     * }
+     * },{
+     * "name": "M30Processor",
+     * "enabled": <enabled>
+     * "optional": <optional>,
+     * },{
+     * "name": "WhitespaceProcessor",
+     * "enabled": <enabled>
+     * "optional": <optional>,
+     * },{
+     * "name": "SpindleOnDweller",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {
+     * "duraion": <double>
+     * }
+     * },{
+     * "name":"LineSplitter",
+     * "enabled": <enabled>,
+     * "optional": <optional>,
+     * "args": {
+     * "segmentLengthMM": <double>
+     * }
+     * }
+     * ]
      */
     static public List<CommandProcessor> initializeWithProcessors(String jsonConfig) {
         return initializeWithProcessors(getConfigFrom(jsonConfig));
@@ -186,7 +200,7 @@ public class CommandProcessorLoader {
                 continue;
             }
 
-            list.add(getProcessor(pc));
+            getProcessor(pc).ifPresent(list::add);
         }
 
         return list;
@@ -194,48 +208,47 @@ public class CommandProcessorLoader {
 
     /**
      * Helper to instantiate a processor by name and call the getHelp method.
-     * @param pc
-     * @return 
+     *
+     * @param pc processor config
+     * @return a help text for the given processor
      */
     static public String getHelpForConfig(ProcessorConfig pc) {
-        try {
-            return getProcessor(pc).getHelp();
-        } catch (Exception e) {
-            return Localization.getString("settings.processors.loadError")
-                    + ": " + Localization.getString(pc.name);
-        }
+        return getProcessor(pc).map(CommandProcessor::getHelp)
+                .orElse(Localization.getString("settings.processors.loadError")
+                        + ": " + Localization.getString(pc.name));
     }
 
-    private static CommandProcessor getProcessor(ProcessorConfig pc) {
+    private static Optional<CommandProcessor> getProcessor(ProcessorConfig pc) {
         switch (pc.name) {
             case "ArcExpander":
                 double length = pc.args.get("segmentLengthMM").getAsDouble();
-                return new ArcExpander(true, length);
+                return Optional.of(new ArcExpander(true, length));
             case "CommandLengthProcessor":
                 int commandLength = pc.args.get("commandLength").getAsInt();
-                return new CommandLengthProcessor(commandLength);
+                return Optional.of(new CommandLengthProcessor(commandLength));
             case "CommentProcessor":
-                return new CommentProcessor();
+                return Optional.of(new CommentProcessor());
             case "DecimalProcessor":
                 int decimals = pc.args.get("decimals").getAsInt();
-                return new DecimalProcessor(decimals);
+                return Optional.of(new DecimalProcessor(decimals));
             case "FeedOverrideProcessor":
                 double override = pc.args.get("speedOverridePercent").getAsDouble();
-                return new FeedOverrideProcessor(override);
+                return Optional.of(new FeedOverrideProcessor(override));
             case "M30Processor":
-                return new M30Processor();
+                return Optional.of(new M30Processor());
             case "PatternRemover":
                 String pattern = pc.args.get("pattern").getAsString();
-                return new PatternRemover(pattern);
+                return Optional.of(new PatternRemover(pattern));
             case "WhitespaceProcessor":
-                return new WhitespaceProcessor();
+                return Optional.of(new WhitespaceProcessor());
             case "SpindleOnDweller":
                 double duration = pc.args.get("duration").getAsDouble();
-                return new SpindleOnDweller(duration);
+                return Optional.of(new SpindleOnDweller(duration));
             case "LineSplitter":
-                return new LineSplitter(pc.args.get("segmentLengthMM").getAsDouble());
+                return Optional.of(new LineSplitter(pc.args.get("segmentLengthMM").getAsDouble()));
             default:
-                throw new IllegalArgumentException("Unknown processor: " + pc.name);
+                LOGGER.severe("Unknown processor: " + pc.name);
+                return Optional.empty();
         }
     }
 }
