@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcess
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.EmptyLineRemoverProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
