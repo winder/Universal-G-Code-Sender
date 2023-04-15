@@ -1,5 +1,5 @@
 /*
-    Copyright 2012-2022 Will Winder
+    Copyright 2012-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,6 +20,7 @@
 package com.willwinder.universalgcodesender.types;
 
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -30,9 +31,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.willwinder.universalgcodesender.GrblUtils.isAlarmResponse;
+import static com.willwinder.universalgcodesender.GrblUtils.isErrorResponse;
+import static com.willwinder.universalgcodesender.GrblUtils.isOkResponse;
+
 
 /**
- * An object representing a single GcodeCommand.
+ * An object representing a single command that expects it to end with a command status "ok" or "error" to
+ * consider the command done.
  *
  * @author wwinder
  */
@@ -123,7 +129,8 @@ public class GcodeCommand {
 
     /** Setters. */
     public void setResponse(String response) {
-        this.response = response;
+        this.response = null;
+        appendResponse(response);
     }
 
     public void appendResponse(String response) {
@@ -131,6 +138,15 @@ public class GcodeCommand {
             this.response = response;
         } else {
             this.response += "\n" + response;
+        }
+
+        if (isOkResponse(response)) {
+            setDone(true);
+            setOk(true);
+        } else if (isErrorResponse(response)|| isAlarmResponse(response)) {
+            setDone(true);
+            setOk(false);
+            setError(true);
         }
     }
 
@@ -165,7 +181,7 @@ public class GcodeCommand {
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
-    
+
     public String getCommandString() {
         return this.command;
     }
@@ -177,23 +193,23 @@ public class GcodeCommand {
     public int getCommandNumber() {
         return this.commandNum;
     }
-    
+
     public String getResponse() {
         return this.response;
     }
-    
+
     public boolean isSent() {
         return this.isSent;
     }
-    
+
     public boolean isOk() {
         return this.isOk;
     }
-    
+
     public boolean isError() {
         return this.isError;
     }
-    
+
     public boolean isSkipped() {
         return this.isSkipped;
     }
@@ -227,8 +243,10 @@ public class GcodeCommand {
     public void setDone(boolean isDone) {
         this.isDone = isDone;
         if (isDone && listeners != null) {
-            listeners.forEach(commandListener -> commandListener.onDone(this));
-            listeners.clear();
+            ThreadHelper.invokeLater(() -> {
+                listeners.forEach(commandListener -> commandListener.onDone(this));
+                listeners.clear();
+            });
         }
     }
 

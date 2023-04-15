@@ -291,19 +291,4 @@ public class TinyGControllerTest {
         assertTrue(command.isGenerated());
         assertTrue(command.isTemporaryParserModalChange());
     }
-
-    @Test
-    public void commandCompleteShouldDispatchCommandEvent() throws Exception {
-        when(communicator.isConnected()).thenReturn(true);
-
-        AtomicBoolean eventDispatched = new AtomicBoolean(false);
-        GcodeCommand command = new GcodeCommand("blah");
-        command.addListener(c -> eventDispatched.set(true));
-
-        // Simulate sending and completing the command
-        controller.commandSent(command);
-        controller.commandComplete("{}");
-
-        assertTrue("Should have sent an event notifying that the command has completed", eventDispatched.get());
-    }
 }

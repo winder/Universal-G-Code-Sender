@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender.communicator;
 
 import com.willwinder.universalgcodesender.GrblUtils;
-import com.willwinder.universalgcodesender.communicator.BufferedCommunicator;
 import com.willwinder.universalgcodesender.communicator.event.ICommunicatorEventDispatcher;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -50,16 +49,6 @@ public class GrblCommunicator extends BufferedCommunicator {
     @Override
     public int getBufferSize() {
         return GrblUtils.GRBL_RX_BUFFER_SIZE;
-    }
-
-    @Override
-    protected boolean processedCommand(String response) {
-        return GrblUtils.isOkErrorAlarmResponse(response);
-    }
-
-    @Override
-    protected boolean processedCommandIsError(String response) {
-        return response.startsWith("error");
     }
 
     /**

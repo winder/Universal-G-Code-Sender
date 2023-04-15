@@ -73,7 +73,7 @@ public abstract class AbstractEntity implements Entity {
     }
 
     public boolean isIntersecting(Shape shape) {
-        return shape.intersects(getShape().getBounds2D());
+        return shape.intersects(getBounds());
     }
 
     @Override

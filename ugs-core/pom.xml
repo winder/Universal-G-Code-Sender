@@ -18,92 +18,17 @@
     <properties>
         <project.build.releaseSourceDirectory>release_files</project.build.releaseSourceDirectory>
     </properties>
-
     <dependencies>
-        <!-- JOGL -->
-        <dependency>
-            <groupId>org.jogamp.jogl</groupId>
-            <artifactId>jogl-all</artifactId>
-            <version>${jogl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.jogl</groupId>
-            <artifactId>jogl-all-natives-linux-aarch64</artifactId>
-            <version>${jogl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.jogl</groupId>
-            <artifactId>jogl-all-natives-linux-amd64</artifactId>
-            <version>${jogl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.jogl</groupId>
-            <artifactId>jogl-all-natives-linux-armv6hf</artifactId>
-            <version>${jogl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.jogl</groupId>
-            <artifactId>jogl-all-natives-linux-i586</artifactId>
-            <version>${jogl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.jogl</groupId>
-            <artifactId>jogl-all-natives-macosx-universal</artifactId>
-            <version>${jogl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.jogl</groupId>
-            <artifactId>jogl-all-natives-windows-amd64</artifactId>
-            <version>${jogl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.jogl</groupId>
-            <artifactId>jogl-all-natives-windows-i586</artifactId>
-            <version>${jogl.version}</version>
-        </dependency>
-
-        <!-- GLUEGEN -->
         <dependency>
             <groupId>org.jogamp.gluegen</groupId>
-            <artifactId>gluegen-rt</artifactId>
+            <artifactId>gluegen-rt-main</artifactId>
             <version>${gluegen.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jogamp.gluegen</groupId>
-            <artifactId>gluegen-rt-natives-macosx-universal</artifactId>
-            <version>${gluegen.version}</version>
+            <groupId>org.jogamp.jogl</groupId>
+            <artifactId>jogl-all-main</artifactId>
+            <version>${jogl.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.jogamp.gluegen</groupId>
-            <artifactId>gluegen-rt-natives-linux-aarch64</artifactId>
-            <version>${gluegen.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.gluegen</groupId>
-            <artifactId>gluegen-rt-natives-linux-amd64</artifactId>
-            <version>${gluegen.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.gluegen</groupId>
-            <artifactId>gluegen-rt-natives-linux-armv6hf</artifactId>
-            <version>${gluegen.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.gluegen</groupId>
-            <artifactId>gluegen-rt-natives-linux-i586</artifactId>
-            <version>${gluegen.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.gluegen</groupId>
-            <artifactId>gluegen-rt-natives-windows-amd64</artifactId>
-            <version>${gluegen.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.gluegen</groupId>
-            <artifactId>gluegen-rt-natives-windows-i586</artifactId>
-            <version>${gluegen.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.glassfish.tyrus.bundles</groupId>
             <artifactId>tyrus-standalone-client</artifactId>
@@ -163,6 +88,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
             <version>${commons-csv.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jmdns</groupId>
+            <artifactId>jmdns</artifactId>
+            <version>3.5.8</version>
         </dependency>
 
         <!-- PendantUI -->

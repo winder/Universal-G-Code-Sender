@@ -31,6 +31,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * @author Joacim Breiler
@@ -126,6 +127,13 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     public void setHidden(boolean hidden) {
         isHidden = hidden;
         notifyEvent(new EntityEvent(this, EventType.HIDDEN));
+    }
+
+    @Override
+    public Rectangle2D getBounds() {
+        // Make sure that the shape bounds are not zero to make it possible to select the entity
+        Rectangle2D bounds = super.getBounds();
+        return new Rectangle2D.Double(bounds.getX(), bounds.getY(), Math.max(bounds.getWidth(), 0.001), Math.max(bounds.getHeight(), 0.001));
     }
 
     private Color getCutColor() {

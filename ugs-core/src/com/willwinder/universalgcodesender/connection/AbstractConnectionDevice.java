@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2023 Will Winder
+    Copyright 2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,23 +16,32 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.gcode;
+package com.willwinder.universalgcodesender.connection;
 
-import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
+import org.apache.commons.lang3.StringUtils;
 
 /**
+ * An abstract connection device implementation
  *
- * @author wwinder
+ * @author Joacim Breiler
  */
-public class TinyGGcodeCommandCreator implements ICommandCreator {
+public abstract class AbstractConnectionDevice implements IConnectionDevice {
     @Override
-    public GcodeCommand createCommand(String command) {
-        return new TinyGGcodeCommand(command);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof IConnectionDevice)) return false;
+        IConnectionDevice that = (IConnectionDevice) o;
+
+        return StringUtils.equals(getAddress(), that.getAddress());
     }
 
     @Override
-    public GcodeCommand createCommand(String command, String originalCommand, String comment, int lineNumber) {
-        return new GcodeCommand(command, originalCommand, comment, lineNumber);
+    public int hashCode() {
+        return getAddress().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return getAddress();
     }
 }

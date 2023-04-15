@@ -22,6 +22,7 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.actions.ConfigureFirmwareAction;
 import com.willwinder.universalgcodesender.actions.OpenMacroSettingsAction;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.connection.IConnectionDevice;
 import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageType;
@@ -63,6 +64,7 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.swing.*;
 import javax.swing.Timer;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -1656,7 +1658,10 @@ public class MainWindow extends JFrame implements UGSEventListener {
     private void loadPortSelector() {
         commPortComboBox.removeAllItems();
 
-        List<String> portList = ConnectionFactory.getPortNames(backend.getSettings().getConnectionDriver());
+        List<String> portList = ConnectionFactory.getDevices(backend.getSettings().getConnectionDriver()).stream()
+                .map(IConnectionDevice::getAddress)
+                .collect(Collectors.toList());
+
         if (portList.size() < 1) {
             if (settings.isShowSerialPortWarning()) {
                 displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));

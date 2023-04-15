@@ -242,38 +242,27 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
      * @param command The command being sent.
      */
     abstract protected void sendingCommand(String command);
-    
-    /**
-     * Returns whether or not a command has been completed based on a response
-     * from the controller.
-     * @param response
-     * @return true if a command has completed.
-     */
-    abstract protected boolean processedCommand(String response);
 
-    /**
-     * Returns whether or not a completed command had an error based on a
-     * response from the controller.
-     * @param response
-     * @return true if a command has completed.
-     */
-    abstract protected boolean processedCommandIsError(String response);
-    
     /** 
-     * Processes message from GRBL. This should only be called from the
+     * Processes message from the controller. This should only be called from the
      * connection object.
-     * @param response
+     * @param response the raw response line text
      */
     @Override
     public void handleResponseMessage(String response) {
-        // Send this information back up to the Controller.
+        if (!activeCommandList.isEmpty()) {
+            handleResponseForActiveCommand(response);
+        }
         getEventDispatcher().rawResponseListener(response);
+    }
 
+    private void handleResponseForActiveCommand(String response) {
+        GcodeCommand activeCommand = activeCommandList.getFirst();
+        activeCommand.appendResponse(response);
 
         // Pause if there was an error and if there are more commands queued
-        if (processedCommandIsError(response) &&
-                (nextCommand != null                    // No cached command
-                    || (activeCommandList.size() > 1)   // No more commands (except for the one being popped further down)
+        if (activeCommand.isError() &&
+                (activeCommandList.size() > 1   // No more commands (except for the one being popped further down)
                     || (commandStream != null && commandStream.getNumRowsRemaining() > 0) // No more rows in stream
                     || (commandBuffer != null && commandBuffer.size() > 0))) { // No commands in buffer
 
@@ -282,14 +271,14 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         }
 
         // Keep the data flow going in case of an "ok" or an "error".
-        if (processedCommand(response)) {
+        if (activeCommand.isDone()) {
             // Pop the front of the active list.
-            if (this.activeCommandList != null && this.activeCommandList.size() > 0) {
-                GcodeCommand command = this.activeCommandList.pop();
-                this.sentBufferSize -= (command.getCommandString().length() + 1);
+            if (areActiveCommands()) {
+                GcodeCommand command = activeCommandList.pop();
+                sentBufferSize -= (command.getCommandString().length() + 1);
 
                 if (!isPaused()) {
-                    this.streamCommands();
+                    streamCommands();
                 }
             }
         }

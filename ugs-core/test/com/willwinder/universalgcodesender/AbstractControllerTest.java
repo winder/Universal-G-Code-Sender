@@ -165,62 +165,6 @@ public class AbstractControllerTest {
     }
 
     /**
-     * Test of getSendDuration method, of class AbstractController.
-     */
-    @Test
-    public void testGetSendDuration() throws Exception {
-        System.out.println("getSendDuration");
-
-        String command = "command";
-        String port = "/some/port";
-        int rate = 1234;
-
-        startStreamExpectation(port, rate);
-        expect(mockCommunicator.numActiveCommands()).andReturn(1);
-        expect(mockCommunicator.numActiveCommands()).andReturn(0);
-        instance.updateCommandFromResponse(anyObject(), anyString());
-        expect(expectLastCall()).times(2);
-        expect(instance.getControllerStatus()).andReturn(new ControllerStatus(ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
-        expect(instance.getControllerStatus()).andReturn(new ControllerStatus(ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
-        replay(instance, mockCommunicator);
-
-        // Time starts at zero when nothing has been sent.
-        assertEquals(0L, instance.getSendDuration());
-
-        startStream(port, rate, command);
-        long start = System.currentTimeMillis();
-
-        Thread.sleep(1000);
-
-        long time = instance.getSendDuration();
-        long checkpoint = System.currentTimeMillis();
-
-        // Began streaming at least 1 second ago.
-        assertTrue( time > (start-checkpoint));
-
-        Thread.sleep(1000);
-
-        instance.commandSent(new GcodeCommand(command));
-        instance.commandSent(new GcodeCommand(command));
-        instance.commandComplete(command);
-        instance.commandComplete(command);
-
-        time = instance.getSendDuration();
-        checkpoint = System.currentTimeMillis();
-
-        // Completed commands after at least "checkpoint" milliseconds.
-        assertTrue( time > (start-checkpoint));
-
-        Thread.sleep(1000);
-
-        // Make sure the time stopped after the last command was completed.
-        long newtime = instance.getSendDuration();
-        assertEquals( time, newtime );
-
-        verify(mockCommunicator, instance);
-    }
-
-    /**
      * Test of queueCommand method, of class AbstractController.
      */
     @Test

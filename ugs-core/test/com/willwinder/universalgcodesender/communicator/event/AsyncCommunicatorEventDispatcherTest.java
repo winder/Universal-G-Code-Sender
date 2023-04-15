@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.willwinder.universalgcodesender.utils.ThreadHelper.waitUntil;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,7 +38,7 @@ public class AsyncCommunicatorEventDispatcherTest {
 
         eventDispatcher.communicatorPausedOnError();
 
-        waitUntil(() -> eventDispatcher.getEventCount() == 0, 1, TimeUnit.SECONDS);
+        waitUntil(() -> eventDispatcher.getEventCount() == 0, 1100, TimeUnit.MILLISECONDS);
 
         verify(listener, times(1)).communicatorPausedOnError();
     }

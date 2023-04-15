@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.services.KeyboardService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.RegExUtils;
@@ -33,10 +34,17 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import java.awt.AWTException;
 import java.awt.Robot;
+import java.awt.event.InputEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.awt.event.KeyEvent.VK_CONTROL;
+import static java.awt.event.KeyEvent.VK_META;
+import static java.awt.event.KeyEvent.VK_SHIFT;
 
 /**
  * Static helper class for executing custom macros.
@@ -55,18 +63,18 @@ public class MacroHelper {
 
     /**
      * Process and send a custom gcode string.
-     *
+     * <p>
      * Not safe to run in the AWT Event Dispatching thread, be sure to use
      * EventQueue.invokeLater() if running in response to a GUI event.
-     *
+     * <p>
      * Interactive substitutions can be made with special characters:
-     *   %machine_x% - The machine X location
-     *   %machine_y% - The machine Y location
-     *   %machine_z% - The machine Z location
-     *   %work_x% - The work X location
-     *   %work_y% - The work Y location
-     *   %work_z% - The work Z location
-     *   %prompt|name% - Prompt the user for a value named 'name'.
+     * %machine_x% - The machine X location
+     * %machine_y% - The machine Y location
+     * %machine_z% - The machine Z location
+     * %work_x% - The work X location
+     * %work_y% - The work Y location
+     * %work_z% - The work Z location
+     * %prompt|name% - Prompt the user for a value named 'name'.
      *
      * @param str
      * @param backend
@@ -92,14 +100,14 @@ public class MacroHelper {
 
     /**
      * Interactive substitutions can be made with special characters:
-     *   {machine_x} - The machine X location
-     *   {machine_y} - The machine Y location
-     *   {machine_z} - The machine Z location
-     *   {work_x} - The work X location
-     *   {work_y} - The work Y location
-     *   {work_z} - The work Z location
-     *   {prompt|name} - Prompt the user for a value named 'name'.
-     *   {keypress|keys} - Dispatch keyboard press events on the host system. Keys are defined using AWT format, see {@link KeyStroke#getKeyStroke(String)}
+     * {machine_x} - The machine X location
+     * {machine_y} - The machine Y location
+     * {machine_z} - The machine Z location
+     * {work_x} - The work X location
+     * {work_y} - The work Y location
+     * {work_z} - The work Z location
+     * {prompt|name} - Prompt the user for a value named 'name'.
+     * {keypress|keys} - Dispatch keyboard press events on the host system. Keys are defined using AWT format, see {@link KeyStroke#getKeyStroke(String)}
      *
      * @param str
      * @param backend
@@ -138,27 +146,13 @@ public class MacroHelper {
         command = RegExUtils.removeAll(command, m.pattern());
 
         if (!keyPressList.isEmpty()) {
-            emitKeyPressEvents(keyPressList);
+            KeyboardService.getInstance().sendKeys(keyPressList);
         }
 
         return command;
     }
 
-    private static void emitKeyPressEvents(List<String> keyPressList) {
-        try {
-            Robot robot = new Robot();
-            keyPressList.forEach(keyPress -> {
-                KeyStroke keyStroke = KeyStroke.getKeyStroke(keyPress);
-                if (keyStroke == null) {
-                    GUIHelpers.displayErrorDialog("Could not generate a key press event for key: " + keyPress);
-                    return;
-                }
-                robot.keyPress(keyStroke.getKeyCode());
-            });
-        } catch (AWTException e) {
-            GUIHelpers.displayErrorDialog("Could not generate key press event", true);
-        }
-    }
+
 
     private static String parsePrompts(String command) {
         // Prompt for additional substitutions
@@ -180,12 +174,12 @@ public class MacroHelper {
             }
 
             int result = JOptionPane.showConfirmDialog(null, myPanel,
-                     Localization.getString("macro.substitution"),
+                    Localization.getString("macro.substitution"),
                     JOptionPane.OK_CANCEL_OPTION,
                     JOptionPane.PLAIN_MESSAGE);
 
             if (result == JOptionPane.OK_OPTION) {
-                for(int i = 0; i < prompts.size(); i++) {
+                for (int i = 0; i < prompts.size(); i++) {
                     command = command.replace("{prompt|" + prompts.get(i) + "}", fields.get(i).getText());
                 }
             } else {

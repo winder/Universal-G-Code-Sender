@@ -18,8 +18,6 @@
  */
 package com.willwinder.universalgcodesender.communicator;
 
-import com.willwinder.universalgcodesender.GrblUtils;
-
 /**
  * @author wwinder
  */
@@ -34,11 +32,11 @@ public class XLCDCommunicator extends GrblCommunicator {
     }
 
     @Override
-    protected boolean processedCommand(String response) {
-        if (UGSCommandCount > 0 && GrblUtils.isOkErrorAlarmResponse(response)) {
+    public void handleResponseMessage(String response) {
+        // Only append responses if there are an active command
+        if (UGSCommandCount > 0) {
             UGSCommandCount--;
-            return true;
+            super.handleResponseMessage(response);
         }
-        return false;
-    }    
+    }
 }

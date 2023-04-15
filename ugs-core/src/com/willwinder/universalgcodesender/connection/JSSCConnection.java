@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A serial connection object implementing the connection API.
@@ -91,16 +92,25 @@ public class JSSCConnection extends AbstractConnection implements SerialPortEven
         return Arrays.asList(SerialPortList.getPortNames());
     }
 
+    @Override
+    public List<IConnectionDevice> getDevices() {
+        return Arrays.stream(SerialPortList.getPortNames())
+                .map(port -> new JSSCConnectionDevice(new SerialPort(port)))
+                .collect(Collectors.toList());
+
+    }
+
     /**
      * Sends a command to the serial device. This actually streams the bits to
      * the comm port.
-     * @param command   Command to be sent to serial device.
+     *
+     * @param command Command to be sent to serial device.
      */
     @Override
     public void sendStringToComm(String command) throws Exception {
         this.serialPort.writeString(command);
     }
-        
+
     /**
      * Immediately sends a byte, used for real-time commands.
      */
@@ -108,7 +118,7 @@ public class JSSCConnection extends AbstractConnection implements SerialPortEven
     public void sendByteImmediately(byte b) throws Exception {
         this.serialPort.writeByte(b);
     }
-    
+
     /**
      * Reads data from the serial port. RXTX SerialPortEventListener method.
      */
@@ -119,9 +129,9 @@ public class JSSCConnection extends AbstractConnection implements SerialPortEven
             if (buf == null || buf.length <= 0) {
                 return;
             }
-            
+
             responseMessageHandler.handleResponse(buf, 0, buf.length);
-        } catch ( Exception e ) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
         }

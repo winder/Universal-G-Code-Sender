@@ -22,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Handles response messages from the serial connection buffering the data
@@ -32,6 +34,8 @@ import java.util.Set;
  * @author Joacim Breiler
  */
 public class ResponseMessageHandler implements IResponseMessageHandler {
+
+    private final static Logger LOGGER = Logger.getLogger(ResponseMessageHandler.class.getSimpleName());
 
     private final StringBuilder inputBuffer;
     private final Set<IConnectionListener> listeners = new HashSet<>();
@@ -68,7 +72,14 @@ public class ResponseMessageHandler implements IResponseMessageHandler {
     }
 
     public void notifyListeners(String message) {
-        listeners.forEach(listener -> listener.handleResponseMessage(message));
+        listeners.forEach(listener -> {
+            try {
+                listener.handleResponseMessage(message);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "The response message could not be handled: \"" + message + "\", unsafe to proceed, shutting down connection.", e);
+                throw e;
+            }
+        });
     }
 
     public void addListener(IConnectionListener connectionListener) {

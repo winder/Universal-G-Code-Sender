@@ -246,6 +246,8 @@ public class CommandProcessorLoader {
                 return Optional.of(new SpindleOnDweller(duration));
             case "LineSplitter":
                 return Optional.of(new LineSplitter(pc.args.get("segmentLengthMM").getAsDouble()));
+            case "EmptyLineRemoverProcessor":
+                return Optional.of(new EmptyLineRemoverProcessor());
             default:
                 LOGGER.severe("Unknown processor: " + pc.name);
                 return Optional.empty();

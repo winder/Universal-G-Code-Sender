@@ -18,8 +18,6 @@
  */
 package com.willwinder.universalgcodesender.communicator;
 
-import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
-
 /**
  * TinyG serial port interface class.
  *
@@ -27,22 +25,13 @@ import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
  */
 public class TinyGCommunicator extends BufferedCommunicator {
 
+    public TinyGCommunicator() {
+        setSingleStepMode(true);
+    }
+
     @Override
     public int getBufferSize() {
         return 254;
-    }
-
-    @Override
-    protected boolean processedCommand(String response) {
-        return TinyGGcodeCommand.isOkErrorResponse(response);
-    }
-
-    /**
-     * Allows detecting errors and pausing the stream.
-     */
-    @Override
-    protected boolean processedCommandIsError(String response) {
-        return false;
     }
 
     @Override

@@ -20,8 +20,8 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.model.Axis;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Stores all capabilities supported by the implementation of the {@link IController}.
@@ -33,7 +33,7 @@ public class Capabilities {
     /**
      * The capabilities available for the current hardware
      */
-    private Set<String> capabilities = new HashSet<>();
+    private final Set<String> capabilities = ConcurrentHashMap.newKeySet();
 
     /**
      * Merge capabilities from another Capabilities object into a new one.

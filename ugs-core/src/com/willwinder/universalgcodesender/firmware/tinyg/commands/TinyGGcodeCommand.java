@@ -16,7 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.types;
+package com.willwinder.universalgcodesender.firmware.tinyg.commands;
+
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * TinyG Gcode command to deal with some JSON details.
@@ -31,19 +34,29 @@ public class TinyGGcodeCommand extends GcodeCommand {
     public TinyGGcodeCommand(String command, int num) {
         super(convertCommandToJson(command), num);
     }
-    
+
     public static Boolean isOkErrorResponse(String response) {
         return response.startsWith("{\"r\"") && !response.contains("\"fv\"");
     }
-    
+
+    public static Integer getResponseStatusCode(String response) {
+        String statusCodes = StringUtils.substringBetween(response, "\"f\":[", "]");
+        String[] codes = StringUtils.split(statusCodes, ",");
+        if (codes.length < 2) {
+            return -1;
+        }
+
+        return Integer.valueOf(codes[1]);
+    }
+
     private static String convertCommandToJson(String command) {
         String ret;
         // wrap in json
         if ("\n".equals(command) ||
                 "\r\n".equals(command) ||
                 "?".equals(command)) {
-                // this is a status request cmd
-                ret = "{\"sr\":\"\"}";
+            // this is a status request cmd
+            ret = "{\"sr\":\"\"}";
         } else if (command.startsWith("{") || command.startsWith("$")) {
             // it is already json ready or a system command. leave it alone.
             ret = command.trim();
@@ -53,7 +66,7 @@ public class TinyGGcodeCommand extends GcodeCommand {
         } else {
             ret = command.trim();
         }
-        
+
         return ret;
     }
 
@@ -63,5 +76,33 @@ public class TinyGGcodeCommand extends GcodeCommand {
 
     public static boolean isRecieveQueueReportResponse(String response) {
         return response.startsWith("{\"rx\"");
+    }
+
+    @Override
+    public void appendResponse(String response) {
+        super.appendResponse(response);
+
+
+        /*JsonObject jo = TinyGUtils.jsonToObject(response);
+        if(TinyGUtils.isStatusResponse(jo))
+        if (TinyGUtils.isErrorResponse(jo)) {
+            command.setOk(false);
+            command.setError(true);
+        } else {
+            command.setOk(true);
+            command.setError(false);
+        }
+
+        command.setDone(true);*/
+
+        if (TinyGGcodeCommand.isOkErrorResponse(response)) {
+            Integer responseStatusCode = getResponseStatusCode(response);
+            if (responseStatusCode == 0) {
+                setOk(true);
+            } else {
+                setError(true);
+            }
+            setDone(true);
+        }
     }
 }

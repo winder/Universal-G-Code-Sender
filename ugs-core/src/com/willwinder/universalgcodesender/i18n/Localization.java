@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2018 Will Winder
+    Copyright 2013-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,22 +32,21 @@ import java.util.logging.Logger;
 
 /**
  * Localization messages.
- * 
+ *
  * @author wwinder
  */
 public class Localization {
-    private static final Logger logger = Logger.getLogger(Localization.class.getName());
     public final static DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
+    private static final Logger logger = Logger.getLogger(Localization.class.getName());
+    private static ResourceBundle bundle = null;
+    private static ResourceBundle english = null;
+    private static int englishKeyCount = 0;
+    private static String region = null;
+
     static {
         dfs.setDecimalSeparator('.');
         dfs.setMinusSign('-');
     }
-
-    private static ResourceBundle bundle = null;
-    private static ResourceBundle english = null;
-
-    private static int englishKeyCount = 0;
-    private static String region = null;
 
     /**
      * Loads a given language. If no translations is found for the given language it will default to english.
@@ -64,7 +63,7 @@ public class Localization {
      * Loads a given language. If no translations is found for the given language it will default to english.
      *
      * @param language the language to load, ex: en, sv, de
-     * @param region the region of the language to load, ex: US, SE, DE
+     * @param region   the region of the language to load, ex: US, SE, DE
      * @return Returns false if some keys are missing compared to "en_US"
      */
     synchronized public static boolean initialize(String language, String region) {
@@ -81,7 +80,7 @@ public class Localization {
      * Loads the resource bundle with all translations for the given language and region
      *
      * @param language the language to load, ex: en, sv, de
-     * @param region the region of the language to load, ex: US, SE, DE
+     * @param region   the region of the language to load, ex: US, SE, DE
      * @throws MissingResourceException if the resource bundle couldn't be found
      */
     private static void loadResourceBundle(String language, String region) throws MissingResourceException {
@@ -109,19 +108,17 @@ public class Localization {
     public static String getString(String id) {
         String result = "";
         try {
-            String val = bundle.getString(id);
-            result = new String(val.getBytes("ISO-8859-1"), "UTF-8");
+            result = bundle.getString(id);
         } catch (Exception e) {
             // Ignore this error, we will later try to fetch the string from the english bundle
         }
 
-        if( StringUtils.isEmpty(StringUtils.trimToEmpty(result))) {
+        if (StringUtils.isEmpty(StringUtils.trimToEmpty(result))) {
             try {
                 if (english == null) {
                     english = ResourceBundle.getBundle("resources.MessagesBundle", new Locale("en", "US"));
                 }
-                String val = english.getString(id);
-                result = new String(val.getBytes("ISO-8859-1"), "UTF-8");
+                result = english.getString(id);
             } catch (Exception e) {
                 result = "<" + id + ">";
             }
@@ -138,7 +135,7 @@ public class Localization {
 
     private static int getEnglishKeyCount() {
         if (englishKeyCount > 0) return englishKeyCount;
-        ResourceBundle b= ResourceBundle.getBundle("resources.MessagesBundle", new Locale("en", "US"));
+        ResourceBundle b = ResourceBundle.getBundle("resources.MessagesBundle", new Locale("en", "US"));
         englishKeyCount = getKeyCount(b);
         return englishKeyCount;
     }

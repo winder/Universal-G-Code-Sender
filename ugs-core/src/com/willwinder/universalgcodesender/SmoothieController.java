@@ -45,13 +45,11 @@ public class SmoothieController extends AbstractController {
 
     private final Capabilities capabilities;
     private final IFirmwareSettings firmwareSettings;
+    private final StatusPollTimer statusPollTimer;
     private String firmwareVersion = "Unknown";
     private ControllerStatus controllerStatus;
-
     private boolean isSmoothieReady = false;
     private boolean isReady;
-
-    private StatusPollTimer statusPollTimer;
 
     public SmoothieController() {
         this(new SmoothieCommunicator());
@@ -285,10 +283,5 @@ public class SmoothieController extends AbstractController {
                 .setState(controllerState)
                 .build();
         dispatchStatusString(controllerStatus);
-    }
-
-    @Override
-    protected void updateCommandFromResponse(GcodeCommand command, String response) {
-        GrblUtils.updateGcodeCommandFromResponse(command, response);
     }
 }

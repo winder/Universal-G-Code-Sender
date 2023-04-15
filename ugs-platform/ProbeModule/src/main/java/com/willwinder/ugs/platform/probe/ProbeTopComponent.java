@@ -36,6 +36,7 @@ import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.ugs.platform.probe.ProbeService.ProbeParameters;
 import com.willwinder.ugs.platform.probe.renderable.CornerProbePathPreview;
+import com.willwinder.ugs.platform.probe.renderable.HoleCenterPathPreview;
 import com.willwinder.ugs.platform.probe.renderable.ZProbePathPreview;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -87,6 +88,8 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
             Localization.getString("probe.visualizer.corner-preview"));
     private ZProbePathPreview zRenderable = new ZProbePathPreview(
             Localization.getString("probe.visualizer.z-preview"));
+    private HoleCenterPathPreview hcRenderable = new HoleCenterPathPreview(
+            Localization.getString("probe.visualizer.hole-center-preview"));
 
     private static final String X_OFFSET = Localization.getString("autoleveler.option.offset-x") + ":";
     private static final String Y_OFFSET = Localization.getString("autoleveler.option.offset-y") + ":";
@@ -95,12 +98,18 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     private static final String X_DISTANCE = Localization.getString("probe.x-distance") + ":";
     private static final String Y_DISTANCE = Localization.getString("probe.y-distance") + ":";
     private static final String Z_DISTANCE = Localization.getString("probe.probe-distance") + ":";
+    private static final String HC_DIAMETER = Localization.getString("probe.hole-diameter");
+    private static final String HC_HINT = Localization.getString("probe.hole-center-hint");
 
     public final static String ProbeTitle = Localization.getString("platform.window.probe-module", lang);
     public final static String ProbeTooltip = Localization.getString("platform.window.probe-module.tooltip", lang);
     public final static String ProbeActionId = "com.willwinder.ugs.platform.probe.ProbeTopComponent.renamed";
     public final static String ProbeCategory = LocalizingService.CATEGORY_WINDOW;
 
+    // hole diameter tab
+    private static final String HC_TAB = "HC";
+    private SpinnerNumberModel hcDiameterModel;
+    private final JButton measureHC = new JButton(Localization.getString("probe.measure.hole-center"));
 
     // xyz tab
     private static final String XYZ_TAB = "XYZ";
@@ -168,6 +177,8 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         private double outsideXOffset;
         private double outsideYOffset;
 
+        private double hcDiameter;
+
         private double zDistance;
         private double zOffset;
 
@@ -196,6 +207,9 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         ps2 = new ProbeService(backend);
 
         double largeSpinner = 1000000;
+
+        // hole diameter tab
+        hcDiameterModel = new SpinnerNumberModel(10., -largeSpinner, largeSpinner, 0.1);
 
         // XYZ TAB
         xyzXDistanceModel = new SpinnerNumberModel(10., -largeSpinner, largeSpinner, 0.1);
@@ -232,11 +246,24 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         settingsSlowMeasureRate = new SpinnerNumberModel(100., 1, largeSpinner, 1.);
         settingsRetractAmount = new SpinnerNumberModel(1, 0.1, largeSpinner, 0.1);
 
+        measureHC.addActionListener(e -> {
+                ProbeParameters pc = new ProbeParameters(
+                        getDouble(settingsProbeDiameter), backend.getMachinePosition(),
+                        0.0, 0.0, 0.0,
+                        0.0, 0.0, 0.0,
+                        getDouble(hcDiameterModel),
+                        getDouble(settingsFastFindRate), getDouble(settingsSlowMeasureRate),
+                        getDouble(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
+                this.hcRenderable.setContext(pc, backend.getWorkPosition(), backend.getMachinePosition());
+                ps2.performHoleCenterProbe(pc);
+            });
+
         measureXYZ.addActionListener(e -> {
                 ProbeParameters pc = new ProbeParameters(
                         getDouble(settingsProbeDiameter), backend.getMachinePosition(),
                         getDouble(xyzXDistanceModel), getDouble(xyzYDistanceModel), getDouble(xyzZDistanceModel),
                         getDouble(xyzXOffsetModel), getDouble(xyzYOffsetModel), getDouble(xyzZOffsetModel),
+                        0.0,
                         getDouble(settingsFastFindRate), getDouble(settingsSlowMeasureRate),
                         getDouble(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
                 this.cornerRenderable.setContext(pc, backend.getWorkPosition(), backend.getMachinePosition());
@@ -248,6 +275,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
                         getDouble(settingsProbeDiameter), backend.getMachinePosition(),
                         getDouble(outsideXDistanceModel), getDouble(outsideYDistanceModel), 0.,
                         getDouble(outsideXOffsetModel), getDouble(outsideYOffsetModel), 0.,
+                        0.0,
                         getDouble(settingsFastFindRate), getDouble(settingsSlowMeasureRate),
                         getDouble(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
                 this.cornerRenderable.setContext(pc, backend.getWorkPosition(), backend.getMachinePosition());
@@ -268,6 +296,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
                         getDouble(settingsProbeDiameter), backend.getMachinePosition(),
                         0., 0., getDouble(zProbeDistance),
                         0., 0., getDouble(zProbeOffset),
+                        0.0,
                         getDouble(settingsFastFindRate), getDouble(settingsSlowMeasureRate),
                         getDouble(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
                 this.zRenderable.setStart(backend.getWorkPosition());
@@ -278,6 +307,8 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         updateControls();
 
         // Listeners...
+        this.hcDiameterModel.addChangeListener(l -> controlChangeListener());
+
         this.xyzXDistanceModel.addChangeListener(l -> controlChangeListener());
         this.xyzYDistanceModel.addChangeListener(l -> controlChangeListener());
         this.xyzZDistanceModel.addChangeListener(l -> controlChangeListener());
@@ -311,6 +342,11 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         Renderable before = active;
         //switch (this.jtp.getTabComponentAt(this.jtp.getSelectedIndex()).getName()) {
         switch (this.jtp.getTitleAt(this.jtp.getSelectedIndex())) {
+            case HC_TAB:
+                // TODO
+                active = hcRenderable;
+                hcRenderable.updateSpacing(getDouble(hcDiameterModel));
+                break;
             case XYZ_TAB:
                 // TODO: XYZ Renderable
                 active = cornerRenderable;
@@ -349,6 +385,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
     public void updateControls() {
         boolean enabled = backend.isIdle();
+        this.measureHC.setEnabled(enabled);
         this.measureInside.setEnabled(enabled);
         this.measureOutside.setEnabled(enabled);
         this.zProbeButton.setEnabled(enabled);
@@ -371,6 +408,15 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     }
 
     private void initComponents() {
+        // HC TAB
+        JPanel hc = new JPanel(new MigLayout("wrap 4"));
+        hc.add(new JLabel(HC_DIAMETER));
+        hc.add(new JSpinner(this.hcDiameterModel), "growx");
+
+        hc.add(this.measureHC, "spanx 2, spany 2, growx, growy");
+
+        hc.add(new JLabel(HC_HINT), "spanx 2, growx");
+
         // XYZ TAB
         JPanel xyz = new JPanel(new MigLayout("flowy, wrap 3"));
         xyz.add(new JLabel(X_DISTANCE));
@@ -447,6 +493,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         settings.add(new JLabel(Localization.getString("probe.retract-amount") + ":"), "al right");
         settings.add(new JSpinner(settingsRetractAmount), "growx");
 
+        jtp.add(HC_TAB, hc);
         jtp.add(XYZ_TAB, xyz);
         jtp.add(OUTSIDE_TAB, outside);
         jtp.add(Z_TAB, z);
@@ -482,6 +529,8 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         p.setProperty("version", "1.0");
 
         ProbeSettings ps = new ProbeSettings();
+        ps.hcDiameter = getDouble(hcDiameterModel);
+
         ps.xyzXDistance = getDouble(this.xyzXDistanceModel);
         ps.xyzYDistance = getDouble(xyzYDistanceModel);
         ps.xyzZDistance = getDouble(xyzZDistanceModel);
@@ -521,6 +570,8 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         if (jsonData == null) return;
 
         ProbeSettings ps = new Gson().fromJson(jsonData, ProbeSettings.class);
+        hcDiameterModel.setValue(ps.hcDiameter);
+
         xyzXDistanceModel.setValue(ps.xyzXDistance);
         xyzYDistanceModel.setValue(ps.xyzYDistance);
         xyzZDistanceModel.setValue(ps.xyzZDistance);
