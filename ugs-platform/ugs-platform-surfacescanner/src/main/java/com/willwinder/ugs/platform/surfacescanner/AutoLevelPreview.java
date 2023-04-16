@@ -71,13 +71,12 @@ public class AutoLevelPreview extends Renderable {
 
     @Override
     public final void reloadPreferences(VisualizerOptions vo) {
-        high = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_LOW).value);
-        low = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_HIGH).value);
+        high = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_HIGH).value);
+        low = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_LOW).value);
     }
 
     public void updateSettings(
             ImmutableCollection<Position> positions,
-            Units gridUnits,
             final Position[][] grid,
             Position max,
             Position min) {

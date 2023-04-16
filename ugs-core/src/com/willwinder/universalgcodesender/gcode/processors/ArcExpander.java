@@ -68,6 +68,16 @@ public class ArcExpander implements CommandProcessor {
         df = new DecimalFormat("#.#########", Localization.dfs);
     }
 
+    /**
+     * @param convertToLines toggles if smaller lines or arcs are returned.
+     * @param length the length of each smaller segment.
+     */
+    public ArcExpander(boolean convertToLines, double length, DecimalFormat df) {
+        this.convertToLines = convertToLines;
+        this.length = length;
+        this.df = df;
+    }
+
     @Override
     public List<String> processCommand(String command, GcodeState state) throws GcodeParserException {
         if (state.currentPoint == null) throw new GcodeParserException(Localization.getString("parser.processor.arc.start-error"));

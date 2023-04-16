@@ -5,6 +5,7 @@ import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.*;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -24,6 +25,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -69,7 +71,7 @@ public class FixturesTest {
             GcodeParser gcp = new GcodeParser();
 
             gcp.addCommandProcessor(new CommentProcessor());
-            gcp.addCommandProcessor(new ArcExpander(true, 0.1));
+            gcp.addCommandProcessor(new ArcExpander(true, 0.1, new DecimalFormat("#.####", Localization.dfs)));
             gcp.addCommandProcessor(new LineSplitter(1));
             Position grid[][] = {
                     { new Position(-5,-5,0, MM), new Position(-5,35,0, MM) },
@@ -175,7 +177,6 @@ public class FixturesTest {
         } else {
             initializeFixture(name, fixtureResourceName, testLines);
         }
-
     }
 
     private void checkFixture(String fixtureResourceName, Iterator<String> testLines) throws URISyntaxException, IOException {
@@ -195,8 +196,6 @@ public class FixturesTest {
         if (testLines.hasNext()) {
             Assert.fail("Generated gcode for " + fixtureResourceName + " has more lines than the fixture:\n  " + Joiner.on("\n  ").join(testLines));
         }
-
-
     }
 
     // just a quick hack to initialize not existing fixtures
@@ -208,13 +207,13 @@ public class FixturesTest {
         System.out.println("-------------------------------------------------");
         System.out.println("| WARNING:  " + fixtureResourceName + " does not exist, it will be created");
         System.out.println("|  This should only happen if you made a new fixture or intentionally ");
-        System.out.println("|  the old one to update it.");
+        System.out.println("|  removed the old one to update it.");
         System.out.println("|  It will be written to:");
         System.out.println("|    " + dstFile);
         System.out.println("|    (if this is not correct, move it into the resource folder)");
         System.out.println("-------------------------------------------------");
 
-        PrintStream resourceFile = new PrintStream(dstFile);
+        PrintStream resourceFile = new PrintStream(dstFile, "UTF-8");
         testLines.forEachRemaining(resourceFile::println);
         resourceFile.close();
     }

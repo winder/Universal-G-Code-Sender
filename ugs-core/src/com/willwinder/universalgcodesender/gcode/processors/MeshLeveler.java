@@ -18,12 +18,13 @@
  */
 package com.willwinder.universalgcodesender.gcode.processors;
 
+import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
-import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -42,7 +43,7 @@ public class MeshLeveler implements CommandProcessor {
     final private int xLen, yLen;
     final private double resolution;
 
-    private Units unit;
+    private Units units;
 
     public final static String ERROR_MESH_SHAPE= "Surface mesh must be a rectangular 2D array.";
     public final static String ERROR_NOT_ENOUGH_SAMPLES = "Need at least 2 samples along each axis.";
@@ -58,7 +59,7 @@ public class MeshLeveler implements CommandProcessor {
      * @param materialSurfaceHeightMM Z height used in offset.
      * @param surfaceMesh 2D array in the format Position[x][y]
      */
-    public MeshLeveler(double materialSurfaceHeightMM, Position[][] surfaceMesh, Units unit) {
+    public MeshLeveler(double materialSurfaceHeightMM, Position[][] surfaceMesh, Units units) {
         if (surfaceMesh == null) {
             throw new IllegalArgumentException("Surface mesh is required.");
         }
@@ -111,7 +112,7 @@ public class MeshLeveler implements CommandProcessor {
             }
         }
 
-        this.unit = unit;
+        this.units = units;
         this.materialSurfaceHeight = materialSurfaceHeightMM;
         this.surfaceMesh = surfaceMesh;
         this.resolution = Math.max(
@@ -147,46 +148,51 @@ public class MeshLeveler implements CommandProcessor {
             return Collections.singletonList(commandString);
         }
 
-        if (commands.size() > 1) {
-            throw new GcodeParserException(Localization.getString("parser.processor.general.multiple-commands"));
+        ImmutableList.Builder<String> adjustedCommands = ImmutableList.builder();
+        for (GcodeMeta command : commands) {
+            if (command == null) {
+                throw new GcodeParserException(ERROR_MISSING_POINT_DATA + commandString);
+            }
+            if (command.point == null) {
+                adjustedCommands.add(commandString);
+                continue;
+            }
+
+            Position start = state.currentPoint;
+            Position end = command.point.point();
+
+            // Get offset relative to the expected surface height.
+            // Visualizer normalizes everything to MM but probe mesh might be INCH
+            double probeScaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, this.units);
+            double zScaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, state.isMetric ? Units.MM : Units.INCH);
+
+            double zPointOffset;
+            if (state.inAbsoluteMode) {
+                zPointOffset = surfaceHeightAt(end.x, end.y, zScaleFactor) - (this.materialSurfaceHeight / probeScaleFactor);
+            } else {
+                // TODO: If the first move in the gcode file is relative it won't properly take the materialSurfaceHeight
+                // into account. To fix the CommandProcessor needs to inject an adjustment before that first relative move
+                // happens. Until that happens the user must make sure the materialSurfaceHeight is zero.
+
+                // In relative mode we only need to adjust by the z delta between the starting and ending point
+                zPointOffset = surfaceHeightAt(end.x, end.y, zScaleFactor) - surfaceHeightAt(start.x, start.y, zScaleFactor);
+            }
+            zPointOffset *= zScaleFactor;
+
+            // Update z coordinate.
+            double newZ = end.getZ() + zPointOffset;
+
+            PartialPosition.Builder overrideZ = PartialPosition.builder(units);
+            if (command.state.inAbsoluteMode) {
+                overrideZ.setZ(newZ);
+            } else {
+                overrideZ.setZ(newZ - start.getZ());
+            }
+            String adjustedCommand = GcodePreprocessorUtils.overridePosition(commandString, overrideZ.build());
+            adjustedCommands.add(adjustedCommand);
         }
 
-        GcodeMeta command = commands.get(0);
-
-        if (command == null) {
-            throw new GcodeParserException(ERROR_MISSING_POINT_DATA + commandString);
-        }
-        if (command.point == null) {
-            return Collections.singletonList(commandString);
-        }
-
-        Position start = state.currentPoint;
-        Position end = command.point.point();
-
-        // Get offset relative to the expected surface height.
-        // Visualizer normalizes everything to MM but probe mesh might be INCH
-        double probeScaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, this.unit);
-        double zScaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, state.isMetric ? Units.MM : Units.INCH);
-
-        double zPointOffset;
-        if (state.inAbsoluteMode) {
-            zPointOffset = surfaceHeightAt(end.x, end.y, zScaleFactor) - (this.materialSurfaceHeight / probeScaleFactor);
-        } else {
-            // TODO: If the first move in the gcode file is relative it won't properly take the materialSurfaceHeight
-            // into account. To fix the CommandProcessor needs to inject an adjustment before that first relative move
-            // happens. Until that happens the user must make sure the materialSurfaceHeight is zero.
-
-            // In relative mode we only need to adjust by the z delta between the starting and ending point
-            zPointOffset = surfaceHeightAt(end.x, end.y, zScaleFactor) - surfaceHeightAt(start.x, start.y, zScaleFactor);
-        }
-        zPointOffset *= zScaleFactor;
-
-        // Update z coordinate.
-        end.z += zPointOffset;
-
-        String adjustedCommand = GcodePreprocessorUtils.generateLineFromPoints(
-                command.code, start, end, command.state.inAbsoluteMode, null);
-        return Collections.singletonList(adjustedCommand);
+        return adjustedCommands.build();
     }
 
     protected Position[][] findBoundingArea(double x, double y) throws GcodeParserException {

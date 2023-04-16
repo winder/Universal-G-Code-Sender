@@ -155,6 +155,10 @@ public class GcodePreprocessorUtils {
         return sb.toString();
     }
 
+    public static DecimalFormat getDecimalFormatter() {
+        return decimalFormatter;
+    }
+
     private static void updateDecimalFormatter(int length) {
         StringBuilder df = new StringBuilder();
 

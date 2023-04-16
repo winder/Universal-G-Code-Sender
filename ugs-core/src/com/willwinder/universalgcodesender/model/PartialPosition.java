@@ -240,13 +240,24 @@ public class PartialPosition {
     }
 
     public static Builder builder(PartialPosition p) {
-        return builder(p.units)
-                .setX(p.x)
-                .setY(p.y)
-                .setZ(p.z)
-                .setA(p.a)
-                .setB(p.b)
-                .setC(p.c);
+        Builder b = builder(p.getUnits());
+        b.x = p.x;
+        b.y = p.y;
+        b.z = p.z;
+        b.a = p.a;
+        b.b = p.b;
+        b.c = p.c;
+        return b;
+    }
+
+    public static Builder builder(Position p) {
+        return builder(p.getUnits())
+                .setX(p.getX())
+                .setY(p.getY())
+                .setZ(p.getZ())
+                .setA(p.getA())
+                .setB(p.getB())
+                .setC(p.getC());
     }
 
     public static final class Builder {
@@ -272,54 +283,93 @@ public class PartialPosition {
         public Builder setValue(Axis axis, Double value) {
             switch (axis) {
                 case X:
-                    this.x = value;
+                    setX(value);
                     break;
                 case Y:
-                    this.y = value;
+                    setY(value);
                     break;
                 case Z:
-                    this.z = value;
+                    setZ(value);
                     break;
                 case A:
-                    this.a = value;
+                    setA(value);
                     break;
                 case B:
-                    this.b = value;
+                    setB(value);
                     break;
                 case C:
-                    this.c = value;
+                    setC(value);
                     break;
             }
             return this;
         }
 
+        public Builder clearX() {
+            this.x = null;
+            return this;
+        }
+
+        public Builder clearY() {
+            this.y = null;
+            return this;
+        }
+
+        public Builder clearZ() {
+            this.z = null;
+            return this;
+        }
+
         public Builder setX(Double x) {
-            this.x = x;
+            if (Double.isFinite(x)) {
+                this.x = x;
+            } else {
+                this.x = null;
+            }
             return this;
         }
 
         public Builder setY(Double y) {
-            this.y = y;
+            if (Double.isFinite(y)) {
+                this.y = y;
+            } else {
+                this.y = null;
+            }
             return this;
         }
 
         public Builder setZ(Double z) {
-            this.z = z;
+            if (Double.isFinite(z)) {
+                this.z = z;
+            } else {
+                this.z = null;
+            }
             return this;
         }
 
         public Builder setA(Double a) {
-            this.a = a;
+            if (Double.isFinite(a)) {
+                this.a = a;
+            } else {
+                this.a = null;
+            }
             return this;
         }
 
         public Builder setB(Double b) {
-            this.b = b;
+            if (Double.isFinite(b)) {
+                this.b = b;
+            } else {
+                this.b = null;
+            }
             return this;
         }
 
         public Builder setC(Double c) {
-            this.c = c;
+            if (Double.isFinite(c)) {
+                this.c = c;
+            } else {
+                this.c = null;
+            }
             return this;
         }
     }
