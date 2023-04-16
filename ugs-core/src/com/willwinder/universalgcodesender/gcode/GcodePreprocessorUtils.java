@@ -71,7 +71,7 @@ public class GcodePreprocessorUtils {
 
         return returnString;
     }
-    
+
     /**
      * Removes any comments within parentheses or beginning with a semi-colon.
      */
@@ -302,27 +302,29 @@ public class GcodePreprocessorUtils {
         List<String> l = new ArrayList<>();
         boolean readNumeric = false;
         boolean readLineComment = false;
-        boolean readBlockComment = false;
+        int blockCommentDepth = 0;
         StringBuilder sb = new StringBuilder();
         
         for (int i = 0; i < command.length(); i++){
             char c = command.charAt(i);
 
-            if (c == '(' && !readLineComment && !readBlockComment) {
-                if( sb.length() > 0 ){
+            if (c == '(' && !readLineComment) {
+                if (blockCommentDepth == 0 && sb.length() > 0) {
                     l.add(sb.toString());
                     sb = new StringBuilder();
                 }
                 sb.append(c);
-                readBlockComment = true;
+                blockCommentDepth++;
                 continue;
-            } else if (readBlockComment && c == ')') {
-                readBlockComment = false;
+            } else if (blockCommentDepth > 0 && c == ')') {
                 sb.append(c);
-                l.add(sb.toString());
-                sb = new StringBuilder();
+                blockCommentDepth--;
+                if (blockCommentDepth == 0) {
+                    l.add(sb.toString());
+                    sb = new StringBuilder();
+                }
                 continue;
-            } else if (c == ';' && !readLineComment && !readBlockComment) {
+            } else if (c == ';' && !readLineComment && blockCommentDepth == 0) {
                 if( sb.length() > 0 ){
                     l.add(sb.toString());
                     sb = new StringBuilder();
@@ -333,7 +335,7 @@ public class GcodePreprocessorUtils {
             }
 
 
-            if (readLineComment || readBlockComment) {
+            if (readLineComment || blockCommentDepth > 0) {
                 sb.append(c);
             } else if (Character.isWhitespace(c)) {
                 continue;
@@ -668,7 +670,6 @@ public class GcodePreprocessorUtils {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
-
 
     public static class SplitCommand {
         public String extracted;
