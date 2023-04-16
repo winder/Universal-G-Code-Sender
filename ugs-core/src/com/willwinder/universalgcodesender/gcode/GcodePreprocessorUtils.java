@@ -19,10 +19,14 @@
 package com.willwinder.universalgcodesender.gcode;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.CNCPoint;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 
 import java.text.DecimalFormat;
@@ -44,10 +48,44 @@ public class GcodePreprocessorUtils {
     public static final Pattern COMMENT = Pattern.compile("\\(.*\\)|\\s*;.*|%.*$");
     private static final String EMPTY = "";
     private static final Pattern COMMENTPARSE = Pattern.compile("(?<=\\()[^()]*|(?<=;).*|%");
+    private static final DecimalFormat DEFAULT_FORMATTER = new DecimalFormat("0.####", Localization.dfs);
+
+    private static final EnumMap<Axis, Pattern> POSITION_OVERRIDE_MAP = new EnumMap<>(Axis.class);
+    static {
+        POSITION_OVERRIDE_MAP.put(Axis.X, Pattern.compile("X([-+]?[0-9.]+)", Pattern.CASE_INSENSITIVE));
+        POSITION_OVERRIDE_MAP.put(Axis.Y, Pattern.compile("Y([-+]?[0-9.]+)", Pattern.CASE_INSENSITIVE));
+        POSITION_OVERRIDE_MAP.put(Axis.Z, Pattern.compile("Z([-+]?[0-9.]+)", Pattern.CASE_INSENSITIVE));
+        POSITION_OVERRIDE_MAP.put(Axis.A, Pattern.compile("A([-+]?[0-9.]+)", Pattern.CASE_INSENSITIVE));
+        POSITION_OVERRIDE_MAP.put(Axis.B, Pattern.compile("B([-+]?[0-9.]+)", Pattern.CASE_INSENSITIVE));
+        POSITION_OVERRIDE_MAP.put(Axis.C, Pattern.compile("C([-+]?[0-9.]+)", Pattern.CASE_INSENSITIVE));
+    }
 
     private static int decimalLength = -1;
     private static Pattern decimalPattern;
-    private static DecimalFormat decimalFormatter;
+    private static DecimalFormat decimalFormatter = DEFAULT_FORMATTER;
+
+    /**
+     * Searches the command string for moves (x, y, z, a, b, or c) and replaces
+     * with the given position.
+     */
+    public static String overridePosition(String originalCommand, PartialPosition updated) {
+        String command = originalCommand;
+
+        for (Map.Entry<Axis, Pattern> axisToPattern : POSITION_OVERRIDE_MAP.entrySet()) {
+            Axis axis = axisToPattern.getKey();
+            if (updated.hasAxis(axis)) {
+                Matcher matcher = axisToPattern.getValue().matcher(command);
+                String updatedStr = axis + DEFAULT_FORMATTER.format(updated.getAxis(axis));
+                if (matcher.find()) {
+                    command = matcher.replaceAll(updatedStr);
+                } else {
+                    command += updatedStr;
+                }
+            }
+        }
+
+        return command;
+    }
 
     /**
      * Searches the command string for an 'f' and replaces the speed value 
@@ -248,10 +286,14 @@ public class GcodePreprocessorUtils {
 
     }
 
-    static public String generateLineFromPoints(final Code command, final Position start, final Position end, final boolean absoluteMode, DecimalFormat formatter) {
+    static public String generateLineFromPoints(final Code command, final CNCPoint start, final CNCPoint end, final boolean absoluteMode) {
+        return generateLineFromPoints(command, start, end, absoluteMode, null);
+    }
+
+    static public String generateLineFromPoints(final Code command, final CNCPoint start, final CNCPoint end, final boolean absoluteMode, DecimalFormat formatter) {
         DecimalFormat df = formatter;
         if (df == null) {
-            df = new DecimalFormat("0.####", Localization.dfs);
+            df = DEFAULT_FORMATTER;
         }
         
         StringBuilder sb = new StringBuilder();
