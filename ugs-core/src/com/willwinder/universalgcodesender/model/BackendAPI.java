@@ -86,8 +86,7 @@ public interface BackendAPI extends BackendAPIReadOnly {
     void applyGcodeParser(GcodeParser gcp) throws Exception;
 
     /**
-     * Adds a command processor and applies it to currently loaded program and subsequent
-     * loaded gcode programs.
+     * Adds a command processor and applies it to currently loaded program.
      *
      * @param commandProcessor a command processor.
      * @throws Exception

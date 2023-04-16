@@ -120,6 +120,10 @@ public class GcodeParser implements IGcodeParser {
         this.statsProcessor = new Stats();
         this.state = new GcodeState();
         this.state.commandNumber = -1;
+
+        for (CommandProcessor processor : processors) {
+            processor.reset();
+        }
     }
     
     /**
