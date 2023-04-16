@@ -354,9 +354,9 @@ public class GUIBackend implements BackendAPI {
         }
 
         logger.log(Level.INFO, "Setting gcode file.");
-        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE, file.getAbsolutePath()));
         initGcodeParser();
         this.gcodeFile = file;
+        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE, file.getAbsolutePath()));
         processGcodeFile();
     }
 
