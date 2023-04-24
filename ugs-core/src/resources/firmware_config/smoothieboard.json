@@ -1,6 +1,6 @@
 {
     "Name": "Smoothieware",
-    "Version": 7,
+    "Version": 8,
     "Controller": {
         "name": "SmoothieBoard",
         "args": null
@@ -11,10 +11,6 @@
                 "name": "CommentProcessor",
                 "enabled": true,
                 "optional": false
-            },{
-                "name": "EmptyLineRemoverProcessor",
-                "enabled": true,
-                "optional": true
             },{
                 "name": "FeedOverrideProcessor",
                 "enabled": false,
