@@ -1,6 +1,6 @@
 {
     "Name": "g2core",
-    "Version": 8,
+    "Version": 9,
     "Controller": {
         "name": "g2core",
         "args": null
@@ -9,10 +9,6 @@
         "Front": [
             {
                 "name": "CommentProcessor",
-                "enabled": true,
-                "optional": true
-            },{
-                "name": "EmptyLineRemoverProcessor",
                 "enabled": true,
                 "optional": true
             },{

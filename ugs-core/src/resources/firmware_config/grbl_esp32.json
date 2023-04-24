@@ -1,6 +1,6 @@
 {
     "Name": "GRBL ESP32",
-    "Version": 6,
+    "Version": 7,
     "Controller": {
         "name": "GRBL ESP32",
         "args": null
@@ -11,10 +11,6 @@
                 "name": "CommentProcessor",
                 "enabled": true,
                 "optional": false
-            },{
-                "name": "EmptyLineRemoverProcessor",
-                "enabled": true,
-                "optional": true
             },{
                 "name": "FeedOverrideProcessor",
                 "enabled": false,

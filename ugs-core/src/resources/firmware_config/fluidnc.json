@@ -1,6 +1,6 @@
 {
     "Name": "FluidNC",
-    "Version": 2,
+    "Version": 3,
     "Controller": {
         "name": "FluidNC",
         "args": null
@@ -9,10 +9,6 @@
         "Front": [
             {
                 "name": "CommentProcessor",
-                "enabled": true,
-                "optional": true
-            },{
-                "name": "EmptyLineRemoverProcessor",
                 "enabled": true,
                 "optional": true
             },{
