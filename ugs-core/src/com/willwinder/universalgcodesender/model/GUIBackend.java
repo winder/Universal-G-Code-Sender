@@ -349,12 +349,10 @@ public class GUIBackend implements BackendAPI {
 
     @Override
     public void setGcodeFile(File file) throws Exception {
-        if (gcodeStream != null) {
-            gcodeStream.close();
-        }
+        unsetGcodeFile();
 
-        logger.log(Level.INFO, "Setting gcode file.");
-        initGcodeParser();
+        logger.log(Level.INFO, "Setting gcode file. {0}", file.getAbsolutePath());
+
         this.gcodeFile = file;
         eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE, file.getAbsolutePath()));
         processGcodeFile();
@@ -365,8 +363,10 @@ public class GUIBackend implements BackendAPI {
         if (gcodeStream != null) {
             gcodeStream.close();
         }
+        if (this.processedGcodeFile != null) {
+            eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.FILE_UNLOADED, null));
+        }
 
-        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.FILE_UNLOADED, null));
         initGcodeParser();
         this.gcodeFile = null;
         this.processedGcodeFile = null;
@@ -450,7 +450,7 @@ public class GUIBackend implements BackendAPI {
         logger.log(Level.INFO, String.format("Applying new command processor %s", commandProcessor.getClass().getSimpleName()));
         gcp.addCommandProcessor(commandProcessor);
 
-        if (gcodeFile != null) {
+        if (processedGcodeFile != null) {
             processGcodeFile();
         }
     }
@@ -783,8 +783,8 @@ public class GUIBackend implements BackendAPI {
                 if (match.matches()) {
                     name = match.group(1);
                 }
-                this.processedGcodeFile =
-                        new File(this.getTempDir(), name + "_ugs_" + System.currentTimeMillis());
+
+                this.processedGcodeFile = new File(this.getTempDir(), name + "_ugs_" + System.currentTimeMillis());
                 try (IGcodeWriter gcw = new GcodeStreamWriter(this.processedGcodeFile)) {
                     this.preprocessAndExportToFile(gcodeParser, startFile, gcw);
                 }
