@@ -20,21 +20,12 @@ package com.willwinder.ugs.nbp;
 
 import io.minio.MinioClient;
 import io.minio.Result;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidBucketNameException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.NoResponseException;
-import io.minio.errors.RegionConflictException;
 import io.minio.messages.Bucket;
 import io.minio.messages.Item;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -45,7 +36,6 @@ import javax.swing.Icon;
 import javax.swing.filechooser.FileSystemView;
 import org.apache.commons.io.FileUtils;
 import org.openide.util.Exceptions;
-import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * An S3 implementation of the FileSystemView interface to allow creation of
