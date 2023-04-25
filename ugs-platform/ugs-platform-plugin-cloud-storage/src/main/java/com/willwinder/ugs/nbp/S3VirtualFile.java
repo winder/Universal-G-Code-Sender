@@ -34,7 +34,7 @@ public class S3VirtualFile extends File {
     private long lastModified = 0;
 
     protected S3VirtualFile(final File file, long length) {
-        this(file.toString(), length);
+        this(file.toString().replace(File.separatorChar, '/'), length);
     }
 
     protected S3VirtualFile(String pathname, long length) {
@@ -53,6 +53,15 @@ public class S3VirtualFile extends File {
         super(parent, child);
         isDir = child.endsWith("/");
         this.length = length;
+    }
+
+    @Override
+    public String toString() {
+        String baseStr = super.toString();
+        if (File.separatorChar != '/') {
+            baseStr = baseStr.replace(File.separatorChar, '/');
+        }
+        return baseStr;
     }
 
     @Override

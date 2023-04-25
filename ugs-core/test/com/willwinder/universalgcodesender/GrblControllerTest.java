@@ -1188,7 +1188,7 @@ public class GrblControllerTest {
         assertTrue(instance.isIdle());
 
         // Create a gcode file stream
-        File gcodeFile = new File(tempDir, "gcodeFile");
+        File gcodeFile = new File(tempDir, "controllerShouldHaveStateRunningWhenStreamingAndInCheckMode");
         GcodeStreamWriter gcodeStreamWriter = new GcodeStreamWriter(gcodeFile);
         gcodeStreamWriter.addLine("G0", "G0", null, 0);
         gcodeStreamWriter.addLine("G0", "G0", null, 0);
@@ -1290,7 +1290,7 @@ public class GrblControllerTest {
         String command = "command";
         Collection<String> commands = Arrays.asList(command, command);
 
-        File f = new File(tempDir, "gcodeFile");
+        File f = new File(tempDir, "beginStreamingShouldQueueTheCommandsInTheStream");
         try {
             try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
                 commands.forEach(c -> gsw.addLine("blah", command, null, -1));
