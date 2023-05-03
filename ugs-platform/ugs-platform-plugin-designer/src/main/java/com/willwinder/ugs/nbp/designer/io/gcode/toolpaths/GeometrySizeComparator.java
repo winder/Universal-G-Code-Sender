@@ -25,7 +25,7 @@ import java.util.Comparator;
 /**
  * @author Joacim Breiler
  */
-public class GeometryToolpathComparator implements Comparator<Geometry> {
+public class GeometrySizeComparator implements Comparator<Geometry> {
     @Override
     public int compare(Geometry o1, Geometry o2) {
         if (o2.contains(o1)) {
