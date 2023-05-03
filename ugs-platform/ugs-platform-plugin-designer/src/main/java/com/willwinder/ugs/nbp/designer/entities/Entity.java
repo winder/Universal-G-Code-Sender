@@ -109,7 +109,7 @@ public interface Entity {
     /**
      * Returns the real position of the entity at the given anchor
      *
-     * @param anchor
+     * @param anchor the anchor point to get the position for
      * @return the real position at the anchor
      */
     Point2D getPosition(Anchor anchor);
@@ -255,4 +255,18 @@ public interface Entity {
      * @return the description or null
      */
     String getDescription();
+
+    /**
+     * Get the first point in the shape
+     *
+     * @return the point in the shape
+     */
+    Point2D getFirstPoint();
+
+    /**
+     * Get the last point in the shape
+     *
+     * @return the point in the shape
+     */
+    Point2D getLastPoint();
 }

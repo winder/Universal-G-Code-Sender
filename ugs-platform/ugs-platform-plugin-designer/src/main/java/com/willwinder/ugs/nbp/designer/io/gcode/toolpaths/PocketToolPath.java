@@ -129,7 +129,7 @@ public class PocketToolPath extends AbstractToolPath {
     private List<Geometry> bufferAndCollectGeometries(Geometry geometry) {
         double buffer = getToolDiameter() / 2d;
         List<Geometry> geometries = bufferAndCollectGeometries(geometry, buffer);
-        geometries.sort(new GeometryToolpathComparator());
+        geometries.sort(new GeometrySizeComparator());
         return geometries;
     }
 

@@ -33,6 +33,8 @@ For version <strong>UGS 2.0.12</strong> or earlier:
         Which UGS version are you using?
       multiple: false
       options:
+        - "2.0.17"
+        - "2.0.15"
         - "2.0.14"
         - "2.0.13"
         - "2.0.12"
