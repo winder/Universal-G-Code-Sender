@@ -51,8 +51,10 @@ public class TinyGGcodeCommand extends GcodeCommand {
 
     private static String convertCommandToJson(String command) {
         String ret;
+
         // wrap in json
-        if ("\n".equals(command) ||
+        if (StringUtils.isEmpty(command) ||
+                "\n".equals(command) ||
                 "\r\n".equals(command) ||
                 "?".equals(command)) {
             // this is a status request cmd
@@ -82,19 +84,6 @@ public class TinyGGcodeCommand extends GcodeCommand {
     public void appendResponse(String response) {
         super.appendResponse(response);
 
-
-        /*JsonObject jo = TinyGUtils.jsonToObject(response);
-        if(TinyGUtils.isStatusResponse(jo))
-        if (TinyGUtils.isErrorResponse(jo)) {
-            command.setOk(false);
-            command.setError(true);
-        } else {
-            command.setOk(true);
-            command.setError(false);
-        }
-
-        command.setDone(true);*/
-
         if (TinyGGcodeCommand.isOkErrorResponse(response)) {
             Integer responseStatusCode = getResponseStatusCode(response);
             if (responseStatusCode == 0) {
@@ -104,5 +93,21 @@ public class TinyGGcodeCommand extends GcodeCommand {
             }
             setDone(true);
         }
+
+        if (isOkTextResponse(response)) {
+            setOk(true);
+            setDone(true);
+        } else if (isErrorTextResponse(response)) {
+            setError(true);
+            setDone(true);
+        }
+    }
+
+    private static boolean isErrorTextResponse(String response) {
+        return response.startsWith("tinyg [mm] err") || response.startsWith("tinyg [inch] err");
+    }
+
+    private static boolean isOkTextResponse(String response) {
+        return response.startsWith("tinyg [mm] ok") || response.startsWith("tinyg [inch] ok");
     }
 }
