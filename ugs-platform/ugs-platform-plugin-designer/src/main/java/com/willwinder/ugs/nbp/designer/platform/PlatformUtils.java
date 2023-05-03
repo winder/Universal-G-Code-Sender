@@ -64,7 +64,7 @@ public class PlatformUtils {
             designWriter.write(file, ControllerFactory.getController());
             CentralLookup.getDefault().lookup(BackendAPI.class).setGcodeFile(file);
         } catch (Exception e) {
-            throw new RuntimeException("Could not generate gcode");
+            throw new RuntimeException("Could not generate gcode", e);
         }
     }
 

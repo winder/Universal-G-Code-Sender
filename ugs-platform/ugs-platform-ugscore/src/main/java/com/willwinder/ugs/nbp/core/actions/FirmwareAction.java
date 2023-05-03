@@ -36,6 +36,7 @@ import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.*;
+import java.util.logging.Logger;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -55,6 +56,7 @@ import org.openide.util.actions.CallableSystemAction;
                 path = "Toolbars/Connection",
                 position = 980)})
 public class FirmwareAction extends CallableSystemAction implements UGSEventListener {
+    private static final Logger LOGGER = Logger.getLogger(FirmwareAction.class.getSimpleName());
     public static final String ICON_BASE = "resources/icons/firmware.svg";
 
     private final BackendAPI backend;
@@ -75,7 +77,7 @@ public class FirmwareAction extends CallableSystemAction implements UGSEventList
     }
 
     private void firmwareUpdated() {
-        System.out.println("firmware updated " + backend.getSettings().getFirmwareVersion());
+        LOGGER.info("Changed to firmware " + backend.getSettings().getFirmwareVersion());
         firmwareCombo.setSelectedItem( backend.getSettings().getFirmwareVersion());
     }
 
