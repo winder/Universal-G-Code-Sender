@@ -50,7 +50,6 @@ public class TinyGUtils {
 
     public static final byte COMMAND_PAUSE = '!';
     public static final byte COMMAND_RESUME = '~';
-    public static final byte COMMAND_STATUS = '?';
     public static final byte COMMAND_QUEUE_FLUSH = '%';
     public static final byte COMMAND_KILL_JOB = 0x04;
     public static final byte COMMAND_ENQUIRE_STATUS = 0x05;
@@ -175,7 +174,7 @@ public class TinyGUtils {
         if (isStatusResponse(response)) {
             JsonObject statusResultObject = response.getAsJsonObject(FIELD_STATUS_REPORT);
 
-            Position workCoord = lastControllerStatus.getWorkCoord();
+            Position workCoord = new Position(lastControllerStatus.getWorkCoord());
             UnitUtils.Units feedSpeedUnits = lastControllerStatus.getFeedSpeedUnits();
             if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_UNIT)) {
                 UnitUtils.Units units = statusResultObject.get(FIELD_STATUS_REPORT_UNIT).getAsInt() == 1 ? UnitUtils.Units.MM : UnitUtils.Units.INCH;
@@ -196,7 +195,7 @@ public class TinyGUtils {
             }
 
             // The machine coordinates are always in MM, make sure the position is using that unit before updating the values
-            Position machineCoord = lastControllerStatus.getMachineCoord().getPositionIn(UnitUtils.Units.MM);
+            Position machineCoord = new Position(lastControllerStatus.getMachineCoord().getPositionIn(UnitUtils.Units.MM));
             if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_MPOX)) {
                 machineCoord.setX(statusResultObject.get(FIELD_STATUS_REPORT_MPOX).getAsDouble());
             }
