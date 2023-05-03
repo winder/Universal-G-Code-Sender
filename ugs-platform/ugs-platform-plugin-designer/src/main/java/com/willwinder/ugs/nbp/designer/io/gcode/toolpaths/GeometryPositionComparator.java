@@ -67,43 +67,30 @@ public class GeometryPositionComparator implements Comparator<Geometry> {
         return coordinates[coordinates.length - 1];
     }
 
-    /**
-     * Returns the square of the distance between two coordinates.
-     *
-     * @param c1 the first coordinate
-     * @param c2 the second coordinate
-     * @return the distance squared
-     */
-    private static double distanceSq(Coordinate c1, Coordinate c2) {
-        double px = c1.getX() - c2.getX();
-        double py = c1.getY() - c2.getY();
-        return (px * px + py * py);
-    }
-
     @Override
     public int compare(Geometry o1, Geometry o2) {
+
         int order = 0;
-        Coordinate lastCoordinate = getLastCoordinate(o1);
-        Coordinate nextCoordinate = getFirstCoordinate(o2);
+        try {
+            Coordinate lastCoordinate = getLastCoordinate(o1);
+            Coordinate nextCoordinate = getFirstCoordinate(o2);
 
-        double squaredDistance = distanceSq(lastCoordinate, nextCoordinate);
-        if (squaredDistance < 0) order -= 1;
-        if (squaredDistance > 0) order += 1;
+            double gridWidth = envelope.getWidth() / NUMBER_OF_GRIDS;
+            double gridHeight = envelope.getHeight() / NUMBER_OF_GRIDS;
 
-        double gridWidth = envelope.getWidth() / NUMBER_OF_GRIDS;
-        double gridHeight = envelope.getHeight() / NUMBER_OF_GRIDS;
+            long e1GridX = Math.round((lastCoordinate.getX() - envelope.getMinX()) / gridWidth);
+            long e1GridY = Math.round((lastCoordinate.getY() - envelope.getMinY()) / gridHeight);
 
-        long e1GridX = Math.round((lastCoordinate.getX() - envelope.getMinX()) / gridWidth);
-        long e1GridY = Math.round((lastCoordinate.getY() - envelope.getMinY()) / gridHeight);
+            long e2GridX = Math.round((nextCoordinate.getX() - envelope.getMinX()) / gridWidth);
+            long e2GridY = Math.round((nextCoordinate.getY() - envelope.getMinY()) / gridHeight);
 
-        long e2GridX = Math.round((nextCoordinate.getX() - envelope.getMinX()) / gridWidth);
-        long e2GridY = Math.round((nextCoordinate.getY() - envelope.getMinY()) / gridHeight);
-
-        if (e1GridX < e2GridX) order -= 10;
-        if (e1GridX > e2GridX) order += 10;
-        if (e1GridY < e2GridY) order -= 100;
-        if (e1GridY > e2GridY) order += 100;
-
+            if (e1GridX < e2GridX) order -= 1;
+            if (e1GridX > e2GridX) order += 1;
+            if (e1GridY < e2GridY) order -= 10;
+            if (e1GridY > e2GridY) order += 10;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return order;
     }
 }
