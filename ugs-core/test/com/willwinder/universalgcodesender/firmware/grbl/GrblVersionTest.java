@@ -16,6 +16,15 @@ public class GrblVersionTest {
     }
 
     @Test
+    public void parseMillRightVersionString() {
+        GrblVersion version = new GrblVersion("[VER:1.1i MegaV 4 Axis Router.20190120:]");
+        assertEquals(1.1d, version.getVersionNumber(), 0.001);
+        assertEquals('i', version.getVersionLetter().charValue());
+        assertEquals("20190120", version.getBuildDate());
+        assertEquals("", version.getMachineName());
+    }
+
+    @Test
     public void parseCompleteVersionString2() {
         GrblVersion version = new GrblVersion("[VER:1.1f.20170801:MINIMILL]");
         assertEquals(1.1d, version.getVersionNumber(), 0.001);
