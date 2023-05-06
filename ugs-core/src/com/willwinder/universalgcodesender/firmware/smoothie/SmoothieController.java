@@ -16,24 +16,37 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.firmware.smoothie;
 
+import com.willwinder.universalgcodesender.AbstractController;
+import com.willwinder.universalgcodesender.Capabilities;
+import com.willwinder.universalgcodesender.CapabilitiesConstants;
+import com.willwinder.universalgcodesender.GrblUtils;
+import com.willwinder.universalgcodesender.StatusPollTimer;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.communicator.SmoothieCommunicator;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
-import com.willwinder.universalgcodesender.firmware.smoothie.SmoothieFirmwareSettings;
-import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
+import com.willwinder.universalgcodesender.firmware.smoothie.commands.GetVersionCommand;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.CommunicatorState;
+import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.StringUtils;
 
-import static com.willwinder.universalgcodesender.model.CommunicatorState.*;
+import java.util.Optional;
+
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_DISCONNECTED;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
 
 /**
  * Controller implementation for Smoothieware
@@ -56,7 +69,7 @@ public class SmoothieController extends AbstractController {
     }
 
     public SmoothieController(ICommunicator communicator) {
-        super(communicator, new DefaultCommandCreator());
+        super(communicator, new SmoothieCommandCreator());
         capabilities = new Capabilities();
         firmwareSettings = new SmoothieFirmwareSettings();
         controllerStatus = new ControllerStatus(ControllerState.DISCONNECTED, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
@@ -147,13 +160,39 @@ public class SmoothieController extends AbstractController {
                 dispatchConsoleMessage(MessageType.INFO, response + "\n");
                 return;
             } else if (isSmoothieReady && !isReady && response.equalsIgnoreCase("ok")) {
-                comm.queueCommand(getCommandCreator().createCommand("version"));
-                comm.streamCommands();
+                queryVersion();
                 return;
-            } else if (isSmoothieReady && !isReady && response.startsWith("Build version:")) {
-                dispatchConsoleMessage(MessageType.INFO, response + "\n");
-                firmwareVersion = "Smoothie " + StringUtils.substringBetween(response, "Build date:", ",").trim();
+            }
+
+            // Clear the ci
+            Optional<GcodeCommand> activeCommand = getActiveCommand();
+            if (activeCommand.isPresent() && activeCommand.get().isDone()) {
                 commandComplete(response);
+            }
+
+            if (SmoothieUtils.isStatusResponse(response)) {
+                statusPollTimer.receivedStatus();
+                handleStatusResponse(response);
+                checkStreamFinished();
+            } else if (SmoothieUtils.isParserStateResponse(response)) {
+                String parserStateCode = StringUtils.substringBetween(response, "[", "]");
+                dispatchConsoleMessage(MessageType.INFO, response + "\n");
+                updateParserModalState(getCommandCreator().createCommand(parserStateCode));
+            } else {
+                dispatchConsoleMessage(MessageType.INFO, response + "\n");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void queryVersion() {
+        ThreadHelper.invokeLater(() -> {
+            try {
+                GetVersionCommand command = ControllerUtils.sendAndWaitForCompletion(this, new GetVersionCommand());
+                firmwareVersion = command.getVersion();
+                dispatchConsoleMessage(MessageType.INFO, command.getResponse() + "\n");
 
                 capabilities.addCapability(CapabilitiesConstants.X_AXIS);
                 capabilities.addCapability(CapabilitiesConstants.Y_AXIS);
@@ -168,27 +207,10 @@ public class SmoothieController extends AbstractController {
 
                 viewParserState();
                 statusPollTimer.start();
-                return;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-
-            if(SmoothieUtils.isOkErrorAlarmResponse(response)) {
-                dispatchConsoleMessage(MessageType.INFO, response + "\n");
-                commandComplete(response);
-            } else if(SmoothieUtils.isStatusResponse(response)) {
-                statusPollTimer.receivedStatus();
-                handleStatusResponse(response);
-                checkStreamFinished();
-            } else if(SmoothieUtils.isParserStateResponse(response)) {
-                String parserStateCode = StringUtils.substringBetween(response, "[", "]");
-                dispatchConsoleMessage(MessageType.INFO, response + "\n");
-                updateParserModalState(getCommandCreator().createCommand(parserStateCode));
-            } else {
-                dispatchConsoleMessage(MessageType.INFO, response + "\n");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     private void handleStatusResponse(String response) {
@@ -263,7 +285,7 @@ public class SmoothieController extends AbstractController {
 
     @Override
     public void killAlarmLock() throws Exception {
-        if(controllerStatus.getState().equals(ControllerState.ALARM)) {
+        if (controllerStatus.getState().equals(ControllerState.ALARM)) {
             GcodeCommand command = createCommand(SmoothieUtils.KILL_ALARM_LOCK_COMMAND);
             sendCommandImmediately(command);
         } else {
