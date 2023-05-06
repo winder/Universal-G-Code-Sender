@@ -50,7 +50,9 @@ public class ConfigureFirmwareAction extends AbstractAction {
     }
 
     private boolean canConfigureFirmware() {
-        return this.backend.isConnected() && this.backend.isIdle();
+        return backend.isConnected() &&
+                backend.isIdle() &&
+                backend.getController().getCapabilities().hasFirmwareSettings();
     }
 
     @Override

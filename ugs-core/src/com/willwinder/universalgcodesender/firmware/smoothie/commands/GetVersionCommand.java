@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Will Winder
+    Copyright 2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,28 +16,16 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.communicator;
+package com.willwinder.universalgcodesender.firmware.smoothie.commands;
 
-/**
- * @author wwinder
- */
-public class SmoothieCommunicator extends BufferedCommunicator {
+import org.apache.commons.lang3.StringUtils;
 
-    public SmoothieCommunicator() {
-        super.setSingleStepMode(true);
+public class GetVersionCommand extends SmoothieCommand {
+    public GetVersionCommand() {
+        super("version");
     }
 
-    @Override
-    public int getBufferSize() {
-        return 255;
-    }
-
-    @Override
-    protected void sendingCommand(String command) {
-    }
-
-    @Override
-    public void setSingleStepMode(boolean enable) {
-        // Never mind this
+    public String getVersion() {
+        return "Smoothie " + StringUtils.substringBetween(getResponse(), "Build date:", ",").trim();
     }
 }

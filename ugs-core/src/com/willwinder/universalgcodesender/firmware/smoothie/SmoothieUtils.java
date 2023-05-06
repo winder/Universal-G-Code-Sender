@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Will Winder
+    Copyright 2020-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,8 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.firmware.smoothie;
 
+import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.*;
@@ -42,7 +43,7 @@ public class SmoothieUtils {
     /**
      * Parse state out of position string.
      */
-    private static final Pattern PARSER_STATE_PATTERN = Pattern.compile("\\[.*]");
+    private static final Pattern PARSER_STATE_PATTERN = Pattern.compile("$\\[.*]");
 
     protected static ControllerStatus getStatusFromStatusString(ControllerStatus lastStatus, final String status, UnitUtils.Units reportingUnits) {
         return GrblUtils.getStatusFromStatusStringV1(lastStatus, status, reportingUnits);

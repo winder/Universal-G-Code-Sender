@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Will Winder
+    Copyright 2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,28 +16,23 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.communicator;
+package com.willwinder.universalgcodesender.firmware.smoothie;
+
+import com.willwinder.universalgcodesender.firmware.smoothie.commands.SmoothieCommand;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 /**
- * @author wwinder
+ * A command creator for smoothie firmware controllers
  */
-public class SmoothieCommunicator extends BufferedCommunicator {
-
-    public SmoothieCommunicator() {
-        super.setSingleStepMode(true);
+public class SmoothieCommandCreator implements ICommandCreator {
+    @Override
+    public GcodeCommand createCommand(String command) {
+        return new SmoothieCommand(command);
     }
 
     @Override
-    public int getBufferSize() {
-        return 255;
-    }
-
-    @Override
-    protected void sendingCommand(String command) {
-    }
-
-    @Override
-    public void setSingleStepMode(boolean enable) {
-        // Never mind this
+    public GcodeCommand createCommand(String command, String originalCommand, String comment, int lineNumber) {
+        return  new SmoothieCommand(command, originalCommand, comment, lineNumber);
     }
 }
