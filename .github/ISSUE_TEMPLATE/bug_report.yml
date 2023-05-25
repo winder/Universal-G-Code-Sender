@@ -10,21 +10,11 @@ Thank you for finding the time to report the problem!
 We really appreciate community efforts to improve Universal Gcode Sender.
 
 It is usually helpful to have the log file from UGS, locations for different types of operating systems can be found here:<br/>
-
-For version <strong>UGS 2.0.13</strong> or later:
 <ul>
   <li>**Windows 7 and higher**: C:/Users/[your username>]/AppData/ugsplatform/var/log/messages.log</li>
   <li>**Windows XP**: C:/Documents and Settings/[your username>]/AppData/ugsplatform/var/log/messages.log</li>
   <li>**Mac**: ~/Library/Application Support/ugsplatform/var/log/messages.log</li>
   <li>**Linux**: ~/.cache/ugsplatform/var/log/messages.log</li>
-</ul>
-
-For version <strong>UGS 2.0.12</strong> or earlier:
-<ul>
-  <li>**Windows 7 and higher**: C:/Users/[your username>]/.ugsplatform/2.X/var/log/messages.log</li>
-  <li>**Windows XP**: C:/Documents and Settings/[your username>]/.ugsplatform/2.X/var/log/messages.log</li>
-  <li>**Mac**: ~/Library/Application Support/ugsplatform/2.X/dev/var/log/messages.log</li>
-  <li>**Linux**: ~/.ugsplatform/2.X/var/log/messages.log</li>
 </ul>"
   - type: dropdown
     attributes:
@@ -57,6 +47,8 @@ For version <strong>UGS 2.0.12</strong> or earlier:
         - "GRBL 0.9"
         - "GRBL 0.8"
         - "Grbl_ESP32"
+        - "Grbl-Mega"
+        - "Grbl-Mega-5x"
         - "FluidNC"
         - "TinyG"
         - "g2core"
