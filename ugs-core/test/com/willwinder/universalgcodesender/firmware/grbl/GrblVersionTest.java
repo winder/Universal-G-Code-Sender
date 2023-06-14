@@ -25,6 +25,15 @@ public class GrblVersionTest {
     }
 
     @Test
+    public void parseUnknownMegaVersionString() {
+        GrblVersion version = new GrblVersion("[VER:1.1g3.20211002.Mega:]");
+        assertEquals(1.1d, version.getVersionNumber(), 0.001);
+        assertEquals('g', version.getVersionLetter().charValue());
+        assertEquals("20211002", version.getBuildDate());
+        assertEquals("Mega:", version.getMachineName());
+    }
+
+    @Test
     public void parseCompleteVersionString2() {
         GrblVersion version = new GrblVersion("[VER:1.1f.20170801:MINIMILL]");
         assertEquals(1.1d, version.getVersionNumber(), 0.001);
