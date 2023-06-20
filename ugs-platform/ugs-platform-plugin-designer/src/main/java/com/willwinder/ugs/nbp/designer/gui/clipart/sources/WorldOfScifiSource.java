@@ -62,7 +62,7 @@ public class WorldOfScifiSource implements ClipartSource {
         cliparts.add(new FontClipart("Alien", Category.PEOPLE_AND_CHARACTERS, font, "n", this));
         cliparts.add(new FontClipart("TRON light cycle", Category.TRANSPORTATION, font, "o", this));
         cliparts.add(new FontClipart("Star Trek - Phaser", Category.TOOLS, font, "p", this));
-        cliparts.add(new FontClipart("Alien vs Predator", Category.SIGNS_AND_SYMBOLS, font, "q", this));
+        cliparts.add(new FontClipart("Alien vs Predator", Category.SIGNS_AND_SYMBOLS, font.deriveFont(font.getSize() * 0.5f), "q", this));
         cliparts.add(new FontClipart("Robinson Robot.", Category.PEOPLE_AND_CHARACTERS, font, "r", this));
         cliparts.add(new FontClipart("Star Wars", Category.SIGNS_AND_SYMBOLS, font, "s", this));
         cliparts.add(new FontClipart("Star Trek", Category.SIGNS_AND_SYMBOLS, font, "t", this));
@@ -92,7 +92,7 @@ public class WorldOfScifiSource implements ClipartSource {
         cliparts.add(new FontClipart("Dave", Category.PEOPLE_AND_CHARACTERS, font, "1", this));
         cliparts.add(new FontClipart("Star Wars - R2D2", Category.PEOPLE_AND_CHARACTERS, font, "2", this));
         cliparts.add(new FontClipart("Arachnid", Category.PEOPLE_AND_CHARACTERS, font, "3", this));
-        cliparts.add(new FontClipart("Independence day", Category.SIGNS_AND_SYMBOLS, font, "4", this));
+        cliparts.add(new FontClipart("Independence day", Category.SIGNS_AND_SYMBOLS, font.deriveFont(font.getSize() * 0.5f), "4", this));
         cliparts.add(new FontClipart("Babylon 5", Category.SIGNS_AND_SYMBOLS, font, "5", this));
         cliparts.add(new FontClipart("Buck Rogers - Twiki", Category.PEOPLE_AND_CHARACTERS, font, "6", this));
         cliparts.add(new FontClipart("Space man", Category.PEOPLE_AND_CHARACTERS, font, "8", this));
