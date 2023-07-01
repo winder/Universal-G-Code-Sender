@@ -252,7 +252,7 @@ public final class StateTopComponent extends TopComponent implements UGSEventLis
           workOffsetBox.setSelectedItem(get(state.offset));
           planeBox.setSelectedItem(get(state.plane.code));
 
-          this.setFeedAndSpeed(state.speed, state.spindleSpeed);
+          this.setFeedAndSpeed(state.feedRate, state.spindleSpeed);
         } finally {
           loading = false;
         }

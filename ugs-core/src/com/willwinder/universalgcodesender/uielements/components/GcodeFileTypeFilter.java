@@ -23,58 +23,59 @@
 
 package com.willwinder.universalgcodesender.uielements.components;
 
-import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
+import java.io.File;
+
 /**
- *
  * @author wwinder
  */
 public class GcodeFileTypeFilter extends FileFilter {
     public static JFileChooser getGcodeFileChooser(String startDir) {
         //Setup the file filter for gcode files.
         GcodeFileTypeFilter filter = new GcodeFileTypeFilter();
-        
+
         // Setup file browser with the last path used.
-        JFileChooser fileChooser = new JFileChooser(startDir); 
+        JFileChooser fileChooser = new JFileChooser(startDir);
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setFileHidingEnabled(true);
         fileChooser.addChoosableFileFilter(filter);
         fileChooser.setAcceptAllFileFilterUsed(true);
         fileChooser.setFileFilter(filter);
-        
+
         return fileChooser;
     }
-    
-    @Override
-    public boolean accept(File f) {
-        if (f.isDirectory()) {
-            return true;
-        }
- 
-        String extension = getExtension(f);
-        return "cnc".equals(extension) ||
-                "nc".equals(extension)  ||
-                "ngc".equals(extension) ||
-                "tap".equals(extension) ||
-                "txt".equals(extension) ||
-                "gcode".equals(extension);
-    }
- 
-    //The description of this filter
-    @Override
-    public String getDescription() {
-        return "G-Code (gcode, nc, txt)";
-    }
-    
+
     private static String getExtension(File f) {
         String ext = null;
         String s = f.getName();
         int i = s.lastIndexOf('.');
 
-        if (i > 0 &&  i < s.length() - 1) {
-            ext = s.substring(i+1).toLowerCase();
+        if (i > 0 && i < s.length() - 1) {
+            ext = s.substring(i + 1).toLowerCase();
         }
         return ext;
+    }
+
+    @Override
+    public boolean accept(File f) {
+        if (f.isDirectory()) {
+            return true;
+        }
+
+        String extension = getExtension(f);
+        return "cnc".equals(extension) ||
+                "gc".equals(extension) ||
+                "nc".equals(extension) ||
+                "ngc".equals(extension) ||
+                "tap".equals(extension) ||
+                "txt".equals(extension) ||
+                "gcode".equals(extension);
+    }
+
+    //The description of this filter
+    @Override
+    public String getDescription() {
+        return "G-Code (gcode, nc, txt)";
     }
 }

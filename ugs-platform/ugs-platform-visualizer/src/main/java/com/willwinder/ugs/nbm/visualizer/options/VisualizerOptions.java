@@ -42,6 +42,7 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
     public static String VISUALIZER_OPTION_MODEL = "platform.visualizer.model";
     public static String VISUALIZER_OPTION_MODEL_DESC = "platform.visualizer.model.desc";
     public static String VISUALIZER_OPTION_LINEAR = "platform.visualizer.color.linear";
+    public static String VISUALIZER_OPTION_LINEAR_MIN_SPEED = "platform.visualizer.color.linear.min.speed";
     public static String VISUALIZER_OPTION_RAPID = "platform.visualizer.color.rapid";
     public static String VISUALIZER_OPTION_ARC = "platform.visualizer.color.arc";
     public static String VISUALIZER_OPTION_PLUNGE = "platform.visualizer.color.plunge";
@@ -113,10 +114,11 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
         // GcodeModel renderable
         add(getOption(VISUALIZER_OPTION_MODEL, Localization.getString(VISUALIZER_OPTION_MODEL_DESC), true));
         add(getOption(VISUALIZER_OPTION_LINEAR, "", new Color(0,0,158)));
+        add(getOption(VISUALIZER_OPTION_LINEAR_MIN_SPEED, "", new Color(0,0,158, 125)));
         add(getOption(VISUALIZER_OPTION_RAPID, "", new Color(204,204,0)));
         add(getOption(VISUALIZER_OPTION_ARC, "", new Color(178,34,34)));
         add(getOption(VISUALIZER_OPTION_PLUNGE, "", new Color(0,100,0)));
-        add(getOption(VISUALIZER_OPTION_COMPLETE, "", new Color(190,190,190)));
+        add(getOption(VISUALIZER_OPTION_COMPLETE, "", new Color(190,190,190, 200)));
 
         // Highlight renderable
         add(getOption(VISUALIZER_OPTION_HIGHLIGHT, Localization.getString(VISUALIZER_OPTION_HIGHLIGHT_DESC), true));

@@ -69,7 +69,6 @@ public class GcodeTable extends JTable {
         while (model.getRowCount()>0){
             model.removeRow(0);
         }
-        //model.dropData();
         this.offset = 0;
         this.first = true;
     }

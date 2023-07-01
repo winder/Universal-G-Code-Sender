@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender;
 
 import com.google.common.collect.ImmutableList;
-import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
@@ -312,7 +311,7 @@ public class GcodePreprocessorUtilsTest {
                 .isEqualTo("F0.0S0.0G1X0Y0");
 
         state.currentMotionMode = Code.G1;
-        state.speed = 12.5;
+        state.feedRate = 12.5;
 
         // Add state and insert implicit motion mode.
         assertThat(GcodePreprocessorUtils.normalizeCommand("X0Y0", state))

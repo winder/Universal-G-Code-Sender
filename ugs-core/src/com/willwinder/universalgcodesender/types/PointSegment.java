@@ -1,12 +1,5 @@
 /*
- * An optimized LineSegment which only uses the end point with the expectation
- * that a collection of points will represent a continuous set of line segments.
- *
- * Created on Nov 9, 2013
- */
-
-/*
-    Copyright 2013-2017 Will Winder
+    Copyright 2013-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,11 +25,13 @@ import static com.willwinder.universalgcodesender.model.UnitUtils.Units.INCH;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 
 /**
+ * An optimized LineSegment which only uses the end point with the expectation
+ * that a collection of points will represent a continuous set of line segments.
  *
  * @author wwinder
  */
-final public class PointSegment {
-    private double speed;
+public final class PointSegment {
+    private double feedRate;
     private Position point;
     
     // Line properties
@@ -48,6 +43,7 @@ final public class PointSegment {
     private boolean isProbe = false;
     private int lineNumber;
     private ArcProperties arcProperties = null;
+    private double spindleSpeed = 0;
 
     private class ArcProperties {
         public boolean isClockwise;
@@ -60,7 +56,8 @@ final public class PointSegment {
     public PointSegment(PointSegment ps) {
         this(ps.point(), ps.getLineNumber());
     
-        this.setSpeed(ps.speed);
+        this.setFeedRate(ps.feedRate);
+        this.setSpindleSpeed(ps.getSpindleSpeed());
         this.setIsArc(ps.isArc);
         this.setIsMetric(ps.isMetric);
         this.setIsZMovement(ps.isZMovement);
@@ -111,13 +108,21 @@ final public class PointSegment {
         return lineNumber;
     }
     
-    public void setSpeed(final double s) {
-        this.speed = s;
+    public void setFeedRate(final double s) {
+        this.feedRate = s;
     }
     
-    public double getSpeed()
+    public double getFeedRate()
     {
-        return speed;
+        return feedRate;
+    }
+
+    public void setSpindleSpeed(double spindleSpeed) {
+        this.spindleSpeed = spindleSpeed;
+    }
+
+    public double getSpindleSpeed() {
+        return spindleSpeed;
     }
     
     public void setIsZMovement(final boolean isZ) {

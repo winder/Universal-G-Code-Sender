@@ -1,11 +1,5 @@
-/**
- * Segment of gcode by the start/end positions.
- *
- * Created on Jan 29, 2013
- */
-
 /*
-    Copyright 2013-2018 Will Winder
+    Copyright 2013-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,17 +21,21 @@ package com.willwinder.universalgcodesender.visualizer;
 
 import com.willwinder.universalgcodesender.model.Position;
 
+/**
+ * Segment of gcode by the start/end positions.
+ */
 public class LineSegment {
 
-    private double speed;
-    private final Position first, second;
-    
+    private final Position first;
+    private final Position second;
+    private final int lineNumber;
     // Line properties
     private boolean isZMovement = false;
     private boolean isArc = false;
     private boolean isFastTraverse = false;
     private boolean isRotation = false;
-    private final int lineNumber;
+    private double feedRate;
+    private double spindleSpeed;
 
     public LineSegment(final Position a, final Position b, int num) {
         first = new Position(a);
@@ -57,12 +55,12 @@ public class LineSegment {
         return this.second;
     }
 
-    public void setSpeed(double s) {
-        this.speed = s;
+    public double getFeedRate() {
+        return feedRate;
     }
 
-    public double getSpeed() {
-        return speed;
+    public void setFeedRate(double s) {
+        this.feedRate = s;
     }
 
     public void setIsZMovement(boolean isZ) {
@@ -92,8 +90,16 @@ public class LineSegment {
     public void setIsRotation(boolean isR) {
         this.isRotation = isR;
     }
-    
+
     public boolean isRotation() {
         return this.isRotation;
+    }
+
+    public double getSpindleSpeed() {
+        return spindleSpeed;
+    }
+
+    public void setSpindleSpeed(double spindleSpeed) {
+        this.spindleSpeed = spindleSpeed;
     }
 }
