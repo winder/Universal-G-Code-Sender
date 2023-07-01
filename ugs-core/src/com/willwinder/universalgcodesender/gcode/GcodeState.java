@@ -50,7 +50,7 @@ public class GcodeState {
 
     // group 5
     public Code feedMode = G94;
-    public double speed = 0;
+    public double feedRate = 0;
 
     // group 6
     public boolean isMetric = true;
@@ -77,7 +77,7 @@ public class GcodeState {
         this.plane = Plane.XY;
 
         // TODO: Feed mode
-        this.speed = 0;
+        this.feedRate = 0;
         this.spindleSpeed = 0;
 
         this.currentPoint = new Position(0, 0, 0, Units.MM);
@@ -99,7 +99,7 @@ public class GcodeState {
         ret.isMetric = isMetric;
         ret.units = units;
 
-        ret.speed = speed;
+        ret.feedRate = feedRate;
         ret.spindleSpeed = spindleSpeed;
 
         ret.offset = offset;
@@ -131,7 +131,7 @@ public class GcodeState {
             result.append(coolant.toString());
         }
 
-        result.append("F").append(this.speed);
+        result.append("F").append(this.feedRate);
 
         return result.toString();
     }
@@ -164,7 +164,7 @@ public class GcodeState {
     public String toString() {
       String pattern = "metric: %b, motionMode: %s, plane: %s, absoluteMode: %b, ijkMode: %b, feed: %f, spindle speed: %f, spindle state: %s, coolant state: %s, point: %s";
       return String.format(pattern,
-              isMetric, currentMotionMode, plane, inAbsoluteMode, inAbsoluteIJKMode, speed, spindleSpeed, spindle, coolant, currentPoint);
+              isMetric, currentMotionMode, plane, inAbsoluteMode, inAbsoluteIJKMode, feedRate, spindleSpeed, spindle, coolant, currentPoint);
 
     }
 }

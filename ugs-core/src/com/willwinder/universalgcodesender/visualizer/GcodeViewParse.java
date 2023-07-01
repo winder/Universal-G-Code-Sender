@@ -1,11 +1,5 @@
 /*
- * Gcode parser that creates an array of line segments which can be drawn.
- *
- * Created on Jan 29, 2013
- */
-
-/*
-    Copyright 2013-2022 Noah Levy, William Winder
+    Copyright 2013-2023 Noah Levy, William Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -39,61 +33,50 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Gcode parser that creates an array of line segments which can be drawn.
+ */
 public class GcodeViewParse {
     // Parsed object
     private final Position min;
     private final Position max;
     private final List<LineSegment> lines;
+    private double maxSpindleSpeed;
 
-    public GcodeViewParse()
-    {
+    public GcodeViewParse() {
+        maxSpindleSpeed = 0;
         min = new Position(UnitUtils.Units.MM);
         max = new Position(UnitUtils.Units.MM);
         lines = new ArrayList<>();
     }
 
-    public Position getMinimumExtremes()
-    {
+    /**
+     * Create a gcode parser with required configuration.
+     */
+    private static GcodeParser getParser() {
+        GcodeParser gp = new GcodeParser();
+        gp.addCommandProcessor(new CommentProcessor());
+        gp.addCommandProcessor(new WhitespaceProcessor());
+        return gp;
+    }
+
+    public Position getMinimumExtremes() {
         return min;
     }
 
-    public Position getMaximumExtremes()
-    {
+    public Position getMaximumExtremes() {
         return max;
     }
 
-    /**
-     * Test a point and update min/max coordinates if appropriate.
-     */
-    private void testExtremes(final Position p3d)
-    {
-        testExtremes(p3d.x, p3d.y, p3d.z);
+    public double getMaxSpindleSpeed() {
+        return maxSpindleSpeed;
     }
 
     /**
      * Test a point and update min/max coordinates if appropriate.
      */
-    private void testExtremes(double x, double y, double z)
-    {
-        if(x < min.x) {
-            min.x = x;
-        }
-        if(x > max.x) {
-            max.x = x;
-        }
-        if(y < min.y) {
-            min.y = y;
-        }
-        if(y > max.y) {
-            max.y = y;
-        }
-        if(z < min.z) {
-            min.z = z;
-        }
-        if(z > max.z) {
-            max.z = z;
-        }
+    private void testExtremes(final Position p3d) {
+        testExtremes(p3d.x, p3d.y, p3d.z);
     }
 
     /**
@@ -104,13 +87,27 @@ public class GcodeViewParse {
      */
 
     /**
-     * Create a gcode parser with required configuration.
+     * Test a point and update min/max coordinates if appropriate.
      */
-    private static GcodeParser getParser(double arcSegmentLength) {
-        GcodeParser gp = new GcodeParser();
-        gp.addCommandProcessor(new CommentProcessor());
-        gp.addCommandProcessor(new WhitespaceProcessor());
-        return gp;
+    private void testExtremes(double x, double y, double z) {
+        if (x < min.x) {
+            min.x = x;
+        }
+        if (x > max.x) {
+            max.x = x;
+        }
+        if (y < min.y) {
+            min.y = y;
+        }
+        if (y > max.y) {
+            max.y = y;
+        }
+        if (z < min.z) {
+            min.z = z;
+        }
+        if (z > max.z) {
+            max.z = z;
+        }
     }
 
     /**
@@ -119,16 +116,17 @@ public class GcodeViewParse {
      * toObjFromReader and toObjRedux adds more complexity than having these two
      * methods.
      *
-     * @param reader a stream with commands to parse.
+     * @param reader           a stream with commands to parse.
      * @param arcSegmentLength length of line segments when expanding an arc.
      */
     public List<LineSegment> toObjFromReader(IGcodeStreamReader reader,
                                              double arcSegmentLength) throws IOException, GcodeParserException {
         lines.clear();
-        GcodeParser gp = getParser(arcSegmentLength);
+        GcodeParser gp = getParser();
 
         // Save the state
         Position start = new Position(gp.getCurrentState().getUnits());
+        double spindleSpeed = 0;
 
         while (reader.getNumRowsRemaining() > 0) {
             GcodeCommand commandObject = reader.getNextCommand();
@@ -137,8 +135,9 @@ public class GcodeViewParse {
                 List<GcodeMeta> points = gp.addCommand(command, commandObject.getCommandNumber());
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
-                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
+                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines, spindleSpeed);
                         start = meta.point.point();
+                        spindleSpeed = meta.point.getSpindleSpeed();
                     }
                 }
             }
@@ -153,22 +152,24 @@ public class GcodeViewParse {
         lines.forEach(lineSegment -> {
             testExtremes(lineSegment.getStart());
             testExtremes(lineSegment.getEnd());
+            maxSpindleSpeed = Math.max(lineSegment.getSpindleSpeed(), maxSpindleSpeed);
         });
     }
 
     /**
      * The original (working) gcode to LineSegment collection code.
      *
-     * @param gcode commands to visualize.
+     * @param gcode            commands to visualize.
      * @param arcSegmentLength length of line segments when expanding an arc.
      */
     public List<LineSegment> toObjRedux(List<String> gcode, double arcSegmentLength) throws GcodeParserException {
-        GcodeParser gp = getParser(arcSegmentLength);
+        GcodeParser gp = getParser();
 
         lines.clear();
 
         // Save the state
         Position start = new Position(gp.getCurrentState().getUnits());
+        double spindleSpeed = 0;
 
         for (String s : gcode) {
             List<String> commands = gp.preprocessCommand(s, gp.getCurrentState());
@@ -176,10 +177,12 @@ public class GcodeViewParse {
                 List<GcodeMeta> points = gp.addCommand(command);
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
-                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
+                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines, spindleSpeed);
+                        spindleSpeed = meta.point.getSpindleSpeed();
+
                         // if the last set point is in a different or unknown unit, crate a new point-instance with the correct unit set
-                        if (start.getUnits() != UnitUtils.Units.MM && gp.getCurrentState().isMetric){
-                            start=new Position(
+                        if (start.getUnits() != UnitUtils.Units.MM && gp.getCurrentState().isMetric) {
+                            start = new Position(
                                     meta.point.point().x,
                                     meta.point.point().y,
                                     meta.point.point().z,
@@ -187,7 +190,7 @@ public class GcodeViewParse {
                                     meta.point.point().b,
                                     meta.point.point().c,
                                     gp.getCurrentState().isMetric ? UnitUtils.Units.MM : UnitUtils.Units.INCH
-                                    );
+                            );
                         } else {
                             // ...otherwise recycle the old instance and just update the x,y,z coords
                             start.set(meta.point.point());

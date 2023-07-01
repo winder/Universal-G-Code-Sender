@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2022 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -50,12 +50,7 @@ import java.util.logging.Logger;
 import static com.jogamp.opengl.GL.GL_LINES;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_ARC;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_COMPLETE;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_LINEAR;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_MODEL;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PLUNGE;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_RAPID;
 
 /**
  * @author wwinder
@@ -63,35 +58,24 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
 public class GcodeModel extends Renderable {
     public static final double ARC_SEGMENT_LENGTH = 0.8;
     private static final Logger logger = Logger.getLogger(GcodeModel.class.getName());
-
+    private final GcodeLineColorizer colorizer = new GcodeLineColorizer();
     private boolean colorArrayDirty, vertexArrayDirty, vertexBufferDirty;
-
     // Gcode file data
     private String gcodeFile = null;
     private boolean isDrawable = false; //True if a file is loaded; false if not
-
     // TODO: don't save the line list.
     private List<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
     private List<LineSegment> pointList; //An ArrayList of linesegments composing the model
     private int currentCommandNumber = 0;
-
     // OpenGL Object Buffer Variables
     private int numberOfVertices = -1;
     private float[] lineVertexData = null;
     private byte[] lineColorData = null;
     private FloatBuffer lineVertexBuffer = null;
     private ByteBuffer lineColorBuffer = null;
-
     private Position objectMin;
     private Position objectMax;
     private Position objectSize;
-
-    // Preferences
-    private Color linearColor;
-    private Color rapidColor;
-    private Color arcColor;
-    private Color plungeColor;
-    private Color completedColor;
 
     public GcodeModel(String title) {
         super(10, title);
@@ -101,11 +85,7 @@ public class GcodeModel extends Renderable {
 
     @Override
     final public void reloadPreferences(VisualizerOptions vo) {
-        linearColor = vo.getOptionForKey(VISUALIZER_OPTION_LINEAR).value;
-        rapidColor = vo.getOptionForKey(VISUALIZER_OPTION_RAPID).value;
-        arcColor = vo.getOptionForKey(VISUALIZER_OPTION_ARC).value;
-        plungeColor = vo.getOptionForKey(VISUALIZER_OPTION_PLUNGE).value;
-        completedColor = vo.getOptionForKey(VISUALIZER_OPTION_COMPLETE).value;
+        colorizer.reloadPreferences(vo);
         vertexBufferDirty = true;
     }
 
@@ -119,8 +99,6 @@ public class GcodeModel extends Renderable {
 
         boolean result = generateObject();
 
-        // Force a display in case an animator isn't running.
-        //forceRedraw();
 
         logger.log(Level.INFO, "Done setting gcode file.");
         return result;
@@ -165,9 +143,7 @@ public class GcodeModel extends Renderable {
         GL2 gl = drawable.getGL().getGL2();
 
         // Batch mode if available
-        boolean forceOldStyle = false;
-        if (!forceOldStyle
-                && gl.isFunctionAvailable("glGenBuffers")
+        if (gl.isFunctionAvailable("glGenBuffers")
                 && gl.isFunctionAvailable("glBindBuffer")
                 && gl.isFunctionAvailable("glBufferData")
                 && gl.isFunctionAvailable("glDeleteBuffers")) {
@@ -194,27 +170,19 @@ public class GcodeModel extends Renderable {
         }
         // Traditional OpenGL
         else {
-
-            // TODO: By using a GL_LINE_STRIP I can easily use half the number of
-            //       verticies. May lose some control over line colors though.
-            //gl.glEnable(GL2.GL_LINE_SMOOTH);
             gl.glBegin(GL_LINES);
             gl.glLineWidth(1.0f);
 
             int verts = 0;
             int colors = 0;
             for (int i = 0; i < pointList.size(); i++) {
-                gl.glColor3ub(lineColorData[colors++], lineColorData[colors++], lineColorData[colors++]);
+                gl.glColor4ub(lineColorData[colors++], lineColorData[colors++], lineColorData[colors++], lineColorData[colors++]);
                 gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
-                gl.glColor3ub(lineColorData[colors++], lineColorData[colors++], lineColorData[colors++]);
+                gl.glColor4ub(lineColorData[colors++], lineColorData[colors++], lineColorData[colors++], lineColorData[colors++]);
                 gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
             }
-
             gl.glEnd();
         }
-
-        // makes the gui stay on top of elements
-        // drawn before.
     }
 
     public Position getMin() {
@@ -255,40 +223,30 @@ public class GcodeModel extends Renderable {
 
             this.objectMin = gcvp.getMinimumExtremes();
             this.objectMax = gcvp.getMaximumExtremes();
+            this.colorizer.setMaxSpindleSpeed(gcvp.getMaxSpindleSpeed());
 
             if (gcodeLineList.isEmpty()) {
                 return false;
             }
 
-            // Grab the line number off the last line.
-
-            System.out.println("Object bounds: X (" + objectMin.x + ", " + objectMax.x + ")");
-            System.out.println("               Y (" + objectMin.y + ", " + objectMax.y + ")");
-            System.out.println("               Z (" + objectMin.z + ", " + objectMax.z + ")");
+            logger.info("Object bounds: X (" + objectMin.x + ", " + objectMax.x + ")");
+            logger.info("               Y (" + objectMin.y + ", " + objectMax.y + ")");
+            logger.info("               Z (" + objectMin.z + ", " + objectMax.z + ")");
 
             Position center = VisualizerUtils.findCenter(objectMin, objectMax);
-            System.out.println("Center = " + center.toString());
-            System.out.println("Num Line Segments :" + gcodeLineList.size());
+            logger.info("Center = " + center);
+            logger.info("Num Line Segments :" + gcodeLineList.size());
 
             objectSize.x = this.objectMax.x - this.objectMin.x;
             objectSize.y = this.objectMax.y - this.objectMin.y;
             objectSize.z = this.objectMax.z - this.objectMin.z;
 
-            /*
-            this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
-            this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
-
-            this.dimensionsLabel = Localization.getString("VisualizerCanvas.dimensions") + ": "
-                    + Localization.getString("VisualizerCanvas.width") + "=" + format.format(objectWidth) + " "
-                    + Localization.getString("VisualizerCanvas.height") + "=" + format.format(objectHeight);
-            */
-
             // Now that the object is known, fill the buffers.
             this.isDrawable = true;
 
             this.numberOfVertices = gcodeLineList.size() * 2;
-            this.lineVertexData = new float[numberOfVertices * 3];
-            this.lineColorData = new byte[numberOfVertices * 3];
+            this.lineVertexData = new float[numberOfVertices * 4];
+            this.lineColorData = new byte[numberOfVertices * 4];
 
             this.updateVertexBuffers();
         } catch (GcodeParserException | IOException e) {
@@ -306,56 +264,41 @@ public class GcodeModel extends Renderable {
      */
     private void updateVertexBuffers() {
         if (this.isDrawable) {
-            Color color;
             int vertIndex = 0;
             int colorIndex = 0;
-            byte[] c = new byte[3];
+            byte[] c = new byte[4];
             for (LineSegment ls : gcodeLineList) {
-                // Find the lines color.
-                if (ls.isArc()) {
-                    color = arcColor;
-                } else if (ls.isFastTraverse()) {
-                    color = rapidColor;
-                } else if (ls.isZMovement()) {
-                    color = plungeColor;
-                } else {
-                    color = linearColor;
-                }
+                Color color = colorizer.getColor(ls, this.currentCommandNumber);
 
-                // Override color if it is cutoff
-                if (ls.getLineNumber() < this.currentCommandNumber) {
-                    color = completedColor;
-                }
+                Position p1 = ls.getStart();
+                Position p2 = ls.getEnd();
 
-                // Draw it.
-                {
-                    Position p1 = ls.getStart();
-                    Position p2 = ls.getEnd();
+                c[0] = (byte) color.getRed();
+                c[1] = (byte) color.getGreen();
+                c[2] = (byte) color.getBlue();
+                c[3] = (byte) color.getAlpha();
 
-                    c[0] = (byte) color.getRed();
-                    c[1] = (byte) color.getGreen();
-                    c[2] = (byte) color.getBlue();
+                // colors
+                //p1
+                lineColorData[colorIndex++] = c[0];
+                lineColorData[colorIndex++] = c[1];
+                lineColorData[colorIndex++] = c[2];
+                lineColorData[colorIndex++] = c[3];
 
-                    // colors
-                    //p1
-                    lineColorData[colorIndex++] = c[0];
-                    lineColorData[colorIndex++] = c[1];
-                    lineColorData[colorIndex++] = c[2];
+                //p2
+                lineColorData[colorIndex++] = c[0];
+                lineColorData[colorIndex++] = c[1];
+                lineColorData[colorIndex++] = c[2];
+                lineColorData[colorIndex++] = c[3];
 
-                    //p2
-                    lineColorData[colorIndex++] = c[0];
-                    lineColorData[colorIndex++] = c[1];
-                    lineColorData[colorIndex++] = c[2];
-
-                    // p1 location
-                    lineVertexData[vertIndex++] = (float) p1.x;
-                    lineVertexData[vertIndex++] = (float) p1.y;
-                    lineVertexData[vertIndex++] = (float) p1.z;
-                    //p2
-                    lineVertexData[vertIndex++] = (float) p2.x;
-                    lineVertexData[vertIndex++] = (float) p2.y;
-                    lineVertexData[vertIndex++] = (float) p2.z;
-                }
+                // p1 location
+                lineVertexData[vertIndex++] = (float) p1.x;
+                lineVertexData[vertIndex++] = (float) p1.y;
+                lineVertexData[vertIndex++] = (float) p1.z;
+                //p2
+                lineVertexData[vertIndex++] = (float) p2.x;
+                lineVertexData[vertIndex++] = (float) p2.y;
+                lineVertexData[vertIndex++] = (float) p2.z;
             }
 
             this.colorArrayDirty = true;
@@ -410,16 +353,16 @@ public class GcodeModel extends Renderable {
 
         lineColorBuffer.put(lineColorData);
         ((Buffer) lineColorBuffer).flip();
-        gl.glColorPointer(3, GL.GL_UNSIGNED_BYTE, 0, lineColorBuffer);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_MODEL, enabled);
+        gl.glColorPointer(4, GL.GL_UNSIGNED_BYTE, 0, lineColorBuffer);
     }
 
     @Override
     public boolean isEnabled() {
         return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_MODEL, true);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_MODEL, enabled);
     }
 }

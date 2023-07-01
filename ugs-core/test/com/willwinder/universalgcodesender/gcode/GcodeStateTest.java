@@ -35,7 +35,7 @@ public class GcodeStateTest {
         // Not part of machine state
         state.coolant = Code.M7;
         state.spindle = Code.M3;
-        state.speed = 25.0;
+        state.feedRate = 25.0;
 
         assertThat(state.machineStateCode())
                 .isEqualTo(result2);

@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender.gcode.processors;
 
 import com.google.common.collect.Iterables;
-import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.SplitCommand;
@@ -103,7 +102,7 @@ public class ArcExpander implements CommandProcessor {
         if (convertToLines) {
             // Tack the speed onto the first line segment in case the arc also
             // changed the feed value.
-            String feed = "F" + arcMeta.point.getSpeed();
+            String feed = "F" + arcMeta.point.getFeedRate();
             for (Position point : points) {
                 results.add(GcodePreprocessorUtils.generateLineFromPoints(G1, start, point, state.inAbsoluteMode, df) + feed);
                 start = point;

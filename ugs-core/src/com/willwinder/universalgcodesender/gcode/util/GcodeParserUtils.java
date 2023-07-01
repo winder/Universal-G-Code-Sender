@@ -109,7 +109,7 @@ public class GcodeParserUtils {
         List<String> fCodes = GcodePreprocessorUtils.parseCodes(args, 'F');
         if (!fCodes.isEmpty()) {
             try {
-                state.speed = Double.parseDouble(Iterables.getOnlyElement(fCodes));
+                state.feedRate = Double.parseDouble(Iterables.getOnlyElement(fCodes));
             } catch (IllegalArgumentException e) {
                 throw new GcodeParserException("Multiple F-codes on one line.");
             }
@@ -155,12 +155,12 @@ public class GcodeParserUtils {
                 meta.command = command;
                 // Commands like 'G21' don't return a point segment.
                 if (meta.point != null) {
-                    meta.point.setSpeed(state.speed);
+                    meta.point.setFeedRate(state.feedRate);
+                    meta.point.setSpindleSpeed(state.spindleSpeed);
                 }
                 results.add(meta);
             }
         }
-
         // Return updated state / command.
         if (results.isEmpty() && includeNonMotionStates) {
             GcodeParser.GcodeMeta meta = new GcodeParser.GcodeMeta();

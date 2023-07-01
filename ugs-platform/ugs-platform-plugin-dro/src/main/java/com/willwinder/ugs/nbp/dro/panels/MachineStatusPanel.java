@@ -330,7 +330,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
         // Use real-time values if available, otherwise show the target values.
         int feedSpeed = status.getFeedSpeed() != null
                 ? (int) (status.getFeedSpeed() * UnitUtils.scaleUnits(status.getFeedSpeedUnits(), backend.getSettings().getPreferredUnits()))
-                : (int) this.backend.getGcodeState().speed;
+                : (int) this.backend.getGcodeState().feedRate;
         this.feedValue.setText(Integer.toString(feedSpeed));
 
         int spindleSpeed = status.getSpindleSpeed() != null

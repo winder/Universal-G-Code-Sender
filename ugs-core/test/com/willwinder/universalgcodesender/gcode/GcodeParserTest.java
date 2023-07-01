@@ -74,7 +74,7 @@ public class GcodeParserTest {
             if (meta.point != null) {
                 points++;
                 PointSegment ps = meta.point;
-                assertEquals(ps.getSpeed(), speed, 0);
+                assertEquals(ps.getFeedRate(), speed, 0);
                 assertEquals(x, ps.point().x, 0);
                 assertEquals(y, ps.point().y, 0);
                 assertEquals(z, ps.point().z, 0);

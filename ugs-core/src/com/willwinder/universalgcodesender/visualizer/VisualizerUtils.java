@@ -132,19 +132,21 @@ public class VisualizerUtils {
     /**
      * Helper to create a line segment with flags initialized.
      */
-    private static LineSegment createLineSegment(Position a, Position b, PointSegment meta) {
+    private static LineSegment createLineSegment(Position a, Position b, PointSegment meta, double spindleSpeed) {
         LineSegment ls = new LineSegment(a, b, meta.getLineNumber());
         ls.setIsArc(meta.isArc());
         ls.setIsFastTraverse(meta.isFastTraverse());
         ls.setIsZMovement(meta.isZMovement());
         ls.setIsRotation(meta.isRotation());
+        ls.setFeedRate(meta.getFeedRate());
+        ls.setSpindleSpeed(meta.getSpindleSpeed());
         return ls;
     }
 
     /**
      * Turns a point segment into one or more LineSegment. Arcs and rotations around axes are expanded
      */
-    public static void addLinesFromPointSegment(final Position start, final PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret) {
+    public static void addLinesFromPointSegment(final Position start, final PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret, double spindleSpeed) {
         // For a line segment list ALL arcs must be converted to lines.
         double minArcLength = 0;
         endSegment.convertToMetric();
@@ -154,12 +156,12 @@ public class VisualizerUtils {
             if (start != null) {
                 // Expand arc for graphics.
                 if (endSegment.isArc()) {
-                    expandArc(start, endSegment, arcSegmentLength, ret, minArcLength);
+                    expandArc(start, endSegment, arcSegmentLength, ret, minArcLength, spindleSpeed);
                 } else if (endSegment.isRotation()) {
-                    expandRotationalLineSegment(start, endSegment, ret);
+                    expandRotationalLineSegment(start, endSegment, ret, spindleSpeed);
                 } else {
                     // Line
-                    ret.add(createLineSegment(start, endSegment.point(), endSegment));
+                    ret.add(createLineSegment(start, endSegment.point(), endSegment, spindleSpeed));
                 }
             }
         } catch (Exception e) {
@@ -169,7 +171,7 @@ public class VisualizerUtils {
         }
     }
 
-    private static void expandArc(Position start, PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret, double minArcLength) {
+    private static void expandArc(Position start, PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret, double minArcLength, double spindleSpeed) {
         List<Position> points =
                 GcodePreprocessorUtils.generatePointsAlongArcBDring(
                         start, endSegment.point(), endSegment.center(), endSegment.isClockwise(),
@@ -178,13 +180,13 @@ public class VisualizerUtils {
         if (points != null) {
             Position startPoint = start;
             for (Position nextPoint : points) {
-                ret.add(createLineSegment(startPoint, nextPoint, endSegment));
+                ret.add(createLineSegment(startPoint, nextPoint, endSegment, spindleSpeed));
                 startPoint = nextPoint;
             }
         }
     }
 
-    public static void expandRotationalLineSegment(Position start, PointSegment endSegment, List<LineSegment> ret) {
+    public static void expandRotationalLineSegment(Position start, PointSegment endSegment, List<LineSegment> ret, double spindleSpeed) {
         double maxDegreesPerStep = 5;
         double deltaX = defaultZero(endSegment.point().x) - defaultZero(start.x);
         double deltaY = defaultZero(endSegment.point().y) - defaultZero(start.y);
@@ -215,11 +217,11 @@ public class VisualizerUtils {
             if (deltaC != 0) {
                 end.setC(defaultZero(start.c) + ((deltaC / steps) * i));
             }
-            ret.add(createLineSegment(startPoint, end, endSegment));
+            ret.add(createLineSegment(startPoint, end, endSegment, spindleSpeed));
             startPoint = end;
         }
 
-        ret.add(createLineSegment(startPoint, endSegment.point(), endSegment));
+        ret.add(createLineSegment(startPoint, endSegment.point(), endSegment, spindleSpeed));
     }
 
     /**
@@ -255,7 +257,8 @@ public class VisualizerUtils {
         next.setIsFastTraverse(p.isFastTraverse());
         next.setIsRotation(p.isFastTraverse());
         next.setIsZMovement(p.isZMovement());
-        next.setSpeed(p.getSpeed());
+        next.setFeedRate(p.getFeedRate());
+        next.setSpindleSpeed(p.getSpindleSpeed());
 
         return next;
     }

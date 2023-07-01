@@ -758,11 +758,7 @@ public class GcodePreprocessorUtils {
         }
 
         StringBuilder result = new StringBuilder();
-
-        // Don't add the state
-        //result.append(state.toGcode());
-
-        result.append("F").append(state.speed);
+        result.append("F").append(state.feedRate);
         result.append("S").append(state.spindleSpeed);
 
         // Check if we need to add the motion command back in.

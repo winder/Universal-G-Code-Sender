@@ -69,16 +69,14 @@ import java.util.logging.Logger;
  * @author wwinder
  * 
  */
-@SuppressWarnings("serial")
 public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener, MouseMotionListener, MouseWheelListener {
     private static final Logger logger = Logger.getLogger(VisualizerCanvas.class.getName());
     
     private static boolean ortho = true;
-    private static double orthoRotation = -45;
     private static boolean forceOldStyle = false;
     private static boolean debugCoordinates = false; // turn on coordinate debug output
-    
-    final static private DecimalFormat format = new DecimalFormat("####.00");
+
+    private static final DecimalFormat format = new DecimalFormat("####.00");
 
     // Machine data
     private final Position machineCoord;
