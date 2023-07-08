@@ -45,7 +45,7 @@ public class InsertClipartDialog extends JDialog implements ListSelectionListene
     public InsertClipartDialog() {
         super((JFrame) null, true);
         setTitle("Insert clipart");
-        setPreferredSize(new Dimension(700, 480));
+        setPreferredSize(new Dimension(730, 480));
         setLayout(new BorderLayout());
 
         categoriesList = new JList<>(Category.values());

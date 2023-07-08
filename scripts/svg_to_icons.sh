@@ -12,8 +12,8 @@ cd "$( realpath "$1" )"
 TRUE_BLACK="#000000"
 BLACKISH="#353a40"
 ALWAYS_BLACK="#010101"
-LIGHT_BLUE="#0ac9f1"
-DARK_BLUE="#41818f"
+LIGHT_BLUE="#afb1b3"
+DARK_BLUE="#565656"
 
 
 # Make sure nobody is using black instead of blackish

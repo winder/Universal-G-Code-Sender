@@ -24,7 +24,6 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
-import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.uielements.jog.StepSizeSpinner;
 import com.willwinder.universalgcodesender.utils.FontUtils;
 import com.willwinder.universalgcodesender.listeners.LongPressMouseListener;
@@ -109,10 +108,6 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         initListeners();
     }
 
-    private static boolean isDarkLaF() {
-        return UIManager.getBoolean("nb.dark.theme"); //NOI18N
-    }
-
     private void createComponents() {
 
         Font font = FontUtils.getSansFont().deriveFont(Font.PLAIN, FONT_SIZE_LABEL_LARGE);
@@ -157,20 +152,6 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         decreaseStepSizeButton = new JButton(Localization.getString("platform.plugin.jog.stepSmaller"));
         decreaseStepSizeButton.setFocusable(false);
         decreaseStepSizeButton.setMinimumSize(minimumSize);
-
-        updateColors();
-    }
-
-    private void updateColors() {
-        if (isDarkLaF()) {
-            jogButtons.values().forEach(button -> setForeground(ThemeColors.LIGHT_BLUE));
-            feedRateLabel.setForeground(ThemeColors.ORANGE);
-            xyStepLabel.setForeground(ThemeColors.ORANGE);
-            zStepLabel.setForeground(ThemeColors.ORANGE);
-            unitToggleButton.setForeground(ThemeColors.ORANGE);
-            increaseStepSizeButton.setForeground(ThemeColors.ORANGE);
-            decreaseStepSizeButton.setForeground(ThemeColors.ORANGE);
-        }
     }
 
     private JLabel createSettingLabel(Font font, String text) {

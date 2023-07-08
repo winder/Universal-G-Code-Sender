@@ -43,7 +43,7 @@ import java.awt.event.ActionEvent;
         category = LocalizingService.CATEGORY_MACHINE,
         id = "OpenFileBrowserAction")
 @ActionRegistration(
-        iconBase = "img/new.svg",
+        iconBase = OpenFileBrowserAction.SMALL_ICON_PATH,
         displayName = "File browser",
         lazy = false)
 @ActionReferences({
@@ -55,7 +55,7 @@ public final class OpenFileBrowserAction extends AbstractAction implements UGSEv
 
     public static final String SMALL_ICON_PATH = "icons/foldertree.svg";
     public static final String LARGE_ICON_PATH = "icons/foldertree32.svg";
-    private BackendAPI backend;
+    private final BackendAPI backend;
 
     public OpenFileBrowserAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);

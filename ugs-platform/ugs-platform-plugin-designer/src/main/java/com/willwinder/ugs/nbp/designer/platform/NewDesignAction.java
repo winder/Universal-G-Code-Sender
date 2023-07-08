@@ -43,7 +43,7 @@ import static com.willwinder.ugs.nbp.designer.platform.UgsDataObject.ATTRIBUTE_T
         category = LocalizingService.OpenCategory,
         id = "NewDesignAction")
 @ActionRegistration(
-        iconBase = "img/new.svg",
+        iconBase = NewDesignAction.SMALL_ICON_PATH,
         displayName = "New",
         lazy = false)
 @ActionReferences({

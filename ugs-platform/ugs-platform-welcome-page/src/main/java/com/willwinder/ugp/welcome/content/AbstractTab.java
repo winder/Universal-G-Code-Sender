@@ -20,7 +20,6 @@
 package com.willwinder.ugp.welcome.content;
 
 import com.willwinder.ugp.welcome.Constants;
-import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;

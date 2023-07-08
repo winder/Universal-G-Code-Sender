@@ -76,7 +76,9 @@ public class BaudRateAction extends CallableSystemAction implements UGSEventList
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
 
+        putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
+        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue(NAME, LocalizingService.ConnectionBaudRateToolbarTitle);
     }
 
