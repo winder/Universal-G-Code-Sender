@@ -60,7 +60,7 @@ public final class CloudStorageOpenAction implements ActionListener {
     // Localization
     public static final String CATEGORY = "File";
     public static final String ID = "com.willwinder.ugs.nbp.CloudStorageOpenAction";
-    public static final String ICON_BASE = "icons/cloud-folder.png";
+    public static final String ICON_BASE = "icons/cloud-folder.svg";
     public static final String LOCALIZATION_KEY = "platform.plugin.cloud.open";
 
     private static final Logger logger = Logger.getLogger(CloudStorageOpenAction.class.getName());

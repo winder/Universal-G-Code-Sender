@@ -59,7 +59,7 @@
        height="177.16536"
        width="177.16536"
        id="rect4140"
-       style="opacity:0.57300002;fill:#41818f;fill-opacity:1;stroke:#41818f;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="opacity:0.57300002;fill:#565656;fill-opacity:1;stroke:#565656;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
   <g
      style="display:inline"
@@ -70,24 +70,24 @@
        id="g4152">
       <text
          xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;line-height:125%;font-family:opensans;-inkscape-font-specification:opensans;letter-spacing:0px;word-spacing:0px;fill:#41818f;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;line-height:125%;font-family:opensans;-inkscape-font-specification:opensans;letter-spacing:0px;word-spacing:0px;fill:#565656;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          x="24.495771"
          y="1032.1235"
          id="text4136"><tspan
            id="tspan4138"
            x="24.495771"
            y="1032.1235"
-           style="font-size:187.49998474px;fill:#41818f;fill-opacity:1">C</tspan></text>
+           style="font-size:187.49998474px;fill:#565656;fill-opacity:1">C</tspan></text>
       <text
          xml:space="preserve"
-         style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#41818f;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
+         style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#565656;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
          x="142.85715"
          y="1049.505"
          id="text4148"><tspan
            id="tspan4150"
            x="142.85715"
            y="1049.505"
-           style="font-size:59.99999237px;fill:#41818f;fill-opacity:1;">0</tspan></text>
+           style="font-size:59.99999237px;fill:#565656;fill-opacity:1;">0</tspan></text>
     </g>
   </g>
 </svg>

@@ -62,8 +62,8 @@ public class FileBrowserDialog extends JDialog implements ListSelectionListener 
         super((JFrame) null, true);
         this.fileService = fileService;
         setTitle("File browser");
-        setPreferredSize(new Dimension(300, 400));
-        setMinimumSize(new Dimension(200, 300));
+        setPreferredSize(new Dimension(400, 400));
+        setMinimumSize(new Dimension(350, 300));
         setLayout(new BorderLayout());
 
         tableModel = new FileTableModel();
