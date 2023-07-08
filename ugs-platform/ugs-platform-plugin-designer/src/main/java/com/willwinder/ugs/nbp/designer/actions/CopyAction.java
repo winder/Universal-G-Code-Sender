@@ -11,7 +11,6 @@ import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.StatusDisplayer;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -54,7 +53,7 @@ public class CopyAction extends AbstractDesignAction implements SelectionListene
         } else {
             StatusDisplayer.getDefault().setStatusText("Clipboard: " + controller.getSelectionManager().getSelection().size());
             UgsDesignWriter writer = new UgsDesignWriter();
-            String data = writer.serialize(controller.getSelectionManager().getSelection());
+            String data = writer.serialize(controller.getSelectionManager().getChildren());
 
             Transferable content = new StringSelection(data);
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(content, null);
