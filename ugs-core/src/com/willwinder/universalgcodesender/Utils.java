@@ -79,7 +79,7 @@ public class Utils {
         } else if (state == ControllerState.IDLE) {
             text = Localization.getString("mainWindow.status.idle");
         }
-        return text;
+        return text.toUpperCase();
     }
 
     /**
