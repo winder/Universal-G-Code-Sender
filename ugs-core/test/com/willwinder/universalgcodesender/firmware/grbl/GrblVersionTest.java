@@ -82,4 +82,10 @@ public class GrblVersionTest {
         assertEquals(0.7d, version.getVersionNumber(), 0.001);
         assertEquals('-', version.getVersionLetter().charValue());
     }
+
+    @Test
+    public void parseGenmitsu32VersionString() {
+        GrblVersion version = new GrblVersion("[VER:GD32 V2.1.20220827:]");
+        assertEquals(2.1d, version.getVersionNumber(), 0.001);
+    }
 }
