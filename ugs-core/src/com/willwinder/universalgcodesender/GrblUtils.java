@@ -625,11 +625,11 @@ public class GrblUtils {
     }
 
     public static boolean isOkResponse(String response) {
-        return StringUtils.equalsIgnoreCase(response, "ok");
+        return StringUtils.startsWith(response, "ok");
     }
 
     public static boolean isErrorResponse(String response) {
-        return StringUtils.containsIgnoreCase(response, "error");
+        return StringUtils.startsWith(response, "error");
     }
 
     public static boolean isAlarmResponse(String response) {
