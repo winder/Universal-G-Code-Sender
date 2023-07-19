@@ -33,16 +33,16 @@ any new languages to include it in the update script.
 """
 LANGUAGES = {
         'af': 'af_ZA',
-        'ca': 'ca_AD',
+        'ca': 'ca_ES',
         'cs': 'cs_CZ',
         'de': 'de_DE',
-        'el': 'el_EL',
+        'el': 'el_GR',
         'en': 'en_US',
         'es': 'es_ES',
         'fa': 'fa_IR',
         'fr': 'fr_FR',
         'it': 'it_IT',
-        'ja': 'jp_JA',
+        'ja': 'ja_JP',
         'lt': 'lt_LT',
         'nb': 'nb_NO',
         'nn': 'nn_NO',
@@ -50,6 +50,7 @@ LANGUAGES = {
         'pl': 'pl_PL',
         'pt-br': 'pt_BR',
         'ru': 'ru_RU',
+        'sr': 'sr_RS',
         'sk': 'sk_SK',
         'sv': 'sv_SE',
         'tr': 'tr_TR',
@@ -96,10 +97,8 @@ def downloadUrlToFile(url, target_file):
     """ Download data at a given url and save it to a given file. """
     r = requests.get(url)
 
-    if not os.path.isfile(target_file):
-        raise Exception('Target file "%s" does not exist.' % target_file)
-
-    os.remove(target_file)
+    if os.path.isfile(target_file):
+        os.remove(target_file)
 
     with open(target_file, 'wb') as f:
         for chunk in r.iter_content(chunk_size=1024):
