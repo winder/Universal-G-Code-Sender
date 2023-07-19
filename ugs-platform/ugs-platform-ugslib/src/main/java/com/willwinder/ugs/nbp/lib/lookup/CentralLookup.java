@@ -28,11 +28,14 @@ import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.services.RunFromService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.NarrowOptionPane;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,10 +58,7 @@ public class CentralLookup extends AbstractLookup {
             GUIBackend backend = new GUIBackend();
             Settings settings = SettingsFactory.loadSettings();
 
-            boolean fullyLocalized = Localization.initialize(settings.getLanguage());
-            if (!fullyLocalized) {
-                GUIHelpers.displayErrorDialog(Localization.getString("incomplete.localization"));
-            }
+            checkTranslations(settings);
 
             backend.applySettings(settings);
 
@@ -69,6 +69,27 @@ public class CentralLookup extends AbstractLookup {
         } catch (Exception ex) {
             Logger.getLogger(CentralLookup.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(1);
+        }
+    }
+
+    private static void checkTranslations(Settings settings) {
+        boolean fullyLocalized = Localization.initialize(settings.getLanguage());
+        if (!fullyLocalized && settings.isShowTranslationsWarning()) {
+            EventQueue.invokeLater(() -> {
+                String title = Localization.getString("incomplete.localization.title");
+                String message = Localization.getString("incomplete.localization");
+                String doNotShowAgainText = Localization.getString("incomplete.localization.doNotShowAgain");
+
+                JCheckBox checkbox = new JCheckBox(doNotShowAgainText);
+                Object[] params = {checkbox};
+                NarrowOptionPane.showNarrowDialog(300, message, params,
+                        title,
+                        JOptionPane.CLOSED_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE);
+
+                boolean showTranslationsWarning = !checkbox.isSelected();
+                settings.setShowTranslationsWarning(showTranslationsWarning);
+            });
         }
     }
 

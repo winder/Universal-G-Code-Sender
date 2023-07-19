@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,35 +18,48 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
-import java.awt.Component;
 import java.awt.HeadlessException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
- *
  * @author wwinder
  */
-public class NarrowOptionPane extends JOptionPane
-{
-    public static String pattern = 
+public class NarrowOptionPane extends JOptionPane {
+    public static String pattern =
             "<html><body><p style='width: %dpx;'>%s</p></body></html>";
 
     public static void showNarrowDialog(int textWidthInPixels,
-            String message, String title, int optionType, int messageType)
+                                        String message, String title, int messageType)
             throws HeadlessException {
         JOptionPane.showMessageDialog(new JFrame(),
-                String.format(pattern, textWidthInPixels, message.replaceAll("\n", "<br>")), 
+                String.format(pattern, textWidthInPixels, message.replaceAll("\n", "<br>")),
                 title, messageType);
     }
 
     public static int showNarrowConfirmDialog(int textWidthInPixels,
-            String message, String title, int optionType, int messageType)
+                                              String message, String title, int optionType, int messageType)
             throws HeadlessException {
         return JOptionPane.showConfirmDialog(
                 new JPanel(),
                 String.format(pattern, textWidthInPixels, message.replaceAll("\n", "<br>")),
+                title,
+                optionType,
+                messageType);
+    }
+
+    public static int showNarrowDialog(int textWidthInPixels, String message, Object[] params, String title, int optionType, int messageType) {
+        List<Object> paramsList = new ArrayList<>();
+        paramsList.add(String.format(pattern, textWidthInPixels, message.replaceAll("\n", "<br>")));
+        paramsList.addAll(Arrays.asList(params));
+
+        return JOptionPane.showConfirmDialog(
+                new JPanel(),
+                paramsList.toArray(),
                 title,
                 optionType,
                 messageType);
