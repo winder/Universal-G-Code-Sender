@@ -31,8 +31,9 @@ import static com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.n
 
 public class RunFromProcessor implements CommandProcessor {
     private int lineNumber;
-    private final GcodeParser parser = new GcodeParser();
+    private GcodeParser parser;
     private Double clearanceHeight = 0.0;
+
     /**
      * Truncates gcode to the specified line, and rewrites the preamble with the GcodeState.
      *
@@ -57,47 +58,61 @@ public class RunFromProcessor implements CommandProcessor {
             return Collections.singletonList(command);
         }
 
-        // Don't trust the input's machine state, this processor is discarding lines which would have updated it.
-        Position pos = parser.getCurrentState().currentPoint;
-
         if (state.commandNumber < lineNumber) {
-            parser.addCommand(command);
-            clearanceHeight = Math.max(clearanceHeight, pos.z);
-            return ImmutableList.of();
-        }
-
-        if (state.commandNumber == lineNumber) {
-
-            String moveToClearanceHeight = "G0Z" + clearanceHeight;
-            String moveToXY = "G0X" + pos.x + "Y" + pos.y;
-            String plunge = "G1Z" + pos.z;
-
-            GcodeState s = parser.getCurrentState();
-            String normalized = command;
-            try {
-                normalized = normalizeCommand(command, s);
-            } catch (GcodeParserException e) {
-                // If command couldn't be normalized, send as is
-            }
-
-            return ImmutableList.of(
-                    // Initialize state
-                    s.machineStateCode(),
-
-                    // Move to start location
-                    moveToClearanceHeight,
-                    moveToXY,
-
-                    // Start spindle and set feed/speed before plunging into the work.
-                    s.toAccessoriesCode(),
-                    plunge,
-
-                    // Append normalized command
-                    normalized
-            );
+            return skipLine(command);
+        } else if (state.commandNumber == lineNumber && parser != null) {
+            return getSkippedLinesState(command);
         }
 
         return ImmutableList.of(command);
+    }
+
+    private ImmutableList<String> getSkippedLinesState(String command) {
+        Position pos = parser.getCurrentState().currentPoint;
+        String moveToClearanceHeight = "G0Z" + clearanceHeight;
+        String moveToXY = "G0X" + pos.x + "Y" + pos.y;
+        String plunge = "G1Z" + pos.z;
+
+        GcodeState s = parser.getCurrentState();
+        String normalized = command;
+        try {
+            normalized = normalizeCommand(command, s);
+        } catch (GcodeParserException e) {
+            // If command couldn't be normalized, send as is
+        }
+
+        // Reset the parser to prevent the state to be re-added
+        parser = null;
+
+        return ImmutableList.of(
+                // Initialize state
+                s.machineStateCode(),
+
+                // Move to start location
+                moveToClearanceHeight,
+                moveToXY,
+
+                // Start spindle and set feed/speed before plunging into the work.
+                s.toAccessoriesCode(),
+                plunge,
+
+                // Append normalized command
+                normalized
+        );
+    }
+
+    private ImmutableList<String> skipLine(String command) throws GcodeParserException {
+        createParser();
+        parser.addCommand(command);
+        Position pos = parser.getCurrentState().currentPoint;
+        clearanceHeight = Math.max(clearanceHeight, pos.z);
+        return ImmutableList.of();
+    }
+
+    private void createParser() {
+        if (parser == null) {
+            parser = new GcodeParser();
+        }
     }
 
     @Override

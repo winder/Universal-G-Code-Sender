@@ -128,7 +128,7 @@ public class FixturesTest {
         String inputFixture = basePath + fixtureName + ".input.nc";
         String streamOutputFixture = basePath + "out" + parserName + "/" + fixtureName + ".stream_output.nc";
         String outputxFixture = basePath + "out" + parserName + "/" + fixtureName  + ".parsed_output.nc";
-        System.out.printf("Running fixture %s...%n", inputFixture);
+        System.out.printf("Running fixture %s -> %s...%n", inputFixture, outputxFixture);
 
         // write parsed output to temp file
         Path output = Files.createTempFile(fixtureName, "output");

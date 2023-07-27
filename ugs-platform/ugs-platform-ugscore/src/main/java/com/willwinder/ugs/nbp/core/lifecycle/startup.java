@@ -25,6 +25,7 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.Version;
 import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
@@ -59,6 +60,7 @@ public class startup extends OptionProcessor implements Runnable {
 
     @Override
     public void run() {
+        logger.info("Starting UGS " + Version.getVersionString());
         logger.info("Loading LocalizingService...");
         Lookup.getDefault().lookup(LocalizingService.class);
         logger.info("Loading JogService...");
