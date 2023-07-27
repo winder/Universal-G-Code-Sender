@@ -26,12 +26,16 @@ import static com.willwinder.universalgcodesender.gcode.util.Plane.*;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.assertj.core.data.Offset;
 import org.junit.Assert;
 
@@ -43,8 +47,6 @@ public class ArcExpanderTest {
     
     @Test
     public void arcExpandadState() throws Exception {
-        System.out.println("arcExpandBadState");
-
         GcodeState state = new GcodeState();
         state.currentPoint = null;
         ArcExpander instance = new ArcExpander(true, 1);
@@ -56,7 +58,6 @@ public class ArcExpanderTest {
 
     @Test
     public void modalsReturnedFirst() throws Exception {
-        System.out.println("arcExpandWithModals");
         GcodeState state = new GcodeState();
         state.currentPoint = new Position(0,0,0,MM);
         state.plane = XY;
@@ -69,12 +70,10 @@ public class ArcExpanderTest {
     
     @Test
     public void arcExpandIgnoreNonArc() throws Exception {
-        System.out.println("arcExpandIgnoreNonArc");
         GcodeState state = new GcodeState();
         state.currentPoint = new Position(0,0,0,MM);
         state.plane = XY;
         ArcExpander instance = new ArcExpander(true, 1);
-        boolean threwException = false;
         String command = "G17 G0 X12";
         List<String> result = instance.processCommand(command, state);
         assertThat(result.size()).isEqualTo(1);
@@ -83,7 +82,6 @@ public class ArcExpanderTest {
 
     @Test
     public void expandArcG17() throws Exception {
-        System.out.println("expandArcG17");
         GcodeState state = new GcodeState();
         state.currentPoint = new Position(-1,0,0,MM);
         state.plane = XY;
@@ -110,7 +108,6 @@ public class ArcExpanderTest {
 
     @Test
     public void expandArcG18() throws Exception {
-        System.out.println("expandArcG18");
         GcodeState state = new GcodeState();
         state.currentPoint = new Position(0,0,-1,MM);
         state.plane = ZX;
@@ -137,7 +134,6 @@ public class ArcExpanderTest {
 
     @Test
     public void expandArcG19() throws Exception {
-        System.out.println("expandArcG19");
         GcodeState state = new GcodeState();
         state.currentPoint = new Position(0,-1,0,MM);
         state.plane = YZ;
@@ -162,6 +158,27 @@ public class ArcExpanderTest {
         }
     }
 
+    @Test
+    public void verifyFeedRateNotAddedFromPreviousState() throws GcodeParserException {
+        GcodeState gcodeState = new GcodeState();
+        gcodeState.feedRate = 100;
+
+        ArcExpander arcExpander = new ArcExpander(true, 1);
+        List<String> expandedGcode = arcExpander.processCommand("G2 X0. Y-5 I5 J0", gcodeState);
+
+        assertFalse("Did not expect the feed rate to be added from previous state but was \"" + expandedGcode.get(0) + "\"", expandedGcode.get(0).contains("F"));
+    }
+
+    @Test
+    public void verifyFeedRateAddedFromCurrentState() throws GcodeParserException {
+        GcodeState gcodeState = new GcodeState();
+        gcodeState.feedRate = 100;
+
+        ArcExpander arcExpander = new ArcExpander(true, 1);
+        List<String> expandedGcode = arcExpander.processCommand("G2 X0. Y-5 I5 J0 F1000", gcodeState);
+        assertTrue("Expected the feed rate to be added to the first expanded command but was \"" + expandedGcode.get(0) + "\"", expandedGcode.get(0).endsWith("F1000"));
+        assertTrue("Expected motion on next command but was \"" + expandedGcode.get(1) + "\"", expandedGcode.get(1).startsWith("G1"));
+    }
 
     /**
      * Verify that the points around given center point have a known radius and
@@ -174,9 +191,9 @@ public class ArcExpanderTest {
     }
 
     static Pattern LINE_COORDS = Pattern.compile("G1"
-                + "X([\\-\\+]?[0-9]+(?:\\.[0-9]+)?)"
-                + "Y([\\-\\+]?[0-9]+(?:\\.[0-9]+)?)"
-                + "Z([\\-\\+]?[0-9]+(?:\\.[0-9]+)?)");
+                + "X([\\-+]?[0-9]+(?:\\.[0-9]+)?)"
+                + "Y([\\-+]?[0-9]+(?:\\.[0-9]+)?)"
+                + "Z([\\-+]?[0-9]+(?:\\.[0-9]+)?)");
                 //+ "(F\\d+)?");
     static void verifyLine(Position center, String line, double radius, Position min, Position max, Plane p) {
         Matcher m = LINE_COORDS.matcher(line);
