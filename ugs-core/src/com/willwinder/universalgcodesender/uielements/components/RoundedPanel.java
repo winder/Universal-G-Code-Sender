@@ -160,7 +160,7 @@ public class RoundedPanel extends JPanel implements MouseListener {
         this.mousePressed = false;
         this.repaint();
 
-        if (!isEnabled()) return;
+        if (!isEnabled() || exc == null || pressedComponent == null) return;
         listeners.forEach(RoundedPanelClickListener::onReleased);
 
         if (pressedComponent.contains(exc.getPoint())) {
