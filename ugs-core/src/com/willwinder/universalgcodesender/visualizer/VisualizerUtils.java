@@ -177,7 +177,7 @@ public class VisualizerUtils {
                         start, endSegment.point(), endSegment.center(), endSegment.isClockwise(),
                         endSegment.getRadius(), minArcLength, arcSegmentLength, new PlaneFormatter(endSegment.getPlaneState()));
         // Create line segments from points.
-        if (points != null) {
+        if (!points.isEmpty()) {
             Position startPoint = start;
             for (Position nextPoint : points) {
                 ret.add(createLineSegment(startPoint, nextPoint, endSegment, spindleSpeed));
