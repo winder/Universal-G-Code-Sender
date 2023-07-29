@@ -78,7 +78,6 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
         // CentralLookup is used to get singleton instances of the UGS Settings
         // and BackendAPI objects.
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backend.addUGSEventListener(this);
 
         setLayout(new BorderLayout());
         add(workflowPanel, BorderLayout.CENTER);
@@ -121,6 +120,12 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
                 workflowPanel.addFileToWorkflow(backend.getGcodeFile());
             }
         }
+    }
+
+    @Override
+    protected void componentOpened() {
+        super.componentOpened();
+        backend.addUGSEventListener(this);
     }
 
     @Override
