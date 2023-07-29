@@ -1,5 +1,5 @@
 /*
-    Copyright 2018-2022 Will Winder
+    Copyright 2018-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,6 +20,7 @@ package com.willwinder.ugp.welcome;
 
 import com.google.common.collect.ImmutableList;
 import com.willwinder.ugp.welcome.content.TabbedPane;
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -37,7 +38,7 @@ import java.util.List;
         preferredID = "WelcomePageTopComponent",
         persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED
 )
-@TopComponent.Registration(mode = "editor", openAtStartup = true)
+@TopComponent.Registration(mode = Mode.EDITOR_PRIMARY, openAtStartup = true)
 @ActionID(category = WelcomePageTopComponent.Category, id = WelcomePageTopComponent.ActionId)
 @ActionReference(path = WelcomePageTopComponent.Path)
 @TopComponent.OpenActionRegistration(

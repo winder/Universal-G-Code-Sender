@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.windows;
 
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
@@ -53,7 +54,7 @@ import java.util.Map;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "top_left", openAtStartup = false)
+@TopComponent.Registration(mode = Mode.LEFT_TOP, openAtStartup = false)
 @ActionID(
         category = LocalizingService.DiagnosticsCategory,
         id = LocalizingService.DiagnosticsActionId)

@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
+import com.willwinder.ugs.nbp.lib.Mode;
 import org.openide.windows.TopComponent;
 
 import javax.swing.JScrollPane;
@@ -36,7 +37,7 @@ import java.awt.BorderLayout;
         preferredID = "EntitiesTreeTopComponent",
         persistenceType = TopComponent.PERSISTENCE_NEVER
 )
-@TopComponent.Registration(mode = "bottom_left", openAtStartup = false)
+@TopComponent.Registration(mode = Mode.LEFT_BOTTOM, openAtStartup = false)
 public class EntitiesTreeTopComponent extends TopComponent implements ControllerListener {
     private static final long serialVersionUID = 432423498723987873L;
     private transient EntitiesTree entitesTree;

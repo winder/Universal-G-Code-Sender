@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.windows;
 
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
@@ -56,7 +57,7 @@ import static com.willwinder.universalgcodesender.gcode.util.Code.*;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "top_left", openAtStartup = false)
+@TopComponent.Registration(mode = Mode.LEFT_TOP, openAtStartup = false)
 @ActionID(
         category = LocalizingService.StateCategory,
         id = LocalizingService.StateActionId)

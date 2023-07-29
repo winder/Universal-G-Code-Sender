@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.jog;
 
 import com.willwinder.ugs.nbp.jog.actions.ShowABCStepSizeAction;
 import com.willwinder.ugs.nbp.jog.actions.UseSeparateStepSizeAction;
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -50,7 +51,7 @@ import java.awt.BorderLayout;
         preferredID = "JogTopComponent"
 )
 @TopComponent.Registration(
-        mode = "bottom_left",
+        mode = Mode.LEFT_BOTTOM,
         openAtStartup = true,
         position = 5000)
 @ActionID(
@@ -90,9 +91,6 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         backend.addUGSEventListener(this);
 
         setLayout(new BorderLayout());
-        setName(LocalizingService.JogControlTitle);
-        setToolTipText(LocalizingService.JogControlTooltip);
-
         add(jogPanel, BorderLayout.CENTER);
 
         // Right click options
@@ -118,6 +116,8 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     @Override
     protected void componentOpened() {
         super.componentOpened();
+        setName(LocalizingService.JogControlTitle);
+        setToolTipText(LocalizingService.JogControlTooltip);
         updateControls();
         updateSettings();
     }

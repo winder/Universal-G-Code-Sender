@@ -35,10 +35,8 @@ import org.netbeans.editor.Utilities;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 
-import javax.swing.Box;
-import javax.swing.JToolBar;
-import java.awt.Component;
-import java.awt.Dimension;
+import javax.swing.*;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -88,9 +86,12 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
 
     private void setToolBarHeight() {
         EditorUI editorUI = Utilities.getEditorUI(getEditorPane());
-        JToolBar toolBarComponent = editorUI.getToolBarComponent();
+        if (editorUI == null) {
+            return;
+        }
 
         // Adds an element with vertical height
+        JToolBar toolBarComponent = editorUI.getToolBarComponent();
         if (Arrays.stream(toolBarComponent.getComponents()).noneMatch(c -> c.equals(TOOLBAR_PADDING))) {
             toolBarComponent.add(TOOLBAR_PADDING);
         }

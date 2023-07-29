@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.toolbox;
 
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.toolbox.settings.ISettingsListener;
@@ -40,7 +41,7 @@ import java.awt.*;
 @TopComponent.Description(
         preferredID = "ugs-platform-plugin-toolboxTopComponent")
 @TopComponent.Registration(
-        mode = "bottom_left",
+        mode = Mode.LEFT_BOTTOM,
         openAtStartup = true,
         position = 1000)
 @ActionReference(path = ToolboxTopComponent.WINOW_PATH)
@@ -60,9 +61,6 @@ public final class ToolboxTopComponent extends TopComponent implements ISettings
 
     public ToolboxTopComponent() {
         setLayout(new BorderLayout());
-        setName(LocalizingService.ToolboxTitle);
-        setToolTipText(LocalizingService.ToolboxTooltip);
-
         actionRegistrationService = Lookup.getDefault().lookup(ActionRegistrationService.class);
         buttonGridPanel = new ButtonGridPanel();
 
@@ -79,6 +77,8 @@ public final class ToolboxTopComponent extends TopComponent implements ISettings
     @Override
     protected void componentOpened() {
         super.componentOpened();
+        setName(LocalizingService.ToolboxTitle);
+        setToolTipText(LocalizingService.ToolboxTooltip);
         Settings.addSettingsListener(this);
     }
 

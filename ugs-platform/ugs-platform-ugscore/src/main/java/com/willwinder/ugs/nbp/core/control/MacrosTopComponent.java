@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.core.actions.EditMacrosAction;
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -44,7 +45,7 @@ import java.util.concurrent.Future;
 @TopComponent.Description(
         preferredID = "MacrosTopComponent"
 )
-@TopComponent.Registration(mode = "bottom_left", openAtStartup = true)
+@TopComponent.Registration(mode = Mode.LEFT_BOTTOM, openAtStartup = true)
 @ActionID(category = LocalizingService.MacrosCategory, id = LocalizingService.MacrosActionId)
 @ActionReference(path = LocalizingService.MacrosWindowPath)
 @TopComponent.OpenActionRegistration(

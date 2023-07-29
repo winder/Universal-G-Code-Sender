@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugp.tools;
 
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
@@ -73,7 +74,7 @@ import org.openide.util.Exceptions;
         //iconBase="SET/PATH/TO/ICON/HERE",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "output", openAtStartup = false)
+@TopComponent.Registration(mode = Mode.OUTPUT, openAtStartup = false)
 @ActionID(
         category = GcodeTilerTopComponent.GcodeTilerCategory,
         id = GcodeTilerTopComponent.GcodeTilerActionId)
