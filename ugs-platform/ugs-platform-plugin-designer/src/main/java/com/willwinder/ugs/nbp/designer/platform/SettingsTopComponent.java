@@ -1,5 +1,5 @@
 /*
-    Copyright 2022 Will Winder
+    Copyright 2022-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
+import com.willwinder.ugs.nbp.lib.Mode;
 import org.openide.windows.TopComponent;
 
 /**
@@ -32,7 +33,7 @@ import org.openide.windows.TopComponent;
         preferredID = "SettingsTopComponent",
         persistenceType = TopComponent.PERSISTENCE_NEVER
 )
-@TopComponent.Registration(mode = "top_left", openAtStartup = false)
+@TopComponent.Registration(mode = Mode.LEFT_TOP, openAtStartup = false)
 public class SettingsTopComponent extends TopComponent implements ControllerListener {
     private static final long serialVersionUID = 324234398723987873L;
 

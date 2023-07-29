@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.gui.PopupMenuFactory;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.openide.awt.UndoRedo;
@@ -49,7 +50,7 @@ import java.util.logging.Logger;
         preferredID = "DesignerTopComponent",
         persistenceType = TopComponent.PERSISTENCE_NEVER
 )
-@TopComponent.Registration(mode = "editor", openAtStartup = false)
+@TopComponent.Registration(mode = Mode.EDITOR_PRIMARY, openAtStartup = false)
 public class DesignerTopComponent extends TopComponent implements UndoManagerListener, SelectionListener {
     private static final long serialVersionUID = 3123334398723987873L;
     private static final Logger LOGGER = Logger.getLogger(DesignerTopComponent.class.getSimpleName());

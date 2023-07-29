@@ -1,5 +1,5 @@
 /*
-    Copyright 2017-2018 Will Winder
+    Copyright 2017-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -30,6 +30,7 @@ import static com.willwinder.universalgcodesender.utils.SwingHelpers.getDouble;
 import com.google.gson.Gson;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
@@ -72,7 +73,7 @@ import org.openide.windows.WindowManager;
         //iconBase="SET/PATH/TO/ICON/HERE",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "output", openAtStartup = false)
+@TopComponent.Registration(mode = Mode.OUTPUT, openAtStartup = false)
 @ActionID(
         category = ProbeTopComponent.ProbeCategory,
         id = ProbeTopComponent.ProbeActionId)
