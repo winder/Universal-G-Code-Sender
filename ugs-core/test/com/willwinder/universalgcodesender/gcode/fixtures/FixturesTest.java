@@ -71,6 +71,7 @@ public class FixturesTest {
             GcodeParser gcp = new GcodeParser();
 
             gcp.addCommandProcessor(new CommentProcessor());
+            gcp.addCommandProcessor(new WhitespaceProcessor());
             gcp.addCommandProcessor(new ArcExpander(true, 0.1, new DecimalFormat("#.####", Localization.dfs)));
             gcp.addCommandProcessor(new LineSplitter(1));
             Position grid[][] = {
