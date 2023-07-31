@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
@@ -72,7 +73,7 @@ import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "output", openAtStartup = false)
+@TopComponent.Registration(mode = Mode.OUTPUT, openAtStartup = false)
 @ActionID(category = AutoLevelerTopComponent.AutoLevelerCategory, id = AutoLevelerTopComponent.AutoLevelerActionId)
 @ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN)
 @TopComponent.OpenActionRegistration(

@@ -46,7 +46,7 @@ public class TabHeader extends JPanel implements SteppedSizeManager.SteppedSizeC
         add(new JLabel(), new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
         add(showNextTime, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(15, 12, 15, 12), 0, 0));
 
-        SteppedSizeManager steppedSizeManager = new SteppedSizeManager(this, new Dimension(680, 0));
+        SteppedSizeManager steppedSizeManager = new SteppedSizeManager(this, new Dimension(720, 0));
         steppedSizeManager.addListener(this);
     }
 

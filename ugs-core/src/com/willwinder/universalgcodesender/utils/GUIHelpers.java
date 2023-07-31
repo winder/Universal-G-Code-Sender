@@ -69,7 +69,7 @@ public class GUIHelpers {
               //        Localization.getString("error"), JOptionPane.ERROR_MESSAGE);
               NarrowOptionPane.showNarrowDialog(250, errorMessage.replaceAll("\\.\\.", "\\."),
                       Localization.getString("error"),
-                      JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+                      JOptionPane.ERROR_MESSAGE);
         };
 
         if (modal) {

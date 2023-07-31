@@ -26,48 +26,36 @@ import java.util.Collection;
  * @author moll
  */
 public class AvailableLanguages {
-    private static Collection<Language> availableLanguages = new ArrayList<>();
+    private static final Collection<Language> LANGUAGES = new ArrayList<>();
     
     static {
-        availableLanguages.add(new Language("af", "ZA", "Afrikaans"));
-        availableLanguages.add(new Language("ca", "AD", "Catalan"));
-        availableLanguages.add(new Language("zh", "CHS", "Chinese"));
-        availableLanguages.add(new Language("zh", "Hans", "Chinese (Simplified)"));
-        availableLanguages.add(new Language("cs", "CZ", "Czech"));
-        availableLanguages.add(new Language("nl", "NL", "Dutch"));
-        availableLanguages.add(new Language("en", "US", "English"));
-        availableLanguages.add(new Language("fr", "FR", "French"));
-        availableLanguages.add(new Language("de", "DE", "German"));
-        availableLanguages.add(new Language("el", "EL", "Greek"));
-        availableLanguages.add(new Language("it", "IT", "Italian"));
-        availableLanguages.add(new Language("jp", "JA", "Japanese"));
-        availableLanguages.add(new Language("lt", "LT", "Lithuanian"));
-        availableLanguages.add(new Language("nb", "NO", "Norwegian Bokmål"));
-        availableLanguages.add(new Language("nn", "NO", "Norwegian Nynorsk"));
-        availableLanguages.add(new Language("fa", "IR", "Persian (Farsi)"));
-        availableLanguages.add(new Language("pl", "PL", "Polish"));
-        availableLanguages.add(new Language("pt", "BR", "Portuguese (Brazilian)"));
-        availableLanguages.add(new Language("ru", "RU", "Russian"));
-        availableLanguages.add(new Language("sk", "SK", "Slovak"));
-        availableLanguages.add(new Language("es", "ES", "Spanish"));
-        availableLanguages.add(new Language("sv", "SE", "Swedish"));
-        availableLanguages.add(new Language("tr", "TR", "Turkish"));
-        availableLanguages.add(new Language("uk", "UA", "Ukrainian"));
+        LANGUAGES.add(new Language("af", "ZA", "Afrikaans"));
+        LANGUAGES.add(new Language("ca", "ES", "Catalan"));
+        LANGUAGES.add(new Language("zh", "CN", "Chinese (Simplified)"));
+        LANGUAGES.add(new Language("cs", "CZ", "Czech"));
+        LANGUAGES.add(new Language("nl", "NL", "Dutch"));
+        LANGUAGES.add(new Language("en", "US", "English"));
+        LANGUAGES.add(new Language("fr", "FR", "French"));
+        LANGUAGES.add(new Language("de", "DE", "German"));
+        LANGUAGES.add(new Language("el", "GR", "Greek"));
+        LANGUAGES.add(new Language("it", "IT", "Italian"));
+        LANGUAGES.add(new Language("ja", "JP", "Japanese"));
+        LANGUAGES.add(new Language("lt", "LT", "Lithuanian"));
+        LANGUAGES.add(new Language("nb", "NO", "Norwegian Bokmål"));
+        LANGUAGES.add(new Language("nn", "NO", "Norwegian Nynorsk"));
+        LANGUAGES.add(new Language("fa", "IR", "Persian (Farsi)"));
+        LANGUAGES.add(new Language("pl", "PL", "Polish"));
+        LANGUAGES.add(new Language("pt", "BR", "Portuguese (Brazilian)"));
+        LANGUAGES.add(new Language("ru", "RU", "Russian"));
+        LANGUAGES.add(new Language("sk", "SK", "Slovak"));
+        LANGUAGES.add(new Language("es", "ES", "Spanish"));
+        LANGUAGES.add(new Language("sv", "SE", "Swedish"));
+        LANGUAGES.add(new Language("tr", "TR", "Turkish"));
+        LANGUAGES.add(new Language("uk", "UA", "Ukrainian"));
     }
 
     public static Collection<Language> getAvailableLanguages() {
-        return availableLanguages;
+        return LANGUAGES;
     }
-
-    public static Language getLanguageByString(String language) {
-        String[] lang = language.split("_");
-        for (Language l : availableLanguages) {
-            if (l.getLanguage().equals(lang[0]) && l.getRegion().equals(lang[1])) {
-                return l;
-            }
-        }
-        return null;
-    }
-    
 }
 

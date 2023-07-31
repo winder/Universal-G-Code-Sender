@@ -91,7 +91,7 @@ public class Localization {
     }
 
     public static String loadedLocale() {
-        return Locale.getDefault() + "";
+        return String.valueOf(Locale.getDefault());
     }
 
     /**

@@ -18,27 +18,17 @@
  */
 package com.willwinder.ugs.nbp.console;
 
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerState;
-import com.willwinder.universalgcodesender.listeners.MessageListener;
-import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.uielements.components.CommandTextArea;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.windows.IOColorPrint;
-import org.openide.windows.IOColors;
-import org.openide.windows.InputOutput;
 import org.openide.windows.TopComponent;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.io.IOException;
 
 /**
  * A window that displays a console log for UGS
@@ -49,7 +39,7 @@ import java.io.IOException;
         preferredID = "ConsoleTopComponent"
 )
 @TopComponent.Registration(
-        mode = "output",
+        mode = Mode.OUTPUT,
         openAtStartup = true
 )
 @ActionID(

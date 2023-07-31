@@ -2,6 +2,7 @@ G21 (Units in millimeters)
 G90 (Absolute programming) 
 G17 (XY plane) 
 F900
+G0 X0 Y0 Z0
 
 G3 X0 Y0 I20 J0
 G3 X0 Y0 z 20 I20 J0

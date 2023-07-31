@@ -18,17 +18,13 @@
  */
 package com.willwinder.universalgcodesender.communicator;
 
-import com.willwinder.universalgcodesender.GrblUtils;
-import com.willwinder.universalgcodesender.SmoothieUtils;
-
 /**
  * @author wwinder
  */
 public class SmoothieCommunicator extends BufferedCommunicator {
 
     public SmoothieCommunicator() {
-        super();
-        setSingleStepMode(true);
+        super.setSingleStepMode(true);
     }
 
     @Override
@@ -38,7 +34,6 @@ public class SmoothieCommunicator extends BufferedCommunicator {
 
     @Override
     protected void sendingCommand(String command) {
-
     }
 
     @Override

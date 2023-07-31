@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Set;
@@ -267,5 +268,23 @@ public abstract class AbstractEntity implements Entity {
         copy.setTransform(new AffineTransform(getTransform()));
         copy.setName(getName());
         copy.setDescription(getDescription());
+    }
+
+    @Override
+    public Point2D getFirstPoint() {
+        double[] coord = new double[6];
+        getShape().getPathIterator(null).currentSegment(coord);
+        return new Point2D.Double(coord[0], coord[1]);
+    }
+
+    @Override
+    public Point2D getLastPoint() {
+        double[] coord = new double[6];
+        PathIterator pathIterator = getShape().getPathIterator(null);
+        while (!pathIterator.isDone()) {
+            pathIterator.currentSegment(coord);
+            pathIterator.next();
+        }
+        return new Point2D.Double(coord[0], coord[1]);
     }
 }

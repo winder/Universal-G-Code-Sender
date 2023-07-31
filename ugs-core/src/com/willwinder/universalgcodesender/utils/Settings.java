@@ -1,5 +1,5 @@
 /*
-    Copyright 2014-2021 Will Winder
+    Copyright 2014-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -113,6 +113,12 @@ public class Settings {
      * If the mouse zoom should be inverted
      */
     private boolean invertMouseZoom = false;
+
+    /**
+     * Should show an information dialog if the current language isn't
+     * fully translated
+     */
+    private boolean showTranslationsWarning = true;
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
@@ -537,6 +543,14 @@ public class Settings {
     public void setInvertMouseZoom(boolean invertMouseZoom) {
         this.invertMouseZoom = invertMouseZoom;
         changed();
+    }
+
+    public boolean isShowTranslationsWarning() {
+        return showTranslationsWarning;
+    }
+
+    public void setShowTranslationsWarning(boolean showTranslationsWarning) {
+        this.showTranslationsWarning = showTranslationsWarning;
     }
 
     public static class AutoLevelSettings {

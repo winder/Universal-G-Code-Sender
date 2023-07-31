@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2020 Will Winder
+    Copyright 2015-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.dro;
 
 import com.willwinder.ugs.nbp.dro.panels.DROPopup;
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -27,7 +28,6 @@ import com.willwinder.ugs.nbp.dro.panels.MachineStatusPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
-import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
@@ -42,7 +42,7 @@ import javax.swing.*;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(
-        mode = "top_left",
+        mode = Mode.LEFT_TOP,
         openAtStartup = true
 )
 @ActionID(

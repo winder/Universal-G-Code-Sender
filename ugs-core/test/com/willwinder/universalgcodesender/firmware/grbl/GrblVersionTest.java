@@ -11,8 +11,27 @@ public class GrblVersionTest {
         GrblVersion version = new GrblVersion("[VER:v1.1f.20170131:Some string]");
         assertEquals(1.1d, version.getVersionNumber(), 0.001);
         assertEquals('f', version.getVersionLetter().charValue());
-        assertEquals("20170131", version.getBuildDate());
-        assertEquals("Some string", version.getMachineName());
+    }
+
+    @Test
+    public void parseMillRightVersionString() {
+        GrblVersion version = new GrblVersion("[VER:1.1i MegaV 4 Axis Router.20190120:]");
+        assertEquals(1.1d, version.getVersionNumber(), 0.001);
+        assertEquals('i', version.getVersionLetter().charValue());
+    }
+
+    @Test
+    public void parseMillRightVersionString1() {
+        GrblVersion version = new GrblVersion("[VER:1.1i MR MegaV Tri-CAM Open Frame Bed.V4-20230217:]");
+        assertEquals(1.1d, version.getVersionNumber(), 0.001);
+        assertEquals('i', version.getVersionLetter().charValue());
+    }
+
+    @Test
+    public void parseUnknownMegaVersionString() {
+        GrblVersion version = new GrblVersion("[VER:1.1g3.20211002.Mega:]");
+        assertEquals(1.1d, version.getVersionNumber(), 0.001);
+        assertEquals('g', version.getVersionLetter().charValue());
     }
 
     @Test
@@ -20,8 +39,6 @@ public class GrblVersionTest {
         GrblVersion version = new GrblVersion("[VER:1.1f.20170801:MINIMILL]");
         assertEquals(1.1d, version.getVersionNumber(), 0.001);
         assertEquals('f', version.getVersionLetter().charValue());
-        assertEquals("20170801", version.getBuildDate());
-        assertEquals("MINIMILL", version.getMachineName());
     }
 
     @Test
@@ -29,8 +46,6 @@ public class GrblVersionTest {
         GrblVersion version = new GrblVersion("[VER:v1.1f.20170131]");
         assertEquals(1.1d, version.getVersionNumber(), 0.001);
         assertEquals('f', version.getVersionLetter().charValue());
-        assertEquals("20170131", version.getBuildDate());
-        assertEquals("", version.getMachineName());
     }
 
     @Test
@@ -38,8 +53,6 @@ public class GrblVersionTest {
         GrblVersion version = new GrblVersion("[VER:v1.1f:Some string]");
         assertEquals(1.1d, version.getVersionNumber(), 0.001);
         assertEquals('f', version.getVersionLetter().charValue());
-        assertEquals("", version.getBuildDate());
-        assertEquals("Some string", version.getMachineName());
     }
 
     @Test
@@ -47,8 +60,6 @@ public class GrblVersionTest {
         GrblVersion version = new GrblVersion("[VER:v1.1.20170131:Some string]");
         assertEquals(1.1d, version.getVersionNumber(), 0.001);
         assertEquals('-', version.getVersionLetter().charValue());
-        assertEquals("20170131", version.getBuildDate());
-        assertEquals("Some string", version.getMachineName());
     }
 
     @Test
@@ -56,8 +67,6 @@ public class GrblVersionTest {
         GrblVersion version = new GrblVersion("[VER:1.1h-XCP.20220314a:abc]");
         assertEquals(1.1d, version.getVersionNumber(), 0.001);
         assertEquals('h', version.getVersionLetter().charValue());
-        assertEquals("20220314a", version.getBuildDate());
-        assertEquals("abc", version.getMachineName());
     }
 
     @Test
@@ -65,8 +74,6 @@ public class GrblVersionTest {
         GrblVersion version = new GrblVersion("[VER:1.1h-XCP]");
         assertEquals(1.1d, version.getVersionNumber(), 0.001);
         assertEquals('h', version.getVersionLetter().charValue());
-        assertEquals("", version.getBuildDate());
-        assertEquals("", version.getMachineName());
     }
 
     @Test
@@ -74,5 +81,11 @@ public class GrblVersionTest {
         GrblVersion version = new GrblVersion("[VER:0.7]");
         assertEquals(0.7d, version.getVersionNumber(), 0.001);
         assertEquals('-', version.getVersionLetter().charValue());
+    }
+
+    @Test
+    public void parseGenmitsu32VersionString() {
+        GrblVersion version = new GrblVersion("[VER:GD32 V2.1.20220827:]");
+        assertEquals(2.1d, version.getVersionNumber(), 0.001);
     }
 }

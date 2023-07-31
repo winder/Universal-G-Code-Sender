@@ -7,6 +7,7 @@ import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.*;
+import com.willwinder.ugs.nbp.designer.io.AffineTransformSerializer;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
 import com.willwinder.ugs.nbp.designer.io.DesignWriterException;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.*;
@@ -45,16 +46,23 @@ public class UgsDesignWriter implements DesignWriter {
     @Override
     public void write(OutputStream outputStream, Controller controller) {
         try {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Gson gson = createGsonParser();
             DesignV1 design = new DesignV1();
             design.setSettings(convertSettings(controller));
 
-            EntityGroup rootEntity = (EntityGroup) controller.getDrawing().getRootEntity();
+            EntityGroup rootEntity = controller.getDrawing().getRootEntity();
             design.setEntities(rootEntity.getChildren().stream().map(this::convertToEntity).collect(Collectors.toList()));
             IOUtils.write(gson.toJson(design), outputStream, StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new DesignWriterException("Could not write to file", e);
         }
+    }
+
+    private static Gson createGsonParser() {
+        return new GsonBuilder()
+                .registerTypeAdapter(AffineTransform.class, new AffineTransformSerializer())
+                .setPrettyPrinting()
+                .create();
     }
 
     private EntityV1 convertToEntity(Entity entity) {
@@ -188,7 +196,7 @@ public class UgsDesignWriter implements DesignWriter {
     }
 
     public String serialize(List<Entity> entities) {
-        Gson gson = new Gson();
+        Gson gson = createGsonParser();
         return gson.toJson(entities.stream()
                 .map(this::convertToEntity)
                 .collect(Collectors.toList()));

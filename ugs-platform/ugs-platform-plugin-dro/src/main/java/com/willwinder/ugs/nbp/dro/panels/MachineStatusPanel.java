@@ -165,15 +165,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
         resetStatePinComponents();
         pinStatePanel.add(pinStatesLabel);
         add(pinStatePanel, "align center");
-
-        Color bkg = getBackground();
-        int value = bkg.getRed() + bkg.getBlue() + bkg.getGreen();
-        boolean panelIsLight = value > 385;
-        Color panelTextColor;
-        if (panelIsLight) panelTextColor = Color.BLACK;
-        else panelTextColor = ThemeColors.ORANGE;
-        setForegroundColor(panelTextColor, feedLabel, feedValue, spindleSpeedLabel, spindleSpeedValue, gStatesLabel);
-
         setAllCaps(feedLabel, feedValue, spindleSpeedLabel, spindleSpeedValue);
 
         fontManager.addActiveStateLabel(activeStateValueLabel);
@@ -197,10 +188,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
         pinStatesLabel.setText(ALARM);
         pinStatesLabel.setForeground(ThemeColors.GREY);
         pinStatePanel.setForeground(ThemeColors.GREY);
-    }
-
-    private void setForegroundColor(Color color, JComponent... components) {
-        Arrays.stream(components).forEach(c -> c.setForeground(color));
     }
 
     private void setAllCaps(JLabel... labels) {
@@ -330,7 +317,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
         // Use real-time values if available, otherwise show the target values.
         int feedSpeed = status.getFeedSpeed() != null
                 ? (int) (status.getFeedSpeed() * UnitUtils.scaleUnits(status.getFeedSpeedUnits(), backend.getSettings().getPreferredUnits()))
-                : (int) this.backend.getGcodeState().speed;
+                : (int) this.backend.getGcodeState().feedRate;
         this.feedValue.setText(Integer.toString(feedSpeed));
 
         int spindleSpeed = status.getSpindleSpeed() != null

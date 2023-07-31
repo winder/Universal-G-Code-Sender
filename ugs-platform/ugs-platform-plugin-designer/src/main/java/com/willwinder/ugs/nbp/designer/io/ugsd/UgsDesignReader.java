@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.io.ugsd;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.io.AffineTransformDeserializer;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
 import com.willwinder.ugs.nbp.designer.io.DesignReaderException;
 import com.willwinder.ugs.nbp.designer.io.RuntimeTypeAdapterFactory;
@@ -30,6 +31,7 @@ import com.willwinder.ugs.nbp.designer.model.Design;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -64,7 +66,7 @@ public class UgsDesignReader implements DesignReader {
                 return Optional.empty();
             }
 
-            Gson gson = new GsonBuilder().create();
+            Gson gson = getParser();
             UgsDesign design = gson.fromJson(designFileContent, UgsDesign.class);
 
             if (DesignV1.VERSION.equals(design.getVersion())) {
@@ -95,6 +97,7 @@ public class UgsDesignReader implements DesignReader {
 
         return new GsonBuilder()
                 .registerTypeAdapterFactory(entityAdapterFactory)
+                .registerTypeAdapter(AffineTransform.class, new AffineTransformDeserializer())
                 .create();
     }
 

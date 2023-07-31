@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2022 Will Winder
+    Copyright 2015-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.console;
 
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -35,7 +36,7 @@ import org.openide.windows.TopComponent;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "output", openAtStartup = false)
+@TopComponent.Registration(mode = Mode.OUTPUT, openAtStartup = false)
 @ActionID(category = LocalizingService.SerialConsoleCategory, id = LocalizingService.SerialConsoleActionId)
 @ActionReference(path = LocalizingService.SerialConsoleWindowPath)
 @TopComponent.OpenActionRegistration(

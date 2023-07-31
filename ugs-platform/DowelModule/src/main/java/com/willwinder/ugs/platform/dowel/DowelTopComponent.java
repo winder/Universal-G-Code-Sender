@@ -25,6 +25,7 @@ import static com.willwinder.universalgcodesender.utils.SwingHelpers.unitIdx;
 
 import com.google.gson.Gson;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
+import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
@@ -65,7 +66,7 @@ import org.openide.modules.OnStart;
         //iconBase="SET/PATH/TO/ICON/HERE",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "output", openAtStartup = false)
+@TopComponent.Registration(mode = Mode.OUTPUT, openAtStartup = false)
 @ActionID(
         category = DowelTopComponent.DowelCategory,
         id = DowelTopComponent.DowelActionId)

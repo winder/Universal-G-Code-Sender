@@ -1,3 +1,21 @@
+/*
+    Copyright 2023 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.designer.platform;
 
 import com.google.common.io.Files;
@@ -64,7 +82,7 @@ public class PlatformUtils {
             designWriter.write(file, ControllerFactory.getController());
             CentralLookup.getDefault().lookup(BackendAPI.class).setGcodeFile(file);
         } catch (Exception e) {
-            throw new RuntimeException("Could not generate gcode");
+            throw new RuntimeException("Could not generate gcode", e);
         }
     }
 
@@ -75,7 +93,7 @@ public class PlatformUtils {
                     SettingsTopComponent topComponent = new SettingsTopComponent();
                     topComponent.open();
 
-                    Mode editorMode = WindowManager.getDefault().findMode("top_left");
+                    Mode editorMode = WindowManager.getDefault().findMode(com.willwinder.ugs.nbp.lib.Mode.LEFT_TOP);
                     editorMode.dockInto(topComponent);
                     return topComponent;
                 });
@@ -93,7 +111,7 @@ public class PlatformUtils {
                     EntitiesTreeTopComponent topComponent = new EntitiesTreeTopComponent();
                     topComponent.open();
 
-                    Mode editorMode = WindowManager.getDefault().findMode("bottom_left");
+                    Mode editorMode = WindowManager.getDefault().findMode(com.willwinder.ugs.nbp.lib.Mode.LEFT_BOTTOM);
                     editorMode.dockInto(topComponent);
                     return topComponent;
                 });

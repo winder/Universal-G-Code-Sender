@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.CNCPoint;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -470,9 +471,9 @@ public class GcodePreprocessorUtils {
      * @param end end position XYZ and rotations
      * @param center center of rotation
      * @param clockwise flag indicating clockwise or counter-clockwise
-     * @param radius radius of the arc
-     * @param minArcLength minimum length before expansions are made.
-     * @param arcSegmentLength length of segments in resulting Positions.
+     * @param radius radius of the arc in the same units as the given start, end and center position
+     * @param minArcLengthMM minimum length before expansions are made.
+     * @param arcSegmentLengthMM length of segments in resulting Positions.
      * @param plane helper to select values for arcs across different planes
      */
     static public List<Position> generatePointsAlongArcBDring(
@@ -481,12 +482,12 @@ public class GcodePreprocessorUtils {
             final Position center,
             boolean clockwise,
             double radius,
-            double minArcLength,
-            double arcSegmentLength,
+            double minArcLengthMM,
+            double arcSegmentLengthMM,
             PlaneFormatter plane) {
-        double r = radius;
 
         // Calculate radius if necessary.
+        double r = radius;
         if (r == 0) {
             r = Math.sqrt(Math.pow(plane.axis0(start) - plane.axis0(center),2.0) + Math.pow(plane.axis1(end) - plane.axis1(center), 2.0));
         }
@@ -495,25 +496,42 @@ public class GcodePreprocessorUtils {
         double endAngle = GcodePreprocessorUtils.getAngle(center, end, plane);
         double sweep = GcodePreprocessorUtils.calculateSweep(startAngle, endAngle, clockwise);
 
-        // Convert units.
-        double arcLength = sweep * r;
-
-        // If this arc doesn't meet the minimum threshold, don't expand.
-        if (minArcLength > 0 && arcLength < minArcLength) {
-            return null;
-        }
-
-        int numPoints = 20;
-
-        if (arcSegmentLength <= 0 && minArcLength > 0) {
-            arcSegmentLength = (sweep * r) / minArcLength;
-        }
-
-        if (arcSegmentLength > 0) {
-            numPoints = (int)Math.ceil(arcLength/arcSegmentLength);
+        int numPoints = calculateNumberOfPointsToExpand(r, start.getUnits(), minArcLengthMM, arcSegmentLengthMM, sweep);
+        if (numPoints == 0) {
+            return Collections.emptyList();
         }
 
         return GcodePreprocessorUtils.generatePointsAlongArcBDring(start, end, center, clockwise, r, startAngle, sweep, numPoints, plane);
+    }
+
+    /**
+     * Calculates the number of points to expand an arc into
+     *
+     * @param radius the radius of the arc
+     * @param radiusUnits the radius units
+     * @param minArcLengthMM the minimum arc length
+     * @param arcSegmentLengthMM the arg length
+     * @param sweep the angle of the arc
+     * @return the number of segments to split the arc into to achieve the given arc segment length
+     */
+    private static int calculateNumberOfPointsToExpand(double radius, UnitUtils.Units radiusUnits, double minArcLengthMM, double arcSegmentLengthMM, double sweep) {
+        // Convert units.
+        double arcLengthMM = sweep * radius * UnitUtils.scaleUnits(radiusUnits, UnitUtils.Units.MM);
+
+        // If this arc doesn't meet the minimum threshold, don't expand.
+        if (minArcLengthMM > 0 && arcLengthMM < minArcLengthMM) {
+            return 0;
+        }
+
+        if (arcSegmentLengthMM <= 0 && minArcLengthMM > 0) {
+            arcSegmentLengthMM = (sweep * radius) / minArcLengthMM;
+        }
+
+        int numPoints = 20;
+        if (arcSegmentLengthMM > 0) {
+            numPoints = (int)Math.ceil(arcLengthMM/ arcSegmentLengthMM);
+        }
+        return numPoints;
     }
 
     /**
@@ -805,11 +823,7 @@ public class GcodePreprocessorUtils {
         }
 
         StringBuilder result = new StringBuilder();
-
-        // Don't add the state
-        //result.append(state.toGcode());
-
-        result.append("F").append(state.speed);
+        result.append("F").append(state.feedRate);
         result.append("S").append(state.spindleSpeed);
 
         // Check if we need to add the motion command back in.

@@ -26,7 +26,7 @@ package com.willwinder.universalgcodesender.communicator;
 public class TinyGCommunicator extends BufferedCommunicator {
 
     public TinyGCommunicator() {
-        setSingleStepMode(true);
+        super.setSingleStepMode(true);
     }
 
     @Override
@@ -37,5 +37,9 @@ public class TinyGCommunicator extends BufferedCommunicator {
     @Override
     protected void sendingCommand(String response) {
         // no-op for this protocol.
+    }
+
+    public void setSingleStepMode(boolean enable) {
+        // Do not allow changing this
     }
 }
