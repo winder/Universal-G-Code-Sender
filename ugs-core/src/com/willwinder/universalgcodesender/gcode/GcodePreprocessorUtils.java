@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender.gcode;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;

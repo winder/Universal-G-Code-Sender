@@ -129,6 +129,22 @@ public class MathUtils {
     }
 
     /**
+     * Compares two double values if they are equal or very close to each other using a delta threshold.
+     *
+     * @param d1 a double value
+     * @param d2 a double value
+     * @param delta a decimal delta value with the smallest allowed difference, smaller value means more precision.
+     * @return true if they are equal or very close to equal
+     */
+    public static boolean isEqual(double d1, double d2, double delta) {
+        if (Double.compare(d1, d2) == 0) {
+            return true;
+        }
+
+        return Math.abs(d1 - d2) <= delta;
+    }
+
+    /**
      * Gets the center position given a list of line segments.
      *
      * @param points a list of points

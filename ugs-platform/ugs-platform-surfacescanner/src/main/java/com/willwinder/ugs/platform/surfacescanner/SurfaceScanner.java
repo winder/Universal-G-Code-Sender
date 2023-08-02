@@ -33,6 +33,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
+
 /**
  *
  * @author wwinder
@@ -150,9 +152,9 @@ public class SurfaceScanner {
 
     public void probeEvent(final Position p) {
         Position probePosition = pendingPositions.pop();
-        if (p.getX() != probePosition.getX() || p.getY() != probePosition.getY()) {
+        if (!isEqual(p.getX(), probePosition.getX(), 0.0001) || !isEqual(p.getY(), probePosition.getY(), 0.0001)) {
             reset();
-            throw new RuntimeException("Unexpected probe location");
+            throw new RuntimeException(String.format("Unexpected probe location, expected %s to be %s", p, probePosition));
         }
         Position settingsOffset = settings.autoLevelProbeOffset.getPositionIn(units);
 

@@ -188,6 +188,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
                     updateMeshLeveler();
                 }
             } catch (Exception e) {
+                // TODO make this error message more descriptive
+                e.printStackTrace();
                 GUIHelpers.displayErrorDialog(Localization.getString("autoleveler.probe-failed"));
             }
         } else if (evt instanceof SettingChangedEvent) {
