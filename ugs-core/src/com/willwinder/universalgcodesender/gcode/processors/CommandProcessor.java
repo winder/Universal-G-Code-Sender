@@ -44,4 +44,9 @@ public interface CommandProcessor {
      * @return 
      */
     String getHelp();
+
+    /**
+     * Called before a new file is processed to allow the processor to reset any state about the processed file.
+     */
+    default void reset() {}
 }

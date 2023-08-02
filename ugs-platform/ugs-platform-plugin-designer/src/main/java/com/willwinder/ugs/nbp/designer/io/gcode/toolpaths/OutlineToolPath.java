@@ -66,7 +66,7 @@ public class OutlineToolPath extends AbstractToolPath {
 
                 final double depth = -currentDepth;
                 coordinateList.add(geometryCoordinates.stream()
-                        .map(numericCoordinate -> PartialPosition.builder().copy(numericCoordinate).setZ(depth).build())
+                        .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).setZ(depth).build())
                         .collect(Collectors.toList()));
             }
         });

@@ -34,28 +34,24 @@ public class PartialPositionTest {
         assertEquals("X-20.05Y10.5Z5.2C1.1", new PartialPosition(-20.05, 10.5, 5.2, null, null, 1.1, UnitUtils.Units.MM).getFormattedGCode());
         assertEquals("X-20.05Y10.5Z5.2A1.1B1.1C1.1", new PartialPosition(-20.05, 10.5, 5.2, 1.1, 1.1, 1.1, UnitUtils.Units.MM).getFormattedGCode());
 
-        assertEquals("Y10.5Z-20.05", PartialPosition.builder().setUnits(UnitUtils.Units.MM).setY(10.5).setZ(-20.05).build().getFormattedGCode());
-        assertEquals("X10.5Z-20.05", PartialPosition.builder().setUnits(UnitUtils.Units.MM).setX(10.5).setZ(-20.05).build().getFormattedGCode());
-        assertEquals("X-20.05Y10.5", PartialPosition.builder().setUnits(UnitUtils.Units.MM).setY(10.5).setX(-20.05).build().getFormattedGCode());
+        assertEquals("Y10.5Z-20.05", PartialPosition.builder(UnitUtils.Units.MM).setY(10.5).setZ(-20.05).build().getFormattedGCode());
+        assertEquals("X10.5Z-20.05", PartialPosition.builder(UnitUtils.Units.MM).setX(10.5).setZ(-20.05).build().getFormattedGCode());
+        assertEquals("X-20.05Y10.5", PartialPosition.builder(UnitUtils.Units.MM).setY(10.5).setX(-20.05).build().getFormattedGCode());
 
-        assertEquals("A20", PartialPosition.builder().setUnits(UnitUtils.Units.MM).setA(20.0).build().getFormattedGCode());
-        assertEquals("B20", PartialPosition.builder().setUnits(UnitUtils.Units.MM).setB(20.0).build().getFormattedGCode());
-        assertEquals("C20", PartialPosition.builder().setUnits(UnitUtils.Units.MM).setC(20.0).build().getFormattedGCode());
+        assertEquals("A20", PartialPosition.builder(UnitUtils.Units.MM).setA(20.0).build().getFormattedGCode());
+        assertEquals("B20", PartialPosition.builder(UnitUtils.Units.MM).setB(20.0).build().getFormattedGCode());
+        assertEquals("C20", PartialPosition.builder(UnitUtils.Units.MM).setC(20.0).build().getFormattedGCode());
 
-        assertEquals("Y10.5Z-20.05", PartialPosition.builder()
-                .setUnits(UnitUtils.Units.MM)
+        assertEquals("Y10.5Z-20.05", PartialPosition.builder(UnitUtils.Units.MM)
                 .setValue(Axis.Y, 10.5).setValue(Axis.Z, -20.05).build()
                 .getFormattedGCode());
-        assertEquals("X10.5Z-20.05", PartialPosition.builder()
-                .setUnits(UnitUtils.Units.MM)
+        assertEquals("X10.5Z-20.05", PartialPosition.builder(UnitUtils.Units.MM)
                 .setValue(Axis.X, 10.5).setValue(Axis.Z, -20.05).build()
                 .getFormattedGCode());
-        assertEquals("X-20.05Y10.5", PartialPosition.builder()
-                .setUnits(UnitUtils.Units.MM)
+        assertEquals("X-20.05Y10.5", PartialPosition.builder(UnitUtils.Units.MM)
                 .setValue(Axis.Y, 10.5).setValue(Axis.X, -20.05).build()
                 .getFormattedGCode());
-        assertEquals("X-20.05Y10.5B3", PartialPosition.builder()
-                .setUnits(UnitUtils.Units.MM)
+        assertEquals("X-20.05Y10.5B3", PartialPosition.builder(UnitUtils.Units.MM)
                 .setValue(Axis.Y, 10.5).setValue(Axis.X, -20.05).setValue(Axis.B, 3.0).build()
                 .getFormattedGCode());
 
@@ -123,8 +119,8 @@ public class PartialPositionTest {
 
     @Test
     public void copyShouldCopyTheValuesThatAreSet() {
-        PartialPosition partialPosition = PartialPosition.builder().setX(1d).setB(2d).setUnits(UnitUtils.Units.MM).build();
-        PartialPosition copy = PartialPosition.builder().copy(partialPosition).build();
+        PartialPosition partialPosition = PartialPosition.builder(UnitUtils.Units.MM).setX(1d).setB(2d).build();
+        PartialPosition copy = PartialPosition.builder(partialPosition).build();
         assertEquals(partialPosition.getX(), copy.getX(), 0.1);
         assertFalse(partialPosition.hasY());
         assertFalse(partialPosition.hasZ());

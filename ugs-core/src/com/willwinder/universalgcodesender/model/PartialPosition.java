@@ -80,7 +80,7 @@ public class PartialPosition {
      * @return a partial position
      */
     public static PartialPosition from(Axis axis, Double value, UnitUtils.Units units) {
-        return builder().setValue(axis, value).setUnits(units).build();
+        return builder(units).setValue(axis, value).build();
     }
 
 
@@ -227,17 +227,37 @@ public class PartialPosition {
     public PartialPosition getPositionIn(UnitUtils.Units units) {
         if (units == this.units) return this;
         double scale = UnitUtils.scaleUnits(this.units, units);
-        Builder builder = builder();
+        Builder builder = builder(units);
         for (Map.Entry<Axis, Double> axis : getAll().entrySet()) {
             double mul = axis.getKey().isLinear() ? scale : 1.0;
             builder.setValue(axis.getKey(), axis.getValue() * mul);
         }
-        builder.setUnits(units);
         return builder.build();
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static Builder builder(UnitUtils.Units units) {
+        return new Builder(units);
+    }
+
+    public static Builder builder(PartialPosition p) {
+        Builder b = builder(p.getUnits());
+        b.x = p.x;
+        b.y = p.y;
+        b.z = p.z;
+        b.a = p.a;
+        b.b = p.b;
+        b.c = p.c;
+        return b;
+    }
+
+    public static Builder builder(Position p) {
+        return builder(p.getUnits())
+                .setX(p.getX())
+                .setY(p.getY())
+                .setZ(p.getZ())
+                .setA(p.getA())
+                .setB(p.getB())
+                .setC(p.getC());
     }
 
     public static final class Builder {
@@ -247,7 +267,11 @@ public class PartialPosition {
         private Double a = null;
         private Double b = null;
         private Double c = null;
-        private UnitUtils.Units units = UnitUtils.Units.UNKNOWN;
+        private final UnitUtils.Units units;
+
+        public Builder(UnitUtils.Units units) {
+            this.units = units;
+        }
 
         public PartialPosition build() {
             if (units == UnitUtils.Units.UNKNOWN) {
@@ -259,81 +283,93 @@ public class PartialPosition {
         public Builder setValue(Axis axis, Double value) {
             switch (axis) {
                 case X:
-                    this.x = value;
+                    setX(value);
                     break;
                 case Y:
-                    this.y = value;
+                    setY(value);
                     break;
                 case Z:
-                    this.z = value;
+                    setZ(value);
                     break;
                 case A:
-                    this.a = value;
+                    setA(value);
                     break;
                 case B:
-                    this.b = value;
+                    setB(value);
                     break;
                 case C:
-                    this.c = value;
+                    setC(value);
                     break;
             }
             return this;
         }
 
+        public Builder clearX() {
+            this.x = null;
+            return this;
+        }
+
+        public Builder clearY() {
+            this.y = null;
+            return this;
+        }
+
+        public Builder clearZ() {
+            this.z = null;
+            return this;
+        }
+
         public Builder setX(Double x) {
-            this.x = x;
+            if (Double.isFinite(x)) {
+                this.x = x;
+            } else {
+                this.x = null;
+            }
             return this;
         }
 
         public Builder setY(Double y) {
-            this.y = y;
+            if (Double.isFinite(y)) {
+                this.y = y;
+            } else {
+                this.y = null;
+            }
             return this;
         }
 
         public Builder setZ(Double z) {
-            this.z = z;
+            if (Double.isFinite(z)) {
+                this.z = z;
+            } else {
+                this.z = null;
+            }
             return this;
         }
 
         public Builder setA(Double a) {
-            this.a = a;
+            if (Double.isFinite(a)) {
+                this.a = a;
+            } else {
+                this.a = null;
+            }
             return this;
         }
 
         public Builder setB(Double b) {
-            this.b = b;
+            if (Double.isFinite(b)) {
+                this.b = b;
+            } else {
+                this.b = null;
+            }
             return this;
         }
 
         public Builder setC(Double c) {
-            this.c = c;
-            return this;
-        }
-
-        public Builder copy(Position position) {
-            this.x = position.getX();
-            this.y = position.getY();
-            this.z = position.getZ();
-            this.a = position.getA();
-            this.b = position.getB();
-            this.c = position.getC();
-            this.units = position.getUnits();
-            return this;
-        }
-
-        public Builder setUnits(UnitUtils.Units units) {
-            this.units = units;
-            return this;
-        }
-
-        public Builder copy(PartialPosition position) {
-            this.x = position.x;
-            this.y = position.y;
-            this.z = position.z;
-            this.a = position.a;
-            this.b = position.b;
-            this.c = position.c;
-            this.units = position.units;
+            if (Double.isFinite(c)) {
+                this.c = c;
+            } else {
+                this.c = null;
+            }
             return this;
         }
     }

@@ -48,7 +48,7 @@ public class CommandProcessorList implements CommandProcessor, Iterable<CommandP
                 List<String> intermediate = p.processCommand(ret.remove(0), tempState);
 
                 // process results to update the state and collect PointSegments
-                for (String c : intermediate) {
+                for(String c : intermediate) {
                     tempState = testState(c, tempState);
                 }
 

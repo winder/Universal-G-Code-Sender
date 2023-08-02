@@ -325,7 +325,7 @@ public class TinyGUtils {
         UnitUtils.Units currentUnits = gcodeState.getUnits();
         Position machineCoord = controllerStatus.getMachineCoord().getPositionIn(currentUnits);
 
-        PartialPosition.Builder offsets = PartialPosition.builder().setUnits(currentUnits);
+        PartialPosition.Builder offsets = PartialPosition.builder(currentUnits);
         for (Map.Entry<Axis, Double> position : positions.getPositionIn(currentUnits).getAll().entrySet()) {
             double axisOffset = -(position.getValue() - machineCoord.get(position.getKey()));
             offsets.setValue(position.getKey(), axisOffset);

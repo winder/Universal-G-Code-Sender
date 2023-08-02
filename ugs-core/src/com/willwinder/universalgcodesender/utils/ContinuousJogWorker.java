@@ -125,7 +125,7 @@ public class ContinuousJogWorker implements UGSEventListener {
         final double s = v * dt; // s = distance in units that this jog command should travel
         final double scaleFactor = s / jogVectorLength; // determine scaleFactor required to scale jogVectorLength to s
 
-        PartialPosition.Builder builder = PartialPosition.builder().setUnits(units);
+        PartialPosition.Builder builder = PartialPosition.builder(units);
         setAxisIfNotZero(builder, Axis.X, x * scaleFactor);
         setAxisIfNotZero(builder, Axis.Y, y * scaleFactor);
         setAxisIfNotZero(builder, Axis.Z, z * scaleFactor);

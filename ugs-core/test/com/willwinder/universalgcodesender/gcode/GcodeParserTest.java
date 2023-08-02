@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -52,6 +53,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.List;
 
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
@@ -283,7 +285,7 @@ public class GcodeParserTest {
         System.out.println("autoLevelerProcessorSet");
         GcodeParser gcp = new GcodeParser();
         gcp.addCommandProcessor(new CommentProcessor());
-        gcp.addCommandProcessor(new ArcExpander(true, 0.1));
+        gcp.addCommandProcessor(new ArcExpander(true, 0.1, new DecimalFormat("#.####", Localization.dfs)));
         gcp.addCommandProcessor(new LineSplitter(1));
         Position[][] grid = {
             { new Position(-5,-5,0, MM), new Position(-5,35,0, MM) },
@@ -311,12 +313,12 @@ public class GcodeParserTest {
                 if (c == null) {
                     Assert.fail("Reached end of gcode reader before end of expected commands.");
                 }
-                Assert.assertEquals(c.getCommandString(), t);
+                Assert.assertEquals(t, c.getCommandString());
             } catch (IOException ex) {
                 Assert.fail("Unexpected exception.");
             }
         });
-        assertEquals(1030, reader.getNumRows());
+        assertEquals(1031, reader.getNumRows());
         output.toFile().delete();
     }
 

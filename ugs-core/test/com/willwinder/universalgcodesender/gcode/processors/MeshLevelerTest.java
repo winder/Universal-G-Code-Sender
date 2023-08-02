@@ -26,6 +26,8 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import java.util.Collections;
 import java.util.List;
+
+import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.Rule;
@@ -50,9 +52,9 @@ public class MeshLevelerTest {
     };
 
 
-    private static void sendCommandExpectResult(MeshLeveler ml, GcodeState state, String command, String result) {
+    private static void sendCommandExpectResult(MeshLeveler ml, GcodeState state, String command, String... result) {
         try {
-            List<String> expected = Collections.singletonList(result);
+            List<String> expected = Lists.newArrayList(result);
             List<String> results = ml.processCommand(command, state);
             Assert.assertEquals(expected, results);
         } catch (GcodeParserException ex) {
@@ -153,17 +155,14 @@ public class MeshLevelerTest {
     }
 
     @Test
-    public void testMultipleCommandsWithLine() throws GcodeParserException {
-        expectedEx.expect(GcodeParserException.class);
-        expectedEx.expectMessage(Localization.getString("parser.processor.general.multiple-commands"));
-
+    public void testMultipleCommandsWithLine() {
         MeshLeveler ml = new MeshLeveler(0.0, BIG_FLAT_GRID_Z0, Units.MM);
 
         GcodeState state = new GcodeState();
         state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
 
-        ml.processCommand("G1X1G20", state);
+        sendCommandExpectResult(ml, state, "G1X1G20", "G1X1G20Z0", "G1X1G20");
     }
 
     @Test
@@ -174,7 +173,7 @@ public class MeshLevelerTest {
         state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
 
-        sendCommandExpectResult(ml, state, "G1X5", "G1X5Y0Z0");
+        sendCommandExpectResult(ml, state, "G1X5", "G1X5Z0");
     }
 
     @Test
@@ -185,7 +184,7 @@ public class MeshLevelerTest {
         state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
 
-        sendCommandExpectResult(ml, state, "G1X5", "G1X5Y0Z0");
+        sendCommandExpectResult(ml, state, "G1X5", "G1X5Z0");
     }
 
     @Test
@@ -197,7 +196,7 @@ public class MeshLevelerTest {
         state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
 
-        sendCommandExpectResult(ml, state, "G1X5", "G1X5Y0Z0.1");
+        sendCommandExpectResult(ml, state, "G1X5", "G1X5Z0.1");
     }
 
     @Test
@@ -225,16 +224,16 @@ public class MeshLevelerTest {
         state.inAbsoluteMode = true;
 
         // Moving along Y axis on flat line
-        sendCommandExpectResult(ml, state, "G1Y-5", "G1X-10Y-5Z-10");
-        sendCommandExpectResult(ml, state, "G1Y0", "G1X-10Y0Z-10");
-        sendCommandExpectResult(ml, state, "G1Y5", "G1X-10Y5Z-10");
-        sendCommandExpectResult(ml, state, "G1Y10", "G1X-10Y10Z-10");
+        sendCommandExpectResult(ml, state, "G1Y-5", "G1Y-5Z-10");
+        sendCommandExpectResult(ml, state, "G1Y0", "G1Y0Z-10");
+        sendCommandExpectResult(ml, state, "G1Y5", "G1Y5Z-10");
+        sendCommandExpectResult(ml, state, "G1Y10", "G1Y10Z-10");
 
         // Moving along X axis up slope
-        sendCommandExpectResult(ml, state, "G1X-5", "G1X-5Y-10Z-5");
-        sendCommandExpectResult(ml, state, "G1X0", "G1X0Y-10Z0");
-        sendCommandExpectResult(ml, state, "G1X5", "G1X5Y-10Z5");
-        sendCommandExpectResult(ml, state, "G1X10", "G1X10Y-10Z10");
+        sendCommandExpectResult(ml, state, "G1X-5", "G1X-5Z-5");
+        sendCommandExpectResult(ml, state, "G1X0", "G1X0Z0");
+        sendCommandExpectResult(ml, state, "G1X5", "G1X5Z5");
+        sendCommandExpectResult(ml, state, "G1X10", "G1X10Z10");
 
         // Moving up slope along X/Y
         sendCommandExpectResult(ml, state, "G1X-5Y-5", "G1X-5Y-5Z-5");

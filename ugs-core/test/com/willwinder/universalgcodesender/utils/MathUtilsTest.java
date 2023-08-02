@@ -25,7 +25,8 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
+import static org.junit.Assert.*;
 
 /**
  * @author Joacim Breiler
@@ -73,5 +74,30 @@ public class MathUtilsTest {
         assertEquals(new PartialPosition(0d,0d, UnitUtils.Units.MM), convexHull.get(0));
         assertEquals(new PartialPosition(10d,10d, UnitUtils.Units.MM), convexHull.get(1));
         assertEquals(new PartialPosition(0d,10d, UnitUtils.Units.MM), convexHull.get(2));
+    }
+
+    @Test
+    public void isEqualShouldTestTheSimilarityOfDoubleValues() {
+        assertTrue(isEqual(1.1, 1.1, 0.0));
+        assertTrue(isEqual(1.1, 1.1, 0.001));
+        assertTrue(isEqual(1.1, 1.1, 0.1));
+
+        assertFalse(isEqual(1.1001, 1.1, 0.0));
+        assertTrue(isEqual(1.1001, 1.1, 0.0001));
+
+        assertFalse(isEqual(1.1001, 1.1, 0.0));
+        assertFalse(isEqual(1.1001, 1.1, 0.00001));
+        assertTrue(isEqual(1.1001, 1.1, 0.0001));
+
+        assertFalse(isEqual(1.1, 1.1001, 0.0));
+        assertFalse(isEqual(1.1, 1.1001, 0.00001));
+        assertTrue(isEqual(1.1, 1.1001, 0.0001));
+
+        assertFalse(isEqual(0.9999, 1.0, 0.0));
+        assertTrue(isEqual(0.9999, 1.0, 0.01));
+        assertTrue(isEqual(0.9999, 1.0, 0.001));
+        assertTrue(isEqual(0.9999, 1.0, 0.0001));
+        assertFalse(isEqual(0.9999, 1.0, 0.00001));
+
     }
 }

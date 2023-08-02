@@ -556,12 +556,14 @@ public class Settings {
     public static class AutoLevelSettings {
         // Setting window
         public double autoLevelProbeZeroHeight = 0;
-        public Position autoLevelProbeOffset = new Position(0, 0, 0, Units.UNKNOWN);
+        public Position autoLevelProbeOffset = new Position(0, 0, 0, Units.MM);
         public double autoLevelArcSliceLength = 0.01;
+        public double probeScanFeedRate = 1000;
+        public double probeSpeed = 10;
 
         // Main window
         public double stepResolution = 10;
-        public double probeSpeed = 10;
+        public double zRetract = 0;
         public double zSurface = 0;
 
         public boolean equals(AutoLevelSettings obj) {
@@ -571,6 +573,8 @@ public class Settings {
                             this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength &&
                             this.stepResolution == obj.stepResolution &&
                             this.probeSpeed == obj.probeSpeed &&
+                            this.probeScanFeedRate == obj.probeScanFeedRate &&
+                            this.zRetract == obj.zRetract &&
                             this.zSurface == obj.zSurface;
         }
     }

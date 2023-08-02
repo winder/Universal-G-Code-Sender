@@ -39,7 +39,11 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
 
     private final Spinner probeFeedRate = new Spinner(
                 Localization.getString("probe.feed-rate"),
-                new SpinnerNumberModel(1., null, null, 1.));
+                new SpinnerNumberModel(1., 0.0, null, 1.));
+
+    private final Spinner probeScanFeedRate = new Spinner(
+            Localization.getString("probe.scan-rate"),
+            new SpinnerNumberModel(1., 0.0, null, 1.));
 
     private final Spinner arcSegmentLengthSpinner = new Spinner(
                 Localization.getString("autoleveler.option.arc-segment-length"),
@@ -75,6 +79,9 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
         this.probeFeedRate.setValue(autoLevelSettings.probeSpeed);
         add(this.probeFeedRate);
 
+        this.probeScanFeedRate.setValue(autoLevelSettings.probeScanFeedRate);
+        add(this.probeScanFeedRate);
+
         this.arcSegmentLengthSpinner.setValue(autoLevelSettings.autoLevelArcSliceLength);
         add(this.arcSegmentLengthSpinner);
 
@@ -94,12 +101,13 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
 
         values.autoLevelProbeZeroHeight = (double) this.zHeightSpinner.getValue();
         values.probeSpeed = (double) this.probeFeedRate.getValue();
+        values.probeScanFeedRate = (double) this.probeScanFeedRate.getValue();
         values.autoLevelArcSliceLength = (double)this.arcSegmentLengthSpinner.getValue();
         values.autoLevelProbeOffset = new Position(
                 (double)this.xOffsetSpinner.getValue(),
                 (double)this.yOffsetSpinner.getValue(),
                 (double)this.zOffsetSpinner.getValue(),
-                Units.UNKNOWN);
+                Units.MM);
         settings.setAutoLevelSettings(values);
     }
 
