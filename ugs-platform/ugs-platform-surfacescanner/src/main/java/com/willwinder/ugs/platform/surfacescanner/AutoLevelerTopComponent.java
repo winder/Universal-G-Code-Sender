@@ -225,9 +225,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         if (autoLevelPreview != null) {
             autoLevelPreview.updateSettings(
                     scanner.getProbeStartPositions(),
-                    scanner.getProbePositionGrid(),
-                    scanner.getMaxXYZ(),
-                    scanner.getMinXYZ());
+                    scanner.getProbePositionGrid()
+            );
         }
         updateMeshLeveler();
     }
