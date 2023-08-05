@@ -37,7 +37,6 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.model.events.ProbeEvent;
@@ -68,11 +67,7 @@ import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 /**
  * Top component which displays something.
  */
-@TopComponent.Description(
-        preferredID = "AutoLevelerTopComponent",
-        //iconBase="SET/PATH/TO/ICON/HERE", 
-        persistenceType = TopComponent.PERSISTENCE_ALWAYS
-)
+@TopComponent.Description(preferredID = "AutoLevelerTopComponent")
 @TopComponent.Registration(mode = Mode.OUTPUT, openAtStartup = false)
 @ActionID(category = AutoLevelerTopComponent.AutoLevelerCategory, id = AutoLevelerTopComponent.AutoLevelerActionId)
 @ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN)
@@ -126,15 +121,11 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         zMin.addChangeListener(cl);
         zMax.addChangeListener(cl);
         zSurface.addChangeListener(cl);
-        unitInch.addItemListener(this);
-        unitMM.addItemListener(this);
 
         // Localize...
         this.useLoadedFile.setText(Localization.getString("autoleveler.panel.use-file"));
         this.scanSurfaceButton.setText(Localization.getString("autoleveler.panel.scan-surface"));
         this.applyToGcode.setText(Localization.getString("autoleveler.panel.apply"));
-        this.unitMM.setText("mm");
-        this.unitInch.setText("inch");
         this.minLabel.setText(Localization.getString("autoleveler.panel.min"));
         this.maxLabel.setText(Localization.getString("autoleveler.panel.max"));
         this.xLabel.setText(Localization.getString("machineStatus.pin.x") + ':');
@@ -151,13 +142,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
     private void updateSettings() {
         this.bulkChanges = true;
-
-        // Only set units radio button the first time.
-        if (!this.unitInch.isSelected() && !this.unitMM.isSelected()) {
-            Units u = settings.getPreferredUnits();
-            this.unitInch.setSelected(u == Units.INCH);
-            this.unitMM.setSelected(u == Units.MM);
-        }
 
         boolean isSettingChange = false;
         AutoLevelSettings als = settings.getAutoLevelSettings();
@@ -225,7 +209,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             }
         }
 
-        Units units = this.unitMM.isSelected() ? Units.MM : Units.INCH;;
         Settings.AutoLevelSettings autoLevelerSettings = this.settings.getAutoLevelSettings();
         autoLevelerSettings.stepResolution = getValue(this.stepResolution);
         autoLevelerSettings.zRetract = getValue(this.zRetract);
@@ -234,10 +217,10 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
         double xOff = autoLevelerSettings.autoLevelProbeOffset.x;
         double yOff = autoLevelerSettings.autoLevelProbeOffset.y;
-        Position corner1 = new Position(getValue(xMin) + xOff, getValue(yMin) + yOff, getValue(zMin), units);
-        Position corner2 = new Position(getValue(xMax) + xOff, getValue(yMax) + yOff, getValue(zMax), units);
+        Position corner1 = new Position(getValue(xMin) + xOff, getValue(yMin) + yOff, getValue(zMin), backend.getSettings().getPreferredUnits());
+        Position corner2 = new Position(getValue(xMax) + xOff, getValue(yMax) + yOff, getValue(zMax), backend.getSettings().getPreferredUnits());
 
-        scanner.update(corner1, corner2, units);
+        scanner.update(corner1, corner2, backend.getSettings().getPreferredUnits());
 
         if (autoLevelPreview != null) {
             autoLevelPreview.updateSettings(
@@ -307,7 +290,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             commandProcessors.add(
                     new MeshLeveler(getValue(this.zSurface),
                             scanner.getProbePositionGrid(),
-                            scanner.getUnits()));
+                            backend.getSettings().getPreferredUnits()));
 
             activeCommandProcessors = commandProcessors.build();
             for(CommandProcessor p : activeCommandProcessors) {
@@ -330,7 +313,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        unitGroup = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
         minLabel = new javax.swing.JLabel();
         xLabel = new javax.swing.JLabel();
@@ -357,8 +339,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         zRetract = new javax.swing.JSpinner();
         jPanel3 = new javax.swing.JPanel();
         scanSurfaceButton = new javax.swing.JButton();
-        unitMM = new javax.swing.JRadioButton();
-        unitInch = new javax.swing.JRadioButton();
         applyToGcode = new javax.swing.JCheckBox();
         activeLabel = new javax.swing.JLabel();
 
@@ -566,13 +546,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             }
         });
 
-        unitGroup.add(unitMM);
-        unitMM.setSelected(true);
-        org.openide.awt.Mnemonics.setLocalizedText(unitMM, "mm");
-
-        unitGroup.add(unitInch);
-        org.openide.awt.Mnemonics.setLocalizedText(unitInch, "inch");
-
         applyToGcode.setSelected(true);
         applyToGcode.setActionCommand("applyToGcode");
         applyToGcode.setLabel("Apply to Gcode");
@@ -593,11 +566,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(scanSurfaceButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(applyToGcode, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(unitMM)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(unitInch)
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(activeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -605,9 +573,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(unitMM)
-                    .addComponent(unitInch))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(scanSurfaceButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -680,10 +645,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         }
 
         FileStats fs = backend.getSettings().getFileStats();
-
-        Units u = this.unitMM.isSelected() ? Units.MM : Units.INCH;
-        Position min = fs.minCoordinate.getPositionIn(u);
-        Position max = fs.maxCoordinate.getPositionIn(u);
+        Position min = fs.minCoordinate.getPositionIn(backend.getSettings().getPreferredUnits());
+        Position max = fs.maxCoordinate.getPositionIn(backend.getSettings().getPreferredUnits());
 
         this.xMin.setValue(min.x);
         this.yMin.setValue(min.y);
@@ -722,9 +685,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     private javax.swing.JButton scanSurfaceButton;
     private javax.swing.JButton settingsButton;
     private javax.swing.JSpinner stepResolution;
-    private javax.swing.ButtonGroup unitGroup;
-    private javax.swing.JRadioButton unitInch;
-    private javax.swing.JRadioButton unitMM;
     private javax.swing.JButton useLoadedFile;
     private javax.swing.JCheckBox visibleAutoLeveler;
     private javax.swing.JLabel xLabel;
