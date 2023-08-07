@@ -188,4 +188,9 @@ public class Position extends CNCPoint {
                 z,
                 units);
     }
+
+    public Position add(Position position) {
+        Position p = position.getPositionIn(units);
+        return new Position(x + p.x, y + p.y, z + p.z, a + p.a, b + p.b, c + p.c, units);
+    }
 }
