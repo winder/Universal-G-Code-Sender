@@ -57,14 +57,9 @@ public class GrblControllerInitializer implements IControllerInitializer {
                 return false;
             }
 
-            // Toggle the state to force UI update
-            controller.setControllerState(ControllerState.CONNECTING);
-            controller.setControllerState(ControllerState.IDLE);
-
             fetchControllerState();
 
             messageService.dispatchMessage(MessageType.INFO, String.format("*** Connected to %s\n", version.toString()));
-            controller.requestStatusReport();
             isInitialized.set(true);
             isInitializing.set(false);
             return true;
