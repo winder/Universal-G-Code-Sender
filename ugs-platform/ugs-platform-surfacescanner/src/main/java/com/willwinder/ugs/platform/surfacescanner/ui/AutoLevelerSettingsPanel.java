@@ -1,5 +1,5 @@
 /*
-    Copyright 2017-2018 Will Winder
+    Copyright 2017-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,13 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.platform.surfacescanner;
+package com.willwinder.ugs.platform.surfacescanner.ui;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
+import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 
@@ -69,46 +70,45 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
     protected void updateComponentsInternal(Settings s) {
         this.removeAll();
 
-        Settings.AutoLevelSettings autoLevelSettings = s.getAutoLevelSettings();
+        AutoLevelSettings autoLevelSettings = s.getAutoLevelSettings();
 
         setLayout(new MigLayout("wrap 1", "grow, fill"));
 
-        this.zHeightSpinner.setValue(autoLevelSettings.autoLevelProbeZeroHeight);
+        this.zHeightSpinner.setValue(autoLevelSettings.getAutoLevelProbeZeroHeight());
         add(this.zHeightSpinner);
 
-        this.probeFeedRate.setValue(autoLevelSettings.probeSpeed);
+        this.probeFeedRate.setValue(autoLevelSettings.getProbeSpeed());
         add(this.probeFeedRate);
 
-        this.probeScanFeedRate.setValue(autoLevelSettings.probeScanFeedRate);
+        this.probeScanFeedRate.setValue(autoLevelSettings.getProbeScanFeedRate());
         add(this.probeScanFeedRate);
 
-        this.arcSegmentLengthSpinner.setValue(autoLevelSettings.autoLevelArcSliceLength);
+        this.arcSegmentLengthSpinner.setValue(autoLevelSettings.getAutoLevelArcSliceLength());
         add(this.arcSegmentLengthSpinner);
 
-        this.xOffsetSpinner.setValue(autoLevelSettings.autoLevelProbeOffset.x);
+        this.xOffsetSpinner.setValue(autoLevelSettings.getAutoLevelProbeOffset().x);
         add(this.xOffsetSpinner);
 
-        this.yOffsetSpinner.setValue(autoLevelSettings.autoLevelProbeOffset.y);
+        this.yOffsetSpinner.setValue(autoLevelSettings.getAutoLevelProbeOffset().y);
         add(this.yOffsetSpinner);
 
-        this.zOffsetSpinner.setValue(autoLevelSettings.autoLevelProbeOffset.z);
+        this.zOffsetSpinner.setValue(autoLevelSettings.getAutoLevelProbeOffset().z);
         add(this.zOffsetSpinner);
     }
 
     @Override
     public void save() {
-        Settings.AutoLevelSettings values = new Settings.AutoLevelSettings();
-
-        values.autoLevelProbeZeroHeight = (double) this.zHeightSpinner.getValue();
-        values.probeSpeed = (double) this.probeFeedRate.getValue();
-        values.probeScanFeedRate = (double) this.probeScanFeedRate.getValue();
-        values.autoLevelArcSliceLength = (double)this.arcSegmentLengthSpinner.getValue();
-        values.autoLevelProbeOffset = new Position(
+        AutoLevelSettings values = new AutoLevelSettings(settings.getAutoLevelSettings());
+        values.setAutoLevelProbeZeroHeight((double) this.zHeightSpinner.getValue());
+        values.setProbeSpeed((double) this.probeFeedRate.getValue());
+        values.setProbeScanFeedRate( (double) this.probeScanFeedRate.getValue());
+        values.setAutoLevelArcSliceLength((double)this.arcSegmentLengthSpinner.getValue());
+        values.setAutoLevelProbeOffset(new Position(
                 (double)this.xOffsetSpinner.getValue(),
                 (double)this.yOffsetSpinner.getValue(),
                 (double)this.zOffsetSpinner.getValue(),
-                Units.MM);
-        settings.setAutoLevelSettings(values);
+                Units.MM));
+        settings.getAutoLevelSettings().apply(values);
     }
 
     @Override

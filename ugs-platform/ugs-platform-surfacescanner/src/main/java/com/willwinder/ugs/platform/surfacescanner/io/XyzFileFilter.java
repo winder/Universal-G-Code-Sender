@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,20 +16,19 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gui;
+package com.willwinder.ugs.platform.surfacescanner.io;
 
-import javax.swing.*;
-import javax.swing.text.DefaultFormatterFactory;
+import javax.swing.filechooser.FileFilter;
+import java.io.File;
 
-/**
- * @author Joacim Breiler
- */
-public class TextFieldWithUnit extends JFormattedTextField {
-    public TextFieldWithUnit(Unit unit, int numberOfDecimals, double value) {
-        super(new DefaultFormatterFactory(
-                new UnitFormatter(unit, numberOfDecimals),
-                new UnitFormatter(unit, numberOfDecimals),
-                new UnitFormatter(unit, numberOfDecimals, false)
-        ), value);
+public class XyzFileFilter extends FileFilter {
+    @Override
+    public boolean accept(File f) {
+        return f.isFile() && f.getName().endsWith(".xyz");
+    }
+
+    @Override
+    public String getDescription() {
+        return "MeshLab (.xyz)";
     }
 }
