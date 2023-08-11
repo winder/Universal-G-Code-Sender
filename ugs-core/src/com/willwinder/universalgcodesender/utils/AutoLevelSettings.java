@@ -34,7 +34,7 @@ public class AutoLevelSettings implements Serializable {
     private double maxX = 1.0;
     private double maxY = 1.0;
     private double maxZ = 1.0;
-    private double zRetract = 0;
+    private double zRetract = 1.0;
     private double zSurface = 0;
 
     private boolean applyToGcode = true;
