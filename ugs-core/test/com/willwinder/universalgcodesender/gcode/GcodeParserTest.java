@@ -34,7 +34,6 @@ import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -291,7 +290,7 @@ public class GcodeParserTest {
             { new Position(-5,-5,0, MM), new Position(-5,35,0, MM) },
             { new Position(35,-5,0, MM), new Position(35,35,0, MM) }
         };
-        gcp.addCommandProcessor(new MeshLeveler(0, grid, Units.MM));
+        gcp.addCommandProcessor(new MeshLeveler(0, grid));
 
         Path output = Files.createTempFile("autoleveler_processor_set_test.nc", "");
 

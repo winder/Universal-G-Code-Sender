@@ -557,8 +557,20 @@ public class Settings {
         // Setting window
         public double autoLevelProbeZeroHeight = 0;
         public Position autoLevelProbeOffset = new Position(0, 0, 0, Units.MM);
+
+        /**
+         * How long the arcs segments should be expanded in millimeters
+         */
         public double autoLevelArcSliceLength = 0.01;
+
+        /**
+         * The fast probe scan rate in mm/min
+         */
         public double probeScanFeedRate = 1000;
+
+        /**
+         * Probe speed in mm/min
+         */
         public double probeSpeed = 10;
 
         // Main window

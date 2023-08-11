@@ -7,7 +7,6 @@ import com.willwinder.universalgcodesender.gcode.processors.*;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
@@ -78,7 +77,7 @@ public class FixturesTest {
                     { new Position(-5,-5,0, MM), new Position(-5,35,0, MM) },
                     { new Position(35,-5,0, MM), new Position(35,35,0, MM) }
             };
-            gcp.addCommandProcessor(new MeshLeveler(0, grid, UnitUtils.Units.MM));
+            gcp.addCommandProcessor(new MeshLeveler(0, grid));
             return gcp;
         });
 
