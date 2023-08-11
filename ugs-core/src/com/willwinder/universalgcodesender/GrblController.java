@@ -164,6 +164,9 @@ public class GrblController extends AbstractController {
             positionPollTimer.stop();
             initializer.initialize();
             capabilities = GrblUtils.getGrblStatusCapabilities(initializer.getVersion().getVersionNumber(), initializer.getVersion().getVersionLetter());
+
+            // Toggle the state to force UI update
+            setControllerState(ControllerState.CONNECTING);
             positionPollTimer.start();
         });
     }
@@ -232,7 +235,8 @@ public class GrblController extends AbstractController {
                 this.checkStreamFinished();
             }
 
-            else if (GrblUtils.isGrblFeedbackMessage(response, capabilities)) {
+            // We can only parse feedback messages when we know what capabilities the controller have
+            else if (initializer.isInitialized() && GrblUtils.isGrblFeedbackMessage(response, capabilities)) {
                 GrblFeedbackMessage grblFeedbackMessage = new GrblFeedbackMessage(response);
                 // Convert feedback message to raw commands to update modal state.
                 updateParserModalState(getCommandCreator().createCommand(GrblUtils.parseFeedbackMessage(response, capabilities)));
