@@ -38,7 +38,6 @@ public class Spinner extends JSpinner {
         setMinimum(min);
     }
 
-
     public double getDoubleValue() {
         return (Double) getModel().getValue();
     }
@@ -63,12 +62,20 @@ public class Spinner extends JSpinner {
 
     @Override
     public Object getNextValue() {
+        if (super.getNextValue() == null) {
+            return null;
+        }
+
         double power = 1d / spinnerNumberModel.getStepSize().doubleValue();
         return Math.round((Double) super.getNextValue() * power) / power;
     }
 
     @Override
     public Object getPreviousValue() {
+        if (super.getNextValue() == null) {
+            return null;
+        }
+
         double power = 1d / spinnerNumberModel.getStepSize().doubleValue();
         return Math.round((Double) super.getPreviousValue() * power) / power;
     }

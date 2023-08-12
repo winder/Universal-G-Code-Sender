@@ -34,6 +34,10 @@ public class AutoLevelSettings implements Serializable {
     private double maxX = 1.0;
     private double maxY = 1.0;
     private double maxZ = 1.0;
+
+    /**
+     * The precentage of the maxZ to retract from the previous probe position
+     */
     private double zRetract = 1.0;
     private double zSurface = 0;
 

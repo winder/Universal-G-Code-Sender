@@ -215,7 +215,7 @@ public class SurfaceScanner {
     }
 
     private double retract(Double zLast) throws Exception {
-        double zRetract = settings.getZRetract();
+        double zRetract = settings.getZRetract() * maxXYZ.getZ();
         if (zRetract <= 0) {
             zRetract = maxXYZ.getZ() - minXYZ.getZ();
         }
@@ -227,7 +227,7 @@ public class SurfaceScanner {
                 "G90G0",
                 getProbeScanFeedRate(),
                 safeZ);
-        logger.log(Level.INFO, "MoveTo {0} {1}", new Object[]{safeZ, retractCommand});
+        logger.log(Level.INFO, "Retract to {0} {1}", new Object[]{safeZ, retractCommand});
         backend.sendGcodeCommand(true, retractCommand);
         return zBackoff;
     }

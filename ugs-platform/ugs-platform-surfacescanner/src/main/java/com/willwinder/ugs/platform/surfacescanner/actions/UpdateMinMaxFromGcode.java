@@ -73,9 +73,6 @@ public class UpdateMinMaxFromGcode extends AbstractAction implements UGSEventLis
         backend.getSettings().getAutoLevelSettings().setMin(getRoundPosition(min));
         backend.getSettings().getAutoLevelSettings().setMax(getRoundPosition(max));
 
-        // Make the retract default to the z-height
-        backend.getSettings().getAutoLevelSettings().setZRetract(max.getZ());
-
         // Reset the scanner
         surfaceScanner.reset();
     }

@@ -52,7 +52,7 @@ public class AutoLevelerPanel extends JPanel {
     private Spinner yMin;
     private Spinner zMax;
     private Spinner zMin;
-    private Spinner zRetract;
+    private PercentSpinner zRetract;
     private Spinner zSurface;
 
     public AutoLevelerPanel(SurfaceScanner surfaceScanner, MeshLevelManager meshLevelManager, AutoLevelPreview autoLevelPreview, AutoLevelSettings autoLevelSettings, UnitUtils.Units units) {
@@ -78,7 +78,7 @@ public class AutoLevelerPanel extends JPanel {
 
         stepResolution = new Spinner(autoLevelSettings.getStepResolution());
         zSurface = new Spinner(autoLevelSettings.getZSurface());
-        zRetract = new Spinner(autoLevelSettings.getZRetract(), 0.0001);
+        zRetract = new PercentSpinner(autoLevelSettings.getZRetract(), 0.001);
         zRetract.setToolTipText(Localization.getString("autoleveler.panel.z-retract.tooltip"));
 
         JLabel minLabel = new JLabel(Localization.getString("autoleveler.panel.min"), JLabel.LEFT);
@@ -114,10 +114,10 @@ public class AutoLevelerPanel extends JPanel {
         jPanel2.add(new JLabel(" "), "growx, spanx, wrap");
         jPanel2.add(resolutionLabel, "growx");
         jPanel2.add(stepResolution, "growx, wrap");
-        jPanel2.add(zRetractLabel, "growx");
-        jPanel2.add(zRetract, "growx, wrap");
         jPanel2.add(zSurfaceLabel, "growx");
         jPanel2.add(zSurface, "growx, wrap");
+        jPanel2.add(zRetractLabel, "growx");
+        jPanel2.add(zRetract, "growx, wrap");
 
         JPanel jPanel3 = new JPanel(new MigLayout("fill"));
         jPanel3.add(new JLabel(" "), "growx, spanx, wrap");
@@ -160,9 +160,6 @@ public class AutoLevelerPanel extends JPanel {
         autoLevelSettings.setMaxY(yMax.getDoubleValue());
         autoLevelSettings.setMaxZ(zMax.getDoubleValue());
         autoLevelSettings.setZRetract(zRetract.getDoubleValue());
-
-        // Make sure the max z retract isn't larger than the scan area
-        zRetract.setMaximum(Math.abs(zMin.getDoubleValue()) + zMax.getDoubleValue());
 
         // There is no point in having the step resolution bigger than the largest size
         double stepResolutionMax = Math.max(Math.abs(xMin.getDoubleValue()) + xMax.getDoubleValue(), Math.abs(yMin.getDoubleValue()) + yMax.getDoubleValue());
@@ -247,7 +244,6 @@ public class AutoLevelerPanel extends JPanel {
         double stepSize = units == UnitUtils.Units.MM ? 0.1 : 0.01;
 
         stepResolution.setStepSize(stepSize);
-        zRetract.setStepSize(stepSize);
         xMin.setStepSize(stepSize);
         xMax.setStepSize(stepSize);
         yMin.setStepSize(stepSize);
