@@ -80,7 +80,7 @@ public class Settings {
     private boolean autoConnect = false;
     private boolean autoReconnect = false;
 
-    private AutoLevelSettings autoLevelSettings = new AutoLevelSettings();
+    private final AutoLevelSettings autoLevelSettings = new AutoLevelSettings();
 
     private FileStats fileStats = new FileStats();
 
@@ -162,6 +162,9 @@ public class Settings {
      */
     public void setSettingChangeListener(SettingChangeListener listener) {
         this.listener = listener;
+        if (this.autoLevelSettings != null) {
+            autoLevelSettings.setSettingChangeListener(listener);
+        }
     }
 
     private void changed() {
@@ -455,7 +458,7 @@ public class Settings {
 
     public void setAutoLevelSettings(AutoLevelSettings settings) {
         if (! settings.equals(this.autoLevelSettings)) {
-            this.autoLevelSettings = settings;
+            this.autoLevelSettings.apply(settings);
             changed();
         }
     }
@@ -551,44 +554,6 @@ public class Settings {
 
     public void setShowTranslationsWarning(boolean showTranslationsWarning) {
         this.showTranslationsWarning = showTranslationsWarning;
-    }
-
-    public static class AutoLevelSettings {
-        // Setting window
-        public double autoLevelProbeZeroHeight = 0;
-        public Position autoLevelProbeOffset = new Position(0, 0, 0, Units.MM);
-
-        /**
-         * How long the arcs segments should be expanded in millimeters
-         */
-        public double autoLevelArcSliceLength = 0.01;
-
-        /**
-         * The fast probe scan rate in mm/min
-         */
-        public double probeScanFeedRate = 1000;
-
-        /**
-         * Probe speed in mm/min
-         */
-        public double probeSpeed = 10;
-
-        // Main window
-        public double stepResolution = 10;
-        public double zRetract = 0;
-        public double zSurface = 0;
-
-        public boolean equals(AutoLevelSettings obj) {
-            return
-                    this.autoLevelProbeZeroHeight == obj.autoLevelProbeZeroHeight &&
-                            Objects.equals(this.autoLevelProbeOffset, obj.autoLevelProbeOffset) &&
-                            this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength &&
-                            this.stepResolution == obj.stepResolution &&
-                            this.probeSpeed == obj.probeSpeed &&
-                            this.probeScanFeedRate == obj.probeScanFeedRate &&
-                            this.zRetract == obj.zRetract &&
-                            this.zSurface == obj.zSurface;
-        }
     }
 
     public static class FileStats {

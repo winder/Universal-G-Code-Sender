@@ -140,7 +140,7 @@ public abstract class AbstractUGSSettings extends JPanel {
             label = new JLabel(text);
             spinner = new JSpinner(model);
             setLayout(new MigLayout("insets 0, wrap 2"));
-            add(spinner, "w 70");
+            add(spinner, "w 90");
             add(label);
         }
 

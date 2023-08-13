@@ -77,8 +77,10 @@ public class FirmwareAction extends CallableSystemAction implements UGSEventList
     }
 
     private void firmwareUpdated() {
-        LOGGER.info("Changed to firmware " + backend.getSettings().getFirmwareVersion());
-        firmwareCombo.setSelectedItem( backend.getSettings().getFirmwareVersion());
+        if (!backend.getSettings().getFirmwareVersion().equals(firmwareCombo.getSelectedItem())) {
+            LOGGER.info("Changed to firmware " + backend.getSettings().getFirmwareVersion());
+            firmwareCombo.setSelectedItem(backend.getSettings().getFirmwareVersion());
+        }
     }
 
     @Override

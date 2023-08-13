@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbp.core.actions;
 
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.cookies.SaveCookie;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeEvent;
@@ -28,6 +27,7 @@ import org.openide.nodes.NodeReorderEvent;
 import org.openide.windows.TopComponent;
 
 import javax.swing.AbstractAction;
+import javax.swing.SwingUtilities;
 import java.beans.PropertyChangeEvent;
 
 import static org.openide.nodes.Node.PROP_COOKIE;
@@ -53,7 +53,7 @@ public abstract class ProgramAction extends AbstractAction implements NodeListen
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(PROP_COOKIE)) {
             isSaved = ((Node) evt.getSource()).getCookie(SaveCookie.class) == null;
-            ThreadHelper.invokeLater(() -> setEnabled(isEnabled()));
+            SwingUtilities.invokeLater(() -> setEnabled(isEnabled()));
         } else if (evt.getPropertyName().equals(PROP_ACTIVATED_NODES)) {
             registerNodeListener(evt);
         }

@@ -458,7 +458,6 @@ public class GUIBackend implements BackendAPI {
     @Override
     public void removeCommandProcessor(CommandProcessor commandProcessor) throws Exception {
         gcp.removeCommandProcessor(commandProcessor);
-        processGcodeFile();
 
         if (gcodeFile != null) {
             processGcodeFile();
@@ -473,7 +472,7 @@ public class GUIBackend implements BackendAPI {
 
     @Override
     public File getProcessedGcodeFile() {
-        logger.log(Level.INFO, String.format("Getting processed gcode file (%s).", this.processedGcodeFile));
+        logger.log(Level.FINEST, String.format("Getting processed gcode file (%s).", this.processedGcodeFile));
         return this.processedGcodeFile;
     }
 

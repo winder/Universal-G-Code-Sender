@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.platform.surfacescanner;
+package com.willwinder.ugs.platform.surfacescanner.renderable;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.Iterables;
@@ -31,6 +31,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.stream.DoubleStream;
 
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_AUTOLEVEL_PREVIEW;
@@ -85,6 +86,7 @@ public class AutoLevelPreview extends Renderable {
         if (positions != null && !positions.isEmpty()) {
             this.positions = positions;
             this.grid = grid;
+            updateMinMaxZ();
         }
     }
 
@@ -166,7 +168,6 @@ public class AutoLevelPreview extends Renderable {
             return;
         }
 
-        updateMinMaxZ();
         /*
     0,5 ?   ?   ?   ?   ? 5,5
 
@@ -245,6 +246,9 @@ public class AutoLevelPreview extends Renderable {
 
     @Override
     public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_AUTOLEVEL_PREVIEW, enabled);
+        if (VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_AUTOLEVEL_PREVIEW, true) != enabled) {
+            VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_AUTOLEVEL_PREVIEW, enabled);
+            notifyListeners();
+        }
     }
 }

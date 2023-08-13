@@ -34,6 +34,8 @@ import com.willwinder.ugs.nbp.designer.gui.anchor.AnchorListener;
 import com.willwinder.ugs.nbp.designer.gui.anchor.AnchorSelectorPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
+import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.ImageUtilities;
@@ -97,9 +99,9 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     }
 
     private void addPositionSettings() {
-        posXTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
+        posXTextField = new TextFieldWithUnit(TextFieldUnit.MM, 4, 0);
         posXTextField.getDocument().addDocumentListener(this);
-        posYTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
+        posYTextField = new TextFieldWithUnit(TextFieldUnit.MM, 4, 0);
         posYTextField.getDocument().addDocumentListener(this);
 
 
@@ -115,8 +117,8 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         add(posYTextField, "grow, wrap");
 
 
-        widthTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
-        heightTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
+        widthTextField = new TextFieldWithUnit(TextFieldUnit.MM, 4, 0);
+        heightTextField = new TextFieldWithUnit(TextFieldUnit.MM, 4, 0);
         widthTextField.getDocument().addDocumentListener(this);
         heightTextField.getDocument().addDocumentListener(this);
         add(new JLabel("Width", SwingConstants.RIGHT), "grow");
@@ -128,7 +130,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         add(heightTextField, "grow, wrap");
 
 
-        rotation = new TextFieldWithUnit(Unit.DEGREE, 4, 0);
+        rotation = new TextFieldWithUnit(TextFieldUnit.DEGREE, 4, 0);
         rotation.getDocument().addDocumentListener(this);
         add(new JLabel("Rotation", SwingConstants.RIGHT), "grow");
         add(rotation, "grow, wrap");

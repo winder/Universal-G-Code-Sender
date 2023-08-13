@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 package com.willwinder.ugs.platform.surfacescanner;
 
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanelController;
+import com.willwinder.ugs.platform.surfacescanner.ui.AutoLevelerSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import org.netbeans.spi.options.OptionsPanelController;
 
@@ -27,7 +28,8 @@ import org.netbeans.spi.options.OptionsPanelController;
         location = "UGS/autoleveler",
         displayName = "#AdvancedOption_DisplayName_AutoLeveler",
         keywords = "#AdvancedOption_Keywords_AutoLeveler",
-        keywordsCategory = "UGS/AutoLeveler"
+        keywordsCategory = "UGS/AutoLeveler",
+        position = 9090
 )
 @org.openide.util.NbBundle.Messages({"AdvancedOption_DisplayName_AutoLeveler=Auto Leveler", "AdvancedOption_Keywords_AutoLeveler=autoleveler, surface scanner"})
 public class AutoLevelerOptionsPanelController extends AbstractOptionsPanelController {

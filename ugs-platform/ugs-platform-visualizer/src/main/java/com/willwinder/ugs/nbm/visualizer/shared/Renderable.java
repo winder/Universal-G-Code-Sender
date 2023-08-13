@@ -21,7 +21,9 @@ package com.willwinder.ugs.nbm.visualizer.shared;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.universalgcodesender.model.Position;
-import java.util.Objects;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -31,6 +33,8 @@ public abstract class Renderable implements Comparable<Renderable> {
     Integer priority;
     Boolean enabled;
     String title;
+
+    private final Set<RenderableListener> listeners = ConcurrentHashMap.newKeySet();
 
     /**
      * Construct with a priority number. Objects should be rendered from highest
@@ -101,4 +105,12 @@ public abstract class Renderable implements Comparable<Renderable> {
     abstract public void init(GLAutoDrawable drawable);
     abstract public void reloadPreferences(VisualizerOptions vo);
     abstract public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation);
+
+    public void addListener(RenderableListener listener) {
+        listeners.add(listener);
+    }
+
+    protected void notifyListeners() {
+        listeners.forEach(RenderableListener::onChanged);
+    }
 }

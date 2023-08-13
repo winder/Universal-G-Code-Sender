@@ -16,27 +16,23 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gui;
+package com.willwinder.universalgcodesender.uielements;
+
+import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.uielements.TextFieldUnitFormatter;
+
+import javax.swing.*;
+import javax.swing.text.DefaultFormatterFactory;
 
 /**
  * @author Joacim Breiler
  */
-public enum Unit {
-    MM("mm"),
-    INCH("\""),
-    MM_PER_MINUTE("mm/min"),
-    INCHES_PER_MINUTE("inches/min"),
-    ROTATIONS_PER_MINUTE("rpm"),
-    PERCENT("%"),
-    DEGREE("°");
-
-    private final String abbreviation;
-
-    Unit(String abbreviation) {
-        this.abbreviation = abbreviation;
-    }
-
-    public String getAbbreviation() {
-        return abbreviation;
+public class TextFieldWithUnit extends JFormattedTextField {
+    public TextFieldWithUnit(TextFieldUnit unit, int numberOfDecimals, double value) {
+        super(new DefaultFormatterFactory(
+                new TextFieldUnitFormatter(unit, numberOfDecimals),
+                new TextFieldUnitFormatter(unit, numberOfDecimals),
+                new TextFieldUnitFormatter(unit, numberOfDecimals, false)
+        ), value);
     }
 }

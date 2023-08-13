@@ -21,6 +21,8 @@ package com.willwinder.ugs.nbp.designer.gui;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -51,33 +53,33 @@ public class ToolSettingsPanel extends JPanel {
         setLayout(new MigLayout("fill", "[20%][80%]"));
 
         add(new JLabel("Tool diameter"));
-        toolDiameter = new TextFieldWithUnit(Unit.MM, 3, controller.getSettings().getToolDiameter());
+        toolDiameter = new TextFieldWithUnit(TextFieldUnit.MM, 3, controller.getSettings().getToolDiameter());
         add(toolDiameter, "grow, wrap");
 
         add(new JLabel("Feed speed"));
-        feedSpeed = new TextFieldWithUnit(Unit.MM_PER_MINUTE, 0, controller.getSettings().getFeedSpeed());
+        feedSpeed = new TextFieldWithUnit(TextFieldUnit.MM_PER_MINUTE, 0, controller.getSettings().getFeedSpeed());
         add(feedSpeed, "grow, wrap");
 
         add(new JLabel("Plunge speed"));
-        plungeSpeed = new TextFieldWithUnit(Unit.MM_PER_MINUTE, 0, controller.getSettings().getPlungeSpeed());
+        plungeSpeed = new TextFieldWithUnit(TextFieldUnit.MM_PER_MINUTE, 0, controller.getSettings().getPlungeSpeed());
         add(plungeSpeed, "grow, wrap");
 
         add(new JLabel("Depth per pass"));
-        depthPerPass = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getDepthPerPass());
+        depthPerPass = new TextFieldWithUnit(TextFieldUnit.MM, 2, controller.getSettings().getDepthPerPass());
         add(depthPerPass, "grow, wrap");
 
         add(new JLabel("Step over"));
-        stepOver =  new TextFieldWithUnit(Unit.PERCENT, 2,
+        stepOver =  new TextFieldWithUnit(TextFieldUnit.PERCENT, 2,
                 controller.getSettings().getToolStepOver());
         add(stepOver, "grow, wrap");
 
         add(new JLabel("Safe height"));
-        safeHeight = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getSafeHeight());
+        safeHeight = new TextFieldWithUnit(TextFieldUnit.MM, 2, controller.getSettings().getSafeHeight());
         add(safeHeight, "grow, wrap");
 
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap");
         add(new JLabel("Spindle speed"));
-        spindleSpeed =  new TextFieldWithUnit(Unit.ROTATIONS_PER_MINUTE, 0, controller.getSettings().getSpindleSpeed());
+        spindleSpeed =  new TextFieldWithUnit(TextFieldUnit.ROTATIONS_PER_MINUTE, 0, controller.getSettings().getSpindleSpeed());
         add(spindleSpeed, "grow, wrap");
     }
 
