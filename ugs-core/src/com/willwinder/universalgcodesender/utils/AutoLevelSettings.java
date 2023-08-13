@@ -24,7 +24,7 @@ public class AutoLevelSettings implements Serializable {
      */
     private double probeSpeed = 10;
     // Main window
-    private double stepResolution = 10;
+    private double stepResolution = 1;
     /**
      * Sets the corner for the minimum position to scan during auto leveling
      */

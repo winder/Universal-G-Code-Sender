@@ -57,6 +57,9 @@ public class SurfaceScanner {
     public SurfaceScanner(BackendAPI backend) {
         this.backend = backend;
         this.settings = backend.getSettings().getAutoLevelSettings();
+        Position minPosition = new Position(settings.getMinX(), settings.getMinY(), settings.getMinZ(), backend.getSettings().getPreferredUnits());
+        Position maxPosition = new Position(settings.getMaxX(), settings.getMaxY(), settings.getMaxZ(), backend.getSettings().getPreferredUnits());
+        update(minPosition, maxPosition);
     }
 
     /**
@@ -156,16 +159,18 @@ public class SurfaceScanner {
     }
 
     public void probeEvent(final Position p) {
-        Position probePosition = pendingPositions.pop();
-        if (!isEqual(p.getX(), probePosition.getX(), 0.0001) || !isEqual(p.getY(), probePosition.getY(), 0.0001)) {
+        Position expectedProbePosition = pendingPositions.pop();
+        Position probedPosition = p.getPositionIn(expectedProbePosition.getUnits());
+
+        if (!isEqual(probedPosition.getX(), expectedProbePosition.getX(), 0.0001) || !isEqual(probedPosition.getY(), expectedProbePosition.getY(), 0.0001)) {
             reset();
-            throw new RuntimeException(String.format("Unexpected probe location, expected %s to be %s", p, probePosition));
+            throw new RuntimeException(String.format("Unexpected probe location, expected %s to be %s", probedPosition, expectedProbePosition));
         }
         Position settingsOffset = settings.getAutoLevelProbeOffset().getPositionIn(getPreferredUnits());
 
-        probePosition.setX(probePosition.getX() + settingsOffset.getX());
-        probePosition.setY(probePosition.getY() + settingsOffset.getY());
-        probePosition.setZ(p.getZ() + settingsOffset.getZ());
+        expectedProbePosition.setX(expectedProbePosition.getX() + settingsOffset.getX());
+        expectedProbePosition.setY(expectedProbePosition.getY() + settingsOffset.getY());
+        expectedProbePosition.setZ(probedPosition.getZ() + settingsOffset.getZ());
         listeners.forEach(SurfaceScannerListener::onScannerUpdate);
     }
 
@@ -241,7 +246,7 @@ public class SurfaceScanner {
         while (!pendingPositions.isEmpty()) {
             Position p = new Position(pendingPositions.peek());
             p.setZ(ThreadLocalRandom.current().nextDouble(minXYZ.getZ(), maxXYZ.getZ()));
-            probeEvent(p.getPositionIn(Units.MM));
+            probeEvent(p);
         }
 
         listeners.forEach(SurfaceScannerListener::onScannerUpdate);
