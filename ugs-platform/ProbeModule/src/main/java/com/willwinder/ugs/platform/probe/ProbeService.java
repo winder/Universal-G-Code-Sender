@@ -1,5 +1,5 @@
 /*
-    Copyright 2017-2018 Will Winder
+    Copyright 2017-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,8 @@
 package com.willwinder.ugs.platform.probe;
 
 import com.google.common.base.Preconditions;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.platform.probe.renderable.ProbePreviewManager;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -30,6 +32,8 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.ProbeEvent;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.ServiceProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +45,7 @@ import java.util.logging.Logger;
  *
  * @author wwinder
  */
+@ServiceProvider(service = ProbeService.class)
 public class ProbeService implements UGSEventListener {
     private static final Logger logger = Logger.getLogger(ProbeService.class.getName());
     private static final String WCS_PATTERN = "G10 L20 P%d %s";
@@ -79,57 +84,13 @@ public class ProbeService implements UGSEventListener {
         }
     }
 
-    /**
-     * Parameters passed into the probe operations.
-     */
-    public static class ProbeParameters {
-        public String errorMessage;
-        public UGSEvent event;
-        public final double probeDiameter;
-        public final double xSpacing;
-        public final double ySpacing;
-        public final double zSpacing;
-        public final double xOffset;
-        public final double yOffset;
-        public final double zOffset;
-        public final double holeDiameter;
-        public final double feedRate;
-        public final double feedRateSlow;
-        public final double retractAmount;
-        public final WorkCoordinateSystem wcsToUpdate;
-        public final Units units;
-
-        // Results
-        public final Position startPosition;
-        public Position endPosition;
-
-        public ProbeParameters(double diameter, Position start,
-                double xSpacing, double ySpacing, double zSpacing,
-                double xOffset, double yOffset, double zOffset,
-                double holeDiameter,
-                double feedRate, double feedRateSlow, double retractAmount,
-                Units u, WorkCoordinateSystem wcs) {
-            this.endPosition = null;
-            this.probeDiameter = diameter;
-            this.startPosition = start;
-            this.xSpacing = xSpacing;
-            this.ySpacing = ySpacing;
-            this.zSpacing = zSpacing;
-            this.xOffset = xOffset;
-            this.yOffset = yOffset;
-            this.zOffset = zOffset;
-            this.holeDiameter = holeDiameter;
-            this.feedRate = feedRate;
-            this.feedRateSlow = feedRateSlow;
-            this.retractAmount = retractAmount;
-            this.units = u;
-            this.wcsToUpdate = wcs;
-        }
-    }
-
     public ProbeService(BackendAPI backend) {
         this.backend = backend;
         this.backend.addUGSEventListener(this);
+    }
+
+    public ProbeService() {
+        this(CentralLookup.getDefault().lookup(BackendAPI.class));
     }
 
     protected static double retractDistance(double spacing, double retractAmount) {
@@ -153,7 +114,7 @@ public class ProbeService implements UGSEventListener {
         }
     }
 
-    void performZProbe(ProbeParameters params) throws IllegalStateException {
+    public void performZProbe(ProbeParameters params) throws IllegalStateException {
         validateState();
         currentOperation = ProbeOperation.Z;
         this.params = params;
@@ -175,6 +136,7 @@ public class ProbeService implements UGSEventListener {
                 }
                 case 1: {
                     gcode("G91 " + unit + " G0 Z" + retractDistance(params.zSpacing, params.retractAmount));
+                    // TODO If probing a large distance this could cause soft limit alarm here, use the retract amount on the second probe
                     probe('Z', params.feedRateSlow, params.zSpacing, params.units);
                     break;
                 }
@@ -208,7 +170,7 @@ public class ProbeService implements UGSEventListener {
         }
     }
 
-    void performOutsideCornerProbe(ProbeParameters params) throws IllegalStateException {
+    public void performOutsideCornerProbe(ProbeParameters params) throws IllegalStateException {
         validateState();
         currentOperation = ProbeOperation.OUTSIDE_XY;
         this.params = params;
@@ -284,7 +246,7 @@ public class ProbeService implements UGSEventListener {
         }
     }
 
-    void performXYZProbe(ProbeParameters params) throws IllegalStateException {
+    public void performXYZProbe(ProbeParameters params) throws IllegalStateException {
         validateState();
         currentOperation = ProbeOperation.OUTSIDE_XYZ;
         this.params = params;
@@ -381,7 +343,7 @@ public class ProbeService implements UGSEventListener {
         }
     }
 
-    void performHoleCenterProbe(ProbeParameters params) throws IllegalStateException {
+    public void performHoleCenterProbe(ProbeParameters params) throws IllegalStateException {
         validateState();
         currentOperation = ProbeOperation.INSIDE_CIRCLE;
         this.params = params;

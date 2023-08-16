@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,8 +22,12 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
+import com.willwinder.ugs.platform.probe.ProbeParameters;
+import com.willwinder.ugs.platform.probe.ProbeService;
+import com.willwinder.ugs.platform.probe.ProbeSettings;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
+import org.openide.util.Lookup;
 
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PROBE_PREVIEW;
 
@@ -31,20 +35,26 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
  *
  * @author wwinder
  */
-public class ZProbePathPreview extends Renderable {
+public class ZProbePathPreview extends AbstractProbePreview {
     private Double probeDepth = null;
     private Double probeOffset = null;
     private Position start = null;
 
     private final GLUT glut;
 
-    public ZProbePathPreview(String title) {
-        super(10, title);
+    public ZProbePathPreview() {
+        super(10, Localization.getString("probe.visualizer.z-preview"));
         glut = new GLUT();
     }
 
-    public void setStart(Position p) {
-        this.start = p;
+    @Override
+    public void setContext(ProbeParameters pc, Position startWork, Position startMachine) {
+        this.start = startWork;
+    }
+
+    @Override
+    public void updateSettings() {
+        updateSpacing(ProbeSettings.getzDistance(), ProbeSettings.getzOffset());
     }
 
     public void updateSpacing(double depth, double offset) {
@@ -81,7 +91,7 @@ public class ZProbePathPreview extends Renderable {
 
         GL2 gl = drawable.getGL().getGL2();
 
-        if (this.start != null) {
+        if (this.start != null && isProbeCycleActive()) {
             gl.glTranslated(start.x, start.y, start.z);
         } else {
             gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);

@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.platform.probe;
 
-import com.willwinder.ugs.platform.probe.ProbeService.ProbeParameters;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;

@@ -1,5 +1,5 @@
 /*
-    Copyright 2017-2018 Will Winder
+    Copyright 2017-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,7 +23,9 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
-import com.willwinder.ugs.platform.probe.ProbeService.ProbeParameters;
+import com.willwinder.ugs.platform.probe.ProbeParameters;
+import com.willwinder.ugs.platform.probe.ProbeSettings;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PROBE_PREVIEW;
@@ -34,7 +36,7 @@ import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelper
  *
  * @author risototh
  */
-public class HoleCenterPathPreview extends Renderable
+public class HoleCenterPathPreview extends AbstractProbePreview
 {
     private Position startWork = null;
     private ProbeParameters pc = null;
@@ -209,14 +211,20 @@ public class HoleCenterPathPreview extends Renderable
         new Triangle(-4.714387e-01, -1.665699e-01, 0.000000e+00, -5.500000e-01, -5.500000e-01, 0.000000e+00, -4.928080e-01, -8.450041e-02, 0.000000e+00),
     };
 
-    public HoleCenterPathPreview(String title) {
-        super(10, title);
+    public HoleCenterPathPreview() {
+        super(10, Localization.getString("probe.visualizer.hole-center-preview"));
         glut = new GLUT();
+        ProbeSettings.addPreferenceChangeListener(e -> this.hcDiameter = ProbeSettings.getHcDiameter());
     }
 
     public void setContext(ProbeParameters pc, Position startWork, Position startMachine) {
         this.pc = pc;
         this.startWork = startWork;
+    }
+
+    @Override
+    public void updateSettings() {
+        updateSpacing(ProbeSettings.getHcDiameter());
     }
 
     @Override
@@ -263,7 +271,7 @@ public class HoleCenterPathPreview extends Renderable
 
         GL2 gl = drawable.getGL().getGL2();
 
-        if (startWork != null && pc.endPosition == null) {
+        if (startWork != null && pc.endPosition == null && isProbeCycleActive()) {
             // The WCS is reset at the start of these operations.
             if (pc.startPosition != null) {
             }

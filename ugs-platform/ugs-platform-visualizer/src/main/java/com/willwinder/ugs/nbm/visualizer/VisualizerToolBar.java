@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbm.visualizer.actions.CameraXPreset;
 import com.willwinder.ugs.nbm.visualizer.actions.CameraYPreset;
 import com.willwinder.ugs.nbm.visualizer.actions.CameraZPreset;
 import com.willwinder.ugs.nbp.core.actions.OutlineAction;
+import com.willwinder.ugs.nbp.core.actions.ToggleUnitAction;
 import com.willwinder.ugs.nbp.core.ui.ToolBar;
 
 import javax.swing.*;
@@ -45,6 +46,8 @@ public class VisualizerToolBar extends ToolBar {
         createAndAddButton(new CameraZPreset());
         addSeparator();
         createAndAddButton(new OutlineAction());
+        add(Box.createGlue());
+        createAndAddButton(new ToggleUnitAction());
     }
 
     private void createAndAddButton(Action action) {
