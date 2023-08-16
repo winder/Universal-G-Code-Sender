@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   height="16px"
+   width="16px"
+   viewBox="0 0 640 512"
+   version="1.1"
+   id="svg32725"
+   sodipodi:docname="xyzprobe.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs32729" />
+  <sodipodi:namedview
+     id="namedview32727"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="32.09375"
+     inkscape:cx="12.884129"
+     inkscape:cy="3.0691334"
+     inkscape:window-width="2030"
+     inkscape:window-height="1322"
+     inkscape:window-x="2015"
+     inkscape:window-y="78"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg32725" />
+  <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:312.594px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#afb1b3;fill-opacity:1;stroke:none;stroke-width:7.81486"
+     x="-5.9527178"
+     y="167.11374"
+     id="text35489"
+     transform="scale(0.94951072,1.053174)"><tspan
+       sodipodi:role="line"
+       id="tspan35487"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#afb1b3;fill-opacity:1;stroke-width:7.81486"
+       x="-5.9527178"
+       y="167.11374">XYZ</tspan></text>
+  <g
+     id="g5096"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5098"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5100"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5102"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5104"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5106"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5108"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5110"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5112"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5114"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5116"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5118"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5120"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5122"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <g
+     id="g5124"
+     transform="matrix(0.44798458,0,0,0.44798458,364.62774,-8406.3854)"
+     style="display:inline" />
+  <path
+     d="m 320,216 c 12.44529,0 22.5,10.05471 22.5,22.5 v 24.39846 C 399.03125,272.32029 443.67971,316.96875 453.10154,373.5 H 477.5 c 12.44529,0 22.5,10.05471 22.5,22.5 0,12.44529 -10.05471,22.5 -22.5,22.5 H 453.10154 C 443.67971,475.03125 399.03125,519.67971 342.5,529.10154 V 553.5 c 0,12.44529 -10.05471,22.5 -22.5,22.5 -12.44529,0 -22.5,-10.05471 -22.5,-22.5 V 529.10154 C 240.96875,519.67971 196.32029,475.03125 186.89846,418.5 H 162.5 c -12.44529,0 -22.5,-10.05471 -22.5,-22.5 0,-12.44529 10.05471,-22.5 22.5,-22.5 h 24.39846 C 196.32029,316.96875 240.96875,272.32029 297.5,262.89846 V 238.5 c 0,-12.44529 10.05471,-22.5 22.5,-22.5 z m -90,180 a 90,90 0 1 0 180,0 90,90 0 1 0 -180,0 z m 90,-56.25 a 56.25,56.25 0 1 1 0,112.5 56.25,56.25 0 1 1 0,-112.5 z"
+     id="path45806"
+     style="stroke-width:0.703125;fill:#afb1b3;fill-opacity:1" />
+</svg>

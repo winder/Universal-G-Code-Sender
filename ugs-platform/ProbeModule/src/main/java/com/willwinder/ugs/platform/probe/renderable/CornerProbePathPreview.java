@@ -1,5 +1,5 @@
 /*
-    Copyright 2017-2018 Will Winder
+    Copyright 2017-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,8 +22,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
-import com.willwinder.ugs.platform.probe.ProbeService.ProbeParameters;
+import com.willwinder.ugs.platform.probe.ProbeParameters;
 import com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side;
 import com.willwinder.universalgcodesender.model.Position;
 
@@ -37,7 +36,7 @@ import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelper
  *
  * @author wwinder
  */
-public class CornerProbePathPreview extends Renderable {
+public abstract class CornerProbePathPreview extends AbstractProbePreview {
     private final Position spacing = new Position(0, 0, 0);
     private final Position thickness = new Position(0, 0, 0);
     private Position startWork = null;
@@ -183,7 +182,7 @@ public class CornerProbePathPreview extends Renderable {
 
         GL2 gl = drawable.getGL().getGL2();
 
-        if (startWork != null && pc.endPosition == null) {
+        if (startWork != null && pc.endPosition == null && isProbeCycleActive()) {
             // The WCS is reset at the start of these operations.
             if (pc.startPosition != null) {
             }

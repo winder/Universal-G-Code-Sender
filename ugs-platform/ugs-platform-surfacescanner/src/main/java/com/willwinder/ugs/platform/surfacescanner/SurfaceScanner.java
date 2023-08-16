@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,6 +54,8 @@ public class SurfaceScanner {
     private Position minXYZ = Position.ZERO;
     private Position maxXYZ = Position.ZERO;
     private Position machineWorkOffset = new Position(Units.MM);
+
+    private final AtomicBoolean isScanning = new AtomicBoolean(false);
 
     public SurfaceScanner(BackendAPI backend) {
         this.backend = backend;
@@ -90,7 +93,7 @@ public class SurfaceScanner {
     }
 
     public void handleEvent(ProbeEvent evt) {
-        if (pendingPositions.isEmpty()) return;
+        if (pendingPositions.isEmpty() || !isScanning.get()) return;
 
         Position probeMachinePosition = evt.getProbePosition();
         if (!Double.isFinite(probeMachinePosition.getZ())) {
@@ -123,6 +126,7 @@ public class SurfaceScanner {
     }
 
     public void reset() {
+        isScanning.set(false);
         double resolution = settings.getStepResolution();
 
         int xAxisPoints = (int) (Math.ceil((maxXYZ.getX() - minXYZ.getX()) / resolution)) + 1;
@@ -178,6 +182,7 @@ public class SurfaceScanner {
      * Begin a scan the surface {@link #handleEvent(ProbeEvent)} must be called to properly progress through the scan.
      */
     public void scan() {
+        isScanning.set(true);
         Position work = backend.getWorkPosition();
         Position machine = backend.getMachinePosition();
         machineWorkOffset.x = work.x - machine.x;

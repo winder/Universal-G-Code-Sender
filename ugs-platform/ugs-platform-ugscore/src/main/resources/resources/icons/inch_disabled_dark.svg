@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="16"
+   height="16"
+   viewBox="0 0 4.2333332 4.2333333"
+   version="1.1"
+   id="svg5"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2" />
+  <g
+     id="layer1">
+    <path
+       d="M 0,1.2476507 H 0.34377416 V 2.9379102 H 0 Z"
+       id="path7173"
+       style="font-weight:bold;font-size:1.8287px;line-height:1.25;-inkscape-font-specification:'sans-serif Bold';letter-spacing:-0.171441px;fill:#565656;stroke-width:0.193044" />
+    <path
+       d="M 0.50896394,1.2476507 H 0.8929195 L 1.377775,2.4069446 V 1.2476507 H 1.7036908 V 2.9379102 H 1.3197352 L 0.8348797,1.7786163 V 2.9379102 H 0.50896394 Z"
+       id="path7175"
+       style="font-weight:bold;font-size:1.8287px;line-height:1.25;-inkscape-font-specification:'sans-serif Bold';letter-spacing:-0.171441px;fill:#565656;stroke-width:0.193044" />
+    <path
+       d="m 2.9252048,2.8450761 q -0.09465,0.062267 -0.1973353,0.093966 -0.1026858,0.0317 -0.2143008,0.0317 -0.3330591,0 -0.5277156,-0.2354816 Q 1.7911965,2.4986469 1.7911965,2.094479 q 0,-0.4052999 0.1946566,-0.6407816 0.1946565,-0.2366136 0.5277156,-0.2366136 0.111615,0 0.2143008,0.0317 0.1026858,0.0317 0.1973353,0.093966 V 1.692575 Q 2.8296624,1.6099301 2.7367987,1.5714379 2.643935,1.5329457 2.5412492,1.5329457 q -0.1839415,0 -0.289306,0.1494402 -0.1053646,0.1494403 -0.1053646,0.4120928 0,0.2615203 0.1053646,0.4109605 0.1053645,0.1494402 0.289306,0.1494402 0.1026858,0 0.1955495,-0.038492 0.092864,-0.038492 0.1884061,-0.1211379 z"
+       id="path7177"
+       style="font-weight:bold;font-size:1.8287px;line-height:1.25;-inkscape-font-specification:'sans-serif Bold';letter-spacing:-0.171441px;fill:#565656;stroke-width:0.193044" />
+    <path
+       d="M 3.0386052,1.2476507 H 3.3823794 V 1.8918286 H 3.8895579 V 1.2476507 H 4.233332 V 2.9379102 H 3.8895579 V 2.2212764 H 3.3823794 V 2.9379102 H 3.0386052 Z"
+       id="path7179"
+       style="font-weight:bold;font-size:1.8287px;line-height:1.25;-inkscape-font-specification:'sans-serif Bold';letter-spacing:-0.171441px;fill:#565656;stroke-width:0.193044" />
+  </g>
+</svg>
