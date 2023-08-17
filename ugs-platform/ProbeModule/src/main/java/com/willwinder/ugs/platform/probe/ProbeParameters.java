@@ -36,6 +36,10 @@ public class ProbeParameters {
     public final double holeDiameter;
     public final double feedRate;
     public final double feedRateSlow;
+
+    /**
+     * The distance to retract after first fast probe cycle before running the next slow probe cycle
+     */
     public final double retractAmount;
     public final WorkCoordinateSystem wcsToUpdate;
     public final UnitUtils.Units units;
