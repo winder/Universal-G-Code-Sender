@@ -69,7 +69,7 @@ public class AutoLevelerPanel extends JPanel {
     }
 
     private void initComponents() {
-        xMin = new Spinner(autoLevelSettings.getMinZ());
+        xMin = new Spinner(autoLevelSettings.getMinX());
         yMin = new Spinner(autoLevelSettings.getMinY());
         zMin = new Spinner(autoLevelSettings.getMinZ());
         xMax = new Spinner(autoLevelSettings.getMaxX(), 0.0001);

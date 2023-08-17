@@ -68,7 +68,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     public final static String ProbeActionId = "com.willwinder.ugs.platform.probe.ProbeTopComponent.renamed";
     public final static String ProbeCategory = LocalizingService.CATEGORY_WINDOW;
     // hole diameter tab
-    private static final String HC_TAB = "HC";
+    private static final String HC_TAB = "Hole center";
     // xyz tab
     private static final String XYZ_TAB = "XYZ";
     // outside tab
@@ -163,7 +163,17 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
     @Override
     public void componentClosed() {
-        probePreviewManager.clear();
+        probePreviewManager.inactivate();
+    }
+
+    @Override
+    protected void componentHidden() {
+        probePreviewManager.inactivate();
+    }
+
+    @Override
+    protected void componentShowing() {
+        probePreviewManager.activate();
     }
 
     @OnStart

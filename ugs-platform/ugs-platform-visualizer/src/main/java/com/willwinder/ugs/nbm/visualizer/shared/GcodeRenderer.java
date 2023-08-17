@@ -41,9 +41,9 @@ import org.openide.util.lookup.ServiceProviders;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -111,7 +111,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     private Overlay overlay;
     private final String dimensionsLabel = "";
 
-    private final ArrayList<Renderable> objects;
+    private final java.util.List<Renderable> objects;
     private boolean idle = true;
 
     // Preferences
@@ -133,7 +133,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         setVerticalTranslationVector();
         setHorizontalTranslationVector();
 
-        objects = new ArrayList<>();
+        objects = new CopyOnWriteArrayList<>();
         objects.add(new MachineBoundries(Localization.getString("platform.visualizer.renderable.machine-boundries")));
         objects.add(new Tool(Localization.getString("platform.visualizer.renderable.tool-location")));
         objects.add(new MouseOver(Localization.getString("platform.visualizer.renderable.mouse-indicator")));
