@@ -111,15 +111,14 @@ public class SurfaceScanner {
                 new Object[]{probePosition.getX(), probePosition.getY(), probePosition.getZ()});
         probeEvent(probePosition);
 
-        try {
+        if (pendingPositions.isEmpty()) {
+            // The probing is done!
+            moveToSafeStartPoint(probePosition);
+        } else {
             double retractedZ = retract(probePosition.getZ());
-            if (!pendingPositions.isEmpty()) {
-                probeNextPoint(retractedZ);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            probeNextPoint(retractedZ);
         }
-    }
+}
 
     private Units getPreferredUnits() {
         return this.backend.getSettings().getPreferredUnits();
@@ -166,7 +165,7 @@ public class SurfaceScanner {
         Position expectedProbePosition = pendingPositions.pop();
         Position probedPosition = p.getPositionIn(expectedProbePosition.getUnits());
 
-        // The position reported from controller might lack some precision on the X/Y position.
+        // The position reported from the controller might lack some precision on the X/Y position.
         // We therefore need to lower the precision when checking the probed X/Y axes
         double delta = expectedProbePosition.getUnits() == Units.MM ? 0.01 : 0.001;
         if (!isEqual(probedPosition.getX(), expectedProbePosition.getX(), delta) || !isEqual(probedPosition.getY(), expectedProbePosition.getY(), delta)) {
@@ -188,10 +187,44 @@ public class SurfaceScanner {
         isScanning.set(true);
         Position work = backend.getWorkPosition();
         Position machine = backend.getMachinePosition();
+        machineWorkOffset = new Position(work.getUnits());
         machineWorkOffset.x = work.x - machine.x;
         machineWorkOffset.y = work.y - machine.y;
         machineWorkOffset.z = work.z - machine.z;
-        probeNextPoint(work.getZ());
+
+        moveToSafeStartPoint(work);
+        probeNextPoint(maxXYZ.getZ());
+    }
+
+    private void moveToSafeStartPoint(Position currentPosition) {
+        try {
+            // Move up if below probe area
+            double safetyHeight = (UnitUtils.scaleUnits(Units.MM, maxXYZ.getUnits()) * backend.getSettings().getSafetyHeight()) + maxXYZ.getZ();
+            if (currentPosition.getPositionIn(maxXYZ.getUnits()).getZ() < safetyHeight) {
+                PartialPosition safeHeightPos = PartialPosition.builder(maxXYZ.getUnits()).setZ(safetyHeight).build();
+                String cmd = GcodeUtils.generateMoveCommand(
+                        "G90G0", getProbeScanFeedRate(), safeHeightPos);
+                logger.log(Level.INFO, "Move up to safe height {0}", new Object[]{safeHeightPos});
+                backend.sendGcodeCommand(true, cmd);
+            }
+
+            // Move to the XY start position
+            PartialPosition startPos = PartialPosition.builder(minXYZ).clearZ().build();
+            String cmd = GcodeUtils.generateMoveCommand(
+                    "G90G0", getProbeScanFeedRate(), startPos);
+            logger.log(Level.INFO, "Move to start position {0}", new Object[]{startPos});
+            backend.sendGcodeCommand(true, cmd);
+
+            // Move to the Y start position
+            PartialPosition startHeight = PartialPosition.builder(maxXYZ.getUnits()).setZ(maxXYZ.getZ()).build();
+            cmd = GcodeUtils.generateMoveCommand(
+                    "G90G0", getProbeScanFeedRate(), startHeight);
+            logger.log(Level.INFO, "Move to start height {0}", new Object[]{startHeight});
+            backend.sendGcodeCommand(true, cmd);
+        } catch (Exception e) {
+            reset();
+            throw new RuntimeException(e);
+        }
     }
 
     public Optional<Position> getNextProbePoint() {
@@ -227,7 +260,7 @@ public class SurfaceScanner {
         return settings.getProbeScanFeedRate() * UnitUtils.scaleUnits(Units.MM, getPreferredUnits());
     }
 
-    private double retract(Double zLast) throws Exception {
+    private double retract(Double zLast) {
         double zRetract = settings.getZRetract() * maxXYZ.getZ();
         if (zRetract <= 0) {
             zRetract = maxXYZ.getZ() - minXYZ.getZ();
@@ -240,8 +273,14 @@ public class SurfaceScanner {
                 "G90G0",
                 getProbeScanFeedRate(),
                 safeZ);
-        logger.log(Level.INFO, "Retract to {0} {1}", new Object[]{safeZ, retractCommand});
-        backend.sendGcodeCommand(true, retractCommand);
+
+        try {
+            logger.log(Level.INFO, "Retract to {0} {1}", new Object[]{safeZ, retractCommand});
+            backend.sendGcodeCommand(true, retractCommand);
+        } catch (Exception e) {
+            reset();
+            throw new RuntimeException(e);
+        }
         return zBackoff;
     }
 
