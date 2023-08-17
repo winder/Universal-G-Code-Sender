@@ -75,7 +75,9 @@ public class SettingsPanel extends JPanel {
         add(new JSpinner(settingsSlowMeasureRate), "growx");
 
         add(new JLabel(Localization.getString("probe.retract-amount") + ":"), "al right");
-        add(new JSpinner(settingsRetractAmount), "growx");
+        JSpinner retractSpinner = new JSpinner(settingsRetractAmount);
+        retractSpinner.setToolTipText(Localization.getString("probe.retract-amount.tooltip"));
+        add(retractSpinner, "growx");
     }
 
     private void registerListeners() {

@@ -37,7 +37,7 @@ public class ProbePreviewManager {
     }
 
     public void setActive(String name) {
-        clear();
+        inactivate();
         AbstractProbePreview currentPreview = probePreviewMap.get(name);
         activePreview.set(currentPreview);
         if (currentPreview != null) {
@@ -46,7 +46,7 @@ public class ProbePreviewManager {
         }
     }
 
-    public void clear() {
+    public void inactivate() {
         AbstractProbePreview currentPreview = activePreview.get();
         if (currentPreview != null) {
             RenderableUtils.removeRenderable(currentPreview);
@@ -64,6 +64,13 @@ public class ProbePreviewManager {
         AbstractProbePreview currentPreview = activePreview.get();
         if (currentPreview != null) {
             currentPreview.updateSettings();
+        }
+    }
+
+    public void activate() {
+        AbstractProbePreview currentPreview = activePreview.get();
+        if (currentPreview != null) {
+            RenderableUtils.registerRenderable(currentPreview);
         }
     }
 }
