@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2022 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -29,14 +29,7 @@ import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 
 import static com.jogamp.opengl.GL.GL_LINES;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_X;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_Y;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_Z;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDRY;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_X;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Y;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.*;
 
 /**
  * Displays the machine boundries based on the soft limits
@@ -45,13 +38,16 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
  */
 public class MachineBoundries extends Renderable {
     private final BackendAPI backendAPI;
-    private PartialPosition maxPosition = new PartialPosition(0d, 0d, 0d, UnitUtils.Units.MM);
+    private PartialPosition minPosition = new PartialPosition(0d, 0d, 0d, UnitUtils.Units.MM);
     private float[] machineBoundryBottomColor;
     private float[] machineBoundryLineColor;
     private float[] yAxisColor;
     private float[] xAxisColor;
     private float[] zAxisColor;
     private boolean softLimitsEnabled = false;
+    private int invertX = 1;
+    private int invertY = 1;
+    private int invertZ = 1;
 
     /**
      * Construct with a priority number. Objects should be rendered from highest
@@ -72,20 +68,16 @@ public class MachineBoundries extends Renderable {
         try {
             IFirmwareSettings firmwareSettings = backendAPI.getController().getFirmwareSettings();
             softLimitsEnabled = firmwareSettings.isSoftLimitsEnabled();
-            if (softLimitsEnabled) {
-                PartialPosition.Builder builder = PartialPosition.builder(maxPosition);
-                for (Axis axis : Axis.values()) {
-                    double maxPosition = firmwareSettings.getSoftLimit(axis);
-
-                    // If the homing process for an axis is inverted so will the machine zero position
-                    if (firmwareSettings.isHomingDirectionInverted(axis)) {
-                        maxPosition = -maxPosition;
-                    }
-
-                    builder.setValue(axis, maxPosition);
-                }
-                maxPosition = builder.build();
+            if (!softLimitsEnabled) {
+                return;
             }
+
+            PartialPosition.Builder minPositionBuilder = PartialPosition.builder(UnitUtils.Units.MM);
+            for (Axis axis : Axis.values()) {
+                double softLimit = firmwareSettings.getSoftLimit(axis);
+                minPositionBuilder.setValue(axis, -softLimit);
+            }
+            minPosition = minPositionBuilder.build();
         } catch (FirmwareSettingsException ignored) {
             // Never mind this.
         }
@@ -125,6 +117,9 @@ public class MachineBoundries extends Renderable {
         xAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_X).value);
         yAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_Y).value);
         zAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_Z).value);
+        invertX = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_X, false) ? -1 : 1;
+        invertY = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_Y, false) ? -1 : 1;
+        invertZ = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_Z, false) ? -1 : 1;
     }
 
     @Override
@@ -136,18 +131,14 @@ public class MachineBoundries extends Renderable {
         double yOffset = workCoord.y - machineCoord.y;
         double zOffset = workCoord.z - machineCoord.z;
 
-        double invertX = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_X, false) ? -1 : 1;
-        double invertY = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_Y, false) ? -1 : 1;
-        double invertZ = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_Z, false) ? -1 : 1;
-
-        Position bottomLeft = new Position((maxPosition.getX() * invertX) + xOffset, (maxPosition.getY() * invertY) + yOffset, (maxPosition.getZ() * invertZ) + zOffset);
+        Position bottomLeft = new Position((minPosition.getX() * invertX) + xOffset, (minPosition.getY() * invertY) + yOffset, (minPosition.getZ() * invertZ) + zOffset);
         Position topRight = new Position(xOffset, yOffset, zOffset);
 
         GL2 gl = drawable.getGL().getGL2();
         gl.glPushMatrix();
-            drawBase(gl, bottomLeft, topRight);
-            drawSides(gl, bottomLeft, topRight);
-            drawAxisLines(gl, bottomLeft, topRight);
+        drawBase(gl, bottomLeft, topRight);
+        drawSides(gl, bottomLeft, topRight);
+        drawAxisLines(gl, bottomLeft, topRight);
         gl.glPopMatrix();
     }
 
@@ -155,10 +146,10 @@ public class MachineBoundries extends Renderable {
         double bottomZ = Math.min(bottomLeft.getZ(), topRight.getZ());
         gl.glColor4fv(machineBoundryBottomColor, 0);
         gl.glBegin(GL2.GL_QUADS);
-            gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomZ);
-            gl.glVertex3d(bottomLeft.x, topRight.y, bottomZ);
-            gl.glVertex3d(topRight.x, topRight.y, bottomZ);
-            gl.glVertex3d(topRight.x, bottomLeft.y, bottomZ);
+        gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomZ);
+        gl.glVertex3d(bottomLeft.x, topRight.y, bottomZ);
+        gl.glVertex3d(topRight.x, topRight.y, bottomZ);
+        gl.glVertex3d(topRight.x, bottomLeft.y, bottomZ);
         gl.glEnd();
     }
 
@@ -166,26 +157,26 @@ public class MachineBoundries extends Renderable {
         double offset = 0.001;
         gl.glLineWidth(5f);
         gl.glBegin(GL_LINES);
-            // X Axis Line
-            gl.glColor4fv(yAxisColor, 0);
-            gl.glVertex3d(0, bottomLeft.y, offset);
-            gl.glVertex3d(0, topRight.y, offset);
+        // X Axis Line
+        gl.glColor4fv(yAxisColor, 0);
+        gl.glVertex3d(0, bottomLeft.y, offset);
+        gl.glVertex3d(0, topRight.y, offset);
 
-            gl.glVertex3d(0, bottomLeft.y, offset);
-            gl.glVertex3d(0, topRight.y, offset);
+        gl.glVertex3d(0, bottomLeft.y, offset);
+        gl.glVertex3d(0, topRight.y, offset);
 
-            // Y Axis Line
-            gl.glColor4fv(xAxisColor, 0);
-            gl.glVertex3d(bottomLeft.x, 0, offset);
-            gl.glVertex3d(topRight.x, 0, offset);
+        // Y Axis Line
+        gl.glColor4fv(xAxisColor, 0);
+        gl.glVertex3d(bottomLeft.x, 0, offset);
+        gl.glVertex3d(topRight.x, 0, offset);
 
-            gl.glVertex3d(bottomLeft.x, 0, offset);
-            gl.glVertex3d(topRight.x, 0, offset);
+        gl.glVertex3d(bottomLeft.x, 0, offset);
+        gl.glVertex3d(topRight.x, 0, offset);
 
-            // Z Axis Line
-            gl.glColor4fv(zAxisColor, 0);
-            gl.glVertex3d(0, 0, bottomLeft.z);
-            gl.glVertex3d(0, 0, Math.max(topRight.z, -bottomLeft.z));
+        // Z Axis Line
+        gl.glColor4fv(zAxisColor, 0);
+        gl.glVertex3d(0, 0, bottomLeft.z);
+        gl.glVertex3d(0, 0, Math.max(topRight.z, -bottomLeft.z));
         gl.glEnd();
     }
 
@@ -193,46 +184,46 @@ public class MachineBoundries extends Renderable {
         double offset = 0.001;
         gl.glLineWidth(3f);
         gl.glBegin(GL_LINES);
-            gl.glColor4fv(machineBoundryLineColor, 0);
-            gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ() + offset);
-            gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ() + offset);
-            gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ() + offset);
-            gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ() + offset);
-            gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ() + offset);
-            gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ() + offset);
-            gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ() + offset);
-            gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ() + offset);
+        gl.glColor4fv(machineBoundryLineColor, 0);
+        gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ() + offset);
+        gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ() + offset);
+        gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ() + offset);
+        gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ() + offset);
+        gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ() + offset);
+        gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ() + offset);
+        gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ() + offset);
+        gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ() + offset);
 
-            gl.glVertex3d(bottomLeft.x, bottomLeft.y, topRight.getZ() + offset);
-            gl.glVertex3d(bottomLeft.x, topRight.y, topRight.getZ() + offset);
-            gl.glVertex3d(bottomLeft.x, topRight.y, topRight.getZ() + offset);
-            gl.glVertex3d(topRight.x, topRight.y, topRight.getZ() + offset);
-            gl.glVertex3d(topRight.x, topRight.y, topRight.getZ() + offset);
-            gl.glVertex3d(topRight.x, bottomLeft.y, topRight.getZ() + offset);
-            gl.glVertex3d(topRight.x, bottomLeft.y, topRight.getZ() + offset);
-            gl.glVertex3d(bottomLeft.x, bottomLeft.y, topRight.getZ() + offset);
+        gl.glVertex3d(bottomLeft.x, bottomLeft.y, topRight.getZ() + offset);
+        gl.glVertex3d(bottomLeft.x, topRight.y, topRight.getZ() + offset);
+        gl.glVertex3d(bottomLeft.x, topRight.y, topRight.getZ() + offset);
+        gl.glVertex3d(topRight.x, topRight.y, topRight.getZ() + offset);
+        gl.glVertex3d(topRight.x, topRight.y, topRight.getZ() + offset);
+        gl.glVertex3d(topRight.x, bottomLeft.y, topRight.getZ() + offset);
+        gl.glVertex3d(topRight.x, bottomLeft.y, topRight.getZ() + offset);
+        gl.glVertex3d(bottomLeft.x, bottomLeft.y, topRight.getZ() + offset);
 
-            gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ());
-            gl.glVertex3d(bottomLeft.x, bottomLeft.y, topRight.getZ());
+        gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ());
+        gl.glVertex3d(bottomLeft.x, bottomLeft.y, topRight.getZ());
 
-            gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ());
-            gl.glVertex3d(bottomLeft.x, topRight.y, topRight.getZ());
+        gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ());
+        gl.glVertex3d(bottomLeft.x, topRight.y, topRight.getZ());
 
-            gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ());
-            gl.glVertex3d(topRight.x, bottomLeft.y, topRight.getZ());
+        gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ());
+        gl.glVertex3d(topRight.x, bottomLeft.y, topRight.getZ());
 
-            gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ());
-            gl.glVertex3d(topRight.x, topRight.y, topRight.getZ());
+        gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ());
+        gl.glVertex3d(topRight.x, topRight.y, topRight.getZ());
         gl.glEnd();
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_BOUNDRY, enabled);
     }
 
     @Override
     public boolean isEnabled() {
         return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDRY, true);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_BOUNDRY, enabled);
     }
 }
