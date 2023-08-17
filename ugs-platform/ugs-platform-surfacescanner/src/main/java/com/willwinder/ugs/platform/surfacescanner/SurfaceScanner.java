@@ -166,7 +166,10 @@ public class SurfaceScanner {
         Position expectedProbePosition = pendingPositions.pop();
         Position probedPosition = p.getPositionIn(expectedProbePosition.getUnits());
 
-        if (!isEqual(probedPosition.getX(), expectedProbePosition.getX(), 0.0001) || !isEqual(probedPosition.getY(), expectedProbePosition.getY(), 0.0001)) {
+        // The position reported from controller might lack some precision on the X/Y position.
+        // We therefore need to lower the precision when checking the probed X/Y axes
+        double delta = expectedProbePosition.getUnits() == Units.MM ? 0.01 : 0.001;
+        if (!isEqual(probedPosition.getX(), expectedProbePosition.getX(), delta) || !isEqual(probedPosition.getY(), expectedProbePosition.getY(), delta)) {
             reset();
             throw new RuntimeException(String.format("Unexpected probe location, expected %s to be %s", probedPosition, expectedProbePosition));
         }
