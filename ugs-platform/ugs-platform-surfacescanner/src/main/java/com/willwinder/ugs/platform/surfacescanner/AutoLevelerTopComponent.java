@@ -103,7 +103,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
 
         if (autoLevelPreview == null) {
             autoLevelPreview = new AutoLevelPreview(Localization.getString("platform.visualizer.renderable.autolevel-preview"));
-            RenderableUtils.registerRenderable(autoLevelPreview);
         }
 
         initComponents();
@@ -115,6 +114,20 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
         RenderableUtils.removeRenderable(autoLevelPreview);
         autoLevelPreview = null;
         meshLevelManager.clear();
+    }
+
+    @Override
+    protected void componentHidden() {
+        if (autoLevelPreview != null) {
+            RenderableUtils.removeRenderable(autoLevelPreview);
+        }
+    }
+
+    @Override
+    protected void componentShowing() {
+        if (autoLevelPreview != null) {
+            RenderableUtils.registerRenderable(autoLevelPreview);
+        }
     }
 
     private void updatePreview() {
