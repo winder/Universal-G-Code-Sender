@@ -94,7 +94,7 @@ public abstract class AbstractProbeAction extends AbstractAction implements UGSE
     @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt instanceof ControllerStateEvent) {
-            setEnabled(isEnabled());
+            SwingUtilities.invokeLater(() -> setEnabled(isEnabled()));
         }
     }
 
