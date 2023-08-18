@@ -12,7 +12,7 @@ Universal G-Code Sender is a Java based, cross platform G-Code sender, compatibl
 
 Webpage: https://universalgcodesender.com/ <br/>
 Discussion forum: https://groups.google.com/forum/#!forum/universal-gcode-sender <br/>
-Translations: https://translate.universalgcodesender.com/ <br/>
+Translations: https://poeditor.com/join/project/2J2hB5I41Z <br/>
 
 Technical details:
 
