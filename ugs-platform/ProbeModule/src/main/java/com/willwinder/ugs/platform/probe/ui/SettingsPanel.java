@@ -43,10 +43,10 @@ public class SettingsPanel extends JPanel {
         settingsWorkCoordinate = new JComboBox<>(new WorkCoordinateSystem[]{G54, G55, G56, G57, G58, G59});
         settingsWorkCoordinate.setSelectedItem(ProbeSettings.getSettingsWorkCoordinate());
 
-        settingsProbeDiameter = new SpinnerNumberModel(ProbeSettings.getSettingsProbeDiameter(), 0.d, null, 0.1);
-        settingsFastFindRate = new SpinnerNumberModel(ProbeSettings.getSettingsFastFindRate(), 1d, null, 1.);
-        settingsSlowMeasureRate = new SpinnerNumberModel(ProbeSettings.getSettingsSlowMeasureRate(), 1d, null, 1.);
-        settingsRetractAmount = new SpinnerNumberModel(ProbeSettings.getSettingsRetractAmount(), 0.01d, null, 0.1);
+        settingsProbeDiameter = new SpinnerNumberModel(Math.max(ProbeSettings.getSettingsProbeDiameter(), 0), 0.d, null, 0.1);
+        settingsFastFindRate = new SpinnerNumberModel(Math.max(ProbeSettings.getSettingsFastFindRate(), 0.1), 0.1d, null, 1.);
+        settingsSlowMeasureRate = new SpinnerNumberModel(Math.max(ProbeSettings.getSettingsSlowMeasureRate(), 0.1), 0.1d, null, 1.);
+        settingsRetractAmount = new SpinnerNumberModel(Math.max(ProbeSettings.getSettingsRetractAmount(), 0.01), 0.01d, null, 0.1);
 
         createLayout();
         registerListeners();
