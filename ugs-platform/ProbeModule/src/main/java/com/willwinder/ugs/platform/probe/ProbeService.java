@@ -19,6 +19,7 @@
 package com.willwinder.ugs.platform.probe;
 
 import com.google.common.base.Preconditions;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -84,6 +85,10 @@ public class ProbeService implements UGSEventListener {
     public ProbeService(BackendAPI backend) {
         this.backend = backend;
         this.backend.addUGSEventListener(this);
+    }
+
+    public ProbeService() {
+        this(CentralLookup.getDefault().lookup(BackendAPI.class));
     }
 
     protected static double retractDistance(double spacing, double retractAmount) {
