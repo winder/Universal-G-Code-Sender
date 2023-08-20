@@ -19,7 +19,6 @@
 package com.willwinder.ugs.platform.probe;
 
 import com.google.common.base.Preconditions;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
