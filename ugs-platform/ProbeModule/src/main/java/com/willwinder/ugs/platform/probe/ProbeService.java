@@ -20,7 +20,6 @@ package com.willwinder.ugs.platform.probe;
 
 import com.google.common.base.Preconditions;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.ugs.platform.probe.renderable.ProbePreviewManager;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -32,7 +31,6 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.ProbeEvent;
-import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
 import java.util.ArrayList;
@@ -292,7 +290,7 @@ public class ProbeService implements UGSEventListener {
                 case 4: {
                     gcode(g0Abs + " X" + -params.xSpacing);
                     gcode(g0Abs + " Y" + -params.ySpacing);
-                    gcode(g0Abs + " X" + params.xSpacing);
+                    gcode(g0Abs + " X0");
 
                     // Y
                     probe('Y', params.feedRate, params.ySpacing, params.units);
@@ -441,7 +439,7 @@ public class ProbeService implements UGSEventListener {
             sb.append("Z").append(Utils.formatter.format(z));
         }
 
-        gcode(String.format(WCS_PATTERN, wcs.getPValue(), sb.toString()));
+        gcode(String.format(WCS_PATTERN, wcs.getPValue(), sb));
     }
 
     /**

@@ -153,7 +153,6 @@ public class ProbeServiceTest {
         ps.UGSEvent(new ControllerStateEvent(ControllerState.IDLE, ControllerState.RUN));
 
         InOrder order = inOrder(backend);
-
         order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 X0Y0Z0");
 
         // Probe Z axis
@@ -172,7 +171,7 @@ public class ProbeServiceTest {
         order.verify(backend, times(1)).probe("X", pc.feedRateSlow, pc.xSpacing, pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X" + -pc.xSpacing);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Y" + -pc.ySpacing);
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X" + pc.xSpacing);
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X0");
 
         // probe Y axis
         order.verify(backend, times(1)).probe("Y", pc.feedRate, pc.ySpacing, pc.units);
