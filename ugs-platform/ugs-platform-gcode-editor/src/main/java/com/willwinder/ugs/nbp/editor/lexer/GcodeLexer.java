@@ -31,8 +31,8 @@ import static org.apache.commons.lang3.CharUtils.isAsciiNumeric;
  * @author Joacim Breiler
  */
 public class GcodeLexer implements Lexer<GcodeTokenId> {
-    private LexerRestartInfo<GcodeTokenId> info;
-    private LexerInput input;
+    private final LexerRestartInfo<GcodeTokenId> info;
+    private final LexerInput input;
 
     public GcodeLexer(LexerRestartInfo<GcodeTokenId> info) {
         this.info = info;
@@ -163,7 +163,7 @@ public class GcodeLexer implements Lexer<GcodeTokenId> {
 
         while (true) {
             char character = (char) input.read();
-            if (character == ' ' && length == 0) {
+            if ((character == ' ' || character == '\t') && numberCount == 0 && minusCount == 0 && commaCount == 0) {
                 // It's allowed to have a leading space after parameter name
             } else if (!isNumeric(character)) {
                 input.backup(1);

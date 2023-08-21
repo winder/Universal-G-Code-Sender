@@ -18,7 +18,6 @@
 */
 package com.willwinder.ugs.nbp.editor.lexer;
 
-import com.willwinder.ugs.nbp.editor.lexer.GcodeTokenId;
 import org.junit.Test;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -281,6 +280,67 @@ public class GcodeLexerTest {
         t = ts.token();
         assertEquals(GcodeTokenId.AXIS, t.id());
         assertEquals("Y 10", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.AXIS, t.id());
+        assertEquals("Z 0.3", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.PARAMETER, t.id());
+        assertEquals("S 1000", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.PARAMETER, t.id());
+        assertEquals("F 500", t.text());
+    }
+
+    @Test
+    public void parsingParametersWithMultipleLeadingSpaceShouldBeOk() {
+        String text = "G01 X  -.100 Y\t10 Z 0.3 S 1000 F 500";
+        TokenSequence<GcodeTokenId> ts = parseTokenSequence(text);
+
+        ts.moveNext();
+        Token<?> t = ts.token();
+        assertEquals(GcodeTokenId.MOVEMENT, t.id());
+        assertEquals("G01", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.AXIS, t.id());
+        assertEquals("X  -.100", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.AXIS, t.id());
+        assertEquals("Y\t10", t.text());
 
         ts.moveNext();
         t = ts.token();
