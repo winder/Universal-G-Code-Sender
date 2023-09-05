@@ -128,8 +128,12 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     }
 
     private void controlChangeListener() {
-        ProbeSettings.setSelectedTabIdx(jtp.getSelectedIndex());
-        probePreviewManager.setActive(jtp.getTitleAt(this.jtp.getSelectedIndex()));
+        if (isShowing()) {
+            ProbeSettings.setSelectedTabIdx(jtp.getSelectedIndex());
+            probePreviewManager.setActive(jtp.getTitleAt(this.jtp.getSelectedIndex()));
+        } else {
+            probePreviewManager.inactivate();
+        }
     }
 
     private void initComponents() {
@@ -163,17 +167,17 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
     @Override
     public void componentClosed() {
-        probePreviewManager.inactivate();
+        controlChangeListener();
     }
 
     @Override
     protected void componentHidden() {
-        probePreviewManager.inactivate();
+        controlChangeListener();
     }
 
     @Override
     protected void componentShowing() {
-        probePreviewManager.activate();
+        controlChangeListener();
     }
 
     @OnStart

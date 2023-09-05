@@ -302,6 +302,9 @@ public class LocalizingService {
     public final static String RunFromActionId = "com.willwinder.ugs.nbp.core.actions.RunFromAction";
     public final static String RunFromCategory = CATEGORY_MACHINE;
 
+    public final static String InsertPositionTitleKey = "platform.menu.insertPosition";
+    public final static String InsertPositionTitle = Localization.getString(InsertPositionTitleKey, lang);
+
     public final static String ToolboxTitle = Localization.getString("platform.plugin.toolbox.title", lang);
     public final static String ToolboxTooltip = Localization.getString("platform.plugin.toolbox.tooltip", lang);
     public final static String ToolboxSettingsTitle =  Localization.getString("platform.plugin.toolbox.settings.title", lang);
