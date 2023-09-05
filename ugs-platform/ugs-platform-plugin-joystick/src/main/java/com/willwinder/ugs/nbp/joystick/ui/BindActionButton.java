@@ -47,7 +47,6 @@ public class BindActionButton extends JButton {
             "Actions/Window",
             "Actions/Refactoring",
             "Actions/Tools",
-            "Actions/Edit",
             "Actions/Window/SelectDocumentNode",
             "Actions/Profile",
             "Actions/Diff",
