@@ -74,7 +74,7 @@ public final class RunFromAction extends CookieAction implements UGSEventListene
 
     @Override
     public boolean isEnabled() {
-        return backend.getGcodeFile() != null && backend.isConnected() && !backend.isSendingFile() && super.isEnabled();
+        return backend.getGcodeFile() != null && backend.isConnected() && !backend.isSendingFile();
     }
 
 
