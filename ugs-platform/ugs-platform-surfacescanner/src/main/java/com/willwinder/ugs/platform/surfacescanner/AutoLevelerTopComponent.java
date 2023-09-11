@@ -50,14 +50,14 @@ import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
         preferredID = "AutoLevelerTopComponent"
 )
 public final class AutoLevelerTopComponent extends TopComponent implements UGSEventListener {
-    public final static String AutoLevelerTitle = Localization.getString("platform.window.autoleveler", lang);
-    public final static String AutoLevelerActionId = "com.willwinder.ugs.platform.surfacescanner.AutoLevelerTopComponent";
-    public final static String AutoLevelerCategory = LocalizingService.CATEGORY_WINDOW;
-    private BackendAPI backend;
-    private AutoLevelPreview autoLevelPreview;
-    private SurfaceScanner scanner;
-    private MeshLevelManager meshLevelManager;
-    private AutoLevelerPanel autoLevelerPanel;
+    public static final String AutoLevelerTitle = Localization.getString("platform.window.autoleveler", lang);
+    public static final String AutoLevelerActionId = "com.willwinder.ugs.platform.surfacescanner.AutoLevelerTopComponent";
+    public static final String AutoLevelerCategory = LocalizingService.CATEGORY_WINDOW;
+    private transient BackendAPI backend;
+    private transient AutoLevelPreview autoLevelPreview;
+    private transient SurfaceScanner scanner;
+    private transient MeshLevelManager meshLevelManager;
+    private transient AutoLevelerPanel autoLevelerPanel;
 
     public AutoLevelerTopComponent() {
         setName(AutoLevelerTitle);
@@ -114,6 +114,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
         RenderableUtils.removeRenderable(autoLevelPreview);
         autoLevelPreview = null;
         meshLevelManager.clear();
+        backend.removeUGSEventListener(this);
+        removeAll();
     }
 
     @Override
