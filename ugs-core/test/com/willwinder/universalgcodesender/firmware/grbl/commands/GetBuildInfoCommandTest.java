@@ -13,6 +13,7 @@ public class GetBuildInfoCommandTest {
         GetBuildInfoCommand command = new GetBuildInfoCommand();
         command.appendResponse("[OPT: ABC]");
         command.appendResponse("[VER: 1.1f]");
+        command.appendResponse("ok");
         GrblVersion version = command.getVersion().orElseThrow(RuntimeException::new);
         assertEquals(1.1, version.getVersionNumber(), 0.01);
     }

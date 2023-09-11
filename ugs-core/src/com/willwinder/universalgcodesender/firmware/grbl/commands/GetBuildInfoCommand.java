@@ -40,7 +40,7 @@ public class GetBuildInfoCommand extends GrblSystemCommand {
 
         // With GRBL 0.9 or older, the version string is only one line and an "ok"
         // treat those as a version string
-        if (lines.length <= 2) {
+        if (lines.length == 2 && StringUtils.equals(lines[1], "ok")) {
             return Optional.of(new GrblVersion(lines[0]));
         }
 
