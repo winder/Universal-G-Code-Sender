@@ -94,4 +94,11 @@ public class GrblVersionTest {
         GrblVersion version = new GrblVersion("[VER:ARM32 V2.1.20220827:]");
         assertEquals(2.1d, version.getVersionNumber(), 0.001);
     }
+
+    @Test
+    public void parseLegacyGrblVersionString() {
+        GrblVersion version = new GrblVersion("[0.9j.2016076:]");
+        assertEquals(0.9d, version.getVersionNumber(), 0.001);
+        assertEquals('j', version.getVersionLetter().charValue());
+    }
 }

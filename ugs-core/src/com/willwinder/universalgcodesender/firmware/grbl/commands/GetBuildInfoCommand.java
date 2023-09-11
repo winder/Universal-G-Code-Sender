@@ -36,7 +36,15 @@ public class GetBuildInfoCommand extends GrblSystemCommand {
     }
 
     public Optional<GrblVersion> getVersion() {
-        return Arrays.stream(StringUtils.split(getResponse(), "\n"))
+        String[] lines = StringUtils.split(getResponse(), "\n");
+
+        // With GRBL 0.9 or older, the version string is only one line and an "ok"
+        // treat those as a version string
+        if (lines.length == 2 && StringUtils.equals(lines[1], "ok")) {
+            return Optional.of(new GrblVersion(lines[0]));
+        }
+
+        return Arrays.stream(lines)
                 .filter(line -> line.startsWith("[VER"))
                 .map(GrblVersion::new).findFirst();
     }
