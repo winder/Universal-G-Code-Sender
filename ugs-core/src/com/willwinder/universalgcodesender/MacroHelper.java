@@ -181,6 +181,7 @@ public class MacroHelper {
             if (result == JOptionPane.OK_OPTION) {
                 for (int i = 0; i < prompts.size(); i++) {
                     command = command.replace("{prompt|" + prompts.get(i) + "}", fields.get(i).getText());
+                    command = command.replace("{" + prompts.get(i) + "}", fields.get(i).getText()); // for reusing values
                 }
             } else {
                 command = "";
