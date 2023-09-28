@@ -645,14 +645,14 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
     }
 
     // No longer a listener event
-    protected void fileStreamComplete(String filename) {
+    protected void fileStreamComplete() {
         String duration = Utils.formattedMillis(getSendDuration());
         dispatchConsoleMessage(MessageType.INFO, String.format("%n**** Finished sending file in %s ****%n%n", duration));
         if (streamStopWatch.isStarted()) {
             streamStopWatch.stop();
         }
         isStreaming.set(false);
-        dispatchStreamComplete(filename);
+        dispatchStreamComplete();
     }
 
     @Override
@@ -691,8 +691,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
                 this.comm.numActiveCommands() == 0 &&
                 rowsRemaining() <= 0 &&
                 (state == ControllerState.CHECK || state == ControllerState.IDLE)) {
-            String streamName = "queued commands";
-            this.fileStreamComplete(streamName);
+            this.fileStreamComplete();
         }
     }
 
@@ -801,8 +800,8 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         }
     }
 
-    protected void dispatchStreamComplete(String filename) {
-        listeners.forEach(l -> l.streamComplete(filename));
+    protected void dispatchStreamComplete() {
+        listeners.forEach(l -> l.streamComplete());
     }
 
     protected void dispatchCommandSkipped(GcodeCommand command) {

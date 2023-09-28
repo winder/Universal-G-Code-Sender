@@ -354,7 +354,7 @@ public class GUIBackend implements BackendAPI {
         logger.log(Level.INFO, "Setting gcode file. {0}", file.getAbsolutePath());
 
         this.gcodeFile = file;
-        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE, file.getAbsolutePath()));
+        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE));
         processGcodeFile();
     }
 
@@ -364,7 +364,7 @@ public class GUIBackend implements BackendAPI {
             gcodeStream.close();
         }
         if (this.processedGcodeFile != null) {
-            eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.FILE_UNLOADED, null));
+            eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.FILE_UNLOADED));
         }
 
         initGcodeParser();
@@ -375,20 +375,16 @@ public class GUIBackend implements BackendAPI {
     @Override
     public void reloadGcodeFile() throws Exception {
         logger.log(Level.INFO, "Reloading gcode file.");
-        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE, gcodeFile.getAbsolutePath()));
+        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE));
         processGcodeFile();
     }
 
     private void processGcodeFile() throws Exception {
         this.processedGcodeFile = null;
 
-        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.FILE_LOADING,
-                this.gcodeFile.getAbsolutePath()));
-
+        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.FILE_LOADING));
         initializeProcessedLines(true, this.gcodeFile, this.gcp);
-
-        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.FILE_LOADED,
-                processedGcodeFile.getAbsolutePath()));
+        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.FILE_LOADED));
     }
 
     @Override

@@ -1764,10 +1764,10 @@ public class MainWindow extends JFrame implements UGSEventListener {
                     fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel") + ": " + backend.getGcodeFile().getName()));
                     fileModePanel.setToolTipText(backend.getGcodeFile().getAbsolutePath());
                     processedGcodeFile = null;
-                    gcodeFile = fileStateEvent.getFile();
+                    gcodeFile = backend.getGcodeFile().getAbsolutePath();
                     break;
                 case FILE_LOADED:
-                    processedGcodeFile = fileStateEvent.getFile();
+                    processedGcodeFile = backend.getProcessedGcodeFile().getAbsolutePath();
                     if (commandTableScrollPane.isEnabled()) {
                         commandTable.clear();
                     }

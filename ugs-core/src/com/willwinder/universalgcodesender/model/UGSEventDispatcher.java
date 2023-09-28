@@ -106,9 +106,9 @@ public class UGSEventDispatcher implements ControllerListener, IFirmwareSettings
     }
 
     @Override
-    public void streamComplete(String filename) {
+    public void streamComplete() {
         sendUGSEvent(new StreamEvent(StreamEventType.STREAM_COMPLETE));
-        sendUGSEvent(new FileStateEvent(FileState.FILE_STREAM_COMPLETE, filename));
+        sendUGSEvent(new FileStateEvent(FileState.FILE_STREAM_COMPLETE));
     }
 
     @Override

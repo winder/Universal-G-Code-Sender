@@ -52,7 +52,7 @@ public interface ControllerListener {
     /**
      * The file streaming has completed.
      */
-    void streamComplete(String filename);
+    void streamComplete();
 
     /**
      * If an alarm is received from the controller

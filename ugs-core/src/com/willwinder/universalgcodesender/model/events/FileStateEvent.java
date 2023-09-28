@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,7 +26,6 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
  */
 public class FileStateEvent implements UGSEvent {
     private final FileState fileState;
-    private final String file;
 
     /**
      * Create a file state event
@@ -34,19 +33,13 @@ public class FileStateEvent implements UGSEvent {
      * FILE_LOADED: This event provides a path to a processed gcode file which
      * should be opened with a GcodeStreamReader.
      *
-     * @param state    the new file state.
-     * @param filepath the file related to the file event.
+     * @param state the new file state.
      */
-    public FileStateEvent(FileState state, String filepath) {
+    public FileStateEvent(FileState state) {
         this.fileState = state;
-        this.file = filepath;
     }
 
     public FileState getFileState() {
         return fileState;
-    }
-
-    public String getFile() {
-        return file;
     }
 }
