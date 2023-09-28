@@ -598,6 +598,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
         String state = getParserStateCommand.getState().orElseThrow(() -> new ConnectionException("Could not get controller state"));
         gcodeParser.addCommand(state);
 
+        sendAndWaitForCompletion(this, new SystemCommand("$verbose_errors=true"));
         refreshFirmwareSettings();
         FluidNCUtils.addCapabilities(capabilities, semanticVersion, firmwareSettings);
     }
