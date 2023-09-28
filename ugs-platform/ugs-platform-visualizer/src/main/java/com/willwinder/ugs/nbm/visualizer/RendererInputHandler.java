@@ -129,7 +129,7 @@ public class RendererInputHandler implements
                     setGcodeFile(null);
                     break;
                 case FILE_LOADED:
-                    setGcodeFile(fileStateEvent.getFile());
+                    setGcodeFile(backend.getProcessedGcodeFile().getAbsolutePath());
                     break;
                 case FILE_STREAM_COMPLETE:
                     gcodeModel.setCurrentCommandNumber(0);
