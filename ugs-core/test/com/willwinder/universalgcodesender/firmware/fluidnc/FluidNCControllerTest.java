@@ -1,32 +1,32 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc;
 
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
-import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class FluidNCControllerTest {
 
-    private IController target;
+    private FluidNCController target;
     private ICommunicator communicator;
 
     @Before
@@ -101,6 +101,51 @@ public class FluidNCControllerTest {
         target.restoreParserModalState();
 
         assertEquals("G90", commandArgumentCaptor.getValue().getCommandString());
+    }
+
+    @Test
+    public void beginStreamingShouldSendEvents() {
+        ControllerListener listener = mock(ControllerListener.class);
+        target.addListener(listener);
+
+        IGcodeStreamReader gcodeStream = new SimpleGcodeStreamReader("G0 X1", "G0 X0");
+        target.queueStream(gcodeStream);
+        target.beginStreaming();
+
+        assertTrue(target.isStreaming());
+        verify(listener, times(1)).streamStarted();
+        verify(listener, times(1)).statusStringListener(any());
+        verifyNoMoreInteractions(listener);
+    }
+
+    @Test
+    public void streamCompleteShouldBeExecutedWhenStreamIsFinished() throws IOException {
+        ControllerListener listener = mock(ControllerListener.class);
+        InOrder inOrder = inOrder(listener);
+        target.addListener(listener);
+
+        IGcodeStreamReader gcodeStream = new SimpleGcodeStreamReader("G0 X1", "G0 X0");
+        target.queueStream(gcodeStream);
+        target.beginStreaming();
+
+        GcodeCommand nextCommand = gcodeStream.getNextCommand();
+        target.commandSent(nextCommand);
+        nextCommand.appendResponse("ok");
+        target.rawResponseListener("ok");
+
+        nextCommand = gcodeStream.getNextCommand();
+        target.commandSent(nextCommand);
+        nextCommand.appendResponse("ok");
+        target.rawResponseListener("ok");
+
+        inOrder.verify(listener, times(1)).statusStringListener(any());
+        inOrder.verify(listener, times(1)).streamStarted();
+        inOrder.verify(listener, times(1)).commandSent(any());
+        inOrder.verify(listener, times(1)).commandComplete(any());
+        inOrder.verify(listener, times(1)).commandSent(any());
+        inOrder.verify(listener, times(1)).commandComplete(any());
+        inOrder.verify(listener, times(1)).streamComplete();
+        inOrder.verifyNoMoreInteractions();
     }
 
     @Test

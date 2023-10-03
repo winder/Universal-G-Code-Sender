@@ -37,7 +37,7 @@ public class GetErrorCodesCommand extends SystemCommand {
         Arrays.stream(StringUtils.split(getResponse(), "\n")).forEach(line -> {
             Matcher matcher = errorCodePattern.matcher(line);
             if (matcher.find()) {
-                errorCodes.put(Integer.parseInt(matcher.group(1)), matcher.group(2));
+                errorCodes.put(Integer.parseInt(matcher.group(1)), matcher.group(2).trim());
             }
         });
         return errorCodes;

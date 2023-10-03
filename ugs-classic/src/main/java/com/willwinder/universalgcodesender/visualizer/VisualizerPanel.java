@@ -41,16 +41,13 @@ public class VisualizerPanel extends JPanel implements UGSEventListener {
     private static final int FPS = 20; // animator's target frames per second
 
     private final VisualizerCanvas canvas;
-
-    public VisualizerPanel() {
-        this(null);
-    }
+    private final BackendAPI backend;
 
     public VisualizerPanel(BackendAPI backend) {
         super(new BorderLayout());
-        if (backend != null) {
-            backend.addUGSEventListener(this);
-        }
+        this.backend = backend;
+        backend.addUGSEventListener(this);
+
 
         // Create the OpenGL rendering canvas
         this.canvas = new VisualizerCanvas();
@@ -81,11 +78,11 @@ public class VisualizerPanel extends JPanel implements UGSEventListener {
             FileStateEvent fileStateEvent = (FileStateEvent) evt;
             switch (fileStateEvent.getFileState()) {
                 case FILE_LOADING:
-                    setGcodeFile(fileStateEvent.getFile());
+                    setGcodeFile(backend.getGcodeFile().getAbsolutePath());
                     break;
 
                 case FILE_LOADED:
-                    setProcessedGcodeFile(fileStateEvent.getFile());
+                    setProcessedGcodeFile(backend.getProcessedGcodeFile().getAbsolutePath());
                     break;
 
                 default:

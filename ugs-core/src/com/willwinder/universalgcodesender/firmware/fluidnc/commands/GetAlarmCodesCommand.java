@@ -37,7 +37,7 @@ public class GetAlarmCodesCommand extends SystemCommand {
         Arrays.stream(StringUtils.split(getResponse(), "\n")).forEach(line -> {
             Matcher matcher = alarmCodePattern.matcher(line);
             if (matcher.find()) {
-                alarmCodes.put(Integer.parseInt(matcher.group(1)), matcher.group(2));
+                alarmCodes.put(Integer.parseInt(matcher.group(1)), matcher.group(2).trim());
             }
         });
         return alarmCodes;

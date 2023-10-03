@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.IFileService;
 import com.willwinder.universalgcodesender.StatusPollTimer;
+import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.communicator.GrblCommunicator;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
@@ -597,6 +598,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
         String state = getParserStateCommand.getState().orElseThrow(() -> new ConnectionException("Could not get controller state"));
         gcodeParser.addCommand(state);
 
+        sendAndWaitForCompletion(this, new SystemCommand("$verbose_errors=true"));
         refreshFirmwareSettings();
         FluidNCUtils.addCapabilities(capabilities, semanticVersion, firmwareSettings);
     }
@@ -730,30 +732,22 @@ public class FluidNCController implements IController, ICommunicatorListener {
             messageService.dispatchMessage(MessageType.VERBOSE, response + "\n");
         } else if (getActiveCommand().isPresent()) {
             GcodeCommand command = getActiveCommand().get();
-            if (command instanceof FluidNCCommand) {
-                if (command.isDone()) {
-                    activeCommands.removeFirst();
-                    updateParserModalState(command);
+            if (command.isDone()) {
+                activeCommands.removeFirst();
+                updateParserModalState(command);
 
-                    listeners.forEach(l -> l.commandComplete(command));
+                listeners.forEach(l -> l.commandComplete(command));
 
-                    if (command instanceof GetStatusCommand) {
-                        messageService.dispatchMessage(MessageType.VERBOSE, command.getResponse() + "\n");
-                    } else if (command instanceof SystemCommand) {
-                        messageService.dispatchMessage(MessageType.VERBOSE, command.getResponse() + "\n");
-                    } else {
-                        messageService.dispatchMessage(MessageType.INFO, command.getResponse() + "\n");
-                    }
-                }
-            } else {
-                if (response.startsWith("ok") || response.startsWith("error") || response.startsWith("alarm")) {
-                    command.setDone(true);
-
-                    activeCommands.removeFirst();
-                    listeners.forEach(l -> l.commandComplete(command));
+                if (command instanceof GetStatusCommand) {
+                    messageService.dispatchMessage(MessageType.VERBOSE, command.getResponse() + "\n");
+                } else if (command instanceof SystemCommand) {
+                    messageService.dispatchMessage(MessageType.VERBOSE, command.getResponse() + "\n");
+                } else {
                     messageService.dispatchMessage(MessageType.INFO, command.getResponse() + "\n");
                 }
             }
+
+            checkStreamFinished();
         } else if (FluidNCUtils.isWelcomeResponse(response)) {
             messageService.dispatchMessage(MessageType.VERBOSE, response + "\n");
             if (isInitialized) {
@@ -778,6 +772,25 @@ public class FluidNCController implements IController, ICommunicatorListener {
         } else {
             messageService.dispatchMessage(MessageType.VERBOSE, "Other: " + response + "\n");
         }
+    }
+
+    private void checkStreamFinished() {
+        if (streamCommands != null &&
+                !communicator.areActiveCommands() &&
+                rowsRemaining() <= 0) {
+            fileStreamComplete();
+        }
+    }
+
+    private void fileStreamComplete() {
+        streamCommands = null;
+        String duration = Utils.formattedMillis(getSendDuration());
+        messageService.dispatchMessage(MessageType.INFO, String.format("%n**** Finished sending file in %s ****%n%n", duration));
+        if (streamStopWatch.isStarted()) {
+            streamStopWatch.stop();
+        }
+        ThreadHelper.invokeLater(() ->
+                listeners.forEach(ControllerListener::streamComplete));
     }
 
     @Override
