@@ -52,7 +52,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
             new SpinnerNumberModel(1, 1, null, 100));
     private final Spinner safetyHeight = new Spinner(
             Localization.getString("sender.safety-height"),
-            new SpinnerNumberModel(1, 1, null, 1));
+            new SpinnerNumberModel(1, 0, null, 1));
     private final Checkbox invertMouseZoom = new Checkbox(
             Localization.getString("sender.invertMouseZoom"));
     private final Checkbox showNightlyWarning = new Checkbox(
