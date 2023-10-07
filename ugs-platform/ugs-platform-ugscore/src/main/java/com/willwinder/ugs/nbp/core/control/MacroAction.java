@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openide.util.Exceptions;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.io.Serializable;
@@ -56,20 +57,26 @@ public class MacroAction extends AbstractAction implements Serializable {
         String name = macro.getName();
         putValue(NAME, name);
         putValue("menuText", name);
+
+        if (StringUtils.isNotEmpty(macro.getDescription())) {
+            putValue(Action.SHORT_DESCRIPTION, macro.getDescription());
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (macro != null && macro.getGcode() != null) {
-            EventQueue.invokeLater(() -> {
-                try {
-                    MacroHelper.executeCustomGcode(macro.getGcode(), getBackend());
-                } catch (Exception ex) {
-                    GUIHelpers.displayErrorDialog(ex.getMessage());
-                    Exceptions.printStackTrace(ex);
-                }
-            });
+            return;
         }
+
+        EventQueue.invokeLater(() -> {
+            try {
+                MacroHelper.executeCustomGcode(macro.getGcode(), getBackend());
+            } catch (Exception ex) {
+                GUIHelpers.displayErrorDialog(ex.getMessage());
+                Exceptions.printStackTrace(ex);
+            }
+        });
     }
 
     @Override

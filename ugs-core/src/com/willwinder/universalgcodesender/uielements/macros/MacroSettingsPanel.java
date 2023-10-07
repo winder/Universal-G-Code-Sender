@@ -64,8 +64,9 @@ import java.util.stream.Collectors;
 
 public class MacroSettingsPanel extends JPanel implements UGSEventListener {
     private static final Logger logger = Logger.getLogger(MacroSettingsPanel.class.getName());
+    private static final String MIN_WIDTH = "width 100:100:, growx";
 
-    private final BackendAPI backend;
+    private final transient BackendAPI backend;
     private final List<JButton> moveUpButtons = new ArrayList<>();
     private final List<JButton> moveDownButtons = new ArrayList<>();
     private final List<JButton> tryButton = new ArrayList<>();
@@ -97,7 +98,7 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
     private final JLabel deleteHeader = new JLabel("");
 
     private final JPanel buttonPanel = new JPanel(new MigLayout("fill, ins 0"));
-    private List<Macro> macros;
+    private final List<Macro> macros;
 
     public void save() {
         backend.getSettings().setMacros(macros);
@@ -111,11 +112,8 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
     }
 
     public MacroSettingsPanel(BackendAPI backend) {
-        super(new MigLayout("fillx, wrap 7", "[fill, grow 10, sg 1]r[fill, grow 10]r[fill, grow 10]r[fill, grow 45]r[fill, grow 45]r[fill]r[fill]"));
+        super(new MigLayout("fillx, wrap 7", "[fill, grow 10, sg 1]r[fill, grow 10]r[fill, grow 10]r[fill, grow 60]r[fill, grow 30]r[fill]r[fill]"));
 
-        if (backend == null) {
-            throw new RuntimeException();
-        }
         this.backend = backend;
         this.backend.addUGSEventListener(this);
 
@@ -155,9 +153,9 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
         for (int i = 0; i < tryButton.size(); i++) {
             add(moveUpButtons.get(i), "sg 1");
             add(moveDownButtons.get(i));
-            add(macroNameFields.get(i));
-            add(macroGcodeFields.get(i));
-            add(macroDescriptionFields.get(i));
+            add(macroNameFields.get(i), MIN_WIDTH);
+            add(macroGcodeFields.get(i), MIN_WIDTH);
+            add(macroDescriptionFields.get(i), MIN_WIDTH);
             add(tryButton.get(i));
             add(deleteButtons.get(i));
         }
@@ -245,6 +243,7 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
             case DESCRIPTION:
                 macro.setDescription(text);
                 break;
+            default:
         }
 
         // Add it if it doesn't exists
@@ -320,12 +319,12 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
             JFileChooser fileChooser = new JFileChooser(backend.getSettings().getLastOpenedFilename());
             if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
                 try {
-                    Collection<Macro> macros = backend.getSettings().getMacros();
+                    Collection<Macro> macroList = backend.getSettings().getMacros();
 
                     try (OutputStream fileOutputStream = new FileOutputStream(fileChooser.getSelectedFile())) {
                         Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
                         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                        writer.write(gson.toJson(macros, Collection.class));
+                        writer.write(gson.toJson(macroList, Collection.class));
                         writer.flush();
                     }
                 } catch (Exception ex) {
@@ -343,8 +342,8 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
 
                     try (InputStream reader = new FileInputStream(importFile)) {
                         Type type = new TypeToken<ArrayList<Macro>>(){}.getType();
-                        List<Macro> macros = new Gson().fromJson(new InputStreamReader(reader, StandardCharsets.UTF_8), type);
-                        this.macros.addAll(macros);
+                        List<Macro> macroList = new Gson().fromJson(new InputStreamReader(reader, StandardCharsets.UTF_8), type);
+                        this.macros.addAll(macroList);
 
                         // Update the window.
                         SwingUtilities.invokeLater(() -> {

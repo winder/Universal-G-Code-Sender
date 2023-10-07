@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -37,10 +37,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author wwinder
  */
-@ServiceProvider(service=MacroService.class) 
+@ServiceProvider(service = MacroService.class)
 public final class MacroService {
     private static final Logger logger = Logger.getLogger(MacroService.class.getName());
 
@@ -65,28 +64,26 @@ public final class MacroService {
             String actionPath = "/Actions/" + actionCategory;
             FileUtil.createFolder(root, actionPath).delete();
 
-            ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
+            ActionRegistrationService ars = Lookup.getDefault().lookup(ActionRegistrationService.class);
             BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
             Settings settings = backend.getSettings();
 
             List<Macro> macros = settings.getMacros();
             macros.forEach(macro -> {
-                int index = macros.indexOf(macro);
                 try {
-                    String text;
-                    if (Strings.isNullOrEmpty(macro.getNameAndDescription())){
+                    int index = macros.indexOf(macro);
+                    String text = macro.getName();
+                    if (Strings.isNullOrEmpty(text)) {
                         text = Integer.toString(index + 1);
-                    } else {
-                        text = macro.getNameAndDescription();
                     }
 
                     ars.registerAction(MacroAction.class.getCanonicalName() + "." + macro.getUuid(), text, actionCategory, null, menuPath, index, localized, new MacroAction(macro));
                 } catch (IOException e) {
-                    logger.log(Level.WARNING, "Couldn't register macro action: \"" + macro.getName() + "\"", e);
+                    logger.log(Level.WARNING, String.format("Couldn't register macro action: \"%s\"", macro.getName()), e);
                 }
             });
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Couldn't register macro actions", e);
+            logger.log(Level.WARNING, "Could not register macro actions", e);
         }
     }
 }
