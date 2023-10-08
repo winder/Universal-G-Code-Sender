@@ -65,7 +65,7 @@ public class MacroAction extends AbstractAction implements Serializable {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (macro != null && macro.getGcode() != null) {
+        if (macro == null || macro.getGcode() == null) {
             return;
         }
 
