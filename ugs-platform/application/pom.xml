@@ -421,7 +421,7 @@
                                         <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
                                             <fileset dir="${project.build.directory}/${ugs.appbundle.name}.app" followsymlinks="false"/>
                                             <fileset dir="${project.build.directory}/${ugs.app.title}" followsymlinks="false"/>
-                                            <fileset dir="${project.build.directory}/macos-x64-${project.artifactId}-${project.version}.dmg" followsymlinks="false"/>
+                                            <fileset dir="${project.build.directory}/macosx-x64-${project.artifactId}-${project.version}.dmg" followsymlinks="false"/>
                                         </delete>
 
                                         <!-- Create folders -->
@@ -515,7 +515,7 @@
                                             <arg value="${ugs.appbundle.name}"/>
                                             <arg value="-r"/>
                                             <arg value="-o"/>
-                                            <arg value="macos-x64-${project.artifactId}-${project.version}.dmg"/>
+                                            <arg value="macosx-x64-${project.artifactId}-${project.version}.dmg"/>
                                             <arg value="${project.build.directory}/${ugs.app.title}"/>
                                         </exec>
                                     </target>
@@ -549,7 +549,7 @@
                                         <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
                                             <fileset dir="${project.build.directory}/${ugs.appbundle.name}.app" followsymlinks="false"/>
                                             <fileset dir="${project.build.directory}/${ugs.app.title}" followsymlinks="false"/>
-                                            <fileset dir="${project.build.directory}/macos-aarch64-${project.artifactId}-${project.version}.dmg" followsymlinks="false"/>
+                                            <fileset dir="${project.build.directory}/macosx-aarch64-${project.artifactId}-${project.version}.dmg" followsymlinks="false"/>
                                         </delete>
 
                                         <!-- Create folders -->
@@ -643,7 +643,7 @@
                                             <arg value="${ugs.appbundle.name}"/>
                                             <arg value="-r"/>
                                             <arg value="-o"/>
-                                            <arg value="macos-aarch64-${project.artifactId}-${project.version}.dmg"/>
+                                            <arg value="macosx-aarch64-${project.artifactId}-${project.version}.dmg"/>
                                             <arg value="${project.build.directory}/${ugs.app.title}"/>
                                         </exec>
                                     </target>
