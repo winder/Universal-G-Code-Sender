@@ -3,4 +3,5 @@ OpenIDE-Module-Layer: com/willwinder/ugs/nbp/core/layer.xml
 OpenIDE-Module-Localizing-Bundle: com/willwinder/ugs/nbp/core/Bundle.properties
 OpenIDE-Module-Specification-Version: ${ugs.modules.specification.version}
 AutoUpdate-Essential-Module: true
+OpenIDE-Module-Install: com/willwinder/ugs/nbp/core/lifecycle/LookAndFeelInstaller.class
 OpenIDE-Module-Java-Dependencies: Java > 1.8

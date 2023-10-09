@@ -11,10 +11,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up JDK 11
+    - name: Set up JDK
       uses: actions/setup-java@v3
       with:
-        java-version: '11'
+        java-version: '17'
         distribution: 'temurin'
 
     - name: Cache the Maven packages to speed up build
@@ -50,7 +50,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        file: "ugs-classic/target/UniversalGcodeSender.zip;ugs-platform/application/target/ios-ugs-platform-app-*.dmg;ugs-platform/application/target/linux-ugs-platform-app*.tar.gz;ugs-platform/application/target/pi-ugs-platform-app*.tar.gz;ugs-platform/application/target/win-ugs-platform-app-*.zip;ugs-platform/application/target/win64-ugs-platform-app-*.zip;ugs-platform/application/target/ugs-platform-app-*.zip"
+        file: "ugs-classic/target/UniversalGcodeSender.zip;ugs-platform/application/target/macosx-*-ugs-platform-app-*.dmg;ugs-platform/application/target/linux-*-ugs-platform-app*.tar.gz;ugs-platform/application/target/win-ugs-platform-app-*.zip;ugs-platform/application/target/win64-ugs-platform-app-*.zip;ugs-platform/application/target/ugs-platform-app-*.zip"
         prerelease: true
         tag_name: ${GITHUB_REF_NAME}
         overwrite: true

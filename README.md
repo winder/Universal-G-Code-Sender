@@ -95,7 +95,7 @@ UGS Classic with visualizer
 <details><summary>Show details on how to compile the software</summary>
 <p>
 
-For development we use [Maven](http://maven.apache.org) and [Java](https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/tag/jdk-13.0.1%2B9) for compiling. We rely on a specific version of Java 13.0.1-9 is needed due to compatibility issues with a library we depend on.
+For development we use [Maven](http://maven.apache.org) and [Java 17](https://adoptium.net/) for compiling.
 
 #### Compiling and starting the application
 
@@ -141,7 +141,40 @@ If you are more used to IntelliJ, you can also build, run and debug it there.
 - Import the Source, `File` -> `New` -> `Project from existing Sources`
 - Setup a new "Run Configuration", `Java Application`, with following settings:
   - Main Class: `org.netbeans.Main`
-  - VM Options: `-Dnetbeans.user=$ProjectFileDir$/ugs-platform/application/target/userdir -Dnetbeans.home=$ProjectFileDir$/ugs-platform/application/target/ugsplatform/platform -Dnetbeans.logger.console=true -Dnetbeans.indexing.noFileRefresh=true -Dnetbeans.dirs="$ProjectFileDir$/ugs-platform/application/target/ugsplatform/ugsplatform:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/platform:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/ide:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/extra:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/java"`
+  - VM Options:
+```
+-Dpolyglot.engine.WarnInterpreterOnly=false
+-Dnetbeans.user=$ProjectFileDir$/ugs-platform/application/target/userdir
+-Dnetbeans.home=$ProjectFileDir$/ugs-platform/application/target/ugsplatform/platform
+-Dnetbeans.logger.console=true
+-Dnetbeans.indexing.noFileRefresh=true
+-Dnetbeans.moduleitem.dontverifyclassloader=true
+-Dnetbeans.dirs=$ProjectFileDir$/ugs-platform/application/target/ugsplatform/ugsplatform:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/platform:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/ide:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/extra:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/java
+--add-opens=java.base/java.net=ALL-UNNAMED
+--add-opens=java.base/java.lang.ref=ALL-UNNAMED
+--add-opens=java.base/java.lang=ALL-UNNAMED
+--add-opens=java.base/java.security=ALL-UNNAMED
+--add-opens=java.base/java.util=ALL-UNNAMED
+--add-opens=java.base/java.nio=ALL-UNNAMED
+--add-exports=java.base/sun.reflect.annotation=ALL-UNNAMED
+--add-opens=java.prefs/java.util.prefs=ALL-UNNAMED
+--add-opens=java.desktop/javax.swing.plaf.basic=ALL-UNNAMED
+--add-opens=java.desktop/javax.swing.text=ALL-UNNAMED
+--add-opens=java.desktop/javax.swing=ALL-UNNAMED
+--add-opens=java.desktop/java.awt=ALL-UNNAMED
+--add-opens=java.desktop/java.awt.event=ALL-UNNAMED
+--add-opens=java.desktop/sun.awt.X11=ALL-UNNAMED
+--add-opens=java.desktop/javax.swing.plaf.synth=ALL-UNNAMED
+--add-opens=java.desktop/com.sun.java.swing.plaf.gtk=ALL-UNNAMED
+--add-opens=java.desktop/sun.awt.shell=ALL-UNNAMED
+--add-opens=java.desktop/sun.awt.im=ALL-UNNAMED
+--add-exports=java.desktop/sun.awt=ALL-UNNAMED
+--add-exports=java.desktop/java.awt.peer=ALL-UNNAMED
+--add-exports=java.desktop/com.sun.beans.editors=ALL-UNNAMED
+--add-exports=java.desktop/sun.swing=ALL-UNNAMED
+--add-exports=java.desktop/sun.awt.im=ALL-UNNAMED
+--add-exports=java.desktop/com.sun.java.swing.plaf.motif=ALL-UNNAMED
+``` 
   - Program arguments: `--branding ugsplatform`
   - Working dir: `$ProjectFileDir$`
   - Use classpath of module: `ugs-platform-app` 

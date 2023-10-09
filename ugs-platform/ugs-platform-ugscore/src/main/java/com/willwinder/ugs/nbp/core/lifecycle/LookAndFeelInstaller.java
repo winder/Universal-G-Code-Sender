@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,23 +16,23 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.platform.dowel
+package com.willwinder.ugs.nbp.core.lifecycle;
 
-import com.willwinder.universalgcodesender.model.UnitUtils
+import org.openide.modules.ModuleInstall;
+import org.openide.util.NbPreferences;
 
-/*
+import java.util.prefs.Preferences;
 
-  @author wwinder
-  Created on Nov 4, 2017
-*/
+/**
+ * Sets the look and feel (if not already set)
+ */
+public class LookAndFeelInstaller extends ModuleInstall {
 
-data class DowelSettings(
-        val numDowelsX: Int,
-        val numDowelsY: Int,
-        val dowelDiameter: Double,
-        val dowelLength: Double,
-        val bitDiameter: Double,
-        val feed: Double,
-        val cutDepth: Double,
-        val safetyHeight: Double,
-        val units: UnitUtils.Units)
+    @Override
+    public void validate() {
+        Preferences prefs = NbPreferences.root().node("laf");
+        if (prefs.get("laf", "").isBlank()) {
+            prefs.put("laf", "com.formdev.flatlaf.FlatLightLaf");
+        }
+    }
+}
