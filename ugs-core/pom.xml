@@ -112,6 +112,18 @@
             <artifactId>core</artifactId>
             <version>${zxing.version}</version>
         </dependency>
+
+        <!-- For scripting -->
+        <dependency>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js</artifactId>
+            <version>23.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js-scriptengine</artifactId>
+            <version>23.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>

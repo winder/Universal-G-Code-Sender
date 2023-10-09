@@ -77,11 +77,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>DowelModule</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>GcodeTools</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -406,215 +401,16 @@
         </profile>
 
         <profile>
-          <id>create-macosx-package</id>
-          <build>
-            <plugins>
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                  <!-- Create the Mac OS X application bundle and dmg file -->
-                  <execution>
-                      <id>create-mac-app-bundle</id>
-                      <phase>package</phase>
-                      <goals>
-                          <goal>run</goal>
-                      </goals>
-                      <configuration>
-                          <target>
-                              <!-- Clean -->
-                              <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
-                                  <fileset dir="${project.build.directory}/${ugs.appbundle.name}.app" followsymlinks="false"/>
-                                  <fileset dir="${project.build.directory}/${ugs.app.title}" followsymlinks="false"/>
-                                  <fileset dir="${project.build.directory}/${project.artifactId}-${project.version}.dmg" followsymlinks="false"/>
-                              </delete>
-                              <delete file="${project.build.directory}/${project.artifactId}-${project.version}.dmg" failonerror="false"/>
-
-                              <!-- Create folders -->
-                              <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.app"/>
-                              <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS"/>
-
-                              <!-- Copy application -->
-                              <copy todir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}">
-                                  <fileset dir="${project.build.directory}/${brandingToken}"/>
-                              </copy>
-
-                              <!-- Copy logo and configuration files -->
-                              <copy tofile="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}.icns" file="src/main/app-resources/${brandingToken}.icns" />
-                              <copy tofile="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Info.plist" file="${project.build.directory}/Info.plist"/>
-
-                              <!-- Move bin/ugsplatform script into MacOS/ugsplatform and modify the script so it founds its resources -->
-                              <move file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" todir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS"/>
-                              <replace file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS/${brandingToken}" token="`dirname &quot;$PRG&quot;`" value="`dirname &quot;$PRG&quot;`&quot;/../Resources/${brandingToken}/bin&quot;"/>
-                              <chmod file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS/${brandingToken}" perm="ugo+rx"/>
-
-                              <!-- Download and untar JRE -->
-                              <exec dir="${project.build.directory}" executable="curl" failonerror="true">
-                                  <arg line="-L"/>
-                                  <arg line="${ugs.bundle.java.mac.url}"/>
-                                  <arg line="-o"/>
-                                  <arg line="jre-mac.tar.gz"/>
-                              </exec>
-
-                              <!-- Unzip archive -->
-                              <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns"/>
-                              <exec dir="${project.build.directory}" executable="tar" failonerror="true">
-                                  <arg line="-zxf"/>
-                                  <arg line="jre-mac.tar.gz"/>
-                                  <arg line="-C &quot;${ugs.appbundle.name}.app/Contents/PlugIns&quot;"/>
-                              </exec>
-
-                              <!-- Remove quarantine bit set recursively on JRE -->
-                              <!--
-                              <exec dir="${project.build.directory}" os="Mac OS X" executable="xattr" failonerror="true">
-                                  <arg line="-rd"/>
-                                  <arg line="com.apple.quarantine"/>
-                                  <arg line="&quot;${ugs.appbundle.name}.app/Contents/PlugIns&quot;"/>
-                              </exec>
-                              -->
-
-                              <!-- Get the JRE folder name -->
-                              <path id="jre_name_osx">
-                                  <dirset dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns" includes="jdk*" />
-                              </path>
-                              <property name="bundle.mac.jvm.path" refid="jre_name_osx" />
-                              <basename property="bundle.mac.jvm.name" file="${bundle.mac.jvm.path}"/>
-
-                              <!-- Configure relative JRE path into ugsplatform.conf -->
-                              <replace file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;../../PlugIns/${bundle.mac.jvm.name}/Contents/Home&quot;"/>
-                              <chmod file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns/**" perm="+x" type="both"/>
-
-                              <!-- Codesign JRE -->
-                              <!--
-                              <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign" failonerror="true">
-                                  <arg value="-fs"/>
-                                  <arg value="${ugs.codesign.identity}"/>
-                                  <arg value="-v"/>
-                                  <arg value="${ugs.appbundle.name}.app/Contents/PlugIns/${bundle.mac.jvm.name}/"/>
-                              </exec>
-                              -->
-
-                              <!-- Codesign app -->
-                              <!--
-                              <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign" failonerror="true">
-                                  <arg value="-fs"/>
-                                  <arg value="${ugs.codesign.identity}"/>
-                                  <arg value="-v"/>
-                                  <arg value="${ugs.appbundle.name}.app"/>
-                              </exec>
-                              -->
-
-                              <!-- Create application folder and add Applications dynamic link -->
-                              <mkdir dir="${project.build.directory}/${ugs.app.title}"/>
-                              <move file="${project.build.directory}/${ugs.appbundle.name}.app" todir="${project.build.directory}/${ugs.app.title}/" />
-                              <symlink link="${project.build.directory}/${ugs.app.title}/Applications" resource="/Applications" failonerror="false" />
-
-                              <!-- Create DMG -->
-                              <!-- For this to work on MacOSX you need to install cdrtools: 'brew install cdrtools' -->
-                              <exec dir="${project.build.directory}" executable="mkisofs" failonerror="true">
-                                  <arg value="-V"/>
-                                  <arg value="${ugs.appbundle.name}"/>
-                                  <arg value="-r"/>
-                                  <arg value="-o"/>
-                                  <arg value="ios-${project.artifactId}-${project.version}.dmg"/>
-                                  <arg value="${project.build.directory}/${ugs.app.title}"/>
-                              </exec>
-                          </target>
-                      </configuration>
-                  </execution>
-                </executions>
-              </plugin>
-            </plugins>
-          </build>
-        </profile>
-
-     <!-- Create the RaspberryPi application bundle -->
-     <profile>
-       <id>create-pi-package</id>
-       <build>
-         <plugins>
-           <plugin>
-             <groupId>org.apache.maven.plugins</groupId>
-             <artifactId>maven-antrun-plugin</artifactId>
-             <executions>
-               <execution>
-                 <id>create-rpi-bundle</id>
-                 <phase>package</phase>
-                 <goals>
-                     <goal>run</goal>
-                 </goals>
-                 <configuration>
-                   <target>
-                     <!-- Clean -->
-                     <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
-                       <fileset dir="${project.build.directory}/${brandingToken}-pi" followsymlinks="false"/>
-                     </delete>
-                     <delete file="${project.build.directory}/${project.artifactId}-${project.version}-pi.tar.gz" failonerror="false"/>
-
-                     <!-- Create folders -->
-                     <mkdir dir="${project.build.directory}/${brandingToken}-pi"/>
-
-                     <!-- Copy application -->
-                     <copy todir="${project.build.directory}/${brandingToken}-pi">
-                       <fileset dir="${project.build.directory}/${brandingToken}"/>
-                     </copy>
-
-                     <!-- Download and untar JRE -->
-                     <exec dir="${project.build.directory}" executable="curl" failonerror="true">
-                       <arg line="-L"/>
-                       <arg line="${ugs.bundle.java.rpi.url}"/>
-                       <arg line="-o"/>
-                       <arg line="jre-rpi.tar.gz"/>
-                     </exec>
-
-                     <!-- Unzip archive -->
-                       <mkdir dir="${project.build.directory}/${brandingToken}-pi/jdk"/>
-                       <exec dir="${project.build.directory}" executable="tar" failonerror="true">
-                       <arg line="-zxf"/>
-                       <arg line="jre-rpi.tar.gz"/>
-                       <arg line="-C &quot;${brandingToken}-pi/jdk&quot;"/>
-                     </exec>
-
-                     <!-- Get the JRE folder name -->
-                     <path id="jre_name">
-                       <dirset dir="${project.build.directory}/${brandingToken}-pi/jdk" includes="jdk*" />
-                     </path>
-                     <property name="bundle.jvm.path" refid="jre_name" />
-                     <basename property="bundle.jvm.name" file="${bundle.jvm.path}"/>
-
-                     <!-- Configure relative JRE path into ugsplatform.conf -->
-                     <replace file="${project.build.directory}/${brandingToken}-pi/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>
-                     <chmod file="${project.build.directory}/${brandingToken}-pi/bin/**" perm="+x" type="both"/>
-
-                     <!-- Create Archive -->
-                     <exec dir="${project.build.directory}" executable="tar" failonerror="true">
-                       <env key="GZIP" value="-9"/>
-                       <arg value="-czvf"/>
-                       <arg value="pi-${project.artifactId}-${project.version}.tar.gz"/>
-                       <arg value="-C"/>
-                       <arg value="${project.build.directory}"/>
-                       <arg value="${brandingToken}-pi"/>
-                     </exec>
-                   </target>
-                 </configuration>
-               </execution>
-             </executions>
-           </plugin>
-         </plugins>
-       </build>
-     </profile>
-
-        <!-- Create the Linux application bundle -->
-        <profile>
-            <id>create-linux-package</id>
+            <id>create-macosx-x64-package</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
                         <executions>
+                            <!-- Create the Mac OS X application bundle and dmg file -->
                             <execution>
-                                <id>create-rpi-bundle</id>
+                                <id>create-mac-x64-app-bundle</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>run</goal>
@@ -623,53 +419,104 @@
                                     <target>
                                         <!-- Clean -->
                                         <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
-                                            <fileset dir="${project.build.directory}/${brandingToken}-linux" followsymlinks="false"/>
+                                            <fileset dir="${project.build.directory}/${ugs.appbundle.name}.app" followsymlinks="false"/>
+                                            <fileset dir="${project.build.directory}/${ugs.app.title}" followsymlinks="false"/>
+                                            <fileset dir="${project.build.directory}/macos-x64-${project.artifactId}-${project.version}.dmg" followsymlinks="false"/>
                                         </delete>
-                                        <delete file="${project.build.directory}/${project.artifactId}-${project.version}-linux.tar.gz" failonerror="false"/>
 
                                         <!-- Create folders -->
-                                        <mkdir dir="${project.build.directory}/${brandingToken}-linux"/>
+                                        <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.app"/>
+                                        <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS"/>
 
                                         <!-- Copy application -->
-                                        <copy todir="${project.build.directory}/${brandingToken}-linux">
+                                        <copy todir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}">
                                             <fileset dir="${project.build.directory}/${brandingToken}"/>
                                         </copy>
 
+                                        <!-- Delete windows binaries -->
+                                        <delete file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}/ugsplatform/bin/ugsplatform.exe" failonerror="false"/>
+                                        <delete file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}/ugsplatform/bin/ugsplatform64.exe" failonerror="false"/>
+
+                                        <!-- Copy logo and configuration files -->
+                                        <copy tofile="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}.icns" file="src/main/app-resources/${brandingToken}.icns" />
+                                        <copy tofile="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Info.plist" file="${project.build.directory}/Info.plist"/>
+
+                                        <!-- Move bin/ugsplatform script into MacOS/ugsplatform and modify the script so it founds its resources -->
+                                        <move file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" todir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS"/>
+                                        <replace file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS/${brandingToken}" token="`dirname &quot;$PRG&quot;`" value="`dirname &quot;$PRG&quot;`&quot;/../Resources/${brandingToken}/bin&quot;"/>
+                                        <chmod file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS/${brandingToken}" perm="ugo+rx"/>
+
                                         <!-- Download and untar JRE -->
                                         <exec dir="${project.build.directory}" executable="curl" failonerror="true">
-                                          <arg line="-L"/>
-                                          <arg line="${ugs.bundle.java.linux.url}"/>
-                                          <arg line="-o"/>
-                                          <arg line="jre-linux.tar.gz"/>
+                                            <arg line="-L"/>
+                                            <arg line="${ugs.bundle.java.mac.x64.url}"/>
+                                            <arg line="-o"/>
+                                            <arg line="jre-mac.tar.gz"/>
                                         </exec>
 
                                         <!-- Unzip archive -->
-                                        <mkdir dir="${project.build.directory}/${brandingToken}-linux/jdk"/>
+                                        <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns"/>
                                         <exec dir="${project.build.directory}" executable="tar" failonerror="true">
                                             <arg line="-zxf"/>
-                                            <arg line="jre-linux.tar.gz"/>
-                                            <arg line="-C &quot;${brandingToken}-linux/jdk&quot;"/>
+                                            <arg line="jre-mac.tar.gz"/>
+                                            <arg line="-C &quot;${ugs.appbundle.name}.app/Contents/PlugIns&quot;"/>
                                         </exec>
 
+                                        <!-- Remove quarantine bit set recursively on JRE -->
+                                        <!--
+                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="xattr" failonerror="true">
+                                            <arg line="-rd"/>
+                                            <arg line="com.apple.quarantine"/>
+                                            <arg line="&quot;${ugs.appbundle.name}.app/Contents/PlugIns&quot;"/>
+                                        </exec>
+                                        -->
+
                                         <!-- Get the JRE folder name -->
-                                        <path id="jre_name">
-                                            <dirset dir="${project.build.directory}/${brandingToken}-linux/jdk" includes="jdk*" />
+                                        <path id="jre_name_osx">
+                                            <dirset dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns" includes="jdk*" />
                                         </path>
-                                        <property name="bundle.jvm.path" refid="jre_name" />
-                                        <basename property="bundle.jvm.name" file="${bundle.jvm.path}"/>
+                                        <property name="bundle.mac.jvm.path" refid="jre_name_osx" />
+                                        <basename property="bundle.mac.jvm.name" file="${bundle.mac.jvm.path}"/>
 
                                         <!-- Configure relative JRE path into ugsplatform.conf -->
-                                        <replace file="${project.build.directory}/${brandingToken}-linux/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>
-                                        <chmod file="${project.build.directory}/${brandingToken}-linux/bin/**" perm="+x" type="both"/>
+                                        <replace file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;../../PlugIns/${bundle.mac.jvm.name}/Contents/Home&quot;"/>
+                                        <chmod file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns/**" perm="+x" type="both"/>
 
-                                        <!-- Create Archive -->
-                                        <exec dir="${project.build.directory}" executable="tar" failonerror="true">
-                                            <env key="GZIP" value="-9"/>
-                                            <arg value="-czvf"/>
-                                            <arg value="linux-${project.artifactId}-${project.version}.tar.gz"/>
-                                            <arg value="-C"/>
-                                            <arg value="${project.build.directory}"/>
-                                            <arg value="${brandingToken}-linux"/>
+                                        <!-- Codesign JRE -->
+                                        <!--
+                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign" failonerror="true">
+                                            <arg value="-fs"/>
+                                            <arg value="${ugs.codesign.identity}"/>
+                                            <arg value="-v"/>
+                                            <arg value="${ugs.appbundle.name}.app/Contents/PlugIns/${bundle.mac.jvm.name}/"/>
+                                        </exec>
+                                        -->
+
+                                        <!-- Codesign app -->
+                                        <!--
+                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign" failonerror="true">
+                                            <arg value="-fs"/>
+                                            <arg value="${ugs.codesign.identity}"/>
+                                            <arg value="-v"/>
+                                            <arg value="${ugs.appbundle.name}.app"/>
+                                        </exec>
+                                        -->
+
+                                        <!-- Create application folder and add Applications dynamic link -->
+                                        <mkdir dir="${project.build.directory}/${ugs.app.title}"/>
+                                        <move file="${project.build.directory}/${ugs.appbundle.name}.app" todir="${project.build.directory}/${ugs.app.title}/" />
+                                        <symlink link="${project.build.directory}/${ugs.app.title}/Applications" resource="/Applications" failonerror="false" />
+
+                                        <!-- Create DMG -->
+                                        <!-- For this to work on MacOSX you need to install cdrtools: 'brew install cdrtools' -->
+                                        <exec dir="${project.build.directory}" executable="mkisofs" failonerror="true">
+                                            <arg value="-D"/>
+                                            <arg value="-V"/>
+                                            <arg value="${ugs.appbundle.name}"/>
+                                            <arg value="-r"/>
+                                            <arg value="-o"/>
+                                            <arg value="macos-x64-${project.artifactId}-${project.version}.dmg"/>
+                                            <arg value="${project.build.directory}/${ugs.app.title}"/>
                                         </exec>
                                     </target>
                                 </configuration>
@@ -679,6 +526,375 @@
                 </plugins>
             </build>
         </profile>
+
+
+        <profile>
+            <id>create-macosx-aarch64-package</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <!-- Create the Mac OS X application bundle and dmg file -->
+                            <execution>
+                                <id>create-mac-aarch64-app-bundle</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <!-- Clean -->
+                                        <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
+                                            <fileset dir="${project.build.directory}/${ugs.appbundle.name}.app" followsymlinks="false"/>
+                                            <fileset dir="${project.build.directory}/${ugs.app.title}" followsymlinks="false"/>
+                                            <fileset dir="${project.build.directory}/macos-aarch64-${project.artifactId}-${project.version}.dmg" followsymlinks="false"/>
+                                        </delete>
+
+                                        <!-- Create folders -->
+                                        <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.app"/>
+                                        <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS"/>
+
+                                        <!-- Copy application -->
+                                        <copy todir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}">
+                                            <fileset dir="${project.build.directory}/${brandingToken}"/>
+                                        </copy>
+
+                                        <!-- Delete windows binaries -->
+                                        <delete file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}/ugsplatform/bin/ugsplatform.exe" failonerror="false"/>
+                                        <delete file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}/ugsplatform/bin/ugsplatform64.exe" failonerror="false"/>
+
+                                        <!-- Copy logo and configuration files -->
+                                        <copy tofile="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}.icns" file="src/main/app-resources/${brandingToken}.icns" />
+                                        <copy tofile="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Info.plist" file="${project.build.directory}/Info.plist"/>
+
+                                        <!-- Move bin/ugsplatform script into MacOS/ugsplatform and modify the script so it founds its resources -->
+                                        <move file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}/bin/${brandingToken}" todir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS"/>
+                                        <replace file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS/${brandingToken}" token="`dirname &quot;$PRG&quot;`" value="`dirname &quot;$PRG&quot;`&quot;/../Resources/${brandingToken}/bin&quot;"/>
+                                        <chmod file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/MacOS/${brandingToken}" perm="ugo+rx"/>
+
+                                        <!-- Download and untar JRE -->
+                                        <exec dir="${project.build.directory}" executable="curl" failonerror="true">
+                                            <arg line="-L"/>
+                                            <arg line="${ugs.bundle.java.mac.aarch64.url}"/>
+                                            <arg line="-o"/>
+                                            <arg line="jre-mac.tar.gz"/>
+                                        </exec>
+
+                                        <!-- Unzip archive -->
+                                        <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns"/>
+                                        <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+                                            <arg line="-zxf"/>
+                                            <arg line="jre-mac.tar.gz"/>
+                                            <arg line="-C &quot;${ugs.appbundle.name}.app/Contents/PlugIns&quot;"/>
+                                        </exec>
+
+                                        <!-- Remove quarantine bit set recursively on JRE -->
+                                        <!--
+                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="xattr" failonerror="true">
+                                            <arg line="-rd"/>
+                                            <arg line="com.apple.quarantine"/>
+                                            <arg line="&quot;${ugs.appbundle.name}.app/Contents/PlugIns&quot;"/>
+                                        </exec>
+                                        -->
+
+                                        <!-- Get the JRE folder name -->
+                                        <path id="jre_name_osx">
+                                            <dirset dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns" includes="jdk*" />
+                                        </path>
+                                        <property name="bundle.mac.jvm.path" refid="jre_name_osx" />
+                                        <basename property="bundle.mac.jvm.name" file="${bundle.mac.jvm.path}"/>
+
+                                        <!-- Configure relative JRE path into ugsplatform.conf -->
+                                        <replace file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;../../PlugIns/${bundle.mac.jvm.name}/Contents/Home&quot;"/>
+                                        <chmod file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns/**" perm="+x" type="both"/>
+
+                                        <!-- Codesign JRE -->
+                                        <!--
+                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign" failonerror="true">
+                                            <arg value="-fs"/>
+                                            <arg value="${ugs.codesign.identity}"/>
+                                            <arg value="-v"/>
+                                            <arg value="${ugs.appbundle.name}.app/Contents/PlugIns/${bundle.mac.jvm.name}/"/>
+                                        </exec>
+                                        -->
+
+                                        <!-- Codesign app -->
+                                        <!--
+                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign" failonerror="true">
+                                            <arg value="-fs"/>
+                                            <arg value="${ugs.codesign.identity}"/>
+                                            <arg value="-v"/>
+                                            <arg value="${ugs.appbundle.name}.app"/>
+                                        </exec>
+                                        -->
+
+                                        <!-- Create application folder and add Applications dynamic link -->
+                                        <mkdir dir="${project.build.directory}/${ugs.app.title}"/>
+                                        <move file="${project.build.directory}/${ugs.appbundle.name}.app" todir="${project.build.directory}/${ugs.app.title}/" />
+                                        <symlink link="${project.build.directory}/${ugs.app.title}/Applications" resource="/Applications" failonerror="false" />
+
+                                        <!-- Create DMG -->
+                                        <!-- For this to work on MacOSX you need to install cdrtools: 'brew install cdrtools' -->
+                                        <exec dir="${project.build.directory}" executable="mkisofs" failonerror="true">
+                                            <arg value="-D"/>
+                                            <arg value="-V"/>
+                                            <arg value="${ugs.appbundle.name}"/>
+                                            <arg value="-r"/>
+                                            <arg value="-o"/>
+                                            <arg value="macos-aarch64-${project.artifactId}-${project.version}.dmg"/>
+                                            <arg value="${project.build.directory}/${ugs.app.title}"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Create the Linux x64 application bundle -->
+        <profile>
+            <id>create-linux-x64-package</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>create-linux-x64-bundle</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <!-- Clean -->
+                                        <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
+                                            <fileset dir="${project.build.directory}/${brandingToken}-linux-x64" followsymlinks="false"/>
+                                        </delete>
+                                        <delete file="${project.build.directory}/linux-x64-${project.artifactId}-${project.version}.tar.gz" failonerror="false"/>
+
+                                        <!-- Create folders -->
+                                        <mkdir dir="${project.build.directory}/${brandingToken}-linux-x64"/>
+
+                                        <!-- Copy application -->
+                                        <copy todir="${project.build.directory}/${brandingToken}-linux-x64">
+                                            <fileset dir="${project.build.directory}/${brandingToken}"/>
+                                        </copy>
+
+                                        <!-- Delete windows binaries -->
+                                        <delete file="${project.build.directory}/${brandingToken}-linux-x64/bin/ugsplatform.exe" failonerror="false"/>
+                                        <delete file="${project.build.directory}/${brandingToken}-linux-x64/bin/ugsplatform64.exe" failonerror="false"/>
+
+                                        <!-- Download and untar JRE -->
+                                        <exec dir="${project.build.directory}" executable="curl" failonerror="true">
+                                          <arg line="-L"/>
+                                          <arg line="${ugs.bundle.java.linux.x64.url}"/>
+                                          <arg line="-o"/>
+                                          <arg line="jre-linux.tar.gz"/>
+                                        </exec>
+
+                                        <!-- Unzip archive -->
+                                        <mkdir dir="${project.build.directory}/${brandingToken}-linux-x64/jdk"/>
+                                        <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+                                            <arg line="-zxf"/>
+                                            <arg line="jre-linux.tar.gz"/>
+                                            <arg line="-C &quot;${brandingToken}-linux-x64/jdk&quot;"/>
+                                        </exec>
+
+                                        <!-- Get the JRE folder name -->
+                                        <path id="jre_name">
+                                            <dirset dir="${project.build.directory}/${brandingToken}-linux-x64/jdk" includes="jdk*" />
+                                        </path>
+                                        <property name="bundle.jvm.path" refid="jre_name" />
+                                        <basename property="bundle.jvm.name" file="${bundle.jvm.path}"/>
+
+                                        <!-- Configure relative JRE path into ugsplatform.conf -->
+                                        <replace file="${project.build.directory}/${brandingToken}-linux-x64/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>
+                                        <chmod file="${project.build.directory}/${brandingToken}-linux-x64/bin/**" perm="+x" type="both"/>
+
+                                        <!-- Create Archive -->
+                                        <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+                                            <env key="GZIP" value="-9"/>
+                                            <arg value="-czvf"/>
+                                            <arg value="linux-x64-${project.artifactId}-${project.version}.tar.gz"/>
+                                            <arg value="-C"/>
+                                            <arg value="${project.build.directory}"/>
+                                            <arg value="${brandingToken}-linux-x64"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Create the Linux arm application bundle -->
+        <profile>
+            <id>create-linux-arm-package</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>create-linux-arm-bundle</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <!-- Clean -->
+                                        <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
+                                            <fileset dir="${project.build.directory}/${brandingToken}-linux-arm" followsymlinks="false"/>
+                                        </delete>
+                                        <delete file="${project.build.directory}/linux-arm-${project.artifactId}-${project.version}.tar.gz" failonerror="false"/>
+
+                                        <!-- Create folders -->
+                                        <mkdir dir="${project.build.directory}/${brandingToken}-linux-arm"/>
+
+                                        <!-- Copy application -->
+                                        <copy todir="${project.build.directory}/${brandingToken}-linux-arm">
+                                            <fileset dir="${project.build.directory}/${brandingToken}"/>
+                                        </copy>
+
+                                        <!-- Delete windows binaries -->
+                                        <delete file="${project.build.directory}/${brandingToken}-linux-arm/bin/ugsplatform.exe" failonerror="false"/>
+                                        <delete file="${project.build.directory}/${brandingToken}-linux-arm/bin/ugsplatform64.exe" failonerror="false"/>
+
+                                        <!-- Download and untar JRE -->
+                                        <exec dir="${project.build.directory}" executable="curl" failonerror="true">
+                                            <arg line="-L"/>
+                                            <arg line="${ugs.bundle.java.linux.arm.url}"/>
+                                            <arg line="-o"/>
+                                            <arg line="jre-linux.tar.gz"/>
+                                        </exec>
+
+                                        <!-- Unzip archive -->
+                                        <mkdir dir="${project.build.directory}/${brandingToken}-linux-arm/jdk"/>
+                                        <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+                                            <arg line="-zxf"/>
+                                            <arg line="jre-linux.tar.gz"/>
+                                            <arg line="-C &quot;${brandingToken}-linux-arm/jdk&quot;"/>
+                                        </exec>
+
+                                        <!-- Get the JRE folder name -->
+                                        <path id="jre_name">
+                                            <dirset dir="${project.build.directory}/${brandingToken}-linux-arm/jdk" includes="jdk*" />
+                                        </path>
+                                        <property name="bundle.jvm.path" refid="jre_name" />
+                                        <basename property="bundle.jvm.name" file="${bundle.jvm.path}"/>
+
+                                        <!-- Configure relative JRE path into ugsplatform.conf -->
+                                        <replace file="${project.build.directory}/${brandingToken}-linux-arm/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>
+                                        <chmod file="${project.build.directory}/${brandingToken}-linux-arm/bin/**" perm="+x" type="both"/>
+
+                                        <!-- Create Archive -->
+                                        <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+                                            <env key="GZIP" value="-9"/>
+                                            <arg value="-czvf"/>
+                                            <arg value="linux-arm-${project.artifactId}-${project.version}.tar.gz"/>
+                                            <arg value="-C"/>
+                                            <arg value="${project.build.directory}"/>
+                                            <arg value="${brandingToken}-linux-arm"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Create the Linux arm application bundle -->
+        <profile>
+            <id>create-linux-aarch64-package</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>create-linux-aarch64-bundle</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <!-- Clean -->
+                                        <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
+                                            <fileset dir="${project.build.directory}/${brandingToken}-linux-aarch64" followsymlinks="false"/>
+                                        </delete>
+                                        <delete file="${project.build.directory}/linux-aarch64-${project.artifactId}-${project.version}.tar.gz" failonerror="false"/>
+
+                                        <!-- Create folders -->
+                                        <mkdir dir="${project.build.directory}/${brandingToken}-linux-aarch64"/>
+
+                                        <!-- Copy application -->
+                                        <copy todir="${project.build.directory}/${brandingToken}-linux-aarch64">
+                                            <fileset dir="${project.build.directory}/${brandingToken}"/>
+                                        </copy>
+
+                                        <!-- Delete windows binaries -->
+                                        <delete file="${project.build.directory}/${brandingToken}-linux-aarch64/bin/ugsplatform.exe" failonerror="false"/>
+                                        <delete file="${project.build.directory}/${brandingToken}-linux-aarch64/bin/ugsplatform64.exe" failonerror="false"/>
+
+                                        <!-- Download and untar JRE -->
+                                        <exec dir="${project.build.directory}" executable="curl" failonerror="true">
+                                            <arg line="-L"/>
+                                            <arg line="${ugs.bundle.java.linux.arm.url}"/>
+                                            <arg line="-o"/>
+                                            <arg line="jre-linux.tar.gz"/>
+                                        </exec>
+
+                                        <!-- Unzip archive -->
+                                        <mkdir dir="${project.build.directory}/${brandingToken}-linux-aarch64/jdk"/>
+                                        <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+                                            <arg line="-zxf"/>
+                                            <arg line="jre-linux.tar.gz"/>
+                                            <arg line="-C &quot;${brandingToken}-linux-aarch64/jdk&quot;"/>
+                                        </exec>
+
+                                        <!-- Get the JRE folder name -->
+                                        <path id="jre_name">
+                                            <dirset dir="${project.build.directory}/${brandingToken}-linux-aarch64/jdk" includes="jdk*" />
+                                        </path>
+                                        <property name="bundle.jvm.path" refid="jre_name" />
+                                        <basename property="bundle.jvm.name" file="${bundle.jvm.path}"/>
+
+                                        <!-- Configure relative JRE path into ugsplatform.conf -->
+                                        <replace file="${project.build.directory}/${brandingToken}-linux-aarch64/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>
+                                        <chmod file="${project.build.directory}/${brandingToken}-linux-aarch64/bin/**" perm="+x" type="both"/>
+
+                                        <!-- Create Archive -->
+                                        <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+                                            <env key="GZIP" value="-9"/>
+                                            <arg value="-czvf"/>
+                                            <arg value="linux-aarch64-${project.artifactId}-${project.version}.tar.gz"/>
+                                            <arg value="-C"/>
+                                            <arg value="${project.build.directory}"/>
+                                            <arg value="${brandingToken}-linux-aarch64"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
 
         <profile>
         <id>create-autoupdate</id>
@@ -824,7 +1040,6 @@
                 <message>Creating site for ${project.version}</message>
                 <path>${project.version}</path>
                 <merge>true</merge>
-                <!--<repositoryName>ugs-platform-updates</repositoryName>-->
                 <repositoryName>gh-site-test</repositoryName>
                 <repositoryOwner>winder</repositoryOwner>
               </configuration>

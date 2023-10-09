@@ -85,7 +85,7 @@ public class GetErrorCodesCommandTest {
         command.appendResponse("ok");
 
         // Wait for the listener to complete
-        Thread.sleep(100);
+        Thread.sleep(200);
 
         assertTrue(command.isOk());
         assertEquals(1, eventsCounter.get());
