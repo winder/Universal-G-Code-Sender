@@ -16,7 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.willwinder.ugs.nbp.core.actions;
+package com.willwinder.ugs.nbp.core.ui;
 
 import com.willwinder.universalgcodesender.connection.DefaultConnectionDevice;
 import com.willwinder.universalgcodesender.connection.IConnectionDevice;
@@ -82,8 +82,8 @@ public class PortComboBoxModel extends AbstractListModel<IConnectionDevice> impl
 
     @Override
     public void setSelectedItem(Object anItem) {
-        if (anItem instanceof IConnectionDevice) {
-            selectedDevice = (IConnectionDevice) anItem;
+        if (anItem instanceof IConnectionDevice selectedItem) {
+            selectedDevice = selectedItem;
         } else {
             selectedDevice = devices.stream()
                     .filter(d -> d.getAddress().equals(anItem))

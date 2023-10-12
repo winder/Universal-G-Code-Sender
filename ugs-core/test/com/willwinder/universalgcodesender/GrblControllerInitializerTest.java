@@ -28,9 +28,6 @@ public class GrblControllerInitializerTest {
     @Mock
     private GrblController controller;
 
-    @Mock
-    private MessageService messageService;
-
     private static void mockParserStateCommand(GrblController controller) throws Exception {
         doAnswer((arguments) -> {
             GcodeCommand command = arguments.getArgument(0);
@@ -69,6 +66,7 @@ public class GrblControllerInitializerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         when(controller.isCommOpen()).thenReturn(true);
+        when(controller.getMessageService()).thenReturn(new MessageService());
     }
 
     @Test
@@ -78,7 +76,7 @@ public class GrblControllerInitializerTest {
         mockSettingsCommand(controller);
         mockParserStateCommand(controller);
 
-        GrblControllerInitializer instance = new GrblControllerInitializer(controller, messageService);
+        GrblControllerInitializer instance = new GrblControllerInitializer(controller);
         assertTrue(instance.initialize());
         assertEquals(1.1d, instance.getVersion().getVersionNumber(), 0.01);
         assertEquals(Character.valueOf('f'), instance.getVersion().getVersionLetter());
@@ -92,14 +90,14 @@ public class GrblControllerInitializerTest {
         mockSettingsCommand(controller);
         mockParserStateCommand(controller);
 
-        GrblControllerInitializer instance = new GrblControllerInitializer(controller, messageService);
+        GrblControllerInitializer instance = new GrblControllerInitializer(controller);
         assertTrue(instance.initialize());
         assertFalse(instance.initialize());
     }
 
     @Test
     public void initializeShouldThrowErrorWhenNoStatusResponseFromController() throws Exception {
-        GrblControllerInitializer instance = new GrblControllerInitializer(controller, messageService);
+        GrblControllerInitializer instance = new GrblControllerInitializer(controller);
         RuntimeException exception = assertThrows(RuntimeException.class, instance::initialize);
         assertEquals("Could not query the device status", exception.getMessage());
 
@@ -109,7 +107,7 @@ public class GrblControllerInitializerTest {
 
     @Test
     public void initializeShouldResetControllerIfTheControllerIsNotResponsive() throws Exception {
-        GrblControllerInitializer instance = new GrblControllerInitializer(controller, messageService);
+        GrblControllerInitializer instance = new GrblControllerInitializer(controller);
 
         // Mock status as HOLD which will force it to send command with empty line break to see if it is still responsive
         mockStatusCommand(controller, ControllerState.HOLD);

@@ -19,6 +19,16 @@ public class GetBuildInfoCommandTest {
     }
 
     @Test
+    public void getVersionWithoutVersionStringShouldAssumeGrbl1_1() {
+        GetBuildInfoCommand command = new GetBuildInfoCommand();
+        command.appendResponse("[OPT: ABC]");
+        command.appendResponse("[VER:]");
+        command.appendResponse("ok");
+        GrblVersion version = command.getVersion().orElseThrow(RuntimeException::new);
+        assertEquals(1.1, version.getVersionNumber(), 0.01);
+    }
+
+    @Test
     public void getVersionWithLegacySingleLineVersion() {
         GetBuildInfoCommand command = new GetBuildInfoCommand();
         command.appendResponse("[0.9j.20160303:]");
