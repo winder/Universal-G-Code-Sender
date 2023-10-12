@@ -35,13 +35,13 @@ import java.util.Map;
  * @author wwinder
  */
 public class MachineSettingsPanel extends AbstractUGSSettings {
-    private final Map<Axis, JCheckBoxMenuItem> disabledAxes = new HashMap<>();
+    private final Map<Axis, JCheckBox> disabledAxes = new HashMap<>();
 
     public MachineSettingsPanel(Settings settings, IChanged changer) {
         super(settings, changer);
         String label = Localization.getString("settings.disableAxis");
         Arrays.stream(Axis.values()).forEach(axis -> {
-            JCheckBoxMenuItem item = new JCheckBoxMenuItem(String.format(label, axis.name()));
+            JCheckBox item = new JCheckBox(String.format(label, axis.name()));
             item.addActionListener(e -> change());
             disabledAxes.put(axis, item);
         });
@@ -80,7 +80,7 @@ public class MachineSettingsPanel extends AbstractUGSSettings {
         setLayout(new MigLayout("", "fill"));
         // Make sure they are added in enum-order.
         Arrays.stream(Axis.values()).forEach(a -> {
-            JCheckBoxMenuItem item = disabledAxes.get(a);
+            JCheckBox item = disabledAxes.get(a);
             item.setSelected(!settings.isAxisEnabled(a));
             add(item, "wrap");
         });

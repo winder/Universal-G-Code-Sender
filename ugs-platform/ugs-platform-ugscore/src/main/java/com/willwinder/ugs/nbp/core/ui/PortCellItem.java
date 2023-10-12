@@ -16,7 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.willwinder.ugs.nbp.core.actions;
+package com.willwinder.ugs.nbp.core.ui;
 
 import com.willwinder.universalgcodesender.connection.IConnectionDevice;
 

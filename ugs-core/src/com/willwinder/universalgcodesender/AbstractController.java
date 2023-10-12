@@ -403,6 +403,10 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         return streamStopWatch.getTime();
     }
 
+    public MessageService getMessageService() {
+        return messageService;
+    }
+
     private enum RowStat {
         TOTAL_ROWS,
         ROWS_SENT,

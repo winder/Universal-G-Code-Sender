@@ -6,9 +6,11 @@ import com.willwinder.universalgcodesender.firmware.grbl.commands.GetParserState
 import com.willwinder.universalgcodesender.firmware.grbl.commands.GetSettingsCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.services.MessageService;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 
@@ -18,7 +20,7 @@ import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndW
  * for controllers such as grblHAL or GRBL_ESP32.
  * <p/>
  * 1. It will first to query the machine for a status report 10 times, if the status is HOLD or ALARM
- *    a blank line will be sent to see if the controller is responsive
+ * a blank line will be sent to see if the controller is responsive
  * 2. Fetch the build info for the controller
  * 3. Fetch the parser state
  * 4. Start the status poller
@@ -26,19 +28,18 @@ import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndW
  * @author Joacim Breiler
  */
 public class GrblControllerInitializer implements IControllerInitializer {
+    private static final Logger LOGGER = Logger.getLogger(GrblControllerInitializer.class.getSimpleName());
     private final AtomicBoolean isInitializing = new AtomicBoolean(false);
     private final AtomicBoolean isInitialized = new AtomicBoolean(false);
-    private final MessageService messageService;
     private final GrblController controller;
     private GrblVersion version = GrblVersion.NO_VERSION;
 
-    public GrblControllerInitializer(GrblController controller, MessageService messageService) {
+    public GrblControllerInitializer(GrblController controller) {
         this.controller = controller;
-        this.messageService = messageService;
     }
 
     @Override
-    public boolean initialize() {
+    public boolean initialize() throws ControllerException{
         // Only allow one initialization at a time
         if (isInitializing.get() || isInitialized.get()) {
             return false;
@@ -50,31 +51,51 @@ public class GrblControllerInitializer implements IControllerInitializer {
         isInitializing.set(true);
         try {
             Thread.sleep(2000);
-            if (!GrblUtils.isControllerResponsive(controller, messageService)) {
+            if (!GrblUtils.isControllerResponsive(controller)) {
                 isInitializing.set(false);
-                messageService.dispatchMessage(MessageType.INFO, "*** Device is in a holding or alarm state and needs to be reset\n");
+                controller.getMessageService().dispatchMessage(MessageType.INFO, "*** Device is in a holding or alarm state and needs to be reset\n");
                 controller.issueSoftReset();
                 return false;
             }
 
+            fetchControllerVersion();
             fetchControllerState();
 
-            messageService.dispatchMessage(MessageType.INFO, String.format("*** Connected to %s\n", version.toString()));
+            controller.getMessageService().dispatchMessage(MessageType.INFO, String.format("*** Connected to %s\n", version.toString()));
             isInitialized.set(true);
             isInitializing.set(false);
             return true;
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            isInitialized.set(false);
+            isInitializing.set(false);
+            closeConnection();
+            throw new ControllerException(e.getMessage());
+        }
+    }
+
+    private void closeConnection() {
+        try {
+            controller.closeCommPort();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Could not properly close the connection", e);
         }
     }
 
     private void fetchControllerState() throws Exception {
-        // Send commands to get the state of the controller
-        GetBuildInfoCommand getBuildInfoCommand = sendAndWaitForCompletion(controller, new GetBuildInfoCommand());
-        version = getBuildInfoCommand.getVersion().orElse(GrblVersion.NO_VERSION);
-
         sendAndWaitForCompletion(controller, new GetSettingsCommand());
         sendAndWaitForCompletion(controller, new GetParserStateCommand());
+    }
+
+    private void fetchControllerVersion() throws Exception {
+        // Send commands to get the state of the controller
+        GetBuildInfoCommand getBuildInfoCommand = sendAndWaitForCompletion(controller, new GetBuildInfoCommand());
+        Optional<GrblVersion> optionalVersion = getBuildInfoCommand.getVersion();
+        if (optionalVersion.isEmpty()) {
+            controller.getMessageService().dispatchMessage(MessageType.ERROR, "*** Could not detect the GRBL version\n");
+            throw new ControllerException("Could not detect the GRBL version");
+        }
+
+        version = optionalVersion.get();
     }
 
     @Override

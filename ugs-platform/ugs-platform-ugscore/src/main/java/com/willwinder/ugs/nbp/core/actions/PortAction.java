@@ -18,11 +18,10 @@ along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.willwinder.ugs.nbp.core.actions;
 
+import com.willwinder.ugs.nbp.core.ui.PortComboBox;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
-import com.willwinder.universalgcodesender.connection.ConnectionFactory;
-import com.willwinder.universalgcodesender.connection.IConnectionDevice;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -30,7 +29,6 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
-import com.willwinder.universalgcodesender.utils.RefreshThread;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -39,13 +37,11 @@ import org.openide.util.HelpCtx;
 import org.openide.util.ImageUtilities;
 import org.openide.util.actions.CallableSystemAction;
 
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.util.List;
 
 /**
  * @author wwinder
@@ -66,8 +62,7 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
     protected static final String ICON_BASE = "resources/icons/serialport.svg";
 
     private final transient BackendAPI backend;
-    private final transient RefreshThread refreshThread;
-    private JComboBox<IConnectionDevice> portCombo;
+    private PortComboBox portCombo;
     private JPanel panel;
     private JLabel portLabel;
 
@@ -79,25 +74,6 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
         putValue(NAME, LocalizingService.ConnectionSerialPortToolbarTitle);
 
         initializeComponents();
-
-        refreshThread = new RefreshThread(this::refreshPorts, 3000);
-        refreshThread.start();
-    }
-
-    @Override
-    public void performAction() {
-        Object selectedItem = portCombo.getSelectedItem();
-        if (selectedItem == null) {
-            return;
-        }
-
-        if (selectedItem instanceof IConnectionDevice) {
-            IConnectionDevice selectedDevice = (IConnectionDevice) selectedItem;
-            backend.getSettings().setPort(selectedDevice.getAddress());
-            selectedDevice.getPort().ifPresent(port -> backend.getSettings().setPortRate(port.toString()));
-        } else {
-            backend.getSettings().setPort(selectedItem.toString());
-        }
     }
 
     @Override
@@ -125,9 +101,9 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
 
             // Start stop the refresh thread
             if (currentState == ControllerState.DISCONNECTED) {
-                refreshThread.start();
+                portCombo.startRefreshing();
             } else {
-                refreshThread.interrupt();
+                portCombo.stopRefreshing();
             }
         }
     }
@@ -147,12 +123,13 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
         return panel;
     }
 
+    @Override
+    public void performAction() {
+        // Not used
+    }
+
     private void initializeComponents() {
-        portCombo = new JComboBox<>(new PortComboBoxModel());
-        portCombo.setRenderer(new PortCellRenderer());
-        portCombo.setEditable(true);
-        portCombo.addActionListener(e -> performAction());
-        portCombo.setSelectedItem(backend.getSettings().getPort());
+        portCombo = new PortComboBox(backend);
         setMaximumWidth(portCombo, 150);
 
         portLabel = new JLabel(Localization.getString("mainWindow.swing.portLabel"));
@@ -167,11 +144,5 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
         Dimension maximumSize = component.getPreferredSize();
         maximumSize.setSize(width, maximumSize.getHeight());
         component.setPreferredSize(maximumSize);
-    }
-
-    private void refreshPorts() {
-        List<IConnectionDevice> availablePorts = ConnectionFactory.getDevices(backend.getSettings().getConnectionDriver());
-        PortComboBoxModel model = (PortComboBoxModel) portCombo.getModel();
-        model.setElements(availablePorts);
     }
 }

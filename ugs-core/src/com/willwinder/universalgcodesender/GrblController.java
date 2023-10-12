@@ -87,7 +87,7 @@ public class GrblController extends AbstractController {
         this.positionPollTimer = new StatusPollTimer(this);
         this.firmwareSettings = new GrblFirmwareSettings(this);
         this.comm.addListener(firmwareSettings);
-        this.initializer = new GrblControllerInitializer(this, messageService);
+        this.initializer = new GrblControllerInitializer(this);
     }
 
     public GrblController() {
@@ -224,7 +224,7 @@ public class GrblController extends AbstractController {
                 }
             }
 
-            else if (GrblUtils.isGrblStatusString(response)) {
+            else if (initializer.isInitialized() && GrblUtils.isGrblStatusString(response)) {
                 // Only 1 poll is sent at a time so don't decrement, reset to zero.
                 positionPollTimer.receivedStatus();
 

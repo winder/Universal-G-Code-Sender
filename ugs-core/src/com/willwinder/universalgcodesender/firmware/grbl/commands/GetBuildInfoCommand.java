@@ -24,6 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Gets the build information of the controller
@@ -31,6 +33,9 @@ import java.util.Optional;
  * @author Joacim Breiler
  */
 public class GetBuildInfoCommand extends GrblSystemCommand {
+    public static final String FALLBACK_VERSION_STRING = "[VER: 1.1f]";
+    private static final Logger LOGGER = Logger.getLogger(GetBuildInfoCommand.class.getSimpleName());
+
     public GetBuildInfoCommand() {
         super(GrblUtils.GRBL_BUILD_INFO_COMMAND);
     }
@@ -46,6 +51,14 @@ public class GetBuildInfoCommand extends GrblSystemCommand {
 
         return Arrays.stream(lines)
                 .filter(line -> line.startsWith("[VER"))
-                .map(GrblVersion::new).findFirst();
+                .map(line -> {
+                    if (line.equalsIgnoreCase("[VER:]")) {
+                        LOGGER.log(Level.SEVERE, "GRBL returned empty version string, we will assume that it is a 1.1 version");
+                        return FALLBACK_VERSION_STRING;
+                    }
+                    return line;
+                })
+                .map(GrblVersion::new)
+                .findFirst();
     }
 }

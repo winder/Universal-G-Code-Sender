@@ -652,8 +652,8 @@ public class GrblUtils {
      * @return true if responsive
      * @throws Exception if we couldn't query for status
      */
-    public static boolean isControllerResponsive(GrblController controller, MessageService messageService) throws Exception {
-        GetStatusCommand statusCommand = GrblUtils.queryForStatusReport(controller, messageService);
+    public static boolean isControllerResponsive(GrblController controller) throws Exception {
+        GetStatusCommand statusCommand = GrblUtils.queryForStatusReport(controller);
         if (!statusCommand.isDone() || statusCommand.isError()) {
             controller.closeCommPort();
             throw new IllegalStateException("Could not query the device status");
@@ -672,12 +672,12 @@ public class GrblUtils {
         return true;
     }
 
-    private static GetStatusCommand queryForStatusReport(GrblController controller, MessageService messageService) throws InterruptedException {
+    private static GetStatusCommand queryForStatusReport(GrblController controller) throws InterruptedException {
         return sendAndWaitForCompletionWithRetry(GetStatusCommand::new, controller, 1000, 3, (executionNumber) -> {
             if (executionNumber == 1) {
-                messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status\n");
+                controller.getMessageService().dispatchMessage(MessageType.INFO, "*** Fetching device status\n");
             } else {
-                messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status (" + executionNumber + " of 3)...\n");
+                controller.getMessageService().dispatchMessage(MessageType.INFO, "*** Fetching device status (" + executionNumber + " of 3)...\n");
             }
         });
     }
