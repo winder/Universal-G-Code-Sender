@@ -28,7 +28,7 @@ import org.openide.modules.OnStop;
  * @author wwinder
  */
 @OnStop
-public class shutdown implements Runnable {
+public class ServiceStopper implements Runnable {
     @Override
     public void run() {
         // Save settings.
