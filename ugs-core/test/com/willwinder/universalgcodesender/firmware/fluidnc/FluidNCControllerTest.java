@@ -119,7 +119,7 @@ public class FluidNCControllerTest {
     }
 
     @Test
-    public void streamCompleteShouldBeExecutedWhenStreamIsFinished() throws IOException {
+    public void streamCompleteShouldBeExecutedWhenStreamIsFinished() throws IOException, InterruptedException {
         ControllerListener listener = mock(ControllerListener.class);
         InOrder inOrder = inOrder(listener);
         target.addListener(listener);
@@ -137,6 +137,8 @@ public class FluidNCControllerTest {
         target.commandSent(nextCommand);
         nextCommand.appendResponse("ok");
         target.rawResponseListener("ok");
+
+        Thread.sleep(100);
 
         inOrder.verify(listener, times(1)).statusStringListener(any());
         inOrder.verify(listener, times(1)).streamStarted();
