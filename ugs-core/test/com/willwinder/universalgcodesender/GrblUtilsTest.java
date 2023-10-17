@@ -334,6 +334,68 @@ public class GrblUtilsTest {
         assertEquals(ControllerState.ALARM, controllerStatus.getState());
     }
 
+    @Test
+    public void getStatusFromStatusStringV1ShouldReturnPinStatus() {
+        Capabilities version = new Capabilities();
+        version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
+
+        String status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0>";
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusStringV1(null, status, MM);
+        assertFalse(controllerStatus.getEnabledPins().CycleStart);
+
+        status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0|Pn:S>";
+        controllerStatus = GrblUtils.getStatusFromStatusStringV1(null, status, MM);
+        assertTrue(controllerStatus.getEnabledPins().CycleStart);
+
+        status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0>";
+        controllerStatus = GrblUtils.getStatusFromStatusStringV1(controllerStatus, status, MM);
+        assertFalse(controllerStatus.getEnabledPins().CycleStart);
+    }
+
+    @Test
+    public void getStatusFromStatusStringV1ShouldReturnAccessoryStates() {
+        Capabilities version = new Capabilities();
+        version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
+
+        String status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0>";
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusStringV1(null, status, MM);
+        assertFalse(controllerStatus.getAccessoryStates().Flood);
+
+        status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0|Ov:100,100,100|A:F>";
+        controllerStatus = GrblUtils.getStatusFromStatusStringV1(controllerStatus, status, MM);
+        assertTrue(controllerStatus.getAccessoryStates().Flood);
+
+        status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0>";
+        controllerStatus = GrblUtils.getStatusFromStatusStringV1(controllerStatus, status, MM);
+        assertTrue("The accessory states should be retained even if it isn't included in the report", controllerStatus.getAccessoryStates().Flood);
+
+        status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0|Ov:100,100,100>";
+        controllerStatus = GrblUtils.getStatusFromStatusStringV1(controllerStatus, status, MM);
+        assertFalse("The accessory states should be set to disabled if not included in overrides report", controllerStatus.getAccessoryStates().Flood);
+
+        status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0|A:F>";
+        controllerStatus = GrblUtils.getStatusFromStatusStringV1(controllerStatus, status, MM);
+        assertTrue("The accessory state should be set even if not a overrides report", controllerStatus.getAccessoryStates().Flood);
+    }
+
+    @Test
+    public void getStatusFromStatusStringV1ShouldReturnState() {
+        Capabilities version = new Capabilities();
+        version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
+
+        String status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0>";
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusStringV1(null, status, MM);
+        assertEquals(ControllerState.IDLE, controllerStatus.getState());
+
+        status = "<Test|MPos:0.000,0.000,0.000|FS:0,0>";
+        controllerStatus = GrblUtils.getStatusFromStatusStringV1(null, status, MM);
+        assertEquals(ControllerState.UNKNOWN, controllerStatus.getState());
+
+        status = "<Tool|MPos:0.000,0.000,0.000|FS:0,0>";
+        controllerStatus = GrblUtils.getStatusFromStatusStringV1(null, status, MM);
+        assertEquals(ControllerState.TOOL, controllerStatus.getState());
+    }
+
     /**
      * Test of getWorkPositionFromStatusString method, of class GrblUtils.
      */

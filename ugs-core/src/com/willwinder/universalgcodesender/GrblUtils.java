@@ -1,5 +1,5 @@
 /*
-    Copyright 2012-2022 Will Winder
+    Copyright 2012-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -29,8 +29,6 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePe
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.services.MessageService;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.regex.Matcher;
@@ -73,7 +71,7 @@ public class GrblUtils {
     public static final String GCODE_RESET_COORDINATES_TO_ZERO_V8 = "G92 X0 Y0 Z0";
 
     /**
-     * For setting a the coordinate to a specific position on an axis.
+     * For setting a coordinate to a specific position on an axis.
      * First string parameter should be either X, Y or Z. The second parameter should be a floating point number in
      * the format 0.000
      */
@@ -275,19 +273,19 @@ public class GrblUtils {
      */
     private static final String STATUS_REGEX = "<.*>";
     private static final Pattern STATUS_PATTERN = Pattern.compile(STATUS_REGEX);
-    public static Boolean isGrblStatusString(final String response) {
+    public static boolean isGrblStatusString(final String response) {
         return STATUS_PATTERN.matcher(response).find();
     }
 
     private static final String PROBE_REGEX = "\\[PRB:.*]";
     private static final Pattern PROBE_PATTERN = Pattern.compile(PROBE_REGEX);
-    static protected Boolean isGrblProbeMessage(final String response) {
+    static protected boolean isGrblProbeMessage(final String response) {
         return PROBE_PATTERN.matcher(response).find();
     }
 
     private static final String FEEDBACK_REGEX = "\\[.*]";
     private static final Pattern FEEDBACK_PATTERN = Pattern.compile(FEEDBACK_REGEX);
-    public static Boolean isGrblFeedbackMessage(final String response, Capabilities c) {
+    public static boolean isGrblFeedbackMessage(final String response, Capabilities c) {
         if (c.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)) {
             return isGrblFeedbackMessageV1(response);
         } else {
@@ -295,7 +293,7 @@ public class GrblUtils {
         }
     }
 
-    public static Boolean isGrblFeedbackMessageV1(final String response) {
+    public static boolean isGrblFeedbackMessageV1(final String response) {
         return response.startsWith("[GC:");
     }
 
@@ -313,7 +311,7 @@ public class GrblUtils {
 
     private static final String SETTING_REGEX = "\\$\\d+=.+";
     private static final Pattern SETTING_PATTERN = Pattern.compile(SETTING_REGEX);
-    static protected Boolean isGrblSettingMessage(final String response) {
+    static protected boolean isGrblSettingMessage(final String response) {
         return SETTING_PATTERN.matcher(response).find();
     }
 
@@ -371,12 +369,12 @@ public class GrblUtils {
         Position WCO = null;
 
         OverridePercents overrides = null;
-        EnabledPins pins = null;
+        EnabledPins pins = EnabledPins.EMPTY_PINS;
         AccessoryStates accessoryStates = null;
 
         double feedSpeed = 0;
         double spindleSpeed = 0;
-        if(lastStatus != null) {
+        if (lastStatus != null) {
             feedSpeed = lastStatus.getFeedSpeed();
             spindleSpeed = lastStatus.getSpindleSpeed();
         }
@@ -447,19 +445,12 @@ public class GrblUtils {
 
         if (!isOverrideReport && lastStatus != null) {
             overrides = lastStatus.getOverrides();
-            pins = lastStatus.getEnabledPins();
-            accessoryStates = lastStatus.getAccessoryStates();
         }
-        else if (isOverrideReport) {
-            // If this is an override report and the 'Pn:' field wasn't sent
-            // set all pins to a disabled state.
-            if (pins == null) {
-                pins = new EnabledPins("");
-            }
-            // Likewise for accessory states.
-            if (accessoryStates == null) {
-                accessoryStates = new AccessoryStates("");
-            }
+
+        if (accessoryStates == null && !isOverrideReport && lastStatus != null) {
+            accessoryStates = lastStatus.getAccessoryStates();
+        } else if (accessoryStates == null) {
+            accessoryStates = AccessoryStates.EMPTY_ACCESSORY_STATE;
         }
 
         ControllerState state = getControllerStateFromStateString(stateString);
@@ -514,28 +505,19 @@ public class GrblUtils {
     }
 
     public static ControllerState getControllerStateFromStateString(String stateString) {
-        switch (stateString.toLowerCase()) {
-            case "jog":
-                return ControllerState.JOG;
-            case "run":
-                return ControllerState.RUN;
-            case "hold":
-                return ControllerState.HOLD;
-            case "door":
-                return ControllerState.DOOR;
-            case "home":
-                return ControllerState.HOME;
-            case "idle":
-                return ControllerState.IDLE;
-            case "alarm":
-                return ControllerState.ALARM;
-            case "check":
-                return ControllerState.CHECK;
-            case "sleep":
-                return ControllerState.SLEEP;
-            default:
-                return ControllerState.DISCONNECTED;
-        }
+        return switch (stateString.toLowerCase()) {
+            case "jog" -> ControllerState.JOG;
+            case "run" -> ControllerState.RUN;
+            case "hold" -> ControllerState.HOLD;
+            case "door" -> ControllerState.DOOR;
+            case "home" -> ControllerState.HOME;
+            case "idle" -> ControllerState.IDLE;
+            case "alarm" -> ControllerState.ALARM;
+            case "check" -> ControllerState.CHECK;
+            case "sleep" -> ControllerState.SLEEP;
+            case "tool" -> ControllerState.TOOL;
+            default -> ControllerState.UNKNOWN;
+        };
     }
 
     // Optionally look for 6 axes (ABC support as extended by Grbl ESP 32)

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2021 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -140,6 +140,8 @@ public class ControllerStatus {
     }
 
     public static class EnabledPins {
+        public static final EnabledPins EMPTY_PINS = new EnabledPins("");
+
         final public boolean X;
         final public boolean Y;
         final public boolean Z;
@@ -179,6 +181,7 @@ public class ControllerStatus {
     }
 
     public static class AccessoryStates {
+        public static final AccessoryStates EMPTY_ACCESSORY_STATE = new AccessoryStates("");
         final public boolean SpindleCW;
         final public boolean SpindleCCW;
         final public boolean Flood;
