@@ -39,11 +39,9 @@ import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.Timer;
 import javax.swing.*;
 import java.awt.*;
 import java.text.DecimalFormat;
-import java.time.Duration;
 import java.util.List;
 import java.util.*;
 import java.util.logging.Logger;
@@ -55,10 +53,8 @@ import java.util.stream.Stream;
 public class MachineStatusPanel extends JPanel implements UGSEventListener, AxisPanelListener {
     private static final Logger LOGGER = Logger.getLogger(MachineStatusPanel.class.getName());
     private static final int COMMON_RADIUS = 7;
-    private static final Duration REFRESH_RATE = Duration.ofSeconds(1);
 
     private final static String OFFLINE = Localization.getString("mainWindow.status.offline").toUpperCase();
-    private final static String ALARM = Localization.getString("mainWindow.status.alarm").toUpperCase();
     private final static String PIN_X = Localization.getString("machineStatus.pin.x").toUpperCase();
     private final static String PIN_Y = Localization.getString("machineStatus.pin.y").toUpperCase();
     private final static String PIN_Z = Localization.getString("machineStatus.pin.z").toUpperCase();
@@ -85,7 +81,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
     private final FontManager fontManager = new FontManager();
 
     private final BackendAPI backend;
-    private final Timer statePollTimer;
 
     private final JPanel axisPanel = new JPanel();
     private Units units;
@@ -98,7 +93,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
         if (this.backend != null) {
             this.backend.addUGSEventListener(this);
         }
-        statePollTimer = createTimer();
 
         initFonts();
         initComponents();
@@ -129,7 +123,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
 
     private void initComponents() {
         String debug = "";
-        //String debug = "debug, ";
         setLayout(new MigLayout(debug + "fillx, wrap 1, inset 5", "grow"));
 
         activeStateValueLabel.setForeground(ThemeColors.VERY_DARK_GREY);
@@ -171,8 +164,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
         fontManager.addPropertyLabel(feedLabel, spindleSpeedLabel, pinStatesLabel, gStatesLabel);
         fontManager.addSpeedLabel(feedValue, spindleSpeedValue);
         fontManager.applyFonts(0);
-
-        statePollTimer.start();
     }
 
     private void initializeAxisPanel(Axis axis) {
@@ -185,7 +176,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
     }
 
     private void resetStatePinComponents() {
-        pinStatesLabel.setText(ALARM);
+        pinStatesLabel.setText(new String());
         pinStatesLabel.setForeground(ThemeColors.GREY);
         pinStatePanel.setForeground(ThemeColors.GREY);
     }
@@ -197,24 +188,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
     @Override
     public void setEnabled(boolean enabled) {
 
-    }
-
-    private Timer createTimer() {
-        return new Timer((int) REFRESH_RATE.toMillis(), (ae) -> EventQueue.invokeLater(() -> {
-            GcodeState state = backend.getGcodeState();
-            if (state == null) {
-                gStatesLabel.setText("--");
-            } else {
-                gStatesLabel.setText(
-                        String.join(" ",
-                                state.currentMotionMode.toString(),
-                                state.units.toString(),
-                                state.feedMode.toString(),
-                                state.distanceMode.toString(),
-                                state.offset.toString(),
-                                state.plane.code.toString()));
-            }
-        }));
     }
 
     private void setUnits(Units u) {
@@ -234,8 +207,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
     public void UGSEvent(UGSEvent evt) {
         if (evt instanceof ControllerStateEvent) {
             updateControls();
-        } else if (evt instanceof ControllerStatusEvent) {
-            onControllerStatusReceived(((ControllerStatusEvent) evt).getStatus());
+        } else if (evt instanceof ControllerStatusEvent controllerStatusEvent) {
+            onControllerStatusReceived(controllerStatusEvent.getStatus());
         } else if (evt instanceof SettingChangedEvent && backend.getController() != null && backend.getController().getControllerStatus() != null) {
             onControllerStatusReceived(backend.getController().getControllerStatus());
             updateControls();
@@ -274,29 +247,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
         this.updateStatePanel(status.getState());
         resetStatePinComponents();
 
-        if (status.getEnabledPins() != null) {
-            EnabledPins ep = status.getEnabledPins();
-
-            List<String> enabled = new ArrayList<>();
-            if (ep.X) enabled.add(PIN_X);
-            if (ep.Y) enabled.add(PIN_Y);
-            if (ep.Z) enabled.add(PIN_Z);
-            if (ep.A) enabled.add(PIN_A);
-            if (ep.B) enabled.add(PIN_B);
-            if (ep.C) enabled.add(PIN_C);
-            if (ep.Probe) enabled.add(PIN_PROBE);
-            if (ep.Door) enabled.add(PIN_DOOR);
-            if (ep.Hold) enabled.add(PIN_HOLD);
-            if (ep.SoftReset) enabled.add(PIN_SOFT_RESET);
-            if (ep.CycleStart) enabled.add(PIN_CYCLE_STARY);
-
-            if (!enabled.isEmpty()) {
-                enabled.add(0, ALARM + ":");
-                pinStatesLabel.setText(String.join(" ", enabled));
-                pinStatesLabel.setForeground(ThemeColors.RED);
-                pinStatePanel.setForeground(ThemeColors.RED);
-            }
-        }
+        updatePinStates(status);
 
         this.setUnits(backend.getSettings().getPreferredUnits());
 
@@ -324,6 +275,45 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
                 ? status.getSpindleSpeed().intValue()
                 : (int) this.backend.getGcodeState().spindleSpeed;
         this.spindleSpeedValue.setText(Integer.toString(spindleSpeed));
+
+        GcodeState state = backend.getGcodeState();
+        if (state == null) {
+            gStatesLabel.setText("--");
+        } else {
+            gStatesLabel.setText(
+                    String.join(" ",
+                            state.currentMotionMode.toString(),
+                            state.units.toString(),
+                            state.feedMode.toString(),
+                            state.distanceMode.toString(),
+                            state.offset.toString(),
+                            state.plane.code.toString()));
+        }
+    }
+
+    private void updatePinStates(ControllerStatus status) {
+        if (status.getEnabledPins() != null) {
+            EnabledPins ep = status.getEnabledPins();
+
+            List<String> enabled = new ArrayList<>();
+            if (ep.X) enabled.add(PIN_X);
+            if (ep.Y) enabled.add(PIN_Y);
+            if (ep.Z) enabled.add(PIN_Z);
+            if (ep.A) enabled.add(PIN_A);
+            if (ep.B) enabled.add(PIN_B);
+            if (ep.C) enabled.add(PIN_C);
+            if (ep.Probe) enabled.add(PIN_PROBE);
+            if (ep.Door) enabled.add(PIN_DOOR);
+            if (ep.Hold) enabled.add(PIN_HOLD);
+            if (ep.SoftReset) enabled.add(PIN_SOFT_RESET);
+            if (ep.CycleStart) enabled.add(PIN_CYCLE_STARY);
+
+            if (!enabled.isEmpty()) {
+                pinStatesLabel.setText(String.join(" ", enabled));
+                pinStatesLabel.setForeground(ThemeColors.RED);
+                pinStatePanel.setForeground(ThemeColors.RED);
+            }
+        }
     }
 
     private void updateStatePanel(ControllerState state) {

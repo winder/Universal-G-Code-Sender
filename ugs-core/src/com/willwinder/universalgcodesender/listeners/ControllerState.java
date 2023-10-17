@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -81,6 +81,11 @@ public enum ControllerState {
      * When attempting to establish a connection to the controller
      */
     CONNECTING,
+
+    /**
+     * When the controller has entered a tool change mode
+     */
+    TOOL,
 
     /**
      * When the machine is in an unknown state
