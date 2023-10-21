@@ -107,6 +107,7 @@ public class FluidNCUtils {
         capabilities.addCapability(CapabilitiesConstants.HOMING);
         capabilities.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
         capabilities.addCapability(CapabilitiesConstants.OVERRIDES);
+        capabilities.addCapability(CapabilitiesConstants.OPEN_DOOR);
 
         try {
             if (firmwareSettings.isSoftLimitsEnabled()) {

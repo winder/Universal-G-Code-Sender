@@ -194,7 +194,10 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     @Override
     public void openDoor() throws Exception {
-
+        if (isCommOpen()) {
+            pauseStreaming();
+            communicator.sendByteImmediately(GrblUtils.GRBL_DOOR_COMMAND);
+        }
     }
 
     @Override
@@ -761,14 +764,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
             }
 
             ThreadHelper.invokeLater(this::initializeController);
-        }
-
-        if (FluidNCUtils.isProbeMessage(response)) {
-            Position p = FluidNCUtils.parseProbePosition(response, getFirmwareSettings().getReportingUnits());
-            listeners.forEach(l -> l.probeCoordinates(p));
-        }
-
-        if (FluidNCUtils.isMessageResponse(response)) {
+        } else if (FluidNCUtils.isMessageResponse(response)) {
             MessageType messageType = MessageType.INFO;
             if (controllerStatus.getState() == ControllerState.CONNECTING) {
                 messageType = MessageType.VERBOSE;
@@ -776,6 +772,11 @@ public class FluidNCController implements IController, ICommunicatorListener {
             messageService.dispatchMessage(messageType, FluidNCUtils.parseMessageResponse(response).orElse("") + "\n");
         } else {
             messageService.dispatchMessage(MessageType.VERBOSE, "Other: " + response + "\n");
+        }
+
+        if (FluidNCUtils.isProbeMessage(response)) {
+            Position p = FluidNCUtils.parseProbePosition(response, getFirmwareSettings().getReportingUnits());
+            listeners.forEach(l -> l.probeCoordinates(p));
         }
     }
 

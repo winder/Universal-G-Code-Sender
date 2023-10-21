@@ -364,6 +364,8 @@ public class GrblUtils {
      */
     public static ControllerStatus getStatusFromStatusStringV1(ControllerStatus lastStatus, String status, Units reportingUnits) {
         String stateString = "";
+        String subStateString = "";
+
         Position MPos = null;
         Position WPos = null;
         Position WCO = null;

@@ -555,9 +555,8 @@ public class GrblUtilsTest {
         String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZPDHRS|A:SFMC>";
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        UnitUtils.Units unit = MM;
 
-        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
         assertEquals(new Position(11, 13, 15, MM), controllerStatus.getMachineCoord());
         assertEquals(new Position(4, 5, 6, MM), controllerStatus.getWorkCoord());
