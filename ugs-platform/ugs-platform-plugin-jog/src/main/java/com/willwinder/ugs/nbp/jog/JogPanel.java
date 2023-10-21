@@ -36,7 +36,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Dimension;
@@ -67,6 +66,9 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
      * jog is activated. Given in milliseconds
      */
     private static final int LONG_PRESS_DELAY = 500;
+    public static final String JOG_ROTARY_BUTTON_CONSTRAINTS = "grow, hidemode 3, sg button";
+    public static final String STEP_CONSTRAINTS = "growx, hidemode 3";
+    public static final String JOG_BUTTON_CONSTRAINTS = "grow, sg button";
 
     /**
      * A list of listeners
@@ -221,13 +223,13 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         configurationPanel.setLayout(new MigLayout("fill, inset 0, gap 2, flowy", "[shrinkprio 200, right][25%, shrinkprio 100][25%, center, shrinkprio 0, nogrid]", "[center][center][center]"));
 
         configurationPanel.add(xyStepLabel, "growx");
-        configurationPanel.add(zStepLabel, "growx, hidemode 3");
-        configurationPanel.add(abcStepLabel, "growx, hidemode 3");
+        configurationPanel.add(zStepLabel, STEP_CONSTRAINTS);
+        configurationPanel.add(abcStepLabel, STEP_CONSTRAINTS);
         configurationPanel.add(feedRateLabel, "growx, wrap");
 
         configurationPanel.add(xyStepSizeSpinner, "growx");
-        configurationPanel.add(zStepSizeSpinner, "growx, hidemode 3");
-        configurationPanel.add(abcStepSizeSpinner, "growx, hidemode 3");
+        configurationPanel.add(zStepSizeSpinner, STEP_CONSTRAINTS);
+        configurationPanel.add(abcStepSizeSpinner, STEP_CONSTRAINTS);
         configurationPanel.add(feedRateSpinner, "growx, wrap");
 
         configurationPanel.add(unitToggleButton, "grow");
@@ -241,30 +243,30 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         JPanel xyzPanel = new JPanel();
         xyzPanel.setLayout(new MigLayout("fill, wrap 4, inset 0, gap 2"));
 
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_DIAG_XNEG_YPOS), "grow, sg button");
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_YPOS), "grow, sg button");
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_DIAG_XPOS_YPOS), "grow, sg button");
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_ZPOS), "grow, sg button");
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_DIAG_XNEG_YPOS), JOG_BUTTON_CONSTRAINTS);
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_YPOS), JOG_BUTTON_CONSTRAINTS);
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_DIAG_XPOS_YPOS), JOG_BUTTON_CONSTRAINTS);
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_ZPOS), JOG_BUTTON_CONSTRAINTS);
 
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_XNEG), "grow, sg button");
-        xyzPanel.add(stealFocusButton, "grow, sg button");
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_XPOS), "grow, sg button");
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_XNEG), JOG_BUTTON_CONSTRAINTS);
+        xyzPanel.add(stealFocusButton, JOG_BUTTON_CONSTRAINTS);
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_XPOS), JOG_BUTTON_CONSTRAINTS);
 
         JPanel space = new JPanel();
         space.setOpaque(false);
-        xyzPanel.add(space, "grow, sg button");
+        xyzPanel.add(space, JOG_BUTTON_CONSTRAINTS);
 
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_DIAG_XNEG_YNEG), "grow, sg button");
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_YNEG), "grow, sg button");
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_DIAG_XPOS_YNEG), "grow, sg button");
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_ZNEG), "grow, sg button");
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_DIAG_XNEG_YNEG), JOG_BUTTON_CONSTRAINTS);
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_YNEG), JOG_BUTTON_CONSTRAINTS);
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_DIAG_XPOS_YNEG), JOG_BUTTON_CONSTRAINTS);
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_ZNEG), JOG_BUTTON_CONSTRAINTS);
 
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_ANEG), "grow, hidemode 3, sg button");
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_APOS), "grow, hidemode 3, sg button");
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_BNEG), "grow, hidemode 3, sg button");
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_BPOS), "grow, hidemode 3, sg button");
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_CNEG), "grow, hidemode 3, sg button");
-        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_CPOS), "grow, hidemode 3, sg button");
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_ANEG), JOG_ROTARY_BUTTON_CONSTRAINTS);
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_APOS), JOG_ROTARY_BUTTON_CONSTRAINTS);
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_BNEG), JOG_ROTARY_BUTTON_CONSTRAINTS);
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_BPOS), JOG_ROTARY_BUTTON_CONSTRAINTS);
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_CNEG), JOG_ROTARY_BUTTON_CONSTRAINTS);
+        xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_CPOS), JOG_ROTARY_BUTTON_CONSTRAINTS);
         return xyzPanel;
     }
 
@@ -290,12 +292,12 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
 
             @Override
             protected void onMousePressed(MouseEvent e) {
-
+                // Not needed
             }
 
             @Override
             protected void onMouseRelease(MouseEvent e) {
-
+                // Not needed
             }
 
             @Override
@@ -324,9 +326,9 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         abcStepSizeSpinner.addChangeListener(this);
         feedRateSpinner.addChangeListener(this);
 
-        unitToggleButton.addActionListener((actionEvent) -> listeners.forEach(JogPanelListener::onToggleUnit));
-        increaseStepSizeButton.addActionListener((actionEvent) -> listeners.forEach(JogPanelListener::onIncreaseStepSize));
-        decreaseStepSizeButton.addActionListener((actionEvent) -> listeners.forEach(JogPanelListener::onDecreaseStepSize));
+        unitToggleButton.addActionListener(actionEvent -> listeners.forEach(JogPanelListener::onToggleUnit));
+        increaseStepSizeButton.addActionListener(actionEvent -> listeners.forEach(JogPanelListener::onIncreaseStepSize));
+        decreaseStepSizeButton.addActionListener(actionEvent -> listeners.forEach(JogPanelListener::onDecreaseStepSize));
     }
 
     /**
@@ -359,7 +361,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
     private JButton createJogButton(JogPanelButtonEnum buttonEnum) {
         JButton button = new JogButton(buttonEnum);
         button.setMinimumSize(new Dimension(MINIMUM_BUTTON_SIZE, MINIMUM_BUTTON_SIZE));
-        button.addActionListener((e) -> stealFocusButton.requestFocusInWindow());
+        button.addActionListener(e -> stealFocusButton.requestFocusInWindow());
         jogButtons.put(buttonEnum, button);
         return button;
     }
@@ -376,7 +378,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         button.setMinimumSize(new Dimension(MINIMUM_BUTTON_SIZE, MINIMUM_BUTTON_SIZE));
         button.setMargin(new Insets(0, 0, 0, 0));
         button.setFocusable(false);
-        button.addActionListener((e) -> stealFocusButton.requestFocusInWindow());
+        button.addActionListener(e -> stealFocusButton.requestFocusInWindow());
         return button;
     }
 

@@ -76,8 +76,10 @@ public class JogService {
             return 1;
         } else if (size <= 1 && size > 0.1) {
             return 0.1;
-        } else if (size <= 0.1 ) {
+        } else if (size <= 0.1 && size > 0.01) {
             return 0.01;
+        } else if (size <= 0.01 ) {
+            return 0.001;
         }
         return size;
     }
@@ -147,7 +149,7 @@ public class JogService {
     }
 
     public void multiplyABCStepSize() {
-        setStepSizeABC(multiplySize(getStepSizeZ()));
+        setStepSizeABC(multiplySize(getStepSizeABC()));
     }
 
     public void multiplyFeedRate() {
@@ -240,8 +242,7 @@ public class JogService {
             Units preferredUnits = getSettings().getPreferredUnits();
             backend.adjustManualLocation(new PartialPosition(null, null, z * stepSize, preferredUnits), feedRate);
         } catch (Exception e) {
-            //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
-            //DialogDisplayer.getDefault().notify(nd);
+            logger.log(Level.SEVERE, "Could not jog the machine", e);
         }
     }
 
@@ -267,8 +268,7 @@ public class JogService {
             Double dy = y == 0 ? null : y * stepSize;
             backend.adjustManualLocation(new PartialPosition(dx, dy, null, preferredUnits), feedRate);
         } catch (Exception e) {
-            //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
-            //DialogDisplayer.getDefault().notify(nd);
+            logger.log(Level.WARNING, "Could not perform jog", e);
         }
     }
 
@@ -288,8 +288,7 @@ public class JogService {
             Double dc = c == 0 ? null : c * stepSize;
             backend.adjustManualLocation(new PartialPosition(null, null, null, da, db, dc, preferredUnits), feedRate);
         } catch (Exception e) {
-            //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
-            //DialogDisplayer.getDefault().notify(nd);
+            logger.log(Level.WARNING, "Could not perform jog", e);
         }
     }
 
@@ -315,7 +314,7 @@ public class JogService {
         try {
             backend.getController().cancelJog();
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Couldn't cancel the jog", e);
+            logger.log(Level.WARNING, "Could not cancel the jog", e);
         }
     }
 
@@ -323,7 +322,7 @@ public class JogService {
         try {
             backend.getController().jogMachineTo(position, getFeedRate());
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Couldn't jog to position " + position, e);
+            logger.log(Level.WARNING,  "Couldn't jog to position " + position, e);
         }
     }
 }
