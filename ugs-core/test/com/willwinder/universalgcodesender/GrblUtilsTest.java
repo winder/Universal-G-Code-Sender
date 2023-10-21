@@ -396,6 +396,22 @@ public class GrblUtilsTest {
         assertEquals(ControllerState.TOOL, controllerStatus.getState());
     }
 
+    @Test
+    public void getStatusFromStatusStringV1ShouldReturnSubState() {
+        Capabilities version = new Capabilities();
+        version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
+
+        String status = "<Alarm:1|MPos:0.000,0.000,0.000|FS:0,0>";
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusStringV1(null, status, MM);
+        assertEquals(ControllerState.ALARM, controllerStatus.getState());
+        assertEquals("1", controllerStatus.getSubState());
+
+        status = "<Alarm:banana|MPos:0.000,0.000,0.000|FS:0,0>";
+        controllerStatus = GrblUtils.getStatusFromStatusStringV1(null, status, MM);
+        assertEquals(ControllerState.ALARM, controllerStatus.getState());
+        assertEquals("banana", controllerStatus.getSubState());
+    }
+
     /**
      * Test of getWorkPositionFromStatusString method, of class GrblUtils.
      */

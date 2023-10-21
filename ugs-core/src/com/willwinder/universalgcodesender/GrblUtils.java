@@ -384,10 +384,12 @@ public class GrblUtils {
         for (String part : status.substring(0, status.length()-1).split("\\|")) {
             if (part.startsWith("<")) {
                 int idx = part.indexOf(':');
-                if (idx == -1)
+                if (idx == -1) {
                     stateString = part.substring(1);
-                else
+                } else {
                     stateString = part.substring(1, idx);
+                    subStateString = part.substring(idx + 1);
+                }
             }
             else if (part.startsWith("MPos:")) {
                 MPos = GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
@@ -454,7 +456,7 @@ public class GrblUtils {
         }
 
         ControllerState state = getControllerStateFromStateString(stateString);
-        return new ControllerStatus(state, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates);
+        return new ControllerStatus(state, subStateString, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates);
     }
 
     /**
