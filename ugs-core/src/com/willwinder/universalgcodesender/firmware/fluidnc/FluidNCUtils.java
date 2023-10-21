@@ -24,13 +24,13 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.willwinder.universalgcodesender.GrblUtils.getControllerStateFromStateString;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
 
 public class FluidNCUtils {
     public static final double GRBL_COMPABILITY_VERSION = 1.1d;
     public static final SemanticVersion MINIMUM_VERSION = new SemanticVersion(3, 3, 0);
+    public static final byte DISABLE_ECHO_COMMAND = (byte)0x0c;
 
     private static final String MESSAGE_REGEX = "\\[MSG:.*]";
     private static final Pattern MESSAGE_PATTERN = Pattern.compile(MESSAGE_REGEX);
@@ -86,115 +86,8 @@ public class FluidNCUtils {
         return Optional.empty();
     }
 
-    public static String getVersionNumber(String response) {
-        return response;
-    }
-
-    public static Optional<String> parseFirmwareVariant(String response) {
-        Matcher matcher = WELCOME_PATTERN.matcher(response);
-        if (matcher.find()) {
-            String versionString = matcher.group("fncvariant");
-            return Optional.ofNullable(versionString);
-        }
-
-        return Optional.empty();
-    }
-
     public static ControllerStatus getStatusFromStatusResponse(ControllerStatus lastStatus, String status, UnitUtils.Units reportingUnits) {
-        String stateString = "";
-        String subStateString = "";
-        Position MPos = null;
-        Position WPos = null;
-        Position WCO = null;
-
-        ControllerStatus.OverridePercents overrides = null;
-        ControllerStatus.EnabledPins pins = null;
-        ControllerStatus.AccessoryStates accessoryStates = null;
-
-        double feedSpeed = 0;
-        double spindleSpeed = 0;
-        if (lastStatus != null) {
-            feedSpeed = lastStatus.getFeedSpeed();
-            spindleSpeed = lastStatus.getSpindleSpeed();
-        }
-        boolean isOverrideReport = false;
-
-        // Parse out the status messages.
-        for (String part : status.substring(0, status.length() - 1).split("\\|")) {
-            if (part.startsWith("<")) {
-                int idx = part.indexOf(':');
-                if (idx == -1) {
-                    stateString = part.substring(1);
-                } else {
-                    stateString = part.substring(1, idx);
-                    subStateString = part.substring(idx + 1);
-                }
-            } else if (part.startsWith("MPos:")) {
-                MPos = GrblUtils.getPositionFromStatusString(status, MACHINE_PATTERN, reportingUnits);
-            } else if (part.startsWith("WPos:")) {
-                WPos = GrblUtils.getPositionFromStatusString(status, WORK_PATTERN, reportingUnits);
-            } else if (part.startsWith("WCO:")) {
-                WCO = GrblUtils.getPositionFromStatusString(status, WCO_PATTERN, reportingUnits);
-            } else if (part.startsWith("Ov:")) {
-                isOverrideReport = true;
-                String[] overrideParts = part.substring(3).trim().split(",");
-                if (overrideParts.length == 3) {
-                    overrides = new ControllerStatus.OverridePercents(
-                            Integer.parseInt(overrideParts[0]),
-                            Integer.parseInt(overrideParts[1]),
-                            Integer.parseInt(overrideParts[2]));
-                }
-            } else if (part.startsWith("F:")) {
-                feedSpeed = GrblUtils.parseFeedSpeed(part);
-            } else if (part.startsWith("FS:")) {
-                String[] parts = part.substring(3).split(",");
-                feedSpeed = Double.parseDouble(parts[0]);
-                spindleSpeed = Double.parseDouble(parts[1]);
-            } else if (part.startsWith("Pn:")) {
-                String value = part.substring(part.indexOf(':') + 1);
-                pins = new ControllerStatus.EnabledPins(value);
-            } else if (part.startsWith("A:")) {
-                String value = part.substring(part.indexOf(':') + 1);
-                accessoryStates = new ControllerStatus.AccessoryStates(value);
-            }
-        }
-
-        // Grab WCO from state information if necessary.
-        if (WCO == null) {
-            // Grab the work coordinate offset.
-            if (lastStatus != null && lastStatus.getWorkCoordinateOffset() != null) {
-                WCO = lastStatus.getWorkCoordinateOffset();
-            } else {
-                WCO = new Position(0, 0, 0, 0, 0, 0, reportingUnits);
-            }
-        }
-
-        // Calculate missing coordinate with WCO
-        if (WPos == null && MPos != null) {
-            WPos = new Position(MPos.x - WCO.x, MPos.y - WCO.y, MPos.z - WCO.z, MPos.a - WCO.a, MPos.b - WCO.b, MPos.c - WCO.c, reportingUnits);
-        } else if (MPos == null && WPos != null) {
-            MPos = new Position(WPos.x + WCO.x, WPos.y + WCO.y, WPos.z + WCO.z, WPos.a + WCO.a, WPos.b + WCO.b, WPos.c + WCO.c, reportingUnits);
-        }
-
-        if (!isOverrideReport && lastStatus != null) {
-            overrides = lastStatus.getOverrides();
-            pins = lastStatus.getEnabledPins();
-            accessoryStates = lastStatus.getAccessoryStates();
-        } else if (isOverrideReport) {
-            // If this is an override report and the 'Pn:' field wasn't sent
-            // set all pins to a disabled state.
-            if (pins == null) {
-                pins = new ControllerStatus.EnabledPins("");
-            }
-            // Likewise for accessory states.
-            if (accessoryStates == null) {
-                accessoryStates = new ControllerStatus.AccessoryStates("");
-            }
-        }
-
-        ControllerState state = getControllerStateFromStateString(stateString);
-
-        return new ControllerStatus(state, subStateString, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates);
+        return GrblUtils.getStatusFromStatusStringV1(lastStatus, status, reportingUnits);
     }
 
     public static GetStatusCommand queryForStatusReport(IController controller, MessageService messageService) throws InterruptedException {
@@ -214,6 +107,7 @@ public class FluidNCUtils {
         capabilities.addCapability(CapabilitiesConstants.HOMING);
         capabilities.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
         capabilities.addCapability(CapabilitiesConstants.OVERRIDES);
+        capabilities.addCapability(CapabilitiesConstants.OPEN_DOOR);
 
         try {
             if (firmwareSettings.isSoftLimitsEnabled()) {

@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.IFileService;
 import com.willwinder.universalgcodesender.StatusPollTimer;
 import com.willwinder.universalgcodesender.Utils;
+import static com.willwinder.universalgcodesender.Utils.formatter;
 import com.willwinder.universalgcodesender.communicator.GrblCommunicator;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
@@ -33,6 +34,8 @@ import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionException;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.DISABLE_ECHO_COMMAND;
+import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.GRBL_COMPABILITY_VERSION;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetAlarmCodesCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetErrorCodesCommand;
@@ -56,9 +59,12 @@ import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
+import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.SemanticVersion;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -73,12 +79,6 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.willwinder.universalgcodesender.Utils.formatter;
-import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.GRBL_COMPABILITY_VERSION;
-import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
-import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
-import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 
 /**
  * @author Joacim Breiler
@@ -194,7 +194,10 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     @Override
     public void openDoor() throws Exception {
-
+        if (isCommOpen()) {
+            pauseStreaming();
+            communicator.sendByteImmediately(GrblUtils.GRBL_DOOR_COMMAND);
+        }
     }
 
     @Override
@@ -541,6 +544,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
                 issueSoftReset();
                 return;
             }
+            disableEcho();
             queryFirmwareVersion();
             queryControllerInformation();
 
@@ -561,6 +565,10 @@ public class FluidNCController implements IController, ICommunicatorListener {
                 // Never mind...
             }
         }
+    }
+
+    private void disableEcho() throws Exception {
+        communicator.sendByteImmediately(DISABLE_ECHO_COMMAND);
     }
 
     /**
@@ -756,14 +764,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
             }
 
             ThreadHelper.invokeLater(this::initializeController);
-        }
-
-        if (FluidNCUtils.isProbeMessage(response)) {
-            Position p = FluidNCUtils.parseProbePosition(response, getFirmwareSettings().getReportingUnits());
-            listeners.forEach(l -> l.probeCoordinates(p));
-        }
-
-        if (FluidNCUtils.isMessageResponse(response)) {
+        } else if (FluidNCUtils.isMessageResponse(response)) {
             MessageType messageType = MessageType.INFO;
             if (controllerStatus.getState() == ControllerState.CONNECTING) {
                 messageType = MessageType.VERBOSE;
@@ -771,6 +772,11 @@ public class FluidNCController implements IController, ICommunicatorListener {
             messageService.dispatchMessage(messageType, FluidNCUtils.parseMessageResponse(response).orElse("") + "\n");
         } else {
             messageService.dispatchMessage(MessageType.VERBOSE, "Other: " + response + "\n");
+        }
+
+        if (FluidNCUtils.isProbeMessage(response)) {
+            Position p = FluidNCUtils.parseProbePosition(response, getFirmwareSettings().getReportingUnits());
+            listeners.forEach(l -> l.probeCoordinates(p));
         }
     }
 
