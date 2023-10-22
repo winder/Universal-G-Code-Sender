@@ -853,7 +853,7 @@
                                         <!-- Download and untar JRE -->
                                         <exec dir="${project.build.directory}" executable="curl" failonerror="true">
                                             <arg line="-L"/>
-                                            <arg line="${ugs.bundle.java.linux.arm.url}"/>
+                                            <arg line="${ugs.bundle.java.linux.aarch64.url}"/>
                                             <arg line="-o"/>
                                             <arg line="jre-linux.tar.gz"/>
                                         </exec>
