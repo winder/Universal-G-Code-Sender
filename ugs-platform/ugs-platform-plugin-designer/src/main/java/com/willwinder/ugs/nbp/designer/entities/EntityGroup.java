@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -57,6 +56,10 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
 
     @Override
     public void setSize(Size size) {
+        if(size.getWidth() == 0 || size.getHeight() == 0) {
+            return;
+        }
+
         Size originalSize = getSize();
         scale(size.getWidth() / originalSize.getWidth(), size.getHeight() / originalSize.getHeight());
     }
@@ -250,35 +253,31 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     }
 
     public List<Entity> getChildrenAt(Point2D p) {
-        List<Entity> result = this.children
+        return this.children
                 .stream()
                 .flatMap(s -> {
-                    if (s instanceof EntityGroup) {
-                        return ((EntityGroup) s).getChildrenAt(p).stream();
+                    if (s instanceof EntityGroup entityGroup) {
+                        return entityGroup.getChildrenAt(p).stream();
                     } else if (s.isWithin(p)) {
                         return Stream.of(s);
                     } else {
                         return Stream.empty();
                     }
-                }).collect(Collectors.toList());
-
-        return Collections.unmodifiableList(result);
+                }).toList();
     }
 
     public List<Entity> getChildrenIntersecting(Shape shape) {
-        List<Entity> result = this.children
+        return this.children
                 .stream()
                 .flatMap(s -> {
-                    if (s instanceof EntityGroup) {
-                        return ((EntityGroup) s).getChildrenIntersecting(shape).stream();
+                    if (s instanceof EntityGroup entityGroup) {
+                        return entityGroup.getChildrenIntersecting(shape).stream();
                     } else if (s.isIntersecting(shape)) {
                         return Stream.of(s);
                     } else {
                         return Stream.empty();
                     }
-                }).collect(Collectors.toList());
-
-        return Collections.unmodifiableList(result);
+                }).toList();
     }
 
     /**
@@ -315,17 +314,15 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
             return Collections.emptyList();
         }
 
-        List<Entity> result = this.children
+        return this.children
                 .stream()
                 .flatMap(s -> {
-                    if (s instanceof EntityGroup) {
-                        return ((EntityGroup) s).getAllChildren().stream();
+                    if (s instanceof EntityGroup entityGroup) {
+                        return entityGroup.getAllChildren().stream();
                     } else {
                         return Stream.of(s);
                     }
-                }).collect(Collectors.toList());
-
-        return Collections.unmodifiableList(result);
+                }).toList();
     }
 
     @Override
