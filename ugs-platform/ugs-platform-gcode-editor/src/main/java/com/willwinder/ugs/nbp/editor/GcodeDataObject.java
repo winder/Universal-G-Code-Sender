@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2021 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -66,7 +66,7 @@ public class GcodeDataObject extends MultiDataObject {
                 }
             });
         } else {
-            openFile(pf);
+            getCookieSet().add((OpenCookie) () -> openFile(pf));
         }
     }
 
