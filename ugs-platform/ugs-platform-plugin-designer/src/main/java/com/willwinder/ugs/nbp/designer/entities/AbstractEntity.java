@@ -85,12 +85,12 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void setSize(Size size) {
-        if (size.getWidth() < 0.1) {
-            size = new Size(0.1, size.getHeight());
+        if (size.getWidth() <= 0) {
+            size = new Size(0.0001, size.getHeight());
         }
 
-        if (size.getHeight() < 0.1) {
-            size = new Size(size.getWidth(), 0.1);
+        if (size.getHeight() <= 0) {
+            size = new Size(size.getWidth(), 0.0001);
         }
 
         Size currentSize = getSize();
