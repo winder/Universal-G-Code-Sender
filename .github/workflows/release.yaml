@@ -38,7 +38,7 @@ jobs:
         export CHANGELIST=""
         echo "Packaging version ${REVISION}${CHANGELIST}"
         mvn package -pl ugs-classic assembly:assembly -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
-        mvn package -pl ugs-platform/application -P create-macosx-x64-package,create-macosx-aarch64-package,create-win32-package,create-win64-package,create-linux-x64-package,create-linux-arm-package,create-linux-aarch64-package -DskipTests=true
+        mvn package -pl ugs-platform/application -P create-macosx-x64-package,create-macosx-aarch64-package,create-win32-package,create-win64-package,create-linux-x64-package,create-linux-arm-package,create-linux-aarch64-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
     # https://github.com/marketplace/actions/upload-to-github-release
     - name: Upload binaries to snapshot release
