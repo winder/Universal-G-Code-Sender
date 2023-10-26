@@ -14,7 +14,7 @@ It is usually helpful to have the log file from UGS, locations for different typ
   <li>**Windows 7 and higher**: C:/Users/[your username>]/AppData/ugsplatform/var/log/messages.log</li>
   <li>**Windows XP**: C:/Documents and Settings/[your username>]/AppData/ugsplatform/var/log/messages.log</li>
   <li>**Mac**: ~/Library/Application Support/ugsplatform/var/log/messages.log</li>
-  <li>**Linux**: ~/.cache/ugsplatform/var/log/messages.log</li>
+  <li>**Linux**: ~/.ugsplatform/var/log/messages.log</li>
 </ul>"
   - type: dropdown
     attributes:
@@ -23,6 +23,7 @@ It is usually helpful to have the log file from UGS, locations for different typ
         Which UGS version are you using?
       multiple: false
       options:
+        - "2.1.0"
         - "2.0.21"
         - "2.0.20"
         - "2.0.19"
