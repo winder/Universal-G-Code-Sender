@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Will Winder
+    Copyright 2020-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,9 +20,9 @@ package com.willwinder.ugs.nbp.joystick.model;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 /**
@@ -33,16 +33,17 @@ import java.util.Map;
  * @author Joacim Breiler
  */
 public class JoystickState implements Serializable {
+    @Serial
     private static final long serialVersionUID = -3068755590868647792L;
     private final Map<JoystickControl, Boolean> buttonsMap;
     private final Map<JoystickControl, Float> axisMap;
     private boolean dirty;
 
     public JoystickState() {
-        buttonsMap = new HashMap<>();
+        buttonsMap = new EnumMap<>(JoystickControl.class);
         JoystickControl.getDigitalControls().forEach(joystickButton -> buttonsMap.put(joystickButton, false));
 
-        axisMap = new HashMap<>();
+        axisMap = new EnumMap<>(JoystickControl.class);
         JoystickControl.getAnalogControls().forEach(joystickAxis -> axisMap.put(joystickAxis, 0.0F));
     }
 
