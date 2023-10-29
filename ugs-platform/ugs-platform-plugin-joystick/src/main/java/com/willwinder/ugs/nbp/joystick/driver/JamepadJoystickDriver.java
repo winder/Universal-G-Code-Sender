@@ -197,7 +197,7 @@ public class JamepadJoystickDriver extends AbstractJoystickDriver {
         Configuration configuration = new Configuration();
         configuration.maxNumControllers = MAX_NUM_CONTROLLERS;
 
-        controllerManager = new ControllerManager(configuration, "com/willwinder/ugs/nbp/joystick/gamecontrollerdb.txt");
+        controllerManager = new ControllerManager(configuration, "/com/willwinder/ugs/nbp/joystick/gamecontrollerdb.txt");
 
         isRunning = true; // mainLoop will run until this flag is set false
         joystickReadThread.execute(this::mainLoop);
