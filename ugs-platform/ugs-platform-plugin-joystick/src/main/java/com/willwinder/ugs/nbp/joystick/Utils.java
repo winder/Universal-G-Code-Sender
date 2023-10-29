@@ -42,6 +42,8 @@ public class Utils {
     public static final String ACTION_JOG_Y_MINUS = "Actions/Machine/com.willwinder.ugs.nbp.core.services.JogActionService.yMinus.instance";
     public static final String ACTION_STOP = "Actions/Machine/com-willwinder-ugs-nbp-core-actions-StopAction.instance";
 
+    private Utils() {}
+
     /**
      * Translates from Jamepad controller button to a JoystickButton.
      *
@@ -49,40 +51,29 @@ public class Utils {
      * @return a joystick button if it could be translated, or throws an illegalargumentexception
      */
     public static JoystickControl getJoystickButtonFromControllerButton(ControllerButton controllerButton) {
-        switch (controllerButton) {
-            case A:
-                return JoystickControl.A;
-            case B:
-                return JoystickControl.B;
-            case X:
-                return JoystickControl.X;
-            case Y:
-                return JoystickControl.Y;
-            case BACK:
-                return JoystickControl.BACK;
-            case GUIDE:
-                return JoystickControl.SELECT;
-            case START:
-                return JoystickControl.START;
-            case LEFTSTICK:
-                return JoystickControl.L3;
-            case RIGHTSTICK:
-                return JoystickControl.R3;
-            case LEFTBUMPER:
-                return JoystickControl.L1;
-            case RIGHTBUMPER:
-                return JoystickControl.R1;
-            case DPAD_UP:
-                return JoystickControl.DPAD_UP;
-            case DPAD_DOWN:
-                return JoystickControl.DPAD_DOWN;
-            case DPAD_LEFT:
-                return JoystickControl.DPAD_LEFT;
-            case DPAD_RIGHT:
-                return JoystickControl.DPAD_RIGHT;
-            default:
-                throw new IllegalArgumentException("Unknown button type: " + controllerButton);
-        }
+        return switch (controllerButton) {
+            case A -> JoystickControl.A;
+            case B -> JoystickControl.B;
+            case X -> JoystickControl.X;
+            case Y -> JoystickControl.Y;
+            case BACK -> JoystickControl.BACK;
+            case GUIDE -> JoystickControl.SELECT;
+            case START -> JoystickControl.START;
+            case LEFTSTICK -> JoystickControl.L3;
+            case RIGHTSTICK -> JoystickControl.R3;
+            case LEFTBUMPER -> JoystickControl.L1;
+            case RIGHTBUMPER -> JoystickControl.R1;
+            case DPAD_UP -> JoystickControl.DPAD_UP;
+            case DPAD_DOWN -> JoystickControl.DPAD_DOWN;
+            case DPAD_LEFT -> JoystickControl.DPAD_LEFT;
+            case DPAD_RIGHT -> JoystickControl.DPAD_RIGHT;
+            case BUTTON_MISC1 -> JoystickControl.MISC1;
+            case BUTTON_PADDLE1 -> JoystickControl.PADDLE1;
+            case BUTTON_PADDLE2 -> JoystickControl.PADDLE2;
+            case BUTTON_PADDLE3 -> JoystickControl.PADDLE3;
+            case BUTTON_PADDLE4 -> JoystickControl.PADDLE4;
+            case BUTTON_TOUCHPAD -> JoystickControl.BUTTON_TOUCHPAD;
+        };
     }
 
     /**
@@ -92,21 +83,13 @@ public class Utils {
      * @return a joystick axis if it could be translated, or throws an illegalargumentexception
      */
     public static JoystickControl getJoystickAxisFromControllerAxis(ControllerAxis controllerAxis) {
-        switch (controllerAxis) {
-            case LEFTX:
-                return JoystickControl.LEFT_X;
-            case LEFTY:
-                return JoystickControl.LEFT_Y;
-            case RIGHTX:
-                return JoystickControl.RIGHT_X;
-            case RIGHTY:
-                return JoystickControl.RIGHT_Y;
-            case TRIGGERLEFT:
-                return JoystickControl.L2;
-            case TRIGGERRIGHT:
-                return JoystickControl.R2;
-            default:
-                throw new IllegalArgumentException("Unknown axis type: " + controllerAxis);
-        }
+        return switch (controllerAxis) {
+            case LEFTX -> JoystickControl.LEFT_X;
+            case LEFTY -> JoystickControl.LEFT_Y;
+            case RIGHTX -> JoystickControl.RIGHT_X;
+            case RIGHTY -> JoystickControl.RIGHT_Y;
+            case TRIGGERLEFT -> JoystickControl.L2;
+            case TRIGGERRIGHT -> JoystickControl.R2;
+        };
     }
 }

@@ -49,11 +49,15 @@ public class ActionDispatcher implements JoystickServiceListener {
         continuousJogWorker.update();
     }
 
+    @Override
+    public void onControllerChanged() {
+        // Not used
+    }
+
     private void updateControlState(JoystickState state, JoystickControl joystickControl, ActionReference actionReference) {
         Action action = actionReference.getAction();
         if (action.isEnabled()) {
-            if (action instanceof AnalogAction) {
-                AnalogAction analogAction = ((AnalogAction) action);
+            if (action instanceof AnalogAction analogAction) {
                 analogAction.setValue(state.getAxis(joystickControl));
                 action.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, joystickControl.name()));
             } else if (state.getButton(joystickControl)) {

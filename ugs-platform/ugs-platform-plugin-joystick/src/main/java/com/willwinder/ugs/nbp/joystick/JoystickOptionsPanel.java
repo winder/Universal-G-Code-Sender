@@ -34,15 +34,15 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import java.awt.*;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
 public class JoystickOptionsPanel extends AbstractOptionsPanel implements JoystickServiceListener {
     private static final List<JoystickControl> REVERSIBLE_CONTROLS = Arrays.asList(JoystickControl.LEFT_X, JoystickControl.LEFT_Y, JoystickControl.RIGHT_X, JoystickControl.RIGHT_Y);
 
-    private final JoystickService joystickService;
-    private final Map<JoystickControl, StatusLabel> statusLabelMap = new HashMap<>();
+    private final transient JoystickService joystickService;
+    private final Map<JoystickControl, StatusLabel> statusLabelMap = new EnumMap<>(JoystickControl.class);
     private JPanel panel;
     private JCheckBox activeCheckbox;
     private JSpinner thresholdSpinner;
@@ -150,5 +150,10 @@ public class JoystickOptionsPanel extends AbstractOptionsPanel implements Joysti
             float value = state.getAxis(control);
             label.setActive(value != 0);
         }
+    }
+
+    @Override
+    public void onControllerChanged() {
+        // Not used
     }
 }

@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Will Winder
+    Copyright 2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,26 +16,26 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.joystick.service;
+package com.willwinder.ugs.nbp.joystick.driver;
 
+import com.willwinder.ugs.nbp.joystick.model.JoystickDevice;
 import com.willwinder.ugs.nbp.joystick.model.JoystickState;
 
-/**
- * A listener for any updates in the joystick service.
- *
- * @author Joacim Breiler
- */
-public interface JoystickServiceListener {
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
-    /**
-     * The joystick state has been changed by either pressed buttons and/or changed axises.
-     *
-     * @param state the current state of the joystick.
-     */
-    void onUpdate(JoystickState state);
+public interface JoystickDriver {
 
-    /**
-     * When a controller has been changed
-     */
-    void onControllerChanged();
+    List<JoystickDevice> getDevices();
+
+    Optional<JoystickDevice> getCurrentDevice();
+
+    void initialize() throws IOException;
+
+    void destroy();
+
+    void addListener(JoystickDriverListener listener);
+
+    JoystickState getState();
 }

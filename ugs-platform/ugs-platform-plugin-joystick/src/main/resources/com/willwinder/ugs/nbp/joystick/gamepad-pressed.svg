@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   height="16"
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg4"
+   sodipodi:docname="gamepad-pressed.svg"
+   width="16"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     id="namedview6"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="11.346854"
+     inkscape:cx="60.236961"
+     inkscape:cy="43.932882"
+     inkscape:window-width="2072"
+     inkscape:window-height="1286"
+     inkscape:window-x="340"
+     inkscape:window-y="37"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg4" />
+  <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+  <path
+     d="M 4.8,3.2 C 2.15,3.2 0,5.35 0,8 c 0,2.65 2.15,4.8 4.8,4.8 h 6.4 C 13.85,12.8 16,10.65 16,8 16,5.35 13.85,3.2 11.2,3.2 Z m 7.6,2.6 a 1,1 0 1 1 0,2 1,1 0 1 1 0,-2 z M 9.8,9.2 a 1,1 0 1 1 2,0 1,1 0 1 1 -2,0 z M 4.2,6.6 C 4.2,6.2675 4.4675,6 4.8,6 5.1325,6 5.4,6.2675 5.4,6.6 V 7.4 H 6.2 C 6.5325,7.4 6.8,7.6675 6.8,8 6.8,8.3325 6.5325,8.6 6.2,8.6 H 5.4 V 9.4 C 5.4,9.7325 5.1325,10 4.8,10 4.4675,10 4.2,9.7325 4.2,9.4 V 8.6 H 3.4 C 3.0675,8.6 2.8,8.3325 2.8,8 2.8,7.6675 3.0675,7.4 3.4,7.4 h 0.8 z"
+     id="path2"
+     style="stroke-width:0.025;fill:#00c900;fill-opacity:1" />
+</svg>

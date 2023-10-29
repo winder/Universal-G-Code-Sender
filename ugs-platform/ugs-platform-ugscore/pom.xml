@@ -23,6 +23,7 @@
                         <publicPackage>com.willwinder.ugs.nbp.core.ui</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.core.actions</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.core.services</publicPackage>
+                        <publicPackage>com.willwinder.ugs.nbp.core.statusline</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

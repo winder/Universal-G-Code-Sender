@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Will Winder
+    Copyright 2020-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,13 +20,12 @@ package com.willwinder.ugs.nbp.joystick.model;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The available buttons and axises that can be read by the service.
  * The controls are divided into two groups:
- *  - Analog - which will read analog values between 1.0 to -1.0
- *  - Digital - which will read digital values such as buttons true/false
+ * - Analog - which will read analog values between 1.0 to -1.0
+ * - Digital - which will read digital values such as buttons true/false
  *
  * @author Joacim Breiler
  */
@@ -51,7 +50,13 @@ public enum JoystickControl {
     LEFT_X("platform.plugin.joystick.leftX", true),
     LEFT_Y("platform.plugin.joystick.leftY", true),
     RIGHT_X("platform.plugin.joystick.rightX", true),
-    RIGHT_Y("platform.plugin.joystick.rightY", true);
+    RIGHT_Y("platform.plugin.joystick.rightY", true),
+    MISC1("platform.plugin.joystick.misc1", false),
+    PADDLE1("platform.plugin.joystick.paddle1", false),
+    PADDLE2("platform.plugin.joystick.paddle2", false),
+    PADDLE3("platform.plugin.joystick.paddle3", false),
+    PADDLE4("platform.plugin.joystick.paddle4", false),
+    BUTTON_TOUCHPAD("platform.plugin.joystick.touchpad", false);
 
     private final String localization;
 
@@ -62,20 +67,20 @@ public enum JoystickControl {
         this.isAnalog = isAnalog;
     }
 
-    public String getLocalization() {
-        return localization;
-    }
-
     public static List<JoystickControl> getAnalogControls() {
         return Arrays.stream(values())
                 .filter(JoystickControl::isAnalog)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static List<JoystickControl> getDigitalControls() {
         return Arrays.stream(values())
                 .filter(joystickControl -> !joystickControl.isAnalog())
-                .collect(Collectors.toList());
+                .toList();
+    }
+
+    public String getLocalization() {
+        return localization;
     }
 
     public boolean isAnalog() {

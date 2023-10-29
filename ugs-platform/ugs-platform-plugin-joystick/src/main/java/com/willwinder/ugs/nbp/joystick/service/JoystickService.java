@@ -19,6 +19,9 @@
 package com.willwinder.ugs.nbp.joystick.service;
 
 import com.willwinder.ugs.nbp.joystick.action.ActionManager;
+import com.willwinder.ugs.nbp.joystick.model.JoystickDevice;
+
+import java.util.Optional;
 
 /**
  * A joystick service responsible for initializing and reading joystick data and
@@ -67,4 +70,7 @@ public interface JoystickService {
      * @return the action manager
      */
     ActionManager getActionManager();
+
+    Optional<JoystickDevice> getCurrentDevice();
+
 }
