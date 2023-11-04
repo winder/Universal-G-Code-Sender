@@ -80,11 +80,11 @@ public final class StartAction extends ProgramAction implements UGSEventListener
 
     @Override
     public boolean isEnabled() {
-        return (backend.canSend() && super.isEnabled()) || backend.isPaused();
+        return backend.canSend() || backend.isPaused();
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void execute(ActionEvent e) {
         try {
             if (backend.isPaused()) {
                 backend.pauseResume();

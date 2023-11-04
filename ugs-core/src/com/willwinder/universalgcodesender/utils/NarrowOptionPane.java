@@ -22,9 +22,9 @@ import java.awt.HeadlessException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import java.awt.Component;
 
 /**
  * @author wwinder
@@ -33,10 +33,10 @@ public class NarrowOptionPane extends JOptionPane {
     public static String pattern =
             "<html><body><p style='width: %dpx;'>%s</p></body></html>";
 
-    public static void showNarrowDialog(int textWidthInPixels,
+    public static void showNarrowDialog(Component parentComponent, int textWidthInPixels,
                                         String message, String title, int messageType)
             throws HeadlessException {
-        JOptionPane.showMessageDialog(new JFrame(),
+        JOptionPane.showMessageDialog(parentComponent,
                 String.format(pattern, textWidthInPixels, message.replaceAll("\n", "<br>")),
                 title, messageType);
     }

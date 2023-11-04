@@ -18,20 +18,24 @@
  */
 package com.willwinder.ugs.nbp.core.actions;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.cookies.SaveCookie;
 import org.openide.nodes.Node;
+import static org.openide.nodes.Node.PROP_COOKIE;
 import org.openide.nodes.NodeEvent;
 import org.openide.nodes.NodeListener;
 import org.openide.nodes.NodeMemberEvent;
 import org.openide.nodes.NodeReorderEvent;
 import org.openide.windows.TopComponent;
+import static org.openide.windows.TopComponent.Registry.PROP_ACTIVATED_NODES;
 
 import javax.swing.AbstractAction;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
-
-import static org.openide.nodes.Node.PROP_COOKIE;
-import static org.openide.windows.TopComponent.Registry.PROP_ACTIVATED_NODES;
 
 /**
  * An abstract action that will be active only if the current program contains unsaved
@@ -40,6 +44,8 @@ import static org.openide.windows.TopComponent.Registry.PROP_ACTIVATED_NODES;
  * @author Joacim Breiler
  */
 public abstract class ProgramAction extends AbstractAction implements NodeListener {
+    private final String notSavedText = Localization.getString("platform.actions.program.not.saved.message");
+    private final String notSavedTitle = Localization.getString("platform.actions.program.not.saved.title");
     /**
      * If the current document contains unsaved changes this will become false.
      */
@@ -56,6 +62,7 @@ public abstract class ProgramAction extends AbstractAction implements NodeListen
             SwingUtilities.invokeLater(() -> setEnabled(isEnabled()));
         } else if (evt.getPropertyName().equals(PROP_ACTIVATED_NODES)) {
             registerNodeListener(evt);
+            SwingUtilities.invokeLater(() -> setEnabled(isEnabled()));
         }
     }
 
@@ -69,6 +76,7 @@ public abstract class ProgramAction extends AbstractAction implements NodeListen
         if (event.getOldValue() != null && ((Node[]) event.getOldValue()).length > 0) {
             Node oldNode = ((Node[]) event.getOldValue())[0];
             oldNode.removeNodeListener(this);
+            isSaved = true;
         }
 
         if (event.getNewValue() != null && ((Node[]) event.getNewValue()).length > 0) {
@@ -78,9 +86,17 @@ public abstract class ProgramAction extends AbstractAction implements NodeListen
     }
 
     @Override
-    public boolean isEnabled() {
-        return isSaved;
+    public final void actionPerformed(ActionEvent e) {
+        if (!isSaved) {
+            Component source = e != null ? (Component) e.getSource() : null;
+            GUIHelpers.displayMessageDialog(source, notSavedTitle, notSavedText, JOptionPane.INFORMATION_MESSAGE, true);
+            return;
+        }
+
+        execute(e);
     }
+
+    public abstract void execute(ActionEvent e);
 
     @Override
     public void childrenAdded(NodeMemberEvent ev) {
