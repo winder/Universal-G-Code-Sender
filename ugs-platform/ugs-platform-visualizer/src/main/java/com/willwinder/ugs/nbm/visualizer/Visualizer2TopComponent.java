@@ -19,12 +19,15 @@
 package com.willwinder.ugs.nbm.visualizer;
 
 import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptionsPanel;
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
+import com.willwinder.ugs.nbp.core.actions.OpenLogDirectoryAction;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -40,12 +43,12 @@ import org.openide.windows.WindowManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
-
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 
 /**
  * Setup JOGL canvas, GcodeRenderer and RendererInputHandler.
@@ -61,28 +64,19 @@ import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
         preferredID = "VisualizerTopComponent"
 )
 public final class Visualizer2TopComponent extends TopComponent {
-    private static final Logger logger = Logger.getLogger(Visualizer2TopComponent.class.getName());
-
-    private GLJPanel panel;
-    private RendererInputHandler rih;
-    private final BackendAPI backend;
-
     public final static String VisualizerTitle = Localization.getString("platform.window.visualizer", lang);
     public final static String VisualizerTooltip = Localization.getString("platform.window.visualizer.tooltip", lang);
     public final static String VisualizerWindowPath = LocalizingService.MENU_WINDOW;
     public final static String VisualizerActionId = "com.willwinder.ugs.nbm.visualizer.Visualizer2TopComponent";
     public final static String VisualizerCategory = LocalizingService.CATEGORY_WINDOW;
-
-    @OnStart
-    public static class Localizer extends TopComponentLocalizer {
-      public Localizer() {
-        super(VisualizerCategory, VisualizerActionId, VisualizerTitle);
-      }
-    }
+    private static final Logger logger = Logger.getLogger(Visualizer2TopComponent.class.getName());
+    private final BackendAPI backend;
+    private GLJPanel panel;
+    private RendererInputHandler rih;
 
     public Visualizer2TopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        
+
         setMinimumSize(new java.awt.Dimension(50, 50));
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());
@@ -109,13 +103,28 @@ public final class Visualizer2TopComponent extends TopComponent {
 
         removeAll();
         add(new VisualizerToolBar(), BorderLayout.NORTH);
-        panel = makeWindow();
 
         JPanel borderedPanel = new JPanel();
         borderedPanel.setLayout(new BorderLayout());
         borderedPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
-        borderedPanel.add(panel, BorderLayout.CENTER);
+        borderedPanel.add(initializeVisualizationPanel(), BorderLayout.CENTER);
         add(borderedPanel, BorderLayout.CENTER);
+    }
+
+    private JComponent initializeVisualizationPanel() {
+        try {
+            panel = makeWindow();
+            return panel;
+        } catch (GLException exception) {
+            JLabel errorMessage = new JLabel("<html>Could not initialize OpenGL visualization, please check the log file for details <a href='#'>messages.log</a></html>", JLabel.CENTER);
+            errorMessage.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    new OpenLogDirectoryAction().actionPerformed(null);
+                }
+            });
+            return errorMessage;
+        }
     }
 
     @Override
@@ -149,8 +158,8 @@ public final class Visualizer2TopComponent extends TopComponent {
             }
         }
     }
-    
-    private GLJPanel makeWindow() {
+
+    private GLJPanel makeWindow() throws GLException {
         GLCapabilities glCaps = new GLCapabilities(null);
         final GLJPanel p = new GLJPanel(glCaps);
 
@@ -189,5 +198,12 @@ public final class Visualizer2TopComponent extends TopComponent {
         p.addGLEventListener(renderer);
 
         return p;
+    }
+
+    @OnStart
+    public static class Localizer extends TopComponentLocalizer {
+        public Localizer() {
+            super(VisualizerCategory, VisualizerActionId, VisualizerTitle);
+        }
     }
 }
