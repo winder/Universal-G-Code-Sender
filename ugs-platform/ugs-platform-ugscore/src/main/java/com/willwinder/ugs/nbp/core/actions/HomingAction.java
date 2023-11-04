@@ -68,6 +68,7 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
         putValue("menuText", LocalizingService.HomeTitle);
         putValue(NAME, LocalizingService.HomeTitle);
         setEnabled(isEnabled());
+        updateToolTip();
     }
 
     @Override
@@ -113,7 +114,7 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
                     !isHomingEnabled()) {
                 putValue(Action.SHORT_DESCRIPTION, Localization.getString("platform.actions.homing.disabled.tooltip"));
             } else {
-                putValue(Action.SHORT_DESCRIPTION, LocalizingService.HomeTitle);
+                putValue(Action.SHORT_DESCRIPTION, Localization.getString("platform.actions.homing.enabled.tooltip"));
             }
     }
 }

@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -66,6 +67,7 @@ public final class SoftResetAction extends AbstractAction implements UGSEventLis
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", LocalizingService.SoftResetTitle);
         putValue(NAME, LocalizingService.SoftResetTitle);
+        putValue(Action.SHORT_DESCRIPTION, Localization.getString("platform.actions.softreset.tooltip"));
         setEnabled(isEnabled());
     }
 
