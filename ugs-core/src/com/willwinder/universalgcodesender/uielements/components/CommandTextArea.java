@@ -39,6 +39,7 @@ import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorD
  * @author wwinder
  */
 public class CommandTextArea extends JTextField implements KeyEventDispatcher, UGSEventListener {
+    public static final String PLACEHOLDER_TEXT = " >\t";
     private final transient CommandHistory commandHistory = new CommandHistory();
     // This is needed for unit testing.
     protected boolean focusNotNeeded = false;
@@ -58,6 +59,7 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
 
         // Make it possible to send multiple lines
         getDocument().putProperty("filterNewlines", Boolean.FALSE);
+        addFocusListener(new TextFieldPlaceholderFocusListener(this, PLACEHOLDER_TEXT));
     }
 
     public final void init(BackendAPI backend) {
@@ -118,13 +120,10 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
     }
 
     private boolean isArrowKey(KeyEvent e) {
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_UP:
-            case KeyEvent.VK_DOWN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (e.getKeyCode()) {
+            case KeyEvent.VK_UP, KeyEvent.VK_DOWN -> true;
+            default -> false;
+        };
     }
 
     /**
