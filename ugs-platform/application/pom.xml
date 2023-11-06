@@ -308,6 +308,10 @@
                                         <property name="bundle.jvm.path" refid="jre_name" />
                                         <basename property="bundle.jvm.name" file="${bundle.jvm.path}"/>
 
+                                        <!-- Delete windows binaries -->
+                                        <delete file="${project.build.directory}/${brandingToken}-win/bin/ugsplatform64.exe" failonerror="false"/>
+                                        <delete file="${project.build.directory}/${brandingToken}-win/bin/ugsplatform" failonerror="false"/>
+
                                         <!-- Configure relative JRE path into ugsplatform.conf -->
                                         <replace file="${project.build.directory}/${brandingToken}-win/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>
 
@@ -384,6 +388,10 @@
                                         </path>
                                         <property name="bundle.jvm.path" refid="jre_name" />
                                         <basename property="bundle.jvm.name" file="${bundle.jvm.path}"/>
+
+                                        <!-- Delete windows binaries -->
+                                        <delete file="${project.build.directory}/${brandingToken}-win/bin/ugsplatform.exe" failonerror="false"/>
+                                        <delete file="${project.build.directory}/${brandingToken}-win/bin/ugsplatform" failonerror="false"/>
 
                                         <!-- Configure relative JRE path into ugsplatform.conf -->
                                         <replace file="${project.build.directory}/${brandingToken}-win/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>

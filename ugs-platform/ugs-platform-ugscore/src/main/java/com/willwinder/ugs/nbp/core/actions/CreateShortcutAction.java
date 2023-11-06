@@ -72,15 +72,19 @@ public class CreateShortcutAction extends AbstractAction {
 
     private static void createWindowsShortcut() {
         try {
-            String shortcutPath = System.getProperty("user.home") + File.separator + "Desktop";
+            String shortcutPath = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "Universal Gcode Sender.lnk";
             Path currentRelativePath = Paths.get("");
-            String ugsDirectory = currentRelativePath.toAbsolutePath().toString();
 
-            ShellLink.createLink("c:\\" + ugsDirectory + File.separator + "ugsplatform.bat")
-                    .setWorkingDir(ugsDirectory)
-                    .setIconLocation(ugsDirectory + File.separator + "icon.ico")
-                    .setTarget(shortcutPath)
-                    .saveTo("Universal Gcode Sender.lnk");
+            String basePath = currentRelativePath.toAbsolutePath() + File.separator + "bin" + File.separator;
+            String executablePath = basePath + "ugsplatform64.exe";
+            if (!new File(executablePath).exists()) {
+                executablePath = basePath + "ugsplatform.exe";
+            }
+
+            ShellLink.createLink(executablePath)
+                    .setWorkingDir(currentRelativePath.toAbsolutePath().toString())
+                    .setIconLocation(basePath + "icon.ico")
+                    .saveTo(shortcutPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
