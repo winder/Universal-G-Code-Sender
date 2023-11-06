@@ -48,6 +48,13 @@
             <type>jar</type>
         </dependency>
 
+        <!-- for creating shortcuts on Windows-->
+        <dependency>
+            <groupId>com.github.vatbub</groupId>
+            <artifactId>mslinks</artifactId>
+            <version>1.0.6.2</version>
+        </dependency>
+
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-filesystems</artifactId>

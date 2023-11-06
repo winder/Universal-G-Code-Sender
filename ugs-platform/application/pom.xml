@@ -311,6 +311,9 @@
                                         <!-- Configure relative JRE path into ugsplatform.conf -->
                                         <replace file="${project.build.directory}/${brandingToken}-win/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>
 
+                                        <!-- Copy icon -->
+                                        <copy todir="${project.build.directory}/${brandingToken}-win/bin" file="src/main/app-resources/icon.ico" />
+
                                         <!-- Create Archive -->
                                         <exec dir="${project.build.directory}" executable="zip" failonerror="true">
                                             <arg value="-r"/>
@@ -384,6 +387,9 @@
 
                                         <!-- Configure relative JRE path into ugsplatform.conf -->
                                         <replace file="${project.build.directory}/${brandingToken}-win/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>
+
+                                        <!-- Copy icon -->
+                                        <copy todir="${project.build.directory}/${brandingToken}-win/bin" file="src/main/app-resources/icon.ico" />
 
                                         <!-- Create Archive -->
                                         <exec dir="${project.build.directory}" executable="zip" failonerror="true">
@@ -686,6 +692,9 @@
                                             <fileset dir="${project.build.directory}/${brandingToken}"/>
                                         </copy>
 
+                                        <!-- Copy icon -->
+                                        <copy todir="${project.build.directory}/${brandingToken}-linux-x64/bin" file="src/main/app-resources/icon.svg" />
+
                                         <!-- Delete windows binaries -->
                                         <delete file="${project.build.directory}/${brandingToken}-linux-x64/bin/ugsplatform.exe" failonerror="false"/>
                                         <delete file="${project.build.directory}/${brandingToken}-linux-x64/bin/ugsplatform64.exe" failonerror="false"/>
@@ -766,6 +775,9 @@
                                             <fileset dir="${project.build.directory}/${brandingToken}"/>
                                         </copy>
 
+                                        <!-- Copy icon -->
+                                        <copy todir="${project.build.directory}/${brandingToken}-linux-arm/bin" file="src/main/app-resources/icon.svg" />
+
                                         <!-- Delete windows binaries -->
                                         <delete file="${project.build.directory}/${brandingToken}-linux-arm/bin/ugsplatform.exe" failonerror="false"/>
                                         <delete file="${project.build.directory}/${brandingToken}-linux-arm/bin/ugsplatform64.exe" failonerror="false"/>
@@ -845,6 +857,9 @@
                                         <copy todir="${project.build.directory}/${brandingToken}-linux-aarch64">
                                             <fileset dir="${project.build.directory}/${brandingToken}"/>
                                         </copy>
+
+                                        <!-- Copy icon -->
+                                        <copy todir="${project.build.directory}/${brandingToken}-linux-aarch64/bin" file="src/main/app-resources/icon.svg" />
 
                                         <!-- Delete windows binaries -->
                                         <delete file="${project.build.directory}/${brandingToken}-linux-aarch64/bin/ugsplatform.exe" failonerror="false"/>
