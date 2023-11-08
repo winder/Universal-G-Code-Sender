@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 @ActionID(
         category = LocalizingService.OpenCategory,
@@ -80,7 +81,12 @@ public final class NewGcodeAction extends AbstractAction {
         }
 
         try {
-            File file = chooseFile();
+            Optional<File> optional = chooseFile();
+            if (optional.isEmpty()) {
+                return;
+            }
+
+            File file = optional.get();
             if (!file.createNewFile()) {
                 throw new IOException("Could not create temporary file " + file);
             }
@@ -92,7 +98,7 @@ public final class NewGcodeAction extends AbstractAction {
         }
     }
 
-    private File chooseFile() throws IOException {
+    private Optional<File> chooseFile() throws IOException {
         FileChooserBuilder fcb = new FileChooserBuilder(NewGcodeAction.class);
         fcb.setTitle("Create Gcode file");
         fcb.setFileFilter(new GcodeFileTypeFilter());
@@ -100,7 +106,7 @@ public final class NewGcodeAction extends AbstractAction {
         fileChooser.setFileHidingEnabled(true);
 
         if (fileChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION) {
-            throw new IOException();
+            return Optional.empty();
         }
 
         // Removing the old file
@@ -109,10 +115,10 @@ public final class NewGcodeAction extends AbstractAction {
             if (JOptionPane.showConfirmDialog(null, "Are you sure you want to overwrite the file " + file.getName(), "Overwrite existing file", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
                 file.delete();
             } else {
-                throw new IOException();
+                return Optional.empty();
             }
         }
-        return file;
+        return Optional.of(file);
     }
 
     private void writeExampleToFile(File file) throws IOException {

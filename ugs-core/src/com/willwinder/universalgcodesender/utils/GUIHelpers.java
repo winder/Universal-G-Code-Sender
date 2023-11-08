@@ -20,12 +20,18 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import java.awt.Component;
+import java.awt.EventQueue;
+import java.awt.Window;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JOptionPane;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  *
@@ -63,19 +69,29 @@ public class GUIHelpers {
             LOGGER.warning("Something tried to display an error message with an empty message: " + ExceptionUtils.getStackTrace(new Throwable()));
             return;
         }
+        String title = Localization.getString("error");
+        displayMessageDialog(new JPanel(), title, errorMessage, JOptionPane.ERROR_MESSAGE, modal);
+    }
 
-        Runnable r = () -> {
-              //JOptionPane.showMessageDialog(new JFrame(), errorMessage, 
-              //        Localization.getString("error"), JOptionPane.ERROR_MESSAGE);
-              NarrowOptionPane.showNarrowDialog(250, errorMessage.replaceAll("\\.\\.", "\\."),
-                      Localization.getString("error"),
-                      JOptionPane.ERROR_MESSAGE);
-        };
+    /**
+     * Displays a message dialog
+     *
+     * @param parent the parent component
+     * @param title the title string for the dialog
+     * @param message the Object to display
+     * @param messageType the type of message to be displayed: ERROR_MESSAGE, INFORMATION_MESSAGE, WARNING_MESSAGE, QUESTION_MESSAGE, or PLAIN_MESSAGE
+     * @param modal toggle whether the message should block or fire and forget.
+     */
+    public static void displayMessageDialog(Component parent, String title, String message, int messageType, boolean modal) {
+        Window windowAncestor = SwingUtilities.getWindowAncestor(parent == null ? new JPanel() : parent);
+        Runnable r = () -> NarrowOptionPane.showNarrowDialog(windowAncestor, 250, StringUtils.defaultString(message).replaceAll("\\.\\.", "\\."),
+                title,
+                messageType);
 
         if (modal) {
             r.run();
         } else {
-          java.awt.EventQueue.invokeLater(r);
+          EventQueue.invokeLater(r);
         }
     }
 
@@ -83,8 +99,6 @@ public class GUIHelpers {
         java.awt.EventQueue.invokeLater(() -> {
             NarrowOptionPane.showNarrowConfirmDialog(250, helpMessage, Localization.getString("help"),
                     JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE);
-            //JOptionPane.showMessageDialog(new JFrame(), helpMessage, 
-            //        Localization.getString("help"), JOptionPane.INFORMATION_MESSAGE);
         });
     }
 

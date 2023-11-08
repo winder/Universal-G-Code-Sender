@@ -7,7 +7,6 @@ import org.openide.nodes.Node;
 
 import java.beans.PropertyChangeEvent;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -32,7 +31,7 @@ public class StartActionTest {
         StartAction startAction = new StartAction(backendAPI);
         startAction.propertyChange(createUnsavedChangesEvent());
 
-        assertFalse(startAction.isEnabled());
+        assertTrue(startAction.isEnabled());
     }
 
     @Test
@@ -56,7 +55,6 @@ public class StartActionTest {
         Node node = mock(Node.class);
         SaveCookie saveCookie = mock(SaveCookie.class);
         when(node.getCookie(SaveCookie.class)).thenReturn(saveCookie);
-        PropertyChangeEvent event = new PropertyChangeEvent(node, PROP_COOKIE, null, null);
-        return event;
+        return new PropertyChangeEvent(node, PROP_COOKIE, null, null);
     }
 }

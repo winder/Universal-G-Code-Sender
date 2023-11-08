@@ -46,6 +46,8 @@ public class PlatformUtils {
     public static final String UNDO_KEY = "undo";
     public static final String REDO_KEY = "redo";
     public static final String DELETE_KEY = "delete";
+    public static final String ERASE_KEY = "erase";
+
 
     private static final DeleteAction DELETE_ACTION = new DeleteAction();
     private static final SelectAllAction SELECT_ALL_ACTION = new SelectAllAction();
@@ -59,6 +61,7 @@ public class PlatformUtils {
 
     public static void registerActions(ActionMap actionMap, TopComponent component) {
         actionMap.put(DELETE_KEY, DELETE_ACTION);
+        actionMap.put(ERASE_KEY, DELETE_ACTION);
         actionMap.put(DefaultEditorKit.selectAllAction, SELECT_ALL_ACTION);
         actionMap.put(DefaultEditorKit.copyAction, COPY_ACTION);
         actionMap.put(DefaultEditorKit.pasteAction, PASTE_ACTION);
@@ -67,7 +70,8 @@ public class PlatformUtils {
 
         // Need to make special input maps as this normally is handled by the texteditor
         InputMap inputMap = component.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        inputMap.put(Utilities.stringToKey("BACK_SPACE"), DELETE_KEY);
+        inputMap.put(Utilities.stringToKey("BACK_SPACE"), ERASE_KEY);
+        inputMap.put(Utilities.stringToKey("DELETE"), DELETE_KEY);
         inputMap.put(Utilities.stringToKey("D-C"), DefaultEditorKit.copyAction);
         inputMap.put(Utilities.stringToKey("D-V"), DefaultEditorKit.pasteAction);
         inputMap.put(Utilities.stringToKey("D-A"), DefaultEditorKit.selectAllAction);

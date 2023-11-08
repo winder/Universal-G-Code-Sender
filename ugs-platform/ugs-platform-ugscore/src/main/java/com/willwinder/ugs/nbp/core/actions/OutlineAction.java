@@ -57,7 +57,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * An action that will parse the loaded gcode file and generate a movement path for outlining
@@ -109,12 +108,11 @@ public final class OutlineAction extends ProgramAction implements UGSEventListen
     public boolean isEnabled() {
         return backend != null &&
                 backend.getControllerState() == ControllerState.IDLE &&
-                backend.getGcodeFile() != null &&
-                super.isEnabled();
+                backend.getGcodeFile() != null;
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void execute(ActionEvent e) {
         ThreadHelper.invokeLater(() -> {
             try {
                 LOGGER.finest("Generating the outline of the gcode model");
@@ -141,7 +139,7 @@ public final class OutlineAction extends ProgramAction implements UGSEventListen
                 .filter(lineSegment -> !lineSegment.isFastTraverse())
                 .flatMap(new LineSegmentToPartialPositionMapper())
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
 
         return generateConvexHullCommands(pointList);
     }
@@ -151,7 +149,7 @@ public final class OutlineAction extends ProgramAction implements UGSEventListen
         ICommandCreator commandCreator = backend.getCommandCreator();
         return outline.stream()
                 .map(point -> commandCreator.createCommand(GcodeUtils.generateMoveToCommand(Code.G90.name() + Code.G1.name(), point, getJogFeedRate())))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private double getJogFeedRate() {
