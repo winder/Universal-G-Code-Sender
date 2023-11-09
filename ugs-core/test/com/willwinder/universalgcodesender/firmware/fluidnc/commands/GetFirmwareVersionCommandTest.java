@@ -30,6 +30,18 @@ public class GetFirmwareVersionCommandTest {
     }
 
     @Test
+    public void getFirmwareVersionWithoutLeadingV() {
+        GetFirmwareVersionCommand getFirmwareVersionCommand = new GetFirmwareVersionCommand();
+        getFirmwareVersionCommand.appendResponse("[VER:3.7 FluidNC 3.7.10:]");
+
+        assertNotNull(getFirmwareVersionCommand.getVersion());
+        assertEquals(3, getFirmwareVersionCommand.getVersion().getMajor());
+        assertEquals(7, getFirmwareVersionCommand.getVersion().getMinor());
+        assertEquals(10, getFirmwareVersionCommand.getVersion().getPatch());
+        assertEquals("FluidNC", getFirmwareVersionCommand.getFirmware());
+    }
+
+    @Test
     public void getFirmwareVersionWithOldGRBLVersion() {
         GetFirmwareVersionCommand getFirmwareVersionCommand = new GetFirmwareVersionCommand();
         getFirmwareVersionCommand.appendResponse("[VER:1.1f.20170801:]");
