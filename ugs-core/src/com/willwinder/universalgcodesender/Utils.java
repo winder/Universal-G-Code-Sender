@@ -1,5 +1,5 @@
 /*
-    Copyright 2012-2018 Will Winder
+    Copyright 2012-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,7 +28,8 @@ import com.willwinder.universalgcodesender.utils.Version;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.EventQueue;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -39,17 +40,17 @@ import java.text.NumberFormat;
  */
 public class Utils {
 
-    public static NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
+    public static final NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
 
     public static String formattedMillis(long millis) {
-        String format = String.format("%%0%dd", 2);  
-        long elapsedTime = millis / 1000;  
+        String format = String.format("%%0%dd", 2);
+        long elapsedTime = millis / 1000;
         String hours = String.format(format, elapsedTime / 3600);
         elapsedTime %= 3600;
-        
+
         String minutes = String.format(format, elapsedTime / 60);
         elapsedTime %= 60;
-        
+
         String seconds = String.format(format, elapsedTime);
 
 
@@ -105,6 +106,20 @@ public class Utils {
             return ThemeColors.LIGHT_BLUE;
         }
         return ThemeColors.GREY;
+    }
+
+    /**
+     * Returns a foreground color suited for a specific state
+     *
+     * @param state the state
+     * @return a background color
+     */
+    public static Color getControllerStateForegroundColor(ControllerState state) {
+        if (state == ControllerState.ALARM) {
+            return Color.WHITE;
+        }
+
+        return ThemeColors.VERY_DARK_GREY;
     }
 
 

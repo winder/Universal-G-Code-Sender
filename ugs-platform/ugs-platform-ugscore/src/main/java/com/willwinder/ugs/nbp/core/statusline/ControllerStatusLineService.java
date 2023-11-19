@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,7 +25,6 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.uielements.components.RoundedBorder;
-import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import org.openide.awt.StatusLineElementProvider;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -64,7 +63,7 @@ public class ControllerStatusLineService implements StatusLineElementProvider, U
 
     private void updateLabel() {
         label.setText(Utils.getControllerStateText(backend.getControllerState()));
-        label.setForeground(ThemeColors.VERY_DARK_GREY);
+        label.setForeground(Utils.getControllerStateForegroundColor(backend.getControllerState()));
         label.setBackground(Utils.getControllerStateBackgroundColor(backend.getControllerState()));
     }
 }

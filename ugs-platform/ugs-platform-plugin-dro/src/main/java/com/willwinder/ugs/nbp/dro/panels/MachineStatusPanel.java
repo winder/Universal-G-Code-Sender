@@ -318,10 +318,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
 
     private void updateStatePanel(ControllerState state) {
         String text = Utils.getControllerStateText(state);
-        Color background = Utils.getControllerStateBackgroundColor(state);
-
-        this.activeStatePanel.setBackground(background);
-        this.activeStateValueLabel.setText(text.toUpperCase());
+        activeStatePanel.setBackground(Utils.getControllerStateBackgroundColor(state));
+        activeStateValueLabel.setForeground(Utils.getControllerStateForegroundColor(state));
+        activeStateValueLabel.setText(text.toUpperCase());
     }
 
     @Override
