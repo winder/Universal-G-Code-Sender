@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,7 +26,8 @@ public class ThemeColors {
     public static final Color VERY_DARK_GREY = new Color(42, 44, 45);
     public static final Color DARK_GREY = new Color(60, 63, 65);
     public static final Color GREY = new Color(128, 128, 128);
-    public static final Color LIGHT_GREY = new Color(201, 201, 201);;
+    public static final Color LIGHT_GREY = new Color(201, 201, 201);
+
     public static final Color ORANGE = new Color(255, 151, 11);
     public static final Color GREEN = new Color(0, 201, 0);
     public static final Color LIGHT_GREEN = new Color(106, 194, 89);
@@ -35,7 +36,7 @@ public class ThemeColors {
 
     public static final Color DARK_BLUE_GREY = new Color(44, 65, 70);
     public static final Color MED_BLUE_GREY = new Color(47, 93, 103);
-    public static final Color LIGHT_BLUE_GREY = new Color(65, 129, 143);
+    public static final Color LIGHT_BLUE_GREY = new Color(79, 158, 176);
 
     public static final Color RED = new Color(240, 0, 0);
 
