@@ -37,6 +37,7 @@ public class JamepadJoystickDriver extends AbstractJoystickDriver {
      * Milliseconds to wait between reading joystick/gamepad values
      */
     private static final int READ_DELAY_MILLISECONDS = 1;
+    private static final long CONNECT_DELAY_MILLISECONDS = 5000;
     private final ExecutorService joystickReadThread;
     private ControllerManager controllerManager;
     private JamepadJoystickDevice currentDevice;
@@ -68,6 +69,8 @@ public class JamepadJoystickDriver extends AbstractJoystickDriver {
 
                 LOGGER.info("readDataLoop returned - possible controller unplug/replug");
                 currentDevice = null;
+                joystickState.clear();
+                notifyJoystickUpdated();
                 notifyDeviceChanged();
             } else {
                 try {
@@ -102,7 +105,9 @@ public class JamepadJoystickDriver extends AbstractJoystickDriver {
 
     private void readDataLoop() {
         try {
-            while (isRunning && currentDevice.controller().isConnected()) {
+            // Wait for the controller to properly initialize to avoid getting junk data
+            Thread.sleep(CONNECT_DELAY_MILLISECONDS);
+            while (isRunning && currentDevice != null && currentDevice.controller().isConnected()) {
                 readData();
                 Thread.sleep(READ_DELAY_MILLISECONDS);
             }
