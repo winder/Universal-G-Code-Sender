@@ -81,4 +81,9 @@ public class JoystickState implements Serializable {
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
+
+    public void clear() {
+        buttonsMap.keySet().forEach(action -> buttonsMap.put(action, false));
+        axisMap.keySet().forEach(action -> axisMap.put(action, 0.0f));
+    }
 }
