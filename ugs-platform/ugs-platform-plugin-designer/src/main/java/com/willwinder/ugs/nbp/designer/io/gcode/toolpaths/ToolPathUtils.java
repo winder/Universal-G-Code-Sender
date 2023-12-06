@@ -33,17 +33,19 @@ import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.operation.polygonize.Polygonizer;
+import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 
-import java.awt.*;
+import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.PathIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class ToolPathUtils {
+    public static final double DISTANCE_TOLERANCE = 0.1;
 
     public static final double FLATNESS_PRECISION = 0.1d;
 
@@ -68,10 +70,10 @@ public class ToolPathUtils {
             for (int i = 0; i < geometry.getNumGeometries(); i++) {
                 recursivlyCollectGeometries(geometry.getGeometryN(i), result);
             }
-        } else if (geometry instanceof Polygon) {
-            result.add(((Polygon) geometry).getExteriorRing());
-            for (int i = 0; i < ((Polygon) geometry).getNumInteriorRing(); i++) {
-                result.add(((Polygon) geometry).getInteriorRingN(i));
+        } else if (geometry instanceof Polygon polygon) {
+            result.add((polygon).getExteriorRing());
+            for (int i = 0; i < (polygon).getNumInteriorRing(); i++) {
+                result.add((polygon).getInteriorRingN(i));
             }
         } else {
             result.add(geometry);
@@ -82,7 +84,7 @@ public class ToolPathUtils {
         Coordinate[] coordinates = geometry.getCoordinates();
         return Arrays.stream(coordinates)
                 .map(c -> new PartialPosition(c.getX(), c.getY(), c.getZ(), UnitUtils.Units.MM))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static List<List<PartialPosition>> geometriesToCoordinates(List<Geometry> geometries, double depth) {
@@ -91,7 +93,7 @@ public class ToolPathUtils {
                     List<PartialPosition> bufferedCoordinates = geometryToCoordinates(geometry)
                             .stream()
                             .map(c -> new PartialPosition(c.getX(), c.getY(), -depth, UnitUtils.Units.MM))
-                            .collect(Collectors.toList());
+                            .toList();
 
                     if (bufferedCoordinates.isEmpty() || bufferedCoordinates.size() <= 1) {
                         return null;
@@ -100,14 +102,14 @@ public class ToolPathUtils {
                     return bufferedCoordinates;
                 })
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static List<PartialPosition> geometryToCoordinates(Geometry geometry, double depth) {
         org.locationtech.jts.geom.Coordinate[] coordinates = geometry.getCoordinates();
         return Arrays.stream(coordinates)
                 .map(c -> toPartialPosition(c, depth))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static Geometry convertAreaToGeometry(final Area area, final GeometryFactory factory) {
@@ -211,5 +213,92 @@ public class ToolPathUtils {
         }
 
         return new ToolPathStats(totalFeedLength, totalRapidLength);
+    }
+
+    public static List<Geometry> bufferAndCollectGeometries(Geometry geometry, double toolDiameter, double stepOver) {
+        double buffer = toolDiameter / 2d;
+        List<Geometry> geometries = ToolPathUtils.bufferAndCollectGeometries(geometry, buffer, toolDiameter, stepOver);
+        geometries.sort(new GeometrySizeComparator());
+        return geometries;
+    }
+
+    public static List<Geometry> bufferAndCollectGeometries(Geometry geometry, double buffer, double toolDiameter, double stepOver) {
+        Geometry bufferedGeometry = geometry.buffer(-buffer);
+        if (bufferedGeometry.getNumGeometries() <= 0 || bufferedGeometry.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Geometry> result = new ArrayList<>();
+        for (int i = 0; i < bufferedGeometry.getNumGeometries(); i++) {
+            Geometry geom = bufferedGeometry.getGeometryN(i);
+            result.addAll(bufferAndCollectGeometries(geom, toolDiameter * stepOver, toolDiameter, stepOver));
+
+            if (geom instanceof Polygon polygon) {
+                result.add(DouglasPeuckerSimplifier.simplify(polygon.getExteriorRing(), DISTANCE_TOLERANCE));
+                for (int j = 0; j < polygon.getNumInteriorRing(); j++) {
+                    result.add(DouglasPeuckerSimplifier.simplify(polygon.getInteriorRingN(j), DISTANCE_TOLERANCE));
+                }
+            } else {
+                result.add(DouglasPeuckerSimplifier.simplify(geom, DISTANCE_TOLERANCE));
+            }
+        }
+
+        return result;
+    }
+
+    public static LinearRing rotateCoordinates(LinearRing nextGeometry, int newStartIndex) {
+        Coordinate[] geomCoordinates = nextGeometry.getCoordinates();
+        Coordinate[] newCoordinates = new Coordinate[geomCoordinates.length];
+        int newIndex = 0;
+        for (int coordIndex = newStartIndex; coordIndex < newCoordinates.length; coordIndex++) {
+            newCoordinates[newIndex] = geomCoordinates[coordIndex];
+            newIndex++;
+        }
+
+        for (int coordIndex = 1; coordIndex < newStartIndex; coordIndex++) {
+            newCoordinates[newIndex] = geomCoordinates[coordIndex];
+            newIndex++;
+        }
+
+        newCoordinates[newCoordinates.length - 1] = geomCoordinates[newStartIndex];
+        nextGeometry = ToolPathUtils.createLinearRing(newCoordinates);
+        return nextGeometry;
+    }
+
+    public static void addGeometriesToCoordinatesList(Geometry shell, List<Geometry> geometries, List<List<PartialPosition>> coordinateList, double currentDepth) {
+        Geometry previousGeometry = null;
+        List<PartialPosition> geometryLine = new ArrayList<>();
+        for (int x = 0; x < geometries.size(); x++) {
+            Geometry geometry = geometries.get(x);
+
+            if (x > 0) {
+                PartialPosition fromPosition = ToolPathUtils.toPartialPosition(getLastPosition(previousGeometry), currentDepth);
+                int newStartIndex = ToolPathUtils.findNearestCoordinateIndex(geometry.getCoordinates(), new Coordinate(fromPosition.getX(), fromPosition.getY(), fromPosition.getZ()));
+
+                if (geometry instanceof LinearRing linearRing) {
+                    geometry = rotateCoordinates(linearRing, newStartIndex);
+                }
+
+                Coordinate firstCoordinate = geometry.getCoordinates()[0];
+                PartialPosition nextPosition = toPartialPosition(firstCoordinate, currentDepth);
+
+                LineString lineString = ToolPathUtils.createLineString(fromPosition, nextPosition);
+                if (shell.crosses(lineString) || geometry.getClass().equals(LineString.class)) {
+                    coordinateList.add(geometryLine);
+                    geometryLine = new ArrayList<>();
+                }
+            }
+
+            geometryLine.addAll(geometryToCoordinates(geometry, currentDepth));
+            previousGeometry = geometry;
+        }
+
+        if (!geometryLine.isEmpty()) {
+            coordinateList.add(geometryLine);
+        }
+    }
+
+    private static Coordinate getLastPosition(Geometry geometry) {
+        return geometry.getCoordinates()[geometry.getCoordinates().length - 1];
     }
 }

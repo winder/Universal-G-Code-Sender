@@ -11,14 +11,12 @@ import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.PartialPosition;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+
+import java.util.List;
 
 public class PocketToolPathTest {
 
@@ -66,7 +64,7 @@ public class PocketToolPathTest {
 
         List<Segment> drillOperations = segmentList.stream()
                 .filter(segment -> segment.type == SegmentType.POINT)
-                .collect(Collectors.toList());
+                .toList();
         assertEquals("There should be a number of drill operations when making a pocket", Math.abs((targetDepth - depthPerPass) / depthPerPass), drillOperations.size(), 0.1);
 
         PartialPosition point = drillOperations.get(drillOperations.size() - 1).getPoint();
@@ -118,7 +116,7 @@ public class PocketToolPathTest {
 
         List<Segment> drillOperations = segmentList.stream()
                 .filter(segment -> segment.type == SegmentType.POINT)
-                .collect(Collectors.toList());
+                .toList();
         assertEquals("There should be a number of drill operations when making a pocket", Math.abs((targetDepth - depthPerPass) / depthPerPass), drillOperations.size(), 0.1);
 
         PartialPosition point = drillOperations.get(drillOperations.size() - 1).getPoint();
