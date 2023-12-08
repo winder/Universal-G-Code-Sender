@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.lifecycle;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.openide.modules.ModuleInstall;
 import org.openide.util.NbPreferences;
 
@@ -30,9 +31,26 @@ public class LookAndFeelInstaller extends ModuleInstall {
 
     @Override
     public void validate() {
+        if (SystemUtils.IS_OS_MAC_OSX) {
+            // FlatlLaf look and feel doesn't work on MacOSXs
+            setMacOSLaF();
+        } else {
+            setLaF();
+        }
+    }
+
+    private void setLaF() {
         Preferences prefs = NbPreferences.root().node("laf");
         if (prefs.get("laf", "").isBlank()) {
             prefs.put("laf", "com.formdev.flatlaf.FlatLightLaf");
+        }
+    }
+
+    private void setMacOSLaF() {
+        Preferences prefs = NbPreferences.root().node("laf");
+        String currentLaF = prefs.get("laf", "");
+        if (currentLaF.isBlank() || currentLaF.equals("com.formdev.flatlaf.FlatLightLaf")) {
+            prefs.put("laf", "com.apple.laf.AquaLookAndFeel");
         }
     }
 }
