@@ -33,7 +33,7 @@ public abstract class AbstractProbePreview extends Renderable {
         probeService = Lookup.getDefault().lookup(ProbeService.class);
     }
 
-    public abstract void setContext(ProbeParameters pc, Position startWork, Position startMachine);
+    public abstract void setContext(ProbeParameters pc, Position startWork);
 
     public abstract void updateSettings();
 

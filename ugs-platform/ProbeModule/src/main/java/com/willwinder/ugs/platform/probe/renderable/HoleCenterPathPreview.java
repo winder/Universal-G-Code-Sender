@@ -22,15 +22,14 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PROBE_PREVIEW;
 import com.willwinder.ugs.platform.probe.ProbeParameters;
 import com.willwinder.ugs.platform.probe.ProbeSettings;
-import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.Position;
-
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PROBE_PREVIEW;
 import com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Triangle;
 import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.drawArrow;
+import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 
 /**
  *
@@ -217,14 +216,16 @@ public class HoleCenterPathPreview extends AbstractProbePreview
         ProbeSettings.addPreferenceChangeListener(e -> this.hcDiameter = ProbeSettings.getHcDiameter());
     }
 
-    public void setContext(ProbeParameters pc, Position startWork, Position startMachine) {
+    public void setContext(ProbeParameters pc, Position startWork) {
         this.pc = pc;
         this.startWork = startWork;
     }
 
     @Override
     public void updateSettings() {
-        updateSpacing(ProbeSettings.getHcDiameter());
+        UnitUtils.Units settingsUnits = ProbeSettings.getSettingsUnits();
+        double scaleFactor = UnitUtils.scaleUnits(settingsUnits, UnitUtils.Units.MM);
+        updateSpacing(ProbeSettings.getHcDiameter() * scaleFactor);
     }
 
     @Override

@@ -22,14 +22,12 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PROBE_PREVIEW;
 import com.willwinder.ugs.platform.probe.ProbeParameters;
-import com.willwinder.ugs.platform.probe.ProbeService;
 import com.willwinder.ugs.platform.probe.ProbeSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
-import org.openide.util.Lookup;
-
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PROBE_PREVIEW;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 
 /**
  *
@@ -48,13 +46,15 @@ public class ZProbePathPreview extends AbstractProbePreview {
     }
 
     @Override
-    public void setContext(ProbeParameters pc, Position startWork, Position startMachine) {
+    public void setContext(ProbeParameters pc, Position startWork) {
         this.start = startWork;
     }
 
     @Override
     public void updateSettings() {
-        updateSpacing(ProbeSettings.getzDistance(), ProbeSettings.getzOffset());
+        UnitUtils.Units settingsUnits = ProbeSettings.getSettingsUnits();
+        double scaleFactor = UnitUtils.scaleUnits(settingsUnits, UnitUtils.Units.MM);
+        updateSpacing(ProbeSettings.getzDistance() * scaleFactor, ProbeSettings.getzOffset() * scaleFactor);
     }
 
     public void updateSpacing(double depth, double offset) {
