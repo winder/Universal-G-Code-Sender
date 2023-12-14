@@ -22,6 +22,8 @@ import com.willwinder.ugs.nbp.core.actions.ContinuousAction;
 import com.willwinder.ugs.nbp.lib.services.ActionReference;
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lib.services.ShortcutService;
+import static java.awt.event.KeyEvent.KEY_PRESSED;
+import static java.awt.event.KeyEvent.KEY_RELEASED;
 import org.openide.modules.OnStart;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
@@ -37,9 +39,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.Optional;
 import java.util.logging.Logger;
-
-import static java.awt.event.KeyEvent.KEY_PRESSED;
-import static java.awt.event.KeyEvent.KEY_RELEASED;
 
 /**
  * A shortcut listener that will attempt to intercept shortcuts to continuous actions.
@@ -68,7 +67,7 @@ public class ContinuousActionShortcutListener implements Runnable, KeyEventDispa
     private final ContinuousActionExecutor executor;
 
     public ContinuousActionShortcutListener() {
-        shortcutService = Lookup.getDefault().lookup(ShortcutService.class);
+        shortcutService = new ShortcutService();
         actionRegistrationService = Lookup.getDefault().lookup(ActionRegistrationService.class);
         executor = new ContinuousActionExecutor(LONG_PRESS_DELAY);
     }
@@ -95,7 +94,7 @@ public class ContinuousActionShortcutListener implements Runnable, KeyEventDispa
     }
 
     private Optional<ActionReference> getContinuousActionByShortcut(String keyAsString) {
-        return  shortcutService.getActionIdForShortcut(keyAsString)
+        return shortcutService.getActionIdForShortcut(keyAsString)
                 .flatMap(actionRegistrationService::getActionById)
                 .filter(action -> action.getAction() instanceof ContinuousAction);
     }
@@ -107,6 +106,13 @@ public class ContinuousActionShortcutListener implements Runnable, KeyEventDispa
         }
 
         if (keyEvent.getID() != KEY_PRESSED && keyEvent.getID() != KEY_RELEASED) {
+            return false;
+        }
+
+        // On any key release we should abort a long pressed executor
+        if (keyEvent.getID() == KEY_RELEASED && executor.isLongPressed()) {
+            executor.release();
+            keyEvent.consume();
             return false;
         }
 

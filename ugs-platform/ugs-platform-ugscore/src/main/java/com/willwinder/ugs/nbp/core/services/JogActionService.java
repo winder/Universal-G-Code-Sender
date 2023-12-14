@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.services;
 
+import static com.willwinder.ugs.nbp.core.services.JogSizeAction.Operation.*;
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -26,8 +27,6 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
 import java.io.IOException;
-
-import static com.willwinder.ugs.nbp.core.services.JogSizeAction.Operation.*;
 
 /**
  * A service for registering jog actions such as menu items and shortcuts
@@ -57,19 +56,19 @@ public class JogActionService {
 
             // Jog plus/minus X
             ars.registerAction(JogActionService.class.getCanonicalName() + ".xPlus", Localization.getString("jogging.xPlus") ,
-                    category, "M-RIGHT" , menuPath, 0, localized, new JogAction(1, 0, 0, 0, 0, 0));
+                    category, "D-RIGHT" , menuPath, 0, localized, new JogAction(1, 0, 0, 0, 0, 0));
             ars.registerAction(JogActionService.class.getCanonicalName() + ".xMinus", Localization.getString("jogging.xMinus"),
-                    category, "M-LEFT"  , menuPath, 0, localized, new JogAction(-1, 0, 0, 0, 0, 0));
+                    category, "D-LEFT"  , menuPath, 0, localized, new JogAction(-1, 0, 0, 0, 0, 0));
             // Jog plus/minus Y
             ars.registerAction(JogActionService.class.getCanonicalName() + ".yPlus", Localization.getString("jogging.yPlus") ,
-                    category, "M-UP"    , menuPath, 0, localized, new JogAction(0, 1, 0, 0, 0,0));
+                    category, "D-UP"    , menuPath, 0, localized, new JogAction(0, 1, 0, 0, 0,0));
             ars.registerAction(JogActionService.class.getCanonicalName() + ".yMinus", Localization.getString("jogging.yMinus"),
-                    category, "M-DOWN"  , menuPath, 0, localized, new JogAction( 0,-1, 0,0 ,0 ,0));
+                    category, "D-DOWN"  , menuPath, 0, localized, new JogAction( 0,-1, 0,0 ,0 ,0));
             // Jog plus/minus Z
             ars.registerAction(JogActionService.class.getCanonicalName() + ".zPlus", Localization.getString("jogging.zPlus") ,
-                    category, "SM-UP"   , menuPath, 0, localized, new JogAction(0, 0, 1, 0,0, 0));
+                    category, "SD-UP"   , menuPath, 0, localized, new JogAction(0, 0, 1, 0,0, 0));
             ars.registerAction(JogActionService.class.getCanonicalName() + ".zMinus", Localization.getString("jogging.zMinus"),
-                    category, "SM-DOWN" , menuPath, 0, localized, new JogAction(0, 0,-1, 0,0,0));
+                    category, "SD-DOWN" , menuPath, 0, localized, new JogAction(0, 0,-1, 0,0,0));
             // Jog plus/minus A
             ars.registerAction(JogActionService.class.getCanonicalName() + ".aPlus", Localization.getString("jogging.aPlus") ,
                     category, null   , menuPath, 0, localized, new JogAction(0, 0, 0, 1, 0, 0));

@@ -91,7 +91,14 @@ public class ContinuousActionExecutor extends LongPressKeyListener {
             return;
         }
 
-        ((ContinuousAction) actionReference.get().getAction()).actionDeactivated();
+        if (actionReference.get().getAction() instanceof ContinuousAction continuousAction) {
+            continuousAction.actionDeactivated();
+        }
         actionReference.set(null);
+        isLongPressed = false;
+    }
+
+    public boolean isLongPressed() {
+        return isLongPressed;
     }
 }

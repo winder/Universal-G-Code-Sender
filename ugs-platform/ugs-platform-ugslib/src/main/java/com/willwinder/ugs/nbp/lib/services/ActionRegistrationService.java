@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.lib.services;
 
+import static com.willwinder.ugs.nbp.lib.services.ShortcutService.createShortcut;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
@@ -26,7 +27,7 @@ import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
 
-import javax.swing.*;
+import javax.swing.Action;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -143,12 +144,7 @@ public class ActionRegistrationService {
         // Add/Update Shortcut //
         /////////////////////////
         if (shortcut != null && shortcut.length() > 0) {
-            in = FileUtil.createFolder(root, "Shortcuts");
-            obj = in.getFileObject(shortcut, SHADOW);
-            if (obj == null) {
-                obj = in.createData(shortcut, SHADOW);
-                obj.setAttribute("originalFile", originalFile);
-            }
+            createShortcut(id, category, shortcut);
         }
 
         invalidateCache();
@@ -241,7 +237,7 @@ public class ActionRegistrationService {
      * Get actions organized by category.
      */
     public Map<String, List<ActionReference>> getCategoryActions() {
-        if(actionCache.isEmpty()) {
+        if (actionCache.isEmpty()) {
             FileObject rootFileObject = FileUtil.getConfigFile("Actions/");
             actionCache = getCategoryActions(rootFileObject);
         }
@@ -344,6 +340,7 @@ public class ActionRegistrationService {
 
     /**
      * Returns all actions by the given category
+     *
      * @param category the name of the category to fetch
      * @return a list of actions
      */
