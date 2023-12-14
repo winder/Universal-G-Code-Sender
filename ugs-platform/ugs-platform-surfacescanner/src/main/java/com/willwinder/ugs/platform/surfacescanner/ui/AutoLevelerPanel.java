@@ -31,6 +31,8 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.uielements.components.PercentSpinner;
+import com.willwinder.universalgcodesender.uielements.components.Spinner;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 import net.miginfocom.swing.MigLayout;
 

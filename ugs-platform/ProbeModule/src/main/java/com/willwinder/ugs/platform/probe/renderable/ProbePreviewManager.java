@@ -56,7 +56,7 @@ public class ProbePreviewManager {
     public void updateContext(ProbeParameters probeParameters, Position workPosition, Position machinePosition) {
         AbstractProbePreview currentPreview = activePreview.get();
         if (currentPreview != null) {
-            currentPreview.setContext(probeParameters, workPosition, machinePosition);
+            currentPreview.setContext(probeParameters, workPosition);
         }
     }
 

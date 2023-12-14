@@ -21,56 +21,63 @@ package com.willwinder.ugs.platform.probe.ui;
 import com.willwinder.ugs.platform.probe.ProbeSettings;
 import com.willwinder.ugs.platform.probe.actions.ProbeZAction;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
-
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Component;
 import java.util.prefs.PreferenceChangeEvent;
 
-import static com.willwinder.universalgcodesender.utils.SwingHelpers.getDouble;
-
 public class ProbeZPanel extends JPanel {
-    private final SpinnerNumberModel zProbeDistance;
-    private final SpinnerNumberModel zProbeOffset;
+    private final UnitSpinner zProbeDistanceSpinner;
+    private final UnitSpinner zProbeOffsetSpinner;
 
     public ProbeZPanel() {
-        zProbeDistance = new SpinnerNumberModel(ProbeSettings.getzDistance(), null, null, 0.1);
-        zProbeOffset = new SpinnerNumberModel(ProbeSettings.getzOffset(), null, null, 0.1);
-
+        var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
+        zProbeDistanceSpinner = new UnitSpinner(ProbeSettings.getzDistance(), units);
+        zProbeOffsetSpinner = new UnitSpinner(ProbeSettings.getzOffset(), units);
         createLayout();
         registerListeners();
     }
 
     @Override
     public void setEnabled(boolean enabled) {
-        for(Component component : getComponents()) {
+        for (Component component : getComponents()) {
             component.setEnabled(enabled);
         }
     }
 
     private void createLayout() {
-        setLayout(new MigLayout("insets 10, gap 12"));
+        setLayout(new MigLayout("insets 10, gap 12", "[shrink][120:120, sg1]"));
         add(new JLabel(Localization.getString("probe.plate-thickness")));
-        add(new JSpinner(zProbeOffset), "growx, wrap");
+        add(zProbeOffsetSpinner, "growx, wrap");
         add(new JLabel(Localization.getString("probe.probe-distance") + ":"));
-        add(new JSpinner(zProbeDistance), "growx, wrap");
-        add(new JButton(new ProbeZAction()), "spanx 2, growx, growy");
+        add(zProbeDistanceSpinner, "growx, wrap");
+        add(new JButton(new ProbeZAction()), "spanx 2, growx, growy, height 40:40");
     }
 
     private void registerListeners() {
-        zProbeDistance.addChangeListener(l -> ProbeSettings.setzDistance(getDouble(zProbeDistance)));
-        zProbeOffset.addChangeListener(l -> ProbeSettings.setzOffset(getDouble(zProbeOffset)));
+        zProbeDistanceSpinner.addChangeListener(l -> ProbeSettings.setzDistance(zProbeDistanceSpinner.getDoubleValue()));
+        zProbeOffsetSpinner.addChangeListener(l -> ProbeSettings.setzOffset(zProbeOffsetSpinner.getDoubleValue()));
         ProbeSettings.addPreferenceChangeListener(this::onSettingsChanged);
     }
 
     private void onSettingsChanged(PreferenceChangeEvent event) {
         switch (event.getKey()) {
+            case ProbeSettings.SETTINGS_UNITS:
+                var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
+                zProbeOffsetSpinner.setUnits(units);
+                zProbeDistanceSpinner.setUnits(units);
+                break;
             case ProbeSettings.Z_DISTANCE:
-                zProbeDistance.setValue(ProbeSettings.getzDistance());
+                zProbeDistanceSpinner.setValue(ProbeSettings.getzDistance());
                 break;
             case ProbeSettings.Z_OFFSET:
-                zProbeOffset.setValue(ProbeSettings.getzOffset());
+                zProbeOffsetSpinner.setValue(ProbeSettings.getzOffset());
                 break;
         }
     }

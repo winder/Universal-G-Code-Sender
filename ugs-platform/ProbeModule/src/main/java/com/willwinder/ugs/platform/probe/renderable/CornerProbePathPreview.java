@@ -40,7 +40,6 @@ public abstract class CornerProbePathPreview extends AbstractProbePreview {
     private final Position spacing = new Position(0, 0, 0);
     private final Position thickness = new Position(0, 0, 0);
     private Position startWork = null;
-    private Position startMachine = null;
     private ProbeParameters pc = null;
 
     private final GLUT glut;
@@ -50,10 +49,9 @@ public abstract class CornerProbePathPreview extends AbstractProbePreview {
         glut = new GLUT();
     }
 
-    public void setContext(ProbeParameters pc, Position startWork, Position startMachine) {
+    public void setContext(ProbeParameters pc, Position startWork) {
         this.pc = pc;
         this.startWork = startWork;
-        this.startMachine = startMachine;
     }
 
     public void updateSpacing(

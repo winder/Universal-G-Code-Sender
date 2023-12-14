@@ -20,6 +20,7 @@ package com.willwinder.ugs.platform.probe.renderable;
 
 import com.willwinder.ugs.platform.probe.ProbeSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 
 public class XYZProbePathPreview extends CornerProbePathPreview {
     public XYZProbePathPreview() {
@@ -28,12 +29,14 @@ public class XYZProbePathPreview extends CornerProbePathPreview {
 
     @Override
     public void updateSettings() {
+        UnitUtils.Units settingsUnits = ProbeSettings.getSettingsUnits();
+        double scaleFactor = UnitUtils.scaleUnits(settingsUnits, UnitUtils.Units.MM);
         updateSpacing(
-                ProbeSettings.getXyzXDistance(),
-                ProbeSettings.getXyzYDistance(),
-                ProbeSettings.getXyzZDistance(),
-                ProbeSettings.getXyzXOffset(),
-                ProbeSettings.getXyzYOffset(),
-                ProbeSettings.getXyzZOffset());
+                ProbeSettings.getXyzXDistance() * scaleFactor,
+                ProbeSettings.getXyzYDistance() * scaleFactor,
+                ProbeSettings.getXyzZDistance() * scaleFactor,
+                ProbeSettings.getXyzXOffset() * scaleFactor,
+                ProbeSettings.getXyzYOffset() * scaleFactor,
+                ProbeSettings.getXyzZOffset() * scaleFactor);
     }
 }
