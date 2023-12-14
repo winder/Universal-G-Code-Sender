@@ -22,9 +22,18 @@ package com.willwinder.ugs.platform.probe;
 import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
-import com.willwinder.ugs.platform.probe.renderable.*;
-import com.willwinder.ugs.platform.probe.ui.*;
+import com.willwinder.ugs.platform.probe.renderable.HoleCenterPathPreview;
+import com.willwinder.ugs.platform.probe.renderable.ProbePreviewManager;
+import com.willwinder.ugs.platform.probe.renderable.XYProbePathPreview;
+import com.willwinder.ugs.platform.probe.renderable.XYZProbePathPreview;
+import com.willwinder.ugs.platform.probe.renderable.ZProbePathPreview;
+import com.willwinder.ugs.platform.probe.ui.ProbeHoleCenterPanel;
+import com.willwinder.ugs.platform.probe.ui.ProbeOutsideXYPanel;
+import com.willwinder.ugs.platform.probe.ui.ProbeXYZPanel;
+import com.willwinder.ugs.platform.probe.ui.ProbeZPanel;
+import com.willwinder.ugs.platform.probe.ui.SettingsPanel;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -39,10 +48,9 @@ import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-import javax.swing.*;
-import java.awt.*;
-
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
+import java.awt.BorderLayout;
 
 /**
  * Top component which displays something.
@@ -63,10 +71,10 @@ import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 )
 public final class ProbeTopComponent extends TopComponent implements UGSEventListener {
     public static final String preferredId = "AdvancedProbeTopComponent";
-    public final static String ProbeTitle = Localization.getString("platform.window.probe-module", lang);
-    public final static String ProbeTooltip = Localization.getString("platform.window.probe-module.tooltip", lang);
-    public final static String ProbeActionId = "com.willwinder.ugs.platform.probe.ProbeTopComponent.renamed";
-    public final static String ProbeCategory = LocalizingService.CATEGORY_WINDOW;
+    public static final  String ProbeTitle = Localization.getString("platform.window.probe-module", lang);
+    public static final  String ProbeTooltip = Localization.getString("platform.window.probe-module.tooltip", lang);
+    public static final  String ProbeActionId = "com.willwinder.ugs.platform.probe.ProbeTopComponent.renamed";
+    public static final  String ProbeCategory = LocalizingService.CATEGORY_WINDOW;
     // hole diameter tab
     private static final String HC_TAB = "Hole center";
     // xyz tab
@@ -76,9 +84,9 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     // z-probe tab
     private static final String Z_TAB = "Z";
     private static final String SETTINGS_TAB = "Settings";
-    private final ProbePreviewManager probePreviewManager;
-    private final JTabbedPane jtp = new JTabbedPane(JTabbedPane.LEFT);
-    private final BackendAPI backend;
+    private transient final ProbePreviewManager probePreviewManager;
+    private final JTabbedPane jtp = new JTabbedPane(SwingConstants.LEFT);
+    private transient final BackendAPI backend;
     private ProbeHoleCenterPanel probeHoleCenterPanel;
     private ProbeXYZPanel probeXYZPanel;
     private ProbeOutsideXYPanel probeXYPanel;
@@ -144,14 +152,19 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         settingsPanel = new SettingsPanel();
 
         jtp.add(Z_TAB, probeZPanel);
-        jtp.add(HC_TAB, probeHoleCenterPanel);
-        jtp.add(XYZ_TAB, probeXYZPanel);
         jtp.add(OUTSIDE_TAB, probeXYPanel);
+        jtp.add(XYZ_TAB, probeXYZPanel);
+        jtp.add(HC_TAB, probeHoleCenterPanel);
         jtp.add(SETTINGS_TAB, settingsPanel);
         jtp.setSelectedIndex(ProbeSettings.getSelectedTabIdx());
 
         this.setLayout(new BorderLayout());
         this.add(jtp);
+    }
+
+    public void selectSettingsTab() {
+        // Select the settings tab (which is last)
+        jtp.setSelectedIndex(jtp.getTabCount() - 1);
     }
 
     @Override

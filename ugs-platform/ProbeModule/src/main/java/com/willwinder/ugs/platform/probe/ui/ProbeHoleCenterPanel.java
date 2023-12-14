@@ -22,52 +22,57 @@ import com.willwinder.ugs.nbp.core.ui.HintLabel;
 import com.willwinder.ugs.platform.probe.ProbeSettings;
 import com.willwinder.ugs.platform.probe.actions.ProbeHoleCenterAction;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
+import java.awt.Component;
 import java.util.prefs.PreferenceChangeEvent;
 
-import static com.willwinder.universalgcodesender.utils.SwingHelpers.getDouble;
-
 public class ProbeHoleCenterPanel extends JPanel {
-    private final SpinnerNumberModel hcDiameterModel;
+    private final UnitSpinner hcDiameterSpinner;
 
     public ProbeHoleCenterPanel() {
-        hcDiameterModel = new SpinnerNumberModel(ProbeSettings.getHcDiameter(), null, null, 0.1);
+        var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
+        hcDiameterSpinner = new UnitSpinner(ProbeSettings.getHcDiameter(), units);
 
         createLayout();
         registerListeners();
     }
 
     private void registerListeners() {
-        hcDiameterModel.addChangeListener(e -> ProbeSettings.setHcDiameter(getDouble(hcDiameterModel)));
+        hcDiameterSpinner.addChangeListener(e -> ProbeSettings.setHcDiameter(hcDiameterSpinner.getDoubleValue()));
         ProbeSettings.addPreferenceChangeListener(this::onSettingsChanged);
     }
 
     @Override
     public void setEnabled(boolean enabled) {
-        for(Component component : getComponents()) {
+        for (Component component : getComponents()) {
             component.setEnabled(enabled);
         }
     }
 
     private void createLayout() {
-        JButton measureHC = new JButton(new ProbeHoleCenterAction());
-
-        setLayout(new MigLayout("wrap 2, insets 12"));
+        setLayout(new MigLayout("wrap 2, insets 12", "[shrink][120:120, sg1]"));
         add(new JLabel(Localization.getString("probe.hole-diameter")));
-        add(new JSpinner(this.hcDiameterModel), "growx, wrap");
-        add(new JSeparator(JSeparator.HORIZONTAL), "spanx 2, growx, growy, wrap");
+        add(this.hcDiameterSpinner, "growx, wrap");
+        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx 2, growx, growy, wrap");
         add(new HintLabel(Localization.getString("probe.hole-center-hint")), "spanx 2, growx, wrap, gapy 8");
-        add(measureHC, "spanx 2, growx, growy, gapy 8");
+        add(new JButton(new ProbeHoleCenterAction()), "spanx 2, growx, growy, gapy 8, height 40:40");
     }
 
     private void onSettingsChanged(PreferenceChangeEvent e) {
-        if (e.getKey().equals(ProbeSettings.HC_DIAMETER)) {
-            hcDiameterModel.setValue(ProbeSettings.getHcDiameter());
+        if (e.getKey().endsWith(ProbeSettings.SETTINGS_UNITS)) {
+            var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
+            hcDiameterSpinner.setUnits(units);
+        } else if (e.getKey().equals(ProbeSettings.HC_DIAMETER)) {
+            hcDiameterSpinner.setValue(ProbeSettings.getHcDiameter());
         }
     }
 }

@@ -21,36 +21,39 @@ package com.willwinder.ugs.platform.probe.ui;
 import com.willwinder.ugs.platform.probe.ProbeSettings;
 import com.willwinder.ugs.platform.probe.actions.ProbeOutsideXYAction;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
-
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Component;
 import java.util.prefs.PreferenceChangeEvent;
 
-import static com.willwinder.universalgcodesender.utils.SwingHelpers.getDouble;
-
 public class ProbeOutsideXYPanel extends JPanel {
-    private final SpinnerNumberModel outsideXDistanceModel;
-    private final SpinnerNumberModel outsideYDistanceModel;
-    private final SpinnerNumberModel outsideXOffsetModel;
-    private final SpinnerNumberModel outsideYOffsetModel;
+    private final UnitSpinner outsideXDistanceSpinner;
+    private final UnitSpinner outsideYDistanceSpinner;
+    private final UnitSpinner outsideXOffsetSpinner;
+    private final UnitSpinner outsideYOffsetSpinner;
 
     public ProbeOutsideXYPanel() {
-        outsideXDistanceModel = new SpinnerNumberModel(ProbeSettings.getOutsideXDistance(), null, null, 0.1);
-        outsideYDistanceModel = new SpinnerNumberModel(ProbeSettings.getOutsideYDistance(), null, null, 0.1);
-        outsideXOffsetModel = new SpinnerNumberModel(ProbeSettings.getOutsideXOffset(), null, null, 0.1);
-        outsideYOffsetModel = new SpinnerNumberModel(ProbeSettings.getOutsideYOffset(), null, null, 0.1);
+        var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
+        outsideXDistanceSpinner = new UnitSpinner(ProbeSettings.getOutsideXDistance(), units);
+        outsideYDistanceSpinner = new UnitSpinner(ProbeSettings.getOutsideYDistance(), units);
+        outsideXOffsetSpinner = new UnitSpinner(ProbeSettings.getOutsideXOffset(), units);
+        outsideYOffsetSpinner = new UnitSpinner(ProbeSettings.getOutsideYOffset(), units);
 
         createLayout();
         registerListeners();
     }
 
     private void registerListeners() {
-        outsideXDistanceModel.addChangeListener(l -> ProbeSettings.setOutsideXDistance(getDouble(outsideXDistanceModel)));
-        outsideYDistanceModel.addChangeListener(l -> ProbeSettings.setOutsideYDistance(getDouble(outsideYDistanceModel)));
-        outsideXOffsetModel.addChangeListener(l -> ProbeSettings.setOutsideXOffset(getDouble(outsideXOffsetModel)));
-        outsideYOffsetModel.addChangeListener(l -> ProbeSettings.setOutsideYOffset(getDouble(outsideYOffsetModel)));
+        outsideXDistanceSpinner.addChangeListener(l -> ProbeSettings.setOutsideXDistance(outsideXDistanceSpinner.getDoubleValue()));
+        outsideYDistanceSpinner.addChangeListener(l -> ProbeSettings.setOutsideYDistance(outsideYDistanceSpinner.getDoubleValue()));
+        outsideXOffsetSpinner.addChangeListener(l -> ProbeSettings.setOutsideXOffset(outsideXOffsetSpinner.getDoubleValue()));
+        outsideYOffsetSpinner.addChangeListener(l -> ProbeSettings.setOutsideYOffset(outsideYOffsetSpinner.getDoubleValue()));
         ProbeSettings.addPreferenceChangeListener(this::onSettingsChanged);
     }
 
@@ -62,33 +65,40 @@ public class ProbeOutsideXYPanel extends JPanel {
     }
 
     private void createLayout() {
-        setLayout(new MigLayout("wrap 2,  insets 10, gap 12"));
+        setLayout(new MigLayout("wrap 2,  insets 10, gap 12", "[120:120, sg1][120:120, sg1]"));
         add(new JLabel(Localization.getString("probe.x-distance") + ":"));
         add(new JLabel(Localization.getString("probe.y-distance") + ":"));
-        add(new JSpinner(outsideXDistanceModel), "growx");
-        add(new JSpinner(outsideYDistanceModel), "growx");
+        add(outsideXDistanceSpinner, "growx");
+        add(outsideYDistanceSpinner, "growx");
 
         add(new JLabel(Localization.getString("autoleveler.option.offset-x") + ":"));
         add(new JLabel(Localization.getString("autoleveler.option.offset-y") + ":"));
-        add(new JSpinner(outsideXOffsetModel), "growx");
-        add(new JSpinner(outsideYOffsetModel), "growx");
+        add(outsideXOffsetSpinner, "growx");
+        add(outsideYOffsetSpinner, "growx");
 
-        add(new JButton(new ProbeOutsideXYAction()), "spanx 2, spany 2, growx, growy");
+        add(new JButton(new ProbeOutsideXYAction()), "spanx 2, spany 2, growx, growy, height 40:40");
     }
 
     private void onSettingsChanged(PreferenceChangeEvent e) {
         switch (e.getKey()) {
+            case ProbeSettings.SETTINGS_UNITS:
+                var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
+                outsideXDistanceSpinner.setUnits(units);
+                outsideYDistanceSpinner.setUnits(units);
+                outsideXOffsetSpinner.setUnits(units);
+                outsideYOffsetSpinner.setUnits(units);
+                break;
             case ProbeSettings.OUTSIDE_X_DISTANCE:
-                outsideXDistanceModel.setValue(ProbeSettings.getOutsideXDistance());
+                outsideXDistanceSpinner.setValue(ProbeSettings.getOutsideXDistance());
                 break;
             case ProbeSettings.OUTSIDE_Y_DISTANCE:
-                outsideYDistanceModel.setValue(ProbeSettings.getOutsideYDistance());
+                outsideYDistanceSpinner.setValue(ProbeSettings.getOutsideYDistance());
                 break;
             case ProbeSettings.OUTSIDE_X_OFFSET:
-                outsideXOffsetModel.setValue(ProbeSettings.getOutsideXOffset());
+                outsideXOffsetSpinner.setValue(ProbeSettings.getOutsideXOffset());
                 break;
             case ProbeSettings.OUTSIDE_Y_OFFSET:
-                outsideYOffsetModel.setValue(ProbeSettings.getOutsideYOffset());
+                outsideYOffsetSpinner.setValue(ProbeSettings.getOutsideYOffset());
                 break;
         }
     }

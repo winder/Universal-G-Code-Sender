@@ -20,64 +20,73 @@ package com.willwinder.ugs.platform.probe.ui;
 
 import com.willwinder.ugs.platform.probe.ProbeSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G54;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G55;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G56;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G57;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G58;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G59;
+import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
-
-import java.awt.*;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Component;
 import java.util.prefs.PreferenceChangeEvent;
-
-import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.*;
-import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G59;
-import static com.willwinder.universalgcodesender.utils.SwingHelpers.getDouble;
 
 public class SettingsPanel extends JPanel {
     private final JComboBox<WorkCoordinateSystem> settingsWorkCoordinate;
-    private final SpinnerNumberModel settingsProbeDiameter;
-    private final SpinnerNumberModel settingsFastFindRate;
-    private final SpinnerNumberModel settingsSlowMeasureRate;
-    private final SpinnerNumberModel settingsRetractAmount;
+    private final UnitSpinner settingsProbeDiameter;
+    private final UnitSpinner settingsFastFindRate;
+    private final UnitSpinner settingsSlowMeasureRate;
+    private final UnitSpinner settingsRetractAmount;
 
     public SettingsPanel() {
+        var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
+        var rateUnits = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM_PER_MINUTE : TextFieldUnit.INCHES_PER_MINUTE;
+
         settingsWorkCoordinate = new JComboBox<>(new WorkCoordinateSystem[]{G54, G55, G56, G57, G58, G59});
         settingsWorkCoordinate.setSelectedItem(ProbeSettings.getSettingsWorkCoordinate());
 
-        settingsProbeDiameter = new SpinnerNumberModel(Math.max(ProbeSettings.getSettingsProbeDiameter(), 0), 0.d, null, 0.1);
-        settingsFastFindRate = new SpinnerNumberModel(Math.max(ProbeSettings.getSettingsFastFindRate(), 0.1), 0.1d, null, 1.);
-        settingsSlowMeasureRate = new SpinnerNumberModel(Math.max(ProbeSettings.getSettingsSlowMeasureRate(), 0.1), 0.1d, null, 1.);
-        settingsRetractAmount = new SpinnerNumberModel(Math.max(ProbeSettings.getSettingsRetractAmount(), 0.01), 0.01d, null, 0.1);
-
+        settingsProbeDiameter = new UnitSpinner(Math.max(ProbeSettings.getSettingsProbeDiameter(), 0), units, 0.d, null, 0.1d);
+        settingsFastFindRate = new UnitSpinner(Math.max(ProbeSettings.getSettingsFastFindRate(), 0.1), rateUnits, 0.1d, null, 1.);
+        settingsSlowMeasureRate = new UnitSpinner(Math.max(ProbeSettings.getSettingsSlowMeasureRate(), 0.1), rateUnits, 0.1d, null, 1.);
+        settingsRetractAmount = new UnitSpinner(Math.max(ProbeSettings.getSettingsRetractAmount(), 0.01), units, 0.01d, null, 0.1);
         createLayout();
         registerListeners();
     }
 
     @Override
     public void setEnabled(boolean enabled) {
-        for(Component component : getComponents()) {
+        for (Component component : getComponents()) {
             component.setEnabled(enabled);
         }
     }
 
     private void createLayout() {
-        setLayout(new MigLayout("wrap 4, insets 10, gap 12", "[shrink][90:90, sg 1][shrink][90:90, sg 1]"));
+        setLayout(new MigLayout("wrap 2, insets 10, gap 12", "[shrink][140:140, sg 1]"));
 
         add(new JLabel(Localization.getString("gcode.setting.endmill-diameter") + ":"), "al right");
-        add(new JSpinner(settingsProbeDiameter), "growx");
+        add(settingsProbeDiameter, "growx");
 
         add(new JLabel(Localization.getString("probe.find-rate") + ":"), "al right");
-        add(new JSpinner(settingsFastFindRate), "growx");
+        settingsFastFindRate.setToolTipText(Localization.getString("probe.find-rate.tooltip"));
+        add(settingsFastFindRate, "growx");
+
+        add(new JLabel(Localization.getString("probe.measure-rate") + ":"), "al right");
+        settingsSlowMeasureRate.setToolTipText(Localization.getString("probe.measure-rate.tooltip"));
+        add(settingsSlowMeasureRate, "growx");
+
+        add(new JLabel(Localization.getString("probe.retract-amount") + ":"), "al right");
+        settingsRetractAmount.setToolTipText(Localization.getString("probe.retract-amount.tooltip"));
+        add(settingsRetractAmount, "growx");
 
         add(new JLabel(Localization.getString("probe.work-coordinates") + ":"), "al right");
         add(settingsWorkCoordinate, "growx");
-
-        add(new JLabel(Localization.getString("probe.measure-rate") + ":"), "al right");
-        add(new JSpinner(settingsSlowMeasureRate), "growx");
-
-        add(new JLabel(Localization.getString("probe.retract-amount") + ":"), "al right");
-        JSpinner retractSpinner = new JSpinner(settingsRetractAmount);
-        retractSpinner.setToolTipText(Localization.getString("probe.retract-amount.tooltip"));
-        add(retractSpinner, "growx");
     }
 
     private void registerListeners() {
@@ -89,16 +98,24 @@ public class SettingsPanel extends JPanel {
             ProbeSettings.setSettingsWorkCoordinate(selectedItem);
         });
 
-        settingsProbeDiameter.addChangeListener(l -> ProbeSettings.setSettingsProbeDiameter(getDouble(settingsProbeDiameter)));
-        settingsFastFindRate.addChangeListener(l -> ProbeSettings.setSettingsFastFindRate(getDouble(settingsFastFindRate)));
-        settingsSlowMeasureRate.addChangeListener(l -> ProbeSettings.setSettingsSlowMeasureRate(getDouble(settingsSlowMeasureRate)));
-        settingsRetractAmount.addChangeListener(l -> ProbeSettings.setSettingsRetractAmount(getDouble(settingsRetractAmount)));
+        settingsProbeDiameter.addChangeListener(l -> ProbeSettings.setSettingsProbeDiameter(settingsProbeDiameter.getDoubleValue()));
+        settingsFastFindRate.addChangeListener(l -> ProbeSettings.setSettingsFastFindRate(settingsFastFindRate.getDoubleValue()));
+        settingsSlowMeasureRate.addChangeListener(l -> ProbeSettings.setSettingsSlowMeasureRate(settingsSlowMeasureRate.getDoubleValue()));
+        settingsRetractAmount.addChangeListener(l -> ProbeSettings.setSettingsRetractAmount(settingsRetractAmount.getDoubleValue()));
 
         ProbeSettings.addPreferenceChangeListener(this::onSettingsChanged);
     }
 
     private void onSettingsChanged(PreferenceChangeEvent e) {
         switch (e.getKey()) {
+            case ProbeSettings.SETTINGS_UNITS:
+                var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
+                var rateUnits = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM_PER_MINUTE : TextFieldUnit.INCHES_PER_MINUTE;
+                settingsProbeDiameter.setUnits(units);
+                settingsRetractAmount.setUnits(units);
+                settingsFastFindRate.setUnits(rateUnits);
+                settingsSlowMeasureRate.setUnits(rateUnits);
+                break;
             case ProbeSettings.SETTINGS_WORK_COORDINATE_SYSTEM:
                 settingsWorkCoordinate.getModel().setSelectedItem(ProbeSettings.getSettingsWorkCoordinate());
                 break;

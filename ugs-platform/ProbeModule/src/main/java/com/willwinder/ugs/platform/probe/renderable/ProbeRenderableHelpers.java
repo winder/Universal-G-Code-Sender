@@ -103,7 +103,7 @@ public class ProbeRenderableHelpers {
             gl.glTranslated(
                     at.x + X.side(size-2*inset)/2,
                     at.y + Y.side(size-2*inset)/2,
-                    at.z + Math.signum(at.z) * (bumpThickness/2 - inset));
+                    at.z + Math.signum(at.z) * ((bumpThickness/2) - inset));
 
             gl.glColor4d(.8, .8, .8, 1);
             // y bump
@@ -126,7 +126,8 @@ public class ProbeRenderableHelpers {
 
             // big piece
             gl.glPushMatrix();
-                gl.glScaled(size-0.1, size-0.1, plateThickness);
+                gl.glTranslated(0, 0, (bumpThickness/2) - (plateThickness / 2));
+                gl.glScaled(size-0.1, size-0.1, plateThickness - 0.1);
                 glut.glutSolidCube(1);
             gl.glPopMatrix();
 
