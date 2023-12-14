@@ -36,6 +36,7 @@ import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.DISABLE_ECHO_COMMAND;
 import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.GRBL_COMPABILITY_VERSION;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.DetectEchoCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetAlarmCodesCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetErrorCodesCommand;
@@ -568,7 +569,11 @@ public class FluidNCController implements IController, ICommunicatorListener {
     }
 
     private void disableEcho() throws Exception {
-        communicator.sendByteImmediately(DISABLE_ECHO_COMMAND);
+        DetectEchoCommand detectEchoCommand = sendAndWaitForCompletion(this, new DetectEchoCommand());
+        if (detectEchoCommand.isEchoActivated()) {
+            LOGGER.log(Level.INFO, "Controller has echo activated, turning it off");
+            communicator.sendByteImmediately(DISABLE_ECHO_COMMAND);
+        }
     }
 
     /**
