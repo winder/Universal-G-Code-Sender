@@ -32,15 +32,15 @@ public class HintLabel extends JPanel {
     private final RoundedPanel hintPanel;
 
     public HintLabel(String text) {
-        setLayout(new MigLayout("insets 0"));
+        setLayout(new MigLayout("fill, insets 0"));
 
         hintPanel = new RoundedPanel(8);
         hintPanel.setLayout(new MigLayout("fill, inset 10, gap 0"));
         hintPanel.setBackground(ThemeColors.VERY_LIGHT_BLUE_GREY);
         hintPanel.setForeground(ThemeColors.LIGHT_GREY);
         hintPanel.add(new JLabel(ImageUtilities.loadImageIcon("resources/icons/hint24.svg", false)), "gapright 10");
-        hintPanel.add(new JLabel("<html><body>" + text + "</body></html>"));
-        add(hintPanel);
+        hintPanel.add(new JLabel("<html><body>" + text + "</body></html>"), "grow");
+        add(hintPanel, "grow");
     }
 
     @Override
