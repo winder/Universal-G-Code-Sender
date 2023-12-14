@@ -4,17 +4,17 @@ import com.willwinder.ugs.nbp.core.actions.ContinuousAction;
 import com.willwinder.ugs.nbp.lib.services.ActionReference;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import javax.swing.JLabel;
-import java.awt.event.KeyEvent;
-
 import static org.mockito.ArgumentMatchers.any;
+import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
+
+import javax.swing.JLabel;
+import java.awt.event.KeyEvent;
 
 public class ContinuousActionExecutorTest {
 
@@ -67,6 +67,20 @@ public class ContinuousActionExecutorTest {
         target.keyPressed(keyEvent);
         Thread.sleep(120);
         target.setCurrentAction(new ActionReference());
+
+        verify(action, times(1)).actionActivate();
+        verify(action, times(1)).actionDeactivated();
+        verifyNoMoreInteractions(action);
+    }
+
+    @Test
+    public void longKeyPressAndReleaseAnyKeyShouldAbortFirstAction() throws InterruptedException {
+        KeyEvent anyKey = mock(KeyEvent.class);
+
+        target.setCurrentAction(actionReference);
+        target.keyPressed(keyEvent);
+        Thread.sleep(120);
+        target.keyReleased(anyKey);
 
         verify(action, times(1)).actionActivate();
         verify(action, times(1)).actionDeactivated();

@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.services;
 
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -251,7 +252,12 @@ public class JogService {
     }
 
     public boolean showABCStepSize() {
-        return getSettings().showABCStepSize();
+        boolean hasAbcAxes = backend.getController() != null &&
+                (backend.getController().getCapabilities().hasAxis(Axis.A) ||
+                        backend.getController().getCapabilities().hasAxis(Axis.B) ||
+                        backend.getController().getCapabilities().hasAxis(Axis.C));
+
+        return getSettings().showABCStepSize() && hasAbcAxes;
     }
 
     /**

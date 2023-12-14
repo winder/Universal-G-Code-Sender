@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.lib.services;
 
+import org.apache.commons.io.IOUtils;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
@@ -30,10 +31,14 @@ import org.openide.loaders.InstanceDataObject;
 import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.KeyStroke;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -51,12 +56,7 @@ public class ShortcutService implements FileChangeListener {
     /**
      * Cache the found shortcuts to speed things up using the shortcut as key and the actionId as value.
      */
-    private final Map<String, String> shortcutMap = new ConcurrentHashMap<>();
-
-    /**
-     * The current keymap used
-     */
-    private String currentKeymap = "NetBeans";
+    public static final Map<String, String> shortcutMap = new ConcurrentHashMap<>();
 
     public ShortcutService() {
         reloadShortcuts();
@@ -81,17 +81,19 @@ public class ShortcutService implements FileChangeListener {
 
     @Override
     public void fileDataCreated(FileEvent fileEvent) {
-        if (!fileEvent.getFile().getPath().startsWith(getKeymapConfigRoot())) {
+        String currentKeymap = getCurrentKeymap();
+        String keymapConfigRoot = "Keymaps/" + currentKeymap;
+        if (!fileEvent.getFile().getPath().startsWith(keymapConfigRoot)) {
             return;
         }
 
-        DataFolder folder = DataFolder.findFolder(FileUtil.getSystemConfigFile(getKeymapConfigRoot()));
+        DataFolder folder = DataFolder.findFolder(FileUtil.getSystemConfigFile(keymapConfigRoot));
         String keyAsString = fileEvent.getFile().getName();
         Collections.list(folder.children()).stream()
                 .filter(DataShadow.class::isInstance).map(DataShadow.class::cast)
                 .filter(f -> f.getName().equals(keyAsString))
                 .findFirst()
-                .ifPresent(ShortcutService.this::setShortcut);
+                .ifPresent(ShortcutService::setShortcut);
     }
 
     @Override
@@ -101,6 +103,7 @@ public class ShortcutService implements FileChangeListener {
 
     @Override
     public void fileDeleted(FileEvent fileEvent) {
+        String currentKeymap = getCurrentKeymap();
         if (!fileEvent.getFile().getPath().startsWith("Keymaps/" + currentKeymap + "/")) {
             return;
         }
@@ -123,30 +126,63 @@ public class ShortcutService implements FileChangeListener {
         reloadShortcuts();
     }
 
-    private String getKeymapConfigRoot() {
-        return "Keymaps/" + currentKeymap;
-    }
 
-    private void setShortcut(DataShadow file) {
+    private static void setShortcut(DataShadow file) {
         InstanceDataObject cookie = file.getCookie(InstanceDataObject.class);
         String actionId = cookie.getPrimaryFile().getPath();
         shortcutMap.put(file.getName(), actionId);
         LOGGER.fine(() -> String.format("Set shortcut: %s -> %s", file.getName(), actionId));
     }
 
-    private void reloadShortcuts() {
-        FileObject keymaps = FileUtil.getConfigFile("Keymaps");
-        if (keymaps == null || keymaps.getAttribute("currentKeymap") == null) {
-            return;
-        }
-
-        currentKeymap = keymaps.getAttribute("currentKeymap").toString();
+    private static void reloadShortcuts() {
+        String currentKeymap = getCurrentKeymap();
         LOGGER.fine(() -> String.format("Reloading shortcuts using keymap %s", currentKeymap));
 
         shortcutMap.clear();
-        DataFolder folder = DataFolder.findFolder(FileUtil.getSystemConfigFile(getKeymapConfigRoot()));
+        DataFolder folder = DataFolder.findFolder(FileUtil.getSystemConfigFile("Keymaps/" + currentKeymap));
         Collections.list(folder.children()).stream()
                 .filter(DataShadow.class::isInstance).map(DataShadow.class::cast)
-                .forEach(this::setShortcut);
+                .forEach(ShortcutService::setShortcut);
+    }
+
+    public static void createShortcut(String id, String category, String shortcut) throws IOException {
+        String currentKeymap = getCurrentKeymap();
+        FileObject root = FileUtil.getConfigRoot();
+        FileObject keyMapsFolder = root.getFileObject("Keymaps");
+        if (keyMapsFolder == null) {
+            keyMapsFolder = FileUtil.createFolder(root, "Keymaps");
+        }
+
+        FileObject keyMapsNetBeansFolder = keyMapsFolder.getFileObject(currentKeymap);
+        if (keyMapsNetBeansFolder == null) {
+            keyMapsNetBeansFolder = keyMapsFolder.createFolder(currentKeymap);
+        }
+
+        FileObject shortcutFile = keyMapsNetBeansFolder.getFileObject(shortcut, "shadow");
+        if (shortcutFile == null) {
+            shortcutFile = keyMapsNetBeansFolder.createData(shortcut, "shadow");
+            OutputStream outputStream = shortcutFile.getOutputStream();
+            IOUtils.write("nbfs://nbhost/SystemFileSystem/Actions/" + category + "/" + id + ".instance", outputStream, Charset.defaultCharset());
+            outputStream.close();
+        }
+    }
+
+    private static String getCurrentKeymap() {
+        try {
+            FileObject keymaps = FileUtil.getConfigFile("Keymaps");
+            if (keymaps == null) {
+                FileObject root = FileUtil.getConfigRoot();
+                keymaps = FileUtil.createFolder(root, "Keymaps");
+            }
+
+            if (keymaps.getAttribute("currentKeymap") == null) {
+                keymaps.setAttribute("currentKeymap", "NetBeans");
+            }
+
+            return keymaps.getAttribute("currentKeymap").toString();
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Could get keymaps folder", e);
+            return "NetBeans";
+        }
     }
 }
