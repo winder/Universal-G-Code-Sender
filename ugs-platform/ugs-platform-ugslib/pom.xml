@@ -136,6 +136,7 @@
                         <package>javax.xml.bind</package>
                         <package>javax.xml.bind.annotation</package>
                         <package>javax.xml.bind.annotation.adapters</package>
+                        <package>org.openjdk.nashorn.*</package>
                     </publicPackages>
                 </configuration>
             </plugin>
