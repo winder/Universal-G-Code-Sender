@@ -14,12 +14,12 @@ public class Macro implements Serializable {
     private String uuid = UUID.randomUUID().toString();
     private String name;
     private String description;
-    private String gcode;
+    private String[] gcode = new String[0];
 
     public Macro() {
     }
 
-    public Macro(String uuid, String name, String description, String gcode) {
+    public Macro(String uuid, String name, String description, String[] gcode) {
         this.uuid = uuid;
         this.name = name;
         this.description = description;
@@ -59,21 +59,37 @@ public class Macro implements Serializable {
         this.description = description;
     }
 
-    public String getGcode() {
+    public String[] getGcode() {
         return gcode;
     }
 
-    public void setGcode(String gcode) {
+    public String getGcodeString() {
+        StringBuilder gcodeString = new StringBuilder();
+
+        for (String gcode : gcode) {
+            gcodeString.append(gcode).append("\n");
+        }
+
+        return gcodeString.toString();
+    }
+
+    public void setGcode(String[] gcode) {
         this.gcode = gcode;
     }
 
     @Override
     public String toString() {
+        StringBuilder gcodeString = new StringBuilder();
+
+        for (String gcode : gcode) {
+            gcodeString.append(gcode).append("\n");
+        }
+
         return "Macro{" +
                 "uuid='" + uuid + '\'' +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", gcode='" + gcode + '\'' +
+                ", gcode='" + gcodeString + '\'' +
                 '}';
     }
 

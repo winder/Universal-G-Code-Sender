@@ -31,33 +31,20 @@ import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.SerializationUtils;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import java.awt.EventQueue;
+import javax.swing.Timer;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -72,7 +59,7 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
     private final List<JButton> tryButton = new ArrayList<>();
     private final List<JButton> deleteButtons = new ArrayList<>();
     private final List<JTextField> macroNameFields = new ArrayList<>();
-    private final List<JTextField> macroGcodeFields = new ArrayList<>();
+    private final List<JTextArea> macroGcodeFields = new ArrayList<>();
     private final List<JTextField> macroDescriptionFields = new ArrayList<>();
 
     private final Icon removeIcon = new ImageIcon(getClass().getResource("/resources/icons/remove.png"));
@@ -100,6 +87,9 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
     private final JPanel buttonPanel = new JPanel(new MigLayout("fill, ins 0"));
     private final List<Macro> macros;
 
+    private final Timer layoutTimer;
+    private boolean shouldDoLayout = true;
+
     public void save() {
         backend.getSettings().setMacros(macros);
     }
@@ -126,17 +116,28 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
         buttonPanel.add(helpButton, "grow");
         buttonPanel.add(importButton, "grow");
         buttonPanel.add(exportButton, "grow");
+
+
+        // Initialize the timer with a delay of 500ms
+        layoutTimer = new Timer(500, e -> shouldDoLayout = true);
+        layoutTimer.setRepeats(false);
+        layoutTimer.stop();
     }
 
     @Override
     public void doLayout() {
+        if (!shouldDoLayout) {
+            return;
+        }
+
         clearForm();
 
         macros.forEach(macro -> {
             moveUpButtons.add(createMoveUpButton(macro));
             moveDownButtons.add(createMoveDownButton(macro));
             tryButton.add(createMacroButton(macro));
-            macroGcodeFields.add(createMacroField(macro, MacroFieldEnum.CODE, macro.getGcode()));
+            String gcode = macro.getGcodeString();
+            macroGcodeFields.add(createMacroGcodeField(macro, gcode));
             macroNameFields.add(createMacroField(macro, MacroFieldEnum.NAME, macro.getName()));
             macroDescriptionFields.add(createMacroField(macro, MacroFieldEnum.DESCRIPTION, macro.getDescription()));
             deleteButtons.add(createDeleteMacroButton(macro));
@@ -172,7 +173,7 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
         JButton button = new JButton(upIcon);
         button.addActionListener((ActionEvent evt) -> {
             int index = macros.indexOf(macro);
-            if(index > 0) {
+            if (index > 0) {
                 Collections.swap(macros, index, index - 1);
                 doLayout();
             }
@@ -184,7 +185,7 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
         JButton button = new JButton(downIcon);
         button.addActionListener((ActionEvent evt) -> {
             int index = macros.indexOf(macro);
-            if(index < macros.size() - 1) {
+            if (index < macros.size() - 1) {
                 Collections.swap(macros, index, index + 1);
                 doLayout();
             }
@@ -237,9 +238,6 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
             case NAME:
                 macro.setName(text);
                 break;
-            case CODE:
-                macro.setGcode(text);
-                break;
             case DESCRIPTION:
                 macro.setDescription(text);
                 break;
@@ -251,6 +249,87 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
             macros.add(macro);
         }
     }
+
+    private void updateGcode(Macro macro, String[] gcode) {
+        macro.setGcode(gcode);
+
+        // Add it if it doesn't exists
+        if (!macros.contains(macro)) {
+            macros.add(macro);
+        }
+    }
+
+    private JTextArea createMacroGcodeField(Macro macro, String text) {
+        JTextArea textField = new JTextArea(text) {
+            @Override
+            protected void processKeyEvent(KeyEvent e) {
+                if (e.getID() == KeyEvent.KEY_PRESSED && e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    e.consume();
+                    handleEnterAction(macro, this);
+
+                    shouldDoLayout = true;
+                    setRows(getRows() + 1);
+                    repaint();
+                    shouldDoLayout = false;
+                } else {
+                    super.processKeyEvent(e);
+                }
+            }
+        };
+
+        textField.getDocument().addDocumentListener(new DocumentListener() {
+            void update() {
+                if (layoutTimer.isRunning()) {
+                    layoutTimer.restart();
+                } else {
+                    layoutTimer.start();
+                }
+                shouldDoLayout = false; // Prevent doLayout while typing
+                updateGcode(macro, textField.getText().split("\n"));
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                update();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                update();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                // Do nothing
+            }
+        });
+
+
+        textField.setEditable(true);
+        textField.setEnabled(true);
+        textField.setLineWrap(true);
+        textField.setWrapStyleWord(true);
+        textField.setAutoscrolls(true);
+        textField.setMargin(new Insets(5, 5, 5, 5));
+        textField.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+        return textField;
+    }
+
+    private void handleEnterAction(Macro macro, JTextArea textField) {
+        // Handle what should happen when Enter is pressed
+        // For example, you might want to insert a new line at the cursor position:
+        try {
+            int insertPosition = textField.getCaretPosition();
+            textField.getDocument().insertString(insertPosition, "\n", null);
+        } catch (BadLocationException ex) {
+            // Do nothing as this should never happen
+        }
+
+        updateGcode(macro, textField.getText().split("\n"));
+    }
+
+
 
     private JTextField createMacroField(Macro macro, MacroFieldEnum f, String text) {
         JTextField textField = new JTextField(text);
@@ -309,7 +388,7 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
 
         this.addButton.addActionListener(l -> {
             String macroName = findUniqueMacroName(macros.size());
-            macros.add(new Macro(UUID.randomUUID().toString(), macroName, null, ""));
+            macros.add(new Macro(UUID.randomUUID().toString(), macroName, null, new String[]{""}));
             doLayout();
         });
 

@@ -127,7 +127,7 @@ public class Settings {
         logger.fine("Initializing...");
 
         // Initialize macros with a default macro
-        macros.put(1, new Macro(UUID.randomUUID().toString(), "Go to XY zero", null, "G90 X0 Y0;"));
+        macros.put(1, new Macro(UUID.randomUUID().toString(), "Go to XY zero", null, new String[]{"G90 X0 Y0;"}));
     }
 
     /**
@@ -429,7 +429,7 @@ public class Settings {
             if (name == null) {
                 name = index.toString();
             }
-            macros.put(index, new Macro(uuid, name, description, gcode));
+            macros.put(index, new Macro(uuid, name, description, gcode.split("\n")));
         }
         changed();
     }

@@ -6,15 +6,15 @@ import java.io.Serializable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Macro implements Serializable {
-    private String gcode;
+    private String[] gcode;
     private String description;
     private String name;
 
-    public String getGcode() {
+    public String[] getGcode() {
         return gcode;
     }
 
-    public void setGcode(String gcode) {
+    public void setGcode(String[] gcode) {
         this.gcode = gcode;
     }
 
