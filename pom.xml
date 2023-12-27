@@ -70,6 +70,8 @@
     <mockito.version>3.2.4</mockito.version>
     <batik.version>1.17</batik.version>
     <jts.version>1.19.0</jts.version>
+    <!-- 3.6.0 has a dependency bug: https://hub.jmonkeyengine.org/t/solved-failure-to-find-org-jmonkeyenginejar-2-9-5-after-upgrading-to-3-6-0/46838/2 -->
+    <jme3.version>3.5.2-stable</jme3.version>
     <ugs.maven-resources-plugin.version>3.1.0</ugs.maven-resources-plugin.version>
     <ugs.maven-jar-plugin.version>3.2.0</ugs.maven-jar-plugin.version>
     <ugs.flatten-maven-plugin.version>1.2.2</ugs.flatten-maven-plugin.version>

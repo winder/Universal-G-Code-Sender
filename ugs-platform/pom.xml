@@ -159,5 +159,6 @@
     <module>ugs-platform-plugin-dro</module>
     <module>ugs-platform-plugin-filebrowser</module>
     <module>ugs-platform-plugin-console</module>
+    <module>ugs-platform-plugin-visualizer3</module>
   </modules>
 </project>
