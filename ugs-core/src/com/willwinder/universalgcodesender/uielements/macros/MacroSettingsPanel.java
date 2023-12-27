@@ -62,14 +62,14 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
     private final List<JTextArea> macroGcodeFields = new ArrayList<>();
     private final List<JTextField> macroDescriptionFields = new ArrayList<>();
 
-    private final Icon removeIcon = new ImageIcon(getClass().getResource("/resources/icons/remove.png"));
-    private final Icon addIcon = new ImageIcon(getClass().getResource("/resources/icons/add.png"));
-    private final Icon exportIcon = new ImageIcon(getClass().getResource("/resources/icons/upload.png"));
-    private final Icon importIcon = new ImageIcon(getClass().getResource("/resources/icons/download.png"));
-    private final Icon helpIcon = new ImageIcon(getClass().getResource("/resources/icons/information.png"));
-    private final Icon runIcon = new ImageIcon(getClass().getResource("/resources/icons/bug.png"));
-    private final Icon upIcon = new ImageIcon(getClass().getResource("/resources/icons/up.png"));
-    private final Icon downIcon = new ImageIcon(getClass().getResource("/resources/icons/down.png"));
+    private final Icon removeIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/icons/remove.png")));
+    private final Icon addIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/icons/add.png")));
+    private final Icon exportIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/icons/upload.png")));
+    private final Icon importIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/icons/download.png")));
+    private final Icon helpIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/icons/information.png")));
+    private final Icon runIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/icons/bug.png")));
+    private final Icon upIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/icons/up.png")));
+    private final Icon downIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/icons/down.png")));
 
 
     private final String helpText = Localization.getString("mainWindow.swing.macroInstructions");
@@ -152,8 +152,9 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
         add(deleteHeader);
 
         for (int i = 0; i < tryButton.size(); i++) {
-            add(moveUpButtons.get(i), "sg 1");
-            add(moveDownButtons.get(i));
+            add(moveUpButtons.get(i), "sg 1, aligny top");
+            add(moveDownButtons.get(i), "sg 1, aligny top");
+
             add(macroNameFields.get(i), MIN_WIDTH);
             add(macroGcodeFields.get(i), MIN_WIDTH);
             add(macroDescriptionFields.get(i), MIN_WIDTH);
