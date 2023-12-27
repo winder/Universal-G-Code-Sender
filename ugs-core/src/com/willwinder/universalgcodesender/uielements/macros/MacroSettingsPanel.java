@@ -420,8 +420,11 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
                     File importFile = fileChooser.getSelectedFile();
 
                     try (InputStream reader = new FileInputStream(importFile)) {
-                        Type type = new TypeToken<ArrayList<Macro>>(){}.getType();
-                        List<Macro> macroList = new Gson().fromJson(new InputStreamReader(reader, StandardCharsets.UTF_8), type);
+                        Gson gson = new GsonBuilder().create();
+                        Type macroListType = new TypeToken<List<Macro.MacroDeserializer>>() {}.getType();
+                        List<Macro.MacroDeserializer> macroJSONList = gson.fromJson(new InputStreamReader(reader, StandardCharsets.UTF_8), macroListType);
+                        List<Macro> macroList = macroJSONList.stream().map(Macro::new).toList();
+
                         this.macros.addAll(macroList);
 
                         // Update the window.

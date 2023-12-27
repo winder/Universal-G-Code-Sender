@@ -26,6 +26,13 @@ public class Macro implements Serializable {
         this.gcode = gcode;
     }
 
+    public Macro(MacroDeserializer macroDeserializer) {
+        this.uuid = macroDeserializer.getUuid();
+        this.name = macroDeserializer.getName();
+        this.description = macroDeserializer.getDescription();
+        this.gcode = macroDeserializer.getGcode().split("\n");
+    }
+
     public String getUuid() {
         return uuid;
     }
@@ -101,5 +108,44 @@ public class Macro implements Serializable {
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
+    }
+
+    public static class MacroDeserializer {
+        private String uuid;
+        private String name;
+        private String description;
+        private String gcode;
+
+        public String getUuid() {
+            return uuid;
+        }
+
+        public void setUuid(String uuid) {
+            this.uuid = uuid;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public String getGcode() {
+            return gcode;
+        }
+
+        public void setGcode(String gcode) {
+            this.gcode = gcode;
+        }
     }
 }
