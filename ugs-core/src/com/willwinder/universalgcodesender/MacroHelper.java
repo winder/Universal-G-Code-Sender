@@ -50,7 +50,7 @@ public class MacroHelper {
     private static final Pattern KEYPRESS_REGEX = Pattern.compile("\\{keypress\\|([^}]+)}");
 
     // GCODE variables are #101, #102, etc. // #([\d]+)=value
-    private static final Pattern GCODE_VAR_REGEX = Pattern.compile("#(\\d+)=((([-+]+|)\\d+\\.?\\d*)|\\[(.+?)])");
+    private static final Pattern GCODE_VAR_REGEX = Pattern.compile("#(\\d+)=((([-+]|)\\d+\\.?\\d*)|\\[(.+?)])");
 
     /**
      * GCODE operations are AXIS[1+2], AXIS[#VAR-4], AXIS[1+2-3], AXIS[1/2-#VAR], etc.
@@ -60,7 +60,7 @@ public class MacroHelper {
      * - Group 6: The second number
      * Note: The spaces are optional, but the operator must be present.
      */
-    private static final Pattern GCODE_OP_REGEX = Pattern.compile("\\[([#\\d.]+)(|(|\\s+)([+\\-*/])(|\\s+)([#\\d.]+))]");
+    private static final Pattern GCODE_OP_REGEX = Pattern.compile("\\[([#\\d.]+)(|(|\\s+)([+\\-*/])(|\\s+)((|[+-])[#\\d.]+))]");
 
 
 
@@ -199,7 +199,7 @@ public class MacroHelper {
         Map<Integer, String> gcodeVars = new HashMap<>();
         while (m.find()) {
             Integer varNum = Integer.valueOf(m.group(1));
-            String value = m.group(3);
+            String value = m.group(2);
 
             if (value.startsWith("[")) {
                 Matcher opMatcher = GCODE_OP_REGEX.matcher(value);
