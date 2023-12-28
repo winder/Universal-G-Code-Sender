@@ -28,13 +28,6 @@ public class Macro implements Serializable {
         this.gcode = gcode;
     }
 
-    public Macro(MacroJSON macroJSON) {
-        this.uuid = macroJSON.getUuid();
-        this.name = macroJSON.getName();
-        this.description = macroJSON.getDescription();
-        this.gcode = macroJSON.getGcode().split("\n");
-    }
-
     public String getUuid() {
         return uuid;
     }
@@ -110,45 +103,6 @@ public class Macro implements Serializable {
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
-    }
-
-    public static class MacroJSON {
-        private String uuid;
-        private String name;
-        private String description;
-        private String gcode;
-
-        public String getUuid() {
-            return uuid;
-        }
-
-        public void setUuid(String uuid) {
-            this.uuid = uuid;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public String getGcode() {
-            return gcode;
-        }
-
-        public void setGcode(String gcode) {
-            this.gcode = gcode;
-        }
     }
 
     // Static inner class for custom serialization
