@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.types.Macro;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -57,7 +58,12 @@ public class SettingsFactory {
                 try (InputStream fileInputStream = new FileInputStream(settingsFile)){
                     logger.log(Level.INFO, "Log location: {0}", settingsFile.getAbsolutePath());
                     logger.info("Loading settings.");
-                    settings = new Gson().fromJson(new InputStreamReader(fileInputStream, StandardCharsets.UTF_8), Settings.class);
+                    // register Macro Serializer and Deserializer
+                    Gson gson = new GsonBuilder()
+                            .registerTypeAdapter(Macro.class, new Macro.MacroSerializer())
+                            .registerTypeAdapter(Macro.class, new Macro.MacroDeserializer())
+                            .create();
+                    settings = gson.fromJson(new InputStreamReader(fileInputStream, StandardCharsets.UTF_8), Settings.class);
                     if (settings != null) {
                         settings.finalizeInitialization();
                     }
@@ -80,6 +86,8 @@ public class SettingsFactory {
             File jsonFile = getSettingsFile();
             try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
                 Gson gson = new GsonBuilder()
+                        .registerTypeAdapter(Macro.class, new Macro.MacroSerializer()) // Use inner class
+                        .registerTypeAdapter(Macro.class, new Macro.MacroDeserializer()) // Use inner class
                         .setPrettyPrinting()
                         .serializeSpecialFloatingPointValues()
                         .create();

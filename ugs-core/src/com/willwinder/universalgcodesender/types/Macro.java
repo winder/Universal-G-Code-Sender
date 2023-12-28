@@ -1,10 +1,12 @@
 package com.willwinder.universalgcodesender.types;
 
 import com.google.common.base.Strings;
+import com.google.gson.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.UUID;
 
 /**
@@ -26,11 +28,11 @@ public class Macro implements Serializable {
         this.gcode = gcode;
     }
 
-    public Macro(MacroDeserializer macroDeserializer) {
-        this.uuid = macroDeserializer.getUuid();
-        this.name = macroDeserializer.getName();
-        this.description = macroDeserializer.getDescription();
-        this.gcode = macroDeserializer.getGcode().split("\n");
+    public Macro(MacroJSON macroJSON) {
+        this.uuid = macroJSON.getUuid();
+        this.name = macroJSON.getName();
+        this.description = macroJSON.getDescription();
+        this.gcode = macroJSON.getGcode().split("\n");
     }
 
     public String getUuid() {
@@ -110,7 +112,7 @@ public class Macro implements Serializable {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
 
-    public static class MacroDeserializer {
+    public static class MacroJSON {
         private String uuid;
         private String name;
         private String description;
@@ -146,6 +148,41 @@ public class Macro implements Serializable {
 
         public void setGcode(String gcode) {
             this.gcode = gcode;
+        }
+    }
+
+    // Static inner class for custom serialization
+    public static class MacroSerializer implements JsonSerializer<Macro> {
+        @Override
+        public JsonElement serialize(Macro src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("uuid", src.getUuid());
+            jsonObject.addProperty("name", src.getName());
+            jsonObject.addProperty("description", src.getDescription());
+            jsonObject.addProperty("gcode", src.getGcodeString());
+            return jsonObject;
+        }
+    }
+
+    // Static inner class for custom deserialization
+    public static class MacroDeserializer implements JsonDeserializer<Macro> {
+        @Override
+        public Macro deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JsonObject jsonObject = json.getAsJsonObject();
+
+            String uuid = jsonObject.get("uuid").getAsString();
+            String name = jsonObject.get("name").getAsString();
+            String description = jsonObject.has("description") ? jsonObject.get("description").getAsString() : null;
+            String[] gcode;
+
+            JsonElement gcodeElement = jsonObject.get("gcode");
+            if (gcodeElement.isJsonArray()) {
+                gcode = context.deserialize(gcodeElement, String[].class);
+            } else {
+                gcode = gcodeElement.getAsString().split("\n");
+            }
+
+            return new Macro(uuid, name, description, gcode);
         }
     }
 }
