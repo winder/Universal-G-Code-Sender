@@ -403,8 +403,11 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
 
                     try (OutputStream fileOutputStream = new FileOutputStream(fileChooser.getSelectedFile())) {
                         Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
-                        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                        writer.write(gson.toJson(macroList, Collection.class));
+                        Gson gson = new GsonBuilder()
+                                .registerTypeAdapter(Macro.class, new Macro.MacroSerializer())
+                                .setPrettyPrinting()
+                                .create();
+                        writer.write(gson.toJson(macroList));
                         writer.flush();
                     }
                 } catch (Exception ex) {
@@ -421,10 +424,12 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
                     File importFile = fileChooser.getSelectedFile();
 
                     try (InputStream reader = new FileInputStream(importFile)) {
-                        Gson gson = new GsonBuilder().create();
-                        Type macroListType = new TypeToken<List<Macro.MacroJSON>>() {}.getType();
-                        List<Macro.MacroJSON> macroJSONList = gson.fromJson(new InputStreamReader(reader, StandardCharsets.UTF_8), macroListType);
-                        List<Macro> macroList = macroJSONList.stream().map(Macro::new).toList();
+                        Gson gson = new GsonBuilder()
+                                .registerTypeAdapter(Macro.class, new Macro.MacroSerializer())
+                                .registerTypeAdapter(Macro.class, new Macro.MacroDeserializer())
+                                .create();
+                        Type macroListType = new TypeToken<List<Macro>>() {}.getType(); // Assuming Macro now reflects the correct structure
+                        List<Macro> macroList = gson.fromJson(new InputStreamReader(reader, StandardCharsets.UTF_8), macroListType);
 
                         this.macros.addAll(macroList);
 
@@ -435,7 +440,7 @@ public class MacroSettingsPanel extends JPanel implements UGSEventListener {
                         });
                     }
                 } catch (Exception ex) {
-                    logger.log(Level.SEVERE, "Problem while browsing.", ex);
+                    logger.log(Level.SEVERE, "Problem while importing.", ex);
                     GUIHelpers.displayErrorDialog(ex.getMessage());
                 }
             }
