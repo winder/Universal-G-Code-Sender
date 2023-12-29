@@ -16,22 +16,27 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.pendantui.v1.resources;
+package com.willwinder.universalgcodesender.pendantui.v1.model;
 
-import com.willwinder.universalgcodesender.i18n.Localization;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 
-import java.util.Map;
+import java.io.Serializable;
 
-@Path("/text")
-public class TextResource {
-    @GET
-    @Path("getTexts")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, String> getStatus() {
-        return Localization.getStrings();
+public class Event implements Serializable {
+    private final String eventType;
+
+    private final UGSEvent event;
+
+    public Event(UGSEvent event) {
+        this.eventType = event.getClass().getSimpleName();
+        this.event = event;
+    }
+
+    public String getEventType() {
+        return eventType;
+    }
+
+    public UGSEvent getEvent() {
+        return event;
     }
 }
