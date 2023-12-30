@@ -133,10 +133,14 @@
                         <package>org.apache.commons.codec.binary</package>
                         <package>org.apache.commons.io</package>
                         <package>org.apache.commons.lang3</package>
-                        <package>javax.xml.bind</package>
-                        <package>javax.xml.bind.annotation</package>
-                        <package>javax.xml.bind.annotation.adapters</package>
+                        <package>jakarta.activation</package>
+                        <package>jakarta.xml.bind</package>
+                        <package>jakarta.xml.bind.annotation</package>
+                        <package>jakarta.xml.bind.annotation.adapters</package>
                         <package>org.openjdk.nashorn.*</package>
+                        <package>org.slf4j</package>
+                        <package>org.slf4j.helpers</package>
+                        <package>org.slf4j.spi</package>
                     </publicPackages>
                 </configuration>
             </plugin>

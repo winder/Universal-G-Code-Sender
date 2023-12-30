@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,24 +22,27 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.pendantui.html.StaticConfig;
+import com.willwinder.universalgcodesender.pendantui.v1.AppV1Config;
+import com.willwinder.universalgcodesender.pendantui.v1.ws.EventsSocket;
+import com.willwinder.universalgcodesender.services.JogService;
+import jakarta.ws.rs.core.UriBuilder;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
-import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.DefaultHandler;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -51,26 +54,20 @@ import java.util.logging.Logger;
  * @author bobj
  */
 public class PendantUI implements UGSEventListener {
-    private BackendAPI backendAPI;
-    private Server server = null;
-    private int port = 8080;
+    public static final String WEBSOCKET_CONTEXT_PATH = "/ws/v1";
+    public static final String API_CONTEXT_PATH = "/api/v1";
     private static final Logger LOG = Logger.getLogger(PendantUI.class.getSimpleName());
+    private final JogService jogService;
+    private final BackendAPI backendAPI;
+    private int port = 8080;
+    private Server server;
 
     public PendantUI(BackendAPI backendAPI) {
         this.backendAPI = backendAPI;
         backendAPI.addUGSEventListener(this);
-        BackendAPIFactory.getInstance().register(backendAPI);
+        jogService = new JogService(backendAPI);
+        BackendProvider.register(backendAPI);
     }
-
-    public Resource getBaseResource(String directory) {
-        try {
-            URL res = getClass().getResource(directory);
-            return Resource.newResource(res);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
     /**
      * Launches the local web server.
@@ -78,28 +75,16 @@ public class PendantUI implements UGSEventListener {
      * @return the url for the pendant interface
      */
     public List<PendantURLBean> start() {
-        int port = backendAPI.getSettings().getPendantPort();
-        server = new Server(port);
+        port = backendAPI.getSettings().getPendantPort();
+        URI baseUri = UriBuilder.fromUri("http://localhost/").port(port).build();
 
-        ResourceHandler staticResourceHandler = new ResourceHandler();
-        staticResourceHandler.setDirectoriesListed(true);
-        staticResourceHandler.setWelcomeFiles(new String[]{"index.html"});
-        staticResourceHandler.setBaseResource(getBaseResource("/resources/ugs-pendant"));
+        server = JettyHttpContainerFactory.createServer(baseUri, false);
+        ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection();
+        server.setHandler(contextHandlerCollection);
 
-        ContextHandler staticResourceHandlerContext = new ContextHandler();
-        staticResourceHandlerContext.setContextPath("/");
-        staticResourceHandlerContext.setHandler(staticResourceHandler);
-
-        // Create a servlet servletContextHandler
-        ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
-        servletContextHandler.setContextPath("/api");
-        ServletHolder servletHolder = servletContextHandler.addServlet(ServletContainer.class, "/*");
-        servletHolder.setInitOrder(1);
-        servletHolder.setInitParameter("javax.ws.rs.Application", AppConfig.class.getCanonicalName());
-
-        HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[]{servletContextHandler, staticResourceHandlerContext, new DefaultHandler()});
-        server.setHandler(handlers);
+        contextHandlerCollection.addHandler(createResourceConfigHandler(new StaticConfig(), ""));
+        contextHandlerCollection.addHandler(createResourceConfigHandler(new AppV1Config(backendAPI, jogService), API_CONTEXT_PATH));
+        contextHandlerCollection.addHandler(createWebSocketHandler(WEBSOCKET_CONTEXT_PATH));
 
         try {
             server.start();
@@ -108,6 +93,25 @@ public class PendantUI implements UGSEventListener {
         }
 
         return getUrlList();
+    }
+
+    private ServletContextHandler createResourceConfigHandler(ResourceConfig config, String path) {
+        ServletContainer servletContainer = new ServletContainer(config);
+        ServletHolder servletHolder = new ServletHolder(servletContainer);
+        ServletContextHandler servletContextHandler = new ServletContextHandler();
+        servletContextHandler.setContextPath(path);
+        servletContextHandler.addServlet(servletHolder, "/*");
+        return servletContextHandler;
+    }
+
+    private ServletContextHandler createWebSocketHandler(String contextPath) {
+        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        context.setContextPath(contextPath);
+        JakartaWebSocketServletContainerInitializer.configure(context, (servletContext, wsContainer) -> {
+            wsContainer.setDefaultMaxTextMessageBufferSize(65535);
+            wsContainer.addEndpoint(EventsSocket.class);
+        });
+        return context;
     }
 
     /**
@@ -131,8 +135,7 @@ public class PendantUI implements UGSEventListener {
             while (addressEnum.hasMoreElements()) {
                 InetAddress addr = addressEnum.nextElement();
                 String hostAddress = addr.getHostAddress();
-                if (!hostAddress.contains(":") &&
-                        !hostAddress.equals("127.0.0.1")) {
+                if (!hostAddress.contains(":") && !hostAddress.equals("127.0.0.1")) {
                     String url = "http://" + hostAddress + ":" + port;
                     ByteArrayOutputStream bout = QRCode.from(url).to(ImageType.PNG).stream();
                     out.add(new PendantURLBean(url, bout.toByteArray()));
@@ -160,10 +163,6 @@ public class PendantUI implements UGSEventListener {
 
     public BackendAPI getBackendAPI() {
         return backendAPI;
-    }
-
-    public void setBackendAPI(BackendAPI backendAPI) {
-        this.backendAPI = backendAPI;
     }
 
     @Override

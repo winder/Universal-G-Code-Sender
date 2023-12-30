@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,29 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.pendantui;
+package com.willwinder.universalgcodesender.pendantui.html;
 
-import com.willwinder.universalgcodesender.model.BackendAPI;
+import org.glassfish.jersey.server.ResourceConfig;
 
-/**
- * A factory for accessing the backend in injected resources
- */
-public class BackendAPIFactory {
-    private static BackendAPIFactory instance;
-    private BackendAPI backendAPI;
-
-    public static BackendAPIFactory getInstance() {
-        if (instance == null) {
-            instance = new BackendAPIFactory();
-        }
-        return instance;
-    }
-
-    public void register(BackendAPI backendAPI) {
-        this.backendAPI = backendAPI;
-    }
-
-    public BackendAPI getBackendAPI() {
-        return backendAPI;
+public class StaticConfig extends ResourceConfig {
+    public StaticConfig() {
+        register(StaticResource.class);
     }
 }

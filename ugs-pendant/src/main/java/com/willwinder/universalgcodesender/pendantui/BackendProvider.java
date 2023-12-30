@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2016-2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,22 +16,21 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.pendantui.v1.resources;
+package com.willwinder.universalgcodesender.pendantui;
 
-import com.willwinder.universalgcodesender.i18n.Localization;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 
-import java.util.Map;
+/**
+ * A provider for accessing the backend in injected resources
+ */
+public class BackendProvider {
+    private static BackendAPI backendAPI;
 
-@Path("/text")
-public class TextResource {
-    @GET
-    @Path("getTexts")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, String> getStatus() {
-        return Localization.getStrings();
+    public static void register(BackendAPI backendAPI) {
+        BackendProvider.backendAPI = backendAPI;
+    }
+
+    public static BackendAPI getBackendAPI() {
+        return backendAPI;
     }
 }
