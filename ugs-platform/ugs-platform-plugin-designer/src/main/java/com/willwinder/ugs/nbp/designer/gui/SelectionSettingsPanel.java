@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,11 +20,17 @@ package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.actions.ChangeCutSettingsAction;
+import com.willwinder.ugs.nbp.designer.actions.ChangeFontAction;
+import com.willwinder.ugs.nbp.designer.actions.ChangeTextAction;
+import com.willwinder.ugs.nbp.designer.actions.MoveAction;
+import com.willwinder.ugs.nbp.designer.actions.ResizeAction;
+import com.willwinder.ugs.nbp.designer.actions.RotateAction;
 import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
+import com.willwinder.ugs.nbp.designer.entities.controls.Location;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
@@ -33,6 +39,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.gui.anchor.AnchorListener;
 import com.willwinder.ugs.nbp.designer.gui.anchor.AnchorSelectorPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
@@ -65,7 +72,6 @@ import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Joacim Breiler
@@ -292,13 +298,18 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
     @Override
     public void changedUpdate(DocumentEvent e) {
+        if (controller.getSelectionManager().isEmpty()) {
+            return;
+        }
+
         controller.getSelectionManager().removeListener(this);
 
         if (StringUtils.isNotEmpty(rotation.getText()) && e.getDocument() == rotation.getDocument()) {
             try {
                 double angle = Utils.parseDouble(rotation.getText());
-                controller.getSelectionManager().setRotation(angle);
-                controller.getDrawing().repaint();
+                RotateAction rotateAction = new RotateAction(controller.getSelectionManager().getSelection(), controller.getSelectionManager().getCenter(), angle);
+                rotateAction.execute();
+                ControllerFactory.getUndoManager().addAction(rotateAction);
             } catch (NumberFormatException ex) {
                 // never mind
             }
@@ -309,8 +320,10 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             double y = Utils.parseDouble(posYTextField.getText());
             Point2D position = controller.getSelectionManager().getPosition(anchor);
             position.setLocation(x - position.getX(), y - position.getY());
-            controller.getSelectionManager().move(position);
-            controller.getDrawing().repaint();
+
+            MoveAction moveAction = new MoveAction(controller.getSelectionManager().getSelection(), position);
+            moveAction.execute();
+            ControllerFactory.getUndoManager().addAction(moveAction);
         }
 
         if (StringUtils.isNotEmpty(widthTextField.getText()) && StringUtils.isNotEmpty(heightTextField.getText()) && (e.getDocument() == widthTextField.getDocument() || e.getDocument() == heightTextField.getDocument())) {
@@ -318,7 +331,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
                 double width = Utils.parseDouble(widthTextField.getText());
                 double height = Utils.parseDouble(heightTextField.getText());
 
-                if (width >= 0 && height >= 0 & !lockRatioButton.isSelected()) {
+                if (width >= 0 && height >= 0 && !lockRatioButton.isSelected()) {
                     double ratio = controller.getSelectionManager().getSize().getRatio();
                     if (e.getDocument() == widthTextField.getDocument()) {
                         height = width / ratio;
@@ -329,8 +342,9 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
                     }
                 }
 
-                controller.getSelectionManager().setSize(new Size(width, height));
-                controller.getDrawing().repaint();
+                ResizeAction resizeAction = new ResizeAction(controller.getSelectionManager().getSelection(), Location.TOP_RIGHT, controller.getSelectionManager().getSize(), new Size(width, height));
+                resizeAction.redo();
+                ControllerFactory.getUndoManager().addAction(resizeAction);
             } catch (NumberFormatException ex) {
                 // never mind
             }
@@ -338,9 +352,18 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
         if (!controller.getSelectionManager().isEmpty()) {
             Entity entity = controller.getSelectionManager().getSelection().get(0);
-            if (entity instanceof Text) {
-                ((Text) entity).setText(textTextField.getText());
-                ((Text) entity).setFontFamily((String) fontDropDown.getSelectedItem());
+            if (entity instanceof Text text) {
+                if (!text.getText().equals(textTextField.getText())) {
+                    ChangeTextAction changeTextAction = new ChangeTextAction(text, textTextField.getText());
+                    changeTextAction.redo();
+                    ControllerFactory.getUndoManager().addAction(changeTextAction);
+                }
+
+                if (!text.getFontFamily().equals(fontDropDown.getSelectedItem())) {
+                    ChangeFontAction changeFontAction = new ChangeFontAction(text, (String) fontDropDown.getSelectedItem());
+                    changeFontAction.redo();
+                    ControllerFactory.getUndoManager().addAction(changeFontAction);
+                }
             }
             controller.getDrawing().repaint();
         }
@@ -359,7 +382,8 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
         List<Cuttable> cuttables = controller.getSelectionManager().getSelection().stream()
                 .filter(Cuttable.class::isInstance)
-                .map(Cuttable.class::cast).collect(Collectors.toList());
+                .map(Cuttable.class::cast)
+                .toList();
 
         if (!cuttables.isEmpty()) {
             double startDepth = (Double) startDepthSpinner.getValue();

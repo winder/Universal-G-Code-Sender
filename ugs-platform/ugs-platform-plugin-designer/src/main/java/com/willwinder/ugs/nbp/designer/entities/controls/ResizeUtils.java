@@ -1,5 +1,5 @@
 /*
-    Copyright 2022 Will Winder
+    Copyright 2022-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -47,7 +47,7 @@ public class ResizeUtils {
 
     public static void performScaling(Entity target, Location location, Size originalSize, Size newSize) {
         // Do not scale if the entity will become too small after operation
-        if (newSize.getWidth() < 1 || newSize.getHeight() < 1) {
+        if (newSize.getWidth() <= 0 || newSize.getHeight() <= 0) {
             return;
         }
 

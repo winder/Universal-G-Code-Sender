@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -91,7 +91,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         BasicStroke dashedStroke = new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0);
 
         Shape shape = getShape();
-        if (getCutType() != CutType.NONE && getTargetDepth() == 0) {
+        if (getCutType() == CutType.NONE) {
             drawShape(graphics, dashedStroke, Colors.SHAPE_HINT, shape);
         } else if (getCutType() == CutType.POCKET) {
             graphics.setStroke(new BasicStroke(strokeWidth));
@@ -137,7 +137,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     }
 
     private Color getCutColor() {
-        int color = Math.max(0, Math.min(255, (int) Math.round(255d * getCutAlpha()) - 25));
+        int color = Math.max(0, Math.min(255, (int) Math.round(255d * getCutAlpha()) - 50));
         return new Color(color, color, color);
     }
 

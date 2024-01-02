@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,15 +23,22 @@ import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
+import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.geom.Point2D;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Joacim Breiler
@@ -39,6 +46,7 @@ import java.util.stream.Collectors;
 public class MultiplyDialog extends JDialog implements ChangeListener, WindowListener {
     public static final int PADDING = 2;
     public static final String PANEL_LAYOUT_CONFIG = "fill, insets 2";
+    public static final String SPINNER_COL_CONSTRAINTS = "width 60:100:100, wrap";
 
     private JSpinner xCountSpinner;
     private JSpinner xSpacingSpinner;
@@ -56,9 +64,9 @@ public class MultiplyDialog extends JDialog implements ChangeListener, WindowLis
         this.controller.getDrawing().insertEntity(entityGroup);
         entityGroup.setName("Temporary multiplier group");
         setTitle("Multiply object");
-        setPreferredSize(new Dimension(360, 200));
+        setPreferredSize(new Dimension(400, 200));
         setLayout(new MigLayout("fill, insets 5", "", ""));
-        setResizable(false);
+        setResizable(true);
 
         createComponents();
         addEventListeners();
@@ -84,11 +92,11 @@ public class MultiplyDialog extends JDialog implements ChangeListener, WindowLis
                 BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING)));
         horizontalPanel.add(new JLabel("X Columns", SwingConstants.TRAILING), "grow");
         xCountSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
-        horizontalPanel.add(xCountSpinner, "wrap");
+        horizontalPanel.add(xCountSpinner, SPINNER_COL_CONSTRAINTS);
 
         horizontalPanel.add(new JLabel("X Spacing", SwingConstants.TRAILING), "grow");
         xSpacingSpinner = new JSpinner(new SpinnerNumberModel(1d, 0.001, 1000, .1));
-        horizontalPanel.add(xSpacingSpinner, "wrap");
+        horizontalPanel.add(xSpacingSpinner, SPINNER_COL_CONSTRAINTS);
         add(horizontalPanel, "grow");
 
         JPanel verticalPanel = new JPanel(new MigLayout(PANEL_LAYOUT_CONFIG));
@@ -97,14 +105,14 @@ public class MultiplyDialog extends JDialog implements ChangeListener, WindowLis
                 BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING)));
         verticalPanel.add(new JLabel("Y Rows", SwingConstants.TRAILING), "grow");
         yCountSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
-        verticalPanel.add(yCountSpinner, "wrap");
+        verticalPanel.add(yCountSpinner, SPINNER_COL_CONSTRAINTS);
 
         verticalPanel.add(new JLabel("Y Spacing", SwingConstants.TRAILING), "grow");
         ySpacingSpinner = new JSpinner(new SpinnerNumberModel(1d, 0.001, 1000, .1));
-        verticalPanel.add(ySpacingSpinner, "wrap");
+        verticalPanel.add(ySpacingSpinner, SPINNER_COL_CONSTRAINTS);
         add(verticalPanel, "grow, wrap");
 
-        JPanel buttonPanel = new JPanel(new MigLayout("insets 0", "[center, grow]"));
+        JPanel buttonPanel = new JPanel(new MigLayout("insets 5", "[center, grow]"));
         cancelButton = new JButton("Cancel");
         buttonPanel.add(cancelButton);
 
@@ -144,7 +152,7 @@ public class MultiplyDialog extends JDialog implements ChangeListener, WindowLis
         EntityGroup selection = new EntityGroup();
         selection.addAll(controller.getSelectionManager().getSelection().stream()
                 .map(Entity::copy)
-                .collect(Collectors.toList()));
+                .toList());
 
         for (int x = 0; x < (int) xCountSpinner.getValue(); x++) {
             for (int y = 0; y < (int) yCountSpinner.getValue(); y++) {

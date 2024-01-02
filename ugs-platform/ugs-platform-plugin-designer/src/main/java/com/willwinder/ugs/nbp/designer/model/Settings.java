@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -72,7 +72,7 @@ public class Settings {
     }
 
     public void setToolDiameter(double toolDiameter) {
-        this.toolDiameter = toolDiameter;
+        this.toolDiameter = Math.abs(toolDiameter);
         notifyListeners();
     }
 
@@ -136,7 +136,15 @@ public class Settings {
     }
 
     public void setToolStepOver(double toolStepOver) {
+        toolStepOver = Math.abs(toolStepOver);
+        if (toolStepOver == 0) {
+            toolStepOver = 0.01;
+        } else if (toolStepOver > 1) {
+            toolStepOver = 1;
+        }
+
         this.toolStepOver = toolStepOver;
+        notifyListeners();
     }
 
     public String getStockSizeDescription() {
@@ -154,7 +162,12 @@ public class Settings {
     }
 
     public void setDepthPerPass(double depthPerPass) {
-        this.depthPerPass = depthPerPass;
+        if (depthPerPass == 0) {
+            depthPerPass = 0.001;
+        }
+
+        this.depthPerPass = Math.abs(depthPerPass);
+        notifyListeners();
     }
 
     public double getSpindleSpeed() {
@@ -162,7 +175,8 @@ public class Settings {
     }
 
     public void setSpindleSpeed(double spindleSpeed) {
-        this.spindleSpeed = spindleSpeed;
+        this.spindleSpeed = Math.abs(spindleSpeed);
+        notifyListeners();
     }
 
     public void applySettings(Settings settings) {

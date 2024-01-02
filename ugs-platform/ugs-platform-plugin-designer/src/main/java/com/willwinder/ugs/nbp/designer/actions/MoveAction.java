@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,12 +41,12 @@ public class MoveAction implements DrawAction, UndoableAction {
      * original position.
      *
      * @param entityList a selection which contains the shapes to be moved
-     * @param m the amount the shapes should be moved, relative to the
+     * @param deltaMovement the amount the shapes should be moved, relative to the
      *          original position
      */
-    public MoveAction(List<Entity> entityList, Point2D m) {
-        this.entityList = entityList;
-        this.movement = m;
+    public MoveAction(List<Entity> entityList, Point2D deltaMovement) {
+        this.entityList = new ArrayList<>(entityList);
+        this.movement = deltaMovement;
     }
 
     public void execute() {

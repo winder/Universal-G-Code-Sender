@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2023-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -53,7 +53,9 @@ public class PocketToolPath extends AbstractToolPath {
         List<Geometry> geometries = bufferAndCollectGeometries(geometryCollection, getToolDiameter(), stepOver);
 
         List<List<PartialPosition>> coordinateList = new ArrayList<>();
-        double currentDepth = getStartDepth() - getDepthPerPass();
+        addGeometriesToCoordinatesList(shell, geometries, coordinateList, getStartDepth());
+
+        double currentDepth = getStartDepth();
         while (currentDepth < getTargetDepth()) {
             currentDepth += getDepthPerPass();
             if (currentDepth > getTargetDepth()) {
