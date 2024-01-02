@@ -1,5 +1,5 @@
 /*
-    Copyright 2022 Will Winder
+    Copyright 2022-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -58,5 +58,10 @@ public class ResizeAction implements UndoableAction {
         EntityGroup entityGroup = new EntityGroup();
         entityGroup.addAll(entities);
         ResizeUtils.performScaling(entityGroup, location, newSize, originalSize);
+    }
+
+    @Override
+    public String toString() {
+        return "resize entity";
     }
 }

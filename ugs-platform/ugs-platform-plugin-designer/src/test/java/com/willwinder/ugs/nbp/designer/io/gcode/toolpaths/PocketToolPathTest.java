@@ -130,8 +130,8 @@ public class PocketToolPathTest {
 
         double toolDiameter = 1;
         double safeHeight = 5;
-        double startDepth = -1;
-        double targetDepth = -1;
+        double startDepth = 1;
+        double targetDepth = 1;
         int depthPerPass = 1;
 
         double totalLength = 0;

@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,7 +26,6 @@ import org.locationtech.jts.geom.Geometry;
 import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Joacim Breiler
@@ -56,22 +55,26 @@ public class OutlineToolPath extends AbstractToolPath {
         geometries.forEach(g -> {
             List<PartialPosition> geometryCoordinates = ToolPathUtils.geometryToCoordinates(g);
 
-            double currentDepth = getStartDepth() - getDepthPerPass();
-            while (currentDepth < getTargetDepth()) {
+            addGeometriesToCoordinateList(coordinateList, geometryCoordinates, getStartDepth());
 
+            double currentDepth = getStartDepth();
+            while (currentDepth < getTargetDepth()) {
                 currentDepth += getDepthPerPass();
                 if (currentDepth > getTargetDepth()) {
                     currentDepth = getTargetDepth();
                 }
 
-                final double depth = -currentDepth;
-                coordinateList.add(geometryCoordinates.stream()
-                        .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).setZ(depth).build())
-                        .collect(Collectors.toList()));
+                addGeometriesToCoordinateList(coordinateList, geometryCoordinates, currentDepth);
             }
         });
 
         return toGcodePath(coordinateList);
+    }
+
+    private static void addGeometriesToCoordinateList(ArrayList<List<PartialPosition>> coordinateList, List<PartialPosition> geometryCoordinates, double depth) {
+        coordinateList.add(geometryCoordinates.stream()
+                .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).setZ(-depth).build())
+                .toList());
     }
 
     public void setOffset(double offset) {

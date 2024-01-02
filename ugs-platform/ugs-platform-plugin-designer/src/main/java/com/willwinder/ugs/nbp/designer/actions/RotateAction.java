@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,9 +46,9 @@ public class RotateAction implements DrawAction, UndoableAction {
      * @param rotation   the amount the shapes should be rotated, relative to the
      */
     public RotateAction(List<Entity> entityList, Point2D center, double rotation) {
-        this.entityList = entityList;
+        this.entityList = new ArrayList<>(entityList);
         this.rotation = rotation;
-        this.center = center;
+        this.center = new Point2D.Double(center.getX(), center.getY());
     }
 
     public void execute() {
