@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -53,10 +53,10 @@ public enum Code {
     G2(Motion, false, true),
     G3(Motion, false, true),
     G33(Motion),
-    G38_2(Motion),
-    G38_3(Motion),
-    G38_4(Motion),
-    G38_5(Motion),
+    G38_2(Motion, false, true),
+    G38_3(Motion, false, true),
+    G38_4(Motion, false, true),
+    G38_5(Motion, false, true),
     G73(Motion),
     G76(Motion),
     G80(Motion, false, true),
