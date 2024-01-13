@@ -332,9 +332,9 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
         isInitialized = false;
         positionPollTimer.stop();
-        communicator.connect(connectionDriver, port, portRate);
         setControllerState(ControllerState.CONNECTING);
         messageService.dispatchMessage(MessageType.INFO, "*** Connecting to " + connectionDriver.getProtocol() + port + ":" + portRate + "\n");
+        communicator.connect(connectionDriver, port, portRate);
 
         ThreadHelper.invokeLater(() -> {
             if (StringUtils.isEmpty(firmwareVariant) || semanticVersion == null) {

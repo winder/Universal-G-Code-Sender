@@ -3,19 +3,19 @@ package com.willwinder.universalgcodesender.gcode.util;
 import com.google.common.collect.Iterables;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G0;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G1;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G3;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G38_2;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
-
-import static com.willwinder.universalgcodesender.gcode.util.Code.G0;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G1;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G3;
-import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class GcodeParserUtilsTest {
     @Test
@@ -36,10 +36,11 @@ public class GcodeParserUtilsTest {
     }
 
     @Test
-    public void missingAxisWords() {
-        assertThatThrownBy(() -> GcodeParserUtils.processCommand("G38.2", 0, new GcodeState()))
-                .isInstanceOf(GcodeParserException.class)
-                .hasMessage(Localization.getString("parser.gcode.missing-axis-commands") + ": G38.2");
+    public void missingAxisWords() throws GcodeParserException {
+        List<GcodeParser.GcodeMeta> metaList = GcodeParserUtils.processCommand("G38.2", 0, new GcodeState());
+        GcodeParser.GcodeMeta meta = Iterables.getOnlyElement(metaList);
+        assertThat(meta.code).isEqualTo(G38_2);
+        assertThat(meta.state.currentPoint).isEqualTo(new Position(0, 0, 0, MM));
     }
 
     @Test

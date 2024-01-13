@@ -1,5 +1,5 @@
 /*
-    Copyright 2017-2023 Will Winder
+    Copyright 2017-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,6 +23,14 @@ import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G20;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G21;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G90;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G90_1;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G91;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G91_1;
+import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
+import static com.willwinder.universalgcodesender.gcode.util.Code.UNKNOWN;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -49,17 +57,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static com.willwinder.universalgcodesender.gcode.util.Code.G20;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G21;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G90;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G90_1;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G91;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G91_1;
-import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
-import static com.willwinder.universalgcodesender.gcode.util.Code.UNKNOWN;
-
 /**
- *
  * @author wwinder
  */
 public class GcodeParserUtils {
@@ -174,6 +172,10 @@ public class GcodeParserUtils {
     }
 
     private static PointSegment addProbePointSegment(Position nextPoint, boolean fastTraverse, int line, GcodeState state) {
+        if (nextPoint == null) {
+            return null;
+        }
+
         PointSegment ps = addLinearPointSegment(nextPoint, fastTraverse, line, state);
         ps.setIsProbe(true);
         return ps;
@@ -391,7 +393,7 @@ public class GcodeParserUtils {
         // Parse the gcode for the buffer.
         Collection<String> lines = gcp.preprocessCommand(command, gcp.getCurrentState());
 
-        for(String processedLine : lines) {
+        for (String processedLine : lines) {
             gsw.addLine(command, processedLine, comment, idx);
         }
 
@@ -400,6 +402,7 @@ public class GcodeParserUtils {
 
     /**
      * Attempts to read the input file in GcodeStream format.
+     *
      * @return whether or not we succeed processing the file.
      */
     private static boolean processAndExportGcodeStream(GcodeParser gcp, InputStream input, IGcodeWriter output)
@@ -424,14 +427,15 @@ public class GcodeParserUtils {
 
     /**
      * Attempts to read the input file in gcode-text format.
+     *
      * @return whether or not we succeed processing the file.
      */
     private static void processAndExportText(GcodeParser gcp, BufferedReader input, IGcodeWriter output)
             throws IOException, GcodeParserException {
         // Preprocess a regular gcode file.
-        try(BufferedReader br = input) {
+        try (BufferedReader br = input) {
             int i = 0;
-            for(String line; (line = br.readLine()) != null; ) {
+            for (String line; (line = br.readLine()) != null; ) {
                 i++;
 
                 String comment = GcodePreprocessorUtils.parseComment(line);
