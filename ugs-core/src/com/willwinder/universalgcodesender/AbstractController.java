@@ -18,16 +18,32 @@
  */
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
+import static com.willwinder.universalgcodesender.Utils.formatter;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
+import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.*;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.MessageType;
+import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.CommunicatorState;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_DISCONNECTED;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_SENDING;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_SENDING_PAUSED;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
+import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
@@ -45,11 +61,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.willwinder.universalgcodesender.Utils.formatter;
-import static com.willwinder.universalgcodesender.model.CommunicatorState.*;
-import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
-import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 
 /**
  * Abstract Control layer, coordinates all aspects of control.
@@ -344,9 +355,9 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         }
 
         // No point in checking response, it throws an exception on errors.
-        this.comm.connect(connectionDriver, port, portRate);
         this.setCurrentState(COMM_IDLE);
         this.setControllerState(ControllerState.CONNECTING);
+        this.comm.connect(connectionDriver, port, portRate);
 
         if (isCommOpen()) {
             dispatchConsoleMessage(MessageType.INFO,
