@@ -40,7 +40,7 @@ public class GcodeParserUtilsTest {
         List<GcodeParser.GcodeMeta> metaList = GcodeParserUtils.processCommand("G38.2", 0, new GcodeState());
         GcodeParser.GcodeMeta meta = Iterables.getOnlyElement(metaList);
         assertThat(meta.code).isEqualTo(G38_2);
-        assertThat(meta.state.currentPoint).isEqualTo(new Position(0, 0, 0, MM));
+        assertThat(meta.state.currentPoint).isEqualTo(new Position(Double.NaN, Double.NaN, Double.NaN, MM));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class GcodeParserUtilsTest {
         List<GcodeParser.GcodeMeta> metaList = GcodeParserUtils.processCommand("G3", 0, new GcodeState());
         GcodeParser.GcodeMeta meta = Iterables.getOnlyElement(metaList);
         assertThat(meta.code).isEqualTo(G3);
-        assertThat(meta.state.currentPoint).isEqualTo(new Position(0, 0, 0, MM));
+        assertThat(meta.state.currentPoint).isEqualTo(new Position(Double.NaN, Double.NaN, Double.NaN, MM));
     }
 
     @Test

@@ -3,10 +3,17 @@ package com.willwinder.universalgcodesender.gcode.fixtures;
 import com.google.common.base.Joiner;
 import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
-import com.willwinder.universalgcodesender.gcode.processors.*;
+import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
+import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.EmptyLineRemoverProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
+import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
+import com.willwinder.universalgcodesender.gcode.processors.RunFromProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
@@ -17,10 +24,16 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,8 +42,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
-
-import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 
 /**
  * A simple framework where you can specify one or more gcode files in the /gcode/fixtures/ test-resources folder
@@ -73,7 +84,7 @@ public class FixturesTest {
             gcp.addCommandProcessor(new WhitespaceProcessor());
             gcp.addCommandProcessor(new ArcExpander(true, 0.1, new DecimalFormat("#.####", Localization.dfs)));
             gcp.addCommandProcessor(new LineSplitter(1));
-            Position grid[][] = {
+            Position[][] grid = {
                     { new Position(-5,-5,0, MM), new Position(-5,35,0, MM) },
                     { new Position(35,-5,0, MM), new Position(35,35,0, MM) }
             };
@@ -213,7 +224,7 @@ public class FixturesTest {
         System.out.println("|    (if this is not correct, move it into the resource folder)");
         System.out.println("-------------------------------------------------");
 
-        PrintStream resourceFile = new PrintStream(dstFile, "UTF-8");
+        PrintStream resourceFile = new PrintStream(dstFile, StandardCharsets.UTF_8);
         testLines.forEachRemaining(resourceFile::println);
         resourceFile.close();
     }

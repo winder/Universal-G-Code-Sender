@@ -80,7 +80,7 @@ public class GcodeState {
         this.feedRate = 0;
         this.spindleSpeed = 0;
 
-        this.currentPoint = new Position(0, 0, 0, Units.MM);
+        this.currentPoint = new Position(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Units.MM);
     }
 
     public GcodeState copy() {
