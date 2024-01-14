@@ -71,6 +71,18 @@
             <artifactId>jide-oss</artifactId>
             <version>${ugs.jide.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf-jide-oss</artifactId>
+            <version>${ugs.flatlaf.version}</version>
+        </dependency>
+
+        <!-- Look and feel when running standalone-->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>${ugs.flatlaf.version}</version>
+        </dependency>
 
         <!-- UGS dependencies -->
         <dependency>
