@@ -5,18 +5,19 @@ import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class RotateProcessorTest {
     @Test
     public void rotateCommandShouldIncludeFeedRate() throws GcodeParserException {
         RotateProcessor rotateProcessor = new RotateProcessor(new Position(0, 0, 0, UnitUtils.Units.MM), Math.PI);
+        GcodeState gcodeState = new GcodeState();
+        gcodeState.currentPoint = new Position(0, 0, 0, UnitUtils.Units.MM);
 
-        List<String> commands = rotateProcessor.processCommand("G0 X1 Y0 F100", new GcodeState());
+        List<String> commands = rotateProcessor.processCommand("G0 X1 Y0 F100", gcodeState);
 
         assertEquals(1, commands.size());
         assertEquals("F100.0S0.0G0X-1Y-0Z0", commands.get(0));
@@ -25,8 +26,10 @@ public class RotateProcessorTest {
     @Test
     public void rotateCommandShouldIncludeSpindleSpeed() throws GcodeParserException {
         RotateProcessor rotateProcessor = new RotateProcessor(new Position(0, 0, 0, UnitUtils.Units.MM), Math.PI);
+        GcodeState gcodeState = new GcodeState();
+        gcodeState.currentPoint = new Position(0, 0, 0, UnitUtils.Units.MM);
 
-        List<String> commands = rotateProcessor.processCommand("G0 X1 Y0 S100", new GcodeState());
+        List<String> commands = rotateProcessor.processCommand("G0 X1 Y0 S100", gcodeState);
 
         assertEquals(1, commands.size());
         assertEquals("F0.0S100.0G0X-1Y-0Z0", commands.get(0));
@@ -45,8 +48,10 @@ public class RotateProcessorTest {
     @Test
     public void rotateCommandShouldConvertArcs() throws GcodeParserException {
         RotateProcessor rotateProcessor = new RotateProcessor(new Position(0, 0, 0, UnitUtils.Units.MM), Math.PI);
+        GcodeState gcodeState = new GcodeState();
+        gcodeState.currentPoint = new Position(0, 0, 0, UnitUtils.Units.MM);
 
-        List<String> commands = rotateProcessor.processCommand("G2 X0. Y-0.5 I0.5 J0.0", new GcodeState());
+        List<String> commands = rotateProcessor.processCommand("G2 X0. Y-0.5 I0.5 J0.0", gcodeState);
 
         assertEquals(28, commands.size());
     }
@@ -57,7 +62,7 @@ public class RotateProcessorTest {
         GcodeState gcodeState = new GcodeState();
         gcodeState.units = Code.G20; // Inches
         gcodeState.isMetric = false;
-        gcodeState.currentPoint = new Position(2,0,0, UnitUtils.Units.INCH);
+        gcodeState.currentPoint = new Position(2, 0, 0, UnitUtils.Units.INCH);
 
         List<String> commands = rotateProcessor.processCommand("G0 X2", gcodeState);
 

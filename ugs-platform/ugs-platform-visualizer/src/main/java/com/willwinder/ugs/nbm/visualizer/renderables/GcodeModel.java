@@ -20,14 +20,23 @@ package com.willwinder.ugs.nbm.visualizer.renderables;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
+import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
+import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
+import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_MODEL;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
@@ -47,19 +56,17 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.jogamp.opengl.GL.GL_LINES;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_MODEL;
-
 /**
  * @author wwinder
  */
-public class GcodeModel extends Renderable {
+public class GcodeModel extends Renderable implements UGSEventListener {
     public static final double ARC_SEGMENT_LENGTH = 0.8;
     private static final Logger logger = Logger.getLogger(GcodeModel.class.getName());
     private final GcodeLineColorizer colorizer = new GcodeLineColorizer();
-    private boolean colorArrayDirty, vertexArrayDirty, vertexBufferDirty;
+    private final BackendAPI backend;
+    private boolean colorArrayDirty;
+    private boolean vertexArrayDirty;
+    private boolean vertexBufferDirty;
     // Gcode file data
     private String gcodeFile = null;
     private boolean isDrawable = false; //True if a file is loaded; false if not
@@ -77,14 +84,16 @@ public class GcodeModel extends Renderable {
     private Position objectMax;
     private Position objectSize;
 
-    public GcodeModel(String title) {
+    public GcodeModel(String title, BackendAPI backend) {
         super(10, title);
         objectSize = new Position(0, 0, 0);
         reloadPreferences(new VisualizerOptions());
+        this.backend = backend;
+        backend.addUGSEventListener(this);
     }
 
     @Override
-    final public void reloadPreferences(VisualizerOptions vo) {
+    public final void reloadPreferences(VisualizerOptions vo) {
         colorizer.reloadPreferences(vo);
         vertexBufferDirty = true;
     }
@@ -203,15 +212,9 @@ public class GcodeModel extends Renderable {
         }
 
         try {
-            GcodeViewParse gcvp = new GcodeViewParse();
             logger.log(Level.INFO, "About to process {}", gcodeFile);
-            try (IGcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile), new DefaultCommandCreator())) {
-                gcodeLineList = gcvp.toObjFromReader(gsr, ARC_SEGMENT_LENGTH);
-            } catch (GcodeStreamReader.NotGcodeStreamFile e) {
-                List<String> linesInFile;
-                linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
-                gcodeLineList = gcvp.toObjRedux(linesInFile, ARC_SEGMENT_LENGTH);
-            }
+            GcodeViewParse gcvp = new GcodeViewParse();
+            gcodeLineList = loadModel(gcvp);
 
             // Convert LineSegments to points.
             this.pointList = new ArrayList<>(gcodeLineList.size());
@@ -259,6 +262,16 @@ public class GcodeModel extends Renderable {
         return true;
     }
 
+    private List<LineSegment> loadModel(GcodeViewParse gcvp) throws IOException, GcodeParserException {
+        try (IGcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile), new DefaultCommandCreator())) {
+            return gcvp.toObjFromReader(gsr, ARC_SEGMENT_LENGTH);
+        } catch (GcodeStreamReader.NotGcodeStreamFile e) {
+            List<String> linesInFile;
+            linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
+            return gcvp.toObjRedux(linesInFile, ARC_SEGMENT_LENGTH);
+        }
+    }
+
     /**
      * Convert the gcodeLineList into vertex and color arrays.
      */
@@ -267,11 +280,12 @@ public class GcodeModel extends Renderable {
             int vertIndex = 0;
             int colorIndex = 0;
             byte[] c = new byte[4];
+            Position workPosition = backend.getWorkPosition();
             for (LineSegment ls : gcodeLineList) {
                 Color color = colorizer.getColor(ls, this.currentCommandNumber);
 
-                Position p1 = ls.getStart();
-                Position p2 = ls.getEnd();
+                Position p1 = addMissingCoordinateFromWorkPosition(ls.getStart(), workPosition);
+                Position p2 = addMissingCoordinateFromWorkPosition(ls.getEnd(), workPosition);
 
                 c[0] = (byte) color.getRed();
                 c[1] = (byte) color.getGreen();
@@ -304,6 +318,24 @@ public class GcodeModel extends Renderable {
             this.colorArrayDirty = true;
             this.vertexArrayDirty = true;
         }
+    }
+
+    private Position addMissingCoordinateFromWorkPosition(Position position, Position workPosition) {
+        if (!Double.isNaN(position.getX()) && Double.isNaN(position.getY())&& Double.isNaN(position.getZ())) {
+            return position;
+        }
+
+        Position result = new Position(position);
+        if (Double.isNaN(result.getX())) {
+            result.setX(workPosition.getX());
+        }
+        if (Double.isNaN(result.getY())) {
+            result.setY(workPosition.getY());
+        }
+        if (Double.isNaN(result.getZ())) {
+            result.setZ(workPosition.getZ());
+        }
+        return result;
     }
 
     /**
@@ -364,5 +396,18 @@ public class GcodeModel extends Renderable {
     @Override
     public void setEnabled(boolean enabled) {
         VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_MODEL, enabled);
+    }
+
+    @Override
+    public void UGSEvent(UGSEvent evt) {
+        if (evt instanceof ControllerStateEvent stateEvent) {
+            if (stateEvent.getPreviousState() != ControllerState.RUN && stateEvent.getPreviousState() != ControllerState.JOG) {
+                return;
+            }
+            if (stateEvent.getState() != ControllerState.IDLE) {
+                return;
+            }
+            vertexBufferDirty = true;
+        }
     }
 }

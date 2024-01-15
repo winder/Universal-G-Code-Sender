@@ -44,9 +44,9 @@ import java.util.List;
  * @author wwinder
  */
 public class ArcExpander implements CommandProcessor {
-    final private boolean convertToLines;
-    final private double length;
-    final private DecimalFormat df;
+    private final boolean convertToLines;
+    private final double length;
+    private final DecimalFormat df;
 
     @Override
     public String getHelp() {
@@ -104,6 +104,10 @@ public class ArcExpander implements CommandProcessor {
         List<Position> points = GcodePreprocessorUtils.generatePointsAlongArcBDring(
                 start, end, ps.center(), ps.isClockwise(),
                 ps.getRadius(), 0, this.length, new PlaneFormatter(ps.getPlaneState()));
+
+        if (points.isEmpty()) {
+            return results;
+        }
 
         // That function returns the first and last points. Exclude the first
         // point because the previous gcode command ends there already.

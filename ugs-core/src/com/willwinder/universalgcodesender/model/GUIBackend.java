@@ -20,11 +20,11 @@ package com.willwinder.universalgcodesender.model;
 
 import com.google.common.io.Files;
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
@@ -101,6 +101,18 @@ public class GUIBackend implements BackendAPI {
     /////////////
     // GUI API //
     /////////////
+
+    /**
+     * This allows us to visualize a file without loading a controller profile.
+     */
+    private static void initializeWithFallbackProcessors(GcodeParser parser) {
+        // Comment processor must come first otherwise we try to parse codes
+        // out of the comments, like an f-code when we see "(feed rate is 100)"
+        parser.addCommandProcessor(new CommentProcessor());
+        parser.addCommandProcessor(new WhitespaceProcessor());
+        parser.addCommandProcessor(new M30Processor());
+        parser.addCommandProcessor(new DecimalProcessor(4));
+    }
 
     @Override
     public void addUGSEventListener(UGSEventListener listener) {
@@ -227,18 +239,6 @@ public class GUIBackend implements BackendAPI {
         }
     }
 
-    /**
-     * This allows us to visualize a file without loading a controller profile.
-     */
-    private static void initializeWithFallbackProcessors(GcodeParser parser) {
-        // Comment processor must come first otherwise we try to parse codes
-        // out of the comments, like an f-code when we see "(feed rate is 100)"
-        parser.addCommandProcessor(new CommentProcessor());
-        parser.addCommandProcessor(new WhitespaceProcessor());
-        parser.addCommandProcessor(new M30Processor());
-        parser.addCommandProcessor(new DecimalProcessor(4));
-    }
-
     @Override
     public void sendGcodeCommand(String commandText) throws Exception {
         sendGcodeCommand(false, commandText);
@@ -317,6 +317,11 @@ public class GUIBackend implements BackendAPI {
     }
 
     @Override
+    public void setWorkPosition(PartialPosition position) throws Exception {
+        controller.setWorkPosition(position);
+    }
+
+    @Override
     public Position getMachinePosition() {
         return controller != null ? controller.getControllerStatus().getMachineCoord() : new Position(0, 0, 0, Units.MM);
     }
@@ -345,17 +350,6 @@ public class GUIBackend implements BackendAPI {
             tempDir = Files.createTempDir();
         }
         return tempDir;
-    }
-
-    @Override
-    public void setGcodeFile(File file) throws Exception {
-        unsetGcodeFile();
-
-        logger.log(Level.INFO, "Setting gcode file. {0}", file.getAbsolutePath());
-
-        this.gcodeFile = file;
-        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE));
-        processGcodeFile();
     }
 
     @Override
@@ -464,6 +458,17 @@ public class GUIBackend implements BackendAPI {
     public File getGcodeFile() {
         logger.log(Level.FINEST, "Getting gcode file.");
         return this.gcodeFile;
+    }
+
+    @Override
+    public void setGcodeFile(File file) throws Exception {
+        unsetGcodeFile();
+
+        logger.log(Level.INFO, "Setting gcode file. {0}", file.getAbsolutePath());
+
+        this.gcodeFile = file;
+        eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.OPENING_FILE));
+        processGcodeFile();
     }
 
     @Override
@@ -649,14 +654,14 @@ public class GUIBackend implements BackendAPI {
         this.controller.toggleCheckMode();
     }
 
+    ///////////////////////
+    // Utility functions //
+    ///////////////////////
+
     @Override
     public void issueSoftReset() throws Exception {
         this.controller.issueSoftReset();
     }
-
-    ///////////////////////
-    // Utility functions //
-    ///////////////////////
 
     @Override
     public void requestParserState() throws Exception {
@@ -714,11 +719,6 @@ public class GUIBackend implements BackendAPI {
         }
 
         return controller.getCommandCreator();
-    }
-
-    @Override
-    public void setWorkPosition(PartialPosition position) throws Exception {
-        controller.setWorkPosition(position);
     }
 
     @Override

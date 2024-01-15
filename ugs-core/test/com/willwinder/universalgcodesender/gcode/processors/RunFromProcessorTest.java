@@ -2,13 +2,15 @@ package com.willwinder.universalgcodesender.gcode.processors;
 
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class RunFromProcessorTest {
 
@@ -33,7 +35,7 @@ public class RunFromProcessorTest {
         RunFromProcessor processor = new RunFromProcessor(2);
         GcodeState gcodeState = new GcodeState();
         gcodeState.commandNumber = 0;
-        List<String> result = processor.processCommand("G0X10F100", gcodeState);
+        List<String> result = processor.processCommand("G0X10Z0F100", gcodeState);
         assertEquals(0, result.size());
 
         gcodeState.commandNumber = 1;
@@ -50,6 +52,72 @@ public class RunFromProcessorTest {
         assertEquals("S1000.0F100.0", result.get(3));
         assertEquals("G1Z0.0", result.get(4));
         assertEquals("F100.0S1000.0G0Y11", result.get(5));
+    }
+
+    @Test
+    public void processCommandShouldNotAddZIfNotDefined() throws GcodeParserException {
+        RunFromProcessor processor = new RunFromProcessor(2);
+        GcodeState gcodeState = new GcodeState();
+        gcodeState.commandNumber = 0;
+        List<String> result = processor.processCommand("G0X10F100", gcodeState);
+        assertEquals(0, result.size());
+
+        gcodeState.commandNumber = 1;
+        result = processor.processCommand("G0Y10S1000", gcodeState);
+        assertEquals(0, result.size());
+
+        gcodeState.commandNumber = 2;
+        result = processor.processCommand("G0Y11", gcodeState);
+
+        assertEquals(4, result.size());
+        assertEquals("G21G90G91.1G94G54G17", result.get(0));
+        assertEquals("G0X10.0Y10.0", result.get(1));
+        assertEquals("S1000.0F100.0", result.get(2));
+        assertEquals("F100.0S1000.0G0Y11", result.get(3));
+    }
+
+    @Test
+    public void processCommandShouldNotAddYIfNotDefined() throws GcodeParserException {
+        RunFromProcessor processor = new RunFromProcessor(2);
+        GcodeState gcodeState = new GcodeState();
+        gcodeState.commandNumber = 0;
+        List<String> result = processor.processCommand("G0X10F100", gcodeState);
+        assertEquals(0, result.size());
+
+        gcodeState.commandNumber = 1;
+        result = processor.processCommand("G0S1000", gcodeState);
+        assertEquals(0, result.size());
+
+        gcodeState.commandNumber = 2;
+        result = processor.processCommand("G0Y11", gcodeState);
+
+        assertEquals(4, result.size());
+        assertEquals("G21G90G91.1G94G54G17", result.get(0));
+        assertEquals("G0X10.0", result.get(1));
+        assertEquals("S1000.0F100.0", result.get(2));
+        assertEquals("F100.0S1000.0G0Y11", result.get(3));
+    }
+
+    @Test
+    public void processCommandShouldNotAddXIfNotDefined() throws GcodeParserException {
+        RunFromProcessor processor = new RunFromProcessor(2);
+        GcodeState gcodeState = new GcodeState();
+        gcodeState.commandNumber = 0;
+        List<String> result = processor.processCommand("G0F100", gcodeState);
+        assertEquals(0, result.size());
+
+        gcodeState.commandNumber = 1;
+        result = processor.processCommand("G0S1000", gcodeState);
+        assertEquals(0, result.size());
+
+        gcodeState.commandNumber = 2;
+        result = processor.processCommand("G0Y11", gcodeState);
+
+        assertEquals(4, result.size());
+        assertEquals("G21G90G91.1G94G54G17", result.get(0));
+        assertEquals("G0", result.get(1));
+        assertEquals("S1000.0F100.0", result.get(2));
+        assertEquals("F100.0S1000.0G0Y11", result.get(3));
     }
 
     @Test
@@ -94,6 +162,7 @@ public class RunFromProcessorTest {
         processorList.add(new RunFromProcessor(6));
 
         GcodeState gcodeState = new GcodeState();
+        gcodeState.currentPoint = new Position(0,0,0, UnitUtils.Units.MM);
         List<String> result = new ArrayList<>();
         for (int i = 0; i < gcode.size(); i++) {
             gcodeState.commandNumber = i;

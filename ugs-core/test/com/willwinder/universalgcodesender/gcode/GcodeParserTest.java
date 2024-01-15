@@ -34,6 +34,7 @@ import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -44,6 +45,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.io.File;
@@ -54,10 +57,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.List;
-
-import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -102,53 +101,56 @@ public class GcodeParserTest {
         List<GcodeMeta> results;
         GcodeParser instance = new GcodeParser();
 
+        results = instance.addCommand("G20");
+        testCommand(results, 0, 150, Double.NaN, Double.NaN, Double.NaN, true, false, false, false, false, 0);
+
         // X movement with speed
-        results = instance.addCommand("G20 G0X1F150");
-        testCommand(results, 1, 150, 1., 0., 0., true, false, false, false, false, 0);
+        results = instance.addCommand("G0X1F150");
+        testCommand(results, 1, 150, 1., Double.NaN, Double.NaN, true, false, false, false, false, 1);
 
         results = instance.addCommand("G1Y1F250");
-        testCommand(results, 1, 250, 1., 1., 0., false, false, false, false, false, 1);
+        testCommand(results, 1, 250, 1., 1., Double.NaN, false, false, false, false, false, 2);
 
         // Use same speed from before
         results = instance.addCommand("G1Z1");
-        testCommand(results, 1, 250, 1., 1., 1., false, true, false, false, false, 2);
+        testCommand(results, 1, 250, 1., 1., 1., false, true, false, false, false, 3);
 
         // Use same G command from before
         results = instance.addCommand("X2Y2Z2");
-        testCommand(results, 1, 250, 2., 2., 2., false, false, false, false, false, 3);
+        testCommand(results, 1, 250, 2., 2., 2., false, false, false, false, false, 4);
 
         results = instance.addCommand("X-0.5Y0Z0");
-        testCommand(results, 1, 250, -0.5, 0., 0., false, false, false, false, false, 4);
+        testCommand(results, 1, 250, -0.5, 0., 0., false, false, false, false, false, 5);
 
         // Clockwise arc!
         results = instance.addCommand("G2 X0. Y0.5 I0.5 J0. F2.5");
-        testCommand(results, 1, 2.5, 0., 0.5, 0., false, false, true, true, false, 5);
+        testCommand(results, 1, 2.5, 0., 0.5, 0., false, false, true, true, false, 6);
 
         results = instance.addCommand("X0.5 Y0. I0. J-0.5");
-        testCommand(results, 1, 2.5, 0.5, 0., 0., false, false, true, true, false, 6);
+        testCommand(results, 1, 2.5, 0.5, 0., 0., false, false, true, true, false, 7);
 
         results = instance.addCommand("X0. Y-0.5 I-0.5 J0.");
-        testCommand(results, 1, 2.5, 0., -0.5, 0., false, false, true, true, false, 7);
+        testCommand(results, 1, 2.5, 0., -0.5, 0., false, false, true, true, false, 8);
    
         results = instance.addCommand("X-0.5 Y0. I0. J0.5");
-        testCommand(results, 1, 2.5, -0.5, 0., 0., false, false, true, true, false, 8);
+        testCommand(results, 1, 2.5, -0.5, 0., 0., false, false, true, true, false, 9);
    
         // Move up a bit.
         results = instance.addCommand("G0 Z2");
-        testCommand(results, 1, 2.5, -0.5, 0., 2., true, true, false, false, false, 9);
+        testCommand(results, 1, 2.5, -0.5, 0., 2., true, true, false, false, false, 10);
 
         // Counter-clockwise arc!
         results = instance.addCommand("G3 X-0.5 Y0. I0. J0.5");
-        testCommand(results, 1, 2.5, -0.5, 0., 2., false, false, true, false, false, 10);
+        testCommand(results, 1, 2.5, -0.5, 0., 2., false, false, true, false, false, 11);
 
         results = instance.addCommand("X0. Y-0.5 I-0.5 J0.");
-        testCommand(results, 1, 2.5, 0., -0.5, 2., false, false, true, false, false, 11);
+        testCommand(results, 1, 2.5, 0., -0.5, 2., false, false, true, false, false, 12);
 
         results = instance.addCommand("X0.5 Y0. I0. J-0.5");
-        testCommand(results, 1, 2.5, 0.5, 0., 2., false, false, true, false, false, 12);
+        testCommand(results, 1, 2.5, 0.5, 0., 2., false, false, true, false, false, 13);
 
         results = instance.addCommand("X0. Y0.5 I0.5 J0. F2.5");
-        testCommand(results, 1, 2.5, 0., 0.5, 2., false, false, true, false, false, 13);
+        testCommand(results, 1, 2.5, 0., 0.5, 2., false, false, true, false, false, 14);
     }
 
     /**
@@ -161,7 +163,7 @@ public class GcodeParserTest {
         // More or less the same thing as the above test, so just make sure the
         // line number is applied.
         List<GcodeMeta> results = instance.addCommand("G20 G0X1F150", 123);
-        testCommand(results, 1, 150, 1., 0., 0., true, false, false, false, false, 123);
+        testCommand(results, 1, 150, 1., Double.NaN, Double.NaN, true, false, false, false, false, 123);
     }
 
     /**
@@ -178,12 +180,23 @@ public class GcodeParserTest {
         assertTrue(state.inAbsoluteMode);
     }
 
+    @Test
+    public void testGetCurrentStateWithG38_2() throws Exception {
+        GcodeParser instance = new GcodeParser();
+
+        instance.addCommand("G38.2 G54 G17 G21 G90 G94 M5 M9");
+        GcodeState state = instance.getCurrentState();
+        assertEquals(Plane.XY, state.plane);
+        assertTrue(state.isMetric);
+        assertTrue(state.inAbsoluteMode);
+        assertEquals(Code.G38_2, state.currentMotionMode);
+    }
+
     /**
      * Test of addCommandProcessor method, of class GcodeParser.
      */
     @Test
     public void testAddCommandProcessor() {
-        System.out.println("addCommandProcessor");
         GcodeParser instance = new GcodeParser();
         instance.addCommandProcessor(new CommentProcessor());
         assertEquals(1, instance.numCommandProcessors());
@@ -194,7 +207,6 @@ public class GcodeParserTest {
      */
     @Test
     public void testResetCommandProcessors() {
-        System.out.println("resetCommandProcessors");
         GcodeParser instance = new GcodeParser();
         instance.addCommandProcessor(new CommentProcessor());
         assertEquals(1, instance.numCommandProcessors());
@@ -207,7 +219,6 @@ public class GcodeParserTest {
      */
     @Test
     public void testPreprocessCommandGood() throws Exception {
-        System.out.println("preprocessCommandGood");
         // Tests:
         // '(comment)' is removed
         // '; Comment!' is removed
@@ -228,7 +239,6 @@ public class GcodeParserTest {
 
     @Test
     public void testPreprocessCommandFeedOverride() throws Exception {
-        System.out.println("preprocessCommandFeedOverride");
         // Tests:
         // '(comment)' is removed
         // '; Comment!' is removed
@@ -261,7 +271,6 @@ public class GcodeParserTest {
 
     @Test
     public void testPreprocessCommandException() throws Exception {
-        System.out.println("preprocessCommandException?!");
         GcodeParser instance = new GcodeParser();
         instance.addCommandProcessor(new CommentProcessor());
         // Don't process decimals to make this test easier to create.
@@ -281,7 +290,6 @@ public class GcodeParserTest {
 
     @Test
     public void autoLevelerProcessorSet() throws Exception {
-        System.out.println("autoLevelerProcessorSet");
         GcodeParser gcp = new GcodeParser();
         gcp.addCommandProcessor(new CommentProcessor());
         gcp.addCommandProcessor(new ArcExpander(true, 0.1, new DecimalFormat("#.####", Localization.dfs)));
@@ -317,7 +325,7 @@ public class GcodeParserTest {
                 Assert.fail("Unexpected exception.");
             }
         });
-        assertEquals(1031, reader.getNumRows());
+        assertEquals(990, reader.getNumRows());
         output.toFile().delete();
     }
 

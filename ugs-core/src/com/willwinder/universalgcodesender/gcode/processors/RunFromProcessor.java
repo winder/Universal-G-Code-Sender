@@ -20,19 +20,19 @@ package com.willwinder.universalgcodesender.gcode.processors;
 
 import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import static com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.normalizeCommand;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.model.Position;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
 
-import static com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.normalizeCommand;
-
 public class RunFromProcessor implements CommandProcessor {
     private int lineNumber;
     private GcodeParser parser;
-    private Double clearanceHeight = 0.0;
+    private Double clearanceHeight = 0.0d;
 
     /**
      * Truncates gcode to the specified line, and rewrites the preamble with the GcodeState.
@@ -67,11 +67,27 @@ public class RunFromProcessor implements CommandProcessor {
         return ImmutableList.of(command);
     }
 
-    private ImmutableList<String> getSkippedLinesState(String command) {
+    private List<String> getSkippedLinesState(String command) {
         Position pos = parser.getCurrentState().currentPoint;
-        String moveToClearanceHeight = "G0Z" + clearanceHeight;
-        String moveToXY = "G0X" + pos.x + "Y" + pos.y;
-        String plunge = "G1Z" + pos.z;
+
+        String moveToClearanceHeight = "";
+        if (!Double.isNaN(pos.z)) {
+            moveToClearanceHeight = "G0Z" + clearanceHeight;
+        }
+
+        String moveToXY = "G0";
+        if(!Double.isNaN(pos.x)) {
+            moveToXY += "X" + pos.x;
+        }
+
+        if(!Double.isNaN(pos.y)) {
+            moveToXY += "Y" + pos.y;
+        }
+
+        String plunge = "";
+        if (!Double.isNaN(pos.z)) {
+            plunge = "G1Z" + pos.z;
+        }
 
         GcodeState s = parser.getCurrentState();
         String normalized = command;
@@ -98,14 +114,16 @@ public class RunFromProcessor implements CommandProcessor {
 
                 // Append normalized command
                 normalized
-        );
+        ).stream()
+                .filter(line -> !StringUtils.isEmpty(line))
+                .toList();
     }
 
     private ImmutableList<String> skipLine(String command) throws GcodeParserException {
         createParser();
         parser.addCommand(command);
         Position pos = parser.getCurrentState().currentPoint;
-        clearanceHeight = Math.max(clearanceHeight, pos.z);
+        clearanceHeight = Math.max(clearanceHeight, Double.isNaN(pos.z) ? 0 :  pos.z);
         return ImmutableList.of();
     }
 

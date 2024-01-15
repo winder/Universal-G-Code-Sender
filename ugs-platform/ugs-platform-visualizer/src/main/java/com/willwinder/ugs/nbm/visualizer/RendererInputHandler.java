@@ -77,7 +77,7 @@ public class RendererInputHandler implements
         animator.start();
         settings = backend.getSettings();
 
-        gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"));
+        gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"), backend);
         sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
         selection = new Selection(Localization.getString("platform.visualizer.renderable.selection"));
         sizeDisplay.setUnits(settings.getPreferredUnits());
