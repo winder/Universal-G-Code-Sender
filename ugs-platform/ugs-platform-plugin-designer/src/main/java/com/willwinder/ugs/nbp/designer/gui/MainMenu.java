@@ -89,7 +89,7 @@ public class MainMenu extends JMenuBar {
         previous.setAccelerator(Utilities.stringToKey("SD-P"));
         all.setAccelerator(Utilities.stringToKey("D-A"));
         next.setAccelerator(Utilities.stringToKey("SD-N"));
-        delete.setAccelerator(Utilities.stringToKey("BACK_SPACE"));
+        delete.setAccelerator(Utilities.stringToKey("DELETE"));
         copy.setAccelerator(Utilities.stringToKey("D-C"));
         paste.setAccelerator(Utilities.stringToKey("D-V"));
 

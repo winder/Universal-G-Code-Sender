@@ -114,7 +114,7 @@ public class PreviewListPanel extends JPanel {
 
     public void setCategory(Category category) {
         buttonsPanel.removeAll();
-        ClipartTooltip tooltip = new ClipartTooltip();
+        ClipartTooltip tooltip = new ClipartTooltip(this);
         sources.stream()
                 .flatMap(source -> source.getCliparts(category).stream())
                 .sorted(Comparator.comparing(clipart -> clipart.getName().toLowerCase()))

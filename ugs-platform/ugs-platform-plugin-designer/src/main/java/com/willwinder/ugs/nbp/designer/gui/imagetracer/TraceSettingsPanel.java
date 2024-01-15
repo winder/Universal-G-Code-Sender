@@ -18,10 +18,13 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.imagetracer;
 
-import com.jidesoft.swing.RangeSlider;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
@@ -38,7 +41,8 @@ public class TraceSettingsPanel extends JPanel {
     private final JSlider pathOmit = new JSlider(0, 100, 0);
     private final JSlider blurRadius = new JSlider(0, 5, 0);
     private final JSlider blurDelta = new JSlider(0, 1014, 0);
-    private final RangeSlider colorRange = new RangeSlider(0, 255, 0, 255);
+    private final JSlider startColor = new JSlider(0, 255);
+    private final JSlider endColor = new JSlider(0, 255);
     private final List<ChangeListener> changeListeners = new ArrayList<>();
 
     public TraceSettingsPanel() {
@@ -49,11 +53,17 @@ public class TraceSettingsPanel extends JPanel {
         add(new JLabel("Number of layers"));
         add(colors);
 
-        colorRange.addChangeListener(this::updateValues);
-        colorRange.setMinorTickSpacing(10);
-        colorRange.setSnapToTicks(true);
-        add(new JLabel("Color range"));
-        add(colorRange);
+        startColor.addChangeListener(this::updateValues);
+        startColor.setMinorTickSpacing(10);
+        startColor.setSnapToTicks(true);
+        add(new JLabel("Color range start"));
+        add(startColor);
+
+        endColor.addChangeListener(this::updateValues);
+        endColor.setMinorTickSpacing(10);
+        endColor.setSnapToTicks(true);
+        add(new JLabel("Color range end"));
+        add(endColor);
 
         colorsQuantization.addChangeListener(this::updateValues);
         colorsQuantization.setSnapToTicks(true);
@@ -94,11 +104,13 @@ public class TraceSettingsPanel extends JPanel {
     }
 
     private void updateValues(ChangeEvent e) {
-            if(colorRange.getHighValue() == colorRange.getMinimum()) {
-                colorRange.setHighValue(colorRange.getMinimum() + 20);
-            } else if(colorRange.getLowValue() == colorRange.getMaximum()) {
-                colorRange.setLowValue(colorRange.getMaximum() - 20);
-            }
+        if (e.getSource() == endColor && endColor.getValue() <= startColor.getValue()) {
+            startColor.setValue(endColor.getValue() - 10);
+        }
+
+        if (e.getSource() == startColor && startColor.getValue() >= endColor.getValue()) {
+            endColor.setValue(startColor.getValue() + 10);
+        }
 
         if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
             changeListeners.forEach(l -> l.stateChanged(e));
@@ -106,7 +118,7 @@ public class TraceSettingsPanel extends JPanel {
     }
 
     public TraceSettings getSettings() {
-        TraceSettings settings =  new TraceSettings();
+        TraceSettings settings = new TraceSettings();
         settings.setLineThreshold(Integer.valueOf(lineThreshold.getValue()).floatValue() / 10f);
         settings.setQuadThreshold(Integer.valueOf(curveThreshold.getValue()).floatValue() / 10f);
         settings.setPathOmit(pathOmit.getValue());
@@ -114,8 +126,8 @@ public class TraceSettingsPanel extends JPanel {
         settings.setColorQuantize(colorsQuantization.getValue());
         settings.setBlurRadius(blurRadius.getValue());
         settings.setBlurDelta(blurDelta.getValue());
-        settings.setStartColor(colorRange.getLowValue());
-        settings.setEndColor(colorRange.getHighValue());
+        settings.setStartColor(startColor.getValue());
+        settings.setEndColor(endColor.getValue());
         return settings;
     }
 
@@ -130,7 +142,8 @@ public class TraceSettingsPanel extends JPanel {
         colorsQuantization.setEnabled(enabled);
         blurRadius.setEnabled(enabled);
         blurDelta.setEnabled(enabled);
-        colorRange.setEnabled(enabled);
+        startColor.setEnabled(enabled);
+        endColor.setEnabled(enabled);
     }
 
     public void addListener(ChangeListener listener) {

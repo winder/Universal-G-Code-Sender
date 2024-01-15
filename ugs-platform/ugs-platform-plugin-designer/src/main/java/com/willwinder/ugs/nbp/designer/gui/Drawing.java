@@ -107,6 +107,7 @@ public class Drawing extends JPanel {
         controlsRoot.addChild(new EditTextControl(controller));
         controlsRoot.addChild(new ZoomControl(controller));
 
+        setFocusable(true);
         setBackground(Colors.BACKGROUND);
         setScale(2);
     }
