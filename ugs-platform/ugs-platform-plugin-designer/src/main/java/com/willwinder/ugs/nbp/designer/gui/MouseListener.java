@@ -59,6 +59,7 @@ public class MouseListener extends MouseAdapter {
 
     @Override
     public void mouseDragged(MouseEvent m) {
+        controller.getDrawing().requestFocus();
         lastPos = toRelativePoint(m);
         boolean shiftPressed = (m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0;
         boolean ctrlPressed = (m.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
@@ -118,6 +119,7 @@ public class MouseListener extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent m) {
+        controller.getDrawing().requestFocus();
         startPos = toRelativePoint(m);
         boolean shiftPressed = (m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0;
         boolean ctrlPressed = (m.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
@@ -135,6 +137,7 @@ public class MouseListener extends MouseAdapter {
 
     @Override
     public void mouseReleased(MouseEvent m) {
+        controller.getDrawing().requestFocus();
         lastPos = toRelativePoint(m);
         boolean shiftPressed = (m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0;
         boolean ctrlPressed = (m.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;

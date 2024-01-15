@@ -18,10 +18,11 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.clipart;
 
-import com.jidesoft.popup.JidePopup;
-
 import javax.swing.JLabel;
+import javax.swing.JWindow;
+import javax.swing.SwingUtilities;
 import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -33,11 +34,11 @@ import java.awt.event.MouseListener;
  */
 public class ClipartTooltip implements MouseListener {
 
-    private final JidePopup popup;
+    private final JWindow popup;
 
-    public ClipartTooltip() {
-        popup = new JidePopup();
-        popup.setKeepPreviousSize(false);
+    public ClipartTooltip(Component component) {
+        popup = new JWindow(SwingUtilities.getWindowAncestor(component));
+        popup.setSize(400, 120);
     }
 
     @Override
@@ -57,12 +58,15 @@ public class ClipartTooltip implements MouseListener {
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        if (e.getSource() instanceof ClipartButton) {
-            ClipartButton clipartButton = (ClipartButton) e.getSource();
+        if (e.getSource() instanceof ClipartButton clipartButton) {
             Clipart clipart = clipartButton.getClipart();
+
+            Point componentLocation = clipartButton.getLocationOnScreen();
+            Point point = new Point(componentLocation.x + clipartButton.getWidth() - 20, componentLocation.y + clipartButton.getHeight() - 20);
+            popup.setLocation(point);
             popup.getContentPane().removeAll();
             popup.getContentPane().add(new JLabel(getClipartText(clipart)));
-            popup.showPopup((Component) e.getSource());
+            popup.setVisible(true);
         }
     }
 
@@ -78,6 +82,6 @@ public class ClipartTooltip implements MouseListener {
 
     @Override
     public void mouseExited(MouseEvent e) {
-        popup.hidePopup();
+        popup.setVisible(false);
     }
 }
