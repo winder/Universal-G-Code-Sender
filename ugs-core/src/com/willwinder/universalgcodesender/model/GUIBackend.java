@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2023 Will Winder
+    Copyright 2015-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -755,6 +755,7 @@ public class GUIBackend implements BackendAPI {
 
             this.initializeProcessedLines(false, this.gcodeFile, this.gcp);
         } catch (Exception e) {
+            disconnect();
             logger.log(Level.INFO, "Exception in openCommConnection.", e);
             throw new Exception(Localization.getString("mainWindow.error.connection")
                     + ": " + e.getMessage());

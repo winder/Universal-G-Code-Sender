@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -31,21 +31,16 @@ import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyDouble;
 import static org.mockito.Mockito.anyString;
@@ -56,6 +51,11 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * Unit test for GUIBackend
@@ -264,10 +264,11 @@ public class GUIBackendTest {
         instance.connect("unknown", PORT, BAUD_RATE);
     }
 
-    @Test(expected = Exception.class)
-    public void connectWhenFailingToOpenControllerConnectionShouldNotBeOk() throws Exception {
+    @Test
+    public void connectWhenFailingToOpenControllerConnectionShouldNotBeOkAndDisconnect() throws Exception {
         when(controller.openCommPort(settings.getConnectionDriver(), PORT, BAUD_RATE)).thenThrow(new Exception());
-        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        assertThrows(Exception.class, () -> instance.connect(FIRMWARE, PORT, BAUD_RATE));
+        verify(instance, times(1)).disconnect();
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2018 Will Winder
+    Copyright 2015-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -31,23 +31,22 @@ import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 /**
  * @author wwinder
@@ -91,7 +90,6 @@ public class BufferedCommunicatorTest {
      */
     @Test
     public void testGetBufferSize() {
-        System.out.println("getBufferSize");
         assertEquals(101, instance.getBufferSize());
     }
 
@@ -100,7 +98,6 @@ public class BufferedCommunicatorTest {
      */
     @Test
     public void testQueueStringForComm() {
-        System.out.println("queueStringForComm");
         String input = "input";
         instance.queueCommand(new GcodeCommand(input));
         assertEquals(input, cb.getFirst().getCommandString());
@@ -111,8 +108,6 @@ public class BufferedCommunicatorTest {
      */
     @Test
     public void testSimpleQueueStringsStream() throws Exception {
-        System.out.println("streamCommands");
-
         String input = "input";
 
         // Check events and connection:
@@ -333,13 +328,8 @@ public class BufferedCommunicatorTest {
         EasyMock.verify(mockConnection);
     }
 
-    /**
-     * Test of closeCommPort method, of class BufferedCommunicator.
-     */
     @Test
-    public void testCloseCommPort() throws Exception {
-        System.out.println("closeCommPort");
-
+    public void disconnectShouldBeOk() throws Exception {
         mockConnection.closePort();
         EasyMock.expect(EasyMock.expectLastCall()).once();
         EasyMock.replay(mockConnection);
@@ -349,12 +339,35 @@ public class BufferedCommunicatorTest {
         EasyMock.verify(mockConnection);
     }
 
+    @Test
+    public void disconnectShouldClearCommandBuffers() throws Exception {
+        cb.add(new GcodeCommand("test1"));
+        asl.add(new GcodeCommand("test2"));
+
+        instance.disconnect();
+
+        assertTrue("Expected the command buffer to have been cleared", cb.isEmpty());
+        assertTrue("Expected the active command list to have been cleared", asl.isEmpty());
+    }
+
+    @Test
+    public void disconnectWithoutConnectionShouldBeOk() throws Exception {
+        cb.add(new GcodeCommand("test1"));
+        asl.add(new GcodeCommand("test2"));
+        instance.setConnection(null);
+
+        instance.disconnect();
+
+        assertFalse(instance.isPaused());
+        assertTrue("Expected the command buffer to have been cleared", cb.isEmpty());
+        assertTrue("Expected the active command list to have been cleared", asl.isEmpty());
+    }
+
     /**
      * Test of sendByteImmediately method, of class BufferedCommunicator.
      */
     @Test
     public void testSendByteImmediately() throws Exception {
-        System.out.println("sendByteImmediately");
         byte b = 10;
 
         String tenChar = "123456789";
@@ -375,24 +388,6 @@ public class BufferedCommunicatorTest {
         instance.sendByteImmediately(b);
 
         EasyMock.verify(mockConnection);
-    }
-
-    /**
-     * Test of sendingCommand method, of class BufferedCommunicatorImpl.
-     */
-    @Test
-    public void testSendingCommand() {
-        System.out.println("sendingCommand");
-        System.out.println("-N/A for abstract class-");
-    }
-
-    /**
-     * Test of processedCommand method, of class BufferedCommunicatorImpl.
-     */
-    @Test
-    public void testProcessedCommand() {
-        System.out.println("processedCommand");
-        System.out.println("-N/A for abstract class-");
     }
 
     @Test
