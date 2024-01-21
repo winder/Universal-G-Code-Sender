@@ -51,5 +51,9 @@ public class UndoAction extends AbstractDesignAction implements UndoManagerListe
     @Override
     public void onChanged() {
         setEnabled(undoManager.canUndo());
+        if (undoManager.canUndo()) {
+            putValue("menuText", "Undo " + undoManager.getUndoPresentationName());
+            putValue(NAME, "Undo " + undoManager.getUndoPresentationName());
+        }
     }
 }

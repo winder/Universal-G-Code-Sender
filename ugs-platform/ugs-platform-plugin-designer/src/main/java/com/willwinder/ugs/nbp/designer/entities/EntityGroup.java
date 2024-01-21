@@ -112,12 +112,6 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     }
 
     @Override
-    public Point2D getPosition(Anchor anchor) {
-        Rectangle2D bounds = getBounds();
-        return new Point2D.Double(bounds.getX(), bounds.getY());
-    }
-
-    @Override
     public Shape getRelativeShape() {
         try {
             return getTransform().createInverse().createTransformedShape(getShape());

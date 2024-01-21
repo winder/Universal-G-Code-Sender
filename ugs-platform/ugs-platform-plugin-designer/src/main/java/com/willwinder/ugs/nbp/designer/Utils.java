@@ -18,17 +18,18 @@
  */
 package com.willwinder.ugs.nbp.designer;
 
+import static com.willwinder.ugs.nbp.designer.DesignerMain.PROPERTY_IS_STANDALONE;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.geom.Point2D;
 import java.text.ParseException;
 
-import static com.willwinder.ugs.nbp.designer.DesignerMain.PROPERTY_IS_STANDALONE;
-
 /**
  * @author Joacim Breiler
  */
 public class Utils {
+    public static final int MAX_DECIMALS = 4;
+
     private Utils() {
     }
 

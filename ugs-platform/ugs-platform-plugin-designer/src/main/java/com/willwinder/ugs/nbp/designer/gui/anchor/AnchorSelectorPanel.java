@@ -1,15 +1,21 @@
 package com.willwinder.ugs.nbp.designer.gui.anchor;
 
 import com.willwinder.ugs.nbp.designer.entities.Anchor;
+import static com.willwinder.ugs.nbp.designer.entities.Anchor.BOTTOM_LEFT;
+import static com.willwinder.ugs.nbp.designer.entities.Anchor.BOTTOM_RIGHT;
+import static com.willwinder.ugs.nbp.designer.entities.Anchor.CENTER;
+import static com.willwinder.ugs.nbp.designer.entities.Anchor.TOP_LEFT;
+import static com.willwinder.ugs.nbp.designer.entities.Anchor.TOP_RIGHT;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.willwinder.ugs.nbp.designer.entities.Anchor.*;
 
 
 public class AnchorSelectorPanel extends JPanel implements ActionListener {
@@ -89,6 +95,15 @@ public class AnchorSelectorPanel extends JPanel implements ActionListener {
         center.setEnabled(enabled);
         bottomLeft.setEnabled(enabled);
         bottomRight.setEnabled(enabled);
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        topLeft.setVisible(visible);
+        topRight.setVisible(visible);
+        center.setVisible(visible);
+        bottomLeft.setVisible(visible);
+        bottomRight.setVisible(visible);
     }
 
     public void setAnchor(Anchor anchor) {

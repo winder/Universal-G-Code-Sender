@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
+import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.Font;
@@ -30,6 +31,8 @@ import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A cuttable text shape
@@ -41,7 +44,7 @@ public class Text extends AbstractCuttable {
     private String fontFamily;
     private Shape shape;
 
-    private AffineTransform transform = AffineTransform.getScaleInstance(1, -1);
+    private final AffineTransform transform = AffineTransform.getScaleInstance(1, -1);
 
     public Text(double x, double y) {
         super(x, y);
@@ -100,5 +103,12 @@ public class Text extends AbstractCuttable {
         copy.setText(getText());
         copy.setFontFamily(getFontFamily());
         return copy;
+    }
+
+    @Override
+    public List<EntitySetting> getSettings() {
+        ArrayList<EntitySetting> entitySettings = new ArrayList<>(super.getSettings());
+        entitySettings.add(EntitySetting.TEXT);
+        return entitySettings;
     }
 }

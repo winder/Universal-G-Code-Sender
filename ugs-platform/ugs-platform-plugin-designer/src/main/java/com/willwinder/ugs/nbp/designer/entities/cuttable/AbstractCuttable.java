@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
 import com.willwinder.ugs.nbp.designer.entities.AbstractEntity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
+import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -32,6 +33,8 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Joacim Breiler
@@ -58,6 +61,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     @Override
     public void setCutType(CutType cutType) {
         this.cutType = cutType;
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 
     @Override
@@ -68,6 +72,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     @Override
     public void setStartDepth(double startDepth) {
         this.startDepth = Math.abs(startDepth);
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 
     @Override
@@ -78,6 +83,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     @Override
     public void setTargetDepth(double targetDepth) {
         this.targetDepth = Math.abs(targetDepth);
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 
     @Override
@@ -134,6 +140,20 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         // Make sure that the shape bounds are not zero to make it possible to select the entity
         Rectangle2D bounds = super.getBounds();
         return new Rectangle2D.Double(bounds.getX(), bounds.getY(), Math.max(bounds.getWidth(), 0.001), Math.max(bounds.getHeight(), 0.001));
+    }
+
+    @Override
+    public List<EntitySetting> getSettings() {
+        return Arrays.asList(
+                EntitySetting.ANCHOR,
+                EntitySetting.POSITION_X,
+                EntitySetting.POSITION_Y,
+                EntitySetting.WIDTH,
+                EntitySetting.HEIGHT,
+                EntitySetting.CUT_TYPE,
+                EntitySetting.START_DEPTH,
+                EntitySetting.TARGET_DEPTH
+        );
     }
 
     private Color getCutColor() {

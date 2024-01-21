@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.platform;
 
-import com.willwinder.ugs.nbp.designer.gui.SelectionSettingsPanel;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.SelectionSettingsPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;

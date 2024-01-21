@@ -53,6 +53,7 @@ public class ResizeControl extends AbstractControl {
     public static final double ARC_SIZE = 1d;
     private final Location location;
     private final RoundRectangle2D.Double shape;
+    private final Controller controller;
     private AffineTransform transform = new AffineTransform();
     private Point2D.Double startOffset = new Point2D.Double();
     private boolean isHovered;
@@ -61,6 +62,7 @@ public class ResizeControl extends AbstractControl {
 
     public ResizeControl(Controller controller, Location location) {
         super(controller.getSelectionManager());
+        this.controller = controller;
         this.location = location;
         this.shape = new RoundRectangle2D.Double(0, 0, SIZE, SIZE, ARC_SIZE, ARC_SIZE);
     }
@@ -86,6 +88,12 @@ public class ResizeControl extends AbstractControl {
             cursor = new Cursor(Cursor.E_RESIZE_CURSOR);
         }
         return Optional.ofNullable(cursor);
+    }
+
+    @Override
+    public boolean isWithin(Point2D point) {
+        return !controller.getSelectionManager().isEmpty() &&
+                super.isWithin(point);
     }
 
     @Override
@@ -120,8 +128,7 @@ public class ResizeControl extends AbstractControl {
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
-        if (entityEvent instanceof MouseEntityEvent && entityEvent.getTarget() == this) {
-            MouseEntityEvent mouseShapeEvent = (MouseEntityEvent) entityEvent;
+        if (entityEvent instanceof MouseEntityEvent mouseShapeEvent && entityEvent.getTarget() == this) {
             Point2D mousePosition = mouseShapeEvent.getCurrentMousePosition();
 
             if (mouseShapeEvent.getType() == EventType.MOUSE_PRESSED) {
@@ -148,8 +155,8 @@ public class ResizeControl extends AbstractControl {
         UndoManager undoManager = ControllerFactory.getUndoManager();
         if (undoManager != null) {
             List<Entity> entityList = new ArrayList<>();
-            if (target instanceof SelectionManager) {
-                entityList.addAll(((SelectionManager) target).getSelection());
+            if (target instanceof SelectionManager selectionManager) {
+                entityList.addAll(selectionManager.getSelection());
             } else {
                 entityList.add(target);
             }

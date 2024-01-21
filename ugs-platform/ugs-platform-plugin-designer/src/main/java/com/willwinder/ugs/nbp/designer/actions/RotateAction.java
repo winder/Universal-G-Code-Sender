@@ -43,7 +43,7 @@ public class RotateAction implements DrawAction, UndoableAction {
      *
      * @param entityList a selection which contains the shapes to be moved
      * @param center     the center to rotate around
-     * @param rotation   the amount the shapes should be rotated, relative to the
+     * @param rotation   the amount the shapes should be rotated
      */
     public RotateAction(List<Entity> entityList, Point2D center, double rotation) {
         this.entityList = new ArrayList<>(entityList);

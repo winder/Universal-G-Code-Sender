@@ -52,5 +52,9 @@ public class RedoAction extends AbstractDesignAction implements UndoManagerListe
     @Override
     public void onChanged() {
         setEnabled(undoManager.canRedo());
+        if (undoManager.canRedo()) {
+            putValue("menuText", "Redo " + undoManager.getRedoPresentationName());
+            putValue(NAME, "Redo " + undoManager.getRedoPresentationName());
+        }
     }
 }
