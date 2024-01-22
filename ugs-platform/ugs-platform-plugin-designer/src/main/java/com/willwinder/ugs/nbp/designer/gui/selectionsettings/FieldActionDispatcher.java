@@ -2,6 +2,7 @@ package com.willwinder.ugs.nbp.designer.gui.selectionsettings;
 
 import com.willwinder.ugs.nbp.designer.actions.ChangeCutSettingsAction;
 import com.willwinder.ugs.nbp.designer.actions.ChangeFontAction;
+import com.willwinder.ugs.nbp.designer.actions.ChangeTextAction;
 import com.willwinder.ugs.nbp.designer.actions.MoveAction;
 import com.willwinder.ugs.nbp.designer.actions.ResizeAction;
 import com.willwinder.ugs.nbp.designer.actions.RotateAction;
@@ -72,6 +73,9 @@ public class FieldActionDispatcher implements FieldEventListener {
             actionList.add(createChangeTargetDepthAction((Double) object, selection));
         } else if (entitySetting == EntitySetting.FONT_FAMILY) {
             actionList.addAll(createFontChangeActions((String) object, selection));
+        } else if (entitySetting == EntitySetting.TEXT) {
+            List<ChangeTextAction> changeTextActions = selection.getChildren().stream().filter(Text.class::isInstance).map(Text.class::cast).map(text -> new ChangeTextAction(text, (String) object)).toList();
+            actionList.addAll(changeTextActions);
         }
 
         if (actionList.isEmpty()) {

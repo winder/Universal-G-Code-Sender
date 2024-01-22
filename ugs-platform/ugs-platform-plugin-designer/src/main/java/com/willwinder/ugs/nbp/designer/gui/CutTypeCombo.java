@@ -48,7 +48,5 @@ public class CutTypeCombo extends JComboBox<CutType> {
         });
 
         setMinimumSize(new Dimension(100, 24));
-
-
     }
 }

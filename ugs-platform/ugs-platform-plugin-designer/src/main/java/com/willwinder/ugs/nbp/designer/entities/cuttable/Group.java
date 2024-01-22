@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -103,12 +104,6 @@ public class Group extends EntityGroup implements Cuttable {
                 .orElse(false);
     }
 
-    private Stream<Cuttable> getCuttableStream() {
-        return getChildren().stream()
-                .filter(Cuttable.class::isInstance)
-                .map(Cuttable.class::cast);
-    }
-
     @Override
     public void setHidden(boolean hidden) {
         getChildren().forEach(child -> {
@@ -117,6 +112,13 @@ public class Group extends EntityGroup implements Cuttable {
             }
         });
     }
+
+    private Stream<Cuttable> getCuttableStream() {
+        return getChildren().stream()
+                .filter(Cuttable.class::isInstance)
+                .map(Cuttable.class::cast);
+    }
+
     @Override
     public Entity copy() {
         Group copy = new Group();
@@ -124,6 +126,14 @@ public class Group extends EntityGroup implements Cuttable {
         getChildren().stream().map(Entity::copy).forEach(copy::addChild);
         copy.setHidden(isHidden());
         return copy;
+    }
+
+    public Optional<Entity> getFirstChild() {
+        if (getChildren().isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(getChildren().get(0));
     }
 
     @Override

@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.selectionsettings;
 
-import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
@@ -238,7 +237,6 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     @Override
     public void onModelUpdate(EntitySetting entitySetting) {
         Group selectionGroup = controller.getSelectionManager().getSelectionGroup();
-        Entity firstChild = selectionGroup.getChildren().isEmpty() ? selectionGroup : selectionGroup.getChildren().get(0);
 
         if (entitySetting == EntitySetting.WIDTH) {
             widthTextField.setDoubleValue(model.getWidth());
@@ -287,24 +285,30 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         targetDepthSpinner.setEnabled(hasCutTypeSelection);
         targetDepthLabel.setEnabled(hasCutTypeSelection);
 
-        boolean isTextCuttable = firstChild.getSettings().contains(EntitySetting.TEXT);
+        boolean isTextCuttable = firstChildHasSetting(selectionGroup, EntitySetting.TEXT);
         textTextField.setVisible(isTextCuttable);
         textLabel.setVisible(isTextCuttable);
         fontLabel.setVisible(isTextCuttable);
         fontDropDown.setVisible(isTextCuttable);
         fontSeparator.setVisible(isTextCuttable);
 
-        boolean hasWidth = firstChild.getSettings().contains(EntitySetting.WIDTH);
+        boolean hasWidth = firstChildHasSetting(selectionGroup, EntitySetting.WIDTH);
         widthLabel.setVisible(hasWidth);
         widthTextField.setVisible(hasWidth);
 
-        boolean hasHeight = firstChild.getSettings().contains(EntitySetting.HEIGHT);
+        boolean hasHeight = firstChildHasSetting(selectionGroup, EntitySetting.HEIGHT);
         heightLabel.setVisible(hasHeight);
         heightTextField.setVisible(hasHeight);
 
-        boolean hasAnchor = firstChild.getSettings().contains(EntitySetting.ANCHOR);
+        boolean hasAnchor = firstChildHasSetting(selectionGroup, EntitySetting.ANCHOR);
         anchorSelector.setVisible(hasAnchor);
 
         lockRatioButton.setVisible(hasWidth && hasHeight);
+    }
+
+    private static Boolean firstChildHasSetting(Group selectionGroup, EntitySetting entitySetting) {
+        return selectionGroup.getFirstChild()
+                .map(firstChild -> firstChild.getSettings().contains(entitySetting))
+                .orElse(false);
     }
 }

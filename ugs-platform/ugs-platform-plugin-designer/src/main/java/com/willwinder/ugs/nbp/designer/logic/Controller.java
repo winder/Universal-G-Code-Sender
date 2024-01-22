@@ -85,6 +85,7 @@ public class Controller {
     }
 
     public void newDrawing() {
+        undoManager.clear();
         drawing.clear();
         notifyListeners(ControllerEventType.NEW_DRAWING);
     }
