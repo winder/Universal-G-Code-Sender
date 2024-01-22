@@ -5,8 +5,8 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.MainMenu;
 import com.willwinder.ugs.nbp.designer.gui.PopupMenuFactory;
-import com.willwinder.ugs.nbp.designer.gui.SelectionSettingsPanel;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.SelectionSettingsPanel;
 import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTree;
 import com.willwinder.ugs.nbp.designer.gui.tree.EntityTreeModel;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -37,8 +38,7 @@ public class DesignerMain extends JFrame {
      * Constructs a new graphical user interface for the program and shows it.
      */
     public DesignerMain() {
-        System.setProperty(PROPERTY_USE_SCREEN_MENU, "true");
-        System.setProperty(PROPERTY_IS_STANDALONE, "true");
+        setupLookAndFeel();
 
         setTitle("UGS Designer");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -77,6 +77,13 @@ public class DesignerMain extends JFrame {
         loadExample(controller);
         controller.getDrawing().setComponentPopupMenu(PopupMenuFactory.createPopupMenu());
         controller.getDrawing().repaint();
+    }
+
+    private static void setupLookAndFeel() {
+        System.setProperty(PROPERTY_USE_SCREEN_MENU, "true");
+        System.setProperty(PROPERTY_IS_STANDALONE, "true");
+
+        UIManager.put( "MenuBar.background", "@background");
     }
 
     private JSplitPane createRightPanel(Controller controller) {

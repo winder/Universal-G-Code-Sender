@@ -38,6 +38,10 @@ import com.willwinder.ugs.nbp.designer.entities.controls.SelectionControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.ZoomControl;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
+import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
+import static java.awt.RenderingHints.KEY_ANTIALIASING;
+import static java.awt.RenderingHints.KEY_RENDERING;
+import static java.awt.RenderingHints.KEY_TEXT_ANTIALIASING;
 
 import javax.swing.JPanel;
 import java.awt.Dimension;
@@ -53,12 +57,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
-import static java.awt.RenderingHints.KEY_ANTIALIASING;
-import static java.awt.RenderingHints.KEY_RENDERING;
-import static java.awt.RenderingHints.KEY_TEXT_ANTIALIASING;
 
 /**
  * @author Joacim Breiler
@@ -98,7 +96,7 @@ public class Drawing extends JPanel {
         controlsRoot.addChild(new ResizeControl(controller, Location.TOP_RIGHT));
         controlsRoot.addChild(new HighlightModelControl(controller.getSelectionManager()));
         controlsRoot.addChild(new MoveControl(controller));
-        controlsRoot.addChild(new RotationControl(controller.getSelectionManager()));
+        controlsRoot.addChild(new RotationControl(controller));
         controlsRoot.addChild(new SelectionControl(controller));
         controlsRoot.addChild(new CreatePointControl(controller));
         controlsRoot.addChild(new CreateRectangleControl(controller));
@@ -154,8 +152,8 @@ public class Drawing extends JPanel {
     }
 
     private void recursiveCollectEntities(Entity shape, List<Entity> result) {
-        if (shape instanceof EntityGroup) {
-            List<Entity> shapes = ((EntityGroup) shape).getChildren();
+        if (shape instanceof EntityGroup entityGroup) {
+            List<Entity> shapes = entityGroup.getChildren();
             shapes.forEach(s -> recursiveCollectEntities(s, result));
         } else {
             result.add(shape);
@@ -195,8 +193,8 @@ public class Drawing extends JPanel {
 
     private void removeEntitiesRecursively(EntityGroup parent, List<Entity> entities) {
         parent.getChildren().forEach(child -> {
-            if (child instanceof EntityGroup) {
-                removeEntitiesRecursively((EntityGroup) child, entities);
+            if (child instanceof EntityGroup entityGroup) {
+                removeEntitiesRecursively(entityGroup, entities);
             }
         });
 
@@ -259,7 +257,7 @@ public class Drawing extends JPanel {
         return controlsRoot.getAllChildren().stream()
                 .filter(Control.class::isInstance)
                 .map(Control.class::cast)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public void clear() {

@@ -19,10 +19,13 @@
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.util.Arrays;
+import java.util.List;
 
 public class Point extends AbstractCuttable {
 
@@ -74,5 +77,16 @@ public class Point extends AbstractCuttable {
         Point point = new Point();
         copyPropertiesTo(point);
         return point;
+    }
+
+    @Override
+    public List<EntitySetting> getSettings() {
+        return Arrays.asList(
+                EntitySetting.POSITION_X,
+                EntitySetting.POSITION_Y,
+                EntitySetting.CUT_TYPE,
+                EntitySetting.START_DEPTH,
+                EntitySetting.TARGET_DEPTH
+        );
     }
 }

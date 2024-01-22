@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,25 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.entities;
+package com.willwinder.ugs.nbp.designer.gui.selectionsettings;
 
-/**
- * @author Joacim Breiler
- */
-public enum EventType {
-    SELECTED,
-    ROTATED,
-    MOVED,
-    RESIZED,
-    HIDDEN,
-    MOUSE_IN,
-    MOUSE_OUT,
-    MOUSE_PRESSED,
-    MOUSE_DRAGGED,
-    MOUSE_RELEASED,
-    MOUSE_MOVED,
-    SETTINGS_CHANGED,
-    KEY_PRESSED,
-    KEY_TYPED,
-    KEY_RELEASED;
+import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
+
+public interface FieldEventListener {
+    void onFieldUpdate(EntitySetting entitySetting, Object object);
 }

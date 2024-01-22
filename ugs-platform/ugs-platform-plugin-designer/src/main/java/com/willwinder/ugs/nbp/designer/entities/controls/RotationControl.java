@@ -28,6 +28,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import org.openide.util.ImageUtilities;
 
@@ -54,15 +55,17 @@ public class RotationControl extends AbstractControl {
     public static final int MARGIN = 16;
 
     private final Ellipse2D.Double shape;
+    private final Controller controller;
     private Cursor cursor;
     private Point2D startPosition = new Point2D.Double();
     private double startRotation = 0d;
     private Point2D center;
     private boolean isHovered;
 
-    public RotationControl(SelectionManager selectionManager) {
-        super(selectionManager);
+    public RotationControl(Controller controller) {
+        super(controller.getSelectionManager());
         shape = new Ellipse2D.Double(0, 0, SIZE, SIZE);
+        this.controller = controller;
 
         try {
             cursor = Toolkit.getDefaultToolkit().createCustomCursor(ImageUtilities.loadImage("img/cursors/rotate.svg", false), new Point(8, 8), "rotater");
@@ -109,6 +112,12 @@ public class RotationControl extends AbstractControl {
     }
 
     @Override
+    public boolean isWithin(Point2D point) {
+        return !controller.getSelectionManager().isEmpty() &&
+                super.isWithin(point);
+    }
+
+    @Override
     public void render(Graphics2D graphics, Drawing drawing) {
         if (getSelectionManager().getSelection().isEmpty()) {
             return;
@@ -139,8 +148,7 @@ public class RotationControl extends AbstractControl {
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
-        if (entityEvent instanceof MouseEntityEvent && entityEvent.getTarget() == this) {
-            MouseEntityEvent mouseShapeEvent = (MouseEntityEvent) entityEvent;
+        if (entityEvent instanceof MouseEntityEvent mouseShapeEvent && entityEvent.getTarget() == this) {
             Point2D mousePosition = mouseShapeEvent.getCurrentMousePosition();
 
             Entity target = getSelectionManager();
@@ -177,8 +185,8 @@ public class RotationControl extends AbstractControl {
         UndoManager undoManager = ControllerFactory.getUndoManager();
         if (undoManager != null) {
             List<Entity> entityList = new ArrayList<>();
-            if (target instanceof SelectionManager) {
-                entityList.addAll(((SelectionManager) target).getSelection());
+            if (target instanceof SelectionManager selectionManager) {
+                entityList.addAll(selectionManager.getSelection());
             } else {
                 entityList.add(target);
             }

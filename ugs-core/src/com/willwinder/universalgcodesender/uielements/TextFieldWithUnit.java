@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,11 +18,11 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
-import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
-import com.willwinder.universalgcodesender.uielements.TextFieldUnitFormatter;
+import com.willwinder.universalgcodesender.Utils;
 
-import javax.swing.*;
+import javax.swing.JFormattedTextField;
 import javax.swing.text.DefaultFormatterFactory;
+import java.text.ParseException;
 
 /**
  * @author Joacim Breiler
@@ -34,5 +34,24 @@ public class TextFieldWithUnit extends JFormattedTextField {
                 new TextFieldUnitFormatter(unit, numberOfDecimals),
                 new TextFieldUnitFormatter(unit, numberOfDecimals, false)
         ), value);
+    }
+
+    public String getStringValue() {
+        return getValue().toString();
+    }
+
+    public double getDoubleValue() {
+        try {
+            return Utils.formatter.parse(getStringValue()).doubleValue();
+        } catch (ParseException e) {
+            return 0;
+        }
+    }
+
+    public void setDoubleValue(double value) {
+        double previousValue = (double) getValue();
+        if (previousValue != value) {
+            setValue(value);
+        }
     }
 }

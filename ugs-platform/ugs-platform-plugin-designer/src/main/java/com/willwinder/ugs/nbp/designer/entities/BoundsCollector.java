@@ -3,7 +3,6 @@ package com.willwinder.ugs.nbp.designer.entities;
 import com.google.common.collect.Sets;
 
 import java.awt.geom.Rectangle2D;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
@@ -18,7 +17,7 @@ import java.util.stream.Collector;
  */
 public class BoundsCollector implements Collector<Rectangle2D, Rectangle2D, Rectangle2D> {
 
-    public static final HashSet<Characteristics> CHARACTERISTICS = Sets.newHashSet(Characteristics.UNORDERED);
+    protected static final Set<Characteristics> CHARACTERISTICS = Sets.newHashSet(Characteristics.UNORDERED);
 
     public static BoundsCollector toBounds() {
         return new BoundsCollector();
@@ -53,7 +52,7 @@ public class BoundsCollector implements Collector<Rectangle2D, Rectangle2D, Rect
 
     @Override
     public Function<Rectangle2D, Rectangle2D> finisher() {
-        return (target) -> {
+        return target -> {
             if (isIncomplete(target)) {
                 return new Rectangle2D.Double(0, 0, 0, 0);
             } else {

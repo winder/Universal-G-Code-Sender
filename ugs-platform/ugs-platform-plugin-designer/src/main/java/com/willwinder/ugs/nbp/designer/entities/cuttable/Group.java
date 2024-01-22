@@ -20,9 +20,11 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -42,7 +44,7 @@ public class Group extends EntityGroup implements Cuttable {
                 .map(Cuttable::getCutType)
                 .filter(cutType -> cutType != CutType.NONE)
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
 
         if (!cutTypes.isEmpty()) {
             return cutTypes.get(0);
@@ -54,8 +56,8 @@ public class Group extends EntityGroup implements Cuttable {
     @Override
     public void setCutType(CutType cutType) {
         getChildren().forEach(child -> {
-            if (child instanceof Cuttable) {
-                ((Cuttable) child).setCutType(cutType);
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setCutType(cutType);
             }
         });
     }
@@ -71,8 +73,8 @@ public class Group extends EntityGroup implements Cuttable {
     @Override
     public void setTargetDepth(double cutDepth) {
         getChildren().forEach(child -> {
-            if (child instanceof Cuttable) {
-                ((Cuttable) child).setTargetDepth(cutDepth);
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setTargetDepth(cutDepth);
             }
         });
     }
@@ -88,8 +90,8 @@ public class Group extends EntityGroup implements Cuttable {
     @Override
     public void setStartDepth(double startDepth) {
         getChildren().forEach(child -> {
-            if (child instanceof Cuttable) {
-                ((Cuttable) child).setStartDepth(startDepth);
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setStartDepth(startDepth);
             }
         });
     }
@@ -102,6 +104,15 @@ public class Group extends EntityGroup implements Cuttable {
                 .orElse(false);
     }
 
+    @Override
+    public void setHidden(boolean hidden) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setHidden(hidden);
+            }
+        });
+    }
+
     private Stream<Cuttable> getCuttableStream() {
         return getChildren().stream()
                 .filter(Cuttable.class::isInstance)
@@ -109,19 +120,33 @@ public class Group extends EntityGroup implements Cuttable {
     }
 
     @Override
-    public void setHidden(boolean hidden) {
-        getChildren().forEach(child -> {
-            if (child instanceof Cuttable) {
-                ((Cuttable) child).setHidden(hidden);
-            }
-        });
-    }
-    @Override
     public Entity copy() {
         Group copy = new Group();
         super.copyPropertiesTo(copy);
         getChildren().stream().map(Entity::copy).forEach(copy::addChild);
         copy.setHidden(isHidden());
         return copy;
+    }
+
+    public Optional<Entity> getFirstChild() {
+        if (getChildren().isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(getChildren().get(0));
+    }
+
+    @Override
+    public List<EntitySetting> getSettings() {
+        return Arrays.asList(
+                EntitySetting.ANCHOR,
+                EntitySetting.POSITION_X,
+                EntitySetting.POSITION_Y,
+                EntitySetting.WIDTH,
+                EntitySetting.HEIGHT,
+                EntitySetting.CUT_TYPE,
+                EntitySetting.START_DEPTH,
+                EntitySetting.TARGET_DEPTH
+        );
     }
 }

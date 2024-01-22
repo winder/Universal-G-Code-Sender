@@ -27,6 +27,7 @@ import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.gui.Colors;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
@@ -41,7 +42,6 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -50,11 +50,11 @@ import java.util.stream.Stream;
 public class SelectionManager extends AbstractEntity implements EntityListener {
 
     private final Set<SelectionListener> listeners = Sets.newConcurrentHashSet();
-    private final EntityGroup entityGroup;
+    private final Group entityGroup;
 
     public SelectionManager() {
         super();
-        entityGroup = new EntityGroup();
+        entityGroup = new Group();
         entityGroup.addListener(this);
     }
 
@@ -109,7 +109,7 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
     public void addSelection(List<Entity> entities) {
         entityGroup.addAll(entities.stream()
                 .filter(entity -> entity != this || !(entity instanceof Control))
-                .collect(Collectors.toList()));
+                .toList());
 
         fireSelectionEvent(new SelectionEvent());
     }
@@ -140,21 +140,25 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
     public List<Entity> getSelection() {
         return entityGroup.getChildren().stream()
                 .flatMap(entity -> {
-                    if (entity instanceof EntityGroup) {
-                        return ((EntityGroup) entity).getAllChildren().stream();
+                    if (entity instanceof EntityGroup group) {
+                        return group.getAllChildren().stream();
                     } else {
                         return Stream.of(entity);
                     }
                 })
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
+    }
+
+    public Group getSelectionGroup() {
+        return entityGroup;
     }
 
     public void setSelection(List<Entity> entities) {
         List<Entity> selection = entities.stream()
                 .filter(e -> e != this)
                 .filter(e -> !(e instanceof Control))
-                .collect(Collectors.toList());
+                .toList();
 
         entityGroup.removeAll();
         entityGroup.addAll(selection);

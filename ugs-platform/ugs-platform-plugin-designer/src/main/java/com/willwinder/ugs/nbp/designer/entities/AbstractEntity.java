@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,11 +22,13 @@ import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
-import java.awt.*;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -286,5 +288,10 @@ public abstract class AbstractEntity implements Entity {
             pathIterator.next();
         }
         return new Point2D.Double(coord[0], coord[1]);
+    }
+
+    @Override
+    public List<EntitySetting> getSettings() {
+        return Collections.emptyList();
     }
 }
