@@ -71,15 +71,15 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
         JButton connectButton = new JButton(Localization.getString("platform.plugin.setupwizard.connect"));
         connectButton.addActionListener(e -> onConnect.run());
 
-        add(labelDescription, "growx, wrap, gapbottom 10");
+        add(labelDescription, "growx, wrap, gapbottom 5");
         add(labelDriver, "wrap");
-        add(driverCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 10");
+        add(driverCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 5");
         add(labelFirmware, "wrap");
-        add(firmwareCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 10");
+        add(firmwareCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 5");
         add(labelPort, "wrap");
-        add(portCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 10");
+        add(portCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 5");
         add(labelBaud, "wrap");
-        add(baudCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 20");
+        add(baudCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 10");
         add(connectButton, "wmin 250, wmax 250, hmin 36, wrap");
 
         updateLabels();
