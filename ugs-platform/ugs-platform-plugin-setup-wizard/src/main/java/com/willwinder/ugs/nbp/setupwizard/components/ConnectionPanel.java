@@ -82,9 +82,6 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
         add(baudCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 20");
         add(connectButton, "wmin 250, wmax 250, hmin 36, wrap");
 
-        // set the height to be bigger
-        setPreferredSize(new Dimension(640, 640));
-
         updateLabels();
     }
 
