@@ -18,9 +18,15 @@
  */
 package com.willwinder.ugs.platform.surfacescanner;
 
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessorList;
+import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
+import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -76,5 +82,21 @@ public class Utils {
         double y = Math.round(position.getY() * 1000d) / 1000d;
         double z = Math.round(position.getZ() * 1000d) / 1000d;
         return new Position(x, y, z, position.getUnits());
+    }
+
+    public static CommandProcessorList createCommandProcessor(AutoLevelSettings autoLevelSettings, SurfaceScanner surfaceScanner) {
+        CommandProcessorList result = new CommandProcessorList();
+
+        // Step 1: Convert arcs to line segments.
+        result.add(new ArcExpander(true, autoLevelSettings.getAutoLevelArcSliceLength(), GcodePreprocessorUtils.getDecimalFormatter()));
+
+        // Step 2: Line splitter. No line should be longer than some fraction of "resolution"
+        result.add(new LineSplitter(autoLevelSettings.getStepResolution() / 4));
+
+        // Step 3: Adjust Z heights codes based on mesh offsets.
+        result.add(
+                new MeshLeveler(autoLevelSettings.getZSurface(),
+                        surfaceScanner.getProbePositionGrid()));
+        return result;
     }
 }

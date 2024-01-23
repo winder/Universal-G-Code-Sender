@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2023-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,11 +18,8 @@
  */
 package com.willwinder.ugs.platform.surfacescanner;
 
-import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
-import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
+import static com.willwinder.ugs.platform.surfacescanner.Utils.createCommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessorList;
-import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
-import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -51,19 +48,7 @@ public class MeshLevelManager {
                 return;
             }
 
-            commandProcessorList = new CommandProcessorList();
-
-            // Step 1: Convert arcs to line segments.
-            commandProcessorList.add(new ArcExpander(true, autoLevelSettings.getAutoLevelArcSliceLength(), GcodePreprocessorUtils.getDecimalFormatter()));
-
-            // Step 2: Line splitter. No line should be longer than some fraction of "resolution"
-            commandProcessorList.add(new LineSplitter(autoLevelSettings.getStepResolution() / 4));
-
-            // Step 3: Adjust Z heights codes based on mesh offsets.
-            commandProcessorList.add(
-                    new MeshLeveler(autoLevelSettings.getZSurface(),
-                            surfaceScanner.getProbePositionGrid()));
-
+            commandProcessorList = createCommandProcessor(autoLevelSettings, surfaceScanner);
             backend.applyCommandProcessor(commandProcessorList);
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getMessage());

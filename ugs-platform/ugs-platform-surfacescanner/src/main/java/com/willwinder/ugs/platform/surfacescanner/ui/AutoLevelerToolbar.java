@@ -35,6 +35,7 @@ public class AutoLevelerToolbar extends ToolBar {
         add(new JButton(new SaveScannedSurfaceAction(surfaceScanner)));
         add(new JButton(new ClearScannedSurfaceAction(surfaceScanner)));
         add(Box.createGlue());
+        add(new JButton(new ExportGcodeAction(surfaceScanner)));
         add(new JButton(new GenerateTestDataAction(surfaceScanner)));
         add(new JButton(new OpenSettingsAction()));
     }
