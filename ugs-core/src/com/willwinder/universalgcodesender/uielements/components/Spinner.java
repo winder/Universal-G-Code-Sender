@@ -72,7 +72,7 @@ public class Spinner extends JSpinner {
 
     @Override
     public Object getPreviousValue() {
-        if (super.getNextValue() == null) {
+        if (super.getPreviousValue() == null) {
             return null;
         }
 
