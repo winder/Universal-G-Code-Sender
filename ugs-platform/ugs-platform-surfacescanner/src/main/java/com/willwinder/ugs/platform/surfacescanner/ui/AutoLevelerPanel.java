@@ -36,16 +36,21 @@ import com.willwinder.universalgcodesender.uielements.components.Spinner;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class AutoLevelerPanel extends JPanel {
     public final Set<AutoLevelPanelListener> listeners = ConcurrentHashMap.newKeySet();
-    private final SurfaceScanner surfaceScanner;
-    private final MeshLevelManager meshLevelManager;
-    private final AutoLevelPreview autoLevelPreview;
+    private final transient SurfaceScanner surfaceScanner;
+    private final transient MeshLevelManager meshLevelManager;
+    private final transient AutoLevelPreview autoLevelPreview;
     private final AutoLevelSettings autoLevelSettings = new AutoLevelSettings();
     private Spinner stepResolution;
     private Spinner xMax;
@@ -74,23 +79,23 @@ public class AutoLevelerPanel extends JPanel {
         xMin = new Spinner(autoLevelSettings.getMinX());
         yMin = new Spinner(autoLevelSettings.getMinY());
         zMin = new Spinner(autoLevelSettings.getMinZ());
-        xMax = new Spinner(autoLevelSettings.getMaxX(), 0.0001);
-        yMax = new Spinner(autoLevelSettings.getMaxY(), 0.0001);
-        zMax = new Spinner(autoLevelSettings.getMaxZ(), 0.0001);
+        xMax = new Spinner(autoLevelSettings.getMaxX());
+        yMax = new Spinner(autoLevelSettings.getMaxY());
+        zMax = new Spinner(autoLevelSettings.getMaxZ());
 
         stepResolution = new Spinner(autoLevelSettings.getStepResolution());
         zSurface = new Spinner(autoLevelSettings.getZSurface());
         zRetract = new PercentSpinner(autoLevelSettings.getZRetract(), 0.001);
         zRetract.setToolTipText(Localization.getString("autoleveler.panel.z-retract.tooltip"));
 
-        JLabel minLabel = new JLabel(Localization.getString("autoleveler.panel.min"), JLabel.LEFT);
-        JLabel maxLabel = new JLabel(Localization.getString("autoleveler.panel.max"), JLabel.LEFT);
-        JLabel xLabel = new JLabel(Localization.getString("machineStatus.pin.x") + ':', JLabel.RIGHT);
-        JLabel yLabel = new JLabel(Localization.getString("machineStatus.pin.y") + ':', JLabel.RIGHT);
-        JLabel zLabel = new JLabel(Localization.getString("machineStatus.pin.z") + ':', JLabel.RIGHT);
-        JLabel resolutionLabel = new JLabel(Localization.getString("autoleveler.panel.resolution") + ':', JLabel.RIGHT);
-        JLabel zSurfaceLabel = new JLabel(Localization.getString("autoleveler.panel.z-surface") + ':', JLabel.RIGHT);
-        JLabel zRetractLabel = new JLabel(Localization.getString("autoleveler.panel.z-retract") + ':', JLabel.RIGHT);
+        JLabel minLabel = new JLabel(Localization.getString("autoleveler.panel.min"), SwingConstants.LEFT);
+        JLabel maxLabel = new JLabel(Localization.getString("autoleveler.panel.max"), SwingConstants.LEFT);
+        JLabel xLabel = new JLabel(Localization.getString("machineStatus.pin.x") + ':', SwingConstants.RIGHT);
+        JLabel yLabel = new JLabel(Localization.getString("machineStatus.pin.y") + ':', SwingConstants.RIGHT);
+        JLabel zLabel = new JLabel(Localization.getString("machineStatus.pin.z") + ':', SwingConstants.RIGHT);
+        JLabel resolutionLabel = new JLabel(Localization.getString("autoleveler.panel.resolution") + ':', SwingConstants.RIGHT);
+        JLabel zSurfaceLabel = new JLabel(Localization.getString("autoleveler.panel.z-surface") + ':', SwingConstants.RIGHT);
+        JLabel zRetractLabel = new JLabel(Localization.getString("autoleveler.panel.z-retract") + ':', SwingConstants.RIGHT);
 
         JPanel jPanel1 = new JPanel();
         jPanel1.setLayout(new MigLayout("fill", "[shrink][80:80, sg 1][80:80, sg 1]"));
@@ -152,6 +157,13 @@ public class AutoLevelerPanel extends JPanel {
         if (surfaceScanner.isValid() && !Utils.shouldEraseProbedData()) {
             return;
         }
+
+        xMax.setMinimum(xMin.getDoubleValue());
+        xMin.setMaximum(xMax.getDoubleValue());
+        yMax.setMinimum(yMin.getDoubleValue());
+        yMin.setMaximum(yMax.getDoubleValue());
+        zMax.setMinimum(zMin.getDoubleValue());
+        zMin.setMaximum(zMax.getDoubleValue());
 
         autoLevelSettings.setZSurface(zSurface.getDoubleValue());
         autoLevelSettings.setStepResolution(stepResolution.getDoubleValue());
