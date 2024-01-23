@@ -51,13 +51,14 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
         // Driver options
         driverCombo = new JComboBox<>(ConnectionDriver.getPrettyNames());
         driverCombo.addActionListener(d -> this.setDriver());
-        JLabel labelDriver = new JLabel("Driver:");
-        labelDriver.setToolTipText("Select the driver to use to connect to your firmware. Serial connections should use JSerialComm. Network connections should use TCP.");
+        JLabel labelDriver = new JLabel(Localization.getString("settings.connectionDriver"));
+        labelDriver.setToolTipText("Select the driver to use to connect to your controller firmware. Serial connections should use JSerialComm. Network connections should use TCP.");
 
         // Firmware options
         firmwareCombo = new JComboBox<>();
         firmwareCombo.addActionListener(a -> setFirmware());
-        JLabel labelFirmware = new JLabel("Firmware:");
+        JLabel labelFirmware = new JLabel(Localization.getString("mainWindow.swing.firmwareLabel"));
+        labelFirmware.setToolTipText("Select the controller firmware to which you want to connect.");
 
         // Baud rate options
         baudCombo = new BaudComboBox(backend);
