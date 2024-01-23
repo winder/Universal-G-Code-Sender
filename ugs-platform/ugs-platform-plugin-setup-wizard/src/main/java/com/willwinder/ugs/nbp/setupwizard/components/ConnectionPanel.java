@@ -29,10 +29,12 @@ import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import net.miginfocom.swing.MigLayout;
 
+import java.awt.Dimension;
 import javax.swing.*;
 
 public class ConnectionPanel extends JPanel implements UGSEventListener {
     private final transient BackendAPI backend;
+    private final JComboBox<String> driverCombo;
     private final JComboBox<String> firmwareCombo;
     private final JComboBox<String> baudCombo;
     private final PortComboBox portCombo;
@@ -46,10 +48,17 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
 
         JLabel labelDescription = new JLabel("<html><body><p>" + Localization.getString("platform.plugin.setupwizard.connection.intro") + "</p></body></html>");
 
+        // Driver options
+        driverCombo = new JComboBox<>(ConnectionDriver.getPrettyNames());
+        driverCombo.addActionListener(d -> this.setDriver());
+        JLabel labelDriver = new JLabel(Localization.getString("settings.connectionDriver"));
+        labelDriver.setToolTipText("Select the driver to use to connect to your controller firmware. Serial connections should use JSerialComm. Network connections should use TCP.");
+
         // Firmware options
         firmwareCombo = new JComboBox<>();
         firmwareCombo.addActionListener(a -> setFirmware());
-        JLabel labelFirmware = new JLabel("Firmware:");
+        JLabel labelFirmware = new JLabel(Localization.getString("mainWindow.swing.firmwareLabel"));
+        labelFirmware.setToolTipText("Select the controller firmware to which you want to connect.");
 
         // Baud rate options
         baudCombo = new BaudComboBox(backend);
@@ -63,16 +72,24 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
         JButton connectButton = new JButton(Localization.getString("platform.plugin.setupwizard.connect"));
         connectButton.addActionListener(e -> onConnect.run());
 
-        add(labelDescription, "growx, wrap, gapbottom 10");
+        add(labelDescription, "growx, wrap, gapbottom 5");
+        add(labelDriver, "wrap");
+        add(driverCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 5");
         add(labelFirmware, "wrap");
-        add(firmwareCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 10");
+        add(firmwareCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 5");
         add(labelPort, "wrap");
-        add(portCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 10");
+        add(portCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 5");
         add(labelBaud, "wrap");
-        add(baudCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 20");
+        add(baudCombo, "wmin 250, wmax 250, hmax 24, wrap, gapbottom 10");
         add(connectButton, "wmin 250, wmax 250, hmin 36, wrap");
 
         updateLabels();
+    }
+
+    private void setDriver() {
+        if (backend.getSettings() != null && driverCombo.getSelectedItem() != null) {
+            backend.getSettings().setConnectionDriver(ConnectionDriver.prettyNameToEnum(driverCombo.getSelectedItem().toString()));
+        }
     }
 
     private void setPort() {
@@ -106,11 +123,22 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
         firmwareCombo.setSelectedItem(selectedFirmware);
     }
 
+    private void refreshDrivers() {
+        String selectedDriver = backend.getSettings().getConnectionDriver().getPrettyName();
+        driverCombo.removeAllItems();
+        String[] drivers = ConnectionDriver.getPrettyNames();
+        for (String s: drivers) {
+            driverCombo.addItem(s);
+        }
+        driverCombo.setSelectedItem(selectedDriver);
+    }
+
     @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
 
         if (visible) {
+            refreshDrivers();
             refreshFirmwares();
             firmwareUpdated();
             portCombo.startRefreshing();
