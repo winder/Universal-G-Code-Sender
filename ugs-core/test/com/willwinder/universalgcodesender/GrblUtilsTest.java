@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2023 Will Winder
+    Copyright 2013-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -341,15 +341,15 @@ public class GrblUtilsTest {
 
         String status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0>";
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusStringV1(null, status, MM);
-        assertFalse(controllerStatus.getEnabledPins().CycleStart);
+        assertFalse(controllerStatus.getEnabledPins().cycleStart());
 
         status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0|Pn:S>";
         controllerStatus = GrblUtils.getStatusFromStatusStringV1(null, status, MM);
-        assertTrue(controllerStatus.getEnabledPins().CycleStart);
+        assertTrue(controllerStatus.getEnabledPins().cycleStart());
 
         status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0>";
         controllerStatus = GrblUtils.getStatusFromStatusStringV1(controllerStatus, status, MM);
-        assertFalse(controllerStatus.getEnabledPins().CycleStart);
+        assertFalse(controllerStatus.getEnabledPins().cycleStart());
     }
 
     @Test
@@ -359,23 +359,23 @@ public class GrblUtilsTest {
 
         String status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0>";
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusStringV1(null, status, MM);
-        assertFalse(controllerStatus.getAccessoryStates().Flood);
+        assertFalse(controllerStatus.getAccessoryStates().flood());
 
         status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0|Ov:100,100,100|A:F>";
         controllerStatus = GrblUtils.getStatusFromStatusStringV1(controllerStatus, status, MM);
-        assertTrue(controllerStatus.getAccessoryStates().Flood);
+        assertTrue(controllerStatus.getAccessoryStates().flood());
 
         status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0>";
         controllerStatus = GrblUtils.getStatusFromStatusStringV1(controllerStatus, status, MM);
-        assertTrue("The accessory states should be retained even if it isn't included in the report", controllerStatus.getAccessoryStates().Flood);
+        assertTrue("The accessory states should be retained even if it isn't included in the report", controllerStatus.getAccessoryStates().flood());
 
         status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0|Ov:100,100,100>";
         controllerStatus = GrblUtils.getStatusFromStatusStringV1(controllerStatus, status, MM);
-        assertFalse("The accessory states should be set to disabled if not included in overrides report", controllerStatus.getAccessoryStates().Flood);
+        assertFalse("The accessory states should be set to disabled if not included in overrides report", controllerStatus.getAccessoryStates().flood());
 
         status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0|A:F>";
         controllerStatus = GrblUtils.getStatusFromStatusStringV1(controllerStatus, status, MM);
-        assertTrue("The accessory state should be set even if not a overrides report", controllerStatus.getAccessoryStates().Flood);
+        assertTrue("The accessory state should be set even if not a overrides report", controllerStatus.getAccessoryStates().flood());
     }
 
     @Test
@@ -502,26 +502,25 @@ public class GrblUtilsTest {
         assertEquals(new Position(4.4, 5.5, 6.6, MM), controllerStatus.getWorkCoord());
         assertEquals(new Position(7.7, 8.8, 9.9, MM), controllerStatus.getWorkCoordinateOffset());
 
-        assertEquals(1, controllerStatus.getOverrides().feed);
-        assertEquals(2, controllerStatus.getOverrides().rapid);
-        assertEquals(3, controllerStatus.getOverrides().spindle);
+        assertEquals(1, controllerStatus.getOverrides().feed());
+        assertEquals(2, controllerStatus.getOverrides().rapid());
+        assertEquals(3, controllerStatus.getOverrides().spindle());
 
         assertEquals(Double.valueOf(12345.7), controllerStatus.getFeedSpeed());
         assertEquals(Double.valueOf(65432.1), controllerStatus.getSpindleSpeed());
 
-        assertTrue(controllerStatus.getEnabledPins().CycleStart);
-        assertTrue(controllerStatus.getEnabledPins().Door);
-        assertTrue(controllerStatus.getEnabledPins().Hold);
-        assertTrue(controllerStatus.getEnabledPins().SoftReset);
-        assertTrue(controllerStatus.getEnabledPins().Probe);
-        assertTrue(controllerStatus.getEnabledPins().X);
-        assertTrue(controllerStatus.getEnabledPins().Y);
-        assertTrue(controllerStatus.getEnabledPins().Z);
+        assertTrue(controllerStatus.getEnabledPins().cycleStart());
+        assertTrue(controllerStatus.getEnabledPins().door());
+        assertTrue(controllerStatus.getEnabledPins().hold());
+        assertTrue(controllerStatus.getEnabledPins().softReset());
+        assertTrue(controllerStatus.getEnabledPins().probe());
+        assertTrue(controllerStatus.getEnabledPins().x());
+        assertTrue(controllerStatus.getEnabledPins().y());
+        assertTrue(controllerStatus.getEnabledPins().z());
 
-        assertTrue(controllerStatus.getAccessoryStates().Flood);
-        assertTrue(controllerStatus.getAccessoryStates().Mist);
-        assertTrue(controllerStatus.getAccessoryStates().SpindleCCW);
-        assertTrue(controllerStatus.getAccessoryStates().SpindleCW);
+        assertTrue(controllerStatus.getAccessoryStates().flood());
+        assertTrue(controllerStatus.getAccessoryStates().mist());
+        assertTrue(controllerStatus.getAccessoryStates().spindleCW());
     }
 
     @Test
@@ -605,14 +604,14 @@ public class GrblUtilsTest {
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
-        assertFalse(controllerStatus.getEnabledPins().CycleStart);
-        assertFalse(controllerStatus.getEnabledPins().Door);
-        assertFalse(controllerStatus.getEnabledPins().Hold);
-        assertFalse(controllerStatus.getEnabledPins().SoftReset);
-        assertFalse(controllerStatus.getEnabledPins().Probe);
-        assertFalse(controllerStatus.getEnabledPins().X);
-        assertFalse(controllerStatus.getEnabledPins().Y);
-        assertFalse(controllerStatus.getEnabledPins().Z);
+        assertFalse(controllerStatus.getEnabledPins().cycleStart());
+        assertFalse(controllerStatus.getEnabledPins().door());
+        assertFalse(controllerStatus.getEnabledPins().hold());
+        assertFalse(controllerStatus.getEnabledPins().softReset());
+        assertFalse(controllerStatus.getEnabledPins().probe());
+        assertFalse(controllerStatus.getEnabledPins().x());
+        assertFalse(controllerStatus.getEnabledPins().y());
+        assertFalse(controllerStatus.getEnabledPins().z());
     }
 
     @Test
@@ -623,10 +622,9 @@ public class GrblUtilsTest {
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, MM);
 
-        assertFalse(controllerStatus.getAccessoryStates().Flood);
-        assertFalse(controllerStatus.getAccessoryStates().Mist);
-        assertFalse(controllerStatus.getAccessoryStates().SpindleCCW);
-        assertFalse(controllerStatus.getAccessoryStates().SpindleCW);
+        assertFalse(controllerStatus.getAccessoryStates().flood());
+        assertFalse(controllerStatus.getAccessoryStates().mist());
+        assertTrue(controllerStatus.getAccessoryStates().spindleCW());
     }
 
     @Test
@@ -638,10 +636,9 @@ public class GrblUtilsTest {
 
         assertEquals(ControllerState.IDLE, controllerStatus.getState());
         assertNotNull(controllerStatus.getAccessoryStates());
-        assertFalse(controllerStatus.getAccessoryStates().Flood);
-        assertFalse(controllerStatus.getAccessoryStates().Mist);
-        assertFalse(controllerStatus.getAccessoryStates().SpindleCCW);
-        assertFalse(controllerStatus.getAccessoryStates().SpindleCW);
+        assertFalse(controllerStatus.getAccessoryStates().flood());
+        assertFalse(controllerStatus.getAccessoryStates().mist());
+        assertFalse(controllerStatus.getAccessoryStates().spindleCW());
     }
 
     @Test
@@ -658,9 +655,9 @@ public class GrblUtilsTest {
         assertEquals(new Position(7.7, 8.8, 9.9, 10.10, 11.11, 12.12, MM), controllerStatus.getWorkCoord());
         assertEquals(new Position(13.13, 14.14, 15.15, 16.16, 17.17, 18.18, MM), controllerStatus.getWorkCoordinateOffset());
 
-        assertTrue(controllerStatus.getEnabledPins().A);
-        assertTrue(controllerStatus.getEnabledPins().B);
-        assertTrue(controllerStatus.getEnabledPins().C);
+        assertTrue(controllerStatus.getEnabledPins().a());
+        assertTrue(controllerStatus.getEnabledPins().b());
+        assertTrue(controllerStatus.getEnabledPins().c());
     }
 
     @Test
@@ -676,9 +673,9 @@ public class GrblUtilsTest {
         assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 5.5, Double.NaN, MM), controllerStatus.getMachineCoord());
         assertEquals(new Position(7.7, 8.8, 9.9, 10.10, 11.11, Double.NaN, MM), controllerStatus.getWorkCoord());
         assertEquals(new Position(13.13, 14.14, 15.15, 16.16, 17.17, Double.NaN, MM), controllerStatus.getWorkCoordinateOffset());
-        assertTrue(controllerStatus.getEnabledPins().A);
-        assertTrue(controllerStatus.getEnabledPins().B);
-        assertFalse(controllerStatus.getEnabledPins().C);
+        assertTrue(controllerStatus.getEnabledPins().a());
+        assertTrue(controllerStatus.getEnabledPins().b());
+        assertFalse(controllerStatus.getEnabledPins().c());
     }
 
     @Test
@@ -695,9 +692,9 @@ public class GrblUtilsTest {
         assertEquals(new Position(7.7, 8.8, 9.9, 10.10, Double.NaN, Double.NaN, MM), controllerStatus.getWorkCoord());
         assertEquals(new Position(13.13, 14.14, 15.15, 16.16, Double.NaN, Double.NaN, MM), controllerStatus.getWorkCoordinateOffset());
 
-        assertTrue(controllerStatus.getEnabledPins().A);
-        assertFalse(controllerStatus.getEnabledPins().B);
-        assertFalse(controllerStatus.getEnabledPins().C);
+        assertTrue(controllerStatus.getEnabledPins().a());
+        assertFalse(controllerStatus.getEnabledPins().b());
+        assertFalse(controllerStatus.getEnabledPins().c());
     }
 
     @Test

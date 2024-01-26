@@ -23,8 +23,12 @@ import com.google.gson.JsonParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.Code;
+import com.willwinder.universalgcodesender.listeners.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
+import com.willwinder.universalgcodesender.listeners.EnabledPins;
+import com.willwinder.universalgcodesender.listeners.OverridePercents;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.PartialPosition;
@@ -212,9 +216,9 @@ public class TinyGUtils {
             int overrideRapid = 100;
             int overrideSpindle = 100;
             if (lastControllerStatus.getOverrides() != null) {
-                overrideFeed = lastControllerStatus.getOverrides().feed;
-                overrideRapid = lastControllerStatus.getOverrides().rapid;
-                overrideSpindle = lastControllerStatus.getOverrides().spindle;
+                overrideFeed = lastControllerStatus.getOverrides().feed();
+                overrideRapid = lastControllerStatus.getOverrides().rapid();
+                overrideSpindle = lastControllerStatus.getOverrides().spindle();
             }
 
             if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_MFO)) {
@@ -244,11 +248,22 @@ public class TinyGUtils {
 
             Double spindleSpeed = lastControllerStatus.getSpindleSpeed();
             Position workCoordinateOffset = lastControllerStatus.getWorkCoordinateOffset();
-            ControllerStatus.EnabledPins enabledPins = lastControllerStatus.getEnabledPins();
-            ControllerStatus.AccessoryStates accessoryStates = lastControllerStatus.getAccessoryStates();
+            EnabledPins enabledPins = lastControllerStatus.getEnabledPins();
+            AccessoryStates accessoryStates = lastControllerStatus.getAccessoryStates();
 
-            ControllerStatus.OverridePercents overrides = new ControllerStatus.OverridePercents(overrideFeed, overrideRapid, overrideSpindle);
-            return new ControllerStatus(state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, enabledPins, accessoryStates);
+            OverridePercents overrides = new OverridePercents(overrideFeed, overrideRapid, overrideSpindle);
+            return ControllerStatusBuilder.newInstance()
+                    .setState(state)
+                    .setMachineCoord(machineCoord)
+                    .setWorkCoord(workCoord)
+                    .setFeedSpeed(feedSpeed)
+                    .setFeedSpeedUnits(feedSpeedUnits)
+                    .setSpindleSpeed(spindleSpeed)
+                    .setOverrides(overrides)
+                    .setWorkCoordinateOffset(workCoordinateOffset)
+                    .setPins(enabledPins)
+                    .setStates(accessoryStates)
+                    .build();
         }
 
         return lastControllerStatus;
@@ -413,18 +428,17 @@ public class TinyGUtils {
     /**
      * Creates an override gcode command based on the current override state.
      *
-     *
      * @param commandCreator
      * @param currentOverrides the current override state
      * @param command          the command which we want to build a gcode command from
      * @return the gcode command
      */
-    public static Optional<GcodeCommand> createOverrideCommand(ICommandCreator commandCreator, ControllerStatus.OverridePercents currentOverrides, Overrides command) {
+    public static Optional<GcodeCommand> createOverrideCommand(ICommandCreator commandCreator, OverridePercents currentOverrides, Overrides command) {
         double feedOverride = OVERRIDE_DEFAULT;
         double spindleOverride = OVERRIDE_DEFAULT;
         if (currentOverrides != null) {
-            feedOverride = ((double) currentOverrides.feed) / 100.0;
-            spindleOverride = ((double) currentOverrides.spindle) / 100.0;
+            feedOverride = ((double) currentOverrides.feed()) / 100.0;
+            spindleOverride = ((double) currentOverrides.spindle()) / 100.0;
         }
 
         GcodeCommand result = null;

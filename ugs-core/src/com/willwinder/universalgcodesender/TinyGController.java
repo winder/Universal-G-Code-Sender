@@ -23,26 +23,29 @@ import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.communicator.TinyGCommunicator;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.tinyg.TinyGFirmwareSettings;
-import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.firmware.tinyg.TinyGGcodeCommandCreator;
+import com.willwinder.universalgcodesender.firmware.tinyg.commands.TinyGGcodeCommand;
+import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.listeners.OverridePercents;
+import com.willwinder.universalgcodesender.model.CommunicatorState;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
+import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.firmware.tinyg.commands.TinyGGcodeCommand;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
-import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
 
 /**
  * TinyG Control layer, coordinates all aspects of control.
@@ -74,7 +77,7 @@ public class TinyGController extends AbstractController {
         firmwareSettings = new TinyGFirmwareSettings(this);
         communicator.addListener(firmwareSettings);
 
-        controllerStatus = new ControllerStatus(ControllerState.DISCONNECTED, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+        controllerStatus = ControllerStatus.EMPTY_CONTROLLER_STATUS;
         firmwareVersion = "TinyG unknown version";
     }
 
@@ -406,7 +409,7 @@ public class TinyGController extends AbstractController {
 
     @Override
     public void sendOverrideCommand(Overrides command) throws Exception {
-        ControllerStatus.OverridePercents currentOverrides = controllerStatus.getOverrides();
+        OverridePercents currentOverrides = controllerStatus.getOverrides();
         Optional<GcodeCommand> gcodeCommand = TinyGUtils.createOverrideCommand(getCommandCreator(), currentOverrides, command);
         if (gcodeCommand.isPresent()) {
             sendCommandImmediately(gcodeCommand.get());
