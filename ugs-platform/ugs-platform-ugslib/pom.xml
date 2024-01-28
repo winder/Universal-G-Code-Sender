@@ -132,6 +132,7 @@
                         <package>org.apache.commons.codec</package>
                         <package>org.apache.commons.codec.binary</package>
                         <package>org.apache.commons.io</package>
+                        <package>org.apache.commons.io.filefilter</package>
                         <package>org.apache.commons.lang3</package>
                         <package>jakarta.activation</package>
                         <package>jakarta.xml.bind</package>
