@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2021 Will Winder
+    Copyright 2015-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,25 +19,20 @@
 package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.core.services.FileFilterService;
-import com.willwinder.ugs.nbp.lib.EditorUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import org.apache.commons.lang3.StringUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
-import org.openide.cookies.OpenCookie;
-import org.openide.filesystems.FileUtil;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 
 import javax.swing.AbstractAction;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
+import java.awt.FileDialog;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
@@ -64,7 +59,7 @@ public final class OpenAction extends AbstractAction {
     public static final String ICON_BASE = "resources/icons/open.svg";
     private final transient FileFilterService fileFilterService;
     private final transient BackendAPI backend;
-    private final JFileChooser fileChooser;
+    private final FileDialog fileChooser;
 
     public OpenAction() {
         this(CentralLookup.getDefault().lookup(BackendAPI.class).getSettings().getLastOpenedFilename());
@@ -90,11 +85,10 @@ public final class OpenAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         // Fetches all available file formats that UGS can open
-        fileFilterService.getFileFilters().forEach(fileChooser::addChoosableFileFilter);
-
-        int returnVal = fileChooser.showOpenDialog(new JFrame());
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
+        fileChooser.setFilenameFilter(fileFilterService.getFilenameFilters());
+        fileChooser.setVisible(true);
+        if (StringUtils.isNotEmpty(fileChooser.getFile())) {
+            File selectedFile = new File(fileChooser.getDirectory() + File.separatorChar + fileChooser.getFile());
             openFile(selectedFile);
         }
     }
@@ -104,14 +98,11 @@ public final class OpenAction extends AbstractAction {
         action.actionPerformed(null);
     }
 
-    private JFileChooser createFileChooser(String directory) {
-        JFileChooser chooser = new JFileChooser(directory);
-        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        chooser.setFileHidingEnabled(true);
-        chooser.setDialogType(JFileChooser.OPEN_DIALOG);
-        chooser.setAcceptAllFileFilterUsed(true);
-        return chooser;
+    private FileDialog createFileChooser(String directory) {
+        FileDialog fileDialog = new FileDialog((Frame)null);
+        fileDialog.setDirectory(directory);
+        fileDialog.setMode(FileDialog.LOAD);
+        fileDialog.setMultipleMode(false);
+        return fileDialog;
     }
-
-
 }
