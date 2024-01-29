@@ -34,7 +34,9 @@ import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_Z_DOWN;
 import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_Z_UP;
 import com.willwinder.ugs.nbp.joystick.action.ActionDispatcher;
 import com.willwinder.ugs.nbp.joystick.action.ActionManager;
+import com.willwinder.ugs.nbp.joystick.action.AnalogFeedOverrideAction;
 import com.willwinder.ugs.nbp.joystick.action.AnalogJogAction;
+import com.willwinder.ugs.nbp.joystick.action.AnalogSpindleOverrideAction;
 import com.willwinder.ugs.nbp.joystick.driver.JamepadJoystickDriver;
 import com.willwinder.ugs.nbp.joystick.driver.JoystickDriver;
 import com.willwinder.ugs.nbp.joystick.driver.JoystickDriverListener;
@@ -61,6 +63,8 @@ import java.util.logging.Logger;
  */
 public class JoystickServiceImpl implements JoystickService, JoystickDriverListener {
     public static final String CONTINUOUS_JOG_ACTION_CATEGORY = "Actions/Machine";
+    public static final String CONTINUOUS_OVERRIDE_ACTION_CATEGORY = "Actions/Overrides";
+
     private static final Logger LOGGER = Logger.getLogger(JoystickServiceImpl.class.getSimpleName());
 
     /**
@@ -90,6 +94,8 @@ public class JoystickServiceImpl implements JoystickService, JoystickDriverListe
         actionManager.registerAction("continuousJogAAction", CONTINUOUS_JOG_ACTION_CATEGORY, new AnalogJogAction(continuousJogWorker, Axis.A));
         actionManager.registerAction("continuousJogBAction", CONTINUOUS_JOG_ACTION_CATEGORY, new AnalogJogAction(continuousJogWorker, Axis.B));
         actionManager.registerAction("continuousJogCAction", CONTINUOUS_JOG_ACTION_CATEGORY, new AnalogJogAction(continuousJogWorker, Axis.C));
+        actionManager.registerAction("analogFeedOverrideAction", CONTINUOUS_OVERRIDE_ACTION_CATEGORY, new AnalogFeedOverrideAction());
+        actionManager.registerAction("analogSpindleOverrideAction", CONTINUOUS_OVERRIDE_ACTION_CATEGORY, new AnalogSpindleOverrideAction());
 
         joystickActionDispatcher = new ActionDispatcher(actionManager, continuousJogWorker);
         addListener(joystickActionDispatcher);
