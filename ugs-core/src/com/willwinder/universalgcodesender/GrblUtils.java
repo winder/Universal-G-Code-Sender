@@ -40,6 +40,7 @@ import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndW
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -411,13 +412,7 @@ public class GrblUtils {
             }
             else if (part.startsWith("Ov:")) {
                 isOverrideReport = true;
-                String[] overrideParts = part.substring(3).trim().split(",");
-                if (overrideParts.length == 3) {
-                    overrides = new OverridePercents(
-                            Integer.parseInt(overrideParts[0]),
-                            Integer.parseInt(overrideParts[1]),
-                            Integer.parseInt(overrideParts[2]));
-                }
+                overrides = parseOverrides(part).orElse(OverridePercents.EMTPY_OVERRIDE_PERCENTS);
             }
             else if (part.startsWith("F:")) {
                 feedSpeed = parseFeedSpeed(part);
@@ -466,6 +461,17 @@ public class GrblUtils {
 
         ControllerState state = getControllerStateFromStateString(stateString);
         return new ControllerStatus(state, subStateString, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates);
+    }
+
+    private static Optional<OverridePercents> parseOverrides(String value) {
+        String[] overrideParts = value.substring(3).trim().split(",");
+        if (overrideParts.length == 3) {
+            return Optional.of(new OverridePercents(
+                    Integer.parseInt(overrideParts[0]),
+                    Integer.parseInt(overrideParts[1]),
+                    Integer.parseInt(overrideParts[2])));
+        }
+        return Optional.empty();
     }
 
     private static EnabledPins parseEnabledPins(String value) {

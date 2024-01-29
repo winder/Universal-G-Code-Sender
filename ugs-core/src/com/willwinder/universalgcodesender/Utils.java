@@ -21,8 +21,13 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import com.willwinder.universalgcodesender.utils.Version;
 
 import javax.swing.JCheckBox;
@@ -32,6 +37,12 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A collection of utilities that don't relate to anything in particular.
@@ -39,8 +50,9 @@ import java.text.NumberFormat;
  * @author wwinder
  */
 public class Utils {
-
     public static final NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
+    private static final Logger LOGGER = Logger.getLogger(Utils.class.getSimpleName());
+    private static final int MAX_WAIT_TIME_FOR_STATUS_REPORT = 1000;
 
     public static String formattedMillis(long millis) {
         String format = String.format("%%0%dd", 2);
@@ -139,6 +151,60 @@ public class Utils {
                 settings.setShowNightlyWarning(showNightlyWarning);
             });
         }
+    }
+
+    /**
+     * Rounds to the closest step value within a min-max range
+     *
+     * @param value the value to round
+     * @param min the minimum allowed value
+     * @param max the maximum allowed value
+     * @param stepValue the step range
+     * @return the rounded value
+     */
+    public static double roundToNearestStepValue(double value, double min, double max, double stepValue) {
+        return Math.round(Math.max(min, Math.min(max, value)) / stepValue) * stepValue;
+    }
+
+    /**
+     * Creates a temporary listener and waits (for a maximum time) on a new status report
+     *
+     * @param backend the backend to listen to
+     * @return the optional status report
+     */
+    public static Optional<ControllerStatus> waitForStatusReport(BackendAPI backend) {
+        AtomicReference<ControllerStatus> controllerStatus = new AtomicReference<>();
+
+        try {
+            ThreadHelper.waitUntil(() -> {
+                UGSEventListener ugsEventListener = evt -> {
+                    if (evt instanceof ControllerStatusEvent controllerStatusEvent) {
+                        controllerStatus.set(controllerStatusEvent.getStatus());
+                    }
+                };
+
+                try {
+                    backend.addUGSEventListener(ugsEventListener);
+                    backend.getController().requestStatusReport();
+                    while (controllerStatus.get() == null) {
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException ignored) {
+                            // Never mind
+                        }
+                    }
+                } catch (Exception e) {
+                    LOGGER.log(Level.WARNING, "Could not fetch a status report", e);
+                } finally {
+                    backend.removeUGSEventListener(ugsEventListener);
+                }
+                return true;
+            }, MAX_WAIT_TIME_FOR_STATUS_REPORT, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException ex) {
+            LOGGER.warning("Could not get a status report within " + MAX_WAIT_TIME_FOR_STATUS_REPORT + " ms");
+        }
+
+        return Optional.ofNullable(controllerStatus.get());
     }
 
 }

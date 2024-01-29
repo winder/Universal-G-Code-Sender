@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2024 Will Winder
+    Copyright 2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,17 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.listeners;
+package com.willwinder.universalgcodesender.firmware;
 
-/**
- * Overrides given as percents where the value 100 is the normal speed to 100%.
- * The value range is dependant on the controller but can normally be given as a
- * value between 10 - 200 %
- *
- * @param feed the feed speed in percent
- * @param rapid the rapid speed in percent
- * @param spindle  the spindle speed in percent
- */
-public record OverridePercents(int feed, int rapid, int spindle) {
-    public static final OverridePercents EMTPY_OVERRIDE_PERCENTS = new OverridePercents(100, 100, 100);
+public class OverrideException extends RuntimeException {
+    public OverrideException(String message, Throwable throwable) {
+        super(message, throwable);
+    }
 }

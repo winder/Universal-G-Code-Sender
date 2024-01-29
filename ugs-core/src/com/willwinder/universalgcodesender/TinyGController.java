@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2023 Will Winder
+    Copyright 2013-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,18 +32,17 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.listeners.OverridePercents;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
-import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
+import com.willwinder.universalgcodesender.firmware.DefaultOverrideManager;
+import com.willwinder.universalgcodesender.firmware.IOverrideManager;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -408,15 +407,6 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public void sendOverrideCommand(Overrides command) throws Exception {
-        OverridePercents currentOverrides = controllerStatus.getOverrides();
-        Optional<GcodeCommand> gcodeCommand = TinyGUtils.createOverrideCommand(getCommandCreator(), currentOverrides, command);
-        if (gcodeCommand.isPresent()) {
-            sendCommandImmediately(gcodeCommand.get());
-	    }
-    }
-
-    @Override
     public String getFirmwareVersion() {
         return firmwareVersion;
     }
@@ -424,6 +414,11 @@ public class TinyGController extends AbstractController {
     @Override
     public ControllerStatus getControllerStatus() {
         return controllerStatus;
+    }
+
+    @Override
+    public IOverrideManager getOverrideManager() {
+        return new DefaultOverrideManager();
     }
 
     @Override

@@ -794,9 +794,4 @@ public class GUIBackend implements BackendAPI {
             logger.info("Took " + (end - start) + "ms to preprocess");
         }
     }
-
-    @Override
-    public void sendOverrideCommand(Overrides override) throws Exception {
-        this.controller.sendOverrideCommand(override);
-    }
 }

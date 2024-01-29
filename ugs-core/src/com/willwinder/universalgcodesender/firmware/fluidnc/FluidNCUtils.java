@@ -16,6 +16,8 @@ import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
 import com.willwinder.universalgcodesender.utils.SemanticVersion;
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,9 +25,6 @@ import java.text.ParseException;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
-import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
 
 public class FluidNCUtils {
     public static final double GRBL_COMPABILITY_VERSION = 1.1d;
@@ -38,16 +37,13 @@ public class FluidNCUtils {
     private static final Pattern PROBE_PATTERN = Pattern.compile(PROBE_REGEX);
     private static final String WELCOME_REGEX = "(?<protocolvendor>.*)\\s(?<protocolversion>[0-9a-z.]*)\\s\\[((?<fncvariant>[a-zA-Z]*)?\\s(v(?<fncversion>[0-9.]*))?)+.*]";
     private static final Pattern WELCOME_PATTERN = Pattern.compile(WELCOME_REGEX, Pattern.CASE_INSENSITIVE);
-    private static final Pattern MACHINE_PATTERN = Pattern.compile("(?<=MPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
     private static final Pattern PROBE_POSITION_PATTERN = Pattern.compile("\\[PRB:(-?\\d*\\.\\d*),(-?\\d*\\.\\d*),(-?\\d*\\.\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?:\\d?]");
-    private static final Pattern WORK_PATTERN = Pattern.compile("(?<=WPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
-    private static final Pattern WCO_PATTERN = Pattern.compile("(?<=WCO:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
 
     public static boolean isMessageResponse(String response) {
         return MESSAGE_PATTERN.matcher(response).find();
     }
 
-    static protected Optional<String> parseMessageResponse(final String response) {
+    protected static Optional<String> parseMessageResponse(final String response) {
         if (!isMessageResponse(response)) {
             return Optional.empty();
         }
@@ -59,7 +55,7 @@ public class FluidNCUtils {
         return PROBE_PATTERN.matcher(response).find();
     }
 
-    static protected Position parseProbePosition(final String response, final UnitUtils.Units units) {
+    protected static Position parseProbePosition(final String response, final UnitUtils.Units units) {
         // Don't parse failed probe response.
         if (response.endsWith(":0]")) {
             return Position.INVALID;
@@ -91,7 +87,7 @@ public class FluidNCUtils {
     }
 
     public static GetStatusCommand queryForStatusReport(IController controller, MessageService messageService) throws InterruptedException {
-        return sendAndWaitForCompletionWithRetry(GetStatusCommand::new, controller, 4000, 10, (executionNumber) -> {
+        return sendAndWaitForCompletionWithRetry(GetStatusCommand::new, controller, 4000, 10, executionNumber -> {
             if (executionNumber == 1) {
                 messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status\n");
             } else {

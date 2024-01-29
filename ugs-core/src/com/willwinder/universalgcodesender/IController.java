@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2023 Will Winder
+    Copyright 2015-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,13 +26,13 @@ import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
+import com.willwinder.universalgcodesender.firmware.IOverrideManager;
 
 import java.util.Optional;
 
@@ -128,11 +128,6 @@ public interface IController {
      */
     void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception;
     void offsetTool(String axis, double offset, UnitUtils.Units units) throws Exception;
-
-    /*
-    Overrides
-    */
-    void sendOverrideCommand(Overrides command) throws Exception;
 
     /*
     Behavior
@@ -246,4 +241,11 @@ public interface IController {
      * @return a command creator for this controller
      */
     ICommandCreator getCommandCreator();
+
+    /**
+     * Gets the manager for handling overrides.
+     *
+     * @return the override manager.
+     */
+    IOverrideManager getOverrideManager();
 }
