@@ -56,7 +56,7 @@ public abstract class AbstractOverrideManager implements IOverrideManager {
         });
     }
 
-    private void onControllerStatus(ControllerStatus controllerStatus) {
+    public void onControllerStatus(ControllerStatus controllerStatus) {
         if (!isRunning) {
             targetFeedSpeed = controllerStatus.getOverrides().feed();
             targetSpindleSpeed = controllerStatus.getOverrides().spindle();
@@ -128,9 +128,15 @@ public abstract class AbstractOverrideManager implements IOverrideManager {
 
     protected abstract int getSpeedMinorStep(OverrideType overrideType);
 
-    protected abstract float getSpeedMajorStep(OverrideType overrideType);
+    protected abstract int getSpeedMajorStep(OverrideType overrideType);
 
     public boolean isAvailable() {
+        if (controller == null || controller.getControllerStatus() == null ||
+                controller.getControllerStatus().getState() == null ||
+                controller.getCapabilities() == null) {
+            return false;
+        }
+
         ControllerState state = controller.getControllerStatus().getState();
         return controller.getCapabilities().hasOverrides() && (state == ControllerState.HOLD || state == ControllerState.IDLE || state == ControllerState.RUN);
     }

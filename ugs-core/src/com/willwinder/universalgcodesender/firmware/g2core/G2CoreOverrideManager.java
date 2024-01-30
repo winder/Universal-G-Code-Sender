@@ -52,7 +52,7 @@ public class G2CoreOverrideManager extends AbstractOverrideManager implements IO
     }
 
     @Override
-    protected float getSpeedMajorStep(OverrideType overrideType) {
+    protected int getSpeedMajorStep(OverrideType overrideType) {
         return MAJOR_STEP;
     }
 

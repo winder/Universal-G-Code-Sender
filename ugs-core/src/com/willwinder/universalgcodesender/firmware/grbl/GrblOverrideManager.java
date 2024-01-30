@@ -49,7 +49,7 @@ public class GrblOverrideManager extends AbstractOverrideManager implements IOve
     }
 
     @Override
-    protected float getSpeedMajorStep(OverrideType overrideType) {
+    protected int getSpeedMajorStep(OverrideType overrideType) {
         return MAJOR_STEP;
     }
 
