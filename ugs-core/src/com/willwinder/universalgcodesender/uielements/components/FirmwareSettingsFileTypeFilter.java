@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,9 +19,9 @@
 
 package com.willwinder.universalgcodesender.uielements.components;
 
+import com.willwinder.universalgcodesender.uielements.FileOpenDialog;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import java.io.File;
 
@@ -29,20 +29,16 @@ import java.io.File;
  * FileFilter which is limited to firmware settings files.
  */
 public class FirmwareSettingsFileTypeFilter extends FileFilter {
-    public static JFileChooser getSettingsFileChooser() {
-        FirmwareSettingsFileTypeFilter filter = new FirmwareSettingsFileTypeFilter();
-        
-        // Setup file browser with the last path used.
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileChooser.setFileHidingEnabled(true);
-        fileChooser.addChoosableFileFilter(filter);
-        fileChooser.setAcceptAllFileFilterUsed(true);
-        fileChooser.setFileFilter(filter);
-        
-        return fileChooser;
+    private static FileOpenDialog fileOpenDialog;
+
+    public static FileOpenDialog getSettingsFileChooser() {
+        if (fileOpenDialog == null) {
+            fileOpenDialog = new FileOpenDialog("");
+            fileOpenDialog.setFileFilter(new FirmwareSettingsFileTypeFilter());
+        }
+        return fileOpenDialog;
     }
-    
+
     @Override
     public boolean accept(File f) {
         if (f.isDirectory()) {
@@ -51,7 +47,7 @@ public class FirmwareSettingsFileTypeFilter extends FileFilter {
 
         return StringUtils.endsWith(f.getName(), ".settings");
     }
- 
+
     @Override
     public String getDescription() {
         return "Firmware settings";

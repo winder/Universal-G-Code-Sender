@@ -22,7 +22,7 @@ import com.willwinder.ugs.nbp.core.services.FileFilterService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import org.apache.commons.lang3.StringUtils;
+import com.willwinder.universalgcodesender.uielements.FileOpenDialog;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -31,8 +31,6 @@ import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 
 import javax.swing.AbstractAction;
-import java.awt.FileDialog;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
@@ -59,7 +57,7 @@ public final class OpenAction extends AbstractAction {
     public static final String ICON_BASE = "resources/icons/open.svg";
     private final transient FileFilterService fileFilterService;
     private final transient BackendAPI backend;
-    private final FileDialog fileChooser;
+    private final FileOpenDialog fileOpenDialog;
 
     public OpenAction() {
         this(CentralLookup.getDefault().lookup(BackendAPI.class).getSettings().getLastOpenedFilename());
@@ -74,7 +72,7 @@ public final class OpenAction extends AbstractAction {
         putValue("menuText", LocalizingService.OpenTitle);
         putValue(NAME, LocalizingService.OpenTitle);
 
-        fileChooser = createFileChooser(directory);
+        fileOpenDialog = new FileOpenDialog(directory);
     }
 
     @Override
@@ -84,25 +82,13 @@ public final class OpenAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Fetches all available file formats that UGS can open
-        fileChooser.setFilenameFilter(fileFilterService.getFilenameFilters());
-        fileChooser.setVisible(true);
-        if (StringUtils.isNotEmpty(fileChooser.getFile())) {
-            File selectedFile = new File(fileChooser.getDirectory() + File.separatorChar + fileChooser.getFile());
-            openFile(selectedFile);
-        }
+        fileOpenDialog.setFilenameFilter(fileFilterService.getFilenameFilters());
+        fileOpenDialog.setVisible(true);
+        fileOpenDialog.getSelectedFile().ifPresent(this::openFile);
     }
 
     public void openFile(File selectedFile) {
         OpenFileAction action = new OpenFileAction(selectedFile);
         action.actionPerformed(null);
-    }
-
-    private FileDialog createFileChooser(String directory) {
-        FileDialog fileDialog = new FileDialog((Frame)null);
-        fileDialog.setDirectory(directory);
-        fileDialog.setMode(FileDialog.LOAD);
-        fileDialog.setMultipleMode(false);
-        return fileDialog;
     }
 }
