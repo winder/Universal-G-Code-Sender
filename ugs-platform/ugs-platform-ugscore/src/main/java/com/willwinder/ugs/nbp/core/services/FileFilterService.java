@@ -19,12 +19,11 @@
 package com.willwinder.ugs.nbp.core.services;
 
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
-import org.apache.commons.io.filefilter.IOFileFilter;
+import com.willwinder.universalgcodesender.uielements.helpers.FilenameFilterAdapter;
 import org.apache.commons.io.filefilter.OrFileFilter;
 import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.filechooser.FileFilter;
-import java.io.File;
 import java.io.FilenameFilter;
 import java.util.HashSet;
 import java.util.Set;
@@ -51,17 +50,7 @@ public class FileFilterService {
 
     public FilenameFilter getFilenameFilters() {
         return new OrFileFilter(fileFilters.stream()
-                .map(fileFilter -> new IOFileFilter() {
-                    @Override
-                    public boolean accept(File file) {
-                        return fileFilter.accept(file);
-                    }
-
-                    @Override
-                    public boolean accept(File directory, String filename) {
-                        return fileFilter.accept(new File(directory.getAbsolutePath() + File.separatorChar + filename));
-                    }
-                } )
+                .map(FilenameFilterAdapter::new)
                 .collect(Collectors.toList()));
     }
 }

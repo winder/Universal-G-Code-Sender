@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsFile;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.uielements.FileOpenDialog;
 import com.willwinder.universalgcodesender.uielements.components.FirmwareSettingsFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
@@ -33,8 +34,6 @@ import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -108,15 +107,15 @@ public class WizardPanelImportSettings extends AbstractWizardPanel {
         labelNameValue = new JLabel("");
         labelNameValue.setFont(labelNameValue.getFont().deriveFont(Font.BOLD, 16));
 
-        labelFirmware = new JLabel(Localization.getString("platform.plugin.setupwizard.import-settings.firmware"), JLabel.RIGHT);
+        labelFirmware = new JLabel(Localization.getString("platform.plugin.setupwizard.import-settings.firmware"), SwingConstants.RIGHT);
         labelFirmware.setFont(labelFirmware.getFont().deriveFont(Font.BOLD));
         labelFirmwareValue = new JLabel("");
 
-        labelCreatedBy = new JLabel(Localization.getString("platform.plugin.setupwizard.import-settings.created-by"), JLabel.RIGHT);
+        labelCreatedBy = new JLabel(Localization.getString("platform.plugin.setupwizard.import-settings.created-by"), SwingConstants.RIGHT);
         labelCreatedBy.setFont(labelCreatedBy.getFont().deriveFont(Font.BOLD));
         labelCreatedByValue = new JLabel("");
 
-        labelDate = new JLabel(Localization.getString("platform.plugin.setupwizard.import-settings.created-date"), JLabel.RIGHT);
+        labelDate = new JLabel(Localization.getString("platform.plugin.setupwizard.import-settings.created-date"), SwingConstants.RIGHT);
         labelDate.setFont(labelDate.getFont().deriveFont(Font.BOLD));
         labelDateValue = new JLabel("");
 
@@ -129,11 +128,9 @@ public class WizardPanelImportSettings extends AbstractWizardPanel {
 
         buttonOpen = new JButton(Localization.getString("platform.plugin.setupwizard.import-settings.open-settings"));
         buttonOpen.addActionListener(event -> {
-            JFileChooser fileChooser = FirmwareSettingsFileTypeFilter.getSettingsFileChooser();
-            int returnVal = fileChooser.showOpenDialog(new JFrame());
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                loadSettingsFile(fileChooser.getSelectedFile());
-            }
+            FileOpenDialog fileChooser = FirmwareSettingsFileTypeFilter.getSettingsFileChooser();
+            fileChooser.setVisible(true);
+            fileChooser.getSelectedFile().ifPresent(this::loadSettingsFile);
         });
 
         buttonImport = new JButton(Localization.getString("platform.plugin.setupwizard.import-settings.import"));
