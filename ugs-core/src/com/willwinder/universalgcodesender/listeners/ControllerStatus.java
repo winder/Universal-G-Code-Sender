@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2023 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,6 +27,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * @author wwinder
  */
 public class ControllerStatus {
+    public static final ControllerStatus EMPTY_CONTROLLER_STATUS = ControllerStatusBuilder.newInstance().build();
     private final Position machineCoord;
     private final Position workCoord;
     private final Position workCoordinateOffset;
@@ -48,17 +49,7 @@ public class ControllerStatus {
      * @param workCoord    controller work coordinates
      */
     public ControllerStatus(ControllerState state, Position machineCoord, Position workCoord) {
-        this(state, machineCoord, workCoord, 0d, UnitUtils.Units.MM, 0d, null, null, null, null);
-    }
-
-    /**
-     * Additional parameters
-     */
-    public ControllerStatus(ControllerState state, Position machineCoord,
-                            Position workCoord, Double feedSpeed, UnitUtils.Units feedSpeedUnits, Double spindleSpeed,
-                            OverridePercents overrides, Position workCoordinateOffset,
-                            EnabledPins pins, AccessoryStates states) {
-        this(state, "", machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, pins, states);
+        this(state, "", machineCoord, workCoord, 0d, UnitUtils.Units.MM, 0d, null, null, null, null);
     }
 
     /**
@@ -79,10 +70,6 @@ public class ControllerStatus {
         this.overrides = overrides;
         this.pins = pins;
         this.accessoryStates = states;
-    }
-
-    public ControllerStatus() {
-        this(ControllerState.DISCONNECTED, Position.ZERO, Position.ZERO);
     }
 
     public ControllerState getState() {
@@ -139,92 +126,4 @@ public class ControllerStatus {
         return subState;
     }
 
-    public static class EnabledPins {
-        public static final EnabledPins EMPTY_PINS = new EnabledPins("");
-
-        final public boolean X;
-        final public boolean Y;
-        final public boolean Z;
-        final public boolean A;
-        final public boolean B;
-        final public boolean C;
-        final public boolean Probe;
-        final public boolean Door;
-        final public boolean Hold;
-        final public boolean SoftReset;
-        final public boolean CycleStart;
-
-        public EnabledPins(String enabled) {
-            String enabledUpper = enabled.toUpperCase();
-            X = enabledUpper.contains("X");
-            Y = enabledUpper.contains("Y");
-            Z = enabledUpper.contains("Z");
-            A = enabledUpper.contains("A");
-            B = enabledUpper.contains("B");
-            C = enabledUpper.contains("C");
-            Probe = enabledUpper.contains("P");
-            Door = enabledUpper.contains("D");
-            Hold = enabledUpper.contains("H");
-            SoftReset = enabledUpper.contains("R");
-            CycleStart = enabledUpper.contains("S");
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return EqualsBuilder.reflectionEquals(this, o);
-        }
-
-        @Override
-        public int hashCode() {
-            return HashCodeBuilder.reflectionHashCode(this);
-        }
-    }
-
-    public static class AccessoryStates {
-        public static final AccessoryStates EMPTY_ACCESSORY_STATE = new AccessoryStates("");
-        final public boolean SpindleCW;
-        final public boolean SpindleCCW;
-        final public boolean Flood;
-        final public boolean Mist;
-
-        public AccessoryStates(String enabled) {
-            String enabledUpper = enabled.toUpperCase();
-            SpindleCW = enabledUpper.contains("S");
-            SpindleCCW = enabledUpper.contains("C");
-            Flood = enabledUpper.contains("F");
-            Mist = enabledUpper.contains("M");
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return EqualsBuilder.reflectionEquals(this, o);
-        }
-
-        @Override
-        public int hashCode() {
-            return HashCodeBuilder.reflectionHashCode(this);
-        }
-    }
-
-    public static class OverridePercents {
-        final public int feed;
-        final public int rapid;
-        final public int spindle;
-
-        public OverridePercents(int feed, int rapid, int spindle) {
-            this.feed = feed;
-            this.rapid = rapid;
-            this.spindle = spindle;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return EqualsBuilder.reflectionEquals(this, o);
-        }
-
-        @Override
-        public int hashCode() {
-            return HashCodeBuilder.reflectionHashCode(this);
-        }
-    }
 }

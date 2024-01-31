@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,16 +27,16 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
  * @author Joacim Breiler
  */
 public class ControllerStatusBuilder {
-    private ControllerState state = ControllerState.UNKNOWN;
+    private ControllerState state = ControllerState.DISCONNECTED;
     private Position machineCoord = Position.ZERO;
     private Position workCoord = Position.ZERO;
     private Double feedSpeed = 0d;
     private UnitUtils.Units feedSpeedUnits = UnitUtils.Units.MM;
     private Double spindleSpeed = 0d;
-    private ControllerStatus.OverridePercents overrides = null;
+    private OverridePercents overrides = OverridePercents.EMTPY_OVERRIDE_PERCENTS;
     private Position workCoordinateOffset = Position.ZERO;
-    private ControllerStatus.EnabledPins pins = null;
-    private ControllerStatus.AccessoryStates states = null;
+    private EnabledPins pins = EnabledPins.EMPTY_PINS;
+    private AccessoryStates states = AccessoryStates.EMPTY_ACCESSORY_STATE;
     private String subState = "";
 
     public static ControllerStatusBuilder newInstance() {
@@ -97,7 +97,7 @@ public class ControllerStatusBuilder {
         return this;
     }
 
-    public ControllerStatusBuilder setOverrides(ControllerStatus.OverridePercents overrides) {
+    public ControllerStatusBuilder setOverrides(OverridePercents overrides) {
         this.overrides = overrides;
         return this;
     }
@@ -107,12 +107,12 @@ public class ControllerStatusBuilder {
         return this;
     }
 
-    public ControllerStatusBuilder setPins(ControllerStatus.EnabledPins pins) {
+    public ControllerStatusBuilder setPins(EnabledPins pins) {
         this.pins = pins;
         return this;
     }
 
-    public ControllerStatusBuilder setStates(ControllerStatus.AccessoryStates states) {
+    public ControllerStatusBuilder setStates(AccessoryStates states) {
         this.states = states;
         return this;
     }

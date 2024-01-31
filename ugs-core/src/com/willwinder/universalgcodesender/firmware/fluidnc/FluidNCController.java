@@ -34,6 +34,7 @@ import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionException;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.IOverrideManager;
 import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.DISABLE_ECHO_COMMAND;
 import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.GRBL_COMPABILITY_VERSION;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.DetectEchoCommand;
@@ -45,6 +46,7 @@ import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetParserSt
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStartupMessagesCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SystemCommand;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblOverrideManager;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.ICommandCreator;
@@ -56,7 +58,6 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
-import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -99,6 +100,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     private final StopWatch streamStopWatch = new StopWatch();
     private final IFileService fileService;
     private final ICommandCreator commandCreator;
+    private final IOverrideManager overrideManager;
     private MessageService messageService = new MessageService();
     private ControllerStatus controllerStatus;
     private SemanticVersion semanticVersion = new SemanticVersion();
@@ -120,6 +122,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
         this.communicator.addListener(this);
         this.fileService = new FluidNCFileService(this, positionPollTimer);
         this.commandCreator = new FluidNCCommandCreator();
+        this.overrideManager = new GrblOverrideManager(this, communicator);
     }
 
     @Override
@@ -283,15 +286,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
         sendCommandImmediately(createCommand(offsetCommand));
 
         restoreParserModalState();
-    }
-
-    @Override
-    public void sendOverrideCommand(Overrides command) throws Exception {
-        Byte realTimeCommand = GrblUtils.getOverrideForEnum(command, capabilities);
-        if (realTimeCommand != null) {
-            messageService.dispatchMessage(MessageType.INFO, String.format("> 0x%02x\n", realTimeCommand));
-            communicator.sendByteImmediately(realTimeCommand);
-        }
     }
 
     @Override
@@ -845,5 +839,10 @@ public class FluidNCController implements IController, ICommunicatorListener {
     @Override
     public ICommandCreator getCommandCreator() {
         return commandCreator;
+    }
+
+    @Override
+    public IOverrideManager getOverrideManager() {
+        return overrideManager;
     }
 }

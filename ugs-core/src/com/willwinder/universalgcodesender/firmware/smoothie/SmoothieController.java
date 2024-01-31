@@ -33,20 +33,20 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
-import com.willwinder.universalgcodesender.model.Overrides;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_DISCONNECTED;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
+import com.willwinder.universalgcodesender.firmware.DefaultOverrideManager;
+import com.willwinder.universalgcodesender.firmware.IOverrideManager;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
-
-import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
-import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_DISCONNECTED;
-import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
 
 /**
  * Controller implementation for Smoothieware
@@ -222,11 +222,6 @@ public class SmoothieController extends AbstractController {
     }
 
     @Override
-    public void sendOverrideCommand(Overrides command) {
-
-    }
-
-    @Override
     public boolean getStatusUpdatesEnabled() {
         return statusPollTimer.isEnabled();
     }
@@ -275,6 +270,11 @@ public class SmoothieController extends AbstractController {
     @Override
     public ControllerStatus getControllerStatus() {
         return controllerStatus;
+    }
+
+    @Override
+    public IOverrideManager getOverrideManager() {
+        return new DefaultOverrideManager();
     }
 
     @Override

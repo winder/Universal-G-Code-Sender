@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2023-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,8 +27,8 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 public class GetStatusCommand extends GcodeCommand {
-    public static final ControllerStatus EMPTY_STATUS = new ControllerStatus(ControllerState.DISCONNECTED, Position.ZERO, Position.ZERO);
-    private ControllerStatus controllerStatus = ControllerStatusBuilder.newInstance().build();
+    public static final ControllerStatus EMPTY_STATUS = new ControllerStatus(ControllerState.UNKNOWN, Position.ZERO, Position.ZERO);
+    private ControllerStatus controllerStatus = ControllerStatusBuilder.newInstance().setState(ControllerState.UNKNOWN).build();
 
     public GetStatusCommand() {
         super("?");

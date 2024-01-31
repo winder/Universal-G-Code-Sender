@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2023 Will Winder
+    Copyright 2013-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -33,7 +33,8 @@ import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
-import com.willwinder.universalgcodesender.model.Overrides;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -42,15 +43,14 @@ import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
 import com.willwinder.universalgcodesender.types.GrblSettingMessage;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
 import com.willwinder.universalgcodesender.utils.GrblLookups;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblOverrideManager;
+import com.willwinder.universalgcodesender.firmware.IOverrideManager;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
-import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
 
 /**
  * GRBL Control layer, coordinates all aspects of control.
@@ -63,10 +63,16 @@ public class GrblController extends AbstractController {
     private static final GrblLookups ERRORS = new GrblLookups("error_codes");
     private final StatusPollTimer positionPollTimer;
     private final GrblFirmwareSettings firmwareSettings;
+    private final IOverrideManager overrideManager;
     private GrblControllerInitializer initializer;
     private Capabilities capabilities = new Capabilities();
     // Polling state
-    private ControllerStatus controllerStatus = new ControllerStatus(ControllerState.DISCONNECTED, new Position(0, 0, 0, Units.MM), new Position(0, 0, 0, Units.MM));
+    private ControllerStatus controllerStatus = ControllerStatusBuilder.newInstance()
+            .setState(ControllerState.DISCONNECTED)
+            .setWorkCoord(Position.ZERO)
+            .setMachineCoord(Position.ZERO)
+            .build();
+
     // Canceling state
     private Boolean isCanceling = false;     // Set for the position polling thread.
     private int attemptsRemaining;
@@ -88,6 +94,7 @@ public class GrblController extends AbstractController {
         this.firmwareSettings = new GrblFirmwareSettings(this);
         this.comm.addListener(firmwareSettings);
         this.initializer = new GrblControllerInitializer(this);
+        this.overrideManager = new GrblOverrideManager(this, communicator);
     }
 
     public GrblController() {
@@ -556,6 +563,11 @@ public class GrblController extends AbstractController {
         return controllerStatus;
     }
 
+    @Override
+    public IOverrideManager getOverrideManager() {
+        return overrideManager;
+    }
+
     // No longer a listener event
     private void handleStatusString(final String string) {
         if (this.capabilities == null) {
@@ -639,15 +651,6 @@ public class GrblController extends AbstractController {
                 .build();
 
         dispatchStatusString(controllerStatus);
-    }
-
-    @Override
-    public void sendOverrideCommand(Overrides command) throws Exception {
-        Byte realTimeCommand = GrblUtils.getOverrideForEnum(command, capabilities);
-        if (realTimeCommand != null) {
-            this.dispatchConsoleMessage(MessageType.INFO, String.format(">>> 0x%02x\n", realTimeCommand));
-            this.comm.sendByteImmediately(realTimeCommand);
-        }
     }
 
     @Override

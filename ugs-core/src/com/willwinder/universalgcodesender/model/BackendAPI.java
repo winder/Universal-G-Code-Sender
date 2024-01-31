@@ -166,10 +166,6 @@ public interface BackendAPI extends BackendAPIReadOnly {
     void issueSoftReset() throws Exception;
     void requestParserState() throws Exception;
 
-    // Programatically call an override.
-    void sendOverrideCommand(Overrides override) throws Exception;
-           
-    // Shouldn't be needed often.
     IController getController();
 
     /**

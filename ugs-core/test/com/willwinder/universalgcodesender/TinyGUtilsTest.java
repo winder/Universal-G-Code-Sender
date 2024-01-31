@@ -24,15 +24,19 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.listeners.OverridePercents;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Optional;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for the TinyGUtils class
@@ -204,7 +208,7 @@ public class TinyGUtilsTest {
 
     @Test
     public void createOverrideCommandForFeedOverride() {
-        ControllerStatus.OverridePercents overridePercents = new ControllerStatus.OverridePercents(100, 150, 175);
+        OverridePercents overridePercents = new OverridePercents(100, 150, 175);
         Optional<GcodeCommand> overrideCommand = TinyGUtils.createOverrideCommand(new DefaultCommandCreator(), overridePercents, Overrides.CMD_FEED_OVR_COARSE_PLUS);
         assertEquals("{mfo:1.1}", overrideCommand.get().getCommandString());
 
@@ -220,7 +224,7 @@ public class TinyGUtilsTest {
 
     @Test
     public void createOverrideCommandForSpindleOverride() {
-        ControllerStatus.OverridePercents overridePercents = new ControllerStatus.OverridePercents(150, 175, 100);
+        OverridePercents overridePercents = new OverridePercents(150, 175, 100);
         Optional<GcodeCommand> overrideCommand = TinyGUtils.createOverrideCommand(new DefaultCommandCreator(), overridePercents, Overrides.CMD_SPINDLE_OVR_COARSE_PLUS);
         assertEquals("{sso:1.1}", overrideCommand.get().getCommandString());
 
@@ -240,11 +244,11 @@ public class TinyGUtilsTest {
 
         JsonObject response = TinyGUtils.jsonToObject("{sr:{mfo:1.4}}");
         ControllerStatus controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);
-        assertEquals(140, controllerStatus.getOverrides().feed);
+        assertEquals(140, controllerStatus.getOverrides().feed());
 
         response = TinyGUtils.jsonToObject("{sr:{mfo:0.8}}");
         controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);
-        assertEquals(80, controllerStatus.getOverrides().feed);
+        assertEquals(80, controllerStatus.getOverrides().feed());
     }
 
     @Test
@@ -253,10 +257,10 @@ public class TinyGUtilsTest {
 
         JsonObject response = TinyGUtils.jsonToObject("{sr:{sso:1.4}}");
         ControllerStatus controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);
-        assertEquals(140, controllerStatus.getOverrides().spindle);
+        assertEquals(140, controllerStatus.getOverrides().spindle());
 
         response = TinyGUtils.jsonToObject("{sr:{sso:0.8}}");
         controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);
-        assertEquals(80, controllerStatus.getOverrides().spindle);
+        assertEquals(80, controllerStatus.getOverrides().spindle());
     }
 }

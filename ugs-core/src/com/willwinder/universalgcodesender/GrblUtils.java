@@ -1,5 +1,5 @@
 /*
-    Copyright 2012-2023 Will Winder
+    Copyright 2012-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,21 +21,28 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.firmware.grbl.commands.GetStatusCommand;
 import com.willwinder.universalgcodesender.firmware.grbl.commands.GrblSystemCommand;
+import com.willwinder.universalgcodesender.listeners.AccessoryStates;
+import com.willwinder.universalgcodesender.listeners.AccessoryStatesBuilder;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
+import com.willwinder.universalgcodesender.listeners.EnabledPins;
+import com.willwinder.universalgcodesender.listeners.EnabledPinsBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.listeners.OverridePercents;
+import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Collection of useful Grbl related utilities.
@@ -347,10 +354,11 @@ public class GrblUtils {
     public static ControllerStatus getStatusFromStatusStringLegacy(String status, Units reportingUnits) {
         String stateString = StringUtils.defaultString(getStateFromStatusString(status), "unknown");
         ControllerState state = getControllerStateFromStateString(stateString);
-        return new ControllerStatus(
-                state,
-                getMachinePositionFromStatusString(status, reportingUnits),
-                getWorkPositionFromStatusString(status, reportingUnits));
+        return ControllerStatusBuilder.newInstance()
+                .setState(state)
+                .setWorkCoord(getWorkPositionFromStatusString(status, reportingUnits))
+                .setMachineCoord(getMachinePositionFromStatusString(status, reportingUnits))
+                .build();
     }
 
     /**
@@ -404,13 +412,7 @@ public class GrblUtils {
             }
             else if (part.startsWith("Ov:")) {
                 isOverrideReport = true;
-                String[] overrideParts = part.substring(3).trim().split(",");
-                if (overrideParts.length == 3) {
-                    overrides = new OverridePercents(
-                            Integer.parseInt(overrideParts[0]),
-                            Integer.parseInt(overrideParts[1]),
-                            Integer.parseInt(overrideParts[2]));
-                }
+                overrides = parseOverrides(part).orElse(OverridePercents.EMTPY_OVERRIDE_PERCENTS);
             }
             else if (part.startsWith("F:")) {
                 feedSpeed = parseFeedSpeed(part);
@@ -422,11 +424,11 @@ public class GrblUtils {
             }
             else if (part.startsWith("Pn:")) {
                 String value = part.substring(part.indexOf(':')+1);
-                pins = new EnabledPins(value);
+                pins = parseEnabledPins(value);
             }
             else if (part.startsWith("A:")) {
                 String value = part.substring(part.indexOf(':')+1);
-                accessoryStates = new AccessoryStates(value);
+                accessoryStates = parseAccessoryStates(value);
             }
         }
 
@@ -459,6 +461,48 @@ public class GrblUtils {
 
         ControllerState state = getControllerStateFromStateString(stateString);
         return new ControllerStatus(state, subStateString, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates);
+    }
+
+    private static Optional<OverridePercents> parseOverrides(String value) {
+        String[] overrideParts = value.substring(3).trim().split(",");
+        if (overrideParts.length == 3) {
+            return Optional.of(new OverridePercents(
+                    Integer.parseInt(overrideParts[0]),
+                    Integer.parseInt(overrideParts[1]),
+                    Integer.parseInt(overrideParts[2])));
+        }
+        return Optional.empty();
+    }
+
+    private static EnabledPins parseEnabledPins(String value) {
+        String enabledUpper = value.toUpperCase();
+        return  new EnabledPinsBuilder()
+                .setX(enabledUpper.contains("X"))
+                .setY(enabledUpper.contains("Y"))
+                .setZ(enabledUpper.contains("Z"))
+                .setA(enabledUpper.contains("A"))
+                .setB(enabledUpper.contains("B"))
+                .setC(enabledUpper.contains("C"))
+                .setProbe(enabledUpper.contains("P"))
+                .setDoor(enabledUpper.contains("D"))
+                .setHold(enabledUpper.contains("H"))
+                .setSoftReset(enabledUpper.contains("R"))
+                .setCycleStart(enabledUpper.contains("S"))
+                .createEnabledPins();
+    }
+
+    /**
+     * Parses the accessory state string
+     *
+     * @param accessoryStates as a string
+     * @return the parsed accessory state
+     */
+    private static AccessoryStates parseAccessoryStates(String accessoryStates) {
+        String enabledUpper = accessoryStates.toUpperCase();
+        boolean spindleCW = enabledUpper.contains("S");
+        boolean flood = enabledUpper.contains("F");
+        boolean mist = enabledUpper.contains("M");
+        return new AccessoryStatesBuilder().setSpindleCW(spindleCW).setFlood(flood).setMist(mist).createAccessoryStates();
     }
 
     /**
