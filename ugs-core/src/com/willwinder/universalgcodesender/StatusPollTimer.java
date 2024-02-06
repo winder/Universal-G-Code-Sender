@@ -118,7 +118,7 @@ public class StatusPollTimer {
      */
     public void setUpdateInterval(int updateInterval) {
         this.updateInterval = Math.max(updateInterval, 10);
-        if (timer.isRunning()) {
+        if (timer != null && timer.isRunning()) {
             stop();
             start();
         }
