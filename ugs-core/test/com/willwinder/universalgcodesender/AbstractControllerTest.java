@@ -33,8 +33,18 @@ import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.anyString;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.or;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
+import static org.easymock.EasyMock.verify;
 import org.easymock.IMockBuilder;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,15 +52,12 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.assertEquals;
-
 /**
  *
  * @author wwinder
  */
 public class AbstractControllerTest {
-    
+
     private AbstractCommunicator mockCommunicator;
     private ControllerListener mockListener;
     private MessageService mockMessageService;
@@ -68,9 +75,8 @@ public class AbstractControllerTest {
         mockMessageService = EasyMock.createMock(MessageService.class);
         gcodeCreator = new DefaultCommandCreator();
 
-        IMockBuilder<AbstractController> instanceBuilder = EasyMock
-                .createMockBuilder(AbstractController.class)
-                .addMockedMethods(
+        IMockBuilder<AbstractController> instanceBuilder = EasyMock.createMockBuilder(AbstractController.class);
+        instanceBuilder.addMockedMethods(
                         "closeCommBeforeEvent",
                         "closeCommAfterEvent",
                         "openCommAfterEvent",
@@ -134,7 +140,7 @@ public class AbstractControllerTest {
     private void startStreamExpectation(String port, int rate) throws Exception {
         openInstanceExpectUtility(port, rate);
         streamInstanceExpectUtility();
-        
+
         // Making sure the commands get queued.
         mockCommunicator.queueStreamForComm(anyObject(IGcodeStreamReader.class));
         expect(expectLastCall()).times(1);
@@ -172,7 +178,7 @@ public class AbstractControllerTest {
 
         openInstanceExpectUtility(port, rate);
         streamInstanceExpectUtility();
-        
+
         // Making sure the commands get queued.
         mockCommunicator.queueStreamForComm(anyObject(IGcodeStreamReader.class));
         expect(expectLastCall()).times(1);
@@ -200,7 +206,7 @@ public class AbstractControllerTest {
 
         openInstanceExpectUtility(port, rate);
         streamInstanceExpectUtility();
-        
+
         // Making sure the commands get queued.
         mockCommunicator.queueStreamForComm(anyObject(IGcodeStreamReader.class));
         expect(expectLastCall()).times(1);
