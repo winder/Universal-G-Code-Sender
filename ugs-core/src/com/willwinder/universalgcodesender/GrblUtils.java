@@ -51,6 +51,9 @@ import java.util.regex.Pattern;
  */
 public class GrblUtils {
 
+    private GrblUtils() {
+    }
+
     // Note: The Grbl RX buffer is not consumed by real-time commands
     public static final int GRBL_RX_BUFFER_SIZE= 128;
 
@@ -99,8 +102,8 @@ public class GrblUtils {
     /**
      * Parses the version double out of the version response string.
      */
-    final static String VERSION_DOUBLE_REGEX = "[0-9]*\\.[0-9]*";
-    final static Pattern VERSION_DOUBLE_PATTERN = Pattern.compile(VERSION_DOUBLE_REGEX);
+    static final String VERSION_DOUBLE_REGEX = "[0-9]*\\.[0-9]*";
+    static final Pattern VERSION_DOUBLE_PATTERN = Pattern.compile(VERSION_DOUBLE_REGEX);
     public static double getVersionDouble(final String response) {
         double retValue = -1;
 
@@ -113,8 +116,8 @@ public class GrblUtils {
         return retValue;
     }
 
-    final static String VERSION_LETTER_REGEX = "(?<=[0-9]\\.[0-9])[a-zA-Z]";
-    final static Pattern VERSION_LETTER_PATTERN = Pattern.compile(VERSION_LETTER_REGEX);
+    static final String VERSION_LETTER_REGEX = "(?<=[0-9]\\.[0-9])[a-zA-Z]";
+    static final Pattern VERSION_LETTER_PATTERN = Pattern.compile(VERSION_LETTER_REGEX);
     public static Character getVersionLetter(final String response) {
         Character retValue = null;
 
@@ -127,7 +130,7 @@ public class GrblUtils {
         return retValue;
     }
 
-    static protected String getHomingCommand(final double version, final Character letter) {
+    protected static String getHomingCommand(final double version, final Character letter) {
         if ((version >= 0.8 && (letter != null) && (letter >= 'c'))
                 || version >= 0.9) {
             return GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C;
@@ -196,7 +199,7 @@ public class GrblUtils {
 
     }
 
-    static protected String getKillAlarmLockCommand(final double version, final Character letter) {
+    protected static String getKillAlarmLockCommand(final double version, final Character letter) {
         if ((version >= 0.8 && (letter != null) && letter >= 'c')
                 || version >= 0.9) {
             return GrblUtils.GRBL_KILL_ALARM_LOCK_COMMAND;
@@ -206,7 +209,7 @@ public class GrblUtils {
         }
     }
 
-    static protected String getToggleCheckModeCommand(final double version, final Character letter) {
+    protected static String getToggleCheckModeCommand(final double version, final Character letter) {
         if ((version >= 0.8 && (letter != null) && letter >= 'c')
                 || version >= 0.9) {
             return GrblUtils.GRBL_TOGGLE_CHECK_MODE_COMMAND;
@@ -216,7 +219,7 @@ public class GrblUtils {
         }
     }
 
-    static protected String getViewParserStateCommand(final double version, final Character letter) {
+    protected static String getViewParserStateCommand(final double version, final Character letter) {
         if ((version >= 0.8 && (letter != null) && letter >= 'c')
                 || version >= 0.9) {
             return GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND;
@@ -229,7 +232,7 @@ public class GrblUtils {
     /**
      * Determines version of GRBL position capability.
      */
-    static protected Capabilities getGrblStatusCapabilities(final double version, final Character letter) {
+    protected static Capabilities getGrblStatusCapabilities(final double version, final Character letter) {
         Capabilities ret = new Capabilities();
         ret.addCapability(CapabilitiesConstants.JOGGING);
         ret.addCapability(CapabilitiesConstants.CHECK_MODE);
@@ -266,7 +269,7 @@ public class GrblUtils {
         return ret;
     }
 
-    static protected Position parseProbePosition(final String response, final Units units) {
+    protected static Position parseProbePosition(final String response, final Units units) {
         // Don't parse failed probe response.
         if (response.endsWith(":0]")) {
             return null;
@@ -286,7 +289,8 @@ public class GrblUtils {
 
     private static final String PROBE_REGEX = "\\[PRB:.*]";
     private static final Pattern PROBE_PATTERN = Pattern.compile(PROBE_REGEX);
-    static protected boolean isGrblProbeMessage(final String response) {
+
+    protected static boolean isGrblProbeMessage(final String response) {
         return PROBE_PATTERN.matcher(response).find();
     }
 
@@ -304,7 +308,7 @@ public class GrblUtils {
         return response.startsWith("[GC:");
     }
 
-    static protected String parseFeedbackMessage(final String response, Capabilities c) {
+    protected static String parseFeedbackMessage(final String response, Capabilities c) {
         if (c.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)) {
             return parseFeedbackMessageV1(response);
         } else {
@@ -318,7 +322,8 @@ public class GrblUtils {
 
     private static final String SETTING_REGEX = "\\$\\d+=.+";
     private static final Pattern SETTING_PATTERN = Pattern.compile(SETTING_REGEX);
-    static protected boolean isGrblSettingMessage(final String response) {
+
+    protected static boolean isGrblSettingMessage(final String response) {
         return SETTING_PATTERN.matcher(response).find();
     }
 
@@ -333,7 +338,7 @@ public class GrblUtils {
      * @param reportingUnits units
      * @return the parsed controller status
      */
-    static protected ControllerStatus getStatusFromStatusString(
+    protected static ControllerStatus getStatusFromStatusString(
             ControllerStatus lastStatus, final String status,
             final Capabilities version, Units reportingUnits) {
         // Legacy status.
@@ -534,8 +539,8 @@ public class GrblUtils {
     /**
      * Parse state out of position string.
      */
-    final static String STATUS_STATE_REGEX = "(?<=<)[a-zA-z]*(?=[,>])";
-    final static Pattern STATUS_STATE_PATTERN = Pattern.compile(STATUS_STATE_REGEX);
+    static final String STATUS_STATE_REGEX = "(?<=<)[a-zA-z]*(?=[,>])";
+    static final Pattern STATUS_STATE_PATTERN = Pattern.compile(STATUS_STATE_REGEX);
     protected static String getStateFromStatusString(final String status) {
         String retValue = null;
         Matcher matcher = STATUS_STATE_PATTERN.matcher(status);
@@ -545,8 +550,8 @@ public class GrblUtils {
         return retValue;
     }
 
-    private  final static String STATUS_VERSION_1_REGEX = "^<[a-zA-Z]+[|]+.*>$";
-    private final static Pattern STATUS_VERSION_1_PATTERN = Pattern.compile(STATUS_VERSION_1_REGEX);
+    private static final String STATUS_VERSION_1_REGEX = "^<[a-zA-Z]+[|]+.*>$";
+    private static final Pattern STATUS_VERSION_1_PATTERN = Pattern.compile(STATUS_VERSION_1_REGEX);
 
     public static boolean isGrblStatusStringV1(String response) {
         return STATUS_VERSION_1_PATTERN.matcher(response).matches();
@@ -573,11 +578,12 @@ public class GrblUtils {
     static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
     static Pattern workPattern = Pattern.compile("(?<=WPos:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
     static Pattern wcoPattern = Pattern.compile("(?<=WCO:)(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*),(-?\\d*\\.?\\d*)(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?(?:,(-?\\d*\\.?\\d+))?");
-    static protected Position getMachinePositionFromStatusString(final String status, Units reportingUnits) {
+
+    protected static Position getMachinePositionFromStatusString(final String status, Units reportingUnits) {
         return GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
     }
 
-    static protected Position getWorkPositionFromStatusString(final String status, Units reportingUnits) {
+    protected static Position getWorkPositionFromStatusString(final String status, Units reportingUnits) {
         return GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits);
     }
 
@@ -609,43 +615,27 @@ public class GrblUtils {
     /**
      * Map version enum to GRBL real time command byte.
      */
-    static public Byte getOverrideForEnum(final Overrides command, final Capabilities version) {
+    public static Byte getOverrideForEnum(final Overrides command, final Capabilities version) {
         if (version != null && version.hasOverrides()) {
-            switch (command) {
+            return switch (command) {
                 //CMD_DEBUG_REPORT, // 0x85 // Only when DEBUG enabled, sends debug report in '{}' braces.
-                case CMD_FEED_OVR_RESET:
-                    return (byte)0x90; // Restores feed override value to 100%.
-                case CMD_FEED_OVR_COARSE_PLUS:
-                    return (byte)0x91;
-                case CMD_FEED_OVR_COARSE_MINUS:
-                    return (byte)0x92;
-                case CMD_FEED_OVR_FINE_PLUS :
-                    return (byte)0x93;
-                case CMD_FEED_OVR_FINE_MINUS :
-                    return (byte)0x94;
-                case CMD_RAPID_OVR_RESET:
-                    return (byte)0x95;
-                case CMD_RAPID_OVR_MEDIUM:
-                    return (byte)0x96;
-                case CMD_RAPID_OVR_LOW:
-                    return (byte)0x97;
-                case CMD_SPINDLE_OVR_RESET:
-                    return (byte)0x99; // Restores spindle override value to 100%.
-                case CMD_SPINDLE_OVR_COARSE_PLUS:
-                    return (byte)0x9A;
-                case CMD_SPINDLE_OVR_COARSE_MINUS:
-                    return (byte)0x9B;
-                case CMD_SPINDLE_OVR_FINE_PLUS:
-                    return (byte)0x9C;
-                case CMD_SPINDLE_OVR_FINE_MINUS:
-                    return (byte)0x9D;
-                case CMD_TOGGLE_SPINDLE:
-                    return (byte)0x9E;
-                case CMD_TOGGLE_FLOOD_COOLANT:
-                    return (byte)0xA0;
-                case CMD_TOGGLE_MIST_COOLANT:
-                    return (byte)0xA1;
-            }
+                case CMD_FEED_OVR_RESET -> (byte) 0x90; // Restores feed override value to 100%.
+                case CMD_FEED_OVR_COARSE_PLUS -> (byte) 0x91;
+                case CMD_FEED_OVR_COARSE_MINUS -> (byte) 0x92;
+                case CMD_FEED_OVR_FINE_PLUS -> (byte) 0x93;
+                case CMD_FEED_OVR_FINE_MINUS -> (byte) 0x94;
+                case CMD_RAPID_OVR_RESET -> (byte) 0x95;
+                case CMD_RAPID_OVR_MEDIUM -> (byte) 0x96;
+                case CMD_RAPID_OVR_LOW -> (byte) 0x97;
+                case CMD_SPINDLE_OVR_RESET -> (byte) 0x99; // Restores spindle override value to 100%.
+                case CMD_SPINDLE_OVR_COARSE_PLUS -> (byte) 0x9A;
+                case CMD_SPINDLE_OVR_COARSE_MINUS -> (byte) 0x9B;
+                case CMD_SPINDLE_OVR_FINE_PLUS -> (byte) 0x9C;
+                case CMD_SPINDLE_OVR_FINE_MINUS -> (byte) 0x9D;
+                case CMD_TOGGLE_SPINDLE -> (byte) 0x9E;
+                case CMD_TOGGLE_FLOOD_COOLANT -> (byte) 0xA0;
+                case CMD_TOGGLE_MIST_COOLANT -> (byte) 0xA1;
+            };
         }
         return null;
     }
@@ -703,11 +693,11 @@ public class GrblUtils {
     }
 
     private static GetStatusCommand queryForStatusReport(GrblController controller) throws InterruptedException {
-        return sendAndWaitForCompletionWithRetry(GetStatusCommand::new, controller, 1000, 3, (executionNumber) -> {
+        return sendAndWaitForCompletionWithRetry(GetStatusCommand::new, controller, 1000, 10, executionNumber -> {
             if (executionNumber == 1) {
                 controller.getMessageService().dispatchMessage(MessageType.INFO, "*** Fetching device status\n");
             } else {
-                controller.getMessageService().dispatchMessage(MessageType.INFO, "*** Fetching device status (" + executionNumber + " of 3)...\n");
+                controller.getMessageService().dispatchMessage(MessageType.INFO, "*** Fetching device status (" + executionNumber + " of 10)...\n");
             }
         });
     }
