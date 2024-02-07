@@ -101,7 +101,7 @@ public class GrblControllerInitializerTest {
         RuntimeException exception = assertThrows(RuntimeException.class, instance::initialize);
         assertEquals("Could not query the device status", exception.getMessage());
 
-        verify(controller, times(3)).sendCommandImmediately(any(GetStatusCommand.class));
+        verify(controller, times(10)).sendCommandImmediately(any(GetStatusCommand.class));
         verify(controller, times(0)).issueSoftReset();
     }
 
