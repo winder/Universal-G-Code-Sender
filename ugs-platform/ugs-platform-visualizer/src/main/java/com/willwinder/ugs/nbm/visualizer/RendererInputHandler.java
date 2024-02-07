@@ -36,7 +36,9 @@ import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
+import org.apache.commons.lang3.SystemUtils;
 
+import javax.swing.SwingUtilities;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
@@ -52,7 +54,6 @@ import java.awt.event.WindowListener;
 import java.awt.geom.AffineTransform;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
-import javax.swing.SwingUtilities;
 
 /**
  * Process all the listeners and call methods in the renderer.
@@ -62,16 +63,18 @@ import javax.swing.SwingUtilities;
 public class RendererInputHandler implements
         WindowListener, MouseWheelListener, MouseMotionListener,
         MouseListener, KeyListener, PreferenceChangeListener, UGSEventListener {
-    final private GcodeRenderer gcodeRenderer;
-    final private FPSAnimator animator;
+    private static final int HIGH_FPS = 15;
+    private static final int LOW_FPS = 4;
+    private final GcodeRenderer gcodeRenderer;
+    private final FPSAnimator animator;
     private final BackendAPI backend;
     private final GcodeModel gcodeModel;
     private final SizeDisplay sizeDisplay;
     private final Selection selection;
     private final Settings settings;
-
-    private static final int HIGH_FPS = 15;
-    private static final int LOW_FPS = 4;
+    private boolean selecting = false;
+    private Position selectionStart = null;
+    private Position selectionEnd = null;
 
     public RendererInputHandler(GcodeRenderer gr, FPSAnimator a, BackendAPI backend) {
         gcodeRenderer = gr;
@@ -88,6 +91,22 @@ public class RendererInputHandler implements
         gr.registerRenderable(gcodeModel);
         gr.registerRenderable(sizeDisplay);
         gr.registerRenderable(selection);
+    }
+
+    /**
+     * Returns the pixel coordinate with the screen scale applied to it.
+     *
+     * @param x the point x
+     * @param y the point y
+     * @return a screen pixel coordinate
+     */
+    private static Point getScreenPoint(int x, int y) {
+        if (!SystemUtils.IS_OS_WINDOWS) {
+            return new Point(x, y);
+        }
+        GraphicsConfiguration graphicsConfiguration = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+        AffineTransform defaultTransform = graphicsConfiguration.getDefaultTransform();
+        return new Point((int) Math.round(x * defaultTransform.getScaleX()), (int) Math.round(y * defaultTransform.getScaleY()));
     }
 
     private void setFPS(int fps) {
@@ -184,12 +203,6 @@ public class RendererInputHandler implements
         gcodeRenderer.mouseMoved(point);
     }
 
-    private static Point getScreenPoint(int x, int y) {
-        GraphicsConfiguration graphicsConfiguration = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
-        AffineTransform defaultTransform = graphicsConfiguration.getDefaultTransform();
-        return new Point((int) Math.round(x * defaultTransform.getScaleX()), (int) Math.round(y * defaultTransform.getScaleY()));
-    }
-
     /**
      * Mouse Wheel Listener
      */
@@ -253,10 +266,6 @@ public class RendererInputHandler implements
             visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
         }
     }
-
-    private boolean selecting = false;
-    private Position selectionStart = null;
-    private Position selectionEnd = null;
 
     /**
      * Mouse pressed is called on mouse-down.
