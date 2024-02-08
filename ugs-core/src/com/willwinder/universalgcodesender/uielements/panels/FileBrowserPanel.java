@@ -49,13 +49,10 @@ import java.io.File;
  */
 public final class FileBrowserPanel extends JPanel implements UGSEventListener {
     private final transient BackendAPI backend;
-    private JTree fileTree;
-    private DefaultTreeModel treeModel;
+    private final JTree fileTree;
     private File currentFile;
-
-    private JTextField currentPathField;
-    private JButton goButton;
-    private JCheckBox showHiddenCheckBox;
+    private final JTextField currentPathField;
+    private final JCheckBox showHiddenCheckBox;
 
     public FileBrowserPanel(BackendAPI backend) {
         this.backend = backend;
@@ -65,7 +62,7 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
         currentPathField = new JTextField();
         northPanel.add(currentPathField, BorderLayout.CENTER);
 
-        goButton = new JButton("Go");
+        JButton goButton = new JButton("Go");
         northPanel.add(goButton, BorderLayout.EAST);
 
         showHiddenCheckBox = new JCheckBox("Show Hidden", false);
@@ -76,7 +73,7 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
         File initialDirectory = new File(System.getProperty("user.home"));
 
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(new FileNode(initialDirectory));
-        treeModel = new DefaultTreeModel(rootNode);
+        DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
         fileTree = new JTree(treeModel);
 
         fileTree.setRootVisible(true);
