@@ -110,6 +110,37 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
             }
         });
 
+        fileTree.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    TreePath path = fileTree.getSelectionPath(); // Get the selected path
+                    if (path != null) {
+                        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+                        if (selectedNode.getUserObject() instanceof FileNode fileNode) {
+                            if (fileNode.displayName.startsWith("..")) {
+                                DefaultMutableTreeNode upperNode = (DefaultMutableTreeNode) selectedNode.getParent();
+                                File upperPath = ((FileNode) upperNode.getUserObject()).getFile();
+                                File parentFile = upperPath.getParentFile();
+                                setDirectory(parentFile);
+                            } else if (fileNode.getFile().isDirectory()) {
+                                setDirectory(fileNode.getFile());
+                            } else {
+                                File gcodeFile = fileNode.getFile();
+                                GUIHelpers.openGcodeFile(gcodeFile, backend);
+                            }
+                        }
+                    }
+                } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                    // Navigate up when backspace is pressed
+                    File parentFile = currentFile.getParentFile();
+                    if (parentFile != null) {
+                        setDirectory(parentFile);
+                    }
+                }
+            }
+        });
+
         fileTree.addTreeWillExpandListener(new TreeWillExpandListener() {
             @Override
             public void treeWillExpand(TreeExpansionEvent event) {
