@@ -177,6 +177,24 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
             boolean showHidden = e.getStateChange() == ItemEvent.SELECTED;
             refreshFileList(showHidden);
         });
+
+        addAncestorListener(new AncestorListener() {
+            @Override
+            public void ancestorAdded(AncestorEvent event) {
+                // Request focus for the JTree when the panel is shown
+                fileTree.requestFocusInWindow();
+            }
+
+            @Override
+            public void ancestorRemoved(AncestorEvent event) {
+            }
+
+            @Override
+            public void ancestorMoved(AncestorEvent event) {
+                // Handle case when the panel or its ancestor is moved, if necessary
+                fileTree.requestFocusInWindow();
+            }
+        });
     }
 
     public void setDirectory(File directory) {
