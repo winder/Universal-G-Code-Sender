@@ -89,6 +89,7 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
         fileTree = new JTree(treeModel);
         fileTree.setCellRenderer(new FileTreeCellRenderer());
         fileTree.setRootVisible(false);
+        fileTree.setShowsRootHandles(true);
         JScrollPane treeScroll = new JScrollPane(fileTree);
         add(treeScroll, BorderLayout.CENTER);
 
