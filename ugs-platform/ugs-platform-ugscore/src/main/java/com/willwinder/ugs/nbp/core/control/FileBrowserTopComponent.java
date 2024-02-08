@@ -22,7 +22,7 @@ import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.panels.FileBrowserPanel;
+import com.willwinder.ugs.nbp.core.panels.FileBrowserPanel;
 
 import java.awt.BorderLayout;
 

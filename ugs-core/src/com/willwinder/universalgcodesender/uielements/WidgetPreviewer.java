@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
-import com.willwinder.universalgcodesender.uielements.panels.FileBrowserPanel;
 import com.willwinder.universalgcodesender.uielements.panels.SendStatusPanel;
 import com.willwinder.universalgcodesender.uielements.toolbars.*;
 import com.willwinder.universalgcodesender.uielements.panels.OverridesPanel;
@@ -82,7 +81,6 @@ public class WidgetPreviewer {
         panel.add(frameLauncherButton("MacroActionPanel", new MacroActionPanel(backend)));
         panel.add(frameLauncherButton("MacroSettingsPanel", new MacroSettingsPanel(backend)));
         panel.add(frameLauncherButton("OverridesPanel", new OverridesPanel(backend)));
-        panel.add(frameLauncherButton("FileBrowser", new FileBrowserPanel(backend)));
         panel.add(frameLauncherButton("SendStatusLine", new SendStatusLine(backend)));
         panel.add(frameLauncherButton("SendStatusPanel", new SendStatusPanel(backend)));
         panel.add(frameLauncherButton("ActionButtonPanel", new ActionButtonPanel(backend)));
