@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.panels;
 
+import com.willwinder.ugs.nbp.core.actions.OpenFileAction;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -112,7 +113,7 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
                             setDirectory(fileNode.getFile());
                         } else {
                             File gcodeFile = fileNode.getFile();
-                            GUIHelpers.openGcodeFile(gcodeFile, backend);
+                            new OpenFileAction(gcodeFile).actionPerformed(null);
                         }
                     }
                 }
