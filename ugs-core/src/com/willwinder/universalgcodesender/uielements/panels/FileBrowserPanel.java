@@ -23,6 +23,18 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 
+import java.awt.Component;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.BorderLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import java.io.File;
+import org.openide.util.ImageUtilities;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -30,17 +42,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import java.awt.BorderLayout;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
+
 
 /**
  * Displays a list of files and directories in a given directory.
@@ -70,21 +80,19 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
 
         add(northPanel, BorderLayout.NORTH);
 
-        File initialDirectory = new File(System.getProperty("user.home"));
+        File initialDirectory = backend != null ?
+                new File(backend.getSettings().getLastWorkingDirectory()) :
+                new File(System.getProperty("user.home"));
 
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(new FileNode(initialDirectory));
         DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
         fileTree = new JTree(treeModel);
-
-        fileTree.setRootVisible(true);
-        fileTree.setShowsRootHandles(true);
+        fileTree.setCellRenderer(new FileTreeCellRenderer());
+        fileTree.setRootVisible(false);
         JScrollPane treeScroll = new JScrollPane(fileTree);
         add(treeScroll, BorderLayout.CENTER);
 
-        setDirectory(backend != null ?
-                        new File(backend.getSettings().getLastWorkingDirectory()) :
-                        initialDirectory
-                    );
+        setDirectory(initialDirectory);
 
         fileTree.addMouseListener(new MouseAdapter() {
             @Override
@@ -94,7 +102,7 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
                     if (path != null) {
                         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
                         FileNode fileNode = (FileNode) selectedNode.getUserObject();
-                        if (fileNode.displayName.equals("..")) {
+                        if (fileNode.displayName.startsWith("..")) {
                             DefaultMutableTreeNode upperNode = (DefaultMutableTreeNode) selectedNode.getParent();
                             File upperPath = ((FileNode) upperNode.getUserObject()).getFile();
                             File parentFile = upperPath.getParentFile();
@@ -181,7 +189,8 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
     private void refreshFileList(boolean showHidden) {
         DefaultMutableTreeNode newRootNode = new DefaultMutableTreeNode(new FileNode(currentFile));
         if (currentFile.getParentFile() != null) {
-            newRootNode.add(new DefaultMutableTreeNode(new FileNode(null, "..")));
+            newRootNode.add(new DefaultMutableTreeNode(new FileNode(null, ". (" + currentFile.getName() + ")")));
+            newRootNode.add(new DefaultMutableTreeNode(new FileNode(null, ".. (" + currentFile.getParentFile().getName() + ")")));
         }
         createChildren(newRootNode, currentFile, showHidden);
 
@@ -222,7 +231,6 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
         }
     }
 
-
     @Override
     public void UGSEvent(UGSEvent evt) {
         // React to events as needed
@@ -253,6 +261,34 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
         @Override
         public String toString() {
             return displayName;
+        }
+    }
+
+    public static class FileTreeCellRenderer extends DefaultTreeCellRenderer {
+
+        public static final String SMALL_GCODE_ICON = "icons/new.svg";
+        public static final String SMALL_FOLDER_ICON = "resources/icons/open.svg";
+        public static final String SMALL_PARENT_ICON = "resources/icons/reload.svg";
+
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+            if (node.getUserObject() instanceof FileNode fileNode) {
+                if (fileNode.getFile() == null) {
+                    setIcon(ImageUtilities.loadImageIcon(SMALL_PARENT_ICON, false));
+                } else if (fileNode.getFile().isFile()) {
+                    String fileName = fileNode.getFile().getName();
+                    if (fileName.matches(".*\\.(gcode|GCODE|cnc|CNC|nc|NC|ngc|NGC|tap|TAP|txt|TXT|gc|GC)")) {
+                        setIcon(ImageUtilities.loadImageIcon(SMALL_GCODE_ICON, false));
+                    }
+                } else if (fileNode.getFile().isDirectory() && !fileNode.displayName.startsWith("..")) {
+                    setIcon(ImageUtilities.loadImageIcon(SMALL_FOLDER_ICON, false));
+                }
+            }
+
+            return this;
         }
     }
 }
