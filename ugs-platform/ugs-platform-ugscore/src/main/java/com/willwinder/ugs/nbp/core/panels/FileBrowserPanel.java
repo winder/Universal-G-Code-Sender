@@ -64,6 +64,7 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
     private File currentFile;
     private final JTextField currentPathField;
     private final JCheckBox showHiddenCheckBox;
+    private final JButton goButton;
 
     public FileBrowserPanel(BackendAPI backend) {
         this.backend = backend;
@@ -73,7 +74,7 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
         currentPathField = new JTextField();
         northPanel.add(currentPathField, BorderLayout.CENTER);
 
-        JButton goButton = new JButton("Go");
+        goButton = new JButton("Go");
         northPanel.add(goButton, BorderLayout.EAST);
 
         showHiddenCheckBox = new JCheckBox("Show Hidden", false);
@@ -81,9 +82,7 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
 
         add(northPanel, BorderLayout.NORTH);
 
-        File initialDirectory = backend != null ?
-                new File(backend.getSettings().getLastWorkingDirectory()) :
-                new File(System.getProperty("user.home"));
+        File initialDirectory = new File(backend.getSettings().getLastWorkingDirectory());
 
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(new FileNode(initialDirectory));
         DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
@@ -101,21 +100,7 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     TreePath path = fileTree.getPathForLocation(e.getX(), e.getY());
-                    if (path != null) {
-                        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-                        FileNode fileNode = (FileNode) selectedNode.getUserObject();
-                        if (fileNode.displayName.startsWith("..")) {
-                            DefaultMutableTreeNode upperNode = (DefaultMutableTreeNode) selectedNode.getParent();
-                            File upperPath = ((FileNode) upperNode.getUserObject()).getFile();
-                            File parentFile = upperPath.getParentFile();
-                            setDirectory(parentFile);
-                        } else if (fileNode.getFile().isDirectory()) {
-                            setDirectory(fileNode.getFile());
-                        } else {
-                            File gcodeFile = fileNode.getFile();
-                            new OpenFileAction(gcodeFile).actionPerformed(null);
-                        }
-                    }
+                    openFileFromFileNode(path);
                 }
             }
         });
@@ -126,20 +111,7 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     TreePath path = fileTree.getSelectionPath(); // Get the selected path
                     if (path != null) {
-                        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-                        if (selectedNode.getUserObject() instanceof FileNode fileNode) {
-                            if (fileNode.displayName.startsWith("..")) {
-                                DefaultMutableTreeNode upperNode = (DefaultMutableTreeNode) selectedNode.getParent();
-                                File upperPath = ((FileNode) upperNode.getUserObject()).getFile();
-                                File parentFile = upperPath.getParentFile();
-                                setDirectory(parentFile);
-                            } else if (fileNode.getFile().isDirectory()) {
-                                setDirectory(fileNode.getFile());
-                            } else {
-                                File gcodeFile = fileNode.getFile();
-                                GUIHelpers.openGcodeFile(gcodeFile, backend);
-                            }
-                        }
+                        openFileFromFileNode(path);
                     }
                 } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
                     // Navigate up when backspace is pressed
@@ -197,6 +169,28 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
                 fileTree.requestFocusInWindow();
             }
         });
+    }
+
+    private void openFileFromFileNode(TreePath path) {
+        if (!this.isEnabled()) {
+            return;
+        }
+
+        if (path != null) {
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+            FileNode fileNode = (FileNode) selectedNode.getUserObject();
+            if (fileNode.displayName.startsWith("..")) {
+                DefaultMutableTreeNode upperNode = (DefaultMutableTreeNode) selectedNode.getParent();
+                File upperPath = ((FileNode) upperNode.getUserObject()).getFile();
+                File parentFile = upperPath.getParentFile();
+                setDirectory(parentFile);
+            } else if (fileNode.getFile().isDirectory()) {
+                setDirectory(fileNode.getFile());
+            } else {
+                File gcodeFile = fileNode.getFile();
+                new OpenFileAction(gcodeFile).actionPerformed(null);
+            }
+        }
     }
 
     public void setDirectory(File directory) {
