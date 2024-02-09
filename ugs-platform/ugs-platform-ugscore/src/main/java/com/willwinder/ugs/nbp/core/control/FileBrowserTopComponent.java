@@ -37,14 +37,11 @@ import org.openide.awt.ActionReference;
 import org.openide.modules.OnStart;
 import org.openide.windows.TopComponent;
 
-
 /**
  * Top component which displays something.
  */
 @TopComponent.Description(
-        preferredID = "FileBrowserTopComponent",
-        //iconBase="SET/PATH/TO/ICON/HERE", 
-        persistenceType = TopComponent.PERSISTENCE_ALWAYS
+        preferredID = "FileBrowserTopComponent"
 )
 @TopComponent.Registration(mode = Mode.LEFT_TOP, openAtStartup = true)
 @ActionID(category = FileBrowserPanelCategory, id = FileBrowserPanelActionId)
@@ -58,7 +55,8 @@ public final class FileBrowserTopComponent extends TopComponent {
     public FileBrowserTopComponent() {
         this.setLayout(new BorderLayout());
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        this.add(new FileBrowserPanel(backend), BorderLayout.CENTER);
+        FileBrowserPanel panel = new FileBrowserPanel(backend);
+        this.add(panel, BorderLayout.CENTER);
     }
 
     @Override

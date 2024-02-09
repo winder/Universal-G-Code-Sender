@@ -19,10 +19,12 @@
 package com.willwinder.ugs.nbp.core.panels;
 
 import com.willwinder.ugs.nbp.core.actions.OpenFileAction;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 
 import java.awt.Component;
 import java.awt.event.KeyAdapter;
@@ -34,6 +36,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import java.io.File;
+
 import org.openide.util.ImageUtilities;
 
 import javax.swing.JButton;
@@ -68,6 +71,7 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
 
     public FileBrowserPanel(BackendAPI backend) {
         this.backend = backend;
+        backend.addUGSEventListener(this);
         setLayout(new BorderLayout());
 
         JPanel northPanel = new JPanel(new BorderLayout());
@@ -245,9 +249,32 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
         }
     }
 
+    private void setPanelEnabled(boolean enabled) {
+        this.setEnabled(enabled);
+        goButton.setEnabled(enabled);
+        fileTree.setEnabled(enabled);
+        currentPathField.setEnabled(enabled);
+        showHiddenCheckBox.setEnabled(enabled);
+    }
+
+    private void setEnabledFromStatus(ControllerState controllerStateEvent) {
+        switch (controllerStateEvent) {
+            case DISCONNECTED, IDLE, UNKNOWN:
+                setPanelEnabled(true);
+                break;
+            default:
+                setPanelEnabled(false);
+                break;
+        }
+    }
+
     @Override
     public void UGSEvent(UGSEvent evt) {
-        // React to events as needed
+        if (evt instanceof ControllerStateEvent controllerStateEvent) {
+            setEnabledFromStatus(controllerStateEvent.getState());
+        } else if (evt instanceof ControllerStatusEvent controllerStatusEvent) {
+            setEnabledFromStatus(controllerStatusEvent.getStatus().getState());
+        }
     }
 
     private static class FileNode {
