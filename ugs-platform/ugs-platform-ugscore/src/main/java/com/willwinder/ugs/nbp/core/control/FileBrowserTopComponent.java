@@ -43,7 +43,7 @@ import org.openide.windows.TopComponent;
 @TopComponent.Description(
         preferredID = "FileBrowserTopComponent"
 )
-@TopComponent.Registration(mode = Mode.LEFT_TOP, openAtStartup = true)
+@TopComponent.Registration(mode = Mode.LEFT_TOP, openAtStartup = false, position = 2200)
 @ActionID(category = FileBrowserPanelCategory, id = FileBrowserPanelActionId)
 @ActionReference(path = FileBrowserPanelWindowPath)
 @TopComponent.OpenActionRegistration(
