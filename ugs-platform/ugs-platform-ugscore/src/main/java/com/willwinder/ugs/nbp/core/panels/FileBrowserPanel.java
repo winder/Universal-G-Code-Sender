@@ -306,34 +306,26 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
     }
 
     public static class FileTreeCellRenderer extends DefaultTreeCellRenderer {
-
         public static final String SMALL_GCODE_ICON = "icons/new.svg";
-        public static final String SMALL_GCODE_DISABLED_ICON = "icons/new_dark.svg";
-        public static final String SMALL_FOLDER_ICON = "resources/icons/open.svg";
-        public static final String SMALL_FOLDER_DISABLED_ICON = "resources/icons/open_dark.svg";
-        public static final String SMALL_PARENT_ICON = "resources/icons/reload.svg";
-        public static final String SMALL_PARENT_DISABLED_ICON = "resources/icons/reload_dark.svg";
 
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-            if (node.getUserObject() instanceof FileNode fileNode) {
-                if (fileNode.displayName.startsWith("..")) {
-                    setIcon(ImageUtilities.loadImageIcon(tree.isEnabled() ? SMALL_PARENT_ICON : SMALL_PARENT_DISABLED_ICON, false));
-                } else if (fileNode.getFile() != null && fileNode.getFile().isFile()) {
-                    String fileName = fileNode.getFile().getName();
-                    if (fileName.matches(".*\\.(gcode|GCODE|cnc|CNC|nc|NC|ngc|NGC|tap|TAP|txt|TXT|gc|GC)")) {
-                        setIcon(ImageUtilities.loadImageIcon(tree.isEnabled() ? SMALL_GCODE_ICON : SMALL_GCODE_DISABLED_ICON, false));
-                    }
-                } else if ((fileNode.getFile() == null || fileNode.getFile().isDirectory()) && !fileNode.displayName.startsWith("..")) {
-                    setIcon(ImageUtilities.loadImageIcon(tree.isEnabled() ? SMALL_FOLDER_ICON : SMALL_FOLDER_DISABLED_ICON, false));
-                }
+            if (!(node.getUserObject() instanceof FileNode fileNode)) {
+                return this;
             }
 
-            if (!tree.isEnabled()) {
-                setDisabledIcon(getIcon());
+            if (fileNode.getFile() == null) {
+                setIcon(getDefaultOpenIcon());
+                setDisabledIcon(getDefaultOpenIcon());
+            } else if (fileNode.getFile().isFile()) {
+                String fileName = fileNode.getFile().getName();
+                if (fileName.matches(".*\\.(gcode|GCODE|cnc|CNC|nc|NC|ngc|NGC|tap|TAP|txt|TXT|gc|GC)")) {
+                    setIcon(ImageUtilities.loadImageIcon(SMALL_GCODE_ICON, false));
+                    setDisabledIcon(ImageUtilities.loadImageIcon(SMALL_GCODE_ICON, false));
+                }
             }
 
             return this;
