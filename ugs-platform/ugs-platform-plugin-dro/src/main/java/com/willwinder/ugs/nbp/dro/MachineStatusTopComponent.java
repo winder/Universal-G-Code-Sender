@@ -43,7 +43,8 @@ import javax.swing.*;
 )
 @TopComponent.Registration(
         mode = Mode.LEFT_TOP,
-        openAtStartup = true
+        openAtStartup = true,
+        position = 100
 )
 @ActionID(
         category = LocalizingService.LocationStatusCategory,
