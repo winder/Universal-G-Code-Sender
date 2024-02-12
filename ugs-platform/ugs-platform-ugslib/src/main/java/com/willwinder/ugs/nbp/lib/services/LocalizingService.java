@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2021 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -297,6 +297,12 @@ public class LocalizingService {
     public final static String DiagnosticsWindowPath = MENU_WINDOW;
     public final static String DiagnosticsActionId = "com.willwinder.ugs.nbp.core.windows.DiagnosticsTopComponent";
     public final static String DiagnosticsCategory = CATEGORY_WINDOW;
+
+    public final static String FileBrowserPanelTitle =  Localization.getString("platform.window.fileBrowser", lang);
+    public final static String FileBrowserPanelTooltip = Localization.getString("platform.window.fileBrowser.tooltip", lang);
+    public final static String FileBrowserPanelActionId = "com.willwinder.ugs.nbp.core.windows.FileBrowserTopComponent";
+    public final static String FileBrowserPanelWindowPath = MENU_WINDOW;
+    public final static String FileBrowserPanelCategory = CATEGORY_WINDOW;
 
     public final static String RunFromTitleKey = "platform.menu.runFrom";
     public final static String RunFromTitle = Localization.getString(RunFromTitleKey, lang);

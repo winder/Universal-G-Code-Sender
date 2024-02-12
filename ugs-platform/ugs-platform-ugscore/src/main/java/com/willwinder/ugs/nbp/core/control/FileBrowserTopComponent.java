@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2023 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,65 +16,53 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.dro;
+package com.willwinder.ugs.nbp.core.control;
 
-import com.willwinder.ugs.nbp.dro.panels.DROPopup;
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.ugs.nbp.dro.panels.MachineStatusPanel;
+import com.willwinder.ugs.nbp.core.panels.FileBrowserPanel;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelCategory;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelActionId;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelWindowPath;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelTitle;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelTooltip;
+
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.modules.OnStart;
 import org.openide.windows.TopComponent;
-
-import javax.swing.*;
 
 /**
  * Top component which displays something.
  */
 @TopComponent.Description(
-        preferredID = "MachineStatusTopComponent",
-        persistenceType = TopComponent.PERSISTENCE_ALWAYS
+        preferredID = "FileBrowserTopComponent"
 )
-@TopComponent.Registration(
-        mode = Mode.LEFT_TOP,
-        openAtStartup = true,
-        position = 100
-)
-@ActionID(
-        category = LocalizingService.LocationStatusCategory,
-        id = LocalizingService.LocationStatusActionId
-)
-@ActionReference(
-        path = LocalizingService.LocationStatusWindowPath
-)
+@TopComponent.Registration(mode = Mode.LEFT_TOP, openAtStartup = false, position = 2200)
+@ActionID(category = FileBrowserPanelCategory, id = FileBrowserPanelActionId)
+@ActionReference(path = FileBrowserPanelWindowPath)
 @TopComponent.OpenActionRegistration(
-        displayName = "<Not localized:MachineStatusTopComponent>",
-        preferredID = "MachineStatusTopComponent"
+        displayName = "<Not localized:FileBrowserTopComponent>",
+        preferredID = "FileBrowserTopComponent"
 )
-public final class MachineStatusTopComponent extends TopComponent {
+public final class FileBrowserTopComponent extends TopComponent {
 
-    public MachineStatusTopComponent() {
+    public FileBrowserTopComponent() {
+        this.setLayout(new BorderLayout());
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        setLayout(new BorderLayout());
-        JScrollPane scrollPane = new JScrollPane(new MachineStatusPanel(backend), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        add(scrollPane, BorderLayout.CENTER);
-        setMinimumSize(new Dimension(100, 100));
-
-        // Add popup menu. Don't use SwingUtils.traverse, it interferes with the AxisPanels.
-        DROPopup popup = new DROPopup(backend);
-        scrollPane.setComponentPopupMenu(popup);
+        FileBrowserPanel panel = new FileBrowserPanel(backend);
+        this.add(panel, BorderLayout.CENTER);
     }
 
     @Override
     public void componentOpened() {
-        setName(LocalizingService.LocationStatusTitle);
-        setToolTipText(LocalizingService.LocationStatusTooltip);
+        setName(FileBrowserPanelTitle);
+        setToolTipText(FileBrowserPanelTooltip);
     }
 
     @Override
@@ -89,5 +77,12 @@ public final class MachineStatusTopComponent extends TopComponent {
     }
 
     public void readProperties(java.util.Properties p) {
+    }
+
+    @OnStart
+    public static class Localizer extends TopComponentLocalizer {
+        public Localizer() {
+            super(FileBrowserPanelCategory, FileBrowserPanelActionId, FileBrowserPanelTitle);
+        }
     }
 }
