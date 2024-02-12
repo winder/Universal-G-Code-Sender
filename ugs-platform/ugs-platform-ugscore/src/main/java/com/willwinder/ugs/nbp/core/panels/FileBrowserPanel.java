@@ -190,7 +190,7 @@ public final class FileBrowserPanel extends JPanel implements UGSEventListener {
                 setDirectory(parentFile);
             } else if (fileNode.getFile().isDirectory()) {
                 setDirectory(fileNode.getFile());
-            } else {
+            } else if (!fileNode.displayName.startsWith(".")) {
                 File gcodeFile = fileNode.getFile();
                 new OpenFileAction(gcodeFile).actionPerformed(null);
             }
