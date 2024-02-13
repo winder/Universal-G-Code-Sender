@@ -17,7 +17,7 @@ public class Macro implements Serializable {
     private String name;
     private String description;
     private String gcode;
-    private Integer version;
+    private MacroVersion version;
 
     public Macro() {
     }
@@ -70,12 +70,12 @@ public class Macro implements Serializable {
         this.gcode = gcode;
     }
 
-    public Integer getVersion() {
+    public MacroVersion getVersion() {
         return version;
     }
 
-    public void setVersion(Integer version) {
-        this.version = Objects.requireNonNullElse(version, 1);
+    public void setVersion(MacroVersion version) {
+        this.version = Objects.requireNonNullElse(version, MacroVersion.V1);
     }
 
     @Override
@@ -91,13 +91,13 @@ public class Macro implements Serializable {
 
     @Serial
     public Object readResolve() {
-        this.version = Objects.requireNonNullElse(this.version, 1);
+        this.version = Objects.requireNonNullElse(this.version, MacroVersion.V2);
         return this;
     }
 
     @Serial
     public Object writeReplace() {
-        this.version = Objects.requireNonNullElse(this.version, 1);
+        this.version = Objects.requireNonNullElse(this.version, MacroVersion.V1);
         return this;
     }
 
