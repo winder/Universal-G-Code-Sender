@@ -9,7 +9,6 @@ public class Macro implements Serializable {
     private String gcode;
     private String description;
     private String name;
-    private Integer version;
 
     public String getGcode() {
         return gcode;
@@ -33,13 +32,5 @@ public class Macro implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 }
