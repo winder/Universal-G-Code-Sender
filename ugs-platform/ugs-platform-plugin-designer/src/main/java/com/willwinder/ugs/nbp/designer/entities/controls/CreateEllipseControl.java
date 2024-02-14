@@ -28,7 +28,7 @@ import com.willwinder.ugs.nbp.designer.logic.Tool;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
@@ -95,6 +95,9 @@ public class CreateEllipseControl extends AbstractControl {
         Ellipse ellipse = new Ellipse(startX, startY);
         ellipse.setSize(new Size(endX - startX, endY - startY));
         controller.addEntity(ellipse);
+
+        controller.setTool(Tool.SELECT);
+        controller.getSelectionManager().addSelection(ellipse);
     }
 
     @Override

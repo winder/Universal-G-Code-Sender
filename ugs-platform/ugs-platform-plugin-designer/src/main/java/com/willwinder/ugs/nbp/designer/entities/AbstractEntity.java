@@ -179,8 +179,10 @@ public abstract class AbstractEntity implements Entity {
     @Override
     public void move(Point2D deltaMovement) {
         try {
-            transform.preConcatenate(AffineTransform.getTranslateInstance(deltaMovement.getX(), deltaMovement.getY()));
-            notifyEvent(new EntityEvent(this, EventType.MOVED));
+            if( deltaMovement.distance(new Point2D.Double(0d, 0d)) > 0) {
+                transform.preConcatenate(AffineTransform.getTranslateInstance(deltaMovement.getX(), deltaMovement.getY()));
+                notifyEvent(new EntityEvent(this, EventType.MOVED));
+            }
         } catch (Exception e) {
             throw new EntityException("Could not make inverse transform of point", e);
         }

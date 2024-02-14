@@ -27,7 +27,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -95,6 +95,9 @@ public class CreateRectangleControl extends AbstractControl {
         rectangle.setWidth(endX - startX);
         rectangle.setHeight(endY - startY);
         controller.addEntity(rectangle);
+
+        controller.setTool(Tool.SELECT);
+        controller.getSelectionManager().addSelection(rectangle);
     }
 
     @Override
