@@ -70,6 +70,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
             groupRotation += angle;
             Point2D center = getCenter();
             getAllChildren().forEach(entity -> entity.rotate(center, angle));
+            invalidateBounds();
             notifyEvent(new EntityEvent(this, EventType.ROTATED));
         } catch (Exception e) {
             throw new EntityException("Couldn't set the rotation", e);
@@ -81,8 +82,8 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         try {
             groupRotation += angle;
             getAllChildren().forEach(entity -> entity.rotate(center, angle));
-            notifyEvent(new EntityEvent(this, EventType.ROTATED));
             invalidateBounds();
+            notifyEvent(new EntityEvent(this, EventType.ROTATED));
         } catch (Exception e) {
             throw new EntityException("Couldn't set the rotation", e);
         }
@@ -170,8 +171,8 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     public void move(Point2D deltaMovement) {
         try {
             applyTransform(AffineTransform.getTranslateInstance(deltaMovement.getX(), deltaMovement.getY()));
-            notifyEvent(new EntityEvent(this, EventType.MOVED));
             invalidateBounds();
+            notifyEvent(new EntityEvent(this, EventType.MOVED));
         } catch (Exception e) {
             throw new EntityException("Could not make inverse transform of point", e);
         }
@@ -328,14 +329,14 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
             child.scale(sx, sy);
             child.setPosition(new Point2D.Double(originalPosition.getX() + (relativePosition.getX() * sx), originalPosition.getY() + (relativePosition.getY() * sy)));
         });
-        notifyEvent(new EntityEvent(this, EventType.RESIZED));
         invalidateBounds();
+        notifyEvent(new EntityEvent(this, EventType.RESIZED));
     }
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
-        notifyEvent(entityEvent);
         invalidateBounds();
+        notifyEvent(entityEvent);
     }
 
     @Override

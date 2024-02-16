@@ -31,7 +31,9 @@ import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 
-import java.awt.*;
+import java.awt.Cursor;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;

@@ -59,7 +59,11 @@ public class CreatePointControl extends AbstractControl {
         if (entityEvent instanceof MouseEntityEvent) {
             MouseEntityEvent mouseEntityEvent = (MouseEntityEvent) entityEvent;
             if (mouseEntityEvent.getType() == EventType.MOUSE_PRESSED) {
-                controller.addEntity(new Point(mouseEntityEvent.getStartMousePosition().getX(), mouseEntityEvent.getStartMousePosition().getY()));
+
+                Point point = new Point(mouseEntityEvent.getStartMousePosition().getX(), mouseEntityEvent.getStartMousePosition().getY());
+                controller.addEntity(point);
+                controller.setTool(Tool.SELECT);
+                controller.getSelectionManager().addSelection(point);
             }
         }
     }
