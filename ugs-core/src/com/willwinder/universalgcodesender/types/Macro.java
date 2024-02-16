@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.io.Serial;
+import java.util.Objects;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -15,6 +17,7 @@ public class Macro implements Serializable {
     private String name;
     private String description;
     private String gcode;
+    private MacroVersion version;
 
     public Macro() {
     }
@@ -67,6 +70,14 @@ public class Macro implements Serializable {
         this.gcode = gcode;
     }
 
+    public MacroVersion getVersion() {
+        return version;
+    }
+
+    public void setVersion(MacroVersion version) {
+        this.version = Objects.requireNonNullElse(version, MacroVersion.V1);
+    }
+
     @Override
     public String toString() {
         return "Macro{" +
@@ -74,7 +85,20 @@ public class Macro implements Serializable {
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", gcode='" + gcode + '\'' +
+                ", version=" + version +
                 '}';
+    }
+
+    @Serial
+    public Object readResolve() {
+        this.version = Objects.requireNonNullElse(this.version, MacroVersion.V2);
+        return this;
+    }
+
+    @Serial
+    public Object writeReplace() {
+        this.version = Objects.requireNonNullElse(this.version, MacroVersion.V1);
+        return this;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
-    Copyright 2014-2023 Will Winder
+    Copyright 2014-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -29,8 +29,20 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
 import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.List;
+
+
 
 public class Settings {
     private static final Logger logger = Logger.getLogger(Settings.class.getName());
@@ -119,6 +131,11 @@ public class Settings {
      * fully translated
      */
     private boolean showTranslationsWarning = true;
+
+    /**
+     * The last working directory used by the file browser
+     */
+    private String lastWorkingDirectory = System.getProperty("user.home");
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
@@ -554,6 +571,14 @@ public class Settings {
 
     public void setShowTranslationsWarning(boolean showTranslationsWarning) {
         this.showTranslationsWarning = showTranslationsWarning;
+    }
+
+    public String getLastWorkingDirectory() {
+        return lastWorkingDirectory;
+    }
+
+    public void setLastWorkingDirectory(String lastWorkingDirectory) {
+        this.lastWorkingDirectory = lastWorkingDirectory;
     }
 
     public static class FileStats {
