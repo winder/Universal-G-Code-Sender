@@ -1,3 +1,21 @@
+/*
+    Copyright 2024 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.core.lifecycle;
 
 import org.apache.commons.io.FileUtils;
@@ -30,6 +48,7 @@ public class StartupOptionProcessor extends OptionProcessor {
     private final Option openOption = Option.additionalArguments('o', "open");
     private final Option defaultOpenOption = Option.defaultArguments();
     private final Option clearCacheOption = Option.withoutArgument('c', "clearcache");
+    private final Option fullscreenOption = Option.withoutArgument(Option.NO_SHORT_NAME, "fullscreen");
 
     /**
      * Register interest in the "open" option.
@@ -40,6 +59,7 @@ public class StartupOptionProcessor extends OptionProcessor {
         set.add(openOption);
         set.add(defaultOpenOption);
         set.add(clearCacheOption);
+        set.add(fullscreenOption);
         return set;
     }
 
@@ -52,8 +72,12 @@ public class StartupOptionProcessor extends OptionProcessor {
             clearCache();
         }
 
+        if (optionsMap.containsKey(fullscreenOption)) {
+            FullScreenOptionProcessor.setUseFullScreen(true);
+        }
+
         Optional<String> fileToOpen = getFileToOpen(optionsMap, openOption);
-        if (!fileToOpen.isPresent()) {
+        if (fileToOpen.isEmpty()) {
             fileToOpen = getFileToOpen(optionsMap, defaultOpenOption);
         }
 

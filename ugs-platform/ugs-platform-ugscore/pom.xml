@@ -40,6 +40,14 @@
             <version>${netbeans.version}</version>
         </dependency>
 
+        <!-- for being able to enter fullscreen -->
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-core-windows</artifactId>
+            <version>${netbeans.version}</version>
+            <type>jar</type>
+        </dependency>
+
         <!-- app netbeans dependencies -->
         <dependency>
             <groupId>org.netbeans.api</groupId>
