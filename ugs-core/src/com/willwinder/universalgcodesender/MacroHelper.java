@@ -166,6 +166,9 @@ public class MacroHelper {
             myPanel.setLayout(new MigLayout("wrap 2, width 200"));
             for (Prompt s : prompts) {
                 JTextField field = new JTextField(s.defaultValue);
+                if (fields.size() == 0){
+                    field.addHierarchyListener(new RequestFocusListener());
+                }
                 myPanel.add(new JLabel(s.prompt + ":"));
                 myPanel.add(field, "growx, pushx");
                 fields.add(field);
