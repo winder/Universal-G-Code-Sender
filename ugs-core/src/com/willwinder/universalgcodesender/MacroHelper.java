@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -107,6 +109,8 @@ public class MacroHelper {
      * {work_y} - The work Y location
      * {work_z} - The work Z location
      * {prompt|name} - Prompt the user for a value named 'name'.
+     * {prompt|name|default} - Prompt the user for a value named 'name' with the default value 'default'.
+     * {name} - Reuse the value of a previous prompt e.g. X{prompt|name} Y{name}.
      * {keypress|keys} - Dispatch keyboard press events on the host system. Keys are defined using AWT format, see {@link KeyStroke#getKeyStroke(String)}
      *
      * @param str
@@ -160,7 +164,7 @@ public class MacroHelper {
         List<Prompt> prompts = new ArrayList<>();
 
         while (m.find()) {
-            prompts.add(new Prompt(m.group(1), m.groupCount() == 2 ? m.group(2) : ""));
+            prompts.add(new Prompt(m.group(1), m.groupCount() > 1 ? m.group(2) : ""));
         }
 
         if (prompts.size() > 0) {
@@ -181,8 +185,8 @@ public class MacroHelper {
 
             if (result == JOptionPane.OK_OPTION) {
                 for (int i = 0; i < prompts.size(); i++) {
-                    command = command.replace("{prompt|" + prompts.get(i) + "}", fields.get(i).getText());
-                    command = command.replace("{" + prompts.get(i) + "}", fields.get(i).getText()); // for reusing values
+                    command = command.replace(prompts.get(i).toPlaceholder(), fields.get(i).getText());
+                    command = command.replace(prompts.get(i).toSimplePlaceholder(), fields.get(i).getText()); // for reusing values
                 }
             } else {
                 command = "";
