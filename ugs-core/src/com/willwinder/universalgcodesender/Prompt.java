@@ -13,7 +13,7 @@ public class Prompt {
         return "{prompt|"+this.prompt+(this.defaultValue == null ? "" : "|"+this.defaultValue)+"}";
     }
 
-    public String toSimplePlaceholder() {
+    public String toValuePlaceholder() {
         return "{"+this.prompt+"}";
     }
 }
