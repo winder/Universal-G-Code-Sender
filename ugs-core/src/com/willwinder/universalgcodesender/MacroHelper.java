@@ -157,7 +157,7 @@ public class MacroHelper {
         List<Prompt> prompts = new ArrayList<>();
 
         while (m.find()) {
-            prompts.add(new Prompt(m.group(1), m.groupCount() > 1 ? m.group(2) : ""));
+            prompts.add(new Prompt(m.group(1), m.groupCount() > 1 ? m.group(2) : null));
         }
 
         if (prompts.size() > 0) {
