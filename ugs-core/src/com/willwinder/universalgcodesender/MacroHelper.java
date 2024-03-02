@@ -58,7 +58,7 @@ public class MacroHelper {
     private static final Pattern WORK_X = Pattern.compile("\\{work_x}");
     private static final Pattern WORK_Y = Pattern.compile("\\{work_y}");
     private static final Pattern WORK_Z = Pattern.compile("\\{work_z}");
-    private static final Pattern PROMPT_REGEX = Pattern.compile("\\{prompt\\|([^}]+)}");
+    private static final Pattern PROMPT_REGEX = Pattern.compile("\\{prompt\\|([^}|]+)\\|?([^}]+)?}");
     private static final Pattern KEYPRESS_REGEX = Pattern.compile("\\{keypress\\|([^}]+)}");
 
     /**
@@ -157,18 +157,19 @@ public class MacroHelper {
     private static String parsePrompts(String command) {
         // Prompt for additional substitutions
         Matcher m = PROMPT_REGEX.matcher(command);
-        List<String> prompts = new ArrayList<>();
+        List<Prompt> prompts = new ArrayList<>();
+
         while (m.find()) {
-            prompts.add(m.group(1));
+            prompts.add(new Prompt(m.group(1), m.groupCount() == 2 ? m.group(2) : ""));
         }
 
         if (prompts.size() > 0) {
             List<JTextField> fields = new ArrayList<>();
             JPanel myPanel = new JPanel();
             myPanel.setLayout(new MigLayout("wrap 2, width 200"));
-            for (String s : prompts) {
-                JTextField field = new JTextField();
-                myPanel.add(new JLabel(s + ":"));
+            for (Prompt s : prompts) {
+                JTextField field = new JTextField(s.defaultValue);
+                myPanel.add(new JLabel(s.prompt + ":"));
                 myPanel.add(field, "growx, pushx");
                 fields.add(field);
             }
