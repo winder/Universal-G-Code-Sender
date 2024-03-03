@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.services.KeyboardService;
+import com.willwinder.universalgcodesender.uielements.components.RequestFocusListener;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
