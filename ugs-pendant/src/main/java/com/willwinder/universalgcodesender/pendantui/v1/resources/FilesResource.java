@@ -19,12 +19,9 @@
 package com.willwinder.universalgcodesender.pendantui.v1.resources;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.pendantui.v1.model.FileStatus;
 import com.willwinder.universalgcodesender.pendantui.v1.model.WorkspaceFileList;
 import jakarta.inject.Inject;
-import org.apache.commons.io.IOUtils;
-import org.glassfish.jersey.media.multipart.FormDataBodyPart;
-import org.glassfish.jersey.media.multipart.FormDataParam;
-
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -32,11 +29,16 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import org.apache.commons.io.IOUtils;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Optional;
 
 @Path("/files")
 public class FilesResource {
@@ -97,5 +99,17 @@ public class FilesResource {
     @Path("openWorkspaceFile")
     public void openWorkspaceFile(@QueryParam("file") String file) throws Exception {
         backendAPI.openWorkspaceFile(file);
+    }
+
+    @GET
+    @Path("getFileStatus")
+    @Produces(MediaType.APPLICATION_JSON)
+    public FileStatus getFileStatus() {
+        return new FileStatus(Optional.ofNullable(backendAPI.getGcodeFile()).map(File::getAbsolutePath).orElse(""),
+                backendAPI.getNumRows(),
+                backendAPI.getNumCompletedRows(),
+                backendAPI.getNumRemainingRows(),
+                backendAPI.getSendDuration(),
+                backendAPI.getSendRemainingDuration());
     }
 }

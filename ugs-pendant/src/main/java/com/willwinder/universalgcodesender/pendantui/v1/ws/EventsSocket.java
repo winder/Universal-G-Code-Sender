@@ -21,10 +21,15 @@ package com.willwinder.universalgcodesender.pendantui.v1.ws;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.pendantui.BackendProvider;
 import com.willwinder.universalgcodesender.pendantui.v1.model.Event;
+import com.willwinder.universalgcodesender.utils.Settings;
 import jakarta.websocket.ClientEndpoint;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnError;
@@ -53,6 +58,13 @@ public class EventsSocket implements UGSEventListener {
         }
     }
 
+    private static ControllerStatus convertToPreferredUnits(ControllerStatus controllerStatusEvent, UnitUtils.Units units) {
+        return ControllerStatusBuilder.newInstance(controllerStatusEvent)
+                .setMachineCoord(controllerStatusEvent.getMachineCoord().getPositionIn(units))
+                .setWorkCoord(controllerStatusEvent.getWorkCoord().getPositionIn(units))
+                .build();
+    }
+
     @OnOpen
     public void onWebSocketConnect(Session session) {
         sessions.put(session.getId(), session);
@@ -74,7 +86,7 @@ public class EventsSocket implements UGSEventListener {
     @Override
     public void UGSEvent(UGSEvent evt) {
         try {
-            String data = gson.toJson(new Event(evt)).replaceAll(":NaN", ":null");
+            String data = getEventAsString(evt);
             sessions.values().forEach(session -> {
                 try {
                     session.getBasicRemote().sendText(data);
@@ -85,5 +97,16 @@ public class EventsSocket implements UGSEventListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String getEventAsString(UGSEvent evt) {
+        if (evt instanceof ControllerStatusEvent controllerStatusEvent) {
+            Settings settings = BackendProvider.getBackendAPI().getSettings();
+            ControllerStatus currentStatus = convertToPreferredUnits(controllerStatusEvent.getStatus(), settings.getPreferredUnits());
+            ControllerStatus previousStatus = convertToPreferredUnits(controllerStatusEvent.getPreviousStatus(), settings.getPreferredUnits());
+            return gson.toJson(new Event(new ControllerStatusEvent(currentStatus, previousStatus))).replace(":NaN", ":null");
+        }
+
+        return gson.toJson(new Event(evt));
     }
 }

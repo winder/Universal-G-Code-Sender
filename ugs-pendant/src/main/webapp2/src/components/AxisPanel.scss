@@ -1,0 +1,41 @@
+@font-face {
+  font-family: "LCD";
+  src: url(../assets/LCD.ttf);
+}
+
+.axisRow {
+  margin-top: 12px;
+  margin-left: 0px;
+}
+
+.axisPanel {
+  background-color: #2a2c2d;
+  color: #05d4ff;
+  border-radius: 6px;
+  font-family: "LCD";
+  font-size: 32px;
+  padding: 2px;
+  padding-left: 12px;
+  padding-right: 12px;
+  text-align: end;
+}
+
+.axisChanging {
+  color: #00e200;
+}
+
+.limitPin {
+  color: #f00000;
+}
+
+.axisUnits {
+  font-size: 0.5em;
+}
+
+.axisZeroButton {
+  width: 100%;
+  height: 100%;
+  padding: 0px;
+  font-weight: bold
+}
+
