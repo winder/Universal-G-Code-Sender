@@ -22,7 +22,6 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.services.KeyboardService;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,13 +31,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import java.awt.AWTException;
-import java.awt.Robot;
-import java.awt.event.InputEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,7 +53,7 @@ public class MacroHelper {
     private static final Pattern WORK_X = Pattern.compile("\\{work_x}");
     private static final Pattern WORK_Y = Pattern.compile("\\{work_y}");
     private static final Pattern WORK_Z = Pattern.compile("\\{work_z}");
-    private static final Pattern PROMPT_REGEX = Pattern.compile("\\{prompt\\|([^}]+)}");
+    private static final Pattern PROMPT_REGEX = Pattern.compile("\\{prompt\\|([^}|]+)\\|?([^}]+)?}");
     private static final Pattern KEYPRESS_REGEX = Pattern.compile("\\{keypress\\|([^}]+)}");
 
     /**
@@ -107,6 +102,8 @@ public class MacroHelper {
      * {work_y} - The work Y location
      * {work_z} - The work Z location
      * {prompt|name} - Prompt the user for a value named 'name'.
+     * {prompt|name|default} - Prompt the user for a value named 'name' with the default value 'default'.
+     * {name} - Reuse the value of a previous prompt e.g. X{prompt|name} Y{name}.
      * {keypress|keys} - Dispatch keyboard press events on the host system. Keys are defined using AWT format, see {@link KeyStroke#getKeyStroke(String)}
      *
      * @param str
@@ -157,18 +154,19 @@ public class MacroHelper {
     private static String parsePrompts(String command) {
         // Prompt for additional substitutions
         Matcher m = PROMPT_REGEX.matcher(command);
-        List<String> prompts = new ArrayList<>();
+        List<Prompt> prompts = new ArrayList<>();
+
         while (m.find()) {
-            prompts.add(m.group(1));
+            prompts.add(new Prompt(m.group(1), m.groupCount() > 1 ? m.group(2) : null));
         }
 
         if (prompts.size() > 0) {
             List<JTextField> fields = new ArrayList<>();
             JPanel myPanel = new JPanel();
             myPanel.setLayout(new MigLayout("wrap 2, width 200"));
-            for (String s : prompts) {
-                JTextField field = new JTextField();
-                myPanel.add(new JLabel(s + ":"));
+            for (Prompt s : prompts) {
+                JTextField field = new JTextField(s.defaultValue);
+                myPanel.add(new JLabel(s.prompt + ":"));
                 myPanel.add(field, "growx, pushx");
                 fields.add(field);
             }
@@ -180,8 +178,8 @@ public class MacroHelper {
 
             if (result == JOptionPane.OK_OPTION) {
                 for (int i = 0; i < prompts.size(); i++) {
-                    command = command.replace("{prompt|" + prompts.get(i) + "}", fields.get(i).getText());
-                    command = command.replace("{" + prompts.get(i) + "}", fields.get(i).getText()); // for reusing values
+                    command = command.replace(prompts.get(i).toPlaceholder(), fields.get(i).getText());
+                    command = command.replace(prompts.get(i).toValuePlaceholder(), fields.get(i).getText()); // for reusing values
                 }
             } else {
                 command = "";
