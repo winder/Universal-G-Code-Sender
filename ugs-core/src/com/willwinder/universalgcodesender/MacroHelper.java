@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.services.KeyboardService;
+import com.willwinder.universalgcodesender.uielements.components.RequestFocusListener;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -166,6 +167,9 @@ public class MacroHelper {
             myPanel.setLayout(new MigLayout("wrap 2, width 200"));
             for (Prompt s : prompts) {
                 JTextField field = new JTextField(s.defaultValue);
+                if (fields.size() == 0){
+                    field.addHierarchyListener(new RequestFocusListener());
+                }
                 myPanel.add(new JLabel(s.prompt + ":"));
                 myPanel.add(field, "growx, pushx");
                 fields.add(field);
