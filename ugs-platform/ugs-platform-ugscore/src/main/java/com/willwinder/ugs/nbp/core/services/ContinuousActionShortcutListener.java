@@ -110,16 +110,16 @@ public class ContinuousActionShortcutListener implements Runnable, KeyEventDispa
         }
 
         // On any key release we should abort a long pressed executor
-        if (keyEvent.getID() == KEY_RELEASED && executor.isLongPressed()) {
-            executor.release();
+        if (keyEvent.getID() == KEY_RELEASED) {
+            executor.keyReleased(keyEvent);
             keyEvent.consume();
             return false;
         }
 
-        // Try to find an continuous action for the current keys
+        // Try to find a continuous action for the current keys
         String keyAsString = getKeyAsString(keyEvent);
         Optional<ActionReference> actionById = getContinuousActionByShortcut(keyAsString);
-        if (!actionById.isPresent()) {
+        if (actionById.isEmpty()) {
             return false;
         }
 
