@@ -1,5 +1,5 @@
 /*
-    Copyright 2020-2023 Will Winder
+    Copyright 2020-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,13 +27,17 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.JScrollMenu;
 import com.willwinder.universalgcodesender.uielements.JScrollPopupMenu;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * A button that can bind a joystick button to an action using a popup menu.
@@ -54,7 +58,7 @@ public class BindActionButton extends JButton {
             "Actions/System");
 
     private final JPopupMenu popupMenu;
-    private final JoystickService joystickService;
+    private final transient JoystickService joystickService;
 
     public BindActionButton(JoystickService joystickService, JoystickControl joystickControl) {
         this.joystickService = joystickService;
@@ -63,7 +67,10 @@ public class BindActionButton extends JButton {
         addActionListener(this::showPopupMenu);
 
         joystickService.getActionManager().getMappedAction(joystickControl)
-                .ifPresent(actionReference -> setText(actionReference.getName()));
+                .ifPresent(actionReference -> {
+                    setText(actionReference.getName());
+                    setToolTipText(actionReference.getName());
+                });
     }
 
     private void showPopupMenu(ActionEvent actionEvent) {
@@ -75,22 +82,21 @@ public class BindActionButton extends JButton {
 
     private JPopupMenu createPopupMenu(JoystickControl joystickControl) {
         ActionManager actionManager = joystickService.getActionManager();
-        JPopupMenu popupMenu = new JScrollPopupMenu();
-
-        popupMenu.add(createClearActionMenuItem(joystickControl, actionManager));
-        popupMenu.add(new JSeparator());
+        JPopupMenu menu = new JScrollPopupMenu();
+        menu.add(createClearActionMenuItem(joystickControl, actionManager));
+        menu.add(new JSeparator());
         actionManager.getCategories().stream()
                 .filter(category -> !EXCLUDED_CATEGORIES.contains(category)) // Remove categories
                 .map(category -> createActionsCategoryMenu(joystickControl, category)) // Map to a category menu item
-                .flatMap(optionalMenu -> optionalMenu.map(Stream::of).orElseGet(Stream::empty)) // Remove empty optionals
-                .forEach(popupMenu::add); // Add to popup menu
+                .flatMap(Optional::stream) // Remove empty optionals
+                .forEach(menu::add); // Add to popup menu
 
-        return popupMenu;
+        return menu;
     }
 
     private JMenuItem createClearActionMenuItem(JoystickControl joystickControl, ActionManager actionManager) {
         JMenuItem clear = new JMenuItem(Localization.getString("platform.plugin.joystick.clear"));
-        clear.addActionListener((item) -> {
+        clear.addActionListener(item -> {
             setText("");
             actionManager.clearMappedAction(joystickControl);
         });
@@ -112,8 +118,9 @@ public class BindActionButton extends JButton {
 
     private JMenuItem createSelectActionMenuItem(JoystickControl joystickControl, ActionReference actionReference) {
         JMenuItem jMenuItem = new JMenuItem(actionReference.getName());
-        jMenuItem.addActionListener((item) -> {
+        jMenuItem.addActionListener(item -> {
             setText(actionReference.getName());
+            setToolTipText(actionReference.getName());
             joystickService.getActionManager().setMappedAction(joystickControl, actionReference);
         });
         return jMenuItem;

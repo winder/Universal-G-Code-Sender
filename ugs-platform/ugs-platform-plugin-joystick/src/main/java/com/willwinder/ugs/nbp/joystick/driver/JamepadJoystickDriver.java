@@ -1,3 +1,21 @@
+/*
+    Copyright 2023-2024 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.joystick.driver;
 
 import com.studiohartman.jamepad.Configuration;
@@ -12,8 +30,18 @@ import com.willwinder.ugs.nbp.joystick.model.JamepadJoystickDevice;
 import com.willwinder.ugs.nbp.joystick.model.JoystickControl;
 import com.willwinder.ugs.nbp.joystick.model.JoystickDevice;
 import com.willwinder.ugs.nbp.joystick.service.JoystickException;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
+import org.apache.commons.io.IOUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,6 +50,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -46,6 +76,20 @@ public class JamepadJoystickDriver extends AbstractJoystickDriver {
 
     public JamepadJoystickDriver() {
         joystickReadThread = Executors.newSingleThreadExecutor();
+    }
+
+    private File writeTemporaryDbFile() throws IOException {
+        Path tempFile = Files.createTempFile("gamecontrollerdb", ".txt");
+        File file = tempFile.toFile();
+        file.deleteOnExit();
+        try (FileOutputStream tempFileStream = new FileOutputStream(file)) {
+            InputStream gamecontrollerdbStream = JamepadJoystickDriver.class.getResourceAsStream("/com/willwinder/ugs/nbp/joystick/gamecontrollerdb.txt");
+            if (gamecontrollerdbStream != null) {
+                IOUtils.copy(gamecontrollerdbStream, tempFileStream);
+            }
+            IOUtils.copy(new ByteArrayInputStream(Settings.getCustomMapping().getBytes(StandardCharsets.UTF_8)), tempFileStream);
+        }
+        return file;
     }
 
     private void mainLoop() {
@@ -89,11 +133,11 @@ public class JamepadJoystickDriver extends AbstractJoystickDriver {
         }
     }
 
-    private List<ControllerButton> getAvailableControllerButtons()  {
+    private List<ControllerButton> getAvailableControllerButtons() {
         ArrayList<ControllerButton> availableControls = new ArrayList<>();
         try {
             for (ControllerButton controllerButton : ControllerButton.values()) {
-                if (currentDevice.controller().isButtonAvailable(controllerButton)){
+                if (currentDevice.controller().isButtonAvailable(controllerButton)) {
                     availableControls.add(controllerButton);
                 }
             }
@@ -159,7 +203,7 @@ public class JamepadJoystickDriver extends AbstractJoystickDriver {
             joystickState.setButton(button, value);
         } catch (ControllerUnpluggedException e) {
             throw new JoystickException("Couldn't read value from joystick button", e);
-        } catch (Exception e){
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Something unexpected happened", e);
         }
     }
@@ -202,7 +246,8 @@ public class JamepadJoystickDriver extends AbstractJoystickDriver {
         Configuration configuration = new Configuration();
         configuration.maxNumControllers = MAX_NUM_CONTROLLERS;
 
-        controllerManager = new ControllerManager(configuration, "/com/willwinder/ugs/nbp/joystick/gamecontrollerdb.txt");
+        File file = writeTemporaryDbFile();
+        controllerManager = new ControllerManager(configuration, file.getAbsolutePath());
 
         isRunning = true; // mainLoop will run until this flag is set false
         joystickReadThread.execute(this::mainLoop);
@@ -211,5 +256,11 @@ public class JamepadJoystickDriver extends AbstractJoystickDriver {
     @Override
     public void destroy() {
         isRunning = false; // causes the mainLoop to exit gracefully
+        try {
+            ThreadHelper.waitUntil(() -> currentDevice == null, 5, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+            GUIHelpers.displayErrorDialog("There was an error while waiting for the joystick service to shut down.", true);
+        }
     }
 }
