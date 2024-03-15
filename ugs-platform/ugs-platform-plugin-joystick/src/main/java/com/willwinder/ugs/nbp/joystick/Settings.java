@@ -32,8 +32,18 @@ import java.util.prefs.Preferences;
 public class Settings {
     public static final String SETTINGS_ACTIVE = "active";
     public static final String SETTINGS_VERSION = "version";
+    public static final String SETTINGS_CUSTOM_MAPPING = "customMapping";
 
-    private static Preferences preferences = NbPreferences.forModule(JoystickService.class);
+    public static final String DEFAULT_CUSTOM_MAPPING = "# Custom UGS controllers\n" +
+            "03000000412300003780000000000000,Arduino Micro,a:b0,b:b1,x:b2,y:b3,back:b4,guide:b5,start:b6,leftstick:b7,rightstick:b8,leftshoulder:b9,rightshoulder:b10,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,-leftx:a0,+leftx:a1,-lefty:a2,+lefty:a3,-rightx:a4,+rightx:a5,-righty:a6,-righty:a7,lefttrigger:b11,righttrigger:b12,platform:Windows,\n" +
+            "03000000412300003e00000000000000,Arduino Due,platform:Windows,a:b10,b:b8,x:b9,y:b11,guide:b12,leftshoulder:b0,rightshoulder:b1,dpup:-a1,dpdown:+a1,dpleft:-a0,dpright:+a0,\n" +
+            "03000000072000004512000000000000,JOYSTICK FZ,platform:Windows,guide:b0,leftstick:b4,rightstick:b1,leftshoulder:b2,rightshoulder:b3,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,leftx:a0,lefty:a1,rightx:a5,righty:a4~,\n" +
+            "78696e70757401000000000000000000,XInput Controller,platform:Windows,a:b0,b:b1,x:b2,y:b3,back:b6,start:b7,guide:b10,leftshoulder:b4,rightshoulder:b5,leftstick:b8,rightstick:b9,leftx:a0,lefty:a1,rightx:a3,righty:a4,lefttrigger:a2,righttrigger:a5,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,\n" +
+            "03000000786901006e70000000000000,XInput Controller,platform:Windows,a:b0,b:b1,back:b6,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b10,leftshoulder:b4,leftstick:b8,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b9,righttrigger:a5,rightx:a3,righty:a4,start:b7,x:b2,y:b3,\n" +
+            "030000006d04000015c2000000000000,Logitech Extreme 3D Pro M/N: J-UK17 P/N: 863225-1000,a:b11,b:b10,x:b8,y:b9,back:b6,guide:b7,start:b5,leftstick:b2,rightstick:-a1,leftshoulder:b4,rightshoulder:b0,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,leftx:a0,lefty:a2,platform:Windows,\n" +
+            "03000000790000000600000000000000,G-Shark GS-GP702,a:b2,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a4,start:b9,x:b3,y:b0,platform:Windows,\n";
+
+    private static final Preferences preferences = NbPreferences.forModule(JoystickService.class);
 
     protected Settings() {
     }
@@ -101,7 +111,7 @@ public class Settings {
      * Sets if the axis values should be inverted
      *
      * @param joystickControl the axis we wish change settings for
-     * @param reversed if the axis should be inverted
+     * @param reversed        if the axis should be inverted
      */
     public static void setReverseAxis(JoystickControl joystickControl, boolean reversed) {
         preferences.putBoolean(joystickControl.name() + "_reverse", reversed);
@@ -134,5 +144,23 @@ public class Settings {
      */
     public static void setAxisThreshold(float threshold) {
         preferences.putFloat("axisThreshold", threshold);
+    }
+
+    /**
+     * Gets the custom mapping in the gamecontrollerdb-format (https://github.com/gabomdq/SDL_GameControllerDB)
+     *
+     * @return the custom mapping
+     */
+    public static String getCustomMapping() {
+        return preferences.get(SETTINGS_CUSTOM_MAPPING, DEFAULT_CUSTOM_MAPPING);
+    }
+
+    /**
+     * Sets the custom mapping in the gamecontrollerdb-format (https://github.com/gabomdq/SDL_GameControllerDB)
+     *
+     * @param customMapping the custom mapping
+     */
+    public static void setCustomMapping(String customMapping) {
+        preferences.put(SETTINGS_CUSTOM_MAPPING, customMapping);
     }
 }

@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2023-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,9 +24,11 @@ import com.willwinder.ugs.nbp.joystick.model.JoystickDevice;
 import com.willwinder.ugs.nbp.joystick.model.JoystickState;
 import com.willwinder.ugs.nbp.joystick.service.JoystickService;
 import com.willwinder.ugs.nbp.joystick.service.JoystickServiceListener;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -39,25 +41,44 @@ public class JoystickStatusLine extends JLabel implements JoystickServiceListene
     private final transient JoystickService joystickService;
     private final ImageIcon joystickIcon;
     private final ImageIcon joystickIconPressed;
+    private final boolean showDetails;
+    private final ImageIcon joystickIconDisconnected;
 
     public JoystickStatusLine(JoystickService joystickService) {
+        this(joystickService, false);
+    }
+
+    public JoystickStatusLine(JoystickService joystickService, boolean showDetails) {
+        this.showDetails = showDetails;
         this.joystickService = joystickService;
         this.joystickService.addListener(this);
         this.joystickIcon = ImageUtilities.loadImageIcon("com/willwinder/ugs/nbp/joystick/gamepad.svg", false);
         this.joystickIconPressed = ImageUtilities.loadImageIcon("com/willwinder/ugs/nbp/joystick/gamepad-pressed.svg", false);
+        this.joystickIconDisconnected = ImageUtilities.loadImageIcon("com/willwinder/ugs/nbp/joystick/gamepad-disconnected.svg", false);
         onControllerChanged();
     }
 
     @Override
     public void onUpdate(JoystickState state) {
+        setVisible(Settings.isActive());
+
         Optional<JoystickDevice> currentDevice = joystickService.getCurrentDevice();
         if (currentDevice.isEmpty()) {
-            setVisible(false);
+            setDisconnected();
             return;
         }
 
-        setVisible(true);
-        setToolTipText("Connected to " + currentDevice.get().name());
+        setConnected(state, currentDevice.get());
+    }
+
+    private void setConnected(JoystickState state, JoystickDevice currentDevice) {
+        String text = Localization.getString("platform.plugin.joystick.connectedTo") + " " + currentDevice.name();
+        setToolTipText(text);
+
+        if (showDetails) {
+            setText(text);
+        }
+
         boolean isPressed = Arrays.stream(JoystickControl.values())
                 .anyMatch(control -> state.getButton(control) || Math.abs(state.getAxis(control)) > Settings.getAxisThreshold());
         if (isPressed) {
@@ -65,6 +86,15 @@ public class JoystickStatusLine extends JLabel implements JoystickServiceListene
         } else {
             setIcon(joystickIcon);
         }
+    }
+
+    private void setDisconnected() {
+        String text = Localization.getString("platform.plugin.joystick.notConnected");
+        if (showDetails) {
+            setText(text);
+        }
+        setToolTipText(text);
+        setIcon(joystickIconDisconnected);
     }
 
     @Override

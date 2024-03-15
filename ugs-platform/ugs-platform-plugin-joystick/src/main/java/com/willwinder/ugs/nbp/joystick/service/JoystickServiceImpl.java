@@ -1,5 +1,5 @@
 /*
-    Copyright 2020-2023 Will Winder
+    Copyright 2020-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -135,6 +135,7 @@ public class JoystickServiceImpl implements JoystickService, JoystickDriverListe
     public void initialize() {
         try {
             driver.initialize();
+            listeners.forEach(JoystickServiceListener::onControllerChanged);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Could not initialize joystick service", e);
         }
@@ -143,6 +144,7 @@ public class JoystickServiceImpl implements JoystickService, JoystickDriverListe
     @Override
     public void destroy() {
         driver.destroy();
+        listeners.forEach(JoystickServiceListener::onControllerChanged);
     }
 
     @Override

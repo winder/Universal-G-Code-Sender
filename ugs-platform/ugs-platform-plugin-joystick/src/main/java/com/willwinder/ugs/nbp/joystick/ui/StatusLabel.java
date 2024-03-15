@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Will Winder
+    Copyright 2020-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,27 +18,37 @@
  */
 package com.willwinder.ugs.nbp.joystick.ui;
 
-import javax.swing.*;
-import java.awt.*;
+import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import java.awt.FlowLayout;
 
 /**
  * A label that can display a green background if set to active.
  *
  * @author Joacim Breiler
  */
-public class StatusLabel extends JLabel {
+public class StatusLabel extends JPanel {
+    private final PiePanelStatus pie;
+
     public StatusLabel(String text) {
-        super(text);
+        setLayout(new FlowLayout(FlowLayout.RIGHT));
+        JLabel label = new JLabel(text, SwingConstants.RIGHT);
+        this.pie = new PiePanelStatus(16, ThemeColors.GREEN);
+        add(label);
+        add(pie);
     }
 
     public void setActive(boolean isActive) {
-        if (isActive) {
-            setBackground(Color.GREEN);
-            setOpaque(true);
-        } else {
-            setBackground(null);
-            setOpaque(false);
-        }
+        pie.setValue(isActive ? 1 : 0);
+        invalidate();
+        repaint();
+    }
+
+    public void setAnalogValue(float value) {
+        pie.setValue(value);
         invalidate();
         repaint();
     }
