@@ -19,14 +19,18 @@
 package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.panels.OverridesPanel;
-import java.awt.BorderLayout;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
+
+import javax.swing.JScrollPane;
+import java.awt.BorderLayout;
 
 /**
  * Top component which displays something.
@@ -48,26 +52,12 @@ public final class OverridesTopComponent extends TopComponent {
     public OverridesTopComponent() {
         this.setLayout(new BorderLayout());
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        this.add(new OverridesPanel(backend), BorderLayout.CENTER);
+        this.add(new JScrollPane(new OverridesPanel(backend), VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
     }
 
     @Override
     public void componentOpened() {
         setName(LocalizingService.OverridesTitle);
         setToolTipText(LocalizingService.OverridesTooltip);
-    }
-
-    @Override
-    public void componentClosed() {
-        // TODO add custom code on component closing
-    }
-
-    public void writeProperties(java.util.Properties p) {
-        // better to version settings since initial version as advocated at
-        // http://wiki.apidesign.org/wiki/PropertyFiles
-        p.setProperty("version", "1.0");
-    }
-
-    public void readProperties(java.util.Properties p) {
     }
 }

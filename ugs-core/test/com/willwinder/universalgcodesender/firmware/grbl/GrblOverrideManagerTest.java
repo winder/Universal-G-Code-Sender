@@ -10,6 +10,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.OverridePercents;
 import com.willwinder.universalgcodesender.listeners.OverrideType;
 import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.services.MessageService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -28,7 +29,6 @@ public class GrblOverrideManagerTest {
 
     @Mock
     private IController controller;
-
     @Mock
     private ICommunicator communicator;
     private GrblOverrideManager overrideManager;
@@ -36,7 +36,7 @@ public class GrblOverrideManagerTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        overrideManager = new GrblOverrideManager(controller, communicator);
+        overrideManager = new GrblOverrideManager(controller, communicator, new MessageService());
     }
 
     @Test
@@ -90,30 +90,31 @@ public class GrblOverrideManagerTest {
         mockOverrideCapabilities();
         mockControllerStatus(ControllerState.RUN);
 
-        assertEquals(100, overrideManager.getSpeedDefault(OverrideType.SPINDLE_SPEED));
-        assertEquals(100, overrideManager.getSpeedDefault(OverrideType.FEED_SPEED));
-        assertEquals(0, overrideManager.getSpeedDefault(OverrideType.RAPID_SPEED));
-        assertEquals(0, overrideManager.getSpeedDefault(OverrideType.MIST_TOGGLE));
+        assertEquals(100, overrideManager.getSliderDefault(OverrideType.SPINDLE_SPEED));
+        assertEquals(100, overrideManager.getSliderDefault(OverrideType.FEED_SPEED));
+        assertEquals(100, overrideManager.getSliderDefault(OverrideType.RAPID_SPEED));
+        assertEquals(100, overrideManager.getRadioDefault(OverrideType.RAPID_SPEED));
+        assertEquals(0, overrideManager.getSliderDefault(OverrideType.MIST_TOGGLE));
 
-        assertEquals(200, overrideManager.getSpeedMax(OverrideType.SPINDLE_SPEED));
-        assertEquals(200, overrideManager.getSpeedMax(OverrideType.FEED_SPEED));
-        assertEquals(0, overrideManager.getSpeedMax(OverrideType.RAPID_SPEED));
-        assertEquals(0, overrideManager.getSpeedMax(OverrideType.MIST_TOGGLE));
+        assertEquals(200, overrideManager.getSliderMax(OverrideType.SPINDLE_SPEED));
+        assertEquals(200, overrideManager.getSliderMax(OverrideType.FEED_SPEED));
+        assertEquals(100, overrideManager.getSliderMax(OverrideType.RAPID_SPEED));
+        assertEquals(0, overrideManager.getSliderMax(OverrideType.MIST_TOGGLE));
 
-        assertEquals(10, overrideManager.getSpeedMin(OverrideType.SPINDLE_SPEED));
-        assertEquals(10, overrideManager.getSpeedMin(OverrideType.FEED_SPEED));
-        assertEquals(0, overrideManager.getSpeedMin(OverrideType.RAPID_SPEED));
-        assertEquals(0, overrideManager.getSpeedMin(OverrideType.MIST_TOGGLE));
+        assertEquals(10, overrideManager.getSliderMin(OverrideType.SPINDLE_SPEED));
+        assertEquals(10, overrideManager.getSliderMin(OverrideType.FEED_SPEED));
+        assertEquals(25, overrideManager.getSliderMin(OverrideType.RAPID_SPEED));
+        assertEquals(0, overrideManager.getSliderMin(OverrideType.MIST_TOGGLE));
 
-        assertEquals(100, overrideManager.getSpeedTargetValue(OverrideType.SPINDLE_SPEED));
-        assertEquals(100, overrideManager.getSpeedTargetValue(OverrideType.FEED_SPEED));
-        assertEquals(0, overrideManager.getSpeedTargetValue(OverrideType.RAPID_SPEED));
-        assertEquals(0, overrideManager.getSpeedTargetValue(OverrideType.MIST_TOGGLE));
+        assertEquals(100, overrideManager.getSliderTargetValue(OverrideType.SPINDLE_SPEED));
+        assertEquals(100, overrideManager.getSliderTargetValue(OverrideType.FEED_SPEED));
+        assertEquals(100, overrideManager.getSliderTargetValue(OverrideType.RAPID_SPEED));
+        assertEquals(0, overrideManager.getSliderTargetValue(OverrideType.MIST_TOGGLE));
 
-        assertEquals(1, overrideManager.getSpeedStep(OverrideType.SPINDLE_SPEED));
-        assertEquals(1, overrideManager.getSpeedStep(OverrideType.FEED_SPEED));
-        assertEquals(0, overrideManager.getSpeedStep(OverrideType.RAPID_SPEED));
-        assertEquals(0, overrideManager.getSpeedStep(OverrideType.MIST_TOGGLE));
+        assertEquals(1, overrideManager.getSliderStep(OverrideType.SPINDLE_SPEED));
+        assertEquals(1, overrideManager.getSliderStep(OverrideType.FEED_SPEED));
+        assertEquals(25, overrideManager.getSliderStep(OverrideType.RAPID_SPEED));
+        assertEquals(0, overrideManager.getSliderStep(OverrideType.MIST_TOGGLE));
 
         assertEquals(10, overrideManager.getSpeedMajorStep(OverrideType.SPINDLE_SPEED));
         assertEquals(10, overrideManager.getSpeedMajorStep(OverrideType.FEED_SPEED));
@@ -121,7 +122,7 @@ public class GrblOverrideManagerTest {
         assertEquals(1, overrideManager.getSpeedMinorStep(OverrideType.SPINDLE_SPEED));
         assertEquals(1, overrideManager.getSpeedMinorStep(OverrideType.FEED_SPEED));
 
-        assertEquals(List.of(OverrideType.FEED_SPEED, OverrideType.SPINDLE_SPEED), overrideManager.getSpeedTypes());
+        assertEquals(List.of(OverrideType.FEED_SPEED, OverrideType.SPINDLE_SPEED), overrideManager.getSliderTypes());
     }
 
     @Test
@@ -129,7 +130,7 @@ public class GrblOverrideManagerTest {
         mockControllerStatus(ControllerState.IDLE);
         mockOverrideCapabilities();
 
-        overrideManager.setSpeedTarget(OverrideType.FEED_SPEED, 10);
+        overrideManager.setSliderTarget(OverrideType.FEED_SPEED, 10);
         verify(communicator, times(1)).sendByteImmediately(anyByte());
         assertFalse(overrideManager.hasSettled());
 
@@ -144,7 +145,7 @@ public class GrblOverrideManagerTest {
         mockControllerStatus(ControllerState.IDLE);
         mockOverrideCapabilities();
 
-        overrideManager.setSpeedTarget(OverrideType.FEED_SPEED, 10);
+        overrideManager.setSliderTarget(OverrideType.FEED_SPEED, 10);
         ControllerStatus controllerStatus = ControllerStatusBuilder.newInstance().setState(ControllerState.RUN).setOverrides(new OverridePercents(10, 100, 100)).build();
         when(controller.getControllerStatus()).thenReturn(controllerStatus);
         overrideManager.onControllerStatus(controllerStatus);

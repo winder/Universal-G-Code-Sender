@@ -38,6 +38,7 @@ import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_I
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
 import com.willwinder.universalgcodesender.types.GrblSettingMessage;
@@ -94,7 +95,7 @@ public class GrblController extends AbstractController {
         this.firmwareSettings = new GrblFirmwareSettings(this);
         this.comm.addListener(firmwareSettings);
         this.initializer = new GrblControllerInitializer(this);
-        this.overrideManager = new GrblOverrideManager(this, communicator);
+        this.overrideManager = new GrblOverrideManager(this, communicator, messageService);
     }
 
     public GrblController() {
@@ -109,6 +110,12 @@ public class GrblController extends AbstractController {
     @Override
     public IFirmwareSettings getFirmwareSettings() {
         return firmwareSettings;
+    }
+
+    @Override
+    public void setMessageService(MessageService messageService) {
+        super.setMessageService(messageService);
+        overrideManager.setMessageService(messageService);
     }
 
     /***********************

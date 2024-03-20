@@ -20,12 +20,16 @@ package com.willwinder.universalgcodesender.firmware.grbl;
 
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.IController;
+import static com.willwinder.universalgcodesender.Utils.roundToNearestStepValue;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.firmware.AbstractOverrideManager;
 import com.willwinder.universalgcodesender.firmware.IOverrideManager;
 import com.willwinder.universalgcodesender.firmware.OverrideException;
+import com.willwinder.universalgcodesender.listeners.MessageType;
+import com.willwinder.universalgcodesender.listeners.OverridePercents;
 import com.willwinder.universalgcodesender.listeners.OverrideType;
 import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.services.MessageService;
 
 import java.util.List;
 
@@ -38,10 +42,87 @@ public class GrblOverrideManager extends AbstractOverrideManager implements IOve
     private static final int SPINDLE_MIN = 10;
     private static final int SPINDLE_MAX = 200;
     private static final int SPINDLE_DEFAULT = 100;
+    private static final int RAPID_SPEED_MAX = 100;
+    private static final int RAPID_SPEED_MIN = 25;
+    private static final int RAPID_SPEED_STEP = 25;
+    private static final int RAPID_DEFAULT = 100;
+    private MessageService messageService;
 
-    public GrblOverrideManager(IController controller, ICommunicator communicator) {
+    public GrblOverrideManager(IController controller, ICommunicator communicator, MessageService messageService) {
         super(controller, communicator);
+        this.messageService = messageService;
     }
+
+    @Override
+    protected void adjustRapidOverride(OverridePercents currentOverridePercents) {
+        if (currentOverridePercents.rapid() == targetRapidSpeed) {
+            return;
+        }
+
+        try {
+            if (targetRapidSpeed <= 25) {
+                sendOverrideCommand(Overrides.CMD_RAPID_OVR_LOW);
+            } else if (targetRapidSpeed <= 50) {
+                sendOverrideCommand(Overrides.CMD_RAPID_OVR_MEDIUM);
+            } else {
+                sendOverrideCommand(Overrides.CMD_RAPID_OVR_RESET);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    protected void adjustFeedOverride(OverridePercents currentOverridePercents) {
+        if (currentOverridePercents.feed() == targetFeedSpeed) {
+            return;
+        }
+
+        float currentFeed = currentOverridePercents.feed();
+        int majorSteps = (int) ((targetFeedSpeed - currentFeed) / getSpeedMajorStep(OverrideType.FEED_SPEED));
+        int minorSteps = (int) ((targetFeedSpeed - currentFeed) / getSpeedMinorStep(OverrideType.FEED_SPEED));
+
+        try {
+            if (majorSteps < 0) {
+                sendOverrideCommand(Overrides.CMD_FEED_OVR_COARSE_MINUS);
+            } else if (majorSteps > 0) {
+                sendOverrideCommand(Overrides.CMD_FEED_OVR_COARSE_PLUS);
+            } else if (minorSteps < 0) {
+                sendOverrideCommand(Overrides.CMD_FEED_OVR_FINE_MINUS);
+            } else if (minorSteps > 0) {
+                sendOverrideCommand(Overrides.CMD_FEED_OVR_FINE_PLUS);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void adjustSpindleOverride(OverridePercents currentOverridePercents) {
+        if (currentOverridePercents.spindle() == targetSpindleSpeed) {
+            return;
+        }
+
+        float currentSpindle = currentOverridePercents.spindle();
+        int majorSteps = (int) ((targetSpindleSpeed - currentSpindle) / getSpeedMajorStep(OverrideType.SPINDLE_SPEED));
+        int minorSteps = (int) ((targetSpindleSpeed - currentSpindle) / getSpeedMinorStep(OverrideType.SPINDLE_SPEED));
+
+        try {
+            if (majorSteps < 0) {
+                sendOverrideCommand(Overrides.CMD_SPINDLE_OVR_COARSE_MINUS);
+            } else if (majorSteps > 0) {
+                sendOverrideCommand(Overrides.CMD_SPINDLE_OVR_COARSE_PLUS);
+            } else if (minorSteps < 0) {
+                sendOverrideCommand(Overrides.CMD_SPINDLE_OVR_FINE_MINUS);
+            } else if (minorSteps > 0) {
+                sendOverrideCommand(Overrides.CMD_SPINDLE_OVR_FINE_PLUS);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     protected int getSpeedMinorStep(OverrideType overrideType) {
@@ -58,38 +139,50 @@ public class GrblOverrideManager extends AbstractOverrideManager implements IOve
         if (realTimeCommand != null) {
             try {
                 communicator.sendByteImmediately(realTimeCommand);
+                messageService.dispatchMessage(MessageType.VERBOSE, ">>> 0x" + String.format("%02X ", realTimeCommand) + "\n");
             } catch (Exception e) {
                 throw new OverrideException("Could not send override command", e);
             }
         }
     }
 
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
     @Override
-    public int getSpeedDefault(OverrideType type) {
+    public int getSliderDefault(OverrideType type) {
         return switch (type) {
             case FEED_SPEED -> FEED_DEFAULT;
             case SPINDLE_SPEED -> SPINDLE_DEFAULT;
+            case RAPID_SPEED -> RAPID_DEFAULT;
             default -> 0;
         };
     }
 
     @Override
-    public int getSpeedTargetValue(OverrideType type) {
+    public int getSliderTargetValue(OverrideType type) {
         return switch (type) {
             case FEED_SPEED -> targetFeedSpeed;
             case SPINDLE_SPEED -> targetSpindleSpeed;
+            case RAPID_SPEED -> targetRapidSpeed;
             default -> 0;
         };
     }
 
     @Override
-    public List<OverrideType> getSpeedTypes() {
+    public List<OverrideType> getSliderTypes() {
         return List.of(OverrideType.FEED_SPEED, OverrideType.SPINDLE_SPEED);
     }
 
     @Override
     public List<OverrideType> getToggleTypes() {
         return List.of(OverrideType.SPINDLE_TOGGLE, OverrideType.MIST_TOGGLE, OverrideType.FLOOD_TOGGLE);
+    }
+
+    @Override
+    public List<OverrideType> getRadioTypes() {
+        return List.of(OverrideType.RAPID_SPEED);
     }
 
     @Override
@@ -113,29 +206,77 @@ public class GrblOverrideManager extends AbstractOverrideManager implements IOve
     }
 
     @Override
-    public int getSpeedMax(OverrideType type) {
+    public int getRadioDefault(OverrideType type) {
+        return getSliderDefault(type);
+    }
+
+    @Override
+    public void setRadioTarget(OverrideType type, int value) {
+        setSliderTarget(type, value);
+    }
+
+    @Override
+    public int getSliderMax(OverrideType type) {
         return switch (type) {
             case FEED_SPEED -> FEED_MAX;
             case SPINDLE_SPEED -> SPINDLE_MAX;
+            case RAPID_SPEED -> RAPID_SPEED_MAX;
             default -> 0;
         };
     }
 
     @Override
-    public int getSpeedMin(OverrideType type) {
+    public int getSliderMin(OverrideType type) {
         return switch (type) {
             case FEED_SPEED -> FEED_MIN;
             case SPINDLE_SPEED -> SPINDLE_MIN;
+            case RAPID_SPEED -> RAPID_SPEED_MIN;
             default -> 0;
         };
     }
 
     @Override
-    public int getSpeedStep(OverrideType type) {
+    public int getSliderStep(OverrideType type) {
         return switch (type) {
             case FEED_SPEED, SPINDLE_SPEED -> MINOR_STEP;
+            case RAPID_SPEED -> RAPID_SPEED_STEP;
             default -> 0;
         };
     }
 
+    @Override
+    public void setSliderTarget(OverrideType type, int percent) {
+        percent = (int) Math.round(roundToNearestStepValue(percent, getSliderMin(type), getSliderMax(type), getSliderStep(type)));
+        if (type == OverrideType.FEED_SPEED) {
+            targetFeedSpeed = percent;
+        } else if (type == OverrideType.SPINDLE_SPEED) {
+            targetSpindleSpeed = percent;
+        } else if (type == OverrideType.RAPID_SPEED) {
+            if (percent < 50) {
+                targetRapidSpeed = 25;
+            } else if (percent < 100) {
+                targetRapidSpeed = 50;
+            } else {
+                targetRapidSpeed = 100;
+            }
+        }
+
+        start();
+    }
+
+    @Override
+    public List<Integer> getSliderSteps(OverrideType type) {
+        if (type == OverrideType.FEED_SPEED || type == OverrideType.SPINDLE_SPEED) {
+            return List.of(0, 100, 200);
+        }
+        return List.of();
+    }
+
+    @Override
+    public List<Integer> getRadioSteps(OverrideType type) {
+        if(type == OverrideType.RAPID_SPEED) {
+            return List.of(25, 50, 100);
+        }
+        return List.of();
+    }
 }

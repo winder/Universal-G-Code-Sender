@@ -20,8 +20,6 @@ package com.willwinder.universalgcodesender;
 
 import com.google.gson.JsonObject;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
-import com.willwinder.universalgcodesender.firmware.IOverrideManager;
-import com.willwinder.universalgcodesender.firmware.g2core.G2CoreOverrideManager;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
@@ -42,16 +40,13 @@ public class G2CoreController extends TinyGController {
      * A temporary flag for emulating a JOG state when parsing the controller status
      */
     private boolean isJogging = false;
-    private final IOverrideManager overrideManager;
 
     public G2CoreController() {
         super();
-        overrideManager = new G2CoreOverrideManager(this, getCommunicator());
     }
 
     public G2CoreController(ICommunicator communicator) {
         super(communicator);
-        overrideManager = new G2CoreOverrideManager(this, communicator);
     }
 
     @Override
@@ -194,10 +189,5 @@ public class G2CoreController extends TinyGController {
         }
 
         return controllerStatus;
-    }
-
-    @Override
-    public IOverrideManager getOverrideManager() {
-        return overrideManager;
     }
 }
