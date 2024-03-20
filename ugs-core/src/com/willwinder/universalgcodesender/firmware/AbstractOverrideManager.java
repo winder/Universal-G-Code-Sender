@@ -19,14 +19,12 @@
 package com.willwinder.universalgcodesender.firmware;
 
 import com.willwinder.universalgcodesender.IController;
-import static com.willwinder.universalgcodesender.Utils.roundToNearestStepValue;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.DefaultControllerListener;
 import com.willwinder.universalgcodesender.listeners.OverridePercents;
 import com.willwinder.universalgcodesender.listeners.OverrideType;
-import com.willwinder.universalgcodesender.model.Overrides;
 
 /**
  * An abstract override manager with some default implementation of common functions.
@@ -41,6 +39,7 @@ public abstract class AbstractOverrideManager implements IOverrideManager {
 
     protected int targetFeedSpeed = 100;
     protected int targetSpindleSpeed = 100;
+    protected int targetRapidSpeed = 100;
 
     private boolean isRunning = false;
     private long lastSentCommand = 0;
@@ -60,6 +59,7 @@ public abstract class AbstractOverrideManager implements IOverrideManager {
         if (!isRunning) {
             targetFeedSpeed = controllerStatus.getOverrides().feed();
             targetSpindleSpeed = controllerStatus.getOverrides().spindle();
+            targetRapidSpeed = controllerStatus.getOverrides().rapid();
             return;
         }
 
@@ -72,59 +72,18 @@ public abstract class AbstractOverrideManager implements IOverrideManager {
         OverridePercents currentOverridePercents = controllerStatus.getOverrides();
         adjustFeedOverride(currentOverridePercents);
         adjustSpindleOverride(currentOverridePercents);
+        adjustRapidOverride(currentOverridePercents);
 
         if (hasSettled()) {
             stop();
         }
     }
 
-    protected void adjustFeedOverride(OverridePercents currentOverridePercents) {
-        if (currentOverridePercents.feed() == targetFeedSpeed) {
-            return;
-        }
+    protected abstract void adjustFeedOverride(OverridePercents currentOverridePercents);
 
-        float currentFeed = currentOverridePercents.feed();
-        int majorSteps = (int) ((targetFeedSpeed - currentFeed) / getSpeedMajorStep(OverrideType.FEED_SPEED));
-        int minorSteps = (int) ((targetFeedSpeed - currentFeed) / getSpeedMinorStep(OverrideType.FEED_SPEED));
+    protected abstract void adjustSpindleOverride(OverridePercents currentOverridePercents) ;
 
-        try {
-            if (majorSteps < 0) {
-                sendOverrideCommand(Overrides.CMD_FEED_OVR_COARSE_MINUS);
-            } else if (majorSteps > 0) {
-                sendOverrideCommand(Overrides.CMD_FEED_OVR_COARSE_PLUS);
-            } else if (minorSteps < 0) {
-                sendOverrideCommand(Overrides.CMD_FEED_OVR_FINE_MINUS);
-            } else if (minorSteps > 0) {
-                sendOverrideCommand(Overrides.CMD_FEED_OVR_FINE_PLUS);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    protected void adjustSpindleOverride(OverridePercents currentOverridePercents) {
-        if (currentOverridePercents.spindle() == targetSpindleSpeed) {
-            return;
-        }
-
-        float currentSpindle = currentOverridePercents.spindle();
-        int majorSteps = (int) ((targetSpindleSpeed - currentSpindle) / getSpeedMajorStep(OverrideType.SPINDLE_SPEED));
-        int minorSteps = (int) ((targetSpindleSpeed - currentSpindle) / getSpeedMinorStep(OverrideType.SPINDLE_SPEED));
-
-        try {
-            if (majorSteps < 0) {
-                sendOverrideCommand(Overrides.CMD_SPINDLE_OVR_COARSE_MINUS);
-            } else if (majorSteps > 0) {
-                sendOverrideCommand(Overrides.CMD_SPINDLE_OVR_COARSE_PLUS);
-            } else if (minorSteps < 0) {
-                sendOverrideCommand(Overrides.CMD_SPINDLE_OVR_FINE_MINUS);
-            } else if (minorSteps > 0) {
-                sendOverrideCommand(Overrides.CMD_SPINDLE_OVR_FINE_PLUS);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    protected abstract void adjustRapidOverride(OverridePercents currentOverridePercents);
 
     protected abstract int getSpeedMinorStep(OverrideType overrideType);
 
@@ -161,18 +120,6 @@ public abstract class AbstractOverrideManager implements IOverrideManager {
     @Override
     public boolean hasSettled() {
         OverridePercents overrides = controller.getControllerStatus().getOverrides();
-        return overrides.spindle() == targetSpindleSpeed && overrides.feed() == targetFeedSpeed;
-    }
-
-    @Override
-    public void setSpeedTarget(OverrideType type, int percent) {
-        percent = (int) Math.round(roundToNearestStepValue(percent, getSpeedMin(type), getSpeedMax(type), getSpeedStep(type)));
-        if (type == OverrideType.FEED_SPEED) {
-            targetFeedSpeed = percent;
-        } else if (type == OverrideType.SPINDLE_SPEED) {
-            targetSpindleSpeed = percent;
-        }
-
-        start();
+        return overrides.spindle() == targetSpindleSpeed && overrides.feed() == targetFeedSpeed && overrides.rapid() == targetRapidSpeed;
     }
 }

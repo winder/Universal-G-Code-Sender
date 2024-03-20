@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.firmware;
 
 import com.willwinder.universalgcodesender.listeners.OverrideType;
 import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.services.MessageService;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ import java.util.List;
  */
 public class DefaultOverrideManager implements IOverrideManager {
     @Override
-    public void setSpeedTarget(OverrideType type, int value) {
+    public void setSliderTarget(OverrideType type, int value) {
         // Not implemented
     }
 
@@ -41,17 +42,17 @@ public class DefaultOverrideManager implements IOverrideManager {
     }
 
     @Override
-    public int getSpeedMax(OverrideType type) {
+    public int getSliderMax(OverrideType type) {
         return 0;
     }
 
     @Override
-    public int getSpeedMin(OverrideType type) {
+    public int getSliderMin(OverrideType type) {
         return 0;
     }
 
     @Override
-    public int getSpeedStep(OverrideType type) {
+    public int getSliderStep(OverrideType type) {
         return 0;
     }
 
@@ -61,22 +62,27 @@ public class DefaultOverrideManager implements IOverrideManager {
     }
 
     @Override
-    public int getSpeedDefault(OverrideType overrideType) {
+    public int getSliderDefault(OverrideType overrideType) {
         return 0;
     }
 
     @Override
-    public int getSpeedTargetValue(OverrideType type) {
+    public int getSliderTargetValue(OverrideType type) {
         return 0;
     }
 
     @Override
-    public List<OverrideType> getSpeedTypes() {
+    public List<OverrideType> getSliderTypes() {
         return List.of();
     }
 
     @Override
     public List<OverrideType> getToggleTypes() {
+        return List.of();
+    }
+
+    @Override
+    public List<OverrideType> getRadioTypes() {
         return List.of();
     }
 
@@ -93,5 +99,30 @@ public class DefaultOverrideManager implements IOverrideManager {
     @Override
     public boolean isToggled(OverrideType overrideType) {
         return false;
+    }
+
+    @Override
+    public int getRadioDefault(OverrideType type) {
+        return 0;
+    }
+
+    @Override
+    public void setRadioTarget(OverrideType type, int value) {
+        // Not implemented
+    }
+
+    @Override
+    public void setMessageService(MessageService messageService) {
+        // Not implemented
+    }
+
+    @Override
+    public List<Integer> getSliderSteps(OverrideType type) {
+        return List.of();
+    }
+
+    @Override
+    public List<Integer> getRadioSteps(OverrideType type) {
+        return List.of();
     }
 }

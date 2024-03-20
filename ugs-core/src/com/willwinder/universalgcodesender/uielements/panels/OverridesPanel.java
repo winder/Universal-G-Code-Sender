@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,21 +27,16 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.uielements.components.OverrideRadioButtons;
+import com.willwinder.universalgcodesender.uielements.components.OverrideSpeedSlider;
+import com.willwinder.universalgcodesender.uielements.components.OverrideToggleButtons;
 import static com.willwinder.universalgcodesender.uielements.panels.OverrideLabels.TOGGLE_SHORT;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.AbstractAction;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
-import java.awt.event.ActionEvent;
 import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -52,13 +47,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class OverridesPanel extends JPanel implements UGSEventListener {
     private final transient BackendAPI backend;
-    private final JPanel overridesControlsPanel = new JPanel(new MigLayout("fillx"));
+    private final JPanel overridesControlsPanel = new JPanel(new MigLayout("fillx, inset 0"));
     private final JLabel notConnectedLabel = new JLabel("Not connected", SwingConstants.CENTER);
     private final JLabel notSupportedLabel = new JLabel("<html>" + OverrideLabels.NOT_SUPPORTED + "</html>", SwingConstants.CENTER);
-    private final Map<OverrideType, JSlider> speedSliders = new ConcurrentHashMap<>();
-    private final Map<OverrideType, JToggleButton> toggleButtons = new ConcurrentHashMap<>();
-
+    private final Map<OverrideType, OverrideSpeedSlider> speedSliders = new ConcurrentHashMap<>();
+    private final Map<OverrideType, OverrideRadioButtons> speedButtons = new ConcurrentHashMap<>();
     private boolean overridesPanelInitiated = false;
+    private OverrideToggleButtons overrideToggleButtons;
 
     public OverridesPanel(BackendAPI backend) {
         this.backend = backend;
@@ -77,7 +72,7 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
         if (backend.getControllerState() == ControllerState.DISCONNECTED || backend.getControllerState() == ControllerState.CONNECTING) {
             removeComponents();
             return;
-        } else if (!backend.getController().getCapabilities().hasOverrides() || (backend.getController().getOverrideManager().getSpeedTypes().isEmpty() && backend.getController().getOverrideManager().getToggleTypes().isEmpty())) {
+        } else if (!backend.getController().getCapabilities().hasOverrides() || (backend.getController().getOverrideManager().getSliderTypes().isEmpty() && backend.getController().getOverrideManager().getToggleTypes().isEmpty())) {
             showNotSupportedPanel();
             return;
         } else if (!overridesPanelInitiated) {
@@ -107,8 +102,16 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
         } else if (evt instanceof ControllerStatusEvent controllerStatusEvent) {
             ControllerStatus status = controllerStatusEvent.getStatus();
             if (status.getOverrides() != null) {
-                speedSliders.keySet().forEach(type -> speedSliders.get(type).setValue(backend.getController().getOverrideManager().getSpeedTargetValue(type)));
-                toggleButtons.keySet().forEach(type -> toggleButtons.get(type).setSelected(backend.getController().getOverrideManager().isToggled(type)));
+                IOverrideManager overrideManager = backend.getController().getOverrideManager();
+                speedSliders.keySet().forEach(type -> {
+                    int speedTargetValue = overrideManager.getSliderTargetValue(type);
+                    speedSliders.get(type).setValue(speedTargetValue);
+                });
+                speedButtons.keySet().forEach(type -> {
+                    int speedTargetValue = overrideManager.getSliderTargetValue(type);
+                    speedButtons.get(type).setValue(speedTargetValue);
+                });
+                overrideManager.getToggleTypes().forEach(type -> overrideToggleButtons.setSelected(type, overrideManager.isToggled(type)));
             }
         }
     }
@@ -116,7 +119,6 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
     private void removeComponents() {
         overridesControlsPanel.removeAll();
         speedSliders.clear();
-        toggleButtons.clear();
         overridesControlsPanel.setVisible(false);
         notConnectedLabel.setVisible(true);
         notSupportedLabel.setVisible(false);
@@ -132,57 +134,53 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
 
         overridesControlsPanel.removeAll();
         IOverrideManager overrideManager = backend.getController().getOverrideManager();
-        if (!overrideManager.getToggleTypes().isEmpty()) {
-            overridesControlsPanel.add(new JLabel(TOGGLE_SHORT), "spanx, grow, wrap, gaptop 10");
-            overrideManager.getToggleTypes().forEach(this::createAndAddToggleButtons);
-        }
-
-        overrideManager.getSpeedTypes().forEach(this::createAndAddSpeedSlider);
+        createAndAddToggleButtons(overrideManager);
+        overrideManager.getRadioTypes().forEach(this::createAndAddRadioButtons);
+        overrideManager.getSliderTypes().forEach(this::createAndAddSpeedSlider);
         revalidate();
     }
 
-    private void createAndAddToggleButtons(OverrideType overrideType) {
+    private void createAndAddToggleButtons(IOverrideManager overrideManager) {
+        if (overrideManager.getToggleTypes().isEmpty()) {
+            return;
+        }
+        overridesControlsPanel.add(new JLabel(TOGGLE_SHORT), "spanx, grow, wrap, gaptop 10");
+        overrideToggleButtons = new OverrideToggleButtons(overrideManager);
+        overridesControlsPanel.add(overrideToggleButtons, "growx, w 40::");
+    }
+
+    private void createAndAddRadioButtons(OverrideType type) {
         IOverrideManager overrideManager = backend.getController().getOverrideManager();
-        JToggleButton toggleSpindle = new JToggleButton(overrideType.name());
-        toggleSpindle.setAction(new AbstractAction(overrideType.getLabel()) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                overrideManager.toggle(overrideType);
-                toggleSpindle.setSelected(!overrideManager.isToggled(overrideType));
-                ThreadHelper.invokeLater(() -> toggleSpindle.setSelected(overrideManager.isToggled(overrideType)), 200);
-            }
-        });
-        overridesControlsPanel.add(toggleSpindle, "growx");
-        toggleButtons.put(overrideType, toggleSpindle);
+        OverrideRadioButtons radioButtons = new OverrideRadioButtons(overrideManager, type);
+        radioButtons.addChangeListener(l -> updateRadio(type, radioButtons.getValue()));
+        speedButtons.put(type, radioButtons);
+        overridesControlsPanel.add(new JLabel(type.getLabel()), "newline, spanx, wrap, gaptop 10");
+        overridesControlsPanel.add(radioButtons, "spanx, grow, wrap");
     }
 
     private void createAndAddSpeedSlider(OverrideType type) {
         IOverrideManager overrideManager = backend.getController().getOverrideManager();
 
-        JSlider speedSlider = new JSlider(0, overrideManager.getSpeedMax(type), overrideManager.getSpeedDefault(type));
-        speedSlider.setMinorTickSpacing(0);
-        speedSlider.setMajorTickSpacing(10);
+        OverrideSpeedSlider speedSlider = new OverrideSpeedSlider(overrideManager, type);
+        speedSlider.addChangeListener(l -> updateSpeed(type, speedSlider.getValue()));
         speedSliders.put(type, speedSlider);
-
-        Dictionary<Integer, JComponent> dict = new Hashtable<>();
-        for (int i = 0; i <= overrideManager.getSpeedMax(type); i += 100) {
-            dict.put(i, new JLabel(i + "%"));
-        }
-
-        speedSlider.setLabelTable(dict);
-        speedSlider.setPaintLabels(true);
-        speedSlider.setPaintTicks(true);
-        speedSlider.setPaintTrack(true);
-        speedSlider.addChangeListener(l -> updateSpeed(type, speedSlider));
-        overridesControlsPanel.add(new JLabel(type.getLabel()), "spanx, grow, newline, wrap, gaptop 10");
+        overridesControlsPanel.add(new JLabel(type.getLabel()), "newline, spanx, wrap, gaptop 10");
         overridesControlsPanel.add(speedSlider, "spanx, grow, wrap");
     }
 
-    private void updateSpeed(OverrideType type, JSlider slider) {
+    private void updateSpeed(OverrideType type, int value) {
         if (backend.getController() == null || !backend.isConnected()) {
             return;
         }
 
-        backend.getController().getOverrideManager().setSpeedTarget(type, slider.getValue());
+        backend.getController().getOverrideManager().setSliderTarget(type, value);
+    }
+
+    private void updateRadio(OverrideType type, int value) {
+        if (backend.getController() == null || !backend.isConnected()) {
+            return;
+        }
+
+        backend.getController().getOverrideManager().setRadioTarget(type, value);
     }
 }

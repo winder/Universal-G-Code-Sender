@@ -20,43 +20,96 @@ package com.willwinder.universalgcodesender.firmware;
 
 import com.willwinder.universalgcodesender.listeners.OverrideType;
 import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.services.MessageService;
 
 import java.util.List;
 
 /**
- * The override manager is used to apply overrides to the controller
+ * The override manager is used to apply overrides to the controller. There are three types of controls
+ * available: toggles, sliders and radio buttons. Toggle buttons for turning a feature on and off.
+ * Radio buttons for selecting fixed values. Sliders for selecting a range of values.
  *
  * @author Joacim Breiler
  */
 public interface IOverrideManager {
     /**
-     * Sets the new override percents for the given type. If the controller doesn't support given override value
+     * Sets the new override value for the given type. If the controller doesn't support given override value
      * the nearest will be used instead. If the override type does not support setting a speed step it is ignored.
-     * Which {@link OverrideType} that can be used with this function is determined with the {@link #getSpeedTypes}.
+     * Which {@link OverrideType} that can be used with this function is determined with the {@link #getSliderTypes}.
      *
      * @param type  the override value to set
      * @param value new controller override value in percent
      */
-    void setSpeedTarget(OverrideType type, int value);
+    void setSliderTarget(OverrideType type, int value);
 
-    int getSpeedMax(OverrideType type);
+    /**
+     * Returns the maximum speed value. Which {@link OverrideType} that can
+     * be used with this function is determined with the {@link #getSliderTypes()}.
+     *
+     * @param type the override value to get
+     * @return the maximum slider value
+     */
+    int getSliderMax(OverrideType type);
 
-    int getSpeedMin(OverrideType type);
+    /**
+     * Returns the minimum speed value. Which {@link OverrideType} that can
+     * be used with this function is determined with the {@link #getSliderTypes()}.
+     *
+     * @param type the override value to get
+     * @return the minimum slider value
+     */
+    int getSliderMin(OverrideType type);
 
-    int getSpeedStep(OverrideType type);
+    /**
+     * The minimum slider step. Which {@link OverrideType} that can be used with this function is determined with
+     * the {@link #getSliderTypes()}.
+     *
+     * @param type the override type
+     * @return the minimum slider step that can be set
+     */
+    int getSliderStep(OverrideType type);
 
+    /**
+     * Sends an override command
+     *
+     * @param command the command to send.
+     */
     void sendOverrideCommand(Overrides command);
 
-    int getSpeedDefault(OverrideType type);
+    /**
+     * Returns the default slider value
+     *
+     * @param type the override type
+     * @return the default override value
+     */
+    int getSliderDefault(OverrideType type);
 
     /**
      * Get the target speed for the given override type. Which {@link OverrideType} that can be used with this
-     * function is determined with the {@link #getSpeedTypes}.
+     * function is determined with the {@link #getSliderTypes}.
      *
      * @param type the override type to get the target speed for.
      * @return the target speed in percent
      */
-    int getSpeedTargetValue(OverrideType type);
+    int getSliderTargetValue(OverrideType type);
+
+    /**
+     * Get a list with speed steps, typically for displaying labels in the slider. Which {@link OverrideType} that can
+     * be used with this function is determined with the {@link #getSliderTypes()}.
+     *
+     * @param type the override type
+     * @return a list of available slider step values
+     */
+    List<Integer> getSliderSteps(OverrideType type);
+
+    /**
+     * Get a list with radio step values. Which {@link OverrideType} that can be used with this
+     * function is determined with the {@link #getRadioTypes()}.
+     *
+     * @param type the override type
+     * @return a list of available radio step values
+     */
+    List<Integer> getRadioSteps(OverrideType type);
 
     /**
      * Returns true if the changes to be made with the override manager has settled and are done.
@@ -70,7 +123,7 @@ public interface IOverrideManager {
      *
      * @return a list of override speed types
      */
-    List<OverrideType> getSpeedTypes();
+    List<OverrideType> getSliderTypes();
 
     /**
      * Returns the override types that can be toggled
@@ -78,6 +131,13 @@ public interface IOverrideManager {
      * @return a list of toggleable override types
      */
     List<OverrideType> getToggleTypes();
+
+    /**
+     * Returns the override types that can be set with speed settings
+     *
+     * @return a list of override speed types
+     */
+    List<OverrideType> getRadioTypes();
 
     /**
      * Returns true when override functions are available
@@ -95,10 +155,31 @@ public interface IOverrideManager {
     void toggle(OverrideType type);
 
     /**
-     * Returns if the given override is currently toggled.
+     * Returns if the given override is currently toggled. Which {@link OverrideType} that can be used with this
+     * function is determined with the {@link #getToggleTypes()}.
      *
      * @param type the override type
      * @return true if the override is active
      */
     boolean isToggled(OverrideType type);
+
+    /**
+     * Gets the default value. Which {@link OverrideType} that can be used with this
+     * function is determined with the {@link #getRadioTypes()}.
+     *
+     * @param type the override type
+     * @return the default value
+     */
+    int getRadioDefault(OverrideType type);
+
+    /**
+     * Sets the target value. Which {@link OverrideType} that can be used with this
+     * function is determined with the {@link #getRadioTypes()}.
+     *
+     * @param type  the override type
+     * @param value the target value
+     */
+    void setRadioTarget(OverrideType type, int value);
+
+    void setMessageService(MessageService messageService);
 }

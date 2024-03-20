@@ -122,7 +122,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
         this.communicator.addListener(this);
         this.fileService = new FluidNCFileService(this, positionPollTimer);
         this.commandCreator = new FluidNCCommandCreator();
-        this.overrideManager = new GrblOverrideManager(this, communicator);
+        this.overrideManager = new GrblOverrideManager(this, communicator, messageService);
     }
 
     @Override
