@@ -68,6 +68,6 @@ public abstract class AnalogOverrideAction extends AbstractAction implements Ana
         }
 
         IOverrideManager overrideManager = backend.getController().getOverrideManager();
-        overrideManager.setSpeedTarget(overrideType, Math.round(value * overrideManager.getSpeedMax(overrideType) + overrideManager.getSpeedDefault(overrideType)));
+        overrideManager.setSliderTarget(overrideType, Math.round(value * overrideManager.getSliderMax(overrideType) + overrideManager.getSliderDefault(overrideType)));
     }
 }
