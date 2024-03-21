@@ -135,6 +135,13 @@
             <version>${netbeans.version}</version>
         </dependency>
 
+        <!-- For search -->
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-editor-search</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+
         <!-- For hints -->
         <dependency>
             <groupId>org.netbeans.api</groupId>
