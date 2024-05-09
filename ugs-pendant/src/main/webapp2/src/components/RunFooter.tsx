@@ -1,4 +1,4 @@
-import { Button, Container, Navbar } from "react-bootstrap";
+import { Button, Navbar } from "react-bootstrap";
 
 const RunFooter = () => {
   return (

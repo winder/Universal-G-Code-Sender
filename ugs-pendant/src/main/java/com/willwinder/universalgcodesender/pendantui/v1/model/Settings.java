@@ -10,6 +10,10 @@ public class Settings implements Serializable {
     private double jogStepSizeXY;
     private UnitUtils.Units preferredUnits;
     private double jogStepSizeZ;
+    private String port;
+    private String portRate;
+    private String firmwareVersion;
+    private boolean useZStepSize;
 
     public void setJogFeedRate(double jogFeedRate) {
         this.jogFeedRate = jogFeedRate;
@@ -41,5 +45,37 @@ public class Settings implements Serializable {
 
     public void setJogStepSizeZ(double jogStepSizeZ) {
         this.jogStepSizeZ = jogStepSizeZ;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPortRate(String portRate) {
+        this.portRate = portRate;
+    }
+
+    public String getPortRate() {
+        return portRate;
+    }
+
+    public void setFirmwareVersion(String firmwareVersion) {
+        this.firmwareVersion = firmwareVersion;
+    }
+
+    public String getFirmwareVersion() {
+        return firmwareVersion;
+    }
+
+    public void setUseZStepSize(boolean useZStepSize) {
+        this.useZStepSize = useZStepSize;
+    }
+
+    public boolean isUseZStepSize() {
+        return useZStepSize;
     }
 }

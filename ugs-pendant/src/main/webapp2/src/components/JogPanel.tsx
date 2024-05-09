@@ -8,14 +8,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useMemo } from "react";
-import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import { Button, Col, Container, FormLabel, Row } from "react-bootstrap";
+import { useAppDispatch } from "../hooks/useAppDispatch";
 import { useAppSelector } from "../hooks/useAppSelector";
 import { jog } from "../services/machine";
-import "./JogPanel.scss";
-import RangeSlider from "./RangeSlider";
 import { setSettings } from "../store/settingsSlice";
-import { useDispatch } from "react-redux";
-import { useAppDispatch } from "../hooks/useAppDispatch";
+import "./JogPanel.scss";
+import StepSize from "./StepSize";
+import FeedRate from "./FeedRate";
 
 const JogPanel = () => {
   const dispatch = useAppDispatch();
@@ -73,11 +73,11 @@ const JogPanel = () => {
           <Button
             variant="secondary"
             className="jogButton"
-            onClick={() => jog(0, 0, -1)}
+            onClick={() => jog(0, 0, 1)}
             disabled={!isEnabled}
           >
             <FontAwesomeIcon icon={faCaretUp} size="xl" />
-            <br />Z -
+            <br />Z +
           </Button>
         </Col>
       </Row>
@@ -178,21 +178,36 @@ const JogPanel = () => {
           </Button>
         </Col>
       </Row>
-      <Row>
-        <Col sm="12">
-          <RangeSlider
-            disabled={!isEnabled}
+      <Row style={{ marginTop: "20px" }}>
+        <Col style={{ paddingLeft: "0px" }}>
+          X/Y step:
+          <StepSize
             value={settings.jogStepSizeXY}
-            min={1}
-            max={1000}
-            step={1}
             onChange={(value) =>
               dispatch(setSettings({ ...settings, jogStepSizeXY: value }))
             }
           />
         </Col>
-        <Col sm="12">
-          <Form.Range />
+        {settings.useZStepSize && (
+          <Col style={{ paddingLeft: "0px" }}>
+            Z step:<br/>
+            <StepSize
+              value={settings.jogStepSizeZ}
+              onChange={(value) =>
+                dispatch(setSettings({ ...settings, jogStepSizeZ: value }))
+              }
+            />
+          </Col>
+        )}
+
+        <Col style={{ paddingLeft: "0px", paddingRight: "0px" }}>
+          Feed rate:
+          <FeedRate
+            value={settings.jogFeedRate}
+            onChange={(value) =>
+              dispatch(setSettings({ ...settings, jogFeedRate: value }))
+            }
+          />
         </Col>
       </Row>
     </Container>

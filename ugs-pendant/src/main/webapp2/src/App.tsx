@@ -8,25 +8,51 @@ import MainPage from "./pages/MainPage";
 import { socketActions } from "./store/socketSlice";
 import WaitingPage from "./pages/WaitingPage";
 import AlarmModal from "./components/AlarmModal";
-import Footer from "./components/Footer";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import JogPanel from "./components/JogPanel";
+import MacrosPanel from "./components/MacrosPanel";
+import RunPanel from "./components/RunPanel";
 
 function App() {
   const status = useAppSelector((state) => state.status);
   const isConnected = useAppSelector((state) => state.socket.isConnected);
   const dispatch = useDispatch();
-
+  
   useEffect(() => {
     dispatch(socketActions.connect());
   }, [dispatch]);
 
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <MainPage />,
+      children: [
+        {
+          path: "jog",
+          element: <JogPanel />,
+        },
+        {
+          path: "macros",
+          element: <MacrosPanel />,
+        },
+        {
+          path: "run",
+          element: <RunPanel />,
+        },
+      ],
+    },
+  ]);
+
   return (
     <div className="app">
       <Header />
+      <div style={{ paddingTop: "56px" }}>
       {!isConnected && (status.state === "DISCONNECTED" || status.state === "CONNECTING") && <WaitingPage />}
       {isConnected && status.state === "DISCONNECTED" && <ConnectPage />}
-      {isConnected && (status.state !== "DISCONNECTED" && status.state !== "CONNECTING") && <MainPage />}
+      {isConnected && (status.state !== "DISCONNECTED" && status.state !== "CONNECTING") && <RouterProvider router={router} />}
       {status.state === "ALARM" && <AlarmModal/>}
-      <Footer/>
+    
+      </div>
     </div>
   );
 }

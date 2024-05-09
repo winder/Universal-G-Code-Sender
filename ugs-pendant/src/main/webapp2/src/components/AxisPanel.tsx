@@ -39,6 +39,11 @@ const AxisPanel = ({ axisType }: Props) => {
     return () => clearTimeout(timer);
   }, [machineCoord, workCoord]);
 
+  // Hide axis if there is no work coordinate
+  if(workCoord === null) {
+    return <></>;
+  }
+
   return (
     <Row className="axisRow">
       <Col

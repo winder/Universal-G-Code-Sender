@@ -1,26 +1,22 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Container, Form, FormGroup, Row } from "react-bootstrap";
+import { Button, Col, Container, FormGroup, Row } from "react-bootstrap";
 import DropdownInput from "../components/DropdownInput";
 import { useAppDispatch } from "../hooks/useAppDispatch";
 import {
   connect,
   getBaudRateList,
   getFirmwareList,
-  getPortList,
-  getSelectedBaudRate,
-  getSelectedFirmware,
-  getSelectedPort,
+  getPortList
 } from "../services/machine";
 import { fetchStatus } from "../store/statusSlice";
+import { useAppSelector } from "../hooks/useAppSelector";
+import { setSettings } from "../store/settingsSlice";
 
 const ConnectPage = () => {
+  const settings = useAppSelector(state => state.settings);
   const [ports, setPorts] = useState<string[]>([]);
   const [firmwares, setFirmwares] = useState<string[]>([]);
   const [baudRates, setBaudRates] = useState<string[]>([]);
-
-  const [selectedFirmware, setSelectedFirmware] = useState<string>("");
-  const [selectedPort, setSelectedPort] = useState<string>("");
-  const [selectedBaudRate, setSelectedBaud] = useState<string>("");
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -33,57 +29,45 @@ const ConnectPage = () => {
     getPortList().then((portList) => setPorts(portList));
     getFirmwareList().then((firmwareList) => setFirmwares(firmwareList));
     getBaudRateList().then((buadRateList) => setBaudRates(buadRateList));
-    getSelectedPort().then((selectedPort) => setSelectedPort(selectedPort));
-    getSelectedFirmware().then((selectedFirmware) =>
-      setSelectedFirmware(selectedFirmware)
-    );
-    getSelectedBaudRate().then((selectedBaudRate) =>
-      setSelectedBaud(selectedBaudRate)
-    );
   }, []);
 
   return (
     <Container style={{maxWidth: "400px", marginTop: "24px"}}>
       <Row>
         <Col>
-          <Form>
             <FormGroup>
               <DropdownInput
-                value={selectedFirmware}
+                value={settings.firmwareVersion}
                 options={firmwares}
                 label="Firmware"
-                onChange={(element) =>
-                  setSelectedFirmware(element.currentTarget.value)
-                }
+                onChange={(value) => {
+                  console.log(value);
+                  dispatch(setSettings({...settings, firmwareVersion: value}));}}
               />
             </FormGroup>
 
             <FormGroup>
               <DropdownInput
-                value={selectedPort}
+                value={settings.port}
                 options={ports}
                 label="Port"
-                onChange={(element) =>
-                  setSelectedPort(element.currentTarget.value)
-                }
+                onChange={(value) => dispatch(setSettings({...settings, port: value}))}
                 editable={true}
               />
             </FormGroup>
 
             <FormGroup>
               <DropdownInput
-                value={selectedBaudRate}
+                value={settings.portRate}
                 options={baudRates}
                 label="Baud"
-                onChange={(element) =>
-                  setSelectedBaud(element.currentTarget.value)
-                }
+                onChange={(value) => dispatch(setSettings({...settings, portRate: value}))}
                 editable={true}
               />
             </FormGroup>
 
             <Button onClick={connect}>Connect</Button>
-          </Form>
+
         </Col>
       </Row>
     </Container>

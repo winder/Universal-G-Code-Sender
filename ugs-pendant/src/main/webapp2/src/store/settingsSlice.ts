@@ -14,11 +14,14 @@ export const setSettings = createAsyncThunk<
   { state: RootState }
 >("settings/set", async (settings, thunkApi) => {
   const currentState = thunkApi.getState();
-  console.log(currentState.settings, settings);
   if (
     currentState.settings.jogFeedRate === settings.jogFeedRate &&
     currentState.settings.jogStepSizeXY === settings.jogStepSizeXY &&
-    currentState.settings.jogStepSizeZ === settings.jogStepSizeZ
+    currentState.settings.jogStepSizeZ === settings.jogStepSizeZ &&
+    currentState.settings.port === settings.port &&
+    currentState.settings.portRate === settings.portRate &&
+    currentState.settings.firmwareVersion === settings.firmwareVersion &&
+    currentState.settings.useZStepSize === settings.useZStepSize
   ) {
     return currentState.settings;
   }
@@ -29,8 +32,12 @@ export const setSettings = createAsyncThunk<
 const initialState: Settings = {
   jogFeedRate: 100,
   jogStepSizeXY: 1,
-  preferredUnits: "mm",
+  preferredUnits: "MM",
   jogStepSizeZ: 1,
+  firmwareVersion: "GRBL",
+  port: "COM1",
+  portRate: "115200",
+  useZStepSize: true
 };
 
 const settingsSlice = createSlice({

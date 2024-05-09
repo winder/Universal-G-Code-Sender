@@ -1,6 +1,7 @@
-import { Col, Form, Row } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 import useDebounce from "../hooks/useDebounce";
 import { useEffect, useState } from "react";
+import "./RangeSlider.scss";
 
 type Props = {
   max?: number;
@@ -12,26 +13,24 @@ type Props = {
 };
 
 const RangeSlider = ({ onChange, max, min, step, value, disabled }: Props) => {
+  const [currentValue, setCurrentValue] = useState(value);
+  const debouncedValue = useDebounce(currentValue, 300);
 
-  const debouncedValue = useDebounce(value);
   useEffect(() => {
     onChange(debouncedValue || 0);
   }, [debouncedValue, onChange]);
 
   return (
-    <Row>
-     <Col xs="4" sm="5">Step size {value}</Col>
-      <Col xs="8" sm="7">
-        <Form.Range
-          value={value}
-          max={max || 100}
-          min={min || 0}
-          step={step || 1}
-          onChange={(event) => onChange(+event.target.value)}
-          disabled={disabled}
-        />
-      </Col>
-    </Row>
+    <div className="range-slider">
+      <Form.Range
+        value={currentValue}
+        max={max || 100}
+        min={min || 0}
+        step={step || 1}
+        onChange={(event) => setCurrentValue(+event.currentTarget.value)}
+        disabled={disabled}
+      />
+    </div>
   );
 };
 

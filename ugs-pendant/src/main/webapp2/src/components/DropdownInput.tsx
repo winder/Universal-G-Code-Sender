@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Dropdown, DropdownButton, Form, InputGroup } from "react-bootstrap";
 
 type Props = {
@@ -6,23 +6,44 @@ type Props = {
   options: string[];
   label: string;
   editable?: boolean;
-  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onChange?: (value: string) => void;
 };
 
-const DropdownInput = ({ value, options, label, onChange, editable}: Props) => {
+const DropdownInput = ({
+  value,
+  options,
+  label,
+  onChange,
+  editable,
+}: Props) => {
   const [currentValue, setCurrentValue] = useState("");
-  useEffect(() => setCurrentValue(value), [value]);
+  useEffect(() => {
+    setCurrentValue(value);
+  }, [value]);
 
   return (
     <InputGroup className="mb-3">
       <Form.Floating>
-        <Form.Control id="port" value={currentValue} onChange={onChange} readOnly={!editable}/>
+        <Form.Control
+          id="port"
+          value={currentValue}
+          onChange={(e) => setCurrentValue(e.currentTarget.value)}
+          onBlur={(e) => onChange && onChange(e.currentTarget.value)}
+          readOnly={!editable}
+        />
         <label htmlFor="port">{label}</label>
       </Form.Floating>
       <DropdownButton title={""}>
         {options.map((option, index) => {
           return (
-            <Dropdown.Item key={index} href="#" onClick={() => setCurrentValue(option)}>
+            <Dropdown.Item
+              key={index}
+              href="#"
+              onClick={() => {
+                setCurrentValue(option);
+                onChange && onChange(option);
+              }}
+            >
               {option}
             </Dropdown.Item>
           );

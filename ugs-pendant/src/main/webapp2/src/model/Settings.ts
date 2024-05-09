@@ -1,6 +1,10 @@
 export type Settings = {
   jogFeedRate: number;
   jogStepSizeXY: number;
-  preferredUnits: "mm" | "inch";
+  preferredUnits: "MM" | "INCH";
   jogStepSizeZ: number;
+  port: string;
+  portRate: string;
+  firmwareVersion: string;
+  useZStepSize: boolean;
 };

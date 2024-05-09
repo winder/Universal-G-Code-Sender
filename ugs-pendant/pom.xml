@@ -141,6 +141,8 @@
                                 <configuration>
                                     <nodeVersion>v16.13.2</nodeVersion>
                                     <npmVersion>8.1.2</npmVersion>
+                                    <!--nodeVersion>v20.12.2</nodeVersion>
+                                    <npmVersion>10.5.0</npmVersion-->
                                 </configuration>
                             </execution>
                             <execution>

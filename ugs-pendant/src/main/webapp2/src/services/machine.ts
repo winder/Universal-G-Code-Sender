@@ -83,3 +83,24 @@ export const resetToZero = (
   }
   return fetch(`api/v1/machine/resetToZero`).then();
 };
+
+
+export const cancelSend = (): Promise<void> => {
+  return fetch(`api/v1/files/cancel`).then();
+};
+
+export const pause = (): Promise<void> => {
+  return fetch(`api/v1/files/pause`).then();
+};
+
+export const send = (): Promise<void> => {
+  const url = "api/v1/files/send";
+  const request = {
+    method: "POST",
+    headers: {
+      'Content-Type': "application/json"
+    }
+  };
+
+  return fetch(url, request).then();
+};
