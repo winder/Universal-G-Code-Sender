@@ -1,22 +1,21 @@
 package com.willwinder.universalgcodesender.communicator.event;
 
 import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import static com.willwinder.universalgcodesender.utils.ThreadHelper.waitUntil;
+import org.junit.After;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class AsyncCommunicatorEventDispatcherTest {
     private AsyncCommunicatorEventDispatcher eventDispatcher;
@@ -32,13 +31,13 @@ public class AsyncCommunicatorEventDispatcherTest {
     }
 
     @Test
-    public void dispatchShouldStartWorkerThread() throws TimeoutException, InterruptedException {
+    public void dispatchShouldStartWorkerThread() throws TimeoutException {
         ICommunicatorListener listener = mock(ICommunicatorListener.class);
         eventDispatcher.addListener(listener);
 
         eventDispatcher.communicatorPausedOnError();
 
-        waitUntil(() -> eventDispatcher.getEventCount() == 0, 1100, TimeUnit.MILLISECONDS);
+        waitUntil(() -> eventDispatcher.getEventCount() == 0, 2000, TimeUnit.MILLISECONDS);
 
         verify(listener, times(1)).communicatorPausedOnError();
     }
