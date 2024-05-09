@@ -20,6 +20,10 @@ package com.willwinder.universalgcodesender.gcode;
 
 import com.google.common.base.Preconditions;
 import com.willwinder.universalgcodesender.gcode.util.Code;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G0;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G1;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G53;
+import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -30,13 +34,17 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static com.willwinder.universalgcodesender.gcode.util.Code.*;
-import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
 
 /**
  * Collection of useful command preprocessor methods.
@@ -221,7 +229,7 @@ public class GcodePreprocessorUtils {
     /**
      * Update a point given the new coordinates.
      */
-    static public Position updatePointWithCommand(Position initial, double x, double y, double z, double a, double b, double c, boolean absoluteMode) {
+    public static Position updatePointWithCommand(Position initial, double x, double y, double z, double a, double b, double c, boolean absoluteMode) {
 
         Position newPoint = new Position(initial);
 
@@ -246,28 +254,36 @@ public class GcodePreprocessorUtils {
             }
         } else {
             if (!Double.isNaN(x)) {
-                newPoint.x += x;
+                newPoint.x = addValue(newPoint.x, x);
             }
             if (!Double.isNaN(y)) {
-                newPoint.y += y;
+                newPoint.y = addValue(newPoint.y, y);
             }
             if (!Double.isNaN(z)) {
-                newPoint.z += z;
+                newPoint.z = addValue(newPoint.z, z);
             }
             if (!Double.isNaN(a)) {
-                newPoint.a += a;
+                newPoint.a = addValue(newPoint.a, a);
             }
             if (!Double.isNaN(b)) {
-                newPoint.b += b;
+                newPoint.b = addValue(newPoint.b, b);
             }
             if (!Double.isNaN(c)) {
-                newPoint.c += c;
+                newPoint.c = addValue(newPoint.c, c);
             }
         }
 
         return newPoint;
     }
-    
+
+    private static double addValue(double oldValue, double newValue) {
+        if (Double.isNaN(oldValue)) {
+            return newValue;
+        } else {
+            return oldValue + newValue;
+        }
+    }
+
     static public Position updateCenterWithCommand(
             List<String> commandArgs,
             Position initial,
@@ -275,15 +291,15 @@ public class GcodePreprocessorUtils {
             boolean absoluteIJKMode,
             boolean clockwise,
             PlaneFormatter plane) {
-        double i      = parseCoord(commandArgs, 'I');
-        double j      = parseCoord(commandArgs, 'J');
-        double k      = parseCoord(commandArgs, 'K');
+        double i = parseCoord(commandArgs, 'I');
+        double j = parseCoord(commandArgs, 'J');
+        double k = parseCoord(commandArgs, 'K');
         double radius = parseCoord(commandArgs, 'R');
-        
+
         if (Double.isNaN(i) && Double.isNaN(j) && Double.isNaN(k)) {
             return GcodePreprocessorUtils.convertRToCenter(
-                            initial, nextPoint, radius, absoluteIJKMode,
-                            clockwise, plane);
+                    initial, nextPoint, radius, absoluteIJKMode,
+                    clockwise, plane);
         }
 
         return updatePointWithCommand(initial, i, j, k, 0, 0, 0, absoluteIJKMode);
@@ -299,7 +315,7 @@ public class GcodePreprocessorUtils {
         if (df == null) {
             df = DEFAULT_FORMATTER;
         }
-        
+
         StringBuilder sb = new StringBuilder();
         sb.append(command);
 
@@ -319,21 +335,21 @@ public class GcodePreprocessorUtils {
         } else { // calculate offsets.
             if (!Double.isNaN(end.x)) {
                 sb.append("X");
-                sb.append(df.format(end.x-start.x));
+                sb.append(df.format(end.x - start.x));
             }
             if (!Double.isNaN(end.y)) {
                 sb.append("Y");
-                sb.append(df.format(end.y-start.y));
+                sb.append(df.format(end.y - start.y));
             }
             if (!Double.isNaN(end.z)) {
                 sb.append("Z");
-                sb.append(df.format(end.z-start.z));
+                sb.append(df.format(end.z - start.z));
             }
         }
-        
+
         return sb.toString();
     }
-    
+
     /**
      * Splits a gcode command by each word/argument, doesn't care about spaces.
      * This command is about the same speed as the string.split(" ") command,
@@ -341,7 +357,7 @@ public class GcodePreprocessorUtils {
      */
     static public List<String> splitCommand(String command) {
         // Special handling for GRBL system commands which will not be splitted
-        if(command.startsWith("$")) {
+        if (command.startsWith("$")) {
             return Collections.singletonList(command);
         }
 
@@ -350,8 +366,8 @@ public class GcodePreprocessorUtils {
         boolean readLineComment = false;
         int blockCommentDepth = 0;
         StringBuilder sb = new StringBuilder();
-        
-        for (int i = 0; i < command.length(); i++){
+
+        for (int i = 0; i < command.length(); i++) {
             char c = command.charAt(i);
 
             if (c == '(' && !readLineComment) {
@@ -371,7 +387,7 @@ public class GcodePreprocessorUtils {
                 }
                 continue;
             } else if (c == ';' && !readLineComment && blockCommentDepth == 0) {
-                if( sb.length() > 0 ){
+                if (sb.length() > 0) {
                     l.add(sb.toString());
                     sb = new StringBuilder();
                 }
@@ -390,37 +406,33 @@ public class GcodePreprocessorUtils {
             // character is a letter or whitespace, then we hit a boundary.
             else if (readNumeric && !Character.isDigit(c) && c != '.') {
                 readNumeric = false; // reset flag.
-                
+
                 l.add(sb.toString());
                 sb = new StringBuilder();
-                
+
                 if (Character.isLetter(c)) {
                     sb.append(c);
                 }
-            }
-
-            else if (Character.isDigit(c) || c == '.' || c == '-') {
+            } else if (Character.isDigit(c) || c == '.' || c == '-') {
                 sb.append(c);
                 readNumeric = true;
-            }
-            
-            else if (Character.isLetter(c)) {
+            } else if (Character.isLetter(c)) {
                 sb.append(c);
             }
         }
-        
+
         // Add final one
         if (sb.length() > 0) {
             l.add(sb.toString());
         }
-        
+
         return l;
     }
-    
+
     // TODO: Replace everything that uses this with a loop that loops through
     //       the string and creates a hash with all the values.
     static public boolean hasAxisWords(List<String> argList) {
-        for(String t : argList) {
+        for (String t : argList) {
             if (t.length() > 1) {
                 char c = Character.toUpperCase(t.charAt(0));
                 if (c == 'X' || c == 'Y' || c == 'Z' || c == 'A' || c == 'B' || c == 'C') {
@@ -433,15 +445,14 @@ public class GcodePreprocessorUtils {
 
     // TODO: Replace everything that uses this with a loop that loops through
     //       the string and creates a hash with all the values.
+
     /**
      * Pulls out a word, like "F100", "S1300", "T0", "X-0.5"
      */
     static public String extractWord(List<String> argList, char c) {
         char address = Character.toUpperCase(c);
-        for(String t : argList)
-        {
-            if (Character.toUpperCase(t.charAt(0)) == address)
-            {
+        for (String t : argList) {
+            if (Character.toUpperCase(t.charAt(0)) == address) {
                 return t;
             }
         }
@@ -450,8 +461,7 @@ public class GcodePreprocessorUtils {
 
     // TODO: Replace everything that uses this with a loop that loops through
     //       the string and creates a hash with all the values.
-    static public double parseCoord(List<String> argList, char c)
-    {
+    static public double parseCoord(List<String> argList, char c) {
         String word = extractWord(argList, c);
         if (word != null && word.length() > 1) {
             try {
@@ -462,18 +472,18 @@ public class GcodePreprocessorUtils {
         }
         return Double.NaN;
     }
-    
+
     /**
      * Generates the points along an arc including the start and end points.
-     * 
-     * @param start start position XYZ and rotations
-     * @param end end position XYZ and rotations
-     * @param center center of rotation
-     * @param clockwise flag indicating clockwise or counter-clockwise
-     * @param radius radius of the arc in the same units as the given start, end and center position
-     * @param minArcLengthMM minimum length before expansions are made.
+     *
+     * @param start              start position XYZ and rotations
+     * @param end                end position XYZ and rotations
+     * @param center             center of rotation
+     * @param clockwise          flag indicating clockwise or counter-clockwise
+     * @param radius             radius of the arc in the same units as the given start, end and center position
+     * @param minArcLengthMM     minimum length before expansions are made.
      * @param arcSegmentLengthMM length of segments in resulting Positions.
-     * @param plane helper to select values for arcs across different planes
+     * @param plane              helper to select values for arcs across different planes
      */
     static public List<Position> generatePointsAlongArcBDring(
             final Position start,
@@ -488,7 +498,7 @@ public class GcodePreprocessorUtils {
         // Calculate radius if necessary.
         double r = radius;
         if (r == 0) {
-            r = Math.sqrt(Math.pow(plane.axis0(start) - plane.axis0(center),2.0) + Math.pow(plane.axis1(end) - plane.axis1(center), 2.0));
+            r = Math.sqrt(Math.pow(plane.axis0(start) - plane.axis0(center), 2.0) + Math.pow(plane.axis1(end) - plane.axis1(center), 2.0));
         }
 
         double startAngle = GcodePreprocessorUtils.getAngle(center, start, plane);
@@ -506,11 +516,11 @@ public class GcodePreprocessorUtils {
     /**
      * Calculates the number of points to expand an arc into
      *
-     * @param radius the radius of the arc
-     * @param radiusUnits the radius units
-     * @param minArcLengthMM the minimum arc length
+     * @param radius             the radius of the arc
+     * @param radiusUnits        the radius units
+     * @param minArcLengthMM     the minimum arc length
      * @param arcSegmentLengthMM the arg length
-     * @param sweep the angle of the arc
+     * @param sweep              the angle of the arc
      * @return the number of segments to split the arc into to achieve the given arc segment length
      */
     private static int calculateNumberOfPointsToExpand(double radius, UnitUtils.Units radiusUnits, double minArcLengthMM, double arcSegmentLengthMM, double sweep) {
@@ -528,22 +538,23 @@ public class GcodePreprocessorUtils {
 
         int numPoints = 20;
         if (arcSegmentLengthMM > 0) {
-            numPoints = (int)Math.ceil(arcLengthMM/ arcSegmentLengthMM);
+            numPoints = (int) Math.ceil(arcLengthMM / arcSegmentLengthMM);
         }
         return numPoints;
     }
 
     /**
      * Generates the points along an arc including the start and end points.
-     * @param p1 start position XYZ and rotations
-     * @param p2 end position XYZ and rotations
-     * @param center center of rotation
-     * @param isCw flag indicating clockwise or counter-clockwise
-     * @param radius radius of the arc
+     *
+     * @param p1         start position XYZ and rotations
+     * @param p2         end position XYZ and rotations
+     * @param center     center of rotation
+     * @param isCw       flag indicating clockwise or counter-clockwise
+     * @param radius     radius of the arc
      * @param startAngle beginning angle of arc
-     * @param sweep sweep length in radians
-     * @param numPoints number of points to generate
-     * @param plane helper to select values for arcs across different planes
+     * @param sweep      sweep length in radians
+     * @param numPoints  number of points to generate
+     * @param plane      helper to select values for arcs across different planes
      */
     public static List<Position> generatePointsAlongArcBDring(
             final Position p1,
@@ -573,12 +584,11 @@ public class GcodePreprocessorUtils {
         double bIncrement = (p2.b - p1.b) / numPoints;
         double cIncrement = (p2.c - p1.c) / numPoints;
 
-        for(int i=0; i<numPoints; i++)
-        {
+        for (int i = 0; i < numPoints; i++) {
             if (isCw) {
-                angle = (startAngle - i * sweep/numPoints);
+                angle = (startAngle - i * sweep / numPoints);
             } else {
-                angle = (startAngle + i * sweep/numPoints);
+                angle = (startAngle + i * sweep / numPoints);
             }
 
             if (angle >= Math.PI * 2) {
@@ -599,7 +609,7 @@ public class GcodePreprocessorUtils {
 
             segments.add(new Position(nextPoint));
         }
-        
+
         segments.add(new Position(p2));
 
         return segments;
@@ -618,7 +628,7 @@ public class GcodePreprocessorUtils {
             boolean clockwise,
             PlaneFormatter plane) {
         Position center = new Position(start.getUnits());
-        
+
         // This math is copied from GRBL in gcode.c
         double x = plane.axis0(end) - plane.axis0(start);
         double y = plane.axis1(end) - plane.axis1(start);
@@ -637,8 +647,8 @@ public class GcodePreprocessorUtils {
             h_x2_div_d = -h_x2_div_d;
         }
 
-        double offsetX = 0.5*(x-(y*h_x2_div_d));
-        double offsetY = 0.5*(y+(x*h_x2_div_d));
+        double offsetX = 0.5 * (x - (y * h_x2_div_d));
+        double offsetY = 0.5 * (y + (x * h_x2_div_d));
 
         if (!absoluteIJK) {
             plane.setAxis0(center, plane.axis0(start) + offsetX);
@@ -665,16 +675,15 @@ public class GcodePreprocessorUtils {
         if (deltaX != 0) { // prevent div by 0
             // it helps to know what quadrant you are in
             if (deltaX > 0 && deltaY >= 0) {  // 0 - 90
-                angle = Math.atan(deltaY/deltaX);
+                angle = Math.atan(deltaY / deltaX);
             } else if (deltaX < 0 && deltaY >= 0) { // 90 to 180
-                angle = Math.PI - Math.abs(Math.atan(deltaY/deltaX));
+                angle = Math.PI - Math.abs(Math.atan(deltaY / deltaX));
             } else if (deltaX < 0 && deltaY < 0) { // 180 - 270
-                angle = Math.PI + Math.abs(Math.atan(deltaY/deltaX));
+                angle = Math.PI + Math.abs(Math.atan(deltaY / deltaX));
             } else if (deltaX > 0 && deltaY < 0) { // 270 - 360
-                angle = Math.PI * 2 - Math.abs(Math.atan(deltaY/deltaX));
+                angle = Math.PI * 2 - Math.abs(Math.atan(deltaY / deltaX));
             }
-        }
-        else {
+        } else {
             // 90 deg
             if (deltaY > 0) {
                 angle = Math.PI / 2.0;
@@ -684,12 +693,13 @@ public class GcodePreprocessorUtils {
                 angle = Math.PI * 3.0 / 2.0;
             }
         }
-      
+
         return angle;
     }
 
     /**
      * Helper method for arc calculation to calculate sweep from two angles.
+     *
      * @return sweep in radians.
      */
     static private double calculateSweep(double startAngle, double endAngle, boolean isCw) {
@@ -734,23 +744,18 @@ public class GcodePreprocessorUtils {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    public static class SplitCommand {
-        public String extracted;
-        public String remainder;
-    }
-
     public static boolean isMotionWord(char character) {
         char c = Character.toUpperCase(character);
-        return 
+        return
                 c == 'X' || c == 'Y' || c == 'Z'
-                || c == 'U' || c == 'V' || c == 'W'
-                || c == 'I' || c == 'J' || c == 'K'
-                || c == 'R';
+                        || c == 'U' || c == 'V' || c == 'W'
+                        || c == 'I' || c == 'J' || c == 'K'
+                        || c == 'R';
     }
 
     /**
      * Return extracted motion words and remainder words.
-     *
+     * <p>
      * If the code is implicit, like the command "X0Y0", we'll still extract "X0Y0".
      * If the code is G0 or G1 and G53 is found, it will also be extracted:
      * http://linuxcnc.org/docs/html/gcode/g-code.html#gcode:g53
@@ -758,7 +763,7 @@ public class GcodePreprocessorUtils {
     public static SplitCommand extractMotion(Code code, String command) {
         List<String> args = splitCommand(command);
         if (args.isEmpty()) return null;
-        
+
         StringBuilder extracted = new StringBuilder();
         StringBuilder remainder = new StringBuilder();
 
@@ -777,7 +782,7 @@ public class GcodePreprocessorUtils {
         if (extracted.length() == 0) return null;
 
         SplitCommand sc = new SplitCommand();
-        sc.extracted= extracted.toString();
+        sc.extracted = extracted.toString();
         sc.remainder = remainder.toString();
 
         return sc;
@@ -785,17 +790,17 @@ public class GcodePreprocessorUtils {
 
     /**
      * Normalize a command by adding in implicit state.
-     *
+     * <p>
      * For example given the following program:
-     *     G20
-     *     G0 X10 F25
-     *     Y10
-     *
+     * G20
+     * G0 X10 F25
+     * Y10
+     * <p>
      * The third command would be normalized to:
-     *     G0 Y10 F25
+     * G0 Y10 F25
      *
      * @param command a command string to normalize.
-     * @param state the machine state before the command.
+     * @param state   the machine state before the command.
      * @return normalized command.
      */
     public static String normalizeCommand(String command, GcodeState state) throws GcodeParserException {
@@ -834,5 +839,10 @@ public class GcodePreprocessorUtils {
         result.append(split.extracted);
 
         return result.toString();
+    }
+
+    public static class SplitCommand {
+        public String extracted;
+        public String remainder;
     }
 }
