@@ -42,9 +42,11 @@ public class GcodeViewParse {
     private final Position max;
     private final List<LineSegment> lines;
     private double maxSpindleSpeed;
+    private double maxFeedRate;
 
     public GcodeViewParse() {
         maxSpindleSpeed = 0;
+        maxFeedRate = 0;
         min = new Position(UnitUtils.Units.MM);
         max = new Position(UnitUtils.Units.MM);
         lines = new ArrayList<>();
@@ -70,6 +72,10 @@ public class GcodeViewParse {
 
     public double getMaxSpindleSpeed() {
         return maxSpindleSpeed;
+    }
+
+    public double getMaxFeedRate() {
+        return maxFeedRate;
     }
 
     /**
@@ -153,6 +159,7 @@ public class GcodeViewParse {
             testExtremes(lineSegment.getStart());
             testExtremes(lineSegment.getEnd());
             maxSpindleSpeed = Math.max(lineSegment.getSpindleSpeed(), maxSpindleSpeed);
+            maxFeedRate = Math.max(lineSegment.getFeedRate(), maxFeedRate);
         });
     }
 

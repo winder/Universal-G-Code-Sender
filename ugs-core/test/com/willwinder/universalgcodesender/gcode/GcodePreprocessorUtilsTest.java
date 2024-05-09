@@ -20,23 +20,26 @@ package com.willwinder.universalgcodesender.gcode;
 
 import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.gcode.util.Code;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G1;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G2;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G3;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G38_2;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G92_1;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.INCH;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import static com.willwinder.universalgcodesender.gcode.util.Code.*;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G1;
-import static com.willwinder.universalgcodesender.model.UnitUtils.Units.INCH;
-import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 
 /**
  * @author Joacim Breiler
@@ -333,6 +336,32 @@ public class GcodePreprocessorUtilsTest {
         PartialPosition position = PartialPosition.builder(MM).setX(1d).setY(2d).setZ(3d).setA(4d).setB(5d).setC(6d).build();
         String newCommand = GcodePreprocessorUtils.overridePosition("G0", position);
         assertEquals("G0X1Y2Z3A4B5C6", newCommand);
+    }
+
+    @Test
+    public void updatePointWithCommandShouldSetPositionIfOriginalIsNaN() {
+        Position position = new Position(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, MM);
+        Position newPosition = GcodePreprocessorUtils.updatePointWithCommand(position, 1, 2, 3, 4, 5,6, false);
+        assertEquals(1, newPosition.getX(), 0.01);
+        assertEquals(2, newPosition.getY(), 0.01);
+        assertEquals(3, newPosition.getZ(), 0.01);
+        assertEquals(4, newPosition.getA(), 0.01);
+        assertEquals(5, newPosition.getB(), 0.01);
+        assertEquals(6, newPosition.getC(), 0.01);
+        assertEquals(MM, newPosition.getUnits());
+    }
+
+    @Test
+    public void updatePointWithCommandShouldAddToPosition() {
+        Position position = new Position(1, 2, 3, 4, 5, 6, MM);
+        Position newPosition = GcodePreprocessorUtils.updatePointWithCommand(position, 1, 2, 3, 4, 5,6, false);
+        assertEquals(2, newPosition.getX(), 0.01);
+        assertEquals(4, newPosition.getY(), 0.01);
+        assertEquals(6, newPosition.getZ(), 0.01);
+        assertEquals(8, newPosition.getA(), 0.01);
+        assertEquals(10, newPosition.getB(), 0.01);
+        assertEquals(12, newPosition.getC(), 0.01);
+        assertEquals(MM, newPosition.getUnits());
     }
 
     static void assertThatPointsAreWithinBoundary(Position start, Position end, double radius, List<Position> points) {

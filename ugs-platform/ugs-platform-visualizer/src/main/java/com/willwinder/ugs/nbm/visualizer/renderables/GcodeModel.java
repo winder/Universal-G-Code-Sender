@@ -227,6 +227,7 @@ public class GcodeModel extends Renderable implements UGSEventListener {
             this.objectMin = gcvp.getMinimumExtremes();
             this.objectMax = gcvp.getMaximumExtremes();
             this.colorizer.setMaxSpindleSpeed(gcvp.getMaxSpindleSpeed());
+            this.colorizer.setMaxFeedRate(gcvp.getMaxFeedRate());
 
             if (gcodeLineList.isEmpty()) {
                 return false;
