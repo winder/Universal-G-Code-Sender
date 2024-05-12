@@ -363,6 +363,7 @@ public class GUIBackend implements BackendAPI {
 
         initGcodeParser();
         this.gcodeFile = null;
+        this.gcodeStream = null;
         this.processedGcodeFile = null;
     }
 
@@ -378,6 +379,9 @@ public class GUIBackend implements BackendAPI {
 
         eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.FILE_LOADING));
         initializeProcessedLines(true, this.gcodeFile, this.gcp);
+        if (this.processedGcodeFile != null) {
+            gcodeStream = new GcodeStreamReader(this.processedGcodeFile, getCommandCreator());
+        }
         eventDispatcher.sendUGSEvent(new FileStateEvent(FileState.FILE_LOADED));
     }
 

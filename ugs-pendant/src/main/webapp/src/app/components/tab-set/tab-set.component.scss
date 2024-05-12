@@ -1,8 +1,0 @@
-@import "~bootstrap/scss/bootstrap-grid";
-
-@include media-breakpoint-down(xs) {
-  .nav-item {
-    font-size: 1em;
-    padding: 0.2rem 0.5rem;
-  }
-}

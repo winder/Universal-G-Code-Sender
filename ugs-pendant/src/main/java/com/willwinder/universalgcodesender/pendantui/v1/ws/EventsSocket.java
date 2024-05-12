@@ -80,13 +80,13 @@ public class EventsSocket implements UGSEventListener {
     @OnError
     public void onWebSocketError(Session session, Throwable cause) {
         sessions.remove(session.getId());
-        LOGGER.log(Level.WARNING, "WebSocket Closed: " + session.getId(), cause);
+        LOGGER.log(Level.WARNING, cause, () -> "WebSocket Closed: " + session.getId());
     }
 
     @Override
     public void UGSEvent(UGSEvent evt) {
         try {
-            String data = getEventAsString(evt);
+            String data = getEventAsJsonString(evt);
             sessions.values().forEach(session -> {
                 try {
                     session.getBasicRemote().sendText(data);
@@ -99,7 +99,7 @@ public class EventsSocket implements UGSEventListener {
         }
     }
 
-    private String getEventAsString(UGSEvent evt) {
+    private String getEventAsJsonString(UGSEvent evt) {
         if (evt instanceof ControllerStatusEvent controllerStatusEvent) {
             Settings settings = BackendProvider.getBackendAPI().getSettings();
             ControllerStatus currentStatus = convertToPreferredUnits(controllerStatusEvent.getStatus(), settings.getPreferredUnits());
