@@ -84,6 +84,7 @@ public class PendantUI implements UGSEventListener {
 
         contextHandlerCollection.addHandler(createResourceConfigHandler(new StaticConfig(), ""));
         contextHandlerCollection.addHandler(createResourceConfigHandler(new AppV1Config(backendAPI, jogService), API_CONTEXT_PATH));
+        contextHandlerCollection.addHandler(createResourceConfigHandler(new StaticConfig(), "/*"));
         contextHandlerCollection.addHandler(createWebSocketHandler(WEBSOCKET_CONTEXT_PATH));
 
         try {
@@ -139,7 +140,7 @@ public class PendantUI implements UGSEventListener {
                     String url = "http://" + hostAddress + ":" + port;
                     ByteArrayOutputStream bout = QRCode.from(url).to(ImageType.PNG).stream();
                     out.add(new PendantURLBean(url, bout.toByteArray()));
-                    LOG.info("Listening on: " + url);
+                    LOG.info(() -> "Listening on: " + url);
                 }
             }
         }
@@ -167,11 +168,9 @@ public class PendantUI implements UGSEventListener {
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt instanceof SettingChangedEvent) {
-            if (backendAPI.getSettings().getPendantPort() != port && isStarted()) {
-                stop();
-                start();
-            }
+        if (evt instanceof SettingChangedEvent && (backendAPI.getSettings().getPendantPort() != port && isStarted())) {
+            stop();
+            start();
         }
     }
 }

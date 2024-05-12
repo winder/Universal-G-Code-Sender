@@ -1,0 +1,45 @@
+.controllerState {
+  overflow: hidden;
+  margin-left: 12px;
+
+  .card-body {
+    text-align: center;
+    padding: 5px 12px;
+    font-weight: bold;
+  }
+
+  .hold {
+    background-color: #ff970b;
+    color: black;
+  }
+
+  .run,
+  .jog,
+  .home {
+    background-color: #00c900;
+    color: black;
+  }
+
+  .check {
+    background-color: #05D4FF;
+  }
+
+  .idle,
+  .connecting,
+  .disconnected {
+    background-color: #808080;
+    color: black;
+  }
+
+  .alarm {
+    background-color: #dc3545;
+    color: white;
+    animation: blinker 1s linear infinite;
+  }
+
+  @keyframes blinker {
+    50% {
+        background-color: #6e030e;
+    }
+  }
+}

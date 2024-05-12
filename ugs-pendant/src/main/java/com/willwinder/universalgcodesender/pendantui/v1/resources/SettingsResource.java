@@ -42,6 +42,10 @@ public class SettingsResource {
         response.setJogStepSizeXY(settings.getManualModeStepSize());
         response.setJogStepSizeZ(settings.getZJogStepSize());
         response.setPreferredUnits(settings.getPreferredUnits());
+        response.setPort(settings.getPort());
+        response.setPortRate(settings.getPortRate());
+        response.setFirmwareVersion(settings.getFirmwareVersion());
+        response.setUseZStepSize(settings.useZStepSize());
         return response;
     }
 
@@ -54,6 +58,9 @@ public class SettingsResource {
         backendSettings.setManualModeStepSize(settings.getJogStepSizeXY());
         backendSettings.setZJogStepSize(settings.getJogStepSizeZ());
         backendSettings.setPreferredUnits(settings.getPreferredUnits());
-        backendAPI.applySettings(backendSettings);
+        backendSettings.setPort(settings.getPort());
+        backendSettings.setPortRate(settings.getPortRate());
+        backendSettings.setFirmwareVersion(settings.getFirmwareVersion());
+        backendSettings.setUseZStepSize(settings.isUseZStepSize());
     }
 }

@@ -1,0 +1,15 @@
+@import './bootstrap';
+
+body {
+    background-repeat: no-repeat;
+    background-color: #f2f2f2;
+    background-attachment: fixed;
+
+}
+
+.app {
+    .appContainer {
+        padding-top: 54px;
+        height: calc(100vh);
+    }
+}

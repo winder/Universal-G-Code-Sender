@@ -41,6 +41,8 @@ public class StaticResource {
             mimeType = "text/html";
         } else if (path.endsWith(".css")) {
             mimeType = "text/css";
+        } else if (path.endsWith(".ttf")) {
+            mimeType = "font/ttf";
         }
         return mimeType;
     }
@@ -51,8 +53,14 @@ public class StaticResource {
     }
 
     @GET
-    @Path("{path:.*\\.(jpg|gif|html|js|css|ico)$}")
-    public Response getStaticResource(@PathParam("path") String path) throws Exception {
+    @Path("{path:(jog|macros|run)$}")
+    public Response getSubPage() throws Exception {
+        return getStaticResource("");
+    }
+
+    @GET
+    @Path("{path:.*\\.(jpg|gif|html|js|css|ico|ttf)$}")
+    public Response getStaticResource(@PathParam("path") String path) {
         if (path.equalsIgnoreCase("")) {
             path = "index.html";
         }

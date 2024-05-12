@@ -1,0 +1,30 @@
+@import "bootstrap/scss/bootstrap";
+
+.btn-secondary {
+  background-color: white;
+  color: #353a40;
+  border-color: #c2c2c2;
+}
+
+.btn-secondary.btn:hover {
+  background-color: #f7f7f7;
+  color: #353a40;
+  border-color: #c2c2c2;
+}
+
+.btn-secondary.btn:disabled {
+  background-color: #f7f7f7;
+  color: #353a40;
+  border-color: #c2c2c2;
+}
+
+.bg-dark {
+  background-color: #2a2c2d !important;
+}
+
+@media (min-width: 576px) {
+  .container-sm,
+  .container {
+    max-width: 100%;
+  }
+}
