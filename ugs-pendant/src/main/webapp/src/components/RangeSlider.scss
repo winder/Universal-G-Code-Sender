@@ -10,7 +10,6 @@
     cursor: pointer;
     margin-top: 16px;
     margin-bottom: 16px;
-    /*width: 15rem;*/
   }
 
   /* Removes default focus */
@@ -66,8 +65,5 @@
   }
 
   input[type="range"]:focus::-moz-range-thumb {
-    /*border: 1px solid #053a5f;*/
-    /*outline: 3px solid #053a5f;*/
-    /*outline-offset: 0.125rem;*/
   }
 }

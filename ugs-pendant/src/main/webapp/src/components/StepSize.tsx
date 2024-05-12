@@ -13,13 +13,13 @@ const StepSize = ({ value, onChange }: Props) => {
   const units = useAppSelector((state) => state.settings.preferredUnits);
 
   return (
-    <DropdownButton
-      variant="secondary"
-      className="stepSize"
-      title={value}
-    >
-      {options.map((option, index) => (
-        <Dropdown.Item key={index} as="button" onClick={() => onChange(option)}>
+    <DropdownButton variant="secondary" className="stepSize" title={value}>
+      {options.map((option) => (
+        <Dropdown.Item
+          key={option}
+          as="button"
+          onClick={() => onChange(option)}
+        >
           {option} {units.toLocaleLowerCase()}
         </Dropdown.Item>
       ))}

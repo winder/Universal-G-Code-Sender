@@ -17,21 +17,18 @@ export const getPortList = (): Promise<string[]> => {
 export const getSelectedPort = (): Promise<string> => {
   return fetch("api/v1/machine/getSelectedPort")
     .then((response) => response.json())
-    .then((data) => data as any)
     .then((data) => data?.selectedPort ?? "");
 };
 
 export const getSelectedFirmware = (): Promise<string> => {
   return fetch("api/v1/machine/getSelectedFirmware")
     .then((response) => response.json())
-    .then((data) => data as any)
     .then((data) => data?.selectedFirmware ?? "");
 };
 
 export const getSelectedBaudRate = (): Promise<string> => {
   return fetch("api/v1/machine/getSelectedBaudRate")
     .then((response) => response.json())
-    .then((data) => data as any)
     .then((data) => data?.selectedBaudRate ?? "");
 };
 

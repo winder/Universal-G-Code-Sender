@@ -17,16 +17,16 @@ const RangeSlider = ({ onChange, max, min, step, value, disabled }: Props) => {
   const debouncedValue = useDebounce(currentValue, 300);
 
   useEffect(() => {
-    onChange(debouncedValue || 0);
+    onChange(debouncedValue ?? 0);
   }, [debouncedValue, onChange]);
 
   return (
     <div className="range-slider">
       <Form.Range
         value={currentValue}
-        max={max || 100}
-        min={min || 0}
-        step={step || 1}
+        max={max ?? 100}
+        min={min ?? 0}
+        step={step ?? 1}
         onChange={(event) => setCurrentValue(+event.currentTarget.value)}
         disabled={disabled}
       />

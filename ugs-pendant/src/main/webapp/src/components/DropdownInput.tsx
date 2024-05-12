@@ -34,10 +34,10 @@ const DropdownInput = ({
         <label htmlFor="port">{label}</label>
       </Form.Floating>
       <DropdownButton title={""}>
-        {options.map((option, index) => {
+        {options.map(option => {
           return (
             <Dropdown.Item
-              key={index}
+              key={option}
               href="#"
               onClick={() => {
                 setCurrentValue(option);
