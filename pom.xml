@@ -49,7 +49,7 @@
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jetty.version>12.0.3</jetty.version>
-    <jersey.version>3.1.5</jersey.version>
+    <jersey.version>3.1.6</jersey.version>
     <gluegen.version>2.5.0</gluegen.version>
     <jogl.version>2.5.0</jogl.version>
     <miglayout.version>3.7.4</miglayout.version>
@@ -75,7 +75,7 @@
     <ugs.flatten-maven-plugin.version>1.2.2</ugs.flatten-maven-plugin.version>
     <ugs.junit.version>4.13.2</ugs.junit.version>
     <ugs.hamcrest-core.version>2.2</ugs.hamcrest-core.version>
-    <ugs.maven-shade-plugin.version>3.4.1</ugs.maven-shade-plugin.version>
+    <ugs.maven-shade-plugin.version>3.5.3</ugs.maven-shade-plugin.version>
     <ugs.progressbar.version>0.10.1</ugs.progressbar.version>
     <ugs.commons-cli.version>1.4</ugs.commons-cli.version>
     <ugs.easymock.version>5.2.0</ugs.easymock.version>
