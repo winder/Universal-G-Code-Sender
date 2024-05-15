@@ -20,6 +20,7 @@ package com.willwinder.ugs.cli;
 
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.connection.IConnectionDevice;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
@@ -164,7 +165,7 @@ public class TerminalClient {
      */
     private void listPorts() {
         Settings settings = SettingsFactory.loadSettings();
-        List<String> portNames = ConnectionFactory.getPortNames(settings.getConnectionDriver());
+        List<String> portNames = ConnectionFactory.getDevices(settings.getConnectionDriver()).stream().map(IConnectionDevice::getAddress).toList();
         System.out.println("Available ports: " + Arrays.toString(portNames.toArray()));
     }
 
