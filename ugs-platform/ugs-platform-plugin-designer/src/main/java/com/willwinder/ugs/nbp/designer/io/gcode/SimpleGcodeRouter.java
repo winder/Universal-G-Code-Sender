@@ -21,10 +21,13 @@ import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.DrillCenterToolPath;
+import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.LaserFillToolPath;
+import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.LaserOutlineToolPath;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.OutlineToolPath;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.PocketToolPath;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathStats;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils;
+import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.utils.Version;
 import org.apache.commons.lang3.StringUtils;
@@ -42,103 +45,15 @@ import java.util.logging.Logger;
 public class SimpleGcodeRouter {
     private static final Logger LOGGER = Logger.getLogger(SimpleGcodeRouter.class.getSimpleName());
     private static final String HEADER = "; This file was generated with \"Universal Gcode Sender " + Version.getVersionString() + "\"\n;\n";
+    private final Settings settings;
 
-    /**
-     * The feed rate to move tool in material as mm/min
-     */
-    private int feedSpeed = 1000;
-
-    /**
-     * A plunge feed for moving in Z-axis into the material as mm/min
-     */
-    private int plungeSpeed = 400;
-
-    /**
-     * The diameter of the tool in millimeters
-     */
-    private double toolDiameter = 3;
-
-    /**
-     * The percentage of tool step over to make each pass, the smaller the value the finer the results.
-     * Should be larger than 0 and smaller than 1 where 0.1 would cut 10% of the tool diameter for each
-     * pass and 1 would cut 100% of the tool diameter.
-     */
-    private double toolStepOver = 0.3;
-
-    /**
-     * The depth to plunge into the material for each pass in millimeters
-     */
-    private double depthPerPass = 1;
-
-    /**
-     * The safe height over the material in millimeters which allow the machine to move freely without scratching it
-     */
-    private double safeHeight = 1;
-
-    /**
-     * The spindle speed in RPM
-     */
-    private double spindleSpeed = 1000;
-
-    public int getFeedSpeed() {
-        return feedSpeed;
-    }
-
-    public void setFeedSpeed(int feedSpeed) {
-        this.feedSpeed = feedSpeed;
-    }
-
-    public int getPlungeSpeed() {
-        return plungeSpeed;
-    }
-
-    public void setPlungeSpeed(int plungeSpeed) {
-        this.plungeSpeed = plungeSpeed;
-    }
-
-    public double getSafeHeight() {
-        return safeHeight;
-    }
-
-    public void setSafeHeight(double safeHeight) {
-        this.safeHeight = safeHeight;
-    }
-
-    public double getToolDiameter() {
-        return toolDiameter;
-    }
-
-    public void setToolDiameter(double toolDiameter) {
-        this.toolDiameter = toolDiameter;
-    }
-
-    public double getToolStepOver() {
-        return toolStepOver;
-    }
-
-    public void setToolStepOver(double toolStepOver) {
-        this.toolStepOver = toolStepOver;
-    }
-
-    public double getDepthPerPass() {
-        return depthPerPass;
-    }
-
-    public void setDepthPerPass(double depthPerPass) {
-        this.depthPerPass = depthPerPass;
-    }
-
-    private double getSpindleSpeed() {
-        return this.spindleSpeed;
-    }
-
-    public void setSpindleSpeed(double spindleSpeed) {
-        this.spindleSpeed = spindleSpeed;
+    public SimpleGcodeRouter(Settings settings) {
+        this.settings = settings;
     }
 
     protected String toGcode(GcodePath gcodePath) throws IOException {
         ToolPathStats toolPathStats = ToolPathUtils.getToolPathStats(gcodePath);
-        LOGGER.info("Generated a tool path with total length of " +  Math.round(toolPathStats.getTotalFeedLength()) + "mm and " + Math.round(toolPathStats.getTotalRapidLength()) + "mm of rapid movement");
+        LOGGER.info("Generated a tool path with total length of " + Math.round(toolPathStats.getTotalFeedLength()) + "mm and " + Math.round(toolPathStats.getTotalRapidLength()) + "mm of rapid movement" );
 
         StringWriter stringWriter = new StringWriter();
         toGcode(stringWriter, gcodePath);
@@ -152,9 +67,17 @@ public class SimpleGcodeRouter {
                 Code.G21.name() + " ; millimeters\n" +
                 Code.G90.name() + " ; absolute coordinate\n" +
                 Code.G17.name() + " ; XY plane\n" +
-                Code.G94.name() + " ; units per minute feed rate mode\n" +
-                Code.M3.name() + " S" + Math.round(getSpindleSpeed()) + " ; Turning on spindle\n\n"
+                Code.G94.name() + " ; units per minute feed rate mode\n"
         );
+
+        if (settings.getSpindleSpeed() > 0) {
+            result.append(Code.M3.name())
+                    .append(" S" )
+                    .append(Math.round(settings.getSpindleSpeed()))
+                    .append(" ; Turning on spindle\n" );
+        }
+
+        result.append("\n" );
 
         try {
             result.append(toGcode(getGcodePathFromCuttables(entities)));
@@ -162,8 +85,8 @@ public class SimpleGcodeRouter {
             throw new RuntimeException("An error occured while trying to generate gcode", e);
         }
 
-        result.append("\n" + "; Turning off spindle\n")
-                .append(Code.M5.name()).append("\n");
+        result.append("\n" + "; Turning off spindle\n" )
+                .append(Code.M5.name()).append("\n" );
         return result.toString();
     }
 
@@ -172,56 +95,47 @@ public class SimpleGcodeRouter {
         int index = 0;
         for (Cuttable cuttable : cuttables) {
             index++;
-            gcodePath.addSegment(new Segment(" " + cuttable.getName() + " - " + cuttable.getCutType().getName() + " (" + index + "/" + cuttables.size() + ")"));
+            gcodePath.addSegment(new Segment(" " + cuttable.getName() + " - " + cuttable.getCutType().getName() + " (" + index + "/" + cuttables.size() + ")" ));
             switch (cuttable.getCutType()) {
                 case POCKET:
-                    PocketToolPath simplePocket = new PocketToolPath(cuttable);
+                    PocketToolPath simplePocket = new PocketToolPath(settings, cuttable);
                     simplePocket.setStartDepth(cuttable.getStartDepth());
                     simplePocket.setTargetDepth(cuttable.getTargetDepth());
-                    simplePocket.setToolDiameter(toolDiameter);
-                    simplePocket.setDepthPerPass(depthPerPass);
-                    simplePocket.setSafeHeight(safeHeight);
-                    simplePocket.setStepOver(toolStepOver);
-
-                    gcodePath.appendGcodePath(simplePocket.toGcodePath());
+                    simplePocket.appendGcodePath(gcodePath, settings);
                     break;
                 case OUTSIDE_PATH:
-                    OutlineToolPath simpleOutsidePath = new OutlineToolPath(cuttable);
-                    simpleOutsidePath.setOffset(toolDiameter / 2d);
+                    OutlineToolPath simpleOutsidePath = new OutlineToolPath(settings, cuttable);
+                    simpleOutsidePath.setOffset(settings.getToolDiameter() / 2d);
                     simpleOutsidePath.setStartDepth(cuttable.getStartDepth());
                     simpleOutsidePath.setTargetDepth(cuttable.getTargetDepth());
-                    simpleOutsidePath.setToolDiameter(toolDiameter);
-                    simpleOutsidePath.setDepthPerPass(depthPerPass);
-                    simpleOutsidePath.setSafeHeight(safeHeight);
-                    gcodePath.appendGcodePath(simpleOutsidePath.toGcodePath());
+                    simpleOutsidePath.appendGcodePath(gcodePath, settings);
                     break;
                 case INSIDE_PATH:
-                    OutlineToolPath simpleInsidePath = new OutlineToolPath(cuttable);
-                    simpleInsidePath.setOffset(-toolDiameter / 2d);
+                    OutlineToolPath simpleInsidePath = new OutlineToolPath(settings, cuttable);
+                    simpleInsidePath.setOffset(-settings.getToolDiameter() / 2d);
                     simpleInsidePath.setStartDepth(cuttable.getStartDepth());
                     simpleInsidePath.setTargetDepth(cuttable.getTargetDepth());
-                    simpleInsidePath.setToolDiameter(toolDiameter);
-                    simpleInsidePath.setDepthPerPass(depthPerPass);
-                    simpleInsidePath.setSafeHeight(safeHeight);
-                    gcodePath.appendGcodePath(simpleInsidePath.toGcodePath());
+                    simpleInsidePath.appendGcodePath(gcodePath, settings);
                     break;
                 case ON_PATH:
-                    OutlineToolPath simpleOnPath = new OutlineToolPath(cuttable);
+                    OutlineToolPath simpleOnPath = new OutlineToolPath(settings, cuttable);
                     simpleOnPath.setStartDepth(cuttable.getStartDepth());
                     simpleOnPath.setTargetDepth(cuttable.getTargetDepth());
-                    simpleOnPath.setToolDiameter(toolDiameter);
-                    simpleOnPath.setDepthPerPass(depthPerPass);
-                    simpleOnPath.setSafeHeight(safeHeight);
-                    gcodePath.appendGcodePath(simpleOnPath.toGcodePath());
+                    simpleOnPath.appendGcodePath(gcodePath, settings);
                     break;
                 case CENTER_DRILL:
-                    DrillCenterToolPath drillToolPath = new DrillCenterToolPath(cuttable);
+                    DrillCenterToolPath drillToolPath = new DrillCenterToolPath(settings, cuttable);
                     drillToolPath.setStartDepth(cuttable.getStartDepth());
                     drillToolPath.setTargetDepth(cuttable.getTargetDepth());
-                    drillToolPath.setToolDiameter(toolDiameter);
-                    drillToolPath.setDepthPerPass(depthPerPass);
-                    drillToolPath.setSafeHeight(safeHeight);
-                    gcodePath.appendGcodePath(drillToolPath.toGcodePath());
+                    drillToolPath.appendGcodePath(gcodePath, settings);
+                    break;
+                case LASER_ON_PATH:
+                    LaserOutlineToolPath laserOutlineToolPath = new LaserOutlineToolPath(settings, cuttable);
+                    laserOutlineToolPath.appendGcodePath(gcodePath, settings);
+                    break;
+                case LASER_FILL:
+                    LaserFillToolPath laserFillToolPath = new LaserFillToolPath(settings, cuttable);
+                    laserFillToolPath.appendGcodePath(gcodePath, settings);
                     break;
                 default:
             }
@@ -230,13 +144,13 @@ public class SimpleGcodeRouter {
     }
 
     private String generateToolHeader() {
-        return "; Tool: " + getToolDiameter() + "mm\n" +
-                "; Depth per pass: " + getDepthPerPass() + "mm\n" +
-                "; Feed speed: " + getFeedSpeed() + "mm/min\n" +
-                "; Plunge speed: " + getPlungeSpeed() + "mm/min\n" +
-                "; Safe height: " + getSafeHeight() + "mm\n" +
-                "; Tool step over: " + getToolStepOver() + "mm\n" +
-                "; Spindle speed: " + Math.round(getSpindleSpeed()) + "rpm\n";
+        return "; Tool: " + settings.getToolDiameter() + "mm\n" +
+                "; Depth per pass: " + settings.getDepthPerPass() + "mm\n" +
+                "; Feed speed: " + settings.getFeedSpeed() + "mm/min\n" +
+                "; Plunge speed: " + settings.getPlungeSpeed() + "mm/min\n" +
+                "; Safe height: " + settings.getSafeHeight() + "mm\n" +
+                "; Tool step over: " + settings.getToolStepOver() + "mm\n" +
+                "; Spindle speed: " + Math.round(settings.getSpindleSpeed()) + "rpm\n";
     }
 
     protected void toGcode(Writer writer, GcodePath path) throws IOException {
@@ -251,7 +165,11 @@ public class SimpleGcodeRouter {
         for (Segment s : segments) {
             // Write any label
             if (StringUtils.isNotEmpty(s.getLabel())) {
-                writer.write(";" + s.getLabel() + "\n");
+                writer.write(";" + s.getLabel() + "\n" );
+            }
+
+            if (s.spindleSpeed != null) {
+                writer.write("M3 S" + s.spindleSpeed + "\n" );
             }
 
             switch (s.type) {
@@ -265,19 +183,19 @@ public class SimpleGcodeRouter {
                     // The rapid over target point is skipped when we do multiple passes
                     // and the end point is the same as the starting point.
                     writer.write(SegmentType.MOVE.gcode);
-                    writer.write(" ");
+                    writer.write(" " );
                     writer.write(s.point.getFormattedGCode());
-                    writer.write("\n");
+                    writer.write("\n" );
                     hasFeedRateSet = false;
                     break;
 
                 // Drill down using the plunge speed
                 case POINT:
                     writer.write(SegmentType.POINT.gcode);
-                    writer.write(" ");
-                    writer.write("F" + plungeSpeed + " ");
+                    writer.write(" " );
+                    writer.write("F" + settings.getPlungeSpeed() + " " );
                     writer.write(s.point.getFormattedGCode());
-                    writer.write("\n");
+                    writer.write("\n" );
                     break;
 
                 // Motion at feed rate
@@ -288,14 +206,14 @@ public class SimpleGcodeRouter {
                     writer.write(' ');
 
                     if (!hasFeedRateSet) {
-                        writer.write("F");
-                        writer.write(String.valueOf(feedSpeed));
+                        writer.write("F" );
+                        writer.write(String.valueOf(settings.getFeedSpeed()));
                         writer.write(' ');
                         hasFeedRateSet = true;
                     }
 
                     writer.write(s.point.getFormattedGCode());
-                    writer.write("\n");
+                    writer.write("\n" );
                     break;
                 default:
                     throw new RuntimeException("BUG! Unhandled segment type " + s.type);

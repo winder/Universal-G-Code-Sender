@@ -18,15 +18,14 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
-import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
+import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Joacim Breiler
@@ -34,22 +33,16 @@ import java.util.stream.Collectors;
 public class ChangeCutSettingsAction extends AbstractAction implements UndoableAction {
 
     private final transient Controller controller;
-    private final List<Double> previousStartDepth;
-    private final List<Double> previousCutDepth;
-    private final List<CutType> previousCutType;
-    private final double newStartDepth;
-    private final double newCutDepth;
-    private final CutType newCutType;
     private final transient List<Cuttable> cuttableList;
+    private final Object newValue;
+    private final List<Object> previousValue;
+    private final EntitySetting entitySetting;
 
-    public ChangeCutSettingsAction(Controller controller, List<Cuttable> cuttableList, double startDepth, double targetDepth, CutType cutType) {
+    public ChangeCutSettingsAction(Controller controller, List<Cuttable> cuttableList, EntitySetting entitySetting, Object value) {
         this.cuttableList = new ArrayList<>(cuttableList);
-        previousStartDepth = cuttableList.stream().map(Cuttable::getStartDepth).collect(Collectors.toList());
-        previousCutDepth = cuttableList.stream().map(Cuttable::getTargetDepth).collect(Collectors.toList());
-        previousCutType = cuttableList.stream().map(Cuttable::getCutType).collect(Collectors.toList());
-        newStartDepth = startDepth;
-        newCutDepth = targetDepth;
-        newCutType = cutType;
+        this.entitySetting = entitySetting;
+        previousValue = cuttableList.stream().map(c -> c.getEntitySetting(entitySetting).orElse(null)).toList();
+        newValue = value;
 
         this.controller = controller;
         putValue("menuText", "Change stock settings");
@@ -64,18 +57,14 @@ public class ChangeCutSettingsAction extends AbstractAction implements UndoableA
     @Override
     public void undo() {
         for (int i = 0; i < cuttableList.size(); i++) {
-            cuttableList.get(i).setStartDepth(previousStartDepth.get(i));
-            cuttableList.get(i).setTargetDepth(previousCutDepth.get(i));
-            cuttableList.get(i).setCutType(previousCutType.get(i));
+            cuttableList.get(i).setEntitySetting(entitySetting, previousValue.get(i));
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         for (Cuttable cuttable : cuttableList) {
-            cuttable.setStartDepth(newStartDepth);
-            cuttable.setTargetDepth(newCutDepth);
-            cuttable.setCutType(newCutType);
+            cuttable.setEntitySetting(entitySetting, newValue);
         }
         this.controller.getDrawing().repaint();
     }

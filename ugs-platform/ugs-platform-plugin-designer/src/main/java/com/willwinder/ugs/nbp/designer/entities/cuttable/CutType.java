@@ -18,24 +18,39 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
+import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
+import static com.willwinder.ugs.nbp.designer.entities.EntitySetting.DEFAULT_ENDMILL_SETTINGS;
+import static com.willwinder.ugs.nbp.designer.entities.EntitySetting.DEFAULT_LASER_SETTINGS;
+
+import java.util.List;
+
 /**
  * @author Joacim Breiler
  */
 public enum CutType {
-    NONE("None"),
-    POCKET("Pocket"),
-    ON_PATH("On path"),
-    INSIDE_PATH("Inside path"),
-    OUTSIDE_PATH("Outside path"),
-    CENTER_DRILL("Center drill");
+    NONE("None", List.of(EntitySetting.CUT_TYPE)),
+    POCKET("Mill Pocket",  DEFAULT_ENDMILL_SETTINGS),
+    ON_PATH("Mill - On path", DEFAULT_ENDMILL_SETTINGS),
+    INSIDE_PATH("Mill - Inside path",  DEFAULT_ENDMILL_SETTINGS),
+    OUTSIDE_PATH("Mill - Outside path", DEFAULT_ENDMILL_SETTINGS),
+    LASER_ON_PATH("Laser - On path", DEFAULT_LASER_SETTINGS),
+    LASER_FILL("Laser - Fill", DEFAULT_LASER_SETTINGS),
+    CENTER_DRILL("Center drill", DEFAULT_ENDMILL_SETTINGS),
+    ;
 
     private final String name;
 
-    CutType(String name) {
+    private final List<EntitySetting> settings;
+
+    CutType(String name, List<EntitySetting> settings) {
         this.name = name;
+        this.settings = settings;
     }
 
     public String getName() {
         return name;
+    }
+    public List<EntitySetting> getSettings() {
+        return settings;
     }
 }

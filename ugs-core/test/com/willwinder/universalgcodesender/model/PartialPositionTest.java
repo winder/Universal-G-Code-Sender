@@ -1,8 +1,9 @@
 package com.willwinder.universalgcodesender.model;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class PartialPositionTest {
 
@@ -11,6 +12,10 @@ public class PartialPositionTest {
         assertEquals("Y0Z0", new PartialPosition(null, 0.0, 0.0, UnitUtils.Units.MM).getFormattedGCode());
         assertEquals("X0Z0", new PartialPosition(0.0, null, 0.0, UnitUtils.Units.MM).getFormattedGCode());
         assertEquals("X0Y0", new PartialPosition(0.0, 0.0, UnitUtils.Units.MM).getFormattedGCode());
+
+        assertEquals("Y0Z0", new PartialPosition(Double.NaN, 0.0, 0.0, UnitUtils.Units.MM).getFormattedGCode());
+        assertEquals("X0Z0", new PartialPosition(0.0, Double.NaN, 0.0, UnitUtils.Units.MM).getFormattedGCode());
+        assertEquals("X0Y0", new PartialPosition(0.0, 0.0, Double.NaN, UnitUtils.Units.MM).getFormattedGCode());
 
         assertEquals("Y10Z0", new PartialPosition(null, 10.0, 0.0, UnitUtils.Units.MM).getFormattedGCode());
         assertEquals("X10Z0", new PartialPosition(10.0, null, 0.0, UnitUtils.Units.MM).getFormattedGCode());

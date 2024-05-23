@@ -36,6 +36,8 @@ public class Settings {
     private double toolStepOver = 0.3;
     private double depthPerPass = 1;
     private double spindleSpeed;
+    private double laserDiameter = 0.2;
+    private int maxSpindleSpeed = 255;
 
     public Settings() {
     }
@@ -180,16 +182,38 @@ public class Settings {
     }
 
     public void applySettings(Settings settings) {
-        if (settings != null) {
-            setDepthPerPass(settings.getDepthPerPass());
-            setFeedSpeed(settings.getFeedSpeed());
-            setPlungeSpeed(settings.getPlungeSpeed());
-            setStockThickness(settings.getStockThickness());
-            setToolDiameter(settings.getToolDiameter());
-            setToolStepOver(settings.getToolStepOver());
-            setPreferredUnits(settings.getPreferredUnits());
-            setSafeHeight(settings.getSafeHeight());
-            setSpindleSpeed(settings.getSpindleSpeed());
+        if (settings == null) {
+            return;
         }
+
+        setDepthPerPass(settings.getDepthPerPass());
+        setFeedSpeed(settings.getFeedSpeed());
+        setPlungeSpeed(settings.getPlungeSpeed());
+        setStockThickness(settings.getStockThickness());
+        setToolDiameter(settings.getToolDiameter());
+        setToolStepOver(settings.getToolStepOver());
+        setPreferredUnits(settings.getPreferredUnits());
+        setSafeHeight(settings.getSafeHeight());
+        setSpindleSpeed(settings.getSpindleSpeed());
+        setLaserDiameter(settings.getLaserDiameter());
+        setMaxSpindleSpeed(settings.getMaxSpindleSpeed());
+    }
+
+    public double getLaserDiameter() {
+        return laserDiameter;
+    }
+
+    public void setLaserDiameter(double laserDiameter) {
+        this.laserDiameter = laserDiameter;
+        notifyListeners();
+    }
+
+    public int getMaxSpindleSpeed() {
+        return maxSpindleSpeed;
+    }
+
+    public void setMaxSpindleSpeed(int maxSpindleSpeed) {
+        this.maxSpindleSpeed = Math.abs(maxSpindleSpeed);
+        notifyListeners();
     }
 }

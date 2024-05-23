@@ -8,6 +8,7 @@ import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.nbp.designer.model.Design;
+import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.PartialPosition;
@@ -31,12 +32,14 @@ public class PocketToolPathTest {
         Rectangle rectangle = new Rectangle();
         rectangle.setSize(new Size(geometrySize, geometrySize));
 
-        PocketToolPath simplePocket = new PocketToolPath(rectangle);
+        Settings settings = new Settings();
+        settings.setSafeHeight(safeHeight);
+        settings.setToolStepOver(1);
+        settings.setToolDiameter(toolRadius * 2);
+        settings.setDepthPerPass(1);
+
+        PocketToolPath simplePocket = new PocketToolPath(settings, rectangle);
         simplePocket.setTargetDepth(targetDepth);
-        simplePocket.setDepthPerPass(depthPerPass);
-        simplePocket.setToolDiameter(toolRadius * 2);
-        simplePocket.setStepOver(1);
-        simplePocket.setSafeHeight(safeHeight);
 
         List<Segment> segmentList = simplePocket.toGcodePath().getSegments();
 
@@ -83,12 +86,15 @@ public class PocketToolPathTest {
         Rectangle rectangle = new Rectangle();
         rectangle.setSize(new Size(geometrySize, geometrySize));
 
-        PocketToolPath simplePocket = new PocketToolPath(rectangle);
+
+        Settings settings = new Settings();
+        settings.setToolDiameter(toolRadius * 2);
+        settings.setSafeHeight(safeHeight);
+        settings.setToolStepOver(1);
+        settings.setDepthPerPass(depthPerPass);
+
+        PocketToolPath simplePocket = new PocketToolPath(settings, rectangle);
         simplePocket.setTargetDepth(targetDepth);
-        simplePocket.setDepthPerPass(depthPerPass);
-        simplePocket.setToolDiameter(toolRadius * 2);
-        simplePocket.setStepOver(1);
-        simplePocket.setSafeHeight(safeHeight);
 
         List<Segment> segmentList = simplePocket.toGcodePath().getSegments();
 
@@ -137,14 +143,16 @@ public class PocketToolPathTest {
         double totalLength = 0;
         double totalRapidLength = 0;
 
+        Settings settings = new Settings();
+        settings.setToolStepOver(0.5);
+        settings.setSafeHeight(safeHeight);
+        settings.setToolDiameter(toolDiameter);
+        settings.setDepthPerPass(depthPerPass);
+
         for (Entity entity : design.getEntities()) {
-            PocketToolPath simplePocket = new PocketToolPath((Cuttable) entity);
+            PocketToolPath simplePocket = new PocketToolPath(settings, (Cuttable) entity);
             simplePocket.setTargetDepth(targetDepth);
             simplePocket.setStartDepth(startDepth);
-            simplePocket.setDepthPerPass(depthPerPass);
-            simplePocket.setToolDiameter(toolDiameter);
-            simplePocket.setStepOver(0.5);
-            simplePocket.setSafeHeight(safeHeight);
 
             GcodePath gcodePath = simplePocket.toGcodePath();
             ToolPathStats toolPathStats = ToolPathUtils.getToolPathStats(gcodePath);

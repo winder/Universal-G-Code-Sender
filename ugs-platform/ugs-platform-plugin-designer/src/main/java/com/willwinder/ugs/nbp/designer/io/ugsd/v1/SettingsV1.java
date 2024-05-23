@@ -15,6 +15,7 @@ public class SettingsV1 implements Serializable {
     private double toolStepOver = 0.3;
     private double depthPerPass = 1;
     private double spindleSpeed = 0;
+    private double laserDiameter = 0.2;
 
     public int getPlungeSpeed() {
         return plungeSpeed;
@@ -87,7 +88,9 @@ public class SettingsV1 implements Serializable {
     public void setSpindleSpeed(double spindleSpeed) {
         this.spindleSpeed = spindleSpeed;
     }
-
+    public void setLaserDiameter(double laserDiameter) {
+        this.laserDiameter = laserDiameter;
+    }
     public Settings toInternal() {
         Settings settings = new Settings();
         settings.setSafeHeight(safeHeight);
@@ -99,6 +102,7 @@ public class SettingsV1 implements Serializable {
         settings.setDepthPerPass(depthPerPass);
         settings.setFeedSpeed(feedSpeed);
         settings.setSpindleSpeed(spindleSpeed);
+        settings.setLaserDiameter(laserDiameter);
         return settings;
     }
 }

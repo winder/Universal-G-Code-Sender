@@ -25,8 +25,12 @@ import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import java.awt.Dimension;
 import java.text.ParseException;
 
 /**
@@ -41,6 +45,8 @@ public class ToolSettingsPanel extends JPanel {
     private JTextField stepOver;
     private JTextField safeHeight;
     private JTextField spindleSpeed;
+    private TextFieldWithUnit laserDiameter;
+    private TextFieldWithUnit maxSpindleSpeed;
 
     public ToolSettingsPanel(Controller controller) {
         this.controller = controller;
@@ -50,37 +56,48 @@ public class ToolSettingsPanel extends JPanel {
     }
 
     private void initComponents() {
-        setLayout(new MigLayout("fill", "[20%][80%]"));
+        setLayout(new MigLayout("fill", "[20%][80%]" ));
 
-        add(new JLabel("Tool diameter"));
+        add(new JLabel("Tool diameter" ));
         toolDiameter = new TextFieldWithUnit(TextFieldUnit.MM, 3, controller.getSettings().getToolDiameter());
-        add(toolDiameter, "grow, wrap");
+        add(toolDiameter, "grow, wrap" );
 
-        add(new JLabel("Feed speed"));
+        add(new JLabel("Feed speed" ));
         feedSpeed = new TextFieldWithUnit(TextFieldUnit.MM_PER_MINUTE, 0, controller.getSettings().getFeedSpeed());
-        add(feedSpeed, "grow, wrap");
+        add(feedSpeed, "grow, wrap" );
 
-        add(new JLabel("Plunge speed"));
+        add(new JLabel("Plunge speed" ));
         plungeSpeed = new TextFieldWithUnit(TextFieldUnit.MM_PER_MINUTE, 0, controller.getSettings().getPlungeSpeed());
-        add(plungeSpeed, "grow, wrap");
+        add(plungeSpeed, "grow, wrap" );
 
-        add(new JLabel("Depth per pass"));
+        add(new JLabel("Depth per pass" ));
         depthPerPass = new TextFieldWithUnit(TextFieldUnit.MM, 2, controller.getSettings().getDepthPerPass());
-        add(depthPerPass, "grow, wrap");
+        add(depthPerPass, "grow, wrap" );
 
-        add(new JLabel("Step over"));
-        stepOver =  new TextFieldWithUnit(TextFieldUnit.PERCENT, 2,
+        add(new JLabel("Step over" ));
+        stepOver = new TextFieldWithUnit(TextFieldUnit.PERCENT, 2,
                 controller.getSettings().getToolStepOver());
-        add(stepOver, "grow, wrap");
+        add(stepOver, "grow, wrap" );
 
-        add(new JLabel("Safe height"));
+        add(new JLabel("Safe height" ));
         safeHeight = new TextFieldWithUnit(TextFieldUnit.MM, 2, controller.getSettings().getSafeHeight());
-        add(safeHeight, "grow, wrap");
+        add(safeHeight, "grow, wrap" );
 
-        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap");
-        add(new JLabel("Spindle speed"));
-        spindleSpeed =  new TextFieldWithUnit(TextFieldUnit.ROTATIONS_PER_MINUTE, 0, controller.getSettings().getSpindleSpeed());
-        add(spindleSpeed, "grow, wrap");
+        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap" );
+        add(new JLabel("Spindle speed" ));
+        spindleSpeed = new TextFieldWithUnit(TextFieldUnit.ROTATIONS_PER_MINUTE, 0, controller.getSettings().getSpindleSpeed());
+        add(spindleSpeed, "grow, wrap" );
+
+        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap" );
+        add(new JLabel("Max spindle speed" ));
+        maxSpindleSpeed = new TextFieldWithUnit(TextFieldUnit.ROTATIONS_PER_MINUTE, 0, controller.getSettings().getMaxSpindleSpeed());
+        add(maxSpindleSpeed, "grow, wrap" );
+
+        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap" );
+
+        add(new JLabel("Laser diameter" ));
+        laserDiameter = new TextFieldWithUnit(TextFieldUnit.MM, 3, controller.getSettings().getLaserDiameter());
+        add(laserDiameter, "grow, wrap" );
     }
 
     public double getToolDiameter() {
@@ -139,6 +156,22 @@ public class ToolSettingsPanel extends JPanel {
         }
     }
 
+    private double getLaserDiameter() {
+        try {
+            return Utils.formatter.parse(laserDiameter.getText()).doubleValue();
+        } catch (ParseException e) {
+            return controller.getSettings().getLaserDiameter();
+        }
+    }
+
+    private double getMaxSpindleSpeed() {
+        try {
+            return Utils.formatter.parse(maxSpindleSpeed.getText()).doubleValue();
+        } catch (ParseException e) {
+            return controller.getSettings().getMaxSpindleSpeed();
+        }
+    }
+
     public Settings getSettings() {
         Settings settings = new Settings();
         settings.applySettings(controller.getSettings());
@@ -149,6 +182,8 @@ public class ToolSettingsPanel extends JPanel {
         settings.setToolStepOver(getStepOver());
         settings.setPlungeSpeed(getPlungeSpeed());
         settings.setSpindleSpeed(getSpindleSpeed());
+        settings.setLaserDiameter(getLaserDiameter());
+        settings.setMaxSpindleSpeed((int) getMaxSpindleSpeed());
         return settings;
     }
 }

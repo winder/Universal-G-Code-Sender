@@ -3,13 +3,13 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
+import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.ugs.nbp.designer.model.Size;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 
 import java.awt.geom.Point2D;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class DrillCenterToolPathTest {
     @Test
@@ -18,10 +18,12 @@ public class DrillCenterToolPathTest {
         rectangle.setSize(new Size(15, 15));
         rectangle.setPosition(new Point2D.Double(10, 10));
 
-        DrillCenterToolPath drillCenterToolPath = new DrillCenterToolPath(rectangle);
-        drillCenterToolPath.setDepthPerPass(5);
+        Settings settings = new Settings();
+        settings.setSafeHeight(11);
+        settings.setDepthPerPass(5);
+
+        DrillCenterToolPath drillCenterToolPath = new DrillCenterToolPath(settings, rectangle);
         drillCenterToolPath.setTargetDepth(10);
-        drillCenterToolPath.setSafeHeight(11);
         GcodePath gcodePath = drillCenterToolPath.toGcodePath();
 
         assertEquals(9, gcodePath.getSegments().size());

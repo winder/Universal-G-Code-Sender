@@ -48,9 +48,9 @@ public class UnitSpinner extends JSpinner {
     }
 
     public void setUnits(TextFieldUnit units) {
-        if(units == TextFieldUnit.MM) {
+        if (units == TextFieldUnit.MM) {
             spinnerNumberModel.setStepSize(0.01);
-        } else {
+        } else if (units == TextFieldUnit.INCH) {
             spinnerNumberModel.setStepSize(0.001);
         }
 

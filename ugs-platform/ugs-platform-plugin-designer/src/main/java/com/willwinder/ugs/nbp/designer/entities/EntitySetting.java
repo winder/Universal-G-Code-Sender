@@ -19,6 +19,8 @@
 
 package com.willwinder.ugs.nbp.designer.entities;
 
+import java.util.List;
+
 /**
  * What settings that is possible to set on an entity.
  *
@@ -36,7 +38,37 @@ public enum EntitySetting {
     TARGET_DEPTH("Target depth"),
     ANCHOR("Anchor"),
     FONT_FAMILY("Font"),
-    LOCK_RATIO("Lock ratio");
+    LOCK_RATIO("Lock ratio"),
+    SPINDLE_SPEED("Spindle speed"),
+    PASSES("Passes"),
+    FEED_RATE("Feed rate");
+
+    public static final List<EntitySetting> DEFAULT_ENDMILL_SETTINGS = List.of(
+            EntitySetting.CUT_TYPE,
+            EntitySetting.ANCHOR,
+            EntitySetting.HEIGHT,
+            EntitySetting.WIDTH,
+            EntitySetting.FONT_FAMILY,
+            EntitySetting.LOCK_RATIO,
+            EntitySetting.POSITION_X,
+            EntitySetting.POSITION_Y,
+            EntitySetting.ROTATION,
+            EntitySetting.START_DEPTH,
+            EntitySetting.TARGET_DEPTH);
+
+    public static final List<EntitySetting> DEFAULT_LASER_SETTINGS = List.of(
+            EntitySetting.CUT_TYPE,
+            EntitySetting.ANCHOR,
+            EntitySetting.HEIGHT,
+            EntitySetting.WIDTH,
+            EntitySetting.FONT_FAMILY,
+            EntitySetting.LOCK_RATIO,
+            EntitySetting.POSITION_X,
+            EntitySetting.POSITION_Y,
+            EntitySetting.ROTATION,
+            EntitySetting.SPINDLE_SPEED,
+            EntitySetting.PASSES,
+            EntitySetting.FEED_RATE);
 
     private final String label;
 

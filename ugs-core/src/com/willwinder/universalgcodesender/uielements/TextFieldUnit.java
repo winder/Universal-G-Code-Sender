@@ -28,7 +28,8 @@ public enum TextFieldUnit {
     INCHES_PER_MINUTE("inch/min"),
     ROTATIONS_PER_MINUTE("rpm"),
     PERCENT("%"),
-    DEGREE("°");
+    DEGREE("°"),
+    TIMES("times");
 
     private final String abbreviation;
 

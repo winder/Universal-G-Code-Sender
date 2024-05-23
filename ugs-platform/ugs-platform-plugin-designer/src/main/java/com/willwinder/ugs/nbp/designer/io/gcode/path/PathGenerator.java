@@ -16,6 +16,8 @@
  */
 package com.willwinder.ugs.nbp.designer.io.gcode.path;
 
+import com.willwinder.ugs.nbp.designer.model.Settings;
+
 /**
  * Interface for classes that generate paths
  *
@@ -23,8 +25,10 @@ package com.willwinder.ugs.nbp.designer.io.gcode.path;
  */
 public interface PathGenerator {
 	/**
-	 * Generate the path
-	 * @return path
+	 * Appends any gcode to the current gcode path
+	 *
+	 * @param gcodePath
+	 * @param settings
 	 */
-	GcodePath toGcodePath();
+	void appendGcodePath(GcodePath gcodePath, Settings settings);
 }

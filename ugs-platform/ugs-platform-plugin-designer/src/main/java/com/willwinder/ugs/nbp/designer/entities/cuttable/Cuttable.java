@@ -19,6 +19,9 @@
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
+
+import java.util.Optional;
 
 /**
  * Defines an entity that can be cut using a cut operation.
@@ -69,6 +72,49 @@ public interface Cuttable extends Entity {
     void setStartDepth(double startDepth);
 
     /**
+     * Returns the laser power in percent where min is 0 and max is 100.
+     *
+     * @return the laser power in percent
+     */
+    int getSpindleSpeed();
+
+    /**
+     * Sets the laser power in percent where min is 0 and max is 100
+     *
+     * @param power the power in percent
+     */
+    void setSpindleSpeed(int power);
+
+    /**
+     * Returns the laser feed rate in percent where min is 0 and max is 100.
+     *
+     * @return the laser feed rate in percent
+     */
+    int getFeedRate();
+
+    /**
+     * Sets the laser feed rate in percent where min is 0 and max is 100
+     *
+     * @param feedRate the feed rate in percent
+     */
+
+    void setFeedRate(int feedRate);
+
+    /**
+     * Returns the number of passes that should be done
+     *
+     * @return the number of passes
+     */
+    int getPasses();
+
+    /**
+     * Sets the number of passes that should be done in with laser
+     *
+     * @param laserPasses the number of passes
+     */
+    void setPasses(int laserPasses);
+
+    /**
      * If the entity should be hidden in the design. When hidden the entity is not included
      * in the output or displayed in the editor.
      *
@@ -82,4 +128,8 @@ public interface Cuttable extends Entity {
      * @param hidden if the entity is hidden.
      */
     void setHidden(boolean hidden);
+
+    Optional<Object> getEntitySetting(EntitySetting entitySetting);
+
+    void setEntitySetting(EntitySetting entitySetting, Object value);
 }

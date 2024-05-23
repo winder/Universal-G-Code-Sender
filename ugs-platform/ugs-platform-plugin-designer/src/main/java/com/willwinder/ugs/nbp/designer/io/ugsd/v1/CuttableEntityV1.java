@@ -35,6 +35,15 @@ public class CuttableEntityV1 extends EntityV1 {
     private double cutDepth;
 
     @Expose
+    private int spindleSpeed;
+
+    @Expose
+    private int passes;
+
+    @Expose
+    private int feedRate;
+
+    @Expose
     private CutTypeV1 cutType;
 
     @Expose
@@ -79,6 +88,18 @@ public class CuttableEntityV1 extends EntityV1 {
         isHidden = hidden;
     }
 
+    public void setSpindleSpeed(int spindleSpeed) {
+        this.spindleSpeed = spindleSpeed;
+    }
+
+    public void setPasses(int passes) {
+        this.passes = passes;
+    }
+
+    public void setFeedRate(int feedRate) {
+        this.feedRate = feedRate;
+    }
+
     @Override
     protected void applyCommonAttributes(Entity entity) {
         super.applyCommonAttributes(entity);
@@ -86,12 +107,14 @@ public class CuttableEntityV1 extends EntityV1 {
         // We need to make a copy of the transformation to set the affine transformation state and type which is not serialized
         entity.setTransform(new AffineTransform(transform.getScaleX(), transform.getShearY(), transform.getShearX(), transform.getScaleY(), transform.getTranslateX(), transform.getTranslateY()));
 
-        if (entity instanceof Cuttable) {
-            Cuttable cuttable = ((Cuttable) entity);
+        if (entity instanceof Cuttable cuttable) {
             cuttable.setStartDepth(startDepth);
             cuttable.setTargetDepth(cutDepth);
             cuttable.setCutType(CutTypeV1.toCutType(cutType));
             cuttable.setHidden(isHidden);
+            cuttable.setSpindleSpeed(spindleSpeed);
+            cuttable.setPasses(passes);
+            cuttable.setFeedRate(feedRate);
         }
     }
 

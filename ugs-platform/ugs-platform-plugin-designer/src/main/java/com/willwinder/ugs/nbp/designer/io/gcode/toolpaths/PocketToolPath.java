@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import static com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils.addGeometriesToCoordinatesList;
 import static com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils.bufferAndCollectGeometries;
 import static com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils.convertAreaToGeometry;
+import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import org.locationtech.jts.geom.Geometry;
 
@@ -36,28 +37,24 @@ import java.util.List;
 public class PocketToolPath extends AbstractToolPath {
     private final Cuttable source;
 
-    /**
-     * How much should the tool cut for each pass. Should be larger than 0 and smaller than 1.
-     * 0.1 would cut 10% of the tool diameter for each pass and 1 would cut 100% of the tool diameter.
-     */
-    private double stepOver = 0.3;
-
-    public PocketToolPath(Cuttable source) {
+    public PocketToolPath(Settings settings, Cuttable source) {
+        super(settings);
         this.source = source;
     }
 
     @Override
-    public GcodePath toGcodePath() {
+    public void appendGcodePath(GcodePath gcodePath, Settings settings) {
+        double stepOver = Math.min(Math.max(0.01, Math.abs(settings.getToolStepOver())), 1.0);
         Geometry geometryCollection = convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
-        Geometry shell = geometryCollection.buffer(-getToolDiameter() / 2d);
-        List<Geometry> geometries = bufferAndCollectGeometries(geometryCollection, getToolDiameter(), stepOver);
+        Geometry shell = geometryCollection.buffer(-settings.getToolDiameter() / 2d);
+        List<Geometry> geometries = bufferAndCollectGeometries(geometryCollection, settings.getToolDiameter(), stepOver);
 
         List<List<PartialPosition>> coordinateList = new ArrayList<>();
         addGeometriesToCoordinatesList(shell, geometries, coordinateList, getStartDepth());
 
         double currentDepth = getStartDepth();
         while (currentDepth < getTargetDepth()) {
-            currentDepth += getDepthPerPass();
+            currentDepth += settings.getDepthPerPass();
             if (currentDepth > getTargetDepth()) {
                 currentDepth = getTargetDepth();
             }
@@ -65,11 +62,6 @@ public class PocketToolPath extends AbstractToolPath {
             addGeometriesToCoordinatesList(shell, geometries, coordinateList, currentDepth);
         }
 
-        return toGcodePath(coordinateList);
-    }
-
-
-    public void setStepOver(double stepOver) {
-        this.stepOver = Math.min(Math.max(0.01, Math.abs(stepOver)), 1.0);
+        gcodePath.appendGcodePath(toGcodePath(coordinateList));
     }
 }

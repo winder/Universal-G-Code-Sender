@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -155,5 +156,10 @@ public class FieldEventDispatcher {
 
     public void addListener(FieldEventListener listener) {
         listeners.add(listener);
+    }
+
+    public void registerListener(EntitySetting entitySetting, JSlider slider) {
+        componentsMap.put(entitySetting, slider);
+        slider.addChangeListener(l -> updateValue(entitySetting, slider.getValue()));
     }
 }

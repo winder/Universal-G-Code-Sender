@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
+import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
@@ -34,34 +35,9 @@ import java.awt.geom.Point2D;
 public class DrillCenterToolPath extends AbstractToolPath {
     private final Cuttable source;
 
-    public DrillCenterToolPath(Cuttable source) {
+    public DrillCenterToolPath(Settings settings, Cuttable source) {
+        super(settings);
         this.source = source;
-    }
-
-    @Override
-    public GcodePath toGcodePath() {
-        PartialPosition centerPosition = getCenterPosition();
-        GcodePath gcodePath = new GcodePath();
-        addSafeHeightSegmentTo(gcodePath, centerPosition);
-        addDepthSegment(gcodePath, getStartDepth());
-
-        double currentDepth = getStartDepth();
-        while (currentDepth < getTargetDepth()) {
-            currentDepth += getDepthPerPass();
-            if (currentDepth > getTargetDepth()) {
-                currentDepth = getTargetDepth();
-            }
-
-            final double depth = -currentDepth;
-            addDepthSegment(gcodePath, depth);
-
-            if (currentDepth != 0) {
-                addDepthSegment(gcodePath, 0d);
-            }
-        }
-
-        addSafeHeightSegment(gcodePath);
-        return gcodePath;
     }
 
     private void addDepthSegment(GcodePath gcodePath, double depth) {
@@ -76,5 +52,29 @@ public class DrillCenterToolPath extends AbstractToolPath {
                 .setX(center.getX())
                 .setY(center.getY())
                 .build();
+    }
+
+    @Override
+    public void appendGcodePath(GcodePath gcodePath, Settings settings) {
+        PartialPosition centerPosition = getCenterPosition();
+        addSafeHeightSegmentTo(gcodePath, centerPosition);
+        addDepthSegment(gcodePath, getStartDepth());
+
+        double currentDepth = getStartDepth();
+        while (currentDepth < getTargetDepth()) {
+            currentDepth += settings.getDepthPerPass();
+            if (currentDepth > getTargetDepth()) {
+                currentDepth = getTargetDepth();
+            }
+
+            final double depth = -currentDepth;
+            addDepthSegment(gcodePath, depth);
+
+            if (currentDepth != 0) {
+                addDepthSegment(gcodePath, 0d);
+            }
+        }
+
+        addSafeHeightSegment(gcodePath);
     }
 }

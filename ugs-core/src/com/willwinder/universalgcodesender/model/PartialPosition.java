@@ -94,27 +94,27 @@ public class PartialPosition {
 
 
     public boolean hasX() {
-        return x != null;
+        return x != null && !x.isNaN();
     }
 
     public boolean hasY() {
-        return y != null;
+        return y != null && !y.isNaN();
     }
 
     public boolean hasZ() {
-        return z != null;
+        return z != null && !z.isNaN();
     }
 
     public boolean hasA() {
-        return a != null;
+        return a != null && !a.isNaN();
     }
 
     public boolean hasB() {
-        return b != null;
+        return b != null && !b.isNaN();
     }
 
     public boolean hasC() {
-        return c != null;
+        return c != null && !c.isNaN();
     }
 
     public Double getX() {

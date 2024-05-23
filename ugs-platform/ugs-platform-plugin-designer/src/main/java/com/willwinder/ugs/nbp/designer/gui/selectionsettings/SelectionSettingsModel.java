@@ -37,34 +37,6 @@ public class SelectionSettingsModel implements Serializable {
         listeners.add(listener);
     }
 
-    public void put(EntitySetting key, Object object) {
-        if (key == EntitySetting.WIDTH) {
-            setWidth(parseDouble(object));
-        } else if (key == EntitySetting.HEIGHT) {
-            setHeight(parseDouble(object));
-        } else if (key == EntitySetting.ROTATION) {
-            setRotation(parseDouble(object));
-        } else if (key == EntitySetting.POSITION_X) {
-            setPositionX(parseDouble(object));
-        } else if (key == EntitySetting.POSITION_Y) {
-            setPositionY(parseDouble(object));
-        } else if (key == EntitySetting.CUT_TYPE) {
-            setCutType(parseCutType(object));
-        } else if (key == EntitySetting.TARGET_DEPTH) {
-            setTargetDepth(parseDouble(object));
-        } else if (key == EntitySetting.START_DEPTH) {
-            setStartDepth(parseDouble(object));
-        } else if (key == EntitySetting.TEXT) {
-            setText(object.toString());
-        } else if (key == EntitySetting.FONT_FAMILY) {
-            setFontFamily(object.toString());
-        } else if (key == EntitySetting.ANCHOR) {
-            setAnchor((Anchor) object);
-        } else if (key == EntitySetting.LOCK_RATIO) {
-            setLockRatio((Boolean) object);
-        }
-    }
-
     public Object get(EntitySetting key) {
         return switch (key) {
             case WIDTH -> getWidth();
@@ -79,24 +51,11 @@ public class SelectionSettingsModel implements Serializable {
             case FONT_FAMILY -> getFontFamily();
             case ANCHOR -> getAnchor();
             case LOCK_RATIO -> getLockRatio();
+            case SPINDLE_SPEED -> getSpindleSpeed();
+            case PASSES -> getPasses();
+            case FEED_RATE -> getFeedRate();
             default -> throw new SelectionSettingsModelException("Unknown setting " + key);
         };
-    }
-
-    private CutType parseCutType(Object object) {
-        if (object instanceof CutType cutType) {
-            return cutType;
-        }
-
-        throw new SelectionSettingsModelException("Incorrect type");
-    }
-
-    private double parseDouble(Object object) {
-        if (object instanceof Double doubleValue) {
-            return doubleValue;
-        }
-
-        throw new SelectionSettingsModelException("Incorrect type");
     }
 
     public double getWidth() {
@@ -171,6 +130,7 @@ public class SelectionSettingsModel implements Serializable {
         setCutType(CutType.NONE);
         setStartDepth(0);
         setTargetDepth(0);
+        setSpindleSpeed(0);
         setText("");
         setFontFamily(Font.SANS_SERIF);
     }
@@ -216,6 +176,41 @@ public class SelectionSettingsModel implements Serializable {
         if (!valuesEquals(getStartDepth(), startDepth)) {
             settings.put(EntitySetting.START_DEPTH, startDepth);
             notifyListeners(EntitySetting.START_DEPTH);
+        }
+    }
+
+    public int getSpindleSpeed() {
+        return (Integer) settings.getOrDefault(EntitySetting.SPINDLE_SPEED, 0);
+    }
+
+    public void setSpindleSpeed(Integer speed) {
+        if (!valuesEquals(getSpindleSpeed(), speed)) {
+            settings.put(EntitySetting.SPINDLE_SPEED, speed);
+            notifyListeners(EntitySetting.SPINDLE_SPEED);
+        }
+    }
+
+    public int getPasses() {
+        return (Integer) settings.getOrDefault(EntitySetting.PASSES, 1);
+    }
+
+    public void setPasses(Integer passes) {
+        if (!valuesEquals(getPasses(), passes)) {
+            passes = Math.max(1, passes);
+            settings.put(EntitySetting.PASSES, passes);
+            notifyListeners(EntitySetting.PASSES);
+        }
+    }
+
+    public int getFeedRate() {
+        return (Integer) settings.getOrDefault(EntitySetting.FEED_RATE, 50);
+    }
+
+    public void setFeedRate(Integer feedRate) {
+        if (!valuesEquals(getFeedRate(), feedRate)) {
+            feedRate = Math.max(50, feedRate);
+            settings.put(EntitySetting.FEED_RATE, feedRate);
+            notifyListeners(EntitySetting.FEED_RATE);
         }
     }
 

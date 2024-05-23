@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.PathGenerator;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
+import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -30,33 +31,20 @@ import java.util.List;
 
 public abstract class AbstractToolPath implements PathGenerator {
 
+    protected final Settings settings;
+    private final GeometryFactory geometryFactory = new GeometryFactory();
     /**
      * The depth to start from in millimeters
      */
     private double startDepth = 0;
-
     /**
      * The depth that we are targeting for in millimeters
      */
     private double targetDepth = 0;
 
-    /**
-     * The tool diameter in millimeters
-     */
-    private double toolDiameter = 3;
-
-    /**
-     * The depth to plunge for each pass in millimeters
-     */
-    private double depthPerPass = 1;
-
-    /**
-     * A safe height above the material in millimeters
-     */
-    private double safeHeight = 1;
-
-    private final GeometryFactory geometryFactory = new GeometryFactory();
-
+    protected AbstractToolPath(Settings settings) {
+        this.settings = settings;
+    }
 
     public double getStartDepth() {
         return Math.abs(startDepth);
@@ -66,40 +54,16 @@ public abstract class AbstractToolPath implements PathGenerator {
         this.startDepth = Math.abs(startDepth);
     }
 
-    public void setTargetDepth(double targetDepth) {
-        this.targetDepth = Math.abs(targetDepth);
-    }
-
-    public void setToolDiameter(double toolDiameter) {
-        this.toolDiameter = Math.abs(toolDiameter);
-    }
-
-    public void setDepthPerPass(double depthPerPass) {
-        this.depthPerPass = Math.abs(depthPerPass);
-    }
-
-    public double getDepthPerPass() {
-        return depthPerPass;
-    }
-
-    public void setSafeHeight(double safeHeight) {
-        this.safeHeight = safeHeight;
-    }
-
-    public double getSafeHeight() {
-        return safeHeight;
-    }
-
     public double getTargetDepth() {
         return targetDepth;
     }
 
-    public double getToolDiameter() {
-        return toolDiameter;
+    public void setTargetDepth(double targetDepth) {
+        this.targetDepth = Math.abs(targetDepth);
     }
 
     protected void addSafeHeightSegment(GcodePath gcodePath) {
-        PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, getSafeHeight(), UnitUtils.Units.MM);
+        PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, settings.getSafeHeight(), UnitUtils.Units.MM);
         gcodePath.addSegment(SegmentType.MOVE, safeHeightCoordinate);
     }
 
@@ -126,6 +90,12 @@ public abstract class AbstractToolPath implements PathGenerator {
 
             addSafeHeightSegment(gcodePath);
         }
+        return gcodePath;
+    }
+
+    public GcodePath toGcodePath() {
+        GcodePath gcodePath = new GcodePath();
+        appendGcodePath(gcodePath, settings);
         return gcodePath;
     }
 }
