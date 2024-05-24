@@ -9,7 +9,6 @@ import com.willwinder.universalgcodesender.model.PartialPosition;
 import org.locationtech.jts.geom.Geometry;
 
 import java.awt.geom.Area;
-import java.util.ArrayList;
 import java.util.List;
 
 public class LaserOutlineToolPath extends AbstractToolPath {
@@ -20,36 +19,33 @@ public class LaserOutlineToolPath extends AbstractToolPath {
         this.source = source;
     }
 
-    private static void addGeometriesToCoordinateList(ArrayList<List<PartialPosition>> coordinateList, List<PartialPosition> geometryCoordinates) {
-        coordinateList.add(geometryCoordinates.stream()
-                .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).build())
-                .toList());
-    }
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
         gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d))));
 
-        List<Geometry> geometries;
+        List<Geometry> geometries = getGeometries();
+        geometries.forEach(g -> addGeometrySegments(g, gcodePath));
+    }
+
+    private List<Geometry> getGeometries() {
         if (ToolPathUtils.isClosedGeometry(source.getShape())) {
             Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
-            geometries = ToolPathUtils.toGeometryList(geometry);
+            return ToolPathUtils.toGeometryList(geometry);
         } else {
-            geometries = ToolPathUtils.convertShapeToGeometry(source.getShape(), getGeometryFactory());
+            return ToolPathUtils.convertShapeToGeometry(source.getShape(), getGeometryFactory());
         }
+    }
 
+    private void addGeometrySegments(Geometry geometry, GcodePath gcodePath) {
+        List<PartialPosition> geometryCoordinates = ToolPathUtils.geometryToCoordinates(geometry);
 
-        geometries.forEach(g -> {
-            List<PartialPosition> geometryCoordinates = ToolPathUtils.geometryToCoordinates(g);
+        int currentPass = 0;
+        while (currentPass < source.getPasses()) {
+            currentPass++;
+            List<PartialPosition> partialPosition = geometryCoordinates.stream()
+                    .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).build()).toList();
 
-            int currentPass = 0;
-            while (currentPass < source.getPasses()) {
-                currentPass++;
-                List<PartialPosition> partialPosition = geometryCoordinates.stream()
-                        .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).build()).toList();
-
-                gcodePath.addSegment(SegmentType.MOVE, partialPosition.get(0), " Pass " + currentPass + " of " + source.getPasses());
-                partialPosition.forEach(c -> gcodePath.addSegment(SegmentType.LINE, c));
-            }
-        });
-
+            gcodePath.addSegment(SegmentType.MOVE, partialPosition.get(0), " Pass " + currentPass + " of " + source.getPasses());
+            partialPosition.forEach(c -> gcodePath.addSegment(SegmentType.LINE, c));
+        }
     }
 }
