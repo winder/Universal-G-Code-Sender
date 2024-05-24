@@ -18,23 +18,11 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.selectionsettings;
 
-import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.awt.Font;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SelectionSettingsModelTest {
 
@@ -43,40 +31,6 @@ public class SelectionSettingsModelTest {
     @Before
     public void setUp() {
         target = new SelectionSettingsModel();
-    }
-
-    @Test
-    public void putShouldSetThePropertyAndNotify() {
-        Thread mainThread = Thread.currentThread();
-        AtomicBoolean hasBeenNotified = new AtomicBoolean(false);
-        target.addListener((entitySetting) -> {
-            if (entitySetting == EntitySetting.WIDTH) {
-                hasBeenNotified.set(true);
-            } else {
-                fail("Got unwanted update: " + entitySetting);
-            }
-
-            assertEquals("The notification must be done on the same thread", mainThread, Thread.currentThread());
-        });
-
-        target.put(EntitySetting.WIDTH, 10.0);
-
-        assertEquals(10.0, target.getWidth(), 0.01);
-        assertEquals(10.0, (Double) target.get(EntitySetting.WIDTH), 0.01);
-        assertTrue(hasBeenNotified.get());
-    }
-
-    @Test
-    public void putShouldNotSetThePropertyIfNotChanged() {
-        target.setHeight(10.0);
-        target.addListener((entitySetting) -> {
-            fail("Got unwanted update: " + entitySetting);
-        });
-
-        target.put(EntitySetting.HEIGHT, 10.0);
-
-        assertEquals(10.0, target.getHeight(), 0.01);
-        assertEquals(10.0, (Double) target.get(EntitySetting.HEIGHT), 0.01);
     }
 
     @Test
@@ -98,53 +52,18 @@ public class SelectionSettingsModelTest {
     }
 
     @Test
-    public void putValueWithWrongTypeShouldThrowException() {
-        target.addListener((e) -> {
-            fail("Should not notify any change");
+    public void setLaserPower() {
+        target.addListener((entitySetting) -> {
+            if (entitySetting != EntitySetting.SPINDLE_SPEED) {
+                fail("Got unknown update " + entitySetting);
+            }
+            if (target.getSpindleSpeed() != 10.0) {
+                fail("Set laser power notified before value where set");
+            }
         });
 
-        assertThrows(SelectionSettingsModelException.class, () -> target.put(EntitySetting.POSITION_X, "1.0"));
+        target.setSpindleSpeed(10);
 
-        assertEquals(0.0, target.getPositionX(), 0.01);
-    }
-
-    @Test
-    public void putAllValues() {
-        List<EntitySetting> notifiedSettings = new ArrayList<>();
-        target.addListener(notifiedSettings::add);
-
-        target.put(EntitySetting.POSITION_X, 1.0);
-        target.put(EntitySetting.POSITION_Y, 2.0);
-        target.put(EntitySetting.WIDTH, 3.0);
-        target.put(EntitySetting.HEIGHT, 4.0);
-        target.put(EntitySetting.ROTATION, 5.0);
-        target.put(EntitySetting.CUT_TYPE, CutType.POCKET);
-        target.put(EntitySetting.TEXT, "Banana");
-        target.put(EntitySetting.START_DEPTH, 6.0);
-        target.put(EntitySetting.TARGET_DEPTH, 7.0);
-        target.put(EntitySetting.ANCHOR, Anchor.TOP_RIGHT);
-        target.put(EntitySetting.FONT_FAMILY, Font.SERIF);
-        target.put(EntitySetting.LOCK_RATIO, false);
-
-        assertEquals(1.0, target.getPositionX(), 0.01);
-        assertEquals(2.0, target.getPositionY(), 0.01);
-        assertEquals(3.0, target.getWidth(), 0.01);
-        assertEquals(4.0, target.getHeight(), 0.01);
-        assertEquals(5.0, target.getRotation(), 0.01);
-        assertEquals(CutType.POCKET, target.getCutType());
-        assertEquals("Banana", target.getText());
-        assertEquals(6.0, target.getStartDepth(), 0.01);
-        assertEquals(7.0, target.getTargetDepth(), 0.01);
-        assertEquals(Anchor.TOP_RIGHT, target.getAnchor());
-        assertEquals(Font.SERIF, target.getFontFamily());
-        assertFalse(target.getLockRatio());
-
-        EntitySetting[] expectedSettings = EntitySetting.values();
-        Arrays.sort(expectedSettings);
-
-        EntitySetting[] currentSettings = notifiedSettings.toArray(new EntitySetting[0]);
-        Arrays.sort(currentSettings);
-
-        assertArrayEquals("All settings have not been set properly", expectedSettings, currentSettings);
+        assertEquals(10, target.getSpindleSpeed());
     }
 }

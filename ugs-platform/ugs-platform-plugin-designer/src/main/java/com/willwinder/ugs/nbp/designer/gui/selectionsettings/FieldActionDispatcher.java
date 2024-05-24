@@ -10,7 +10,6 @@ import com.willwinder.ugs.nbp.designer.actions.UndoActionList;
 import com.willwinder.ugs.nbp.designer.actions.UndoableAction;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.controls.Location;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
@@ -59,23 +58,19 @@ public class FieldActionDispatcher implements FieldEventListener {
         List<UndoableAction> actionList = new ArrayList<>();
         if (entitySetting == EntitySetting.WIDTH || entitySetting == EntitySetting.HEIGHT) {
             actionList.addAll(handleSizeChange(entitySetting, (Double) object, selection));
-        } else if (entitySetting == EntitySetting.CUT_TYPE) {
-            actionList.add(new ChangeCutSettingsAction(controller, selection.getChildren().stream().filter(Cuttable.class::isInstance).map(Cuttable.class::cast).toList(), model.getStartDepth(), model.getTargetDepth(), (CutType) object));
         } else if (entitySetting == EntitySetting.POSITION_X) {
             actionList.add(createMovePositionXAction((Double) object, selection));
         } else if (entitySetting == EntitySetting.POSITION_Y) {
             actionList.add(createMovePositionYAction((Double) object, selection));
         } else if (entitySetting == EntitySetting.ROTATION) {
             actionList.add(new RotateAction(selection.getChildren(), selection.getCenter(), (Double) object - model.getRotation()));
-        } else if (entitySetting == EntitySetting.START_DEPTH) {
-            actionList.add(createChangeStartDepthAction((Double) object, selection));
-        } else if (entitySetting == EntitySetting.TARGET_DEPTH) {
-            actionList.add(createChangeTargetDepthAction((Double) object, selection));
         } else if (entitySetting == EntitySetting.FONT_FAMILY) {
             actionList.addAll(createFontChangeActions((String) object, selection));
         } else if (entitySetting == EntitySetting.TEXT) {
             List<ChangeTextAction> changeTextActions = selection.getChildren().stream().filter(Text.class::isInstance).map(Text.class::cast).map(text -> new ChangeTextAction(text, (String) object)).toList();
             actionList.addAll(changeTextActions);
+        } else {
+            actionList.add(createChangeSettingAction(selection, entitySetting, object));
         }
 
         if (actionList.isEmpty()) {
@@ -120,11 +115,9 @@ public class FieldActionDispatcher implements FieldEventListener {
         return new MoveAction(selection.getChildren(), delta);
     }
 
-    private ChangeCutSettingsAction createChangeStartDepthAction(Double object, Group selection) {
-        return new ChangeCutSettingsAction(controller, selection.getChildren().stream().filter(Cuttable.class::isInstance).map(Cuttable.class::cast).toList(), object, model.getTargetDepth(), model.getCutType());
-    }
-
-    private ChangeCutSettingsAction createChangeTargetDepthAction(Double object, Group selection) {
-        return new ChangeCutSettingsAction(controller, selection.getChildren().stream().filter(Cuttable.class::isInstance).map(Cuttable.class::cast).toList(), model.getStartDepth(), object, model.getCutType());
+    private ChangeCutSettingsAction createChangeSettingAction(Group selection, EntitySetting entitySetting, Object object) {
+        return new ChangeCutSettingsAction(controller, selection.getChildren().stream().filter(Cuttable.class::isInstance).map(Cuttable.class::cast).toList(),
+                entitySetting,
+                object);
     }
 }

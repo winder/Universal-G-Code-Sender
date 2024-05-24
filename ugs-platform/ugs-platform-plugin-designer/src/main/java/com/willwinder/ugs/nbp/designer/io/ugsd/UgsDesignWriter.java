@@ -94,6 +94,9 @@ public class UgsDesignWriter implements DesignWriter {
             cuttableEntity.setCutDepth(cuttable.getTargetDepth());
             cuttableEntity.setCutType(CutTypeV1.fromCutType(cuttable.getCutType()));
             cuttableEntity.setHidden(cuttable.isHidden());
+            cuttableEntity.setSpindleSpeed(cuttable.getSpindleSpeed());
+            cuttableEntity.setPasses(cuttable.getPasses());
+            cuttableEntity.setFeedRate(cuttable.getFeedRate());
         }
         return result;
     }
@@ -166,6 +169,7 @@ public class UgsDesignWriter implements DesignWriter {
         settings.setToolDiameter(controller.getSettings().getToolDiameter());
         settings.setToolStepOver(controller.getSettings().getToolStepOver());
         settings.setSpindleSpeed(controller.getSettings().getSpindleSpeed());
+        settings.setLaserDiameter(controller.getSettings().getLaserDiameter());
         return settings;
     }
 

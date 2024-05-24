@@ -33,9 +33,12 @@ import java.util.stream.Stream;
  * @author Joacim Breiler
  */
 public class Group extends EntityGroup implements Cuttable {
+    private final CuttableEntitySettings entitySettings;
+
 
     public Group() {
         setName("Group");
+        entitySettings = new CuttableEntitySettings(this);
     }
 
     @Override
@@ -97,6 +100,57 @@ public class Group extends EntityGroup implements Cuttable {
     }
 
     @Override
+    public int getSpindleSpeed() {
+        return getCuttableStream()
+                .mapToInt(Cuttable::getSpindleSpeed)
+                .max()
+                .orElse(0);
+    }
+
+    @Override
+    public void setSpindleSpeed(int spindleSpeed) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setSpindleSpeed(spindleSpeed);
+            }
+        });
+    }
+
+    @Override
+    public int getFeedRate() {
+        return getCuttableStream()
+                .mapToInt(Cuttable::getFeedRate)
+                .max()
+                .orElse(0);
+    }
+
+    @Override
+    public void setFeedRate(int feedRate) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setFeedRate(feedRate);
+            }
+        });
+    }
+
+    @Override
+    public int getPasses() {
+        return getCuttableStream()
+                .mapToInt(Cuttable::getPasses)
+                .max()
+                .orElse(0);
+    }
+
+    @Override
+    public void setPasses(int passes) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setPasses(passes);
+            }
+        });
+    }
+
+    @Override
     public boolean isHidden() {
         return getCuttableStream()
                 .findFirst()
@@ -111,6 +165,16 @@ public class Group extends EntityGroup implements Cuttable {
                 cuttable.setHidden(hidden);
             }
         });
+    }
+
+    @Override
+    public Optional<Object> getEntitySetting(EntitySetting entitySetting) {
+        return entitySettings.getEntitySetting(entitySetting);
+    }
+
+    @Override
+    public void setEntitySetting(EntitySetting entitySetting, Object value) {
+        entitySettings.setEntitySetting(entitySetting, value);
     }
 
     private Stream<Cuttable> getCuttableStream() {
@@ -146,7 +210,10 @@ public class Group extends EntityGroup implements Cuttable {
                 EntitySetting.HEIGHT,
                 EntitySetting.CUT_TYPE,
                 EntitySetting.START_DEPTH,
-                EntitySetting.TARGET_DEPTH
+                EntitySetting.TARGET_DEPTH,
+                EntitySetting.SPINDLE_SPEED,
+                EntitySetting.PASSES,
+                EntitySetting.FEED_RATE
         );
     }
 }

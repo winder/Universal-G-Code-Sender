@@ -29,7 +29,9 @@ public enum CutTypeV1 {
     ON_PATH,
     INSIDE_PATH,
     OUTSIDE_PATH,
-    CENTER_DRILL;
+    CENTER_DRILL,
+    LASER_ON_PATH,
+    LASER_FILL;
 
     public static CutTypeV1 fromCutType(CutType cutType) {
         if (cutType == CutType.POCKET) {
@@ -42,7 +44,11 @@ public enum CutTypeV1 {
             return OUTSIDE_PATH;
         } else if (cutType == CutType.CENTER_DRILL) {
             return CENTER_DRILL;
-        }else {
+        } else if (cutType == CutType.LASER_ON_PATH) {
+            return LASER_ON_PATH;
+        } else if (cutType == CutType.LASER_FILL) {
+            return LASER_FILL;
+        } else {
             return NONE;
         }
     }
@@ -58,6 +64,10 @@ public enum CutTypeV1 {
             return CutType.OUTSIDE_PATH;
         } else if (cutType == CENTER_DRILL) {
             return CutType.CENTER_DRILL;
+        } else if (cutType == LASER_ON_PATH) {
+            return CutType.LASER_ON_PATH;
+        } else if (cutType == LASER_FILL) {
+            return CutType.LASER_FILL;
         } else {
             return CutType.NONE;
         }

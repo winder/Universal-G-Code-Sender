@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -40,6 +41,7 @@ import java.util.EnumMap;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -50,8 +52,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class FieldEventDispatcher {
     private final Set<FieldEventListener> listeners = ConcurrentHashMap.newKeySet();
-
     private final EnumMap<EntitySetting, JComponent> componentsMap = new EnumMap<>(EntitySetting.class);
+    private AtomicBoolean enabled = new AtomicBoolean(false);
 
     /**
      * Installs a listener to receive notification when the text of any
@@ -150,10 +152,21 @@ public class FieldEventDispatcher {
 
 
     public void updateValue(EntitySetting entitySetting, Object object) {
-        listeners.forEach(l -> l.onFieldUpdate(entitySetting, object));
+        if (this.enabled.get()) {
+            listeners.forEach(l -> l.onFieldUpdate(entitySetting, object));
+        }
     }
 
     public void addListener(FieldEventListener listener) {
         listeners.add(listener);
+    }
+
+    public void registerListener(EntitySetting entitySetting, JSlider slider) {
+        componentsMap.put(entitySetting, slider);
+        slider.addChangeListener(l -> updateValue(entitySetting, slider.getValue()));
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled.set(enabled);
     }
 }

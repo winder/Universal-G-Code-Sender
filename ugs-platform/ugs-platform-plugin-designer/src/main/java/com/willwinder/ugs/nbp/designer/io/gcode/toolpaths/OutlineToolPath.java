@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
+import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import org.locationtech.jts.geom.Geometry;
 
@@ -35,12 +36,23 @@ public class OutlineToolPath extends AbstractToolPath {
 
     private double offset;
 
-    public OutlineToolPath(Cuttable source) {
+    public OutlineToolPath(Settings settings, Cuttable source) {
+        super(settings);
         this.source = source;
     }
 
+    private static void addGeometriesToCoordinateList(ArrayList<List<PartialPosition>> coordinateList, List<PartialPosition> geometryCoordinates, double depth) {
+        coordinateList.add(geometryCoordinates.stream()
+                .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).setZ(-depth).build())
+                .toList());
+    }
+
+    public void setOffset(double offset) {
+        this.offset = offset;
+    }
+
     @Override
-    public GcodePath toGcodePath() {
+    public void appendGcodePath(GcodePath gcodePath, Settings settings) {
         List<Geometry> geometries;
         if (ToolPathUtils.isClosedGeometry(source.getShape())) {
             Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
@@ -59,7 +71,7 @@ public class OutlineToolPath extends AbstractToolPath {
 
             double currentDepth = getStartDepth();
             while (currentDepth < getTargetDepth()) {
-                currentDepth += getDepthPerPass();
+                currentDepth += settings.getDepthPerPass();
                 if (currentDepth > getTargetDepth()) {
                     currentDepth = getTargetDepth();
                 }
@@ -68,16 +80,6 @@ public class OutlineToolPath extends AbstractToolPath {
             }
         });
 
-        return toGcodePath(coordinateList);
-    }
-
-    private static void addGeometriesToCoordinateList(ArrayList<List<PartialPosition>> coordinateList, List<PartialPosition> geometryCoordinates, double depth) {
-        coordinateList.add(geometryCoordinates.stream()
-                .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).setZ(-depth).build())
-                .toList());
-    }
-
-    public void setOffset(double offset) {
-        this.offset = offset;
+        gcodePath.appendGcodePath(toGcodePath(coordinateList));
     }
 }

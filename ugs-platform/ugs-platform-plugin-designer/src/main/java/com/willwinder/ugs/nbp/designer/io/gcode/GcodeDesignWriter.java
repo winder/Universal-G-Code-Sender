@@ -52,16 +52,7 @@ public class GcodeDesignWriter implements DesignWriter {
     @Override
     public void write(OutputStream outputStream, Controller controller) {
         try {
-            SimpleGcodeRouter gcodeRouter = new SimpleGcodeRouter();
-            gcodeRouter.setSafeHeight(controller.getSettings().getSafeHeight());
-            gcodeRouter.setDepthPerPass(controller.getSettings().getDepthPerPass());
-            gcodeRouter.setToolDiameter(controller.getSettings().getToolDiameter());
-            gcodeRouter.setToolStepOver(controller.getSettings().getToolStepOver());
-            gcodeRouter.setPlungeSpeed(controller.getSettings().getPlungeSpeed());
-            gcodeRouter.setSafeHeight(controller.getSettings().getSafeHeight());
-            gcodeRouter.setFeedSpeed(controller.getSettings().getFeedSpeed());
-            gcodeRouter.setSpindleSpeed(controller.getSettings().getSpindleSpeed());
-
+            SimpleGcodeRouter gcodeRouter = new SimpleGcodeRouter(controller.getSettings());
             List<Cuttable> cuttables = controller.getDrawing().getEntities().stream()
                     .filter(Cuttable.class::isInstance)
                     .map(Cuttable.class::cast)
@@ -69,7 +60,7 @@ public class GcodeDesignWriter implements DesignWriter {
                     .filter(cuttable -> cuttable.getCutType() != CutType.NONE)
                     .collect(Collectors.toList());
 
-            String gcode = gcodeRouter.toGcode(cuttables);
+            String gcode = gcodeRouter.toGcode( cuttables);
             IOUtils.write(gcode, outputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new DesignWriterException("Could not write gcode to stream", e);

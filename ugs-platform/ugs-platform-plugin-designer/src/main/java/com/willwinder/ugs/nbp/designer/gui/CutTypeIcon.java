@@ -30,28 +30,36 @@ public class CutTypeIcon extends ImageIcon {
         switch (cutType) {
             case NONE:
                 icon = ImageUtilities.loadImageIcon("img/cutnone" + size.value + ".svg", false);
-                setDescription("No cut");
+                setDescription(cutType.getName());
                 break;
             case POCKET:
                 icon = ImageUtilities.loadImageIcon("img/cutpocket" + size.value + ".svg", false);
-                setDescription("Pocket");
+                setDescription(cutType.getName());
                 break;
             case OUTSIDE_PATH:
                 icon = ImageUtilities.loadImageIcon("img/cutoutside" + size.value + ".svg", false);
-                setDescription("Outside");
+                setDescription(cutType.getName());
                 break;
             case INSIDE_PATH:
                 icon = ImageUtilities.loadImageIcon("img/cutinside" + size.value + ".svg", false);
-                setDescription("Inside");
+                setDescription(cutType.getName());
                 break;
             case ON_PATH:
+            case LASER_ON_PATH:
                 icon = ImageUtilities.loadImageIcon("img/cutonpath" + size.value + ".svg", false);
-                setDescription("On path");
+                setDescription(cutType.getName());
                 break;
             case CENTER_DRILL:
                 icon = ImageUtilities.loadImageIcon("img/centerdrill" + size.value + ".svg", false);
-                setDescription("Center drill");
+                setDescription(cutType.getName());
                 break;
+            case LASER_FILL:
+                icon = ImageUtilities.loadImageIcon("img/cutfill" + size.value + ".svg", false);
+                setDescription(cutType.getName());
+                break;
+            default:
+                icon = ImageUtilities.loadImageIcon("img/cutnone" + size.value + ".svg", false);
+                setDescription(cutType.getName());
         }
     }
 

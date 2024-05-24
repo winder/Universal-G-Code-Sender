@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
+import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -34,11 +35,12 @@ public class OutlineToolPathTest {
     public void toGcodePathShouldGenerateGcodeFromStartDepth() {
         Rectangle rectangle = new Rectangle(0,0);
         rectangle.setSize(new Size(10, 10));
+        Settings settings = new Settings();
+        settings.setSafeHeight(10);
 
-        OutlineToolPath toolPath = new OutlineToolPath(rectangle);
+        OutlineToolPath toolPath = new OutlineToolPath(settings, rectangle);
         toolPath.setStartDepth(-1);
         toolPath.setTargetDepth(-1);
-        toolPath.setSafeHeight(10);
         GcodePath gcodePath = toolPath.toGcodePath();
 
         List<Segment> segments = gcodePath.getSegments();

@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.model.PartialPosition;
  * Path segment
  *
  * @author Calle Laakkonen
+ * @author Joacim Breiler
  */
 public final class Segment {
     /**
@@ -39,6 +40,18 @@ public final class Segment {
      */
     public final String label;
 
+    /**
+     * The current spindle speed
+     */
+    public final Integer spindleSpeed;
+
+    public Segment(SegmentType type, PartialPosition point, String label, Integer spindleSpeed) {
+        this.type = type;
+        this.point = point;
+        this.label = label;
+        this.spindleSpeed = spindleSpeed;
+    }
+
     public Segment(SegmentType type, PartialPosition point) {
         this(type, point, null);
     }
@@ -46,19 +59,8 @@ public final class Segment {
     public Segment(String label) {
         this(SegmentType.SEAM, null, label);
     }
-
     public Segment(SegmentType type, PartialPosition point, String label) {
-        this.type = type;
-        this.point = point;
-        this.label = label;
-    }
-
-    @Override
-    public String toString() {
-        if (label == null)
-            return type.name() + " " + point;
-        else
-            return type.name() + " " + point + '(' + label + ')';
+        this(type, point, label, null);
     }
 
     /**
