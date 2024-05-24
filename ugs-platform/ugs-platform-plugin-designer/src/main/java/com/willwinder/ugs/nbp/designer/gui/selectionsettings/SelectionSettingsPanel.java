@@ -241,7 +241,10 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
+        // Temporarily disable the field event dispatcher so that it won't triggers updates on select
+        fieldEventDispatcher.setEnabled(false);
         onEvent(new EntityEvent(controller.getSelectionManager(), EventType.SELECTED));
+        fieldEventDispatcher.setEnabled(true);
     }
 
     @Override
