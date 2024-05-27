@@ -19,24 +19,7 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.core.ui.ToolBar;
-import com.willwinder.ugs.nbp.designer.actions.BreakApartAction;
-import com.willwinder.ugs.nbp.designer.actions.FlipHorizontallyAction;
-import com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction;
-import com.willwinder.ugs.nbp.designer.actions.IntersectionAction;
-import com.willwinder.ugs.nbp.designer.actions.JogMachineToCenterAction;
-import com.willwinder.ugs.nbp.designer.actions.MultiplyAction;
-import com.willwinder.ugs.nbp.designer.actions.SubtractAction;
-import com.willwinder.ugs.nbp.designer.actions.ToggleHidden;
-import com.willwinder.ugs.nbp.designer.actions.ToolClipartAction;
-import com.willwinder.ugs.nbp.designer.actions.ToolDrawCircleAction;
-import com.willwinder.ugs.nbp.designer.actions.ToolDrawPointAction;
-import com.willwinder.ugs.nbp.designer.actions.ToolDrawRectangleAction;
-import com.willwinder.ugs.nbp.designer.actions.ToolDrawTextAction;
-import com.willwinder.ugs.nbp.designer.actions.ToolImportAction;
-import com.willwinder.ugs.nbp.designer.actions.ToolSelectAction;
-import com.willwinder.ugs.nbp.designer.actions.ToolZoomAction;
-import com.willwinder.ugs.nbp.designer.actions.TraceImageAction;
-import com.willwinder.ugs.nbp.designer.actions.UnionAction;
+import com.willwinder.ugs.nbp.designer.actions.*;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import org.openide.awt.DropDownButtonFactory;
@@ -123,12 +106,7 @@ public class ToolBox extends ToolBar {
         multiply.setBorderPainted(false);
         add(multiply);
 
-        JButton jogTo = new JButton(new JogMachineToCenterAction());
-        jogTo.setText("");
-        jogTo.setToolTipText("Jog machine to center");
-        jogTo.setBorderPainted(false);
-        add(jogTo);
-
+        add(createJogDropDownButton());
         addSeparator();
 
         JToggleButton zoom = new JToggleButton(new ToolZoomAction());
@@ -165,6 +143,30 @@ public class ToolBox extends ToolBar {
                 repaint();
             }
         });
+    }
+
+    private JToggleButton createJogDropDownButton() {
+        ActionListener toolMenuListener = e -> {
+            if (toolDropDownButton == null) {
+                return;
+            }
+
+            JMenuItem source = (JMenuItem) e.getSource();
+            toolDropDownButton.setIcon((Icon) source.getAction().getValue(Action.LARGE_ICON_KEY));
+            toolDropDownButton.setSelected(true);
+            toolDropDownButton.setAction(source.getAction());
+        };
+
+        JogMachineToCenterAction toolDrawRectangleAction = new JogMachineToCenterAction();
+        JPopupMenu popupMenu = new JPopupMenu();
+        addDropDownAction(popupMenu, toolDrawRectangleAction, toolMenuListener);
+        addDropDownAction(popupMenu, new JogMachineToTopLeftCornerAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new JogMachineToTopRightCornerAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new JogMachineToLowerLeftCornerAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new JogMachineToLowerRightCornerAction(), toolMenuListener);
+        toolDropDownButton = DropDownButtonFactory.createDropDownToggleButton(ImageUtilities.loadImageIcon(JogMachineToCenterAction.LARGE_ICON_PATH, false), popupMenu);
+        toolDropDownButton.setAction(toolDrawRectangleAction);
+        return toolDropDownButton;
     }
 
     private JToggleButton createToolDropDownButton() {

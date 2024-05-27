@@ -21,12 +21,16 @@ package com.willwinder.ugs.nbp.designer.gui;
 import com.willwinder.ugs.nbp.designer.actions.BreakApartAction;
 import com.willwinder.ugs.nbp.designer.actions.ClearSelectionAction;
 import com.willwinder.ugs.nbp.designer.actions.CopyAction;
-import com.willwinder.ugs.nbp.designer.actions.GroupAction;
 import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
 import com.willwinder.ugs.nbp.designer.actions.FlipHorizontallyAction;
 import com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction;
+import com.willwinder.ugs.nbp.designer.actions.GroupAction;
 import com.willwinder.ugs.nbp.designer.actions.IntersectionAction;
 import com.willwinder.ugs.nbp.designer.actions.JogMachineToCenterAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToLowerLeftCornerAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToLowerRightCornerAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToTopLeftCornerAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToTopRightCornerAction;
 import com.willwinder.ugs.nbp.designer.actions.PasteAction;
 import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
 import com.willwinder.ugs.nbp.designer.actions.SubtractAction;
@@ -71,6 +75,10 @@ public class PopupMenuFactory {
         popupMenu.add(new ToggleHidden());
         popupMenu.addSeparator();
         popupMenu.add(new JogMachineToCenterAction());
+        popupMenu.add(new JogMachineToLowerLeftCornerAction());
+        popupMenu.add(new JogMachineToLowerRightCornerAction());
+        popupMenu.add(new JogMachineToTopLeftCornerAction());
+        popupMenu.add(new JogMachineToTopRightCornerAction());
         return popupMenu;
     }
 }
