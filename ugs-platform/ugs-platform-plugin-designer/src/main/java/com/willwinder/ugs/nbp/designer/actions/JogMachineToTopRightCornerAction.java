@@ -1,5 +1,5 @@
 /*
-    Copyright 2023-2024 Will Winder
+    Copyright 2023 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -30,28 +30,26 @@ import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
-import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 /**
- * An action that will jog the machine to the center of the selected objects
- *
  * @author Joacim Breiler
  */
 @ActionID(
         category = LocalizingService.CATEGORY_DESIGNER,
-        id = "JogMachineToCenterAction")
+        id = "JogMachineToTopRightCornerAction")
 @ActionRegistration(
-        iconBase = JogMachineToCenterAction.SMALL_ICON_PATH,
-        displayName = "Jog to center",
+        iconBase = JogMachineToTopRightCornerAction.SMALL_ICON_PATH,
+        displayName = "Jog machine to top right",
         lazy = false)
-public class JogMachineToCenterAction extends JogMachineAbstractAction {
-    public static final String SMALL_ICON_PATH = "img/jog-to.svg";
-    public static final String LARGE_ICON_PATH = "img/jog-to24.svg";
+public class JogMachineToTopRightCornerAction extends JogMachineAbstractAction {
+    public static final String SMALL_ICON_PATH = "img/jog-to-top-right.svg";
+    public static final String LARGE_ICON_PATH = "img/jog-to-top-right24.svg";
 
-    public JogMachineToCenterAction() {
+    public JogMachineToTopRightCornerAction() {
         super();
-        putValue("menuText", "Jog machine to center");
-        putValue(NAME, "Jog machine to center");
+        putValue("menuText", "Jog to top right corner");
+        putValue(NAME, "Jog to top right corner");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
@@ -60,8 +58,8 @@ public class JogMachineToCenterAction extends JogMachineAbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         ThreadHelper.invokeLater(() -> {
-            Point2D center = ControllerFactory.getController().getSelectionManager().getCenter();
-            PartialPosition centerPosition = new PartialPosition(center.getX(), center.getY(), MM);
+            Rectangle2D bounds = ControllerFactory.getController().getSelectionManager().getBounds();
+            PartialPosition centerPosition = new PartialPosition(bounds.getMaxX(), bounds.getMaxY(), MM);
 
             JogService jogService = CentralLookup.getDefault().lookup(JogService.class);
             jogService.jogTo(centerPosition);
