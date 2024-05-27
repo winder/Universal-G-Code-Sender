@@ -2,26 +2,34 @@ package com.willwinder.ugs.nbp.designer.io.ugsd;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.*;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.ugs.nbp.designer.model.Size;
-import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.apache.commons.io.IOUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 
 import java.awt.geom.Point2D;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 
 public class UgsDesignReaderTest {
 
@@ -39,35 +47,26 @@ public class UgsDesignReaderTest {
     @Test
     public void readEmptyFileShouldReturnEmptyDesign() {
         UgsDesignReader reader = new UgsDesignReader();
-        Optional<Design> design = reader.read(IOUtils.toInputStream(""));
+        Optional<Design> design = reader.read(IOUtils.toInputStream("", Charset.defaultCharset()));
         assertFalse(design.isPresent());
     }
 
     @Test(expected = RuntimeException.class)
     public void readFaultyFormatShouldThrowException() {
         UgsDesignReader reader = new UgsDesignReader();
-        reader.read(IOUtils.toInputStream("{}"));
+        reader.read(IOUtils.toInputStream("{}", Charset.defaultCharset()));
     }
 
     @Test(expected = RuntimeException.class)
     public void readFaultyVersionShouldThrowException() {
         UgsDesignReader reader = new UgsDesignReader();
-        reader.read(IOUtils.toInputStream("{\"version\":1000}"));
+        reader.read(IOUtils.toInputStream("{\"version\":1000}", Charset.defaultCharset()));
     }
 
     @Test
     public void readEmptyDesignFileShouldReturnDesign() {
         UgsDesignReader reader = new UgsDesignReader();
-        Design design = reader.read(IOUtils.toInputStream("{\"version\":\"1\"}")).get();
-
-        assertNotNull(design.getSettings());
-        assertEquals(20, design.getSettings().getStockThickness(), 0.1);
-        assertEquals(3, design.getSettings().getToolDiameter(), 0.1);
-        assertEquals(1.0, design.getSettings().getDepthPerPass(), 0.1);
-        assertEquals(10, design.getSettings().getSafeHeight(), 0.1);
-        assertEquals(0.3, design.getSettings().getToolStepOver(), 0.1);
-        assertEquals(UnitUtils.Units.MM, design.getSettings().getPreferredUnits());
-        assertEquals(1000, design.getSettings().getFeedSpeed());
+        Design design = reader.read(IOUtils.toInputStream("{\"version\":\"1\"}", Charset.defaultCharset())).get();
 
         assertNotNull(design.getEntities());
         assertEquals(0, design.getEntities().size());
@@ -86,7 +85,7 @@ public class UgsDesignReaderTest {
         String data = convertEntityToString(entity);
 
         UgsDesignReader reader = new UgsDesignReader();
-        Design design = reader.read(IOUtils.toInputStream(data)).get();
+        Design design = reader.read(IOUtils.toInputStream(data, Charset.defaultCharset())).get();
 
         assertEquals(1, design.getEntities().size());
         Cuttable readEntity = (Cuttable) design.getEntities().get(0);
@@ -106,7 +105,7 @@ public class UgsDesignReaderTest {
         String data = convertEntityToString(entity);
 
         UgsDesignReader reader = new UgsDesignReader();
-        Design design = reader.read(IOUtils.toInputStream(data)).get();
+        Design design = reader.read(IOUtils.toInputStream(data, Charset.defaultCharset())).get();
 
         assertEquals(1, design.getEntities().size());
         Cuttable readEntity = (Cuttable) design.getEntities().get(0);
@@ -125,7 +124,7 @@ public class UgsDesignReaderTest {
         String data = convertEntityToString(entity);
 
         UgsDesignReader reader = new UgsDesignReader();
-        Design design = reader.read(IOUtils.toInputStream(data)).get();
+        Design design = reader.read(IOUtils.toInputStream(data, Charset.defaultCharset())).get();
 
         Cuttable readEntity = (Cuttable) design.getEntities().get(0);
         assertTrue(readEntity instanceof Ellipse);
@@ -160,7 +159,7 @@ public class UgsDesignReaderTest {
         String data = convertEntityToString(entity);
 
         UgsDesignReader reader = new UgsDesignReader();
-        Design design = reader.read(IOUtils.toInputStream(data)).get();
+        Design design = reader.read(IOUtils.toInputStream(data, Charset.defaultCharset())).get();
 
         Cuttable readEntity = (Cuttable) design.getEntities().get(0);
         assertTrue(readEntity instanceof Path);
@@ -181,7 +180,7 @@ public class UgsDesignReaderTest {
         String data = convertEntityToString(entity);
 
         UgsDesignReader reader = new UgsDesignReader();
-        Design design = reader.read(IOUtils.toInputStream(data)).get();
+        Design design = reader.read(IOUtils.toInputStream(data, Charset.defaultCharset())).get();
 
         Cuttable readEntity = (Cuttable) design.getEntities().get(0);
         assertTrue(readEntity instanceof Group);

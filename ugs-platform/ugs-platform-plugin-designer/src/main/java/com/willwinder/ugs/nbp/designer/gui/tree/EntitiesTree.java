@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2023 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -31,6 +31,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -75,14 +76,20 @@ public class EntitiesTree extends JTree implements TreeSelectionListener, Select
 
     @Override
     public void valueChanged(TreeSelectionEvent e) {
+        List<Entity> nodesToAdd = new ArrayList<>();
+        List<Entity> nodesToRemove = new ArrayList<>();
+
         Arrays.asList(e.getPaths()).forEach(p -> {
             Entity entity = (Entity) p.getLastPathComponent();
             if (e.isAddedPath(p) && !controller.getSelectionManager().isSelected(entity)) {
-                controller.getSelectionManager().addSelection(entity);
+                nodesToAdd.add(entity);
             } else if (!e.isAddedPath(p) && controller.getSelectionManager().isSelected(entity)) {
-                controller.getSelectionManager().removeSelection(entity);
+                nodesToRemove.add(entity);
             }
         });
+
+        controller.getSelectionManager().removeSelection(nodesToRemove);
+        controller.getSelectionManager().addSelection(nodesToAdd);
     }
 
     @Override

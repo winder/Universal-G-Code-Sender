@@ -74,8 +74,7 @@ public class SelectionControl extends AbstractControl {
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
-        if (entityEvent instanceof MouseEntityEvent) {
-            MouseEntityEvent mouseEntityEvent = (MouseEntityEvent) entityEvent;
+        if (entityEvent instanceof MouseEntityEvent mouseEntityEvent) {
             Point2D mousePosition = mouseEntityEvent.getCurrentMousePosition();
 
             if (mouseEntityEvent.getType() == EventType.MOUSE_PRESSED) {
@@ -109,12 +108,11 @@ public class SelectionControl extends AbstractControl {
                 .filter(e -> e != this)
                 .filter(e -> !(e instanceof Control))
                 .filter(e -> !(e instanceof Cuttable && ((Cuttable) e).isHidden()))
+                .filter(e -> e != controller.getSelectionManager())
                 .collect(Collectors.toSet());
 
         if (selectMultiple) {
-            if (!entitiesIntersecting.isEmpty()) {
-                entitiesIntersecting.forEach(e -> controller.getSelectionManager().toggleSelection(e));
-            }
+            controller.getSelectionManager().toggleSelection(entitiesIntersecting);
         } else {
             controller.getSelectionManager().setSelection(new ArrayList<>(entitiesIntersecting));
         }
@@ -127,6 +125,7 @@ public class SelectionControl extends AbstractControl {
                 .filter(e -> e != this)
                 .filter(e -> !(e instanceof Control))
                 .filter(e -> !(e instanceof Cuttable && ((Cuttable) e).isHidden()))
+                .filter(e -> e != controller.getSelectionManager())
                 .collect(Collectors.toSet());
 
         if (selectMultiple) {
@@ -136,7 +135,7 @@ public class SelectionControl extends AbstractControl {
                     .sorted(Comparator.comparingDouble(e -> e.getBounds().getWidth() * e.getBounds().getHeight()))
                     .limit(1)
                     .filter(e -> !controller.getSelectionManager().isSelected(e))
-                    .collect(Collectors.toList());
+                    .toList();
             controller.getSelectionManager().setSelection(selection);
         }
     }

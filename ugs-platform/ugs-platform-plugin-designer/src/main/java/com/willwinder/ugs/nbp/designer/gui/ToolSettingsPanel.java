@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -37,6 +37,7 @@ import java.text.ParseException;
  * @author Joacim Breiler
  */
 public class ToolSettingsPanel extends JPanel {
+    public static final String TOOL_FIELD_CONSTRAINT = "grow, wrap";
     private final transient Controller controller;
     private JTextField toolDiameter;
     private JTextField feedSpeed;
@@ -60,44 +61,43 @@ public class ToolSettingsPanel extends JPanel {
 
         add(new JLabel("Tool diameter" ));
         toolDiameter = new TextFieldWithUnit(TextFieldUnit.MM, 3, controller.getSettings().getToolDiameter());
-        add(toolDiameter, "grow, wrap" );
+        add(toolDiameter, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Feed speed" ));
         feedSpeed = new TextFieldWithUnit(TextFieldUnit.MM_PER_MINUTE, 0, controller.getSettings().getFeedSpeed());
-        add(feedSpeed, "grow, wrap" );
+        add(feedSpeed, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Plunge speed" ));
         plungeSpeed = new TextFieldWithUnit(TextFieldUnit.MM_PER_MINUTE, 0, controller.getSettings().getPlungeSpeed());
-        add(plungeSpeed, "grow, wrap" );
+        add(plungeSpeed, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Depth per pass" ));
         depthPerPass = new TextFieldWithUnit(TextFieldUnit.MM, 2, controller.getSettings().getDepthPerPass());
-        add(depthPerPass, "grow, wrap" );
+        add(depthPerPass, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Step over" ));
         stepOver = new TextFieldWithUnit(TextFieldUnit.PERCENT, 2,
                 controller.getSettings().getToolStepOver());
-        add(stepOver, "grow, wrap" );
+        add(stepOver, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Safe height" ));
         safeHeight = new TextFieldWithUnit(TextFieldUnit.MM, 2, controller.getSettings().getSafeHeight());
-        add(safeHeight, "grow, wrap" );
+        add(safeHeight, TOOL_FIELD_CONSTRAINT);
 
-        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap" );
+        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2" );
         add(new JLabel("Spindle speed" ));
         spindleSpeed = new TextFieldWithUnit(TextFieldUnit.ROTATIONS_PER_MINUTE, 0, controller.getSettings().getSpindleSpeed());
-        add(spindleSpeed, "grow, wrap" );
+        add(spindleSpeed, TOOL_FIELD_CONSTRAINT);
 
-        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap" );
         add(new JLabel("Max spindle speed" ));
         maxSpindleSpeed = new TextFieldWithUnit(TextFieldUnit.ROTATIONS_PER_MINUTE, 0, controller.getSettings().getMaxSpindleSpeed());
-        add(maxSpindleSpeed, "grow, wrap" );
+        add(maxSpindleSpeed, TOOL_FIELD_CONSTRAINT);
 
-        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap" );
+        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2" );
 
         add(new JLabel("Laser diameter" ));
         laserDiameter = new TextFieldWithUnit(TextFieldUnit.MM, 3, controller.getSettings().getLaserDiameter());
-        add(laserDiameter, "grow, wrap" );
+        add(laserDiameter, TOOL_FIELD_CONSTRAINT);
     }
 
     public double getToolDiameter() {

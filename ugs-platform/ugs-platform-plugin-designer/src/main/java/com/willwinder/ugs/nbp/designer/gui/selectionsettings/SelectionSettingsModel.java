@@ -22,6 +22,8 @@ import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 
 import java.awt.Font;
 import java.io.Serializable;
@@ -267,5 +269,28 @@ public class SelectionSettingsModel implements Serializable {
             settings.put(EntitySetting.LOCK_RATIO, lockRatio);
             notifyListeners(EntitySetting.LOCK_RATIO);
         }
+    }
+
+    public void updateFromEntity(Group selectionGroup) {
+        if(selectionGroup.getChildren().size() > 1) {
+            return;
+        }
+        boolean isTextCuttable = selectionGroup.getChildren().get(0) instanceof Text;
+        if (isTextCuttable) {
+            Text textEntity = (Text) selectionGroup.getChildren().get(0);
+            setText(textEntity.getText());
+            setFontFamily(textEntity.getFontFamily());
+        }
+        setPositionX(selectionGroup.getPosition(getAnchor()).getX());
+        setPositionY(selectionGroup.getPosition(getAnchor()).getY());
+        setWidth(selectionGroup.getSize().getWidth());
+        setHeight(selectionGroup.getSize().getHeight());
+        setRotation(selectionGroup.getRotation());
+        setStartDepth(selectionGroup.getStartDepth());
+        setTargetDepth(selectionGroup.getTargetDepth());
+        setCutType(selectionGroup.getCutType());
+        setSpindleSpeed(selectionGroup.getSpindleSpeed());
+        setPasses(selectionGroup.getPasses());
+        setFeedRate(selectionGroup.getFeedRate());
     }
 }

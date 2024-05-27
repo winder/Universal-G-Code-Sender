@@ -22,7 +22,6 @@ import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -202,18 +201,9 @@ public class Group extends EntityGroup implements Cuttable {
 
     @Override
     public List<EntitySetting> getSettings() {
-        return Arrays.asList(
-                EntitySetting.ANCHOR,
-                EntitySetting.POSITION_X,
-                EntitySetting.POSITION_Y,
-                EntitySetting.WIDTH,
-                EntitySetting.HEIGHT,
-                EntitySetting.CUT_TYPE,
-                EntitySetting.START_DEPTH,
-                EntitySetting.TARGET_DEPTH,
-                EntitySetting.SPINDLE_SPEED,
-                EntitySetting.PASSES,
-                EntitySetting.FEED_RATE
-        );
+        return getCuttableStream()
+                .flatMap(cuttable -> cuttable.getSettings().stream())
+                .distinct()
+                .toList();
     }
 }

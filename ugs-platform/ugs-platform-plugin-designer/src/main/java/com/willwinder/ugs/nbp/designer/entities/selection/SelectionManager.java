@@ -120,6 +120,14 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
         fireSelectionEvent(new SelectionEvent());
     }
 
+    public void removeSelection(List<Entity> nodes) {
+        nodes.forEach(e -> {
+            entityGroup.removeChild(e);
+            e.removeListener(this);
+        });
+        fireSelectionEvent(new SelectionEvent());
+    }
+
     public void addSelectionListener(SelectionListener selectionListener) {
         this.listeners.add(selectionListener);
     }
@@ -223,6 +231,15 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
         } else {
             addSelection(entity);
         }
+    }
+
+    public void toggleSelection(Set<Entity> entitiesIntersecting) {
+        entitiesIntersecting.stream().filter(c -> entityGroup.getChildren().contains(c)).forEach(e -> {
+            entityGroup.removeChild(e);
+            e.removeListener(this);
+        });
+        entitiesIntersecting.stream().filter(c -> !entityGroup.getChildren().contains(c)).forEach(entityGroup::addChild);
+        fireSelectionEvent(new SelectionEvent());
     }
 
     @Override
