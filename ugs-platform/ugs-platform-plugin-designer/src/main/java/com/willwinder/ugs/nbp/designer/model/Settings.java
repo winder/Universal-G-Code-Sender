@@ -154,11 +154,6 @@ public class Settings {
         return Utils.formatter.format(getStockThickness() * scale) + " " + getPreferredUnits().abbreviation;
     }
 
-    public String getToolDescription() {
-        double scale = UnitUtils.scaleUnits(UnitUtils.Units.MM, getPreferredUnits());
-        return Utils.formatter.format(getToolDiameter() * scale) + " " + getPreferredUnits().abbreviation;
-    }
-
     public double getDepthPerPass() {
         return depthPerPass;
     }

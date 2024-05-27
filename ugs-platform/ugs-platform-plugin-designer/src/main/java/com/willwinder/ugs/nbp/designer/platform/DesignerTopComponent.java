@@ -65,6 +65,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         this.dataObject = dataObject;
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         controller = ControllerFactory.getController();
+        initSettingsAdapter();
 
         // We need to reuse the drawing container for each loaded file
         if (drawingContainer == null) {
@@ -79,6 +80,14 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         loadDesign(dataObject);
         updateFilename();
         PlatformUtils.registerActions(getActionMap(), this);
+    }
+
+    private void initSettingsAdapter() {
+        // Load settings from the platform configuration
+        controller.getSettings().applySettings(SettingsAdapter.loadSettings());
+
+        // Add a settings listener to sync settings to the platform configuration
+        controller.getSettings().addListener(() -> SettingsAdapter.saveSettings(controller.getSettings()));
     }
 
     private void loadDesign(UgsDataObject dataObject) {
@@ -160,7 +169,6 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     @Override
     public void onChanged() {
         dataObject.setModified(true);
-
     }
 
     @Override

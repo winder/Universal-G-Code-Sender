@@ -113,7 +113,6 @@ public class Controller {
     public void setDesign(Design design) {
         newDrawing();
         getDrawing().insertEntities(design.getEntities());
-        settings.applySettings(design.getSettings());
         getDrawing().repaint();
         setTool(Tool.SELECT);
     }

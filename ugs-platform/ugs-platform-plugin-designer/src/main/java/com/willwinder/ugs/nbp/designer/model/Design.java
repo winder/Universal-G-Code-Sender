@@ -29,21 +29,11 @@ import java.util.List;
 public class Design {
     private List<Entity> entities = Collections.emptyList();
 
-    private Settings settings = new Settings();
-
     public List<Entity> getEntities() {
         return entities;
     }
 
     public void setEntities(List<Entity> entities) {
         this.entities = entities;
-    }
-
-    public Settings getSettings() {
-        return settings;
-    }
-
-    public void setSettings(Settings settings) {
-        this.settings = settings;
     }
 }

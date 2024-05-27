@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -33,10 +33,10 @@ import java.awt.event.*;
  * centered.
  *
  * @author Alex Lagerstedt
+ * @author Joacim Breiler
  */
 public class DrawingContainer extends JPanel implements ComponentListener, MouseWheelListener {
 
-    private static final long serialVersionUID = 0;
     private final transient Controller controller;
     private JScrollPane scrollPane;
     private JPanel buttonPanel;
@@ -86,10 +86,9 @@ public class DrawingContainer extends JPanel implements ComponentListener, Mouse
         buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.setOpaque(false);
 
-        PanelButton toolButton = new PanelButton("Tool", controller.getSettings().getToolDescription());
+        ToolButton toolButton = new ToolButton(controller);
         toolButton.setMinimumSize(new Dimension(60, 40));
         toolButton.setMaximumSize(new Dimension(100, 40));
-        controller.getSettings().addListener(() -> toolButton.setText(controller.getSettings().getToolDescription()));
         toolButton.addActionListener(new OpenToolSettingsAction(controller));
         buttonPanel.add(toolButton);
 
