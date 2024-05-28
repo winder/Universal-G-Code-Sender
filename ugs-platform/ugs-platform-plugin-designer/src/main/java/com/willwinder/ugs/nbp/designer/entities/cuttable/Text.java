@@ -107,7 +107,7 @@ public class Text extends AbstractCuttable {
 
     @Override
     public List<EntitySetting> getSettings() {
-        ArrayList<EntitySetting> entitySettings = new ArrayList<>(super.getSettings());
+        List<EntitySetting> entitySettings = new ArrayList<>(super.getSettings());
         entitySettings.add(EntitySetting.TEXT);
         return entitySettings;
     }

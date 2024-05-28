@@ -54,7 +54,8 @@ public enum EntitySetting {
             EntitySetting.POSITION_Y,
             EntitySetting.ROTATION,
             EntitySetting.START_DEPTH,
-            EntitySetting.TARGET_DEPTH);
+            EntitySetting.TARGET_DEPTH,
+            EntitySetting.TEXT);
 
     public static final List<EntitySetting> DEFAULT_LASER_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
@@ -68,7 +69,8 @@ public enum EntitySetting {
             EntitySetting.ROTATION,
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.PASSES,
-            EntitySetting.FEED_RATE);
+            EntitySetting.FEED_RATE,
+            EntitySetting.TEXT);
 
     private final String label;
 

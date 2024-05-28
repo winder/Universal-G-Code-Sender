@@ -26,6 +26,10 @@ import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
 import com.willwinder.ugs.nbp.lib.Mode;
 import org.openide.windows.TopComponent;
 
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+import java.awt.BorderLayout;
+
 /**
  * @author Joacim Breiler
  */
@@ -42,7 +46,7 @@ public class SettingsTopComponent extends TopComponent implements ControllerList
     public SettingsTopComponent() {
         setMinimumSize(new java.awt.Dimension(50, 50));
         setPreferredSize(new java.awt.Dimension(200, 200));
-        setLayout(new java.awt.BorderLayout());
+        setLayout(new BorderLayout());
         setDisplayName("Cut settings");
     }
 
@@ -62,7 +66,10 @@ public class SettingsTopComponent extends TopComponent implements ControllerList
         removeAll();
         Controller controller = ControllerFactory.getController();
         selectionSettingsPanel = new SelectionSettingsPanel(controller);
-        add(selectionSettingsPanel);
+        JScrollPane scrollPane = new JScrollPane(selectionSettingsPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(10);
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(10);
+        add(scrollPane);
         controller.addListener(this);
     }
 
