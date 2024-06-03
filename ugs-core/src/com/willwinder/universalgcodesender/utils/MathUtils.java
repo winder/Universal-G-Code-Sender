@@ -116,7 +116,7 @@ public class MathUtils {
     private static int findLeftMostPointIndex(List<PartialPosition> points) {
         int leftMostPoint = 0;
         for (int i = 1; i < points.size(); i++) {
-            if (points.get(i).getX() < points.get(leftMostPoint).getX()) {
+            if (points.get(leftMostPoint).getX().isNaN() || points.get(i).getX() < points.get(leftMostPoint).getX()) {
                 leftMostPoint = i;
             }
         }
