@@ -175,7 +175,7 @@ public class GcodeViewParse {
         lines.clear();
 
         // Save the state
-        Position start = new Position(gp.getCurrentState().getUnits());
+        Position start = new Position(Double.NaN, Double.NaN, Double.NaN, gp.getCurrentState().getUnits());
         double spindleSpeed = 0;
 
         for (String s : gcode) {

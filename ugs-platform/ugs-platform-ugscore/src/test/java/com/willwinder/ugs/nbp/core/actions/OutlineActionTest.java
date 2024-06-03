@@ -89,4 +89,19 @@ public class OutlineActionTest {
         assertEquals("G21G90G1X25.4Y25.4F25.4", gcodeCommands.get(2).getCommandString());
         assertEquals("G21G90G1X0Y25.4F25.4", gcodeCommands.get(3).getCommandString());
     }
+
+    @Test
+    public void generatingOutlineWithUnknownStartPoint() throws IOException, GcodeParserException {
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend.getSettings().setPreferredUnits(UnitUtils.Units.MM);
+        backend.getSettings().setJogFeedRate(1);
+
+        URL resource = OutlineActionTest.class.getResource("/window.nc");
+        List<GcodeCommand> gcodeCommands = outlineAction.generateOutlineCommands(new File(resource.getPath()));
+        assertEquals(gcodeCommands.size(), 4);
+        assertEquals("G21G90G1X18.175Y39.825F1", gcodeCommands.get(0).getCommandString());
+        assertEquals("G21G90G1X18.175Y18.175F1", gcodeCommands.get(1).getCommandString());
+        assertEquals("G21G90G1X31.825Y18.175F1", gcodeCommands.get(2).getCommandString());
+        assertEquals("G21G90G1X31.825Y39.825F1", gcodeCommands.get(3).getCommandString());
+    }
 }
