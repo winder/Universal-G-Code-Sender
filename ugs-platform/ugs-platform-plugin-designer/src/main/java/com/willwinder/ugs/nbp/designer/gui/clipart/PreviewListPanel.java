@@ -124,7 +124,7 @@ public class PreviewListPanel extends JPanel {
                         selectedClipart = clipart;
                         selectAction.actionPerformed(new ActionEvent(roundedPanel, 0, "selected_clipart"));
                     });
-                    buttonsPanel.add(roundedPanel);
+                    buttonsPanel.add(roundedPanel, "grow, w 100:100:400");
                 });
         buttonsPanel.revalidate();
         buttonsPanel.repaint();

@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
  * @author Joacim Breiler
  */
 public enum Category {
+    ALL("platform.plugin.designer.clipart.all"),
     ANIMALS("platform.plugin.designer.clipart.animals"),
     BUILDINGS("platform.plugin.designer.clipart.buildings"),
     DECORATIONS("platform.plugin.designer.clipart.decorations"),

@@ -20,20 +20,19 @@ package com.willwinder.ugs.nbp.designer.gui.clipart.sources;
 
 import com.willwinder.ugs.nbp.designer.gui.clipart.Category;
 import com.willwinder.ugs.nbp.designer.gui.clipart.Clipart;
-import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSource;
 import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSourceException;
 import com.willwinder.ugs.nbp.designer.gui.clipart.FontClipart;
 
-import java.awt.*;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Joacim Breiler
  */
-public class FredokaSource implements ClipartSource {
+public class FredokaSource extends AbstractClipartSource {
 
     private final List<FontClipart> cliparts = new ArrayList<>();
 
@@ -97,8 +96,8 @@ public class FredokaSource implements ClipartSource {
     }
 
     @Override
-    public List<Clipart> getCliparts(Category category) {
-        return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    public List<? extends Clipart> getCliparts() {
+        return cliparts;
     }
 
     @Override
