@@ -31,13 +31,14 @@ import java.awt.Dimension;
  * @author Joacim Breiler
  */
 public class ClipartButton extends RoundedPanel {
-    private final Clipart clipart;
+    private final transient Clipart clipart;
 
     public ClipartButton(Clipart clipart, ClipartTooltip tooltip) {
         super(12);
         this.clipart = clipart;
         setLayout(new MigLayout("fill, inset 0"));
         setMinimumSize(new Dimension(128, 128));
+        setMaximumSize(new Dimension(512, 512));
         setForeground(ThemeColors.LIGHT_GREY);
         setBackground(Color.WHITE);
         setHoverBackground(ThemeColors.LIGHT_GREY);
@@ -48,5 +49,12 @@ public class ClipartButton extends RoundedPanel {
 
     public Clipart getClipart() {
         return clipart;
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        Dimension d = super.getSize();
+        int width = (int) Math.round(d.getWidth());
+        return new Dimension(width, width); // Make the buttion square
     }
 }

@@ -34,7 +34,7 @@ public interface ClipartSource {
 
     String getUrl();
 
-    List<Clipart> getCliparts(Category category);
+    List<? extends Clipart> getCliparts(Category category);
 
     String getLicense();
 }

@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbp.designer.gui.clipart.sources;
 
 import com.willwinder.ugs.nbp.designer.gui.clipart.Category;
 import com.willwinder.ugs.nbp.designer.gui.clipart.Clipart;
-import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSource;
 import com.willwinder.ugs.nbp.designer.gui.clipart.ClipartSourceException;
 import com.willwinder.ugs.nbp.designer.gui.clipart.FontClipart;
 
@@ -29,12 +28,11 @@ import java.awt.FontFormatException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Joacim Breiler
  */
-public class Corners2Source implements ClipartSource {
+public class Corners2Source extends AbstractClipartSource {
 
     private final List<FontClipart> cliparts = new ArrayList<>();
 
@@ -55,7 +53,7 @@ public class Corners2Source implements ClipartSource {
         cliparts.add(new FontClipart("Corner with star and leaves", Category.DECORATIONS, font, "E", this));
         cliparts.add(new FontClipart("Corner with eagle", Category.DECORATIONS, font, "F", this));
         cliparts.add(new FontClipart("Corner with bells", Category.DECORATIONS, font, "G", this));
-        cliparts.add(new FontClipart("Banner with heart and petals", Category.DECORATIONS, font.deriveFont(font.getSize() * 0.8f), "H", this));
+        cliparts.add(new FontClipart("Banner with heart and petals", Category.DECORATIONS, font, "H", this));
         cliparts.add(new FontClipart("Banner", Category.DECORATIONS, font, "I", this));
         cliparts.add(new FontClipart("Corner with flowers 2", Category.DECORATIONS, font, "J", this));
         cliparts.add(new FontClipart("Corner with fairy", Category.DECORATIONS, font, "K", this));
@@ -78,8 +76,8 @@ public class Corners2Source implements ClipartSource {
     }
 
     @Override
-    public List<Clipart> getCliparts(Category category) {
-        return cliparts.stream().filter(clipart -> clipart.getCategory() == category).collect(Collectors.toList());
+    public List<? extends Clipart> getCliparts() {
+        return cliparts;
     }
 
     @Override

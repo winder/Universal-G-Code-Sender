@@ -22,8 +22,12 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -48,7 +52,7 @@ public class FontClipart implements Clipart {
         this.font = font;
         this.source = source;
 
-        label = new JLabel(text);
+        label = new ClipartLabel(text);
         label.setFont(font);
         label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setForeground(ThemeColors.VERY_DARK_GREY);
