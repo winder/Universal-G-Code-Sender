@@ -1,0 +1,184 @@
+{
+  "font": "/fonts/sugar-coma-font/SugarComa-nVV.ttf",
+  "name": "Sugar Coma",
+  "credits": "Blue Vinyl",
+  "url": "https://www.fontspace.com/sugar-coma-font-f980",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Soda",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Cookie",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Muffin",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Cookies",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Hot coco",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Ice cream 2",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Chocolate kiss",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Lollipop 2",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "M&M",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Pie",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Ice cream",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Milk shake",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Strawberry",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Food 12",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Chocolate bar",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "Cake",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Doughnut",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Candy 3",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "Soda 3",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Candy",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "Sugar",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "Lollipop",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Ice cream cone",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "Soda 2",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Cookie 2",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "Y"
+    }
+  ]
+}

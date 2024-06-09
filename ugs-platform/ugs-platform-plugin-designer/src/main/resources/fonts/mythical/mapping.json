@@ -1,0 +1,366 @@
+{
+  "font": "/fonts/mythical/MythicalAndHopliteNoodgies-gwOP.ttf",
+  "name": "Mythical & Hoplite Noodgies Font",
+  "credits": "Walter Velez",
+  "url": "https://www.fontspace.com/mythical-and-hoplite-noodgies-font-f3780",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Chariot",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Musician",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Feet",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Warrior 1",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Warrior 2",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Warrior 3",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Warrior 4",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Warrior 5",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Warrior 6",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "Warrior 7",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Warrior 8",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Warrior 9",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Warrior 10",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Warrior 11",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Warrior 12",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Warrior 13",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Snake",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Sphinx 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "Antelope",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Lion",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "Pegasus",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "Leopard",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Rooster",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "Octopus",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Face plate",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "Dolphin",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "Pegasus",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "?",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "Minotaur",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "Skull and helment",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "Centaur",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Cyclops",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Medusa",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "Mermaid",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "Winged man",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "Sphinx 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "Cherub",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "Ship ancient greece",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "l"
+    },
+    {
+      "name": "Runner",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "m"
+    },
+    {
+      "name": "mythical 41",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "n"
+    },
+    {
+      "name": "mythical 42",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "o"
+    },
+    {
+      "name": "mythical 43",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "p"
+    },
+    {
+      "name": "Worker",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "q"
+    },
+    {
+      "name": "Cherberus",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "r"
+    },
+    {
+      "name": "Harp",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "s"
+    },
+    {
+      "name": "mythical 47",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "mythical 48",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "u"
+    },
+    {
+      "name": "Zeus",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "v"
+    },
+    {
+      "name": "Trojan horse",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "w"
+    },
+    {
+      "name": "Griffin",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "x"
+    },
+    {
+      "name": "Harpies",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "y"
+    }
+  ]
+}

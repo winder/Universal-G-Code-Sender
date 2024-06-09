@@ -1,0 +1,233 @@
+{
+  "font": "/fonts/fredoka-one/Fredoka-dingbats.ttf",
+  "name": "Fredoka One",
+  "credits": "Milena Brandao",
+  "url": "https://www.1001fonts.com/fredoka-one-font.html",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Elephant",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\u0061"
+    },
+    {
+      "name": "Bird",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\u0062"
+    },
+    {
+      "name": "Fish",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\u0063"
+    },
+    {
+      "name": "Owl",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\u0064"
+    },
+    {
+      "name": "Cat",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\u0065"
+    },
+    {
+      "name": "Butterfly",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\u0066"
+    },
+    {
+      "name": "Rabbit",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\u0067"
+    },
+    {
+      "name": "Fishbowl",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\u0068"
+    },
+    {
+      "name": "Mouse",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\u0069"
+    },
+    {
+      "name": "Ornament-left",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\u0028"
+    },
+    {
+      "name": "Ornament-right",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\u0029"
+    },
+    {
+      "name": "Ornament-1",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\u0031"
+    },
+    {
+      "name": "Ornament-2",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\u0032"
+    },
+    {
+      "name": "Ornament-3",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\u0033"
+    },
+    {
+      "name": "Ornament-4",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\u0034"
+    },
+    {
+      "name": "Ornament-5",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\u0035"
+    },
+    {
+      "name": "Heart",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\u0036"
+    },
+    {
+      "name": "Ornament-7",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\u0038"
+    },
+    {
+      "name": "Ornament-8",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\u0039"
+    },
+    {
+      "name": "Ornament-9",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\u003C"
+    },
+    {
+      "name": "Flower-1",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "\u0041"
+    },
+    {
+      "name": "Flower-2",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "\u0042"
+    },
+    {
+      "name": "Flower-3",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "\u0043"
+    },
+    {
+      "name": "Leaf",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "\u0044"
+    },
+    {
+      "name": "Barley",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "\u0045"
+    },
+    {
+      "name": "Rye",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "\u0046"
+    },
+    {
+      "name": "Yin Yang",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "\u0048"
+    },
+    {
+      "name": "Knot",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\u004B"
+    },
+    {
+      "name": "Flower",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\u0054"
+    },
+    {
+      "name": "Old-phone",
+      "categories": [
+        "ELECTRONICS"
+      ],
+      "text": "\u004A"
+    },
+    {
+      "name": "Cellphone",
+      "categories": [
+        "ELECTRONICS"
+      ],
+      "text": "\u0051"
+    },
+    {
+      "name": "TV",
+      "categories": [
+        "ELECTRONICS"
+      ],
+      "text": "\u0052"
+    }
+  ]
+}

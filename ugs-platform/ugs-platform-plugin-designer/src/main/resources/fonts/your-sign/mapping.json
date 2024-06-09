@@ -1,0 +1,177 @@
+{
+  "font": "/fonts/your-sign/YourSign.ttf",
+  "name": "Your sign",
+  "credits": "Lime",
+  "url": "https://www.1001fonts.com/your-sign-font.html",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Astrology - Aquarius 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Astrology - Pisces 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Astrology - Aries 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Astrology - Taurus 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Astrology - Gemeni 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Astrology - Cancer 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Astrology - Leo 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Astrology - Virgo 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Astrology - Libra 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Astrology - Scorpio 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Astrology - Sagittarius 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Astrology - Capricorn 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Astrology - Aquarius 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "Astrology - Pisces 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "Astrology - Aries 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "Astrology - Taurus 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "Astrology - Gemeni 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Astrology - Cancer 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Astrology - Leo 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "Astrology - Virgo 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "Astrology - Libra 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "Astrology - Scorpio 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "Astrology - Sagittarius 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "Astrology - Capricorn 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "l"
+    }
+  ]
+}

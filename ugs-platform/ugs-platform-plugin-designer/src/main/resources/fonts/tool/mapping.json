@@ -1,0 +1,310 @@
+{
+  "font": "/fonts/tool/tool.ttf",
+  "name": "Tool",
+  "credits": "Daniel Zadorozny",
+  "url": "https://www.dafont.com/tool.font",
+  "license": "Free for non-commercial use",
+  "cliparts": [
+    {
+      "name": "Allen key",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Axe",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Crow bar",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Screw driver 1",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Calipers",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Hammer",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Clamp",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Saw 1",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": ",H"
+    },
+    {
+      "name": "Sledge",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Poly grip",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Pliers 1",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Ring spanner",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Hammer",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Pliers 2",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Spatula",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "Pipe wrench",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Fixed spanner",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Carpet knife",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "Saw 2",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Tape",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "Glue gun",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "Planer",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Fixed spanner 2",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "Screw driver 2",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Pliers 3",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "Scissor",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "Screw",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "0"
+    },
+    {
+      "name": "Pallet",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "2"
+    },
+    {
+      "name": "Multi tool",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "3"
+    },
+    {
+      "name": "Saw 3",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": ",\""
+    },
+    {
+      "name": "Screw driver 3",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "5"
+    },
+    {
+      "name": "Screw driver 4",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "6"
+    },
+    {
+      "name": "Wrench",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "7"
+    },
+    {
+      "name": "Tweezers",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "9"
+    },
+    {
+      "name": "Flashlight",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "?"
+    },
+    {
+      "name": "Nut",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "+"
+    },
+    {
+      "name": "Tape measure",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "<"
+    },
+    {
+      "name": "Angle hook",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "["
+    },
+    {
+      "name": "Ladder",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "."
+    },
+    {
+      "name": "Hook",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": ";"
+    },
+    {
+      "name": "Pliers",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "\\"
+    },
+    {
+      "name": "Nail",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "_"
+    },
+    {
+      "name": "Multi spanner",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "~"
+    }
+  ]
+}

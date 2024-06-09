@@ -1,0 +1,485 @@
+{
+  "font": "/fonts/transdings/Transdings-WaoO.ttf",
+  "name": "Transdings",
+  "credits": "Pixel Sagas",
+  "url": "https://www.fontspace.com/transdings-font-f18144",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Transformers Sector7",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": ","
+    },
+    {
+      "name": "Transformers 02",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "."
+    },
+    {
+      "name": "Transformers 03",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "0"
+    },
+    {
+      "name": "Transformers 04",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "1"
+    },
+    {
+      "name": "Transformers 05",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "2"
+    },
+    {
+      "name": "Transformers 06",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "3"
+    },
+    {
+      "name": "Transformers 07",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "4"
+    },
+    {
+      "name": "Transformers 09",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "5"
+    },
+    {
+      "name": "Transformers 10",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": ":"
+    },
+    {
+      "name": "Transformers 11",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": ";"
+    },
+    {
+      "name": "Transformers 12",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "@"
+    },
+    {
+      "name": "Transformers Autobot 1",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Transformers 14",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Transformers 15",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Transformers 16",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Transformers 17",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Transformers 18",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Transformers 19",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Transformers 20",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Transformers 21",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Transformers 22",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Transformers 23",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Transformers 24",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Transformers 25",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Transformers Autobot 2",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Transformers Autobot 3",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "Transformers Wreckers",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Transformers Autobot 5",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Transformers 30",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "Transformers 31",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Transformers Autobot 5",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "Transformers 33",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Transformers 34",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "Transformers 35",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Transformers 36",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "Transformers 37",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "Transformers 38",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "["
+    },
+    {
+      "name": "Transformers 39",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "\\"
+    },
+    {
+      "name": "Transformers Decepticons 4",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "]"
+    },
+    {
+      "name": "Transformers 41",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "`"
+    },
+    {
+      "name": "Transformers Decepticons 1",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "Transformers 43",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "Transformers 44",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "Transformers 45",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "Transformers 46",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Transformers 47",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Transformers 48",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "Transformers 49",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "Transformers 50",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "Transformers 51",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "Transformers 52",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "Transformers 53",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "l"
+    },
+    {
+      "name": "Transformers 54",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "m"
+    },
+    {
+      "name": "Transformers 55",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "n"
+    },
+    {
+      "name": "Transformers 56",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "o"
+    },
+    {
+      "name": "Transformers Decepticons 2",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "p"
+    },
+    {
+      "name": "Transformers 58",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "q"
+    },
+    {
+      "name": "Transformers 59",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "r"
+    },
+    {
+      "name": "Transformers 60",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "s"
+    },
+    {
+      "name": "Transformers Ultracon",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "Transformers 62",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "u"
+    },
+    {
+      "name": "Transformers 63",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "v"
+    },
+    {
+      "name": "Transformers 64",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "w"
+    },
+    {
+      "name": "Transformers Decepticons 3",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "x"
+    },
+    {
+      "name": "Transformers 66",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "y"
+    },
+    {
+      "name": "Transformers 67",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "z"
+    },
+    {
+      "name": "Transformers 69",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "~"
+    },
+    {
+      "name": "Transformers 70",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": ";"
+    }
+  ]
+}

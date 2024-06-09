@@ -1,0 +1,79 @@
+{
+  "font": "/fonts/destinys-borders/DestinysBorderDings.ttf",
+  "name": "Destinys Border",
+  "credits": "Destiny's Designs",
+  "url": "https://www.fontspace.com/destinys-border-dings-font-f12969",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "sign1",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "sign2",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "sign3",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "sign4",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "sign5",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "sign6",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "sign7",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "sign8",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "sign9",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "sign10",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "J"
+    }
+  ]
+}

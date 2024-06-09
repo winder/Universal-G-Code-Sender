@@ -1,0 +1,51 @@
+{
+  "font": "/fonts/vintage-decorative-corners-23-font/VintageDecorativeCorners23-5wXa.ttf",
+  "name": "Vintage Corners 23",
+  "credits": "Sughayer Foundry",
+  "url": "https://www.fontspace.com/wwfreebie-font-f3394",
+  "license": "Free for non-commercial use",
+  "cliparts": [
+    {
+      "name": "Corner 04",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "Corner 10",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "Corner 15",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "o"
+    },
+    {
+      "name": "Corner 17",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "q"
+    },
+    {
+      "name": "Corner 20",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "Corner 24",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "x"
+    }
+  ]
+}

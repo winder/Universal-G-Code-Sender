@@ -1,0 +1,93 @@
+{
+  "font": "/fonts/corners2/Corners2.ttf",
+  "name": "Corners2",
+  "credits": "Digital Magic",
+  "url": "https://www.fontspace.com/corners-2-font-f5917",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Corner",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Corner with flowers 1",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Corner with fireworks",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Corner with star and banner",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Corner with star and leaves",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Corner with eagle",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Corner with bells",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Banner with heart and petals",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Banner",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Corner with flowers 2",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Corner with fairy",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Corner with angel",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "L"
+    }
+  ]
+}

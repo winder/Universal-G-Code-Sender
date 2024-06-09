@@ -1,0 +1,415 @@
+{
+  "font": "/fonts/travelcons/travelcons.ttf",
+  "name": "Travelcons",
+  "credits": "Daniel Zadorozny",
+  "url": "https://www.dafont.com/travelcons.font",
+  "license": "Free for non-commercial use",
+  "cliparts": [
+    {
+      "name": "Ship",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Drink",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Camping",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Bus and Taxi",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Wheelchair",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Restaurant",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Gift shop",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Helicopter",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Passport control",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Accessories",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Closet",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Reading",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Hospital",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Fire extinguisher",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Emergency",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "Boat",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Question",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Car key",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "Electrical",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Passport control",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "Recycle",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "Exit",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Water",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "Restroom",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Hair salon",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "Baggage",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "Airplane",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "Bus",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "Coffey",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "Doctor",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "Escalator",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Fast food",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Shopping cart",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "Bed",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "Ice cream",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "Waiting hall",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "Blind man",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "Baggage storage",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "l"
+    },
+    {
+      "name": "Mail",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "m"
+    },
+    {
+      "name": "Meeting hall?",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "n"
+    },
+    {
+      "name": "Money exchange",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "o"
+    },
+    {
+      "name": "Telephone",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "p"
+    },
+    {
+      "name": "Restroom - men",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "q"
+    },
+    {
+      "name": "Train",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "r"
+    },
+    {
+      "name": "Stairs",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "s"
+    },
+    {
+      "name": "Garbage",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "Customs",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "u"
+    },
+    {
+      "name": "Elevator",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "v"
+    },
+    {
+      "name": "Restroom - woman",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "w"
+    },
+    {
+      "name": "Taxi",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "x"
+    },
+    {
+      "name": "Ticket",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "y"
+    },
+    {
+      "name": "Bicycle",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "z"
+    },
+    {
+      "name": "?",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "0"
+    },
+    {
+      "name": "Direction",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "1"
+    },
+    {
+      "name": "No phones",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "5"
+    },
+    {
+      "name": "No entry",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "6"
+    },
+    {
+      "name": "No smoking",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "7"
+    },
+    {
+      "name": "No parking",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "9"
+    }
+  ]
+}

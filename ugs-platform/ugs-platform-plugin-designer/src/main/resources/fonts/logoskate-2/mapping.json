@@ -1,0 +1,352 @@
+{
+  "font": "/fonts/logoskate-2/Logoskate20-KEgD.ttf",
+  "name": "Logoskate 2",
+  "credits": "RASDESIGN",
+  "url": "https://www.fontspace.com/logoskate-font-f13141",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "sign1",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Circa",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Blind",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Hawk",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "sign5",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Bones",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "DGK",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Popwar",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Organika",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Lost",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Roxy",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "sign12",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Adio",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "sign14",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "sign15",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "sign16",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Krooked",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "sign18",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "Fox",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Duffed",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "sign21",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "Matix",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Kana Beach",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "Atticus",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Creature",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "LRG",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "sign27",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "VC",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "Circa",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "sign30",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "Chimson",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Sk8mafia",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Hookups",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "sign34",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "GvR",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "Jart",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "Enjoi",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "Jart",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "l"
+    },
+    {
+      "name": "Mini LOGO",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "m"
+    },
+    {
+      "name": "Riviera",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "n"
+    },
+    {
+      "name": "Soeed Demon",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "o"
+    },
+    {
+      "name": "City Stars",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "p"
+    },
+    {
+      "name": "Dooks",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "q"
+    },
+    {
+      "name": "Inees",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "r"
+    },
+    {
+      "name": "Gravis",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "s"
+    },
+    {
+      "name": "sign46",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "Elwood",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "u"
+    },
+    {
+      "name": "Diamond",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "v"
+    },
+    {
+      "name": "Volcom",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "w"
+    }
+  ]
+}
