@@ -1,0 +1,310 @@
+{
+  "font": "/fonts/garden/garden.ttf",
+  "name": "Garden",
+  "credits": "Woodcutter",
+  "url": "https://www.dafont.com/garden-icons.font",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Plant",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Ladder trimming",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Mowing lawn",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Raking 1",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Garden tools",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Rake",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Raking 2",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "pruning shears",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Watering can",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Gloves",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Pitch fork",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Watering can 2",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Plant 1",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Spade",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "Hedge shears",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Plant",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Flower",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "Garden fork",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Garden hose",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "Wheel borrow",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "Water tap",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Water tap with hose",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "Lawn mower",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Flower seeds 1",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "Flower seeds 2",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "Bug",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "Tree",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "Lawn mower",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "Garden spade",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "Spray bottle",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Grass cutter",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Bucket",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "Water hose 2",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "Gloves 2",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "Hose nozzle",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "Garden knife",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "Fence",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "s"
+    },
+    {
+      "name": "Gloves 3",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "Watering can 3",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "u"
+    },
+    {
+      "name": "Pots",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "x"
+    },
+    {
+      "name": "Basket",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "y"
+    },
+    {
+      "name": "Chainsaw",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "$"
+    },
+    {
+      "name": "Apple",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "£"
+    }
+  ]
+}

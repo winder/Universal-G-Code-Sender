@@ -1,5 +1,5 @@
 /*
-    Copyright 2022 Will Winder
+    Copyright 2022-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,35 +18,6 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.clipart;
 
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.BuDingbatsSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.ChristmasSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.Corners2Source;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.CreepyCrawliesSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.DarriansFrames1Source;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.DarriansFrames2Source;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.DestinysBordersSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.EasterArtSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.EfonSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.EvilzSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.FredokaSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.GardenSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.HouseIconsSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.KomikaBubblesSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.LogoSkate1Source;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.LogoSkate2Source;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.MythicalSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.SealifeSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.SugarComaSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.ToolSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.TransdingsSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.TravelconsSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.TropicanaSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.VintageCorners23Source;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.VintageDecorativeSigns2Source;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.WorldOfScifiSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.WwfreebieSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.XmasSource;
-import com.willwinder.ugs.nbp.designer.gui.clipart.sources.YourSignSource;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JPanel;
@@ -57,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -71,39 +43,49 @@ public class PreviewListPanel extends JPanel {
     private final JScrollPane scrollPane;
     private transient Clipart selectedClipart;
 
+    private static final List<String> FONT_SOURCES = Arrays.asList(
+            "/fonts/christmas/mapping.json",
+            "/fonts/your-sign/mapping.json",
+            "/fonts/xmas/mapping.json",
+            "/fonts/bu-dingbats/mapping.json",
+            "/fonts/darrians-frames-font/mapping1.json",
+            "/fonts/darrians-frames-font/mapping2.json",
+            "/fonts/creepy-crawlies-font/mapping.json",
+            "/fonts/house-icons/mapping.json",
+            "/fonts/travelcons/mapping.json",
+            "/fonts/tool/mapping.json",
+            "/fonts/garden/mapping.json",
+            "/fonts/sugar-coma-font/mapping.json",
+            "/fonts/corners2/mapping.json",
+            "/fonts/wwfreebie/mapping.json",
+            "/fonts/destinys-borders/mapping.json",
+            "/fonts/vintage-decorative-corners-23-font/mapping.json",
+            "/fonts/vintage-decorative-signs-2-font/mapping.json",
+            "/fonts/world-of-sci-fi-font/mapping.json",
+            "/fonts/tropicana/mapping.json",
+            "/fonts/transdings/mapping.json",
+            "/fonts/sealife/mapping.json",
+            "/fonts/logoskate-1/mapping.json",
+            "/fonts/logoskate-2/mapping.json",
+            "/fonts/mythical/mapping.json",
+            "/fonts/komika-bubbles/mapping.json",
+            "/fonts/fredoka-one/mapping.json",
+            "/fonts/evilz/mapping.json",
+            "/fonts/easterart/mapping.json",
+            "/fonts/efon/mapping.json"
+    );
+
     public PreviewListPanel(ActionListener selectAction) {
         this.selectAction = selectAction;
-        buttonsPanel.setLayout(new MigLayout("fill, insets 5, wrap 4, top, left", "", ""));
-        sources.add(new Corners2Source());
-        sources.add(new ChristmasSource());
-        sources.add(new DestinysBordersSource());
-        sources.add(new EasterArtSource());
-        sources.add(new EfonSource());
-        sources.add(new EvilzSource());
-        sources.add(new FredokaSource());
-        sources.add(new MythicalSource());
-        sources.add(new KomikaBubblesSource());
-        sources.add(new LogoSkate1Source());
-        sources.add(new LogoSkate2Source());
-        sources.add(new SealifeSource());
-        sources.add(new TransdingsSource());
-        sources.add(new TropicanaSource());
-        sources.add(new YourSignSource());
-        sources.add(new WwfreebieSource());
-        sources.add(new XmasSource());
-        sources.add(new BuDingbatsSource());
-        sources.add(new DarriansFrames1Source());
-        sources.add(new DarriansFrames2Source());
-        sources.add(new WorldOfScifiSource());
-        sources.add(new VintageDecorativeSigns2Source());
-        sources.add(new VintageCorners23Source());
-        sources.add(new CreepyCrawliesSource());
-        sources.add(new SugarComaSource());
-        sources.add(new HouseIconsSource());
-        sources.add(new TravelconsSource());
-        sources.add(new ToolSource());
-        sources.add(new GardenSource());
+        buttonsPanel.setLayout(new MigLayout("fill, insets 10, wrap 4, top, left", "", ""));
 
+        FONT_SOURCES.forEach(s -> {
+            try {
+                sources.add(new FontClipartSource(s));
+            } catch (Exception e) {
+                throw new ClipartSourceException("Could not load source " + s, e);
+            }
+        });
 
         setLayout(new BorderLayout());
         scrollPane = new JScrollPane(buttonsPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -118,17 +100,19 @@ public class PreviewListPanel extends JPanel {
         sources.stream()
                 .flatMap(source -> source.getCliparts(category).stream())
                 .sorted(Comparator.comparing(clipart -> clipart.getName().toLowerCase()))
-                .forEach(clipart -> {
-                    ClipartButton roundedPanel = new ClipartButton(clipart, tooltip);
-                    roundedPanel.addClickListener(() -> {
-                        selectedClipart = clipart;
-                        selectAction.actionPerformed(new ActionEvent(roundedPanel, 0, "selected_clipart"));
-                    });
-                    buttonsPanel.add(roundedPanel, "grow, w 100:100:400");
-                });
+                .forEach(clipart -> createAndAddButton(tooltip, clipart));
         buttonsPanel.revalidate();
         buttonsPanel.repaint();
         SwingUtilities.invokeLater(() -> scrollPane.getVerticalScrollBar().setValue(0));
+    }
+
+    private void createAndAddButton(ClipartTooltip tooltip, Clipart clipart) {
+        ClipartButton roundedPanel = new ClipartButton(clipart, tooltip);
+        roundedPanel.addClickListener(() -> {
+            selectedClipart = clipart;
+            selectAction.actionPerformed(new ActionEvent(roundedPanel, 0, "selected_clipart"));
+        });
+        buttonsPanel.add(roundedPanel, "grow, w 100:100:400");
     }
 
     public Optional<Clipart> getSelectedClipart() {

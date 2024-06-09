@@ -1,0 +1,191 @@
+{
+  "font": "/fonts/tropicana/TropicanaBv-83M.ttf",
+  "name": "Tropicana",
+  "credits": "Blue Vinyl",
+  "url": "https://www.fontspace.com/tropicana-bv-font-f984",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "hibiskus",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "leaf",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "palm tree",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "palm tree",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "flower",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "lanterns",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "tiki mask",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "pineapple",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "coconuts",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "drink",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "hulu woman",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "surfer",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "hulu woman",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "flower necklace",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "ukulele",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "barrel",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "sandals",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "pendant",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "fish",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "sea star",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "shell",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "parrot",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "cabin",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "machete",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "bamboo",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "bamboo",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "Z"
+    }
+  ]
+}

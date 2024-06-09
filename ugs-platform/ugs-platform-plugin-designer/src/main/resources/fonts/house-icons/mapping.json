@@ -1,0 +1,443 @@
+{
+  "font": "/fonts/house-icons/house-icons.otf",
+  "name": "House Icons",
+  "credits": "Woodcutter",
+  "url": "https://www.dafont.com/house-icons.font",
+  "license": "Free for non-commercial use",
+  "cliparts": [
+    {
+      "name": "House 01",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "House 02",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "House 03",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "House 04",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "House 05",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "House 06",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "House 07",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "House 08",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "House 09",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "House 10",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "House 11",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "House 12",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "House 13",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "House 14",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "House 15",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "House 16",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "House 17",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "House 18",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "House 19",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "House 20",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "House 21",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "House 22",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "House 23",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "House 24",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "House 25",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "House 26",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "House 27",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "House 28",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "House 28",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "House 29",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "House 30",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "House 31",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "House 32",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "House 33",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "House 34",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "House 35",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "House 36",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "House 37",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "l"
+    },
+    {
+      "name": "House 38",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "m"
+    },
+    {
+      "name": "House 39",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "n"
+    },
+    {
+      "name": "House 40",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "o"
+    },
+    {
+      "name": "House 41",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "p"
+    },
+    {
+      "name": "House 42",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "q"
+    },
+    {
+      "name": "House 43",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "r"
+    },
+    {
+      "name": "House 44",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "s"
+    },
+    {
+      "name": "House 45",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "House 46",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "u"
+    },
+    {
+      "name": "House 47",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "v"
+    },
+    {
+      "name": "House 48",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "w"
+    },
+    {
+      "name": "House 49",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "x"
+    },
+    {
+      "name": "House 50",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "y"
+    },
+    {
+      "name": "House 51",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "z"
+    },
+    {
+      "name": "House 52",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "0"
+    },
+    {
+      "name": "House 53",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "1"
+    },
+    {
+      "name": "House 54",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "2"
+    },
+    {
+      "name": "House 55",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "3"
+    },
+    {
+      "name": "House 56",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "4"
+    },
+    {
+      "name": "House 57",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "5"
+    },
+    {
+      "name": "House 58",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "6"
+    },
+    {
+      "name": "House 59",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "7"
+    },
+    {
+      "name": "House 60",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "8"
+    },
+    {
+      "name": "House 61",
+      "categories": [
+        "BUILDINGS"
+      ],
+      "text": "9"
+    }
+  ]
+}
