@@ -1,0 +1,457 @@
+{
+  "font": "/fonts/evilz/Evilz-JJ1a.ttf",
+  "name": "Evilz Font",
+  "credits": "Sakurai Nan",
+  "url": "https://www.fontspace.com/evilz-font-f4530",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Ghost",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "*"
+    },
+    {
+      "name": "Cat-1",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "+"
+    },
+    {
+      "name": "Witch",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": ","
+    },
+    {
+      "name": "Cat-2",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "-"
+    },
+    {
+      "name": "Joker-1",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "@"
+    },
+    {
+      "name": "Snake-1",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "["
+    },
+    {
+      "name": "Prisoner",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\\"
+    },
+    {
+      "name": "Snake-2",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "]"
+    },
+    {
+      "name": "Joker-2",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "`"
+    },
+    {
+      "name": "Snakes",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "{"
+    },
+    {
+      "name": "Track",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "="
+    },
+    {
+      "name": "Axe",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "\""
+    },
+    {
+      "name": "Morning star",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "#"
+    },
+    {
+      "name": "Medicine",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "&"
+    },
+    {
+      "name": "Love potion",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "_"
+    },
+    {
+      "name": "Key 1",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "."
+    },
+    {
+      "name": "Key 2",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "/"
+    },
+    {
+      "name": "House haunted",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "~"
+    },
+    {
+      "name": "Key 2",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "/"
+    },
+    {
+      "name": "Grave",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "^"
+    },
+    {
+      "name": "Witch hat",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "!"
+    },
+    {
+      "name": "Sword",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "$"
+    },
+    {
+      "name": "Swords",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "4"
+    },
+    {
+      "name": "Bag with money",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "5"
+    },
+    {
+      "name": "Poison",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "6"
+    },
+    {
+      "name": "Candle",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "7"
+    },
+    {
+      "name": "Feather",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "8"
+    },
+    {
+      "name": "Bomb",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "9"
+    },
+    {
+      "name": "Cross",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Skull and eye patch",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Heart and cross",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Heart and bones",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Star and bones",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Heart and wings",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Pumpkin",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Mouse",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Wolf",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Stitch man 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Bat",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Raven",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "Salamander",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Small ghost",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Reaper",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "Casket",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Elf",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "Spider",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "Bat flying 1",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Devil-1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "Devil-2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Rabbit",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "Rabbit ghost",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "Dead cow",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "Skull and bones",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "Bones",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "Dead king",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "Heart and lightning",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Heart and skull",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Star and skull",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "Pentagram",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "Pumpkin",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "Stitch man 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "l"
+    },
+    {
+      "name": "Thorn bush",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "m"
+    },
+    {
+      "name": "Bat flying 2",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "n"
+    },
+    {
+      "name": "Spider web",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "u"
+    }
+  ]
+}

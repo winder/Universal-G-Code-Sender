@@ -1,0 +1,149 @@
+{
+  "font": "/fonts/komika-bubbles/KomikaBubbles-6pq.ttf",
+  "name": "Komika Bubbles",
+  "credits": "Apostrophic Lab",
+  "url": "https://www.fontspace.com/komika-bubbles-font-f404",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "bubble 1",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "bubble 2",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "bubble 3",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "bubble 4",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "bubble 5",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "bubble 6",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "bubble 7",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "bubble 8",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "bubble 9",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "bubble 10",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "bubble 11",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "bubble 12",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "bubble 13",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "bubble 14",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "bubble 15",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "bubble 16",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "bubble 17",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "bubble 18",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "bubble 19",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "bubble 20",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "T"
+    }
+  ]
+}

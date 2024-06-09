@@ -1,0 +1,373 @@
+{
+  "font": "/fonts/bu-dingbats/BuDingbatsSansPurpose-njmY.ttf",
+  "name": "BuDingbats",
+  "credits": "Bosil unique fonts",
+  "url": "https://www.fontspace.com/bu-dingbats-sans-purpose-font-f17451",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Yin Yang",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "\uF030"
+    },
+    {
+      "name": "Yin Yang",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "\uF030"
+    },
+    {
+      "name": "Wage slave",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF031"
+    },
+    {
+      "name": "Gas mask",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "\uF032"
+    },
+    {
+      "name": "Recycle",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "\uF033"
+    },
+    {
+      "name": "Grin",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF034"
+    },
+    {
+      "name": "Medical",
+      "categories": [
+        "SCIENCE"
+      ],
+      "text": "\uF038"
+    },
+    {
+      "name": "Radioactive",
+      "categories": [
+        "SCIENCE"
+      ],
+      "text": "\uF039"
+    },
+    {
+      "name": "Anonymous",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "\uF041"
+    },
+    {
+      "name": "Betty",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF042"
+    },
+    {
+      "name": "Groucho Marx",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF043"
+    },
+    {
+      "name": "Edgar Allen Poe",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF044"
+    },
+    {
+      "name": "Einstein",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF045"
+    },
+    {
+      "name": "Frankensteins monster",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF046"
+    },
+    {
+      "name": "Sheep evolution",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF047"
+    },
+    {
+      "name": "Sherlock Holmes",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF048"
+    },
+    {
+      "name": "Uncle Sam",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF049"
+    },
+    {
+      "name": "Abraham Lincoln",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF04A"
+    },
+    {
+      "name": "TV Zombie",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF04B"
+    },
+    {
+      "name": "Mona Lisa",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF04C"
+    },
+    {
+      "name": "Groucho Marx",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF04D"
+    },
+    {
+      "name": "Popeye",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF04E"
+    },
+    {
+      "name": "Grin 2",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF04F"
+    },
+    {
+      "name": "Pipe",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF050"
+    },
+    {
+      "name": "Elderly",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF051"
+    },
+    {
+      "name": "Duck frame",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF052"
+    },
+    {
+      "name": "Sun",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF053"
+    },
+    {
+      "name": "Shoe",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF071"
+    },
+    {
+      "name": "Shoe print",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF072"
+    },
+    {
+      "name": "Cobra",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\uF073"
+    },
+    {
+      "name": "Briefcase with money",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF061"
+    },
+    {
+      "name": "Bio hazard 1",
+      "categories": [
+        "SCIENCE"
+      ],
+      "text": "\uF062"
+    },
+    {
+      "name": "Bio hazard 2",
+      "categories": [
+        "SCIENCE"
+      ],
+      "text": "\uF063"
+    },
+    {
+      "name": "Diamond bloody",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF064"
+    },
+    {
+      "name": "Laundry",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF065"
+    },
+    {
+      "name": "Crayons",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF066"
+    },
+    {
+      "name": "Radioactive 2",
+      "categories": [
+        "SCIENCE"
+      ],
+      "text": "\uF067"
+    },
+    {
+      "name": "Wolf",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\uF068"
+    },
+    {
+      "name": "Medical 2",
+      "categories": [
+        "SCIENCE"
+      ],
+      "text": "\uF069"
+    },
+    {
+      "name": "Lamp Lava",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF06A"
+    },
+    {
+      "name": "Medical 3",
+      "categories": [
+        "SCIENCE"
+      ],
+      "text": "\uF06B"
+    },
+    {
+      "name": "Fish",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\uF06C"
+    },
+    {
+      "name": "Impossible",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF06D"
+    },
+    {
+      "name": "Bombs",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF06E"
+    },
+    {
+      "name": "Yin Yang 2",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "\uF06F"
+    },
+    {
+      "name": "Shoe",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "\uF070"
+    },
+    {
+      "name": "TV",
+      "categories": [
+        "ELECTRONICS"
+      ],
+      "text": "\uF074"
+    },
+    {
+      "name": "Robot",
+      "categories": [
+        "ELECTRONICS"
+      ],
+      "text": "\uF075"
+    },
+    {
+      "name": "Body",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF076"
+    },
+    {
+      "name": "Cleopatra",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF078"
+    },
+    {
+      "name": "Meditating",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\uF079"
+    },
+    {
+      "name": "Turtle",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\uF07A"
+    }
+  ]
+}

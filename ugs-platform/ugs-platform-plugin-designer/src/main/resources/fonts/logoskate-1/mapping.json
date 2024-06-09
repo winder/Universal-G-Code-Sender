@@ -1,0 +1,415 @@
+{
+  "font": "/fonts/logoskate-1/Logoskate-Md4x.ttf",
+  "name": "Logoskate 1",
+  "credits": "RASDESIGN",
+  "url": "https://www.fontspace.com/logoskate-font-f13141",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "DC",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "0"
+    },
+    {
+      "name": "sign2",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "1"
+    },
+    {
+      "name": "sign3",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "2"
+    },
+    {
+      "name": "sign4",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "3"
+    },
+    {
+      "name": "sign5",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "4"
+    },
+    {
+      "name": "X games",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "5"
+    },
+    {
+      "name": "Royal",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "6"
+    },
+    {
+      "name": "Think",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "7"
+    },
+    {
+      "name": "Vans off the wall",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "8"
+    },
+    {
+      "name": "sign11",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Flip",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Osiris",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Independent Truck Company",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Adio",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Darkstar",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Globe",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Fallen",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Baker",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "DVS",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Zero",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "sign22",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "sign23",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Adio",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Burton",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "Mystery",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Shorty's",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Ricta",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "Santa Cruz",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Tensor",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "Thrasher",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "sign32",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Volcom",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "sign34",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Toy machine",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "sign36",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "Vans",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "sign38",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "Sector 9",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "Rip Curl",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "sign41",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "sign42",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Es",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "Path",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "Bones",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "Termite",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "sign47",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "Supra",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "l"
+    },
+    {
+      "name": "Black label",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "m"
+    },
+    {
+      "name": "Billabong",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "n"
+    },
+    {
+      "name": "Hurley",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "o"
+    },
+    {
+      "name": "Chocolate",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "p"
+    },
+    {
+      "name": "Habitat",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "q"
+    },
+    {
+      "name": "sign54",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "r"
+    },
+    {
+      "name": "Gangsta",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "s"
+    },
+    {
+      "name": "sign56",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "Old industries",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "u"
+    },
+    {
+      "name": "sign58",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "v"
+    },
+    {
+      "name": "Alien workshop",
+      "categories": [
+        "LOGOS"
+      ],
+      "text": "w"
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "font": "/fonts/world-of-sci-fi-font/WorldOfScifi-K7DvZ.ttf",
+  "name": "World of Sci Fi Font",
+  "credits": "Iconian Fonts",
+  "url": "https://www.fontspace.com/world-of-sci-fi-font-f87545",
+  "license": "Free for non-commercial use",
+  "cliparts": [
+    {
+      "name": "Stargate",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "Cylon",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "Dalek",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "Star Wars - Storm trooper",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Star Wars - Boba Fett",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Alien",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "Borg",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "Harvester",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "Superman",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "Star Trek - Klingon",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "Live long and prosper",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "l"
+    },
+    {
+      "name": "Alien",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "n"
+    },
+    {
+      "name": "TRON light cycle",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "o"
+    },
+    {
+      "name": "Star Trek - Phaser",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "p"
+    },
+    {
+      "name": "Alien vs Predator",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "q"
+    },
+    {
+      "name": "Robinson Robot.",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "r"
+    },
+    {
+      "name": "Star Wars",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "s"
+    },
+    {
+      "name": "Star Trek",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "Blaster",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "u"
+    },
+    {
+      "name": "Star Trek - Spock",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "v"
+    },
+    {
+      "name": "Star Wars - Darth Vader",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "w"
+    },
+    {
+      "name": "?",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "y"
+    },
+    {
+      "name": "Star Trek - Bajor",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Petnagon",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "E.T.",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Godzilla",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Star Trek - Cardassian",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Star Wars - Dark empire",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Star Wars - Jedi Order",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Star Trek - Klingon",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Star Trek - Terran empire",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Star Wars - Mandalorians",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Star Wars - Sand warrior",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "Jupiter",
+      "categories": [
+        "UNSORTED"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Star Wars - Strike fighter",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Star Wars - Rebel Alliance",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "???",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Star Trek - Star Federation",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "??",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Star Wars - ATAT",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "Star Wars - C3P0",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Dave",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "1"
+    },
+    {
+      "name": "Star Wars - R2D2",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "2"
+    },
+    {
+      "name": "Arachnid",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "3"
+    },
+    {
+      "name": "Independence day",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "4"
+    },
+    {
+      "name": "Babylon 5",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "5"
+    },
+    {
+      "name": "Buck Rogers - Twiki",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "6"
+    },
+    {
+      "name": "Space man",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "8"
+    },
+    {
+      "name": "Moonbase Alpha",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "9"
+    },
+    {
+      "name": "Star Wars - Blaster",
+      "categories": [
+        "TOOLS"
+      ],
+      "text": "0"
+    }
+  ]
+}

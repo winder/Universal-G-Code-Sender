@@ -1,0 +1,310 @@
+{
+  "font": "/fonts/efon/Efon-Gl4q.ttf",
+  "name": "Efon Font",
+  "credits": "Sakurai Nan",
+  "url": "https://www.fontspace.com/efon-font-f4531",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Flower",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "\""
+    },
+    {
+      "name": "Petals 1",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "!"
+    },
+    {
+      "name": "Petals 2",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "#"
+    },
+    {
+      "name": "Petals 3",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "$"
+    },
+    {
+      "name": "Plant",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": ")"
+    },
+    {
+      "name": "Leaf 1",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": ":"
+    },
+    {
+      "name": "Leaf 2",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "["
+    },
+    {
+      "name": "Cactus",
+      "categories": [
+        "PLANTS"
+      ],
+      "text": "@"
+    },
+    {
+      "name": "Mouse 3",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "^"
+    },
+    {
+      "name": "Rabbit",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "_"
+    },
+    {
+      "name": "Crab",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "~"
+    },
+    {
+      "name": "Bread",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "+"
+    },
+    {
+      "name": "Carrot",
+      "categories": [
+        "FOOD"
+      ],
+      "text": ","
+    },
+    {
+      "name": "Strawberry",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "<"
+    },
+    {
+      "name": "Frog",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "'"
+    },
+    {
+      "name": "Hamster",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "*"
+    },
+    {
+      "name": "Fish 1",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "3"
+    },
+    {
+      "name": "Polliwog",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Egg",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Fox",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Telephone",
+      "categories": [
+        "ELECTRONICS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Tram",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Bus",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Car",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Umbrella",
+      "categories": [
+        "WEATHER"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Plane",
+      "categories": [
+        "TRANSPORTATION"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Sun",
+      "categories": [
+        "WEATHER"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Cat",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Cat angry",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Octopus",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Fish 2",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Ant",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "Duck",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "Duckling",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Mouse 1",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Mouse 2",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "Ghost",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "Robot",
+      "categories": [
+        "ELECTRONICS"
+      ],
+      "text": "x"
+    },
+    {
+      "name": "Moon",
+      "categories": [
+        "WEATHER"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Cellphone",
+      "categories": [
+        "ELECTRONICS"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Television",
+      "categories": [
+        "ELECTRONICS"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "Coffey",
+      "categories": [
+        "FOOD"
+      ],
+      "text": "r"
+    },
+    {
+      "name": "Rain",
+      "categories": [
+        "WEATHER"
+      ],
+      "text": "n"
+    }
+  ]
+}

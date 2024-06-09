@@ -1,0 +1,632 @@
+{
+  "font": "/fonts/christmas/ChristmasRegular.ttf",
+  "name": "Christmas",
+  "credits": "Vivek Kambli",
+  "url": "https://www.fontspace.com/christmas-font-f4808",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Lamp 1",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "#"
+    },
+    {
+      "name": "Lamp 2",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "%"
+    },
+    {
+      "name": "Lamp 3",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "@"
+    },
+    {
+      "name": "Star 1",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "*"
+    },
+    {
+      "name": "Star 2",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "+"
+    },
+    {
+      "name": "Star shooting",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "_"
+    },
+    {
+      "name": "Christmas bell 1",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "["
+    },
+    {
+      "name": "Christmas bell 2",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "\\"
+    },
+    {
+      "name": "Christmas bell 3",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "]"
+    },
+    {
+      "name": "Candle 1",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "!"
+    },
+    {
+      "name": "Candle 2",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "^"
+    },
+    {
+      "name": "Candle 5",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "$"
+    },
+    {
+      "name": "Candle christmas cake",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "`"
+    },
+    {
+      "name": "Candles",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "&"
+    },
+    {
+      "name": "Cross 1",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "-"
+    },
+    {
+      "name": "Cross 2",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "="
+    },
+    {
+      "name": "Cross 3",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "1"
+    },
+    {
+      "name": "Cross 4",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "2"
+    },
+    {
+      "name": "Cross 5",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "3"
+    },
+    {
+      "name": "Cross 6",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "4"
+    },
+    {
+      "name": "Cross 7",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "5"
+    },
+    {
+      "name": "Cross 8",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "6"
+    },
+    {
+      "name": "Cross 9",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "7"
+    },
+    {
+      "name": "Cross 10",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "8"
+    },
+    {
+      "name": "Cross 11",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "9"
+    },
+    {
+      "name": "Christmas ball 1",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": ":"
+    },
+    {
+      "name": "Christmas ball 2",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "\""
+    },
+    {
+      "name": "Christmas ball 3",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Christmas ball 4",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Christmas ball 5",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Christmas ball 6",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Christmas ball 7",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Christmas ball 8",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Christmas ball 9",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Christmas ball 10",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Christmas ball star",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Present 1",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "{"
+    },
+    {
+      "name": "Present 2",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "}"
+    },
+    {
+      "name": "Present 3",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Present 4",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "Present 5",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Present 6",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "Snow man 1",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "<"
+    },
+    {
+      "name": "Snow man 2",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": ">"
+    },
+    {
+      "name": "Snow man 3",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "?"
+    },
+    {
+      "name": "Snow man 4",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Snow man 5",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Snow man 6",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Snow man 7",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Christmas sock 1",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Christmas sock 2",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "Christmas sock 3",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "Christmas sock 4",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "Christmas sock 5",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "Christmas sock 6",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Snow man candy cane",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Snow man 8",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Snow man 9",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "Christmas bell 3",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Christmas bell 4",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "o"
+    },
+    {
+      "name": "Christmas bell 5",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "p"
+    },
+    {
+      "name": "Christmas bell 6",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "q"
+    },
+    {
+      "name": "Christmas bell 7",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "r"
+    },
+    {
+      "name": "Christmas bell 8",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "Christmas bell 9",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "u"
+    },
+    {
+      "name": "Christmas bell 10",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "w"
+    },
+    {
+      "name": "Christmas bell 11",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "y"
+    },
+    {
+      "name": "Christmas bell 12",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "Christmas leaves 1",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": ";"
+    },
+    {
+      "name": "Christmas leaves 2",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "'"
+    },
+    {
+      "name": "Christmas leaves 3",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "Christmas leaves 4",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "Christmas leaves 5",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Christmas leaves 6",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "Christmas leaves 7",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "Christmas leaves 8",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "Christmas leaves 9",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "Christmas leaves 10",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "l"
+    },
+    {
+      "name": "Christmas leaves 11",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "s"
+    },
+    {
+      "name": "Christmas tree simple",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "Christmas tree 1",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": ","
+    },
+    {
+      "name": "Christmas tree 2",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "."
+    },
+    {
+      "name": "Christmas tree 3",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "/"
+    },
+    {
+      "name": "Christmas tree 4",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "Christmas tree 5",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "m"
+    },
+    {
+      "name": "Christmas tree 6",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "n"
+    },
+    {
+      "name": "Christmas tree 7",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "v"
+    },
+    {
+      "name": "Christmas tree 8",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "x"
+    },
+    {
+      "name": "Christmas tree 9",
+      "categories": [
+        "HOLIDAY"
+      ],
+      "text": "z"
+    }
+  ]
+}

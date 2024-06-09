@@ -1,0 +1,464 @@
+{
+  "font": "/fonts/wwfreebie/Wwfreebie.ttf",
+  "name": "WWFreebie",
+  "credits": "WindWalker64",
+  "url": "https://www.fontspace.com/wwfreebie-font-f3394",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Teddy bear",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "'"
+    },
+    {
+      "name": "Bow",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": ","
+    },
+    {
+      "name": "sign3",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "."
+    },
+    {
+      "name": "sign4",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "/"
+    },
+    {
+      "name": "Clover",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "0"
+    },
+    {
+      "name": "Clover 3",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "1"
+    },
+    {
+      "name": "Cards - Diamonds",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "2"
+    },
+    {
+      "name": "Cards - Hearts",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "3"
+    },
+    {
+      "name": "Cards - Clubs",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "4"
+    },
+    {
+      "name": "Cards - Spades",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "5"
+    },
+    {
+      "name": "Lips 1",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "6"
+    },
+    {
+      "name": "Lips 2",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "7"
+    },
+    {
+      "name": "Lips 3",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "8"
+    },
+    {
+      "name": "Dove",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "9"
+    },
+    {
+      "name": "sign15",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "sign16",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "sign17",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "sign18",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "sign19",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Diamond",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "sign21",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Trident",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "sign23",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "sign24",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "sign25",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Star 7",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Star 6",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Star 5",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Star 4",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "sign30",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "sign31",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "sign32",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "sign33",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "sign34",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "sign35",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "sign36",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "sign37",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "sign38",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "sign39",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "sign40",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "sign41",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "sign42",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "sign43",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "sign44",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "sign45",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Star 3",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Star 2",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "sign48",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "sign49",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "sign50",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "sign51",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "sign52",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "l"
+    },
+    {
+      "name": "Clover 2",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "m"
+    },
+    {
+      "name": "sign54",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "n"
+    },
+    {
+      "name": "Star 1",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "o"
+    },
+    {
+      "name": "sign56",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "p"
+    },
+    {
+      "name": "sign57",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "q"
+    },
+    {
+      "name": "sign58",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "r"
+    },
+    {
+      "name": "Star 9",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "s"
+    },
+    {
+      "name": "Apperature",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "sign61",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "u"
+    },
+    {
+      "name": "sign62",
+      "categories": [
+        "SIGNS_AND_SYMBOLS"
+      ],
+      "text": "v"
+    },
+    {
+      "name": "sign63",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "w"
+    },
+    {
+      "name": "sign64",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "x"
+    },
+    {
+      "name": "sign65",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "y"
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "font": "/fonts/sealife/Sealife-o140.ttf",
+  "name": "Sealife",
+  "credits": "Sassy Graphics",
+  "url": "https://www.fontspace.com/sealife-font-f9793",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "turtle",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "decorations 1",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "decorations 2",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "decorations 3",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "decorations 4",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "decorations 5",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "seahorse",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "mythical 1",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "mythical 2",
+      "categories": [
+        "MYTHICAL"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "shrimp",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "flower",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "shell 1",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "shell 2",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "shell 3",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "shell 4",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "shell 5",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "shell 6",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "octopus",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "lobster",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "shrimp",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "crab",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "decorations 6",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "decorations 7",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "decorations 8",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "X"
+    }
+  ]
+}

@@ -1,0 +1,261 @@
+{
+  "font": "/fonts/creepy-crawlies-font/CreepyCrawlies-GOxxy.ttf",
+  "name": "Creepy Crawlies",
+  "credits": "Iconian Fonts",
+  "url": "https://www.fontspace.com/creepy-crawlies-font-f86435",
+  "license": "Free for non-commercial use",
+  "cliparts": [
+    {
+      "name": "Ant",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "Wasp",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "Fly",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "Dragon fly",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "Scorpion",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Frog",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Cockroach",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "Centipede",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "Spider",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "Bug",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "Snake",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "Mantis",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "l"
+    },
+    {
+      "name": "Tick",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "m"
+    },
+    {
+      "name": "Centipede",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "n"
+    },
+    {
+      "name": "Wood louse",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "o"
+    },
+    {
+      "name": "Caterpillar",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "p"
+    },
+    {
+      "name": "Mosquito",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "q"
+    },
+    {
+      "name": "Grass hopper",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "r"
+    },
+    {
+      "name": "Spider 2",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "s"
+    },
+    {
+      "name": "Flee",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "Beetle",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "u"
+    },
+    {
+      "name": "Ant 2",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "v"
+    },
+    {
+      "name": "Worm",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "w"
+    },
+    {
+      "name": "Slug",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "x"
+    },
+    {
+      "name": "Fly 2",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "y"
+    },
+    {
+      "name": "Gecko",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "z"
+    },
+    {
+      "name": "Crow",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "0"
+    },
+    {
+      "name": "Rat",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "1"
+    },
+    {
+      "name": "Frog",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "2"
+    },
+    {
+      "name": "Worm 2",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "3"
+    },
+    {
+      "name": "Spider 4",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "4"
+    },
+    {
+      "name": "Tick 2",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "5"
+    },
+    {
+      "name": "Raven",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "6"
+    },
+    {
+      "name": "Mouse",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "7"
+    },
+    {
+      "name": "Iguana",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "8"
+    },
+    {
+      "name": "Frog",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "9"
+    }
+  ]
+}
