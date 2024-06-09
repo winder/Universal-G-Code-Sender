@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
 import net.miginfocom.swing.MigLayout;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -45,7 +46,7 @@ public class ToolSettingsPanel extends JPanel {
     private JTextField depthPerPass;
     private JTextField stepOver;
     private JTextField safeHeight;
-    private JTextField spindleSpeed;
+    private JCheckBox detectMaxSpindleSpeed;
     private TextFieldWithUnit laserDiameter;
     private TextFieldWithUnit maxSpindleSpeed;
 
@@ -63,7 +64,14 @@ public class ToolSettingsPanel extends JPanel {
         toolDiameter = new TextFieldWithUnit(TextFieldUnit.MM, 3, controller.getSettings().getToolDiameter());
         add(toolDiameter, TOOL_FIELD_CONSTRAINT);
 
-        add(new JLabel("Feed speed" ));
+        add(new JLabel("Tool step over" ));
+        stepOver = new TextFieldWithUnit(TextFieldUnit.PERCENT, 2,
+                controller.getSettings().getToolStepOver());
+        add(stepOver, TOOL_FIELD_CONSTRAINT);
+
+        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2" );
+
+        add(new JLabel("Default feed speed" ));
         feedSpeed = new TextFieldWithUnit(TextFieldUnit.MM_PER_MINUTE, 0, controller.getSettings().getFeedSpeed());
         add(feedSpeed, TOOL_FIELD_CONSTRAINT);
 
@@ -75,19 +83,15 @@ public class ToolSettingsPanel extends JPanel {
         depthPerPass = new TextFieldWithUnit(TextFieldUnit.MM, 2, controller.getSettings().getDepthPerPass());
         add(depthPerPass, TOOL_FIELD_CONSTRAINT);
 
-        add(new JLabel("Step over" ));
-        stepOver = new TextFieldWithUnit(TextFieldUnit.PERCENT, 2,
-                controller.getSettings().getToolStepOver());
-        add(stepOver, TOOL_FIELD_CONSTRAINT);
-
         add(new JLabel("Safe height" ));
         safeHeight = new TextFieldWithUnit(TextFieldUnit.MM, 2, controller.getSettings().getSafeHeight());
         add(safeHeight, TOOL_FIELD_CONSTRAINT);
 
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2" );
-        add(new JLabel("Spindle speed" ));
-        spindleSpeed = new TextFieldWithUnit(TextFieldUnit.ROTATIONS_PER_MINUTE, 0, controller.getSettings().getSpindleSpeed());
-        add(spindleSpeed, TOOL_FIELD_CONSTRAINT);
+
+        add(new JLabel("Detect max spindle speed" ));
+        detectMaxSpindleSpeed = new JCheckBox("", controller.getSettings().getDetectMaxSpindleSpeed());
+        add(detectMaxSpindleSpeed, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Max spindle speed" ));
         maxSpindleSpeed = new TextFieldWithUnit(TextFieldUnit.ROTATIONS_PER_MINUTE, 0, controller.getSettings().getMaxSpindleSpeed());
@@ -148,14 +152,6 @@ public class ToolSettingsPanel extends JPanel {
         }
     }
 
-    public double getSpindleSpeed() {
-        try {
-            return Utils.formatter.parse(spindleSpeed.getText()).doubleValue();
-        } catch (ParseException e) {
-            return controller.getSettings().getSpindleSpeed();
-        }
-    }
-
     private double getLaserDiameter() {
         try {
             return Utils.formatter.parse(laserDiameter.getText()).doubleValue();
@@ -172,6 +168,10 @@ public class ToolSettingsPanel extends JPanel {
         }
     }
 
+    private boolean getDetectMaxSpindleSpeed() {
+        return detectMaxSpindleSpeed.isSelected();
+    }
+
     public Settings getSettings() {
         Settings settings = new Settings();
         settings.applySettings(controller.getSettings());
@@ -181,9 +181,9 @@ public class ToolSettingsPanel extends JPanel {
         settings.setToolDiameter(getToolDiameter());
         settings.setToolStepOver(getStepOver());
         settings.setPlungeSpeed(getPlungeSpeed());
-        settings.setSpindleSpeed(getSpindleSpeed());
         settings.setLaserDiameter(getLaserDiameter());
         settings.setMaxSpindleSpeed((int) getMaxSpindleSpeed());
+        settings.setDetectMaxSpindleSpeed(getDetectMaxSpindleSpeed());
         return settings;
     }
 }

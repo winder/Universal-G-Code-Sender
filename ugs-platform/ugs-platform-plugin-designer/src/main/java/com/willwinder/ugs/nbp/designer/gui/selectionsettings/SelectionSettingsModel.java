@@ -24,6 +24,8 @@ import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 
 import java.awt.Font;
 import java.io.Serializable;
@@ -133,6 +135,7 @@ public class SelectionSettingsModel implements Serializable {
         setStartDepth(0);
         setTargetDepth(0);
         setSpindleSpeed(0);
+        setFeedRate(0);
         setText("");
         setFontFamily(Font.SANS_SERIF);
     }
@@ -182,11 +185,14 @@ public class SelectionSettingsModel implements Serializable {
     }
 
     public int getSpindleSpeed() {
-        return (Integer) settings.getOrDefault(EntitySetting.SPINDLE_SPEED, 0);
+        return (Integer) settings.getOrDefault(EntitySetting.SPINDLE_SPEED, 100);
     }
 
     public void setSpindleSpeed(Integer speed) {
         if (!valuesEquals(getSpindleSpeed(), speed)) {
+            if (speed == 0) {
+                speed = 100;
+            }
             settings.put(EntitySetting.SPINDLE_SPEED, speed);
             notifyListeners(EntitySetting.SPINDLE_SPEED);
         }
@@ -205,15 +211,25 @@ public class SelectionSettingsModel implements Serializable {
     }
 
     public int getFeedRate() {
-        return (Integer) settings.getOrDefault(EntitySetting.FEED_RATE, 50);
+        return (Integer) settings.getOrDefault(EntitySetting.FEED_RATE, getDefaultFeedRate());
     }
 
     public void setFeedRate(Integer feedRate) {
         if (!valuesEquals(getFeedRate(), feedRate)) {
-            feedRate = Math.max(50, feedRate);
+            if (feedRate == 0) {
+                feedRate = getDefaultFeedRate();
+            }
             settings.put(EntitySetting.FEED_RATE, feedRate);
             notifyListeners(EntitySetting.FEED_RATE);
         }
+    }
+
+    private int getDefaultFeedRate() {
+        Controller controller = ControllerFactory.getController();
+        if (controller != null && controller.getSettings() != null) {
+            return controller.getSettings().getFeedSpeed();
+        }
+        return 50;
     }
 
     public String getFontFamily() {
@@ -261,7 +277,7 @@ public class SelectionSettingsModel implements Serializable {
     }
 
     public boolean getLockRatio() {
-        return  (Boolean) settings.getOrDefault(EntitySetting.LOCK_RATIO, true);
+        return (Boolean) settings.getOrDefault(EntitySetting.LOCK_RATIO, true);
     }
 
     public void setLockRatio(boolean lockRatio) {
@@ -272,7 +288,7 @@ public class SelectionSettingsModel implements Serializable {
     }
 
     public void updateFromEntity(Group selectionGroup) {
-        if(selectionGroup.getChildren().size() > 1) {
+        if (selectionGroup.getChildren().size() > 1) {
             return;
         }
         boolean isTextCuttable = selectionGroup.getChildren().get(0) instanceof Text;

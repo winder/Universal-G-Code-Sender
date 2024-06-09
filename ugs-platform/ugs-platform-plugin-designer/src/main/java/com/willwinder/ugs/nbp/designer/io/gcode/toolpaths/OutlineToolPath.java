@@ -80,6 +80,6 @@ public class OutlineToolPath extends AbstractToolPath {
             }
         });
 
-        gcodePath.appendGcodePath(toGcodePath(coordinateList));
+        addToGcodePath(gcodePath, coordinateList, source);
     }
 }

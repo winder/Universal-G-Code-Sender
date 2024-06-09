@@ -70,13 +70,6 @@ public class SimpleGcodeRouter {
                 Code.G94.name() + " ; units per minute feed rate mode\n"
         );
 
-        if (settings.getSpindleSpeed() > 0) {
-            result.append(Code.M3.name())
-                    .append(" S" )
-                    .append(Math.round(settings.getSpindleSpeed()))
-                    .append(" ; Turning on spindle\n" );
-        }
-
         result.append("\n" );
 
         try {
@@ -146,11 +139,9 @@ public class SimpleGcodeRouter {
     private String generateToolHeader() {
         return "; Tool: " + settings.getToolDiameter() + "mm\n" +
                 "; Depth per pass: " + settings.getDepthPerPass() + "mm\n" +
-                "; Feed speed: " + settings.getFeedSpeed() + "mm/min\n" +
                 "; Plunge speed: " + settings.getPlungeSpeed() + "mm/min\n" +
                 "; Safe height: " + settings.getSafeHeight() + "mm\n" +
-                "; Tool step over: " + settings.getToolStepOver() + "mm\n" +
-                "; Spindle speed: " + Math.round(settings.getSpindleSpeed()) + "rpm\n";
+                "; Tool step over: " + settings.getToolStepOver() + "mm\n";
     }
 
     protected void toGcode(Writer writer, GcodePath path) throws IOException {
@@ -168,13 +159,19 @@ public class SimpleGcodeRouter {
                 writer.write(";" + s.getLabel() + "\n" );
             }
 
-            if (s.spindleSpeed != null) {
-                writer.write("M3 S" + s.spindleSpeed + "\n" );
+            if (s.getSpindleSpeed() != null) {
+                writer.write("M3 S" + s.getSpindleSpeed() + "\n" );
             }
 
             switch (s.type) {
                 // Seam are just markers.
                 case SEAM:
+                    if (!hasFeedRateSet && s.getFeedSpeed() != null) {
+                        writer.write("F" );
+                        writer.write(String.valueOf(s.getFeedSpeed()));
+                        writer.write(' ');
+                        hasFeedRateSet = true;
+                    }
                     continue;
 
                     // Rapid move
@@ -196,6 +193,7 @@ public class SimpleGcodeRouter {
                     writer.write("F" + settings.getPlungeSpeed() + " " );
                     writer.write(s.point.getFormattedGCode());
                     writer.write("\n" );
+                    hasFeedRateSet = false;
                     break;
 
                 // Motion at feed rate
@@ -205,9 +203,9 @@ public class SimpleGcodeRouter {
                     writer.write(s.type.gcode);
                     writer.write(' ');
 
-                    if (!hasFeedRateSet) {
+                    if (!hasFeedRateSet && s.getFeedSpeed() != null) {
                         writer.write("F" );
-                        writer.write(String.valueOf(settings.getFeedSpeed()));
+                        writer.write(String.valueOf(s.getFeedSpeed()));
                         writer.write(' ');
                         hasFeedRateSet = true;
                     }

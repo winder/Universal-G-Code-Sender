@@ -28,7 +28,11 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 import org.openide.awt.UndoRedo;
 import org.openide.cookies.CloseCookie;
 import org.openide.loaders.DataNode;
@@ -51,7 +55,7 @@ import java.util.logging.Logger;
         persistenceType = TopComponent.PERSISTENCE_NEVER
 )
 @TopComponent.Registration(mode = Mode.EDITOR_PRIMARY, openAtStartup = false)
-public class DesignerTopComponent extends TopComponent implements UndoManagerListener, SelectionListener {
+public class DesignerTopComponent extends TopComponent implements UndoManagerListener, SelectionListener, UGSEventListener {
     private static final long serialVersionUID = 3123334398723987873L;
     private static final Logger LOGGER = Logger.getLogger(DesignerTopComponent.class.getSimpleName());
     private static DrawingContainer drawingContainer;
@@ -64,6 +68,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         super();
         this.dataObject = dataObject;
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend.addUGSEventListener(this);
         controller = ControllerFactory.getController();
         initSettingsAdapter();
 
@@ -80,6 +85,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         loadDesign(dataObject);
         updateFilename();
         PlatformUtils.registerActions(getActionMap(), this);
+        updateMaxSpindleSpeed();
     }
 
     private void initSettingsAdapter() {
@@ -141,6 +147,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         controller.getUndoManager().removeListener(this);
         controller.release();
         try {
+            backend.removeUGSEventListener(this);
             backend.unsetGcodeFile();
         } catch (Exception e) {
             // Never mind
@@ -177,5 +184,25 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
         PlatformUtils.openSettings(controller);
         PlatformUtils.openEntitesTree(controller);
         requestActive();
+    }
+
+    @Override
+    public void UGSEvent(UGSEvent evt) {
+        if (evt instanceof FirmwareSettingEvent && controller.getSettings().getDetectMaxSpindleSpeed()) {
+            updateMaxSpindleSpeed();
+        }
+    }
+
+    private void updateMaxSpindleSpeed() {
+        if (!backend.isConnected()) {
+            return;
+        }
+
+        try {
+            int maxSpindleSpeed = backend.getController().getFirmwareSettings().getMaxSpindleSpeed();
+            controller.getSettings().setMaxSpindleSpeed(maxSpindleSpeed);
+        } catch (FirmwareSettingsException e) {
+            // Never mind...
+        }
     }
 }
