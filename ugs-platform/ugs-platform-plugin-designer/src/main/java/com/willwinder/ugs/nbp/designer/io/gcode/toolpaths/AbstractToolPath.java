@@ -18,8 +18,10 @@
  */
 package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.PathGenerator;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
 import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.universalgcodesender.model.Axis;
@@ -77,21 +79,23 @@ public abstract class AbstractToolPath implements PathGenerator {
         return geometryFactory;
     }
 
-    protected GcodePath toGcodePath(List<List<PartialPosition>> coordinateList) {
-        GcodePath gcodePath = new GcodePath();
+    protected void addToGcodePath(GcodePath gcodePath, List<List<PartialPosition>> coordinateList, Cuttable source) {
         if (!coordinateList.isEmpty()) {
+            if (source.getSpindleSpeed() > 0) {
+                gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d)), null));
+            }
             coordinateList.forEach(cl -> {
                 if (!cl.isEmpty()) {
                     addSafeHeightSegmentTo(gcodePath, cl.get(0));
                     gcodePath.addSegment(SegmentType.POINT, cl.get(0));
-                    cl.forEach(c -> gcodePath.addSegment(SegmentType.LINE, c));
+                    cl.forEach(c -> gcodePath.addSegment(SegmentType.LINE, c, source.getFeedRate()));
                 }
             });
 
             addSafeHeightSegment(gcodePath);
         }
-        return gcodePath;
     }
+
 
     public GcodePath toGcodePath() {
         GcodePath gcodePath = new GcodePath();

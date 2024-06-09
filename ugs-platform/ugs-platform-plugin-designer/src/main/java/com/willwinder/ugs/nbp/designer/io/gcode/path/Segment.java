@@ -43,13 +43,19 @@ public final class Segment {
     /**
      * The current spindle speed
      */
-    public final Integer spindleSpeed;
+    private final Integer spindleSpeed;
 
-    public Segment(SegmentType type, PartialPosition point, String label, Integer spindleSpeed) {
+    /**
+     * The current feed speed
+     */
+    private final Integer feedSpeed;
+
+    public Segment(SegmentType type, PartialPosition point, String label, Integer spindleSpeed, Integer feedSpeed) {
         this.type = type;
         this.point = point;
         this.label = label;
         this.spindleSpeed = spindleSpeed;
+        this.feedSpeed = feedSpeed;
     }
 
     public Segment(SegmentType type, PartialPosition point) {
@@ -60,7 +66,7 @@ public final class Segment {
         this(SegmentType.SEAM, null, label);
     }
     public Segment(SegmentType type, PartialPosition point, String label) {
-        this(type, point, label, null);
+        this(type, point, label, null, null);
     }
 
     /**
@@ -92,5 +98,13 @@ public final class Segment {
             throw new NullPointerException(type + " segment has no point!");
 
         return point;
+    }
+
+    public Integer getSpindleSpeed() {
+        return spindleSpeed;
+    }
+
+    public Integer getFeedSpeed() {
+        return feedSpeed;
     }
 }

@@ -59,6 +59,7 @@ public class GrblFirmwareSettings implements ICommunicatorListener, IFirmwareSet
     private static final String KEY_HARD_LIMITS_ENABLED = "$21";
     private static final String KEY_HOMING_ENABLED = "$22";
     private static final String KEY_HOMING_INVERT_DIRECTION = "$23";
+    private static final String KEY_MAX_SPINDLE_SPEED = "$30";
     private static final String KEY_INVERT_DIRECTION = "$3";
     private static final String KEY_INVERT_LIMIT_PINS = "$5";
     private static final String KEY_STEPS_PER_MM_X = "$100";
@@ -368,6 +369,14 @@ public class GrblFirmwareSettings implements ICommunicatorListener, IFirmwareSet
             default:
                 throw new FirmwareSettingsException("Couldn't get maximum rate setting for axis " + axis + ", it's not supported by the controller");
         }
+    }
+
+    @Override
+    public int getMaxSpindleSpeed() throws FirmwareSettingsException {
+        return getSetting(KEY_MAX_SPINDLE_SPEED)
+                .map(FirmwareSetting::getValue)
+                .map(Integer::valueOf)
+                .orElse(0);
     }
 
     private int getInvertDirectionMask() {

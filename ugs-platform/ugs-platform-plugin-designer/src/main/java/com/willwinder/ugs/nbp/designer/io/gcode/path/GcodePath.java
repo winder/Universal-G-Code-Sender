@@ -51,6 +51,10 @@ public class GcodePath implements PathGenerator {
         segments.add(new Segment(type, point, comment));
     }
 
+    public void addSegment(SegmentType type, PartialPosition point, int feedRate) {
+        segments.add(new Segment(type, point, null, null, feedRate));
+    }
+
     public void addSegment(Segment segment) {
         segments.add(segment);
     }

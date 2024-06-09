@@ -62,6 +62,6 @@ public class PocketToolPath extends AbstractToolPath {
             addGeometriesToCoordinatesList(shell, geometries, coordinateList, currentDepth);
         }
 
-        gcodePath.appendGcodePath(toGcodePath(coordinateList));
+        addToGcodePath(gcodePath, coordinateList, source);
     }
 }

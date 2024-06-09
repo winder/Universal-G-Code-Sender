@@ -35,9 +35,9 @@ public class Settings {
     private UnitUtils.Units preferredUnits = UnitUtils.Units.MM;
     private double toolStepOver = 0.3;
     private double depthPerPass = 1;
-    private double spindleSpeed;
     private double laserDiameter = 0.2;
     private int maxSpindleSpeed = 255;
+    private boolean detectMaxSpindleSpeed = true;
 
     public Settings() {
     }
@@ -167,15 +167,6 @@ public class Settings {
         notifyListeners();
     }
 
-    public double getSpindleSpeed() {
-        return spindleSpeed;
-    }
-
-    public void setSpindleSpeed(double spindleSpeed) {
-        this.spindleSpeed = Math.abs(spindleSpeed);
-        notifyListeners();
-    }
-
     public void applySettings(Settings settings) {
         if (settings == null) {
             return;
@@ -189,9 +180,10 @@ public class Settings {
         setToolStepOver(settings.getToolStepOver());
         setPreferredUnits(settings.getPreferredUnits());
         setSafeHeight(settings.getSafeHeight());
-        setSpindleSpeed(settings.getSpindleSpeed());
         setLaserDiameter(settings.getLaserDiameter());
         setMaxSpindleSpeed(settings.getMaxSpindleSpeed());
+        setDetectMaxSpindleSpeed(settings.getDetectMaxSpindleSpeed());
+
     }
 
     public double getLaserDiameter() {
@@ -208,7 +200,19 @@ public class Settings {
     }
 
     public void setMaxSpindleSpeed(int maxSpindleSpeed) {
+        if (this.maxSpindleSpeed == Math.abs(maxSpindleSpeed)) {
+            return;
+        }
         this.maxSpindleSpeed = Math.abs(maxSpindleSpeed);
+        notifyListeners();
+    }
+
+    public boolean getDetectMaxSpindleSpeed() {
+        return detectMaxSpindleSpeed;
+    }
+
+    public void setDetectMaxSpindleSpeed(boolean detectMaxSpindleSpeed) {
+        this.detectMaxSpindleSpeed = detectMaxSpindleSpeed;
         notifyListeners();
     }
 }

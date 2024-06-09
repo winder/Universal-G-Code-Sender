@@ -51,7 +51,7 @@ public class GetFirmwareSettingsCommand extends SystemCommand {
                 .filter(Objects::nonNull)
                 .flatMap(this::flatten)
                 .collect(LinkedHashMap::new, (map, entry) ->
-                        map.put(entry.getKey(), entry.getValue().toString()), LinkedHashMap::putAll);
+                        map.put(entry.getKey().toLowerCase(), entry.getValue().toString()), LinkedHashMap::putAll);
     }
 
     private Stream<Map.Entry<String, Object>> flatten(Map.Entry<String, Object> entry) {
@@ -63,7 +63,7 @@ public class GetFirmwareSettingsCommand extends SystemCommand {
         if (value instanceof Map<?, ?>) {
             Map<?, ?> properties = (Map<?, ?>) value;
             return properties.entrySet().stream()
-                    .flatMap(e -> flatten(new AbstractMap.SimpleEntry<>(entry.getKey() + "/" + e.getKey(), e.getValue())));
+                    .flatMap(e -> flatten(new AbstractMap.SimpleEntry<>(entry.getKey().toLowerCase() + "/" + e.getKey().toString().toLowerCase(), e.getValue())));
         }
 
         return Stream.of(entry);

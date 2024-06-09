@@ -1,3 +1,21 @@
+/*
+    Copyright 2022-2024 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.firmware.fluidnc;
 
 import com.willwinder.universalgcodesender.IController;
@@ -23,7 +41,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
+/**
+ * @author Joacim Breiler
+ */
 public class FluidNCSettings implements IFirmwareSettings {
     private static final Logger LOGGER = Logger.getLogger(FluidNCSettings.class.getName());
 
@@ -44,7 +66,7 @@ public class FluidNCSettings implements IFirmwareSettings {
                 firmwareSettingsCommand.getSettings().keySet().forEach(key -> {
                     String value = firmwareSettingsCommand.getSettings().get(key);
                     FirmwareSetting firmwareSetting = new FirmwareSetting(key, value, "", "", "");
-                    settings.put(key, firmwareSetting);
+                    settings.put(key.toLowerCase(), firmwareSetting);
                     listeners.forEach(l -> l.onUpdatedFirmwareSetting(firmwareSetting));
                 });
             }
@@ -61,6 +83,7 @@ public class FluidNCSettings implements IFirmwareSettings {
     @Override
     public FirmwareSetting setValue(String key, String value) throws FirmwareSettingsException {
         try {
+            key = key.toLowerCase();
             if (!settings.containsKey(key) || !settings.get(key).getValue().equals(value)) {
                 FluidNCCommand systemCommand = new FluidNCCommand("$/" + key + "=" + value);
                 ControllerUtils.sendAndWaitForCompletion(controller, systemCommand);
@@ -200,7 +223,7 @@ public class FluidNCSettings implements IFirmwareSettings {
     public void setSettings(List<FirmwareSetting> settings) throws FirmwareSettingsException {
         settings.forEach(setting -> {
             try {
-                setValue(setting.getKey(), setting.getValue());
+                setValue(setting.getKey().toLowerCase(), setting.getValue());
             } catch (FirmwareSettingsException e) {
                 LOGGER.warning("Couldn't set the firmware setting " + setting.getKey() + " to value " + setting.getValue() + ". Error message: " + e.getMessage());
             }
@@ -210,5 +233,25 @@ public class FluidNCSettings implements IFirmwareSettings {
     @Override
     public double getMaximumRate(Axis axis) throws FirmwareSettingsException {
         return 0;
+    }
+
+    private Optional<SpeedMap> getSpeedMap(String speedMapSetting) {
+        FirmwareSetting value = settings.get(speedMapSetting);
+        return Optional.ofNullable(value)
+                .map(FirmwareSetting::getValue)
+                .map(SpeedMap::new);
+    }
+
+    @Override
+    public int getMaxSpindleSpeed() throws FirmwareSettingsException {
+        return Stream.of(getSpeedMap("laser/speed_map"),
+                        getSpeedMap("10V/speed_map"),
+                        getSpeedMap("pwm/speed_map"),
+                        getSpeedMap("besc/speed_map"))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(SpeedMap::getMax)
+                .findFirst()
+                .orElseThrow(() -> new FirmwareSettingsException("Could not find setting for max speed"));
     }
 }

@@ -20,7 +20,7 @@ public class LaserOutlineToolPath extends AbstractToolPath {
     }
 
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
-        gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d))));
+        gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d)), source.getFeedRate()));
 
         List<Geometry> geometries = getGeometries();
         geometries.forEach(g -> addGeometrySegments(g, gcodePath));

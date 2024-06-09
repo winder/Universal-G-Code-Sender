@@ -55,6 +55,8 @@ public enum EntitySetting {
             EntitySetting.ROTATION,
             EntitySetting.START_DEPTH,
             EntitySetting.TARGET_DEPTH,
+            EntitySetting.SPINDLE_SPEED,
+            EntitySetting.FEED_RATE,
             EntitySetting.TEXT);
 
     public static final List<EntitySetting> DEFAULT_LASER_SETTINGS = List.of(

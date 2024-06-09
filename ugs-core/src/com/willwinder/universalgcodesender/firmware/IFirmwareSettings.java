@@ -142,7 +142,7 @@ public interface IFirmwareSettings {
     /**
      * Sets the number of steps needed to move the machine one millimeter.
      *
-     * @param axis the axis to retrieve the setting for
+     * @param axis               the axis to retrieve the setting for
      * @param stepsPerMillimeter the number of steps to move one millimeter
      * @throws FirmwareSettingsException if the settings couldn't be saved
      */
@@ -185,7 +185,7 @@ public interface IFirmwareSettings {
     /**
      * Sets if the homing direction should be inverted for the given axis
      *
-     * @param axis the axis to make the setting for
+     * @param axis     the axis to make the setting for
      * @param inverted set to true if homing should be performed in a negative direction
      */
     void setHomingDirectionInverted(Axis axis, boolean inverted) throws FirmwareSettingsException;
@@ -218,4 +218,11 @@ public interface IFirmwareSettings {
      * @return the maximum rate in mm/min
      */
     double getMaximumRate(Axis axis) throws FirmwareSettingsException;
+
+    /**
+     * Returns the controller max spindle speed
+     *
+     * @return the max spindle speed
+     */
+    int getMaxSpindleSpeed() throws FirmwareSettingsException;
 }

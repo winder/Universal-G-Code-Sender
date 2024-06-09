@@ -145,6 +145,11 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
+    public int getMaxSpindleSpeed() throws FirmwareSettingsException {
+        return 0;
+    }
+
+    @Override
     public UnitUtils.Units getReportingUnits() {
         return UnitUtils.Units.UNKNOWN;
     }
