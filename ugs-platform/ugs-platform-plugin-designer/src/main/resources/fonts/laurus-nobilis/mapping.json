@@ -1,0 +1,436 @@
+{
+  "font": "/fonts/laurus-nobilis/laurel-wreath.ttf",
+  "name": "Laurus nobilis",
+  "credits": "Woodcutter",
+  "url": "https://www.dafont.com/laurus-nobilis.font",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Decoration 1",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF030"
+    },
+    {
+      "name": "Decoration 2",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF031"
+    },
+    {
+      "name": "Decoration 3",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF032"
+    },
+    {
+      "name": "Decoration 4",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF033"
+    },
+    {
+      "name": "Decoration 5",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF034"
+    },
+    {
+      "name": "Decoration 6",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF035"
+    },
+    {
+      "name": "Decoration 7",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF036"
+    },
+    {
+      "name": "Decoration 8",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF037"
+    },
+    {
+      "name": "Decoration 9",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF038"
+    },
+    {
+      "name": "Decoration 10",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF039"
+    },
+    {
+      "name": "Decoration 11",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF041"
+    },
+    {
+      "name": "Decoration 12",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF042"
+    },
+    {
+      "name": "Decoration 13",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF043"
+    },
+    {
+      "name": "Decoration 14",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF044"
+    },
+    {
+      "name": "Decoration 15",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF045"
+    },
+    {
+      "name": "Decoration 16",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF046"
+    },
+    {
+      "name": "Decoration 17",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF047"
+    },
+    {
+      "name": "Decoration 18",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF048"
+    },
+    {
+      "name": "Decoration 19",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF049"
+    },
+    {
+      "name": "Decoration 20",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF04A"
+    },
+    {
+      "name": "Decoration 21",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF04B"
+    },
+    {
+      "name": "Decoration 22",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF04C"
+    },
+    {
+      "name": "Decoration 23",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF04D"
+    },
+    {
+      "name": "Decoration 24",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF04E"
+    },
+    {
+      "name": "Decoration 25",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF04F"
+    },
+    {
+      "name": "Decoration 26",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF050"
+    },
+    {
+      "name": "Decoration 28",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF051"
+    },
+    {
+      "name": "Decoration 29",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF052"
+    },
+    {
+      "name": "Decoration 30",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF053"
+    },
+    {
+      "name": "Decoration 31",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF054"
+    },
+    {
+      "name": "Decoration 32",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF055"
+    },
+    {
+      "name": "Decoration 33",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF056"
+    },
+    {
+      "name": "Decoration 34",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF057"
+    },
+    {
+      "name": "Decoration 35",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF058"
+    },
+    {
+      "name": "Decoration 36",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF059"
+    },
+    {
+      "name": "Decoration 37",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF05A"
+    },
+    {
+      "name": "Decoration 38",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF061"
+    },
+    {
+      "name": "Decoration 39",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF062"
+    },
+    {
+      "name": "Decoration 40",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF063"
+    },
+    {
+      "name": "Decoration 41",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF064"
+    },
+    {
+      "name": "Decoration 42",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF065"
+    },
+    {
+      "name": "Decoration 43",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF067"
+    },
+    {
+      "name": "Decoration 44",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF068"
+    },
+    {
+      "name": "Decoration 45",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF069"
+    },
+    {
+      "name": "Decoration 46",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF06A"
+    },
+    {
+      "name": "Decoration 47",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF06B"
+    },
+    {
+      "name": "Decoration 48",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF06C"
+    },
+    {
+      "name": "Decoration 49",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF06D"
+    },
+    {
+      "name": "Decoration 50",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF06E"
+    },
+    {
+      "name": "Decoration 51",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF06F"
+    },
+    {
+      "name": "Decoration 52",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF070"
+    },
+    {
+      "name": "Decoration 53",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF071"
+    },
+    {
+      "name": "Decoration 54",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF072"
+    },
+    {
+      "name": "Decoration 55",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF073"
+    },
+    {
+      "name": "Decoration 56",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF074"
+    },
+    {
+      "name": "Decoration 58",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF075"
+    },
+    {
+      "name": "Decoration 59",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF076"
+    },
+    {
+      "name": "Decoration 60",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF077"
+    },
+    {
+      "name": "Decoration 61",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF078"
+    },
+    {
+      "name": "Decoration 62",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF079"
+    },
+    {
+      "name": "Decoration 63",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "\uF07A"
+    }
+  ]
+}

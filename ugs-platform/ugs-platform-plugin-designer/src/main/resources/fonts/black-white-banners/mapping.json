@@ -1,0 +1,191 @@
+{
+  "font": "/fonts/black-white-banners/banners.ttf",
+  "name": "Black and white banners",
+  "credits": "imagex",
+  "url": "https://www.dafont.com/black-white-banners.font",
+  "license": "Free for non-commercial use",
+  "cliparts": [
+    {
+      "name": "Banner 1",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Banner 2",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Banner 3",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Banner 4",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Banner 5",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Banner 6",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Banner 7",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Banner 8",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Banner 9",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Banner 10",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Banner 11",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Banner 12",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Banner 13",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Banner 14",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Banner 15",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "Banner 16",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Banner 17",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Banner 18",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "Banner 19",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Banner 20",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "Banner 21",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "Banner 22",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Banner 23",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "Banner 24",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Banner 25",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "Banner 26",
+      "categories": [
+        "DECORATIONS"
+      ],
+      "text": "Z"
+    }
+  ]
+}
