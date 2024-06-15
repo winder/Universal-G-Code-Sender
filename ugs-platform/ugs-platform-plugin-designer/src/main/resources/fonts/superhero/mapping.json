@@ -1,0 +1,634 @@
+{
+  "font": "/fonts/superhero/SuperHero.ttf",
+  "name": "Super Hero",
+  "credits": "Woodcutter",
+  "url": "https://www.dafont.com/super-hero.font",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Super hero 1",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Super hero 2",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Super hero 3",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Super hero 4",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Super hero 5",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Super hero 6",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Super hero 7",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Super hero 8",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Super hero 9",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Super hero 10",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Super hero 11",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Super hero 12",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Super hero 13",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Super hero 14",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Super hero 15",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "Super hero 16",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Super hero 17",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Super hero 18",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "Super hero 19",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Super hero 20",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "Super hero 21",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "Super hero 22",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Super hero 23",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "Super hero 24",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Super hero 25",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "Super hero 26",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "Super hero 28",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "Super hero 29",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "Super hero 30",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "Super hero 31",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "Super hero 32",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Super hero 33",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Super hero 34",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "Super hero 35",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "Super hero 36",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "Super hero 37",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "Super hero 38",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "Super hero 39",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "l"
+    },
+    {
+      "name": "Super hero 40",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "m"
+    },
+    {
+      "name": "Super hero 41",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "n"
+    },
+    {
+      "name": "Super hero 42",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "o"
+    },
+    {
+      "name": "Super hero 43",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "p"
+    },
+    {
+      "name": "Super hero 44",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "q"
+    },
+    {
+      "name": "Super hero 45",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "r"
+    },
+    {
+      "name": "Super hero 46",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "s"
+    },
+    {
+      "name": "Super hero 47",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "Super hero 48",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "u"
+    },
+    {
+      "name": "Super hero 49",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "v"
+    },
+    {
+      "name": "Super hero 50",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "w"
+    },
+    {
+      "name": "Super hero 51",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "x"
+    },
+    {
+      "name": "Super hero 52",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "y"
+    },
+    {
+      "name": "Super hero 53",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "z"
+    },
+    {
+      "name": "Super hero 54",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "0"
+    },
+    {
+      "name": "Super hero 55",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "1"
+    },
+    {
+      "name": "Super hero 56",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "2"
+    },
+    {
+      "name": "Super hero 58",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "3"
+    },
+    {
+      "name": "Super hero 59",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "4"
+    },
+    {
+      "name": "Super hero 60",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "5"
+    },
+    {
+      "name": "Super hero 61",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "6"
+    },
+    {
+      "name": "Super hero 62",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "7"
+    },
+    {
+      "name": "Super hero 63",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "8"
+    },
+    {
+      "name": "Super hero 64",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "9"
+    },
+    {
+      "name": "Super hero 65",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\""
+    },
+    {
+      "name": "Super hero 66",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "#"
+    },    {
+      "name": "Super hero 67",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "$"
+    },    {
+      "name": "Super hero 68",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "%"
+    },    {
+      "name": "Super hero 69",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "&"
+    },    {
+      "name": "Super hero 70",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "'"
+    },    {
+      "name": "Super hero 71",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "("
+    },    {
+      "name": "Super hero 72",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": ")"
+    },    {
+      "name": "Super hero 73",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "*"
+    },    {
+      "name": "Super hero 74",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "+"
+    },    {
+      "name": "Super hero 75",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": ","
+    },    {
+      "name": "Super hero 76",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "-"
+    },    {
+      "name": "Super hero 77",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "."
+    },    {
+      "name": "Super hero 78",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "\\"
+    },    {
+      "name": "Super hero 79",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": ":"
+    },    {
+      "name": "Super hero 80",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": ";"
+    },    {
+      "name": "Super hero 81",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "<"
+    },    {
+      "name": "Super hero 82",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "="
+    },    {
+      "name": "Super hero 83",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": ">"
+    },    {
+      "name": "Super hero 84",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "?"
+    },    {
+      "name": "Super hero 85",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "@"
+    },    {
+      "name": "Super hero 86",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "["
+    },
+    {
+      "name": "Super hero 87",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "/"
+    },    {
+      "name": "Super hero 88",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "]"
+    },
+    {
+      "name": "Super hero 89",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "^"
+    },    {
+      "name": "Super hero 90",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "_"
+    },    {
+      "name": "Super hero 91",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "`"
+    },    {
+      "name": "Super hero 92",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "{"
+    },
+    {
+      "name": "Super hero 93",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "|"
+    },    {
+      "name": "Super hero 94",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "}"
+    },    {
+      "name": "Super hero 95",
+      "categories": [
+        "PEOPLE_AND_CHARACTERS"
+      ],
+      "text": "~"
+    }
+  ]
+}

@@ -1,0 +1,634 @@
+{
+  "font": "/fonts/eagle/Eagle.ttf",
+  "name": "Eagle",
+  "credits": "Woodcutter",
+  "url": "https://www.dafont.com/eagle.font",
+  "license": "Free for commercial use",
+  "cliparts": [
+    {
+      "name": "Eagle 1",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "A"
+    },
+    {
+      "name": "Eagle 2",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "B"
+    },
+    {
+      "name": "Eagle 3",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "C"
+    },
+    {
+      "name": "Eagle 4",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "D"
+    },
+    {
+      "name": "Eagle 5",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "E"
+    },
+    {
+      "name": "Eagle 6",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "F"
+    },
+    {
+      "name": "Eagle 7",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "G"
+    },
+    {
+      "name": "Eagle 8",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "H"
+    },
+    {
+      "name": "Eagle 9",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "I"
+    },
+    {
+      "name": "Eagle 10",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "J"
+    },
+    {
+      "name": "Eagle 11",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "K"
+    },
+    {
+      "name": "Eagle 12",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "L"
+    },
+    {
+      "name": "Eagle 13",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "M"
+    },
+    {
+      "name": "Eagle 14",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "N"
+    },
+    {
+      "name": "Eagle 15",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "O"
+    },
+    {
+      "name": "Eagle 16",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "P"
+    },
+    {
+      "name": "Eagle 17",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "Q"
+    },
+    {
+      "name": "Eagle 18",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "R"
+    },
+    {
+      "name": "Eagle 19",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "S"
+    },
+    {
+      "name": "Eagle 20",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "T"
+    },
+    {
+      "name": "Eagle 21",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "U"
+    },
+    {
+      "name": "Eagle 22",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "V"
+    },
+    {
+      "name": "Eagle 23",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "W"
+    },
+    {
+      "name": "Eagle 24",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "X"
+    },
+    {
+      "name": "Eagle 25",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "Y"
+    },
+    {
+      "name": "Eagle 26",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "Z"
+    },
+    {
+      "name": "Eagle 28",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "a"
+    },
+    {
+      "name": "Eagle 29",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "b"
+    },
+    {
+      "name": "Eagle 30",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "c"
+    },
+    {
+      "name": "Eagle 31",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "d"
+    },
+    {
+      "name": "Eagle 32",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "e"
+    },
+    {
+      "name": "Eagle 33",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "f"
+    },
+    {
+      "name": "Eagle 34",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "g"
+    },
+    {
+      "name": "Eagle 35",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "h"
+    },
+    {
+      "name": "Eagle 36",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "i"
+    },
+    {
+      "name": "Eagle 37",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "j"
+    },
+    {
+      "name": "Eagle 38",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "k"
+    },
+    {
+      "name": "Eagle 39",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "l"
+    },
+    {
+      "name": "Eagle 40",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "m"
+    },
+    {
+      "name": "Eagle 41",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "n"
+    },
+    {
+      "name": "Eagle 42",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "o"
+    },
+    {
+      "name": "Eagle 43",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "p"
+    },
+    {
+      "name": "Eagle 44",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "q"
+    },
+    {
+      "name": "Eagle 45",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "r"
+    },
+    {
+      "name": "Eagle 46",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "s"
+    },
+    {
+      "name": "Eagle 47",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "t"
+    },
+    {
+      "name": "Eagle 48",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "u"
+    },
+    {
+      "name": "Eagle 49",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "v"
+    },
+    {
+      "name": "Eagle 50",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "w"
+    },
+    {
+      "name": "Eagle 51",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "x"
+    },
+    {
+      "name": "Eagle 52",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "y"
+    },
+    {
+      "name": "Eagle 53",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "z"
+    },
+    {
+      "name": "Eagle 54",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "0"
+    },
+    {
+      "name": "Eagle 55",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "1"
+    },
+    {
+      "name": "Eagle 56",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "2"
+    },
+    {
+      "name": "Eagle 58",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "3"
+    },
+    {
+      "name": "Eagle 59",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "4"
+    },
+    {
+      "name": "Eagle 60",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "5"
+    },
+    {
+      "name": "Eagle 61",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "6"
+    },
+    {
+      "name": "Eagle 62",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "7"
+    },
+    {
+      "name": "Eagle 63",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "8"
+    },
+    {
+      "name": "Eagle 64",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "9"
+    },
+    {
+      "name": "Eagle 65",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\""
+    },
+    {
+      "name": "Eagle 66",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "#"
+    },    {
+      "name": "Eagle 67",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "$"
+    },    {
+      "name": "Eagle 68",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "%"
+    },    {
+      "name": "Eagle 69",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "&"
+    },    {
+      "name": "Eagle 70",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "'"
+    },    {
+      "name": "Eagle 71",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "("
+    },    {
+      "name": "Eagle 72",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": ")"
+    },    {
+      "name": "Eagle 73",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "*"
+    },    {
+      "name": "Eagle 74",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "+"
+    },    {
+      "name": "Eagle 75",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": ","
+    },    {
+      "name": "Eagle 76",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "-"
+    },    {
+      "name": "Eagle 77",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "."
+    },    {
+      "name": "Eagle 78",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "\\"
+    },    {
+      "name": "Eagle 79",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": ":"
+    },    {
+      "name": "Eagle 80",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": ";"
+    },    {
+      "name": "Eagle 81",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "<"
+    },    {
+      "name": "Eagle 82",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "="
+    },    {
+      "name": "Eagle 83",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": ">"
+    },    {
+      "name": "Eagle 84",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "?"
+    },    {
+      "name": "Eagle 85",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "@"
+    },    {
+      "name": "Eagle 86",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "["
+    },
+    {
+      "name": "Eagle 87",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "/"
+    },    {
+      "name": "Eagle 88",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "]"
+    },
+    {
+      "name": "Eagle 89",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "^"
+    },    {
+      "name": "Eagle 90",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "_"
+    },    {
+      "name": "Eagle 91",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "`"
+    },    {
+      "name": "Eagle 92",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "{"
+    },
+    {
+      "name": "Eagle 93",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "|"
+    },    {
+      "name": "Eagle 94",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "}"
+    },    {
+      "name": "Eagle 95",
+      "categories": [
+        "ANIMALS"
+      ],
+      "text": "~"
+    }
+  ]
+}
