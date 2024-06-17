@@ -3,15 +3,14 @@ package com.willwinder.ugs.nbp.designer.entities;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.model.Size;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Optional;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class EntityGroupTest {
 
@@ -343,5 +342,23 @@ public class EntityGroupTest {
         assertEquals(0, entityGroup.getBounds().getY(), 0.1);
         assertEquals(15, entityGroup.getBounds().getWidth(), 0.1);
         assertEquals(15, entityGroup.getBounds().getHeight(), 0.1);
+    }
+
+    @Test
+    public void setSizeShouldChangeAllChildEntites() {
+        EntityGroup entityGroup = new EntityGroup();
+
+        Rectangle rectangle1 = new Rectangle(0, 0);
+        rectangle1.setSize(new Size(10, 10));
+        entityGroup.addChild(rectangle1);
+
+        Rectangle rectangle2 = new Rectangle(10, 0);
+        rectangle2.setSize(new Size(10, 10));
+        entityGroup.addChild(rectangle2);
+
+        entityGroup.setSize(new Size(10, 5));
+        assertEquals(new Size(10, 5), entityGroup.getSize());
+        assertEquals(new Size(5, 5), rectangle1.getSize());
+        assertEquals(new Size(5, 5), rectangle2.getSize());
     }
 }

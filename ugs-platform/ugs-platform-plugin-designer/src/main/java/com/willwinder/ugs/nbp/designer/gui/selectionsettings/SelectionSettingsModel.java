@@ -29,6 +29,7 @@ import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 
 import java.awt.Font;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -288,25 +289,58 @@ public class SelectionSettingsModel implements Serializable {
     }
 
     public void updateFromEntity(Group selectionGroup) {
-        if (selectionGroup.getChildren().size() > 1) {
-            return;
-        }
-        boolean isTextCuttable = selectionGroup.getChildren().get(0) instanceof Text;
-        if (isTextCuttable) {
+        List<EntitySetting> settings = selectionGroup.getSettings();
+        if (settings.contains(EntitySetting.TEXT)) {
             Text textEntity = (Text) selectionGroup.getChildren().get(0);
             setText(textEntity.getText());
+        }
+
+        if (settings.contains(EntitySetting.FONT_FAMILY)) {
+            Text textEntity = (Text) selectionGroup.getChildren().get(0);
             setFontFamily(textEntity.getFontFamily());
         }
-        setPositionX(selectionGroup.getPosition(getAnchor()).getX());
-        setPositionY(selectionGroup.getPosition(getAnchor()).getY());
-        setWidth(selectionGroup.getSize().getWidth());
-        setHeight(selectionGroup.getSize().getHeight());
-        setRotation(selectionGroup.getRotation());
-        setStartDepth(selectionGroup.getStartDepth());
-        setTargetDepth(selectionGroup.getTargetDepth());
-        setCutType(selectionGroup.getCutType());
-        setSpindleSpeed(selectionGroup.getSpindleSpeed());
-        setPasses(selectionGroup.getPasses());
-        setFeedRate(selectionGroup.getFeedRate());
+
+        if (settings.contains(EntitySetting.POSITION_X)) {
+            setPositionX(selectionGroup.getPosition(getAnchor()).getX());
+        }
+
+        if (settings.contains(EntitySetting.POSITION_X)) {
+            setPositionY(selectionGroup.getPosition(getAnchor()).getY());
+        }
+
+        if (settings.contains(EntitySetting.WIDTH)) {
+            setWidth(selectionGroup.getSize().getWidth());
+        }
+
+        if (settings.contains(EntitySetting.HEIGHT)) {
+            setHeight(selectionGroup.getSize().getHeight());
+        }
+
+        if (settings.contains(EntitySetting.ROTATION)) {
+            setRotation(selectionGroup.getRotation());
+        }
+
+        if (settings.contains(EntitySetting.START_DEPTH)) {
+            setStartDepth(selectionGroup.getStartDepth());
+        }
+        if (settings.contains(EntitySetting.TARGET_DEPTH)) {
+            setTargetDepth(selectionGroup.getTargetDepth());
+        }
+
+        if (settings.contains(EntitySetting.CUT_TYPE)) {
+            setCutType(selectionGroup.getCutType());
+        }
+
+        if (settings.contains(EntitySetting.SPINDLE_SPEED)) {
+            setSpindleSpeed(selectionGroup.getSpindleSpeed());
+        }
+
+        if (settings.contains(EntitySetting.PASSES)) {
+            setPasses(selectionGroup.getPasses());
+        }
+
+        if (settings.contains(EntitySetting.FEED_RATE)) {
+            setFeedRate(selectionGroup.getFeedRate());
+        }
     }
 }
