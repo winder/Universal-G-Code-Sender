@@ -18,6 +18,8 @@
  */
 package com.willwinder.ugs.nbp.designer.model;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -25,8 +27,8 @@ import java.util.Objects;
  * @author Joacim Breiler
  */
 public class Size implements Serializable {
-    private double width;
-    private double height;
+    private final double width;
+    private final double height;
 
     public Size(double width, double height) {
         this.width = width;
@@ -60,5 +62,10 @@ public class Size implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(width, height);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }

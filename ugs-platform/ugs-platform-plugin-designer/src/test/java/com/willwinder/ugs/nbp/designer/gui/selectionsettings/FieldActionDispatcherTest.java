@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.designer.actions.ResizeAction;
 import com.willwinder.ugs.nbp.designer.actions.UndoActionList;
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.actions.UndoableAction;
+import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
@@ -66,6 +67,7 @@ public class FieldActionDispatcherTest {
         Entity entity = new Rectangle(0, 0);
         mockSelectionManager(entity);
         when(model.get(EntitySetting.WIDTH)).thenReturn(0);
+        when(model.getAnchor()).thenReturn(Anchor.CENTER);
 
         ArgumentCaptor<UndoableAction> undoableActionArgumentCaptor = ArgumentCaptor.forClass(UndoableAction.class);
         doNothing().when(undoManager).addAction(undoableActionArgumentCaptor.capture());

@@ -18,9 +18,9 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
+import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
-import com.willwinder.ugs.nbp.designer.entities.controls.Location;
 import com.willwinder.ugs.nbp.designer.entities.controls.ResizeUtils;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
@@ -34,30 +34,38 @@ import java.util.List;
  * @author Joacim Breiler
  */
 public class ResizeAction implements UndoableAction {
-    private final Location location;
+    private final Anchor anchor;
     private final List<Entity> entities;
     private final Size originalSize;
     private final Size newSize;
 
-    public ResizeAction(List<Entity> entities, Location location, Size originalSize, Size newSize) {
+    /**
+     * Resizes the entities from an anchor position
+     *
+     * @param entities     a list of entities that is being resized
+     * @param anchor       the corner that is being anchored
+     * @param originalSize the original size
+     * @param newSize      the new size
+     */
+    public ResizeAction(List<Entity> entities, Anchor anchor, Size originalSize, Size newSize) {
         this.entities = new ArrayList<>(entities);
-        this.location = location;
         this.originalSize = originalSize;
         this.newSize = newSize;
+        this.anchor = anchor;
     }
 
     @Override
     public void redo() {
         EntityGroup entityGroup = new EntityGroup();
         entityGroup.addAll(entities);
-        ResizeUtils.performScaling(entityGroup, location, originalSize, newSize);
+        ResizeUtils.performScaling(entityGroup, anchor, originalSize, newSize);
     }
 
     @Override
     public void undo() {
         EntityGroup entityGroup = new EntityGroup();
         entityGroup.addAll(entities);
-        ResizeUtils.performScaling(entityGroup, location, newSize, originalSize);
+        ResizeUtils.performScaling(entityGroup, anchor, newSize, originalSize);
     }
 
     @Override

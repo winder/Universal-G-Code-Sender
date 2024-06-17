@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
+import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
@@ -28,30 +29,35 @@ public class ResizeUtils {
     private ResizeUtils() {
     }
 
-    public static Point2D getDeltaMovement(Location location, Size size, Size newSize) {
+    public static Point2D getDeltaMovement(Anchor anchor, Size size, Size newSize) {
         Size deltaSize = new Size(size.getWidth() - newSize.getWidth(), size.getHeight() - newSize.getHeight());
         Point2D movement = new Point2D.Double(0, 0);
-        if (location == Location.BOTTOM_LEFT) {
+        if (anchor == Anchor.TOP_RIGHT) {
             movement.setLocation(deltaSize.getWidth(), deltaSize.getHeight());
-        } else if (location == Location.BOTTOM_RIGHT) {
+        } else if (anchor == Anchor.TOP_LEFT) {
             movement.setLocation(0, deltaSize.getHeight());
-        } else if (location == Location.TOP_LEFT) {
+        } else if (anchor == Anchor.BOTTOM_RIGHT) {
             movement.setLocation(deltaSize.getWidth(), 0);
-        } else if (location == Location.LEFT) {
-            movement.setLocation(deltaSize.getWidth(), 0);
-        } else if (location == Location.BOTTOM) {
-            movement.setLocation(0, deltaSize.getHeight());
+        } else if (anchor == Anchor.RIGHT_CENTER) {
+            movement.setLocation(deltaSize.getWidth(), deltaSize.getHeight() / 2);
+        } else if (anchor == Anchor.TOP_CENTER) {
+            movement.setLocation(deltaSize.getWidth() / 2, deltaSize.getHeight());
+        } else if (anchor == Anchor.CENTER) {
+            movement.setLocation(deltaSize.getWidth() / 2, deltaSize.getHeight() / 2);
+        } else if (anchor == Anchor.BOTTOM_CENTER) {
+            movement.setLocation(deltaSize.getWidth() / 2, 0);
+        } else if (anchor == Anchor.LEFT_CENTER) {
+            movement.setLocation(0, deltaSize.getHeight() / 2);
         }
         return movement;
     }
 
-    public static void performScaling(Entity target, Location location, Size originalSize, Size newSize) {
+    public static void performScaling(Entity target, Anchor anchor, Size originalSize, Size newSize) {
         // Do not scale if the entity will become too small after operation
         if (newSize.getWidth() <= 0 || newSize.getHeight() <= 0) {
             return;
         }
-
-        target.move(getDeltaMovement(location, originalSize, newSize));
+        target.move(getDeltaMovement(anchor, originalSize, newSize));
         target.setSize(newSize);
     }
 }
