@@ -84,6 +84,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private JSlider passesSlider;
     private JLabel feedRateLabel;
     private UnitSpinner feedRateSpinner;
+    private JLabel cutTypeLabel;
 
     public SelectionSettingsPanel(Controller controller) {
         fieldEventDispatcher = new FieldEventDispatcher();
@@ -97,10 +98,8 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         fieldEventDispatcher.addListener(fieldActionDispatcher);
     }
 
-    private static Boolean firstChildHasSetting(Group selectionGroup, EntitySetting entitySetting) {
-        return selectionGroup.getFirstChild()
-                .map(firstChild -> firstChild.getSettings().contains(entitySetting))
-                .orElse(false);
+    private static Boolean selectionHasSetting(Group selectionGroup, EntitySetting entitySetting) {
+        return selectionGroup.getSettings().contains(entitySetting);
     }
 
     private void addPositionFields() {
@@ -146,7 +145,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         cutTypeComboBox = new CutTypeCombo();
         fieldEventDispatcher.registerListener(EntitySetting.CUT_TYPE, cutTypeComboBox);
 
-        createAndAddLabel(EntitySetting.CUT_TYPE);
+        cutTypeLabel = createAndAddLabel(EntitySetting.CUT_TYPE);
         add(cutTypeComboBox, FIELD_CONSTRAINTS + ", spanx");
 
         feedRateLabel = createAndAddLabel(EntitySetting.FEED_RATE);
@@ -319,50 +318,59 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private void handleComponentVisibility(Group selectionGroup) {
         CutType cutType = selectionGroup.getCutType();
 
+        boolean hasCutType = selectionHasSetting(selectionGroup, EntitySetting.CUT_TYPE);
+        cutTypeComboBox.setVisible(hasCutType);
+        cutTypeLabel.setVisible(hasCutType);
+
         final boolean hasCutTypeSelection = cutType != CutType.NONE;
         startDepthSpinner.setEnabled(hasCutTypeSelection);
         startDepthLabel.setEnabled(hasCutTypeSelection);
         targetDepthSpinner.setEnabled(hasCutTypeSelection);
         targetDepthLabel.setEnabled(hasCutTypeSelection);
 
-        boolean isTextCuttable = firstChildHasSetting(selectionGroup, EntitySetting.TEXT);
+        boolean isTextCuttable = selectionHasSetting(selectionGroup, EntitySetting.TEXT);
         textTextField.setVisible(isTextCuttable);
         textLabel.setVisible(isTextCuttable);
         fontLabel.setVisible(isTextCuttable);
         fontDropDown.setVisible(isTextCuttable);
         fontSeparator.setVisible(isTextCuttable);
 
-        boolean hasWidth = firstChildHasSetting(selectionGroup, EntitySetting.WIDTH);
+        boolean hasWidth = selectionHasSetting(selectionGroup, EntitySetting.WIDTH);
         widthLabel.setVisible(hasWidth);
         widthTextField.setVisible(hasWidth);
 
-        boolean hasHeight = firstChildHasSetting(selectionGroup, EntitySetting.HEIGHT);
+        boolean hasHeight = selectionHasSetting(selectionGroup, EntitySetting.HEIGHT);
         heightLabel.setVisible(hasHeight);
         heightTextField.setVisible(hasHeight);
 
-        boolean hasAnchor = firstChildHasSetting(selectionGroup, EntitySetting.ANCHOR);
+        boolean hasAnchor = selectionHasSetting(selectionGroup, EntitySetting.ANCHOR);
         anchorSelector.setVisible(hasAnchor);
 
-        boolean hasStartDepth = cutType.getSettings().contains(EntitySetting.START_DEPTH);
+        boolean hasStartDepth = selectionHasSetting(selectionGroup, EntitySetting.START_DEPTH) &&
+                cutType.getSettings().contains(EntitySetting.START_DEPTH);
         startDepthSpinner.setVisible(hasStartDepth);
         startDepthLabel.setVisible(hasStartDepth);
 
-        boolean hasTargetDepth = cutType.getSettings().contains(EntitySetting.TARGET_DEPTH);
+        boolean hasTargetDepth = selectionHasSetting(selectionGroup, EntitySetting.TARGET_DEPTH) &&
+                cutType.getSettings().contains(EntitySetting.TARGET_DEPTH);
         targetDepthSpinner.setVisible(hasTargetDepth);
         targetDepthLabel.setVisible(hasTargetDepth);
 
-        boolean hasLaserPower = cutType.getSettings().contains(EntitySetting.SPINDLE_SPEED);
+        boolean hasLaserPower = selectionHasSetting(selectionGroup, EntitySetting.SPINDLE_SPEED) &&
+                cutType.getSettings().contains(EntitySetting.SPINDLE_SPEED);
         spindleSpeedLabel.setText(cutType == CutType.LASER_FILL || cutType == CutType.LASER_ON_PATH ? "Power" : EntitySetting.SPINDLE_SPEED.getLabel());
         spindleSpeedLabel.setVisible(hasLaserPower);
         spindleSpeedSlider.setVisible(hasLaserPower);
 
-        boolean hasLaserPasses = cutType.getSettings().contains(EntitySetting.PASSES);
+        boolean hasLaserPasses = selectionHasSetting(selectionGroup, EntitySetting.PASSES) &&
+                cutType.getSettings().contains(EntitySetting.PASSES);
         laserPassesLabel.setVisible(hasLaserPasses);
         passesSlider.setVisible(hasLaserPasses);
 
-        boolean hasLaserFeedRate = cutType.getSettings().contains(EntitySetting.FEED_RATE);
-        feedRateLabel.setVisible(hasLaserFeedRate);
-        feedRateSpinner.setVisible(hasLaserFeedRate);
+        boolean hasFeedRate = selectionHasSetting(selectionGroup, EntitySetting.FEED_RATE) &&
+                cutType.getSettings().contains(EntitySetting.FEED_RATE);
+        feedRateLabel.setVisible(hasFeedRate);
+        feedRateSpinner.setVisible(hasFeedRate);
 
         lockRatioButton.setVisible(hasWidth && hasHeight);
     }

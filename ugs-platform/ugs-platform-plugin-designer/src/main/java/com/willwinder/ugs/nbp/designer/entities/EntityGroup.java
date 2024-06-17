@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbp.designer.entities;
 
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
-import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.Graphics2D;
 import java.awt.Shape;
@@ -55,16 +54,6 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     }
 
     @Override
-    public void setSize(Size size) {
-        if(size.getWidth() == 0 || size.getHeight() == 0) {
-            return;
-        }
-
-        Size originalSize = getSize();
-        scale(size.getWidth() / originalSize.getWidth(), size.getHeight() / originalSize.getHeight());
-    }
-
-    @Override
     public void rotate(double angle) {
         try {
             groupRotation += angle;
@@ -92,12 +81,6 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     @Override
     public Shape getShape() {
         return getBounds();
-    }
-
-    @Override
-    public Size getSize() {
-        Rectangle2D bounds = getBounds();
-        return new Size(bounds.getWidth(), bounds.getHeight());
     }
 
     @Override
@@ -141,12 +124,6 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
 
     private void invalidateBounds() {
         cachedBounds = null;
-    }
-
-    @Override
-    public Point2D getCenter() {
-        Rectangle2D bounds = getBounds();
-        return new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
     }
 
     public void addAll(List<Entity> entities) {
