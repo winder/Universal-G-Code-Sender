@@ -87,6 +87,12 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void setSize(Size size) {
+        setSize(Anchor.BOTTOM_LEFT, size);
+    }
+
+    @Override
+    public void setSize(Anchor anchor, Size size) {
+        Point2D position = getPosition(anchor);
         if (size.getWidth() <= 0) {
             size = new Size(0.0001, size.getHeight());
         }
@@ -97,6 +103,7 @@ public abstract class AbstractEntity implements Entity {
 
         Size currentSize = getSize();
         scale(size.getWidth() / currentSize.getWidth(), size.getHeight() / currentSize.getHeight());
+        setPosition(anchor, position);
     }
 
     @Override

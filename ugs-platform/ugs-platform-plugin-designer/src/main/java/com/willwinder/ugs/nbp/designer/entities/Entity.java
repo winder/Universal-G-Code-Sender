@@ -95,6 +95,14 @@ public interface Entity {
     void setSize(Size size);
 
     /**
+     * Changes the size of the entity from the given anchor.
+     *
+     * @param anchor the anchor to keep
+     * @param size the new size
+     */
+    void setSize(Anchor anchor, Size size);
+
+    /**
      * Gets the bounds of the entity with the position and size in real space
      *
      * @return the bounds in real space

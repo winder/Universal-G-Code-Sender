@@ -9,7 +9,6 @@ import com.willwinder.ugs.nbp.designer.actions.RotateAction;
 import com.willwinder.ugs.nbp.designer.actions.UndoActionList;
 import com.willwinder.ugs.nbp.designer.actions.UndoableAction;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
-import com.willwinder.ugs.nbp.designer.entities.controls.Location;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
@@ -92,12 +91,12 @@ public class FieldActionDispatcher implements FieldEventListener {
             double width = value;
             double scale = model.getLockRatio() ? currentWidth / width : 1;
             double height = currentHeight / scale;
-            actionList.add(new ResizeAction(selection.getChildren(), Location.TOP_RIGHT, selection.getSize(), new Size(width, height)));
+            actionList.add(new ResizeAction(selection.getChildren(), model.getAnchor(), selection.getSize(), new Size(width, height)));
         } else if (entitySetting == EntitySetting.HEIGHT) {
             double height = value;
             double scale = model.getLockRatio() ? currentHeight / height : 1;
             double width = currentWidth / scale;
-            actionList.add(new ResizeAction(selection.getChildren(), Location.TOP_RIGHT, selection.getSize(), new Size(width, height)));
+            actionList.add(new ResizeAction(selection.getChildren(), model.getAnchor(), selection.getSize(), new Size(width, height)));
         }
 
         return actionList;

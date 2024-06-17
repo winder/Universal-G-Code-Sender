@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.gui;
 
 import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.Throttler;
+import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
@@ -30,7 +31,6 @@ import com.willwinder.ugs.nbp.designer.entities.controls.CreateTextControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.EditTextControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.GridControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.HighlightModelControl;
-import com.willwinder.ugs.nbp.designer.entities.controls.Location;
 import com.willwinder.ugs.nbp.designer.entities.controls.MoveControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.ResizeControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.RotationControl;
@@ -86,14 +86,14 @@ public class Drawing extends JPanel {
 
         controlsRoot = new EntityGroup();
         globalRoot.addChild(controlsRoot);
-        controlsRoot.addChild(new ResizeControl(controller, Location.TOP));
-        controlsRoot.addChild(new ResizeControl(controller, Location.LEFT));
-        controlsRoot.addChild(new ResizeControl(controller, Location.RIGHT));
-        controlsRoot.addChild(new ResizeControl(controller, Location.BOTTOM));
-        controlsRoot.addChild(new ResizeControl(controller, Location.BOTTOM_LEFT));
-        controlsRoot.addChild(new ResizeControl(controller, Location.BOTTOM_RIGHT));
-        controlsRoot.addChild(new ResizeControl(controller, Location.TOP_LEFT));
-        controlsRoot.addChild(new ResizeControl(controller, Location.TOP_RIGHT));
+        controlsRoot.addChild(new ResizeControl(controller, Anchor.TOP_CENTER));
+        controlsRoot.addChild(new ResizeControl(controller, Anchor.LEFT_CENTER));
+        controlsRoot.addChild(new ResizeControl(controller, Anchor.RIGHT_CENTER));
+        controlsRoot.addChild(new ResizeControl(controller, Anchor.BOTTOM_CENTER));
+        controlsRoot.addChild(new ResizeControl(controller, Anchor.BOTTOM_LEFT));
+        controlsRoot.addChild(new ResizeControl(controller, Anchor.BOTTOM_RIGHT));
+        controlsRoot.addChild(new ResizeControl(controller, Anchor.TOP_LEFT));
+        controlsRoot.addChild(new ResizeControl(controller, Anchor.TOP_RIGHT));
         controlsRoot.addChild(new HighlightModelControl(controller.getSelectionManager()));
         controlsRoot.addChild(new MoveControl(controller));
         controlsRoot.addChild(new RotationControl(controller));
