@@ -190,6 +190,27 @@ public class GcodeLexerTest {
     }
 
     @Test
+    public void parsingGcodeShouldIdentifyParametersWithPlusSign() {
+        String text = "G01 X+100";
+        TokenSequence<GcodeTokenId> ts = parseTokenSequence(text);
+
+        ts.moveNext();
+        Token<?> t = ts.token();
+        assertEquals(GcodeTokenId.MOVEMENT, t.id());
+        assertEquals("G01", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.AXIS, t.id());
+        assertEquals("X+100", t.text());
+    }
+
+    @Test
     public void parsingGcodeShouldIdentifyParametersWithDecimals() {
         String text = "G01 X-100.1 S100.10";
         TokenSequence<GcodeTokenId> ts = parseTokenSequence(text);
@@ -427,5 +448,47 @@ public class GcodeLexerTest {
         t = ts.token();
         assertEquals(GcodeTokenId.ERROR, t.id());
         assertEquals("3", t.text());
+    }
+
+    @Test
+    public void parsingNestedBlockComments() {
+        String text = "G01 (nested (comment))";
+        TokenSequence<GcodeTokenId> ts = parseTokenSequence(text);
+
+        ts.moveNext();
+        Token<?> t = ts.token();
+        assertEquals(GcodeTokenId.MOVEMENT, t.id());
+        assertEquals("G01", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.COMMENT, t.id());
+        assertEquals("(nested (comment))", t.text());
+    }
+
+    @Test
+    public void parsingNestedBlockCommentsWithMissingLastParanthesis() {
+        String text = "G01 (nested (comment)";
+        TokenSequence<GcodeTokenId> ts = parseTokenSequence(text);
+
+        ts.moveNext();
+        Token<?> t = ts.token();
+        assertEquals(GcodeTokenId.MOVEMENT, t.id());
+        assertEquals("G01", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.ERROR, t.id());
+        assertEquals("(nested (comment)", t.text());
     }
 }
