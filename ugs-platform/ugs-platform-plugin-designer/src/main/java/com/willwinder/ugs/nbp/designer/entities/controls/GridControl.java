@@ -26,7 +26,14 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Optional;
@@ -36,69 +43,112 @@ import java.util.Optional;
  */
 public class GridControl extends AbstractEntity implements Control {
 
-    public static final int MINIMUM_SIZE = 300;
-    public static final int LARGE_GRID_SIZE = 50;
-    public static final int SMALL_GRID_SIZE = 10;
+    public static final int LARGE_GRID_SIZE = 100;
+    public static final int SMALL_GRID_SIZE = 20;
     private final Controller controller;
 
     public GridControl(Controller controller) {
         this.controller = controller;
     }
 
-    @Override
-    public void render(Graphics2D graphics, Drawing drawing) {
-        double gridSize = LARGE_GRID_SIZE;
-
-        Rectangle2D bounds = controller.getDrawing().getRootEntity().getBounds();
-        int calculatedMinimumWidth = (int) Math.round(Math.floor(bounds.getMaxX() / gridSize) * gridSize + (gridSize * 2));
-        int calculatedMinimumHeight = (int) Math.round(Math.floor(bounds.getMaxY() / gridSize) * gridSize + (gridSize * 2));
-
-        int width = Math.max(calculatedMinimumWidth, MINIMUM_SIZE);
-        int height = Math.max(calculatedMinimumHeight, MINIMUM_SIZE);
-
-        graphics.setColor(Color.WHITE);
-        graphics.fillRect(0, 0, width, height);
-
-        graphics.setStroke(new BasicStroke(Double.valueOf(0.1 / drawing.getScale()).floatValue()));
+    private static void drawZeroLines(Graphics2D graphics, Drawing drawing, int startPosX, int startPosY, int endPosX, int endPosY) {
+        // Draw zero lines
+        graphics.setStroke(new BasicStroke((float) (0.5 / drawing.getScale())));
         graphics.setColor(Color.LIGHT_GRAY);
-        for (int x = 0; x <= width; x += SMALL_GRID_SIZE) {
-            graphics.drawLine(x, 0, x, height);
+        graphics.drawLine(0, startPosY, 0, endPosY);
+        graphics.drawLine(startPosX, 0, endPosX, 0);
+    }
+
+    private static void drawSmallGrid(Graphics2D graphics, Drawing drawing, int startPosX, int startPosY, int endPosX, int endPosY, int gridSize) {
+        graphics.setStroke(new BasicStroke((float) (0.2 / drawing.getScale())));
+        graphics.setColor(Color.LIGHT_GRAY);
+        for (int x = startPosX; x <= endPosX; x += gridSize) {
+            graphics.drawLine(x, startPosY, x, endPosY);
         }
 
-        for (int y = 0; y <= height; y += SMALL_GRID_SIZE) {
-            graphics.drawLine(0, y, width, y);
+        for (int y = startPosY; y <= endPosY; y += gridSize) {
+            graphics.drawLine(startPosX, y, endPosX, y);
         }
+    }
 
-
-
+    private static void drawLargeGridAndText(Graphics2D graphics, Drawing drawing, int startPosX, int startPosY, int endPosX, int endPosY, int gridSize) {
+        Rectangle2D clipBounds = graphics.getClipBounds();
         AffineTransform affineTransform = AffineTransform.getScaleInstance(1 / drawing.getScale(), -1 / drawing.getScale());
-        affineTransform.rotate(Math.PI/2);
+        affineTransform.rotate(Math.PI / 2);
         Font font = new Font(null, Font.PLAIN, 10).deriveFont(affineTransform);
         graphics.setFont(font);
         FontMetrics fontMetrics = graphics.getFontMetrics();
 
-        graphics.setStroke(new BasicStroke(Double.valueOf(0.2 / drawing.getScale()).floatValue()));
-        for (int x = 0; x <= width; x += LARGE_GRID_SIZE) {
-            graphics.drawLine(x, 0, x, height);
+        graphics.setStroke(new BasicStroke((float) (0.3 / drawing.getScale())));
+        graphics.setColor(Color.LIGHT_GRAY);
+
+        int fontOffset = (int) Math.round(6 / drawing.getScale());
+
+        for (int x = startPosX; x <= endPosX; x += gridSize) {
+            if (x < clipBounds.getMinX() || x > clipBounds.getMaxX()) {
+                continue;
+            }
+            graphics.drawLine(x, startPosY, x, endPosY);
 
             String text = x + " mm";
-            int y =  -fontMetrics.stringWidth(text);
-            graphics.drawString(text, x - (int) Math.round(3 / drawing.getScale()), y - (int) Math.round(8 / drawing.getScale()));
+            int y = -fontMetrics.stringWidth(text) - fontOffset;
+            graphics.drawString(text, x + fontOffset, y);
         }
-
 
         affineTransform = AffineTransform.getScaleInstance(1 / drawing.getScale(), -1 / drawing.getScale());
         font = new Font(null, Font.PLAIN, 10).deriveFont(affineTransform);
         graphics.setFont(font);
         fontMetrics = graphics.getFontMetrics();
 
-        for (int y = 0; y <= height; y += LARGE_GRID_SIZE) {
-            graphics.drawLine(0, y, width, y);
+        for (int y = startPosY; y <= endPosY; y += gridSize) {
+            if (y < clipBounds.getMinY() || y > clipBounds.getMaxY()) {
+                continue;
+            }
+            graphics.drawLine(startPosX, y, endPosX, y);
 
             String text = y + " mm";
-            int x =  -fontMetrics.stringWidth(text);
-            graphics.drawString(text, x - (int) Math.round(8 / drawing.getScale()), y - (int) Math.round(3 / drawing.getScale()));
+            int x = -fontMetrics.stringWidth(text);
+            graphics.drawString(text, x - fontOffset, y + fontOffset);
         }
+    }
+
+    @Override
+    public void render(Graphics2D graphics, Drawing drawing) {
+        double gridSize = LARGE_GRID_SIZE;
+
+
+        Rectangle2D bounds = controller.getDrawing().getRootEntity().getBounds();
+        double gridMargin = (gridSize * 100);
+
+
+        int startPosX = (int) Math.min(-gridMargin, (Math.floor(bounds.getMinX() / gridSize) * gridSize + gridMargin));
+        int startPosY = (int) Math.min(-gridMargin, (Math.floor(bounds.getMinY() / gridSize) * gridSize + gridMargin));
+        int endPosX = (int) Math.max(gridMargin, (Math.floor(bounds.getMaxX() / gridSize) * gridSize + gridMargin));
+        int endPosY = (int) Math.max(gridMargin, (Math.floor(bounds.getMaxY() / gridSize) * gridSize + gridMargin));
+
+        int width = endPosX - startPosX;
+        int height = endPosY - startPosY;
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(startPosX, startPosY, width, height);
+
+        int smallGridSize;
+        int largeGridSize;
+        if (drawing.getScale() < 1.3) {
+            smallGridSize = SMALL_GRID_SIZE;
+            largeGridSize = LARGE_GRID_SIZE;
+        } else if (drawing.getScale() < 4) {
+            smallGridSize = SMALL_GRID_SIZE / 2;
+            largeGridSize = LARGE_GRID_SIZE / 2;
+        } else if (drawing.getScale() < 12) {
+            smallGridSize = SMALL_GRID_SIZE / 4;
+            largeGridSize = LARGE_GRID_SIZE / 4;
+        } else {
+            smallGridSize = SMALL_GRID_SIZE / 10;
+            largeGridSize = LARGE_GRID_SIZE / 10;
+        }
+        drawSmallGrid(graphics, drawing, startPosX, startPosY, endPosX, endPosY, smallGridSize);
+        drawLargeGridAndText(graphics, drawing, startPosX, startPosY, endPosX, endPosY, largeGridSize);
+        drawZeroLines(graphics, drawing, startPosX, startPosY, endPosX, endPosY);
     }
 
     @Override

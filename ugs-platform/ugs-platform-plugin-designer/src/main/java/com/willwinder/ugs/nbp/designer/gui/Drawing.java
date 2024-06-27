@@ -47,6 +47,7 @@ import javax.swing.JPanel;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
@@ -72,6 +73,9 @@ public class Drawing extends JPanel {
     private final transient Set<DrawingListener> listeners = Sets.newConcurrentHashSet();
     private final transient Throttler refreshThrottler;
     private double scale;
+    private AffineTransform transform;
+    private long lastUpdate;
+    private final transient Rectangle2D currentBounds = new Rectangle(0, 0, 8, 8);
 
     public Drawing(Controller controller) {
         refreshThrottler = new Throttler(this::refresh, 2000);
@@ -220,8 +224,10 @@ public class Drawing extends JPanel {
 
     @Override
     public Dimension getMinimumSize() {
-        Rectangle2D bounds = globalRoot.getBounds();
-        return new Dimension((int) (bounds.getMaxX() * scale) + (MARGIN * 2), (int) (bounds.getMaxY() * scale) + (MARGIN * 2));
+        int margin = (int) (MARGIN * 2 * scale);
+        int width = (int) (currentBounds.getWidth() * scale) + margin;
+        int height = (int) (currentBounds.getHeight() * scale) + margin;
+        return new Dimension(width, height);
     }
 
     @Override
@@ -242,10 +248,17 @@ public class Drawing extends JPanel {
     }
 
     public AffineTransform getTransform() {
-        AffineTransform transform = AffineTransform.getScaleInstance(1, -1);
-        transform.translate(0, -getHeight());
-        transform.translate(MARGIN, MARGIN);
-        transform.scale(scale, scale);
+        // Don't update this every time or else it will be hard to move entites outside the canvas
+        if (System.currentTimeMillis() > lastUpdate + 50) {
+
+            transform = AffineTransform.getScaleInstance(1, -1);
+            transform.translate(0, -getHeight());
+            transform.scale(scale, scale);
+            transform.translate(MARGIN / 4d, MARGIN / 4d);
+            transform.translate(-getBounds().getMinX(), -getBounds().getMinY());
+            lastUpdate = System.currentTimeMillis();
+        }
+
         return transform;
     }
 
@@ -262,5 +275,17 @@ public class Drawing extends JPanel {
 
     public void clear() {
         entitiesRoot.removeAll();
+    }
+
+
+    @Override
+    public Rectangle getBounds() {
+        Rectangle2D bounds = globalRoot.getBounds();
+        double minX = Math.min(currentBounds.getMinX(), bounds.getMinX());
+        double minY = Math.min(currentBounds.getMinY(), bounds.getMinY());
+        double maxX = Math.max(currentBounds.getMaxX(), bounds.getMaxX());
+        double maxY = Math.max(currentBounds.getMaxY(), bounds.getMaxY());
+        currentBounds.setRect(minX, minY, maxX - minX, maxY - minY);
+        return currentBounds.getBounds();
     }
 }
