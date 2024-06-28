@@ -392,6 +392,16 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
     }
 
     @Override
+    public void onConnectionClosed() {
+        try {
+            closeCommPort();
+        } catch (Exception e) {
+            // Ignore
+        }
+    }
+
+
+    @Override
     public Boolean isCommOpen() {
         return comm != null && comm.isConnected();
     }

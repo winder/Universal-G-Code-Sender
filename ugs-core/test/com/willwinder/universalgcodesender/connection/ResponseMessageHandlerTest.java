@@ -29,11 +29,11 @@ import static org.mockito.Mockito.verify;
 
 public class ResponseMessageHandlerTest {
 
-    private ResponseMessageHandler responseMessageHandler;
+    private ConnectionListenerManager responseMessageHandler;
 
     @Before
     public void setUp() {
-        responseMessageHandler = new ResponseMessageHandler();
+        responseMessageHandler = new ConnectionListenerManager();
     }
 
     @Test

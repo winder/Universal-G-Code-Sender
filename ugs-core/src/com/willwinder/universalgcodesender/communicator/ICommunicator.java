@@ -1,5 +1,5 @@
 /*
-    Copyright 2019 Will Winder
+    Copyright 2019-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,7 +20,6 @@ package com.willwinder.universalgcodesender.communicator;
 
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
-import com.willwinder.universalgcodesender.connection.IConnectionListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
@@ -36,7 +35,7 @@ import java.io.IOException;
  *
  * @author Joacim Breiler
  */
-public interface ICommunicator extends IConnectionListener {
+public interface ICommunicator {
 
     /**
      * Add command to the command buffer outside file mode. These commands will be sent

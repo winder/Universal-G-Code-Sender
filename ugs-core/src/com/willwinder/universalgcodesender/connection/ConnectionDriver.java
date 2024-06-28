@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,7 +28,6 @@ import java.util.Map;
  */
 public enum ConnectionDriver {
     JSERIALCOMM("JSerialComm", "jserialcomm://"),
-    JSSC("JSSC", "jssc://"),
     TCP("TCP", "tcp://"),
     WS("WebSocket", "ws://");
 

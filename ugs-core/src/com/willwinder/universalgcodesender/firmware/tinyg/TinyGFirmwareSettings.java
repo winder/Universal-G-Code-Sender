@@ -228,4 +228,8 @@ public class TinyGFirmwareSettings implements ICommunicatorListener, IFirmwareSe
         serialCommunicatorDelegate.communicatorPausedOnError();
     }
 
+    @Override
+    public void onConnectionClosed() {
+
+    }
 }

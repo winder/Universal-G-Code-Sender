@@ -152,6 +152,11 @@ public class TinyGFirmwareSettingsCommunicatorListener implements ICommunicatorL
         // Not used
     }
 
+    @Override
+    public void onConnectionClosed() {
+
+    }
+
     /**
      * Returns if the controller is ready to receive setting commands.
      *

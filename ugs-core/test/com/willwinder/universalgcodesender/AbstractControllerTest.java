@@ -38,7 +38,6 @@ import static org.easymock.EasyMock.anyString;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.or;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
@@ -126,7 +125,7 @@ public class AbstractControllerTest {
         instance.setControllerState(eq(ControllerState.CONNECTING));
         expect(expectLastCall()).once();
         expect(mockCommunicator.isConnected()).andReturn(true).anyTimes();
-        mockCommunicator.connect(or(eq(ConnectionDriver.JSERIALCOMM), eq(ConnectionDriver.JSSC)), eq(port), eq(portRate));
+        mockCommunicator.connect(eq(ConnectionDriver.JSERIALCOMM), eq(port), eq(portRate));
         expect(instance.isCommOpen()).andReturn(false).once();
         expect(instance.isCommOpen()).andReturn(true).anyTimes();
     }
@@ -137,20 +136,7 @@ public class AbstractControllerTest {
         mockCommunicator.streamCommands();
         expect(expectLastCall()).once();
     }
-    private void startStreamExpectation(String port, int rate) throws Exception {
-        openInstanceExpectUtility(port, rate);
-        streamInstanceExpectUtility();
 
-        // Making sure the commands get queued.
-        mockCommunicator.queueStreamForComm(anyObject(IGcodeStreamReader.class));
-        expect(expectLastCall()).times(1);
-    }
-    private void startStream(String port, int rate, String command) throws Exception {
-        // Open port, send some commands, make sure they are streamed.
-        instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
-        instance.queueStream(new SimpleGcodeStreamReader(command, command));
-        instance.beginStreaming();
-    }
     private Settings getSettings() {
         return settings;
     }

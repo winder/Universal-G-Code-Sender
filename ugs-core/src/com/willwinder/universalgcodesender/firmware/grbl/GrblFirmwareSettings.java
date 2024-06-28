@@ -442,6 +442,10 @@ public class GrblFirmwareSettings implements ICommunicatorListener, IFirmwareSet
         serialCommunicatorDelegate.communicatorPausedOnError();
     }
 
+    @Override
+    public void onConnectionClosed() {
+    }
+
     /*
      * IFirmwareSettingsListener
      */

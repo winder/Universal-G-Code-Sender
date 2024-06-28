@@ -31,12 +31,12 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * A TCP connection object implementing the connection API.
  *
  * @author Adam Carmicahel <carneeki@carneeki.net>
+ * @author Joacim Breiler
  */
 public class TCPConnection extends AbstractConnection implements Runnable, Connection {
 
@@ -93,27 +93,25 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
         return client.isConnected();
     }
 
-    /**
-     * TODO: toggle the disconnect/connect icon; investigate how...
-     *       UGS correctly goes into offline state when called, potentially a bug elsewhere?
-     */
     @Override
     public void closePort() throws Exception {
-        if (client != null) {
-            try {
-                replyThread.interrupt();
-                client.close();
-            } catch (SocketException e) {
-                // ignore socketexception if connection was broken early
-            } finally {
-                client = null;
-            }
+        if (client == null) {
+            return;
+        }
+
+        try {
+            replyThread.interrupt();
+            client.close();
+        } catch (SocketException e) {
+            // ignore socketexception if connection was broken early
+        } finally {
+            client = null;
         }
     }
 
     @Override
     public boolean isOpen() {
-        return (client != null) && (!client.isClosed());
+        return client != null && !client.isClosed();
     }
 
     /**
@@ -126,7 +124,8 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
             bufOut.write(command.getBytes());
             bufOut.flush();
         } catch (IOException e) {
-            closePort(); // very likely we got disconnected, attempt to disconnect gracefully
+            // very likely we got disconnected, attempt to disconnect gracefully
+            connectionListenerManager.onConnectionClosed();
             throw e;
         }
     }
@@ -139,7 +138,8 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
             bufOut.write(b);
             bufOut.flush();
         } catch (IOException e) {
-            closePort(); // very likely we got disconnected, attempt to disconnect gracefully
+            // very likely we got disconnected, attempt to disconnect gracefully
+            connectionListenerManager.onConnectionClosed();
             throw e;
         }
     }
@@ -153,26 +153,22 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
             try {
                 int readBytes = inStream.read(buffer);
                 if (readBytes > 0) {
-                    responseMessageHandler.handleResponse(buffer, 0, readBytes);
+                    connectionListenerManager.handleResponse(buffer, 0, readBytes);
                 }
             } catch (IOException e) {
                 LOGGER.info("Got a socket exception: " + e.getMessage());
-                return; // terminate thread if disconnected
+                break;
             }
         }
+
+        // Notify listeners that we are disconnected
+        connectionListenerManager.onConnectionClosed();
     }
 
     @Override
-    public List<String> getPortNames() {
-        return getDevices().stream()
-                .map(IConnectionDevice::getAddress)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<IConnectionDevice> getDevices() {
+    public List<? extends IConnectionDevice> getDevices() {
         return MdnsService.getInstance().getServices(MDNS_SERVICE).stream()
                 .map(service -> new DefaultConnectionDevice(service.getHost(), service.getPort(), service.getName()))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

@@ -268,4 +268,8 @@ public class GrblFirmwareSettingsCommunicatorListener implements ICommunicatorLi
     public void communicatorPausedOnError() {
 
     }
+
+    @Override
+    public void onConnectionClosed() {
+    }
 }

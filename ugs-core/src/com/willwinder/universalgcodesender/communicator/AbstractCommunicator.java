@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.communicator.event.ICommunicatorEvent
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.connection.IConnectionListener;
 import com.willwinder.universalgcodesender.i18n.Localization;
 
 import java.io.IOException;
@@ -33,7 +34,7 @@ import java.util.logging.Logger;
  *
  * @author wwinder
  */
-public abstract class AbstractCommunicator implements ICommunicator {
+public abstract class AbstractCommunicator implements ICommunicator, IConnectionListener {
     private static final Logger logger = Logger.getLogger(AbstractCommunicator.class.getName());
 
     private final ICommunicatorEventDispatcher eventDispatcher;
@@ -123,5 +124,10 @@ public abstract class AbstractCommunicator implements ICommunicator {
     @Override
     public void xmodemSend(byte[] data) throws IOException {
         connection.xmodemSend(data);
+    }
+
+    @Override
+    public void onConnectionClosed() {
+        eventDispatcher.onConnectionClosed();
     }
 }

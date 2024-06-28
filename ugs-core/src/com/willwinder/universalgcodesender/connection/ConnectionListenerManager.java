@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,19 +28,19 @@ import java.util.logging.Logger;
 /**
  * Handles response messages from the serial connection buffering the data
  * until we have a complete line. It will then attempt to dispatch that
- * data to a communicator.
+ * data to a communicator via a {@link IConnectionListener}
  *
  * @author wwinder
  * @author Joacim Breiler
  */
-public class ResponseMessageHandler implements IResponseMessageHandler {
+public class ConnectionListenerManager implements IConnectionListenerManager {
 
-    private final static Logger LOGGER = Logger.getLogger(ResponseMessageHandler.class.getSimpleName());
+    private static final Logger LOGGER = Logger.getLogger(ConnectionListenerManager.class.getSimpleName());
 
     private final StringBuilder inputBuffer;
     private final Set<IConnectionListener> listeners = new HashSet<>();
 
-    public ResponseMessageHandler() {
+    public ConnectionListenerManager() {
         inputBuffer = new StringBuilder();
     }
 
@@ -76,13 +76,19 @@ public class ResponseMessageHandler implements IResponseMessageHandler {
             try {
                 listener.handleResponseMessage(message);
             } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "The response message could not be handled: \"" + message + "\", unsafe to proceed, shutting down connection.", e);
-                throw e;
+                LOGGER.log(Level.SEVERE, e, () -> "The response message could not be handled: \"" + message + "\", unsafe to proceed, shutting down connection.");
+                throw new ConnectionException("The response message could not be handled: \"" + message + "\", unsafe to proceed, shutting down connection.", e);
             }
         });
     }
 
+    @Override
     public void addListener(IConnectionListener connectionListener) {
         listeners.add(connectionListener);
+    }
+
+    @Override
+    public void onConnectionClosed() {
+        listeners.forEach(IConnectionListener::onConnectionClosed);
     }
 }

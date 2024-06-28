@@ -323,7 +323,7 @@ public class BufferedCommunicatorTest {
         EasyMock.expect(mockConnection.openPort()).andReturn(true).once();
         EasyMock.replay(mockConnection);
 
-        instance.connect(ConnectionDriver.JSSC, name, baud);
+        instance.connect(ConnectionDriver.JSERIALCOMM, name, baud);
 
         EasyMock.verify(mockConnection);
     }

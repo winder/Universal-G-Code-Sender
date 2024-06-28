@@ -101,7 +101,7 @@ public class LoopBackConnection extends AbstractConnection {
     }
 
     private void handleResponse(String response) {
-        responseMessageHandler.handleResponse(response.getBytes(), 0, response.length());
+        connectionListenerManager.handleResponse(response.getBytes(), 0, response.length());
     }
 
     @Override
@@ -121,11 +121,6 @@ public class LoopBackConnection extends AbstractConnection {
     @Override
     public boolean isOpen() {
         return open;
-    }
-
-    @Override
-    public List<String> getPortNames() {
-        return Arrays.asList("loopback");
     }
 
     @Override

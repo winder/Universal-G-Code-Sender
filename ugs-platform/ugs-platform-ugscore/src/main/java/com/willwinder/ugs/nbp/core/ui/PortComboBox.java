@@ -66,9 +66,9 @@ public class PortComboBox extends JComboBox<IConnectionDevice> implements UGSEve
             return;
         }
 
-        List<IConnectionDevice> availablePorts = ConnectionFactory.getDevices(backend.getSettings().getConnectionDriver());
+        List<? extends IConnectionDevice> availablePorts = ConnectionFactory.getDevices(backend.getSettings().getConnectionDriver());
         PortComboBoxModel model = (PortComboBoxModel) getModel();
-        model.setElements(availablePorts);
+        model.setElements(availablePorts.stream().map(s -> (IConnectionDevice)(s)).toList());
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2023 Will Winder
+    Copyright 2015-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -40,7 +40,7 @@ public class ConnectionFactory {
      * @return a connection
      * @throws ConnectionException if something went wron while creating the connection
      */
-    static public Connection getConnection(String uri) throws ConnectionException {
+    public static Connection getConnection(String uri) throws ConnectionException {
         for (ConnectionDriver connectionDriver : ConnectionDriver.values()) {
             if (StringUtils.startsWithIgnoreCase(uri, connectionDriver.getProtocol())) {
                 Connection connection = getConnection(connectionDriver).orElseThrow(() -> new ConnectionException("Couldn't load connection driver " + connectionDriver + " for uri: " + uri));
@@ -53,41 +53,23 @@ public class ConnectionFactory {
     }
 
     /**
-     * Returns available ports for this connection driver
-     *
-     * @param connectionDriver the connection driver to use for querying ports
-     * @return a list of port names
-     * @deprecated use {@link #getDevices(ConnectionDriver)} instead
-     */
-    public static List<String> getPortNames(ConnectionDriver connectionDriver) {
-        return getConnection(connectionDriver)
-                .map(Connection::getPortNames)
-                .orElseGet(Collections::emptyList);
-    }
-
-    /**
      * Lists found devices for the given connection driver
      *
      * @param connectionDriver the connection driver to use for querying devices
      * @return a list of connection devices
      */
-    public static List<IConnectionDevice> getDevices(ConnectionDriver connectionDriver) {
+    public static List<? extends IConnectionDevice> getDevices(ConnectionDriver connectionDriver) {
         return getConnection(connectionDriver)
                 .map(Connection::getDevices)
                 .orElseGet(Collections::emptyList);
     }
 
     public static Optional<Connection> getConnection(ConnectionDriver connectionDriver) {
-        switch (connectionDriver) {
-            case JSERIALCOMM:
-                return Optional.of(new JSerialCommConnection());
-            case JSSC:
-                return Optional.of(new JSSCConnection());
-            case TCP:
-                return Optional.of(new TCPConnection());
-            case WS:
-                return Optional.of(new WSConnection());
-        }
-        return Optional.empty();
+        return switch (connectionDriver) {
+            case JSERIALCOMM -> Optional.of(new JSerialCommConnection());
+            case TCP -> Optional.of(new TCPConnection());
+            case WS -> Optional.of(new WSConnection());
+            default -> Optional.empty();
+        };
     }
 }

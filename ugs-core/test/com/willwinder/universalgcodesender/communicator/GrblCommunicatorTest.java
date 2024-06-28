@@ -20,17 +20,25 @@ package com.willwinder.universalgcodesender.communicator;
 
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.communicator.event.CommunicatorEventDispatcher;
-import com.willwinder.universalgcodesender.utils.CommUtils;
+import com.willwinder.universalgcodesender.communicator.event.ICommunicatorEventDispatcher;
 import com.willwinder.universalgcodesender.mockobjects.MockConnection;
 import com.willwinder.universalgcodesender.mockobjects.MockGrbl;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import java.util.LinkedList;
-import java.util.concurrent.LinkedBlockingDeque;
-import static org.junit.Assert.*;
-
+import com.willwinder.universalgcodesender.utils.CommUtils;
 import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
+import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  *
@@ -56,8 +64,6 @@ public class GrblCommunicatorTest {
      */
     @Test
     public void testQueueStringForComm() throws Exception {
-        
-        System.out.println("queueStringForComm");
         String input = "someCommand";
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
@@ -95,7 +101,6 @@ public class GrblCommunicatorTest {
      */
     @Test
     public void testSendByteImmediately() {
-        System.out.println("sendByteImmediately");
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
 
@@ -138,7 +143,6 @@ public class GrblCommunicatorTest {
      */
     @Test
     public void testAreActiveCommands() {
-        System.out.println("areActiveCommands");
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
 
@@ -176,7 +180,6 @@ public class GrblCommunicatorTest {
      */
     @Test
     public void testStreamCommands() {
-        System.out.println("streamCommands");
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
         String term = "\n";
@@ -244,7 +247,6 @@ public class GrblCommunicatorTest {
      */
     @Test
     public void testPauseSendAndResumeSend() {
-        System.out.println("pauseSend");
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
         String twentyCharString = "twenty characters...";
@@ -293,7 +295,6 @@ public class GrblCommunicatorTest {
      */
     @Test
     public void testCancelSend() {
-        System.out.println("cancelSend");
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
         String twentyCharString = "twenty characters...";
@@ -348,7 +349,6 @@ public class GrblCommunicatorTest {
      */
     @Test
     public void testSoftReset() {
-        System.out.println("softReset");
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
         String twentyCharString = "twenty characters...";
@@ -368,7 +368,6 @@ public class GrblCommunicatorTest {
 
     @Test
     public void errorResponseShouldPauseTheCommunicator() {
-        System.out.println("streamCommands");
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
         instance.setSingleStepMode(true);
@@ -425,7 +424,6 @@ public class GrblCommunicatorTest {
 
     @Test
     public void errorResponseOnLastCommandInStreamShouldNotPauseTheCommunicator() {
-        System.out.println("streamCommands");
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, new CommunicatorEventDispatcher(), mc);
         instance.setSingleStepMode(true);
@@ -457,5 +455,17 @@ public class GrblCommunicatorTest {
         assertEquals(0, asl.size());
         assertEquals(0, cb.size());
         assertFalse("The communicator should not be paused when last command has an error", instance.isPaused());
+    }
+
+    @Test
+    public void onConnectionClosedShouldDispatchEventUpstream() {
+        MockConnection mc = new MockConnection(mg.in, mg.out);
+        ICommunicatorEventDispatcher eventDispatcher = mock(ICommunicatorEventDispatcher.class);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, eventDispatcher, mc);
+
+        instance.onConnectionClosed();
+
+        verify(eventDispatcher, times(1)).onConnectionClosed();
+        verifyNoMoreInteractions(eventDispatcher);
     }
 }

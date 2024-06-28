@@ -23,6 +23,7 @@ import com.google.gson.JsonPrimitive;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.connection.IConnectionDevice;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
@@ -81,7 +82,9 @@ public class MachineResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> getPortList() {
         ConnectionDriver connectionDriver = SettingsFactory.loadSettings().getConnectionDriver();
-        return ConnectionFactory.getPortNames(connectionDriver);
+        return ConnectionFactory.getDevices(connectionDriver).stream()
+                .map(IConnectionDevice::getAddress)
+                .toList();
     }
 
     @GET

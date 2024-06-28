@@ -74,4 +74,9 @@ public class CommunicatorEventDispatcher implements ICommunicatorEventDispatcher
     public void communicatorPausedOnError() {
         communicatorListeners.forEach(ICommunicatorListener::communicatorPausedOnError);
     }
+
+    @Override
+    public void onConnectionClosed() {
+        communicatorListeners.forEach(ICommunicatorListener::onConnectionClosed);
+    }
 }
