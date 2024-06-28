@@ -1,5 +1,5 @@
 /*
-    Copyright 2022 Will Winder
+    Copyright 2022-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,26 +20,27 @@ package com.willwinder.universalgcodesender.connection.xmodem;
 
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.IConnectionListener;
-import com.willwinder.universalgcodesender.connection.IResponseMessageHandler;
+import com.willwinder.universalgcodesender.connection.IConnectionListenerManager;
+import static com.willwinder.universalgcodesender.connection.xmodem.XModemUtils.trimEOF;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import static com.willwinder.universalgcodesender.connection.xmodem.XModemUtils.trimEOF;
-
 /**
  * A response message handler for handling XModem communication to upload and download files from the controller.
  *
  * @author Joacim Breiler
  */
-public class XModemResponseMessageHandler implements IResponseMessageHandler {
+public class XModemConnectionListenerHandler implements IConnectionListenerManager {
     private final RingBuffer buffer = new RingBuffer(4096);
     private final XModem modem;
+    private final IConnectionListenerManager previousConnectionListenerManager;
 
-    public XModemResponseMessageHandler(Connection connection) {
-        modem = new XModem(buffer, new OutputStream() {
+    public XModemConnectionListenerHandler(Connection connection, IConnectionListenerManager previousConnectionListenerManager) {
+        this.previousConnectionListenerManager = previousConnectionListenerManager;
+        this.modem = new XModem(buffer, new OutputStream() {
             @Override
             public void write(int b) throws IOException {
                 try {
@@ -62,6 +63,11 @@ public class XModemResponseMessageHandler implements IResponseMessageHandler {
     }
 
     @Override
+    public void onConnectionClosed() {
+        previousConnectionListenerManager.onConnectionClosed();
+    }
+
+    @Override
     public void handleResponse(byte[] buffer, int offset, int length) {
         this.buffer.write(buffer, offset, length);
     }
@@ -74,5 +80,9 @@ public class XModemResponseMessageHandler implements IResponseMessageHandler {
 
     public void xmodemSend(byte[] data) throws IOException {
         modem.send(new ByteArrayInputStream(data), false);
+    }
+
+    public IConnectionListenerManager unwrap() {
+        return previousConnectionListenerManager;
     }
 }

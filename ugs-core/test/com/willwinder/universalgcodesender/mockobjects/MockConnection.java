@@ -54,7 +54,7 @@ public class MockConnection extends AbstractConnection {
     }
 
     public void sendResponse(String str) {
-        this.responseMessageHandler.notifyListeners(str);
+        this.connectionListenerManager.notifyListeners(str);
     }
 
     @Override
@@ -74,11 +74,6 @@ public class MockConnection extends AbstractConnection {
     @Override
     public boolean isOpen() {
         return true;
-    }
-
-    @Override
-    public List<String> getPortNames() {
-        return Arrays.asList("port");
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.model.Position;
@@ -11,18 +12,24 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InOrder;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 public class FluidNCControllerTest {
 
@@ -39,7 +46,7 @@ public class FluidNCControllerTest {
     public void executeReturnToHomeShouldAddSafetyHeightWhenBelow() throws Exception {
         when(target.isIdle()).thenReturn(true);
         mockGcodeState();
-        mockControllerStatus(new Position(0, 0, 5, UnitUtils.Units.MM));
+        mockControllerStatus(ControllerState.IDLE, new Position(0, 0, 5, UnitUtils.Units.MM));
 
         ArgumentCaptor<GcodeCommand> commandArgumentCaptor = ArgumentCaptor.forClass(GcodeCommand.class);
         doNothing().when(target).sendCommandImmediately(commandArgumentCaptor.capture());
@@ -57,7 +64,7 @@ public class FluidNCControllerTest {
     public void executeReturnToHomeShouldNotAddSafetyHeightWhenOver() throws Exception {
         when(target.isIdle()).thenReturn(true);
         mockGcodeState();
-        mockControllerStatus(new Position(0, 0, 11, UnitUtils.Units.MM));
+        mockControllerStatus(ControllerState.IDLE, new Position(0, 0, 11, UnitUtils.Units.MM));
 
         ArgumentCaptor<GcodeCommand> commandArgumentCaptor = ArgumentCaptor.forClass(GcodeCommand.class);
         doNothing().when(target).sendCommandImmediately(commandArgumentCaptor.capture());
@@ -161,8 +168,22 @@ public class FluidNCControllerTest {
         assertEquals("G91", commandArgumentCaptor.getValue().getCommandString());
     }
 
-    private void mockControllerStatus(Position workPosition) {
+    @Test
+    public void onConnectionClosedShouldDisconnectController() throws Exception {
+        when(target.isIdle()).thenReturn(true);
+        target.rawResponseListener("<Idle>");
+
+        assertEquals(ControllerState.IDLE, target.getControllerStatus().getState());
+
+        target.onConnectionClosed();
+
+        verify(communicator, times(1)).disconnect();
+        assertEquals(ControllerState.DISCONNECTED, target.getControllerStatus().getState());
+    }
+
+    private void mockControllerStatus(ControllerState state, Position workPosition) {
         ControllerStatus controllerStatus = ControllerStatusBuilder.newInstance()
+                .setState(state)
                 .setWorkCoord(workPosition)
                 .build();
         when(target.getControllerStatus()).thenReturn(controllerStatus);

@@ -20,13 +20,20 @@ package com.willwinder.universalgcodesender.connection;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
+import javax.websocket.ClientEndpoint;
+import javax.websocket.CloseReason;
+import javax.websocket.ContainerProvider;
+import javax.websocket.OnClose;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
+import javax.websocket.WebSocketContainer;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import javax.websocket.*;
 
 @ClientEndpoint
 public class WSConnection  extends AbstractConnection implements Connection  {
@@ -65,11 +72,12 @@ public class WSConnection  extends AbstractConnection implements Connection  {
     @OnClose
     public void onClose(Session userSession, CloseReason reason) {
         this.userSession = null;
+        connectionListenerManager.onConnectionClosed();
     }
 
     @OnMessage
     public void onMessage(String message) {
-        responseMessageHandler.handleResponse(message.getBytes(), 0, message.length());
+        connectionListenerManager.handleResponse(message.getBytes(), 0, message.length());
     }
 
     @Override
@@ -103,11 +111,6 @@ public class WSConnection  extends AbstractConnection implements Connection  {
     @Override
     public boolean isOpen() {
         return this.userSession != null && this.userSession.isOpen();
-    }
-
-    @Override
-    public List<String> getPortNames() {
-        return new ArrayList<>();
     }
 
     @Override

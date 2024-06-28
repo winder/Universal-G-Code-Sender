@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2018 Will Winder
+    Copyright 2013-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -90,18 +90,11 @@ public interface Connection {
     boolean isOpen();
 
     /**
-     * Returns a list of all port names available
-     *
-     * @return a list of available port names
-     */
-    List<String> getPortNames();
-
-    /**
      * Returns a list of all available connection devices
      *
      * @return a list of available connection devices
      */
-    List<IConnectionDevice> getDevices();
+    List<? extends IConnectionDevice> getDevices();
 
     /**
      * Enters a mode for receiving using the xmodem protocol and return the file stream as an byte array.

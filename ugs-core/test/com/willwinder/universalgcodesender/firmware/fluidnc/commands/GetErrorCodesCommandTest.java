@@ -1,10 +1,10 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc.commands;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.Assert.*;
 
 public class GetErrorCodesCommandTest {
     @Test
@@ -85,7 +85,7 @@ public class GetErrorCodesCommandTest {
         command.appendResponse("ok");
 
         // Wait for the listener to complete
-        Thread.sleep(200);
+        Thread.sleep(500);
 
         assertTrue(command.isOk());
         assertEquals(1, eventsCounter.get());

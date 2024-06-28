@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2022 Will Winder
+    Copyright 2013-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.connection;
 
-import com.willwinder.universalgcodesender.connection.xmodem.XModemResponseMessageHandler;
+import com.willwinder.universalgcodesender.connection.xmodem.XModemConnectionListenerHandler;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,26 +31,25 @@ import java.util.Arrays;
  */
 public abstract class AbstractConnection implements Connection {
 
-    protected IResponseMessageHandler responseMessageHandler = new ResponseMessageHandler();
+    protected IConnectionListenerManager connectionListenerManager = new ConnectionListenerManager();
 
     @Override
     public void addListener(IConnectionListener connectionListener) {
-        responseMessageHandler.addListener(connectionListener);
+        connectionListenerManager.addListener(connectionListener);
     }
 
     @Override
     public byte[] xmodemReceive() throws IOException {
         // Switch to a special XModem response handler
-        IResponseMessageHandler previousResponseMessageHandler = responseMessageHandler;
+        XModemConnectionListenerHandler reader = new XModemConnectionListenerHandler(this, connectionListenerManager);
         try {
-            XModemResponseMessageHandler reader = new XModemResponseMessageHandler(this);
-            responseMessageHandler = reader;
+            connectionListenerManager = reader;
             byte[] result = reader.xmodemReceive();
 
             return trimEOF(result);
         } finally {
             // Restore the old response message handler
-            responseMessageHandler = previousResponseMessageHandler;
+            connectionListenerManager = reader.unwrap();
         }
     }
 
@@ -67,18 +66,17 @@ public abstract class AbstractConnection implements Connection {
     @Override
     public void xmodemSend(byte[] data) throws IOException {
         // Switch to a special XModem response handler
-        IResponseMessageHandler previousResponseMessageHandler = responseMessageHandler;
+        XModemConnectionListenerHandler reader = new XModemConnectionListenerHandler(this, connectionListenerManager);
         try {
-            XModemResponseMessageHandler reader = new XModemResponseMessageHandler(this);
-            responseMessageHandler = reader;
+            connectionListenerManager = reader;
             reader.xmodemSend(data);
         } finally {
             // Restore the old response message handler
-            responseMessageHandler = previousResponseMessageHandler;
+            connectionListenerManager = reader.unwrap();
         }
     }
 
-    public IResponseMessageHandler getResponseMessageHandler() {
-        return responseMessageHandler;
+    public IConnectionListenerManager getConnectionListenerManager() {
+        return connectionListenerManager;
     }
 }

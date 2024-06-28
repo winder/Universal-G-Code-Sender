@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2022 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,34 +18,28 @@
  */
 package com.willwinder.universalgcodesender.connection;
 
-import jssc.SerialPort;
-
-import java.util.Optional;
-
 /**
- * A connection device based on a JSSC serial port.
+ * Handles response messages from the serial connection and dispatches them listeners
  *
+ * @author wwinder
  * @author Joacim Breiler
  */
-public class JSSCConnectionDevice extends AbstractConnectionDevice implements IConnectionDevice {
-    private final SerialPort serialPort;
+public interface IConnectionListenerManager {
+    /**
+     * Receives byte data from the serial connection to be processed.
+     *
+     * @param buffer the byte buffer with data
+     * @param offset the start index of the byte buffer to read from
+     * @param length the number of bytes to read
+     */
+    void handleResponse(byte[] buffer, int offset, int length);
 
-    public JSSCConnectionDevice(SerialPort serialPort) {
-        this.serialPort = serialPort;
-    }
+    void addListener(IConnectionListener connectionListener);
 
-    @Override
-    public String getAddress() {
-        return serialPort.getPortName();
-    }
+    void notifyListeners(String message);
 
-    @Override
-    public Optional<String> getDescription() {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Integer> getPort() {
-        return Optional.empty();
-    }
+    /**
+     * Is triggered when a connection was closed
+     */
+    void onConnectionClosed();
 }

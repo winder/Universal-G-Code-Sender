@@ -832,6 +832,15 @@ public class FluidNCController implements IController, ICommunicatorListener {
     }
 
     @Override
+    public void onConnectionClosed() {
+        try {
+            closeCommPort();
+        } catch (Exception e) {
+            // Never mind
+        }
+    }
+
+    @Override
     public IFileService getFileService() {
         return fileService;
     }
