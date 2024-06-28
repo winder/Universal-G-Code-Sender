@@ -15,7 +15,7 @@ esac
 
 case "$platform" in
         mac)
-                java -Xdock:name=UniversalGCodeSender -jar -Xmx256m "$rootdir"/UniversalGcodeSender*.jar
+                java -Xdock:name=UniversalGCodeSender -jar -XX:MaxRAMPercentage=85.0 "$rootdir"/UniversalGcodeSender*.jar
         ;;
         linux)
                 java -jar -Xmx256m "$rootdir"/UniversalGcodeSender*.jar
