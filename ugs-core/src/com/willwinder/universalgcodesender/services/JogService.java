@@ -138,7 +138,7 @@ public class JogService {
     }
 
     public void divideABCStepSize() {
-        setStepSizeABC(divideSize(getStepSizeZ()));
+        setStepSizeABC(divideSize(getStepSizeABC()));
     }
 
     public void multiplyXYStepSize() {
