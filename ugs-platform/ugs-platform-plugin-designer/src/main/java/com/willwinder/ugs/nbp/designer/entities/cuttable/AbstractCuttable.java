@@ -98,8 +98,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     }
 
     @Override
-    public void setSpindleSpeed(int Speed) {
-        this.spindleSpeed = Math.abs(Speed);
+    public void setSpindleSpeed(int speed) {
+        this.spindleSpeed = Math.abs(speed);
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 
@@ -196,6 +196,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
                 EntitySetting.POSITION_Y,
                 EntitySetting.WIDTH,
                 EntitySetting.HEIGHT,
+                EntitySetting.ROTATION,
                 EntitySetting.CUT_TYPE,
                 EntitySetting.START_DEPTH,
                 EntitySetting.TARGET_DEPTH,

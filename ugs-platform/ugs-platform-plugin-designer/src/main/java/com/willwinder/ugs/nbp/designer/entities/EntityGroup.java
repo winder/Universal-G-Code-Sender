@@ -277,8 +277,8 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
             children.forEach(entity -> entity.rotate(center, deltaRotation));
         }
         groupRotation += deltaRotation;
-        notifyEvent(new EntityEvent(this, EventType.ROTATED));
         invalidateBounds();
+        notifyEvent(new EntityEvent(this, EventType.ROTATED));
     }
 
     public final List<Entity> getAllChildren() {
