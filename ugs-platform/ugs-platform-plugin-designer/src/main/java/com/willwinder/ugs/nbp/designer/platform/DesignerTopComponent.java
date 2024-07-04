@@ -21,7 +21,8 @@ package com.willwinder.ugs.nbp.designer.platform;
 import com.willwinder.ugs.nbp.designer.actions.UndoManagerListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
-import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
+import com.willwinder.ugs.nbp.designer.gui.DrawingOverlayContainer;
+import com.willwinder.ugs.nbp.designer.gui.DrawingScrollContainer;
 import com.willwinder.ugs.nbp.designer.gui.PopupMenuFactory;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -40,8 +41,10 @@ import org.openide.nodes.Children;
 import org.openide.text.DataEditorSupport;
 import org.openide.windows.TopComponent;
 
+import javax.swing.JComponent;
 import java.awt.BorderLayout;
 import java.io.File;
+import java.io.Serial;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,9 +59,10 @@ import java.util.logging.Logger;
 )
 @TopComponent.Registration(mode = Mode.EDITOR_PRIMARY, openAtStartup = false)
 public class DesignerTopComponent extends TopComponent implements UndoManagerListener, SelectionListener, UGSEventListener {
+    @Serial
     private static final long serialVersionUID = 3123334398723987873L;
     private static final Logger LOGGER = Logger.getLogger(DesignerTopComponent.class.getSimpleName());
-    private static DrawingContainer drawingContainer;
+    private static JComponent drawingContainer;
     private final transient UndoManagerAdapter undoManagerAdapter;
     private final transient BackendAPI backend;
     private final transient Controller controller;
@@ -74,7 +78,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
 
         // We need to reuse the drawing container for each loaded file
         if (drawingContainer == null) {
-            drawingContainer = new DrawingContainer(controller);
+            drawingContainer = new DrawingOverlayContainer(controller, new DrawingScrollContainer(controller));
         }
 
         undoManagerAdapter = new UndoManagerAdapter(controller.getUndoManager());

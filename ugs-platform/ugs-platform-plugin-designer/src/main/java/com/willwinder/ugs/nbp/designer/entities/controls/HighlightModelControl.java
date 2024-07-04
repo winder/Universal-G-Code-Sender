@@ -21,11 +21,10 @@ public class HighlightModelControl extends AbstractControl {
         }
 
         // Draw the bounds
-        double margin = ResizeControl.MARGIN / drawing.getScale();
         graphics.setColor(Colors.CONTROL_BORDER);
-        graphics.setStroke(new BasicStroke(Double.valueOf(0.8 / drawing.getScale()).floatValue()));
+        graphics.setStroke(new BasicStroke((float) (0.8f / drawing.getScale())));
         Rectangle2D bounds = getRelativeShape().getBounds2D();
-        bounds.setFrame(bounds.getX() - margin, bounds.getY() - margin, bounds.getWidth() + (margin * 2), bounds.getHeight() + (margin * 2));
+        bounds.setFrame(bounds.getX() , bounds.getY() , bounds.getWidth(), bounds.getHeight());
         graphics.draw(getSelectionManager().getTransform().createTransformedShape(bounds));
     }
 
