@@ -617,7 +617,8 @@ public class GUIBackend implements BackendAPI {
     @Override
     public boolean canSend() {
         return isIdle() &&
-                this.gcodeFile != null;
+                this.gcodeFile != null &&
+                (controller != null && !controller.isStreaming());
     }
 
     @Override
@@ -762,7 +763,7 @@ public class GUIBackend implements BackendAPI {
             disconnect();
             logger.log(Level.INFO, "Exception in openCommConnection.", e);
             throw new Exception(Localization.getString("mainWindow.error.connection")
-                    + ": " + e.getMessage());
+                    + ": " + e.getMessage(), e);
         }
         return connected;
     }
