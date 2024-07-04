@@ -2,8 +2,9 @@ package com.willwinder.ugs.nbp.designer;
 
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
-import com.willwinder.ugs.nbp.designer.gui.DrawingContainer;
 import com.willwinder.ugs.nbp.designer.gui.MainMenu;
+import com.willwinder.ugs.nbp.designer.gui.DrawingScrollContainer;
+import com.willwinder.ugs.nbp.designer.gui.DrawingOverlayContainer;
 import com.willwinder.ugs.nbp.designer.gui.PopupMenuFactory;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.SelectionSettingsPanel;
@@ -53,13 +54,14 @@ public class DesignerMain extends JFrame {
         SelectionManager selectionManager = ControllerFactory.getSelectionManager();
         CentralLookup.getDefault().add(selectionManager);
 
-        DrawingContainer drawingContainer = new DrawingContainer(controller);
+        DrawingScrollContainer drawingContainer = new DrawingScrollContainer(controller);
         selectionManager.addSelectionListener(e -> drawingContainer.repaint());
 
-        JSplitPane toolsSplit = createRightPanel(controller);
+        DrawingOverlayContainer overlayToolContainer = new DrawingOverlayContainer(controller, drawingContainer);
 
+        JSplitPane toolsSplit = createRightPanel(controller);
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                drawingContainer, toolsSplit);
+                overlayToolContainer, toolsSplit);
         splitPane.setResizeWeight(0.95);
 
         getContentPane().add(splitPane, BorderLayout.CENTER);

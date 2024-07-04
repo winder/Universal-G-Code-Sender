@@ -71,7 +71,7 @@ public class LaserFillToolPath extends AbstractToolPath {
                 partialPosition = Lists.reverse(partialPosition);
             }
 
-            for (int i = 0; i < partialPosition.size(); i += 2) {
+            for (int i = 0; i + 1 < partialPosition.size(); i += 2) {
                 gcodePath.addSegment(SegmentType.MOVE, partialPosition.get(i));
                 gcodePath.addSegment(SegmentType.LINE, partialPosition.get(i + 1));
             }

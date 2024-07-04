@@ -122,7 +122,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         invalidateBounds();
     }
 
-    private void invalidateBounds() {
+    public void invalidateBounds() {
         cachedBounds = null;
     }
 

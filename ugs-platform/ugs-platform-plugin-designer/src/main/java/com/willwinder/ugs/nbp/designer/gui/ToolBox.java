@@ -40,6 +40,7 @@ import java.awt.event.ActionListener;
 public class ToolBox extends ToolBar {
 
     private JToggleButton toolDropDownButton = null;
+    private JToggleButton jogDropDownButton = null;
 
     public ToolBox(Controller controller) {
         setFloatable(false);
@@ -147,14 +148,14 @@ public class ToolBox extends ToolBar {
 
     private JToggleButton createJogDropDownButton() {
         ActionListener toolMenuListener = e -> {
-            if (toolDropDownButton == null) {
+            if (jogDropDownButton == null) {
                 return;
             }
 
             JMenuItem source = (JMenuItem) e.getSource();
-            toolDropDownButton.setIcon((Icon) source.getAction().getValue(Action.LARGE_ICON_KEY));
-            toolDropDownButton.setSelected(true);
-            toolDropDownButton.setAction(source.getAction());
+            jogDropDownButton.setIcon((Icon) source.getAction().getValue(Action.LARGE_ICON_KEY));
+            jogDropDownButton.setSelected(true);
+            jogDropDownButton.setAction(source.getAction());
         };
 
         JogMachineToCenterAction toolDrawRectangleAction = new JogMachineToCenterAction();
@@ -164,9 +165,9 @@ public class ToolBox extends ToolBar {
         addDropDownAction(popupMenu, new JogMachineToTopRightCornerAction(), toolMenuListener);
         addDropDownAction(popupMenu, new JogMachineToLowerLeftCornerAction(), toolMenuListener);
         addDropDownAction(popupMenu, new JogMachineToLowerRightCornerAction(), toolMenuListener);
-        toolDropDownButton = DropDownButtonFactory.createDropDownToggleButton(ImageUtilities.loadImageIcon(JogMachineToCenterAction.LARGE_ICON_PATH, false), popupMenu);
-        toolDropDownButton.setAction(toolDrawRectangleAction);
-        return toolDropDownButton;
+        jogDropDownButton = DropDownButtonFactory.createDropDownToggleButton(ImageUtilities.loadImageIcon(JogMachineToCenterAction.LARGE_ICON_PATH, false), popupMenu);
+        jogDropDownButton.setAction(toolDrawRectangleAction);
+        return jogDropDownButton;
     }
 
     private JToggleButton createToolDropDownButton() {

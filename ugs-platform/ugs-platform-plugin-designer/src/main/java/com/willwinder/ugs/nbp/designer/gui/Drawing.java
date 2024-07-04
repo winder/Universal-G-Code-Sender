@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -54,6 +54,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,20 +66,20 @@ import java.util.Set;
 public class Drawing extends JPanel {
 
     public static final double MIN_SCALE = 0.05;
+    @Serial
     private static final long serialVersionUID = 1298712398723987873L;
-    private static final int MARGIN = 100;
     private final transient EntityGroup globalRoot;
     private final transient EntityGroup entitiesRoot;
     private final transient EntityGroup controlsRoot;
     private final transient Set<DrawingListener> listeners = Sets.newConcurrentHashSet();
     private final transient Throttler refreshThrottler;
-    private double scale;
-    private AffineTransform transform;
-    private long lastUpdate;
     private final transient Rectangle2D currentBounds = new Rectangle(0, 0, 8, 8);
+    private double scale;
+    private Point2D.Double position = new Point2D.Double();
+    private Dimension oldMinimumSize;
 
     public Drawing(Controller controller) {
-        refreshThrottler = new Throttler(this::refresh, 2000);
+        refreshThrottler = new Throttler(this::refresh, 1000);
 
         globalRoot = new EntityGroup();
         globalRoot.addChild(new GridControl(controller));
@@ -219,14 +220,14 @@ public class Drawing extends JPanel {
         if (this.scale != newScale) {
             this.scale = newScale;
             notifyListeners(DrawingEvent.SCALE_CHANGED);
+            refresh();
         }
     }
 
     @Override
     public Dimension getMinimumSize() {
-        int margin = (int) (MARGIN * 2 * scale);
-        int width = (int) (currentBounds.getWidth() * scale) + margin;
-        int height = (int) (currentBounds.getHeight() * scale) + margin;
+        int width = (int) (currentBounds.getWidth() );
+        int height = (int) (currentBounds.getHeight());
         return new Dimension(width, height);
     }
 
@@ -235,11 +236,14 @@ public class Drawing extends JPanel {
         return getMinimumSize();
     }
 
-    private void refresh() {
+    public void refresh() {
         repaint();
+        globalRoot.invalidateBounds();
+        updateBounds();
         Dimension minimumSize = getMinimumSize();
-        firePropertyChange("minimumSize", minimumSize.width, minimumSize.height);
-        firePropertyChange("preferredSize", minimumSize.width, minimumSize.height);
+        firePropertyChange("minimumSize", oldMinimumSize, minimumSize);
+        firePropertyChange("preferredSize", oldMinimumSize, minimumSize);
+        oldMinimumSize = minimumSize;
         revalidate();
     }
 
@@ -248,17 +252,10 @@ public class Drawing extends JPanel {
     }
 
     public AffineTransform getTransform() {
-        // Don't update this every time or else it will be hard to move entites outside the canvas
-        if (System.currentTimeMillis() > lastUpdate + 50) {
-
-            transform = AffineTransform.getScaleInstance(1, -1);
-            transform.translate(0, -getHeight());
-            transform.scale(scale, scale);
-            transform.translate(MARGIN / 4d, MARGIN / 4d);
-            transform.translate(-getBounds().getMinX(), -getBounds().getMinY());
-            lastUpdate = System.currentTimeMillis();
-        }
-
+        AffineTransform transform = AffineTransform.getScaleInstance(1, -1);
+        transform.translate(0, -getHeight());
+        transform.scale(scale, scale);
+        transform.translate(-position.x, -position.y);
         return transform;
     }
 
@@ -277,15 +274,27 @@ public class Drawing extends JPanel {
         entitiesRoot.removeAll();
     }
 
-
     @Override
     public Rectangle getBounds() {
-        Rectangle2D bounds = globalRoot.getBounds();
-        double minX = Math.min(currentBounds.getMinX(), bounds.getMinX());
-        double minY = Math.min(currentBounds.getMinY(), bounds.getMinY());
-        double maxX = Math.max(currentBounds.getMaxX(), bounds.getMaxX());
-        double maxY = Math.max(currentBounds.getMaxY(), bounds.getMaxY());
-        currentBounds.setRect(minX, minY, maxX - minX, maxY - minY);
+        updateBounds();
         return currentBounds.getBounds();
+    }
+
+    private void updateBounds() {
+        Rectangle2D bounds = globalRoot.getBounds();
+        double minX = (bounds.getMinX()) * scale;
+        double minY = (bounds.getMinY()) * scale;
+        double maxX = (bounds.getMaxX()) * scale;
+        double maxY = (bounds.getMaxY()) * scale;
+        currentBounds.setRect(minX, minY, maxX - minX, maxY - minY);
+    }
+
+    public void setPosition(double x, double y) {
+        position = new Point2D.Double(x / scale, y / scale);
+        refresh();
+    }
+
+    public Point2D.Double getPosition() {
+        return new Point2D.Double(position.x * scale, position.y * scale);
     }
 }
