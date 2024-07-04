@@ -21,7 +21,9 @@ package com.willwinder.universalgcodesender.connection;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,6 +50,8 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
             String portName = StringUtils.substringBetween(uri, ConnectionDriver.JSERIALCOMM.getProtocol(), ":");
             int baudRate = Integer.parseInt(StringUtils.substringAfterLast(uri, ":"));
             initSerialPort(portName, baudRate);
+        } catch (ConnectionException e) {
+            throw e;
         } catch (Exception e) {
             throw new ConnectionException("Couldn't parse connection string " + uri, e);
         }
@@ -72,11 +76,24 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
         }
 
         serialPort = SerialPort.getCommPort(name);
+        checkPermissions();
+
         serialPort.setParity(SerialPort.NO_PARITY);
         serialPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
         serialPort.setNumDataBits(8);
         serialPort.addDataListener(this);
         serialPort.setBaudRate(baud);
+    }
+
+    private void checkPermissions() {
+        if (!SystemUtils.IS_OS_LINUX) {
+            return;
+        }
+
+        File port = new File(serialPort.getSystemPortPath());
+        if (!port.canWrite() || !port.canRead() ) {
+            throw new ConnectionException("Do not have required permissions to open the device on " + serialPort.getSystemPortPath());
+        }
     }
 
     @Override
