@@ -1,5 +1,5 @@
 /*
-    Copyright 2022-2023 Will Winder
+    Copyright 2022-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.firmware.fluidnc;
 
 import com.willwinder.universalgcodesender.Capabilities;
 import com.willwinder.universalgcodesender.ConnectionWatchTimer;
+import com.willwinder.universalgcodesender.ControllerException;
 import com.willwinder.universalgcodesender.GrblCapabilitiesConstants;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.IController;
@@ -64,6 +65,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 import com.willwinder.universalgcodesender.services.MessageService;
+import com.willwinder.universalgcodesender.types.CommandException;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
@@ -372,7 +374,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     }
 
     @Override
-    public Boolean isReadyToReceiveCommands() throws Exception {
+    public Boolean isReadyToReceiveCommands() {
         return isCommOpen() && !this.isStreaming();
     }
 
@@ -612,7 +614,17 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
     private void refreshFirmwareSettings() throws FirmwareSettingsException {
         messageService.dispatchMessage(MessageType.INFO, "*** Fetching device settings\n");
-        firmwareSettings.refresh();
+        try {
+            firmwareSettings.refresh();
+        } catch (FirmwareSettingsException e) {
+            messageService.dispatchMessage(MessageType.ERROR, "*** There was an error while fetching the configuration from the controller:\n");
+            messageService.dispatchMessage(MessageType.ERROR, e.getMessage() + "\"");
+            throw e;
+        }  catch (CommandException e) {
+            messageService.dispatchMessage(MessageType.ERROR, "*** There was an error while reading the configuration, see detailed error message below:\n");
+            messageService.dispatchMessage(MessageType.ERROR, e.getMessage() + "\"");
+            throw e;
+        }
     }
 
     @Override
@@ -627,7 +639,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     }
 
     @Override
-    public void sendCommandImmediately(GcodeCommand cmd) throws Exception {
+    public void sendCommandImmediately(GcodeCommand cmd) throws ControllerException {
         communicator.queueCommand(cmd);
         communicator.streamCommands();
     }

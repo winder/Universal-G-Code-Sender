@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.firmware.smoothie;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.Capabilities;
 import com.willwinder.universalgcodesender.CapabilitiesConstants;
+import com.willwinder.universalgcodesender.ControllerException;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.StatusPollTimer;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
@@ -134,9 +135,9 @@ public class SmoothieController extends AbstractController {
     }
 
     @Override
-    protected void isReadyToSendCommandsEvent() throws Exception {
+    protected void isReadyToSendCommandsEvent() throws ControllerException {
         if (!this.isReady && !isSmoothieReady) {
-            throw new Exception(Localization.getString("controller.exception.booting"));
+            throw new ControllerException(Localization.getString("controller.exception.booting"));
         }
     }
 
