@@ -33,45 +33,18 @@ const Header = () => {
         </Nav.Item>
 
         <Nav.Item>
-          {status?.pins?.probe && <AccessoryState>P</AccessoryState>}
-          {status?.pins?.cycleStart && <AccessoryState>C</AccessoryState>}
-          {status?.pins?.hold && (
-            <Nav.Item>
-              <AccessoryState>H</AccessoryState>
-            </Nav.Item>
-          )}
-          {status?.pins?.door && (
-            <Nav.Item>
-              <AccessoryState>D</AccessoryState>
-            </Nav.Item>
-          )}
-
-          {status?.pins?.x && (
-            <Nav.Item>
-              <AccessoryState>X</AccessoryState>
-            </Nav.Item>
-          )}
-          {status?.pins?.z && (
-            <Nav.Item>
-              <AccessoryState>Y</AccessoryState>
-            </Nav.Item>
-          )}
-          {status?.pins?.a && (
-            <Nav.Item>
-              <AccessoryState>Z</AccessoryState>
-            </Nav.Item>
-          )}
-          {status?.pins?.b && (
-            <Nav.Item>
-              <AccessoryState>A</AccessoryState>
-            </Nav.Item>
-          )}
-          {status?.pins?.c && (
-            <Nav.Item>
-              <AccessoryState>B</AccessoryState>
-            </Nav.Item>
-          )}
+          {status?.pins?.probe && <AccessoryState title="Probe">P</AccessoryState>}
+          {status?.pins?.cycleStart && <AccessoryState title="Cycle start">C</AccessoryState>}
+          {status?.pins?.hold && <AccessoryState title="HOLD">H</AccessoryState>}
+          {status?.pins?.door && <AccessoryState title="Door">D</AccessoryState>}
+          {status?.pins?.x && <AccessoryState>X</AccessoryState>}
+          {status?.pins?.y && <AccessoryState>Y</AccessoryState>}
+          {status?.pins?.z && <AccessoryState>Z</AccessoryState>}
+          {status?.pins?.a && <AccessoryState>A</AccessoryState>}
+          {status?.pins?.b && <AccessoryState>B</AccessoryState>}
+          {status?.pins?.c && <AccessoryState>C</AccessoryState>}
         </Nav.Item>
+
         {isConnected && status?.state !== "DISCONNECTED" && (
           <Nav.Item className="ml-auto">
             <Button
