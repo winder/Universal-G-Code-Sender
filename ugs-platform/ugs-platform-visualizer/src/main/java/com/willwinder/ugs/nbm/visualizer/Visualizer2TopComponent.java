@@ -133,6 +133,7 @@ public final class Visualizer2TopComponent extends TopComponent {
 
         if (rih != null) {
             backend.removeUGSEventListener(rih);
+            rih.dispose();
         }
 
         logger.log(Level.INFO, "Component closed, panel = " + panel);

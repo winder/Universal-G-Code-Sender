@@ -22,9 +22,16 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.glu.GLU;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import com.willwinder.ugs.nbm.visualizer.renderables.*;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BG;
+import com.willwinder.ugs.nbm.visualizer.renderables.Grid;
+import com.willwinder.ugs.nbm.visualizer.renderables.MachineBoundries;
+import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
+import com.willwinder.ugs.nbm.visualizer.renderables.OrientationCube;
+import com.willwinder.ugs.nbm.visualizer.renderables.Tool;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -39,17 +46,14 @@ import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.util.lookup.ServiceProviders;
 
-import java.awt.*;
+import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BG;
 
 /**
  * 3D Canvas for GCode Visualizer
@@ -134,12 +138,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         setHorizontalTranslationVector();
 
         objects = new CopyOnWriteArrayList<>();
-        objects.add(new MachineBoundries(Localization.getString("platform.visualizer.renderable.machine-boundries")));
-        objects.add(new Tool(Localization.getString("platform.visualizer.renderable.tool-location")));
-        objects.add(new MouseOver(Localization.getString("platform.visualizer.renderable.mouse-indicator")));
-        objects.add(new OrientationCube(0.5f, Localization.getString("platform.visualizer.renderable.orientation-cube")));
-        objects.add(new Grid(Localization.getString("platform.visualizer.renderable.grid")));
-        Collections.sort(objects);
+        initRenderables();
 
         reloadPreferences();
         listenForSettingsEvents();
@@ -199,7 +198,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         }
     }
 
-    final public void reloadPreferences() {
+    public final void reloadPreferences() {
         VisualizerOptions vo = new VisualizerOptions();
 
         clearColor = vo.getOptionForKey(VISUALIZER_OPTION_BG).value;
@@ -476,7 +475,24 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      */
     @Override
     synchronized public void dispose(GLAutoDrawable drawable) {
+        dispose();
+    }
+
+    public void dispose() {
         logger.log(Level.INFO, "Disposing OpenGL context.");
+        getRenderables()
+                .forEach(this::removeRenderable);
+        initRenderables();
+    }
+
+    private void initRenderables() {
+        objects.clear();
+        objects.add(new MachineBoundries(Localization.getString("platform.visualizer.renderable.machine-boundries")));
+        objects.add(new Tool(Localization.getString("platform.visualizer.renderable.tool-location")));
+        objects.add(new MouseOver(Localization.getString("platform.visualizer.renderable.mouse-indicator")));
+        objects.add(new OrientationCube(0.5f, Localization.getString("platform.visualizer.renderable.orientation-cube")));
+        objects.add(new Grid(Localization.getString("platform.visualizer.renderable.grid")));
+        Collections.sort(objects);
     }
 
     private void setHorizontalTranslationVector() {
