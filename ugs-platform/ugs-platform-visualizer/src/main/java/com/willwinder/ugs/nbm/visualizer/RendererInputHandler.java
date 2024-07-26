@@ -362,4 +362,8 @@ public class RendererInputHandler implements
     public void keyReleased(KeyEvent ke) {
         setFPS(LOW_FPS);
     }
+
+    public void dispose() {
+        gcodeRenderer.dispose();
+    }
 }
