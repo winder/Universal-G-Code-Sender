@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCComm
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetFirmwareSettingsCommand;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.types.CommandException;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -57,21 +58,24 @@ public class FluidNCSettings implements IFirmwareSettings {
         this.controller = controller;
     }
 
-    public void refresh() throws FirmwareSettingsException {
-        try {
-            GetFirmwareSettingsCommand firmwareSettingsCommand = new GetFirmwareSettingsCommand();
-            ControllerUtils.sendAndWaitForCompletion(controller, firmwareSettingsCommand);
+    public void refresh() throws FirmwareSettingsException, CommandException {
+        GetFirmwareSettingsCommand firmwareSettingsCommand = new GetFirmwareSettingsCommand();
 
-            if (firmwareSettingsCommand.isOk()) {
-                firmwareSettingsCommand.getSettings().keySet().forEach(key -> {
-                    String value = firmwareSettingsCommand.getSettings().get(key);
-                    FirmwareSetting firmwareSetting = new FirmwareSetting(key, value, "", "", "");
-                    settings.put(key.toLowerCase(), firmwareSetting);
-                    listeners.forEach(l -> l.onUpdatedFirmwareSetting(firmwareSetting));
-                });
-            }
-        } catch (Exception e) {
-            throw new FirmwareSettingsException("Couldn't fetch settings", e);
+        try {
+            ControllerUtils.sendAndWaitForCompletion(controller, firmwareSettingsCommand);
+        } catch (InterruptedException e) {
+            throw new FirmwareSettingsException("Timed out waiting for the controller settings", e);
+        }
+
+
+        if (firmwareSettingsCommand.isOk()) {
+            Map<String, String> responseSettings = firmwareSettingsCommand.getSettings();
+            responseSettings.keySet().forEach(key -> {
+                String value = responseSettings.get(key);
+                FirmwareSetting firmwareSetting = new FirmwareSetting(key, value, "", "", "");
+                settings.put(key.toLowerCase(), firmwareSetting);
+                listeners.forEach(l -> l.onUpdatedFirmwareSetting(firmwareSetting));
+            });
         }
     }
 

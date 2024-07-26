@@ -18,8 +18,10 @@
  */
 package com.willwinder.universalgcodesender.firmware.fluidnc.commands;
 
+import com.willwinder.universalgcodesender.types.CommandException;
 import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.error.YAMLException;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -40,9 +42,13 @@ public class GetFirmwareSettingsCommand extends SystemCommand {
         }
         
         String response = StringUtils.removeEnd(getResponse(), "ok");
-        Yaml yaml = new Yaml();
-        Map<String, Object> settingsTree = yaml.load(response);
-        return flatten(settingsTree);
+        try {
+            Yaml yaml = new Yaml();
+            Map<String, Object> settingsTree = yaml.load(response);
+            return flatten(settingsTree);
+        } catch (YAMLException e) {
+            throw new CommandException(e);
+        }
     }
 
     private Map<String, String> flatten(Map<String, Object> mapToFlatten) {
@@ -60,8 +66,7 @@ public class GetFirmwareSettingsCommand extends SystemCommand {
         }
 
         Object value = entry.getValue();
-        if (value instanceof Map<?, ?>) {
-            Map<?, ?> properties = (Map<?, ?>) value;
+        if (value instanceof Map<?, ?> properties) {
             return properties.entrySet().stream()
                     .flatMap(e -> flatten(new AbstractMap.SimpleEntry<>(entry.getKey().toLowerCase() + "/" + e.getKey().toString().toLowerCase(), e.getValue())));
         }

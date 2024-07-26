@@ -1,5 +1,5 @@
 /*
-    Copyright 2022 Will Winder
+    Copyright 2022-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -46,9 +46,9 @@ public class ControllerUtils {
      * @param controller       the controller to send the command through
      * @param command          a command to send
      * @param maxExecutionTime the max number of milliseconds to wait before throwing a timeout error
-     * @throws Exception if the command could not be sent or a timeout occurred
+     * @throws InterruptedException if the command could not be sent or a timeout occurred
      */
-    public static <T extends GcodeCommand> T sendAndWaitForCompletion(IController controller, T command, long maxExecutionTime) throws Exception {
+    public static <T extends GcodeCommand> T sendAndWaitForCompletion(IController controller, T command, long maxExecutionTime) throws InterruptedException {
         final AtomicBoolean isDone = new AtomicBoolean(false);
         CommandListener listener = c -> isDone.set(c.isDone());
         command.addListener(listener);
@@ -57,7 +57,7 @@ public class ControllerUtils {
         long startTime = System.currentTimeMillis();
         while (!isDone.get()) {
             if (System.currentTimeMillis() > startTime + maxExecutionTime) {
-                throw new RuntimeException("The command \"" + command.getCommandString() + "\" has timed out as it wasn't finished within " + maxExecutionTime + "ms");
+                throw new InterruptedException("The command \"" + command.getCommandString() + "\" has timed out as it wasn't finished within " + maxExecutionTime + "ms");
             }
             Thread.sleep(10);
         }
@@ -72,10 +72,10 @@ public class ControllerUtils {
      * @param command    a command
      * @param <T>        a class extending from {@link GcodeCommand}
      * @return the executed command with the response
-     * @throws Exception if the command could not be sent or a timeout occurred
+     * @throws InterruptedException if the command could not be sent or a timeout occurred
      */
 
-    public static <T extends GcodeCommand> T sendAndWaitForCompletion(IController controller, T command) throws Exception {
+    public static <T extends GcodeCommand> T sendAndWaitForCompletion(IController controller, T command) throws InterruptedException {
         return sendAndWaitForCompletion(controller, command, MAX_EXECUTION_TIME);
     }
 
@@ -89,7 +89,7 @@ public class ControllerUtils {
         long startTime = System.currentTimeMillis();
         while (controller.getActiveCommand().isPresent()) {
             if (startTime + maxExecutionTime < System.currentTimeMillis()) {
-                throw new RuntimeException("The command \"" + controller.getActiveCommand().get().getCommandString() + "\" has timed out as it wasn't finished within " + maxExecutionTime + "ms");
+                throw new InterruptedException("The command \"" + controller.getActiveCommand().get().getCommandString() + "\" has timed out as it wasn't finished within " + maxExecutionTime + "ms");
             }
 
             Thread.sleep(10);

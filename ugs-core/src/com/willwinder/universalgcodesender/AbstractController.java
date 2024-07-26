@@ -148,7 +148,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
     /**
      * Called prior to sending commands, throw an exception if not ready.
      */
-    abstract protected void isReadyToSendCommandsEvent() throws Exception;
+    abstract protected void isReadyToSendCommandsEvent() throws ControllerException;
     /**
      * Called prior to streaming commands, separate in case you need to be more
      * restrictive about streaming a file vs. sending a command.
@@ -490,11 +490,11 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
      * Note: this is the only place where a string is sent to the comm.
      */
     @Override
-    public void sendCommandImmediately(GcodeCommand command) throws Exception {
+    public void sendCommandImmediately(GcodeCommand command) throws ControllerException {
         isReadyToSendCommandsEvent();
 
         if (!isCommOpen()) {
-            throw new Exception("Cannot send command(s), comm port is not open.");
+            throw new ControllerException("Cannot send command(s), comm port is not open.");
         }
 
         this.setCurrentState(CommunicatorState.COMM_SENDING);
@@ -503,13 +503,13 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
     }
 
     @Override
-    public Boolean isReadyToReceiveCommands() throws Exception {
+    public Boolean isReadyToReceiveCommands() throws ControllerException {
         if (!isCommOpen()) {
-            throw new Exception("Comm port is not open.");
+            throw new ControllerException("Comm port is not open.");
         }
 
         if (this.isStreaming()) {
-            throw new Exception("Already streaming.");
+            throw new ControllerException("Already streaming.");
         }
 
         return true;

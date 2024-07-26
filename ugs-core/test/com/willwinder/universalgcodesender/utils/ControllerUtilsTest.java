@@ -1,5 +1,5 @@
 /*
-    Copyright 2022 Will Winder
+    Copyright 2022-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,23 +23,21 @@ import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import org.junit.Test;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 public class ControllerUtilsTest {
 
@@ -75,7 +73,7 @@ public class ControllerUtilsTest {
     public void sendAndWaitForCompletionShouldTimeOut() throws Exception {
         IController controller = mock(IController.class);
         GcodeCommand command = new GcodeCommand("blah");
-        assertThrows("The command \"blah\" has timed out as it wasn't finished within 100ms", RuntimeException.class, () -> ControllerUtils.sendAndWaitForCompletion(controller, command, 100));
+        assertThrows("The command \"blah\" has timed out as it wasn't finished within 100ms", InterruptedException.class, () -> ControllerUtils.sendAndWaitForCompletion(controller, command, 100));
     }
 
     @Test

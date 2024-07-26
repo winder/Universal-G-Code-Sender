@@ -317,9 +317,9 @@ public class GrblController extends AbstractController {
     }
 
     @Override
-    protected void isReadyToSendCommandsEvent() throws Exception {
+    protected void isReadyToSendCommandsEvent() throws ControllerException {
         if (!isCommOpen()) {
-            throw new Exception(Localization.getString("controller.exception.booting"));
+            throw new ControllerException(Localization.getString("controller.exception.booting"));
         }
     }
 

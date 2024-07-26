@@ -151,7 +151,7 @@ public interface IController {
     /*
     Stream information
     */
-    Boolean isReadyToReceiveCommands() throws Exception;
+    Boolean isReadyToReceiveCommands() throws ControllerException;
     Boolean isReadyToStreamFile() throws Exception;
     Boolean isStreaming();
     long getSendDuration();
@@ -183,7 +183,7 @@ public interface IController {
     Stream content
     */
     GcodeCommand createCommand(String gcode) throws Exception;
-    void sendCommandImmediately(GcodeCommand cmd) throws Exception;
+    void sendCommandImmediately(GcodeCommand cmd) throws ControllerException;
     void queueStream(IGcodeStreamReader r);
 
     /**
