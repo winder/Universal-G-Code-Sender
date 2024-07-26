@@ -18,19 +18,10 @@
  */
 package com.willwinder.ugs.nbp.core.actions;
 
+import com.willwinder.ugs.nbp.core.panels.QRPanel;
 import com.willwinder.ugs.nbp.core.services.PendantService;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
-import java.awt.event.ActionEvent;
-import java.util.Collection;
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -39,8 +30,23 @@ import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 
+import javax.swing.AbstractAction;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.net.URI;
+import java.util.Collection;
+import java.util.Optional;
+
 /**
- *
  * @author wwinder
  */
 @ActionID(
@@ -61,11 +67,7 @@ public class PendantAction extends AbstractAction {
 
     public static final String ICON_BASE = "resources/icons/pendant.svg";
 
-    private final BackendAPI backend;
-
     public PendantAction() {
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", LocalizingService.PendantTitle);
@@ -78,20 +80,35 @@ public class PendantAction extends AbstractAction {
         Collection<PendantURLBean> results = pendantService.startPendant();
 
         JPanel panel = new JPanel();
-        panel.setLayout(new MigLayout("fill, wrap 1"));
-        String urlPattern = "<HTML>URL: <a href=\"%s\">%s</a></html>";
-        for (PendantURLBean result : results) {
-            panel.add(new JLabel(String.format(urlPattern, result.getUrlString(), result.getUrlString())),
-                    "al center");
-            panel.add(new JLabel(
-                    "",
-                    new ImageIcon(result.getQrCodeJpg(), "QR Code"),
-                    JLabel.CENTER),
-                    "al center");
+        panel.setLayout(new MigLayout("fill, inset 0"));
 
-            JOptionPane.showMessageDialog(null,panel,"Pendant Address",JOptionPane.PLAIN_MESSAGE);
-
-            return;
+        Optional<PendantURLBean> first = results.stream().findFirst();
+        if (first.isPresent()) {
+            panel.add(new QRPanel(first.get()), "grow, al center, wrap");
+            JLabel link = createLinkLabel(first.get());
+            panel.add(link, "al center, gaptop 10");
+        } else {
+            panel.add(new JLabel("No network interface detected"), "al center, gap 10");
         }
+
+        Window parent = SwingUtilities.getWindowAncestor((Component) e.getSource());
+        JOptionPane.showMessageDialog(parent, panel, "Web pendant", JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private static JLabel createLinkLabel(PendantURLBean pendantURLBean) {
+        String urlPattern = "<html><a href=\"%s\">%s</a></html>";
+        JLabel link = new JLabel(String.format(urlPattern, pendantURLBean.getUrlString(), pendantURLBean.getUrlString()));
+        link.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        link.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    Desktop.getDesktop().browse(new URI(pendantURLBean.getUrlString()));
+                } catch (Exception ex) {
+                    // Never mind
+                }
+            }
+        });
+        return link;
     }
 }
