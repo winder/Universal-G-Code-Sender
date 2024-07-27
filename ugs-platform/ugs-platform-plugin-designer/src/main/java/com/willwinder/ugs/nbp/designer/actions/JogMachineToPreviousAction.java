@@ -45,6 +45,7 @@ public class JogMachineToPreviousAction extends JogMachineToCenterAction {
         super();
         putValue("menuText", "Jog machine to previous");
         putValue(NAME, "Jog machine to previous");
+        putValue(SHORT_DESCRIPTION, "Jog machine to previous");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));

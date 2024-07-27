@@ -30,6 +30,14 @@ public class UndoActionList implements UndoableAction {
         this.actionList = new ArrayList<>(actionList);
     }
 
+    public UndoActionList() {
+        actionList = new ArrayList<>();
+    }
+
+    public void add(UndoableAction undoableAction) {
+        actionList.add(undoableAction);
+    }
+
     @Override
     public void redo() {
         actionList.forEach(UndoableAction::redo);

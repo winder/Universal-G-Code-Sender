@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.clipart;
 
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -43,7 +44,11 @@ public class InsertClipartDialog extends JDialog implements ListSelectionListene
     private final JList<Category> categoriesList;
 
     public InsertClipartDialog() {
-        super((JFrame) null, true);
+        this(SwingHelpers.getRootFrame());
+    }
+
+    public InsertClipartDialog(Frame parent) {
+        super(parent, true);
         setTitle("Insert clipart");
         setPreferredSize(new Dimension(730, 480));
         setLayout(new BorderLayout());
@@ -64,6 +69,7 @@ public class InsertClipartDialog extends JDialog implements ListSelectionListene
 
         setResizable(true);
         pack();
+        setLocationByPlatform(true);
     }
 
     public static void main(String[] args) {

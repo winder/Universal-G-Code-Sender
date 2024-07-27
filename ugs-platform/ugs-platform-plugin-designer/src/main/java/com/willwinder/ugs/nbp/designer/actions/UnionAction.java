@@ -57,6 +57,7 @@ public class UnionAction extends AbstractDesignAction implements SelectionListen
         putValue("menuText", "Union");
         putValue(NAME, "Union");
         putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SHORT_DESCRIPTION, "Unions two or more entities with each other");
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
 
@@ -98,8 +99,7 @@ public class UnionAction extends AbstractDesignAction implements SelectionListen
             path = new Path();
             path.append(area);
 
-            if (entities.get(0) instanceof Cuttable) {
-                Cuttable cuttable = (Cuttable) entities.get(0);
+            if (entities.get(0) instanceof Cuttable cuttable) {
                 path.setCutType(cuttable.getCutType());
                 path.setStartDepth(cuttable.getStartDepth());
                 path.setTargetDepth(cuttable.getTargetDepth());
