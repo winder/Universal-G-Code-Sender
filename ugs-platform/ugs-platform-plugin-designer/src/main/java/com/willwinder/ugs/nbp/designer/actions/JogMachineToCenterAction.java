@@ -52,6 +52,7 @@ public class JogMachineToCenterAction extends JogMachineAbstractAction {
         super();
         putValue("menuText", "Jog machine to center");
         putValue(NAME, "Jog machine to center");
+        putValue(SHORT_DESCRIPTION, "Jog machine to center");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));

@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -59,13 +59,14 @@ import java.util.stream.Collectors;
         lazy = false)
 public class BreakApartAction extends AbstractDesignAction implements SelectionListener {
     public static final String SMALL_ICON_PATH = "img/break.svg";
-    private static final String LARGE_ICON_PATH = "img/break24.svg";
+    public static final String LARGE_ICON_PATH = "img/break24.svg";
     private final transient Controller controller;
 
     public BreakApartAction() {
         putValue("menuText", "Break apart");
         putValue(NAME, "Break apart");
         putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SHORT_DESCRIPTION, "Breaks apart multiple entities");
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
 
@@ -94,8 +95,8 @@ public class BreakApartAction extends AbstractDesignAction implements SelectionL
 
         boolean isCompoundPath = false;
         Entity entity = selectionManager.getSelection().get(0);
-        if (entity instanceof Path) {
-            isCompoundPath = ((Path) entity).isCompoundPath();
+        if (entity instanceof Path path) {
+            isCompoundPath = path.isCompoundPath();
         }
         setEnabled(isCompoundPath);
     }
@@ -136,8 +137,7 @@ public class BreakApartAction extends AbstractDesignAction implements SelectionL
                 for (int i = 0; i < geometry.getNumGeometries(); i++) {
                     shapeList.add(shapeWriter.toShape(geometry.getGeometryN(i)));
                 }
-            } else if (geometry instanceof Polygon) { // If the shape consists of a polygon
-                Polygon polygon = ((Polygon) geometry);
+            } else if (geometry instanceof Polygon polygon) { // If the shape consists of a polygon
                 shapeList.add(shapeWriter.toShape(polygon.getExteriorRing()));
                 for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
                     shapeList.add(shapeWriter.toShape(polygon.getInteriorRingN(i)));

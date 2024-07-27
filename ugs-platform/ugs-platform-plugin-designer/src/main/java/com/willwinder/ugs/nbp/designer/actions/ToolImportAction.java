@@ -30,6 +30,7 @@ import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.awt.ActionID;
@@ -76,7 +77,7 @@ public final class ToolImportAction extends AbstractDesignAction {
         fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Carbide Create (.c2d)", "c2d"));
         fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Eagle (.mnt, .mnb)", "mnt", "mnb"));
         fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("KiCad (.pos)", "pos"));
-        fileDialog.showOpenDialog(null);
+        fileDialog.showOpenDialog(SwingHelpers.getRootFrame());
 
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 
