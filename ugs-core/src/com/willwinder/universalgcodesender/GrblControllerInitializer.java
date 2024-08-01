@@ -6,13 +6,12 @@ import com.willwinder.universalgcodesender.firmware.grbl.commands.GetParserState
 import com.willwinder.universalgcodesender.firmware.grbl.commands.GetSettingsCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageType;
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 
 /**
  * A class that implements an initialization protocol for GRBL and keeps an internal state of the
@@ -50,6 +49,7 @@ public class GrblControllerInitializer implements IControllerInitializer {
         controller.setControllerState(ControllerState.CONNECTING);
         isInitializing.set(true);
         try {
+            // Some controllers need this wait before we can query its status
             Thread.sleep(2000);
             if (!GrblUtils.isControllerResponsive(controller)) {
                 isInitializing.set(false);
@@ -58,6 +58,8 @@ public class GrblControllerInitializer implements IControllerInitializer {
                 return false;
             }
 
+            // Some controllers need this wait before we can query the rest of its information
+            Thread.sleep(2000);
             fetchControllerVersion();
             fetchControllerState();
 
@@ -108,6 +110,10 @@ public class GrblControllerInitializer implements IControllerInitializer {
     @Override
     public boolean isInitialized() {
         return isInitialized.get();
+    }
+
+    public boolean isInitializing() {
+        return isInitializing.get();
     }
 
     public GrblVersion getVersion() {

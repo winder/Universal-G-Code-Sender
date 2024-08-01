@@ -1392,7 +1392,6 @@ public class GrblControllerTest {
         instance.openCommPort(getSettings().getConnectionDriver(), "/dev/port", 1234);
         Thread.sleep(50);
 
-        instance.rawResponseHandler(grblVersionString);
         return instance;
     }
 }
