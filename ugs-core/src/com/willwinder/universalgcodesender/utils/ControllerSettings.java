@@ -20,15 +20,13 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCController;
 import com.willwinder.universalgcodesender.G2CoreController;
 import com.willwinder.universalgcodesender.GrblController;
-import com.willwinder.universalgcodesender.GrblEsp32Controller;
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.communicator.LoopBackCommunicator;
-import com.willwinder.universalgcodesender.firmware.smoothie.SmoothieController;
 import com.willwinder.universalgcodesender.TinyGController;
 import com.willwinder.universalgcodesender.communicator.XLCDCommunicator;
+import com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCController;
+import com.willwinder.universalgcodesender.firmware.smoothie.SmoothieController;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.gcode.util.CommandProcessorLoader;
 
@@ -44,19 +42,21 @@ import java.util.Optional;
 public class ControllerSettings {
     String Name;
     Integer Version = 0;
+
+    /**
+     * If the config file should be deleted
+     */
+    Boolean Deleted = false;
     ControllerConfig Controller;
     ProcessorConfigGroups GcodeProcessors;
 
     public enum CONTROLLER {
         GRBL("GRBL"),
-        GRBL_ESP32("GRBL ESP32"),
         FLUIDNC("FluidNC"),
         SMOOTHIE("SmoothieBoard"),
         TINYG("TinyG"),
         G2CORE("g2core"),
-        XLCD("XLCD"),
-        LOOPBACK("Loopback"),
-        LOOPBACK_SLOW("Loopback_Slow");
+        XLCD("XLCD");
 
         final String name;
         CONTROLLER(String name) {
@@ -81,6 +81,10 @@ public class ControllerSettings {
         return Version;
     }
 
+    public boolean isDeleted() {
+        return Deleted;
+    }
+
     /**
      * Parse the "Controller" object in the firmware config json.
      * <p>
@@ -99,8 +103,6 @@ public class ControllerSettings {
         switch (controller) {
             case GRBL:
                 return Optional.of(new GrblController());
-            case GRBL_ESP32:
-                return Optional.of(new GrblEsp32Controller());
             case SMOOTHIE:
                 return Optional.of(new SmoothieController());
             case TINYG:
@@ -109,10 +111,6 @@ public class ControllerSettings {
                 return Optional.of(new G2CoreController());
             case XLCD:
                 return Optional.of(new GrblController(new XLCDCommunicator()));
-            case LOOPBACK:
-                return Optional.of(new GrblController(new LoopBackCommunicator()));
-            case LOOPBACK_SLOW:
-                return Optional.of(new GrblController(new LoopBackCommunicator(100)));
             case FLUIDNC:
                 return Optional.of(new FluidNCController());
             default:
