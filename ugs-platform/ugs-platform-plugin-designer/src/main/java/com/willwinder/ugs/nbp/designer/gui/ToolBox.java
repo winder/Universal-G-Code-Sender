@@ -41,6 +41,7 @@ public class ToolBox extends ToolBar {
 
     private JToggleButton toolDropDownButton = null;
     private JToggleButton jogDropDownButton = null;
+    private JToggleButton alignDropDownButton = null;
 
     public ToolBox(Controller controller) {
         setFloatable(false);
@@ -69,27 +70,27 @@ public class ToolBox extends ToolBar {
 
         addSeparator();
 
+        add(createAlignDropDownButton());
+
+        addSeparator();
+
         JButton union = new JButton(new UnionAction());
         union.setText("");
-        union.setToolTipText("Unions two or more entities with each other");
         union.setBorderPainted(false);
         add(union);
 
         JButton subtract = new JButton(new SubtractAction());
         subtract.setText("");
-        subtract.setToolTipText("Subtracts one entity with another");
         subtract.setBorderPainted(false);
         add(subtract);
 
         JButton intersection = new JButton(new IntersectionAction());
         intersection.setText("");
-        intersection.setToolTipText("Makes an intersection between two entities");
         intersection.setBorderPainted(false);
         add(intersection);
 
         JButton breakApart = new JButton(new BreakApartAction());
         breakApart.setText("");
-        breakApart.setToolTipText("Breaks apart multiple entities");
         breakApart.setBorderPainted(false);
         add(breakApart);
 
@@ -146,6 +147,31 @@ public class ToolBox extends ToolBar {
         });
     }
 
+    private JToggleButton createAlignDropDownButton() {
+        ActionListener toolMenuListener = e -> {
+            if (alignDropDownButton == null) {
+                return;
+            }
+
+            JMenuItem source = (JMenuItem) e.getSource();
+            alignDropDownButton.setIcon((Icon) source.getAction().getValue(Action.LARGE_ICON_KEY));
+            alignDropDownButton.setAction(source.getAction());
+        };
+
+        AlignCenterAction alignCenterAction = new AlignCenterAction();
+        JPopupMenu popupMenu = new JPopupMenu();
+        addDropDownAction(popupMenu, new AlignLeftAction(), toolMenuListener);
+        addDropDownAction(popupMenu, alignCenterAction, toolMenuListener);
+        addDropDownAction(popupMenu, new AlignRightAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new AlignTopAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new AlignMiddleAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new AlignBottomAction(), toolMenuListener);
+        alignDropDownButton = DropDownButtonFactory.createDropDownToggleButton(ImageUtilities.loadImageIcon(AlignCenterAction.LARGE_ICON_PATH, false), popupMenu);
+        alignDropDownButton.setAction(alignCenterAction);
+        alignDropDownButton.setSelected(false);
+        return alignDropDownButton;
+    }
+
     private JToggleButton createJogDropDownButton() {
         ActionListener toolMenuListener = e -> {
             if (jogDropDownButton == null) {
@@ -165,6 +191,8 @@ public class ToolBox extends ToolBar {
         addDropDownAction(popupMenu, new JogMachineToTopRightCornerAction(), toolMenuListener);
         addDropDownAction(popupMenu, new JogMachineToLowerLeftCornerAction(), toolMenuListener);
         addDropDownAction(popupMenu, new JogMachineToLowerRightCornerAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new JogMachineToNextAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new JogMachineToPreviousAction(), toolMenuListener);
         jogDropDownButton = DropDownButtonFactory.createDropDownToggleButton(ImageUtilities.loadImageIcon(JogMachineToCenterAction.LARGE_ICON_PATH, false), popupMenu);
         jogDropDownButton.setAction(toolDrawRectangleAction);
         return jogDropDownButton;

@@ -50,6 +50,7 @@ public class JogMachineToTopRightCornerAction extends JogMachineAbstractAction {
         super();
         putValue("menuText", "Jog to top right corner");
         putValue(NAME, "Jog to top right corner");
+        putValue(SHORT_DESCRIPTION, "Jog to top right corner");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));

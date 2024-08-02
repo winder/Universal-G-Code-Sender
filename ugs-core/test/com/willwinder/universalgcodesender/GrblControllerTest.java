@@ -1417,7 +1417,6 @@ public class GrblControllerTest {
 
         when(initializer.isInitialized()).thenReturn(true);
         when(initializer.isInitializing()).thenReturn(false);
-
         return instance;
     }
 }

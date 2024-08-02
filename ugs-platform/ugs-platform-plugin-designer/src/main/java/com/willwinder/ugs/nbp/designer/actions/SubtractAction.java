@@ -58,6 +58,7 @@ public class SubtractAction extends AbstractDesignAction implements SelectionLis
         putValue("menuText", "Subtract");
         putValue(NAME, "Subtract");
         putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SHORT_DESCRIPTION, "Subtracts one entity with another");
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
 
@@ -94,16 +95,15 @@ public class SubtractAction extends AbstractDesignAction implements SelectionLis
             Area area = new Area(entities.get(0).getShape());
             for (int i = 1; i < entities.size(); i++) {
                 Entity entity = entities.get(i);
-                if (entity instanceof Group) {
-                    ((Group) entity).getAllChildren().forEach(groupEntity -> area.subtract(new Area(groupEntity.getShape())));
+                if (entity instanceof Group group) {
+                    group.getAllChildren().forEach(groupEntity -> area.subtract(new Area(groupEntity.getShape())));
                 } else {
                     area.subtract(new Area(entity.getShape()));
                 }
             }
 
             path = new Path();
-            if (entities.get(0) instanceof Cuttable) {
-                Cuttable cuttable = (Cuttable) entities.get(0);
+            if (entities.get(0) instanceof Cuttable cuttable) {
                 path.setCutType(cuttable.getCutType());
                 path.setStartDepth(cuttable.getStartDepth());
                 path.setTargetDepth(cuttable.getTargetDepth());

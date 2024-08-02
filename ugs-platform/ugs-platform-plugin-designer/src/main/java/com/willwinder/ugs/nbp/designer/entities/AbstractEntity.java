@@ -122,6 +122,11 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
+    public void setPosition(Point2D position) {
+        setPosition(Anchor.BOTTOM_LEFT, position);
+    }
+
+    @Override
     public Point2D getPosition(Anchor anchor) {
         Rectangle2D bounds = getBounds();
         if (anchor == Anchor.TOP_LEFT) {
@@ -134,14 +139,17 @@ public abstract class AbstractEntity implements Entity {
             return new Point2D.Double(bounds.getX(), bounds.getY());
         } else if (anchor == Anchor.BOTTOM_RIGHT) {
             return new Point2D.Double(bounds.getX() + bounds.getWidth(), bounds.getY());
+        } else if (anchor == Anchor.RIGHT_CENTER) {
+            return new Point2D.Double(bounds.getX() + bounds.getWidth(), bounds.getY() + (bounds.getHeight() / 2));
+        } else if (anchor == Anchor.LEFT_CENTER) {
+            return new Point2D.Double(bounds.getX(), bounds.getY() + (bounds.getHeight() / 2));
+        } else if (anchor == Anchor.TOP_CENTER) {
+            return new Point2D.Double(bounds.getX() + (bounds.getWidth() / 2), bounds.getY() + bounds.getHeight());
+        } else if (anchor == Anchor.BOTTOM_CENTER) {
+            return new Point2D.Double(bounds.getX() + (bounds.getWidth() / 2), bounds.getY());
         }
 
         return new Point2D.Double(bounds.getX(), bounds.getY());
-    }
-
-    @Override
-    public void setPosition(Point2D position) {
-        setPosition(Anchor.BOTTOM_LEFT, position);
     }
 
     @Override
@@ -186,7 +194,7 @@ public abstract class AbstractEntity implements Entity {
     @Override
     public void move(Point2D deltaMovement) {
         try {
-            if( deltaMovement.distance(new Point2D.Double(0d, 0d)) > 0) {
+            if (deltaMovement.distance(new Point2D.Double(0d, 0d)) > 0) {
                 transform.preConcatenate(AffineTransform.getTranslateInstance(deltaMovement.getX(), deltaMovement.getY()));
                 notifyEvent(new EntityEvent(this, EventType.MOVED));
             }
@@ -208,6 +216,14 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
+    public void setRotation(double rotation) {
+        double deltaRotation = rotation - getRotation();
+        if (deltaRotation != 0) {
+            rotate(deltaRotation);
+        }
+    }
+
+    @Override
     public void rotate(double angle) {
         rotate(getCenter(), angle);
     }
@@ -224,14 +240,6 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
-    public void setRotation(double rotation) {
-        double deltaRotation = rotation - getRotation();
-        if (deltaRotation != 0) {
-            rotate(deltaRotation);
-        }
-    }
-
-    @Override
     public void rotate(Point2D center, double angle) {
         transform.preConcatenate(AffineTransform.getRotateInstance(-Math.toRadians(angle), center.getX(), center.getY()));
         notifyEvent(new EntityEvent(this, EventType.ROTATED));
@@ -242,23 +250,23 @@ public abstract class AbstractEntity implements Entity {
         this.transform.preConcatenate(transform);
     }
 
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getName() {
         return this.name;
     }
 
     @Override
-    public void setDescription(String description) {
-        this.description = description;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
     public String getDescription() {
         return this.description;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String toString() {

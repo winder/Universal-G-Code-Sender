@@ -57,6 +57,7 @@ public class IntersectionAction extends AbstractDesignAction implements Selectio
         putValue("menuText", "Intersection");
         putValue(NAME, "Intersection");
         putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SHORT_DESCRIPTION, "Makes an intersection between two entities");
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
 
@@ -95,8 +96,7 @@ public class IntersectionAction extends AbstractDesignAction implements Selectio
             area.intersect(new Area(entities.get(1).getShape()));
 
             path = new Path();
-            if (entities.get(0) instanceof Cuttable) {
-                Cuttable cuttable = (Cuttable) entities.get(0);
+            if (entities.get(0) instanceof Cuttable cuttable) {
                 path.setCutType(cuttable.getCutType());
                 path.setStartDepth(cuttable.getStartDepth());
                 path.setTargetDepth(cuttable.getTargetDepth());
