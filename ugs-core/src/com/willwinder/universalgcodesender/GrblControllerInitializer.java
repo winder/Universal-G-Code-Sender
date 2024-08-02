@@ -83,13 +83,15 @@ public class GrblControllerInitializer implements IControllerInitializer {
         }
     }
 
-    private void fetchControllerState() throws Exception {
+    private void fetchControllerState() throws InterruptedException {
+        controller.getMessageService().dispatchMessage(MessageType.INFO, "*** Fetching device settings\n");
         sendAndWaitForCompletion(controller, new GetSettingsCommand());
+        controller.getMessageService().dispatchMessage(MessageType.INFO, "*** Fetching device state\n");
         sendAndWaitForCompletion(controller, new GetParserStateCommand());
     }
 
-    private void fetchControllerVersion() throws Exception {
-        // Send commands to get the state of the controller
+    private void fetchControllerVersion() throws InterruptedException {
+        controller.getMessageService().dispatchMessage(MessageType.INFO, "*** Fetching device version\n");
         GetBuildInfoCommand getBuildInfoCommand = sendAndWaitForCompletion(controller, new GetBuildInfoCommand());
         Optional<GrblVersion> optionalVersion = getBuildInfoCommand.getVersion();
         if (optionalVersion.isEmpty()) {

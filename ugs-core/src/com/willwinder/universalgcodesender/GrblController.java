@@ -169,11 +169,18 @@ public class GrblController extends AbstractController {
     }
 
     private void initialize() {
-        if (comm.areActiveCommands()) {
-            comm.cancelSend();
+        if (initializer.isInitializing()) {
+            logger.info("Already initializing, skipping");
+            return;
         }
-        setControllerState(ControllerState.CONNECTING);
 
+        if (comm.areActiveCommands()) {
+            messageService.dispatchMessage(MessageType.INFO, "*** Canceling current stream\n");
+            cancelCommands();
+            resetBuffers();
+        }
+
+        setControllerState(ControllerState.CONNECTING);
         ThreadHelper.invokeLater(() -> {
             positionPollTimer.stop();
             initializer.initialize();
