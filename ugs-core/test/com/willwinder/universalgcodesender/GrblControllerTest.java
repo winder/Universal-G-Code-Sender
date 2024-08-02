@@ -1167,7 +1167,27 @@ public class GrblControllerTest {
     }
 
     @Test
-    public void rawResponseHandlerOnVersionStringShouldResetStatus() throws Exception {
+    public void rawResponseHandlerOnVersionStringWhenSendingFileShouldCancelStream() throws Exception {
+        // Given
+        GrblController instance = initializeAndConnectController(VERSION_GRBL_1_1F);
+        instance.rawResponseHandler("<Run|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+        assertEquals("We should be in sending mode", COMM_SENDING, instance.getCommunicatorState());
+        assertEquals(ControllerState.RUN, instance.getControllerStatus().getState());
+
+        // Simulate that there is an ongoing stream
+        mgc.areActiveCommands = true;
+
+        // When
+        instance.rawResponseHandler("Grbl " + VERSION_GRBL_1_1F);
+
+        // Then
+        assertEquals(1, mgc.numCancelSendCalls);
+        assertEquals(1, mgc.numResetBuffersCalls);
+        assertEquals(COMM_IDLE, instance.getCommunicatorState());
+    }
+
+    @Test
+    public void rawResponseHandlerOnVersionStringWhenNotSendingFileShouldNotCancelStream() throws Exception {
         // Given
         GrblController instance = initializeAndConnectController(VERSION_GRBL_1_1F);
         instance.rawResponseHandler("<Run|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
@@ -1178,8 +1198,10 @@ public class GrblControllerTest {
         instance.rawResponseHandler("Grbl " + VERSION_GRBL_1_1F);
 
         // Then
+        assertEquals(0, mgc.numCancelSendCalls);
+        assertEquals(0, mgc.numResetBuffersCalls);
         assertEquals(COMM_IDLE, instance.getCommunicatorState());
-        assertEquals(ControllerState.CONNECTING, instance.getControllerStatus().getState());
+
     }
 
     /**
@@ -1383,7 +1405,8 @@ public class GrblControllerTest {
      */
     private GrblController initializeAndConnectController(String grblVersionString) throws Exception {
         GrblControllerInitializer initializer = mock(GrblControllerInitializer.class);
-        when(initializer.isInitialized()).thenReturn(true);
+        when(initializer.isInitialized()).thenReturn(false);
+        when(initializer.isInitializing()).thenReturn(false);
 
         GrblVersion version = new GrblVersion("[VER:" + grblVersionString + "]");
         when(initializer.getVersion()).thenReturn(version);
@@ -1392,6 +1415,8 @@ public class GrblControllerTest {
         instance.openCommPort(getSettings().getConnectionDriver(), "/dev/port", 1234);
         Thread.sleep(50);
 
+        when(initializer.isInitialized()).thenReturn(true);
+        when(initializer.isInitializing()).thenReturn(false);
         return instance;
     }
 }
