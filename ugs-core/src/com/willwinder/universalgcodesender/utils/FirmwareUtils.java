@@ -58,7 +58,8 @@ import java.util.stream.Stream;
  * @author wwinder
  */
 public class FirmwareUtils {
-    final private static String FIRMWARE_CONFIG_DIRNAME = "firmware_config";
+    public static final String FIRMWARE_CONFIG_DIRECTORY = "/resources/firmware_config/";
+    private static final String FIRMWARE_CONFIG_DIRNAME = "firmware_config";
     private static final Logger logger = Logger.getLogger(FirmwareUtils.class.getName());
     private static final Map<String, ConfigTuple> configFiles = new HashMap<>();
     private static boolean userNotified = false;
@@ -128,6 +129,26 @@ public class FirmwareUtils {
      */
     public synchronized static void initialize() {
         logger.info("Initializing firmware... ...");
+        File firmwareConfigDirectory = getFirmwareConfigDirectory();
+
+        updateConfigFiles(firmwareConfigDirectory);
+
+        configFiles.clear();
+        for (File f : firmwareConfigDirectory.listFiles()) {
+            try (InputStream fileInputStream = new FileInputStream(f)) {
+                ControllerSettings config = new Gson().fromJson(new InputStreamReader(fileInputStream, StandardCharsets.UTF_8), ControllerSettings.class);
+                if (config.isDeleted()) {
+                    f.delete();
+                    continue;
+                }
+                configFiles.put(config.getName(), new ConfigTuple(config, f));
+            } catch (JsonSyntaxException | JsonIOException | IOException ex) {
+                GUIHelpers.displayErrorDialog("Unable to load configuration files: " + f.getAbsolutePath());
+            }
+        }
+    }
+
+    private static File getFirmwareConfigDirectory() {
         File firmwareConfig = new File(SettingsFactory.getSettingsDirectory(),
                 FIRMWARE_CONFIG_DIRNAME);
 
@@ -135,14 +156,15 @@ public class FirmwareUtils {
         if (!firmwareConfig.exists()) {
             firmwareConfig.mkdirs();
         }
+        return firmwareConfig;
+    }
 
+    private static void updateConfigFiles(File firmwareConfigDirectory) {
         FileSystem fileSystem = null;
 
         // Copy firmware config files.
         try {
-            final String dir = "/resources/firmware_config/";
-
-            URI location = FirmwareUtils.class.getResource(dir).toURI();
+            URI location = FirmwareUtils.class.getResource(FIRMWARE_CONFIG_DIRECTORY).toURI();
 
             Path myPath;
             if (location.getScheme().equals("jar")) {
@@ -155,7 +177,7 @@ public class FirmwareUtils {
                             Collections.<String, String>emptyMap());
                 }
 
-                myPath = fileSystem.getPath(dir);
+                myPath = fileSystem.getPath(FIRMWARE_CONFIG_DIRECTORY);
             } else {
                 myPath = Paths.get(location);
             }
@@ -164,7 +186,7 @@ public class FirmwareUtils {
             for (Path path : (Iterable<Path>) files::iterator) {
                 logger.info(path.toString());
                 final String name = path.getFileName().toString();
-                File fwConfig = new File(firmwareConfig, name);
+                File fwConfig = new File(firmwareConfigDirectory, name);
                 if (name.endsWith(".json")) {
                     boolean copyFile = !fwConfig.exists();
                     ControllerSettings jarSetting =
@@ -217,16 +239,6 @@ public class FirmwareUtils {
                 } catch (IOException ex) {
                     logger.log(Level.SEVERE, "Problem closing filesystem.", ex);
                 }
-            }
-        }
-
-        configFiles.clear();
-        for (File f : firmwareConfig.listFiles()) {
-            try (InputStream fileInputStream = new FileInputStream(f)) {
-                ControllerSettings config = new Gson().fromJson(new InputStreamReader(fileInputStream, StandardCharsets.UTF_8), ControllerSettings.class);
-                configFiles.put(config.getName(), new ConfigTuple(config, f));
-            } catch (JsonSyntaxException | JsonIOException | IOException ex) {
-                GUIHelpers.displayErrorDialog("Unable to load configuration files: " + f.getAbsolutePath());
             }
         }
     }
