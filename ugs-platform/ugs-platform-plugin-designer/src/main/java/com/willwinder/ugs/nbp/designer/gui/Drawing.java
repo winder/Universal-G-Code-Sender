@@ -50,6 +50,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -77,6 +79,8 @@ public class Drawing extends JPanel {
     private double scale;
     private Point2D.Double position = new Point2D.Double();
     private Dimension oldMinimumSize;
+    private transient DropHandler dropHandler;
+    private transient DropTarget dropTarget;
 
     public Drawing(Controller controller) {
         refreshThrottler = new Throttler(this::refresh, 1000);
@@ -113,6 +117,19 @@ public class Drawing extends JPanel {
         setFocusable(true);
         setBackground(Colors.BACKGROUND);
         setScale(2);
+    }
+
+    @Override
+    public void addNotify() {
+        super.addNotify();
+        dropHandler = new DropHandler();
+        dropTarget = new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, dropHandler, true);
+    }
+
+    @Override
+    public void removeNotify() {
+        super.removeNotify();
+        dropTarget.removeDropTargetListener(dropHandler);
     }
 
     public BufferedImage getImage() {

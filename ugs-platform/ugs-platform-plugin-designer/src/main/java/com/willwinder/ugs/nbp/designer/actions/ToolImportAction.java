@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbp.designer.io.dxf.DxfReader;
 import com.willwinder.ugs.nbp.designer.io.eagle.EaglePnpReader;
 import com.willwinder.ugs.nbp.designer.io.kicad.KiCadPosReader;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
+import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
@@ -41,6 +42,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -54,6 +56,14 @@ import java.util.Optional;
         displayName = "Import file",
         lazy = false)
 public final class ToolImportAction extends AbstractDesignAction {
+    public static final FileNameExtensionFilter[] FILE_NAME_EXTENSION_FILTERS = new FileNameExtensionFilter[]{
+            new FileNameExtensionFilter("Scalable Vector Graphics (.svg)", "svg"),
+            new FileNameExtensionFilter("Autodesk CAD (.dxf)", "dxf"),
+            new FileNameExtensionFilter("Carbide Create (.c2d)", "c2d"),
+            new FileNameExtensionFilter("Eagle (.mnt, .mnb)", "mnt", "mnb"),
+            new FileNameExtensionFilter("KiCad (.pos)", "pos"),
+            new FileNameExtensionFilter("UGS design (.ugsd)", "ugsd")
+    };
 
     public static final String SMALL_ICON_PATH = "img/import.svg";
     public static final String LARGE_ICON_PATH = "img/import24.svg";
@@ -68,15 +78,45 @@ public final class ToolImportAction extends AbstractDesignAction {
         this.controller = ControllerFactory.getController();
     }
 
+    public static void readDesign(Controller controller, BackendAPI backend, File f) {
+        Optional<Design> optionalDesign = Optional.empty();
+        if (StringUtils.endsWithIgnoreCase(f.getName(), ".svg")) {
+            SvgReader svgReader = new SvgReader();
+            optionalDesign = svgReader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".dxf")) {
+            DxfReader reader = new DxfReader(backend.getSettings());
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".c2d")) {
+            C2dReader reader = new C2dReader();
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".mnt") ||
+                StringUtils.endsWithIgnoreCase(f.getName(), ".mnb")) {
+            EaglePnpReader reader = new EaglePnpReader();
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".pos")) {
+            KiCadPosReader reader = new KiCadPosReader();
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".ugsd")) {
+            UgsDesignReader reader = new UgsDesignReader();
+            optionalDesign = reader.read(f);
+        }
+
+        if (optionalDesign.isPresent()) {
+            Design design = optionalDesign.get();
+            controller.setTool(Tool.SELECT);
+            controller.addEntities(design.getEntities());
+            controller.getSelectionManager().addSelection(design.getEntities());
+            controller.getDrawing().repaint();
+        } else {
+            throw new RuntimeException("Could not open: " + f.getName());
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         JFileChooser fileDialog = new JFileChooser();
         fileDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Scalable Vector Graphics (.svg)", "svg"));
-        fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Autodesk CAD (.dxf)", "dxf"));
-        fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Carbide Create (.c2d)", "c2d"));
-        fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("Eagle (.mnt, .mnb)", "mnt", "mnb"));
-        fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("KiCad (.pos)", "pos"));
+        Arrays.asList(FILE_NAME_EXTENSION_FILTERS).forEach(fileDialog::addChoosableFileFilter);
         fileDialog.showOpenDialog(SwingHelpers.getRootFrame());
 
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -84,35 +124,7 @@ public final class ToolImportAction extends AbstractDesignAction {
         ThreadHelper.invokeLater(() -> {
             File f = fileDialog.getSelectedFile();
             if (f != null) {
-
-                Optional<Design> optionalDesign = Optional.empty();
-                if (StringUtils.endsWithIgnoreCase(f.getName(), ".svg")) {
-                    SvgReader svgReader = new SvgReader();
-                    optionalDesign = svgReader.read(f);
-                } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".dxf")) {
-                    DxfReader reader = new DxfReader(backend.getSettings());
-                    optionalDesign = reader.read(f);
-                } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".c2d")) {
-                    C2dReader reader = new C2dReader();
-                    optionalDesign = reader.read(f);
-                } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".mnt") ||
-                        StringUtils.endsWithIgnoreCase(f.getName(), ".mnb")) {
-                    EaglePnpReader reader = new EaglePnpReader();
-                    optionalDesign = reader.read(f);
-                } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".pos")) {
-                    KiCadPosReader reader = new KiCadPosReader();
-                    optionalDesign = reader.read(f);
-                }
-
-                if (optionalDesign.isPresent()) {
-                    Design design = optionalDesign.get();
-                    controller.setTool(Tool.SELECT);
-                    controller.addEntities(design.getEntities());
-                    controller.getSelectionManager().addSelection(design.getEntities());
-                    controller.getDrawing().repaint();
-                } else {
-                    throw new RuntimeException("Could not open: " + f.getName());
-                }
+                readDesign(controller, backend, f);
             }
         });
     }
