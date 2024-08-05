@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
 import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.universalgcodesender.model.PartialPosition;
@@ -58,6 +59,9 @@ public class DrillCenterToolPath extends AbstractToolPath {
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
         PartialPosition centerPosition = getCenterPosition();
         addSafeHeightSegmentTo(gcodePath, centerPosition);
+        if (source.getSpindleSpeed() > 0) {
+            gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d)), null));
+        }
         addDepthSegment(gcodePath, getStartDepth());
 
         double currentDepth = getStartDepth();
