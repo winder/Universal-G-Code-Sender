@@ -7,6 +7,7 @@ import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 import java.awt.geom.Point2D;
@@ -81,5 +82,51 @@ public class DrillCenterToolPathTest {
         assertFalse(gcodePath.getSegments().get(8).point.hasX());
         assertFalse(gcodePath.getSegments().get(8).point.hasY());
         assertEquals(11, gcodePath.getSegments().get(8).point.getZ(), 0.01);
+    }
+
+    @Test
+    public void drillCenterWithSpindleSpeedShouldTurnOnSpindle() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setSize(new Size(15, 15));
+        rectangle.setPosition(new Point2D.Double(10, 10));
+        rectangle.setSpindleSpeed(100);
+
+        Settings settings = new Settings();
+        settings.setSafeHeight(11);
+        settings.setDepthPerPass(10);
+        settings.setMaxSpindleSpeed(1000);
+
+        DrillCenterToolPath drillCenterToolPath = new DrillCenterToolPath(settings, rectangle);
+        drillCenterToolPath.setTargetDepth(10);
+        GcodePath gcodePath = drillCenterToolPath.toGcodePath();
+
+        // Move to safe height
+        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(0).type);
+        assertFalse(gcodePath.getSegments().get(0).point.hasX());
+        assertFalse(gcodePath.getSegments().get(0).point.hasY());
+        assertEquals(11, gcodePath.getSegments().get(0).point.getZ(), 0.01);
+
+        // Move in XY-place
+        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(1).type);
+        assertEquals(17.5, gcodePath.getSegments().get(1).point.getX(), 0.01);
+        assertEquals(17.5, gcodePath.getSegments().get(1).point.getY(), 0.01);
+        assertFalse(gcodePath.getSegments().get(1).point.hasZ());
+
+        // Move to Z zero
+        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(2).type);
+        assertFalse(gcodePath.getSegments().get(2).point.hasX());
+        assertFalse(gcodePath.getSegments().get(2).point.hasY());
+        assertEquals(0, gcodePath.getSegments().get(2).point.getZ(), 0.01);
+
+        // Turn on spindle
+        assertEquals(SegmentType.SEAM, gcodePath.getSegments().get(3).type);
+        assertNull(gcodePath.getSegments().get(3).point);
+        assertEquals(1000, gcodePath.getSegments().get(3).getSpindleSpeed(), 0.1);
+
+        // First depth pass
+        assertEquals(SegmentType.POINT, gcodePath.getSegments().get(4).type);
+        assertFalse(gcodePath.getSegments().get(4).point.hasX());
+        assertFalse(gcodePath.getSegments().get(4).point.hasY());
+        assertEquals(0, gcodePath.getSegments().get(4).point.getZ(), 0.01);
     }
 }
