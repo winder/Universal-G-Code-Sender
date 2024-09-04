@@ -70,6 +70,28 @@ public class SurfaceScannerTest {
     }
 
     @Test
+    public void probeEventShouldAllowForSomePrecisionErrorsFromController() {
+        Settings settings = new Settings();
+        when(backendAPI.getSettings()).thenReturn(settings);
+
+        SurfaceScanner surfaceScanner = new SurfaceScanner(backendAPI);
+        surfaceScanner.reset();
+
+        Position first = new Position(surfaceScanner.getNextProbePoint().get());
+        first.setX(first.getX() - 0.1);
+        surfaceScanner.probeEvent(createProbePoint(first, UnitUtils.Units.MM, 1));
+
+        Position second = new Position(surfaceScanner.getNextProbePoint().get());
+        first.setY(first.getY() + 0.1);
+        surfaceScanner.probeEvent(createProbePoint(second, UnitUtils.Units.MM, 2));
+
+        Position third = new Position(surfaceScanner.getNextProbePoint().get());
+        third.setY(third.getY() + 0.11);
+        assertThrows(RuntimeException.class, ()  -> surfaceScanner.probeEvent(createProbePoint(third, UnitUtils.Units.MM, 1)));
+    }
+
+
+    @Test
     public void probeEventShouldProgressTheScanForEachProbeEventInInches() {
         Settings settings = new Settings();
         when(backendAPI.getSettings()).thenReturn(settings);
