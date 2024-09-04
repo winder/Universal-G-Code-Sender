@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.events.ProbeEvent;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
+import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -37,8 +38,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
 
 /**
  * @author wwinder
@@ -167,7 +166,7 @@ public class SurfaceScanner {
 
         // The position reported from the controller might lack some precision on the X/Y position.
         // We therefore need to lower the precision when checking the probed X/Y axes
-        double delta = expectedProbePosition.getUnits() == Units.MM ? 0.01 : 0.001;
+        double delta = 0.1;
         if (!isEqual(probedPosition.getX(), expectedProbePosition.getX(), delta) || !isEqual(probedPosition.getY(), expectedProbePosition.getY(), delta)) {
             reset();
             throw new RuntimeException(String.format("Unexpected probe location, expected %s to be %s", probedPosition, expectedProbePosition));
