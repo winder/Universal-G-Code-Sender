@@ -22,6 +22,7 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.JoglVersion;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.glu.GLU;
@@ -48,7 +49,6 @@ import org.openide.util.lookup.ServiceProviders;
 
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.event.InputEvent;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -82,11 +82,8 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     private Position eye;
     private Position objectMin;
     private Position objectMax;
-    private double maxSide;
     private int xSize;
     private int ySize;
-    private double minArcLength;
-    private double arcLength;
 
     // Scaling
     private double scaleFactor = 1;
@@ -99,7 +96,6 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     private final double zoomIncrement = 0.2;
 
     // Movement
-    private final int panMouseButton = InputEvent.BUTTON2_MASK; // TODO: Make configurable
     private double panMultiplierX = 1;
     private double panMultiplierY = 1;
     private Position translationVectorH;
@@ -125,7 +121,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      * Constructor.
      */
     public GcodeRenderer() {
-        eye = new Position(0, 0, 1.5);
+         eye = new Position(0, 0, 1.5);
         center = new Position(0, 0, 0);
         objectMin = new Position(-10, -10, -10);
         objectMax = new Position(10, 10, 10);
@@ -217,19 +213,10 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      */
     @Override
     public void init(GLAutoDrawable drawable) {
-        logger.log(Level.INFO, "Initializing OpenGL context.");
-        // TODO: Figure out scale factor / dimensions label based on GcodeRenderer
-        /*
-            this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
-            this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
-
-            double objectWidth = this.objectMax.x-this.objectMin.x;
-            double objectHeight = this.objectMax.y-this.objectMin.y;
-            this.dimensionsLabel = Localization.getString("VisualizerCanvas.dimensions") + ": " 
-                    + Localization.getString("VisualizerCanvas.width") + "=" + format.format(objectWidth) + " " 
-                    + Localization.getString("VisualizerCanvas.height") + "=" + format.format(objectHeight);
-
-        */
+        logger.info("Initializing OpenGL context on " + Thread.currentThread());
+        logger.info("Chosen GLCapabilities: " + drawable.getChosenGLCapabilities());
+        logger.info("GL version: " + drawable.getGL().getClass().getName());
+        logger.info(JoglVersion.getGLStrings(drawable.getGL(), null, false).toString());
 
         this.fpsCounter = new FPSCounter(drawable, new Font("SansSerif", Font.BOLD, 12));
         this.overlay = new Overlay(drawable, new Font("SansSerif", Font.BOLD, 12));
@@ -239,7 +226,6 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         // Parse random gcode file and generate something to draw.
         GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
         glu = new GLU();                         // get GL Utilities
-        gl.glShadeModel(GL2.GL_SMOOTH); // blends colors nicely, and smoothes out lighting
         gl.glClearColor(clearColor.getRed() / 255f, clearColor.getGreen() / 255f, clearColor.getBlue() / 255f, clearColor.getAlpha() / 255f);
         gl.glClearDepth(1.0f);      // set clear depth value to farthest
         gl.glEnable(GL2.GL_BLEND);
@@ -247,12 +233,6 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         gl.glEnable(GL.GL_DEPTH_TEST);
         gl.glDepthFunc(GL2.GL_LEQUAL);  // the type of depth test to do
         gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST); // best perspective correction
-
-        /*
-        gl.glLoadIdentity();
-        float[] lmodel_ambient = { 0.5f, 0.5f, 0.5f, 1.0f };
-        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, lmodel_ambient, 0);
-        */
 
         // init lighting
         float[] ambient = {.6f, .6f, .6f, 1.f};
@@ -276,15 +256,15 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
                 {0.5f, 0.5f, 0.5f, 1.0f};
 
         gl.glMaterialfv(GL.GL_FRONT, GL2.GL_DIFFUSE, diffuseMaterial, 0);
-        //gl.glMaterialfv(GL.GL_FRONT, GL2.GL_SPECULAR, mat_specular, 0);
-        //gl.glMaterialf(GL.GL_FRONT, GL2.GL_SHININESS, 25.0f);
-
-        //gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE);
-
 
         gl.glEnable(GL2.GL_LIGHTING);
         for (Renderable r : objects) {
-            r.init(drawable);
+            try {
+                r.init(drawable);
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Error while rendering " + r.getTitle() + ", disabling it", e);
+                r.setEnabled(false);
+            }
         }
     }
 
@@ -295,7 +275,6 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      */
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-        //logger.log(Level.INFO, "Reshaping OpenGL context.");
         this.xSize = width;
         this.ySize = height;
 
