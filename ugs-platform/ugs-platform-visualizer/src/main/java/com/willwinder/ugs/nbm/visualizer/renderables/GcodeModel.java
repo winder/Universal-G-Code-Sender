@@ -156,6 +156,8 @@ public class GcodeModel extends Renderable implements UGSEventListener {
                 && gl.isFunctionAvailable("glBindBuffer")
                 && gl.isFunctionAvailable("glBufferData")
                 && gl.isFunctionAvailable("glDeleteBuffers")) {
+            gl.glEnableClientState(GL_VERTEX_ARRAY);
+            gl.glEnableClientState(GL_COLOR_ARRAY);
 
             // Initialize OpenGL arrays if required.
             if (this.vertexBufferDirty && !vertexArrayDirty && !colorArrayDirty) {
@@ -163,16 +165,16 @@ public class GcodeModel extends Renderable implements UGSEventListener {
                 this.vertexBufferDirty = false;
             }
             if (this.colorArrayDirty) {
-                this.updateGLColorArray(drawable);
+                this.updateGLColorArray();
                 this.colorArrayDirty = false;
             }
             if (this.vertexArrayDirty) {
-                this.updateGLGeometryArray(drawable);
+                this.updateGLGeometryArray();
                 this.vertexArrayDirty = false;
             }
             gl.glLineWidth(1.0f);
-            gl.glEnableClientState(GL_VERTEX_ARRAY);
-            gl.glEnableClientState(GL_COLOR_ARRAY);
+            gl.glVertexPointer(3, GL.GL_FLOAT, 0, lineVertexBuffer);
+            gl.glColorPointer(4, GL.GL_UNSIGNED_BYTE, 0, lineColorBuffer);
             gl.glDrawArrays(GL.GL_LINES, 0, numberOfVertices);
             gl.glDisableClientState(GL_COLOR_ARRAY);
             gl.glDisableClientState(GL_VERTEX_ARRAY);
@@ -185,8 +187,6 @@ public class GcodeModel extends Renderable implements UGSEventListener {
             int verts = 0;
             int colors = 0;
             for (int i = 0; i < pointList.size(); i++) {
-                gl.glColor4ub(lineColorData[colors++], lineColorData[colors++], lineColorData[colors++], lineColorData[colors++]);
-                gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
                 gl.glColor4ub(lineColorData[colors++], lineColorData[colors++], lineColorData[colors++], lineColorData[colors++]);
                 gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
             }
@@ -342,9 +342,7 @@ public class GcodeModel extends Renderable implements UGSEventListener {
     /**
      * Initialize or update open gl geometry array in native buffer objects.
      */
-    private void updateGLGeometryArray(GLAutoDrawable drawable) {
-        GL2 gl = drawable.getGL().getGL2();
-
+    private void updateGLGeometryArray() {
         // Reset buffer and set to null of new geometry doesn't fit.
         if (lineVertexBuffer != null) {
             ((Buffer) lineVertexBuffer).clear();
@@ -359,15 +357,12 @@ public class GcodeModel extends Renderable implements UGSEventListener {
 
         lineVertexBuffer.put(lineVertexData);
         ((Buffer) lineVertexBuffer).flip();
-        gl.glVertexPointer(3, GL.GL_FLOAT, 0, lineVertexBuffer);
     }
 
     /**
      * Initialize or update open gl color array in native buffer objects.
      */
-    private void updateGLColorArray(GLAutoDrawable drawable) {
-        GL2 gl = drawable.getGL().getGL2();
-
+    private void updateGLColorArray() {
         // Reset buffer and set to null of new colors don't fit.
         if (lineColorBuffer != null) {
             ((Buffer) lineColorBuffer).clear();
@@ -386,7 +381,7 @@ public class GcodeModel extends Renderable implements UGSEventListener {
 
         lineColorBuffer.put(lineColorData);
         ((Buffer) lineColorBuffer).flip();
-        gl.glColorPointer(4, GL.GL_UNSIGNED_BYTE, 0, lineColorBuffer);
+
     }
 
     @Override

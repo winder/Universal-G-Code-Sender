@@ -18,37 +18,25 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GLException;
-import com.jogamp.opengl.awt.GLJPanel;
-import com.jogamp.opengl.util.FPSAnimator;
-import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptionsPanel;
-import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
-import com.willwinder.ugs.nbp.core.actions.OpenLogDirectoryAction;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbm.visualizer.jogl.NewtVisualizationPanel;
+import com.willwinder.ugs.nbm.visualizer.jogl.VisualizationPanel;
+import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.modules.OnStart;
-import org.openide.util.Lookup;
-import org.openide.util.NbPreferences;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.prefs.Preferences;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Color;
 
 /**
  * Setup JOGL canvas, GcodeRenderer and RendererInputHandler.
@@ -69,14 +57,8 @@ public final class Visualizer2TopComponent extends TopComponent {
     public final static String VisualizerWindowPath = LocalizingService.MENU_WINDOW;
     public final static String VisualizerActionId = "com.willwinder.ugs.nbm.visualizer.Visualizer2TopComponent";
     public final static String VisualizerCategory = LocalizingService.CATEGORY_WINDOW;
-    private static final Logger logger = Logger.getLogger(Visualizer2TopComponent.class.getName());
-    private final BackendAPI backend;
-    private GLJPanel panel;
-    private RendererInputHandler rih;
 
     public Visualizer2TopComponent() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-
         setMinimumSize(new java.awt.Dimension(50, 50));
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());
@@ -107,98 +89,12 @@ public final class Visualizer2TopComponent extends TopComponent {
         JPanel borderedPanel = new JPanel();
         borderedPanel.setLayout(new BorderLayout());
         borderedPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
-        borderedPanel.add(initializeVisualizationPanel(), BorderLayout.CENTER);
+        if (VisualizerOptions.getBooleanOption(VisualizerOptions.VISUALIZER_OPTION_NEWT, false)) {
+            borderedPanel.add(new NewtVisualizationPanel(), BorderLayout.CENTER);
+        } else {
+            borderedPanel.add(new VisualizationPanel(), BorderLayout.CENTER);
+        }
         add(borderedPanel, BorderLayout.CENTER);
-    }
-
-    private JComponent initializeVisualizationPanel() {
-        try {
-            panel = makeWindow();
-            return panel;
-        } catch (GLException exception) {
-            JLabel errorMessage = new JLabel("<html>Could not initialize OpenGL visualization, please check the log file for details <a href='#'>messages.log</a></html>", JLabel.CENTER);
-            errorMessage.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    new OpenLogDirectoryAction().actionPerformed(null);
-                }
-            });
-            return errorMessage;
-        }
-    }
-
-    @Override
-    protected void componentClosed() {
-        super.componentClosed();
-
-        if (rih != null) {
-            backend.removeUGSEventListener(rih);
-            rih.dispose();
-        }
-
-        logger.log(Level.INFO, "Component closed, panel = " + panel);
-        if (panel == null) return;
-
-        remove(panel);
-        //dispose of panel and native resources
-        panel.destroy();
-        panel = null;
-    }
-
-    @Override
-    protected void componentActivated() {
-        super.componentActivated();
-        if (panel != null) {
-            panel.setSize(getSize());
-            //need to update complete component tree
-            invalidate();
-            
-            if (getTopLevelAncestor() != null) {
-                getTopLevelAncestor().invalidate();
-                getTopLevelAncestor().revalidate();
-            }
-        }
-    }
-
-    private GLJPanel makeWindow() throws GLException {
-        GLCapabilities glCaps = new GLCapabilities(null);
-        final GLJPanel p = new GLJPanel(glCaps);
-
-        GcodeRenderer renderer = Lookup.getDefault().lookup(GcodeRenderer.class);
-        if (renderer == null) {
-            throw new IllegalArgumentException("Failed to access GcodeRenderer.");
-        }
-
-        FPSAnimator animator = new FPSAnimator(p, 15);
-        this.rih = new RendererInputHandler(renderer, animator, backend);
-
-        Preferences pref = NbPreferences.forModule(VisualizerOptionsPanel.class);
-        pref.addPreferenceChangeListener(this.rih);
-
-        File f = (backend.getProcessedGcodeFile() != null) ?
-                backend.getProcessedGcodeFile() : backend.getGcodeFile();
-        if (f != null) {
-            this.rih.setGcodeFile(f.getAbsolutePath());
-        }
-
-        // Install listeners...
-        backend.addUGSEventListener(this.rih);
-
-        // key listener...
-        p.addKeyListener(this.rih);
-
-        // mouse wheel...
-        p.addMouseWheelListener(this.rih);
-
-        // mouse motion...
-        p.addMouseMotionListener(this.rih);
-
-        // mouse...
-        p.addMouseListener(this.rih);
-
-        p.addGLEventListener(renderer);
-
-        return p;
     }
 
     @OnStart

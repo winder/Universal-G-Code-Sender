@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
+import com.jogamp.opengl.util.AnimatorBase;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
@@ -66,7 +67,7 @@ public class RendererInputHandler implements
     private static final int HIGH_FPS = 15;
     private static final int LOW_FPS = 4;
     private final GcodeRenderer gcodeRenderer;
-    private final FPSAnimator animator;
+    private final AnimatorBase animator;
     private final BackendAPI backend;
     private final GcodeModel gcodeModel;
     private final SizeDisplay sizeDisplay;
@@ -76,11 +77,10 @@ public class RendererInputHandler implements
     private Position selectionStart = null;
     private Position selectionEnd = null;
 
-    public RendererInputHandler(GcodeRenderer gr, FPSAnimator a, BackendAPI backend) {
+    public RendererInputHandler(GcodeRenderer gr, AnimatorBase a, BackendAPI backend) {
         gcodeRenderer = gr;
         animator = a;
         this.backend = backend;
-        animator.start();
         settings = backend.getSettings();
 
         gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"), backend);
@@ -110,9 +110,11 @@ public class RendererInputHandler implements
     }
 
     private void setFPS(int fps) {
-        animator.stop();
-        animator.setFPS(fps);
-        animator.start();
+        if (animator instanceof FPSAnimator fpsAnimator) {
+            fpsAnimator.stop();
+            fpsAnimator.setFPS(fps);
+            fpsAnimator.start();
+        }
     }
 
     @Override
