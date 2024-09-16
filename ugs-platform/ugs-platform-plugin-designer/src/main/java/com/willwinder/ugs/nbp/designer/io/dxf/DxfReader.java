@@ -1,11 +1,9 @@
 package com.willwinder.ugs.nbp.designer.io.dxf;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
 import com.willwinder.ugs.nbp.designer.io.DesignReaderException;
 import com.willwinder.ugs.nbp.designer.model.Design;
@@ -20,6 +18,8 @@ import org.kabeja.dxf.DXFDocument;
 import org.kabeja.dxf.DXFLayer;
 import org.kabeja.dxf.DXFLine;
 import org.kabeja.dxf.DXFPoint;
+import org.kabeja.dxf.DXFPolyline;
+import org.kabeja.dxf.DXFVertex;
 import org.kabeja.dxf.helpers.Point;
 import org.kabeja.parser.DXFParser;
 import org.kabeja.parser.ParseException;
@@ -27,7 +27,6 @@ import org.kabeja.parser.Parser;
 import org.kabeja.parser.ParserBuilder;
 
 import java.awt.geom.Arc2D;
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -72,7 +71,7 @@ public class DxfReader implements DesignReader {
             DXFLayer layer = (DXFLayer) layerIterator.next();
             parseAndAddLayerGroup(group, layer);
         }
-        
+
         Design design = new Design();
         List<Entity> entities = new ArrayList<>();
         if (!group.getChildren().isEmpty()) {
@@ -112,11 +111,37 @@ public class DxfReader implements DesignReader {
             layerGroup.addChild(arcsGroup);
         }
 
+        Group polylinesGroup = new Group();
+        polylinesGroup.setName("Polyline");
+        parsePolylines(layer, polylinesGroup);
+        if (!polylinesGroup.getChildren().isEmpty()) {
+            layerGroup.addChild(polylinesGroup);
+        }
+
         if (!layerGroup.getChildren().isEmpty()) {
             group.addChild(layerGroup);
         }
     }
 
+    private void parsePolylines(DXFLayer layer, Group polylinesGroup) {
+        List<DXFPolyline> polylines = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_POLYLINE);
+        if (polylines == null) {
+            return;
+        }
+
+        for (DXFPolyline polyline : polylines) {
+            Path path = new Path();
+            DXFVertex vertex = polyline.getVertex(0);
+            path.moveTo(convertCoordinate(vertex.getX()), convertCoordinate(vertex.getY()));
+            for(int i = 1; i < polyline.getVertexCount(); i++) {
+                vertex = polyline.getVertex(i);
+                path.lineTo(convertCoordinate(vertex.getX()), convertCoordinate(vertex.getY()));
+            }
+            path.close();
+
+            polylinesGroup.addChild(path);
+        }
+    }
 
 
     private void parseArcs(DXFLayer layer, Group arcsGroup) {
