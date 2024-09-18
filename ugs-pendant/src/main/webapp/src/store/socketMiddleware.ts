@@ -22,7 +22,7 @@ const fetchSettingsDebounce = (
     clearTimeout(fetchStatusTimer);
   }
 
-  fetchStatusTimer = setTimeout(() => {
+  fetchStatusTimer = window.setTimeout(() => {
     console.log("Fetching settings");
     store.dispatch(getSettings());
   }, debounceTime);
