@@ -13,7 +13,7 @@ import { RootState } from "./store";
 import { getSettings } from "./settingsSlice";
 import { fetchFileStatus } from "./fileStatusSlice";
 
-let fetchStatusTimer: NodeJS.Timeout;
+let fetchStatusTimer: number;
 let debounceTime = 500;
 const fetchSettingsDebounce = (
   store: MiddlewareAPI<ThunkDispatch<RootState, void, Action>, RootState>
@@ -22,7 +22,7 @@ const fetchSettingsDebounce = (
     clearTimeout(fetchStatusTimer);
   }
 
-  fetchStatusTimer = setTimeout(() => {
+  fetchStatusTimer = window.setTimeout(() => {
     console.log("Fetching settings");
     store.dispatch(getSettings());
   }, debounceTime);
