@@ -21,7 +21,6 @@ package com.willwinder.ugs.nbm.visualizer.renderables;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
-import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.universalgcodesender.model.Position;
 
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_SELECTION;
@@ -35,7 +34,7 @@ public class Selection extends Renderable {
     private Position end = null;
 
     public Selection(String title) {
-        super(8, title);
+        super(8, title, VISUALIZER_OPTION_SELECTION);
     }
 
     public void clear() {
@@ -66,10 +65,6 @@ public class Selection extends Renderable {
     }
 
     @Override
-    public void reloadPreferences(VisualizerOptions vo) {
-    }
-
-    @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
         if (start == null || end == null) return;
 
@@ -84,15 +79,5 @@ public class Selection extends Renderable {
             gl.glVertex3d(end.x  , end.y  , 0);
             gl.glVertex3d(end.x  , start.y, 0);
         gl.glEnd();
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_SELECTION, enabled);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_SELECTION, true);
     }
 }

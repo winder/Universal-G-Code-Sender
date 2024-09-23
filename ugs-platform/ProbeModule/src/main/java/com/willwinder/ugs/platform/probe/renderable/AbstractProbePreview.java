@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.platform.probe.renderable;
 
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PROBE_PREVIEW;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.platform.probe.ProbeParameters;
 import com.willwinder.ugs.platform.probe.ProbeService;
@@ -28,8 +29,8 @@ public abstract class AbstractProbePreview extends Renderable {
 
     private final ProbeService probeService;
 
-    public AbstractProbePreview(int priority, String title) {
-        super(priority, title);
+    protected AbstractProbePreview(int priority, String title) {
+        super(priority, title, VISUALIZER_OPTION_PROBE_PREVIEW);
         probeService = Lookup.getDefault().lookup(ProbeService.class);
     }
 

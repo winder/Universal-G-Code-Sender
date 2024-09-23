@@ -23,14 +23,14 @@ import static com.jogamp.opengl.GL.GL_CULL_FACE;
 import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
 import com.jogamp.opengl.GL2;
 import static com.jogamp.opengl.GL2ES3.GL_QUADS;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_ORIENTATION_CUBE;
-
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_ORIENTATION_CUBE;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
+
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 
@@ -48,13 +48,12 @@ public class OrientationCube extends Renderable {
   private float textScaleFactor;
 
   public OrientationCube(float s, String title) {
-    super(Integer.MIN_VALUE, title);  
+    super(Integer.MIN_VALUE, title, VISUALIZER_OPTION_ORIENTATION_CUBE);
     size = s;
   }
 
   @Override
   public void reloadPreferences(VisualizerOptions vo) {
-
   }
 
   @Override
@@ -196,14 +195,4 @@ public class OrientationCube extends Renderable {
     gl.glDisable(GL_CULL_FACE);
     gl.glEnable(GL_DEPTH_TEST);
   }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_ORIENTATION_CUBE, enabled);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_ORIENTATION_CUBE, true);
-    }
 }

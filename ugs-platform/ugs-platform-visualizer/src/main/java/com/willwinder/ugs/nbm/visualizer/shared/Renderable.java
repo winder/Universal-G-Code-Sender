@@ -22,7 +22,8 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.universalgcodesender.model.Position;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -31,19 +32,21 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class Renderable implements Comparable<Renderable> {
     Integer priority;
-    Boolean enabled;
     String title;
+    boolean isEnabled;
 
     private final Set<RenderableListener> listeners = ConcurrentHashMap.newKeySet();
+    private final String enabledOptionKey;
 
     /**
      * Construct with a priority number. Objects should be rendered from highest
      * to lowest priority;
      */
-    public Renderable(int priority, String title) {
+    protected Renderable(int priority, String title, String enabledOptionKey) {
         this.title = title;
         this.priority = priority;
-        this.enabled = true;
+        this.isEnabled = true;
+        this.enabledOptionKey = enabledOptionKey;
     }
 
     @Override
@@ -53,7 +56,7 @@ public abstract class Renderable implements Comparable<Renderable> {
         Renderable that = (Renderable)obj;
         return
                 Objects.equals(this.title, that.title) &&
-                Objects.equals(this.enabled, that.enabled) &&
+                Objects.equals(this.isEnabled, that.isEnabled) &&
                 Objects.equals(this.priority, that.priority);
     }
 
@@ -72,14 +75,18 @@ public abstract class Renderable implements Comparable<Renderable> {
      *
      * @param enabled set to true for enabling it in the configuration
      */
-    public abstract void setEnabled(boolean enabled);
+    public void setEnabled(boolean enabled) {
+        VisualizerOptions.setBooleanOption(enabledOptionKey, enabled);
+    }
 
     /**
      * Returns true if the setting for the renderable is enabled
      *
      * @return true if enabled in the configuration
      */
-    public abstract boolean isEnabled();
+    public boolean isEnabled() {
+        return isEnabled;
+    }
 
     public String getTitle() {
         return this.title;
@@ -95,16 +102,19 @@ public abstract class Renderable implements Comparable<Renderable> {
     /**
      * Indicates whether the object should be rotated prior to calling draw.
      */
-    abstract public boolean rotate();
+    public abstract boolean rotate();
 
     /**
      * Indicates whether the object should be centered prior to calling draw.
      */
-    abstract public boolean center();
+    public abstract boolean center();
 
-    abstract public void init(GLAutoDrawable drawable);
-    abstract public void reloadPreferences(VisualizerOptions vo);
-    abstract public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation);
+    public abstract void init(GLAutoDrawable drawable);
+    public void reloadPreferences(VisualizerOptions vo) {
+        isEnabled = VisualizerOptions.getBooleanOption(enabledOptionKey, true);
+    }
+
+    public abstract void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation);
 
     public void addListener(RenderableListener listener) {
         listeners.add(listener);

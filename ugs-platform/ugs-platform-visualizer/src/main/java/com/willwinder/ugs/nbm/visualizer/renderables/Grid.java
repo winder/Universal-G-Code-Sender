@@ -45,7 +45,7 @@ public class Grid extends Renderable {
     private float[] zAxisColor;
 
     public Grid(String title) {
-        super(5, title);
+        super(5, title, VISUALIZER_OPTION_GRID);
         reloadPreferences(new VisualizerOptions());
     }
 
@@ -191,10 +191,5 @@ public class Grid extends Renderable {
     @Override
     public void setEnabled(boolean enabled) {
         VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_GRID, enabled);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_GRID, true);
     }
 }

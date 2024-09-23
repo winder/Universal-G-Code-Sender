@@ -54,7 +54,7 @@ public class MachineBoundries extends Renderable {
      * to lowest priority.
      */
     public MachineBoundries(String title) {
-        super(Integer.MIN_VALUE, title);
+        super(Integer.MIN_VALUE, title, VISUALIZER_OPTION_BOUNDRY);
         reloadPreferences(new VisualizerOptions());
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         backendAPI.addUGSEventListener(this::onUGSEvent);
@@ -215,15 +215,5 @@ public class MachineBoundries extends Renderable {
         gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ());
         gl.glVertex3d(topRight.x, topRight.y, topRight.getZ());
         gl.glEnd();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDRY, true);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_BOUNDRY, enabled);
     }
 }

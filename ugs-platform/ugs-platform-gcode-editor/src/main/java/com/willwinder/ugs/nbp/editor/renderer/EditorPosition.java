@@ -23,13 +23,12 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_EDITOR_POSITION;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
 
 import java.awt.Color;
-
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_EDITOR_POSITION;
 
 /**
  * Displays a pointer on the given line number
@@ -43,7 +42,7 @@ public class EditorPosition extends Renderable {
     private Position position;
 
     public EditorPosition(GcodeModel model, String title) {
-        super(10, title);
+        super(10, title, VISUALIZER_OPTION_EDITOR_POSITION);
         this.model = model;
     }
 
@@ -96,15 +95,5 @@ public class EditorPosition extends Renderable {
                 .filter(lineSegment -> lineSegment.getLineNumber() == lineNumber + 1)
                 .findFirst()
                 .ifPresent(lineSegment -> position = lineSegment.getEnd());
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_EDITOR_POSITION, true);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_EDITOR_POSITION, enabled);
     }
 }

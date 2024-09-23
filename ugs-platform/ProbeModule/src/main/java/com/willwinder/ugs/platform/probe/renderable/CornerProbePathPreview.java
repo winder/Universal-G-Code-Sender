@@ -24,13 +24,11 @@ import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.platform.probe.ProbeParameters;
 import com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side;
-import com.willwinder.universalgcodesender.model.Position;
-
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PROBE_PREVIEW;
 import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side.NEGATIVE;
 import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side.POSITIVE;
 import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.drawArrow;
 import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.drawTouchPlate;
+import com.willwinder.universalgcodesender.model.Position;
 
 /**
  *
@@ -201,15 +199,5 @@ public abstract class CornerProbePathPreview extends AbstractProbePreview {
         } else {
             drawXYZ(gl, X, Y);
         }
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_PROBE_PREVIEW, true);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_PROBE_PREVIEW, enabled);
     }
 }

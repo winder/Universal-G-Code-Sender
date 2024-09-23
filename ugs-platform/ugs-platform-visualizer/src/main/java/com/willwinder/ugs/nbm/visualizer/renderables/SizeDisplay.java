@@ -22,6 +22,8 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_SIZE;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_SIZE_DISPLAY;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -30,9 +32,6 @@ import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
-
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_SIZE;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_SIZE_DISPLAY;
 
 /**
  * Display some lines and measurements for the current objects size.
@@ -49,7 +48,7 @@ public class SizeDisplay extends Renderable {
     private boolean textRendererDirty = true;
 
     public SizeDisplay(String title) {
-        super(3, title);
+        super(3, title, VISUALIZER_OPTION_SIZE_DISPLAY);
         reloadPreferences(new VisualizerOptions());
     }
 
@@ -58,7 +57,7 @@ public class SizeDisplay extends Renderable {
     }
 
     @Override
-    final public void reloadPreferences(VisualizerOptions vo) {
+    public final void reloadPreferences(VisualizerOptions vo) {
         color = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_SIZE).value);
         textRendererDirty = true;
     }
@@ -124,8 +123,6 @@ public class SizeDisplay extends Renderable {
             // Center text and move to line.
             gl.glTranslated((focusMin.x+focusMax.x)/2-(w*textScaleFactor/2),
                     focusMin.y-offset, 0);
-            //gl.glRotated(-rotation.y, 1.0, 0.0, 0.0);
-            //gl.glRotated(-rotation.x, 0.0, 1.0, 0.0);
             renderer.draw3D(text,
                     0f, 0f,
                     0f, textScaleFactor);
@@ -160,8 +157,6 @@ public class SizeDisplay extends Renderable {
             gl.glRotated(90,0,0,1);
             gl.glTranslated((focusMin.y+focusMax.y)/2-(w*textScaleFactor/2),
                     -focusMin.x+buffer*1.1, 0);
-            //gl.glRotated(rotation.y, 0.0, 1.0, 0.0);
-            //gl.glRotated(-rotation.x, 1.0, 0.0, 0.0);
             renderer.draw3D(text,
                     0f, 0f,
                     0f, textScaleFactor);
@@ -206,15 +201,5 @@ public class SizeDisplay extends Renderable {
             renderer.end3DRendering();
             }
         gl.glPopMatrix();
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_SIZE_DISPLAY, enabled);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_SIZE_DISPLAY, true);
     }
 }
