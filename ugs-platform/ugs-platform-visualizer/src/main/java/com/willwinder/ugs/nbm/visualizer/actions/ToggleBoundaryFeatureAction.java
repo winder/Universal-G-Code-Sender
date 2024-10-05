@@ -1,0 +1,58 @@
+/*
+    Copyright 2024 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.willwinder.ugs.nbm.visualizer.actions;
+
+import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
+import org.openide.awt.ActionState;
+import org.openide.util.ImageUtilities;
+
+@ActionID(
+        category = LocalizingService.CATEGORY_VISUALIZER,
+        id = ToggleBoundaryFeatureAction.ID
+)
+@ActionRegistration(
+        iconBase = ToggleBoundaryFeatureAction.SMALL_ICON_PATH,
+        displayName = "Toggle boundary",
+        checkedOn = @ActionState(type = BackendAPI.class, useActionInstance = true)
+)
+@ActionReferences({
+        @ActionReference(
+                path = LocalizingService.MENU_VISUALIZER,
+                position = 1090)
+})
+public class ToggleBoundaryFeatureAction extends ToggleFeatureAction {
+    public static final String ID = "com.willwinder.ugs.nbm.visualizer.actions.ToggleBoundaryFeatureAction";
+    public static final String SMALL_ICON_PATH = "icons/boundary.svg";
+    public static final String LARGE_ICON_PATH = "icons/boundary24.svg";
+
+    public ToggleBoundaryFeatureAction() {
+        super(VisualizerOptions.VISUALIZER_OPTION_BOUNDRY, VisualizerOptions.VISUALIZER_OPTION_BOUNDRY_DESC);
+
+        putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
+        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
+        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+    }
+}

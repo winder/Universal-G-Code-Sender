@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2022 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -65,6 +65,7 @@ public class Highlight extends Renderable {
 
     @Override
     public final void reloadPreferences(VisualizerOptions vo) {
+        super.reloadPreferences(vo);
         highlightColor = vo.getOptionForKey(VISUALIZER_OPTION_HIGHLIGHT_COLOR).value;
     }
 

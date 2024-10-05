@@ -36,8 +36,8 @@ import java.text.NumberFormat;
 @ActionReferences({
         @ActionReference(
                 path = LocalizingService.MENU_EDIT,
-                position = 1900,
-                separatorAfter = 2000),
+                position = 1901,
+                separatorAfter = 1999),
 })
 public class InsertPositionAction extends AbstractAction implements UGSEventListener {
     public static final String NAME = LocalizingService.InsertPositionTitle;

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2022 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
@@ -42,7 +43,7 @@ public class MouseOver extends Renderable {
     private static GLUquadric GQ;
 
     public MouseOver(String title) {
-        super(8, title, VISUALIZER_OPTION_MOUSE_OVER);
+        super(5, title, VISUALIZER_OPTION_MOUSE_OVER);
     }
 
     @Override
@@ -58,10 +59,6 @@ public class MouseOver extends Renderable {
     @Override
     public void init(GLAutoDrawable drawable) {
         GQ = GLU.gluNewQuadric();
-    }
-
-    @Override
-    public void reloadPreferences(VisualizerOptions vo) {
     }
 
     static private boolean inBounds(Position point, Position bottomLeft, Position topRight) {
@@ -80,6 +77,8 @@ public class MouseOver extends Renderable {
             double scale = 1. / (scaleFactor * 2);
 
             gl.glPushMatrix();
+                gl.glEnable(GL.GL_DEPTH_TEST);
+
                 gl.glTranslated(mouseWorldCoordinates.x, mouseWorldCoordinates.y, 0.);
                 gl.glScaled(scale, scale, scale);
 

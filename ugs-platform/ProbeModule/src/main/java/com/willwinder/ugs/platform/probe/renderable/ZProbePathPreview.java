@@ -21,7 +21,6 @@ package com.willwinder.ugs.platform.probe.renderable;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
-import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.platform.probe.ProbeParameters;
 import com.willwinder.ugs.platform.probe.ProbeSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -73,10 +72,6 @@ public class ZProbePathPreview extends AbstractProbePreview {
 
     @Override
     public void init(GLAutoDrawable drawable) {
-    }
-
-    @Override
-    public void reloadPreferences(VisualizerOptions vo) {
     }
 
     @Override

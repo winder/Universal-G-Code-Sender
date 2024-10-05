@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2023 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -94,6 +94,7 @@ public class GcodeModel extends Renderable implements UGSEventListener {
 
     @Override
     public final void reloadPreferences(VisualizerOptions vo) {
+        super.reloadPreferences(vo);
         colorizer.reloadPreferences(vo);
         vertexBufferDirty = true;
     }

@@ -21,7 +21,6 @@ package com.willwinder.ugs.platform.probe.renderable;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
-import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.platform.probe.ProbeParameters;
 import com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side;
 import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side.NEGATIVE;
@@ -75,10 +74,6 @@ public abstract class CornerProbePathPreview extends AbstractProbePreview {
 
     @Override
     public void init(GLAutoDrawable drawable) {
-    }
-
-    @Override
-    public void reloadPreferences(VisualizerOptions vo) {
     }
 
     private boolean invalidSettings() {

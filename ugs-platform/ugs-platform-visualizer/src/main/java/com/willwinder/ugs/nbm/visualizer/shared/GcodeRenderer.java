@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2022 Will Winder
+    Copyright 2013-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,6 +32,7 @@ import com.willwinder.ugs.nbm.visualizer.renderables.Grid;
 import com.willwinder.ugs.nbm.visualizer.renderables.MachineBoundries;
 import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
 import com.willwinder.ugs.nbm.visualizer.renderables.OrientationCube;
+import com.willwinder.ugs.nbm.visualizer.renderables.Plane;
 import com.willwinder.ugs.nbm.visualizer.renderables.Tool;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -60,7 +61,6 @@ import java.util.logging.Logger;
  *
  * @author wwinder
  */
-@SuppressWarnings("serial")
 @ServiceProviders(value = {
         @ServiceProvider(service = IRenderableRegistrationService.class),
         @ServiceProvider(service = GcodeRenderer.class)})
@@ -471,6 +471,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         objects.add(new MouseOver(Localization.getString("platform.visualizer.renderable.mouse-indicator")));
         objects.add(new OrientationCube(0.5f, Localization.getString("platform.visualizer.renderable.orientation-cube")));
         objects.add(new Grid(Localization.getString("platform.visualizer.renderable.grid")));
+        objects.add(new Plane(Localization.getString("platform.visualizer.renderable.grid")));
         Collections.sort(objects);
     }
 

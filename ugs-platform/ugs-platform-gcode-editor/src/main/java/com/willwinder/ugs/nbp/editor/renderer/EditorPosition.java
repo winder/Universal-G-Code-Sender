@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2021 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -59,10 +59,6 @@ public class EditorPosition extends Renderable {
     @Override
     public void init(GLAutoDrawable drawable) {
         GQ = GLU.gluNewQuadric();
-    }
-
-    @Override
-    public void reloadPreferences(VisualizerOptions vo) {
     }
 
     @Override

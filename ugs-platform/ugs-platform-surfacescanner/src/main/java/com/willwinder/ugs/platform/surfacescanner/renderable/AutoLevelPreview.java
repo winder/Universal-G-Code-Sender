@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -74,6 +74,7 @@ public class AutoLevelPreview extends Renderable {
 
     @Override
     public final void reloadPreferences(VisualizerOptions vo) {
+        super.reloadPreferences(vo);
         high = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_HIGH).value);
         low = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_LOW).value);
     }

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2022 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,7 +26,6 @@ import static com.jogamp.opengl.GL2ES3.GL_QUADS;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import com.jogamp.opengl.util.awt.TextRenderer;
-import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_ORIENTATION_CUBE;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
@@ -50,10 +49,6 @@ public class OrientationCube extends Renderable {
   public OrientationCube(float s, String title) {
     super(Integer.MIN_VALUE, title, VISUALIZER_OPTION_ORIENTATION_CUBE);
     size = s;
-  }
-
-  @Override
-  public void reloadPreferences(VisualizerOptions vo) {
   }
 
   @Override

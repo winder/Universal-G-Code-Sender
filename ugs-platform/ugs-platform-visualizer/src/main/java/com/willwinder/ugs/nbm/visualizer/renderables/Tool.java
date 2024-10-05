@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2022 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
@@ -41,12 +42,13 @@ public final class Tool extends Renderable {
     Color toolColor;
 
     public Tool(String title) {
-        super(9, title, VISUALIZER_OPTION_TOOL);
+        super(4, title, VISUALIZER_OPTION_TOOL);
         reloadPreferences(new VisualizerOptions());
     }
 
     @Override
     public void reloadPreferences(VisualizerOptions vo) {
+        super.reloadPreferences(vo);
         toolColor = vo.getOptionForKey(VISUALIZER_OPTION_TOOL_COLOR).value;
     }
 
@@ -74,6 +76,8 @@ public final class Tool extends Renderable {
 
         double scale = 1. / scaleFactor;
         gl.glPushMatrix();
+            gl.glEnable(GL.GL_DEPTH_TEST);
+
             gl.glTranslated(position.x, position.y, position.z);
             gl.glScaled(scale, scale, scale);
 

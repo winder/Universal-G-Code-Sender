@@ -1,5 +1,5 @@
 /*
-    Copyright 2017-2018 Will Winder
+    Copyright 2017-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -31,7 +31,7 @@ import java.awt.event.ActionEvent;
  */
 public class MoveCameraAction extends AbstractAction {
 
-    public static final Position CAMERA_POSITION = new Position(0, 0, 1.5);
+    public static final Position CAMERA_POSITION = new Position(0, 0, 3);
     public static final Position ROTATION_TOP = new Position(0, 0, 0);
     public static final Position ROTATION_LEFT = new Position(90, -90, 0);
     public static final Position ROTATION_FRONT = new Position(0, -90, 0);
