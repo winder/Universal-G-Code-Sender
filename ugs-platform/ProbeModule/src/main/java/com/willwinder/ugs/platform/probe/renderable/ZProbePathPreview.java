@@ -21,8 +21,6 @@ package com.willwinder.ugs.platform.probe.renderable;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
-import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PROBE_PREVIEW;
 import com.willwinder.ugs.platform.probe.ProbeParameters;
 import com.willwinder.ugs.platform.probe.ProbeSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -77,10 +75,6 @@ public class ZProbePathPreview extends AbstractProbePreview {
     }
 
     @Override
-    public void reloadPreferences(VisualizerOptions vo) {
-    }
-
-    @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
         if (this.probeDepth == null || this.probeOffset == null) return;
         final int slices = 10;
@@ -109,15 +103,5 @@ public class ZProbePathPreview extends AbstractProbePreview {
         glut.glutSolidCylinder(.1, zAbs - 0.5, slices, stacks);
         gl.glTranslated(0, 0, zAbs - 1);
         glut.glutSolidCone(.2, 1, slices, stacks);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_PROBE_PREVIEW, true);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_PROBE_PREVIEW, enabled);
     }
 }

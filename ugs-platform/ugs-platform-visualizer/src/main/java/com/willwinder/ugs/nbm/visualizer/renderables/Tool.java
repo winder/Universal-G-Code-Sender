@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2022 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,19 +18,19 @@
  */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL_COLOR;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 
 import java.awt.Color;
-
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL_COLOR;
 
 /**
  *
@@ -42,12 +42,13 @@ public final class Tool extends Renderable {
     Color toolColor;
 
     public Tool(String title) {
-        super(9, title);
+        super(4, title, VISUALIZER_OPTION_TOOL);
         reloadPreferences(new VisualizerOptions());
     }
 
     @Override
     public void reloadPreferences(VisualizerOptions vo) {
+        super.reloadPreferences(vo);
         toolColor = vo.getOptionForKey(VISUALIZER_OPTION_TOOL_COLOR).value;
     }
 
@@ -75,6 +76,8 @@ public final class Tool extends Renderable {
 
         double scale = 1. / scaleFactor;
         gl.glPushMatrix();
+            gl.glEnable(GL.GL_DEPTH_TEST);
+
             gl.glTranslated(position.x, position.y, position.z);
             gl.glScaled(scale, scale, scale);
 
@@ -94,15 +97,5 @@ public final class Tool extends Renderable {
             gl.glTranslated(0, 0, 0.2);
             glu.gluCylinder(gq, 0.03f, .0f, .01, 16, 1);
         gl.glPopMatrix();
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_TOOL, enabled);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_TOOL, true);
     }
 }

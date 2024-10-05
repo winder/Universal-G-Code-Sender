@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2022 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,183 +18,80 @@
  */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
-import static com.jogamp.opengl.GL.GL_LINES;
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_GRID;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_X;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_XY_GRID;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_XY_PLANE;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Y;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
-import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
+import com.willwinder.ugs.nbm.visualizer.shared.VertexObjectRenderable;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 
 /**
- *
  * @author wwinder
  */
-public class Grid extends Renderable {
+public class Grid extends VertexObjectRenderable {
     private float[] gridLineColor;
-    private float[] gridPlaneColor;
     private float[] xAxisColor;
     private float[] yAxisColor;
     private float[] zAxisColor;
 
     public Grid(String title) {
-        super(5, title);
+        super(6, title, VISUALIZER_OPTION_GRID);
         reloadPreferences(new VisualizerOptions());
     }
 
     @Override
-    final public void reloadPreferences(VisualizerOptions vo) {
+    public final void reloadPreferences(VisualizerOptions vo) {
+        super.reloadPreferences(vo);
         gridLineColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_XY_GRID).value);
-        gridPlaneColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_XY_PLANE).value);
         xAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_X).value);
         yAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_Y).value);
         zAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_Z).value);
     }
 
     @Override
-    public boolean enableLighting() {
-        return false;
+    public void render(GL2 gl) {
+        gl.glLineWidth(1.2f);
+        gl.glDisable(GL.GL_DEPTH_TEST);
+        gl.glDrawArrays(GL.GL_LINES, 0, getVertexCount());
     }
 
     @Override
-    public boolean rotate() {
-        return true;
-    }
+    public void reloadModel(GL2 gl, Position bottomLeft, Position topRight, double scaleFactor) {
+        for (double x = bottomLeft.x; x <= topRight.x; x += getStepSize()) {
+            for (double y = bottomLeft.y; y <= topRight.y; y += getStepSize()) {
+                if (x == 0) continue;
+                addVertex(x, bottomLeft.y, 0);
+                addColor(gridLineColor);
 
-    @Override
-    public boolean center() {
-        return true;
-    }
+                addVertex(x, topRight.y, 0);
+                addColor(gridLineColor);
 
-    @Override
-    public void init(GLAutoDrawable drawable) {
-    }
+                if (y == 0) continue;
+                addVertex(bottomLeft.x, y, 0);
+                addColor(gridLineColor);
 
-    private double getBestStepSize(double maxSide) {
-        return maxSide/20;
-    }
-
-    private double getDistFromZeroForStepSize(double stepSize, double point, boolean min) {
-        if (stepSize < 0.01) return min ? -1 : 1;
-
-        // Get remainder.
-        double remainder = Math.abs(point);
-        while (remainder >= stepSize/2) {
-            remainder -= stepSize;
-        }
-
-        if (point <= 0) {
-            if (min) {
-                return point - (stepSize - remainder);
-            } else {
-                return point + remainder;
+                addVertex(topRight.x, y, 0);
+                addColor(gridLineColor);
             }
         }
-        else {
-            if (min) {
-                return point - remainder;
-            } else {
-                return point + (stepSize - remainder);
-            }
-        }
-    }
 
-    @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
-        double maxSide = VisualizerUtils.findMaxSide(focusMin, focusMax);
-        if (maxSide == 0) {
-            maxSide = 1;
-        }
-        Position bottomLeft = new Position(focusMin);
-        Position topRight = new Position(focusMax);
+        addVertex(0, bottomLeft.y, 0);
+        addColor(yAxisColor);
+        addVertex(0, topRight.y, 0);
+        addColor(yAxisColor);
 
-        // Setup the stepSize and min/max edges so that the lines look right.
-        double stepSize = getBestStepSize(maxSide);
-        bottomLeft.x = getDistFromZeroForStepSize(stepSize, bottomLeft.x, true);
-        bottomLeft.y = getDistFromZeroForStepSize(stepSize, bottomLeft.y, true);
-        topRight.x = getDistFromZeroForStepSize(stepSize, topRight.x, false);
-        topRight.y = getDistFromZeroForStepSize(stepSize, topRight.y, false);
+        addVertex(bottomLeft.x, 0, 0);
+        addColor(xAxisColor);
+        addVertex(topRight.x, 0, 0);
+        addColor(xAxisColor);
 
-        GL2 gl = drawable.getGL().getGL2();
-        gl.glPushMatrix();
-            double offset = 0.001;
-
-            gl.glLineWidth(1.5f);
-            // grid
-            gl.glBegin(GL_LINES);
-            for(double x=bottomLeft.x;x<=topRight.x;x+=stepSize) {
-                for (double y=bottomLeft.y; y<=topRight.y; y+=stepSize) {
-                    if (x==0) continue; 
-                    gl.glColor4fv(gridLineColor, 0);
-
-                    gl.glVertex3d(x, bottomLeft.y, offset);
-                    gl.glVertex3d(x, topRight.y  , offset);
-
-                    gl.glVertex3d(x, bottomLeft.y, -offset);
-                    gl.glVertex3d(x, topRight.y  , -offset);
-                    
-                    if (y==0) continue;
-                    gl.glColor4fv(gridLineColor, 0);
-                    gl.glVertex3d(bottomLeft.x, y,  offset);
-                    gl.glVertex3d(topRight.x  , y,  offset);
-
-                    gl.glVertex3d(bottomLeft.x, y, -offset);
-                    gl.glVertex3d(topRight.x  , y, -offset);
-                }
-            }
-            gl.glEnd();
-
-            gl.glLineWidth(5f);
-            gl.glBegin(GL_LINES);
-                // X Axis Line
-                gl.glColor4fv(yAxisColor, 0);
-                gl.glVertex3d(0, bottomLeft.y, offset);
-                gl.glVertex3d(0, topRight.y  , offset);
-
-                gl.glVertex3d(0, bottomLeft.y, -offset);
-                gl.glVertex3d(0, topRight.y  , -offset);
-
-                // Y Axis Line
-                gl.glColor4fv(xAxisColor, 0);
-                gl.glVertex3d(bottomLeft.x, 0,  offset);
-                gl.glVertex3d(topRight.x  , 0,  offset);
-
-                gl.glVertex3d(bottomLeft.x, 0, -offset);
-                gl.glVertex3d(topRight.x  , 0, -offset);
-
-                // Z Axis Line
-                gl.glColor4fv(zAxisColor, 0);
-                gl.glVertex3d(0, 0, bottomLeft.z);
-                gl.glVertex3d(0, 0, Math.max(topRight.z, -bottomLeft.z));
-            gl.glEnd();
-
-            //gl.glColor4f(.3f,.3f,.3f, .09f);
-            gl.glColor4fv(gridPlaneColor, 0);
-
-            // floor - cover entire model and a little extra.
-            gl.glBegin(GL2.GL_QUADS);
-                gl.glVertex3d(bottomLeft.x, bottomLeft.y, 0);
-                gl.glVertex3d(bottomLeft.x, topRight.y  , 0);
-                gl.glVertex3d(topRight.x  , topRight.y  , 0);
-                gl.glVertex3d(topRight.x  , bottomLeft.y, 0);
-            gl.glEnd();
-        gl.glPopMatrix();
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_GRID, enabled);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_GRID, true);
+        addVertex(0, 0, bottomLeft.z);
+        addColor(zAxisColor);
+        addVertex(0, 0, Math.max(topRight.z, -bottomLeft.z));
+        addColor(zAxisColor);
     }
 }

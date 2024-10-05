@@ -34,7 +34,6 @@ import com.willwinder.universalgcodesender.model.events.CommandEvent;
 import com.willwinder.universalgcodesender.model.events.CommandEventType;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
-import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 import org.apache.commons.lang3.SystemUtils;
@@ -86,7 +85,6 @@ public class RendererInputHandler implements
         gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"), backend);
         sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
         selection = new Selection(Localization.getString("platform.visualizer.renderable.selection"));
-        sizeDisplay.setUnits(settings.getPreferredUnits());
 
         gr.registerRenderable(gcodeModel);
         gr.registerRenderable(sizeDisplay);
@@ -160,8 +158,6 @@ public class RendererInputHandler implements
             }
 
             animator.resume();
-        } else if (cse instanceof SettingChangedEvent) {
-            sizeDisplay.setUnits(settings.getPreferredUnits());
         } else if (cse instanceof ControllerStatusEvent controllerStatusEvent) {
             gcodeRenderer.setMachineCoordinate(controllerStatusEvent.getStatus().getMachineCoord());
             gcodeRenderer.setWorkCoordinate(controllerStatusEvent.getStatus().getWorkCoord());

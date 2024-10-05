@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2022 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -65,10 +65,13 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
     public static String VISUALIZER_OPTION_GRID = "platform.visualizer.grid";
     public static String VISUALIZER_OPTION_GRID_DESC = "platform.visualizer.grid.desc";
     public static String VISUALIZER_OPTION_XY_GRID = "platform.visualizer.color.xy-grid";
-    public static String VISUALIZER_OPTION_XY_PLANE = "platform.visualizer.color.xy-plane";
     public static String VISUALIZER_OPTION_X = "platform.visualizer.color.x-axis";
     public static String VISUALIZER_OPTION_Y = "platform.visualizer.color.y-axis";
     public static String VISUALIZER_OPTION_Z = "platform.visualizer.color.z-axis";
+
+    public static final String VISUALIZER_OPTION_PLANE = "platform.visualizer.plane";
+    public static final String VISUALIZER_OPTION_PLANE_DESC = "platform.visualizer.plane.desc";
+    public static final String VISUALIZER_OPTION_PLANE_COLOR = "platform.visualizer.color.xy-plane";
 
     // SizeDisplay renderable
     public static String VISUALIZER_OPTION_SIZE = "platform.visualizer.color.sizedisplay";
@@ -140,10 +143,12 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
         // Grid renderable
         add(getOption(VISUALIZER_OPTION_GRID, Localization.getString(VISUALIZER_OPTION_GRID_DESC), true));
         add(getOption(VISUALIZER_OPTION_XY_GRID, "", new Color(179,179,179, 29)));
-        add(getOption(VISUALIZER_OPTION_XY_PLANE, "", new Color(77,77,77,29)));
         add(getOption(VISUALIZER_OPTION_X, "", new Color(230,0,0)));
         add(getOption(VISUALIZER_OPTION_Y, "", new Color(0,230,0)));
         add(getOption(VISUALIZER_OPTION_Z, "", new Color(0,0,230)));
+
+        add(getOption(VISUALIZER_OPTION_PLANE, Localization.getString(VISUALIZER_OPTION_PLANE_DESC), true));
+        add(getOption(VISUALIZER_OPTION_PLANE_COLOR, "", new Color(77,77,77,29)));
 
         // SizeDisplay renderable
         add(getOption(VISUALIZER_OPTION_SIZE_DISPLAY, Localization.getString(VISUALIZER_OPTION_SIZE_DISPLAY_DESC), true));
@@ -168,6 +173,10 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
         add(getOption(VISUALIZER_OPTION_EDITOR_POSITION, Localization.getString(VISUALIZER_OPTION_EDITOR_POSITION_DESC), true));
         add(getOption(VISUALIZER_OPTION_PROBE_PREVIEW, Localization.getString(VISUALIZER_OPTION_PROBE_PREVIEW_DESC), true));
         add(getOption(VISUALIZER_OPTION_DOWEL_PREVIEW, Localization.getString(VISUALIZER_OPTION_DOWEL_PREVIEW_DESC), true));
+    }
+
+    public static void addListener(Runnable runnable) {
+        NbPreferences.forModule(VisualizerOptions.class).addPreferenceChangeListener(l -> runnable.run());
     }
 
     private Option<Integer> getOption(String op, String desc, int defaultValue) {

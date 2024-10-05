@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2023 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -85,7 +85,7 @@ public class GcodeModel extends Renderable implements UGSEventListener {
     private Position objectSize;
 
     public GcodeModel(String title, BackendAPI backend) {
-        super(10, title);
+        super(10, title, VISUALIZER_OPTION_MODEL);
         objectSize = new Position(0, 0, 0);
         reloadPreferences(new VisualizerOptions());
         this.backend = backend;
@@ -94,6 +94,7 @@ public class GcodeModel extends Renderable implements UGSEventListener {
 
     @Override
     public final void reloadPreferences(VisualizerOptions vo) {
+        super.reloadPreferences(vo);
         colorizer.reloadPreferences(vo);
         vertexBufferDirty = true;
     }
@@ -382,16 +383,6 @@ public class GcodeModel extends Renderable implements UGSEventListener {
         lineColorBuffer.put(lineColorData);
         ((Buffer) lineColorBuffer).flip();
 
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_MODEL, true);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_MODEL, enabled);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,6 +24,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_AUTOLEVEL_PREVIEW;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.CNCPoint;
 import com.willwinder.universalgcodesender.model.Position;
@@ -31,10 +32,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
 import java.util.Arrays;
-import java.util.Deque;
 import java.util.stream.DoubleStream;
-
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_AUTOLEVEL_PREVIEW;
 
 /**
  * @author wwinder
@@ -53,7 +51,7 @@ public class AutoLevelPreview extends Renderable {
     private float[] low = {255, 0, 0}; // red
 
     public AutoLevelPreview(String title) {
-        super(10, title);
+        super(10, title, VISUALIZER_OPTION_AUTOLEVEL_PREVIEW);
 
         glut = new GLUT();
 
@@ -76,6 +74,7 @@ public class AutoLevelPreview extends Renderable {
 
     @Override
     public final void reloadPreferences(VisualizerOptions vo) {
+        super.reloadPreferences(vo);
         high = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_HIGH).value);
         low = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_LOW).value);
     }
@@ -237,11 +236,6 @@ public class AutoLevelPreview extends Renderable {
         return Arrays.stream(grid).flatMap(Arrays::stream)
                 .mapToDouble(CNCPoint::getZ)
                 .filter(z -> !Double.isNaN(z));
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_AUTOLEVEL_PREVIEW, true);
     }
 
     @Override

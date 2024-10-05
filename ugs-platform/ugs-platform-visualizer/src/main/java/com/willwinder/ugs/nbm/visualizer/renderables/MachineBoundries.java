@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2023 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -54,7 +54,7 @@ public class MachineBoundries extends Renderable {
      * to lowest priority.
      */
     public MachineBoundries(String title) {
-        super(Integer.MIN_VALUE, title);
+        super(Integer.MIN_VALUE, title, VISUALIZER_OPTION_BOUNDRY);
         reloadPreferences(new VisualizerOptions());
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         backendAPI.addUGSEventListener(this::onUGSEvent);
@@ -112,6 +112,7 @@ public class MachineBoundries extends Renderable {
 
     @Override
     public void reloadPreferences(VisualizerOptions vo) {
+        super.reloadPreferences(vo);
         machineBoundryBottomColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_BOUNDRY_BASE).value);
         machineBoundryLineColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_BOUNDRY_SIDES).value);
         xAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_X).value);
@@ -215,15 +216,5 @@ public class MachineBoundries extends Renderable {
         gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ());
         gl.glVertex3d(topRight.x, topRight.y, topRight.getZ());
         gl.glEnd();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDRY, true);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_BOUNDRY, enabled);
     }
 }

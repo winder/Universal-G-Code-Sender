@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2022 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,8 +22,11 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_HIGHLIGHT;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_HIGHLIGHT_COLOR;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
+import static com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.getAngle;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.model.CNCPoint;
@@ -33,12 +36,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_HIGHLIGHT;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_HIGHLIGHT_COLOR;
-import static com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.getAngle;
 
 /**
  * Highlights the selected lines in the editor. It will attempt to buffer the lines with quads to make them more visible
@@ -60,13 +58,14 @@ public class Highlight extends Renderable {
     private int endLine = 0;
 
     public Highlight(GcodeModel model, String title) {
-        super(9, title);
+        super(9, title, VISUALIZER_OPTION_HIGHLIGHT);
         this.model = model;
         reloadPreferences(new VisualizerOptions());
     }
 
     @Override
     public final void reloadPreferences(VisualizerOptions vo) {
+        super.reloadPreferences(vo);
         highlightColor = vo.getOptionForKey(VISUALIZER_OPTION_HIGHLIGHT_COLOR).value;
     }
 
@@ -138,18 +137,8 @@ public class Highlight extends Renderable {
                     CNCPoint dPoint = new Position(lineSegment.getStart()).add(xyOffset).add(zOffset);
                     return Stream.of(aPoint, bPoint, cPoint, dPoint);
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         points.addAll(newPoints);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_HIGHLIGHT, enabled);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_HIGHLIGHT, true);
     }
 }
