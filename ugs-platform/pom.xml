@@ -15,7 +15,7 @@
 
     <properties>
       <maven.build.timestamp.format>yyyy.MM.dd.HH.mm</maven.build.timestamp.format>
-      <netbeans.version>RELEASE180</netbeans.version>
+      <netbeans.version>RELEASE230</netbeans.version>
       <ugs.app.title>Universal Gcode Sender ${project.version}</ugs.app.title>
       <ugs.appbundle.name>Universal Gcode Sender</ugs.appbundle.name>
       <parsedVersion.majorVersion>2</parsedVersion.majorVersion>
