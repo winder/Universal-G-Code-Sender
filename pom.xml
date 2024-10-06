@@ -52,7 +52,7 @@
     <jersey.version>3.1.5</jersey.version>
     <gluegen.version>2.5.0</gluegen.version>
     <jogl.version>2.5.0</jogl.version>
-    <miglayout.version>3.7.4</miglayout.version>
+    <miglayout.version>11.4.2</miglayout.version>
     <guava.version>33.0.0-jre</guava.version>
     <jserialcomm.version>2.10.4</jserialcomm.version>
     <commons-lang3.version>3.12.0</commons-lang3.version>

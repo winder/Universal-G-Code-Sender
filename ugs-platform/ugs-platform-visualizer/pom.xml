@@ -65,6 +65,13 @@
             <type>jar</type>
         </dependency>
         <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-openide-util-ui-svg</artifactId>
+            <version>${netbeans.version}</version>
+            <type>jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ugs-platform-ugslib</artifactId>
             <version>${project.version}</version>

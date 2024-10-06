@@ -86,7 +86,7 @@
         <!-- UI -->
         <dependency>
             <groupId>com.miglayout</groupId>
-            <artifactId>miglayout</artifactId>
+            <artifactId>miglayout-swing</artifactId>
             <version>${miglayout.version}</version>
         </dependency>
     </dependencies>
