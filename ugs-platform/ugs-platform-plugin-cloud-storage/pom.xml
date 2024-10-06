@@ -58,12 +58,7 @@
       <artifactId>ugs-platform-ugslib</artifactId>  
       <version>${project.version}</version>  
       <type>jar</type> 
-    </dependency>  
-    <dependency> 
-      <groupId>${project.groupId}</groupId>  
-      <artifactId>ugs-platform-visualizer</artifactId>  
-      <version>${project.version}</version> 
-    </dependency>  
+    </dependency>
     <dependency> 
       <groupId>org.netbeans.api</groupId>  
       <artifactId>org-openide-util-ui</artifactId>  
