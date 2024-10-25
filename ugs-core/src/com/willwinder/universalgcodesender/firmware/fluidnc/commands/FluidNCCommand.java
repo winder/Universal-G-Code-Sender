@@ -53,6 +53,11 @@ public class FluidNCCommand extends GcodeCommand {
             return;
         }
 
+        // Do not append messages
+        if (response.startsWith("[MSG:")) {
+            return;
+        }
+
         super.appendResponse(response);
 
         if (response.startsWith("ok")) {

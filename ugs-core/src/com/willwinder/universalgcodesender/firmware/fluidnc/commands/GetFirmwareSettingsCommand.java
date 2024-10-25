@@ -36,6 +36,11 @@ public class GetFirmwareSettingsCommand extends SystemCommand {
         super("$Config/Dump");
     }
 
+    @Override
+    public void appendResponse(String response) {
+        super.appendResponse(response);
+    }
+
     public Map<String, String> getSettings() {
         if (!isOk()) {
             return new HashMap<>();
