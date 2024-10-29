@@ -27,7 +27,6 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.events.ProbeEvent;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
-import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -163,14 +162,6 @@ public class SurfaceScanner {
     public void probeEvent(final Position p) {
         Position expectedProbePosition = pendingPositions.pop();
         Position probedPosition = p.getPositionIn(expectedProbePosition.getUnits());
-
-        // The position reported from the controller might lack some precision on the X/Y position.
-        // We therefore need to lower the precision when checking the probed X/Y axes
-        double delta = 0.1;
-        if (!isEqual(probedPosition.getX(), expectedProbePosition.getX(), delta) || !isEqual(probedPosition.getY(), expectedProbePosition.getY(), delta)) {
-            reset();
-            throw new RuntimeException(String.format("Unexpected probe location, expected %s to be %s", probedPosition, expectedProbePosition));
-        }
         Position settingsOffset = settings.getAutoLevelProbeOffset().getPositionIn(getPreferredUnits());
 
         expectedProbePosition.setX(expectedProbePosition.getX() + settingsOffset.getX());

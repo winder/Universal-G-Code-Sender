@@ -9,7 +9,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.when;
 
 public class SurfaceScannerTest {
@@ -87,7 +88,18 @@ public class SurfaceScannerTest {
 
         Position third = new Position(surfaceScanner.getNextProbePoint().get());
         third.setY(third.getY() + 0.11);
-        assertThrows(RuntimeException.class, ()  -> surfaceScanner.probeEvent(createProbePoint(third, UnitUtils.Units.MM, 1)));
+        surfaceScanner.probeEvent(createProbePoint(third, UnitUtils.Units.MM, 3));
+
+        Position fourth = new Position(surfaceScanner.getNextProbePoint().get());
+        third.setY(fourth.getY() - 0.11);
+        surfaceScanner.probeEvent(createProbePoint(third, UnitUtils.Units.MM, 4));
+
+        Position[][] probePositionGrid = surfaceScanner.getProbePositionGrid();
+        assertEquals(2, probePositionGrid.length);
+        assertEquals(new Position(0, 0, 1.0, UnitUtils.Units.MM), probePositionGrid[0][0]);
+        assertEquals(new Position(0, 1, 2.0, UnitUtils.Units.MM), probePositionGrid[0][1]);
+        assertEquals(new Position(1, 0, 4.0, UnitUtils.Units.MM), probePositionGrid[1][0]);
+        assertEquals(new Position(1, 1, 3.0, UnitUtils.Units.MM), probePositionGrid[1][1]);
     }
 
 
