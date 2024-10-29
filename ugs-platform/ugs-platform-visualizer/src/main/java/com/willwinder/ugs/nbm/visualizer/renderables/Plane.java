@@ -20,17 +20,20 @@ package com.willwinder.ugs.nbm.visualizer.renderables;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PLANE_COLOR;
+import com.willwinder.ugs.nbm.visualizer.shader.PlainShader;
 import com.willwinder.ugs.nbm.visualizer.shared.VertexObjectRenderable;
 import com.willwinder.universalgcodesender.model.Position;
+
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PLANE_COLOR;
 
 public class Plane extends VertexObjectRenderable {
 
     private float[] gridPlaneColor;
 
     public Plane(String title) {
-        super(7, title, VisualizerOptions.VISUALIZER_OPTION_PLANE);
+        super(7, title, VisualizerOptions.VISUALIZER_OPTION_PLANE, new PlainShader());
     }
 
     @Override
@@ -40,7 +43,8 @@ public class Plane extends VertexObjectRenderable {
     }
 
     @Override
-    public void render(GL2 gl) {
+    public void render(GLAutoDrawable drawable) {
+        GL2 gl = drawable.getGL().getGL2();
         gl.glDisable(GL.GL_DEPTH_TEST);
         gl.glDrawArrays(GL.GL_TRIANGLES, 0, getVertexCount());
     }
