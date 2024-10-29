@@ -35,12 +35,12 @@ public class AxisResetButton extends RoundedPanel {
     public AxisResetButton(Axis axis, FontManager fontManager) {
         super(RADIUS);
 
-        setLayout(new MigLayout("inset 4 10 4 12, gap 0"));
+        setLayout(new MigLayout("inset 4 10 4 12, gap 2"));
         axisLabel = new JLabel(String.valueOf(axis));
-        add(axisLabel, "al center, dock center, id axis");
+        add(axisLabel, "al center, id axis");
 
         zeroLabel = new JLabel("0");
-        add(zeroLabel, "id zero, pos (axis.x + axis.w - 4) (axis.y + axis.h - zero.h)");
+        add(zeroLabel, "id zero");
 
         fontManager.addAxisResetLabel(axisLabel);
         fontManager.addAxisResetZeroLabel(zeroLabel);
