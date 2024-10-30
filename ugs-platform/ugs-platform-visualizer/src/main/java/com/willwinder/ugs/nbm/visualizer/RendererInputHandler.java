@@ -63,8 +63,8 @@ import java.util.prefs.PreferenceChangeListener;
 public class RendererInputHandler implements
         WindowListener, MouseWheelListener, MouseMotionListener,
         MouseListener, KeyListener, PreferenceChangeListener, UGSEventListener {
-    private static final int HIGH_FPS = 15;
-    private static final int LOW_FPS = 4;
+    private final int highFps;
+    private final int lowFps;
     private final GcodeRenderer gcodeRenderer;
     private final AnimatorBase animator;
     private final BackendAPI backend;
@@ -76,11 +76,13 @@ public class RendererInputHandler implements
     private Position selectionStart = null;
     private Position selectionEnd = null;
 
-    public RendererInputHandler(GcodeRenderer gr, AnimatorBase a, BackendAPI backend) {
+    public RendererInputHandler(GcodeRenderer gr, AnimatorBase a, BackendAPI backend, int lowFps, int highFps) {
         gcodeRenderer = gr;
         animator = a;
         this.backend = backend;
         settings = backend.getSettings();
+        this.highFps = highFps;
+        this.lowFps = lowFps;
 
         gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"), backend);
         sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
@@ -271,7 +273,7 @@ public class RendererInputHandler implements
      */
     @Override
     public void mousePressed(MouseEvent e) {
-        setFPS(HIGH_FPS);
+        setFPS(highFps);
         // Zoom
         if (e.getButton() == MouseEvent.BUTTON1 && e.isMetaDown()) {
             selecting = true;
@@ -282,7 +284,7 @@ public class RendererInputHandler implements
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        setFPS(LOW_FPS);
+        setFPS(lowFps);
 
         // Finish selecting.
         if (selecting) {
@@ -317,7 +319,7 @@ public class RendererInputHandler implements
      */
     @Override
     public void keyPressed(KeyEvent ke) {
-        setFPS(HIGH_FPS);
+        setFPS(highFps);
 
         int DELTA_SIZE = 1;
 
@@ -358,7 +360,7 @@ public class RendererInputHandler implements
      */
     @Override
     public void keyReleased(KeyEvent ke) {
-        setFPS(LOW_FPS);
+        setFPS(lowFps);
     }
 
     public void dispose() {
