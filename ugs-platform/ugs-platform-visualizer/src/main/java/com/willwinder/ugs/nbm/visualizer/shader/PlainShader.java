@@ -33,54 +33,36 @@ import java.nio.charset.StandardCharsets;
  * @author Joacim Breiler
  */
 public class PlainShader implements Shader {
-    private final String vertexShader;
-    private final String fragmentShader;
     private int shaderProgramId;
-
-    public PlainShader() {
-        this("/shaders/plain.vert.glsl", "/shaders/plain.frag.glsl");
-    }
-
-    public PlainShader(String vertexShader, String fragmentShader) {
-        this.vertexShader = vertexShader;
-        this.fragmentShader = fragmentShader;
-    }
+    private int shaderVertexIndex;
+    private int shaderColorIndex;
 
     public void init(GL2 gl) {
         try {
-            InputStream vertexShaderInputStream = getClass().getResourceAsStream(vertexShader);
+            InputStream vertexShaderInputStream = getClass().getResourceAsStream("/shaders/plain.vert.glsl");
             if (vertexShaderInputStream == null) {
                 throw new IOException("Could not find vertex shader file");
             }
 
-            InputStream fragmentShaderInputStream = getClass().getResourceAsStream(fragmentShader);
+            InputStream fragmentShaderInputStream = getClass().getResourceAsStream("/shaders/plain.frag.glsl");
             if (fragmentShaderInputStream == null) {
                 throw new IOException("Could not find fragment shader file");
             }
 
             shaderProgramId = ShaderLoader.loadProgram(gl, IOUtils.toString(vertexShaderInputStream, StandardCharsets.UTF_8), IOUtils.toString(fragmentShaderInputStream, StandardCharsets.UTF_8));
-
-            gl.glBindAttribLocation(shaderProgramId, 0, "vertexPosition");
-            gl.glBindAttribLocation(shaderProgramId, 1, "vertexNormal");
-            gl.glBindAttribLocation(shaderProgramId, 2, "vertexColor");
+            shaderVertexIndex = gl.glGetAttribLocation(shaderProgramId, "inPosition");
+            shaderColorIndex = gl.glGetAttribLocation(shaderProgramId, "inColor");
         } catch (IOException e) {
             throw new GLException(e);
         }
     }
 
-    @Override
     public int getShaderVertexIndex() {
-        return 0;
+        return shaderVertexIndex;
     }
 
-    @Override
-    public int getShaderNormalIndex() {
-        return 1;
-    }
-
-    @Override
     public int getShaderColorIndex() {
-        return 3;
+        return shaderColorIndex;
     }
 
     public void dispose(GL2 gl) {

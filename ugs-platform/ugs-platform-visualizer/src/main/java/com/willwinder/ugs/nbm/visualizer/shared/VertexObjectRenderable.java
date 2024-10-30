@@ -3,14 +3,15 @@ package com.willwinder.ugs.nbm.visualizer.shared;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import com.willwinder.ugs.nbm.visualizer.shader.Shader;
+import com.willwinder.ugs.nbm.visualizer.shader.PlainShader;
 import com.willwinder.ugs.nbm.visualizer.utils.RenderableUtils;
+import static com.willwinder.ugs.nbm.visualizer.utils.RenderableUtils.bindColorBuffer;
+import static com.willwinder.ugs.nbm.visualizer.utils.RenderableUtils.bindVertexBuffer;
+import static com.willwinder.ugs.nbm.visualizer.utils.RenderableUtils.bindVertexObject;
 import com.willwinder.universalgcodesender.model.Position;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.willwinder.ugs.nbm.visualizer.utils.RenderableUtils.*;
 
 /**
  * A base class for rendering a vertex buffer object using a shader
@@ -18,34 +19,30 @@ import static com.willwinder.ugs.nbm.visualizer.utils.RenderableUtils.*;
 public abstract class VertexObjectRenderable extends Renderable {
     private double stepSize;
     private final List<Float> vertexList = new ArrayList<>();
-    private final List<Float> normalList = new ArrayList<>();
     private final List<Float> colorList = new ArrayList<>();
 
     private Position objectMin = Position.ZERO;
     private Position objectMax = Position.ZERO;
-    private Shader shader;
+    private PlainShader shader;
 
     private boolean reloadModel;
     private int vertexObjectId;
     private int vertexBufferId;
     private int colorBufferId;
-    private int normalBufferId;
 
 
     protected double getStepSize() {
         return stepSize;
     }
 
-    protected VertexObjectRenderable(int priority, String title, String enabledOptionKey, Shader shader) {
+    protected VertexObjectRenderable(int priority, String title, String enabledOptionKey) {
         super(priority, title, enabledOptionKey);
-        this.shader = shader;
         reloadPreferences(new VisualizerOptions());
     }
 
-    protected void clear() {
+    private void clear() {
         vertexList.clear();
         colorList.clear();
-        normalList.clear();
     }
 
     @Override
@@ -56,10 +53,6 @@ public abstract class VertexObjectRenderable extends Renderable {
     @Override
     public boolean center() {
         return true;
-    }
-
-    protected void addNormal(double x, double y, double z) {
-        RenderableUtils.addVertex(normalList, x, y, z);
     }
 
     protected void addVertex(double x, double y, double z) {
@@ -84,6 +77,7 @@ public abstract class VertexObjectRenderable extends Renderable {
 
     @Override
     public void init(GLAutoDrawable drawable) {
+        shader = new PlainShader();
         shader.init(drawable.getGL().getGL2());
     }
 
@@ -123,7 +117,8 @@ public abstract class VertexObjectRenderable extends Renderable {
 
         // Bind the VAO containing the vertex data
         gl.glBindVertexArray(vertexObjectId);
-        render(drawable);
+
+        render(gl);
 
         // Unbind the VAO
         gl.glBindVertexArray(0);
@@ -132,19 +127,18 @@ public abstract class VertexObjectRenderable extends Renderable {
 
 
     private void updateBuffers(GL2 gl) {
-        gl.glDeleteBuffers(2, new int[]{vertexBufferId, colorBufferId, normalBufferId}, 0);
+        gl.glDeleteBuffers(2, new int[]{vertexBufferId, colorBufferId}, 0);
         vertexObjectId = bindVertexObject(gl);
         vertexBufferId = bindVertexBuffer(gl, vertexList, shader.getShaderVertexIndex());
         colorBufferId = bindColorBuffer(gl, colorList, shader.getShaderColorIndex());
-        normalBufferId = bindNormalBuffer(gl, normalList, shader.getShaderNormalIndex());
     }
 
     /**
      * A method to be used for rendering the vertex buffer.
      *
-     * @param drawable the current gl context
+     * @param gl the current gl context
      */
-    public abstract void render(GLAutoDrawable drawable);
+    public abstract void render(GL2 gl);
 
 
     /**

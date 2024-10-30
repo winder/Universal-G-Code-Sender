@@ -23,8 +23,11 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.JoglVersion;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.glu.GLU;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BG;
 import com.willwinder.ugs.nbm.visualizer.renderables.Grid;
 import com.willwinder.ugs.nbm.visualizer.renderables.MachineBoundries;
 import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
@@ -52,10 +55,6 @@ import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BG;
 
 /**
  * 3D Canvas for GCode Visualizer
@@ -122,7 +121,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      * Constructor.
      */
     public GcodeRenderer() {
-        eye = new Position(0, 0, 1.5);
+         eye = new Position(0, 0, 1.5);
         center = new Position(0, 0, 0);
         objectMin = new Position(-10, -10, -10);
         objectMax = new Position(10, 10, 10);
@@ -240,15 +239,18 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         float[] diffuse = {.6f, .6f, .6f, 1.0f};
         float[] position = {0f, 0f, 20f, 1.0f};
 
-        gl.glEnable(GL2.GL_LIGHT0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
+        gl.glEnable(GL2.GL_LIGHT0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position, 0);
 
         // Allow glColor to set colors
         gl.glEnable(GL2.GL_COLOR_MATERIAL);
         gl.glColorMaterial(GL.GL_FRONT, GL2.GL_DIFFUSE);
         gl.glColorMaterial(GL.GL_FRONT, GL2.GL_AMBIENT);
+        //gl.glColorMaterial(GL.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE);
+        //gl.glColorMaterial(GL.GL_FRONT, GL2.GL_SPECULAR);
+
 
         float diffuseMaterial[] =
                 {0.5f, 0.5f, 0.5f, 1.0f};
@@ -467,7 +469,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         objects.add(new MachineBoundries(Localization.getString("platform.visualizer.renderable.machine-boundries")));
         objects.add(new Tool(Localization.getString("platform.visualizer.renderable.tool-location")));
         objects.add(new MouseOver(Localization.getString("platform.visualizer.renderable.mouse-indicator")));
-        objects.add(new OrientationCube(Localization.getString("platform.visualizer.renderable.orientation-cube")));
+        objects.add(new OrientationCube(0.5f, Localization.getString("platform.visualizer.renderable.orientation-cube")));
         objects.add(new Grid(Localization.getString("platform.visualizer.renderable.grid")));
         objects.add(new Plane(Localization.getString("platform.visualizer.renderable.grid")));
         Collections.sort(objects);

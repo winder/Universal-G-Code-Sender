@@ -53,33 +53,6 @@ public class RenderableUtils {
         return cbo[0];
     }
 
-    /**
-     * Generates and binds a color buffer
-     *
-     * @param gl                the GL context to use
-     * @param normalList        a list of float values containing the vertex normal
-     * @param normalBufferIndex the parameter index of the shader to bind to
-     * @return the id of the color buffer to be reference to when rendering
-     */
-    public static int bindNormalBuffer(GL2 gl, List<Float> normalList, int normalBufferIndex) {
-        // Create and upload the Normal Buffer Object (NBO) for colors
-        int[] nbo = new int[1];
-        gl.glGenBuffers(1, nbo, 0);
-
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, nbo[0]);
-
-        // Upload vertex colors to the GPU
-        FloatBuffer normalBuffer = Buffers.newDirectFloatBuffer(ArrayUtils.toPrimitive(normalList.toArray(new Float[0])));
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, normalBuffer.capacity() * Float.BYTES, normalBuffer, GL.GL_STATIC_DRAW);
-
-        // Specify vertex attribute layout (index 1 for color)
-        gl.glEnableVertexAttribArray(normalBufferIndex);
-        gl.glVertexAttribPointer(normalBufferIndex, 4, GL.GL_FLOAT, false, 4 * Float.BYTES, 0);
-
-        return nbo[0];
-    }
-
-
     public static int bindVertexBuffer(GL2 gl, List<Float> vertexList, int positionIndex) {
         // Create a Vertex Buffer Object (VBO)
         int[] vbo = new int[1];
@@ -88,7 +61,7 @@ public class RenderableUtils {
 
         // Send vertex data to the GPU
         FloatBuffer vertexBuffer = Buffers.newDirectFloatBuffer(ArrayUtils.toPrimitive(vertexList.toArray(new Float[0])));
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL.GL_STATIC_DRAW);
+        gl.glBufferData(GL.GL_ARRAY_BUFFER, vertexBuffer.limit() * Float.BYTES, vertexBuffer, GL.GL_STATIC_DRAW);
 
         // Specify the layout of the vertex data
         gl.glEnableVertexAttribArray(positionIndex);

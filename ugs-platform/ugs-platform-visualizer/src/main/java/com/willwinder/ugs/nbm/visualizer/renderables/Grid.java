@@ -20,17 +20,14 @@ package com.willwinder.ugs.nbm.visualizer.renderables;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import com.willwinder.ugs.nbm.visualizer.shader.PlainShader;
-import com.willwinder.ugs.nbm.visualizer.shared.VertexObjectRenderable;
-import com.willwinder.universalgcodesender.model.Position;
-
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_GRID;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_X;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_XY_GRID;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Y;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
+import com.willwinder.ugs.nbm.visualizer.shared.VertexObjectRenderable;
+import com.willwinder.universalgcodesender.model.Position;
 
 /**
  * @author wwinder
@@ -42,7 +39,7 @@ public class Grid extends VertexObjectRenderable {
     private float[] zAxisColor;
 
     public Grid(String title) {
-        super(6, title, VISUALIZER_OPTION_GRID, new PlainShader());
+        super(6, title, VISUALIZER_OPTION_GRID);
         reloadPreferences(new VisualizerOptions());
     }
 
@@ -56,8 +53,7 @@ public class Grid extends VertexObjectRenderable {
     }
 
     @Override
-    public void render(GLAutoDrawable drawable) {
-        GL2 gl = drawable.getGL().getGL2();
+    public void render(GL2 gl) {
         gl.glLineWidth(1.2f);
         gl.glDisable(GL.GL_DEPTH_TEST);
         gl.glDrawArrays(GL.GL_LINES, 0, getVertexCount());

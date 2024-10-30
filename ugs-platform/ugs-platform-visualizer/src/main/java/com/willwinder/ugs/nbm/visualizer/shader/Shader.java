@@ -45,25 +45,4 @@ public interface Shader {
      * @return the id of the shader program
      */
     int getProgramId();
-
-    /**
-     * Get the shader parameter index for vertices
-     *
-     * @return the index
-     */
-    int getShaderVertexIndex();
-
-    /**
-     * Get the shader parameter index for colors
-     *
-     * @return the index
-     */
-    int getShaderColorIndex();
-
-    /**
-     * Get the shader parameter index for normals
-     *
-     * @return the index
-     */
-    int getShaderNormalIndex();
 }

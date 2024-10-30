@@ -19,151 +19,175 @@
 
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
-import com.jogamp.opengl.GL;
+import static com.jogamp.opengl.GL.GL_CULL_FACE;
+import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
 import com.jogamp.opengl.GL2;
+import static com.jogamp.opengl.GL2ES3.GL_QUADS;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
-import com.jogamp.opengl.fixedfunc.GLPointerFunc;
-import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import com.willwinder.ugs.nbm.visualizer.shader.PlainShader;
-import com.willwinder.ugs.nbm.visualizer.shared.VertexObjectRenderable;
-import com.willwinder.universalgcodesender.model.Position;
-import eu.mihosoft.vrl.v3d.CSG;
-import eu.mihosoft.vrl.v3d.Cube;
-import eu.mihosoft.vrl.v3d.Polygon;
-import eu.mihosoft.vrl.v3d.RoundedCube;
-import eu.mihosoft.vrl.v3d.Transform;
-import eu.mihosoft.vrl.v3d.Vector3d;
-import javafx.scene.paint.Color;
-
-import java.util.List;
-import java.util.Optional;
-
-import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
+import com.jogamp.opengl.util.awt.TextRenderer;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_ORIENTATION_CUBE;
+import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
+import com.willwinder.universalgcodesender.model.Position;
+
+import java.awt.Font;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Draw a cube with the orientation labeled on the sides.
- *
+ * 
  * @author wwinder
  */
-public class OrientationCube extends VertexObjectRenderable {
-    private final CSG model;
+public class OrientationCube extends Renderable {
+  private final float size;
+  private final float[] color = {0.8f, 0.8f, 0.8f};
+  private final float[] border = {0.2f, 0.2f, 0.2f};
 
-    protected void clear() {
-        super.clear();
-    }
+  private TextRenderer renderer;
+  private float textScaleFactor;
 
-    public OrientationCube(String title) {
-        super(Integer.MIN_VALUE, title, VISUALIZER_OPTION_ORIENTATION_CUBE, new PlainShader());
-        reloadPreferences(new VisualizerOptions());
-        model = generateModel();
-    }
+  public OrientationCube(float s, String title) {
+    super(Integer.MIN_VALUE, title, VISUALIZER_OPTION_ORIENTATION_CUBE);
+    size = s;
+  }
 
-    @Override
-    public boolean center() {
-        return false;
-    }
+  @Override
+  public boolean rotate() {
+      return true;
+  }
 
-    private CSG generateModel() {
-        double size = 0.5;
+  @Override
+  public boolean center() {
+      return false;
+  }
 
-        Color faceColor = Color.LIGHTGRAY;
-        Color cornerColor = Color.GRAY;
+  @Override
+  public void init(GLAutoDrawable drawable) {
+    renderer = new TextRenderer(new Font("SansSerif", Font.PLAIN, 72));
+    renderer.setColor(0.2f, 0.2f, 0.2f, 1f);
 
-        CSG cube = new Cube(size, size * 0.8, size * 0.8).toCSG()
-                .union(new Cube(size * 0.8, size * 0.8, size).toCSG())
-                .union(new Cube(size * 0.8, size, size * 0.8).toCSG())
-                .setColor(faceColor);
+    // Compute the scale factor of the largest string which will make
+    // them all fit on the faces of the cube
+    Rectangle2D bounds = renderer.getBounds("Z+");
+    float w = (float) bounds.getWidth();
 
-        CSG corners = new RoundedCube(size).cornerRadius(0.03).toCSG().setColor(cornerColor);
+    textScaleFactor = size / (w * 1.7f);
+  }
 
-        CSG result = cube.union(corners);
+  @Override
+  public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
+    GL2 gl = drawable.getGL().getGL2();
 
-        CSG text = CSG.text("Z-", 1)
-                .setColor(Color.BLUE)
-                .transformed(new Transform().scale(0.01).rot(180, 0, 0).translate(-15, -10, 25));
-        result = result.dumbUnion(text);
+    int ySize = drawable.getDelegatedDrawable().getSurfaceHeight();
+    int xSize = drawable.getDelegatedDrawable().getSurfaceWidth();
 
-        text = CSG.text("Z+", 1)
-                .setColor(Color.BLUE)
-                .transformed(new Transform().scale(0.01).translate(-16, -10, 25));
-        result = result.dumbUnion(text);
+    // Set viewport to the corner.
+    float fromEdge = 0.8f;
+    int squareSize = ySize-(int)(ySize*fromEdge);
+    gl.glViewport(0, (int)(ySize*fromEdge), squareSize, squareSize);
 
-        text = CSG.text("Y+", 1)
-                .setColor(Color.GREEN)
-                .transformed(new Transform().scale(0.01).rot(90, 0, 180).translate(-16, -10, 25));
-        result = result.dumbUnion(text);
-
-        text = CSG.text("Y-", 1)
-                .setColor(Color.GREEN)
-                .transformed(new Transform().scale(0.01).rot(270, 0, 0).translate(-14, -10, 25));
-        result = result.dumbUnion(text);
-
-        text = CSG.text("X-", 1)
-                .setColor(Color.RED)
-                .transformed(new Transform().scale(0.01).rot(270, 90, 0).translate(-14, -10, 25));
-        result = result.dumbUnion(text);
-
-        text = CSG.text("X+", 1)
-                .setColor(Color.RED)
-                .transformed(new Transform().scale(0.01).rot(270, 270, 0).translate(-16, -10, 25));
-        result = result.dumbUnion(text);
-
-        return result.scale(0.8);
-    }
-
-    private void generateBuffers(CSG csg) {
-        List<Polygon> polygons = csg.triangulate().getPolygons();
-
-        for (Polygon polygon : polygons) {
-            Color color = Optional.ofNullable(polygon.getColor()).orElse(Color.GRAY);
-            float[] colorArray = new float[]{(float) color.getRed(), (float) color.getGreen(), (float) color.getBlue(), 1f};
-
-            Vector3d a = polygon.getPoints().get(0);
-            Vector3d b = polygon.getPoints().get(1);
-            Vector3d c = polygon.getPoints().get(2);
-            Vector3d normal = b.minus(a).cross(c.minus(a)).normalized();
-
-            polygon.getPoints().forEach(point -> {
-                addVertex(point.getX(), point.getY(), point.getZ());
-                addNormal(normal.getX(), normal.getY(), normal.getZ());
-                addColor(colorArray);
-            });
-        }
-    }
-
-    @Override
-    public void render(GLAutoDrawable drawable) {
-        GL2 gl = drawable.getGL().getGL2();
-        int ySize = drawable.getDelegatedDrawable().getSurfaceHeight();
-        int xSize = drawable.getDelegatedDrawable().getSurfaceWidth();
-
-        // Set viewport to the corner.
-        float fromEdge = 0.8f;
-        int squareSize = ySize - (int) (ySize * fromEdge);
-
-
-        gl.glViewport(0, (int) (ySize * fromEdge), squareSize, squareSize);
-
+    gl.glPushMatrix();
         gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
         gl.glLoadIdentity();
-        gl.glOrtho(-0.5, 0.5, -0.5, 0.5, -1, 2);
+        gl.glOrtho(-0.5, 0.5, -0.5, 0.5, -0.5, 0.5); //, maxSide, maxSide, maxSide, maxSide, maxSide);
         gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+        
+        drawCube(gl);
+    gl.glPopMatrix();
 
-        gl.glEnable(GL_DEPTH_TEST);
-        int count = getVertexCount();
-        gl.glDrawArrays(GL.GL_TRIANGLES, 0, count);
+    gl.glViewport(0, 0, xSize, ySize);
+  }
 
-        gl.glDisableClientState(GLPointerFunc.GL_NORMAL_ARRAY);
-        gl.glDisableClientState(GLPointerFunc.GL_VERTEX_ARRAY);
-        gl.glDisableClientState(GLPointerFunc.GL_COLOR_ARRAY);
+  private void drawCube(GL2 gl) {
+    // Six faces of cube
+    // Top face
+    gl.glPushMatrix();
+    gl.glRotatef(-90, 1, 0, 0);
+    gl.glRotatef(180, 0, 0, 1);
+    drawFace(gl, size, color, border, "Y+");
+    gl.glPopMatrix();
 
-        gl.glViewport(0, 0, xSize, ySize);
-    }
+    // Front face
+    drawFace(gl, size, color, border, "Z+");
 
-    @Override
-    public void reloadModel(GL2 gl, Position bottomLeft, Position topRight, double scaleFactor) {
-        generateBuffers(model);
-    }
+    // Right face
+    gl.glPushMatrix();
+    gl.glRotatef(90, 0, 1, 0);
+
+    gl.glPushMatrix();
+    gl.glRotatef(90, 0, 0, 1);
+    drawFace(gl, size, color, border, "X+");
+    gl.glPopMatrix();
+
+    // Back face    
+    gl.glRotatef(90, 0, 1, 0);
+    gl.glPushMatrix();
+    gl.glRotatef(180, 0, 0, 1);
+    drawFace(gl, size, color, border, "Z-");
+    gl.glPopMatrix();
+
+    // Left face    
+    gl.glRotatef(90, 0, 1, 0);
+    gl.glRotatef(-90, 0, 0, 1);
+    drawFace(gl, size, color, border, "X-");
+    gl.glPopMatrix();
+    // Bottom face
+    gl.glPushMatrix();
+    gl.glRotatef(90, 1, 0, 0);
+    drawFace(gl, size, color, border, "Y-");
+    gl.glPopMatrix();
+  }
+
+  private void drawFace(GL2 gl,
+                        float faceSize,
+                        float[] color,
+                        float[] border,
+                        String text) {
+    float halfFaceSize = faceSize / 2;
+    float borderSize = halfFaceSize * 0.8f;
+    float layer2 = halfFaceSize + 0.001f;
+    // Face is centered around the local coordinate system's z axis,
+    // at a z depth of faceSize / 2
+    gl.glColor3f(border[0], border[1], border[2]);
+    gl.glBegin(GL_QUADS);
+    gl.glVertex3f(-halfFaceSize, -halfFaceSize, halfFaceSize);
+    gl.glVertex3f( halfFaceSize, -halfFaceSize, halfFaceSize);
+    gl.glVertex3f( halfFaceSize,  halfFaceSize, halfFaceSize);
+    gl.glVertex3f(-halfFaceSize,  halfFaceSize, halfFaceSize);
+    gl.glEnd();
+
+    gl.glColor3f(color[0], color[1], color[2]);
+    gl.glBegin(GL_QUADS);
+    gl.glVertex3f(-borderSize, -borderSize, layer2);
+    gl.glVertex3f( borderSize, -borderSize, layer2);
+    gl.glVertex3f( borderSize,  borderSize, layer2);
+    gl.glVertex3f(-borderSize,  borderSize, layer2);
+    gl.glEnd();
+
+    // Now draw the overlaid text. In this setting, we don't want the
+    // text on the backward-facing faces to be visible, so we enable
+    // back-face culling; and since we're drawing the text over other
+    // geometry, to avoid z-fighting we disable the depth test. We
+    // could plausibly also use glPolygonOffset but this is simpler.
+    // Note that because the TextRenderer pushes the enable state
+    // internally we don't have to reset the depth test or cull face
+    // bits after we're done.
+    renderer.begin3DRendering();
+    gl.glDisable(GL_DEPTH_TEST);
+    gl.glEnable(GL_CULL_FACE);
+    // Note that the defaults for glCullFace and glFrontFace are
+    // GL_BACK and GL_CCW, which match the TextRenderer's definition
+    // of front-facing text.
+    Rectangle2D bounds = renderer.getBounds(text);
+    float w = (float) bounds.getWidth();
+    float h = (float) bounds.getHeight();
+    renderer.draw3D(text,
+                    w / -2.0f * textScaleFactor,
+                    h / -2.0f * textScaleFactor,
+                    layer2,
+                    textScaleFactor);
+    renderer.end3DRendering();
+    gl.glDisable(GL_CULL_FACE);
+    gl.glEnable(GL_DEPTH_TEST);
+  }
 }

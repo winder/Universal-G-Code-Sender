@@ -23,15 +23,6 @@
                         <publicPackage>com.willwinder.ugs.nbm.visualizer.shared</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbm.visualizer.options</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbm.visualizer.renderables</publicPackage>
-                        <publicPackage>org.apache.commons.io</publicPackage>
-                        <publicPackage>javax.xml.datatype</publicPackage>
-                        <publicPackage>org.w3c.dom</publicPackage>
-                        <publicPackage>org.w3c.dom.ls</publicPackage>
-                        <publicPackage>org.xml.sax</publicPackage>
-                        <publicPackage>javax.xml.parsers</publicPackage>
-                        <publicPackage>org.w3c.dom.bootstrap</publicPackage>
-                        <publicPackage>org.xml.sax.helpers</publicPackage>
-                        <publicPackage>com.jogamp.opengl</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
@@ -106,73 +97,6 @@
             <groupId>com.willwinder</groupId>
             <artifactId>ugs-platform-ugscore</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <!-- For creating Constructive Solid Geometry -->
-        <dependency>
-            <groupId>com.neuronrobotics</groupId>
-            <artifactId>JavaCad</artifactId>
-            <version>1.8.8</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.mihosoft.vvecmath</groupId>
-            <artifactId>vvecmath</artifactId>
-            <version>0.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-graphics</artifactId>
-            <version>17.0.8</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-base</artifactId>
-            <version>17.0.8</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>17.0.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>17.0.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-swing</artifactId>
-            <version>17.0.9</version>
-        </dependency>
-
-        <!-- For geometric operations -->
-        <dependency>
-            <groupId>org.locationtech.jts</groupId>
-            <artifactId>jts-core</artifactId>
-            <version>${jts.version}</version>
-        </dependency>
-
-        <!-- For reading SVG -->
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-all</artifactId>
-            <version>${batik.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.vecmath</groupId>
-            <artifactId>vecmath</artifactId>
-            <version>1.5.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${gson.version}</version>
         </dependency>
     </dependencies>
 </project>

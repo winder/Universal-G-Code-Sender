@@ -99,7 +99,7 @@ public class VisualizationPanel extends JPanel {
         }
 
         FPSAnimator animator = new FPSAnimator(p, 15);
-        this.rih = new RendererInputHandler(renderer, animator, backend, 4, 15);
+        this.rih = new RendererInputHandler(renderer, animator, backend);
 
         Preferences pref = NbPreferences.forModule(VisualizerOptionsPanel.class);
         pref.addPreferenceChangeListener(this.rih);
