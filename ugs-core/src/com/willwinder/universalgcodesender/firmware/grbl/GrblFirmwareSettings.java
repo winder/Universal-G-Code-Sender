@@ -375,7 +375,9 @@ public class GrblFirmwareSettings implements ICommunicatorListener, IFirmwareSet
     public int getMaxSpindleSpeed() throws FirmwareSettingsException {
         return getSetting(KEY_MAX_SPINDLE_SPEED)
                 .map(FirmwareSetting::getValue)
-                .map(Integer::valueOf)
+                .map(value -> value.replaceAll(",", "."))
+                .map(Double::valueOf)
+                .map(Double::intValue)
                 .orElse(0);
     }
 

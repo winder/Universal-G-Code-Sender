@@ -360,4 +360,19 @@ public class GrblFirmwareSettingsTest {
 
         assertEquals("7", target.getSetting("$3").get().getValue());
     }
+
+    @Test
+    public void getMaxSpindleSpeedShouldReturnIntegerValue() throws FirmwareSettingsException {
+        target.rawResponseListener("$30=1000.0");
+        assertEquals(1000, target.getMaxSpindleSpeed());
+
+        target.rawResponseListener("$30=1000");
+        assertEquals(1000, target.getMaxSpindleSpeed());
+
+        target.rawResponseListener("$30=1000,00");
+        assertEquals(1000, target.getMaxSpindleSpeed());
+
+        target.rawResponseListener("$30=1000.9");
+        assertEquals(1000, target.getMaxSpindleSpeed());
+    }
 }
