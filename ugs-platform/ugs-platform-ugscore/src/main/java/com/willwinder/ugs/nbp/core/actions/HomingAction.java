@@ -43,7 +43,7 @@ import java.awt.event.ActionEvent;
         id = LocalizingService.HomeActionId)
 @ActionRegistration(
         iconBase = HomingAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.HomeTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.HomeTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

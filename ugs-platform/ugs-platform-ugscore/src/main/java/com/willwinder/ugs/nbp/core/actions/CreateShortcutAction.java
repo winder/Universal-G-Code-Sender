@@ -22,7 +22,7 @@ import java.nio.file.Paths;
         category = LocalizingService.CATEGORY_TOOLS,
         id = "com.willwinder.ugs.nbp.core.actions.CreateShortcutAction")
 @ActionRegistration(
-        displayName = "resources.MessagesBundle#platform.action.createShortcut",
+        displayName = "resources/MessagesBundle#platform.action.createShortcut",
         lazy = false)
 @ActionReferences({
         @ActionReference(

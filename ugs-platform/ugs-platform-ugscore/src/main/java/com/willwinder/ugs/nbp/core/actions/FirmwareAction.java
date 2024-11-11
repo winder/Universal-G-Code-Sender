@@ -49,7 +49,7 @@ import org.openide.util.actions.CallableSystemAction;
 )
 @ActionRegistration(
         iconBase = FirmwareAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.ConnectionFirmwareToolbarTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.ConnectionFirmwareToolbarTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

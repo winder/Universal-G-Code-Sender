@@ -18,7 +18,7 @@ import java.awt.event.ActionEvent;
         id = LocalizingService.EditMacrosActionId)
 @ActionRegistration(
         iconBase = EditMacrosAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.EditMacrosTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.EditMacrosTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

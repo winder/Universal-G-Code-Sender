@@ -41,7 +41,7 @@ import java.awt.event.ActionEvent;
         id = LocalizingService.GetStateActionId)
 @ActionRegistration(
         iconBase = GetStateAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.GetStateTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.GetStateTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

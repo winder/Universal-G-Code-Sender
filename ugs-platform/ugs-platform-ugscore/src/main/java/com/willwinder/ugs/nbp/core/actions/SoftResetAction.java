@@ -43,7 +43,7 @@ import java.awt.event.ActionEvent;
         id = LocalizingService.SoftResetActionId)
 @ActionRegistration(
         iconBase = SoftResetAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.SoftResetTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.SoftResetTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

@@ -41,7 +41,7 @@ import java.awt.event.ActionEvent;
         id = LocalizingService.CheckModeActionId)
 @ActionRegistration(
         iconBase = CheckModeAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.CheckModeTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.CheckModeTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

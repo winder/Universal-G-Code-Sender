@@ -39,7 +39,7 @@ import java.io.File;
         id = LocalizingService.OpenActionId)
 @ActionRegistration(
         iconBase = OpenAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.OpenTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.OpenTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

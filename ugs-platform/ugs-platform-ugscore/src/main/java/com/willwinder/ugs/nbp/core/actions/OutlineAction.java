@@ -70,7 +70,7 @@ import java.util.logging.Logger;
         id = LocalizingService.OutlineActionId)
 @ActionRegistration(
         iconBase = OutlineAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.OutlineTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.OutlineTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

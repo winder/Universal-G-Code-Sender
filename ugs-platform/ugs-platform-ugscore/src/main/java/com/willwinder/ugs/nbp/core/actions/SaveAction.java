@@ -12,7 +12,7 @@ import org.openide.util.ImageUtilities;
         id = LocalizingService.SaveActionId)
 @ActionRegistration(
         iconBase = SaveAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.SaveTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.SaveTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

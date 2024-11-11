@@ -49,7 +49,7 @@ import java.awt.FlowLayout;
         id = LocalizingService.ConnectionBaudRateToolbarActionId)
 @ActionRegistration(
         iconBase = BaudRateAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.ConnectionBaudRateToolbarTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.ConnectionBaudRateToolbarTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

@@ -51,7 +51,7 @@ import java.util.logging.Logger;
         id = LocalizingService.ConnectDisconnectActionId)
 @ActionRegistration(
         iconBase = ConnectDisconnectAction.ICON_BASE_DISCONNECT,
-        displayName = "resources.MessagesBundle#" + LocalizingService.ConnectDisconnectActionTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.ConnectDisconnectActionTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

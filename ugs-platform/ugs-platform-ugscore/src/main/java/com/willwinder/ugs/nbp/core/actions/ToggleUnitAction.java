@@ -40,7 +40,7 @@ import java.awt.event.ActionEvent;
         id = LocalizingService.ToggleUnitActionId)
 @ActionRegistration(
         iconBase = UnlockAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.ToggleUnitTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.ToggleUnitTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(
