@@ -53,8 +53,7 @@ import java.util.Optional;
         category = LocalizingService.PendantCategory,
         id = LocalizingService.PendantActionId)
 @ActionRegistration(
-        //iconBase = PauseAction.ICON_BASE,
-        displayName = "Pendant", //resources.MessagesBundle#" + LocalizingService.PendantTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.PendantTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

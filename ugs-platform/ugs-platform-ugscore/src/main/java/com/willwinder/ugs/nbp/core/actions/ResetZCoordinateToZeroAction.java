@@ -41,7 +41,7 @@ import java.awt.event.ActionEvent;
         id = LocalizingService.ResetZZeroActionId)
 @ActionRegistration(
         iconBase = ResetZCoordinateToZeroAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.ResetZZeroTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.ResetZZeroTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

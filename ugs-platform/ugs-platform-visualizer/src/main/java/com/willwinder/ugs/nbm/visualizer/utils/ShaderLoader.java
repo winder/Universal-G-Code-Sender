@@ -108,6 +108,11 @@ public final class ShaderLoader {
             throw new GLException(log);
         }
 
+        // Explicitly bind the parameters locations
+        gl.glBindAttribLocation(program, 0, "gl_Position");
+        gl.glBindAttribLocation(program, 1, "gl_Normal");
+        gl.glBindAttribLocation(program, 3, "gl_Color");
+
         // Clean up the shaders
         gl.glDeleteShader(vertexShaderId);
         gl.glDeleteShader(fragmentShaderId);

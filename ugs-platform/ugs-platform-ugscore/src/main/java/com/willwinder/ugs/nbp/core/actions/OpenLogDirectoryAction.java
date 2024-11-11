@@ -20,7 +20,7 @@ import java.util.logging.Logger;
         category = LocalizingService.CATEGORY_TOOLS,
         id = "com.willwinder.ugs.nbp.core.actions.OpenLogDirectoryAction")
 @ActionRegistration(
-        displayName = "resources.MessagesBundle#platform.action.openLogDirectory",
+        displayName = "resources/MessagesBundle#platform.action.openLogDirectory",
         lazy = false)
 @ActionReferences({
         @ActionReference(

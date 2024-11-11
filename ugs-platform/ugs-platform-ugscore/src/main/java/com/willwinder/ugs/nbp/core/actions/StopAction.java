@@ -41,7 +41,7 @@ import java.awt.event.ActionEvent;
         id = LocalizingService.StopActionId)
 @ActionRegistration(
         iconBase = StopAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.StopTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.StopTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

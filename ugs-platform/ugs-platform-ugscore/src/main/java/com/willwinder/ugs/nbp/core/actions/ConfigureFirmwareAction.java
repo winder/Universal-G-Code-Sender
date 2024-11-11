@@ -37,7 +37,7 @@ import org.openide.util.ImageUtilities;
         id = LocalizingService.ConfigureFirmwareActionId)
 @ActionRegistration(
         iconBase = ConnectDisconnectAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.ConfigureFirmwareActionTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.ConfigureFirmwareActionTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

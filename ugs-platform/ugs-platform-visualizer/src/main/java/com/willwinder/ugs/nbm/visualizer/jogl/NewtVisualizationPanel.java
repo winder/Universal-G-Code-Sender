@@ -24,7 +24,7 @@ import com.jogamp.newt.awt.NewtCanvasAWT;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLException;
-import com.jogamp.opengl.util.Animator;
+import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.RendererInputHandler;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_NEWT_SAMPLES;
@@ -134,8 +134,8 @@ public class NewtVisualizationPanel extends JPanel {
         lock.lock();
         lock.unlock();
 
-        Animator animator = new Animator(glWindow);
-        this.rih = new RendererInputHandler(renderer, animator, backend);
+        FPSAnimator animator = new FPSAnimator(glWindow, 60);
+        this.rih = new RendererInputHandler(renderer, animator, backend, 30, 60);
 
         Preferences pref = NbPreferences.forModule(VisualizerOptionsPanel.class);
         pref.addPreferenceChangeListener(this.rih);

@@ -43,7 +43,7 @@ import java.awt.event.ActionEvent;
         id = LocalizingService.UnlockActionId)
 @ActionRegistration(
         iconBase = UnlockAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.UnlockTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.UnlockTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

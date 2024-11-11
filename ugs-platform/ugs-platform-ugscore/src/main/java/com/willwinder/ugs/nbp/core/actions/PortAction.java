@@ -51,7 +51,7 @@ import java.awt.FlowLayout;
         id = LocalizingService.ConnectionSerialPortToolbarActionId)
 @ActionRegistration(
         iconBase = PortAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.ConnectionSerialPortToolbarTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.ConnectionSerialPortToolbarTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

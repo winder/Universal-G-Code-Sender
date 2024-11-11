@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.willwinder</groupId>
@@ -23,6 +24,7 @@
                         <publicPackage>com.willwinder.ugs.nbm.visualizer.shared</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbm.visualizer.options</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbm.visualizer.renderables</publicPackage>
+                        <publicPackage>eu.mihosoft.vrl.v3d</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
@@ -97,6 +99,13 @@
             <groupId>com.willwinder</groupId>
             <artifactId>ugs-platform-ugscore</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- For creating Constructive Solid Geometry -->
+        <dependency>
+            <groupId>com.breiler.jcsg</groupId>
+            <artifactId>jcsg-core</artifactId>
+            <version>0.0.1</version>
         </dependency>
     </dependencies>
 </project>

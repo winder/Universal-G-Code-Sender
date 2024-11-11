@@ -42,7 +42,7 @@ import static com.willwinder.universalgcodesender.model.Axis.B;
         id = LocalizingService.ResetBZeroActionId)
 @ActionRegistration(
         iconBase = ResetBCoordinateToZeroAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.ResetBZeroTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.ResetBZeroTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

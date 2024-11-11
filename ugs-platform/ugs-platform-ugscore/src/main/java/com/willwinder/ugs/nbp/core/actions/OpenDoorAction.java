@@ -42,7 +42,7 @@ import java.awt.event.ActionEvent;
         id = LocalizingService.OpenDoorActionId)
 @ActionRegistration(
         iconBase = OpenDoorAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.OpenDoorTitleKey,
+        displayName = "resources/MessagesBundle#" + LocalizingService.OpenDoorTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(
