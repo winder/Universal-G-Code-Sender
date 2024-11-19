@@ -12,6 +12,7 @@ import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiPoint;
 
 import java.awt.geom.Area;
 import java.util.List;
@@ -62,6 +63,12 @@ public class LaserFillToolPath extends AbstractToolPath {
 
     private static void addLineIntersectionSegments(GcodePath gcodePath, Geometry geometry, LineString lineString, boolean reverse) {
         Geometry intersection = geometry.intersection(lineString);
+
+        // If the intersection is a multipoint we should not connect the points with a line
+        if (intersection instanceof MultiPoint) {
+            return;
+        }
+
         List<PartialPosition> geometryCoordinates = ToolPathUtils.geometryToCoordinates(intersection);
         List<PartialPosition> partialPosition = geometryCoordinates.stream()
                 .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).build()).toList();
