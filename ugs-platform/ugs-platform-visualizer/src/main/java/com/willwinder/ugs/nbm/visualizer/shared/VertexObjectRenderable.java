@@ -2,11 +2,13 @@ package com.willwinder.ugs.nbm.visualizer.shared;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.util.GLBuffers;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shader.Shader;
 import com.willwinder.ugs.nbm.visualizer.utils.RenderableUtils;
 import com.willwinder.universalgcodesender.model.Position;
 
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,11 +27,17 @@ public abstract class VertexObjectRenderable extends Renderable {
     private Position objectMax = Position.ZERO;
     private Shader shader;
 
+    private interface Buffer {
+        int VERTEX = 0;
+        int NORMAL = 1;
+        int COLOR = 2;
+        int MAX = 3;
+    }
+
+    private IntBuffer bufferName = GLBuffers.newDirectIntBuffer(Buffer.MAX);
+
+
     private boolean reloadModel;
-    private int vertexObjectId;
-    private int vertexBufferId;
-    private int colorBufferId;
-    private int normalBufferId;
 
 
     protected double getStepSize() {
@@ -71,7 +79,7 @@ public abstract class VertexObjectRenderable extends Renderable {
     }
 
     protected int getVertexCount() {
-        return vertexList.size();
+        return vertexList.size() / 3;
     }
 
     @Override
@@ -84,7 +92,10 @@ public abstract class VertexObjectRenderable extends Renderable {
 
     @Override
     public void init(GLAutoDrawable drawable) {
-        shader.init(drawable.getGL().getGL2());
+        GL2 gl = drawable.getGL().getGL2();
+        gl.glGenBuffers(Buffer.MAX, bufferName);
+        shader.init(gl);
+        checkGLError(gl);
     }
 
     private double padMinMaxPoint(double stepSize, double point, boolean negativeDirection) {
@@ -97,7 +108,7 @@ public abstract class VertexObjectRenderable extends Renderable {
 
     @Override
     public final void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
-        GL2 gl = (GL2) drawable.getGL();
+        GL2 gl = drawable.getGL().getGL2();
 
         double newStepSize = RenderableUtils.getStepSize(scaleFactor);
         if (!this.objectMin.equals(objectMin) || !this.objectMax.equals(objectMax) || reloadModel || this.stepSize != newStepSize) {
@@ -120,23 +131,51 @@ public abstract class VertexObjectRenderable extends Renderable {
 
         // Use the shader program
         gl.glUseProgram(shader.getProgramId());
+        checkGLError(gl);
 
-        // Bind the VAO containing the vertex data
-        gl.glBindVertexArray(vertexObjectId);
+        int positionAttribute = gl.glGetAttribLocation(shader.getProgramId(), "position");
+        gl.glEnableVertexAttribArray(positionAttribute);
+        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferName.get(Buffer.VERTEX));
+        gl.glVertexAttribPointer(positionAttribute, 3, GL2.GL_FLOAT, false, 0, 0);
+        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
+        checkGLError(gl);
+
+        int colorAttribute = gl.glGetAttribLocation(shader.getProgramId(), "color");
+        gl.glEnableVertexAttribArray(colorAttribute);
+        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferName.get(Buffer.COLOR));
+        gl.glVertexAttribPointer(colorAttribute, 4, GL2.GL_FLOAT, false, 0, 0);
+        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
+        checkGLError(gl);
+
         render(drawable);
 
-        // Unbind the VAO
-        gl.glBindVertexArray(0);
+        // Disable the attribute after drawing
+        gl.glDisableVertexAttribArray(positionAttribute);
+        gl.glDisableVertexAttribArray(colorAttribute);
+        checkGLError(gl);
+
         gl.glUseProgram(0);
+        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
+        checkGLError(gl);
     }
 
+    private void checkGLError(GL2 gl) {
+        int error = gl.glGetError();
+        if (error != GL2.GL_NO_ERROR) {
+            throw new RuntimeException("GL error: " + error);
+        }
+    }
 
     private void updateBuffers(GL2 gl) {
-        gl.glDeleteBuffers(2, new int[]{vertexBufferId, colorBufferId, normalBufferId}, 0);
-        vertexObjectId = bindVertexObject(gl);
-        vertexBufferId = bindVertexBuffer(gl, vertexList, shader.getShaderVertexIndex());
-        colorBufferId = bindColorBuffer(gl, colorList, shader.getShaderColorIndex());
-        normalBufferId = bindNormalBuffer(gl, normalList, shader.getShaderNormalIndex());
+        gl.glDeleteBuffers(3, new int[]{
+                        bufferName.get(Buffer.VERTEX),
+                        bufferName.get(Buffer.COLOR),
+                        bufferName.get(Buffer.NORMAL)},
+                0);
+
+        bindVertexBuffer(gl, bufferName.get(Buffer.VERTEX), vertexList);
+        bindVertexBuffer(gl, bufferName.get(Buffer.COLOR), colorList);
+        bindVertexBuffer(gl, bufferName.get(Buffer.NORMAL), normalList);
     }
 
     /**

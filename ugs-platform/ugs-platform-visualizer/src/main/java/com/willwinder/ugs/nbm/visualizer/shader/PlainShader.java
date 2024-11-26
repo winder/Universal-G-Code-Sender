@@ -59,28 +59,9 @@ public class PlainShader implements Shader {
             }
 
             shaderProgramId = ShaderLoader.loadProgram(gl, IOUtils.toString(vertexShaderInputStream, StandardCharsets.UTF_8), IOUtils.toString(fragmentShaderInputStream, StandardCharsets.UTF_8));
-
-            gl.glBindAttribLocation(shaderProgramId, 0, "vertexPosition");
-            gl.glBindAttribLocation(shaderProgramId, 1, "vertexNormal");
-            gl.glBindAttribLocation(shaderProgramId, 2, "vertexColor");
         } catch (IOException e) {
             throw new GLException(e);
         }
-    }
-
-    @Override
-    public int getShaderVertexIndex() {
-        return 0;
-    }
-
-    @Override
-    public int getShaderNormalIndex() {
-        return 1;
-    }
-
-    @Override
-    public int getShaderColorIndex() {
-        return 3;
     }
 
     public void dispose(GL2 gl) {
