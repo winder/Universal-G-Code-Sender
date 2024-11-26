@@ -7,6 +7,7 @@
 [![Crowdin](https://badges.crowdin.net/universalgcodesender/localized.svg)](https://translate.universalgcodesender.com/project/universalgcodesender)
 [![Downloads](https://img.shields.io/github/downloads/winder/universal-g-code-sender/total?label=downloads)](https://github.com/winder/Universal-G-Code-Sender#downloads)
 [![Releases](https://img.shields.io/github/v/release/winder/Universal-G-Code-Sender)](https://github.com/winder/Universal-G-Code-Sender/releases)
+[![Discord](https://img.shields.io/discord/1257702590137897072?label=discord%20chat)](https://discord.gg/4DYywtyGYK)
 
 Universal G-Code Sender is a Java based, cross platform G-Code sender, compatible with [GRBL](https://github.com/gnea/grbl/), [TinyG](https://github.com/synthetos/TinyG), [g2core](https://github.com/synthetos/g2) and [Smoothieware](http://smoothieware.org/).
 
