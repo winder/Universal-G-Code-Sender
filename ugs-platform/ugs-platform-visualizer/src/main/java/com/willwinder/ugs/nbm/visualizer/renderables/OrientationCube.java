@@ -23,7 +23,6 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
-import com.jogamp.opengl.fixedfunc.GLPointerFunc;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shader.PlainShader;
 import com.willwinder.ugs.nbm.visualizer.shared.VertexObjectRenderable;
@@ -114,6 +113,7 @@ public class OrientationCube extends VertexObjectRenderable {
     }
 
     private void generateBuffers(CSG csg) {
+        clear();
         List<Polygon> polygons = csg.triangulate().getPolygons();
 
         for (Polygon polygon : polygons) {
@@ -126,11 +126,15 @@ public class OrientationCube extends VertexObjectRenderable {
             Vector3d normal = b.minus(a).cross(c.minus(a)).normalized();
 
             polygon.getPoints().forEach(point -> {
-                addVertex(point.getX(), point.getY(), point.getZ());
-                addNormal(normal.getX(), normal.getY(), normal.getZ());
-                addColor(colorArray);
+                addPoint(point, normal, colorArray);
             });
         }
+    }
+
+    private void addPoint(Vector3d point, Vector3d normal, float[] colorArray) {
+        addVertex(point.getX(), point.getY(), point.getZ());
+        addNormal(normal.getX(), normal.getY(), normal.getZ());
+        addColor(colorArray);
     }
 
     @Override
@@ -154,10 +158,6 @@ public class OrientationCube extends VertexObjectRenderable {
         gl.glEnable(GL_DEPTH_TEST);
         int count = getVertexCount();
         gl.glDrawArrays(GL.GL_TRIANGLES, 0, count);
-
-        gl.glDisableClientState(GLPointerFunc.GL_NORMAL_ARRAY);
-        gl.glDisableClientState(GLPointerFunc.GL_VERTEX_ARRAY);
-        gl.glDisableClientState(GLPointerFunc.GL_COLOR_ARRAY);
 
         gl.glViewport(0, 0, xSize, ySize);
     }

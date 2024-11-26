@@ -18,90 +18,21 @@
  */
 package com.willwinder.ugs.nbm.visualizer.utils;
 
-import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.nio.FloatBuffer;
 import java.util.List;
 
 public class RenderableUtils {
-    /**
-     * Generates and binds a color buffer
-     *
-     * @param gl                the GL context to use
-     * @param colorList         a list of float values containing the color RGBA values
-     * @param vertexBufferIndex the parameter index of the shader to bind to
-     * @return the id of the color buffer to be reference to when rendering
-     */
-    public static int bindColorBuffer(GL2 gl, List<Float> colorList, int vertexBufferIndex) {
-        // Create and upload the Color Buffer Object (CBO) for colors
-        int[] cbo = new int[1];
-        gl.glGenBuffers(1, cbo, 0);
 
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, cbo[0]);
-
-        // Upload vertex colors to the GPU
-        FloatBuffer colorBuffer = Buffers.newDirectFloatBuffer(ArrayUtils.toPrimitive(colorList.toArray(new Float[0])));
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, colorBuffer.capacity() * Float.BYTES, colorBuffer, GL.GL_STATIC_DRAW);
-
-        // Specify vertex attribute layout (index 1 for color)
-        gl.glEnableVertexAttribArray(vertexBufferIndex);
-        gl.glVertexAttribPointer(vertexBufferIndex, 4, GL.GL_FLOAT, false, 4 * Float.BYTES, 0);
-
-        return cbo[0];
-    }
-
-    /**
-     * Generates and binds a color buffer
-     *
-     * @param gl                the GL context to use
-     * @param normalList        a list of float values containing the vertex normal
-     * @param normalBufferIndex the parameter index of the shader to bind to
-     * @return the id of the color buffer to be reference to when rendering
-     */
-    public static int bindNormalBuffer(GL2 gl, List<Float> normalList, int normalBufferIndex) {
-        // Create and upload the Normal Buffer Object (NBO) for colors
-        int[] nbo = new int[1];
-        gl.glGenBuffers(1, nbo, 0);
-
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, nbo[0]);
-
-        // Upload vertex colors to the GPU
-        FloatBuffer normalBuffer = Buffers.newDirectFloatBuffer(ArrayUtils.toPrimitive(normalList.toArray(new Float[0])));
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, normalBuffer.capacity() * Float.BYTES, normalBuffer, GL.GL_STATIC_DRAW);
-
-        // Specify vertex attribute layout (index 1 for color)
-        gl.glEnableVertexAttribArray(normalBufferIndex);
-        gl.glVertexAttribPointer(normalBufferIndex, 4, GL.GL_FLOAT, false, 4 * Float.BYTES, 0);
-
-        return nbo[0];
-    }
-
-
-    public static int bindVertexBuffer(GL2 gl, List<Float> vertexList, int positionIndex) {
-        // Create a Vertex Buffer Object (VBO)
-        int[] vbo = new int[1];
-        gl.glGenBuffers(1, vbo, 0);
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo[0]);
+    public static void bindVertexBuffer(GL gl, int vertexBufferId, List<Float> vertexList) {
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBufferId);
 
         // Send vertex data to the GPU
-        FloatBuffer vertexBuffer = Buffers.newDirectFloatBuffer(ArrayUtils.toPrimitive(vertexList.toArray(new Float[0])));
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL.GL_STATIC_DRAW);
-
-        // Specify the layout of the vertex data
-        gl.glEnableVertexAttribArray(positionIndex);
-        gl.glVertexAttribPointer(positionIndex, 3, GL.GL_FLOAT, false, 3 * Float.BYTES, 0);
-
-        return vbo[0];
-    }
-
-    public static int bindVertexObject(GL2 gl) {
-        int[] vao = new int[1];
-        gl.glGenVertexArrays(1, vao, 0);
-        gl.glBindVertexArray(vao[0]);
-        return vao[0];
+        float[] floatArray = ArrayUtils.toPrimitive(vertexList.toArray(new Float[0]));
+        gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) floatArray.length * Float.BYTES, FloatBuffer.wrap(floatArray), GL.GL_DYNAMIC_DRAW);
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
     }
 
     public static void addColor(List<Float> colorList, float[] color) {
