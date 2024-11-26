@@ -16,8 +16,6 @@ import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
-import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
-import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
 import com.willwinder.universalgcodesender.utils.SemanticVersion;
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,6 +23,9 @@ import java.text.ParseException;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
 
 public class FluidNCUtils {
     public static final double GRBL_COMPABILITY_VERSION = 1.1d;
@@ -173,6 +174,11 @@ public class FluidNCUtils {
         GetStatusCommand statusCommand = FluidNCUtils.queryForStatusReport(controller, messageService);
         if (!statusCommand.isDone() || statusCommand.isError()) {
             throw new IllegalStateException("Could not query the device status");
+        }
+
+        // The controller is in a locked DOOR state and needs to be reset
+        if (statusCommand.getControllerStatus().getState() == ControllerState.DOOR) {
+            return false;
         }
 
         // The controller is not up and running properly

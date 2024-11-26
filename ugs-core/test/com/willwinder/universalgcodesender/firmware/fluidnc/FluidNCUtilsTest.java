@@ -139,7 +139,7 @@ public class FluidNCUtilsTest {
     }
 
     @Test
-    public void isControllerResponsiveWhenControllerHold() throws Exception {
+    public void isControllerResponsiveWhenControllerInStateHold() throws Exception {
         IController controller = mock(IController.class);
         when(controller.isCommOpen()).thenReturn(true);
         MessageService messageService = mock(MessageService.class);
@@ -159,6 +159,20 @@ public class FluidNCUtilsTest {
         }).when(controller).sendCommandImmediately(ArgumentMatchers.argThat(command -> command.getCommandString().equals("")));
 
         assertTrue(FluidNCUtils.isControllerResponsive(controller, messageService));
+    }
+
+    @Test
+    public void isControllerResponsiveWhenControllerInStateDoor() throws Exception {
+        IController controller = mock(IController.class);
+        when(controller.isCommOpen()).thenReturn(true);
+        MessageService messageService = mock(MessageService.class);
+        // Respond with status hold
+        doAnswer(answer -> {
+            GcodeCommand command = answer.getArgument(0, GcodeCommand.class);
+            command.appendResponse("<Door:0>");
+            return null;
+        }).when(controller).sendCommandImmediately(any(GetStatusCommand.class));
+        assertFalse(FluidNCUtils.isControllerResponsive(controller, messageService));
     }
 
     @Test

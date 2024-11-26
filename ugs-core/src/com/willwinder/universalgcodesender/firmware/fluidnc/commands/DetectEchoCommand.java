@@ -18,14 +18,12 @@
  */
 package com.willwinder.universalgcodesender.firmware.fluidnc.commands;
 
-import com.willwinder.universalgcodesender.types.GcodeCommand;
-
 /**
  * A command for detecting if echo mode is activated on the controller
  *
  * @author Joacim Breiler
  */
-public class DetectEchoCommand extends GcodeCommand {
+public class DetectEchoCommand extends SystemCommand {
     public DetectEchoCommand() {
         super("");
     }
