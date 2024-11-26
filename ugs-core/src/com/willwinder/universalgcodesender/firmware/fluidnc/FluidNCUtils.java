@@ -176,16 +176,13 @@ public class FluidNCUtils {
             throw new IllegalStateException("Could not query the device status");
         }
 
-        // The controller is in a locked DOOR state and needs to be reset
-        if (statusCommand.getControllerStatus().getState() == ControllerState.DOOR) {
-            return false;
-        }
-
         // The controller is not up and running properly
-        if (statusCommand.getControllerStatus().getState() == ControllerState.HOLD || statusCommand.getControllerStatus().getState() == ControllerState.ALARM) {
+        if (statusCommand.getControllerStatus().getState() == ControllerState.HOLD || statusCommand.getControllerStatus().getState() == ControllerState.DOOR || statusCommand.getControllerStatus().getState() == ControllerState.ALARM) {
             try {
                 // Figure out if it is still responsive even if it is in HOLD or ALARM state
-                sendAndWaitForCompletion(controller, new SystemCommand(""));
+                // We can do this
+                SystemCommand systemCommand = sendAndWaitForCompletion(controller, new SystemCommand("$I"));
+                return systemCommand.isOk();
             } catch (Exception e) {
                 return false;
             }

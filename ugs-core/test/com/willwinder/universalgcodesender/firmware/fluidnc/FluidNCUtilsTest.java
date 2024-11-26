@@ -151,12 +151,11 @@ public class FluidNCUtilsTest {
             return null;
         }).when(controller).sendCommandImmediately(any(GetStatusCommand.class));
 
-        // Responds with ok on empty system command
         doAnswer(answer -> {
             GcodeCommand command = answer.getArgument(0, GcodeCommand.class);
             command.appendResponse("ok");
             return null;
-        }).when(controller).sendCommandImmediately(ArgumentMatchers.argThat(command -> command.getCommandString().equals("")));
+        }).when(controller).sendCommandImmediately(ArgumentMatchers.argThat(command -> command.getCommandString().equals("$I")));
 
         assertTrue(FluidNCUtils.isControllerResponsive(controller, messageService));
     }
@@ -172,6 +171,13 @@ public class FluidNCUtilsTest {
             command.appendResponse("<Door:0>");
             return null;
         }).when(controller).sendCommandImmediately(any(GetStatusCommand.class));
+
+        doAnswer(answer -> {
+            GcodeCommand command = answer.getArgument(0, GcodeCommand.class);
+            command.appendResponse("error:8");
+            return null;
+        }).when(controller).sendCommandImmediately(ArgumentMatchers.argThat(command -> command.getCommandString().equals("$I")));
+
         assertFalse(FluidNCUtils.isControllerResponsive(controller, messageService));
     }
 
@@ -188,14 +194,35 @@ public class FluidNCUtilsTest {
             return null;
         }).when(controller).sendCommandImmediately(any(GetStatusCommand.class));
 
-        // Responds with ok on empty system command
         doAnswer(answer -> {
             GcodeCommand command = answer.getArgument(0, GcodeCommand.class);
             command.appendResponse("ok");
             return null;
-        }).when(controller).sendCommandImmediately(ArgumentMatchers.argThat(command -> command.getCommandString().equals("")));
+        }).when(controller).sendCommandImmediately(ArgumentMatchers.argThat(command -> command.getCommandString().equals("$I")));
 
         assertTrue(FluidNCUtils.isControllerResponsive(controller, messageService));
+    }
+
+    @Test
+    public void isControllerResponsiveWhenControllerInLockedAlarm() throws Exception {
+        IController controller = mock(IController.class);
+        when(controller.isCommOpen()).thenReturn(true);
+        MessageService messageService = mock(MessageService.class);
+
+        // Respond with status hold
+        doAnswer(answer -> {
+            GcodeCommand command = answer.getArgument(0, GcodeCommand.class);
+            command.appendResponse("<Alarm>");
+            return null;
+        }).when(controller).sendCommandImmediately(any(GetStatusCommand.class));
+
+        doAnswer(answer -> {
+            GcodeCommand command = answer.getArgument(0, GcodeCommand.class);
+            command.appendResponse("error:8");
+            return null;
+        }).when(controller).sendCommandImmediately(ArgumentMatchers.argThat(command -> command.getCommandString().equals("$I")));
+
+        assertFalse(FluidNCUtils.isControllerResponsive(controller, messageService));
     }
 
     @Test
