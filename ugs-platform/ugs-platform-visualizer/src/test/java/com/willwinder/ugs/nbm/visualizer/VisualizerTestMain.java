@@ -39,7 +39,7 @@ public class VisualizerTestMain extends JFrame {
     private void start() throws Exception {
         setPreferredSize(new Dimension(1024, 768));
         setLayout(new BorderLayout());
-        VisualizerOptions.setBooleanOption(VisualizerOptions.VISUALIZER_OPTION_NEWT, true);
+        VisualizerOptions.setBooleanOption(VisualizerOptions.VISUALIZER_OPTION_LEGACY, false);
         Visualizer2TopComponent visualizer = new Visualizer2TopComponent();
         add(visualizer, BorderLayout.CENTER);
         visualizer.componentOpened();

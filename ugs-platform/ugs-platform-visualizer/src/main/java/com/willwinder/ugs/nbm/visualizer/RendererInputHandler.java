@@ -36,7 +36,6 @@ import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
-import org.apache.commons.lang3.SystemUtils;
 
 import javax.swing.SwingUtilities;
 import java.awt.GraphicsConfiguration;
@@ -101,9 +100,6 @@ public class RendererInputHandler implements
      * @return a screen pixel coordinate
      */
     private static Point getScreenPoint(int x, int y) {
-        if (!SystemUtils.IS_OS_WINDOWS) {
-            return new Point(x, y);
-        }
         GraphicsConfiguration graphicsConfiguration = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
         AffineTransform defaultTransform = graphicsConfiguration.getDefaultTransform();
         return new Point((int) Math.round(x * defaultTransform.getScaleX()), (int) Math.round(y * defaultTransform.getScaleY()));

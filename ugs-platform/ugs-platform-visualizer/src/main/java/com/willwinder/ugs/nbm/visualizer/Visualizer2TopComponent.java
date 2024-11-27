@@ -22,7 +22,6 @@ import com.willwinder.ugs.nbm.visualizer.jogl.NewtVisualizationPanel;
 import com.willwinder.ugs.nbm.visualizer.jogl.VisualizationPanel;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +36,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 
 /**
  * Setup JOGL canvas, GcodeRenderer and RendererInputHandler.
@@ -89,10 +90,10 @@ public final class Visualizer2TopComponent extends TopComponent {
         JPanel borderedPanel = new JPanel();
         borderedPanel.setLayout(new BorderLayout());
         borderedPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
-        if (VisualizerOptions.getBooleanOption(VisualizerOptions.VISUALIZER_OPTION_NEWT, false)) {
-            borderedPanel.add(new NewtVisualizationPanel(), BorderLayout.CENTER);
-        } else {
+        if (VisualizerOptions.getBooleanOption(VisualizerOptions.VISUALIZER_OPTION_LEGACY, false)) {
             borderedPanel.add(new VisualizationPanel(), BorderLayout.CENTER);
+        } else {
+            borderedPanel.add(new NewtVisualizationPanel(), BorderLayout.CENTER);
         }
         add(borderedPanel, BorderLayout.CENTER);
     }
