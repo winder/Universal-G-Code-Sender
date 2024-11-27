@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2023 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -220,9 +220,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
      */
     private void updateControls() {
         if (!backend.isConnected()) {
-            axisPanels.entrySet().forEach(entry -> {
-                entry.getValue().setEnabled(false);
-                entry.getValue().setVisible(entry.getKey().isLinear());
+            axisPanels.forEach((key, value) -> {
+                value.setEnabled(false);
+                value.setVisible(key.isLinear());
             });
 
             // Clear out the status color.
@@ -323,15 +323,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
         activeStatePanel.setBackground(Utils.getControllerStateBackgroundColor(state));
         activeStateValueLabel.setForeground(Utils.getControllerStateForegroundColor(state));
         activeStateValueLabel.setText(text.toUpperCase());
-    }
-
-    @Override
-    public void onResetClick(JComponent component, Axis axis) {
-        try {
-            backend.resetCoordinateToZero(axis);
-        } catch (Exception e) {
-            LOGGER.warning(String.format("Could not reset work position on axis '%s'", axis));
-        }
     }
 
     @Override

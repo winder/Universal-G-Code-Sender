@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2018 Will Winder
+    Copyright 2015-2024 Will Winder
 
 
     This file is part of Universal Gcode Sender (UGS).
@@ -51,13 +51,13 @@ import java.awt.event.ActionEvent;
                 position = 982),
         @ActionReference(
                 path = LocalizingService.SoftResetWindowPath,
-                position = 1030)
+                position = 1028)
 })
 public final class SoftResetAction extends AbstractAction implements UGSEventListener {
 
     public static final String ICON_BASE = "resources/icons/reset.svg";
 
-    private BackendAPI backend;
+    private final BackendAPI backend;
 
     public SoftResetAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);

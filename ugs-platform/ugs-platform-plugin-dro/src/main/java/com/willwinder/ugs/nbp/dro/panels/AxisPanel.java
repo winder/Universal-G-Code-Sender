@@ -1,5 +1,5 @@
 /*
-    Copyright 2020-2023 Will Winder
+    Copyright 2020-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,6 +18,12 @@
  */
 package com.willwinder.ugs.nbp.dro.panels;
 
+import com.willwinder.ugs.nbp.core.actions.ResetACoordinateToZeroAction;
+import com.willwinder.ugs.nbp.core.actions.ResetBCoordinateToZeroAction;
+import com.willwinder.ugs.nbp.core.actions.ResetCCoordinateToZeroAction;
+import com.willwinder.ugs.nbp.core.actions.ResetXCoordinateToZeroAction;
+import com.willwinder.ugs.nbp.core.actions.ResetYCoordinateToZeroAction;
+import com.willwinder.ugs.nbp.core.actions.ResetZCoordinateToZeroAction;
 import com.willwinder.ugs.nbp.dro.FontManager;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
@@ -26,8 +32,10 @@ import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 
+import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
+import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,19 +49,15 @@ public class AxisPanel extends JPanel {
     public static final int HIGHLIGHT_TIME = 300;
     private final CoordinateLabel work = new CoordinateLabel(0.0);
     private final CoordinateLabel machine = new CoordinateLabel(0.0);
-    private final RoundedPanel resetButton;
     private final Set<AxisPanelListener> axisPanelListenerList = new HashSet<>();
     private transient ScheduledFuture<?> highlightLabelsFuture;
 
     public AxisPanel(Axis axis, FontManager fontManager) {
-        super(new BorderLayout());
+        super(new MigLayout("fill, inset 0", "[50]5[grow, fill]"));
         RoundedPanel axisPanel = new RoundedPanel(RADIUS);
         axisPanel.setBackground(ThemeColors.VERY_DARK_GREY);
         axisPanel.setForeground(ThemeColors.LIGHT_BLUE);
-        axisPanel.setLayout(new MigLayout("fillx, wrap 2, inset 4 6 4 6, gap 0", "[left][grow, right]"));
-
-        resetButton = new AxisResetButton(axis, fontManager);
-        resetButton.addClickListener(() -> axisPanelListenerList.forEach(axisPanelListener -> axisPanelListener.onResetClick(resetButton, axis)));
+        axisPanel.setLayout(new MigLayout("fillx, inset 4 6 4 6, gap 0", "[grow, right]"));
 
         work.addMouseListener(new MouseClickListener() {
             @Override
@@ -62,14 +66,34 @@ public class AxisPanel extends JPanel {
             }
         });
 
-        axisPanel.add(resetButton, "sy 2");
-        axisPanel.add(work, "grow, gapleft 5");
+        axisPanel.add(work, "grow, gapleft 5, wrap");
         axisPanel.add(machine, "span 2");
 
         fontManager.addWorkCoordinateLabel(work);
         fontManager.addMachineCoordinateLabel(machine);
 
-        add(axisPanel, BorderLayout.CENTER);
+        JButton resetButton = new JButton(createAction(axis));
+        resetButton.setMargin(new Insets(0, 0, 0, 0));
+        resetButton.setText("");
+        add(resetButton, "grow");
+        add(axisPanel);
+    }
+
+    private static Action createAction(Axis axis) {
+        return switch (axis) {
+            case X:
+                yield new ResetXCoordinateToZeroAction();
+            case Y:
+                yield new ResetYCoordinateToZeroAction();
+            case Z:
+                yield new ResetZCoordinateToZeroAction();
+            case A:
+                yield new ResetACoordinateToZeroAction();
+            case B:
+                yield new ResetBCoordinateToZeroAction();
+            case C:
+                yield new ResetCCoordinateToZeroAction();
+        };
     }
 
     public void addListener(AxisPanelListener axisPanelListener) {
@@ -110,7 +134,6 @@ public class AxisPanel extends JPanel {
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        resetButton.setEnabled(enabled);
         work.setEnabled(enabled);
         machine.setEnabled(enabled);
     }

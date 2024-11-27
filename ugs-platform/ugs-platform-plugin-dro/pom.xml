@@ -32,6 +32,12 @@
             <type>jar</type>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ugs-platform-ugscore</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
             <groupId>com.willwinder.universalgcodesender</groupId>
             <artifactId>ugs-core</artifactId>
             <version>${project.version}</version>

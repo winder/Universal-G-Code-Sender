@@ -1,5 +1,5 @@
 /*
-    Copyright 2018-2021 Will Winder
+    Copyright 2018-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -46,13 +46,14 @@ import java.awt.event.ActionEvent;
 @ActionReferences({
         @ActionReference(
                 path = LocalizingService.ResetYZeroWindowPath,
-                position = 1030)
+                position = 1034)
 })
 public final class ResetYCoordinateToZeroAction extends AbstractAction implements UGSEventListener {
 
     public static final String ICON_BASE = "resources/icons/resetzero_y.svg";
+    public static final String LARGE_ICON_PATH = "resources/icons/resetzero_y24.svg";
 
-    private BackendAPI backend;
+    private final BackendAPI backend;
 
     public ResetYCoordinateToZeroAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -60,8 +61,10 @@ public final class ResetYCoordinateToZeroAction extends AbstractAction implement
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
+        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
         putValue("menuText", LocalizingService.ResetYZeroTitle);
         putValue(NAME, LocalizingService.ResetYZeroTitle);
+        putValue(SHORT_DESCRIPTION, LocalizingService.ResetYZeroTitle);
         setEnabled(isEnabled());
     }
 

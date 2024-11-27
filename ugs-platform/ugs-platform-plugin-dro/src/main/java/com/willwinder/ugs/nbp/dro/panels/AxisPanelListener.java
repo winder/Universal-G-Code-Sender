@@ -1,5 +1,5 @@
 /*
-    Copyright 2020-2023 Will Winder
+    Copyright 2020-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,14 +23,6 @@ import com.willwinder.universalgcodesender.model.Axis;
 import javax.swing.JComponent;
 
 public interface AxisPanelListener {
-    /**
-     * When the reset click button is pressed
-     *
-     * @param component - the button component being pressed
-     * @param axis      - the axis that should be reset
-     */
-    void onResetClick(JComponent component, Axis axis);
-
     /**
      * When the work position is being clicked
      *
