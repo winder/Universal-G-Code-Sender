@@ -33,6 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -98,7 +99,8 @@ public class RecentWorkTab extends AbstractTab {
     }
 
     private JLinkButton createOpenDirectoryButton(String directory) {
-        JLinkButton button = new JLinkButton(directory);
+        File file = new File(directory);
+        JLinkButton button = new JLinkButton(file.getName());
         button.setToolTipText(directory);
         button.setBorder(BorderFactory.createEmptyBorder(4, 0, 4, 0));
         if (isDarkLaF()) {

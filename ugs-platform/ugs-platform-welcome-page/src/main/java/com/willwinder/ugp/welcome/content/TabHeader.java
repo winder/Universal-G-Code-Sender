@@ -2,35 +2,22 @@ package com.willwinder.ugp.welcome.content;
 
 import com.willwinder.ugp.welcome.Constants;
 import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
-import org.openide.util.ImageUtilities;
+import net.miginfocom.swing.MigLayout;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
-
-import static com.willwinder.ugp.welcome.Constants.IMAGE_LOGO;
 
 public class TabHeader extends JPanel implements SteppedSizeManager.SteppedSizeChangeListener {
 
     private final ShowNextTime showNextTime = new ShowNextTime();
-    private final JPanel appLogo;
 
     public TabHeader(TabButton... buttons) {
         super();
         setOpaque(true);
-        setLayout(new GridBagLayout());
+        setLayout(new MigLayout("fill, insets 0, height 50"));
         setBackground(Constants.COLOR_HEADER_BACKGROUND);
-
-        appLogo = new JPanel(new BorderLayout());
-        appLogo.add(new JLabel(new ImageIcon(ImageUtilities.loadImage(IMAGE_LOGO, true))));
-        appLogo.setOpaque(false);
 
         JPanel panelButtons = new JPanel(new GridLayout(1, 0));
         panelButtons.setOpaque(false);
@@ -40,11 +27,8 @@ public class TabHeader extends JPanel implements SteppedSizeManager.SteppedSizeC
             panelButtons.add(btn);
         }
 
-        add(appLogo, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 20, 8, 20), 0, 0));
-        add(new JLabel(), new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-        add(panelButtons, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
-        add(new JLabel(), new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-        add(showNextTime, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(15, 12, 15, 12), 0, 0));
+        add(panelButtons, "growy, align left");
+        add(showNextTime, "align right, gapright 8");
 
         SteppedSizeManager steppedSizeManager = new SteppedSizeManager(this, new Dimension(720, 0));
         steppedSizeManager.addListener(this);
@@ -58,7 +42,5 @@ public class TabHeader extends JPanel implements SteppedSizeManager.SteppedSizeC
 
     @Override
     public void onSizeChange(int size) {
-        // Hide the logo if the size is sparse
-        appLogo.setVisible(size != 0);
     }
 }

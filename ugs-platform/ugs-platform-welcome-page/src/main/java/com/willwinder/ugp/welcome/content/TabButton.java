@@ -1,6 +1,9 @@
 package com.willwinder.ugp.welcome.content;
 
 import com.willwinder.ugp.welcome.Constants;
+import static com.willwinder.ugp.welcome.Constants.IMAGE_TAB_ROLLOVER;
+import static com.willwinder.ugp.welcome.Constants.IMAGE_TAB_SELECTED;
+import static com.willwinder.ugp.welcome.Constants.TAB_FONT;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.JLabel;
@@ -9,6 +12,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -20,10 +24,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-import static com.willwinder.ugp.welcome.Constants.IMAGE_TAB_ROLLOVER;
-import static com.willwinder.ugp.welcome.Constants.IMAGE_TAB_SELECTED;
-import static com.willwinder.ugp.welcome.Constants.TAB_FONT;
 
 public class TabButton extends JPanel {
     private static final Image imgSelected = ImageUtilities.loadImage(IMAGE_TAB_SELECTED, true);
@@ -37,6 +37,7 @@ public class TabButton extends JPanel {
 
     public TabButton(String title, int tabIndex) {
         super(new BorderLayout());
+        setMinimumSize(new Dimension(40, 20));
         lblTitle.setText(title);
         add(lblTitle, BorderLayout.CENTER);
         this.tabIndex = tabIndex;

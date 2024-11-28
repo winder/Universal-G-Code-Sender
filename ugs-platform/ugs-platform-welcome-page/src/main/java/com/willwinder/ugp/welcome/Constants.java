@@ -45,7 +45,6 @@ public class Constants {
 
     public static final String IMAGE_TAB_SELECTED = "com/willwinder/ugp/welcome/resources/tab_selected.png"; // NOI18N
     public static final String IMAGE_TAB_ROLLOVER = "com/willwinder/ugp/welcome/resources/tab_rollover.png"; // NOI18N
-    public static final String IMAGE_LOGO = "com/willwinder/ugp/welcome/resources/ugs_logo.png"; // NOI18N
 
-    public static final int START_PAGE_MIN_WIDTH = 400;
+    public static final int START_PAGE_MIN_WIDTH = 500;
 }
