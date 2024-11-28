@@ -39,13 +39,10 @@ public class GrblUtilsTest {
      */
     @Test
     public void testIsGrblVersionString() {
-        String response;
-        Boolean expResult;
-        Boolean result;
+        String response = "Grbl 0.8c";
+        boolean expResult = true;
 
-        response = "Grbl 0.8c";
-        expResult = true;
-        result = GrblUtils.isGrblVersionString(response);
+        boolean result = GrblUtils.isGrblVersionString(response);
         assertEquals(expResult, result);
 
         response = "blah 0.8c";
@@ -716,5 +713,13 @@ public class GrblUtilsTest {
         assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 5.5, Double.NaN, MM), GrblUtils.parseProbePosition(FiveAxis, MM));
         String SixAxis = "[PRB:1.1,2.2,3.3,4.4,5.5,6.6:1]";
         assertEquals(new Position(1.1, 2.2, 3.3, 4.4, 5.5, 6.6, MM), GrblUtils.parseProbePosition(SixAxis, MM));
+    }
+
+    @Test
+    public void isGrblStatusStringV1_shouldReturnTrueOnStatusMessage() {
+        assertTrue(GrblUtils.isGrblStatusStringV1("<Idle|MPos:1.1,2.2,3.3,4.4|WPos:7.7,8.8,9.9,10.10|WCO:13.13,14.14,15.15,16.16|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZAPDHRS|A:SFMC>"));
+        assertTrue(GrblUtils.isGrblStatusStringV1("<Hold:1|>"));
+        assertFalse(GrblUtils.isGrblStatusStringV1("banana"));
+        assertFalse(GrblUtils.isGrblStatusStringV1("<Idle,MPos:5.529,0.560,7.000,WPos:1.529,-5.440,-0.000>"));
     }
 }

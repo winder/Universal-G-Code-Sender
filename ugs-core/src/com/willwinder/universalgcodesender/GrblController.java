@@ -183,7 +183,10 @@ public class GrblController extends AbstractController {
         setControllerState(ControllerState.CONNECTING);
         ThreadHelper.invokeLater(() -> {
             positionPollTimer.stop();
-            initializer.initialize();
+            if (!initializer.initialize()) {
+                return;
+            }
+
             capabilities = GrblUtils.getGrblStatusCapabilities(initializer.getVersion().getVersionNumber(), initializer.getVersion().getVersionLetter());
 
             // Toggle the state to force UI update
@@ -243,9 +246,7 @@ public class GrblController extends AbstractController {
                 if (p != null) {
                     dispatchProbeCoordinates(p);
                 }
-            }
-
-            else if (initializer.isInitialized() && GrblUtils.isGrblStatusString(response)) {
+            } else if (initializer.isInitialized() && GrblUtils.isGrblStatusString(response)) {
                 // Only 1 poll is sent at a time so don't decrement, reset to zero.
                 positionPollTimer.receivedStatus();
 
@@ -264,9 +265,7 @@ public class GrblController extends AbstractController {
                 dispatchConsoleMessage(MessageType.VERBOSE, grblFeedbackMessage + "\n");
                 setDistanceModeCode(grblFeedbackMessage.getDistanceMode());
                 setUnitsCode(grblFeedbackMessage.getUnits());
-            }
-
-            else if (GrblUtils.isGrblSettingMessage(response)) {
+            } else if (GrblUtils.isGrblSettingMessage(response)) {
                 GrblSettingMessage message = new GrblSettingMessage(response);
                 processed = message.toString();
             }
@@ -526,7 +525,7 @@ public class GrblController extends AbstractController {
      */
     @Override
     public void softReset() throws Exception {
-        if (isCommOpen() && capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
+        if (isCommOpen()) {
             dispatchConsoleMessage(MessageType.VERBOSE, String.format(">>> 0x%02x\n", GrblUtils.GRBL_RESET_COMMAND));
             comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
             //Does GRBL need more time to handle the reset?

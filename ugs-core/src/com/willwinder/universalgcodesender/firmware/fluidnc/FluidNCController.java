@@ -52,6 +52,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -756,8 +757,11 @@ public class FluidNCController implements IController, ICommunicatorListener {
                 updateParserModalState(command);
 
                 listeners.forEach(l -> l.commandComplete(command));
-
-                if (command instanceof GetStatusCommand) {
+                if (command.isError() && !activeCommands.isEmpty()) {
+                    String commandString = command.getCommandString();
+                    String errorMessage = String.format(Localization.getString("controller.exception.sendError"), commandString, response).replaceAll("\\.\\.", "\\.");
+                    messageService.dispatchMessage(MessageType.ERROR, errorMessage + "\n");
+                } else if (command instanceof GetStatusCommand) {
                     messageService.dispatchMessage(MessageType.VERBOSE, command.getResponse() + "\n");
                 } else if (command instanceof SystemCommand) {
                     messageService.dispatchMessage(MessageType.VERBOSE, command.getResponse() + "\n");

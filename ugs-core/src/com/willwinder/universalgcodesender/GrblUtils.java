@@ -550,7 +550,7 @@ public class GrblUtils {
         return retValue;
     }
 
-    private static final String STATUS_VERSION_1_REGEX = "^<[a-zA-Z]+[|]+.*>$";
+    private static final String STATUS_VERSION_1_REGEX = "^<[a-zA-Z:0-9]+[|]+.*>$";
     private static final Pattern STATUS_VERSION_1_PATTERN = Pattern.compile(STATUS_VERSION_1_REGEX);
 
     public static boolean isGrblStatusStringV1(String response) {

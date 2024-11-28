@@ -7,8 +7,10 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
@@ -18,7 +20,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.startsWith;
 import org.mockito.InOrder;
+import org.mockito.Mock;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -27,6 +32,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,10 +42,15 @@ public class FluidNCControllerTest {
     private FluidNCController target;
     private ICommunicator communicator;
 
+    @Mock
+    private MessageService messageService;
+
     @Before
     public void setUp() {
+        MockitoAnnotations.openMocks(this);
         communicator = mock(ICommunicator.class);
         target = spy(new FluidNCController(communicator));
+        target.setMessageService(messageService);
     }
 
     @Test
@@ -155,6 +166,73 @@ public class FluidNCControllerTest {
         inOrder.verify(listener, times(1)).commandComplete(any());
         inOrder.verify(listener, times(1)).streamComplete();
         inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void rawResponseListenerShouldReportErrorOnCommandIfThereAreMoreActiveCommands() throws IOException, InterruptedException {
+        ControllerListener listener = mock(ControllerListener.class);
+        InOrder messagesInOrder = inOrder(messageService);
+        InOrder inOrder = inOrder(listener);
+        target.addListener(listener);
+
+        IGcodeStreamReader gcodeStream = new SimpleGcodeStreamReader("G0 X1", "G0 X0");
+        target.queueStream(gcodeStream);
+        target.beginStreaming();
+
+        GcodeCommand nextCommand = gcodeStream.getNextCommand();
+        nextCommand.appendResponse("error:20");
+        target.commandSent(nextCommand);
+
+        nextCommand = gcodeStream.getNextCommand();
+        target.commandSent(nextCommand);
+
+        target.rawResponseListener("error:20");
+
+        Thread.sleep(100);
+
+        inOrder.verify(listener, times(1)).statusStringListener(any());
+        inOrder.verify(listener, times(1)).streamStarted();
+        inOrder.verify(listener, times(2)).commandSent(any());
+        inOrder.verify(listener, times(1)).commandComplete(any());
+        inOrder.verify(listener, times(1)).streamComplete();
+        inOrder.verifyNoMoreInteractions();
+
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "> G0 X1\n");
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.ERROR, "An error was detected while sending 'G0 X1': error:20. Streaming has been paused.\n");
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(eq(MessageType.INFO), startsWith("\n**** Finished sending file in"));
+        messagesInOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void rawResponseListenerShouldNotReportErrorOnCommandIfOnlyOneActiveCommands() throws IOException, InterruptedException {
+        ControllerListener listener = mock(ControllerListener.class);
+        InOrder messagesInOrder = inOrder(messageService);
+        InOrder inOrder = inOrder(listener);
+        target.addListener(listener);
+
+        IGcodeStreamReader gcodeStream = new SimpleGcodeStreamReader("G0 X1");
+        target.queueStream(gcodeStream);
+        target.beginStreaming();
+
+        GcodeCommand nextCommand = gcodeStream.getNextCommand();
+        nextCommand.appendResponse("error:20");
+        target.commandSent(nextCommand);
+
+        target.rawResponseListener("error:20");
+
+        Thread.sleep(100);
+
+        inOrder.verify(listener, times(1)).statusStringListener(any());
+        inOrder.verify(listener, times(1)).streamStarted();
+        inOrder.verify(listener, times(1)).commandSent(any());
+        inOrder.verify(listener, times(1)).commandComplete(any());
+        inOrder.verify(listener, times(1)).streamComplete();
+        inOrder.verifyNoMoreInteractions();
+
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "> G0 X1\n");
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "error:20\n");
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(eq(MessageType.INFO), startsWith("\n**** Finished sending file in"));
+        messagesInOrder.verifyNoMoreInteractions();
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2022 Will Winder
+    Copyright 2013-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -238,15 +238,14 @@ public class GrblControllerTest {
     }
 
     @Test
-    public void issueSoftResetOnOlderGrblVersionsShouldNotSendAnything() throws Exception {
+    public void issueSoftResetOnOlderGrblVersionsShouldSendResetCommand() throws Exception {
         GrblController instance = initializeAndConnectController(VERSION_GRBL_0_7);
         assertEquals(0, mgc.sentBytes.size());
         assertEquals(0, mgc.numCancelSendCalls);
 
-        // This version doesn't support soft reset.
         instance.issueSoftReset();
-        assertEquals(0, mgc.sentBytes.size());
-        assertEquals(0, mgc.numCancelSendCalls);
+        assertEquals(1, mgc.sentBytes.size());
+        assertEquals(1, mgc.numCancelSendCalls);
     }
 
     /**
@@ -1407,6 +1406,7 @@ public class GrblControllerTest {
         GrblControllerInitializer initializer = mock(GrblControllerInitializer.class);
         when(initializer.isInitialized()).thenReturn(false);
         when(initializer.isInitializing()).thenReturn(false);
+        when(initializer.initialize()).thenReturn(true);
 
         GrblVersion version = new GrblVersion("[VER:" + grblVersionString + "]");
         when(initializer.getVersion()).thenReturn(version);
