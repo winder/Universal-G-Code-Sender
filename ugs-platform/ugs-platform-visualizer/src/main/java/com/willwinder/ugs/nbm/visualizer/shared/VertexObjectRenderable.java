@@ -6,26 +6,27 @@ import com.jogamp.opengl.util.GLBuffers;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shader.Shader;
 import com.willwinder.ugs.nbm.visualizer.utils.RenderableUtils;
+import static com.willwinder.ugs.nbm.visualizer.utils.RenderableUtils.bindVertexBuffer;
 import com.willwinder.universalgcodesender.model.Position;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.willwinder.ugs.nbm.visualizer.utils.RenderableUtils.*;
-
 /**
  * A base class for rendering a vertex buffer object using a shader
  */
 public abstract class VertexObjectRenderable extends Renderable {
     private double stepSize;
+    private final IntBuffer bufferName = GLBuffers.newDirectIntBuffer(Buffer.MAX);
     private final List<Float> vertexList = new ArrayList<>();
     private final List<Float> normalList = new ArrayList<>();
     private final List<Float> colorList = new ArrayList<>();
+    private final Shader shader;
 
     private Position objectMin = Position.ZERO;
     private Position objectMax = Position.ZERO;
-    private Shader shader;
+    private boolean disabled = false;
 
     private interface Buffer {
         int VERTEX = 0;
@@ -33,9 +34,6 @@ public abstract class VertexObjectRenderable extends Renderable {
         int COLOR = 2;
         int MAX = 3;
     }
-
-    private IntBuffer bufferName = GLBuffers.newDirectIntBuffer(Buffer.MAX);
-
 
     private boolean reloadModel;
 
@@ -127,41 +125,59 @@ public abstract class VertexObjectRenderable extends Renderable {
             clear();
             reloadModel(gl, bottomLeft, topRight, scaleFactor);
             updateBuffers(gl);
+            disabled = false;
         }
 
-        // Use the shader program
-        gl.glUseProgram(shader.getProgramId());
-        checkGLError(gl);
+        if (disabled) {
+            return;
+        }
 
-        int positionAttribute = gl.glGetAttribLocation(shader.getProgramId(), "position");
-        gl.glEnableVertexAttribArray(positionAttribute);
-        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferName.get(Buffer.VERTEX));
-        gl.glVertexAttribPointer(positionAttribute, 3, GL2.GL_FLOAT, false, 0, 0);
-        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
-        checkGLError(gl);
+        try {
+            // Use the shader program
+            gl.glUseProgram(shader.getProgramId());
+            checkGLError(gl);
 
-        int colorAttribute = gl.glGetAttribLocation(shader.getProgramId(), "color");
-        gl.glEnableVertexAttribArray(colorAttribute);
-        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferName.get(Buffer.COLOR));
-        gl.glVertexAttribPointer(colorAttribute, 4, GL2.GL_FLOAT, false, 0, 0);
-        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
-        checkGLError(gl);
+            int positionAttribute = gl.glGetAttribLocation(shader.getProgramId(), "position");
+            gl.glEnableVertexAttribArray(positionAttribute);
+            gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferName.get(Buffer.VERTEX));
+            gl.glVertexAttribPointer(positionAttribute, 3, GL2.GL_FLOAT, false, 0, 0);
+            gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
+            checkGLError(gl);
 
-        render(drawable);
+            int colorAttribute = gl.glGetAttribLocation(shader.getProgramId(), "color");
+            gl.glEnableVertexAttribArray(colorAttribute);
+            gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, bufferName.get(Buffer.COLOR));
+            gl.glVertexAttribPointer(colorAttribute, 4, GL2.GL_FLOAT, false, 0, 0);
+            gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
+            checkGLError(gl);
 
-        // Disable the attribute after drawing
-        gl.glDisableVertexAttribArray(positionAttribute);
-        gl.glDisableVertexAttribArray(colorAttribute);
-        checkGLError(gl);
+            render(drawable);
 
-        gl.glUseProgram(0);
-        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
-        checkGLError(gl);
+            // Disable the attribute after drawing
+            gl.glDisableVertexAttribArray(positionAttribute);
+            gl.glDisableVertexAttribArray(colorAttribute);
+            checkGLError(gl);
+
+            gl.glUseProgram(0);
+            gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
+            checkGLError(gl);
+        } catch (Exception e) {
+            // Temporarily disable the renderable
+            disabled = true;
+        } finally {
+            gl.glUseProgram(0);
+            gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
+        }
     }
 
     private void checkGLError(GL2 gl) {
         int error = gl.glGetError();
         if (error != GL2.GL_NO_ERROR) {
+            // Try and clear all errors
+            int errors = 0;
+            while (gl.glGetError() != GL2.GL_NO_ERROR && errors > 10) {
+                errors++;
+            }
             throw new RuntimeException("GL error: " + error);
         }
     }
@@ -172,6 +188,7 @@ public abstract class VertexObjectRenderable extends Renderable {
                         bufferName.get(Buffer.COLOR),
                         bufferName.get(Buffer.NORMAL)},
                 0);
+
 
         bindVertexBuffer(gl, bufferName.get(Buffer.VERTEX), vertexList);
         bindVertexBuffer(gl, bufferName.get(Buffer.COLOR), colorList);
