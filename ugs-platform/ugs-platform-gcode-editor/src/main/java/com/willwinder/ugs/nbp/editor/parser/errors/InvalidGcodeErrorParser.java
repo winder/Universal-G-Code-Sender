@@ -39,7 +39,7 @@ public class InvalidGcodeErrorParser implements ErrorParser {
     public void handleToken(Token<?> token, int line) {
         if (GcodeTokenId.ERROR.equals(token.id())) {
             int offset = token.offset(null);
-            GcodeError error = new GcodeError("command-not-supported", "Command not supported", String.format("The command '%s' is not a valid GCode commands", token.text()), fileObject, offset, offset + token.length(), true, Severity.ERROR);
+            GcodeError error = new GcodeError("command-not-supported", "Command not supported", String.format("The command '%s' is not a valid GCode command", token.text()), fileObject, offset, offset + token.length(), true, Severity.ERROR);
             errorList.add(error);
         }
     }

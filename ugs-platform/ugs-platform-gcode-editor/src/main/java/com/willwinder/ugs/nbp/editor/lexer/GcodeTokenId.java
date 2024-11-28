@@ -35,9 +35,18 @@ public enum GcodeTokenId implements TokenId {
     PARAMETER("parameter"),
     WHITESPACE("whitespace"),
     ERROR("error"),
+
+    /**
+     * For Gcode programming with O and N codes
+     */
     PROGRAM("program"),
     START_OR_END("start or end"),
-    END_OF_LINE("end of line");
+    END_OF_LINE("end of line"),
+
+    /**
+     * For system specific commands such settings or homing on GRBL
+     */
+    SYSTEM("system");
 
     private final String primaryCategory;
 

@@ -58,11 +58,13 @@ public class GcodeParser extends Parser {
 
         FileObject fileObject = snapshot.getSource().getFileObject();
         List<ErrorParser> errorParserList = new ArrayList<>();
+        errorParserList.add(new SystemCommandsErrorParser(fileObject));
         errorParserList.add(new FeedRateMissingErrorParser(fileObject));
         errorParserList.add(new InvalidGrblCommandErrorParser(fileObject));
         errorParserList.add(new MovementInMachineCoordinatesErrorParser(fileObject));
         errorParserList.add(new InvalidG2CommandErrorParser(fileObject));
         errorParserList.add(new InvalidGcodeErrorParser(fileObject));
+        errorParserList.add(new UnitsMissingErrorParser(fileObject));
 
         TokenSequence<?> tokenSequence = snapshot.getTokenHierarchy().tokenSequence();
         tokenSequence.moveStart();

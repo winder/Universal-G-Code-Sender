@@ -70,8 +70,6 @@ public class SyntaxErrorTask extends IndexingAwareParserResultTask<GcodeParserRe
 
     private Severity convertSeverity(GcodeError error) {
         switch (error.getSeverity()) {
-            case INFO:
-                return Severity.HINT;
             case ERROR:
             case FATAL:
                 return Severity.ERROR;

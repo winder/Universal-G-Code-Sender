@@ -86,6 +86,9 @@ public class GcodeLexer implements Lexer<GcodeTokenId> {
             case 'O':
                 return parseCommand(GcodeTokenId.PROGRAM);
 
+            case '$':
+                return parseSystemCommand(GcodeTokenId.SYSTEM);
+
             case 'G':
                 return parseCommand(GcodeTokenId.MOVEMENT);
 
@@ -121,8 +124,7 @@ public class GcodeLexer implements Lexer<GcodeTokenId> {
             input.backup(1);
             return createToken(GcodeTokenId.WHITESPACE);
         } else {
-            input.read();
-            return createToken(GcodeTokenId.ERROR);
+            return parseUnknownWord();
         }
     }
 
@@ -189,11 +191,20 @@ public class GcodeLexer implements Lexer<GcodeTokenId> {
         }
 
         if (length == 0 || minusCount > 1 || commaCount > 1 || plusCount > 1 || numberCount == 0) {
-            return createToken(GcodeTokenId.ERROR);
+            return parseUnknownWord();
         }
 
         return createToken(tokenId);
     }
+
+    private Token<GcodeTokenId> parseUnknownWord() {
+        int character = input.read();
+        while (character != LexerInput.EOF && !Character.isWhitespace((char) character)) {
+            character = input.read();
+        }
+        input.backup(1);
+        return createToken(GcodeTokenId.ERROR);
+    };
 
     /**
      * Returns if the character is a part of a numeric string. That includes minus and commas.
@@ -227,6 +238,32 @@ public class GcodeLexer implements Lexer<GcodeTokenId> {
 
         return createToken(tokenId);
     }
+
+    private Token<GcodeTokenId> parseSystemCommand(GcodeTokenId gcodeTokenId) {
+        int equalCount = 0;
+        while (true) {
+            char character = (char) input.read();
+            if (Character.isWhitespace(character)) {
+                input.backup(1);
+                break;
+            }
+
+            if (character == '=') {
+                equalCount++;
+            }
+
+            if(character == (char) LexerInput.EOF) {
+                break;
+            }
+        }
+
+        if (equalCount > 1) {
+            return createToken(GcodeTokenId.ERROR);
+        }
+
+        return createToken(gcodeTokenId);
+    }
+
 
     @Override
     public Object state() {

@@ -50,6 +50,12 @@ public class InvalidGrblCommandErrorParserTest {
     }
 
     @Test
+    public void shouldNotGenerateWarningOnSystemCommands() {
+        parser.handleToken(generateToken(GcodeTokenId.SYSTEM, "$J=G21G91X1F2000"), 0);
+        assertEquals(0, parser.getErrors().size());
+    }
+
+    @Test
     public void shouldNotGenerateWarningOnValidCommandPatterns() {
         parser.handleToken(generateToken(GcodeTokenId.MOVEMENT, "G0"), 0);
         parser.handleToken(generateToken(GcodeTokenId.MOVEMENT, "G00"), 0);
