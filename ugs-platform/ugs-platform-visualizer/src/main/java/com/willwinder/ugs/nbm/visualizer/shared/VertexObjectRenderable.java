@@ -175,7 +175,7 @@ public abstract class VertexObjectRenderable extends Renderable {
         if (error != GL2.GL_NO_ERROR) {
             // Try and clear all errors
             int errors = 0;
-            while (gl.glGetError() != GL2.GL_NO_ERROR && errors > 10) {
+            while (gl.glGetError() != GL2.GL_NO_ERROR && errors < 10) {
                 errors++;
             }
             throw new RuntimeException("GL error: " + error);
