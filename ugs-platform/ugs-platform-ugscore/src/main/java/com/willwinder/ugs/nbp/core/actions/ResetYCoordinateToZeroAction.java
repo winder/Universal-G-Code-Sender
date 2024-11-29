@@ -46,12 +46,12 @@ import java.awt.event.ActionEvent;
 @ActionReferences({
         @ActionReference(
                 path = LocalizingService.ResetYZeroWindowPath,
-                position = 1034)
+                position = 1035)
 })
 public final class ResetYCoordinateToZeroAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/resetzero_y.svg";
-    public static final String LARGE_ICON_PATH = "resources/icons/resetzero_y24.svg";
+    public static final String ICON_BASE = "resources/icons/resetzero.svg";
+    public static final String LARGE_ICON_PATH = "resources/icons/resetzero24.svg";
 
     private final BackendAPI backend;
 

@@ -31,48 +31,33 @@ import java.util.List;
 
 public class FontManager {
 
-    private List<Font> workCoordinateFont = new ArrayList<>(3);
-    private List<Font> machineCoordinateFont = new ArrayList<>(3);
-    private List<Font> axisResetFont = new ArrayList<>(3);
-    private List<Font> axisResetZeroFont = new ArrayList<>(3);
-    private List<Font> propertyLabelFont = new ArrayList<>(3);
-    private List<Font> speedValueFont = new ArrayList<>(3);
-    private List<Font> activeStateFont = new ArrayList<>(3);
+    private final List<Font> workCoordinateFont = new ArrayList<>(3);
+    private final List<Font> machineCoordinateFont = new ArrayList<>(3);
+    private final List<Font> propertyLabelFont = new ArrayList<>(3);
+    private final List<Font> activeStateFont = new ArrayList<>(3);
 
-    private List<JComponent> workCoordinateComponents = new ArrayList<>();
-    private List<JComponent> machineCoordinateComponents = new ArrayList<>();
-    private List<JComponent> axisResetComponents = new ArrayList<>();
-    private List<JComponent> axisResetZeroComponents = new ArrayList<>();
-    private List<JComponent> propertyLabelComponents = new ArrayList<>();
-    private List<JComponent> speedValueComponents = new ArrayList<>();
-    private List<JComponent> activeStateLabelComponents = new ArrayList<>();
+    private final List<JComponent> workCoordinateComponents = new ArrayList<>();
+    private final List<JComponent> machineCoordinateComponents = new ArrayList<>();
+    private final List<JComponent> propertyLabelComponents = new ArrayList<>();
+    private final List<JComponent> speedValueComponents = new ArrayList<>();
+    private final List<JComponent> activeStateLabelComponents = new ArrayList<>();
 
     public void init() {
         Font font = FontUtils.getLcdFont();
         Font boldFont = FontUtils.getSansBoldFont();
         Font regularFont = FontUtils.getSansFont();
 
-        workCoordinateFont.add(font.deriveFont(Font.PLAIN,18));
-        workCoordinateFont.add(font.deriveFont(Font.PLAIN,24));
-        workCoordinateFont.add(font.deriveFont(Font.PLAIN,32));
-        machineCoordinateFont.add(font.deriveFont(Font.PLAIN,14));
-        machineCoordinateFont.add(font.deriveFont(Font.PLAIN,18));
-        machineCoordinateFont.add(font.deriveFont(Font.PLAIN,24));
-        speedValueFont.add(font.deriveFont(Font.PLAIN,14));
-        speedValueFont.add(font.deriveFont(Font.PLAIN,16));
-        speedValueFont.add(font.deriveFont(Font.PLAIN,20));
+        workCoordinateFont.add(font.deriveFont(Font.PLAIN, 20));
+        workCoordinateFont.add(font.deriveFont(Font.PLAIN, 26));
+        workCoordinateFont.add(font.deriveFont(Font.PLAIN, 34));
+
+        machineCoordinateFont.add(font.deriveFont(Font.PLAIN, 14));
+        machineCoordinateFont.add(font.deriveFont(Font.PLAIN, 18));
+        machineCoordinateFont.add(font.deriveFont(Font.PLAIN, 24));
 
         activeStateFont.add(boldFont.deriveFont(Font.PLAIN, 20));
-        activeStateFont.add(boldFont.deriveFont(Font.PLAIN, 24));
-        activeStateFont.add(boldFont.deriveFont(Font.PLAIN, 30));
-
-        axisResetFont.add(regularFont.deriveFont(Font.PLAIN, 20));
-        axisResetFont.add(regularFont.deriveFont(Font.PLAIN, 24));
-        axisResetFont.add(regularFont.deriveFont(Font.PLAIN, 30));
-
-        axisResetZeroFont.add(regularFont.deriveFont(Font.PLAIN, 12));
-        axisResetZeroFont.add(regularFont.deriveFont(Font.PLAIN, 14));
-        axisResetZeroFont.add(regularFont.deriveFont(Font.PLAIN, 18));
+        activeStateFont.add(boldFont.deriveFont(Font.PLAIN, 26));
+        activeStateFont.add(boldFont.deriveFont(Font.PLAIN, 34));
 
         propertyLabelFont.add(regularFont.deriveFont(Font.PLAIN, 12));
         propertyLabelFont.add(regularFont.deriveFont(Font.PLAIN, 14));
@@ -84,10 +69,8 @@ public class FontManager {
             int index = Math.max(0, Math.min(2, size));
             workCoordinateComponents.forEach(c -> c.setFont(workCoordinateFont.get(index)));
             machineCoordinateComponents.forEach(c -> c.setFont(machineCoordinateFont.get(index)));
-            axisResetComponents.forEach(c -> c.setFont(axisResetFont.get(index)));
-            axisResetZeroComponents.forEach(c -> c.setFont(axisResetZeroFont.get(index)));
             propertyLabelComponents.forEach(c -> c.setFont(propertyLabelFont.get(index)));
-            speedValueComponents.forEach(c -> c.setFont(speedValueFont.get(index)));
+            speedValueComponents.forEach(c -> c.setFont(machineCoordinateFont.get(index)));
             activeStateLabelComponents.forEach(c -> c.setFont(activeStateFont.get(index)));
         });
     }
@@ -98,14 +81,6 @@ public class FontManager {
 
     public void addMachineCoordinateLabel(JComponent... label) {
         machineCoordinateComponents.addAll(Arrays.asList(label));
-    }
-
-    public void addAxisResetLabel(JLabel... label) {
-        axisResetComponents.addAll(Arrays.asList(label));
-    }
-
-    public void addAxisResetZeroLabel(JLabel... label) {
-        axisResetZeroComponents.addAll(Arrays.asList(label));
     }
 
     public void addPropertyLabel(JLabel... label) {
@@ -124,10 +99,7 @@ public class FontManager {
         List<Font> all = new ArrayList<>();
         all.addAll(workCoordinateFont);
         all.addAll(machineCoordinateFont);
-        all.addAll(axisResetFont);
-        all.addAll(axisResetZeroFont);
         all.addAll(propertyLabelFont);
-        all.addAll(speedValueFont);
         all.forEach(ge::registerFont);
     }
 

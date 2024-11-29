@@ -45,7 +45,7 @@ import java.awt.event.ActionEvent;
 @ActionReferences({
         @ActionReference(
                 path = LocalizingService.ResetZeroWindowPath,
-                position = 1029)
+                position = 1030)
 })
 public final class ResetCoordinatesToZeroAction extends AbstractAction implements UGSEventListener {
 

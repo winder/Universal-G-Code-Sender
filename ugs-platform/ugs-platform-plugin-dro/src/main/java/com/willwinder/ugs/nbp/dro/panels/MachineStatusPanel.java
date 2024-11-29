@@ -109,9 +109,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
 
     private void initSizer() {
         SteppedSizeManager sizer = new SteppedSizeManager(this,
-                new Dimension(160, 330),
-                new Dimension(240, 420),
-                new Dimension(310, 420));
+                new Dimension(200, 200),
+                new Dimension(240, 200),
+                new Dimension(300, 200));
         sizer.addListener(fontManager::applyFonts);
     }
 
@@ -209,8 +209,10 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
             updateControls();
         } else if (evt instanceof ControllerStatusEvent controllerStatusEvent) {
             onControllerStatusReceived(controllerStatusEvent.getStatus());
-        } else if (evt instanceof SettingChangedEvent && backend.getController() != null && backend.getController().getControllerStatus() != null) {
-            onControllerStatusReceived(backend.getController().getControllerStatus());
+        } else if (evt instanceof SettingChangedEvent) {
+            if (backend.getController() != null) {
+                onControllerStatusReceived(backend.getController().getControllerStatus());
+            }
             updateControls();
         }
     }
@@ -219,10 +221,12 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
      * Enable and disable the different axes based on capabilities and configuration.
      */
     private void updateControls() {
+        Settings settings = backend.getSettings();
         if (!backend.isConnected()) {
             axisPanels.forEach((key, value) -> {
                 value.setEnabled(false);
                 value.setVisible(key.isLinear());
+                value.setShowMachinePosition(settings.isShowMachinePosition());
             });
 
             // Clear out the status color.
@@ -232,14 +236,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
         }
 
         Capabilities cap = backend.getController().getCapabilities();
-        Settings settings = backend.getSettings();
-
         boolean enabled = backend.getControllerState() == ControllerState.IDLE;
         for (Axis a : Axis.values()) {
             // don't hide every axis while capabilities are being detected.
             boolean visible = (cap.hasAxis(a) || a.isLinear()) && settings.isAxisEnabled(a);
             axisPanels.get(a).setEnabled(enabled);
             axisPanels.get(a).setVisible(visible);
+            axisPanels.get(a).setShowMachinePosition(settings.isShowMachinePosition());
         }
     }
 

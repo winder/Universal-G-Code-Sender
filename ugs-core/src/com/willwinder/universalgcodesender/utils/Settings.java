@@ -49,7 +49,7 @@ public class Settings {
 
     // Transient, don't serialize or deserialize.
     transient private SettingChangeListener listener = null;
-    transient public static int HISTORY_SIZE = 20;
+    transient public static int HISTORY_SIZE = 10;
 
     private String firmwareVersion = "GRBL";
     private String fileName = System.getProperty("user.home");
@@ -84,6 +84,7 @@ public class Settings {
     private int statusUpdateRate = 200;
     private Units preferredUnits = Units.MM;
     private Set<Axis> disabledAxes = new HashSet<>();
+    private boolean showMachinePosition = false;
 
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
@@ -402,6 +403,15 @@ public class Settings {
         if (enabled ? this.disabledAxes.remove(a) : this.disabledAxes.add(a)) {
             changed();
         }
+    }
+
+    public boolean isShowMachinePosition() {
+        return showMachinePosition;
+    }
+
+    public void setShowMachinePosition(boolean showMachinePosition) {
+        this.showMachinePosition = showMachinePosition;
+        changed();
     }
 
     public void setPreferredUnits(Units units) {

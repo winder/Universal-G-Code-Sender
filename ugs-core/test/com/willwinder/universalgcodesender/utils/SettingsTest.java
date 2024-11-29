@@ -68,6 +68,7 @@ public class SettingsTest {
         assertNotNull(target.getVisualizerWindowSettings());
         assertEquals(Double.valueOf(1), Double.valueOf(target.getZJogStepSize()));
         assertFalse(target.isAutoStartPendant());
+        assertFalse(target.isShowMachinePosition());
     }
 
     @Test
@@ -123,10 +124,10 @@ public class SettingsTest {
       Assertions.assertThat(target.getRecentFiles())
               .hasSize(HISTORY_SIZE)
               .doesNotContain(path + "2"+File.separator+"file.gcode")
-              .startsWith(path + "21"+File.separator+"file.gcode", path + "1"+File.separator+"file.gcode");
+              .startsWith(path + "11"+File.separator+"file.gcode", path + "1"+File.separator+"file.gcode");
       Assertions.assertThat(target.getRecentDirectories())
               .hasSize(HISTORY_SIZE)
               .doesNotContain(path + "2")
-              .startsWith(path + "21", path + "1");
+              .startsWith(path + "11", path + "1");
     }
 }

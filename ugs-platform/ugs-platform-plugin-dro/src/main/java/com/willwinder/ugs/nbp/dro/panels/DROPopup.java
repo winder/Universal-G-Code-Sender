@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -30,37 +30,53 @@ import java.awt.*;
  */
 public class DROPopup extends JPopupMenu {
     private final BackendAPI backend;
-    private final Settings settings;
 
     public DROPopup(BackendAPI backend) {
         super();
         this.backend = backend;
-        this.settings = backend.getSettings();
     }
 
     @Override
     public void show(Component invoker, int x, int y) {
         removeAll();
-
+        addShowMachineCoordinates();
         for (Axis a : Axis.values()) {
-            boolean add = a.isLinear();
-
-            // Linear axis by default, or if connected use capabilities.
-            if (this.backend.isConnected()) {
-                add = this.backend.getController().getCapabilities().hasAxis(a);
-            }
-
-            if (add) {
-                final JCheckBoxMenuItem menu = new JCheckBoxMenuItem(
-                        String.format("Disable Axis: %s", a.name()),
-                        !this.settings.isAxisEnabled(a));
-                menu.addActionListener(e -> {
-                    this.settings.setAxisEnabled(a, !menu.isSelected());
-                });
-                add(menu);
-            }
+            addAxisMenu(a);
         }
 
         super.show(invoker, x, y);
+    }
+
+    private void addAxisMenu(Axis a) {
+        Settings settings = backend.getSettings();
+        boolean add = a.isLinear();
+
+        // Linear axis by default, or if connected use capabilities.
+        if (this.backend.isConnected()) {
+            add = this.backend.getController().getCapabilities().hasAxis(a);
+        }
+
+        if (!add) {
+            return;
+        }
+
+        final JCheckBoxMenuItem menu = new JCheckBoxMenuItem(
+                String.format("Disable Axis: %s", a.name()),
+                !settings.isAxisEnabled(a));
+        menu.addActionListener(e -> {
+            settings.setAxisEnabled(a, !menu.isSelected());
+        });
+        add(menu);
+    }
+
+    private void addShowMachineCoordinates() {
+        Settings settings = backend.getSettings();
+        final JCheckBoxMenuItem showMachinePositionMenu = new JCheckBoxMenuItem(
+                "Show machine position",
+                settings.isShowMachinePosition());
+        showMachinePositionMenu.addActionListener(e -> {
+            settings.setShowMachinePosition(showMachinePositionMenu.isSelected());
+        });
+        add(showMachinePositionMenu);
     }
 }

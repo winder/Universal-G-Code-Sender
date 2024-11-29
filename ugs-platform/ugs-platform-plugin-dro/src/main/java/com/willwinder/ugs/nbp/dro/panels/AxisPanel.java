@@ -35,6 +35,8 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
@@ -47,36 +49,48 @@ import java.util.concurrent.ScheduledFuture;
 public class AxisPanel extends JPanel {
     private static final int RADIUS = 7;
     public static final int HIGHLIGHT_TIME = 300;
-    private final CoordinateLabel work = new CoordinateLabel(0.0);
-    private final CoordinateLabel machine = new CoordinateLabel(0.0);
+    private final HighlightableLabel axisLabel = new HighlightableLabel();
+    private final CoordinateLabel workLabel = new CoordinateLabel(0.0);
+    private final CoordinateLabel machineLabel = new CoordinateLabel(0.0);
     private final Set<AxisPanelListener> axisPanelListenerList = new HashSet<>();
     private transient ScheduledFuture<?> highlightLabelsFuture;
 
     public AxisPanel(Axis axis, FontManager fontManager) {
-        super(new MigLayout("fill, inset 0", "[50]5[grow, fill]"));
+        super(new MigLayout("fill, inset 0", "[grow, fill]5[50]"));
         RoundedPanel axisPanel = new RoundedPanel(RADIUS);
         axisPanel.setBackground(ThemeColors.VERY_DARK_GREY);
         axisPanel.setForeground(ThemeColors.LIGHT_BLUE);
-        axisPanel.setLayout(new MigLayout("fillx, inset 4 6 4 6, gap 0", "[grow, right]"));
+        axisPanel.setLayout(new MigLayout("fill, inset 6 6 6 6, gap 0", "[left][grow, right, fill]"));
 
-        work.addMouseListener(new MouseClickListener() {
+        axisLabel.setText(axis.toString());
+        workLabel.addMouseListener(new MouseClickListener() {
             @Override
             public void onClick(MouseEvent e) {
-                axisPanelListenerList.forEach(axisPanelListener -> axisPanelListener.onWorkPositionClick(work, axis));
+                axisPanelListenerList.forEach(axisPanelListener -> axisPanelListener.onWorkPositionClick(workLabel, axis));
             }
         });
 
-        axisPanel.add(work, "grow, gapleft 5, wrap");
-        axisPanel.add(machine, "span 2");
+        fontManager.addWorkCoordinateLabel(axisLabel);
+        fontManager.addWorkCoordinateLabel(workLabel);
+        fontManager.addMachineCoordinateLabel(machineLabel);
 
-        fontManager.addWorkCoordinateLabel(work);
-        fontManager.addMachineCoordinateLabel(machine);
+        JPanel coordinatesPanel = new JPanel(new MigLayout("fill, inset 0, wrap 1, gap 0", "[grow,  align right]"));
+        coordinatesPanel.setOpaque(false);
+        coordinatesPanel.add(workLabel);
+        coordinatesPanel.add(machineLabel, "hidemode 3");
 
+        axisPanel.add(axisLabel, "spany 2, growy");
+        axisPanel.add(coordinatesPanel, "growy");
+        add(axisPanel, "growy");
+
+        Dimension minimumSize = new Dimension(50, 18);
         JButton resetButton = new JButton(createAction(axis));
+        resetButton.setMinimumSize(minimumSize);
+        resetButton.setVerticalTextPosition(SwingConstants.TOP);
+        resetButton.setHorizontalTextPosition(SwingConstants.CENTER);
+
         resetButton.setMargin(new Insets(0, 0, 0, 0));
-        resetButton.setText("");
         add(resetButton, "grow");
-        add(axisPanel);
     }
 
     private static Action createAction(Axis axis) {
@@ -101,11 +115,11 @@ public class AxisPanel extends JPanel {
     }
 
     public void setMachinePosition(double value) {
-        setLabelValue(machine, value);
+        setLabelValue(machineLabel, value);
     }
 
     public void setWorkPosition(double value) {
-        setLabelValue(work, value);
+        setLabelValue(workLabel, value);
     }
 
     private void setLabelValue(CoordinateLabel label, double value) {
@@ -116,8 +130,9 @@ public class AxisPanel extends JPanel {
     }
 
     private void highlightLabels() {
-        work.setHighlighted(true);
-        machine.setHighlighted(true);
+        axisLabel.setHighlighted(true);
+        workLabel.setHighlighted(true);
+        machineLabel.setHighlighted(true);
 
         // Disable any old future
         if (highlightLabelsFuture != null && !highlightLabelsFuture.isDone()) {
@@ -126,15 +141,21 @@ public class AxisPanel extends JPanel {
 
         // Start new future
         highlightLabelsFuture = ThreadHelper.invokeLater(() -> {
-            work.setHighlighted(false);
-            machine.setHighlighted(false);
+            workLabel.setHighlighted(false);
+            machineLabel.setHighlighted(false);
+            axisLabel.setHighlighted(false);
         }, HIGHLIGHT_TIME);
     }
 
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        work.setEnabled(enabled);
-        machine.setEnabled(enabled);
+        workLabel.setEnabled(enabled);
+        machineLabel.setEnabled(enabled);
+        axisLabel.setEnabled(enabled);
+    }
+
+    public void setShowMachinePosition(boolean showMachinePosition) {
+        machineLabel.setVisible(showMachinePosition);
     }
 }
