@@ -42,7 +42,7 @@ public class Grid extends VertexObjectRenderable {
     private float[] zAxisColor;
 
     public Grid(String title) {
-        super(6, title, VISUALIZER_OPTION_GRID, new PlainShader());
+        super(10, title, VISUALIZER_OPTION_GRID, new PlainShader());
         reloadPreferences(new VisualizerOptions());
     }
 
@@ -59,7 +59,6 @@ public class Grid extends VertexObjectRenderable {
     public void render(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
         gl.glLineWidth(1.2f);
-        gl.glDisable(GL.GL_DEPTH_TEST);
         gl.glDrawArrays(GL.GL_LINES, 0, getVertexCount());
     }
 

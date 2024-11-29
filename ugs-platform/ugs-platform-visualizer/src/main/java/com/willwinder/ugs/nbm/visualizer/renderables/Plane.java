@@ -45,7 +45,6 @@ public class Plane extends VertexObjectRenderable {
     @Override
     public void render(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-        gl.glDisable(GL.GL_DEPTH_TEST);
         gl.glDrawArrays(GL.GL_TRIANGLES, 0, getVertexCount());
     }
 

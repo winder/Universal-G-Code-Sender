@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
@@ -42,7 +41,7 @@ public final class Tool extends Renderable {
     Color toolColor;
 
     public Tool(String title) {
-        super(4, title, VISUALIZER_OPTION_TOOL);
+        super(11, title, VISUALIZER_OPTION_TOOL);
         reloadPreferences(new VisualizerOptions());
     }
 
@@ -76,8 +75,6 @@ public final class Tool extends Renderable {
 
         double scale = 1. / scaleFactor;
         gl.glPushMatrix();
-            gl.glEnable(GL.GL_DEPTH_TEST);
-
             gl.glTranslated(position.x, position.y, position.z);
             gl.glScaled(scale, scale, scale);
 

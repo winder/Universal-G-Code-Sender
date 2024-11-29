@@ -54,7 +54,7 @@ public class SizeDisplay extends Renderable implements UGSEventListener {
     private boolean textRendererDirty = true;
 
     public SizeDisplay(String title) {
-        super(3, title, VISUALIZER_OPTION_SIZE_DISPLAY);
+        super(8, title, VISUALIZER_OPTION_SIZE_DISPLAY);
         reloadPreferences(new VisualizerOptions());
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         units = backend.getSettings().getPreferredUnits();
