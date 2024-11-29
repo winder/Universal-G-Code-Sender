@@ -181,6 +181,10 @@ public class GrblController extends AbstractController {
         }
 
         setControllerState(ControllerState.CONNECTING);
+        if (initializer.isInitialized()) {
+            return;
+        }
+
         ThreadHelper.invokeLater(() -> {
             positionPollTimer.stop();
             if (!initializer.initialize()) {

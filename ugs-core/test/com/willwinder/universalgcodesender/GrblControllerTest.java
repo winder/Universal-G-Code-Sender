@@ -55,6 +55,7 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mock;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
@@ -64,6 +65,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,6 +90,9 @@ public class GrblControllerTest {
     private static File tempDir;
     private final Settings settings = new Settings();
 
+    @Mock
+    private GrblControllerInitializer initializer;
+
     public GrblControllerTest() {
     }
 
@@ -103,6 +108,7 @@ public class GrblControllerTest {
 
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         this.mgc = new MockGrblCommunicator();
         Localization.initialize("en_US");
     }
@@ -216,12 +222,15 @@ public class GrblControllerTest {
     @Test
     public void issueSoftResetShouldNotSendIfNotConnected() throws Exception {
         GrblController instance = new GrblController(mgc);
+        reset(initializer);
+
         instance.issueSoftReset();
 
         // Noop if called while comm is closed.
         // Did not send reset command to communicator or issue reset.
         assertEquals(0, mgc.sentBytes.size());
         assertEquals(0, mgc.numCancelSendCalls);
+        verify(initializer, times(0)).reset();
     }
 
     @Test
@@ -229,12 +238,15 @@ public class GrblControllerTest {
         GrblController instance = initializeAndConnectController(VERSION_GRBL_0_8C);
         assertEquals(0, mgc.sentBytes.size());
         assertEquals(0, mgc.numCancelSendCalls);
+        reset(initializer);
 
         // Sent reset command to communicator and issued reset.
         instance.issueSoftReset();
         assertEquals(1, mgc.numCancelSendCalls);
         assertEquals(1, mgc.sentBytes.size());
         assertEquals(Byte.valueOf(GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size() - 1));
+        verify(initializer, times(0)).reset();
+        verify(initializer, times(0)).initialize();
     }
 
     @Test
@@ -242,10 +254,13 @@ public class GrblControllerTest {
         GrblController instance = initializeAndConnectController(VERSION_GRBL_0_7);
         assertEquals(0, mgc.sentBytes.size());
         assertEquals(0, mgc.numCancelSendCalls);
+        reset(initializer);
 
         instance.issueSoftReset();
+
         assertEquals(1, mgc.sentBytes.size());
         assertEquals(1, mgc.numCancelSendCalls);
+        verify(initializer, times(0)).reset();
     }
 
     /**
@@ -1200,7 +1215,6 @@ public class GrblControllerTest {
         assertEquals(0, mgc.numCancelSendCalls);
         assertEquals(0, mgc.numResetBuffersCalls);
         assertEquals(COMM_IDLE, instance.getCommunicatorState());
-
     }
 
     /**
@@ -1403,7 +1417,6 @@ public class GrblControllerTest {
      * @throws Exception on any error while simulating a connection
      */
     private GrblController initializeAndConnectController(String grblVersionString) throws Exception {
-        GrblControllerInitializer initializer = mock(GrblControllerInitializer.class);
         when(initializer.isInitialized()).thenReturn(false);
         when(initializer.isInitializing()).thenReturn(false);
         when(initializer.initialize()).thenReturn(true);
