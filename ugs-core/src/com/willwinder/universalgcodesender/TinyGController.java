@@ -210,7 +210,7 @@ public class TinyGController extends AbstractController {
 
             if (getActiveCommand().isPresent()) {
                 try {
-                    commandComplete(response);
+                    commandComplete();
                 } catch (Exception e) {
                     this.dispatchConsoleMessage(MessageType.ERROR, Localization.getString("controller.error.response")
                             + " <" + response + ">: " + e.getMessage());

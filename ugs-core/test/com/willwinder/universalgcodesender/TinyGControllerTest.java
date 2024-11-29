@@ -1,5 +1,5 @@
 /*
-    Copyright 2018-2022 Will Winder
+    Copyright 2018-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,8 +32,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -124,7 +122,7 @@ public class TinyGControllerTest {
         String response = "{\"r\": {\"sr\": {\"stat\": 1}}}";
         controller.rawResponseHandler(response);
 
-        verify(controller, times(1)).commandComplete(response);
+        verify(controller, times(1)).commandComplete();
         assertFalse(controller.getActiveCommand().isPresent());
     }
 

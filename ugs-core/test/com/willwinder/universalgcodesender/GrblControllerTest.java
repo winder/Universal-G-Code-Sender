@@ -312,7 +312,7 @@ public class GrblControllerTest {
         command.setResponse("ok");
         try {
             instance.commandSent(command);
-            instance.commandComplete(command.getCommandString());
+            instance.commandComplete();
         } catch (Exception ex) {
             ex.printStackTrace();
             fail("Unexpected exception from command complete: " + ex.getMessage());
@@ -397,7 +397,7 @@ public class GrblControllerTest {
                 GcodeCommand command = new GcodeCommand("G0X1"); // Whitespace removed.
                 command.setSent(true);
                 command.setResponse("ok");
-                instance.commandComplete(command.getCommandString());
+                instance.commandComplete();
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -413,7 +413,7 @@ public class GrblControllerTest {
                 command.setSent(true);
                 command.setResponse("ok");
                 instance.commandSent(command);
-                instance.commandComplete(command.getCommandString());
+                instance.commandComplete();
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -562,7 +562,7 @@ public class GrblControllerTest {
         command.setSent(true);
         command.setResponse("ok");
         for (int i = 0; i < 15; i++) {
-            gc.commandComplete(command.getCommandString());
+            gc.commandComplete();
         }
     }
 
@@ -1396,7 +1396,7 @@ public class GrblControllerTest {
 
         ControllerListener controllerListener = mock(ControllerListener.class);
         instance.addListener(controllerListener);
-        instance.commandComplete("done");
+        instance.commandComplete();
     }
 
     @Test

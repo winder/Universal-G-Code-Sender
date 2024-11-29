@@ -1,5 +1,5 @@
 /*
-    Copyright 2012-2023 Will Winder
+    Copyright 2012-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,9 @@
 
 package com.willwinder.universalgcodesender.types;
 
+import static com.willwinder.universalgcodesender.GrblUtils.isAlarmResponse;
+import static com.willwinder.universalgcodesender.GrblUtils.isErrorResponse;
+import static com.willwinder.universalgcodesender.GrblUtils.isOkResponse;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -30,10 +33,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.willwinder.universalgcodesender.GrblUtils.isAlarmResponse;
-import static com.willwinder.universalgcodesender.GrblUtils.isErrorResponse;
-import static com.willwinder.universalgcodesender.GrblUtils.isOkResponse;
 
 
 /**
@@ -143,7 +142,7 @@ public class GcodeCommand {
         if (isOkResponse(response)) {
             setDone(true);
             setOk(true);
-        } else if (isErrorResponse(response)|| isAlarmResponse(response)) {
+        } else if (isErrorResponse(response) || isAlarmResponse(response)) {
             setDone(true);
             setOk(false);
             setError(true);
@@ -219,7 +218,7 @@ public class GcodeCommand {
     }
 
     public boolean hasComment() {
-        return this.comment != null && this.comment.length() != 0;
+        return this.comment != null && !this.comment.isEmpty();
     }
 
     public String getComment() {

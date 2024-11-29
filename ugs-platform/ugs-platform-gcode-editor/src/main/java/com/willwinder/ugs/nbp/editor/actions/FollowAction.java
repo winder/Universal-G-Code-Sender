@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2023-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -58,6 +58,7 @@ public class FollowAction extends AbstractEditorAction implements UGSEventListen
     public static final String PREFERENCE_KEY = "follow-action";
     public static final String NAME = "follow-action";
     public static final String ICON_BASE = "icons/follow.svg";
+    public static final boolean DEFAULT_FOLLOW = true;
 
     public FollowAction() {
         putValue("iconBase", ICON_BASE);
@@ -85,7 +86,7 @@ public class FollowAction extends AbstractEditorAction implements UGSEventListen
 
         Preferences preferences = MimeLookup.getLookup(MimePath.EMPTY).lookup(Preferences.class);
         preferences.addPreferenceChangeListener(this);
-        setSelected(preferences.getBoolean(PREFERENCE_KEY, false));
+        setSelected(preferences.getBoolean(PREFERENCE_KEY, DEFAULT_FOLLOW));
     }
 
     @Override
@@ -103,7 +104,7 @@ public class FollowAction extends AbstractEditorAction implements UGSEventListen
     @Override
     protected void actionPerformed(ActionEvent evt, JTextComponent component) {
         Preferences preferences = MimeLookup.getLookup(MimePath.EMPTY).lookup(Preferences.class);
-        boolean previousValue = preferences.getBoolean(PREFERENCE_KEY, false);
+        boolean previousValue = preferences.getBoolean(PREFERENCE_KEY, DEFAULT_FOLLOW);
         preferences.putBoolean(PREFERENCE_KEY, !previousValue);
         setSelected(!previousValue);
     }

@@ -365,7 +365,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
         communicator.disconnect();
         setControllerState(ControllerState.DISCONNECTED);
-        messageService.dispatchMessage(MessageType.INFO, "*** Connection closed\n");
+        messageService.dispatchMessage(MessageType.INFO,"*** " + Localization.getString("controller.connection.closed") + "\n");
         return true;
     }
 

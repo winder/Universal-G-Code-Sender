@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -65,6 +65,7 @@ public class GcodeParser extends Parser {
         errorParserList.add(new InvalidG2CommandErrorParser(fileObject));
         errorParserList.add(new InvalidGcodeErrorParser(fileObject));
         errorParserList.add(new UnitsMissingErrorParser(fileObject));
+        errorParserList.add(new ReturnToHomeGcodeErrorParser(fileObject));
 
         TokenSequence<?> tokenSequence = snapshot.getTokenHierarchy().tokenSequence();
         tokenSequence.moveStart();

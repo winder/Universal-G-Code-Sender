@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2023-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.editor;
 
 import com.willwinder.ugs.nbp.editor.actions.FollowAction;
+import static com.willwinder.ugs.nbp.editor.actions.FollowAction.DEFAULT_FOLLOW;
 import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.mimelookup.MimePath;
 import org.openide.cookies.EditorCookie;
@@ -51,7 +52,7 @@ public class FollowLineUpdater {
             return;
         }
 
-        if (!preferences.getBoolean(FollowAction.PREFERENCE_KEY, false)) {
+        if (!preferences.getBoolean(FollowAction.PREFERENCE_KEY, DEFAULT_FOLLOW)) {
             return;
         }
 

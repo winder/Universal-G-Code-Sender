@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2023 Will Winder
+    Copyright 2013-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -361,7 +361,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
 
         if (isCommOpen()) {
             dispatchConsoleMessage(MessageType.INFO,
-                    "**** Connected to " + port + " @ " + portRate + " baud ****\n");
+                    "*** " + Localization.getString("controller.connected.to") + " " + port + " @ " + portRate + " baud\n");
             openCommAfterEvent();
         }
 
@@ -380,7 +380,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
 
         this.closeCommBeforeEvent();
 
-        this.dispatchConsoleMessage(MessageType.INFO,"**** Connection closed ****\n");
+        dispatchConsoleMessage(MessageType.INFO,"*** " + Localization.getString("controller.connection.closed") + "\n");
 
         this.flushSendQueues();
         this.comm.disconnect();
@@ -581,7 +581,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
 
     @Override
     public void pauseStreaming() throws Exception {
-        this.dispatchConsoleMessage(MessageType.INFO,"\n**** Pausing file transfer. ****\n\n");
+        dispatchConsoleMessage(MessageType.INFO, "*** " + Localization.getString("controller.pause.send") + "\n");
         pauseStreamingEvent();
         listeners.forEach(ControllerListener::streamPaused);
         this.comm.pauseSend();
@@ -594,7 +594,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
 
     @Override
     public void resumeStreaming() throws Exception {
-        this.dispatchConsoleMessage(MessageType.INFO, "\n**** Resuming file transfer. ****\n\n");
+        dispatchConsoleMessage(MessageType.INFO, "*** " + Localization.getString("controller.resume.send") + "\n");
         resumeStreamingEvent();
         listeners.forEach(ControllerListener::streamResumed);
         this.comm.resumeSend();
@@ -626,8 +626,8 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
 
     @Override
     public void cancelSend() throws Exception {
-        this.dispatchConsoleMessage(MessageType.INFO, "\n**** Canceling file transfer. ****\n\n");
         cancelSendBeforeEvent();
+        dispatchConsoleMessage(MessageType.INFO, "*** " + Localization.getString("controller.cancel.send") + "\n");
         listeners.forEach(ControllerListener::streamCanceled);
         cancelCommands();
         cancelSendAfterEvent();
@@ -672,7 +672,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
     // No longer a listener event
     protected void fileStreamComplete() {
         String duration = Utils.formattedMillis(getSendDuration());
-        dispatchConsoleMessage(MessageType.INFO, String.format("%n**** Finished sending file in %s ****%n%n", duration));
+        dispatchConsoleMessage(MessageType.INFO, "*** " + Localization.getString("controller.finished.send") + String.format(" %s", duration) + "\n");
         if (streamStopWatch.isStarted()) {
             streamStopWatch.stop();
         }
@@ -695,7 +695,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
 
     @Override
     public void communicatorPausedOnError() {
-        dispatchConsoleMessage(MessageType.INFO, "**** The communicator has been paused ****\n");
+        dispatchConsoleMessage(MessageType.INFO, "*** The communicator has been paused\n");
         try {
             // Synchronize the controller <> communicator state.
             if (!this.isStreaming()) {
@@ -769,7 +769,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
      * Notify controller that the next command has completed with response and
      * that the stream is complete once the last command has finished.
      */
-    public void commandComplete(String response) throws UnexpectedCommand {
+    public void commandComplete() throws UnexpectedCommand {
         if (activeCommands.isEmpty()) {
             throw new UnexpectedCommand(
                     Localization.getString("controller.exception.unexpectedCommand"));

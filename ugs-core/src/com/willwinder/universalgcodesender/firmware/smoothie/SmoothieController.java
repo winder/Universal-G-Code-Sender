@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2023 Will Winder
+    Copyright 2016-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -168,7 +168,7 @@ public class SmoothieController extends AbstractController {
             // Clear the ci
             Optional<GcodeCommand> activeCommand = getActiveCommand();
             if (activeCommand.isPresent() && activeCommand.get().isDone()) {
-                commandComplete(response);
+                commandComplete();
             }
 
             if (SmoothieUtils.isStatusResponse(response)) {

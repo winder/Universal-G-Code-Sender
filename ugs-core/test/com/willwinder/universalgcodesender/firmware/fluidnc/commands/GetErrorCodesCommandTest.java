@@ -85,7 +85,11 @@ public class GetErrorCodesCommandTest {
         command.appendResponse("ok");
 
         // Wait for the listener to complete
-        Thread.sleep(500);
+        long startTime = System.currentTimeMillis();
+        while(eventsCounter.get() == 0 && startTime + 1000 > System.currentTimeMillis()) {
+            // Wait for command to complete
+            Thread.sleep(10);
+        }
 
         assertTrue(command.isOk());
         assertEquals(1, eventsCounter.get());

@@ -206,7 +206,7 @@ public class GrblController extends AbstractController {
             boolean verbose = false;
 
             if (GrblUtils.isOkResponse(response)) {
-                this.commandComplete(processed);
+                this.commandComplete();
             }
 
             // Error case.
@@ -233,7 +233,7 @@ public class GrblController extends AbstractController {
                         // log error to console (unless it's in response to a jog command)
                         this.dispatchConsoleMessage(MessageType.ERROR, processed + "\n");
                     }
-                    this.commandComplete(processed);
+                    this.commandComplete();
                 } else {
                     processed =
                             String.format(Localization.getString("controller.exception.unexpectedError"),
