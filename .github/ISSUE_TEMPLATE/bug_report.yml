@@ -23,6 +23,7 @@ It is usually helpful to have the log file from UGS, locations for different typ
         Which UGS version are you using?
       multiple: false
       options:
+        - "2.1.10"
         - "2.1.9"
         - "2.1.8"
         - "2.1.7"
