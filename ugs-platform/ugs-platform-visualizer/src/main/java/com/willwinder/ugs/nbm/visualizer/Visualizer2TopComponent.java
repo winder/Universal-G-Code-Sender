@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbm.visualizer.jogl.NewtVisualizationPanel;
 import com.willwinder.ugs.nbm.visualizer.jogl.VisualizationPanel;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import org.apache.commons.lang3.StringUtils;
@@ -40,8 +41,6 @@ import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 
 /**
  * Setup JOGL canvas, GcodeRenderer and RendererInputHandler.
@@ -98,20 +97,24 @@ public final class Visualizer2TopComponent extends TopComponent {
         if (VisualizerOptions.getBooleanOption(VisualizerOptions.VISUALIZER_OPTION_LEGACY, false)) {
             borderedPanel.add(new VisualizationPanel(), BorderLayout.CENTER);
         } else {
-            WindowManager.getDefault().invokeWhenUIReady(() -> {
-                executor.execute(() -> {
-                    try {
-                        SwingUtilities.invokeAndWait(() -> {
-                            borderedPanel.add(new NewtVisualizationPanel(), BorderLayout.CENTER);
-                            borderedPanel.revalidate();
-                        });
-                    } catch (InterruptedException | InvocationTargetException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-            });
+            createAndAddNewtPanel(borderedPanel);
         }
         add(borderedPanel, BorderLayout.CENTER);
+    }
+
+    private void createAndAddNewtPanel(JPanel borderedPanel) {
+        WindowManager.getDefault().invokeWhenUIReady(() -> {
+            executor.execute(() -> {
+                try {
+                    SwingUtilities.invokeAndWait(() -> {
+                        borderedPanel.add(new NewtVisualizationPanel(), BorderLayout.CENTER);
+                        borderedPanel.revalidate();
+                    });
+                } catch (InterruptedException | InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        });
     }
 
     @OnStart

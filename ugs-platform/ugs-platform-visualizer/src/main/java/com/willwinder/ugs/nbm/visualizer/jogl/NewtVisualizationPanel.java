@@ -32,6 +32,7 @@ import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.willwinder.ugs.nbp.core.actions.OpenLogDirectoryAction;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.util.Lookup;
 import org.openide.util.NbPreferences;
 
@@ -62,7 +63,6 @@ public class NewtVisualizationPanel extends JPanel {
     private NewtCanvasAWT panel;
     private transient RendererInputHandler rih;
     private transient GLWindow glWindow;
-
 
     public NewtVisualizationPanel() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -121,8 +121,6 @@ public class NewtVisualizationPanel extends JPanel {
             glWindow.unlockSurface();
         }
 
-        NewtCanvasAWT p = new NewtCanvasAWT(glWindow);
-
         GcodeRenderer renderer = Lookup.getDefault().lookup(GcodeRenderer.class);
         if (renderer == null) {
             throw new IllegalArgumentException("Failed to access GcodeRenderer.");
@@ -134,24 +132,48 @@ public class NewtVisualizationPanel extends JPanel {
         Preferences pref = NbPreferences.forModule(VisualizerOptionsPanel.class);
         pref.addPreferenceChangeListener(this.rih);
 
-        File f = (backend.getProcessedGcodeFile() != null) ?
-                backend.getProcessedGcodeFile() : backend.getGcodeFile();
+        File f = (backend.getProcessedGcodeFile() != null) ? backend.getProcessedGcodeFile() : backend.getGcodeFile();
         if (f != null) {
             this.rih.setGcodeFile(f.getAbsolutePath());
         }
 
         // Install listeners...
         backend.addUGSEventListener(this.rih);
-        glWindow.addMouseListener(new NewtMouseListenerAdapter(p, this.rih, this.rih, this.rih));
-        glWindow.addKeyListener(new NewtKeyboardListenerAdapter(p, this.rih));
-
         glWindow.addGLEventListener(renderer);
+
+        NewtCanvasAWT p = new NewtCanvasAWT(glWindow);
         p.setShallUseOffscreenLayer(true);
         p.setBackground(Color.BLACK);
 
         p.setIgnoreRepaint(true);
-        glWindow.setSurfaceScale(new float[]{ScalableSurface.IDENTITY_PIXELSCALE,
-                ScalableSurface.IDENTITY_PIXELSCALE});
+        glWindow.setSurfaceScale(new float[]{ScalableSurface.IDENTITY_PIXELSCALE, ScalableSurface.IDENTITY_PIXELSCALE});
+
+        // Workaround for linux, register listeners after the window has been created
+        ThreadHelper.invokeLater(() -> {
+            glWindow.addMouseListener(new NewtMouseListenerAdapter(p, this.rih, this.rih, this.rih));
+            glWindow.addKeyListener(new NewtKeyboardListenerAdapter(p, this.rih));
+            glWindow.addWindowListener(new com.jogamp.newt.event.WindowAdapter() {
+                @Override
+                public void windowResized(final com.jogamp.newt.event.WindowEvent e) {
+                    resize();
+                }
+            });
+        }, 500);
         return p;
+    }
+
+    @Override
+    public void setBounds(int x, int y, int width, int height) {
+        super.setBounds(x, y, width, height);
+        resize();
+    }
+
+    private void resize() {
+        UPDATE_SIZE_SCHEDULER.execute(() -> {
+            if (glWindow.isVisible()) {
+                glWindow.setPosition(0, 0);
+                glWindow.setSize(getWidth(), getHeight());
+            }
+        });
     }
 }
