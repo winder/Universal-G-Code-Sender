@@ -39,7 +39,7 @@
 
       <ugs.bundle.java.linux.x64.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.8.1%2B1/OpenJDK17U-jre_x64_linux_hotspot_17.0.8.1_1.tar.gz</ugs.bundle.java.linux.x64.url>
       <ugs.bundle.java.linux.arm.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.8.1%2B1/OpenJDK17U-jre_arm_linux_hotspot_17.0.8.1_1.tar.gz</ugs.bundle.java.linux.arm.url>
-      <ugs.bundle.java.linux.aarch64.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.9%2B9/OpenJDK17U-jre_aarch64_linux_hotspot_17.0.9_9.tar.gz</ugs.bundle.java.linux.aarch64.url>
+      <ugs.bundle.java.linux.aarch64.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.13%2B11/OpenJDK17U-jre_aarch64_mac_hotspot_17.0.13_11.tar.gz</ugs.bundle.java.linux.aarch64.url>
 
       <!-- Mac OS X signing identity - must match with a verified Apple developer certificate in the keychain -->
       <ugs.codesign.identity>Developer ID Application</ugs.codesign.identity>

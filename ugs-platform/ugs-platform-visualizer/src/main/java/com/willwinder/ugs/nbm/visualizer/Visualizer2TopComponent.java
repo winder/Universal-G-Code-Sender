@@ -34,8 +34,12 @@ import org.openide.windows.WindowManager;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 
@@ -58,6 +62,7 @@ public final class Visualizer2TopComponent extends TopComponent {
     public final static String VisualizerWindowPath = LocalizingService.MENU_WINDOW;
     public final static String VisualizerActionId = "com.willwinder.ugs.nbm.visualizer.Visualizer2TopComponent";
     public final static String VisualizerCategory = LocalizingService.CATEGORY_WINDOW;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "Visualizer2TopComponent GL Init"));
 
     public Visualizer2TopComponent() {
         setMinimumSize(new java.awt.Dimension(50, 50));
@@ -93,7 +98,18 @@ public final class Visualizer2TopComponent extends TopComponent {
         if (VisualizerOptions.getBooleanOption(VisualizerOptions.VISUALIZER_OPTION_LEGACY, false)) {
             borderedPanel.add(new VisualizationPanel(), BorderLayout.CENTER);
         } else {
-            borderedPanel.add(new NewtVisualizationPanel(), BorderLayout.CENTER);
+            WindowManager.getDefault().invokeWhenUIReady(() -> {
+                executor.execute(() -> {
+                    try {
+                        SwingUtilities.invokeAndWait(() -> {
+                            borderedPanel.add(new NewtVisualizationPanel(), BorderLayout.CENTER);
+                            borderedPanel.revalidate();
+                        });
+                    } catch (InterruptedException | InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            });
         }
         add(borderedPanel, BorderLayout.CENTER);
     }

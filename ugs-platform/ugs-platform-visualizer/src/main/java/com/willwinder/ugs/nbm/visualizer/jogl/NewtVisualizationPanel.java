@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbm.visualizer.jogl;
 
-import com.jogamp.common.util.locks.RecursiveLock;
 import com.jogamp.nativewindow.ScalableSurface;
 import com.jogamp.newt.awt.NewtCanvasAWT;
 import com.jogamp.newt.opengl.GLWindow;
@@ -129,11 +128,6 @@ public class NewtVisualizationPanel extends JPanel {
             throw new IllegalArgumentException("Failed to access GcodeRenderer.");
         }
 
-
-        RecursiveLock lock = glWindow.getLock();
-        lock.lock();
-        lock.unlock();
-
         FPSAnimator animator = new FPSAnimator(glWindow, 60);
         this.rih = new RendererInputHandler(renderer, animator, backend, 30, 60);
 
@@ -153,36 +147,11 @@ public class NewtVisualizationPanel extends JPanel {
 
         glWindow.addGLEventListener(renderer);
         p.setShallUseOffscreenLayer(true);
-        resize();
         p.setBackground(Color.BLACK);
 
         p.setIgnoreRepaint(true);
         glWindow.setSurfaceScale(new float[]{ScalableSurface.IDENTITY_PIXELSCALE,
                 ScalableSurface.IDENTITY_PIXELSCALE});
-
-        glWindow.addWindowListener(new com.jogamp.newt.event.WindowAdapter() {
-            @Override
-            public void windowResized(final com.jogamp.newt.event.WindowEvent e) {
-                resize();
-            }
-        });
-
-
-        animator.start();
         return p;
-    }
-
-
-    @Override
-    public void setBounds(int x, int y, int width, int height) {
-        super.setBounds(x, y, width, height);
-        resize();
-    }
-
-    private void resize() {
-        UPDATE_SIZE_SCHEDULER.execute(() -> {
-            glWindow.setPosition(0, 0);
-            glWindow.setSize(getWidth(), getHeight());
-        });
     }
 }
