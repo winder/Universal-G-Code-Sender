@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2023-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,8 +19,11 @@
 package com.willwinder.ugs.platform.surfacescanner.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.ugs.platform.surfacescanner.io.XyzFileFilter;
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
+import static com.willwinder.ugs.platform.surfacescanner.Utils.getMaxPosition;
+import static com.willwinder.ugs.platform.surfacescanner.Utils.getMinPosition;
+import static com.willwinder.ugs.platform.surfacescanner.Utils.shouldEraseProbedData;
+import com.willwinder.ugs.platform.surfacescanner.io.XyzFileFilter;
 import com.willwinder.ugs.platform.surfacescanner.io.XyzSurfaceReader;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -28,11 +31,16 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.uielements.FileOpenDialog;
+import com.willwinder.universalgcodesender.uielements.helpers.FilenameFilterAdapter;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.MathUtils;
 import org.openide.util.ImageUtilities;
+import org.openide.windows.WindowManager;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -40,15 +48,15 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 
-import static com.willwinder.ugs.platform.surfacescanner.Utils.*;
-
 public class OpenScannedSurfaceAction extends AbstractAction implements UGSEventListener {
     public static final String ICON_BASE = "com/willwinder/ugs/platform/surfacescanner/icons/open.svg";
 
     private final SurfaceScanner surfaceScanner;
     private final BackendAPI backend;
+    private final FileOpenDialog fileOpenDialog;
 
     public OpenScannedSurfaceAction(SurfaceScanner surfaceScanner) {
+        this.fileOpenDialog = new FileOpenDialog();
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
         this.surfaceScanner = surfaceScanner;
@@ -61,16 +69,6 @@ public class OpenScannedSurfaceAction extends AbstractAction implements UGSEvent
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
     }
 
-    private static Optional<File> chooseOpenFile() {
-        fileChooser.setFileFilter(new XyzFileFilter());
-        int result = fileChooser.showOpenDialog(null);
-        if (result != JFileChooser.APPROVE_OPTION) {
-            return Optional.empty();
-        }
-
-        File selectedFile = fileChooser.getSelectedFile();
-        return Optional.of(selectedFile);
-    }
 
     @Override
     public boolean isEnabled() {
@@ -83,9 +81,11 @@ public class OpenScannedSurfaceAction extends AbstractAction implements UGSEvent
             return;
         }
 
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        Optional<File> file = chooseOpenFile();
-        if (!file.isPresent()) {
+        fileOpenDialog.setFilenameFilter(new FilenameFilterAdapter(new XyzFileFilter()));
+        fileOpenDialog.centerOn(WindowManager.getDefault().getMainWindow());
+        fileOpenDialog.setVisible(true);
+        Optional<File> file = fileOpenDialog.getSelectedFile();
+        if (file.isEmpty()) {
             return;
         }
 
@@ -95,7 +95,8 @@ public class OpenScannedSurfaceAction extends AbstractAction implements UGSEvent
 
             updateSettings(backend.getSettings().getAutoLevelSettings(), positions);
             updatePoints(positions);
-        } catch (IOException ex) {
+        } catch (IOException | NumberFormatException ex) {
+            GUIHelpers.displayErrorDialog("Could not read the scanned point file, check the log file for more information.");
             throw new RuntimeException(ex);
         }
     }

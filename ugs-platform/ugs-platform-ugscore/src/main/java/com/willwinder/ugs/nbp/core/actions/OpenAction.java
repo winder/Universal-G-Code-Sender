@@ -29,6 +29,7 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
+import org.openide.windows.WindowManager;
 
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
@@ -83,6 +84,7 @@ public final class OpenAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         fileOpenDialog.setFilenameFilter(fileFilterService.getFilenameFilters());
+        fileOpenDialog.centerOn(WindowManager.getDefault().getMainWindow());
         fileOpenDialog.setVisible(true);
         fileOpenDialog.getSelectedFile().ifPresent(this::openFile);
     }

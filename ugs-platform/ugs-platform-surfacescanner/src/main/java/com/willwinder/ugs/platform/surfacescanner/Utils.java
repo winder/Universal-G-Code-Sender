@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2023-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -48,9 +48,9 @@ public class Utils {
     }
 
     public static Position getMaxPosition(List<Position> positions) {
-        double maxX = Double.MIN_VALUE;
-        double maxY = Double.MIN_VALUE;
-        double maxZ = Double.MIN_VALUE;
+        double maxX = -Double.MAX_VALUE;
+        double maxY = -Double.MAX_VALUE;
+        double maxZ = -Double.MAX_VALUE;
         UnitUtils.Units units = UnitUtils.Units.MM;
         for (Position p : positions) {
             units = p.getUnits();

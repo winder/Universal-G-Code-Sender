@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2023-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,7 +24,7 @@ import java.io.File;
 public class XyzFileFilter extends FileFilter {
     @Override
     public boolean accept(File f) {
-        return f.isFile() && f.getName().endsWith(".xyz");
+        return f.isFile() && (f.getName().endsWith(".xyz") || f.getName().endsWith(".txt"));
     }
 
     @Override
