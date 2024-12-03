@@ -23,9 +23,16 @@ public interface IConnectionDevice {
     Optional<Integer> getPort();
 
     /**
-     * Get the an optional description of the device
+     * Get the optional description of the device
      *
      * @return the description of the device
      */
     Optional<String> getDescription();
+
+    /**
+     * Get the manufacturer of the device
+     *
+     * @return the manufacturer
+     */
+    Optional<String> getManufacturer();
 }

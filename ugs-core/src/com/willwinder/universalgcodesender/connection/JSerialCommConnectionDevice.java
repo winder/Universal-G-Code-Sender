@@ -53,4 +53,13 @@ public class JSerialCommConnectionDevice extends AbstractConnectionDevice {
     public Optional<Integer> getPort() {
         return Optional.empty();
     }
+
+    @Override
+    public  Optional<String> getManufacturer() {
+        String manufacturer = serialPort.getManufacturer();
+        if (StringUtils.isEmpty(manufacturer)) {
+            return Optional.empty();
+        }
+        return Optional.of(manufacturer);
+    }
 }

@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Will Winder
+Copyright 2023-2024 Will Winder
 
 This file is part of Universal Gcode Sender (UGS).
 
@@ -19,13 +19,16 @@ along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 package com.willwinder.ugs.nbp.core.ui;
 
 import com.willwinder.universalgcodesender.connection.IConnectionDevice;
+import net.miginfocom.swing.MigLayout;
+import org.openide.util.ImageUtilities;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Font;
 
 /**
  * Renders a connection device
@@ -36,41 +39,40 @@ public class PortCellItem extends JPanel {
     private static final Border DEFAULT_BORDER = new EmptyBorder(5, 5, 5, 5);
 
     PortCellItem(JList<? extends IConnectionDevice> list, IConnectionDevice device, boolean isSelected) {
-        super(new BorderLayout());
+        super(new MigLayout());
         setOpaque(true);
         setBorder(DEFAULT_BORDER);
         populatePortInfo(device);
         setComponentOrientation(list.getComponentOrientation());
 
-        if (isSelected) {
-            setBackground(list.getSelectionBackground());
-            setForeground(list.getSelectionForeground());
-        } else {
-            setBackground(list.getBackground());
-            setForeground(list.getForeground());
+        for(Component component : getComponents()) {
+            if (isSelected) {
+                setBackground(list.getSelectionBackground());
+                component.setBackground(list.getSelectionBackground());
+                component.setForeground(list.getSelectionForeground());
+            } else {
+                setBackground(list.getBackground());
+                component.setBackground(list.getBackground());
+                component.setForeground(list.getForeground());
+            }
         }
-
         setEnabled(list.isEnabled());
-        setFont(list.getFont());
     }
 
     private void populatePortInfo(IConnectionDevice device) {
-        if (!device.getDescription().isPresent()) {
-            setTitle(device.getAddress());
-        } else {
-            setTitleAndDescription(device);
+        add(new JLabel(ImageUtilities.loadImageIcon("resources/icons/device24.svg", false)), "spany");
+
+        JLabel label = new JLabel(device.getAddress());
+        Font f = label.getFont();
+        label.setFont(f.deriveFont(Font.BOLD));
+        add(label, "wrap, growx, align left");
+
+        if (device.getDescription().isPresent()) {
+            add(new JLabel(device.getDescription().orElse(device.getAddress())), "wrap, growx, align left");
         }
-    }
 
-    private void setTitle(String title) {
-        JLabel addressLabel = new JLabel(title);
-        add(addressLabel, BorderLayout.CENTER);
-    }
-
-    private void setTitleAndDescription(IConnectionDevice device) {
-        setTitle(device.getDescription().orElse(device.getAddress()));
-        JLabel addressLabel = new JLabel(device.getAddress());
-        addressLabel.setFont(addressLabel.getFont().deriveFont(8f));
-        add(addressLabel, BorderLayout.SOUTH);
+        if (device.getManufacturer().isPresent()) {
+            add(new JLabel(device.getManufacturer().get()) , "wrap, growx, align left");
+        }
     }
 }
