@@ -24,6 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import javax.swing.filechooser.FileFilter;
 import java.awt.FileDialog;
 import java.awt.Frame;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.File;
 import java.util.Optional;
 
@@ -31,7 +33,6 @@ import java.util.Optional;
  * A generic file dialog base
  */
 public class FileDialogBase extends FileDialog {
-
     public FileDialogBase(String directory) {
         super((Frame) null);
 
@@ -40,6 +41,24 @@ public class FileDialogBase extends FileDialog {
             directory = directoryFile.getParent();
         }
         setDirectory(directory);
+    }
+
+    public void centerOn(Frame frame) {
+        if (frame == null) {
+            return;
+        }
+
+        pack();
+        setSize(800, 600);
+        validate();
+
+        double width = getBounds().getWidth();
+        double height = getBounds().getHeight();
+
+        Rectangle rect = frame.getBounds();
+        int x = (int) (rect.getCenterX() - (width / 2));
+        int y = (int) (rect.getCenterY() - (height / 2));
+        setLocation(new Point(x, y));
     }
 
     @Override

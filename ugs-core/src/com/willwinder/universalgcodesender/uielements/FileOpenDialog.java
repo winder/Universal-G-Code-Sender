@@ -21,6 +21,9 @@ package com.willwinder.universalgcodesender.uielements;
 import java.awt.FileDialog;
 
 public class FileOpenDialog extends FileDialogBase {
+    public FileOpenDialog() {
+        this("");
+    }
     public FileOpenDialog(String directory) {
         super(directory);
         setMode(FileDialog.LOAD);

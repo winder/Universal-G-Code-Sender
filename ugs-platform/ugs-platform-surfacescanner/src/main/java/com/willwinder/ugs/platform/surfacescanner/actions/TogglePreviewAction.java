@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2023-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -45,7 +45,7 @@ public class TogglePreviewAction extends AbstractAction {
         putValue(Action.SHORT_DESCRIPTION, title);
         putValue("iconBase", icon);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(icon, false));
-        putValue(Action.SELECTED_KEY, renderable.isEnabled());
+        putValue(Action.SELECTED_KEY, !renderable.isEnabled());
     }
 
     @Override
