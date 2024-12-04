@@ -31,15 +31,17 @@ public class DefaultConnectionDevice extends AbstractConnectionDevice {
     private final String address;
     private final Integer port;
     private final String description;
+    private final String manufacturer;
 
     public DefaultConnectionDevice(String address) {
-        this(address, null, "");
+        this(address, null, "", "");
     }
 
-    public DefaultConnectionDevice(String address, Integer port, String description) {
+    public DefaultConnectionDevice(String address, Integer port, String description, String manufacturer) {
         this.address = address;
         this.port = port;
         this.description = description;
+        this.manufacturer = manufacturer;
     }
 
     @Override
@@ -58,6 +60,14 @@ public class DefaultConnectionDevice extends AbstractConnectionDevice {
             return Optional.empty();
         }
         return Optional.of(description);
+    }
+
+    @Override
+    public Optional<String> getManufacturer() {
+        if (StringUtils.isEmpty(manufacturer)) {
+            return Optional.empty();
+        }
+        return Optional.of(manufacturer);
     }
 
     @Override

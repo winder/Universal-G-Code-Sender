@@ -168,7 +168,7 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
     @Override
     public List<? extends IConnectionDevice> getDevices() {
         return MdnsService.getInstance().getServices(MDNS_SERVICE).stream()
-                .map(service -> new DefaultConnectionDevice(service.getHost(), service.getPort(), service.getName()))
+                .map(service -> new DefaultConnectionDevice(service.getHost(), service.getPort(), service.getName(), "Port " + service.getPort()))
                 .toList();
     }
 }
