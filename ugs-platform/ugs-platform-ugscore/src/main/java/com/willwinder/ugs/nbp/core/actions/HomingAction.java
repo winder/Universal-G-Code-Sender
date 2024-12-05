@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -35,7 +36,9 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 
 @ActionID(
@@ -57,7 +60,7 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
 
     public static final String ICON_BASE = "resources/icons/home.svg";
 
-    private BackendAPI backend;
+    private final BackendAPI backend;
 
     public HomingAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -73,8 +76,8 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse instanceof ControllerStateEvent) {
-            java.awt.EventQueue.invokeLater(() -> {
+        if (cse instanceof ControllerStateEvent || cse instanceof FirmwareSettingEvent) {
+            EventQueue.invokeLater(() -> {
                 updateToolTip();
                 setEnabled(isEnabled());
             });
