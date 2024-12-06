@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Will Winder
+    Copyright 2018-2024 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,16 +19,15 @@
 package com.willwinder.universalgcodesender.firmware.grbl;
 
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.communicator.AbstractCommunicator;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.communicator.ICommunicatorListener;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.ControllerUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.text.DecimalFormat;
@@ -36,19 +35,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Handles the firmware settings on a GRBL controller. It needs to be registered as a listener
- * to {@link AbstractCommunicator#addListener(ICommunicatorListener)}
- * for it to be able to process all commands to/from the controller.
+ * Handles the firmware settings on a GRBL controller.
  *
  * @author Joacim Breiler
  * @author MerrellM
  */
-public class GrblFirmwareSettings implements ICommunicatorListener, IFirmwareSettingsListener, IFirmwareSettings {
+public class GrblFirmwareSettings implements IFirmwareSettings {
     private static final Logger LOGGER = Logger.getLogger(GrblFirmwareSettings.class.getName());
 
     /**
@@ -78,13 +76,17 @@ public class GrblFirmwareSettings implements ICommunicatorListener, IFirmwareSet
     private final Map<String, FirmwareSetting> settings = new ConcurrentHashMap<>();
 
     /**
-     * A delegate for all serial communication handling
+     * All listeners for listening to changed settings
      */
-    private final GrblFirmwareSettingsCommunicatorListener serialCommunicatorDelegate;
+    private final Set<IFirmwareSettingsListener> listeners = ConcurrentHashMap.newKeySet();
+
+    /**
+     * The controller to be used for communication
+     */
+    private final IController controller;
 
     public GrblFirmwareSettings(IController controller) {
-        this.serialCommunicatorDelegate = new GrblFirmwareSettingsCommunicatorListener(controller);
-        this.serialCommunicatorDelegate.addListener(this);
+        this.controller = controller;
     }
 
     /**
@@ -109,9 +111,18 @@ public class GrblFirmwareSettings implements ICommunicatorListener, IFirmwareSet
 
         // Make a copy of existing property and send it to our controller
         final FirmwareSetting newSetting = new FirmwareSetting(oldSetting.getKey(), value, oldSetting.getUnits(), oldSetting.getDescription(), oldSetting.getShortDescription());
-        return serialCommunicatorDelegate
-                .updateSettingOnController(newSetting)
-                .orElse(oldSetting);
+        try {
+            GcodeCommand command = controller.createCommand(newSetting.getKey() + "=" + newSetting.getValue());
+            ControllerUtils.sendAndWaitForCompletion(controller, command);
+            if (command.isOk()) {
+                updateFirmwareSetting(newSetting);
+                return newSetting;
+            }
+        } catch (Exception e) {
+            throw new FirmwareSettingsException("Couldn't send update setting command to the controller: " + newSetting.getKey() + "=" + newSetting.getValue() + ".", e);
+        }
+
+        return oldSetting;
     }
 
     /**
@@ -139,12 +150,12 @@ public class GrblFirmwareSettings implements ICommunicatorListener, IFirmwareSet
 
     @Override
     public void addListener(IFirmwareSettingsListener listener) {
-        serialCommunicatorDelegate.addListener(listener);
+        listeners.add(listener);
     }
 
     @Override
     public void removeListener(IFirmwareSettingsListener listener) {
-        serialCommunicatorDelegate.removeListener(listener);
+        listeners.remove(listener);
     }
 
     @Override
@@ -421,40 +432,15 @@ public class GrblFirmwareSettings implements ICommunicatorListener, IFirmwareSet
                 .orElse(UnitUtils.Units.UNKNOWN);
     }
 
-    /*
-     * SerialCommunicatorListener
+    /**
+     * Updates a firmware setting
+     *
+     * @param setting the setting
      */
-    @Override
-    public void rawResponseListener(String response) {
-        serialCommunicatorDelegate.rawResponseListener(response);
-    }
-
-    @Override
-    public void commandSent(GcodeCommand command) {
-        serialCommunicatorDelegate.commandSent(command);
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-        serialCommunicatorDelegate.commandSkipped(command);
-    }
-
-    @Override
-    public void communicatorPausedOnError() {
-        serialCommunicatorDelegate.communicatorPausedOnError();
-    }
-
-    @Override
-    public void onConnectionClosed() {
-    }
-
-    /*
-     * IFirmwareSettingsListener
-     */
-    @Override
-    public void onUpdatedFirmwareSetting(FirmwareSetting setting) {
+    public void updateFirmwareSetting(FirmwareSetting setting) {
         LOGGER.log(Level.FINE, "Updating setting " + setting.getKey() + " = " + setting.getValue());
         settings.put(setting.getKey(), setting);
+        listeners.forEach(listener -> listener.onUpdatedFirmwareSetting(setting));
     }
 
     /*

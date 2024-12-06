@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblCommandCreator;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettingsInterceptor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -93,9 +94,9 @@ public class GrblController extends AbstractController {
         super(communicator, new GrblCommandCreator());
         this.positionPollTimer = new StatusPollTimer(this);
         this.firmwareSettings = new GrblFirmwareSettings(this);
-        this.comm.addListener(firmwareSettings);
         this.initializer = new GrblControllerInitializer(this);
         this.overrideManager = new GrblOverrideManager(this, communicator, messageService);
+        new GrblFirmwareSettingsInterceptor(this, firmwareSettings);
     }
 
     public GrblController() {
