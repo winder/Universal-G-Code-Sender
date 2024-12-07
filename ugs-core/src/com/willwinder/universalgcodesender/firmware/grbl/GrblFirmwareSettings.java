@@ -407,8 +407,8 @@ public class GrblFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
-    public boolean isHomingEnabled() throws FirmwareSettingsException {
-        return getValueAsBoolean(KEY_HOMING_ENABLED);
+    public boolean isHomingEnabled() {
+        return getValueAsBoolean(KEY_HOMING_ENABLED, false);
     }
 
     @Override
@@ -467,5 +467,9 @@ public class GrblFirmwareSettings implements IFirmwareSettings {
     private boolean getValueAsBoolean(String key) throws FirmwareSettingsException {
         FirmwareSetting firmwareSetting = getSetting(key).orElseThrow(() -> new FirmwareSettingsException("Couldn't find setting with key: " + key));
         return "1".equalsIgnoreCase(firmwareSetting.getValue());
+    }
+
+    private boolean getValueAsBoolean(String key, boolean defaultValue) {
+        return getSetting(key).map(FirmwareSetting::getValue).map("1"::equalsIgnoreCase).orElse(defaultValue);
     }
 }

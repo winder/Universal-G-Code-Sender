@@ -26,11 +26,11 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GetFirmwareVersionCommand extends SystemCommand {
+public class GetBuildInfoCommand extends SystemCommand {
     private static final Pattern VERSION_FLUIDNC_PATTERN = Pattern.compile("\\[VER:[0-9.]+ (?<variant>[a-zA-Z0-9]+) v?(?<version>(?<major>[0-9]*)(.(?<minor>[0-9]+)(.(?<patch>[0-9]+))?)?([a-zA-Z]+)?)(.*:.*)*]", Pattern.CASE_INSENSITIVE);
     private static final Pattern VERSION_GRBL_PATTERN = Pattern.compile("\\[VER:(?<version>(?<major>[0-9]*)(.(?<minor>[0-9]+)(.(?<patch>[0-9]+))?)).*]", Pattern.CASE_INSENSITIVE);
 
-    public GetFirmwareVersionCommand() {
+    public GetBuildInfoCommand() {
         super("$I");
     }
 

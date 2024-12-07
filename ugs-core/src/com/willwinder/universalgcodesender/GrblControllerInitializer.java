@@ -1,5 +1,6 @@
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.firmware.grbl.GrblBuildOptions;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblVersion;
 import com.willwinder.universalgcodesender.firmware.grbl.commands.GetBuildInfoCommand;
 import com.willwinder.universalgcodesender.firmware.grbl.commands.GetParserStateCommand;
@@ -32,13 +33,14 @@ public class GrblControllerInitializer implements IControllerInitializer {
     private final AtomicBoolean isInitialized = new AtomicBoolean(false);
     private final GrblController controller;
     private GrblVersion version = GrblVersion.NO_VERSION;
+    private GrblBuildOptions options = new GrblBuildOptions();
 
     public GrblControllerInitializer(GrblController controller) {
         this.controller = controller;
     }
 
     @Override
-    public boolean initialize() throws ControllerException{
+    public boolean initialize() throws ControllerException {
         // Only allow one initialization at a time
         if (isInitializing.get() || isInitialized.get()) {
             return false;
@@ -100,6 +102,7 @@ public class GrblControllerInitializer implements IControllerInitializer {
         }
 
         version = optionalVersion.get();
+        options = getBuildInfoCommand.getBuildOptions();
     }
 
     @Override
@@ -120,5 +123,9 @@ public class GrblControllerInitializer implements IControllerInitializer {
 
     public GrblVersion getVersion() {
         return version;
+    }
+
+    public GrblBuildOptions getOptions() {
+        return options;
     }
 }

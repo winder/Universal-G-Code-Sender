@@ -3,7 +3,7 @@ package com.willwinder.universalgcodesender.firmware.fluidnc;
 import com.willwinder.universalgcodesender.Capabilities;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
-import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetFirmwareVersionCommand;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetBuildInfoCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCommand;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -71,7 +71,7 @@ public class FluidNCUtilsTest {
     }
 
     @Test
-    public void queryFirmwareVersionShouldReturnTheFirmwareVersion() throws Exception {
+    public void queryBuildInformationShouldReturnTheFirmwareInformation() throws Exception {
         IController controller = mock(IController.class);
         MessageService messageService = mock(MessageService.class);
 
@@ -83,7 +83,7 @@ public class FluidNCUtilsTest {
             return null;
         }).when(controller).sendCommandImmediately(any());
 
-        GetFirmwareVersionCommand firmwareVersionCommand = FluidNCUtils.queryFirmwareVersion(controller, messageService);
+        GetBuildInfoCommand firmwareVersionCommand = FluidNCUtils.queryBuildInformation(controller, messageService);
         SemanticVersion semanticVersion = firmwareVersionCommand.getVersion();
         assertEquals(semanticVersion.getMajor(), 3);
         assertEquals(semanticVersion.getMinor(), 6);
@@ -92,7 +92,7 @@ public class FluidNCUtilsTest {
     }
 
     @Test
-    public void queryFirmwareVersionShouldThrowErrorIfVersionToLow() throws Exception {
+    public void queryBuildInformationToLow() throws Exception {
         IController controller = mock(IController.class);
         MessageService messageService = mock(MessageService.class);
 
@@ -104,11 +104,11 @@ public class FluidNCUtilsTest {
             return null;
         }).when(controller).sendCommandImmediately(any());
 
-        assertThrows(IllegalStateException.class, () -> FluidNCUtils.queryFirmwareVersion(controller, messageService));
+        assertThrows(IllegalStateException.class, () -> FluidNCUtils.queryBuildInformation(controller, messageService));
     }
 
     @Test
-    public void queryFirmwareVersionShouldThrowErrorIfNotFluidNC() throws Exception {
+    public void queryBuildInformationShouldThrowErrorIfNotFluidNC() {
         IController controller = mock(IController.class);
         MessageService messageService = mock(MessageService.class);
 
@@ -120,7 +120,7 @@ public class FluidNCUtilsTest {
             return null;
         }).when(controller).sendCommandImmediately(any());
 
-        assertThrows(IllegalStateException.class, () -> FluidNCUtils.queryFirmwareVersion(controller, messageService));
+        assertThrows(IllegalStateException.class, () -> FluidNCUtils.queryBuildInformation(controller, messageService));
     }
 
     @Test

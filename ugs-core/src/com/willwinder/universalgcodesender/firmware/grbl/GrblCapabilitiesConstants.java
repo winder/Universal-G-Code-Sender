@@ -16,11 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.firmware.grbl;
 
 /**
- * Constants for defining additional capabilities from {@link CapabilitiesConstants} that a
- * GRBL controller may support. The constants may be added to a {@link Capabilities} object.
+ * Constants for defining additional capabilities from {@link com.willwinder.universalgcodesender.CapabilitiesConstants} that a
+ * GRBL controller may support. The constants may be added to a {@link com.willwinder.universalgcodesender.Capabilities} object.
  *
  * @author Joacim Breiler
  */

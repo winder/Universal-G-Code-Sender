@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.AbstractController.UnexpectedCommand;
 import static com.willwinder.universalgcodesender.GrblUtils.GRBL_PAUSE_COMMAND;
 import static com.willwinder.universalgcodesender.GrblUtils.GRBL_RESET_COMMAND;
 import static com.willwinder.universalgcodesender.GrblUtils.GRBL_RESUME_COMMAND;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblCapabilitiesConstants;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblVersion;
 import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.Code;

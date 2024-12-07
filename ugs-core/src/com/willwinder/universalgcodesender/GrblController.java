@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.communicator.GrblCommunicator;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblCapabilitiesConstants;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblCommandCreator;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettingsInterceptor;
@@ -192,7 +193,8 @@ public class GrblController extends AbstractController {
                 return;
             }
 
-            capabilities = GrblUtils.getGrblStatusCapabilities(initializer.getVersion().getVersionNumber(), initializer.getVersion().getVersionLetter());
+            capabilities = GrblUtils.getGrblStatusCapabilities(initializer.getVersion().getVersionNumber(), initializer.getVersion().getVersionLetter(), initializer.getOptions());
+            logger.info("Identified controller capabilities: " + capabilities);
 
             // Toggle the state to force UI update
             setControllerState(ControllerState.CONNECTING);

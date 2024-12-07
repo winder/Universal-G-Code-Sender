@@ -21,7 +21,6 @@ package com.willwinder.universalgcodesender.firmware.fluidnc;
 import com.willwinder.universalgcodesender.Capabilities;
 import com.willwinder.universalgcodesender.ConnectionWatchTimer;
 import com.willwinder.universalgcodesender.ControllerException;
-import com.willwinder.universalgcodesender.GrblCapabilitiesConstants;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.IFileService;
@@ -41,12 +40,13 @@ import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.DetectEchoCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetAlarmCodesCommand;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetBuildInfoCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetErrorCodesCommand;
-import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetFirmwareVersionCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetParserStateCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStartupMessagesCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SystemCommand;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblCapabilitiesConstants;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblOverrideManager;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
@@ -582,9 +582,9 @@ public class FluidNCController implements IController, ICommunicatorListener {
     private void queryFirmwareVersion() throws Exception {
         // A sleep is required to make the next query reliable
         Thread.sleep(200);
-        GetFirmwareVersionCommand getFirmwareVersionCommand = FluidNCUtils.queryFirmwareVersion(this, messageService);
-        semanticVersion = getFirmwareVersionCommand.getVersion();
-        firmwareVariant = getFirmwareVersionCommand.getFirmware();
+        GetBuildInfoCommand getBuildInfoCommand = FluidNCUtils.queryBuildInformation(this, messageService);
+        semanticVersion = getBuildInfoCommand.getVersion();
+        firmwareVariant = getBuildInfoCommand.getFirmware();
         capabilities.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
     }
 
