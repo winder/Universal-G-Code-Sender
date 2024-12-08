@@ -270,7 +270,7 @@ public class GrblUtils {
         }
 
         if (options.isEnabled(GrblBuildOption.HOMING_FORCE_ORIGIN_ENABLED)) {
-            ret.addCapability(CapabilitiesConstants.MACHINE_POSITION_IN_POSITIVE_SPACE);
+            ret.addCapability(CapabilitiesConstants.HOMING_SETS_MACHINE_ZERO_POSITION);
         }
 
         if (options.isEnabled(GrblBuildOption.VARIABLE_SPINDLE_ENABLED)) {
