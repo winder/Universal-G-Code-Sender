@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.AbstractController.UnexpectedCommand;
 import static com.willwinder.universalgcodesender.GrblUtils.GRBL_PAUSE_COMMAND;
 import static com.willwinder.universalgcodesender.GrblUtils.GRBL_RESET_COMMAND;
 import static com.willwinder.universalgcodesender.GrblUtils.GRBL_RESUME_COMMAND;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblBuildOptions;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblCapabilitiesConstants;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblVersion;
 import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
@@ -311,13 +312,10 @@ public class GrblControllerTest {
         GcodeCommand command = new GcodeCommand("G0X1"); // Whitespace removed.
         command.setSent(true);
         command.setResponse("ok");
-        try {
-            instance.commandSent(command);
-            instance.commandComplete();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Unexpected exception from command complete: " + ex.getMessage());
-        }
+
+        instance.commandSent(command);
+        instance.commandComplete();
+
 
         expResult = 4000L;
         result = instance.getSendDuration();
@@ -378,48 +376,36 @@ public class GrblControllerTest {
 
         // Test 3.
         // Sent 15 of them, none completed.
-        try {
-            for (int i = 0; i < 15; i++) {
-                GcodeCommand command = new GcodeCommand("G0 X1");
-                command.setSent(true);
-                command.setResponse("ok");
-                instance.commandSent(command);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Unexpected exception from command sent: " + ex.getMessage());
+        for (int i = 0; i < 15; i++) {
+            GcodeCommand command = new GcodeCommand("G0 X1");
+            command.setSent(true);
+            command.setResponse("ok");
+            instance.commandSent(command);
         }
+
         assertCounts(instance, 30, 15, 30);
 
         // Test 4.
         // Complete 15 of them.
-        try {
-            for (int i = 0; i < 15; i++) {
-                GcodeCommand command = new GcodeCommand("G0X1"); // Whitespace removed.
-                command.setSent(true);
-                command.setResponse("ok");
-                instance.commandComplete();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Unexpected exception from command complete: " + ex.getMessage());
+        for (int i = 0; i < 15; i++) {
+            GcodeCommand command = new GcodeCommand("G0X1"); // Whitespace removed.
+            command.setSent(true);
+            command.setResponse("ok");
+            instance.commandComplete();
         }
         assertCounts(instance, 30, 15, 15);
 
         // Test 5.
         // Finish sending/completing the remaining 15 commands.
-        try {
-            for (int i = 0; i < 15; i++) {
-                GcodeCommand command = new GcodeCommand("G0 X1");
-                command.setSent(true);
-                command.setResponse("ok");
-                instance.commandSent(command);
-                instance.commandComplete();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Unexpected exception from command complete: " + ex.getMessage());
+
+        for (int i = 0; i < 15; i++) {
+            GcodeCommand command = new GcodeCommand("G0 X1");
+            command.setSent(true);
+            command.setResponse("ok");
+            instance.commandSent(command);
+            instance.commandComplete();
         }
+
         mgc.areActiveCommands = false;
         assertCounts(instance, 30, 30, 0);
     }
@@ -698,17 +684,12 @@ public class GrblControllerTest {
         }
         instance.queueStream(new SimpleGcodeStreamReader(commands));
 
-        try {
-            instance.beginStreaming();
-            for (int i = 0; i < 15; i++) {
-                GcodeCommand command = new GcodeCommand("G0 X1");
-                command.setSent(true);
-                command.setResponse("ok");
-                instance.commandSent(command);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Unexpected exception from command sent: " + ex.getMessage());
+        instance.beginStreaming();
+        for (int i = 0; i < 15; i++) {
+            GcodeCommand command = new GcodeCommand("G0 X1");
+            command.setSent(true);
+            command.setResponse("ok");
+            instance.commandSent(command);
         }
 
         instance.cancelSend();
@@ -860,17 +841,12 @@ public class GrblControllerTest {
         }
         instance.queueStream(new SimpleGcodeStreamReader(commands));
 
-        try {
-            instance.beginStreaming();
-            for (int i = 0; i < 15; i++) {
-                GcodeCommand command = new GcodeCommand("G0 X1");
-                command.setSent(true);
-                command.setResponse("ok");
-                instance.commandSent(command);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Unexpected exception from command sent: " + ex.getMessage());
+        instance.beginStreaming();
+        for (int i = 0; i < 15; i++) {
+            GcodeCommand command = new GcodeCommand("G0 X1");
+            command.setSent(true);
+            command.setResponse("ok");
+            instance.commandSent(command);
         }
 
         instance.pauseStreaming();
@@ -1421,6 +1397,7 @@ public class GrblControllerTest {
         when(initializer.isInitialized()).thenReturn(false);
         when(initializer.isInitializing()).thenReturn(false);
         when(initializer.initialize()).thenReturn(true);
+        when(initializer.getOptions()).thenReturn(new GrblBuildOptions());
 
         GrblVersion version = new GrblVersion("[VER:" + grblVersionString + "]");
         when(initializer.getVersion()).thenReturn(version);
