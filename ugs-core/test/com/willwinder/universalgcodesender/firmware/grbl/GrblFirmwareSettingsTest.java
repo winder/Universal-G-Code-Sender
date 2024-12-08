@@ -71,21 +71,21 @@ public class GrblFirmwareSettingsTest {
     }
 
     @Test
-    public void isHomingEnabledShouldBeTrue() throws FirmwareSettingsException {
+    public void isHomingEnabledShouldBeTrue() {
         // Emulate a settings-message from the controller
         setFirmwareSetting("$22", "1");
         assertTrue(target.isHomingEnabled());
     }
 
     @Test
-    public void isHomingEnabledShouldBeFalse() throws FirmwareSettingsException {
+    public void isHomingEnabledShouldBeFalse() {
         // Emulate a settings-message from the controller
         setFirmwareSetting("$22", "0");
         assertFalse(target.isHomingEnabled());
     }
 
-    @Test(expected = FirmwareSettingsException.class)
-    public void isHomingEnabledShouldBeFalseIfNotSet() throws FirmwareSettingsException {
+    @Test
+    public void isHomingEnabledShouldBeFalseIfNotSet() {
         assertFalse(target.isHomingEnabled());
     }
 

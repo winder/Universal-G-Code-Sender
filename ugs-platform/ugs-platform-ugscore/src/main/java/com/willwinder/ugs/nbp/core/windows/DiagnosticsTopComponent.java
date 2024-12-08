@@ -37,6 +37,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.LinkedHashMap;
@@ -96,8 +97,8 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
         this.labels.put("controller:getSingleStepMode", new JLabel(EMPTY_VALUE));
         this.labels.put("controller:getStatusUpdatesEnabled", new JLabel(EMPTY_VALUE));
         this.labels.put("controller:getStatusUpdateRate", new JLabel(EMPTY_VALUE));
-        this.labels.put("controller:getControlState", new JLabel(EMPTY_VALUE));
         this.labels.put("controller:getCommunicatorState", new JLabel(EMPTY_VALUE));
+        this.labels.put("controller:getCapabilities", new JLabel(EMPTY_VALUE));
 
         this.labels.put("communicator:numActiveCommands", new JLabel(EMPTY_VALUE));
         this.labels.put("communicator:isPaused", new JLabel(EMPTY_VALUE));
@@ -109,9 +110,11 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
 
 
         JPanel labelPanel = new JPanel();
-        labelPanel.setLayout(new MigLayout("wrap2,fillx"));
+        labelPanel.setLayout(new MigLayout("wrap2, fillx"));
         for (Map.Entry<String, JLabel> dp : labels.entrySet()) {
-            labelPanel.add(new JLabel(dp.getKey()));
+            JLabel keyLabel = new JLabel(dp.getKey());
+            keyLabel.setVerticalAlignment(SwingConstants.TOP);
+            labelPanel.add(keyLabel, "growy");
             labelPanel.add(dp.getValue());
         }
 
@@ -152,6 +155,7 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
                 labels.get("controller:getStatusUpdatesEnabled").setText(String.valueOf(controller.getStatusUpdatesEnabled()));
                 labels.get("controller:getStatusUpdateRate").setText(String.valueOf(controller.getStatusUpdateRate()));
                 labels.get("controller:getCommunicatorState").setText(String.valueOf(controller.getCommunicatorState()));
+                labels.get("controller:getCapabilities").setText("<html>" + controller.getCapabilities().toString().replaceAll(", ", "<br/>") + "</html>");
 
                 IFirmwareSettings firmwareSettings = controller.getFirmwareSettings();
                 if (firmwareSettings != null) {

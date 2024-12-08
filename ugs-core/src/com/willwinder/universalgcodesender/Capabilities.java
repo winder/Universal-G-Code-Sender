@@ -181,7 +181,6 @@ public class Capabilities {
         return hasCapability(CapabilitiesConstants.RETURN_TO_ZERO);
     }
 
-
     /**
      * Returns if the controller has support for the given axis
      *
@@ -189,22 +188,14 @@ public class Capabilities {
      * @return true if the axis is supported
      */
     public boolean hasAxis(Axis axis) {
-        switch (axis) {
-            case X:
-                return hasCapability(CapabilitiesConstants.X_AXIS);
-            case Y:
-                return hasCapability(CapabilitiesConstants.Y_AXIS);
-            case Z:
-                return hasCapability(CapabilitiesConstants.Z_AXIS);
-            case A:
-                return hasCapability(CapabilitiesConstants.A_AXIS);
-            case B:
-                return hasCapability(CapabilitiesConstants.B_AXIS);
-            case C:
-                return hasCapability(CapabilitiesConstants.C_AXIS);
-            default:
-                return false;
-        }
+        return switch (axis) {
+            case X -> hasCapability(CapabilitiesConstants.X_AXIS);
+            case Y -> hasCapability(CapabilitiesConstants.Y_AXIS);
+            case Z -> hasCapability(CapabilitiesConstants.Z_AXIS);
+            case A -> hasCapability(CapabilitiesConstants.A_AXIS);
+            case B -> hasCapability(CapabilitiesConstants.B_AXIS);
+            case C -> hasCapability(CapabilitiesConstants.C_AXIS);
+        };
     }
 
     /**
@@ -214,5 +205,10 @@ public class Capabilities {
      */
     public boolean hasOpenDoor() {
         return hasCapability(CapabilitiesConstants.OPEN_DOOR);
+    }
+
+    @Override
+    public String toString() {
+        return String.join(", ", capabilities);
     }
 }

@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.firmware.grbl.commands;
 
 import com.willwinder.universalgcodesender.GrblUtils;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblBuildOptions;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblVersion;
 import org.apache.commons.lang3.StringUtils;
 
@@ -60,5 +61,19 @@ public class GetBuildInfoCommand extends GrblSystemCommand {
                 })
                 .map(GrblVersion::new)
                 .findFirst();
+    }
+
+    public GrblBuildOptions getBuildOptions() {
+        String[] lines = StringUtils.split(getResponse(), "\n");
+
+        if (lines.length == 2 && StringUtils.equals(lines[1], "ok")) {
+            return new GrblBuildOptions();
+        }
+
+        return Arrays.stream(lines)
+                .filter(line -> line.startsWith("[OPT:"))
+                .map(GrblBuildOptions::new)
+                .findFirst()
+                .orElse(new GrblBuildOptions());
     }
 }
