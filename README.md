@@ -185,3 +185,6 @@ If you are more used to IntelliJ, you can also build, run and debug it there.
 
 </p>
 </details>
+
+## Supported by
+[![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSourceSupport)
