@@ -18,18 +18,31 @@
 */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
+import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_X;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_Y;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_Z;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDRY;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_X;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Y;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.CapabilitiesConstants;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
-
-import static com.jogamp.opengl.GL.GL_LINES;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.*;
 
 /**
  * Displays the machine boundries based on the soft limits
@@ -61,7 +74,7 @@ public class MachineBoundries extends Renderable {
     }
 
     private void onUGSEvent(UGSEvent event) {
-        if (!isFirmwareSettingsEvent(event)) {
+        if (!isFirmwareSettingsEvent(event) && !isControllerIdleEvent(event)) {
             return;
         }
 
@@ -78,9 +91,14 @@ public class MachineBoundries extends Renderable {
                 minPositionBuilder.setValue(axis, -softLimit);
             }
             minPosition = minPositionBuilder.build();
+            updateSettingsFromController();
         } catch (FirmwareSettingsException ignored) {
             // Never mind this.
         }
+    }
+
+    private boolean isControllerIdleEvent(UGSEvent event) {
+        return event instanceof ControllerStateEvent controllerStateEvent && (controllerStateEvent.getState() == ControllerState.IDLE || controllerStateEvent.getState() == ControllerState.ALARM);
     }
 
     private boolean isFirmwareSettingsEvent(UGSEvent event) {
@@ -118,9 +136,34 @@ public class MachineBoundries extends Renderable {
         xAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_X).value);
         yAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_Y).value);
         zAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_Z).value);
+        updateSettingsFromController();
+    }
+
+    private void updateSettingsFromController() {
+        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         invertX = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_X, false) ? -1 : 1;
         invertY = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_Y, false) ? -1 : 1;
         invertZ = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_Z, false) ? -1 : 1;
+
+        if (backendAPI == null || backendAPI.getController() == null) {
+            return;
+        }
+
+        boolean homingSetsZeroPosition = backendAPI.getController().getCapabilities().hasCapability(CapabilitiesConstants.HOMING_SETS_MACHINE_ZERO_POSITION);
+        if (homingSetsZeroPosition) {
+            invertBasedOnHomingDirection(backendAPI);
+        }
+    }
+
+    private void invertBasedOnHomingDirection(BackendAPI backendAPI) {
+        IFirmwareSettings settings = backendAPI.getController().getFirmwareSettings();
+        invertX = isHomingDirectionInverted(settings, Axis.X) ? -invertX : invertX;
+        invertY = isHomingDirectionInverted(settings, Axis.Y) ? -invertY : invertY;
+        invertZ = isHomingDirectionInverted(settings, Axis.Z) ? -invertZ : invertZ;
+    }
+
+    private static boolean isHomingDirectionInverted(IFirmwareSettings settings, Axis axis) {
+        return settings.isHomingDirectionInverted(axis);
     }
 
     @Override
