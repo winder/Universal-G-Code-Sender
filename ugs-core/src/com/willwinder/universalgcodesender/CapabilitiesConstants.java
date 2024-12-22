@@ -98,12 +98,11 @@ public class CapabilitiesConstants {
      * in the right, far, upper corner which is then set to 0, therefore all coordinates in the machine space is
      * defined with negative values.
      * <p>
-     * Some controllers have the option to inverse this, making the machine zero at the left, lower, close corner of
-     * the machine.
+     * Some controllers have the option to set the homed position as machine zero.
      * <p>
      * By defining this capability we can account for this in the visualizer.
      */
-    public static final String MACHINE_POSITION_IN_POSITIVE_SPACE = "MACHINE_POSITION_IN_POSITIVE_SPACE";
+    public static final String HOMING_SETS_MACHINE_ZERO_POSITION = "HOMING_SETS_ZERO_POSITION";
 
     /**
      * Does the controller support variable spindles (typically PWM or through RS484 interfaces)
