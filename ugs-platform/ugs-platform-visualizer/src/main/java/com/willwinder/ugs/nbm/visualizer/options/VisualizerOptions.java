@@ -31,8 +31,8 @@ import java.util.ArrayList;
  */
 public class VisualizerOptions extends ArrayList<Option<?>> {
 
-    public static String VISUALIZER_OPTION_LEGACY = "platform.visualizer.legacy";
-    public static String VISUALIZER_OPTION_LEGACY_DESC = "platform.visualizer.legacy.desc";
+    public static String VISUALIZER_OPTION_LEGACY = "platform.visualizer.use.legacy";
+    public static String VISUALIZER_OPTION_LEGACY_DESC = "platform.visualizer.use.legacy.desc";
     public static String VISUALIZER_OPTION_NEWT_SAMPLES = "platform.visualizer.newt.samples";
     public static String VISUALIZER_OPTION_NEWT_SAMPLES_DESC = "platform.visualizer.newt.samples.desc";
 
@@ -115,7 +115,7 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
     public static String VISUALIZER_OPTION_BOUNDARY_INVERT_DESC = "platform.visualizer.boundary.invert.desc";
 
     public VisualizerOptions() {
-        add(getOption(VISUALIZER_OPTION_LEGACY, Localization.getString(VISUALIZER_OPTION_LEGACY_DESC), false));
+        add(getOption(VISUALIZER_OPTION_LEGACY, Localization.getString(VISUALIZER_OPTION_LEGACY_DESC), true));
         add(getOption(VISUALIZER_OPTION_NEWT_SAMPLES, Localization.getString(VISUALIZER_OPTION_NEWT_SAMPLES_DESC), 4));
 
         // GcodeRenderer clear color

@@ -94,7 +94,7 @@ public final class Visualizer2TopComponent extends TopComponent {
         JPanel borderedPanel = new JPanel();
         borderedPanel.setLayout(new BorderLayout());
         borderedPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
-        if (VisualizerOptions.getBooleanOption(VisualizerOptions.VISUALIZER_OPTION_LEGACY, false)) {
+        if (VisualizerOptions.getBooleanOption(VisualizerOptions.VISUALIZER_OPTION_LEGACY, true)) {
             borderedPanel.add(new VisualizationPanel(), BorderLayout.CENTER);
         } else {
             createAndAddNewtPanel(borderedPanel);
