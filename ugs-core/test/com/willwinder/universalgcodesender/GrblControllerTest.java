@@ -35,6 +35,7 @@ import com.willwinder.universalgcodesender.mockobjects.MockGrblCommunicator;
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_CHECK;
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_IDLE;
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_SENDING;
+import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
@@ -717,22 +718,22 @@ public class GrblControllerTest {
 
         assertEquals(1, mgc.numCancelSendCalls);
         assertEquals(0, mgc.numPauseSendCalls);
-        assertEquals(0, mgc.sentBytes.size());
+        assertEquals(3, mgc.sentBytes.size());
 
         // First round we will store the last position
         instance.rawResponseHandler("<Door|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
 
         assertEquals(1, mgc.numCancelSendCalls);
         assertEquals(0, mgc.numPauseSendCalls);
-        assertEquals(0, mgc.sentBytes.size());
+        assertEquals(3, mgc.sentBytes.size());
 
         // Now we will do the actual cancel
         instance.rawResponseHandler("<Door|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
 
         assertEquals(2, mgc.numCancelSendCalls);
         assertEquals(0, mgc.numPauseSendCalls);
-        assertEquals(1, mgc.sentBytes.size());
-        assertEquals(Byte.valueOf(GRBL_RESET_COMMAND), mgc.sentBytes.get(0));
+        assertEquals(4, mgc.sentBytes.size());
+        assertEquals(Byte.valueOf(GRBL_RESET_COMMAND), mgc.sentBytes.get(3));
     }
 
     private void sendStuff(GrblController instance) throws Exception {
@@ -1293,7 +1294,10 @@ public class GrblControllerTest {
         assertEquals(COMM_SENDING, gc.getCommunicatorState());
         assertEquals(ControllerState.CHECK, gc.getControllerStatus().getState());
         assertFalse(gc.isPaused());
-        assertEquals(Byte.valueOf(GRBL_PAUSE_COMMAND), mgc.sentBytes.get(0));
+        assertEquals(GrblUtils.getOverrideForEnum(Overrides.CMD_RAPID_OVR_RESET, gc.getCapabilities()), mgc.sentBytes.get(0));
+        assertEquals(GrblUtils.getOverrideForEnum(Overrides.CMD_FEED_OVR_RESET, gc.getCapabilities()), mgc.sentBytes.get(1));
+        assertEquals(GrblUtils.getOverrideForEnum(Overrides.CMD_SPINDLE_OVR_RESET, gc.getCapabilities()), mgc.sentBytes.get(2));
+        assertEquals(Byte.valueOf(GRBL_PAUSE_COMMAND), mgc.sentBytes.get(3));
     }
 
     @Test
