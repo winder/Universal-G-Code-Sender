@@ -117,6 +117,11 @@ public class DefaultOverrideManager implements IOverrideManager {
     }
 
     @Override
+    public void resetAll() {
+        // Not implemented
+    }
+
+    @Override
     public List<Integer> getSliderSteps(OverrideType type) {
         return List.of();
     }

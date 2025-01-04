@@ -151,6 +151,13 @@ public class GrblOverrideManager extends AbstractOverrideManager implements IOve
     }
 
     @Override
+    public void resetAll() {
+        sendOverrideCommand(Overrides.CMD_RAPID_OVR_RESET);
+        sendOverrideCommand(Overrides.CMD_FEED_OVR_RESET);
+        sendOverrideCommand(Overrides.CMD_SPINDLE_OVR_RESET);
+    }
+
+    @Override
     public int getSliderDefault(OverrideType type) {
         return switch (type) {
             case FEED_SPEED -> FEED_DEFAULT;
