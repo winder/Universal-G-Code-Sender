@@ -46,7 +46,7 @@ Unpack and start the program ```bin/ugsplatform```
 A clean and lightweight variant of UGS (requires [Java 17](https://adoptium.net/temurin/releases/?package=jre&version=17)). <br>
 Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. <br>
 
-| Latest release (v2.1.8)                                                                                                                       | Nightly build                                                                                                                                  |
+| Latest release (v2.1.12)                                                                                                                       | Nightly build                                                                                                                                  |
 |:----------------------------------------------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------|
 | [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.12ff/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/UniversalGcodeSender.zip) |
 
