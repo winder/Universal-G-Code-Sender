@@ -52,6 +52,21 @@ public abstract class AbstractOverrideManager implements IOverrideManager {
             public void statusStringListener(ControllerStatus status) {
                 onControllerStatus(status);
             }
+
+            @Override
+            public void streamComplete() {
+                resetAll();
+            }
+
+            @Override
+            public void streamCanceled() {
+                resetAll();
+            }
+
+            @Override
+            public void streamStarted() {
+                resetAll();
+            }
         });
     }
 

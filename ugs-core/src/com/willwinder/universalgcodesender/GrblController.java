@@ -22,8 +22,10 @@ import com.willwinder.universalgcodesender.communicator.GrblCommunicator;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblCapabilitiesConstants;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblCommandCreator;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettingsInterceptor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -93,9 +95,9 @@ public class GrblController extends AbstractController {
         super(communicator, new GrblCommandCreator());
         this.positionPollTimer = new StatusPollTimer(this);
         this.firmwareSettings = new GrblFirmwareSettings(this);
-        this.comm.addListener(firmwareSettings);
         this.initializer = new GrblControllerInitializer(this);
         this.overrideManager = new GrblOverrideManager(this, communicator, messageService);
+        new GrblFirmwareSettingsInterceptor(this, firmwareSettings);
     }
 
     public GrblController() {
@@ -191,7 +193,8 @@ public class GrblController extends AbstractController {
                 return;
             }
 
-            capabilities = GrblUtils.getGrblStatusCapabilities(initializer.getVersion().getVersionNumber(), initializer.getVersion().getVersionLetter());
+            capabilities = GrblUtils.getGrblStatusCapabilities(initializer.getVersion().getVersionNumber(), initializer.getVersion().getVersionLetter(), initializer.getOptions());
+            logger.info("Identified controller capabilities: " + capabilities);
 
             // Toggle the state to force UI update
             setControllerState(ControllerState.CONNECTING);

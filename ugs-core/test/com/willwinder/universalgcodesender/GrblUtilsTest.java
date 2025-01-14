@@ -18,6 +18,8 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.firmware.grbl.GrblCapabilitiesConstants;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblBuildOptions;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Position;
@@ -210,13 +212,14 @@ public class GrblUtilsTest {
      */
     @Test
     public void testGetGrblStatusCapabilities() {
+        GrblBuildOptions options = new GrblBuildOptions();
         double version;
         Character letter;
         Capabilities result;
 
         version = 0.8;
         letter = 'c';
-        result = GrblUtils.getGrblStatusCapabilities(version, letter);
+        result = GrblUtils.getGrblStatusCapabilities(version, letter, options);
         assertTrue(result.hasCapability(GrblCapabilitiesConstants.REAL_TIME));
         assertFalse(result.hasCapability(GrblCapabilitiesConstants.V1_FORMAT));
         assertFalse(result.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING));
@@ -225,7 +228,7 @@ public class GrblUtilsTest {
 
         version = 0.8;
         letter = 'a';
-        result = GrblUtils.getGrblStatusCapabilities(version, letter);
+        result = GrblUtils.getGrblStatusCapabilities(version, letter, options);
         assertFalse(result.hasCapability(GrblCapabilitiesConstants.REAL_TIME));
         assertFalse(result.hasCapability(GrblCapabilitiesConstants.V1_FORMAT));
         assertFalse(result.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING));
@@ -234,7 +237,7 @@ public class GrblUtilsTest {
 
         version = 0.9;
         letter = null;
-        result = GrblUtils.getGrblStatusCapabilities(version, letter);
+        result = GrblUtils.getGrblStatusCapabilities(version, letter, options);
         assertTrue(result.hasCapability(GrblCapabilitiesConstants.REAL_TIME));
         assertFalse(result.hasCapability(GrblCapabilitiesConstants.V1_FORMAT));
         assertFalse(result.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING));
@@ -243,7 +246,7 @@ public class GrblUtilsTest {
 
         version = 1.1;
         letter = null;
-        result = GrblUtils.getGrblStatusCapabilities(version, letter);
+        result = GrblUtils.getGrblStatusCapabilities(version, letter, options);
         assertTrue(result.hasCapability(GrblCapabilitiesConstants.REAL_TIME));
         assertTrue(result.hasCapability(GrblCapabilitiesConstants.V1_FORMAT));
         assertTrue(result.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING));

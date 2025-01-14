@@ -182,4 +182,9 @@ public interface IOverrideManager {
     void setRadioTarget(OverrideType type, int value);
 
     void setMessageService(MessageService messageService);
+
+    /**
+     * Resets the overrides
+     */
+    void resetAll();
 }

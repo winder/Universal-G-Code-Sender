@@ -19,6 +19,9 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.firmware.grbl.GrblCapabilitiesConstants;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblBuildOption;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblBuildOptions;
 import com.willwinder.universalgcodesender.firmware.grbl.commands.GetStatusCommand;
 import com.willwinder.universalgcodesender.firmware.grbl.commands.GrblSystemCommand;
 import com.willwinder.universalgcodesender.listeners.AccessoryStates;
@@ -232,7 +235,7 @@ public class GrblUtils {
     /**
      * Determines version of GRBL position capability.
      */
-    protected static Capabilities getGrblStatusCapabilities(final double version, final Character letter) {
+    protected static Capabilities getGrblStatusCapabilities(final double version, final Character letter, GrblBuildOptions options) {
         Capabilities ret = new Capabilities();
         ret.addCapability(CapabilitiesConstants.JOGGING);
         ret.addCapability(CapabilitiesConstants.CHECK_MODE);
@@ -264,6 +267,14 @@ public class GrblUtils {
             ret.addCapability(CapabilitiesConstants.OVERRIDES);
             ret.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
             ret.addCapability(CapabilitiesConstants.OPEN_DOOR);
+        }
+
+        if (options.isEnabled(GrblBuildOption.HOMING_FORCE_ORIGIN_ENABLED)) {
+            ret.addCapability(CapabilitiesConstants.HOMING_SETS_MACHINE_ZERO_POSITION);
+        }
+
+        if (options.isEnabled(GrblBuildOption.VARIABLE_SPINDLE_ENABLED)) {
+            ret.addCapability(CapabilitiesConstants.VARIABLE_SPINDLE);
         }
 
         return ret;

@@ -7,7 +7,7 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
-import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetFirmwareVersionCommand;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetBuildInfoCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SystemCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -16,6 +16,8 @@ import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
 import com.willwinder.universalgcodesender.utils.SemanticVersion;
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,9 +25,6 @@ import java.text.ParseException;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
-import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
 
 public class FluidNCUtils {
     public static final double GRBL_COMPABILITY_VERSION = 1.1d;
@@ -150,18 +149,18 @@ public class FluidNCUtils {
      * @throws Exception             if the command couldn't be sent
      * @throws IllegalStateException if the parsed version is not for a FluidNC controller or the version is too old
      */
-    public static GetFirmwareVersionCommand queryFirmwareVersion(IController controller, MessageService messageService) throws Exception {
+    public static GetBuildInfoCommand queryBuildInformation(IController controller, MessageService messageService) throws Exception {
         messageService.dispatchMessage(MessageType.INFO, "*** Fetching device firmware version\n");
-        GetFirmwareVersionCommand getFirmwareVersionCommand = sendAndWaitForCompletion(controller, new GetFirmwareVersionCommand());
-        String firmwareVariant = getFirmwareVersionCommand.getFirmware();
-        SemanticVersion semanticVersion = getFirmwareVersionCommand.getVersion();
+        GetBuildInfoCommand getBuildInfoCommand = sendAndWaitForCompletion(controller, new GetBuildInfoCommand());
+        String firmwareVariant = getBuildInfoCommand.getFirmware();
+        SemanticVersion semanticVersion = getBuildInfoCommand.getVersion();
 
         if (!firmwareVariant.equalsIgnoreCase("FluidNC") || semanticVersion.compareTo(MINIMUM_VERSION) < 0) {
             messageService.dispatchMessage(MessageType.INFO, String.format("*** Expected a 'FluidNC %s' or later but got '%s %s'\n", MINIMUM_VERSION, firmwareVariant, semanticVersion));
             throw new IllegalStateException("Unknown controller version: " + semanticVersion.toString());
         }
 
-        return getFirmwareVersionCommand;
+        return getBuildInfoCommand;
     }
 
     /**
