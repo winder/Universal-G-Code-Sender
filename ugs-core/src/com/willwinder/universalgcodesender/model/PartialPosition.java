@@ -372,6 +372,13 @@ public class PartialPosition {
             }
             return this;
         }
+
+        public Builder clearABC() {
+            this.a = null;
+            this.b = null;
+            this.c = null;
+            return this;
+        }
     }
 
     public String getFormattedGCode() {

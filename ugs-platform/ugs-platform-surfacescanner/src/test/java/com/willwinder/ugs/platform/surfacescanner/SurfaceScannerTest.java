@@ -3,10 +3,14 @@ package com.willwinder.ugs.platform.surfacescanner;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import org.mockito.Mock;
+import static org.mockito.Mockito.doNothing;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.assertEquals;
@@ -149,6 +153,33 @@ public class SurfaceScannerTest {
         assertEquals(25.4, surfaceScanner.getProbePositionGrid()[1][1].getZ(), 0.1);
     }
 
+    @Test
+    public void scanShouldMoveToSafe() throws Exception {
+        Settings settings = new Settings();
+        settings.setSafetyHeight(6);
+
+        AutoLevelSettings autoLevelSettings = settings.getAutoLevelSettings();
+        autoLevelSettings.setMin(new Position(0,0,0, UnitUtils.Units.MM));
+        autoLevelSettings.setMax(new Position(0,0,0, UnitUtils.Units.MM));
+        autoLevelSettings.setProbeScanFeedRate(500);
+
+        when(backendAPI.getSettings()).thenReturn(settings);
+        when(backendAPI.getWorkPosition()).thenReturn(new Position(0,0,0 ,UnitUtils.Units.MM));
+        when(backendAPI.getMachinePosition()).thenReturn(new Position(0,0,0, UnitUtils.Units.MM));
+
+        ArgumentCaptor<String> sentGcodeCommandCaptor = ArgumentCaptor.forClass(String.class);
+        doNothing().when(backendAPI).sendGcodeCommand(anyBoolean(), sentGcodeCommandCaptor.capture());
+
+        SurfaceScanner surfaceScanner = new SurfaceScanner(backendAPI);
+        surfaceScanner.reset();
+        surfaceScanner.scan();
+
+        assertEquals(4, sentGcodeCommandCaptor.getAllValues().size());
+        assertEquals("G21G90G0Z6F500", sentGcodeCommandCaptor.getAllValues().get(0));
+        assertEquals("G21G90G0X0Y0F500", sentGcodeCommandCaptor.getAllValues().get(1));
+        assertEquals("G21G90G0Z0F500", sentGcodeCommandCaptor.getAllValues().get(2));
+        assertEquals("G21G90G0X0Y0F500", sentGcodeCommandCaptor.getAllValues().get(3));
+    }
 
     private static Position createProbePoint(Position position, UnitUtils.Units units, double z) {
         Position probePoint = new Position(position.getPositionIn(units));
