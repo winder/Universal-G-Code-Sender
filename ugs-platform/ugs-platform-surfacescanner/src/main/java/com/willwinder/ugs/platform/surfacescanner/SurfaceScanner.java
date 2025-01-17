@@ -199,13 +199,17 @@ public class SurfaceScanner {
             }
 
             // Move to the XY start position
-            PartialPosition startPos = PartialPosition.builder(minXYZ).clearZ().build();
+            PartialPosition startPos = PartialPosition.builder(minXYZ)
+                    .clearZ()
+                    .clearABC()
+                    .build();
+
             String cmd = GcodeUtils.generateMoveCommand(
                     "G90G0", getProbeScanFeedRate(), startPos);
             logger.log(Level.INFO, "Move to start position {0}", new Object[]{startPos});
             backend.sendGcodeCommand(true, cmd);
 
-            // Move to the Y start position
+            // Move to the Z start position
             PartialPosition startHeight = PartialPosition.builder(maxXYZ.getUnits()).setZ(maxXYZ.getZ()).build();
             cmd = GcodeUtils.generateMoveCommand(
                     "G90G0", getProbeScanFeedRate(), startHeight);
@@ -226,7 +230,11 @@ public class SurfaceScanner {
             Position p = this.pendingPositions.peek();
 
             // Position over next probe position
-            PartialPosition startPos = PartialPosition.builder(p).clearZ().build();
+            PartialPosition startPos = PartialPosition.builder(p)
+                    .clearZ()
+                    .clearABC()
+                    .build();
+
             String cmd = GcodeUtils.generateMoveCommand(
                     "G90G0", getProbeScanFeedRate(), startPos);
             logger.log(Level.INFO, "MoveTo {0} {1}", new Object[]{startPos, cmd});
