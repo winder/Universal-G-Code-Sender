@@ -60,7 +60,7 @@ public class DrillCenterToolPathTest {
         assertEquals(-5, gcodePath.getSegments().get(4).point.getZ(), 0.01);
 
         // Clear material
-        assertEquals(SegmentType.POINT, gcodePath.getSegments().get(5).type);
+        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(5).type);
         assertFalse(gcodePath.getSegments().get(5).point.hasX());
         assertFalse(gcodePath.getSegments().get(5).point.hasY());
         assertEquals(-0, gcodePath.getSegments().get(5).point.getZ(), 0.01);
@@ -72,7 +72,7 @@ public class DrillCenterToolPathTest {
         assertEquals(-10, gcodePath.getSegments().get(6).point.getZ(), 0.01);
 
         // Clear material
-        assertEquals(SegmentType.POINT, gcodePath.getSegments().get(7).type);
+        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(7).type);
         assertFalse(gcodePath.getSegments().get(7).point.hasX());
         assertFalse(gcodePath.getSegments().get(7).point.hasY());
         assertEquals(0, gcodePath.getSegments().get(7).point.getZ(), 0.01);
