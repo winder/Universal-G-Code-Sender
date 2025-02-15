@@ -47,6 +47,12 @@ public class DrillCenterToolPath extends AbstractToolPath {
                 .build());
     }
 
+    private void addUpSegment(GcodePath gcodePath) {
+        gcodePath.addSegment(SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM)
+                .setZ(0d)
+                .build());
+    }
+
     private PartialPosition getCenterPosition() {
         Point2D center = source.getCenter();
         return PartialPosition.builder(UnitUtils.Units.MM)
@@ -75,7 +81,7 @@ public class DrillCenterToolPath extends AbstractToolPath {
             addDepthSegment(gcodePath, depth);
 
             if (currentDepth != 0) {
-                addDepthSegment(gcodePath, 0d);
+                addUpSegment(gcodePath);
             }
         }
 
