@@ -29,7 +29,8 @@ import java.util.List;
  */
 public enum CutType {
     NONE("None", List.of(EntitySetting.CUT_TYPE)),
-    POCKET("Mill Pocket",  DEFAULT_ENDMILL_SETTINGS),
+    POCKET("Mill - Pocket",  DEFAULT_ENDMILL_SETTINGS),
+    SURFACE("Mill - Surface",  DEFAULT_ENDMILL_SETTINGS),
     ON_PATH("Mill - On path", DEFAULT_ENDMILL_SETTINGS),
     INSIDE_PATH("Mill - Inside path",  DEFAULT_ENDMILL_SETTINGS),
     OUTSIDE_PATH("Mill - Outside path", DEFAULT_ENDMILL_SETTINGS),

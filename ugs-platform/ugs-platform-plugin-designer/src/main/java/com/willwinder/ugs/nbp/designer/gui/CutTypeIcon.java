@@ -7,11 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class CutTypeIcon extends ImageIcon {
-    private ImageIcon icon;
-
-    public CutTypeIcon(CutType cutType) {
-        this(cutType, Size.MEDIUM);
-    }
+    private final ImageIcon icon;
 
     public enum Size {
         SMALL(""),
@@ -53,6 +49,7 @@ public class CutTypeIcon extends ImageIcon {
                 icon = ImageUtilities.loadImageIcon("img/centerdrill" + size.value + ".svg", false);
                 setDescription(cutType.getName());
                 break;
+            case SURFACE:
             case LASER_FILL:
                 icon = ImageUtilities.loadImageIcon("img/cutfill" + size.value + ".svg", false);
                 setDescription(cutType.getName());

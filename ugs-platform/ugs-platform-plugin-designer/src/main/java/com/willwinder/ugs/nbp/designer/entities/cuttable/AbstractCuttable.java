@@ -138,7 +138,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         Shape shape = getShape();
         if (getCutType() == CutType.NONE) {
             drawShape(graphics, dashedStroke, Colors.SHAPE_HINT, shape);
-        } else if (getCutType() == CutType.POCKET) {
+        } else if (getCutType() == CutType.POCKET || getCutType() == CutType.SURFACE) {
             graphics.setStroke(new BasicStroke(strokeWidth));
             graphics.setColor(getCutColor());
             graphics.fill(shape);

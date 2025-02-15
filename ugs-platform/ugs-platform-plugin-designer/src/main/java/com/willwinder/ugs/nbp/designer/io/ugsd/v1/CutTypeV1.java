@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 public enum CutTypeV1 {
     NONE,
     POCKET,
+    SURFACE,
     ON_PATH,
     INSIDE_PATH,
     OUTSIDE_PATH,
@@ -36,6 +37,8 @@ public enum CutTypeV1 {
     public static CutTypeV1 fromCutType(CutType cutType) {
         if (cutType == CutType.POCKET) {
             return POCKET;
+        } else if (cutType == CutType.SURFACE) {
+            return SURFACE;
         } else if (cutType == CutType.ON_PATH) {
             return ON_PATH;
         } else if (cutType == CutType.INSIDE_PATH) {
@@ -56,6 +59,8 @@ public enum CutTypeV1 {
     public static CutType toCutType(CutTypeV1 cutType) {
         if (cutType == POCKET) {
             return CutType.POCKET;
+        } else if (cutType == SURFACE) {
+            return CutType.SURFACE;
         } else if (cutType == ON_PATH) {
             return CutType.ON_PATH;
         } else if (cutType == INSIDE_PATH) {

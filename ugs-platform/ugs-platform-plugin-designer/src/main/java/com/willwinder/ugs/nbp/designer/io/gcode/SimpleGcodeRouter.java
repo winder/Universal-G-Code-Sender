@@ -25,6 +25,7 @@ import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.LaserFillToolPath;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.LaserOutlineToolPath;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.OutlineToolPath;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.PocketToolPath;
+import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.SurfaceToolPath;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathStats;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils;
 import com.willwinder.ugs.nbp.designer.model.Settings;
@@ -78,7 +79,7 @@ public class SimpleGcodeRouter {
             throw new RuntimeException("An error occured while trying to generate gcode", e);
         }
 
-        result.append("\n" + "; Turning off spindle\n" )
+        result.append("\n; Turning off spindle\n" )
                 .append(Code.M5.name()).append("\n" );
         return result.toString();
     }
@@ -95,6 +96,12 @@ public class SimpleGcodeRouter {
                     simplePocket.setStartDepth(cuttable.getStartDepth());
                     simplePocket.setTargetDepth(cuttable.getTargetDepth());
                     simplePocket.appendGcodePath(gcodePath, settings);
+                    break;
+                case SURFACE:
+                    SurfaceToolPath surfaceToolPath = new SurfaceToolPath(settings, cuttable);
+                    surfaceToolPath.setStartDepth(cuttable.getStartDepth());
+                    surfaceToolPath.setTargetDepth(cuttable.getTargetDepth());
+                    surfaceToolPath.appendGcodePath(gcodePath, settings);
                     break;
                 case OUTSIDE_PATH:
                     OutlineToolPath simpleOutsidePath = new OutlineToolPath(settings, cuttable);
