@@ -18,19 +18,30 @@
  */
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.firmware.grbl.GrblCapabilitiesConstants;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblBuildOptions;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblCapabilitiesConstants;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import static com.willwinder.universalgcodesender.model.Axis.X;
+import static com.willwinder.universalgcodesender.model.Axis.Y;
+import static com.willwinder.universalgcodesender.model.Axis.Z;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import org.junit.Test;
-
-import static com.willwinder.universalgcodesender.model.Axis.*;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.INCH;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
+import com.willwinder.universalgcodesender.services.MessageService;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author wwinder
@@ -724,5 +735,40 @@ public class GrblUtilsTest {
         assertTrue(GrblUtils.isGrblStatusStringV1("<Hold:1|>"));
         assertFalse(GrblUtils.isGrblStatusStringV1("banana"));
         assertFalse(GrblUtils.isGrblStatusStringV1("<Idle,MPos:5.529,0.560,7.000,WPos:1.529,-5.440,-0.000>"));
+    }
+
+
+    @Test
+    public void isControllerResponsiveWhenControllerInStateCheck() throws Exception {
+        GrblController controller = mock(GrblController.class);
+        when(controller.isCommOpen()).thenReturn(true);
+        MessageService messageService = mock(MessageService.class);
+        when(controller.getMessageService()).thenReturn(messageService);
+
+        // Respond with status hold
+        doAnswer(answer -> {
+            GcodeCommand command = answer.getArgument(0, GcodeCommand.class);
+            command.appendResponse("<Check>");
+            return null;
+        }).when(controller).sendCommandImmediately(any(GcodeCommand.class));
+
+        assertFalse(GrblUtils.isControllerResponsive(controller));
+    }
+
+    @Test
+    public void isControllerResponsiveWhenControllerInStateIdle() throws Exception {
+        GrblController controller = mock(GrblController.class);
+        when(controller.isCommOpen()).thenReturn(true);
+        MessageService messageService = mock(MessageService.class);
+        when(controller.getMessageService()).thenReturn(messageService);
+
+        // Respond with status hold
+        doAnswer(answer -> {
+            GcodeCommand command = answer.getArgument(0, GcodeCommand.class);
+            command.appendResponse("<Idle>");
+            return null;
+        }).when(controller).sendCommandImmediately(any(GcodeCommand.class));
+
+        assertTrue(GrblUtils.isControllerResponsive(controller));
     }
 }
