@@ -690,6 +690,11 @@ public class GrblUtils {
             throw new IllegalStateException("Could not query the device status");
         }
 
+        // Some commands are not available in check mode
+        if (statusCommand.getControllerStatus().getState() == ControllerState.CHECK) {
+            return false;
+        }
+
         // The controller is not up and running properly
         if (statusCommand.getControllerStatus().getState() == ControllerState.HOLD || statusCommand.getControllerStatus().getState() == ControllerState.ALARM) {
             try {
