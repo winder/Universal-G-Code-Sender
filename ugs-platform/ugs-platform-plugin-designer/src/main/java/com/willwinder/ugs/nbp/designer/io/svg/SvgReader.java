@@ -140,6 +140,8 @@ public class SvgReader implements DesignReader {
             createdShape = parseRectangle((Rectangle2D) shape);
         } else if (shape instanceof Ellipse2D) {
             createdShape = parseEllipse((Ellipse2D) shape);
+        } else if (shape instanceof GeneralPath) {
+            createdShape = parseGeneralPath((GeneralPath) shape);
         } else {
             LOGGER.finest(shape.toString());
         }
@@ -195,6 +197,52 @@ public class SvgReader implements DesignReader {
         Rectangle rectangle = new Rectangle(shape.getX(), shape.getY());
         rectangle.setSize(new Size(shape.getWidth(), shape.getHeight()));
         return rectangle;
+    }
+
+    private AbstractEntity parseGeneralPath(GeneralPath shape) {
+        PathIterator pathIterator = shape.getPathIterator(null);
+        double[] coords = new double[8];
+        double[] lastMoveTo = new double[2];
+        Path line = new Path();
+
+        while (!pathIterator.isDone()) {
+            int i = pathIterator.currentSegment(coords);
+            switch (i) {
+                case PathIterator.SEG_MOVETO:
+                    pathIterator.currentSegment(coords);
+                    line.moveTo(coords[0], coords[1]);
+
+                    lastMoveTo[0] = coords[0];
+                    lastMoveTo[1] = coords[1];
+                    break;
+
+                case PathIterator.SEG_LINETO:
+                    pathIterator.currentSegment(coords);
+                    line.lineTo(coords[0], coords[1]);
+                    break;
+
+                case PathIterator.SEG_QUADTO:
+                    pathIterator.currentSegment(coords);
+                    line.quadTo(coords[0], coords[1], coords[2], coords[3]);
+                    break;
+
+                case PathIterator.SEG_CUBICTO:
+                    pathIterator.currentSegment(coords);
+                    line.curveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+                    break;
+
+                case PathIterator.SEG_CLOSE:
+                    pathIterator.currentSegment(coords);
+                    line.lineTo(lastMoveTo[0], lastMoveTo[1]);
+                    line.close();
+                    break;
+
+                default:
+                    LOGGER.warning("Missing handler for path segment: " + i);
+            }
+            pathIterator.next();
+        }
+        return line;
     }
 
     private AbstractEntity parsePath(ExtendedGeneralPath shape) {
