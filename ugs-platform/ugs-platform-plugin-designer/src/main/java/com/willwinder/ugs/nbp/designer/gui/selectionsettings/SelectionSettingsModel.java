@@ -59,6 +59,7 @@ public class SelectionSettingsModel implements Serializable {
             case SPINDLE_SPEED -> getSpindleSpeed();
             case PASSES -> getPasses();
             case FEED_RATE -> getFeedRate();
+            case OFFSET_TOOL_PERCENT -> getToolOffsetPercent();
             default -> throw new SelectionSettingsModelException("Unknown setting " + key);
         };
     }
@@ -122,6 +123,17 @@ public class SelectionSettingsModel implements Serializable {
         }
     }
 
+    public int getToolOffsetPercent() {
+        return (Integer) settings.getOrDefault(EntitySetting.OFFSET_TOOL_PERCENT, 0);
+    }
+
+    public void setToolOffsetPercent(int offsetPercent) {
+        if (!valuesEquals(getToolOffsetPercent(), offsetPercent)) {
+            settings.put(EntitySetting.OFFSET_TOOL_PERCENT, offsetPercent);
+            notifyListeners(EntitySetting.OFFSET_TOOL_PERCENT);
+        }
+    }
+
     private void notifyListeners(EntitySetting setting) {
         listeners.forEach(l -> l.onModelUpdate(setting));
     }
@@ -137,6 +149,7 @@ public class SelectionSettingsModel implements Serializable {
         setTargetDepth(0);
         setSpindleSpeed(0);
         setFeedRate(0);
+        setToolOffsetPercent(0);
         setText("");
         setFontFamily(Font.SANS_SERIF);
     }
@@ -341,6 +354,10 @@ public class SelectionSettingsModel implements Serializable {
 
         if (settings.contains(EntitySetting.FEED_RATE)) {
             setFeedRate(selectionGroup.getFeedRate());
+        }
+
+        if (settings.contains(EntitySetting.OFFSET_TOOL_PERCENT)) {
+            setToolOffsetPercent(selectionGroup.getOffsetToolPercent());
         }
     }
 }

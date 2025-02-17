@@ -50,6 +50,9 @@ public class CuttableEntityV1 extends EntityV1 {
     private boolean isHidden;
 
     @Expose
+    private int offsetToolPercent;
+
+    @Expose
     private AffineTransform transform;
 
     public CuttableEntityV1(EntityTypeV1 type) {
@@ -70,10 +73,6 @@ public class CuttableEntityV1 extends EntityV1 {
 
     public void setStartDepth(double startDepth) {
         this.startDepth = startDepth;
-    }
-
-    public double getCutDepth() {
-        return cutDepth;
     }
 
     public void setCutDepth(double cutDepth) {
@@ -100,6 +99,10 @@ public class CuttableEntityV1 extends EntityV1 {
         this.feedRate = feedRate;
     }
 
+    public void setOffsetToolPercent(int offsetToolPercent) {
+        this.offsetToolPercent = offsetToolPercent;
+    }
+
     @Override
     protected void applyCommonAttributes(Entity entity) {
         super.applyCommonAttributes(entity);
@@ -115,6 +118,7 @@ public class CuttableEntityV1 extends EntityV1 {
             cuttable.setSpindleSpeed(spindleSpeed);
             cuttable.setPasses(passes);
             cuttable.setFeedRate(feedRate);
+            cuttable.setOffsetToolPercent(offsetToolPercent);
         }
     }
 

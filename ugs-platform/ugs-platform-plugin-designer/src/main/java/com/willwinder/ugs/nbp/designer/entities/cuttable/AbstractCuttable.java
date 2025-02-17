@@ -31,7 +31,9 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.geom.Area;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +47,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private CutType cutType = CutType.NONE;
     private double targetDepth;
     private double startDepth;
+    private int offsetToolPercent;
     private int spindleSpeed;
     private int passes;
     private int feedRate;
@@ -126,6 +129,26 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     }
 
     @Override
+    public void setOffsetToolPercent(int percent) {
+        this.offsetToolPercent = percent;
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public int getOffsetToolPercent() {
+        return offsetToolPercent;
+    }
+
+    @Override
+    public boolean isWithin(Point2D point) {
+        if (cutType != CutType.SURFACE) {
+            return super.isWithin(point);
+        }
+
+        return getSurfacingShape().contains(point) || getSurfacingShape().intersects(point.getX() - 1, point.getY() - 1, 2, 2);
+    }
+
+    @Override
     public void render(Graphics2D graphics, Drawing drawing) {
         if (isHidden) {
             return;
@@ -138,11 +161,16 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         Shape shape = getShape();
         if (getCutType() == CutType.NONE) {
             drawShape(graphics, dashedStroke, Colors.SHAPE_HINT, shape);
-        } else if (getCutType() == CutType.POCKET || getCutType() == CutType.SURFACE) {
+        } else if (getCutType() == CutType.POCKET) {
             graphics.setStroke(new BasicStroke(strokeWidth));
             graphics.setColor(getCutColor());
             graphics.fill(shape);
             graphics.draw(shape);
+        } else if (getCutType() == CutType.SURFACE) {
+            drawShape(graphics, dashedStroke, Colors.SHAPE_HINT, shape);
+            graphics.setStroke(new BasicStroke(strokeWidth));
+            graphics.setColor(getCutColor());
+            graphics.fill(getSurfacingShape());
         } else if (getCutType() == CutType.INSIDE_PATH || getCutType() == CutType.ON_PATH || getCutType() == CutType.OUTSIDE_PATH) {
             drawShape(graphics, new BasicStroke(strokeWidth), getCutColor(), shape);
         } else if (getCutType() == CutType.LASER_ON_PATH) {
@@ -164,6 +192,21 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         }
     }
 
+    private Shape getBufferedShape(double offsetInMillimeters) {
+        Shape shape = getShape().getBounds2D();
+        if (offsetInMillimeters == 0) {
+            return shape;
+        }
+
+        BasicStroke stroke = new BasicStroke((float) (offsetInMillimeters * 2d)); // Multiply by 2 to expand evenly
+        return new Area(stroke.createStrokedShape(shape).getBounds2D());
+    }
+
+    private Shape getSurfacingShape() {
+        double offsetInMillimeters = ControllerFactory.getController().getSettings().getToolDiameter() * ((double) getOffsetToolPercent() / 100d);
+        return getBufferedShape(offsetInMillimeters);
+    }
+
     private void drawShape(Graphics2D graphics, BasicStroke strokeWidth, Color shapeHint, Shape shape) {
         graphics.setStroke(strokeWidth);
         graphics.setColor(shapeHint);
@@ -183,7 +226,6 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
 
     @Override
     public Rectangle2D getBounds() {
-        // Make sure that the shape bounds are not zero to make it possible to select the entity
         Rectangle2D bounds = super.getBounds();
         return new Rectangle2D.Double(bounds.getX(), bounds.getY(), Math.max(bounds.getWidth(), 0.001), Math.max(bounds.getHeight(), 0.001));
     }
@@ -202,7 +244,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
                 EntitySetting.TARGET_DEPTH,
                 EntitySetting.SPINDLE_SPEED,
                 EntitySetting.PASSES,
-                EntitySetting.FEED_RATE
+                EntitySetting.FEED_RATE,
+                EntitySetting.OFFSET_TOOL_PERCENT
         );
     }
 

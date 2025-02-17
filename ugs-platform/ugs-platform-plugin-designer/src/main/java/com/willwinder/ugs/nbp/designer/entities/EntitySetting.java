@@ -41,7 +41,8 @@ public enum EntitySetting {
     LOCK_RATIO("Lock ratio"),
     SPINDLE_SPEED("Spindle speed"),
     PASSES("Passes"),
-    FEED_RATE("Feed rate");
+    FEED_RATE("Feed rate"),
+    OFFSET_TOOL_PERCENT("Tool offset percent"),;
 
     public static final List<EntitySetting> DEFAULT_ENDMILL_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
@@ -58,6 +59,23 @@ public enum EntitySetting {
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.FEED_RATE,
             EntitySetting.TEXT);
+
+    public static final List<EntitySetting> DEFAULT_SURFACE_SETTINGS = List.of(
+            EntitySetting.CUT_TYPE,
+            EntitySetting.ANCHOR,
+            EntitySetting.HEIGHT,
+            EntitySetting.WIDTH,
+            EntitySetting.FONT_FAMILY,
+            EntitySetting.LOCK_RATIO,
+            EntitySetting.POSITION_X,
+            EntitySetting.POSITION_Y,
+            EntitySetting.ROTATION,
+            EntitySetting.START_DEPTH,
+            EntitySetting.TARGET_DEPTH,
+            EntitySetting.SPINDLE_SPEED,
+            EntitySetting.FEED_RATE,
+            EntitySetting.TEXT,
+            EntitySetting.OFFSET_TOOL_PERCENT);
 
     public static final List<EntitySetting> DEFAULT_LASER_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
