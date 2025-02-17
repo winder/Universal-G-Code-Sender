@@ -151,6 +151,23 @@ public class Group extends EntityGroup implements Cuttable {
     }
 
     @Override
+    public int getOffsetToolPercent() {
+        return getCuttableStream()
+                .mapToInt(Cuttable::getOffsetToolPercent)
+                .max()
+                .orElse(0);
+    }
+
+    @Override
+    public void setOffsetToolPercent(int value) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setOffsetToolPercent(value);
+            }
+        });
+    }
+
+    @Override
     public boolean isHidden() {
         return getCuttableStream()
                 .findFirst()
@@ -228,6 +245,11 @@ public class Group extends EntityGroup implements Cuttable {
         if (getCuttableStream().map(Cuttable::getFeedRate).distinct().toList().size() > 1) {
             result = new ArrayList<>(result);
             result.remove(EntitySetting.FEED_RATE);
+        }
+
+        if (getCuttableStream().map(Cuttable::getOffsetToolPercent).distinct().toList().size() > 1) {
+            result = new ArrayList<>(result);
+            result.remove(EntitySetting.OFFSET_TOOL_PERCENT);
         }
 
         return result;

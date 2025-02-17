@@ -85,6 +85,8 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private JLabel feedRateLabel;
     private UnitSpinner feedRateSpinner;
     private JLabel cutTypeLabel;
+    private JLabel offsetToolPercentSliderLabel;
+    private JSlider offsetToolPercentSlider;
 
     public SelectionSettingsPanel(Controller controller) {
         fieldEventDispatcher = new FieldEventDispatcher();
@@ -152,6 +154,17 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         feedRateSpinner = new UnitSpinner(50, TextFieldUnit.MM_PER_MINUTE, 50d, 10000d, 10d);
         add(feedRateSpinner, FIELD_CONSTRAINTS + ", spanx");
         fieldEventDispatcher.registerListener(EntitySetting.FEED_RATE, feedRateSpinner);
+
+        offsetToolPercentSliderLabel = createAndAddLabel(EntitySetting.OFFSET_TOOL_PERCENT);
+        offsetToolPercentSlider = new JSlider(0, 300, 0);
+        offsetToolPercentSlider.setPaintLabels(true);
+        offsetToolPercentSlider.setPaintTicks(true);
+        offsetToolPercentSlider.setSnapToTicks(true);
+        offsetToolPercentSlider.setMinorTickSpacing(50);
+        offsetToolPercentSlider.setMajorTickSpacing(100);
+
+        add(offsetToolPercentSlider, SLIDER_FIELD_CONSTRAINTS + ", spanx");
+        fieldEventDispatcher.registerListener(EntitySetting.OFFSET_TOOL_PERCENT, offsetToolPercentSlider);
 
         spindleSpeedLabel = createAndAddLabel(EntitySetting.SPINDLE_SPEED);
         spindleSpeedSlider = new JSlider(0, 100, 0);
@@ -310,6 +323,9 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         } else if (entitySetting == EntitySetting.FEED_RATE) {
             feedRateSpinner.setValue(model.getFeedRate());
             selectionGroup.setFeedRate(model.getFeedRate());
+        } else if (entitySetting == EntitySetting.OFFSET_TOOL_PERCENT) {
+            offsetToolPercentSlider.setValue(model.getToolOffsetPercent());
+            selectionGroup.setOffsetToolPercent(model.getToolOffsetPercent());
         }
 
         handleComponentVisibility(selectionGroup);
@@ -371,6 +387,11 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
                 cutType.getSettings().contains(EntitySetting.FEED_RATE);
         feedRateLabel.setVisible(hasFeedRate);
         feedRateSpinner.setVisible(hasFeedRate);
+
+        boolean hasOffsetTool = selectionHasSetting(selectionGroup, EntitySetting.OFFSET_TOOL_PERCENT) &&
+                cutType.getSettings().contains(EntitySetting.OFFSET_TOOL_PERCENT);
+        offsetToolPercentSlider.setVisible(hasOffsetTool);
+        offsetToolPercentSliderLabel.setVisible(hasOffsetTool);
 
         lockRatioButton.setVisible(hasWidth && hasHeight);
     }

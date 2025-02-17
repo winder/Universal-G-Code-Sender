@@ -18,12 +18,11 @@
  */
 package com.willwinder.ugs.nbp.designer;
 
+import static com.willwinder.ugs.nbp.designer.DesignerMain.PROPERTY_IS_STANDALONE;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.geom.Point2D;
 import java.text.ParseException;
-
-import static com.willwinder.ugs.nbp.designer.DesignerMain.PROPERTY_IS_STANDALONE;
 
 /**
  * @author Joacim Breiler
@@ -71,7 +70,7 @@ public class Utils {
      * you will need to call SwingUtilities.convertPointToScreen or equivalent
      * on all arguments before passing them  to this function.
      * <p>
-     * Source: https://stackoverflow.com/a/16340752
+     * Source: <a href="https://stackoverflow.com/a/16340752">Source on stack overflow</a>
      *
      * @param centerPt Point we are rotating around.
      * @param targetPt Point we want to calculate the angle to.

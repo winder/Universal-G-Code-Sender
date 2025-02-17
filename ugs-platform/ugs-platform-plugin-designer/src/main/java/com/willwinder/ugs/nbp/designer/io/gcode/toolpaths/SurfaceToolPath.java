@@ -27,8 +27,8 @@ public class SurfaceToolPath extends AbstractToolPath {
 
     private List<Geometry> getGeometries() {
         Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
-        Geometry shell = geometry.buffer(-settings.getToolDiameter() / 2d);
-        return List.of(shell);
+        Geometry shell = geometry.buffer((settings.getToolDiameter() * (source.getOffsetToolPercent() / 100d)));
+        return List.of(shell.getEnvelope());
     }
 
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {

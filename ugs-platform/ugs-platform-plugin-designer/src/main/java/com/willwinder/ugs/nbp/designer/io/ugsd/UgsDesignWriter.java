@@ -107,6 +107,7 @@ public class UgsDesignWriter implements DesignWriter {
             cuttableEntity.setSpindleSpeed(cuttable.getSpindleSpeed());
             cuttableEntity.setPasses(cuttable.getPasses());
             cuttableEntity.setFeedRate(cuttable.getFeedRate());
+            cuttableEntity.setOffsetToolPercent(cuttable.getOffsetToolPercent());
         }
         return result;
     }

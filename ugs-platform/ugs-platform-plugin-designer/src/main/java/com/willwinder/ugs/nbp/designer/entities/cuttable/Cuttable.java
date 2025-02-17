@@ -132,4 +132,18 @@ public interface Cuttable extends Entity {
     Optional<Object> getEntitySetting(EntitySetting entitySetting);
 
     void setEntitySetting(EntitySetting entitySetting, Object value);
+
+    /**
+     * Sets the tool offset in percent (ie: 100 for 100%)
+     *
+     * @param value the percentage value
+     */
+    void setOffsetToolPercent(int value);
+
+    /**
+     * Returns the tool offset in percent (ie: 100 for 100%)
+     *
+     * @return the tool offset
+     */
+    int getOffsetToolPercent();
 }

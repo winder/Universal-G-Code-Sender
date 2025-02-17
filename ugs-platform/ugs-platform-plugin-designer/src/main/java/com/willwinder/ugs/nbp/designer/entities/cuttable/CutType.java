@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import static com.willwinder.ugs.nbp.designer.entities.EntitySetting.DEFAULT_ENDMILL_SETTINGS;
 import static com.willwinder.ugs.nbp.designer.entities.EntitySetting.DEFAULT_LASER_SETTINGS;
+import static com.willwinder.ugs.nbp.designer.entities.EntitySetting.DEFAULT_SURFACE_SETTINGS;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ import java.util.List;
 public enum CutType {
     NONE("None", List.of(EntitySetting.CUT_TYPE)),
     POCKET("Mill - Pocket",  DEFAULT_ENDMILL_SETTINGS),
-    SURFACE("Mill - Surface",  DEFAULT_ENDMILL_SETTINGS),
+    SURFACE("Mill - Surface",  DEFAULT_SURFACE_SETTINGS),
     ON_PATH("Mill - On path", DEFAULT_ENDMILL_SETTINGS),
     INSIDE_PATH("Mill - Inside path",  DEFAULT_ENDMILL_SETTINGS),
     OUTSIDE_PATH("Mill - Outside path", DEFAULT_ENDMILL_SETTINGS),
