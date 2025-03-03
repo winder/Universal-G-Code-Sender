@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,8 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Joacim Breiler
@@ -52,6 +51,21 @@ public class OutlineActionTest {
         backend.getSettings().setJogFeedRate(1000);
 
         URL resource = OutlineActionTest.class.getResource("/square.nc");
+        List<GcodeCommand> gcodeCommands = outlineAction.generateOutlineCommands(new File(resource.getPath()));
+        assertEquals(gcodeCommands.size(), 4);
+        assertEquals("G21G90G1X0Y0F1000", gcodeCommands.get(0).getCommandString());
+        assertEquals("G21G90G1X1000Y0F1000", gcodeCommands.get(1).getCommandString());
+        assertEquals("G21G90G1X1000Y1000F1000", gcodeCommands.get(2).getCommandString());
+        assertEquals("G21G90G1X0Y1000F1000", gcodeCommands.get(3).getCommandString());
+    }
+
+    @Test
+    public void generateOutlineCommandsOfSquareWitEmptyCoordinate() throws IOException, GcodeParserException {
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend.getSettings().setPreferredUnits(UnitUtils.Units.MM);
+        backend.getSettings().setJogFeedRate(1000);
+
+        URL resource = OutlineActionTest.class.getResource("/square2.nc");
         List<GcodeCommand> gcodeCommands = outlineAction.generateOutlineCommands(new File(resource.getPath()));
         assertEquals(gcodeCommands.size(), 4);
         assertEquals("G21G90G1X0Y0F1000", gcodeCommands.get(0).getCommandString());
