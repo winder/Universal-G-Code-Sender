@@ -138,6 +138,7 @@ public final class OutlineAction extends ProgramAction implements UGSEventListen
         List<PartialPosition> pointList = gcodeLineList.parallelStream()
                 .filter(lineSegment -> !lineSegment.isFastTraverse())
                 .flatMap(new LineSegmentToPartialPositionMapper())
+                .filter(partialPosition -> partialPosition.hasX() && partialPosition.hasY())
                 .distinct()
                 .toList();
 
