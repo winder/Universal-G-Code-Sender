@@ -29,7 +29,6 @@ import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G57
 import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G58;
 import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G59;
 import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
-import com.willwinder.universalgcodesender.uielements.components.Spinner;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
 
@@ -45,7 +44,7 @@ public class SettingsPanel extends JPanel {
     private final UnitSpinner settingsFastFindRate;
     private final UnitSpinner settingsSlowMeasureRate;
     private final UnitSpinner settingsRetractAmount;
-    private final Spinner settingsDelayAfterRetract;
+    private final UnitSpinner settingsDelayAfterRetract;
 
     public SettingsPanel() {
         var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
@@ -58,7 +57,7 @@ public class SettingsPanel extends JPanel {
         settingsFastFindRate = new UnitSpinner(Math.max(ProbeSettings.getSettingsFastFindRate(), 0.1), rateUnits, 0.1d, null, 1.);
         settingsSlowMeasureRate = new UnitSpinner(Math.max(ProbeSettings.getSettingsSlowMeasureRate(), 0.1), rateUnits, 0.1d, null, 1.);
         settingsRetractAmount = new UnitSpinner(Math.max(ProbeSettings.getSettingsRetractAmount(), 0.01), units, 0.01d, null, 0.1);
-        settingsDelayAfterRetract = new Spinner(Math.max(ProbeSettings.getSettingsDelayAfterRetract(), 0.0), 0.0d);
+        settingsDelayAfterRetract = new UnitSpinner(Math.max(ProbeSettings.getSettingsDelayAfterRetract(), 0.0), TextFieldUnit.SECONDS, 0d, null, 0.1d);
         createLayout();
         registerListeners();
     }

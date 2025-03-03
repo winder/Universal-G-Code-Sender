@@ -134,7 +134,7 @@ public class ProbeService implements UGSEventListener {
                 }
                 case 1: {
                     gcode("G91 " + unit + " G0 Z" + retractDistance(params.zSpacing, params.retractAmount));
-                    gcode("G4 P" + params.delayAfterRetract);
+                    sendRetractPause();
                     // TODO If probing a large distance this could cause soft limit alarm here, use the retract amount on the second probe
                     probe('Z', params.feedRateSlow, params.zSpacing, params.units);
                     break;
@@ -169,6 +169,10 @@ public class ProbeService implements UGSEventListener {
         }
     }
 
+    private void sendRetractPause() throws Exception {
+        gcode("G4 P" + Utils.formatter.format(params.delayAfterRetract));
+    }
+
     public void performOutsideCornerProbe(ProbeParameters params) throws IllegalStateException {
         validateState();
         currentOperation = ProbeOperation.OUTSIDE_XY;
@@ -196,7 +200,7 @@ public class ProbeService implements UGSEventListener {
                 }
                 case 1: {
                     gcode(g0Rel + " Y" + retractDistance(params.ySpacing, params.retractAmount));
-                    gcode("G4 P" + params.delayAfterRetract);
+                    sendRetractPause();
                     probe('Y', params.feedRateSlow, params.ySpacing, params.units);
                     break;
                 }
@@ -209,7 +213,7 @@ public class ProbeService implements UGSEventListener {
                 }
                 case 3: {
                     gcode(g0Rel + " X" + retractDistance(params.xSpacing, params.retractAmount));
-                    gcode("G4 P" + params.delayAfterRetract);
+                    sendRetractPause();
                     probe('X', params.feedRateSlow, params.xSpacing, params.units);
                     break;
                 }
@@ -273,7 +277,7 @@ public class ProbeService implements UGSEventListener {
                 }
                 case 1: {
                     gcode(g0Rel + " Z" + retractDistance(params.zSpacing, params.retractAmount));
-                    gcode("G4 P" + params.delayAfterRetract);
+                    sendRetractPause();
                     probe('Z', params.feedRateSlow, params.zSpacing, params.units);
                     break;
                 }
@@ -288,7 +292,7 @@ public class ProbeService implements UGSEventListener {
                 }
                 case 3: {
                     gcode(g0Rel + " X" + retractDistance(params.xSpacing, params.retractAmount));
-                    gcode("G4 P" + params.delayAfterRetract);
+                    sendRetractPause();
                     probe('X', params.feedRateSlow, params.xSpacing, params.units);
                     break;
                 }
@@ -303,7 +307,7 @@ public class ProbeService implements UGSEventListener {
                 }
                 case 5: {
                     gcode(g0Rel + " Y" + retractDistance(params.ySpacing, params.retractAmount));
-                    gcode("G4 P" + params.delayAfterRetract);
+                    sendRetractPause();
                     probe('Y', params.feedRateSlow, params.ySpacing, params.units);
                     break;
                 }
@@ -373,7 +377,7 @@ public class ProbeService implements UGSEventListener {
                 }
                 case 1: { // retract & measure -X
                     gcode(g0Rel + " X" + Utils.formatter.format(params.retractAmount)); // G91 G21 G0 X2.0
-                    gcode("G4 P" + params.delayAfterRetract);
+                    sendRetractPause();
                     probe('X', params.feedRateSlow, -holeRadius, params.units); // G21 G91 G49; G38.2 X-25.0 F50
                     break;
                 }
@@ -384,7 +388,7 @@ public class ProbeService implements UGSEventListener {
                 }
                 case 3: { // retract & measure +X
                     gcode(g0Rel + " X" + Utils.formatter.format(-1.0 * params.retractAmount)); // G91 G21 G0 X-2.0
-                    gcode("G4 P" + params.delayAfterRetract);
+                    sendRetractPause();
                     probe('X', params.feedRateSlow, holeRadius, params.units); // G21 G91 G49; G38.2 X25.0 F50
                     break;
                 }
@@ -401,7 +405,7 @@ public class ProbeService implements UGSEventListener {
                 }
                 case 5: { // retract & measure -Y
                     gcode(g0Rel + " Y" + Utils.formatter.format(params.retractAmount)); // G91 G21 G0 Y2.0
-                    gcode("G4 P" + params.delayAfterRetract);
+                    sendRetractPause();
                     probe('Y', params.feedRateSlow, -holeRadius, params.units); // G21 G91 G49; G38.2 Y-25.0 F50
                     break;
                 }
@@ -412,7 +416,7 @@ public class ProbeService implements UGSEventListener {
                 }
                 case 7: { // retract & measure +Y
                     gcode(g0Rel + " Y" + Utils.formatter.format(-1.0 * params.retractAmount));// G91 G21 G0 Y-2.0
-                    gcode("G4 P" + params.delayAfterRetract);
+                    sendRetractPause();
                     probe('Y', params.feedRateSlow, holeRadius, params.units);// G21 G91 G49; G38.2 Y25.0 F50
                     break;
                 }

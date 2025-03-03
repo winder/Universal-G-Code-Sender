@@ -43,7 +43,7 @@ public class ProbeParameters {
     public final double retractAmount;
 
     /**
-     * Wait before beginning slow probe after retracting. Compensates for slow touch probe response.
+     * Wait a time given in seconds before beginning slow probe after retracting. Compensates for slow touch probe response.
      */
     public final double delayAfterRetract;
 
