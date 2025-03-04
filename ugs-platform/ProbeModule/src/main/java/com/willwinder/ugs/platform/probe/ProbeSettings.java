@@ -44,6 +44,7 @@ public class ProbeSettings {
     public static final String SETTINGS_FAST_FIND_RATE = "settingsFastFindRate";
     public static final String SETTINGS_SLOW_MEASURE_RATE = "settingsSlowMeasureRate";
     public static final String SETTINGS_RETRACT_AMOUNT = "settingsRetractAmount";
+    public static final String SETTINGS_DELAY_AFTER_RETRACT = "settingsDelayAfterRetract";
     public static final String SETTINGS_WORK_COORDINATE_SYSTEM = "settingsWorkCoordinateSystem";
     public static final String SETTINGS_UNITS = "settingsUnits";
     public static final String SELECTED_TAB_INDEX = "selectedTabIndex";
@@ -195,6 +196,14 @@ public class ProbeSettings {
 
     public static void setSettingsRetractAmount(double settingsRetractAmount) {
         preferences.putDouble(SETTINGS_RETRACT_AMOUNT, settingsRetractAmount);
+    }
+
+    public static double getSettingsDelayAfterRetract() {
+        return preferences.getDouble(SETTINGS_DELAY_AFTER_RETRACT, 1);
+    }
+
+    public static void setSettingsDelayAfterRetract(double settingsDelayAfterRetract) {
+        preferences.putDouble(SETTINGS_DELAY_AFTER_RETRACT, settingsDelayAfterRetract);
     }
 
     public static WorkCoordinateSystem getSettingsWorkCoordinate() {

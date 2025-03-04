@@ -46,10 +46,10 @@ public class ProbeServiceTest {
     public void testProbeServiceZ() throws Exception {
         doReturn(true).when(backend).isIdle();
 
-        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 10., 1, 1, 1, 0, 100, 25, 5, Units.INCH, G54);
+        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 10., 1, 1, 1, 0, 100, 25, 5, 2.4, Units.INCH, G54);
         testZProbe(pc);
 
-        pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, -10., 1, 1, 1, 0, 100, 25, 5, Units.INCH, G54);
+        pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, -10., 1, 1, 1, 0, 100, 25, 5, 2.4, Units.INCH, G54);
         testZProbe(pc);
     }
 
@@ -68,6 +68,8 @@ public class ProbeServiceTest {
         order.verify(backend, times(1)).probe("Z", pc.feedRate, pc.zSpacing, pc.units);
         order.verify(backend, times(1))
                 .sendGcodeCommand(true, "G91 G20 G0 Z" + retractDistance(pc.zSpacing, pc.retractAmount));
+        order.verify(backend, times(1))
+                .sendGcodeCommand(true, "G4 P" + pc.delayAfterRetract);
         order.verify(backend, times(1)).probe("Z", pc.feedRateSlow, pc.zSpacing, pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G20 G0 Z0.0");
 
@@ -85,7 +87,7 @@ public class ProbeServiceTest {
 
         ProbeService ps = new ProbeService(backend);
 
-        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 0, 100, 25, 5, Units.MM, G55);
+        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 0, 100, 25, 5, 2.4, Units.MM, G55);
         ps.performOutsideCornerProbe(pc);
 
         Position probeY = new Position(2.0, 2.0, 0, Units.MM);
@@ -106,6 +108,8 @@ public class ProbeServiceTest {
         order.verify(backend, times(1)).probe("Y", pc.feedRate, pc.ySpacing, pc.units);
         order.verify(backend, times(1))
                 .sendGcodeCommand(true, "G91 G21 G0 Y" + retractDistance(pc.ySpacing, pc.retractAmount));
+        order.verify(backend, times(1))
+                .sendGcodeCommand(true, "G4 P" + pc.delayAfterRetract);
         order.verify(backend, times(1)).probe("Y", pc.feedRateSlow, pc.ySpacing, pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Y0.0");
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X0.0");
@@ -115,6 +119,8 @@ public class ProbeServiceTest {
         order.verify(backend, times(1)).probe("X", pc.feedRate, pc.xSpacing, pc.units);
         order.verify(backend, times(1))
                 .sendGcodeCommand(true, "G91 G21 G0 X" + retractDistance(pc.ySpacing, pc.retractAmount));
+        order.verify(backend, times(1))
+                .sendGcodeCommand(true, "G4 P" + pc.delayAfterRetract);
         order.verify(backend, times(1)).probe("X", pc.feedRateSlow, pc.xSpacing, pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X0.0");
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Y0.0");
@@ -136,7 +142,7 @@ public class ProbeServiceTest {
 
         ProbeService ps = new ProbeService(backend);
 
-        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 0, 100, 25, 5, Units.MM, G55);
+        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 0, 100, 25, 5, 2.4, Units.MM, G55);
         ps.performXYZProbe(pc);
 
         Position probeY = new Position(2.0, 2.0, 0, Units.MM);
@@ -159,6 +165,8 @@ public class ProbeServiceTest {
         order.verify(backend, times(1)).probe("Z", pc.feedRate, pc.zSpacing, pc.units);
         order.verify(backend, times(1))
                 .sendGcodeCommand(true, "G91 G21 G0 Z" + retractDistance(pc.zSpacing, pc.retractAmount));
+        order.verify(backend, times(1))
+                .sendGcodeCommand(true, "G4 P" + pc.delayAfterRetract);
         order.verify(backend, times(1)).probe("Z", pc.feedRateSlow, pc.zSpacing, pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Z0.0");
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X" + -pc.xSpacing);
@@ -168,6 +176,8 @@ public class ProbeServiceTest {
         order.verify(backend, times(1)).probe("X", pc.feedRate, pc.xSpacing, pc.units);
         order.verify(backend, times(1))
                 .sendGcodeCommand(true, "G91 G21 G0 X" + retractDistance(pc.ySpacing, pc.retractAmount));
+        order.verify(backend, times(1))
+                .sendGcodeCommand(true, "G4 P" + pc.delayAfterRetract);
         order.verify(backend, times(1)).probe("X", pc.feedRateSlow, pc.xSpacing, pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X" + -pc.xSpacing);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Y" + -pc.ySpacing);
@@ -177,6 +187,8 @@ public class ProbeServiceTest {
         order.verify(backend, times(1)).probe("Y", pc.feedRate, pc.ySpacing, pc.units);
         order.verify(backend, times(1))
                 .sendGcodeCommand(true, "G91 G21 G0 Y" + retractDistance(pc.ySpacing, pc.retractAmount));
+        order.verify(backend, times(1))
+                .sendGcodeCommand(true, "G4 P" + pc.delayAfterRetract);
         order.verify(backend, times(1)).probe("Y", pc.feedRateSlow, pc.ySpacing, pc.units);
 
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Z0.0");
@@ -213,7 +225,7 @@ public class ProbeServiceTest {
         // +X corner 4, 0
         // -Y corner 0, -5
         // +Y corner 0, 3
-        ProbeParameters pc = new ProbeParameters(1, new Position(-1, -1, 0, Units.MM), 0, 0, 0, 0, 0, 0, 10, 100, 25, 2, Units.MM, G55);
+        ProbeParameters pc = new ProbeParameters(1, new Position(-1, -1, 0, Units.MM), 0, 0, 0, 0, 0, 0, 10, 100, 25, 2, 2.4, Units.MM, G55);
         ps.performHoleCenterProbe(pc);
 
         Position probeYmin = new Position(-3.0, 0.0, 0, Units.MM);
@@ -242,6 +254,8 @@ public class ProbeServiceTest {
 
         // step 1
         order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X2");
+        order.verify(backend, times(1))
+                .sendGcodeCommand(true, "G4 P" + pc.delayAfterRetract);
         order.verify(backend, times(1)).probe("X", pc.feedRateSlow, -holeRadius, pc.units);
 
         // step 2
@@ -250,6 +264,8 @@ public class ProbeServiceTest {
 
         // step 3
         order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X-2");
+        order.verify(backend, times(1))
+                .sendGcodeCommand(true, "G4 P" + pc.delayAfterRetract);
         order.verify(backend, times(1)).probe("X", pc.feedRateSlow, holeRadius, pc.units);
 
         // step 4
@@ -258,6 +274,8 @@ public class ProbeServiceTest {
 
         // step 5
         order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y2");
+        order.verify(backend, times(1))
+                .sendGcodeCommand(true, "G4 P" + pc.delayAfterRetract);
         order.verify(backend, times(1)).probe("Y", pc.feedRateSlow, -holeRadius, pc.units);
 
         // step 6
@@ -266,6 +284,8 @@ public class ProbeServiceTest {
 
         // step 7
         order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y-2");
+        order.verify(backend, times(1))
+                .sendGcodeCommand(true, "G4 P" + pc.delayAfterRetract);
         order.verify(backend, times(1)).probe("Y", pc.feedRateSlow, holeRadius, pc.units);
 
         // step 8

@@ -74,6 +74,7 @@ public class ProbeXYZAction extends AbstractProbeAction {
                 ProbeSettings.getSettingsFastFindRate(),
                 ProbeSettings.getSettingsSlowMeasureRate(),
                 ProbeSettings.getSettingsRetractAmount(),
+                ProbeSettings.getSettingsDelayAfterRetract(),
                 backend.getSettings().getPreferredUnits(),
                 ProbeSettings.getSettingsWorkCoordinate());
 

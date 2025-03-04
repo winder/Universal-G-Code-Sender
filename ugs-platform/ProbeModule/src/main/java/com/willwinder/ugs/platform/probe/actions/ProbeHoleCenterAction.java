@@ -71,6 +71,7 @@ public class ProbeHoleCenterAction extends AbstractProbeAction {
                 ProbeSettings.getSettingsFastFindRate(),
                 ProbeSettings.getSettingsSlowMeasureRate(),
                 ProbeSettings.getSettingsRetractAmount(),
+                ProbeSettings.getSettingsDelayAfterRetract(),
                 getBackend().getSettings().getPreferredUnits(),
                 ProbeSettings.getSettingsWorkCoordinate());
 
