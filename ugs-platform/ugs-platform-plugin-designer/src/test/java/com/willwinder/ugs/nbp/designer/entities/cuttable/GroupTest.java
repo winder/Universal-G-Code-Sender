@@ -44,14 +44,14 @@ public class GroupTest {
         assertEquals(List.of(), group.getSettings());
 
         group.addChild(point1);
-        assertEquals(List.of(EntitySetting.POSITION_X, EntitySetting.POSITION_Y, EntitySetting.CUT_TYPE, EntitySetting.START_DEPTH, EntitySetting.TARGET_DEPTH), group.getSettings());
+        assertEquals(List.of(EntitySetting.POSITION_X, EntitySetting.POSITION_Y, EntitySetting.CUT_TYPE, EntitySetting.SPINDLE_SPEED, EntitySetting.START_DEPTH, EntitySetting.TARGET_DEPTH), group.getSettings());
 
         group.addChild(point2);
-        assertEquals(List.of(EntitySetting.POSITION_X, EntitySetting.POSITION_Y, EntitySetting.CUT_TYPE, EntitySetting.START_DEPTH, EntitySetting.TARGET_DEPTH), group.getSettings());
+        assertEquals(List.of(EntitySetting.POSITION_X, EntitySetting.POSITION_Y, EntitySetting.CUT_TYPE, EntitySetting.SPINDLE_SPEED, EntitySetting.START_DEPTH, EntitySetting.TARGET_DEPTH), group.getSettings());
 
         Rectangle rectangle = new Rectangle();
         group.addChild(rectangle);
-        assertEquals(List.of(EntitySetting.POSITION_X, EntitySetting.POSITION_Y, EntitySetting.CUT_TYPE, EntitySetting.START_DEPTH, EntitySetting.TARGET_DEPTH), group.getSettings());
+        assertEquals(List.of(EntitySetting.POSITION_X, EntitySetting.POSITION_Y, EntitySetting.CUT_TYPE, EntitySetting.SPINDLE_SPEED, EntitySetting.START_DEPTH, EntitySetting.TARGET_DEPTH), group.getSettings());
     }
 
     @Test

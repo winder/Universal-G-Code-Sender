@@ -85,6 +85,7 @@ public class Point extends AbstractCuttable {
                 EntitySetting.POSITION_X,
                 EntitySetting.POSITION_Y,
                 EntitySetting.CUT_TYPE,
+                EntitySetting.SPINDLE_SPEED,
                 EntitySetting.START_DEPTH,
                 EntitySetting.TARGET_DEPTH
         );
