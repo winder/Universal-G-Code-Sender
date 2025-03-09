@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2024 Will Winder
+    Copyright 2021-2025 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -137,6 +137,11 @@ public class Settings {
         return toolStepOver;
     }
 
+    /**
+     * Sets the percentage of how much the tool should step over given a value between 0.01 and 1.
+     *
+     * @param toolStepOver a value between 0.01 and 1
+     */
     public void setToolStepOver(double toolStepOver) {
         toolStepOver = Math.abs(toolStepOver);
         if (toolStepOver == 0) {
