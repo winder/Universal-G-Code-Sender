@@ -1,3 +1,21 @@
+/*
+    Copyright 2025 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
@@ -27,7 +45,7 @@ public class SurfaceToolPath extends AbstractToolPath {
 
     private List<Geometry> getGeometries() {
         Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
-        Geometry shell = geometry.buffer((settings.getToolDiameter() * (source.getOffsetToolPercent() / 100d)));
+        Geometry shell = geometry.buffer((settings.getToolDiameter() * ((source.getOffsetToolPercent() - 50) / 100d)));
         return List.of(shell.getEnvelope());
     }
 
@@ -53,6 +71,7 @@ public class SurfaceToolPath extends AbstractToolPath {
                 addGeometriesToGcodePath(gcodePath, settings, g, envelope, currentDepth, stepOver);
             }
         });
+        addSafeHeightSegment(gcodePath);
     }
 
     private void addGeometriesToGcodePath(GcodePath gcodePath, Settings settings, Geometry g, Envelope envelope, double currentDepth, double stepOver) {
