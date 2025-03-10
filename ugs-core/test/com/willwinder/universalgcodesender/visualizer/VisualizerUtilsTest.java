@@ -80,7 +80,7 @@ public class VisualizerUtilsTest {
         PointSegment endSegment = new PointSegment(endPosition, 0);
 
         List<LineSegment> result = new ArrayList<>();
-        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result, 0);
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(1, result.size());
         assertPosition(0, 0, 10, Double.NaN, Double.NaN, Double.NaN, result.get(0).getEnd());
@@ -93,7 +93,7 @@ public class VisualizerUtilsTest {
         PointSegment endSegment = new PointSegment(endPosition, 0);
 
         List<LineSegment> result = new ArrayList<>();
-        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result, 0);
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(1, result.size());
         assertPosition(0, 0, 10, Double.NaN, Double.NaN, Double.NaN, result.get(0).getEnd());
@@ -106,7 +106,7 @@ public class VisualizerUtilsTest {
         PointSegment endSegment = new PointSegment(endPosition, 0);
 
         List<LineSegment> result = new ArrayList<>();
-        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result,0);
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(1, result.size());
         assertPosition(0, 0, 10, 0.0, Double.NaN, Double.NaN, result.get(0).getEnd());
@@ -119,7 +119,7 @@ public class VisualizerUtilsTest {
         PointSegment endSegment = new PointSegment(endPosition, 0);
 
         List<LineSegment> result = new ArrayList<>();
-        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result,0);
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(3, result.size());
         assertPosition(0, 0, 10, 0, Double.NaN, Double.NaN, result.get(0).getEnd());
@@ -134,7 +134,7 @@ public class VisualizerUtilsTest {
         PointSegment endSegment = new PointSegment(endPosition, 0);
 
         List<LineSegment> result = new ArrayList<>();
-        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result,0);
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(19, result.size());
         assertPosition(0, 0, 10, 0, 0, 0, result.get(0).getEnd());
@@ -150,7 +150,7 @@ public class VisualizerUtilsTest {
         PointSegment endSegment = new PointSegment(endPosition, 0);
 
         List<LineSegment> result = new ArrayList<>();
-        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result,0);
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(19, result.size());
         assertPosition(0, 0, 10, 0, 0, 0, result.get(0).getEnd());
@@ -166,7 +166,7 @@ public class VisualizerUtilsTest {
         PointSegment endSegment = new PointSegment(endPosition, 0);
 
         List<LineSegment> result = new ArrayList<>();
-        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result,0);
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(19, result.size());
         assertPosition(0, 0, 10, 0, 0, 0, result.get(0).getEnd());
@@ -182,7 +182,7 @@ public class VisualizerUtilsTest {
         PointSegment endSegment = new PointSegment(endPosition, 0);
 
         List<LineSegment> result = new ArrayList<>();
-        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result,0);
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(19, result.size());
         assertPosition(0, 0, 10, 0, 0, 0, result.get(0).getEnd());
@@ -198,7 +198,7 @@ public class VisualizerUtilsTest {
         PointSegment endSegment = new PointSegment(endPosition, 0);
 
         List<LineSegment> result = new ArrayList<>();
-        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result,0);
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(19, result.size());
         assertPosition(0, 0, 10, 0, 0, 0, result.get(0).getEnd());
@@ -214,7 +214,7 @@ public class VisualizerUtilsTest {
         PointSegment endSegment = new PointSegment(endPosition, 0);
 
         List<LineSegment> result = new ArrayList<>();
-        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result,0);
+        VisualizerUtils.expandRotationalLineSegment(startPosition, endSegment, result);
 
         assertEquals(7, result.size());
         assertPosition(0, 0, 10, 0, 0, 0, result.get(0).getEnd());

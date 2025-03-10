@@ -22,10 +22,10 @@
 package com.willwinder.universalgcodesender.visualizer;
 
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.types.PointSegment;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -35,14 +35,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author wwinder
  */
 public class VisualizerUtils {
-    private static final Logger LOGGER = Logger.getLogger(VisualizerUtils.class.getSimpleName());
 
     /**
      * Returns the maximum side dimension of a box containing two points.
@@ -55,23 +52,13 @@ public class VisualizerUtils {
     }
 
     /**
-     * Returns the aspect ratio from two points.
-     */
-    public static double findAspectRatio(Position min, Position max) {
-        double x = Math.abs(min.x) + Math.abs(max.x);
-        double y = Math.abs(min.y) + Math.abs(max.y);
-        return x / y;
-    }
-
-    /**
      * Returns the center point on a line.
      */
     public static Position findCenter(Position min, Position max) {
-        Position center = new Position(
+        return new Position(
                 (min.x + max.x) / 2.0,
                 (min.y + max.y) / 2.0,
                 (min.z + max.z) / 2.0);
-        return center;
     }
 
     /**
@@ -132,7 +119,7 @@ public class VisualizerUtils {
     /**
      * Helper to create a line segment with flags initialized.
      */
-    private static LineSegment createLineSegment(Position a, Position b, PointSegment meta, double spindleSpeed) {
+    private static LineSegment createLineSegment(Position a, Position b, PointSegment meta) {
         LineSegment ls = new LineSegment(a, b, meta.getLineNumber());
         ls.setIsArc(meta.isArc());
         ls.setIsFastTraverse(meta.isFastTraverse());
@@ -145,8 +132,10 @@ public class VisualizerUtils {
 
     /**
      * Turns a point segment into one or more LineSegment. Arcs and rotations around axes are expanded
+     *
+     * @throws GcodeParserException if the lines could not be expanded
      */
-    public static void addLinesFromPointSegment(final Position start, final PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret, double spindleSpeed) {
+    public static void addLinesFromPointSegment(final Position start, final PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret) throws GcodeParserException {
         // For a line segment list ALL arcs must be converted to lines.
         double minArcLength = 0;
         endSegment.convertToMetric();
@@ -156,22 +145,21 @@ public class VisualizerUtils {
             if (start != null) {
                 // Expand arc for graphics.
                 if (endSegment.isArc()) {
-                    expandArc(start, endSegment, arcSegmentLength, ret, minArcLength, spindleSpeed);
+                    expandArc(start, endSegment, arcSegmentLength, ret, minArcLength);
                 } else if (endSegment.isRotation()) {
-                    expandRotationalLineSegment(start, endSegment, ret, spindleSpeed);
+                    expandRotationalLineSegment(start, endSegment, ret);
                 } else {
                     // Line
-                    ret.add(createLineSegment(start, endSegment.point(), endSegment, spindleSpeed));
+                    ret.add(createLineSegment(start, endSegment.point(), endSegment));
                 }
             }
         } catch (Exception e) {
-            String message = endSegment.getLineNumber() + ": " + e.getMessage();
-            GUIHelpers.displayErrorDialog(message, true);
-            LOGGER.log(Level.SEVERE, message, e);
+            String message = "Line " + endSegment.getLineNumber() + ": " + e.getMessage();
+            throw new GcodeParserException(message, e);
         }
     }
 
-    private static void expandArc(Position start, PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret, double minArcLength, double spindleSpeed) {
+    private static void expandArc(Position start, PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret, double minArcLength) {
         List<Position> points =
                 GcodePreprocessorUtils.generatePointsAlongArcBDring(
                         start, endSegment.point(), endSegment.center(), endSegment.isClockwise(),
@@ -180,13 +168,13 @@ public class VisualizerUtils {
         if (!points.isEmpty()) {
             Position startPoint = start;
             for (Position nextPoint : points) {
-                ret.add(createLineSegment(startPoint, nextPoint, endSegment, spindleSpeed));
+                ret.add(createLineSegment(startPoint, nextPoint, endSegment));
                 startPoint = nextPoint;
             }
         }
     }
 
-    public static void expandRotationalLineSegment(Position start, PointSegment endSegment, List<LineSegment> ret, double spindleSpeed) {
+    public static void expandRotationalLineSegment(Position start, PointSegment endSegment, List<LineSegment> ret) {
         double maxDegreesPerStep = 5;
         double deltaX = defaultZero(endSegment.point().x) - defaultZero(start.x);
         double deltaY = defaultZero(endSegment.point().y) - defaultZero(start.y);
@@ -217,11 +205,11 @@ public class VisualizerUtils {
             if (deltaC != 0) {
                 end.setC(defaultZero(start.c) + ((deltaC / steps) * i));
             }
-            ret.add(createLineSegment(startPoint, end, endSegment, spindleSpeed));
+            ret.add(createLineSegment(startPoint, end, endSegment));
             startPoint = end;
         }
 
-        ret.add(createLineSegment(startPoint, endSegment.point(), endSegment, spindleSpeed));
+        ret.add(createLineSegment(startPoint, endSegment.point(), endSegment));
     }
 
     /**
