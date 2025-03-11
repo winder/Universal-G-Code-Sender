@@ -132,7 +132,6 @@ public class GcodeViewParse {
 
         // Save the state
         Position start = new Position(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, gp.getCurrentState().getUnits());
-        double spindleSpeed = 0;
 
         while (reader.getNumRowsRemaining() > 0) {
             GcodeCommand commandObject = reader.getNextCommand();
@@ -141,9 +140,8 @@ public class GcodeViewParse {
                 List<GcodeMeta> points = gp.addCommand(command, commandObject.getCommandNumber());
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
-                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines, spindleSpeed);
+                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
                         start = meta.point.point();
-                        spindleSpeed = meta.point.getSpindleSpeed();
                     }
                 }
             }
@@ -176,7 +174,6 @@ public class GcodeViewParse {
 
         // Save the state
         Position start = new Position(Double.NaN, Double.NaN, Double.NaN, gp.getCurrentState().getUnits());
-        double spindleSpeed = 0;
 
         for (String s : gcode) {
             List<String> commands = gp.preprocessCommand(s, gp.getCurrentState());
@@ -184,8 +181,7 @@ public class GcodeViewParse {
                 List<GcodeMeta> points = gp.addCommand(command);
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
-                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines, spindleSpeed);
-                        spindleSpeed = meta.point.getSpindleSpeed();
+                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
 
                         // if the last set point is in a different or unknown unit, crate a new point-instance with the correct unit set
                         if (start.getUnits() != UnitUtils.Units.MM && gp.getCurrentState().isMetric) {

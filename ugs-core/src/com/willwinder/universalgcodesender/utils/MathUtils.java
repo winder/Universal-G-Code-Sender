@@ -39,7 +39,7 @@ public class MathUtils {
 
     /**
      * To find orientation of ordered triplet (p1, p2, p3).
-     * https://www.geeksforgeeks.org/orientation-3-ordered-points/
+     * <a href="https://www.geeksforgeeks.org/orientation-3-ordered-points/">orientation-3-ordered-points</a>
      *
      * @param p1 a point in a polygon
      * @param p2 a point in a polygon
@@ -142,6 +142,21 @@ public class MathUtils {
         }
 
         return Math.abs(d1 - d2) <= delta;
+    }
+
+    /**
+     * Normalizes an angle given in radians to make sure it is in the interval [0,2π]
+     *
+     * @param angle an angle in radians
+     * @return the normalized angle
+     */
+    public static double normalizeAngle(double angle) {
+        double twoPi = 2 * Math.PI;
+        angle = angle % twoPi;
+        if (angle < 0) {
+            angle += twoPi;
+        }
+        return angle;
     }
 
     /**
