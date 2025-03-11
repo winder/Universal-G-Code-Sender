@@ -29,8 +29,6 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.events.FileState;
-import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.model.events.StreamEvent;
 import com.willwinder.universalgcodesender.model.events.StreamEventType;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -40,8 +38,9 @@ import org.openide.modules.OnStart;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JOptionPane;
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
 import java.io.File;
 
 /**
@@ -109,15 +108,9 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
      */
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse instanceof StreamEvent) {
-            StreamEvent streamEvent = (StreamEvent) cse;
+        if (cse instanceof StreamEvent streamEvent) {
             if (streamEvent.getType() == StreamEventType.STREAM_COMPLETE) {
                 completeFile(backend.getGcodeFile());
-            }
-        } else if (cse instanceof FileStateEvent) {
-            FileStateEvent fileStateEvent = (FileStateEvent) cse;
-            if (fileStateEvent.getFileState() == FileState.FILE_LOADED) {
-                workflowPanel.addFileToWorkflow(backend.getGcodeFile());
             }
         }
     }
