@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.model.CNCPoint;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import static com.willwinder.universalgcodesender.utils.MathUtils.normalizeAngle;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -96,14 +97,14 @@ public class GcodePreprocessorUtils {
     }
 
     /**
-     * Searches the command string for an 'f' and replaces the speed value 
+     * Searches the command string for an 'f' and replaces the speed value
      * between the 'f' and the next space with a percentage of that speed.
-     * In that way all speed values become a ratio of the provided speed 
+     * In that way all speed values become a ratio of the provided speed
      * and don't get overridden with just a fixed speed.
      */
     static public String overrideSpeed(String command, double speed) {
         String returnString = command;
-        
+
         // Check if command sets feed speed.
         Pattern pattern = Pattern.compile("F([0-9.]+)", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(command);
@@ -124,7 +125,7 @@ public class GcodePreprocessorUtils {
     static public String removeComment(String command) {
         return COMMENT.matcher(command).replaceAll(EMPTY);
     }
-    
+
     /**
      * Searches for a comment in the input string and returns the first match.
      */
@@ -135,13 +136,13 @@ public class GcodePreprocessorUtils {
         //              "(?<=\()[^\(\)]*|(?<=\;)[^;]*"
         //              "(?<=\\()[^\\(\\)]*|(?<=\\;)[^;]*"
         Matcher matcher = COMMENTPARSE.matcher(command);
-        if (matcher.find()){
+        if (matcher.find()) {
             comment = matcher.group(0);
         }
 
         return comment;
     }
-    
+
     static public String truncateDecimals(int length, String command) {
         if (length != decimalLength) {
             //Only build the decimal formatter if the truncation length has changed.
@@ -158,7 +159,7 @@ public class GcodePreprocessorUtils {
             matcher.appendReplacement(sb, decimalFormatter.format(d));
         }
         matcher.appendTail(sb);
-        
+
         // Return new command.
         return sb.toString();
     }
@@ -196,7 +197,7 @@ public class GcodePreprocessorUtils {
     static public List<String> parseCodes(List<String> args, char code) {
         List<String> l = new ArrayList<>();
         char address = Character.toUpperCase(code);
-        
+
         for (String s : args) {
             if (s.length() > 0 && Character.toUpperCase(s.charAt(0)) == address) {
                 l.add(s.substring(1));
@@ -219,7 +220,7 @@ public class GcodePreprocessorUtils {
         double c = parseCoord(commandArgs, 'C');
 
         if (Double.isNaN(x) && Double.isNaN(y) && Double.isNaN(z) &&
-            Double.isNaN(a) && Double.isNaN(b) && Double.isNaN(c)) {
+                Double.isNaN(a) && Double.isNaN(b) && Double.isNaN(c)) {
             return null;
         }
 
@@ -505,6 +506,11 @@ public class GcodePreprocessorUtils {
         double endAngle = GcodePreprocessorUtils.getAngle(center, end, plane);
         double sweep = GcodePreprocessorUtils.calculateSweep(startAngle, endAngle, clockwise);
 
+        // If the radius is negative we need invert the angle
+        if (radius < 0) {
+            startAngle = normalizeAngle(startAngle - Math.PI);
+        }
+
         int numPoints = calculateNumberOfPointsToExpand(r, start.getUnits(), minArcLengthMM, arcSegmentLengthMM, sweep);
         if (numPoints == 0) {
             return Collections.emptyList();
@@ -523,9 +529,9 @@ public class GcodePreprocessorUtils {
      * @param sweep              the angle of the arc
      * @return the number of segments to split the arc into to achieve the given arc segment length
      */
-    private static int calculateNumberOfPointsToExpand(double radius, UnitUtils.Units radiusUnits, double minArcLengthMM, double arcSegmentLengthMM, double sweep) {
+    public static int calculateNumberOfPointsToExpand(double radius, UnitUtils.Units radiusUnits, double minArcLengthMM, double arcSegmentLengthMM, double sweep) {
         // Convert units.
-        double arcLengthMM = sweep * radius * UnitUtils.scaleUnits(radiusUnits, UnitUtils.Units.MM);
+        double arcLengthMM = Math.abs(sweep * radius * UnitUtils.scaleUnits(radiusUnits, UnitUtils.Units.MM));
 
         // If this arc doesn't meet the minimum threshold, don't expand.
         if (minArcLengthMM > 0 && arcLengthMM < minArcLengthMM) {
@@ -620,7 +626,7 @@ public class GcodePreprocessorUtils {
      *
      * @return the center of rotation between two points with IJK codes.
      */
-    static private Position convertRToCenter(
+    public static Position convertRToCenter(
             Position start,
             Position end,
             double radius,
@@ -758,7 +764,7 @@ public class GcodePreprocessorUtils {
      * <p>
      * If the code is implicit, like the command "X0Y0", we'll still extract "X0Y0".
      * If the code is G0 or G1 and G53 is found, it will also be extracted:
-     * http://linuxcnc.org/docs/html/gcode/g-code.html#gcode:g53
+     * <a href="http://linuxcnc.org/docs/html/gcode/g-code.html#gcode:g53">gcode:g53</a>
      */
     public static SplitCommand extractMotion(Code code, String command) {
         List<String> args = splitCommand(command);

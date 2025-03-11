@@ -20,13 +20,14 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
-import static org.junit.Assert.*;
 
 /**
  * @author Joacim Breiler
@@ -99,5 +100,13 @@ public class MathUtilsTest {
         assertTrue(isEqual(0.9999, 1.0, 0.0001));
         assertFalse(isEqual(0.9999, 1.0, 0.00001));
 
+    }
+
+    @Test
+    public void normalizeAngle() {
+        assertEquals(Math.PI, MathUtils.normalizeAngle(Math.PI), 0.001);
+        assertEquals(Math.PI, MathUtils.normalizeAngle(Math.PI * 3), 0.001);
+        assertEquals(Math.PI, MathUtils.normalizeAngle(-Math.PI), 0.001);
+        assertEquals(0, MathUtils.normalizeAngle(0), 0.001);
     }
 }
