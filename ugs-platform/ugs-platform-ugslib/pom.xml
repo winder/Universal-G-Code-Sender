@@ -115,6 +115,7 @@
                         <package>com.willwinder.universalgcodesender.communicator.*</package>
                         <package>com.willwinder.universalgcodesender.gcode.*</package>
                         <package>com.willwinder.universalgcodesender.firmware</package>
+                        <package>com.willwinder.universalgcodesender.firmware.*</package>
                         <package>com.willwinder.universalgcodesender.i18n</package>
                         <package>com.willwinder.universalgcodesender.listeners</package>
                         <package>com.willwinder.universalgcodesender.model.*</package>

@@ -34,7 +34,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>ugs-platform-ugslib</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
         </dependency>
 
         <dependency>
