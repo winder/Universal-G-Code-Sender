@@ -59,7 +59,8 @@ public class SelectionSettingsModel implements Serializable {
             case SPINDLE_SPEED -> getSpindleSpeed();
             case PASSES -> getPasses();
             case FEED_RATE -> getFeedRate();
-            case OFFSET_TOOL_PERCENT -> getToolOffsetPercent();
+            case LEAD_IN_PERCENT -> getLeadInPercent();
+            case LEAD_OUT_PERCENT -> getLeadOutPercent();
             default -> throw new SelectionSettingsModelException("Unknown setting " + key);
         };
     }
@@ -123,14 +124,25 @@ public class SelectionSettingsModel implements Serializable {
         }
     }
 
-    public int getToolOffsetPercent() {
-        return (Integer) settings.getOrDefault(EntitySetting.OFFSET_TOOL_PERCENT, 0);
+    public int getLeadInPercent() {
+        return (Integer) settings.getOrDefault(EntitySetting.LEAD_IN_PERCENT, 0);
     }
 
-    public void setToolOffsetPercent(int offsetPercent) {
-        if (!valuesEquals(getToolOffsetPercent(), offsetPercent)) {
-            settings.put(EntitySetting.OFFSET_TOOL_PERCENT, offsetPercent);
-            notifyListeners(EntitySetting.OFFSET_TOOL_PERCENT);
+    public void setLeadInPercent(int leadInPercent) {
+        if (!valuesEquals(getLeadInPercent(), leadInPercent)) {
+            settings.put(EntitySetting.LEAD_IN_PERCENT, leadInPercent);
+            notifyListeners(EntitySetting.LEAD_IN_PERCENT);
+        }
+    }
+
+    public int getLeadOutPercent() {
+        return (Integer) settings.getOrDefault(EntitySetting.LEAD_OUT_PERCENT, 0);
+    }
+
+    public void setLeadOutPercent(int leadOut) {
+        if (!valuesEquals(getLeadOutPercent(), leadOut)) {
+            settings.put(EntitySetting.LEAD_OUT_PERCENT, leadOut);
+            notifyListeners(EntitySetting.LEAD_OUT_PERCENT);
         }
     }
 
@@ -149,7 +161,7 @@ public class SelectionSettingsModel implements Serializable {
         setTargetDepth(0);
         setSpindleSpeed(0);
         setFeedRate(0);
-        setToolOffsetPercent(0);
+        setLeadInPercent(0);
         setText("");
         setFontFamily(Font.SANS_SERIF);
     }
@@ -356,8 +368,12 @@ public class SelectionSettingsModel implements Serializable {
             setFeedRate(selectionGroup.getFeedRate());
         }
 
-        if (settings.contains(EntitySetting.OFFSET_TOOL_PERCENT)) {
-            setToolOffsetPercent(selectionGroup.getOffsetToolPercent());
+        if (settings.contains(EntitySetting.LEAD_IN_PERCENT)) {
+            setLeadInPercent(selectionGroup.getLeadInPercent());
+        }
+
+        if (settings.contains(EntitySetting.LEAD_OUT_PERCENT)) {
+            setLeadOutPercent(selectionGroup.getLeadOutPercent());
         }
     }
 }
