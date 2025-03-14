@@ -47,7 +47,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private CutType cutType = CutType.NONE;
     private double targetDepth;
     private double startDepth;
-    private int offsetToolPercent;
+    private int leadInPercent;
+    private int leadOutPercent;
     private int spindleSpeed;
     private int passes;
     private int feedRate;
@@ -129,14 +130,26 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     }
 
     @Override
-    public void setOffsetToolPercent(int percent) {
-        this.offsetToolPercent = percent;
+    public void setLeadInPercent(int percent) {
+        this.leadInPercent = percent;
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 
     @Override
-    public int getOffsetToolPercent() {
-        return offsetToolPercent;
+    public int getLeadInPercent() {
+        return leadInPercent;
+    }
+
+
+    @Override
+    public void setLeadOutPercent(int percent) {
+        this.leadOutPercent = percent;
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public int getLeadOutPercent() {
+        return leadOutPercent;
     }
 
     @Override
@@ -167,10 +180,13 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             graphics.fill(shape);
             graphics.draw(shape);
         } else if (getCutType() == CutType.SURFACE) {
-            drawShape(graphics, dashedStroke, Colors.SHAPE_HINT, shape);
-            graphics.setStroke(new BasicStroke(strokeWidth));
+            Shape surfacingShape = getSurfacingShape();
             graphics.setColor(getCutColor());
-            graphics.fill(getSurfacingShape());
+            graphics.fill(surfacingShape);
+            drawShape(graphics, dashedStroke, Colors.SHAPE_HINT, surfacingShape);
+
+            graphics.setStroke(new BasicStroke(strokeWidth));
+            graphics.draw(shape);
         } else if (getCutType() == CutType.INSIDE_PATH || getCutType() == CutType.ON_PATH || getCutType() == CutType.OUTSIDE_PATH) {
             drawShape(graphics, new BasicStroke(strokeWidth), getCutColor(), shape);
         } else if (getCutType() == CutType.LASER_ON_PATH) {
@@ -192,19 +208,16 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         }
     }
 
-    private Shape getBufferedShape(double offsetInMillimeters) {
-        Shape shape = getShape().getBounds2D();
-        if (offsetInMillimeters == 0) {
-            return shape;
-        }
-
-        BasicStroke stroke = new BasicStroke((float) (offsetInMillimeters * 2d)); // Multiply by 2 to expand evenly
-        return new Area(stroke.createStrokedShape(shape).getBounds2D());
+    private Shape getBufferedShape(double leadInMillimeters, double leadOutMillimeters) {
+        Rectangle2D shape = getShape().getBounds2D();
+        shape.setFrame(shape.getX() - leadInMillimeters, shape.getY(), shape.getWidth() + leadInMillimeters + leadOutMillimeters, shape.getHeight());
+        return new Area(shape);
     }
 
     private Shape getSurfacingShape() {
-        double offsetInMillimeters = ControllerFactory.getController().getSettings().getToolDiameter() * ((double) getOffsetToolPercent() / 100d);
-        return getBufferedShape(offsetInMillimeters);
+        double leadInMillimeters = ControllerFactory.getController().getSettings().getToolDiameter() * ((double) getLeadInPercent() / 100d);
+        double leadOutMillimeters = ControllerFactory.getController().getSettings().getToolDiameter() * ((double) getLeadOutPercent() / 100d);
+        return getBufferedShape(leadInMillimeters, leadOutMillimeters);
     }
 
     private void drawShape(Graphics2D graphics, BasicStroke strokeWidth, Color shapeHint, Shape shape) {
@@ -245,7 +258,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
                 EntitySetting.SPINDLE_SPEED,
                 EntitySetting.PASSES,
                 EntitySetting.FEED_RATE,
-                EntitySetting.OFFSET_TOOL_PERCENT
+                EntitySetting.LEAD_IN_PERCENT,
+                EntitySetting.LEAD_OUT_PERCENT
         );
     }
 

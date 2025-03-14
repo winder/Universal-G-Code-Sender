@@ -151,18 +151,36 @@ public class Group extends EntityGroup implements Cuttable {
     }
 
     @Override
-    public int getOffsetToolPercent() {
+    public int getLeadInPercent() {
         return getCuttableStream()
-                .mapToInt(Cuttable::getOffsetToolPercent)
+                .mapToInt(Cuttable::getLeadInPercent)
                 .max()
                 .orElse(0);
     }
 
     @Override
-    public void setOffsetToolPercent(int value) {
+    public void setLeadInPercent(int value) {
         getChildren().forEach(child -> {
             if (child instanceof Cuttable cuttable) {
-                cuttable.setOffsetToolPercent(value);
+                cuttable.setLeadInPercent(value);
+            }
+        });
+    }
+
+
+    @Override
+    public int getLeadOutPercent() {
+        return getCuttableStream()
+                .mapToInt(Cuttable::getLeadOutPercent)
+                .max()
+                .orElse(0);
+    }
+
+    @Override
+    public void setLeadOutPercent(int value) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setLeadOutPercent(value);
             }
         });
     }
@@ -247,9 +265,14 @@ public class Group extends EntityGroup implements Cuttable {
             result.remove(EntitySetting.FEED_RATE);
         }
 
-        if (getCuttableStream().map(Cuttable::getOffsetToolPercent).distinct().toList().size() > 1) {
+        if (getCuttableStream().map(Cuttable::getLeadInPercent).distinct().toList().size() > 1) {
             result = new ArrayList<>(result);
-            result.remove(EntitySetting.OFFSET_TOOL_PERCENT);
+            result.remove(EntitySetting.LEAD_IN_PERCENT);
+        }
+
+        if (getCuttableStream().map(Cuttable::getLeadOutPercent).distinct().toList().size() > 1) {
+            result = new ArrayList<>(result);
+            result.remove(EntitySetting.LEAD_OUT_PERCENT);
         }
 
         return result;

@@ -21,7 +21,8 @@ public class CuttableEntitySettings {
             case SPINDLE_SPEED -> Optional.of(cuttable.getSpindleSpeed());
             case PASSES -> Optional.of(cuttable.getPasses());
             case FEED_RATE -> Optional.of(cuttable.getFeedRate());
-            case OFFSET_TOOL_PERCENT -> Optional.of(cuttable.getOffsetToolPercent());
+            case LEAD_IN_PERCENT -> Optional.of(cuttable.getLeadInPercent());
+            case LEAD_OUT_PERCENT -> Optional.of(cuttable.getLeadOutPercent());
             default -> Optional.empty();
         };
     }
@@ -34,7 +35,8 @@ public class CuttableEntitySettings {
             case SPINDLE_SPEED -> cuttable.setSpindleSpeed((Integer) value);
             case PASSES -> cuttable.setPasses(Integer.parseInt(value.toString()));
             case FEED_RATE -> cuttable.setFeedRate(((Double) value).intValue());
-            case OFFSET_TOOL_PERCENT -> cuttable.setOffsetToolPercent(((Integer) value));
+            case LEAD_IN_PERCENT -> cuttable.setLeadInPercent((Integer) value);
+            case LEAD_OUT_PERCENT -> cuttable.setLeadOutPercent((Integer) value);
             default -> LOGGER.info("Do not know how to set " + entitySetting + " to " + value);
         }
     }

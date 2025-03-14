@@ -85,8 +85,11 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private JLabel feedRateLabel;
     private UnitSpinner feedRateSpinner;
     private JLabel cutTypeLabel;
-    private JLabel offsetToolPercentSliderLabel;
-    private JSlider offsetToolPercentSlider;
+    private JLabel leadInPercentSliderLabel;
+    private JSlider leadInPercentSlider;
+    private JLabel leadOutPercentSliderLabel;
+    private JSlider leadOutPercentSlider;
+
 
     public SelectionSettingsPanel(Controller controller) {
         fieldEventDispatcher = new FieldEventDispatcher();
@@ -155,16 +158,27 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         add(feedRateSpinner, FIELD_CONSTRAINTS + ", spanx");
         fieldEventDispatcher.registerListener(EntitySetting.FEED_RATE, feedRateSpinner);
 
-        offsetToolPercentSliderLabel = createAndAddLabel(EntitySetting.OFFSET_TOOL_PERCENT);
-        offsetToolPercentSlider = new JSlider(0, 300, 0);
-        offsetToolPercentSlider.setPaintLabels(true);
-        offsetToolPercentSlider.setPaintTicks(true);
-        offsetToolPercentSlider.setSnapToTicks(true);
-        offsetToolPercentSlider.setMinorTickSpacing(50);
-        offsetToolPercentSlider.setMajorTickSpacing(100);
+        leadInPercentSliderLabel = createAndAddLabel(EntitySetting.LEAD_IN_PERCENT);
+        leadInPercentSlider = new JSlider(0, 300, 0);
+        leadInPercentSlider.setPaintLabels(true);
+        leadInPercentSlider.setPaintTicks(true);
+        leadInPercentSlider.setSnapToTicks(true);
+        leadInPercentSlider.setMinorTickSpacing(50);
+        leadInPercentSlider.setMajorTickSpacing(100);
 
-        add(offsetToolPercentSlider, SLIDER_FIELD_CONSTRAINTS + ", spanx");
-        fieldEventDispatcher.registerListener(EntitySetting.OFFSET_TOOL_PERCENT, offsetToolPercentSlider);
+        add(leadInPercentSlider, SLIDER_FIELD_CONSTRAINTS + ", spanx");
+        fieldEventDispatcher.registerListener(EntitySetting.LEAD_IN_PERCENT, leadInPercentSlider);
+
+        leadOutPercentSliderLabel = createAndAddLabel(EntitySetting.LEAD_OUT_PERCENT);
+        leadOutPercentSlider = new JSlider(0, 300, 0);
+        leadOutPercentSlider.setPaintLabels(true);
+        leadOutPercentSlider.setPaintTicks(true);
+        leadOutPercentSlider.setSnapToTicks(true);
+        leadOutPercentSlider.setMinorTickSpacing(50);
+        leadOutPercentSlider.setMajorTickSpacing(100);
+
+        add(leadOutPercentSlider, SLIDER_FIELD_CONSTRAINTS + ", spanx");
+        fieldEventDispatcher.registerListener(EntitySetting.LEAD_OUT_PERCENT, leadOutPercentSlider);
 
         spindleSpeedLabel = createAndAddLabel(EntitySetting.SPINDLE_SPEED);
         spindleSpeedSlider = new JSlider(0, 100, 0);
@@ -323,10 +337,14 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         } else if (entitySetting == EntitySetting.FEED_RATE) {
             feedRateSpinner.setValue(model.getFeedRate());
             selectionGroup.setFeedRate(model.getFeedRate());
-        } else if (entitySetting == EntitySetting.OFFSET_TOOL_PERCENT) {
-            offsetToolPercentSlider.setValue(model.getToolOffsetPercent());
-            selectionGroup.setOffsetToolPercent(model.getToolOffsetPercent());
+        } else if (entitySetting == EntitySetting.LEAD_IN_PERCENT) {
+            leadInPercentSlider.setValue(model.getLeadInPercent());
+            selectionGroup.setLeadInPercent(model.getLeadInPercent());
+        } else if (entitySetting == EntitySetting.LEAD_OUT_PERCENT) {
+            leadOutPercentSlider.setValue(model.getLeadOutPercent());
+            selectionGroup.setLeadOutPercent(model.getLeadOutPercent());
         }
+
 
         handleComponentVisibility(selectionGroup);
     }
@@ -388,10 +406,15 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         feedRateLabel.setVisible(hasFeedRate);
         feedRateSpinner.setVisible(hasFeedRate);
 
-        boolean hasOffsetTool = selectionHasSetting(selectionGroup, EntitySetting.OFFSET_TOOL_PERCENT) &&
-                cutType.getSettings().contains(EntitySetting.OFFSET_TOOL_PERCENT);
-        offsetToolPercentSlider.setVisible(hasOffsetTool);
-        offsetToolPercentSliderLabel.setVisible(hasOffsetTool);
+        boolean hasLeadIn = selectionHasSetting(selectionGroup, EntitySetting.LEAD_IN_PERCENT) &&
+                cutType.getSettings().contains(EntitySetting.LEAD_IN_PERCENT);
+        leadInPercentSlider.setVisible(hasLeadIn);
+        leadInPercentSliderLabel.setVisible(hasLeadIn);
+
+        boolean hasLeadOut = selectionHasSetting(selectionGroup, EntitySetting.LEAD_OUT_PERCENT) &&
+                cutType.getSettings().contains(EntitySetting.LEAD_OUT_PERCENT);
+        leadOutPercentSlider.setVisible(hasLeadOut);
+        leadOutPercentSliderLabel.setVisible(hasLeadOut);
 
         lockRatioButton.setVisible(hasWidth && hasHeight);
     }

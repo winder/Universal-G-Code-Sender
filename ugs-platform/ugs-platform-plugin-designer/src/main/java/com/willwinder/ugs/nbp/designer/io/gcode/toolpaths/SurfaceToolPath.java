@@ -30,9 +30,10 @@ import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.MultiPoint;
 
-import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 public class SurfaceToolPath extends AbstractToolPath {
@@ -44,9 +45,18 @@ public class SurfaceToolPath extends AbstractToolPath {
     }
 
     private List<Geometry> getGeometries() {
-        Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
-        Geometry shell = geometry.buffer((settings.getToolDiameter() * ((source.getOffsetToolPercent() - 50) / 100d)));
-        return List.of(shell.getEnvelope());
+        Rectangle2D bounds = source.getShape().getBounds2D();
+        double toolRadius = settings.getToolDiameter() / 2.0;
+        double leadInMm = (settings.getToolDiameter() * (source.getLeadInPercent() / 100d)) - toolRadius;
+        double leadOutMm = (settings.getToolDiameter() * (source.getLeadOutPercent() / 100d)) - toolRadius;
+        LinearRing linearRing = getGeometryFactory().createLinearRing(new Coordinate[]{
+                new Coordinate(bounds.getX() - leadInMm, bounds.getY() + toolRadius),
+                new Coordinate(bounds.getX() - leadInMm, bounds.getY() + bounds.getHeight() - toolRadius),
+                new Coordinate(bounds.getX() + bounds.getWidth() + leadOutMm, bounds.getY() + bounds.getHeight() - toolRadius),
+                new Coordinate(bounds.getX() + bounds.getWidth() + leadOutMm, bounds.getY() + toolRadius),
+                new Coordinate(bounds.getX() - leadInMm, bounds.getY() + toolRadius),
+        });
+        return List.of(linearRing.getEnvelope());
     }
 
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {

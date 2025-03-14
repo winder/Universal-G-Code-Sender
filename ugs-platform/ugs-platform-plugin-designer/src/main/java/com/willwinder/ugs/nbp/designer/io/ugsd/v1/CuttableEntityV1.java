@@ -50,7 +50,10 @@ public class CuttableEntityV1 extends EntityV1 {
     private boolean isHidden;
 
     @Expose
-    private int offsetToolPercent;
+    private int leadInPercent;
+
+    @Expose
+    private int leadOutPercent;
 
     @Expose
     private AffineTransform transform;
@@ -99,8 +102,12 @@ public class CuttableEntityV1 extends EntityV1 {
         this.feedRate = feedRate;
     }
 
-    public void setOffsetToolPercent(int offsetToolPercent) {
-        this.offsetToolPercent = offsetToolPercent;
+    public void setLeadInPercent(int leadInPercent) {
+        this.leadInPercent = leadInPercent;
+    }
+
+    public void setLeadOutPercent(int leadOutPercent) {
+        this.leadOutPercent = leadOutPercent;
     }
 
     @Override
@@ -118,7 +125,8 @@ public class CuttableEntityV1 extends EntityV1 {
             cuttable.setSpindleSpeed(spindleSpeed);
             cuttable.setPasses(passes);
             cuttable.setFeedRate(feedRate);
-            cuttable.setOffsetToolPercent(offsetToolPercent);
+            cuttable.setLeadInPercent(leadInPercent);
+            cuttable.setLeadOutPercent(leadOutPercent);
         }
     }
 
