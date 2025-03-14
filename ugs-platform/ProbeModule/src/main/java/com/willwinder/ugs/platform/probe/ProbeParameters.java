@@ -41,6 +41,12 @@ public class ProbeParameters {
      * The distance to retract after first fast probe cycle before running the next slow probe cycle
      */
     public final double retractAmount;
+
+    /**
+     * Wait a time given in seconds before beginning slow probe after retracting. Compensates for slow touch probe response.
+     */
+    public final double delayAfterRetract;
+
     public final WorkCoordinateSystem wcsToUpdate;
     public final UnitUtils.Units units;
 
@@ -52,7 +58,7 @@ public class ProbeParameters {
                            double xSpacing, double ySpacing, double zSpacing,
                            double xOffset, double yOffset, double zOffset,
                            double holeDiameter,
-                           double feedRate, double feedRateSlow, double retractAmount,
+                           double feedRate, double feedRateSlow, double retractAmount, double delayAfterRetract,
                            UnitUtils.Units u, WorkCoordinateSystem wcs) {
         this.endPosition = null;
         this.probeDiameter = diameter;
@@ -67,6 +73,7 @@ public class ProbeParameters {
         this.feedRate = feedRate;
         this.feedRateSlow = feedRateSlow;
         this.retractAmount = retractAmount;
+        this.delayAfterRetract = delayAfterRetract;
         this.units = u;
         this.wcsToUpdate = wcs;
     }

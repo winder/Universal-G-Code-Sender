@@ -29,7 +29,8 @@ public enum TextFieldUnit {
     ROTATIONS_PER_MINUTE("rpm"),
     PERCENT("%"),
     DEGREE("°"),
-    TIMES("times");
+    TIMES("times"),
+    SECONDS("s");
 
     private final String abbreviation;
 

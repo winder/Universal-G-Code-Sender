@@ -44,6 +44,7 @@ public class SettingsPanel extends JPanel {
     private final UnitSpinner settingsFastFindRate;
     private final UnitSpinner settingsSlowMeasureRate;
     private final UnitSpinner settingsRetractAmount;
+    private final UnitSpinner settingsDelayAfterRetract;
 
     public SettingsPanel() {
         var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
@@ -56,6 +57,7 @@ public class SettingsPanel extends JPanel {
         settingsFastFindRate = new UnitSpinner(Math.max(ProbeSettings.getSettingsFastFindRate(), 0.1), rateUnits, 0.1d, null, 1.);
         settingsSlowMeasureRate = new UnitSpinner(Math.max(ProbeSettings.getSettingsSlowMeasureRate(), 0.1), rateUnits, 0.1d, null, 1.);
         settingsRetractAmount = new UnitSpinner(Math.max(ProbeSettings.getSettingsRetractAmount(), 0.01), units, 0.01d, null, 0.1);
+        settingsDelayAfterRetract = new UnitSpinner(Math.max(ProbeSettings.getSettingsDelayAfterRetract(), 0.0), TextFieldUnit.SECONDS, 0d, null, 0.1d);
         createLayout();
         registerListeners();
     }
@@ -85,6 +87,10 @@ public class SettingsPanel extends JPanel {
         settingsRetractAmount.setToolTipText(Localization.getString("probe.retract-amount.tooltip"));
         add(settingsRetractAmount, "growx");
 
+        add(new JLabel(Localization.getString("probe.delay-after-retract") + ":"), "al right");
+        settingsDelayAfterRetract.setToolTipText(Localization.getString("probe.delay-after-retract.tooltip"));
+        add(settingsDelayAfterRetract, "growx");
+
         add(new JLabel(Localization.getString("probe.work-coordinates") + ":"), "al right");
         add(settingsWorkCoordinate, "growx");
     }
@@ -102,6 +108,7 @@ public class SettingsPanel extends JPanel {
         settingsFastFindRate.addChangeListener(l -> ProbeSettings.setSettingsFastFindRate(settingsFastFindRate.getDoubleValue()));
         settingsSlowMeasureRate.addChangeListener(l -> ProbeSettings.setSettingsSlowMeasureRate(settingsSlowMeasureRate.getDoubleValue()));
         settingsRetractAmount.addChangeListener(l -> ProbeSettings.setSettingsRetractAmount(settingsRetractAmount.getDoubleValue()));
+        settingsDelayAfterRetract.addChangeListener(l -> ProbeSettings.setSettingsDelayAfterRetract(settingsDelayAfterRetract.getDoubleValue()));
 
         ProbeSettings.addPreferenceChangeListener(this::onSettingsChanged);
     }
@@ -130,6 +137,9 @@ public class SettingsPanel extends JPanel {
                 break;
             case ProbeSettings.SETTINGS_RETRACT_AMOUNT:
                 settingsRetractAmount.setValue(ProbeSettings.getSettingsRetractAmount());
+                break;
+            case ProbeSettings.SETTINGS_DELAY_AFTER_RETRACT:
+                settingsDelayAfterRetract.setValue(ProbeSettings.getSettingsDelayAfterRetract());
                 break;
         }
     }

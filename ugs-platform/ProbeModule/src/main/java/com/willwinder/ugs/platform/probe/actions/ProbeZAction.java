@@ -65,7 +65,7 @@ public class ProbeZAction extends AbstractProbeAction {
                 0., 0., ProbeSettings.getzOffset(),
                 0.0,
                 ProbeSettings.getSettingsFastFindRate(), ProbeSettings.getSettingsSlowMeasureRate(),
-                ProbeSettings.getSettingsRetractAmount(), getBackend().getSettings().getPreferredUnits(), ProbeSettings.getSettingsWorkCoordinate());
+                ProbeSettings.getSettingsRetractAmount(), ProbeSettings.getSettingsDelayAfterRetract(), getBackend().getSettings().getPreferredUnits(), ProbeSettings.getSettingsWorkCoordinate());
 
         ProbePreviewManager probePreviewManager = Lookup.getDefault().lookup(ProbePreviewManager.class);
         probePreviewManager.updateContext(pc, getBackend().getWorkPosition(), getBackend().getMachinePosition());

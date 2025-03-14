@@ -73,6 +73,7 @@ public class ProbeOutsideXYAction extends AbstractProbeAction {
                 ProbeSettings.getSettingsFastFindRate(),
                 ProbeSettings.getSettingsSlowMeasureRate(),
                 ProbeSettings.getSettingsRetractAmount(),
+                ProbeSettings.getSettingsDelayAfterRetract(),
                 getBackend().getSettings().getPreferredUnits(),
                 ProbeSettings.getSettingsWorkCoordinate());
 
