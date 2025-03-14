@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.dro.panels;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -72,7 +73,7 @@ public class DROPopup extends JPopupMenu {
     private void addShowMachineCoordinates() {
         Settings settings = backend.getSettings();
         final JCheckBoxMenuItem showMachinePositionMenu = new JCheckBoxMenuItem(
-                "Show machine position",
+                Localization.getString("settings.showMachinePosition"),
                 settings.isShowMachinePosition());
         showMachinePositionMenu.addActionListener(e -> {
             settings.setShowMachinePosition(showMachinePositionMenu.isSelected());
