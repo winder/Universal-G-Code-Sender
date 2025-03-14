@@ -36,6 +36,7 @@ import java.util.Map;
  */
 public class MachineSettingsPanel extends AbstractUGSSettings {
     private final Map<Axis, JCheckBox> disabledAxes = new HashMap<>();
+    private final JCheckBox showMachinePosition = new JCheckBox(Localization.getString("settings.showMachinePosition"));
 
     public MachineSettingsPanel(Settings settings, IChanged changer) {
         super(settings, changer);
@@ -45,6 +46,10 @@ public class MachineSettingsPanel extends AbstractUGSSettings {
             item.addActionListener(e -> change());
             disabledAxes.put(axis, item);
         });
+
+        showMachinePosition.addItemListener(e -> change());
+        showMachinePosition.setSelected(settings.isShowMachinePosition());
+
         super.updateComponents();
     }
 
@@ -64,6 +69,7 @@ public class MachineSettingsPanel extends AbstractUGSSettings {
                 settings.setAxisEnabled(
                         entry.getKey(),
                         !entry.getValue().isSelected()));
+        settings.setShowMachinePosition(showMachinePosition.isSelected());
         SettingsFactory.saveSettings(settings);
     }
 
@@ -77,7 +83,9 @@ public class MachineSettingsPanel extends AbstractUGSSettings {
     protected void updateComponentsInternal(Settings s) {
         this.removeAll();
 
-        setLayout(new MigLayout("", "fill"));
+        setLayout(new MigLayout("fillx"));
+        add(showMachinePosition, "wrap");
+        add(new JSeparator(SwingConstants.HORIZONTAL), "growx, wrap");
         // Make sure they are added in enum-order.
         Arrays.stream(Axis.values()).forEach(a -> {
             JCheckBox item = disabledAxes.get(a);
