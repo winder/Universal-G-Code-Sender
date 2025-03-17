@@ -48,6 +48,11 @@ public class ProbeService implements UGSEventListener {
     private static final Logger logger = Logger.getLogger(ProbeService.class.getName());
     private static final String WCS_PATTERN = "G10 L20 P%d %s";
 
+    /**
+     * The amount of the retract amount to add to the second probe
+     */
+    public static final double SECOND_PROBE_DISTANCE_PERCENT = 1.2;
+
     private final BackendAPI backend;
     private final List<Position> probePositions = new ArrayList<>();
     private ProbeOperation currentOperation = ProbeOperation.NONE;
@@ -123,6 +128,7 @@ public class ProbeService implements UGSEventListener {
         String unit = GcodeUtils.unitCommand(params.units);
 
         continuation = () -> performZProbeInternal(stepNumber + 1);
+        double retractDistance = retractDistance(params.zSpacing, params.retractAmount);
         try {
             switch (stepNumber) {
                 case 0: {
@@ -133,10 +139,10 @@ public class ProbeService implements UGSEventListener {
                     break;
                 }
                 case 1: {
-                    gcode("G91 " + unit + " G0 Z" + retractDistance(params.zSpacing, params.retractAmount));
+                    gcode("G91 " + unit + " G0 Z" + Utils.formatter.format(retractDistance));
                     sendRetractPause();
-                    // TODO If probing a large distance this could cause soft limit alarm here, use the retract amount on the second probe
-                    probe('Z', params.feedRateSlow, params.zSpacing, params.units);
+                    // Do a second probe with 20% + the retract amount
+                    probe('Z', params.feedRateSlow, -(SECOND_PROBE_DISTANCE_PERCENT * retractDistance), params.units);
                     break;
                 }
                 case 2: {
@@ -276,9 +282,10 @@ public class ProbeService implements UGSEventListener {
                     break;
                 }
                 case 1: {
-                    gcode(g0Rel + " Z" + retractDistance(params.zSpacing, params.retractAmount));
+                    double zRetractAmount = retractDistance(params.zSpacing, params.retractAmount);
+                    gcode(g0Rel + " Z" + zRetractAmount);
                     sendRetractPause();
-                    probe('Z', params.feedRateSlow, params.zSpacing, params.units);
+                    probe('Z', params.feedRateSlow, -(SECOND_PROBE_DISTANCE_PERCENT * zRetractAmount), params.units);
                     break;
                 }
                 case 2: {
