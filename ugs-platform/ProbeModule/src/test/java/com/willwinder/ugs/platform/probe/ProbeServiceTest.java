@@ -18,21 +18,22 @@
  */
 package com.willwinder.ugs.platform.probe;
 
-import com.willwinder.universalgcodesender.Utils;
+import static com.willwinder.ugs.platform.probe.ProbeService.retractDistance;
+import static com.willwinder.universalgcodesender.Utils.formatter;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G54;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G55;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.ProbeEvent;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-
-import static com.willwinder.ugs.platform.probe.ProbeService.retractDistance;
-import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G54;
-import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G55;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
 
 /**
  *
@@ -66,11 +67,12 @@ public class ProbeServiceTest {
         InOrder order = inOrder(backend);
 
         order.verify(backend, times(1)).probe("Z", pc.feedRate, pc.zSpacing, pc.units);
+        double retractDistance = retractDistance(pc.zSpacing, pc.retractAmount);
         order.verify(backend, times(1))
-                .sendGcodeCommand(true, "G91 G20 G0 Z" + retractDistance(pc.zSpacing, pc.retractAmount));
+                .sendGcodeCommand(true, "G91 G20 G0 Z" + formatter.format(retractDistance));
         order.verify(backend, times(1))
                 .sendGcodeCommand(true, "G4 P" + pc.delayAfterRetract);
-        order.verify(backend, times(1)).probe("Z", pc.feedRateSlow, pc.zSpacing, pc.units);
+        order.verify(backend, times(1)).probe("Z", pc.feedRateSlow, -(retractDistance * 1.2), pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G20 G0 Z0.0");
 
         double zDir = Math.signum(pc.zSpacing) * -1;
@@ -78,7 +80,7 @@ public class ProbeServiceTest {
         Position startPositionInUnits = pc.startPosition.getPositionIn(pc.units);
         double zPosition =  startPositionInUnits.z - probeZ.getPositionIn(pc.units).z + zProbedOffset;
 
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P1 Z" + Utils.formatter.format(zPosition));
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P1 Z" + formatter.format(zPosition));
     }
 
     @Test
@@ -133,7 +135,7 @@ public class ProbeServiceTest {
         double yProbeOffset = pc.startPosition.y - probeY.y + yDir * (radius + Math.abs(pc.yOffset));
 
         order.verify(backend, times(1)).sendGcodeCommand(true,
-                "G10 L20 P2 X" + Utils.formatter.format(xProbeOffset) + "Y" + Utils.formatter.format(yProbeOffset));
+                "G10 L20 P2 X" + formatter.format(xProbeOffset) + "Y" + formatter.format(yProbeOffset));
     }
 
     @Test
@@ -163,11 +165,12 @@ public class ProbeServiceTest {
 
         // Probe Z axis
         order.verify(backend, times(1)).probe("Z", pc.feedRate, pc.zSpacing, pc.units);
+        double retractDistance = retractDistance(pc.zSpacing, pc.retractAmount);
         order.verify(backend, times(1))
-                .sendGcodeCommand(true, "G91 G21 G0 Z" + retractDistance(pc.zSpacing, pc.retractAmount));
+                .sendGcodeCommand(true, "G91 G21 G0 Z" + retractDistance);
         order.verify(backend, times(1))
                 .sendGcodeCommand(true, "G4 P" + pc.delayAfterRetract);
-        order.verify(backend, times(1)).probe("Z", pc.feedRateSlow, pc.zSpacing, pc.units);
+        order.verify(backend, times(1)).probe("Z", pc.feedRateSlow, -(retractDistance * 1.2), pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Z0.0");
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X" + -pc.xSpacing);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Z" + pc.zSpacing);
@@ -203,9 +206,9 @@ public class ProbeServiceTest {
         double zProbeOffset = pc.startPosition.z - probeZ.z;
 
         order.verify(backend, times(1)).sendGcodeCommand(true,
-                "G10 L20 P2 X" + Utils.formatter.format(xProbeOffset)
-                        + "Y" + Utils.formatter.format(yProbeOffset)
-                        + "Z" + Utils.formatter.format(zProbeOffset));
+                "G10 L20 P2 X" + formatter.format(xProbeOffset)
+                        + "Y" + formatter.format(yProbeOffset)
+                        + "Z" + formatter.format(zProbeOffset));
     }
 
     @Test
