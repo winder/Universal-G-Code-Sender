@@ -38,7 +38,7 @@
 	  <repository>
 	    <id>jogamp-remote</id>
 	    <name>jogamp test mirror</name>
-	    <url>https://www.jogamp.org/deployment/maven/</url>
+	    <url>https://jogamp.org/deployment/maven/</url>
 	    <layout>default</layout>
 	  </repository>
   </repositories>
