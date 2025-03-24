@@ -378,6 +378,7 @@ public class GcodePreprocessorUtils {
                 }
                 sb.append(c);
                 blockCommentDepth++;
+                readNumeric = false;
                 continue;
             } else if (blockCommentDepth > 0 && c == ')') {
                 sb.append(c);
