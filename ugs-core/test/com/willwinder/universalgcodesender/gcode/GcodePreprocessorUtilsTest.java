@@ -259,6 +259,12 @@ public class GcodePreprocessorUtilsTest {
         assertEquals(4, splitted.size());
         assertEquals("G90", splitted.get(1));
         assertEquals("1", splitted.get(2));
+
+        splitted = GcodePreprocessorUtils.splitCommand("G01(test) F150.000");
+        assertEquals(3, splitted.size());
+        assertEquals("G01", splitted.get(0));
+        assertEquals("(test)", splitted.get(1));
+        assertEquals("F150.000", splitted.get(2));
     }
 
     @Test
