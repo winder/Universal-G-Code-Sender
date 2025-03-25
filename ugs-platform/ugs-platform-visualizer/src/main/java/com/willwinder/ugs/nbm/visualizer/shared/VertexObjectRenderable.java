@@ -91,6 +91,14 @@ public abstract class VertexObjectRenderable extends Renderable {
     @Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
+        if (!gl.isFunctionAvailable("glGenBuffers") ||
+                !gl.isFunctionAvailable("glBindBuffer") ||
+                !gl.isFunctionAvailable("glBufferData") ||
+                !gl.isFunctionAvailable("glDeleteBuffers")) {
+            setEnabled(false);
+            return;
+        }
+
         gl.glGenBuffers(Buffer.MAX, bufferName);
         shader.init(gl);
         checkGLError(gl);
@@ -107,6 +115,13 @@ public abstract class VertexObjectRenderable extends Renderable {
     @Override
     public final void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
         GL2 gl = drawable.getGL().getGL2();
+
+        if (!gl.isFunctionAvailable("glVertexAttribPointer") ||
+                !gl.isFunctionAvailable("glBindBuffer") ||
+                !gl.isFunctionAvailable("glUseProgram")) {
+            setEnabled(false);
+            return;
+        }
 
         double newStepSize = RenderableUtils.getStepSize(scaleFactor);
         if (!this.objectMin.equals(objectMin) || !this.objectMax.equals(objectMax) || reloadModel || this.stepSize != newStepSize) {
