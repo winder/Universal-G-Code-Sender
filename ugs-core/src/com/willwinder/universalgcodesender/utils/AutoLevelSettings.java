@@ -144,7 +144,7 @@ public class AutoLevelSettings implements Serializable {
     }
 
     public double getZRetract() {
-        return Math.max(0.1, zRetract);
+        return Math.min(Math.max(0.01, zRetract), 1.0);
     }
 
     public void setZRetract(double zRetract) {
