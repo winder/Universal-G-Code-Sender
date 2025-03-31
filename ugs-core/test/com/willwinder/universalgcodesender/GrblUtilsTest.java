@@ -771,4 +771,21 @@ public class GrblUtilsTest {
 
         assertTrue(GrblUtils.isControllerResponsive(controller));
     }
+
+    @Test
+    public void isControllerResponsiveWhenControllerInStateDoor() throws Exception {
+        GrblController controller = mock(GrblController.class);
+        when(controller.isCommOpen()).thenReturn(true);
+        MessageService messageService = mock(MessageService.class);
+        when(controller.getMessageService()).thenReturn(messageService);
+
+        // Respond with status hold
+        doAnswer(answer -> {
+            GcodeCommand command = answer.getArgument(0, GcodeCommand.class);
+            command.appendResponse("<Door>");
+            return null;
+        }).when(controller).sendCommandImmediately(any(GcodeCommand.class));
+
+        assertFalse(GrblUtils.isControllerResponsive(controller));
+    }
 }
