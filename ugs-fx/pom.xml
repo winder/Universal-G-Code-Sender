@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.willwinder.universalgcodesender</groupId>
+        <artifactId>ugs-parent</artifactId>
+        <version>${revision}${changelist}</version>
+    </parent>
+
+    <artifactId>ugs-fx</artifactId>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>The FX edition</description>
+    <url>https://github.com/winder/Universal-G-Code-Sender/tree/master/ugs-fx</url>
+
+    <properties>
+        <javafx.version>17.0.13</javafx.version>
+        <exec.maven.plugin.version>3.5.0</exec.maven.plugin.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.willwinder.universalgcodesender</groupId>
+            <artifactId>ugs-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.willwinder</groupId>
+            <artifactId>ugs-platform-plugin-dro</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.willwinder</groupId>
+            <artifactId>ugs-platform-plugin-jog</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.willwinder.universalgcodesender</groupId>
+            <artifactId>ugs-pendant</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.weisj</groupId>
+            <artifactId>jsvg</artifactId>
+            <version>1.7.1</version>
+        </dependency>
+
+        <!-- For styling swing components -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>3.5.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fxyz3d</groupId>
+            <artifactId>fxyz3d</artifactId>
+            <version>0.6.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+            <version>4.8.179</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-openide-util-ui-svg</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+
+        <!-- For scripting -->
+        <dependency>
+            <groupId>org.openjdk.nashorn</groupId>
+            <artifactId>nashorn-core</artifactId>
+            <version>${ugs.nashorn-core.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <testResources>
+            <testResource>
+                <directory>${project.basedir}/test/resources</directory>
+            </testResource>
+        </testResources>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+            </resource>
+        </resources>
+
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.4.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/libs</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <includeScope>compile</includeScope>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>fx-build-linux</id>
+
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <version>${exec.maven.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>Build Native Linux App</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <workingDirectory>${project.basedir}</workingDirectory>
+                            <executable>./build-linux-x64.sh</executable>
+                            <environmentVariables>
+                                <APP_VERSION>
+                                    ${revision}
+                                </APP_VERSION>
+                                <PROJECT_VERSION>
+                                    ${project.version}
+                                </PROJECT_VERSION>
+                            </environmentVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.actions.Action;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -36,6 +37,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
+@Action(
+        icon = StopAction.ICON_BASE
+)
 @ActionID(
         category = LocalizingService.StopCategory,
         id = LocalizingService.StopActionId)
@@ -55,7 +59,7 @@ public final class StopAction extends AbstractAction implements UGSEventListener
 
     public static final String ICON_BASE = "resources/icons/stop.svg";
 
-    private BackendAPI backend;
+    private final BackendAPI backend;
 
     public StopAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);

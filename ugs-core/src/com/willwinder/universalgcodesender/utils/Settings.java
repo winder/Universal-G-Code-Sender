@@ -23,24 +23,25 @@ import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.types.FxSettings;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.Logger;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.List;
+import java.util.logging.Logger;
 
 
 
@@ -137,6 +138,8 @@ public class Settings {
      * The last working directory used by the file browser
      */
     private String lastWorkingDirectory = System.getProperty("user.home");
+
+    private FxSettings fxSettings = new FxSettings();
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
@@ -353,6 +356,15 @@ public class Settings {
     public void setMainWindowSettings(WindowSettings ws) {
         this.mainWindowSettings = ws;
         changed();
+    }
+
+    public void setFxSettings(FxSettings fxSettings) {
+        this.fxSettings = fxSettings;
+        changed();
+    }
+
+    public FxSettings getFxSettings() {
+        return this.fxSettings;
     }
 
     public WindowSettings getVisualizerWindowSettings() {
