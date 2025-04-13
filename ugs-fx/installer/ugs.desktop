@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Universal Gcode Sender
+StartupWMClass=com.willwinder.universalgcodesender.fx.Main
+Comment=Control your CNC machine
+Exec=/opt/ugs/bin/ugs %F
+Icon=/opt/ugs/lib/app/ugs.svg
+Terminal=false
+Type=Application
+Categories=Engineering
+MimeType=text/x-gcode
+Keywords=ugs

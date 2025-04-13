@@ -69,6 +69,7 @@
     <mockito.version>5.12.0</mockito.version>
     <batik.version>1.17</batik.version>
     <jts.version>1.19.0</jts.version>
+    <netbeans.version>RELEASE230</netbeans.version>
     <ugs.maven-resources-plugin.version>3.1.0</ugs.maven-resources-plugin.version>
     <ugs.maven-jar-plugin.version>3.2.0</ugs.maven-jar-plugin.version>
     <ugs.flatten-maven-plugin.version>1.2.2</ugs.flatten-maven-plugin.version>
@@ -108,6 +109,7 @@
     <module>ugs-classic</module>
     <module>ugs-platform</module>
     <module>ugs-cli</module>
+    <module>ugs-fx</module>
   </modules>
 
   <!-- global dependencies -->

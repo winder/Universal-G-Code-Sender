@@ -32,6 +32,7 @@ jobs:
         sudo apt-get install -qq genisoimage
         mvn package -pl ugs-classic assembly:assembly -DskipTests=true          
         mvn package -pl ugs-platform/application -P create-macosx-x64-package,create-macosx-aarch64-package,create-win32-package,create-win64-package,create-linux-x64-package,create-linux-arm-package,create-linux-aarch64-package -DskipTests=true
+        mvn package -pl ugs-fx -P fx-build-linux
 
     # https://github.com/marketplace/actions/upload-to-github-release
     - name: Upload binaries to snapshot release
@@ -39,7 +40,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        file: "ugs-classic/target/UniversalGcodeSender.zip;ugs-platform/application/target/macosx-*-ugs-platform-app-*.dmg;ugs-platform/application/target/linux-*-ugs-platform-app*.tar.gz;ugs-platform/application/target/win-ugs-platform-app-*.zip;ugs-platform/application/target/win64-ugs-platform-app-*.zip;ugs-platform/application/target/ugs-platform-app-*.zip"
+        file: "ugs-classic/target/UniversalGcodeSender.zip;ugs-platform/application/target/macosx-*-ugs-platform-app-*.dmg;ugs-platform/application/target/linux-*-ugs-platform-app*.tar.gz;ugs-platform/application/target/win-ugs-platform-app-*.zip;ugs-platform/application/target/win64-ugs-platform-app-*.zip;ugs-platform/application/target/ugs-platform-app-*.zip;ugs-fx/target/installer/ugs_*.deb"
         prerelease: true
         tag_name: "nightly"
         overwrite: true
