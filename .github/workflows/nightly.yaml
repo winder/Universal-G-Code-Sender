@@ -32,7 +32,6 @@ jobs:
         sudo apt-get install -qq genisoimage
         mvn package -pl ugs-classic assembly:assembly -DskipTests=true          
         mvn package -pl ugs-platform/application -P create-macosx-x64-package,create-macosx-aarch64-package,create-win32-package,create-win64-package,create-linux-x64-package,create-linux-arm-package,create-linux-aarch64-package -DskipTests=true
-        mvn package -pl ugs-fx -P fx-build-linux
 
     # https://github.com/marketplace/actions/upload-to-github-release
     - name: Upload binaries to snapshot release
@@ -40,13 +39,15 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        file: "ugs-classic/target/UniversalGcodeSender.zip;ugs-platform/application/target/macosx-*-ugs-platform-app-*.dmg;ugs-platform/application/target/linux-*-ugs-platform-app*.tar.gz;ugs-platform/application/target/win-ugs-platform-app-*.zip;ugs-platform/application/target/win64-ugs-platform-app-*.zip;ugs-platform/application/target/ugs-platform-app-*.zip;ugs-fx/target/installer/ugs_*.deb"
+        file: "ugs-classic/target/UniversalGcodeSender.zip;ugs-platform/application/target/macosx-*-ugs-platform-app-*.dmg;ugs-platform/application/target/linux-*-ugs-platform-app*.tar.gz;ugs-platform/application/target/win-ugs-platform-app-*.zip;ugs-platform/application/target/win64-ugs-platform-app-*.zip;ugs-platform/application/target/ugs-platform-app-*.zip"
         prerelease: true
         tag_name: "nightly"
         overwrite: true
 
-  build-windows:
-    runs-on: [ windows-latest ]
+  build-linux:
+    needs: build-and-test
+    runs-on: ubuntu-20.04
+
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK
@@ -55,13 +56,52 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Cache the Maven packages to speed up build
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
       - name: Build
-        run: |
-          mvn clean install -DskipTests
-          mvn package -pl ugs-fx -P fx-build-windows
+        run: mvn clean install -DskipTests
 
       - name: Package Windows
-        run: .\build-windows-x64.bat
+        run: mvn package -pl ugs-fx -P fx-build-linux
+
+      - name: Upload binaries to snapshot release
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: "ugs-fx/target/installer/ugs_*.deb"
+          prerelease: true
+          tag_name: "nightly"
+          overwrite: true
+
+  build-windows:
+    needs: build-and-test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache the Maven packages to speed up build
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build
+        run: mvn clean install -DskipTests
+
+      - name: Package Windows
+        run: mvn package -pl ugs-fx -P fx-build-windows
 
       - name: Upload binaries to snapshot release
         uses: xresloader/upload-to-github-release@v1
