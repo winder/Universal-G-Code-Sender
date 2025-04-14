@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Ant-Version: Apache Ant 1.10.14
-Created-By: 24+36-3646 (Oracle Corporation)
-Build-Date: 2025-04-10 22:34:52 PDT
-

@@ -9,7 +9,7 @@
 <!-- in the project's Project Properties dialog box.-->
 <project name="Universal_G-Code_Sender" default="default" basedir=".">
     <description>Builds, tests, and runs the project Universal G-Code Sender.</description>
-    <import file="nbproject.ant/build-impl.xml"/>
+    <import file="nbproject/build-impl.xml"/>
     
     <property name="resources.dir" value="${basedir}/src/resources"/>
     <!-- provide a path where executable distros should be saved  -->
