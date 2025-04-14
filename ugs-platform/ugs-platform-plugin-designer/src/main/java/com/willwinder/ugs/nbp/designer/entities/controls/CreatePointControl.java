@@ -34,7 +34,7 @@ import java.awt.geom.Point2D;
  *
  * @author Joacim Breiler
  */
-public class CreatePointControl extends AbstractControl {
+public class CreatePointControl extends SnapToGridControl {
 
     private final Controller controller;
 
@@ -59,8 +59,11 @@ public class CreatePointControl extends AbstractControl {
         if (entityEvent instanceof MouseEntityEvent) {
             MouseEntityEvent mouseEntityEvent = (MouseEntityEvent) entityEvent;
             if (mouseEntityEvent.getType() == EventType.MOUSE_PRESSED) {
-
-                Point point = new Point(mouseEntityEvent.getStartMousePosition().getX(), mouseEntityEvent.getStartMousePosition().getY());
+                double pX = snapToGrid(mouseEntityEvent.getStartMousePosition().getX());
+                double pY = snapToGrid(mouseEntityEvent.getStartMousePosition().getY());
+                
+                Point point = new Point(pX, pY);
+                
                 controller.addEntity(point);
                 controller.setTool(Tool.SELECT);
                 controller.getSelectionManager().addSelection(point);

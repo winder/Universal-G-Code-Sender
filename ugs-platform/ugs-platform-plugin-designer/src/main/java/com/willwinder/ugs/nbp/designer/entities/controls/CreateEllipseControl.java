@@ -37,7 +37,7 @@ import java.awt.geom.Point2D;
  *
  * @author Joacim Breiler
  */
-public class CreateEllipseControl extends AbstractControl {
+public class CreateEllipseControl extends SnapToGridControl {
 
     private final Controller controller;
     private Point2D startPosition;
@@ -87,13 +87,13 @@ public class CreateEllipseControl extends AbstractControl {
     }
 
     private void createEntity() {
-        double startX = Math.min(startPosition.getX(), endPosition.getX());
+        double startX = snapToGrid(Math.min(startPosition.getX(), endPosition.getX()));
         double endX = Math.max(startPosition.getX(), endPosition.getX());
-        double startY = Math.min(startPosition.getY(), endPosition.getY());
+        double startY = snapToGrid(Math.min(startPosition.getY(), endPosition.getY()));
         double endY = Math.max(startPosition.getY(), endPosition.getY());
 
         Ellipse ellipse = new Ellipse(startX, startY);
-        ellipse.setSize(new Size(endX - startX, endY - startY));
+        ellipse.setSize(new Size(snapToGrid(endX - startX), snapToGrid(endY - startY)));
         controller.addEntity(ellipse);
 
         controller.setTool(Tool.SELECT);
