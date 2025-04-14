@@ -44,3 +44,31 @@ jobs:
         prerelease: true
         tag_name: "nightly"
         overwrite: true
+
+  build-windows:
+    runs-on: [ windows-latest ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build
+        run: |
+          mvn clean install -DskipTests
+          mvn package -pl ugs-fx -P fx-build-windows
+
+      - name: Package Windows
+        run: .\build-windows-x64.bat
+
+      - name: Upload binaries to snapshot release
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: "ugs-fx/target/installer/ugs-*.exe;ugs-fx/target/installer/ugs-*.msi"
+          prerelease: true
+          tag_name: "nightly"
+          overwrite: true
