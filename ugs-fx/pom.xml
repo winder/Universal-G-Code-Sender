@@ -205,7 +205,7 @@
                         </executions>
                         <configuration>
                             <workingDirectory>${project.basedir}</workingDirectory>
-                            <executable>./build-windows-x64.bat</executable>
+                            <executable>build-windows-x64.bat</executable>
                             <environmentVariables>
                                 <APP_VERSION>
                                     ${revision}
