@@ -23,6 +23,7 @@ import jankovicsandras.imagetracer.ImageTracer;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.util.HashMap;
 
@@ -65,7 +66,28 @@ public class TraceUtils {
             BufferedImage gray = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
             Graphics2D g = gray.createGraphics();
             g.drawImage(img, 0, 0, null);
-
+            
+            double[] dArray={0.0, 0.0, 0.0 };
+            
+            if (settingsPanel.isInvertedColorMap()) {
+                System.out.println("INVERTED DEPTH MAP !!!!!!! ");
+                WritableRaster raster = gray.getRaster();
+                for (int w=0; w< raster.getWidth(); w++) {
+                    for (int h=0; h< raster.getHeight(); h++) {
+                        dArray=raster.getPixel(w, h, dArray);
+                        dArray[0] = 1.0-dArray[0];
+                        dArray[1] = 1.0-dArray[1];
+                        dArray[2] = 1.0-dArray[2];                    
+//                        path.setName(String.format("Index: %s Start Depth: $%.2f Target Depth: $%.2f", layerId, startPos, targetPos));
+//                        System.out.println(String.format("$%.2f", args));
+                        raster.setPixel(w, h, dArray);
+                    }
+                }        
+                gray.setData(raster);
+            } else {
+                System.out.println("NOT INVERTED DEPTH MAP !!!!!!! ");
+            }
+            
             byte[][] palette = generatePalette(numberOfColors, settingsPanel.getStartColor(), settingsPanel.getEndColor());
             return ImageTracer.imageToSVG(gray, options, palette);
         } catch (Exception e) {
