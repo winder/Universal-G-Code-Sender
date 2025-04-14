@@ -70,30 +70,28 @@ public class GcodeModel extends Group {
         getChildren().add(meshView);
         BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         gcvp = new GcodeViewParse();
-        backendAPI.addUGSEventListener(event -> {
-            ThreadHelper.invokeLater(() -> {
-                if (event instanceof FileStateEvent) {
-                    if (((FileStateEvent) event).getFileState() == FileState.FILE_LOADED) {
+        backendAPI.addUGSEventListener(event -> ThreadHelper.invokeLater(() -> {
+            if (event instanceof FileStateEvent) {
+                if (((FileStateEvent) event).getFileState() == FileState.FILE_LOADED) {
 
-                        try {
-                            List<LineSegment> lineSegments = loadModel(gcvp, backendAPI.getGcodeFile().getAbsolutePath());
-                            TriangleMesh mesh = pointsToMesh(lineSegments);
-                            meshView.setMesh(mesh);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
+                    try {
+                        List<LineSegment> lineSegments = loadModel(gcvp, backendAPI.getGcodeFile().getAbsolutePath());
+                        TriangleMesh mesh = pointsToMesh(lineSegments);
+                        meshView.setMesh(mesh);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+
                 }
-            });
-        });
+            }
+        }));
 
 
     }
 
     private TriangleMesh pointsToMesh(List<LineSegment> lineSegments) {
         TriangleMesh mesh = new TriangleMesh();
-        float width = 0.03f; // Thin width for visual line approximation
+        float width = 0.05f; // Thin width for visual line approximation
 
         for (int i = 0; i < lineSegments.size(); i++) {
             LineSegment lineSegment = lineSegments.get(i);
@@ -104,7 +102,7 @@ public class GcodeModel extends Group {
             Point3D dir = p2.substract(p1).normalize();
             Point3D perp = dir.crossProduct(ZERO.add(0, 0, 1)).normalize().multiply(width);
             if (perp.magnitude() == 0) { // If dir is parallel to Z, use X axis
-                perp = new Point3D(width, 0, 0);
+                perp = new Point3D(width, 0, width);
             }
 
             // Add 4 points for the rectangle

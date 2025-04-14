@@ -38,6 +38,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
+@com.willwinder.universalgcodesender.actions.Action(
+        icon = SoftResetAction.ICON_BASE
+)
 @ActionID(
         category = LocalizingService.SoftResetCategory,
         id = LocalizingService.SoftResetActionId)
