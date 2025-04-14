@@ -229,9 +229,8 @@ public class ImageTracerDialog extends JDialog {
                                     layerGroup.addChild(entity);                                
                                 } 
                             }
-    //                        layerGroup.addAll(entityLayersMap.get(""+x));
                             pm.setProgress(progressCounter);
-                            System.out.println ("Adding Slice: " + x + " to " + curLayerIndex);
+
                         }
                         /////////////
                         Area sliceArea = new Area(outputBounds.getBounds2D());
