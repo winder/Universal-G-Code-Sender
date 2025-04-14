@@ -25,17 +25,21 @@ public class Tool extends Group {
         BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         backendAPI.addUGSEventListener(this::onEvent);
 
-        MeshView cone = createCone(5, 10, 10, Color.YELLOW);
+        MeshView cone = createCone(4, 10, 16, Color.ORANGE);
         cone.setRotationAxis(Rotate.X_AXIS);
         cone.setRotate(90);
-        setTranslateZ(5);
+        cone.setTranslateZ(5);
 
-        getChildren().add(cone);
+        MeshView coneTop = createCone(4, 2, 16, Color.ORANGE);
+        coneTop.setRotationAxis(Rotate.X_AXIS);
+        coneTop.setRotate(-90);
+        coneTop.setTranslateZ(11);
 
-        cone.translateXProperty().bind(posX);
-        cone.translateYProperty().bind(posY);
-        cone.translateZProperty().bind(posZ);
+        getChildren().addAll(cone, coneTop);
 
+        translateXProperty().bind(posX);
+        translateYProperty().bind(posY);
+        translateZProperty().bind(posZ);
     }
 
     private void onEvent(UGSEvent ugsEvent) {

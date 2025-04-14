@@ -1,7 +1,6 @@
 package com.willwinder.universalgcodesender.fx.visualizer;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.scene.AmbientLight;
 import javafx.scene.Camera;
 import javafx.scene.Group;
@@ -11,118 +10,93 @@ import javafx.scene.PointLight;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
 import javafx.scene.transform.Rotate;
-import javafx.util.Duration;
+import javafx.scene.transform.Translate;
+import javafx.scene.input.MouseButton;
 
 public class Visualizer extends Pane {
-
-    private double anchorAngleY;
-    private double anchorAngleX;
-    private double anchorX = 0;
-    private double anchorY = 0;
-    private final double currentAngleX = 0, currentAngleY = 0; // Current rotation angles
-
-    private long lastTime = System.nanoTime(); // Time of the last frame
-    private int frameCount = 0; // Count the number of frames
+    private final Camera camera;
+    private double mouseOldX;
+    private double mouseOldY;
 
     private final Rotate rotateX = new Rotate(0, Rotate.X_AXIS);
-    private final Rotate rotateY = new Rotate(0, Rotate.Y_AXIS);
+    private final Rotate rotateY = new Rotate(180, Rotate.Y_AXIS);
+    private final Translate translate = new Translate(0, 0, 0);
+    private final Translate cameraTranslate = new Translate(0, 0, -500); // initial zoom
+    private final SubScene subScene;
+    private final Group root3D;
 
     public Visualizer() {
-        // Root of the 3D scene graph
-        Group root3D = new Group();
 
-        // Create a cube
-        Box cube = new Box(10, 10, 100);
-        cube.setMaterial(new PhongMaterial(Color.CORNFLOWERBLUE));
-
-        // Rotate for better viewing
-        cube.getTransforms().addAll(
-                new Rotate(30, Rotate.Y_AXIS),
-                new Rotate(20, Rotate.X_AXIS)
-        );
+        // Rotate group contains 3D objects
+        Group rotateGroup = new Group(new GcodeModel(), new Tool());
+        rotateGroup.getTransforms().addAll(rotateX, rotateY, new Rotate(180, Rotate.Z_AXIS));
 
         // Lighting
         PointLight light = new PointLight(Color.WHITE);
-        light.setTranslateX(200);
+        light.setTranslateX(-200);
         light.setTranslateY(-100);
         light.setTranslateZ(-100);
 
-        AmbientLight ambient = new AmbientLight(Color.rgb(80, 80, 80));
+        // Root group applies panning
+        AmbientLight ambient = new AmbientLight(Color.rgb(200, 200, 200));
+        root3D = new Group(rotateGroup, ambient, light);
+        root3D.getTransforms().add(translate);
 
-        root3D.getChildren().addAll(light, ambient, new GcodeModel(), new Tool());
+        // SubScene with 3D support
+        subScene = new SubScene(root3D, 800, 600, true, SceneAntialiasing.BALANCED);
+        subScene.setFill(Color.LIGHTGRAY);
 
-        root3D.getTransforms().addAll(rotateX, rotateY);
-
-        Camera camera = createCamera();
-
-
-        // SubScene with 3D content
-        SubScene subScene = new SubScene(root3D, 400, 400, true, SceneAntialiasing.BALANCED);
-        subScene.setFill(Color.GRAY);
+        // Camera setup
+        camera = createCamera();
         subScene.setCamera(camera);
 
-
-        subScene.widthProperty().bind(widthProperty());
-        subScene.heightProperty().bind(heightProperty());
-
+        // Add the SubScene to the custom node
         getChildren().add(subScene);
 
-        subScene.setOnScroll((final ScrollEvent e) -> {
-            //camera.setTranslateZ(camera.getTranslateZ() + e.getDeltaY());
+        // Set up mouse interactions
+        setMouseInteraction();
+
+    }
+
+    private void setMouseInteraction() {
+        // Handle mouse press event to store the initial position
+        subScene.setOnMousePressed(event -> {
+            mouseOldX = event.getSceneX();
+            mouseOldY = event.getSceneY();
+        });
+
+        // Handle mouse dragged event to implement panning and rotating
+        subScene.setOnMouseDragged((MouseEvent event) -> {
+            double dx = event.getSceneX() - mouseOldX;
+            double dy = event.getSceneY() - mouseOldY;
+
+            if (event.getButton() == MouseButton.PRIMARY) {
+                // Rotate around X and Y axis
+                rotateX.setAngle(rotateX.getAngle() + dy * 0.5);
+                rotateY.setAngle(rotateY.getAngle() - dx * 0.5);
+            } else if (event.getButton() == MouseButton.SECONDARY) {
+                // Pan (translate) the 3D scene
+                translate.setX(translate.getX() + dx * 0.5);
+                translate.setY(translate.getY() + dy * 0.5);
+            }
+
+            mouseOldX = event.getSceneX();
+            mouseOldY = event.getSceneY();
+        });
+
+        // Zoom with mouse scroll
+        subScene.setOnScroll(event -> {
             if (camera instanceof ParallelCamera) {
-                double scale = root3D.getScaleY() + (e.getDeltaY() / 200f);
-                System.out.println(root3D.getScaleX() + " " + (root3D.getScaleX() + scale));
+                double scale = root3D.getScaleY() + (event.getDeltaY() / 200f);
                 root3D.setScaleX(scale);
                 root3D.setScaleY(scale);
             } else {
-                System.out.println(camera.getTranslateZ());
-                camera.setTranslateZ(camera.getTranslateZ() + e.getDeltaY());
+                double zoomFactor = event.getDeltaY();
+                cameraTranslate.setZ(cameraTranslate.getZ() + zoomFactor);
             }
-        });
-
-        // Mouse interaction
-        subScene.setOnMousePressed((MouseEvent event) -> {
-            anchorX = event.getSceneX();
-            anchorY = event.getSceneY();
-            anchorAngleX = rotateX.getAngle();
-            anchorAngleY = rotateY.getAngle();
-        });
-
-        // Use Timeline to update rotations smoothly
-        Timeline timeline = new Timeline(
-                new KeyFrame(Duration.millis(16), e -> {
-                    root3D.setRotationAxis(Rotate.Y_AXIS);
-                    root3D.setRotate(currentAngleY); // Apply Y rotation
-                    root3D.setRotationAxis(Rotate.X_AXIS);
-                    root3D.setRotate(currentAngleX); // Apply X rotation
-
-
-                    // Calculate and print the frame rate
-                    long currentTime = System.nanoTime();
-                    long elapsedTime = currentTime - lastTime;
-                    frameCount++;
-
-                    // Every second, print the frame rate
-                    if (elapsedTime >= 1_000_000_000) { // 1 second
-                        double frameRate = frameCount / (elapsedTime / 1_000_000_000.0);
-                        System.out.println("Frame Rate: " + frameRate + " FPS");
-                        frameCount = 0; // Reset frame count
-                        lastTime = currentTime; // Reset time
-                    }
-                })
-        );
-        timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.play();
-
-        subScene.setOnMouseDragged((MouseEvent event) -> {
-            rotateX.setAngle(anchorAngleX + (event.getSceneY() - anchorY));
-            rotateY.setAngle(anchorAngleY - (event.getSceneX() - anchorX));
         });
     }
 
@@ -130,16 +104,46 @@ public class Visualizer extends Pane {
         boolean useParallelCamera = false;
         if (useParallelCamera) {
             Camera camera = new ParallelCamera();
-            camera.setTranslateX(-300);
-            camera.setTranslateY(-300);
+
+            // Set the camera position and scale
+            Platform.runLater(() -> {
+                camera.setTranslateX(-(subScene.getWidth() / 2d));
+                camera.setTranslateY(-(subScene.getHeight() / 2d));
+                root3D.setScaleX(3);
+                root3D.setScaleY(3);
+            });
             return camera;
         } else {
             // Camera
             PerspectiveCamera camera = new PerspectiveCamera(true);
-            camera.setTranslateZ(-500);
             camera.setNearClip(0.1);
             camera.setFarClip(1000);
+            camera.getTransforms().add(cameraTranslate);
             return camera;
         }
+    }
+
+    @Override
+    protected void layoutChildren() {
+        super.layoutChildren();
+
+        // Ensure SubScene resizes with the parent node
+        subScene.setWidth(getWidth());
+        subScene.setHeight(getHeight());
+    }
+
+    public void resetScene() {
+        // Reset transformations
+        rotateX.setAngle(0);
+        rotateY.setAngle(0);
+        translate.setX(0);
+        translate.setY(0);
+        cameraTranslate.setZ(-500); // reset zoom
+    }
+
+    public void setCameraPosition(double x, double y, double z) {
+        cameraTranslate.setX(x);
+        cameraTranslate.setY(y);
+        cameraTranslate.setZ(z);
     }
 }
