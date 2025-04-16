@@ -40,6 +40,7 @@ import java.awt.event.ActionListener;
 public class ToolBox extends ToolBar {
 
     private JToggleButton toolDropDownButton = null;
+    private JToggleButton snapDropDownButton = null;
     private JToggleButton jogDropDownButton = null;
     private JToggleButton alignDropDownButton = null;
 
@@ -121,7 +122,9 @@ public class ToolBox extends ToolBar {
         buttons.add(select);
         buttons.add(toolDropDownButton);
         buttons.add(zoom);
-
+        
+        add(createSnapDropdownButton());
+        
         controller.addListener(event -> {
             if (event == ControllerEventType.TOOL_SELECTED) {
                 buttons.clearSelection();
@@ -225,7 +228,33 @@ public class ToolBox extends ToolBar {
         toolDropDownButton.setAction(toolDrawRectangleAction);
         return toolDropDownButton;
     }
+    
+    private JToggleButton createSnapDropdownButton() {
+        // An action listener that listens to the popup menu items and changes the current action
+        ActionListener toolMenuListener = e -> {
+            if (snapDropDownButton == null) {
+                return;
+            }
 
+            JMenuItem source = (JMenuItem) e.getSource();
+            snapDropDownButton.setIcon((Icon) source.getAction().getValue(Action.LARGE_ICON_KEY));
+            snapDropDownButton.setSelected(true);
+            snapDropDownButton.setAction(source.getAction());
+        };
+
+        SnapToGridOneAction snapToOneAction = new SnapToGridOneAction();
+        JPopupMenu popupMenu = new JPopupMenu();
+        addDropDownAction(popupMenu, new SnapToGridNoneAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new SnapToGridHalfAction(), toolMenuListener);
+        addDropDownAction(popupMenu, snapToOneAction, toolMenuListener);
+        addDropDownAction(popupMenu, new SnapToGridTwoAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new SnapToGridFiveAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new SnapToGridTenAction(), toolMenuListener);        
+        
+        snapDropDownButton = DropDownButtonFactory.createDropDownToggleButton(ImageUtilities.loadImageIcon(SnapToGridOneAction.LARGE_ICON_PATH, false), popupMenu);
+        snapDropDownButton.setAction(snapToOneAction);
+        return snapDropDownButton;
+    }
     private void addDropDownAction(JPopupMenu popupMenu, Action action, ActionListener actionListener) {
         JMenuItem menuItem = new JMenuItem(action);
         if (actionListener != null) {

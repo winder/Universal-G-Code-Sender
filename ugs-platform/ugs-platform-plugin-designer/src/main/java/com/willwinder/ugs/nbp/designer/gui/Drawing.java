@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbp.designer.Throttler;
 import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.controls.AbstractControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.entities.controls.CreateEllipseControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.CreatePointControl;
@@ -31,6 +32,7 @@ import com.willwinder.ugs.nbp.designer.entities.controls.CreateTextControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.EditTextControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.GridControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.HighlightModelControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.ISnapToGridListener;
 import com.willwinder.ugs.nbp.designer.entities.controls.MoveControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.ResizeControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.RotationControl;
@@ -65,7 +67,7 @@ import java.util.Set;
 /**
  * @author Joacim Breiler
  */
-public class Drawing extends JPanel {
+public class Drawing extends JPanel implements ISnapToGridListener {
 
     public static final double MIN_SCALE = 0.05;
     @Serial
@@ -82,6 +84,8 @@ public class Drawing extends JPanel {
     private transient DropHandler dropHandler;
     private transient DropTarget dropTarget;
 
+    private double gridSize = 1.0;
+    
     public Drawing(Controller controller) {
         refreshThrottler = new Throttler(this::refresh, 1000);
 
@@ -117,6 +121,7 @@ public class Drawing extends JPanel {
         setFocusable(true);
         setBackground(Colors.BACKGROUND);
         setScale(2);
+        snapToGridUpdated(1);
     }
 
     @Override
@@ -313,5 +318,15 @@ public class Drawing extends JPanel {
 
     public Point2D.Double getPosition() {
         return new Point2D.Double(position.x * scale, position.y * scale);
+    }
+
+    @Override
+    public void snapToGridUpdated(double aNewValue) {
+        this.gridSize = aNewValue;
+        for ( Entity ctrl : this.controlsRoot.getAllChildren() ) {
+            if (ctrl instanceof ISnapToGridListener iSnapToGridListener) {
+                iSnapToGridListener.snapToGridUpdated(aNewValue);
+            }
+        }
     }
 }

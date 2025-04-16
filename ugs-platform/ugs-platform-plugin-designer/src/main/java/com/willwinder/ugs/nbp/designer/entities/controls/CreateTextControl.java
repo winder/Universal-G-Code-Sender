@@ -36,7 +36,7 @@ import java.awt.geom.Rectangle2D;
  *
  * @author Joacim Breiler
  */
-public class CreateTextControl extends AbstractControl {
+public class CreateTextControl extends SnapToGridControl {
 
     private final Controller controller;
     private Point2D startPosition;
@@ -85,8 +85,8 @@ public class CreateTextControl extends AbstractControl {
     }
 
     private void createEntity() {
-        double startX = Math.min(startPosition.getX(), endPosition.getX());
-        double startY = Math.min(startPosition.getY(), endPosition.getY());
+        double startX = snapToGrid(Math.min(startPosition.getX(), endPosition.getX()));
+        double startY = snapToGrid(Math.min(startPosition.getY(), endPosition.getY()));
 
         Text text = new Text(startX, startY);
         controller.addEntity(text);
