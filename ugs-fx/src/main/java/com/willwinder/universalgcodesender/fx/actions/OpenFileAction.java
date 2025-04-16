@@ -1,6 +1,7 @@
 package com.willwinder.universalgcodesender.fx.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
@@ -15,12 +16,11 @@ import java.io.File;
 
 public class OpenFileAction extends BaseAction {
 
+    private static final String ICON_BASE = "icons/open.svg";
     private final BackendAPI backend;
 
     public OpenFileAction() {
-        titleProperty().set("Open");
-        iconProperty().set("icons/open.svg");
-
+        super(LocalizingService.OpenTitle, ICON_BASE);
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(!backend.isConnected() || backend.isIdle());

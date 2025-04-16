@@ -1,29 +1,31 @@
 package com.willwinder.universalgcodesender.fx.control;
 
 import com.willwinder.universalgcodesender.fx.actions.Action;
+import com.willwinder.universalgcodesender.fx.helper.Colors;
+import static com.willwinder.universalgcodesender.fx.helper.SvgLoader.loadImageIcon;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.ImageView;
-
-import static com.willwinder.universalgcodesender.fx.helper.SvgLoader.loadIcon;
+import javafx.scene.paint.Color;
 
 public class ActionButton extends Button {
 
     public static final int SIZE_NORMAL = 24;
-    public static final int SIZE_LARGE = 32;
     private final Action action;
     private final BooleanProperty showText = new SimpleBooleanProperty(true);
     private final IntegerProperty iconSize = new SimpleIntegerProperty(SIZE_NORMAL);
-
-    public ActionButton(Action action) {
-        this(action, SIZE_NORMAL);
-    }
+    private final StringProperty iconColor = new SimpleStringProperty(Colors.BLACKISH.toString());
 
     public ActionButton(Action action, int size) {
+        this(action, size, true);
+    }
+
+    public ActionButton(Action action, int size, boolean showText) {
         this.action = action;
         this.iconSize.setValue(size);
 
@@ -34,11 +36,17 @@ public class ActionButton extends Button {
         setTooltip(new Tooltip(action.getTitle()));
         setDisable(!action.isEnabled());
         setIcon(action.getIcon());
+        setShowText(showText);
     }
 
     public void setShowText(boolean show) {
         showText.set(show);
         setText(show ? action.getTitle() : null);
+    }
+
+    public void setIconColor(Color color) {
+        this.iconColor.set(color.toString());
+        setIcon(action.getIcon());
     }
 
     private void registerPropertyListeners(Action action) {
@@ -53,6 +61,6 @@ public class ActionButton extends Button {
     }
 
     private void setIcon(String iconBase) {
-        loadIcon(iconBase, iconSize.get()).ifPresent(image -> setGraphic(new ImageView(image)));
+        loadImageIcon(iconBase, iconSize.get(), Color.web(iconColor.get())).ifPresent(this::setGraphic);
     }
 }

@@ -64,7 +64,7 @@ public class GcodeModel extends Group {
         material.setDiffuseMap(createColorStripeTexture());
 
         meshView = new MeshView();
-        meshView.setMaterial(material);
+        meshView.setMaterial(new PhongMaterial(Color.DARKBLUE));
         meshView.setCullFace(CullFace.NONE);
 
         getChildren().add(meshView);
@@ -85,13 +85,11 @@ public class GcodeModel extends Group {
                 }
             }
         }));
-
-
     }
 
     private TriangleMesh pointsToMesh(List<LineSegment> lineSegments) {
         TriangleMesh mesh = new TriangleMesh();
-        float width = 0.05f; // Thin width for visual line approximation
+        float width = 0.04f; // Thin width for visual line approximation
 
         for (int i = 0; i < lineSegments.size(); i++) {
             LineSegment lineSegment = lineSegments.get(i);
