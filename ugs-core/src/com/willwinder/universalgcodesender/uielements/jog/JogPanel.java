@@ -33,12 +33,12 @@ import javax.swing.*;
 
 public class JogPanel extends JPanel implements UGSEventListener {
 
-    private final StepSizeSpinner xyStepSizeSpinner = new StepSizeSpinner();
-    private final StepSizeSpinner zStepSizeSpinner = new StepSizeSpinner();
+    private StepSizeSpinner xyStepSizeSpinner = null;
+    private StepSizeSpinner zStepSizeSpinner = null;
     private final JLabel stepSizeLabel = new JLabel(Localization.getString("mainWindow.swing.stepSizeLabel"));
     private final JLabel stepSizeLabelZ = new JLabel(Localization.getString("mainWindow.swing.stepSizeZLabel"));
 
-    private final StepSizeSpinner feedRateSpinner = new StepSizeSpinner();
+    private final StepSizeSpinner feedRateSpinner = new StepSizeSpinner(null);
     private final JLabel feedRateLabel = new JLabel(Localization.getString("mainWindow.swing.feedRateLabel"));
 
     private final JButton unitButton = new JButton();
@@ -59,6 +59,8 @@ public class JogPanel extends JPanel implements UGSEventListener {
     public JogPanel(BackendAPI backend, JogService jogService, boolean showKeyboardToggle) {
         this.backend = backend;
         this.showKeyboardToggle = showKeyboardToggle;
+        xyStepSizeSpinner = new StepSizeSpinner(backend);
+        zStepSizeSpinner = new StepSizeSpinner(backend);
 
         this.jogService = jogService;
 

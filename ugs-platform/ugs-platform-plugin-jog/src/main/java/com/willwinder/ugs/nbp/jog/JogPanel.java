@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager
 import com.willwinder.universalgcodesender.uielements.jog.StepSizeSpinner;
 import com.willwinder.universalgcodesender.utils.FontUtils;
 import com.willwinder.universalgcodesender.listeners.LongPressMouseListener;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 
@@ -103,8 +104,11 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
     private JButton unitToggleButton;
     private JButton increaseStepSizeButton;
     private JButton decreaseStepSizeButton;
-
-    public JogPanel() {
+    
+    private BackendAPI backend;
+    
+    public JogPanel(BackendAPI backend) {
+        this.backend = backend;
         createComponents();
         initPanels();
         initListeners();
@@ -123,13 +127,13 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         // Create our buttons
         Arrays.asList(JogPanelButtonEnum.values()).forEach(this::createJogButton);
         Dimension minimumSize = new Dimension(80, 18);
-        feedRateSpinner = new StepSizeSpinner();
+        feedRateSpinner = new StepSizeSpinner(backend);
         feedRateSpinner.setMinimumSize(minimumSize);
-        xyStepSizeSpinner = new StepSizeSpinner();
+        xyStepSizeSpinner = new StepSizeSpinner(backend);
         xyStepSizeSpinner.setMinimumSize(minimumSize);
-        zStepSizeSpinner = new StepSizeSpinner();
+        zStepSizeSpinner = new StepSizeSpinner(backend);
         zStepSizeSpinner.setMinimumSize(minimumSize);
-        abcStepSizeSpinner = new StepSizeSpinner();
+        abcStepSizeSpinner = new StepSizeSpinner(backend);
         abcStepSizeSpinner.setMinimumSize(minimumSize);
 
         // todo: could use a number of factory methods here to build similar stuff

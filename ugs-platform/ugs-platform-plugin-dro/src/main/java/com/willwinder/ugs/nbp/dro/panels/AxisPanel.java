@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.core.actions.ResetYCoordinateToZeroAction;
 import com.willwinder.ugs.nbp.core.actions.ResetZCoordinateToZeroAction;
 import com.willwinder.ugs.nbp.dro.FontManager;
 import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.MouseClickListener;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
@@ -50,13 +51,16 @@ public class AxisPanel extends JPanel {
     private static final int RADIUS = 7;
     public static final int HIGHLIGHT_TIME = 300;
     private final HighlightableLabel axisLabel = new HighlightableLabel();
-    private final CoordinateLabel workLabel = new CoordinateLabel(0.0);
-    private final CoordinateLabel machineLabel = new CoordinateLabel(0.0);
+    private CoordinateLabel workLabel = null;//new CoordinateLabel(0.0);
+    private CoordinateLabel machineLabel = null;//new CoordinateLabel(0.0);
     private final Set<AxisPanelListener> axisPanelListenerList = new HashSet<>();
     private transient ScheduledFuture<?> highlightLabelsFuture;
 
-    public AxisPanel(Axis axis, FontManager fontManager) {
+    public AxisPanel(Axis axis, FontManager fontManager, BackendAPI backend) {
         super(new MigLayout("fill, inset 0", "[grow, fill]5[50]"));
+        workLabel = new CoordinateLabel(0.0,backend);
+        machineLabel = new CoordinateLabel(0.0,backend);
+    
         RoundedPanel axisPanel = new RoundedPanel(RADIUS);
         axisPanel.setBackground(ThemeColors.VERY_DARK_GREY);
         axisPanel.setForeground(ThemeColors.LIGHT_BLUE);

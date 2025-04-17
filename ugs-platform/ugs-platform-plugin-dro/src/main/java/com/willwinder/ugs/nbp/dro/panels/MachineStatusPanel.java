@@ -85,7 +85,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
     private final JPanel axisPanel = new JPanel();
     private Units units;
     private final Map<Axis, AxisPanel> axisPanels = new EnumMap<>(Axis.class);
-    private final DecimalFormat decimalFormatter = new DecimalFormat("0.000");
+    private DecimalFormat decimalFormatter = new DecimalFormat("0.000");
 
 
     public MachineStatusPanel(BackendAPI backend) {
@@ -102,8 +102,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
             setUnits(Units.MM);
         } else {
             setUnits(Units.INCH);
-        }
-
+        }        
+        
         updateControls();
     }
 
@@ -167,7 +167,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
     }
 
     private void initializeAxisPanel(Axis axis) {
-        AxisPanel panel = new AxisPanel(axis, fontManager);
+        AxisPanel panel = new AxisPanel(axis, fontManager, backend);
         panel.setVisible(axis.isLinear());
         panel.setEnabled(false);
         axisPanels.put(axis, panel);
@@ -222,6 +222,11 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
      */
     private void updateControls() {
         Settings settings = backend.getSettings();
+        
+        if (this.backend != null) {
+            decimalFormatter = new DecimalFormat(this.backend.getSettings().getMachineDecimalFormat() );
+        } 
+        
         if (!backend.isConnected()) {
             axisPanels.forEach((key, value) -> {
                 value.setEnabled(false);

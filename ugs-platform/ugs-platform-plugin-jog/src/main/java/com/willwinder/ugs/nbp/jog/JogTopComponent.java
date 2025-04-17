@@ -18,6 +18,9 @@
  */
 package com.willwinder.ugs.nbp.jog;
 
+import com.willwinder.ugs.nbp.jog.actions.SetMachineDecimalFormatFive;
+import com.willwinder.ugs.nbp.jog.actions.SetMachineDecimalFormatFour;
+import com.willwinder.ugs.nbp.jog.actions.SetMachineDecimalFormatThree;
 import com.willwinder.ugs.nbp.jog.actions.ShowABCStepSizeAction;
 import com.willwinder.ugs.nbp.jog.actions.UseSeparateStepSizeAction;
 import com.willwinder.ugs.nbp.lib.Mode;
@@ -41,6 +44,7 @@ import org.openide.windows.TopComponent;
 
 import javax.swing.JPopupMenu;
 import java.awt.BorderLayout;
+import javax.swing.JMenu;
 
 /**
  * The jog control panel in NetBeans
@@ -75,15 +79,20 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     private final ContinuousJogWorker continuousJogWorker;
 
     private boolean ignoreLongClick = false;
-
+    private final JMenu precisionMenu = new JMenu("Precision");   
     public JogTopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         jogService = CentralLookup.getDefault().lookup(JogService.class);
         continuousJogWorker = new ContinuousJogWorker(backend, jogService);
         UseSeparateStepSizeAction separateStepSizeAction = Lookup.getDefault().lookup(UseSeparateStepSizeAction.class);
         ShowABCStepSizeAction showABCStepSizeAction = Lookup.getDefault().lookup(ShowABCStepSizeAction.class);
-
-        jogPanel = new JogPanel();
+        
+        SetMachineDecimalFormatThree setMachineDecimalFormatThree = Lookup.getDefault().lookup(SetMachineDecimalFormatThree.class);
+        SetMachineDecimalFormatFour setMachineDecimalFormatFour = Lookup.getDefault().lookup(SetMachineDecimalFormatFour.class);
+        SetMachineDecimalFormatFive setMachineDecimalFormatFive = Lookup.getDefault().lookup(SetMachineDecimalFormatFive.class);
+        
+        
+        jogPanel = new JogPanel(backend);
         jogPanel.setEnabled(jogService.canJog());
         updateSettings();
         jogPanel.addListener(this);
@@ -96,12 +105,18 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         // Right click options
         if (separateStepSizeAction != null || showABCStepSizeAction != null) {
             JPopupMenu popupMenu = new JPopupMenu();
+            
             if (separateStepSizeAction != null) {
                 popupMenu.add(separateStepSizeAction);
             }
             if (showABCStepSizeAction != null) {
                 popupMenu.add(showABCStepSizeAction);
             }
+            
+            popupMenu.add(precisionMenu);
+            precisionMenu.add(setMachineDecimalFormatThree);
+            precisionMenu.add(setMachineDecimalFormatFour);
+            precisionMenu.add(setMachineDecimalFormatFive);
             SwingHelpers.traverse(this, (comp) -> comp.setComponentPopupMenu(popupMenu));
         }
     }
@@ -150,6 +165,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
 
     private void updateControls() {
         jogPanel.setEnabled(jogService.canJog());
+        precisionMenu.setEnabled(jogService.canJog());
     }
 
     @Override
