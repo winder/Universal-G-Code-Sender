@@ -18,6 +18,9 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.imagetracer;
 
+import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
+import java.awt.Dimension;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JLabel;
@@ -29,92 +32,185 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.Color;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import javax.swing.JCheckBox;
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 /**
  * @author Joacim Breiler
  */
 public class TraceSettingsPanel extends JPanel {
-    private final JSlider colors = new JSlider(2, 10, 5);
+
+    private final JSlider colors = new JSlider(2, 100, 25);
     private final JSlider lineThreshold = new JSlider(0, 100, 0);
     private final JSlider curveThreshold = new JSlider(0, 100, 0);
     private final JSlider colorsQuantization = new JSlider(1, 100, 1);
     private final JSlider pathOmit = new JSlider(0, 100, 0);
     private final JSlider blurRadius = new JSlider(0, 5, 0);
     private final JSlider blurDelta = new JSlider(0, 1014, 0);
-    private final JSlider startColor = new JSlider(0, 255);
-    private final JSlider endColor = new JSlider(0, 255);
+    private final JSlider startColor = new JSlider(0, 255,0);
+    private final JSlider endColor = new JSlider(0, 255,255);
+    private final JCheckBox enableAdvanced = new JCheckBox("Advanced Depth Map", true);
+    
+    private final JCheckBox invertDepthmap = new JCheckBox("Invert Z-Axis", false);
+    private final JCheckBox cutLayerContents = new JCheckBox("Cut Layer Contents", false);
+    private final TextFieldWithUnit minimumDetailSize = new TextFieldWithUnit(TextFieldUnit.MM, 2, 1);
+    
     private final List<ChangeListener> changeListeners = new ArrayList<>();
+    private final TextFieldWithUnit startDepth = new TextFieldWithUnit(TextFieldUnit.MM, 2, 0 /* Default Value Here*/);
+    private final TextFieldWithUnit targetDepth = new TextFieldWithUnit(TextFieldUnit.MM, 2, 10 /* Default Value Here*/);
 
+    private final JLabel lblColors = new JLabel("Layer Count");
+    private final JLabel lblColorsStart = new JLabel("Color range start");
+    private final JLabel lblColorsEnd = new JLabel("Color range start");
+    private final JLabel lblColorsQuantization = new JLabel("Color quantization");
+    private final JLabel lblThreshold = new JLabel("Smooth lines");
+
+    private final JLabel lblCurveThreshold = new JLabel("Smooth curves");
+    private final JLabel lblPathOmit = new JLabel("Filter noise");
+    private final JLabel lblBlurRadius = new JLabel("Blur radius");
+    private final JLabel lblBlurDelta = new JLabel("Blur delta");
+    private final JLabel lblStartDepth = new JLabel("Start Depth");
+    private final JLabel lblTargetDepth = new JLabel("Target Depth");
+    private final JLabel lblMinDetailSize = new JLabel("Min. Detail Size");
+
+        
     public TraceSettingsPanel() {
-        setLayout(new MigLayout("fill, insets 0, wrap 1"));
+        setLayout(new MigLayout("insets 0, wrap 1"));
+        
+        add(lblColors);
+        add(setupSlider(colors), "grow, wrap");
+//        lblColors.setText("Layer Count (" + colors.getValue() + ")");
+        
+        add(lblColorsStart);
+        add(setupSlider(startColor,10), "grow, wrap");
 
-        colors.addChangeListener(this::updateValues);
-        colors.setSnapToTicks(true);
-        add(new JLabel("Number of layers"));
-        add(colors);
+        add(lblColorsEnd);
+        add(setupSlider(endColor,10), "grow, wrap");
 
-        startColor.addChangeListener(this::updateValues);
-        startColor.setMinorTickSpacing(10);
-        startColor.setSnapToTicks(true);
-        add(new JLabel("Color range start"));
-        add(startColor);
+        add(lblColorsQuantization);
+        add(setupSlider(colorsQuantization),  "grow, wrap");
 
-        endColor.addChangeListener(this::updateValues);
-        endColor.setMinorTickSpacing(10);
-        endColor.setSnapToTicks(true);
-        add(new JLabel("Color range end"));
-        add(endColor);
+        add(new JSeparator(SwingConstants.HORIZONTAL), "grow, wrap");
 
-        colorsQuantization.addChangeListener(this::updateValues);
-        colorsQuantization.setSnapToTicks(true);
-        add(new JLabel("Color quantization"));
-        add(colorsQuantization);
+        add(lblThreshold);
+        add(setupSlider(lineThreshold,5), "grow, wrap");
 
-        add(new JSeparator(SwingConstants.HORIZONTAL), "grow");
+        add(lblCurveThreshold);
+        add(setupSlider(curveThreshold,5),  "grow, wrap");
 
-        lineThreshold.addChangeListener(this::updateValues);
-        lineThreshold.setMinorTickSpacing(5);
-        lineThreshold.setSnapToTicks(true);
-        add(new JLabel("Smooth lines"));
-        add(lineThreshold);
+        add(lblPathOmit);
+        add(setupSlider(pathOmit),  "grow, wrap");
 
-        curveThreshold.addChangeListener(this::updateValues);
-        curveThreshold.setMinorTickSpacing(5);
-        curveThreshold.setSnapToTicks(true);
-        add(new JLabel("Smooth curves"));
-        add(curveThreshold);
+        add(new JSeparator(SwingConstants.HORIZONTAL), "grow, wrap");
 
-        pathOmit.addChangeListener(this::updateValues);
-        pathOmit.setSnapToTicks(true);
-        add(new JLabel("Filter noise"));
-        add(pathOmit);
+        add(lblBlurRadius);
+        add(setupSlider(blurRadius), "grow, wrap");
 
-        add(new JSeparator(SwingConstants.HORIZONTAL), "grow");
+        add(lblBlurDelta);
+        add(setupSlider(blurDelta), "grow, wrap");
+        
+        add(new JSeparator(SwingConstants.HORIZONTAL), "grow, wrap");
+        
+        enableAdvanced.addChangeListener(this::updateValues);        
+        add(enableAdvanced, "grow, wrap");
+        
+        invertDepthmap.addChangeListener(this::updateValues);        
+        add(invertDepthmap, "grow, wrap");
+        
+//        cutLayerContents.addChangeListener(this::updateValues);        
+//        add(cutLayerContents, "grow, wrap");
+                
+        add(lblStartDepth, "split 2");
+        add(startDepth, "grow, wrap");
 
+        add(lblTargetDepth, "split 2");
+        add(targetDepth, "grow, wrap");
+        
+        minimumDetailSize.getDocument().addDocumentListener(this.updateValuesDocListener());   
+        add(lblMinDetailSize, "split 2");
+        add(minimumDetailSize, "grow, wrap");
+        updateValues(null);
+    }
+    private JSlider setupSlider(JSlider slider) {
+        return setupSlider(slider,-1);
+    }
+    private JSlider setupSlider(JSlider slider,int value) {
+        if (value != -1) {
+            curveThreshold.setMinorTickSpacing(value);
+        }
+        slider.addChangeListener(this::updateValues);
+        slider.setSnapToTicks(true);            
+        return slider;
+    } 
+    private DocumentListener updateValuesDocListener() {
+        return new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    changedUpdate(e);
+                });
+            }
 
-        blurRadius.addChangeListener(this::updateValues);
-        blurRadius.setSnapToTicks(true);
-        add(new JLabel("Blur radius"));
-        add(blurRadius);
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    changedUpdate(e);
+                });
+            }
 
-        blurDelta.addChangeListener(this::updateValues);
-        blurDelta.setSnapToTicks(true);
-        add(new JLabel("Blur delta"));
-        add(blurDelta);
+            @Override
+            public void changedUpdate(DocumentEvent e) {         
+                ChangeEvent ce = new ChangeEvent(this);
+                updateValues(ce);
+            }
+        };
+
+    }
+    private void updateValues(ChangeEvent e) {
+        if (e != null) {
+            if (e.getSource() == endColor && endColor.getValue() <= startColor.getValue()) {
+                startColor.setValue(endColor.getValue() - 10);
+            }
+
+            if (e.getSource() == startColor && startColor.getValue() >= endColor.getValue()) {
+                endColor.setValue(startColor.getValue() + 10);
+            }
+            if (e.getSource() instanceof JSlider jSlider) {
+                if (!jSlider.getValueIsAdjusting()) {
+                    changeListeners.forEach(l -> l.stateChanged(e));
+                }
+            } else {
+                changeListeners.forEach(l -> l.stateChanged(e));
+            }
+        }
+        lblColors.setText("Layer Count" + getFormattedString(colors));
+        lblColorsStart.setText("Color range start" + getFormattedString(startColor));
+        lblColorsEnd.setText("Color range end" + getFormattedString(endColor));
+        lblColorsQuantization.setText("Color quantization" + getFormattedString(colorsQuantization));
+        lblThreshold.setText("Smooth lines " + getFormattedString(lineThreshold));
+        lblCurveThreshold.setText("Smooth curves" + getFormattedString(curveThreshold));
+        lblPathOmit.setText("Filter noise" + getFormattedString(pathOmit));
+        lblBlurRadius.setText("Blur radius" + getFormattedString(blurRadius));
+        lblBlurDelta.setText("Blur delta" + getFormattedString(blurDelta));
+                
+        // Make sure new controls toggle appropriately
+        setEnabled(isEnabled());
+        if (minimumDetailSize.getDoubleValue() < 1) {
+            minimumDetailSize.setDoubleValue(1.0);            
+        }
     }
 
-    private void updateValues(ChangeEvent e) {
-        if (e.getSource() == endColor && endColor.getValue() <= startColor.getValue()) {
-            startColor.setValue(endColor.getValue() - 10);
-        }
-
-        if (e.getSource() == startColor && startColor.getValue() >= endColor.getValue()) {
-            endColor.setValue(startColor.getValue() + 10);
-        }
-
-        if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
-            changeListeners.forEach(l -> l.stateChanged(e));
-        }
+    public String getFormattedString(JSlider ctrl) {
+        return switch (("" + ctrl.getValue()).length()) {
+            default ->
+                " (" + ctrl.getValue() + ")";
+        };
     }
 
     public TraceSettings getSettings() {
@@ -128,9 +224,17 @@ public class TraceSettingsPanel extends JPanel {
         settings.setBlurDelta(blurDelta.getValue());
         settings.setStartColor(startColor.getValue());
         settings.setEndColor(endColor.getValue());
+        
+        settings.setStartDepth(startDepth.getDoubleValue());
+        settings.setTargetDepth(targetDepth.getDoubleValue());
+        settings.setEnableAdvancedMode(enableAdvanced.isSelected());
+        settings.setInvertedColorMap(invertDepthmap.isSelected());
+        
+        settings.setCutLayerContents(cutLayerContents.isSelected()); // TODO REMOVE. 
+                
+        settings.setMinimumDetailSize(minimumDetailSize.getDoubleValue());
         return settings;
     }
-
 
     @Override
     public void setEnabled(boolean enabled) {
@@ -144,6 +248,15 @@ public class TraceSettingsPanel extends JPanel {
         blurDelta.setEnabled(enabled);
         startColor.setEnabled(enabled);
         endColor.setEnabled(enabled);
+        enableAdvanced.setEnabled(enabled);
+        startDepth.setEnabled(enabled && enableAdvanced.isSelected());
+        targetDepth.setEnabled(enabled && enableAdvanced.isSelected());
+        invertDepthmap.setEnabled(enabled && enableAdvanced.isSelected());
+        cutLayerContents.setEnabled(enabled && enableAdvanced.isSelected());
+        minimumDetailSize.setEnabled(enabled && enableAdvanced.isSelected());
+        lblStartDepth.setEnabled(enabled && enableAdvanced.isSelected());
+        lblTargetDepth.setEnabled(enabled && enableAdvanced.isSelected());
+        lblMinDetailSize.setEnabled(enabled && enableAdvanced.isSelected());
     }
 
     public void addListener(ChangeListener listener) {

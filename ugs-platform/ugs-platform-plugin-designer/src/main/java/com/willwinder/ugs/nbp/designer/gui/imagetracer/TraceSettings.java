@@ -31,7 +31,14 @@ public class TraceSettings {
     private int blurDelta;
     private int startColor;
     private int endColor;
-
+    private double startDepth;
+    private double targetDepth;
+    private boolean enableAdvancedMode;
+    private boolean invertedColormap;
+    private boolean cutLayerContents;
+    private double minimumDetailSize;
+    
+    
     public float getLineThreshold() {
         return lineThreshold;
     }
@@ -103,4 +110,45 @@ public class TraceSettings {
     public void setEndColor(int endColor) {
         this.endColor = endColor;
     }
+    
+    public double getStartDepth() {
+        return this.startDepth;
+    }
+
+    public void setStartDepth(double startDepth) {
+        this.startDepth = startDepth;
+    }    
+    
+    public double getTargetDepth() {
+        return this.targetDepth;
+    }
+
+    public void setTargetDepth(double targetDepth) {
+        this.targetDepth = targetDepth;
+    }     
+    public void setEnableAdvancedMode(boolean value) {
+        this.enableAdvancedMode = value;
+    } 
+    public boolean isEnableAdvancedMode() {
+        return this.enableAdvancedMode;
+    }
+    
+    public void setInvertedColorMap(boolean value) {
+        this.invertedColormap = value;
+    } 
+    public boolean isInvertedColorMap() {
+        return this.invertedColormap;
+    }
+    public void setCutLayerContents(boolean value) {
+        this.cutLayerContents = value;
+    } 
+    public boolean isCutLayerContents() {
+        return this.cutLayerContents;
+    }    
+    public void setMinimumDetailSize(double value) {
+        this.minimumDetailSize = value;
+    } 
+    public double getMinimumDetailSize() {
+        return this.minimumDetailSize;
+    }   
 }

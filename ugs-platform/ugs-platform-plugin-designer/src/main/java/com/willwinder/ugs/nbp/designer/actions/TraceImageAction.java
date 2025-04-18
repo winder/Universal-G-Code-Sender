@@ -40,7 +40,7 @@ import java.util.List;
         id = "TraceImageAction")
 @ActionRegistration(
         iconBase = TraceImageAction.SMALL_ICON_PATH,
-        displayName = "Trace image",
+        displayName = "Import Depth Map",
         lazy = false)
 public class TraceImageAction extends AbstractDesignAction {
 
@@ -52,8 +52,8 @@ public class TraceImageAction extends AbstractDesignAction {
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
-        putValue("menuText", "Trace image");
-        putValue(NAME, "Trace Image");
+        putValue("menuText", "Import Depth Map");
+        putValue(NAME, "Import Depth Map");
         this.controller = ControllerFactory.getController();
     }
 
