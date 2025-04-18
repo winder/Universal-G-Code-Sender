@@ -18,26 +18,44 @@
  */
 package com.willwinder.universalgcodesender.uielements.jog;
 
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import java.awt.EventQueue;
 import javax.swing.*;
 import javax.swing.text.DefaultFormatter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
 
+
 public class StepSizeSpinner extends JSpinner {
 
     double currentValue = 0.0;
-
-    public StepSizeSpinner() {
+    BackendAPI backend = null;
+    
+    public StepSizeSpinner(BackendAPI backend) {
+        this.backend = backend;
+        
         setModel(new StepSizeSpinnerModel());
 
         // Make the editor fire update events when typing, not only after changing fields
         JComponent comp = getEditor();
         JFormattedTextField field = (JFormattedTextField) comp.getComponent(0);
         DefaultFormatter formatter = (DefaultFormatter) field.getFormatter();
-        formatter.setCommitsOnValidEdit(true);
+        formatter.setCommitsOnValidEdit(true);                
+        backend.addUGSEventListener(this::onBackendEvent);
+        this.onBackendEvent(new SettingChangedEvent());
     }
-
+    private void onBackendEvent(UGSEvent event) {
+        if (event instanceof SettingChangedEvent) {
+            if (backend != null) {
+                super.setEditor(new JSpinner.NumberEditor(this, backend.getSettings().getMachineDecimalFormat()));
+            }
+            setValue(currentValue);
+        } 
+    }
     @Override
     public Double getValue() {
         try {
@@ -46,18 +64,21 @@ public class StepSizeSpinner extends JSpinner {
             setValue(currentValue);
         }
 
-        BigDecimal bd = new BigDecimal(super.getValue().toString()).setScale(3, RoundingMode.HALF_EVEN);
+        BigDecimal bd = new BigDecimal(super.getValue().toString()).setScale(getDecimalPlaces(), RoundingMode.HALF_EVEN);
         return bd.doubleValue();
     }
 
     @Override
     public void setValue(Object value) {
         double val = Double.parseDouble(value.toString());
-        BigDecimal bd = new BigDecimal(val).setScale(3, RoundingMode.HALF_EVEN);
+        BigDecimal bd = new BigDecimal(val).setScale(getDecimalPlaces(), RoundingMode.HALF_EVEN);
         currentValue = bd.doubleValue();
+
         super.setValue(currentValue);
     }
-
+    
+    // todo: Add backend Settings Listener. 
+    // todo: Apply formatting to formatter to enforce decimal places.
     public void increaseStep() {
         Object nextValue = getNextValue();
         if (nextValue != null) {
@@ -91,4 +112,33 @@ public class StepSizeSpinner extends JSpinner {
             return val;
         }
     }
+    
+    private int getDecimalPlaces() {
+        if (backend == null) {
+            return 3;
+        }
+        switch (backend.getSettings().getMachineDecimalFormat()) {
+            case "0" -> {
+                return 0;
+            }
+            case "0.0" -> {
+                 return 1;
+            }    
+            case "0.00" -> {
+                 return 2;
+            }
+            case "0.000" -> {
+                return 3;
+            }
+            case "0.0000" -> {
+                 return 4;
+            }    
+             case "0.00000" -> {
+                 return 5;
+            }
+                
+            default -> throw new AssertionError();
+        }
+    }
+
 }

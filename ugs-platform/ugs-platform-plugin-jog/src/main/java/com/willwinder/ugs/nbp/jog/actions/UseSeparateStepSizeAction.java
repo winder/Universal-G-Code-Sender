@@ -69,6 +69,7 @@ public class UseSeparateStepSizeAction extends AbstractAction implements Present
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onBackendEvent);
         setEnabled(isEnabled());
+        onBackendEvent( new SettingChangedEvent()) ;
     }
 
     private void onBackendEvent(UGSEvent event) {
@@ -93,5 +94,6 @@ public class UseSeparateStepSizeAction extends AbstractAction implements Present
     public void actionPerformed(ActionEvent e) {
         // Toggle the usage separate Z step size
         backend.getSettings().setUseZStepSize(!backend.getSettings().useZStepSize());
+        backend.getSettings().changed();
     }
 }
