@@ -94,6 +94,5 @@ public class UseSeparateStepSizeAction extends AbstractAction implements Present
     public void actionPerformed(ActionEvent e) {
         // Toggle the usage separate Z step size
         backend.getSettings().setUseZStepSize(!backend.getSettings().useZStepSize());
-        backend.getSettings().changed();
     }
 }

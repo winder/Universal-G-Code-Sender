@@ -94,6 +94,5 @@ public class ShowABCStepSizeAction extends AbstractAction implements Presenter.M
     public void actionPerformed(ActionEvent e) {
         // Toggle the usage separate Z step size
         backend.getSettings().setShowABCStepSize(!backend.getSettings().showABCStepSize());
-        backend.getSettings().changed();
     }
 }

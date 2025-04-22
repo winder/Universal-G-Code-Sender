@@ -59,8 +59,8 @@ public class JogPanel extends JPanel implements UGSEventListener {
     public JogPanel(BackendAPI backend, JogService jogService, boolean showKeyboardToggle) {
         this.backend = backend;
         this.showKeyboardToggle = showKeyboardToggle;
-        xyStepSizeSpinner = new StepSizeSpinner(backend);
-        zStepSizeSpinner = new StepSizeSpinner(backend);
+        xyStepSizeSpinner = new StepSizeSpinner(backend.getSettings());
+        zStepSizeSpinner = new StepSizeSpinner(backend.getSettings());
 
         this.jogService = jogService;
 

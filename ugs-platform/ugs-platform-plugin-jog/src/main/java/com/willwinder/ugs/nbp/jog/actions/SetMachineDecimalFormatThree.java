@@ -94,7 +94,6 @@ public class SetMachineDecimalFormatThree extends AbstractAction implements Pres
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        backend.getSettings().setMachineDecimalFormat(DECIMAL_FORMAT_THREE);
-        backend.getSettings().changed();        
+        backend.getSettings().setMachineDecimalFormat(DECIMAL_FORMAT_THREE);   
     }
 }

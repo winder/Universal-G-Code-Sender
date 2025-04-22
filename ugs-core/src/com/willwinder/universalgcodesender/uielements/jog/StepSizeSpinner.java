@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.EventQueue;
 import javax.swing.*;
 import javax.swing.text.DefaultFormatter;
@@ -33,10 +34,10 @@ import java.text.ParseException;
 public class StepSizeSpinner extends JSpinner {
 
     double currentValue = 0.0;
-    BackendAPI backend = null;
+    Settings settings = null;
     
-    public StepSizeSpinner(BackendAPI backend) {
-        this.backend = backend;
+    public StepSizeSpinner(Settings settings) {
+        this.settings = settings;
         
         setModel(new StepSizeSpinnerModel());
 
@@ -44,14 +45,14 @@ public class StepSizeSpinner extends JSpinner {
         JComponent comp = getEditor();
         JFormattedTextField field = (JFormattedTextField) comp.getComponent(0);
         DefaultFormatter formatter = (DefaultFormatter) field.getFormatter();
-        formatter.setCommitsOnValidEdit(true);                
-        backend.addUGSEventListener(this::onBackendEvent);
+        formatter.setCommitsOnValidEdit(true);   
+                
         this.onBackendEvent(new SettingChangedEvent());
     }
-    private void onBackendEvent(UGSEvent event) {
+    public void onBackendEvent(UGSEvent event) {
         if (event instanceof SettingChangedEvent) {
-            if (backend != null) {
-                super.setEditor(new JSpinner.NumberEditor(this, backend.getSettings().getMachineDecimalFormat()));
+            if (settings != null) {
+                super.setEditor(new JSpinner.NumberEditor(this, settings.getMachineDecimalFormat()));
             }
             setValue(currentValue);
         } 
@@ -113,11 +114,11 @@ public class StepSizeSpinner extends JSpinner {
         }
     }
     
-    private int getDecimalPlaces() {
-        if (backend == null) {
-            return 3;
+    private int getDecimalPlaces() {        
+        if (settings == null) {
+            return 0;
         }
-        switch (backend.getSettings().getMachineDecimalFormat()) {
+        switch (settings.getMachineDecimalFormat()) {
             case "0" -> {
                 return 0;
             }

@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.uielements.jog.StepSizeSpinner;
 import com.willwinder.universalgcodesender.utils.FontUtils;
 import com.willwinder.universalgcodesender.listeners.LongPressMouseListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 
@@ -127,15 +128,20 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         // Create our buttons
         Arrays.asList(JogPanelButtonEnum.values()).forEach(this::createJogButton);
         Dimension minimumSize = new Dimension(80, 18);
-        feedRateSpinner = new StepSizeSpinner(backend);
+        feedRateSpinner = new StepSizeSpinner(backend.getSettings());
         feedRateSpinner.setMinimumSize(minimumSize);
-        xyStepSizeSpinner = new StepSizeSpinner(backend);
+        xyStepSizeSpinner = new StepSizeSpinner(backend.getSettings());
         xyStepSizeSpinner.setMinimumSize(minimumSize);
-        zStepSizeSpinner = new StepSizeSpinner(backend);
+        backend.addUGSEventListener(xyStepSizeSpinner::onBackendEvent);
+        
+        zStepSizeSpinner = new StepSizeSpinner(backend.getSettings());
         zStepSizeSpinner.setMinimumSize(minimumSize);
-        abcStepSizeSpinner = new StepSizeSpinner(backend);
+        backend.addUGSEventListener(zStepSizeSpinner::onBackendEvent);
+        
+        abcStepSizeSpinner = new StepSizeSpinner(backend.getSettings());
         abcStepSizeSpinner.setMinimumSize(minimumSize);
-
+        backend.addUGSEventListener(abcStepSizeSpinner::onBackendEvent);
+        
         // todo: could use a number of factory methods here to build similar stuff
         feedRateLabel = createSettingLabel(font, Localization.getString("platform.plugin.jog.feedRate"));
         feedRateLabel.setMinimumSize(new Dimension(0, 0));
