@@ -18,7 +18,11 @@
  */
 package com.willwinder.ugs.nbp.core.services;
 
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import org.openide.util.Lookup;
 
 import javax.swing.AbstractAction;
@@ -33,6 +37,7 @@ import java.io.Serializable;
 public class OverrideAction extends AbstractAction implements Serializable {
     private OverrideActionService overrideActionService;
     private Overrides action;
+    private BackendAPI backend;
 
     /**
      * Empty constructor to be used for serialization
@@ -63,6 +68,20 @@ public class OverrideAction extends AbstractAction implements Serializable {
 
     @Override
     public boolean isEnabled() {
-        return getOverrideActionService() != null && getOverrideActionService().canRunAction();
+        return getBackend().isConnected() && getOverrideActionService().canRunAction();
+    }
+
+    private BackendAPI getBackend() {
+        if (backend == null) {
+            backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+            backend.addUGSEventListener(this::onEvent);
+        }
+        return backend;
+    }
+
+    private void onEvent(UGSEvent event) {
+        if (event instanceof ControllerStateEvent) {
+            setEnabled(isEnabled());
+        }
     }
 }
