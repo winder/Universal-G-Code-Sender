@@ -9,12 +9,12 @@ import javafx.scene.PerspectiveCamera;
 import javafx.scene.PointLight;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
-import javafx.scene.input.MouseButton;
 
 public class Visualizer extends Pane {
     private final Camera camera;
@@ -31,7 +31,8 @@ public class Visualizer extends Pane {
     public Visualizer() {
 
         // Rotate group contains 3D objects
-        Group rotateGroup = new Group(new GcodeModel(), new Tool());
+        Tool tool = new Tool();
+        Group rotateGroup = new Group(new Axes(), new Grid(), new GcodeModel(), tool);
         rotateGroup.getTransforms().addAll(rotateX, rotateY, new Rotate(180, Rotate.Z_AXIS));
 
         // Lighting
@@ -39,9 +40,11 @@ public class Visualizer extends Pane {
         light.setTranslateX(-200);
         light.setTranslateY(-100);
         light.setTranslateZ(-100);
+        light.getScope().addAll(tool);
+
 
         // Root group applies panning
-        AmbientLight ambient = new AmbientLight(Color.rgb(200, 200, 200));
+        AmbientLight ambient = new AmbientLight(Color.rgb(210, 210, 210));
         root3D = new Group(rotateGroup, ambient, light);
         root3D.getTransforms().add(translate);
 

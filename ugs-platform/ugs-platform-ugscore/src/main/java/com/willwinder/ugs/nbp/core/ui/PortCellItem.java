@@ -67,12 +67,7 @@ public class PortCellItem extends JPanel {
         label.setFont(f.deriveFont(Font.BOLD));
         add(label, "wrap, growx, align left");
 
-        if (device.getDescription().isPresent()) {
-            add(new JLabel(device.getDescription().orElse(device.getAddress())), "wrap, growx, align left");
-        }
-
-        if (device.getManufacturer().isPresent()) {
-            add(new JLabel(device.getManufacturer().get()) , "wrap, growx, align left");
-        }
+        device.getDescription().ifPresent(description -> add(new JLabel(description), "wrap, growx, align left"));
+        device.getManufacturer().ifPresent(manufacturer -> add(new JLabel(manufacturer), "wrap, growx, align left"));
     }
 }

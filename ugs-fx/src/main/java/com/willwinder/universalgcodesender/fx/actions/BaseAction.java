@@ -10,6 +10,12 @@ public abstract class BaseAction implements Action {
     private final StringProperty title = new SimpleStringProperty("");
     private final StringProperty icon = new SimpleStringProperty("");
 
+    public BaseAction() {}
+    public BaseAction(String title, String icon) {
+        this.title.set(title);
+        this.icon.set(icon);
+    }
+
     @Override
     public String getId() {
         return this.getClass().getCanonicalName();

@@ -27,7 +27,7 @@ import java.util.Map;
  * @author Joacim Breiler
  */
 public enum ConnectionDriver {
-    JSERIALCOMM("JSerialComm", "jserialcomm://"),
+    JSERIALCOMM("Serial", "jserialcomm://"),
     TCP("TCP", "tcp://"),
     WS("WebSocket", "ws://");
 

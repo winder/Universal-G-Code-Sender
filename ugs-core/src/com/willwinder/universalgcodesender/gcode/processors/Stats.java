@@ -19,12 +19,13 @@
 package com.willwinder.universalgcodesender.gcode.processors;
 
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+
 import java.util.Collections;
 import java.util.List;
-import com.willwinder.universalgcodesender.gcode.GcodeStats;
 
 /**
  *
@@ -46,20 +47,38 @@ public class Stats implements CommandProcessor, GcodeStats {
                             .getPositionIn(defaultUnits);
 
             // Update min
-            min.x = Math.min(min.x, p.x);
-            min.y = Math.min(min.y, p.y);
-            min.z = Math.min(min.z, p.z);
+            min.x = getMin(min.x, p.x);
+            min.y = getMin(min.y, p.y);
+            min.z = getMin(min.z, p.z);
 
             // Update max
-            max.x = Math.max(max.x, p.x);
-            max.y = Math.max(max.y, p.y);
-            max.z = Math.max(max.z, p.z);
+            max.x = getMax(max.x, p.x);
+            max.y = getMax(max.y, p.y);
+            max.z = getMax(max.z, p.z);
 
             // Num commands
             commandCount++;
         }
 
         return Collections.singletonList(command);
+    }
+
+    private double getMin(double value1, double value2) {
+        if (Double.isNaN(value1)) {
+            return value2;
+        } else if(Double.isNaN(value2)) {
+            return value1;
+        }
+        return Math.min(value1, value2);
+    }
+
+    private double getMax(double value1, double value2) {
+        if (Double.isNaN(value1)) {
+            return value2;
+        } else if(Double.isNaN(value2)) {
+            return value1;
+        }
+        return Math.max(value1, value2);
     }
 
     @Override

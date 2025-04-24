@@ -34,12 +34,13 @@ public class RefreshThread extends Thread {
 
     @Override
     public void run() {
-        while (!Thread.interrupted()) {
+        while (!Thread.currentThread().isInterrupted()) {
             refreshFunction.run();
             try {
                 Thread.sleep(refreshInterval);
             } catch (InterruptedException e) {
                 // Never mind
+                return;
             }
         }
     }
