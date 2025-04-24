@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.fx.component;
+package com.willwinder.universalgcodesender.fx.component.settings;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
