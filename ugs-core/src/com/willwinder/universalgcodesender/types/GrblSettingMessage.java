@@ -21,9 +21,10 @@ package com.willwinder.universalgcodesender.types;
 
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.utils.GrblLookups;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by Phil on 1/15/2016.
@@ -97,7 +98,7 @@ $132=200.000 (z max travel, mm)
             }
         }
 
-        return String.format("$%s = %s   %s", setting, value, descriptionStr);
+        return String.format("$%s = %s   %s", setting, value, descriptionStr).trim();
     }
 
     public String getSetting() {
