@@ -13,7 +13,7 @@ if [ -z ${PROJECT_VERSION} ]; then echo "Missing PROJECT_VERSION"; exit 1; fi
 if [ -z ${APP_VERSION} ]; then echo "Missing APP_VERSION"; exit 1; fi
 
 # Download JVM
-JVM=zulu17.50.19-ca-fx-jdk17.0.11-linux_x64
+JVM=zulu17.58.21-ca-fx-jdk17.0.15-macosx_x64
 set -e
 ZIP=$JVM.tar.gz
 export JAVA_HOME=.jdks/$JVM
@@ -22,7 +22,7 @@ if test -d $JAVA_HOME/$JVM/; then
 else
 	rm -rf $JAVA_HOME
 	mkdir -p $JAVA_HOME
-	wget https://cdn.azul.com/zulu/bin/$ZIP
+	curl -o $ZIP https://cdn.azul.com/zulu/bin/$ZIP
 	tar -xvzf $ZIP -C $JAVA_HOME
 	mv $JAVA_HOME/$JVM/* $JAVA_HOME/
 fi
@@ -97,39 +97,19 @@ $JAVA_HOME/bin/jlink \
 # In the end we will find the package inside the target/installer directory.
 
 $JAVA_HOME/bin/jpackage \
-  --type deb \
+  --type dmg \
   --dest target/installer \
   --input target/installer/input/libs \
-  --name ugs \
-  --linux-deb-maintainer "joacim@breiler.com" \
+  --name "Universal Gcode Sender" \
   --main-class com.willwinder.universalgcodesender.fx.Main \
   --main-jar ${MAIN_JAR} \
   --resource-dir installer \
-  --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true"  \
+  --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true -Djavafx.autoproxy.disable=true"  \
   --runtime-image target/java-runtime \
   --app-version ${APP_VERSION} \
   --copyright "Joacim Breiler" \
   --license-file ../COPYING \
-  --about-url https://universalgcodesender.com/
+  --about-url https://universalgcodesender.com/ \
+  --file-associations installer/gcode.properties
 
-mv "target/installer/ugs-${APP_VERSION}.deb" "target/installer/ugs-${APP_VERSION}-x64.deb"
-
-
-$JAVA_HOME/bin/jpackage \
-  --type rpm \
-  --dest target/installer \
-  --input target/installer/input/libs \
-  --name ugs \
-  --linux-deb-maintainer "joacim@breiler.com" \
-  --main-class com.willwinder.universalgcodesender.fx.Main \
-  --main-jar ${MAIN_JAR} \
-  --resource-dir installer \
-  --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true"  \
-  --runtime-image target/java-runtime \
-  --app-version ${APP_VERSION} \
-  --vendor "Universal G-code Sender" \
-  --copyright "Joacim Breiler" \
-  --license-file ../COPYING \
-  --about-url https://universalgcodesender.com/
-
-mv "target/installer/ugs-${APP_VERSION}.rpm" "target/installer/ugs-${APP_VERSION}-x64.rpm"
+mv "target/installer/Universal Gcode Sender-${APP_VERSION}.dmg" "target/installer/ugs-${APP_VERSION}-x64.dmg"
