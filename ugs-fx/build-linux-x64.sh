@@ -132,4 +132,4 @@ $JAVA_HOME/bin/jpackage \
   --license-file ../COPYING \
   --about-url https://universalgcodesender.com/
 
-mv target/installer/ugs_*.rpm "target/installer/ugs-${APP_VERSION}-x64.rpm"
+mv target/installer/ugs-*.rpm "target/installer/ugs-${APP_VERSION}-x64.rpm"
