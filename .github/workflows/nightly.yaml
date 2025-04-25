@@ -7,6 +7,7 @@ on:
 
 jobs:
   build-and-test:
+    if: github.repository_owner == 'winder'
     runs-on: ubuntu-24.04
 
     steps:
@@ -45,6 +46,7 @@ jobs:
         overwrite: true
 
   build-linux-x64:
+    if: github.repository_owner == 'winder'
     needs: build-and-test
     runs-on: ubuntu-24.04
 
@@ -81,6 +83,7 @@ jobs:
 
 
   build-macosx-x64:
+    if: github.repository_owner == 'winder'
     needs: build-and-test
     runs-on: macos-13
 
@@ -116,6 +119,7 @@ jobs:
           overwrite: true
 
   build-macosx-aarch64:
+    if: github.repository_owner == 'winder'
     needs: build-and-test
     runs-on: macos-latest
 
@@ -151,6 +155,7 @@ jobs:
           overwrite: true
 
   build-windows:
+    if: github.repository_owner == 'winder'
     needs: build-and-test
     runs-on: windows-latest
     steps:
