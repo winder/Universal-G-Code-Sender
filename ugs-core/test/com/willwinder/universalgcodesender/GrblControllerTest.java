@@ -24,6 +24,7 @@ import static com.willwinder.universalgcodesender.GrblUtils.GRBL_RESET_COMMAND;
 import static com.willwinder.universalgcodesender.GrblUtils.GRBL_RESUME_COMMAND;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblBuildOptions;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblCapabilitiesConstants;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblVersion;
 import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.Code;
@@ -37,6 +38,7 @@ import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_I
 import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_SENDING;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -48,6 +50,8 @@ import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -58,9 +62,14 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
@@ -111,7 +120,7 @@ public class GrblControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         this.mgc = new MockGrblCommunicator();
         Localization.initialize("en_US");
     }
@@ -1032,13 +1041,15 @@ public class GrblControllerTest {
     @Test
     public void rawResponseHandlerWithKnownErrorShouldWriteMessageToConsole() throws Exception {
         // Given
+        GcodeCommand command = new GcodeCommand("G0");
         GrblController instance = initializeAndConnectController(VERSION_GRBL_0_9);
-        instance.commandSent(new GcodeCommand("G0"));
+        instance.commandSent(command);
 
         MessageService messageService = mock(MessageService.class);
         instance.setMessageService(messageService);
 
         // When
+        command.appendResponse("error:1");
         instance.rawResponseHandler("error:1");
 
         //Then
@@ -1056,15 +1067,15 @@ public class GrblControllerTest {
     @Test
     public void rawResponseHandlerWithUnknownErrorShouldWriteGenericMessageToConsole() throws Exception {
         // Given
+        GcodeCommand command = new GcodeCommand("G21");
         GrblController instance = initializeAndConnectController(VERSION_GRBL_0_9);
-        instance.setDistanceModeCode("G90");
-        instance.setUnitsCode("G21");
-        instance.commandSent(new GcodeCommand("G21"));
+        instance.commandSent(command);
 
         MessageService messageService = mock(MessageService.class);
         instance.setMessageService(messageService);
 
         // When
+        command.appendResponse("error:18");
         instance.rawResponseHandler("error:18");
 
         // Then
@@ -1079,8 +1090,6 @@ public class GrblControllerTest {
     public void rawResponseHandlerOnErrorWithNoSentCommandsShouldSendMessageToConsole() throws Exception {
         // Given
         GrblController instance = initializeAndConnectController(VERSION_GRBL_0_9);
-        instance.setDistanceModeCode("G90");
-        instance.setUnitsCode("G21");
 
         MessageService messageService = mock(MessageService.class);
         instance.setMessageService(messageService);
@@ -1094,6 +1103,53 @@ public class GrblControllerTest {
         verify(messageService, times(1)).dispatchMessage(any(), anyString());
 
         assertFalse(instance.getActiveCommand().isPresent());
+    }
+
+
+    @Test
+    public void rawResponseHandlerOnSettingCommandsShouldAddSettingsDescription() throws Exception {
+        GcodeCommand command = new GcodeCommand("$$");
+        GrblController instance = initializeAndConnectController(VERSION_GRBL_1_1F);
+        instance.commandSent(command);
+
+        MessageService messageService = mock(MessageService.class);
+        instance.setMessageService(messageService);
+
+        command.appendResponse("$10=100");
+        command.appendResponse("ok");
+        instance.rawResponseHandler("ok");
+
+        verify(messageService, times(1)).dispatchMessage(eq(MessageType.INFO), contains("Status report options, mask"));
+    }
+
+    @Test
+    public void rawResponseHandlerShouldHandleProbeResponseInMetric() throws Exception {
+        GrblController gc = spy(initializeAndConnectController(VERSION_GRBL_1_1F));
+
+        GrblFirmwareSettings firmwareSettings = Mockito.mock(GrblFirmwareSettings.class);
+        Mockito.when(firmwareSettings.getReportingUnits()).thenReturn(UnitUtils.Units.MM);
+        doReturn(firmwareSettings).when(gc).getFirmwareSettings();
+
+        gc.rawResponseListener("[PRB:-192.200,-202.000,-40.400:1]");
+
+        ArgumentCaptor<Position> probeCaptor = ArgumentCaptor.forClass(Position.class);
+        verify(gc, times(1)).dispatchProbeCoordinates(probeCaptor.capture());
+        assertThat(probeCaptor.getValue(), is(new Position(-192.200, -202.000, -40.400, UnitUtils.Units.MM)));
+    }
+
+    @Test
+    public void rawResponseHandlerShouldHandleProbeResponseInImperial() throws Exception {
+        GrblController gc = spy(initializeAndConnectController(VERSION_GRBL_1_1F));
+
+        GrblFirmwareSettings firmwareSettings = Mockito.mock(GrblFirmwareSettings.class);
+        Mockito.when(firmwareSettings.getReportingUnits()).thenReturn(UnitUtils.Units.INCH);
+        doReturn(firmwareSettings).when(gc).getFirmwareSettings();
+
+        gc.rawResponseListener("[PRB:-192.200,-202.000,-40.400:1]");
+
+        ArgumentCaptor<Position> probeCaptor = ArgumentCaptor.forClass(Position.class);
+        verify(gc, times(1)).dispatchProbeCoordinates(probeCaptor.capture());
+        assertThat(probeCaptor.getValue(), is(new Position(-192.200, -202.000, -40.400, UnitUtils.Units.INCH)));
     }
 
     @Test
