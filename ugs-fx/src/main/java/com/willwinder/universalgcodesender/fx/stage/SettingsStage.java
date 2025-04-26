@@ -1,8 +1,9 @@
 package com.willwinder.universalgcodesender.fx.stage;
 
-import com.willwinder.universalgcodesender.fx.component.FirmwareSettingsPane;
-import com.willwinder.universalgcodesender.fx.component.GeneralSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.SettingsListCell;
+import com.willwinder.universalgcodesender.fx.component.settings.FirmwareSettingsPane;
+import com.willwinder.universalgcodesender.fx.component.settings.GeneralSettingsPane;
+import com.willwinder.universalgcodesender.fx.component.settings.MacroSettingsPane;
 import com.willwinder.universalgcodesender.fx.model.SettingsListItem;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import javafx.geometry.Insets;
@@ -50,7 +51,7 @@ public class SettingsStage extends Stage {
         ListView<SettingsListItem> sectionList = new ListView<>();
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.general"), "icons/sliders.svg", new GeneralSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.machineStatus"), "icons/position.svg", new Label(Localization.getString("settings.machineStatus"))));
-        sectionList.getItems().add(new SettingsListItem(Localization.getString("platform.menu.macros"), "icons/robot.svg", new Label(Localization.getString("platform.menu.macros"))));
+        sectionList.getItems().add(new SettingsListItem(Localization.getString("platform.menu.macros"), "icons/robot.svg", new MacroSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.probe"), "icons/probe.svg", new Label(Localization.getString("settings.probe"))));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.firmware"), "icons/microchip.svg", new FirmwareSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("platform.window.visualizer"), "icons/cube.svg", new Label(Localization.getString("platform.window.visualizer"))));

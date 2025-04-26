@@ -5,38 +5,11 @@
    viewBox="0 0 67.733353 67.733335"
    version="1.1"
    id="svg8"
-   sodipodi:docname="icon.svg"
-   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
-   inkscape:export-filename="icon.png"
-   inkscape:export-xdpi="384"
-   inkscape:export-ydpi="384"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:dc="http://purl.org/dc/elements/1.1/">
-  <sodipodi:namedview
-     id="namedview18810"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     showgrid="false"
-     inkscape:zoom="1.15"
-     inkscape:cx="-89.130435"
-     inkscape:cy="92.173913"
-     inkscape:window-width="2299"
-     inkscape:window-height="1295"
-     inkscape:window-x="120"
-     inkscape:window-y="32"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg8" />
   <defs
      id="defs2">
     <linearGradient
@@ -61,27 +34,6 @@
          offset="1"
          style="stop-color:#0d1a4b;stop-opacity:1" />
     </linearGradient>
-    <clipPath
-       id="clipPath5407"
-       clipPathUnits="userSpaceOnUse">
-      <g
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:60px;line-height:125%;font-family:Molot;-inkscape-font-specification:Molot;letter-spacing:0px;word-spacing:0px;display:inline;fill:url(#linearGradient5417);fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         id="g5409"
-         transform="matrix(1.7920941,0,0,-2.2696419,-442.01654,651.14695)">
-        <path
-           d="m 420.08285,184.94505 q 0,1.74 -1.44,3.18 -1.44,1.38 -3.18,1.38 h -22.68 q -1.74,0 -3.18,-1.38 -1.38,-1.44 -1.38,-3.18 v -46.26 h 13.44 v 41.64 h 4.86 v -41.64 h 13.56 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:GreatLakesNF;-inkscape-font-specification:GreatLakesNF;fill:url(#linearGradient5417);fill-opacity:1"
-           id="path5411" />
-        <path
-           d="m 452.02723,184.94505 q 0,1.74 -1.5,3.18 -1.44,1.38 -3.18,1.38 h -20.58 q -1.74,0 -3.18,-1.38 -1.38,-1.44 -1.38,-3.18 v -41.7 q 0,-1.74 1.38,-3.12 1.44,-1.44 3.18,-1.44 h 21.72 l 2.1,9.18 h -14.94 v 32.46 h 2.82 v -21.48 h 13.56 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:GreatLakesNF;-inkscape-font-specification:GreatLakesNF;fill:url(#linearGradient5417);fill-opacity:1"
-           id="path5413" />
-        <path
-           d="m 481.98223,147.86505 h -13.32 v 10.2 h 7.08 q 1.74,0 3.18,1.44 1.44,1.38 1.44,3.12 v 22.32 q 0,1.74 -1.44,3.18 -1.44,1.38 -3.18,1.38 h -19.5 l -2.16,-9.18 h 12.78 v -13.08 h -7.08 q -1.74,0 -3.18,-1.44 -1.38,-1.44 -1.38,-3.18 v -19.38 q 0,-1.74 1.38,-3.12 1.44,-1.44 3.18,-1.44 h 20.1 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:GreatLakesNF;-inkscape-font-specification:GreatLakesNF;fill:url(#linearGradient5417);fill-opacity:1"
-           id="path5415" />
-      </g>
-    </clipPath>
     <linearGradient
        y2="201.94931"
        x2="438.46722"
@@ -198,27 +150,6 @@
        r="53.470295"
        gradientTransform="matrix(1.355483,1.067794,-1.111111,1.410472,24.59064,-505.8352)"
        gradientUnits="userSpaceOnUse" />
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath8245">
-      <g
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:60px;line-height:125%;font-family:Molot;-inkscape-font-specification:Molot;letter-spacing:0px;word-spacing:0px;display:inline;fill:url(#linearGradient8255);fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         id="g8247"
-         transform="matrix(1.7920941,0,0,-2.2696419,-442.01654,655.14691)">
-        <path
-           d="m 420.08285,184.94505 q 0,1.74 -1.44,3.18 -1.44,1.38 -3.18,1.38 h -22.68 q -1.74,0 -3.18,-1.38 -1.38,-1.44 -1.38,-3.18 v -46.26 h 13.44 v 41.64 h 4.86 v -41.64 h 13.56 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:GreatLakesNF;-inkscape-font-specification:GreatLakesNF;fill:url(#linearGradient8255);fill-opacity:1"
-           id="path8249" />
-        <path
-           d="m 452.02723,184.94505 q 0,1.74 -1.5,3.18 -1.44,1.38 -3.18,1.38 h -20.58 q -1.74,0 -3.18,-1.38 -1.38,-1.44 -1.38,-3.18 v -41.7 q 0,-1.74 1.38,-3.12 1.44,-1.44 3.18,-1.44 h 21.72 l 2.1,9.18 h -14.94 v 32.46 h 2.82 v -21.48 h 13.56 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:GreatLakesNF;-inkscape-font-specification:GreatLakesNF;fill:url(#linearGradient8255);fill-opacity:1"
-           id="path8251" />
-        <path
-           d="m 481.98223,147.86505 h -13.32 v 10.2 h 7.08 q 1.74,0 3.18,1.44 1.44,1.38 1.44,3.12 v 22.32 q 0,1.74 -1.44,3.18 -1.44,1.38 -3.18,1.38 h -19.5 l -2.16,-9.18 h 12.78 v -13.08 h -7.08 q -1.74,0 -3.18,-1.44 -1.38,-1.44 -1.38,-3.18 v -19.38 q 0,-1.74 1.38,-3.12 1.44,-1.44 3.18,-1.44 h 20.1 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:GreatLakesNF;-inkscape-font-specification:GreatLakesNF;fill:url(#linearGradient8255);fill-opacity:1"
-           id="path8253" />
-      </g>
-    </clipPath>
     <linearGradient
        xlink:href="#linearGradient5433"
        id="linearGradient8255"
@@ -227,27 +158,6 @@
        y1="164.09505"
        x2="387.9183"
        y2="188.95737" />
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath6319">
-      <g
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:60px;line-height:125%;font-family:Molot;-inkscape-font-specification:Molot;letter-spacing:0px;word-spacing:0px;fill:#505050;fill-opacity:1;stroke:#000000;stroke-width:0.305826;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="g6321"
-         transform="matrix(0,-2.9055388,3.6797914,0,-398.06431,1474.5662)">
-        <path
-           d="m 420.08285,184.94505 q 0,1.74 -1.44,3.18 -1.44,1.38 -3.18,1.38 h -22.68 q -1.74,0 -3.18,-1.38 -1.38,-1.44 -1.38,-3.18 v -46.26 h 13.44 v 41.64 h 4.86 v -41.64 h 13.56 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:GreatLakesNF;-inkscape-font-specification:GreatLakesNF;fill:#505050;fill-opacity:1;stroke:#000000;stroke-width:0.305826;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="path6323" />
-        <path
-           d="m 452.02723,184.94505 q 0,1.74 -1.5,3.18 -1.44,1.38 -3.18,1.38 h -20.58 q -1.74,0 -3.18,-1.38 -1.38,-1.44 -1.38,-3.18 v -41.7 q 0,-1.74 1.38,-3.12 1.44,-1.44 3.18,-1.44 h 21.72 l 2.1,9.18 h -14.94 v 32.46 h 2.82 v -21.48 h 13.56 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:GreatLakesNF;-inkscape-font-specification:GreatLakesNF;fill:#505050;fill-opacity:1;stroke:#000000;stroke-width:0.305826;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="path6325" />
-        <path
-           d="m 481.98223,147.86505 h -13.32 v 10.2 h 7.08 q 1.74,0 3.18,1.44 1.44,1.38 1.44,3.12 v 22.32 q 0,1.74 -1.44,3.18 -1.44,1.38 -3.18,1.38 h -19.5 l -2.16,-9.18 h 12.78 v -13.08 h -7.08 q -1.74,0 -3.18,-1.44 -1.38,-1.44 -1.38,-3.18 v -19.38 q 0,-1.74 1.38,-3.12 1.44,-1.44 3.18,-1.44 h 20.1 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:GreatLakesNF;-inkscape-font-specification:GreatLakesNF;fill:#505050;fill-opacity:1;stroke:#000000;stroke-width:0.305826;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="path6327" />
-      </g>
-    </clipPath>
     <linearGradient
        xlink:href="#linearGradient5181"
        id="linearGradient5993"
@@ -310,17 +220,6 @@
          style="stop-color:#b66900;stop-opacity:1" />
     </linearGradient>
   </defs>
-  <metadata
-     id="metadata5">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
   <g
      id="layer12-6"
      style="display:inline;"

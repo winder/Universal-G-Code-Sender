@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.fx.component;
+package com.willwinder.universalgcodesender.fx.component.settings;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
@@ -31,7 +31,7 @@ public class FirmwareSettingTableCell extends TextFieldTableCell<FirmwareSetting
         super.cancelEdit();
         setText(getItem());
         setContentDisplay(ContentDisplay.TEXT_ONLY);
-        setStyle(""); // clear style
+        setStyle("");
     }
 
     @Override

@@ -53,7 +53,7 @@ echo Detecting required modules...
  del temp.txt
 
 :: ----------- EXTRA MODULES ----------------------------------------------
-set extra_modules=,jdk.crypto.ec,jdk.localedata,jdk.dynalink
+set extra_modules=,jdk.crypto.ec,jdk.localedata,jdk.dynalink,jdk.zipfs
 echo Using modules: %detected_modules%%extra_modules%
 
 :: ----------- RUNTIME IMAGE ----------------------------------------------
