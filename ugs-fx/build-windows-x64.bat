@@ -16,7 +16,7 @@ if "%APP_VERSION%"=="" (
 )
 
 :: ----------- DOWNLOAD JVM ------------------------------------------------
-set JVM=zulu17.50.19-ca-fx-jdk17.0.11-win_x64
+set JVM=zulu21.42.19-ca-fx-jdk21.0.7-win_x64
 set ZIP=%JVM%.zip
 set JAVA_HOME=.jdks\%JVM%
 
@@ -90,6 +90,6 @@ for %%s in ("msi" "exe") do call "%JAVA_HOME%\bin\jpackage" ^
   --license-file ..\COPYING ^
   --about-url https://universalgcodesender.com/
 
-move "target\installer\Universal G-code Sender*.exe" "target\installer\ugs-%APP_VERSION%.exe"
-move "target\installer\Universal G-code Sender*.msi" "target\installer\ugs-%APP_VERSION%.msi"
+move "target\installer\Universal G-code Sender*.exe" "target\installer\ugs-%APP_VERSION%-x64.exe"
+move "target\installer\Universal G-code Sender*.msi" "target\installer\ugs-%APP_VERSION%-x64.msi"
 echo Done.

@@ -1,12 +1,13 @@
 package com.willwinder.universalgcodesender.fx.visualizer;
 
 import javafx.application.Platform;
+import javafx.geometry.Point3D;
 import javafx.scene.AmbientLight;
 import javafx.scene.Camera;
+import javafx.scene.DirectionalLight;
 import javafx.scene.Group;
 import javafx.scene.ParallelCamera;
 import javafx.scene.PerspectiveCamera;
-import javafx.scene.PointLight;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.input.MouseButton;
@@ -36,15 +37,12 @@ public class Visualizer extends Pane {
         rotateGroup.getTransforms().addAll(rotateX, rotateY, new Rotate(180, Rotate.Z_AXIS));
 
         // Lighting
-        PointLight light = new PointLight(Color.WHITE);
-        light.setTranslateX(-200);
-        light.setTranslateY(-100);
-        light.setTranslateZ(-100);
+        DirectionalLight light = new DirectionalLight(Color.WHITE);
+        light.setDirection(new Point3D(1, -1, -1));
         light.getScope().addAll(tool);
 
-
         // Root group applies panning
-        AmbientLight ambient = new AmbientLight(Color.rgb(210, 210, 210));
+        AmbientLight ambient = new AmbientLight(Color.rgb(255, 255, 255));
         root3D = new Group(rotateGroup, ambient, light);
         root3D.getTransforms().add(translate);
 

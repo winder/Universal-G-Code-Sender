@@ -13,7 +13,7 @@ if [ -z ${PROJECT_VERSION} ]; then echo "Missing PROJECT_VERSION"; exit 1; fi
 if [ -z ${APP_VERSION} ]; then echo "Missing APP_VERSION"; exit 1; fi
 
 # Download JVM
-JVM=zulu17.58.21-ca-fx-jdk17.0.15-macosx_aarch64
+JVM=zulu21.42.19-ca-fx-jdk21.0.7-macosx_aarch64
 set -e
 ZIP=$JVM.tar.gz
 export JAVA_HOME=.jdks/$JVM

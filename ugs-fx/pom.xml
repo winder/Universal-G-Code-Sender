@@ -16,7 +16,7 @@
     <url>https://github.com/winder/Universal-G-Code-Sender/tree/master/ugs-fx</url>
 
     <properties>
-        <javafx.version>17.0.13</javafx.version>
+        <javafx.version>21.0.7</javafx.version>
         <exec.maven.plugin.version>3.5.0</exec.maven.plugin.version>
     </properties>
 

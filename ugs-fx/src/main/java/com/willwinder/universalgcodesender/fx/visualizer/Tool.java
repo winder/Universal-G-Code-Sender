@@ -92,10 +92,13 @@ public class Tool extends Group {
 
         // Create MeshView and material
         MeshView cone = new MeshView(mesh);
-        cone.setDrawMode(DrawMode.FILL); // or DrawMode.LINE for wireframe
+        cone.setDrawMode(DrawMode.FILL);
         cone.setCullFace(CullFace.BACK);
 
-        PhongMaterial material = new PhongMaterial(color);
+        PhongMaterial material = new PhongMaterial();
+        material.setDiffuseColor(color);
+        material.setSpecularColor(Color.WHITE);
+        material.setSpecularPower(32);
         cone.setMaterial(material);
 
         return cone;
