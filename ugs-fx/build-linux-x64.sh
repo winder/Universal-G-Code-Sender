@@ -73,7 +73,7 @@ detected_modules=`$JAVA_HOME/bin/jdeps \
 #
 # Don't forget the leading ','!
 
-extra_modules=,jdk.crypto.ec,jdk.localedata,jdk.dynalink
+extra_modules=,jdk.crypto.ec,jdk.localedata,jdk.dynalink,jdk.zipfs
 echo "Using modules: ${detected_modules}${extra_modules}"
 
 # ------ RUNTIME IMAGE ------------------------------------------------------
@@ -87,7 +87,6 @@ $JAVA_HOME/bin/jlink \
   --strip-native-commands \
   --no-header-files \
   --no-man-pages  \
-  --compress=2  \
   --strip-debug \
   --add-modules "${detected_modules}${extra_modules}" \
   --include-locales=en,de \
