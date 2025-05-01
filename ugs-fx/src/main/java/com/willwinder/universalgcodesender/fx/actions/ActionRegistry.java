@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class ActionRegistry {
     private static ActionRegistry instance;
@@ -39,12 +40,12 @@ public class ActionRegistry {
 
                 try {
                     Constructor<? extends Action> declaredConstructor = ((Class<? extends Action>) classInfo).getDeclaredConstructor();
-
                     Action action = declaredConstructor.newInstance();
                     actions.put(action.getId(), action);
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                         NoSuchMethodException e) {
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                     throw new RuntimeException(e);
+                } catch (NoSuchMethodException e) {
+                    // Ignore
                 }
             }
         }
@@ -85,5 +86,17 @@ public class ActionRegistry {
 
     public Optional<Action> getAction(String id) {
         return Optional.ofNullable(actions.get(id));
+    }
+
+    public void registerAction(Action action) {
+        actions.put(action.getId(), action);
+    }
+
+    public List<Action> getAllActionsOfClass(Class<? extends Action> clazz) {
+        return actions
+                .values()
+                .stream()
+                .filter(action -> clazz.isAssignableFrom(action.getClass()))
+                .collect(Collectors.toUnmodifiableList());
     }
 }

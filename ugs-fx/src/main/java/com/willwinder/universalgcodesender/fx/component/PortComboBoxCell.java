@@ -7,7 +7,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -20,7 +19,6 @@ public class PortComboBoxCell extends ListCell<IConnectionDevice> {
     private final Label manufacturerLabel = new Label();
     private final VBox textBox = new VBox(addressLabel, descriptionLabel, manufacturerLabel);
     private final HBox hbox = new HBox(8, icon, textBox);
-    private final ColorAdjust invert;
 
     public PortComboBoxCell() {
         icon.setFitWidth(24);
@@ -29,10 +27,6 @@ public class PortComboBoxCell extends ListCell<IConnectionDevice> {
         textBox.setSpacing(2);
         hbox.setPadding(new Insets(5, 5, 5, 5));
         hbox.setAlignment(Pos.CENTER_LEFT);
-
-        invert = new ColorAdjust();
-        invert.setBrightness(1.0);
-        invert.setContrast(-1.0); // kind of a cheap invert
     }
 
     @Override
@@ -44,7 +38,6 @@ public class PortComboBoxCell extends ListCell<IConnectionDevice> {
             setText(null);
         } else {
             icon.setImage(getDeviceIcon(item));
-            icon.setEffect(isSelected() ? invert : null);
             addressLabel.setText(item.getAddress());
             descriptionLabel.setText(item.getDescription().orElse(null));
             manufacturerLabel.setText(item.getManufacturer().orElse(null));

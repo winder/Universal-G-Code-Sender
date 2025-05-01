@@ -12,6 +12,7 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 public class ActionButton extends Button {
 
@@ -33,10 +34,13 @@ public class ActionButton extends Button {
         registerPropertyListeners(action);
 
         setText(action.getTitle());
-        setTooltip(new Tooltip(action.getTitle()));
         setDisable(!action.isEnabled());
         setIcon(action.getIcon());
         setShowText(showText);
+
+        Tooltip tooltip = new Tooltip(action.getTitle());
+        tooltip.setShowDelay(Duration.millis(100));
+        setTooltip(tooltip);
     }
 
     public void setShowText(boolean show) {

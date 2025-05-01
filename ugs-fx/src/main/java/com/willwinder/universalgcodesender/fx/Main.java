@@ -4,11 +4,13 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.fx.actions.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.actions.StartAction;
-import com.willwinder.universalgcodesender.fx.component.JogPane;
 import com.willwinder.universalgcodesender.fx.component.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.ToolBarMenu;
-import com.willwinder.universalgcodesender.fx.component.overlay.OverlayPane;
+import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
+import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
+import com.willwinder.universalgcodesender.fx.service.MacroActionService;
+import com.willwinder.universalgcodesender.fx.service.PendantService;
 import com.willwinder.universalgcodesender.fx.visualizer.Visualizer;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
@@ -57,6 +59,7 @@ public class Main extends Application {
 
         VBox root = new VBox();
         Scene scene = new Scene(root);
+        scene.getStylesheets().add(Main.class.getResource("/styles/root.css").toExternalForm());
         root.getChildren().addAll(toolBarMenu, contentSplitPane);
 
         primaryStage.setTitle("Universal G-code Sender - " + Version.getVersion());
@@ -116,9 +119,9 @@ public class Main extends Application {
         contentPanel = new StackPane();
         contentPanel.getChildren().add(new Visualizer());
 
-        OverlayPane overlayPane = new OverlayPane();
-        contentPanel.getChildren().add(overlayPane);
-        StackPane.setAlignment(overlayPane, Pos.BOTTOM_RIGHT);
+        DrawerPane drawerPane = new DrawerPane();
+        contentPanel.getChildren().add(drawerPane);
+        StackPane.setAlignment(drawerPane, Pos.BOTTOM_RIGHT);
     }
 
 
@@ -135,6 +138,8 @@ public class Main extends Application {
 
     private void createLeftPane() {
         leftSplitPane = new SplitPane();
+        leftSplitPane.setStyle("-fx-border-color: transparent;");
+
         leftSplitPane.setMinWidth(200);
         leftSplitPane.setOrientation(Orientation.VERTICAL);
         leftSplitPane.getItems().addAll(new MachineStatusPane(), new JogPane());
@@ -173,6 +178,9 @@ public class Main extends Application {
             PendantUI pendantUI = new PendantUI(backend);
             pendantUI.start();
         }
+
+        PendantService.getInstance();
+        MacroActionService.registerMacros();
     }
 
     public static void main(String[] args) {
