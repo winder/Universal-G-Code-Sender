@@ -21,7 +21,7 @@ public class GeneralSettingsPane extends VBox {
     private final BackendAPI backend;
 
     public GeneralSettingsPane() {
-        setSpacing(15);
+        setSpacing(20);
 
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 

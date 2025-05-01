@@ -1,16 +1,4 @@
 .toolbar-button {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
-    -fx-padding: 5;
-    -fx-cursor: hand;
-    -fx-border-radius: 5;
-}
-
-.toolbar-button:hover, .toolbar-button:selected {
-    -fx-border-color: rgba(0, 0, 0, 0.1);
-    -fx-background-color: rgba(0, 0, 0, 0.05);
-}
-
-.toolbar-button:pressed {
-    -fx-background-color: rgba(0, 0, 0, 0.15);
 }

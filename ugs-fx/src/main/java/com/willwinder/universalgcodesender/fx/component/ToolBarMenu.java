@@ -5,7 +5,6 @@ import com.willwinder.ugs.nbp.core.actions.SoftResetAction;
 import com.willwinder.ugs.nbp.core.actions.UnlockAction;
 import com.willwinder.universalgcodesender.fx.actions.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.actions.ConnectDisconnectAction;
-import com.willwinder.universalgcodesender.fx.actions.OpenFileAction;
 import com.willwinder.universalgcodesender.fx.actions.OpenSettingsAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import javafx.scene.Node;
@@ -25,8 +24,6 @@ public class ToolBarMenu extends VBox {
 
         List<Node> children = getChildren();
         createButton(ConnectDisconnectAction.class).ifPresent(children::add);
-        children.add(new Separator());
-        createButton(OpenFileAction.class).ifPresent(children::add);
         children.add(new Separator());
         createButton(UnlockAction.class).ifPresent(children::add);
         createButton(SoftResetAction.class).ifPresent(children::add);

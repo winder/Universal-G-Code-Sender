@@ -69,6 +69,13 @@
             <version>1.7.1</version>
         </dependency>
 
+        <!-- For text editor and terminal -->
+        <dependency>
+            <groupId>org.fxmisc.richtext</groupId>
+            <artifactId>richtextfx</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+
         <!-- For styling swing components -->
         <dependency>
             <groupId>com.formdev</groupId>

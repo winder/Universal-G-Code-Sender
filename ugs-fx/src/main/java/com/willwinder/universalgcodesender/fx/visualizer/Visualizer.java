@@ -1,5 +1,8 @@
 package com.willwinder.universalgcodesender.fx.visualizer;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.geometry.Point3D;
 import javafx.scene.AmbientLight;
@@ -16,6 +19,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
+import javafx.util.Duration;
 
 public class Visualizer extends Pane {
     private final Camera camera;
@@ -24,6 +28,8 @@ public class Visualizer extends Pane {
 
     private final Rotate rotateX = new Rotate(0, Rotate.X_AXIS);
     private final Rotate rotateY = new Rotate(180, Rotate.Y_AXIS);
+    private final Rotate rotateZ = new Rotate(180, Rotate.Z_AXIS);
+
     private final Translate translate = new Translate(0, 0, 0);
     private final Translate cameraTranslate = new Translate(0, 0, -500); // initial zoom
     private final SubScene subScene;
@@ -34,13 +40,12 @@ public class Visualizer extends Pane {
         // Rotate group contains 3D objects
         Tool tool = new Tool();
         Group rotateGroup = new Group(new Axes(), new Grid(), new GcodeModel(), tool);
-        rotateGroup.getTransforms().addAll(rotateX, rotateY, new Rotate(180, Rotate.Z_AXIS));
+        rotateGroup.getTransforms().addAll(rotateX, rotateY, rotateZ);
 
         // Lighting
         DirectionalLight light = new DirectionalLight(Color.WHITE);
         light.setDirection(new Point3D(1, -1, -1));
         light.getScope().addAll(tool);
-
         // Root group applies panning
         AmbientLight ambient = new AmbientLight(Color.rgb(255, 255, 255));
         root3D = new Group(rotateGroup, ambient, light);
@@ -54,13 +59,35 @@ public class Visualizer extends Pane {
         camera = createCamera();
         subScene.setCamera(camera);
 
-        // Add the SubScene to the custom node
-        getChildren().add(subScene);
-
         // Set up mouse interactions
         setMouseInteraction();
 
+        OrientationCube orientationSubScene = new OrientationCube(150);
+        orientationSubScene.setOnFaceClicked(this::rotateTo);
+        orientationSubScene.setRotations(rotateX, rotateY, rotateZ);
+        orientationSubScene.layoutXProperty().bind(widthProperty().subtract(orientationSubScene.sizeProperty()).subtract(20));
+        orientationSubScene.layoutYProperty().set(20);
+
+        getChildren().addAll(subScene, orientationSubScene);
     }
+
+    private void rotateTo(OrientationCubeFace face) {
+        // Optional: animate instead of jumping
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.seconds(0),
+                        new KeyValue(rotateX.angleProperty(), rotateX.getAngle()),
+                        new KeyValue(rotateY.angleProperty(), rotateY.getAngle()),
+                        new KeyValue(rotateZ.angleProperty(), rotateZ.getAngle())
+                ),
+                new KeyFrame(Duration.seconds(0.5),
+                        new KeyValue(rotateX.angleProperty(), face.getRotation().getX()),
+                        new KeyValue(rotateY.angleProperty(), face.getRotation().getY()),
+                        new KeyValue(rotateZ.angleProperty(), face.getRotation().getZ())
+                )
+        );
+        timeline.play();
+    }
+
 
     private void setMouseInteraction() {
         // Handle mouse press event to store the initial position
@@ -74,14 +101,16 @@ public class Visualizer extends Pane {
             double dx = event.getSceneX() - mouseOldX;
             double dy = event.getSceneY() - mouseOldY;
 
-            if (event.getButton() == MouseButton.PRIMARY) {
-                // Rotate around X and Y axis
-                rotateX.setAngle(rotateX.getAngle() + dy * 0.5);
-                rotateY.setAngle(rotateY.getAngle() - dx * 0.5);
-            } else if (event.getButton() == MouseButton.SECONDARY) {
-                // Pan (translate) the 3D scene
-                translate.setX(translate.getX() + dx * 0.5);
-                translate.setY(translate.getY() + dy * 0.5);
+            if (event.getButton() == MouseButton.SECONDARY) {
+                if (event.isShiftDown()) {
+                    // Pan (translate) the 3D scene
+                    translate.setX(translate.getX() + dx * 0.5);
+                    translate.setY(translate.getY() + dy * 0.5);
+                } else {
+                    // Regular orbit rotation
+                    rotateX.setAngle(rotateX.getAngle() + dy * 0.5);
+                    rotateZ.setAngle(rotateZ.getAngle() + dx * 0.5);
+                }
             }
 
             mouseOldX = event.getSceneX();

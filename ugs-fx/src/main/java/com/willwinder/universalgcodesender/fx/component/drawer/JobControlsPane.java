@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.fx.component;
+package com.willwinder.universalgcodesender.fx.component.drawer;
 
 import com.willwinder.ugs.nbp.core.actions.PauseAction;
 import com.willwinder.ugs.nbp.core.actions.StopAction;
@@ -6,6 +6,7 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.fx.actions.Action;
 import com.willwinder.universalgcodesender.fx.actions.ActionRegistry;
+import com.willwinder.universalgcodesender.fx.actions.OpenFileAction;
 import com.willwinder.universalgcodesender.fx.actions.StartAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
@@ -40,9 +41,15 @@ public class JobControlsPane extends VBox {
         super(10);
         getStylesheets().add(getClass().getResource("/styles/job-controls-pane.css").toExternalForm());
 
+        HBox hBox = new HBox();
+        hBox.setAlignment(Pos.CENTER);
+        hBox.setSpacing(10);
+        hBox.setPadding(new Insets(10, 10, 10, 10));
         loadedFileLabel = new Label("No file loaded");
         loadedFileLabel.setStyle("-fx-font-weight: bold;");
-        getChildren().add(loadedFileLabel);
+        ActionRegistry.getInstance().getAction(OpenFileAction.class.getCanonicalName()).ifPresent(action -> hBox.getChildren().add(createActionButton(action)));
+        hBox.getChildren().add(loadedFileLabel);
+        getChildren().add(hBox);
 
         progressLabel = new Label("");
         getChildren().add(progressLabel);

@@ -4,13 +4,13 @@ import com.willwinder.universalgcodesender.fx.component.SettingsListCell;
 import com.willwinder.universalgcodesender.fx.component.settings.FirmwareSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.GeneralSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.MacroSettingsPane;
+import com.willwinder.universalgcodesender.fx.component.settings.PendantSettingsPane;
 import com.willwinder.universalgcodesender.fx.model.SettingsListItem;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -38,6 +38,7 @@ public class SettingsStage extends Stage {
         });
 
         Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/styles/settings.css").toExternalForm());
         setScene(scene);
         setWidth(800);
         setHeight(600);
@@ -56,11 +57,12 @@ public class SettingsStage extends Stage {
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.firmware"), "icons/microchip.svg", new FirmwareSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("platform.window.visualizer"), "icons/cube.svg", new Label(Localization.getString("platform.window.visualizer"))));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.gamepad"), "icons/gamepad.svg", new Label(Localization.getString("platform.window.visualizer"))));
-        sectionList.getItems().add(new SettingsListItem(Localization.getString("mainWindow.swing.pendant"), "resources/icons/pendant.svg", new Label(Localization.getString("mainWindow.swing.pendant"))));
+        sectionList.getItems().add(new SettingsListItem(Localization.getString("mainWindow.swing.pendant"), "resources/icons/pendant.svg", new PendantSettingsPane()));
         sectionList.setCellFactory(listView -> new SettingsListCell());
         sectionList.getSelectionModel().select(0);
+        sectionList.setPrefWidth(200);
 
-        // Right content area (StackPane to easily swap content)
+        // Right content area
         StackPane contentPane = new StackPane();
         contentPane.setPadding(new Insets(20, 20, 20, 20));
         contentPane.getChildren().add(sectionList.getItems().get(0).settingsPane());
@@ -71,12 +73,7 @@ public class SettingsStage extends Stage {
             contentPane.getChildren().add(newVal.settingsPane());
         });
 
-        ScrollPane leftScrollPane = new ScrollPane(sectionList);
-        leftScrollPane.setFitToWidth(true);
-        leftScrollPane.setFitToHeight(true);
-        leftScrollPane.setPrefWidth(220);
-
-        HBox layout = new HBox(leftScrollPane, contentPane);
+        HBox layout = new HBox(sectionList, contentPane);
         HBox.setHgrow(contentPane, Priority.ALWAYS);
 
         root.setCenter(layout);

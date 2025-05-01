@@ -135,7 +135,7 @@ public class ConnectStage extends Stage {
         root.setBottom(buttonBox);
 
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/styles/connect-stage.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/styles/root.css").toExternalForm());
         setScene(scene);
         setWidth(350);
         setHeight(300);

@@ -1,13 +1,12 @@
-package com.willwinder.universalgcodesender.fx.component.overlay;
+package com.willwinder.universalgcodesender.fx.component.drawer;
 
-import com.willwinder.universalgcodesender.fx.component.JobControlsPane;
-import com.willwinder.universalgcodesender.fx.component.MacrosPane;
-import com.willwinder.universalgcodesender.fx.component.TerminalPane;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import javafx.animation.TranslateTransition;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -16,14 +15,16 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-public class OverlayPane extends BorderPane {
+public class DrawerPane extends BorderPane {
 
     private final ToggleGroup toggleGroup;
     private final VBox buttonBox;
 
-    public OverlayPane() {
-        getStylesheets().add(getClass().getResource("/styles/overlay-pane.css").toExternalForm());
-        getStyleClass().add("overlay-pane");
+    public DrawerPane() {
+        getStylesheets().add(getClass().getResource("/styles/drawer-pane.css").toExternalForm());
+        getStyleClass().add("drawer-pane");
+        setMaxWidth(600);
+        setMaxHeight(120);
 
         toggleGroup = new ToggleGroup();
 
@@ -40,12 +41,22 @@ public class OverlayPane extends BorderPane {
         setCenter(jobControlsPane);
         setLeft(buttonBox);
 
-        toggleGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
-            toggleDrawer(newToggle != null);
-        });
+        VBox rightBox = new VBox(createCollapseButton());
+        rightBox.setPadding(new Insets(5));
+        setRight(rightBox);
 
-        setMaxWidth(500);
-        setMaxHeight(100);
+        toggleGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> toggleDrawer(newToggle != null));
+
+    }
+
+    private Button createCollapseButton() {
+        Button collapseButton = new Button("", SvgLoader.loadImageIcon("icons/caret-double-right.svg", 24).orElse(null));
+        collapseButton.getStyleClass().add("collapse-button");
+        collapseButton.setOnAction(event -> toggleGroup.selectToggle(null));
+        Tooltip tooltip = new Tooltip(Localization.getString("close"));
+        tooltip.setShowDelay(Duration.millis(100));
+        collapseButton.setTooltip(tooltip);
+        return collapseButton;
     }
 
     private void toggleDrawer(boolean drawerVisible) {
