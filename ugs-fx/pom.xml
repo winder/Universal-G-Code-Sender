@@ -90,12 +90,6 @@
             <version>4.8.179</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.netbeans.modules</groupId>
-            <artifactId>org-openide-util-ui-svg</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
-
         <!-- For scripting -->
         <dependency>
             <groupId>org.openjdk.nashorn</groupId>

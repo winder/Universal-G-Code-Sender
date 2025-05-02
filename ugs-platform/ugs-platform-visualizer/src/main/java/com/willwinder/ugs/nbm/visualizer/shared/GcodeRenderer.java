@@ -23,8 +23,11 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.JoglVersion;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.glu.GLU;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BG;
 import com.willwinder.ugs.nbm.visualizer.renderables.Grid;
 import com.willwinder.ugs.nbm.visualizer.renderables.MachineBoundries;
 import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
@@ -37,10 +40,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
-import com.willwinder.universalgcodesender.uielements.helpers.FPSCounter;
-import com.willwinder.universalgcodesender.uielements.helpers.Overlay;
 import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.visualizer.MouseProjectionUtils;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.util.lookup.ServiceProviders;
@@ -52,10 +52,6 @@ import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BG;
 
 /**
  * 3D Canvas for GCode Visualizer

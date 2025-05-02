@@ -19,14 +19,14 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.visualizer;
+package com.willwinder.ugs.nbm.visualizer.shared;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.willwinder.universalgcodesender.model.Position;
-import java.util.logging.Level;
+
 import java.util.logging.Logger;
 
 /**
