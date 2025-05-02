@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.fx.visualizer;
+package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import javafx.geometry.Point3D;
 

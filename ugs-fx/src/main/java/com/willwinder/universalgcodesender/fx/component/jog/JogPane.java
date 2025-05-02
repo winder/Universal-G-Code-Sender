@@ -44,7 +44,6 @@ public class JogPane extends BorderPane {
         directionalPadPane.setDisable(!backend.isConnected());
         setCenter(directionalPadPane);
 
-
         HBox settings = new HBox();
         settings.setPadding(new Insets(10, 10, 10, 10));
         settings.setSpacing(10);
@@ -54,21 +53,33 @@ public class JogPane extends BorderPane {
         feedRate.setValue((int) Math.round(backend.getSettings().getJogFeedRate()));
         feedRate.valueProperty().addListener((observable, oldValue, newValue) -> backend.getSettings().setJogFeedRate(newValue));
         feedRate.setConverter(new IntegerStringConverter());
-        settings.getChildren().add(new VBox(5, new Label(Localization.getString("platform.plugin.jog.feedRate")), feedRate));
+        feedRate.setDisable(!backend.isConnected());
+        Label label = new Label(Localization.getString("platform.plugin.jog.feedRate"));
+        label.setLabelFor(feedRate);
+        label.disableProperty().bind(feedRate.disabledProperty());
+        settings.getChildren().add(new VBox(5, label, feedRate));
 
         stepSizeXY = new ComboBox<>(STEP_SIZES);
         stepSizeXY.setEditable(true);
         stepSizeXY.setValue(backend.getSettings().getManualModeStepSize());
         stepSizeXY.valueProperty().addListener((observable, oldValue, newValue) -> backend.getSettings().setManualModeStepSize(newValue));
         stepSizeXY.setConverter(new DoubleStringConverter());
-        settings.getChildren().add(new VBox(5, new Label(Localization.getString("platform.plugin.jog.stepSize")), stepSizeXY));
+        stepSizeXY.setDisable(!backend.isConnected());
+        label = new Label(Localization.getString("platform.plugin.jog.stepSize"));
+        label.setLabelFor(stepSizeXY);
+        label.disableProperty().bind(stepSizeXY.disabledProperty());
+        settings.getChildren().add(new VBox(5, label, stepSizeXY));
 
         stepSizeZ = new ComboBox<>(STEP_SIZES);
         stepSizeZ.setEditable(true);
         stepSizeZ.setValue(backend.getSettings().getZJogStepSize());
         stepSizeZ.valueProperty().addListener((observable, oldValue, newValue) -> backend.getSettings().setZJogStepSize(newValue));
         stepSizeZ.setConverter(new DoubleStringConverter());
-        settings.getChildren().add(new VBox(5, new Label(Localization.getString("platform.plugin.jog.stepSizeZ")), stepSizeZ));
+        stepSizeZ.setDisable(!backend.isConnected());
+        label = new Label(Localization.getString("platform.plugin.jog.stepSizeZ"));
+        label.setLabelFor(stepSizeZ);
+        label.disableProperty().bind(stepSizeZ.disabledProperty());
+        settings.getChildren().add(new VBox(5, label, stepSizeZ));
 
         setBottom(settings);
 
@@ -145,8 +156,12 @@ public class JogPane extends BorderPane {
 
     private void onEvent(UGSEvent event) {
         if (event instanceof ControllerStateEvent controllerStateEvent) {
-            directionalPadPane.setDisable(!backend.isConnected() || !(controllerStateEvent.getState() == ControllerState.JOG ||
-                    controllerStateEvent.getState() == ControllerState.IDLE));
+            boolean canJog = !backend.isConnected() || !(controllerStateEvent.getState() == ControllerState.JOG ||
+                    controllerStateEvent.getState() == ControllerState.IDLE);
+            directionalPadPane.setDisable(canJog);
+            feedRate.setDisable(canJog);
+            stepSizeXY.setDisable(canJog);
+            stepSizeZ.setDisable(canJog);
         } else if (event instanceof SettingChangedEvent) {
             feedRate.setValue((int) Math.round(backend.getSettings().getJogFeedRate()));
             stepSizeXY.setValue(backend.getSettings().getManualModeStepSize());

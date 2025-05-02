@@ -6,7 +6,6 @@ import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -17,6 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.function.UnaryOperator;
@@ -50,9 +50,7 @@ public class PendantSettingsPane extends VBox {
             return null;
         };
 
-
         pendantPort.setTextFormatter(new TextFormatter<>(filter));
-
         pendantPort.setPrefWidth(60);
         getChildren().add(new VBox(5, label, new HBox(pendantPort)));
     }
@@ -61,21 +59,23 @@ public class PendantSettingsPane extends VBox {
         Label autoStartPendantLabel = new Label(Localization.getString("settings.workspaceDirectory"));
         TextField workspaceDirectory = new TextField(backend.getSettings().getWorkspaceDirectory());
         workspaceDirectory.setPrefWidth(TEXT_FIELD_WIDTH);
-        workspaceDirectory.setEditable(false);
         workspaceDirectory.setFocusTraversable(false);
         workspaceDirectory.textProperty().addListener((observable, oldValue, newValue) -> backend.getSettings().setWorkspaceDirectory(newValue));
 
         Button browseButton = new Button(Localization.getString("mainWindow.swing.browseButton"), SvgLoader.loadImageIcon("icons/open.svg", 16, Colors.BLACKISH).orElse(null));
         browseButton.setOnAction(e -> {
             DirectoryChooser directoryChooser = new DirectoryChooser();
-            if (backend.getSettings().getWorkspaceDirectory() != null) {
-                directoryChooser.setInitialDirectory(new File(backend.getSettings().getWorkspaceDirectory()));
+            if (StringUtils.isNotEmpty(backend.getSettings().getWorkspaceDirectory())) {
+                File directory = new File(backend.getSettings().getWorkspaceDirectory());
+                if (directory.exists()) {
+                    directoryChooser.setInitialDirectory(directory);
+                }
             }
             directoryChooser.setTitle("Select Directory");
             File selectedDirectory = directoryChooser.showDialog(getScene().getWindow());
 
             if (selectedDirectory != null) {
-                backend.getSettings().setWorkspaceDirectory(selectedDirectory != null ? selectedDirectory.getAbsolutePath() : null);
+                backend.getSettings().setWorkspaceDirectory(selectedDirectory.getAbsolutePath());
                 workspaceDirectory.setText(selectedDirectory.getAbsolutePath());
             }
         });
@@ -83,14 +83,8 @@ public class PendantSettingsPane extends VBox {
         workspaceDirectory.setStyle("-fx-border-radius: 3 0 0 3; -fx-background-radius: 3 0 0 3;");
         browseButton.setStyle("-fx-border-radius: 0 3 3 0; -fx-background-radius: 0 3 3 0; -fx-border-width: 1 1 1 0;");
 
-        Button clearButton = new Button(Localization.getString("settings.pendant.clear"), SvgLoader.loadImageIcon("icons/clear.svg", 16, Colors.BLACKISH).orElse(null));
-        clearButton.setOnAction(e -> {
-            backend.getSettings().setWorkspaceDirectory(null);
-            workspaceDirectory.setText("");
-        });
 
-        HBox hbox = new HBox(workspaceDirectory, browseButton, clearButton);
-        HBox.setMargin(clearButton, new Insets(0, 0, 0, 10));
+        HBox hbox = new HBox(workspaceDirectory, browseButton);
         hbox.setAlignment(Pos.CENTER_LEFT);
 
         getChildren().add(new VBox(5, autoStartPendantLabel, hbox));

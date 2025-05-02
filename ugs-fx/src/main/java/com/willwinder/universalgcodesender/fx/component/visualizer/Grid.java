@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.fx.visualizer;
+package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
