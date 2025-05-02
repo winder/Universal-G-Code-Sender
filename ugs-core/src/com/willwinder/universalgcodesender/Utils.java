@@ -50,7 +50,7 @@ import java.util.logging.Logger;
  * @author wwinder
  */
 public class Utils {
-    public static final NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
+    public static final NumberFormat formatter = new DecimalFormat("#.#####", Localization.dfs);
     private static final Logger LOGGER = Logger.getLogger(Utils.class.getSimpleName());
     private static final int MAX_WAIT_TIME_FOR_STATUS_REPORT = 1000;
 
