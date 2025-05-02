@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.fx.visualizer;
+package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -46,20 +46,18 @@ public class Visualizer extends Pane {
         DirectionalLight light = new DirectionalLight(Color.WHITE);
         light.setDirection(new Point3D(1, -1, -1));
         light.getScope().addAll(tool);
+
         // Root group applies panning
         AmbientLight ambient = new AmbientLight(Color.rgb(255, 255, 255));
         root3D = new Group(rotateGroup, ambient, light);
         root3D.getTransforms().add(translate);
 
-        // SubScene with 3D support
         subScene = new SubScene(root3D, 800, 600, true, SceneAntialiasing.BALANCED);
         subScene.setFill(Color.LIGHTGRAY);
 
-        // Camera setup
         camera = createCamera();
         subScene.setCamera(camera);
 
-        // Set up mouse interactions
         setMouseInteraction();
 
         OrientationCube orientationSubScene = new OrientationCube(150);

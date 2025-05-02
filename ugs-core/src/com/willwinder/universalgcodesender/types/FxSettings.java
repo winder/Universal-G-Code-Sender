@@ -31,6 +31,14 @@ public class FxSettings {
     private int windowPositionY;
     private double dividerContentPercent;
     private double dividerLeftPercent;
+    private String visualizerRapidColor = "#EDFF00FF";
+    private String visualizerCompletedColor = "#BEBEBEC8";
+    private String visualizerPlungeColor = "#006400FF";
+    private String visualizerArcColor = "#B22222FF";
+    private String visualizerFeedMinColor = "#CCFFFFFF";
+    private String visualizerFeedMaxColor = "#00009EFF";
+    private String visualizerSpindleMinColor = "#CCFFFFFF";
+    private String visualizerSpindleMaxColor = "#00009EFF";
 
     public FxSettings() {
         windowWidth = 1024;
@@ -87,5 +95,69 @@ public class FxSettings {
 
     public void setDividerLeftPercent(double dividerLeftPercent) {
         this.dividerLeftPercent = dividerLeftPercent;
+    }
+
+    public String getVisualizerRapidColor() {
+        return this.visualizerRapidColor;
+    }
+
+    public void setVisualizerRapidColor(String color) {
+        this.visualizerRapidColor = color;
+    }
+
+    public void setVisualizerCompletedColor(String color) {
+        this.visualizerCompletedColor = color;
+    }
+
+    public String getVisualizerCompletedColor() {
+        return visualizerCompletedColor;
+    }
+
+    public String getVisualizerPlungeColor() {
+        return visualizerPlungeColor;
+    }
+
+    public void setVisualizerPlungeColor(String visualizerPlungeColor) {
+        this.visualizerPlungeColor = visualizerPlungeColor;
+    }
+
+    public void setVisualizerArcColor(String visualizerArcColor) {
+        this.visualizerArcColor = visualizerArcColor;
+    }
+
+    public String getVisualizerArcColor() {
+        return visualizerArcColor;
+    }
+
+    public String getVisualizerFeedMaxColor() {
+        return visualizerFeedMaxColor;
+    }
+
+    public void setVisualizerFeedMaxColor(String visualizerFeedMaxColor) {
+        this.visualizerFeedMaxColor = visualizerFeedMaxColor;
+    }
+
+    public String getVisualizerFeedMinColor() {
+        return visualizerFeedMinColor;
+    }
+
+    public void setVisualizerFeedMinColor(String visualizerFeedMinColor) {
+        this.visualizerFeedMinColor = visualizerFeedMinColor;
+    }
+
+    public void setVisualizerSpindleMinColor(String visualizerSpindleMinColor) {
+        this.visualizerSpindleMinColor = visualizerSpindleMinColor;
+    }
+
+    public String getVisualizerSpindleMinColor() {
+        return visualizerSpindleMinColor;
+    }
+
+    public void setVisualizerSpindleMaxColor(String visualizerSpindleMaxColor) {
+        this.visualizerSpindleMaxColor = visualizerSpindleMaxColor;
+    }
+
+    public String getVisualizerSpindleMaxColor() {
+        return visualizerSpindleMaxColor;
     }
 }

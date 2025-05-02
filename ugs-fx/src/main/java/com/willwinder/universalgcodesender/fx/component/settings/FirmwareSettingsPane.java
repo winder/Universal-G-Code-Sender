@@ -5,6 +5,7 @@ import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 import com.willwinder.universalgcodesender.utils.SettingsComparator;
 import javafx.application.Platform;
@@ -20,24 +21,41 @@ import javafx.scene.text.Font;
 
 public class FirmwareSettingsPane extends BorderPane {
     private final ObservableList<FirmwareSetting> firmwareSettings = FXCollections.observableArrayList();
+    private final BackendAPI backend;
     private TableView<FirmwareSetting> tableView;
+    private Label notConnectedLabel;
 
     public FirmwareSettingsPane() {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 
         addTitleSection();
         addFirmwareSettingsTable();
+        addNotConnectedLabel();
 
         backend.addUGSEventListener(this::onEvent);
 
         if (backend.isConnected()) {
+            setCenter(tableView);
             firmwareSettings.addAll(backend.getController().getFirmwareSettings().getAllSettings());
             tableView.sort();
+        } else {
+            setCenter(notConnectedLabel);
         }
     }
 
+    private void addNotConnectedLabel() {
+        notConnectedLabel = new Label(Localization.getString("controller.log.notconnected"));
+        notConnectedLabel.setStyle("-fx-font-size: 1.4em");
+    }
+
     private void onEvent(UGSEvent event) {
-        if (event instanceof FirmwareSettingEvent firmwareSettingEvent) {
+        if (event instanceof ControllerStateEvent) {
+            if(backend.isConnected() && getCenter() != tableView) {
+                setCenter(tableView);
+            } else if(!backend.isConnected() && getCenter() != notConnectedLabel) {
+                setCenter(notConnectedLabel);
+            }
+        } else if (event instanceof FirmwareSettingEvent firmwareSettingEvent) {
             FirmwareSetting newFirmwareSetting = firmwareSettingEvent.getFirmwareSetting();
             replaceOrAddSetting(newFirmwareSetting);
         }
@@ -79,7 +97,6 @@ public class FirmwareSettingsPane extends BorderPane {
         tableView.setItems(firmwareSettings);
         tableView.getSortOrder().add(keyCol);
         tableView.sort();
-        setCenter(tableView);
     }
 
     private void addTitleSection() {

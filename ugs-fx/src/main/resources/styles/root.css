@@ -101,6 +101,11 @@
 /**
  * Combo box
  */
+.combo-box-base:focused {
+    -fx-background-color: -fx-focus-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-border-radius: 0;
+}
+
 .combo-box .list-cell:selected {
     -fx-background-color: transparent;
 }

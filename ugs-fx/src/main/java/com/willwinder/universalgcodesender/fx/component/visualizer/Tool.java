@@ -1,12 +1,9 @@
-package com.willwinder.universalgcodesender.fx.visualizer;
+package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -17,9 +14,7 @@ import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
 
 public class Tool extends Group {
-    DoubleProperty posX = new SimpleDoubleProperty(0);
-    DoubleProperty posY = new SimpleDoubleProperty(0);
-    DoubleProperty posZ = new SimpleDoubleProperty(0);
+    private final ToolAnimatorTimer positionAnimator = new ToolAnimatorTimer();
 
     public Tool() {
         BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -37,17 +32,15 @@ public class Tool extends Group {
 
         getChildren().addAll(cone, coneTop);
 
-        translateXProperty().bind(posX);
-        translateYProperty().bind(posY);
-        translateZProperty().bind(posZ);
+        translateXProperty().bind(positionAnimator.posXProperty());
+        translateYProperty().bind(positionAnimator.posYProperty());
+        translateZProperty().bind(positionAnimator.posZProperty());
     }
 
     private void onEvent(UGSEvent ugsEvent) {
-        if (ugsEvent instanceof ControllerStatusEvent) {
-            Position workCoord = ((ControllerStatusEvent) ugsEvent).getStatus().getWorkCoord();
-            posX.set(workCoord.getX());
-            posY.set(workCoord.getY());
-            posZ.set(workCoord.getZ());
+        if (ugsEvent instanceof ControllerStatusEvent controllerStatusEvent) {
+            positionAnimator.setTarget(controllerStatusEvent.getStatus().getWorkCoord());
+            positionAnimator.start();
         }
     }
 
