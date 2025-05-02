@@ -1,6 +1,8 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import static com.willwinder.universalgcodesender.fx.helper.Colors.blend;
+import static com.willwinder.universalgcodesender.fx.helper.Colors.interpolate;
 import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -10,6 +12,9 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.CommandEvent;
 import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.model.events.StreamEvent;
+import com.willwinder.universalgcodesender.model.events.StreamEventType;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -17,10 +22,7 @@ import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import javafx.scene.Group;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.CullFace;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
@@ -39,9 +41,18 @@ public class GcodeModel extends Group {
     private final GcodeViewParse gcvp;
     private final MeshView meshView;
     private final BackendAPI backendAPI;
+
+    private GcodeModelMaterial material = new GcodeModelMaterial(0);
     private Map<Integer, List<Integer>> lineToTextureMap = new HashMap<>();
 
-    WritableImage texture = new WritableImage(1, 2);
+    private Color arcColor;
+    private Color rapidColor;
+    private Color plungeColor;
+    private Color feedMinColor;
+    private Color feedMaxColor;
+    private Color spindleMinColor;
+    private Color spindleMaxColor;
+    private Color completedColor;
 
     private List<LineSegment> loadModel(GcodeViewParse gcvp, String gcodeFile) throws IOException, GcodeParserException {
         try (IGcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile), new DefaultCommandCreator())) {
@@ -54,18 +65,6 @@ public class GcodeModel extends Group {
     }
 
     public GcodeModel() {
-
-        // Create a 1x4 texture map for G0, G1, G2, G3
-        WritableImage texture = new WritableImage(1, 5);
-        texture.getPixelWriter().setColor(0, 0, Color.YELLOW);    // G0
-        texture.getPixelWriter().setColor(0, 1, Color.BLUE);   // G1
-        texture.getPixelWriter().setColor(0, 2, Color.RED);     // G2/G3
-        texture.getPixelWriter().setColor(0, 3, Color.GREEN);     // Z only
-        texture.getPixelWriter().setColor(0, 4, Color.GRAY);     // Z only
-
-
-
-
         meshView = new MeshView();
         meshView.setCullFace(CullFace.NONE);
 
@@ -73,11 +72,24 @@ public class GcodeModel extends Group {
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         gcvp = new GcodeViewParse();
         backendAPI.addUGSEventListener(this::onEvent);
+
+        updateColorsFromSettings();
+    }
+
+    private void updateColorsFromSettings() {
+        feedMinColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerFeedMinColor());
+        feedMaxColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerFeedMaxColor());
+        arcColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerArcColor());
+        rapidColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerRapidColor());
+        plungeColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerPlungeColor());
+        spindleMinColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerSpindleMinColor());
+        spindleMaxColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerSpindleMaxColor());
+        completedColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerCompletedColor());
     }
 
     private void onEvent(UGSEvent event) {
-        if (event instanceof FileStateEvent) {
-            if (((FileStateEvent) event).getFileState() == FileState.FILE_LOADED) {
+        if (event instanceof FileStateEvent fileStateEvent) {
+            if (fileStateEvent.getFileState() == FileState.FILE_LOADED) {
                 ThreadHelper.invokeLater(() -> {
                     try {
                         List<LineSegment> lineSegments = loadModel(gcvp, backendAPI.getGcodeFile().getAbsolutePath());
@@ -88,13 +100,18 @@ public class GcodeModel extends Group {
                     }
                 });
             }
-        } else if(event instanceof CommandEvent commandEvent) {
-            if (commandEvent.getCommand().isDone()) {
-                PixelWriter pixelWriter = texture.getPixelWriter();
-                lineToTextureMap.getOrDefault(commandEvent.getCommand().getCommandNumber(), new ArrayList<>()).forEach(
-                       texIndex -> pixelWriter.setColor(0, texIndex, Color.GRAY)
-               );
+        } else if (event instanceof StreamEvent streamEvent) {
+            if (streamEvent.getType() == StreamEventType.STREAM_COMPLETE || streamEvent.getType() == StreamEventType.STREAM_CANCELED) {
+                material.reset();
             }
+        } else if (event instanceof CommandEvent commandEvent) {
+            if (commandEvent.getCommand().isDone()) {
+                lineToTextureMap.getOrDefault(commandEvent.getCommand().getCommandNumber(), new ArrayList<>()).forEach(
+                        lineIndex -> material.updateLineColor(lineIndex, completedColor)
+                );
+            }
+        } else if (event instanceof SettingChangedEvent) {
+            updateColorsFromSettings();
         }
     }
 
@@ -103,13 +120,7 @@ public class GcodeModel extends Group {
         float width = 0.04f; // Thin width for visual line approximation
         lineToTextureMap = new HashMap<>();
 
-        texture = new WritableImage(1, lineSegments.size());
-        PixelWriter writer = texture.getPixelWriter();
-        for (int i = 0; i < lineSegments.size(); i++) {
-            writer.setColor(0, i, Color.GREEN); // Default: unprocessed
-        }
-        PhongMaterial material = new PhongMaterial();
-        material.setDiffuseMap(texture);
+        material = new GcodeModelMaterial(lineSegments.size());
         meshView.setMaterial(material);
 
         for (int i = 0; i < lineSegments.size(); i++) {
@@ -120,7 +131,7 @@ public class GcodeModel extends Group {
 
         for (int i = 0; i < lineSegments.size(); i++) {
             LineSegment lineSegment = lineSegments.get(i);
-            List lineSegmentTextureIndexes = lineToTextureMap.getOrDefault(lineSegment.getLineNumber(), new ArrayList<>());
+            List<Integer> lineSegmentTextureIndexes = lineToTextureMap.getOrDefault(lineSegment.getLineNumber(), new ArrayList<>());
             Point3D p1 = toPoint(lineSegment.getStart().getPositionIn(UnitUtils.Units.MM));
             Point3D p2 = toPoint(lineSegment.getEnd().getPositionIn(UnitUtils.Units.MM));
 
@@ -140,15 +151,14 @@ public class GcodeModel extends Group {
             Point3D p2a = p2.add(perp);
             Point3D p2b = p2.substract(perp);
 
-            int texIndex = i;
-            texture.getPixelWriter().setColor(0, texIndex, getColor(lineSegment));
-            lineSegmentTextureIndexes.add(texIndex);
+            material.setLineColor(i, getColor(lineSegment));
+            lineSegmentTextureIndexes.add(i);
             lineToTextureMap.put(lineSegment.getLineNumber(), lineSegmentTextureIndexes);
 
             // Two triangles per segment (rectangle)
             mesh.getFaces().addAll(
-                    baseIndex, texIndex, baseIndex + 2, texIndex, baseIndex + 1, texIndex,
-                    baseIndex + 2, texIndex, baseIndex + 3, texIndex, baseIndex + 1, texIndex
+                    baseIndex, i, baseIndex + 2, i, baseIndex + 1, i,
+                    baseIndex + 2, i, baseIndex + 3, i, baseIndex + 1, i
             );
 
             mesh.getPoints().addAll(
@@ -157,22 +167,38 @@ public class GcodeModel extends Group {
                     p2a.getX(), p2a.getY(), p2a.getZ(),
                     p2b.getX(), p2b.getY(), p2b.getZ()
             );
-
-
         }
+
+        material.reset();
         return mesh;
     }
 
+
     private Color getColor(LineSegment lineSegment) {
         if (lineSegment.isArc()) {
-            return Color.RED;
-        } else if( lineSegment.isFastTraverse() ){
-            return Color.YELLOW;
-        } else if(lineSegment.isZMovement()) {
-            return Color.GREEN;
+            return arcColor;
+        } else if (lineSegment.isFastTraverse()) {
+            return rapidColor;
+        } else if (lineSegment.isZMovement()) {
+            return plungeColor;
         } else {
-            return Color.BLUE;
+            return getFeedColor(lineSegment.getFeedRate(), lineSegment.getSpindleSpeed());
         }
+    }
+
+    private Color getFeedColor(double feedRate, double spindleSpeed) {
+        double currentSpindleSpeed = Math.max(spindleSpeed, 0.1);
+        double currentFeedRate = Math.max(feedRate, 0.1);
+        double maxFeedRate = gcvp.getMaxFeedRate();
+        double maxSpindleSpeed = gcvp.getMaxSpindleSpeed();
+
+        double feedRatePercent = currentFeedRate / maxFeedRate;
+
+        Color feedColor = maxFeedRate < 0.01 ? feedMaxColor : interpolate(feedMinColor, feedMaxColor, feedRatePercent);
+
+        double speedPercent = currentSpindleSpeed / maxSpindleSpeed;
+        Color speedColor = maxSpindleSpeed < 0.1 ? spindleMaxColor : interpolate(spindleMinColor, spindleMaxColor, speedPercent);
+        return blend(speedColor, feedColor);
     }
 
     private Point3D toPoint(Position pos) {
