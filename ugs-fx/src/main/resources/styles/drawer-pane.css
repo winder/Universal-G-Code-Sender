@@ -1,3 +1,5 @@
+@import "root.css";
+
 .drawer-pane {
     -fx-background-color: #f2f2f2;
     -fx-background-radius: 24 0 0 0;
@@ -15,13 +17,4 @@
     -fx-padding: 5;
 }
 
-.toggle-button, .collapse-button {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-cursor: hand;
-    -fx-padding: 5;
-    -fx-border-width: 1 0 1 0;
-    -fx-background-radius: 50% 50% 50% 50%;
-    -fx-border-radius: 50% 50% 50% 50%;
 
-}

@@ -6,7 +6,7 @@ import javafx.geometry.Point3D;
 import javafx.scene.AmbientLight;
 import javafx.scene.DirectionalLight;
 import javafx.scene.Group;
-import javafx.scene.ParallelCamera;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
@@ -74,7 +74,14 @@ public class OrientationCube extends Group {
                 SceneAntialiasing.BALANCED
         );
 
-        ParallelCamera cam = new ParallelCamera();
+        /*ParallelCamera cam = new ParallelCamera();
+        cam.translateXProperty().bind(subScene.widthProperty().divide(2).negate());
+        cam.translateYProperty().bind(subScene.heightProperty().divide(2).negate());
+        subScene.setCamera(cam);*/
+
+        PerspectiveCamera cam = new PerspectiveCamera();
+        cam.setNearClip(0.1);
+        cam.setFarClip(100);
         cam.translateXProperty().bind(subScene.widthProperty().divide(2).negate());
         cam.translateYProperty().bind(subScene.heightProperty().divide(2).negate());
         subScene.setCamera(cam);

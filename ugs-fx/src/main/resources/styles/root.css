@@ -6,6 +6,7 @@
 
 .button,
 .toggle-button {
+    -fx-border-width: 1;
     -fx-background-color: white;
     -fx-border-color: #c2c2c2;
     -fx-padding: 5;
@@ -17,6 +18,7 @@
 
 .button:selected,
 .toggle-button:selected {
+    -fx-border-width: 1;
     -fx-border-color: transparent;
     -fx-background-color: -fx-focus-background-color;
 }
@@ -36,11 +38,13 @@
 
 .button:pressed,
 .toggle-button:pressed {
+    -fx-border-width: 1;
+    -fx-border-color: transparent;
     -fx-background-color: #c2c2c2;
 }
 
 /**
- *
+ * Text fields
  */
 .text-field:focused {
     -fx-border-width: 0;
@@ -143,4 +147,25 @@
     -fx-border-color: #ccc;
     -fx-border-width: 1px 0 0 0;
     -fx-padding: 10;
+}
+
+
+.toggle-button, .collapse-button, .visualizer-toggle-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 5;
+    -fx-border-width: 1 0 1 0;
+    -fx-background-radius: 50% 50% 50% 50%;
+    -fx-border-radius: 50% 50% 50% 50%;
+}
+
+.visualizer-toggle-button:focused {
+    -fx-border-color: transparent;
+}
+
+.visualizer-toggle-button:selected {
+    -fx-background-color: rgb(163, 205, 255);
+    -fx-border-color: black;
+    -fx-border-width: 1;
 }

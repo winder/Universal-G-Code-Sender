@@ -1,5 +1,7 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
+import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machine;
+import com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsu3020.Genmitsu3020;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -12,6 +14,7 @@ import javafx.scene.Group;
 import javafx.scene.ParallelCamera;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
+import javafx.scene.SpotLight;
 import javafx.scene.SubScene;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -23,6 +26,7 @@ import javafx.util.Duration;
 
 public class Visualizer extends Pane {
     private final Camera camera;
+    private final Machine machine;
     private double mouseOldX;
     private double mouseOldY;
 
@@ -34,22 +38,33 @@ public class Visualizer extends Pane {
     private final Translate cameraTranslate = new Translate(0, 0, -500); // initial zoom
     private final SubScene subScene;
     private final Group root3D;
-
+    private double anchorX, anchorY;
+    private double initialTranslateX, initialTranslateY;
     public Visualizer() {
 
         // Rotate group contains 3D objects
         Tool tool = new Tool();
-        Group rotateGroup = new Group(new Axes(), new Grid(), new GcodeModel(), tool);
+        machine = new Genmitsu3020();
+        Group rotateGroup = new Group(new Axes(), new Grid(), new GcodeModel(), tool, machine);
         rotateGroup.getTransforms().addAll(rotateX, rotateY, rotateZ);
 
         // Lighting
         DirectionalLight light = new DirectionalLight(Color.WHITE);
         light.setDirection(new Point3D(1, -1, -1));
-        light.getScope().addAll(tool);
+        light.getScope().addAll(tool, machine);
+
+        SpotLight spotLight = new SpotLight(Color.DARKGREY);
+        spotLight.setTranslateX(200);
+        spotLight.setTranslateY(-1000);
+        spotLight.setTranslateZ(-400);
+        spotLight.setDirection(new Point3D(0.5, 0.7, 0));
+        spotLight.getScope().addAll(machine);
+
+
 
         // Root group applies panning
         AmbientLight ambient = new AmbientLight(Color.rgb(255, 255, 255));
-        root3D = new Group(rotateGroup, ambient, light);
+        root3D = new Group(rotateGroup, ambient, light, spotLight);
         root3D.getTransforms().add(translate);
 
         subScene = new SubScene(root3D, 800, 600, true, SceneAntialiasing.BALANCED);
@@ -60,11 +75,11 @@ public class Visualizer extends Pane {
 
         setMouseInteraction();
 
-        OrientationCube orientationSubScene = new OrientationCube(150);
+        OrientationCube orientationSubScene = new OrientationCube(110);
         orientationSubScene.setOnFaceClicked(this::rotateTo);
         orientationSubScene.setRotations(rotateX, rotateY, rotateZ);
-        orientationSubScene.layoutXProperty().bind(widthProperty().subtract(orientationSubScene.sizeProperty()).subtract(20));
-        orientationSubScene.layoutYProperty().set(20);
+        orientationSubScene.layoutXProperty().bind(widthProperty().subtract(orientationSubScene.sizeProperty()).subtract(45));
+        orientationSubScene.layoutYProperty().set(5);
 
         getChildren().addAll(subScene, orientationSubScene);
     }
@@ -145,7 +160,7 @@ public class Visualizer extends Pane {
             // Camera
             PerspectiveCamera camera = new PerspectiveCamera(true);
             camera.setNearClip(0.1);
-            camera.setFarClip(1000);
+            camera.setFarClip(10000);
             camera.getTransforms().add(cameraTranslate);
             return camera;
         }

@@ -5,10 +5,11 @@ import javafx.animation.AnimationTimer;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 
-public class ToolAnimatorTimer extends AnimationTimer {
+public class PositionAnimatorTimer extends AnimationTimer {
     private final DoubleProperty posX = new SimpleDoubleProperty(0);
     private final DoubleProperty posY = new SimpleDoubleProperty(0);
     private final DoubleProperty posZ = new SimpleDoubleProperty(0);
+
     private double targetX, targetY, targetZ;
     private double startX, startY, startZ;
     private long startTime = System.nanoTime();
@@ -28,7 +29,7 @@ public class ToolAnimatorTimer extends AnimationTimer {
 
     @Override
     public void handle(long now) {
-        long durationNS = startTime - lastStartTime;
+        long durationNS = Math.min(startTime - lastStartTime, 500_000_000);
         double t = (now - startTime) / (double) durationNS;
         if (t >= 1.0) {
             posX.set(targetX);

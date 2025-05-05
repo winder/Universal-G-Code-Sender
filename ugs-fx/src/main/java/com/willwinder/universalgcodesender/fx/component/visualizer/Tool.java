@@ -14,7 +14,7 @@ import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
 
 public class Tool extends Group {
-    private final ToolAnimatorTimer positionAnimator = new ToolAnimatorTimer();
+    private final PositionAnimatorTimer positionAnimator = new PositionAnimatorTimer();
 
     public Tool() {
         BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);

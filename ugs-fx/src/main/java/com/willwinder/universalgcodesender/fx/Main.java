@@ -8,10 +8,11 @@ import com.willwinder.universalgcodesender.fx.component.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.ToolBarMenu;
 import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
 import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
+import com.willwinder.universalgcodesender.fx.component.visualizer.ButtonsPane;
+import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.service.MacroActionService;
 import com.willwinder.universalgcodesender.fx.service.PendantService;
-import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -20,6 +21,7 @@ import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import com.willwinder.universalgcodesender.utils.Version;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -119,6 +121,11 @@ public class Main extends Application {
         contentPanel = new StackPane();
         contentPanel.getChildren().add(new Visualizer());
 
+        ButtonsPane buttonsPane = new ButtonsPane();
+        contentPanel.getChildren().add(buttonsPane);
+        StackPane.setAlignment(buttonsPane, Pos.TOP_RIGHT);
+        StackPane.setMargin(buttonsPane, new Insets(15, 5, 0, 0));
+
         DrawerPane drawerPane = new DrawerPane();
         contentPanel.getChildren().add(drawerPane);
         StackPane.setAlignment(drawerPane, Pos.BOTTOM_RIGHT);
@@ -174,9 +181,11 @@ public class Main extends Application {
 
 
         if (settings.isAutoStartPendant()) {
-            BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-            PendantUI pendantUI = new PendantUI(backend);
-            pendantUI.start();
+            ThreadHelper.invokeLater(() -> {
+                BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+                PendantUI pendantUI = new PendantUI(backend);
+                pendantUI.start();
+            }, 4000);
         }
 
         PendantService.getInstance();
