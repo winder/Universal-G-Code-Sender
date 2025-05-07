@@ -1,15 +1,16 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsu3020;
 
-import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machine;
+import com.willwinder.universalgcodesender.fx.component.visualizer.machine.MachineModel;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 
-public class Genmitsu3020 extends Machine {
+public class Genmitsu3020 extends MachineModel {
     public static final Color COLOR_TITANIUM = Color.web("#797982");
     public static final Color COLOR_ALUMINIUM = Color.web("#A9ACB6");
     public static final Color COLOR_STEEL = Color.web("#B5C0C9");
 
     public Genmitsu3020() {
+        super();
         double basePlateWidth = 300;
         double basePlateHeight = 200;
         double basePlateDepth = 64;
@@ -30,7 +31,7 @@ public class Genmitsu3020 extends Machine {
 
 
         Gantry gantry = new Gantry(baseWidth + 20);
-        gantry.setTranslateX(-gantry.getSideDepth() );
+        gantry.setTranslateX(-gantry.getSideDepth());
         gantry.setTranslateZ(-base.getHeight());
         gantry.setTranslateY(baseDepth - gantry.getSideWidth() - base.getFrontThickness());
         machineGroup.getChildren().add(gantry);
@@ -42,10 +43,11 @@ public class Genmitsu3020 extends Machine {
         gantry.getHeadstock().getSpindle().translateZProperty().bind(machinePositionZProperty().add(basePlateDepth));
 
         // Align the machine with the current coordinate
-        translateXProperty().bind(workPositionXProperty().subtract(machinePositionXProperty()).subtract(30).subtract(basePlateWidth));
+        translateXProperty().bind(workPositionXProperty()
+                .subtract(machinePositionXProperty())
+                .subtract(30)
+                .subtract(basePlateWidth));
         translateYProperty().bind(workPositionYProperty().subtract(basePlateHeight - 35.5));
         translateZProperty().bind(workPositionZProperty().subtract(machinePositionZProperty()).subtract(10).subtract(basePlateDepth));
     }
-
-
 }

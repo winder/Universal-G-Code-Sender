@@ -1,7 +1,6 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machine;
-import com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsu3020.Genmitsu3020;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -26,7 +25,6 @@ import javafx.util.Duration;
 
 public class Visualizer extends Pane {
     private final Camera camera;
-    private final Machine machine;
     private double mouseOldX;
     private double mouseOldY;
 
@@ -38,13 +36,12 @@ public class Visualizer extends Pane {
     private final Translate cameraTranslate = new Translate(0, 0, -500); // initial zoom
     private final SubScene subScene;
     private final Group root3D;
-    private double anchorX, anchorY;
-    private double initialTranslateX, initialTranslateY;
+
     public Visualizer() {
 
         // Rotate group contains 3D objects
         Tool tool = new Tool();
-        machine = new Genmitsu3020();
+        Machine machine = new Machine();
         Group rotateGroup = new Group(new Axes(), new Grid(), new GcodeModel(), tool, machine);
         rotateGroup.getTransforms().addAll(rotateX, rotateY, rotateZ);
 
@@ -78,7 +75,7 @@ public class Visualizer extends Pane {
         OrientationCube orientationSubScene = new OrientationCube(110);
         orientationSubScene.setOnFaceClicked(this::rotateTo);
         orientationSubScene.setRotations(rotateX, rotateY, rotateZ);
-        orientationSubScene.layoutXProperty().bind(widthProperty().subtract(orientationSubScene.sizeProperty()).subtract(45));
+        orientationSubScene.layoutXProperty().bind(widthProperty().subtract(orientationSubScene.sizeProperty()).subtract(5));
         orientationSubScene.layoutYProperty().set(5);
 
         getChildren().addAll(subScene, orientationSubScene);

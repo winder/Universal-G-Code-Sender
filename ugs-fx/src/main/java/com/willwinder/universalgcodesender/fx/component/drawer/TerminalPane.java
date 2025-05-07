@@ -39,7 +39,7 @@ public class TerminalPane extends BorderPane {
 
     private void onMessage(MessageType messageType, String text) {
         Platform.runLater(() -> {
-            if (!messageType.equals(MessageType.VERBOSE)) {
+            if ((!messageType.equals(MessageType.VERBOSE) || backend.getSettings().isVerboseOutputEnabled())) {
                 String styleClass = switch (messageType) {
                     case VERBOSE -> "verbose";
                     case INFO -> "info";

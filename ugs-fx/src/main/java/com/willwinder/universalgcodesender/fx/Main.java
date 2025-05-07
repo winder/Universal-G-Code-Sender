@@ -8,20 +8,17 @@ import com.willwinder.universalgcodesender.fx.component.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.ToolBarMenu;
 import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
 import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
-import com.willwinder.universalgcodesender.fx.component.visualizer.ButtonsPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.service.MacroActionService;
 import com.willwinder.universalgcodesender.fx.service.PendantService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
-import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import com.willwinder.universalgcodesender.utils.Version;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -41,7 +38,6 @@ import java.util.logging.Logger;
 
 public class Main extends Application {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
-    private static Settings settings;
     private SplitPane leftSplitPane;
     private SplitPane contentSplitPane;
     private StackPane contentPanel;
@@ -84,28 +80,28 @@ public class Main extends Application {
     }
 
     private void registerLayoutListeners(Stage primaryStage) {
-        primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> settings.getFxSettings().setWindowWidth((int) newValue.doubleValue()));
-        primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> settings.getFxSettings().setWindowHeight((int) newValue.doubleValue()));
-        primaryStage.xProperty().addListener((observable, oldValue, newValue) -> settings.getFxSettings().setWindowPositionX((int) newValue.doubleValue()));
-        primaryStage.yProperty().addListener((observable, oldValue, newValue) -> settings.getFxSettings().setWindowPositionY((int) newValue.doubleValue()));
-        leftPaneDivider.positionProperty().addListener((obs, oldVal, newVal) -> settings.getFxSettings().setDividerLeftPercent(newVal.doubleValue()));
-        contentPaneDivider.positionProperty().addListener((obs, oldVal, newVal) -> settings.getFxSettings().setDividerContentPercent(newVal.doubleValue()));
+        primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowWidthProperty().set(newValue.doubleValue()));
+        primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowHeightProperty().set(newValue.doubleValue()));
+        primaryStage.xProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowPositionXProperty().set(newValue.doubleValue()));
+        primaryStage.yProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowPositionYProperty().set(newValue.doubleValue()));
+        leftPaneDivider.positionProperty().addListener((obs, oldVal, newVal) -> Settings.getInstance().windowDividerLeftProperty().set(newVal.doubleValue()));
+        contentPaneDivider.positionProperty().addListener((obs, oldVal, newVal) -> Settings.getInstance().windowDividerContentProperty().set(newVal.doubleValue()));
     }
 
     private void registerListeners(Stage primaryStage) {
         primaryStage.setOnShown(event -> {
-            primaryStage.setX(settings.getFxSettings().getWindowPositionX());
-            primaryStage.setY(settings.getFxSettings().getWindowPositionY());
-            primaryStage.setWidth(settings.getFxSettings().getWindowWidth());
-            primaryStage.setHeight(settings.getFxSettings().getWindowHeight());
-            leftPaneDivider.setPosition(settings.getFxSettings().getDividerLeftPercent());
-            contentPaneDivider.setPosition(settings.getFxSettings().getDividerContentPercent());
+            primaryStage.setX(Settings.getInstance().windowPositionXProperty().get());
+            primaryStage.setY(Settings.getInstance().windowPositionYProperty().get());
+            primaryStage.setWidth(Settings.getInstance().windowWidthProperty().get());
+            primaryStage.setHeight(Settings.getInstance().windowHeightProperty().get());
+            leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
+            contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
 
 
             // Hack to make sure that the window is shown with correct size before setting the dividers
             ThreadHelper.invokeLater(() -> {
-                leftPaneDivider.setPosition(settings.getFxSettings().getDividerLeftPercent());
-                contentPaneDivider.setPosition(settings.getFxSettings().getDividerContentPercent());
+                leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
+                contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
                 registerLayoutListeners(primaryStage);
             }, 200);
         });
@@ -121,11 +117,6 @@ public class Main extends Application {
         contentPanel = new StackPane();
         contentPanel.getChildren().add(new Visualizer());
 
-        ButtonsPane buttonsPane = new ButtonsPane();
-        contentPanel.getChildren().add(buttonsPane);
-        StackPane.setAlignment(buttonsPane, Pos.TOP_RIGHT);
-        StackPane.setMargin(buttonsPane, new Insets(15, 5, 0, 0));
-
         DrawerPane drawerPane = new DrawerPane();
         contentPanel.getChildren().add(drawerPane);
         StackPane.setAlignment(drawerPane, Pos.BOTTOM_RIGHT);
@@ -140,7 +131,7 @@ public class Main extends Application {
         SplitPane.setResizableWithParent(contentSplitPane, false);
 
         contentPaneDivider = contentSplitPane.getDividers().get(0);
-        contentPaneDivider.setPosition(settings.getFxSettings().getDividerContentPercent());
+        contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
     }
 
     private void createLeftPane() {
@@ -153,7 +144,7 @@ public class Main extends Application {
         SplitPane.setResizableWithParent(leftSplitPane, false);
 
         leftPaneDivider = leftSplitPane.getDividers().get(0);
-        leftPaneDivider.setPosition(settings.getFxSettings().getDividerLeftPercent());
+        leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
     }
 
     private void registerShortCuts(Scene scene) {
@@ -165,14 +156,6 @@ public class Main extends Application {
 
     private void initialize() {
         try {
-            BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
-            settings = backendAPI.getSettings();
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Could not load settings, resetting to default", e);
-            settings = new Settings();
-        }
-
-        try {
             FlatLightLaf.setup();
             UIManager.setLookAndFeel(new FlatLightLaf());
         } catch (Exception e) {
@@ -180,7 +163,7 @@ public class Main extends Application {
         }
 
 
-        if (settings.isAutoStartPendant()) {
+        if (Settings.getInstance().pendantAutostartProperty().get()) {
             ThreadHelper.invokeLater(() -> {
                 BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
                 PendantUI pendantUI = new PendantUI(backend);

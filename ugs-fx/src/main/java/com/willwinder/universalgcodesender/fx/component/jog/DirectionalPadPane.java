@@ -8,7 +8,6 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 
 import java.util.ArrayList;
@@ -65,9 +64,8 @@ public class DirectionalPadPane extends GridPane {
         buttons.add(zNegButton);
 
 
-        Pane center1 = new Pane();
-        center1.setStyle("-fx-background-color: white");
-
+        JogButton cancel = new JogButton(JogButtonEnum.BUTTON_CANCEL);
+        cancel.setStyle("-fx-border-color: transparent");
 
         bindButtonSize(yPosButton);
         bindButtonSize(yNegButton);
@@ -75,6 +73,7 @@ public class DirectionalPadPane extends GridPane {
         bindButtonSize(xPosButton);
         bindButtonSize(zPosButton);
         bindButtonSize(zNegButton);
+        bindButtonSize(cancel);
 
         bindDiagonalButtonSize(diagXnegYposButton);
         bindDiagonalButtonSize(diagXnegYnegButton);
@@ -83,7 +82,7 @@ public class DirectionalPadPane extends GridPane {
 
         add(yPosButton, 1, 0);
         add(xNegButton, 0, 1);
-        add(center1, 1, 1);
+        add(cancel, 1, 1);
         add(xPosButton, 2, 1);
         add(yNegButton, 1, 2);
         add(zPosButton, 3, 0);
