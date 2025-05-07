@@ -6,7 +6,9 @@ import com.willwinder.ugs.nbp.core.actions.UnlockAction;
 import com.willwinder.universalgcodesender.fx.actions.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.actions.ConnectDisconnectAction;
 import com.willwinder.universalgcodesender.fx.actions.OpenSettingsAction;
+import com.willwinder.universalgcodesender.fx.actions.ToggleMachineVisualizationAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
+import com.willwinder.universalgcodesender.fx.control.ToggleActionButton;
 import javafx.scene.Node;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
@@ -33,6 +35,8 @@ public class ToolBarMenu extends VBox {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         children.add(spacer);
 
+        createToggleButton(ToggleMachineVisualizationAction.class).ifPresent(children::add);
+        children.add(new Separator());
         createButton(OpenSettingsAction.class).ifPresent(children::add);
 
         ToolBar toolBar = new ToolBar();
@@ -47,6 +51,18 @@ public class ToolBarMenu extends VBox {
                 .getAction(actionClass.getCanonicalName())
                 .map(action -> {
                     ActionButton actionButton = new ActionButton(action, ActionButton.SIZE_NORMAL);
+                    actionButton.setShowText(false);
+                    actionButton.getStyleClass().add("toolbar-button");
+                    return actionButton;
+                });
+    }
+
+    private Optional<Node> createToggleButton(Class<?> actionClass) {
+        return ActionRegistry
+                .getInstance()
+                .getAction(actionClass.getCanonicalName())
+                .map(action -> {
+                    ToggleActionButton actionButton = new ToggleActionButton(action, ActionButton.SIZE_NORMAL, false);
                     actionButton.setShowText(false);
                     actionButton.getStyleClass().add("toolbar-button");
                     return actionButton;

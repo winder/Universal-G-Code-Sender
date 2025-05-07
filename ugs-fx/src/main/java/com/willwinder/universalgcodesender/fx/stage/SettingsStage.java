@@ -3,6 +3,7 @@ package com.willwinder.universalgcodesender.fx.stage;
 import com.willwinder.universalgcodesender.fx.component.SettingsListCell;
 import com.willwinder.universalgcodesender.fx.component.settings.FirmwareSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.GeneralSettingsPane;
+import com.willwinder.universalgcodesender.fx.component.settings.MachineStatusSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.MacroSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.PendantSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.VisualizerSettingsPane;
@@ -10,7 +11,6 @@ import com.willwinder.universalgcodesender.fx.model.SettingsListItem;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
@@ -53,12 +53,12 @@ public class SettingsStage extends Stage {
 
         ListView<SettingsListItem> sectionList = new ListView<>();
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.general"), "icons/sliders.svg", new GeneralSettingsPane()));
-        sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.machineStatus"), "icons/position.svg", new Label(Localization.getString("settings.machineStatus"))));
+        sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.machineStatus"), "icons/position.svg", new MachineStatusSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("platform.menu.macros"), "icons/robot.svg", new MacroSettingsPane()));
-        sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.probe"), "icons/probe.svg", new Label(Localization.getString("settings.probe"))));
+        //sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.probe"), "icons/probe.svg", new Label(Localization.getString("settings.probe"))));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.firmware"), "icons/microchip.svg", new FirmwareSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("platform.window.visualizer"), "icons/cube.svg", new VisualizerSettingsPane()));
-        sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.gamepad"), "icons/gamepad.svg", new Label(Localization.getString("platform.window.visualizer"))));
+        //sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.gamepad"), "icons/gamepad.svg", new Label(Localization.getString("platform.gamepad"))));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("mainWindow.swing.pendant"), "resources/icons/pendant.svg", new PendantSettingsPane()));
         sectionList.setCellFactory(listView -> new SettingsListCell());
         sectionList.getSelectionModel().select(0);
@@ -66,9 +66,13 @@ public class SettingsStage extends Stage {
 
         // Right content area
         StackPane contentPane = new StackPane();
+        contentPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
         contentPane.setPadding(new Insets(20, 20, 40, 20));
         contentPane.getChildren().add(sectionList.getItems().get(0).settingsPane());
         ScrollPane contentScrollPane = new ScrollPane(contentPane);
+        contentScrollPane.setFitToWidth(true);
+        contentScrollPane.setFitToHeight(true);
 
         // Update right pane based on selection
         sectionList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {

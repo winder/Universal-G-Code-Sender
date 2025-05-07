@@ -17,9 +17,9 @@ public interface Action extends EventHandler<ActionEvent> {
 
     BooleanProperty enabledProperty();
 
-
     StringProperty titleProperty();
 
-
     StringProperty iconProperty();
+
+    BooleanProperty selectedProperty();
 }

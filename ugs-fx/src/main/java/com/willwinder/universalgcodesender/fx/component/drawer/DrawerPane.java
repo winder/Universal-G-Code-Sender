@@ -7,7 +7,6 @@ import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
@@ -24,7 +23,9 @@ public class DrawerPane extends BorderPane {
         getStylesheets().add(getClass().getResource("/styles/drawer-pane.css").toExternalForm());
         getStyleClass().add("drawer-pane");
         setMaxWidth(600);
-        setMaxHeight(120);
+
+        setMaxHeight(220);
+        setPrefHeight(220);
 
         toggleGroup = new ToggleGroup();
 
@@ -33,7 +34,7 @@ public class DrawerPane extends BorderPane {
         buttonBox.getStyleClass().add("toggle-group");
         createAndAddButton(jobControlsPane, "icons/run.svg", Localization.getString("platform.window.sendstatus"));
         createAndAddButton(new MacrosPane(), "icons/robot.svg", Localization.getString("platform.menu.macros"));
-        createAndAddButton(new Label("Probing"), "icons/probe.svg",  Localization.getString("settings.probe"));
+        //createAndAddButton(new Label("Probing"), "icons/probe.svg",  Localization.getString("settings.probe"));
         createAndAddButton(new TerminalPane(), "icons/terminal.svg",  Localization.getString("platform.window.serialconsole"));
 
         toggleGroup.selectToggle(toggleGroup.getToggles().get(0));

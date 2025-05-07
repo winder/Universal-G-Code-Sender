@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * The buttons that can trigger events in the {@link com.willwinder.ugs.nbp.jog.JogPanel}
+ * The buttons that can trigger events in the JogPane
  *
  * @author Joacim Breiler
  */
@@ -46,7 +46,8 @@ public enum JogButtonEnum {
     BUTTON_BPOS(0, 0, 0, 0, 1, 0, null, "B+",  Collections.singletonList(Axis.B), ContentDisplay.CENTER),
     BUTTON_BNEG(0, 0, 0, 0, -1, 0, null, "B-", Collections.singletonList(Axis.B), ContentDisplay.CENTER),
     BUTTON_CPOS(0, 0, 0, 0, 0, 1, null, "C+", Collections.singletonList(Axis.C), ContentDisplay.CENTER),
-    BUTTON_CNEG(0, 0, 0, 0, 0, -1, null, "C-",  Collections.singletonList(Axis.C), ContentDisplay.CENTER);
+    BUTTON_CNEG(0, 0, 0, 0, 0, -1, null, "C-",  Collections.singletonList(Axis.C), ContentDisplay.CENTER),
+    BUTTON_CANCEL(0,0,0,0,0,0, null, null, Collections.emptyList(), ContentDisplay.CENTER);
 
     private final int x;
     private final int y;

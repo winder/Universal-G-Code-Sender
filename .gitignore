@@ -53,3 +53,4 @@ ugs-pendant/src/main/webapp/node
 .flattened-pom.xml
 ugs-pendant/src/main/webapp/.angular/cache
 /ugs-fx/.jdks
+/ugs-fx/zulu*

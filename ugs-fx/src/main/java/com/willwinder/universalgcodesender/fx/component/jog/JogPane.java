@@ -23,7 +23,6 @@ public class JogPane extends BorderPane {
     private final DirectionalPadPane directionalPadPane;
     private final BackendAPI backend;
     private final JogService jogService;
-    private final VerticalPad verticalPadPane;
 
     private static final ObservableList<Integer> FEED_RATES = FXCollections.observableArrayList(10, 20, 50, 100, 200, 500, 1000, 2000, 5000);
     private static final ObservableList<Double> STEP_SIZES = FXCollections.observableArrayList(0.001, 0.01, 0.1, 1d, 10d, 100d);
@@ -83,7 +82,7 @@ public class JogPane extends BorderPane {
 
         setBottom(settings);
 
-        verticalPadPane = new VerticalPad();
+        VerticalPad verticalPadPane = new VerticalPad();
         verticalPadPane.setDisable(!backend.isConnected());
 
         jogService = new JogService(backend);
@@ -148,6 +147,9 @@ public class JogPane extends BorderPane {
                     break;
                 case BUTTON_CPOS:
                     jogService.adjustManualLocationABC(0, 0, 1);
+                    break;
+                case BUTTON_CANCEL:
+                    jogService.cancelJog();
                     break;
                 default:
             }

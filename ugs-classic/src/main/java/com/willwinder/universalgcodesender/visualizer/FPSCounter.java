@@ -37,7 +37,7 @@
  * and developed by Kenneth Bradley Russell and Christopher John Kline.
  */
 
-package com.willwinder.universalgcodesender.uielements.helpers;
+package com.willwinder.universalgcodesender.visualizer;
 
 import com.jogamp.opengl.GLDrawable;
 import com.jogamp.opengl.GLException;
