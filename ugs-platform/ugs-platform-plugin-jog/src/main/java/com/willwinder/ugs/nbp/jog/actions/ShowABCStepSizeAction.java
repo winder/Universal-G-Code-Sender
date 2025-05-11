@@ -69,6 +69,7 @@ public class ShowABCStepSizeAction extends AbstractAction implements Presenter.M
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onBackendEvent);
         setEnabled(isEnabled());
+        onBackendEvent( new SettingChangedEvent()) ;
     }
 
     private void onBackendEvent(UGSEvent event) {

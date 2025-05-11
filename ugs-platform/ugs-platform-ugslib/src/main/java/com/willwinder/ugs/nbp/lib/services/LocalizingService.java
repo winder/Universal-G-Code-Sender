@@ -43,6 +43,9 @@ public class LocalizingService {
     public static final String MENU_PROGRAM = "Menu/Program";
     public static final String MENU_MACHINE_JOG = "Menu/Machine/Jog";
     public static final String MENU_MACHINE_JOG_STEP_SIZE = "Menu/Machine/Jog/Step Size";
+    public static final String MENU_MACHINE_JOG_DECIMAL_PLACES_3 = "Menu/Machine/Precision";
+    public static final String MENU_MACHINE_JOG_DECIMAL_PLACES_4 = "Menu/Machine/Precision";
+    public static final String MENU_MACHINE_JOG_DECIMAL_PLACES_5 = "Menu/Machine/Precision";
     public static final String MENU_MACHINE_ACTIONS = "Menu/Machine/Actions";
     public static final String MENU_VISUALIZER = "Menu/Visualizer";
     public static final String MENU_MACROS = "Menu/Machine/Macros";

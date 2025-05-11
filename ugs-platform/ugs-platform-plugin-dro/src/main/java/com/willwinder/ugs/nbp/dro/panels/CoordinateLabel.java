@@ -18,15 +18,28 @@
  */
 package com.willwinder.ugs.nbp.dro.panels;
 
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import javax.swing.SwingConstants;
 import java.text.DecimalFormat;
 
-public class CoordinateLabel extends HighlightableLabel {
+public class CoordinateLabel extends HighlightableLabel implements UGSEventListener {
 
-    private final DecimalFormat decimalFormatter = new DecimalFormat("0.000");
+    private DecimalFormat decimalFormatter = new DecimalFormat("0.000");
     private double value = 0.0;
+    private final transient BackendAPI backend;
 
-    public CoordinateLabel(double value) {
+    public CoordinateLabel(double value, BackendAPI backend) {
+        this.backend = backend;
+
+        if (this.backend != null) {
+            this.backend.addUGSEventListener(this);
+        }
+
         setValue(value);
         setHorizontalAlignment(SwingConstants.RIGHT);
     }
@@ -37,7 +50,16 @@ public class CoordinateLabel extends HighlightableLabel {
 
     public void setValue(double value) {
         this.value = value;
+        if (this.backend != null) {
+            String valueToUse = this.backend.getSettings().getMachineDecimalFormat();
+            decimalFormatter = new DecimalFormat(valueToUse);
+        }
         String textValue = decimalFormatter.format(value);
         setText(textValue);
+    }
+
+    @Override
+    public void UGSEvent(UGSEvent evt) {
+        setValue(this.value);
     }
 }

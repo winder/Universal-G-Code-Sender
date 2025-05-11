@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -141,6 +142,7 @@ public class Settings {
 
     private FxSettings fxSettings = new FxSettings();
 
+    private String machineDecimalFormat = "0.000";
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
      */
@@ -602,7 +604,16 @@ public class Settings {
     public void setLastWorkingDirectory(String lastWorkingDirectory) {
         this.lastWorkingDirectory = lastWorkingDirectory;
     }
+    
+    public String getMachineDecimalFormat() {        
+        return this.machineDecimalFormat;
+    }
 
+    public void setMachineDecimalFormat(String aValue) {
+        this.machineDecimalFormat=aValue;
+        this.changed();
+    }
+    
     public static class FileStats {
         public Position minCoordinate;
         public Position maxCoordinate;
@@ -620,4 +631,5 @@ public class Settings {
             this.numCommands = num;
         }
     }
+    
 }

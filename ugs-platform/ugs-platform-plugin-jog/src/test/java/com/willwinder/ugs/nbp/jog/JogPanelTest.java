@@ -29,7 +29,7 @@ public class JogPanelTest extends JFrame {
     }
 
     private void start() throws Exception {
-        jogPanel = new JogPanel();
+        jogPanel = new JogPanel(null);
         getContentPane().add(jogPanel);
 
         createMenuBar();
