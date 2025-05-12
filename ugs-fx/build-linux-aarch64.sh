@@ -13,7 +13,7 @@ if [ -z ${PROJECT_VERSION} ]; then echo "Missing PROJECT_VERSION"; exit 1; fi
 if [ -z ${APP_VERSION} ]; then echo "Missing APP_VERSION"; exit 1; fi
 
 # Download JVM
-JVM=zulu21.42.19-ca-fx-jdk21.0.7-macosx_aarch64
+JVM=zulu21.42.19-ca-fx-jdk21.0.7-linux_aarch64
 set -e
 ZIP=$JVM.tar.gz
 export JAVA_HOME=.jdks/$JVM
@@ -22,7 +22,7 @@ if test -d $JAVA_HOME/$JVM/; then
 else
 	rm -rf $JAVA_HOME
 	mkdir -p $JAVA_HOME
-	curl -o $ZIP https://cdn.azul.com/zulu/bin/$ZIP
+  curl -o $ZIP https://cdn.azul.com/zulu/bin/$ZIP
 	tar -xvzf $ZIP -C $JAVA_HOME
 	mv $JAVA_HOME/$JVM/* $JAVA_HOME/
 fi
@@ -96,19 +96,39 @@ $JAVA_HOME/bin/jlink \
 # In the end we will find the package inside the target/installer directory.
 
 $JAVA_HOME/bin/jpackage \
-  --type dmg \
+  --type deb \
   --dest target/installer \
   --input target/installer/input/libs \
-  --name "Universal Gcode Sender" \
+  --name ugs \
+  --linux-deb-maintainer "joacim@breiler.com" \
   --main-class com.willwinder.universalgcodesender.fx.Main \
   --main-jar ${MAIN_JAR} \
   --resource-dir installer \
-  --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true -Djavafx.autoproxy.disable=true"  \
+  --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true"  \
   --runtime-image target/java-runtime \
   --app-version ${APP_VERSION} \
   --copyright "Joacim Breiler" \
   --license-file ../COPYING \
-  --about-url https://universalgcodesender.com/ \
-  --file-associations installer/gcode.properties
+  --about-url https://universalgcodesender.com/
 
-mv "target/installer/Universal Gcode Sender-${APP_VERSION}.dmg" "target/installer/ugs-${APP_VERSION}-aarch64.dmg"
+mv target/installer/ugs_*.deb "target/installer/ugs-${APP_VERSION}-aarch64.deb"
+
+
+$JAVA_HOME/bin/jpackage \
+  --type rpm \
+  --dest target/installer \
+  --input target/installer/input/libs \
+  --name ugs \
+  --linux-deb-maintainer "joacim@breiler.com" \
+  --main-class com.willwinder.universalgcodesender.fx.Main \
+  --main-jar ${MAIN_JAR} \
+  --resource-dir installer \
+  --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true"  \
+  --runtime-image target/java-runtime \
+  --app-version ${APP_VERSION} \
+  --vendor "Universal G-code Sender" \
+  --copyright "Joacim Breiler" \
+  --license-file ../COPYING \
+  --about-url https://universalgcodesender.com/
+
+mv target/installer/ugs-*.rpm "target/installer/ugs-${APP_VERSION}-aarch64.rpm"

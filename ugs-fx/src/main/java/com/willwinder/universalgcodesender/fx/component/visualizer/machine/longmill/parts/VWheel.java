@@ -1,9 +1,9 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.machine.longmill.parts;
 
 import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.Colors.COLOR_DARK_GREY;
-import com.willwinder.universalgcodesender.fx.component.visualizer.machine.longmill.LongMillModel;
+
+import com.willwinder.universalgcodesender.fx.component.visualizer.machine.common.STLModel;
 import eu.mihosoft.vrl.v3d.CSG;
-import eu.mihosoft.vrl.v3d.STL;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -14,8 +14,6 @@ import javafx.scene.transform.Translate;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,7 +22,7 @@ public class VWheel extends Group {
 
     public VWheel() {
         try {
-            CSG csg = STL.file(Path.of(Objects.requireNonNull(LongMillModel.class.getResource("/model/longmill/vwheel.stl")).toURI()))
+            CSG csg = STLModel.readSTL("/model/longmill/vwheel.stl")
                     .scale(1000);
             PhongMaterial material = new PhongMaterial();
             material.setDiffuseColor(COLOR_DARK_GREY);
@@ -36,15 +34,15 @@ public class VWheel extends Group {
             getChildren().add(meshView);
 
             Cylinder cylinder = new Cylinder(7, 10);
+            cylinder.setMaterial(material);
             cylinder.getTransforms().add(new Rotate(90, Rotate.Z_AXIS));
             getChildren().add(cylinder);
 
             Cylinder bolt = new Cylinder(3, 10);
+            bolt.setMaterial(material);
             bolt.getTransforms().add(new Rotate(90, Rotate.Z_AXIS));
             bolt.getTransforms().add(new Translate(0, -10, 0));
             getChildren().add(bolt);
-
-
         } catch (IOException | URISyntaxException | NullPointerException e) {
             LOGGER.log(Level.INFO, "Could not load model", e);
         }

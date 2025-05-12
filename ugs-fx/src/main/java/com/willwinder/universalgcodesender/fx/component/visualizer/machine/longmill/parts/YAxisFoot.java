@@ -1,9 +1,9 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.machine.longmill.parts;
 
 import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.Colors.COLOR_DARK_GREY;
-import com.willwinder.universalgcodesender.fx.component.visualizer.machine.longmill.LongMillModel;
+import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.common.STLModel.readSTL;
+
 import eu.mihosoft.vrl.v3d.CSG;
-import eu.mihosoft.vrl.v3d.STL;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -11,8 +11,6 @@ import javafx.scene.shape.MeshView;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,7 +19,7 @@ public class YAxisFoot extends Group {
 
     public YAxisFoot() {
         try {
-            CSG csg = STL.file(Path.of(Objects.requireNonNull(LongMillModel.class.getResource("/model/longmill/yaxis-foot.stl")).toURI()))
+            CSG csg = readSTL("/model/longmill/yaxis-foot.stl")
                     .scale(1000);
             PhongMaterial material = new PhongMaterial();
             material.setDiffuseColor(COLOR_DARK_GREY);

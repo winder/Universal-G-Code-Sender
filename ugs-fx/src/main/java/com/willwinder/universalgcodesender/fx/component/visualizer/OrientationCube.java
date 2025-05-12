@@ -53,6 +53,8 @@ public class OrientationCube extends Group {
         face.setOnMouseClicked(event -> onFaceClicked.accept(faceEnum));
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseMap(createLabeledFace(faceEnum.name(), Colors.BLACKISH));
+        material.setSpecularColor(Color.BLACK);
+        material.setSpecularPower(1);
         face.setMaterial(material);
         return face;
     }
