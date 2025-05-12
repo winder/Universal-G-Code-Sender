@@ -1,7 +1,8 @@
-package com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsu3020;
+package com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsupm;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.common.Extrusion2060;
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.common.Rail;
+import com.willwinder.universalgcodesender.fx.component.visualizer.machine.common.Spindle;
 import javafx.scene.Group;
 import javafx.scene.transform.Rotate;
 

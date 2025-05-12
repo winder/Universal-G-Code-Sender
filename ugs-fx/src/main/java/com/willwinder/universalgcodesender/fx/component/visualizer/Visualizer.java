@@ -50,14 +50,13 @@ public class Visualizer extends Pane {
         light.setDirection(new Point3D(1, -1, -1));
         light.getScope().addAll(tool, machine);
 
+        Point3D lightDirection = new Point3D(0.5, 0.7, 0);
         SpotLight spotLight = new SpotLight(Color.DARKGREY);
-        spotLight.setTranslateX(200);
+        spotLight.setTranslateX(-400);
         spotLight.setTranslateY(-1000);
-        spotLight.setTranslateZ(-400);
-        spotLight.setDirection(new Point3D(0.5, 0.7, 0));
+        spotLight.setTranslateZ(-200);
+        spotLight.setDirection(lightDirection);
         spotLight.getScope().addAll(machine);
-
-
 
         // Root group applies panning
         AmbientLight ambient = new AmbientLight(Color.rgb(255, 255, 255));
@@ -72,13 +71,13 @@ public class Visualizer extends Pane {
 
         setMouseInteraction();
 
-        OrientationCube orientationSubScene = new OrientationCube(110);
-        orientationSubScene.setOnFaceClicked(this::rotateTo);
-        orientationSubScene.setRotations(rotateX, rotateY, rotateZ);
-        orientationSubScene.layoutXProperty().bind(widthProperty().subtract(orientationSubScene.sizeProperty()).subtract(5));
-        orientationSubScene.layoutYProperty().set(5);
+        OrientationCube orientationCube = new OrientationCube(110);
+        orientationCube.setOnFaceClicked(this::rotateTo);
+        orientationCube.setRotations(rotateX, rotateY, rotateZ);
+        orientationCube.layoutXProperty().bind(widthProperty().subtract(orientationCube.sizeProperty()).subtract(5));
+        orientationCube.layoutYProperty().set(5);
 
-        getChildren().addAll(subScene, orientationSubScene);
+        getChildren().addAll(subScene, orientationCube);
     }
 
     private void rotateTo(OrientationCubeFace face) {

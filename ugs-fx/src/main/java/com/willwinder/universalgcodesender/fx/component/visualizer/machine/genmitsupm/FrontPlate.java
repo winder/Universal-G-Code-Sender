@@ -1,6 +1,6 @@
-package com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsu3020;
+package com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsupm;
 
-import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsu3020.Genmitsu3020.COLOR_TITANIUM;
+import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.Colors.COLOR_DARK_GREY;
 import eu.mihosoft.vrl.v3d.CSG;
 import eu.mihosoft.vrl.v3d.RoundedCube;
 import javafx.scene.Group;
@@ -22,7 +22,7 @@ public class FrontPlate extends Group {
                 .move(width / 2, depth / 2, -(height / 2));
 
         PhongMaterial material = new PhongMaterial();
-        material.setDiffuseColor(COLOR_TITANIUM);
+        material.setDiffuseColor(COLOR_DARK_GREY);
         material.setSpecularColor(Color.WHITE);
         material.setSpecularPower(60);
 

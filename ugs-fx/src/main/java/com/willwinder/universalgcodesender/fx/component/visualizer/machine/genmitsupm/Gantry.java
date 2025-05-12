@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsu3020;
+package com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsupm;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.common.Extrusion2040;
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.common.Rail;

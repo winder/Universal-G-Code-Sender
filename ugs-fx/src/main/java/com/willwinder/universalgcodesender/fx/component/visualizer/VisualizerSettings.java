@@ -1,5 +1,6 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
+import com.willwinder.universalgcodesender.fx.component.visualizer.machine.MachineType;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -9,7 +10,8 @@ import java.util.prefs.Preferences;
 
 public class VisualizerSettings {
     private static final Preferences preferences = Preferences.userNodeForPackage(VisualizerSettings.class);
-    private static final String SHOW_MACHINE = "showMachine";
+    private static final String SHOW_MACHINE_MODEL = "showMachineModel";
+    private static final String MACHINE_MODEL = "machineModel";
     private static final String COLOR_RAPID = "color.rapid";
     private static final String COLOR_COMPLETED = "color.completed";
     private static final String COLOR_PLUNGE = "color.plunge";
@@ -20,7 +22,8 @@ public class VisualizerSettings {
     private static final String COLOR_SPINDLE_MAX = "color.spindleMax";
     private static VisualizerSettings instance;
 
-    private final BooleanProperty showMachine = new SimpleBooleanProperty(loadBoolean(SHOW_MACHINE, false));
+    private final BooleanProperty showMachine = new SimpleBooleanProperty(loadBoolean(SHOW_MACHINE_MODEL, false));
+    private final StringProperty machineModel = new SimpleStringProperty(loadString(MACHINE_MODEL, MachineType.GENMITSU_PRO_MAX.name()));
     private final StringProperty colorRapid = new SimpleStringProperty(loadString(COLOR_RAPID, "#EDFF00FF"));
     private final StringProperty colorCompleted = new SimpleStringProperty(loadString(COLOR_COMPLETED, "#BEBEBEC8"));
     private final StringProperty colorPlunge = new SimpleStringProperty(loadString(COLOR_PLUNGE, "#006400FF"));
@@ -31,8 +34,8 @@ public class VisualizerSettings {
     private final StringProperty colorSpindleMax = new SimpleStringProperty(loadString(COLOR_SPINDLE_MAX, "#00009EFF"));
 
     VisualizerSettings() {
-        showMachine.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_MACHINE, newVal));
-
+        showMachine.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_MACHINE_MODEL, newVal));
+        machineModel.addListener((obs, oldVal, newVal) -> saveString(MACHINE_MODEL, newVal));
         colorRapid.addListener((obs, oldVal, newVal) -> saveString(COLOR_RAPID, newVal));
         colorCompleted.addListener((obs, oldVal, newVal) -> saveString(COLOR_COMPLETED, newVal));
         colorPlunge.addListener((obs, oldVal, newVal) -> saveString(COLOR_PLUNGE, newVal));
@@ -85,6 +88,10 @@ public class VisualizerSettings {
 
     public StringProperty colorSpindleMaxProperty() {
         return colorSpindleMax;
+    }
+
+    public StringProperty machineModelProperty() {
+        return machineModel;
     }
 
     private String loadString(String key, String defaultVal) {

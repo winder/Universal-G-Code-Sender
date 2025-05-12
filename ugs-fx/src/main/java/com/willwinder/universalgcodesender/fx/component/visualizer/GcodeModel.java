@@ -34,8 +34,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class GcodeModel extends Group {
+    private static final Logger LOGGER = Logger.getLogger(GcodeModel.class.getName());
     public static final Point3D ZERO = new Point3D(0, 0, 0);
     public static final double ARC_SEGMENT_LENGTH = 0.8;
     private final GcodeViewParse gcvp;
@@ -111,7 +114,7 @@ public class GcodeModel extends Group {
                         TriangleMesh mesh = pointsToMesh(lineSegments);
                         meshView.setMesh(mesh);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.log(Level.SEVERE, "Could not load model", e);
                     }
                 });
             }
@@ -132,7 +135,7 @@ public class GcodeModel extends Group {
 
     private TriangleMesh pointsToMesh(List<LineSegment> lineSegments) {
         TriangleMesh mesh = new TriangleMesh();
-        float width = 0.04f; // Thin width for visual line approximation
+        float width = 0.05f; // Thin width for visual line approximation
         lineToTextureMap = new HashMap<>();
 
         material = new GcodeModelMaterial(lineSegments.size());

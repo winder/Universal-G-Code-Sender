@@ -1,6 +1,6 @@
-package com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsu3020;
+package com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsupm;
 
-import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsu3020.Genmitsu3020.COLOR_TITANIUM;
+import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.Colors.COLOR_DARK_GREY;
 import eu.mihosoft.vrl.v3d.CSG;
 import eu.mihosoft.vrl.v3d.svg.SVGLoad;
 import javafx.scene.Group;
@@ -15,20 +15,19 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GantrySide extends Group {
+public class HeadstockTop extends Group {
     private static final Logger LOGGER = Logger.getLogger(GantrySide.class.getName());
+    private final double thickness = 10;
 
-    public GantrySide() {
+    public HeadstockTop() {
         try {
-            URI uri = Objects.requireNonNull(getClass().getResource("/model/genmitsu-3020-promax-gantry-side.svg")).toURI();
-            CSG csg = SVGLoad.extrude(uri, getThickness())
+            URI uri = Objects.requireNonNull(getClass().getResource("/model/genmitsu-3020-promax-headstock-top.svg")).toURI();
+            CSG csg = SVGLoad.extrude(uri, thickness)
                     .get(0)
-                    .rotz(90)
-                    .roty(90)
-                    .move(10, 80, 0);
+                    .move(0, -getHeight(), 0);
 
             PhongMaterial material = new PhongMaterial();
-            material.setDiffuseColor(COLOR_TITANIUM);
+            material.setDiffuseColor(COLOR_DARK_GREY);
             material.setSpecularColor(Color.WHITE);
             material.setSpecularPower(60);
 
@@ -40,15 +39,15 @@ public class GantrySide extends Group {
         }
     }
 
-    public double getThickness() {
-        return 10;
-    }
-
     public double getWidth() {
-        return 80;
+        return 76;
     }
 
     public double getHeight() {
-        return 254;
+        return 60;
+    }
+
+    public double getThickness() {
+        return thickness;
     }
 }

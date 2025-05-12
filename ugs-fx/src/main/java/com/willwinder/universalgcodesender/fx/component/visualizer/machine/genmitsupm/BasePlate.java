@@ -1,6 +1,6 @@
-package com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsu3020;
+package com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsupm;
 
-import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsu3020.Genmitsu3020.COLOR_ALUMINIUM;
+import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.Colors.COLOR_ALUMINIUM;
 import eu.mihosoft.vrl.v3d.CSG;
 import eu.mihosoft.vrl.v3d.RoundedCube;
 import javafx.scene.Group;

@@ -1,6 +1,6 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.machine.common;
 
-import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.genmitsu3020.Genmitsu3020.COLOR_STEEL;
+import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.Colors.COLOR_STEEL;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;

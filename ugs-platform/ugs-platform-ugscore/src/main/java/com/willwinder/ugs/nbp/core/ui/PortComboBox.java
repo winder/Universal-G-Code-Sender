@@ -79,7 +79,11 @@ public class PortComboBox extends JComboBox<IConnectionDevice> implements UGSEve
     }
     public void startRefreshing() {
         if (!refreshThread.isAlive()) {
-            refreshThread.start();
+            try {
+                refreshThread.start();
+            } catch (IllegalThreadStateException e) {
+                // Ignore
+            }
         }
     }
 

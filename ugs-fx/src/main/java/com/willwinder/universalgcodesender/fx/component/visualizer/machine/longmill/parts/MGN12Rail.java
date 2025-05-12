@@ -1,6 +1,6 @@
-package com.willwinder.universalgcodesender.fx.component.visualizer.machine.common;
+package com.willwinder.universalgcodesender.fx.component.visualizer.machine.longmill.parts;
 
-import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.Colors.COLOR_ALUMINIUM;
+import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.Colors.COLOR_STEEL;
 import eu.mihosoft.vrl.v3d.CSG;
 import eu.mihosoft.vrl.v3d.svg.SVGLoad;
 import javafx.scene.Group;
@@ -15,21 +15,19 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Extrusion2060 extends Group {
-    private static final Logger LOGGER = Logger.getLogger(Extrusion4040.class.getName());
+public class MGN12Rail extends Group {
+    private static final Logger LOGGER = Logger.getLogger(MGN12Rail.class.getName());
 
-    public Extrusion2060(double length) {
+    public MGN12Rail(double length) {
         try {
-            URI uri = Objects.requireNonNull(getClass().getResource("/model/tslot-2060.svg")).toURI();
+            URI uri = Objects.requireNonNull(getClass().getResource("/model/longmill/mgn12.svg")).toURI();
             CSG csg = SVGLoad.extrude(uri, length)
-                    .get(0)
-                    .rotx(90)
-                    .move(0, 0, getHeight());
+                    .get(0);
 
             PhongMaterial material = new PhongMaterial();
-            material.setDiffuseColor(COLOR_ALUMINIUM);
+            material.setDiffuseColor(COLOR_STEEL);
             material.setSpecularColor(Color.WHITE);
-            material.setSpecularPower(1);
+            material.setSpecularPower(60);
 
             MeshView meshView = csg.getMesh();
             meshView.setMaterial(material);
@@ -37,13 +35,5 @@ public class Extrusion2060 extends Group {
         } catch (IOException | URISyntaxException e) {
             LOGGER.log(Level.SEVERE, "Could not load SVG model", e);
         }
-    }
-
-    public double getWidth() {
-        return 20;
-    }
-
-    public double getHeight() {
-        return 60;
     }
 }

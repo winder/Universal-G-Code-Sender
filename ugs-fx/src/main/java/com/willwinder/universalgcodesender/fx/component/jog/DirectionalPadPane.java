@@ -66,6 +66,7 @@ public class DirectionalPadPane extends GridPane {
 
         JogButton cancel = new JogButton(JogButtonEnum.BUTTON_CANCEL);
         cancel.setStyle("-fx-border-color: transparent");
+        buttons.add(cancel);
 
         bindButtonSize(yPosButton);
         bindButtonSize(yNegButton);
