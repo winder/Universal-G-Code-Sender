@@ -1,41 +1,69 @@
 package com.willwinder.universalgcodesender.fx.component.settings;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.fx.component.visualizer.VisualizerSettings;
+import com.willwinder.universalgcodesender.fx.component.visualizer.machine.MachineType;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.BackendAPI;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-
-import java.util.function.Consumer;
+import javafx.util.StringConverter;
 
 
 public class VisualizerSettingsPane extends BorderPane {
 
-    private final BackendAPI backend;
     private final VBox settingsGroup;
 
     public VisualizerSettingsPane() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        settingsGroup = new VBox(5);
+        addTitle(Localization.getString("settings.visualizer.machine"));
+        addMachineCombo();
 
-        settingsGroup = new VBox();
-        settingsGroup.setSpacing(20);
-        addColor(Localization.getString("platform.visualizer.color.rapid"), Color.web(backend.getSettings().getFxSettings().getVisualizerRapidColor()), (value) -> backend.getSettings().getFxSettings().setVisualizerRapidColor(value));
-        addColor(Localization.getString("platform.visualizer.color.linear.min.speed"), Color.web(backend.getSettings().getFxSettings().getVisualizerFeedMinColor()), (value) -> backend.getSettings().getFxSettings().setVisualizerFeedMinColor(value));
-        addColor(Localization.getString("platform.visualizer.color.linear"), Color.web(backend.getSettings().getFxSettings().getVisualizerFeedMaxColor()), (value) -> backend.getSettings().getFxSettings().setVisualizerFeedMaxColor(value));
-        addColor(Localization.getString("platform.visualizer.color.spindle.min.speed"), Color.web(backend.getSettings().getFxSettings().getVisualizerSpindleMinColor()), (value) -> backend.getSettings().getFxSettings().setVisualizerSpindleMinColor(value));
-        addColor(Localization.getString("platform.visualizer.color.spindle.max.speed"), Color.web(backend.getSettings().getFxSettings().getVisualizerSpindleMaxColor()), (value) -> backend.getSettings().getFxSettings().setVisualizerSpindleMaxColor(value));
-        addColor(Localization.getString("platform.visualizer.color.arc"), Color.web(backend.getSettings().getFxSettings().getVisualizerArcColor()), (value) -> backend.getSettings().getFxSettings().setVisualizerArcColor(value));
-        addColor(Localization.getString("platform.visualizer.color.completed"), Color.web(backend.getSettings().getFxSettings().getVisualizerCompletedColor()), (value) -> backend.getSettings().getFxSettings().setVisualizerCompletedColor(value));
-        addColor(Localization.getString("platform.visualizer.color.plunge"), Color.web(backend.getSettings().getFxSettings().getVisualizerPlungeColor()), (value) -> backend.getSettings().getFxSettings().setVisualizerPlungeColor(value));
+        addTitle(Localization.getString("settings.visualizer.colors"));
+        addColor(Localization.getString("platform.visualizer.color.rapid"), VisualizerSettings.getInstance().colorRapidProperty());
+        addColor(Localization.getString("platform.visualizer.color.linear.min.speed"), VisualizerSettings.getInstance().colorFeedMinProperty());
+        addColor(Localization.getString("platform.visualizer.color.linear"), VisualizerSettings.getInstance().colorFeedMaxProperty());
+        addColor(Localization.getString("platform.visualizer.color.spindle.min.speed"), VisualizerSettings.getInstance().colorSpindleMinProperty());
+        addColor(Localization.getString("platform.visualizer.color.spindle.max.speed"), VisualizerSettings.getInstance().colorSpindleMaxProperty());
+        addColor(Localization.getString("platform.visualizer.color.arc"), VisualizerSettings.getInstance().colorArcProperty());
+        addColor(Localization.getString("platform.visualizer.color.completed"), VisualizerSettings.getInstance().colorCompletedProperty());
+        addColor(Localization.getString("platform.visualizer.color.plunge"), VisualizerSettings.getInstance().colorPlungeProperty());
 
         addTitleSection();
         setCenter(settingsGroup);
+    }
+
+    private void addMachineCombo() {
+        ComboBox<MachineType> machineTypeComboBox = new ComboBox<>(FXCollections.observableArrayList(MachineType.values()));
+        machineTypeComboBox.valueProperty().addListener((observable, oldValue, newValue) -> VisualizerSettings.getInstance().machineModelProperty().set(newValue.name()));
+        machineTypeComboBox.setValue(MachineType.fromValue(VisualizerSettings.getInstance().machineModelProperty().orElse(MachineType.UNKNOWN.name()).getValue()));
+        machineTypeComboBox.setConverter(new StringConverter<>() {
+
+            @Override
+            public String toString(MachineType machineType) {
+                return machineType.getName();
+            }
+
+            @Override
+            public MachineType fromString(String name) {
+                return MachineType.fromName(name);
+            }
+        });
+        settingsGroup.getChildren().add(machineTypeComboBox);
+    }
+
+    private void addTitle(String text) {
+        Label title = new Label(text);
+        title.setFont(Font.font(16));
+        settingsGroup.getChildren().add(title);
+        VBox.setMargin(title, new Insets(10, 0, 0, 0));
     }
 
     private void addTitleSection() {
@@ -45,10 +73,15 @@ public class VisualizerSettingsPane extends BorderPane {
         setTop(title);
     }
 
-    private void addColor(String text, Color value, Consumer<String> onChange) {
+    private void addColor(String text, StringProperty stringProperty) {
+        Color value = stringProperty.map(Color::web).getValue();
         VBox vBox = new VBox(5);
         ColorPicker colorPicker = new ColorPicker(value);
-        colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> onChange.accept(Colors.toWeb(newValue)));
+        colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            String value1 = Colors.toWeb(newValue);
+            stringProperty.set(value1);
+        });
+        colorPicker.setMinHeight(24);
         Label label = new Label(text);
         vBox.getChildren().add(label);
         vBox.getChildren().add(colorPicker);

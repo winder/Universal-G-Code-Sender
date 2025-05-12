@@ -34,7 +34,7 @@ public class RefreshThread extends Thread {
 
     @Override
     public void run() {
-        while (!Thread.currentThread().isInterrupted()) {
+        while (!isInterrupted()) {
             refreshFunction.run();
             try {
                 Thread.sleep(refreshInterval);

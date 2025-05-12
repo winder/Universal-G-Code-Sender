@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 12 8.0000003"
+   width="12"
+   height="8"
+   version="1.1"
+   id="svg5901"
+   sodipodi:docname="mgnr12.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview5903"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="41.40392"
+     inkscape:cx="27.895909"
+     inkscape:cy="11.182516"
+     inkscape:window-width="5054"
+     inkscape:window-height="1371"
+     inkscape:window-x="66"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g5881" />
+  <desc
+     id="desc5737">MGNR12 200mm Rail - MGNR12 200mm Rail.dxf - scale = 1.000000, origin = (0.000000, 0.000000), method = manual</desc>
+  <defs
+     id="defs5751">
+    <marker
+       id="DistanceX"
+       orient="auto"
+       refX="0"
+       refY="0"
+       style="overflow:visible">
+      <path
+         d="M 3,-3 -3,3 M 0,-5 V 5"
+         style="stroke:#000000;stroke-width:0.5"
+         id="path5739" />
+    </marker>
+    <pattern
+       id="Hatch"
+       patternUnits="userSpaceOnUse"
+       width="8"
+       height="8"
+       x="0"
+       y="0">
+      <path
+         d="M8 4 l-4,4"
+         stroke="#000000"
+         stroke-width="0.25"
+         linecap="square"
+         id="path5742" />
+      <path
+         d="M6 2 l-4,4"
+         stroke="#000000"
+         stroke-width="0.25"
+         linecap="square"
+         id="path5744" />
+      <path
+         d="M4 0 l-4,4"
+         stroke="#000000"
+         stroke-width="0.25"
+         linecap="square"
+         id="path5746" />
+    </pattern>
+    <symbol
+       id="*MODEL_SPACE" />
+    <symbol
+       id="*PAPER_SPACE" />
+  </defs>
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="0"
+     id="g5753" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SECTION_CUTTING_LINE"
+     id="g5755" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="DETAIL_VIEW_BORDER"
+     id="g5757" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="DETAIL_VIEW_PARENT_BORDER"
+     id="g5759" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="TEXT"
+     id="g5761" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SKETCHED_GEOMETRY"
+     id="g5763" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="VIRTUAL_SHARPS"
+     id="g5765" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="CENTERLINES"
+     id="g5767" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="CENTERMARKS"
+     id="g5769" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="TABLES"
+     id="g5771" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="IMAGES"
+     id="g5773" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="ANNOTATION_LINES"
+     id="g5775" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="ANNOTATION_TEXT"
+     id="g5777" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SIDE_THREAD_SYMBOLS"
+     id="g5779" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SIDE_THREAD_SYMBOLS_HIDDEN"
+     id="g5781" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SURFACE_THREAD_SYMBOLS"
+     id="g5783" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SURFACE_THREAD_SYMBOLS_ON_"
+     id="g5785" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SURFACE_THREAD_SYMBOLS_HID"
+     id="g5787" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="BLIND_THREAD_SYMBOLS"
+     id="g5789" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="BLIND_THREAD_SYMBOLS_HIDDE"
+     id="g5791" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="EXPLODE_LINES"
+     id="g5793" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="HIDDEN_EXPLODE_LINES"
+     id="g5795" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="BREAK_LINES"
+     id="g5797" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SHEETMETAL_BEND_LINES_UP"
+     id="g5799" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SHEETMETAL_BEND_LINES_DOWN"
+     id="g5801" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SHEETMETAL_BEND_TANGENT_LI"
+     id="g5803" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SHEETMETAL_CUT_LINES"
+     id="g5805" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SHEETMETAL_CBORE_CSINK_UP"
+     id="g5807" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SHEETMETAL_CBORE_CSINK_DOW"
+     id="g5809" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SHEETMETAL_FORM_TEAR"
+     id="g5811" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SHEETMETAL_FORM_UP"
+     id="g5813" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SHEETMETAL_FORM_DOWN"
+     id="g5815" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SHEETMETAL_FORM_CENTERMARK"
+     id="g5817" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="REGION_ASSOC_POINTS"
+     id="g5819" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="PATTERN_CENTERLINES"
+     id="g5821" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="HIDDEN"
+     id="g5823" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="VISIBLE"
+     id="g5881">
+    <path
+       d="m 11.435014,3.0237766 c 0.101864,0.1757755 0.252005,0.3209088 0.433846,0.4193648 0.0501,0.027127 0.08112,0.078308 0.08114,0.1343899 V 7.2406321 L 11.454159,7.7200076 H 0.54584207 l -0.49584196,-0.4793755 4.6e-6,-3.6631008 c 4.45e-6,-0.056083 0.0310325,-0.1072625 0.0811334,-0.1343899 C 0.31297786,3.3446854 0.46312284,3.1995521 0.5649839,3.0237766 0.5930459,2.9753456 0.6459879,2.9453526 0.703406,2.9459476 H 1.1216263 C 1.4421129,3.046469 1.7712956,2.8155879 1.7712956,2.4896914 c 0,-0.3258965 -0.3291827,-0.5567776 -0.6496693,-0.455952 H 0.703406 C 0.6459883,2.0340306 0.5930463,2.0040369 0.5649839,1.9556062 0.46312287,1.7798307 0.31297789,1.6346972 0.13113816,1.5362415 0.08103719,1.5091138 0.05000916,1.4579341 0.05000471,1.4021558 L 0.05000011,0.6156123 0.54584207,0.05 H 11.454155 l 0.495842,0.5656123 -4e-6,0.7865435 c -5e-6,0.055778 -0.03104,0.1069574 -0.08114,0.1340857 -0.18184,0.098455 -0.331985,0.2435892 -0.433846,0.4193647 -0.02806,0.048431 -0.08101,0.078425 -0.138423,0.078133 h -0.41822 c -0.592741,-0.186724 -0.592741,1.0986281 0,0.9122085 h 0.41822 c 0.05742,-5.835e-4 0.110361,0.029399 0.138423,0.077828 z"
+       style="fill:none;stroke:#000000;stroke-width:0.1;stroke-dasharray:none"
+       id="path5829"
+       sodipodi:nodetypes="ccccccccccccsccccccccccccccccc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="MODELSKETCH_VISIBLE"
+     id="g5883" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="MODELSKETCH_POINT"
+     id="g5885" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="MODELSKETCH_CONSTRUCTION"
+     id="g5887" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="HIDDEN_BASE_VIEW"
+     id="g5889" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="TANGENT_LINES"
+     id="g5891" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="TANGENT_HIDDEN"
+     id="g5893" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="INVISIBLE_LINES"
+     id="g5895" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="VIEW_HATCHES"
+     id="g5897" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="SECTION_JOG_LINES"
+     id="g5899" />
+</svg>

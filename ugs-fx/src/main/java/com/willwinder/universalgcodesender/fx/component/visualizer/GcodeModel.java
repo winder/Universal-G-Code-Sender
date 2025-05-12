@@ -34,8 +34,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class GcodeModel extends Group {
+    private static final Logger LOGGER = Logger.getLogger(GcodeModel.class.getName());
     public static final Point3D ZERO = new Point3D(0, 0, 0);
     public static final double ARC_SEGMENT_LENGTH = 0.8;
     private final GcodeViewParse gcvp;
@@ -45,8 +48,8 @@ public class GcodeModel extends Group {
     private GcodeModelMaterial material = new GcodeModelMaterial(0);
     private Map<Integer, List<Integer>> lineToTextureMap = new HashMap<>();
 
-    private Color arcColor;
     private Color rapidColor;
+    private Color arcColor;
     private Color plungeColor;
     private Color feedMinColor;
     private Color feedMaxColor;
@@ -73,18 +76,33 @@ public class GcodeModel extends Group {
         gcvp = new GcodeViewParse();
         backendAPI.addUGSEventListener(this::onEvent);
 
-        updateColorsFromSettings();
+        addSettingListeners();
     }
 
-    private void updateColorsFromSettings() {
-        feedMinColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerFeedMinColor());
-        feedMaxColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerFeedMaxColor());
-        arcColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerArcColor());
-        rapidColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerRapidColor());
-        plungeColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerPlungeColor());
-        spindleMinColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerSpindleMinColor());
-        spindleMaxColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerSpindleMaxColor());
-        completedColor = Color.web(backendAPI.getSettings().getFxSettings().getVisualizerCompletedColor());
+    private void addSettingListeners() {
+        VisualizerSettings.getInstance().colorRapidProperty().map(Color::web).addListener((s, o, n) -> rapidColor = n);
+        rapidColor = VisualizerSettings.getInstance().colorRapidProperty().map(Color::web).getValue();
+
+        VisualizerSettings.getInstance().colorFeedMinProperty().map(Color::web).addListener((s, o, n) -> feedMinColor = n);
+        feedMinColor = VisualizerSettings.getInstance().colorFeedMinProperty().map(Color::web).getValue();
+
+        VisualizerSettings.getInstance().colorFeedMaxProperty().map(Color::web).addListener((s, o, n) -> feedMaxColor = n);
+        feedMaxColor = VisualizerSettings.getInstance().colorFeedMaxProperty().map(Color::web).getValue();
+
+        VisualizerSettings.getInstance().colorArcProperty().map(Color::web).addListener((s, o, n) -> arcColor = n);
+        arcColor = VisualizerSettings.getInstance().colorArcProperty().map(Color::web).getValue();
+
+        VisualizerSettings.getInstance().colorPlungeProperty().map(Color::web).addListener((s, o, n) -> plungeColor = n);
+        plungeColor = VisualizerSettings.getInstance().colorPlungeProperty().map(Color::web).getValue();
+
+        VisualizerSettings.getInstance().colorSpindleMinProperty().map(Color::web).addListener((s, o, n) -> spindleMinColor = n);
+        spindleMinColor = VisualizerSettings.getInstance().colorSpindleMinProperty().map(Color::web).getValue();
+
+        VisualizerSettings.getInstance().colorSpindleMaxProperty().map(Color::web).addListener((s, o, n) -> spindleMaxColor = n);
+        spindleMaxColor = VisualizerSettings.getInstance().colorSpindleMaxProperty().map(Color::web).getValue();
+
+        VisualizerSettings.getInstance().colorCompletedProperty().map(Color::web).addListener((s, o, n) -> completedColor = n);
+        completedColor = VisualizerSettings.getInstance().colorCompletedProperty().map(Color::web).getValue();
     }
 
     private void onEvent(UGSEvent event) {
@@ -96,7 +114,7 @@ public class GcodeModel extends Group {
                         TriangleMesh mesh = pointsToMesh(lineSegments);
                         meshView.setMesh(mesh);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.log(Level.SEVERE, "Could not load model", e);
                     }
                 });
             }
@@ -111,13 +129,13 @@ public class GcodeModel extends Group {
                 );
             }
         } else if (event instanceof SettingChangedEvent) {
-            updateColorsFromSettings();
+            addSettingListeners();
         }
     }
 
     private TriangleMesh pointsToMesh(List<LineSegment> lineSegments) {
         TriangleMesh mesh = new TriangleMesh();
-        float width = 0.04f; // Thin width for visual line approximation
+        float width = 0.05f; // Thin width for visual line approximation
         lineToTextureMap = new HashMap<>();
 
         material = new GcodeModelMaterial(lineSegments.size());

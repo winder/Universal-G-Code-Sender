@@ -6,6 +6,7 @@
 
 .button,
 .toggle-button {
+    -fx-border-width: 1;
     -fx-background-color: white;
     -fx-border-color: #c2c2c2;
     -fx-padding: 5;
@@ -17,6 +18,7 @@
 
 .button:selected,
 .toggle-button:selected {
+    -fx-border-width: 1;
     -fx-border-color: transparent;
     -fx-background-color: -fx-focus-background-color;
 }
@@ -36,11 +38,13 @@
 
 .button:pressed,
 .toggle-button:pressed {
+    -fx-border-width: 1;
+    -fx-border-color: transparent;
     -fx-background-color: #c2c2c2;
 }
 
 /**
- *
+ * Text fields
  */
 .text-field:focused {
     -fx-border-width: 0;
@@ -130,11 +134,6 @@
     -fx-border-color: #c2c2c2;
 }
 
-.combo-box .list-cell:hover .label {
-    -fx-text-fill: black;
-    -fx-border-color: -fx-focus-border-color;
-}
-
 /**
  * The actions pane is the lower part of a dialog containing buttons
  */
@@ -144,3 +143,4 @@
     -fx-border-width: 1px 0 0 0;
     -fx-padding: 10;
 }
+

@@ -7,10 +7,13 @@ import javafx.beans.property.StringProperty;
 
 public abstract class BaseAction implements Action {
     private final BooleanProperty enabled = new SimpleBooleanProperty(true);
+    private final BooleanProperty selected = new SimpleBooleanProperty(false);
     private final StringProperty title = new SimpleStringProperty("");
     private final StringProperty icon = new SimpleStringProperty("");
 
-    public BaseAction() {}
+    public BaseAction() {
+    }
+
     public BaseAction(String title, String icon) {
         this.title.set(title);
         this.icon.set(icon);
@@ -38,6 +41,10 @@ public abstract class BaseAction implements Action {
 
     public BooleanProperty enabledProperty() {
         return enabled;
+    }
+    
+    public BooleanProperty selectedProperty() {
+        return selected;
     }
 
     public StringProperty titleProperty() {

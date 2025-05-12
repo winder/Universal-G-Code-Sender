@@ -7,6 +7,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import javafx.collections.FXCollections;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
@@ -28,6 +29,14 @@ public class GeneralSettingsPane extends VBox {
         addTitleSection();
         addUnitSection();
         addLanguageSection();
+        addVerboseLoggingSection();
+    }
+
+    private void addVerboseLoggingSection() {
+        CheckBox checkBox = new CheckBox(Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
+        checkBox.setSelected(backend.getSettings().isVerboseOutputEnabled());
+        checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> backend.getSettings().setVerboseOutputEnabled(newValue));
+        getChildren().add(checkBox);
     }
 
     private void addTitleSection() {

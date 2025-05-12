@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.uielements.helpers;
+package com.willwinder.ugs.nbm.visualizer.shared;
 
 import com.jogamp.opengl.GLDrawable;
 import com.jogamp.opengl.util.awt.TextRenderer;

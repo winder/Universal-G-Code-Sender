@@ -3,6 +3,7 @@ package com.willwinder.universalgcodesender.fx.component.visualizer;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
@@ -14,7 +15,7 @@ import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
 
 public class Tool extends Group {
-    private final ToolAnimatorTimer positionAnimator = new ToolAnimatorTimer();
+    private final PositionAnimatorTimer positionAnimator = new PositionAnimatorTimer();
 
     public Tool() {
         BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -39,7 +40,7 @@ public class Tool extends Group {
 
     private void onEvent(UGSEvent ugsEvent) {
         if (ugsEvent instanceof ControllerStatusEvent controllerStatusEvent) {
-            positionAnimator.setTarget(controllerStatusEvent.getStatus().getWorkCoord());
+            positionAnimator.setTarget(controllerStatusEvent.getStatus().getWorkCoord().getPositionIn(UnitUtils.Units.MM));
             positionAnimator.start();
         }
     }

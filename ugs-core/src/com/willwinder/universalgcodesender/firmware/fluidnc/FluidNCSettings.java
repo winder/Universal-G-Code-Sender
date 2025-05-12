@@ -124,7 +124,7 @@ public class FluidNCSettings implements IFirmwareSettings {
     }
 
     @Override
-    public void setHomingEnabled(boolean enabled) throws FirmwareSettingsException {
+    public void setHomingEnabled(boolean enabled) {
 
     }
 
@@ -144,12 +144,12 @@ public class FluidNCSettings implements IFirmwareSettings {
     }
 
     @Override
-    public boolean isHardLimitsEnabled() throws FirmwareSettingsException {
+    public boolean isHardLimitsEnabled() {
         return false;
     }
 
     @Override
-    public void setHardLimitsEnabled(boolean enabled) throws FirmwareSettingsException {
+    public void setHardLimitsEnabled(boolean enabled) {
 
     }
 
@@ -161,27 +161,27 @@ public class FluidNCSettings implements IFirmwareSettings {
     }
 
     @Override
-    public void setSoftLimitsEnabled(boolean enabled) throws FirmwareSettingsException {
+    public void setSoftLimitsEnabled(boolean enabled) {
 
     }
 
     @Override
-    public boolean isInvertDirection(Axis axis) throws FirmwareSettingsException {
+    public boolean isInvertDirection(Axis axis) {
         return false;
     }
 
     @Override
-    public void setInvertDirection(Axis axis, boolean inverted) throws FirmwareSettingsException {
+    public void setInvertDirection(Axis axis, boolean inverted) {
 
     }
 
     @Override
-    public void setStepsPerMillimeter(Axis axis, double stepsPerMillimeter) throws FirmwareSettingsException {
+    public void setStepsPerMillimeter(Axis axis, double stepsPerMillimeter) {
 
     }
 
     @Override
-    public double getStepsPerMillimeter(Axis axis) throws FirmwareSettingsException {
+    public double getStepsPerMillimeter(Axis axis) {
         return 0;
     }
 
@@ -205,21 +205,23 @@ public class FluidNCSettings implements IFirmwareSettings {
 
     @Override
     public boolean isHomingDirectionInverted(Axis axis) {
+        String key = "axes/" + axis.name().toLowerCase() + "/homing/positive_direction";
+        FirmwareSetting firmwareSetting = getSetting(key).orElse(new FirmwareSetting(key, "false"));
+        return firmwareSetting.getValue().equalsIgnoreCase("false");
+    }
+
+    @Override
+    public void setHomingDirectionInverted(Axis axis, boolean inverted) {
+
+    }
+
+    @Override
+    public boolean isHardLimitsInverted() {
         return false;
     }
 
     @Override
-    public void setHomingDirectionInverted(Axis axis, boolean inverted) throws FirmwareSettingsException {
-
-    }
-
-    @Override
-    public boolean isHardLimitsInverted() throws FirmwareSettingsException {
-        return false;
-    }
-
-    @Override
-    public void setHardLimitsInverted(boolean inverted) throws FirmwareSettingsException {
+    public void setHardLimitsInverted(boolean inverted) {
 
     }
 
@@ -235,7 +237,7 @@ public class FluidNCSettings implements IFirmwareSettings {
     }
 
     @Override
-    public double getMaximumRate(Axis axis) throws FirmwareSettingsException {
+    public double getMaximumRate(Axis axis) {
         return 0;
     }
 
