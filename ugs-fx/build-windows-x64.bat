@@ -62,7 +62,6 @@ echo Creating Java runtime image...
   --strip-native-commands ^
   --no-header-files ^
   --no-man-pages ^
-  --compress=2 ^
   --strip-debug ^
   --add-modules "%detected_modules%%extra_modules%" ^
   --include-locales=en,de ^

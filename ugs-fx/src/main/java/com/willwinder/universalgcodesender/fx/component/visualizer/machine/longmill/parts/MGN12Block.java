@@ -1,9 +1,9 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.machine.longmill.parts;
 
 import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.Colors.COLOR_STEEL;
-import com.willwinder.universalgcodesender.fx.component.visualizer.machine.longmill.LongMillModel;
+
+import com.willwinder.universalgcodesender.fx.component.visualizer.machine.common.STLModel;
 import eu.mihosoft.vrl.v3d.CSG;
-import eu.mihosoft.vrl.v3d.STL;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -11,8 +11,6 @@ import javafx.scene.shape.MeshView;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,7 +19,7 @@ public class MGN12Block extends Group {
 
     public MGN12Block() {
         try {
-            CSG csg = STL.file(Path.of(Objects.requireNonNull(LongMillModel.class.getResource("/model/longmill/mgn12-block.stl")).toURI()))
+            CSG csg = STLModel.readSTL("/model/longmill/mgn12-block.stl")
                     .scale(1000);
             PhongMaterial material = new PhongMaterial();
             material.setDiffuseColor(COLOR_STEEL);
