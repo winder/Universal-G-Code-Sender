@@ -112,7 +112,15 @@ $JAVA_HOME/bin/jpackage \
   --about-url https://universalgcodesender.com/
 
 mv target/installer/ugs_*.deb "target/installer/ugs-${APP_VERSION}-x64.deb"
+cd target/installer
 
+# Repackage using xz instead of zst
+ar x "ugs-${APP_VERSION}-x64.deb"
+zstd -d < control.tar.zst | xz > control.tar.xz
+zstd -d < data.tar.zst | xz > data.tar.xz
+rm "ugs-${APP_VERSION}-x64.deb"
+ar -m -c -a sdsd "ugs-${APP_VERSION}-x64.deb" debian-binary control.tar.xz data.tar.xz
+cd ../..
 
 $JAVA_HOME/bin/jpackage \
   --type rpm \
