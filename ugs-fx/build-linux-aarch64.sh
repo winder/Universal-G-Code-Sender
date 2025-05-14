@@ -113,6 +113,14 @@ $JAVA_HOME/bin/jpackage \
 
 mv target/installer/ugs_*.deb "target/installer/ugs-${APP_VERSION}-aarch64.deb"
 
+# Repackage using xz instead of zst
+cd target/installer
+dpkg-deb -R "ugs-${APP_VERSION}-aarch64.deb" ugs-tmp
+sed -i "/^Depends:/c\\Depends: libc6" "ugs-tmp/DEBIAN/control"
+rm "ugs-${APP_VERSION}-aarch64.deb"
+dpkg-deb -Zxz -b ugs-tmp "ugs-${APP_VERSION}-aarch64.deb"
+rm -r ugs-tmp
+cd ../..
 
 $JAVA_HOME/bin/jpackage \
   --type rpm \
