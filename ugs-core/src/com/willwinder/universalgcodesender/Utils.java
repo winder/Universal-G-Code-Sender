@@ -104,7 +104,7 @@ public class Utils {
     public static Color getControllerStateBackgroundColor(ControllerState state) {
         if (state == ControllerState.ALARM) {
             return ThemeColors.RED;
-        } else if (state == ControllerState.HOLD) {
+        } else if (state == ControllerState.HOLD || state == ControllerState.SLEEP) {
             return ThemeColors.ORANGE;
         } else if (state == ControllerState.DOOR) {
             return ThemeColors.ORANGE;
