@@ -700,7 +700,7 @@ public class GrblUtils {
         }
 
         // The controller is not up and running properly
-        if (statusCommand.getControllerStatus().getState() == ControllerState.DOOR || statusCommand.getControllerStatus().getState() == ControllerState.HOLD || statusCommand.getControllerStatus().getState() == ControllerState.ALARM) {
+        if (statusCommand.getControllerStatus().getState() == ControllerState.SLEEP || statusCommand.getControllerStatus().getState() == ControllerState.DOOR || statusCommand.getControllerStatus().getState() == ControllerState.HOLD || statusCommand.getControllerStatus().getState() == ControllerState.ALARM) {
             try {
                 // Figure out if it is still responsive even if it is in HOLD or ALARM state
                 sendAndWaitForCompletion(controller, new GrblSystemCommand(""));
