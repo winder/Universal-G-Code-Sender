@@ -78,7 +78,7 @@ for %%s in ("msi" "exe") do call "%JAVA_HOME%\bin\jpackage" ^
   --main-class com.willwinder.universalgcodesender.fx.Main ^
   --main-jar %MAIN_JAR% ^
   --resource-dir installer ^
-  --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true" ^
+  --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true -Djavafx.preloader=com.willwinder.universalgcodesender.fx.Preloader" ^
   --runtime-image target\java-runtime ^
   --icon installer\ugs.ico ^
   --app-version %APP_VERSION% ^

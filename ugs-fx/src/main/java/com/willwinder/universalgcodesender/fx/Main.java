@@ -11,7 +11,6 @@ import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.service.MacroActionService;
-import com.willwinder.universalgcodesender.fx.service.PendantService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
@@ -45,8 +44,27 @@ public class Main extends Application {
     private SplitPane.Divider leftPaneDivider;
 
     @Override
+    public void init() throws Exception {
+        try {
+            FlatLightLaf.setup();
+            UIManager.setLookAndFeel(new FlatLightLaf());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Could not load the look and feel", e);
+        }
+
+        if (Settings.getInstance().pendantAutostartProperty().get()) {
+            ThreadHelper.invokeLater(() -> {
+                BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+                PendantUI pendantUI = new PendantUI(backend);
+                pendantUI.start();
+            }, 4000);
+        }
+
+        MacroActionService.registerMacros();
+    }
+
+    @Override
     public void start(Stage primaryStage) {
-        initialize();
         registerListeners(primaryStage);
 
         ToolBarMenu toolBarMenu = new ToolBarMenu();
@@ -154,28 +172,7 @@ public class Main extends Application {
                 .ifPresent(a -> a.handle(null)));
     }
 
-    private void initialize() {
-        try {
-            FlatLightLaf.setup();
-            UIManager.setLookAndFeel(new FlatLightLaf());
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Could not load the look and feel", e);
-        }
-
-
-        if (Settings.getInstance().pendantAutostartProperty().get()) {
-            ThreadHelper.invokeLater(() -> {
-                BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-                PendantUI pendantUI = new PendantUI(backend);
-                pendantUI.start();
-            }, 4000);
-        }
-
-        PendantService.getInstance();
-        MacroActionService.registerMacros();
-    }
-
     public static void main(String[] args) {
-        launch(args);
+        launch(Main.class, args);
     }
 }

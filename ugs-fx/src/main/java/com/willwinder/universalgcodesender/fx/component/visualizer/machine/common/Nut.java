@@ -14,7 +14,7 @@ public class Nut extends Group {
         material.setSpecularColor(Color.WHITE);
         material.setSpecularPower(1);
 
-        MeshView meshView = new Hexagon(22, 12).toCSG().getMesh();
+        MeshView meshView = new Hexagon(16, 12).toCSG().getMesh();
         meshView.setMaterial(material);
         getChildren().add(meshView);
     }

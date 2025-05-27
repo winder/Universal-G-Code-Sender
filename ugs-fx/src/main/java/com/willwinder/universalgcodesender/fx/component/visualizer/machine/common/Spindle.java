@@ -13,7 +13,7 @@ public class Spindle extends Group {
     public Spindle() {
         int slices = 128;
         CSG spindleBody = new Cylinder(25, 80, slices).toCSG().move(0, 0, 50);
-        CSG axis = new Cylinder(8, 30, slices).toCSG().move(0,0,20);
+        CSG axis = new Cylinder(6, 30, slices).toCSG().move(0,0,20);
         CSG tool = new Cylinder(1.5, 0.1, 20, slices).toCSG().rotx(180).move(0,0, 20);
 
         MeshView meshView = spindleBody
@@ -39,7 +39,7 @@ public class Spindle extends Group {
 
 
         Nut nut = new Nut();
-        nut.setTranslateZ(22);
+        nut.setTranslateZ(21);
         getChildren().add(nut);
     }
 
