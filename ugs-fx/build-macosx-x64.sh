@@ -103,7 +103,7 @@ $JAVA_HOME/bin/jpackage \
   --main-class com.willwinder.universalgcodesender.fx.Main \
   --main-jar ${MAIN_JAR} \
   --resource-dir installer \
-  --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true -Djavafx.autoproxy.disable=true"  \
+  --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true -Djavafx.autoproxy.disable=true -Djavafx.preloader=com.willwinder.universalgcodesender.fx.Preloader"  \
   --runtime-image target/java-runtime \
   --app-version ${APP_VERSION} \
   --copyright "Joacim Breiler" \
