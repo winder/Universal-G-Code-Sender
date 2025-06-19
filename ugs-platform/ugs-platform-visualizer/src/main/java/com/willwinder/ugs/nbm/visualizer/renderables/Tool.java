@@ -29,6 +29,7 @@ import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 
 import java.awt.Color;
 
+import static com.jogamp.opengl.GL.GL_LINES;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL_COLOR;
 
@@ -76,7 +77,7 @@ public final class Tool extends Renderable {
         double scale = 1. / scaleFactor;
         gl.glPushMatrix();
             gl.glTranslated(position.x, position.y, position.z);
-            gl.glScaled(scale, scale, scale);
+            gl.glScaled(scale*.5, scale*.5, scale*.5);
 
             if (!Double.isNaN(workCoord.a)) {
                 gl.glRotated(workCoord.a, 1.0d, 0.0d, 0.0d);   //X
@@ -93,6 +94,18 @@ public final class Tool extends Renderable {
             glu.gluCylinder(gq, 0f, .03f, .2, 16, 1);
             gl.glTranslated(0, 0, 0.2);
             glu.gluCylinder(gq, 0.03f, .0f, .01, 16, 1);
+
+        gl.glPopMatrix();
+        gl.glPushMatrix();
+            gl.glLineWidth(2.0f);
+            gl.glBegin(GL_LINES);
+                // Z Axis Line
+                gl.glColor4fv(VisualizerOptions.colorToFloatArray(toolColor), 0);
+                gl.glVertex3d(position.x, position.y, position.z);
+                gl.glVertex3d(position.x, position.y, 0);
+
+            gl.glEnd();
+
         gl.glPopMatrix();
     }
 

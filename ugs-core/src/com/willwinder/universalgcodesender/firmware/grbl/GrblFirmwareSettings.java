@@ -70,6 +70,18 @@ public class GrblFirmwareSettings implements ICommunicatorListener, IFirmwareSet
     private static final String KEY_MAXIMUM_RATE_X = "$110";
     private static final String KEY_MAXIMUM_RATE_Y = "$111";
     private static final String KEY_MAXIMUM_RATE_Z = "$112";
+    
+    private static final String KEY_PLASMA_TORCH_RETRIES = "$33";
+    private static final String KEY_PLASMA_TORCH_FAIL_TIMEOUT = "$34";
+    private static final String KEY_PLASMA_TORCH_RETRY_DELAY = "$35";
+    private static final String KEY_PLASMA_TORCH_PAUSE_AT_END = "$36";
+    private static final String KEY_PLASMA_THC_ENABLED = "$37";
+    private static final String KEY_PLASMA_THC_ARC_V_SP = "$38";
+    private static final String KEY_PLASMA_THC_ARC_V_HY = "$39";
+    private static final String KEY_PLASMA_THC_DELAY = "$40";
+    private static final String KEY_PLASMA_THC_VAD_THR = "$31";
+   
+            
 
     /**
      * A GRBL settings description lookups

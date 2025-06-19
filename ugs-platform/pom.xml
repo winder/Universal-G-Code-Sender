@@ -158,5 +158,6 @@
     <module>ugs-platform-plugin-dro</module>
     <module>ugs-platform-plugin-filebrowser</module>
     <module>ugs-platform-plugin-console</module>
+    <module>ugs-platform-plugin-plasma</module>
   </modules>
 </project>

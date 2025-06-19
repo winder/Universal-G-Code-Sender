@@ -37,6 +37,7 @@ public class ControllerStatusBuilder {
     private Position workCoordinateOffset = Position.ZERO;
     private ControllerStatus.EnabledPins pins = null;
     private ControllerStatus.AccessoryStates states = null;
+    private ControllerStatus.PlasmaStates plasmaStates = null;
     private String subState = "";
 
     public static ControllerStatusBuilder newInstance() {
@@ -57,7 +58,8 @@ public class ControllerStatusBuilder {
                 .setOverrides(controllerStatus.getOverrides())
                 .setWorkCoordinateOffset(controllerStatus.getWorkCoordinateOffset())
                 .setPins(controllerStatus.getEnabledPins())
-                .setStates(controllerStatus.getAccessoryStates());
+                .setStates(controllerStatus.getAccessoryStates())
+                .setPlasmaStates(controllerStatus.getPlasmaStates());
         }
         return controllerStatusBuilder;
     }
@@ -116,8 +118,13 @@ public class ControllerStatusBuilder {
         this.states = states;
         return this;
     }
+    
+    public ControllerStatusBuilder setPlasmaStates(ControllerStatus.PlasmaStates states) {
+        this.plasmaStates = states;
+        return this;
+    }
 
     public ControllerStatus build() {
-        return new ControllerStatus(state, subState, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, pins, states);
+        return new ControllerStatus(state, subState, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, pins, states, null);
     }
 }

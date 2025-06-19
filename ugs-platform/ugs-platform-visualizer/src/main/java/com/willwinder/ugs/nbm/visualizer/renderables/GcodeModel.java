@@ -185,7 +185,7 @@ public class GcodeModel extends Renderable {
                 this.updateGLGeometryArray(drawable);
                 this.vertexArrayDirty = false;
             }
-            gl.glLineWidth(1.0f);
+            gl.glLineWidth(2.0f);
             gl.glEnableClientState(GL_VERTEX_ARRAY);
             gl.glEnableClientState(GL_COLOR_ARRAY);
             gl.glDrawArrays(GL.GL_LINES, 0, numberOfVertices);
@@ -199,7 +199,7 @@ public class GcodeModel extends Renderable {
             //       verticies. May lose some control over line colors though.
             //gl.glEnable(GL2.GL_LINE_SMOOTH);
             gl.glBegin(GL_LINES);
-            gl.glLineWidth(1.0f);
+            gl.glLineWidth(2.0f);
 
             int verts = 0;
             int colors = 0;

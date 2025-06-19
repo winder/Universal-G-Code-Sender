@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus.PlasmaStates;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -373,6 +374,7 @@ public class GrblUtils {
         OverridePercents overrides = null;
         EnabledPins pins = null;
         AccessoryStates accessoryStates = null;
+        PlasmaStates plasmaStates = null;
 
         double feedSpeed = 0;
         double spindleSpeed = 0;
@@ -426,6 +428,10 @@ public class GrblUtils {
                 String value = part.substring(part.indexOf(':')+1);
                 accessoryStates = new AccessoryStates(value);
             }
+            else if (part.startsWith("Pl:")) {
+                String value = part.substring(part.indexOf(':')+1);
+                plasmaStates = new PlasmaStates(value);
+            }
         }
 
         // Grab WCO from state information if necessary.
@@ -463,7 +469,7 @@ public class GrblUtils {
         }
 
         ControllerState state = getControllerStateFromStateString(stateString);
-        return new ControllerStatus(state, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates);
+        return new ControllerStatus(state, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates, plasmaStates);
     }
 
     /**

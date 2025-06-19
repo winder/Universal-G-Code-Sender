@@ -194,7 +194,7 @@ public class FluidNCUtils {
 
         ControllerState state = getControllerStateFromStateString(stateString);
 
-        return new ControllerStatus(state, subStateString, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates);
+        return new ControllerStatus(state, subStateString, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates, null);
     }
 
     public static GetStatusCommand queryForStatusReport(IController controller, MessageService messageService) throws InterruptedException {

@@ -35,6 +35,7 @@ public class ControllerStatus {
     private final OverridePercents overrides;
     private final EnabledPins pins;
     private final AccessoryStates accessoryStates;
+    private final PlasmaStates plasmaStates;
     private final ControllerState state;
     private final UnitUtils.Units feedSpeedUnits;
     private final String subState;
@@ -48,7 +49,7 @@ public class ControllerStatus {
      * @param workCoord    controller work coordinates
      */
     public ControllerStatus(ControllerState state, Position machineCoord, Position workCoord) {
-        this(state, machineCoord, workCoord, 0d, UnitUtils.Units.MM, 0d, null, null, null, null);
+        this(state, machineCoord, workCoord, 0d, UnitUtils.Units.MM, 0d, null, null, null, null, null);
     }
 
     /**
@@ -57,8 +58,8 @@ public class ControllerStatus {
     public ControllerStatus(ControllerState state, Position machineCoord,
                             Position workCoord, Double feedSpeed, UnitUtils.Units feedSpeedUnits, Double spindleSpeed,
                             OverridePercents overrides, Position workCoordinateOffset,
-                            EnabledPins pins, AccessoryStates states) {
-        this(state, "", machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, pins, states);
+                            EnabledPins pins, AccessoryStates states, PlasmaStates plasmaStates) {
+        this(state, "", machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, pins, states, plasmaStates);
     }
 
     /**
@@ -67,7 +68,7 @@ public class ControllerStatus {
     public ControllerStatus(ControllerState state, String subState, Position machineCoord,
                             Position workCoord, Double feedSpeed, UnitUtils.Units feedSpeedUnits, Double spindleSpeed,
                             OverridePercents overrides, Position workCoordinateOffset,
-                            EnabledPins pins, AccessoryStates states) {
+                            EnabledPins pins, AccessoryStates states, PlasmaStates plasmaStates) {
         this.state = state;
         this.subState = subState;
         this.machineCoord = machineCoord;
@@ -79,6 +80,7 @@ public class ControllerStatus {
         this.overrides = overrides;
         this.pins = pins;
         this.accessoryStates = states;
+        this.plasmaStates = plasmaStates;
     }
 
     public ControllerStatus() {
@@ -119,6 +121,10 @@ public class ControllerStatus {
 
     public AccessoryStates getAccessoryStates() {
         return accessoryStates;
+    }
+    
+    public PlasmaStates getPlasmaStates() {
+        return plasmaStates;
     }
 
     public UnitUtils.Units getFeedSpeedUnits() {
@@ -203,6 +209,38 @@ public class ControllerStatus {
         }
     }
 
+    public static class PlasmaStates {
+        final public boolean TorchOn;
+        final public boolean ArcOk;
+        final public boolean ThcEnabled;
+        final public boolean Up;
+        final public boolean Down;
+        final public boolean AntiDive;
+        final public Double ArcVoltage;
+        
+        public PlasmaStates(String values) {
+            String[] parts = values.split(",");
+            TorchOn = parts[0].contains("1");
+            ArcOk = parts[0].contains("A");
+            ThcEnabled = parts[0].contains("T");
+            Up = parts[0].contains("+");
+            Down = parts[0].contains("-");
+            AntiDive = parts[0].contains("X");
+            ArcVoltage = Double.valueOf(parts[1]);
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            return EqualsBuilder.reflectionEquals(this, o);
+        }
+
+        @Override
+        public int hashCode() {
+            return HashCodeBuilder.reflectionHashCode(this);
+        }
+        
+    }
+    
     public static class OverridePercents {
         final public int feed;
         final public int rapid;

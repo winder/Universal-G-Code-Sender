@@ -126,7 +126,7 @@ public class Grid extends Renderable {
         gl.glPushMatrix();
             double offset = 0.001;
 
-            gl.glLineWidth(1.5f);
+            gl.glLineWidth(1.0f);
             // grid
             gl.glBegin(GL_LINES);
             for(double x=bottomLeft.x;x<=topRight.x;x+=stepSize) {
@@ -151,7 +151,7 @@ public class Grid extends Renderable {
             }
             gl.glEnd();
 
-            gl.glLineWidth(5f);
+            gl.glLineWidth(2.0f);
             gl.glBegin(GL_LINES);
                 // X Axis Line
                 gl.glColor4fv(yAxisColor, 0);
