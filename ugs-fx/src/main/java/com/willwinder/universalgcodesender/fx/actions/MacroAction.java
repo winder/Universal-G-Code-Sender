@@ -30,7 +30,7 @@ public class MacroAction extends BaseAction {
     }
 
     @Override
-    public void handle(javafx.event.ActionEvent event) {
+    public void handleAction(javafx.event.ActionEvent event) {
         if (macro == null || macro.getGcode() == null) {
             return;
         }

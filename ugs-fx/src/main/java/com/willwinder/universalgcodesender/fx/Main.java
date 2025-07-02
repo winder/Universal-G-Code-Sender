@@ -7,6 +7,7 @@ import com.willwinder.universalgcodesender.fx.actions.StartAction;
 import com.willwinder.universalgcodesender.fx.component.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.ToolBarMenu;
 import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
+import com.willwinder.universalgcodesender.fx.component.jog.JogActionRegistry;
 import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
@@ -61,6 +62,8 @@ public class Main extends Application {
         }
 
         MacroActionService.registerMacros();
+
+        JogActionRegistry.registerActions();
     }
 
     @Override

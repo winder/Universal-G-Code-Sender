@@ -2,10 +2,10 @@ package com.willwinder.universalgcodesender.fx.actions;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
-import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 
-public interface Action extends EventHandler<ActionEvent> {
+public interface Action extends EventHandler<Event> {
 
     String getId();
 

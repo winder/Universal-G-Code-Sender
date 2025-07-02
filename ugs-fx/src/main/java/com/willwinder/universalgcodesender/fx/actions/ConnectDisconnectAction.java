@@ -45,7 +45,7 @@ public class ConnectDisconnectAction extends BaseAction {
     }
 
     @Override
-    public void handle(ActionEvent event) {
+    public void handleAction(ActionEvent event) {
         if (backend.getControllerState() == ControllerState.DISCONNECTED) {
             // Connect modal
             Window window = ((Node) event.getSource()).getScene().getWindow();

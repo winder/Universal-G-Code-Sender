@@ -43,7 +43,7 @@ public class ActionAdapter extends BaseAction {
     }
 
     @Override
-    public void handle(ActionEvent event) {
+    public void handleAction(ActionEvent event) {
         Objects.requireNonNull(action).actionPerformed(new java.awt.event.ActionEvent(event.getSource(), 0, event.getEventType().getName()));
     }
 

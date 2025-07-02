@@ -8,13 +8,14 @@ public class ToggleMachineVisualizationAction extends BaseAction {
 
     private static final String ICON_BASE = "icons/cnc.svg";
 
+
     public ToggleMachineVisualizationAction() {
-        super(Localization.getString("mainWindow.swing.sendButton"), ICON_BASE);
+        super(Localization.getString("settings.visializer.toggleMachine"), ICON_BASE);
         selectedProperty().set(VisualizerSettings.getInstance().showMachineProperty().get());
     }
 
     @Override
-    public void handle(ActionEvent event) {
+    public void handleAction(ActionEvent event) {
         VisualizerSettings.getInstance().showMachineProperty().set(!VisualizerSettings.getInstance().showMachineProperty().get());
     }
 }

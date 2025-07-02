@@ -33,7 +33,7 @@ public class OpenFileAction extends BaseAction {
     }
 
     @Override
-    public void handle(ActionEvent event) {
+    public void handleAction(ActionEvent event) {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Resource File");

@@ -16,7 +16,7 @@ public class OpenSettingsAction extends BaseAction {
     }
 
     @Override
-    public void handle(ActionEvent event) {
+    public void handleAction(ActionEvent event) {
         // Connect modal
         Window window = ((Node) event.getSource()).getScene().getWindow();
         SettingsStage modal = new SettingsStage(window);

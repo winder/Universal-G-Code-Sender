@@ -1,13 +1,16 @@
 package com.willwinder.universalgcodesender.fx.component.jog;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.fx.actions.LongPressMouseEventProxy;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.services.JogService;
+import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,6 +26,7 @@ public class JogPane extends BorderPane {
     private final DirectionalPadPane directionalPadPane;
     private final BackendAPI backend;
     private final JogService jogService;
+    private final ContinuousJogWorker continuousJogWorker;
 
     private static final ObservableList<Integer> FEED_RATES = FXCollections.observableArrayList(10, 20, 50, 100, 200, 500, 1000, 2000, 5000);
     private static final ObservableList<Double> STEP_SIZES = FXCollections.observableArrayList(0.001, 0.01, 0.1, 1d, 10d, 100d);
@@ -38,8 +42,7 @@ public class JogPane extends BorderPane {
 
         directionalPadPane = new DirectionalPadPane();
         directionalPadPane.setOnAction(this::onAction);
-        directionalPadPane.setOnMousePressed(this::onMousePressed);
-        directionalPadPane.setOnMouseReleased(this::onMouseReleased);
+        directionalPadPane.setMouseListener(this::onMouseEvent);
         directionalPadPane.setDisable(!backend.isConnected());
         setCenter(directionalPadPane);
 
@@ -86,14 +89,85 @@ public class JogPane extends BorderPane {
         verticalPadPane.setDisable(!backend.isConnected());
 
         jogService = new JogService(backend);
+        continuousJogWorker = new ContinuousJogWorker(backend, jogService);
     }
 
-    private void onMouseReleased(MouseEvent mouseEvent) {
-        System.out.println("onMouseReleased: " + mouseEvent);
-    }
-
-    private void onMousePressed(MouseEvent mouseEvent) {
-        System.out.println("onMousePressed: " + mouseEvent);
+    private void onMouseEvent(MouseEvent event) {
+        if (event.getSource() instanceof JogButton jogButton && event.getEventType() == LongPressMouseEventProxy.MOUSE_LONG_PRESSED) {
+            JogButtonEnum button = jogButton.getButton();
+            switch (button) {
+                case BUTTON_XNEG:
+                    continuousJogWorker.setDirection(-1, 0, 0);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_XPOS:
+                    continuousJogWorker.setDirection(1, 0, 0);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_YNEG:
+                    continuousJogWorker.setDirection(0, -1, 0);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_YPOS:
+                    continuousJogWorker.setDirection(0, 1, 0);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_DIAG_XNEG_YNEG:
+                    continuousJogWorker.setDirection(-1, -1, 0);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_DIAG_XNEG_YPOS:
+                    continuousJogWorker.setDirection(-1, 1, 0);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_DIAG_XPOS_YNEG:
+                    continuousJogWorker.setDirection(1, -1, 0);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_DIAG_XPOS_YPOS:
+                    continuousJogWorker.setDirection(1, 1, 0);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_ZNEG:
+                    continuousJogWorker.setDirection(0, 0, -1);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_ZPOS:
+                    continuousJogWorker.setDirection(0, 0, 1);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_ANEG:
+                    continuousJogWorker.setDirection(Axis.A, -1);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_APOS:
+                    continuousJogWorker.setDirection(Axis.A, 1);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_BNEG:
+                    continuousJogWorker.setDirection(Axis.B, -1);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_BPOS:
+                    continuousJogWorker.setDirection(Axis.B, 1);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_CNEG:
+                    continuousJogWorker.setDirection(Axis.C, -1);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_CPOS:
+                    continuousJogWorker.setDirection(Axis.C, 1);
+                    continuousJogWorker.start();
+                    break;
+                case BUTTON_CANCEL:
+                    continuousJogWorker.stop();
+                    break;
+                default:
+            }
+        } else if (event.getEventType() == LongPressMouseEventProxy.MOUSE_LONG_RELEASE) {
+            continuousJogWorker.stop();
+        }
     }
 
     private void onAction(ActionEvent actionEvent) {

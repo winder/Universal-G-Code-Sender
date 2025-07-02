@@ -28,7 +28,7 @@ public class StartAction extends BaseAction {
     }
 
     @Override
-    public void handle(ActionEvent event) {
+    public void handleAction(ActionEvent event) {
         try {
             if (backend.isPaused()) {
                 backend.pauseResume();
