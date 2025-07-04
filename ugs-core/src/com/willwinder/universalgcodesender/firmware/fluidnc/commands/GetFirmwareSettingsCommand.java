@@ -19,15 +19,16 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc.commands;
 
 import com.willwinder.universalgcodesender.types.CommandException;
-import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GetFirmwareSettingsCommand extends SystemCommand {
@@ -40,8 +41,13 @@ public class GetFirmwareSettingsCommand extends SystemCommand {
         if (!isOk()) {
             return new HashMap<>();
         }
-        
-        String response = StringUtils.removeEnd(getResponse(), "ok");
+
+        String response = Arrays
+                .stream(getResponse().split("\\r?\\n"))
+                .filter(line -> !line.startsWith("[MSG:"))
+                .filter(line -> !line.equals("ok"))
+                .collect(Collectors.joining("\n"));
+
         try {
             Yaml yaml = new Yaml();
             Map<String, Object> settingsTree = yaml.load(response);
