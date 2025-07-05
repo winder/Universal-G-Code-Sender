@@ -64,7 +64,7 @@ public class DrillCenterToolPath extends AbstractToolPath {
     @Override
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
         PartialPosition centerPosition = getCenterPosition();
-        addSafeHeightSegmentTo(gcodePath, centerPosition);
+        addSafeHeightSegmentTo(gcodePath, centerPosition,true);
         if (source.getSpindleSpeed() > 0) {
             gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d)), null));
         }
@@ -85,6 +85,6 @@ public class DrillCenterToolPath extends AbstractToolPath {
             }
         }
 
-        addSafeHeightSegment(gcodePath);
+        addSafeHeightSegment(gcodePath,null,true);
     }
 }

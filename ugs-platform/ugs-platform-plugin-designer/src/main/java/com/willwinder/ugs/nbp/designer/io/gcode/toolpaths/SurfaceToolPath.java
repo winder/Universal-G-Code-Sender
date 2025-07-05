@@ -81,7 +81,7 @@ public class SurfaceToolPath extends AbstractToolPath {
                 addGeometriesToGcodePath(gcodePath, settings, g, envelope, currentDepth, stepOver);
             }
         });
-        addSafeHeightSegment(gcodePath);
+        addSafeHeightSegment(gcodePath,null, true);
     }
 
     private void addGeometriesToGcodePath(GcodePath gcodePath, Settings settings, Geometry g, Envelope envelope, double currentDepth, double stepOver) {

@@ -45,7 +45,7 @@ public class DrillCenterToolPathTest {
         assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(2).type);
         assertFalse(gcodePath.getSegments().get(2).point.hasX());
         assertFalse(gcodePath.getSegments().get(2).point.hasY());
-        assertEquals(0, gcodePath.getSegments().get(2).point.getZ(), 0.01);
+        assertEquals(11, gcodePath.getSegments().get(2).point.getZ(), 0.01);
 
         // First depth pass
         assertEquals(SegmentType.POINT, gcodePath.getSegments().get(3).type);
@@ -116,7 +116,7 @@ public class DrillCenterToolPathTest {
         assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(2).type);
         assertFalse(gcodePath.getSegments().get(2).point.hasX());
         assertFalse(gcodePath.getSegments().get(2).point.hasY());
-        assertEquals(0, gcodePath.getSegments().get(2).point.getZ(), 0.01);
+        assertEquals(11, gcodePath.getSegments().get(2).point.getZ(), 0.01);
 
         // Turn on spindle
         assertEquals(SegmentType.SEAM, gcodePath.getSegments().get(3).type);
