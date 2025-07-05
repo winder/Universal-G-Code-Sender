@@ -68,7 +68,7 @@ public abstract class AbstractToolPath implements PathGenerator {
     }
     protected void addSafeHeightSegment(GcodePath gcodePath, PartialPosition coordinate, boolean isFirst) {
         Double safeHeightToUse;
-        safeHeightToUse = (coordinate != null ? coordinate.getZ():0.0);
+        safeHeightToUse = (coordinate != null && coordinate.hasZ() ? coordinate.getZ():0.0);
         PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, getSafeHeightToUse(safeHeightToUse,isFirst), UnitUtils.Units.MM);
         gcodePath.addSegment(SegmentType.MOVE, safeHeightCoordinate);
     }
