@@ -63,16 +63,22 @@ public abstract class AbstractToolPath implements PathGenerator {
     public void setTargetDepth(double targetDepth) {
         this.targetDepth = Math.abs(targetDepth);
     }
-
-    protected void addSafeHeightSegment(GcodePath gcodePath) {
-        PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, settings.getSafeHeight(), UnitUtils.Units.MM);
+    protected Double getSafeHeightToUse(Double currentZ, boolean isFirst) {
+        return settings.getSafeHeight();
+    }
+    protected void addSafeHeightSegment(GcodePath gcodePath, PartialPosition coordinate, boolean isFirst) {
+        Double safeHeightToUse;
+        safeHeightToUse = (coordinate != null ? coordinate.getZ():0.0);
+        PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, getSafeHeightToUse(safeHeightToUse,isFirst), UnitUtils.Units.MM);
         gcodePath.addSegment(SegmentType.MOVE, safeHeightCoordinate);
     }
 
-    protected void addSafeHeightSegmentTo(GcodePath gcodePath, PartialPosition coordinate) {
-        addSafeHeightSegment(gcodePath);
+    protected void addSafeHeightSegmentTo(GcodePath gcodePath, PartialPosition coordinate, boolean isFirst) {
+        addSafeHeightSegment(gcodePath,coordinate, isFirst);
         gcodePath.addSegment(SegmentType.MOVE, new PartialPosition(coordinate.getX(), coordinate.getY(), UnitUtils.Units.MM));
-        gcodePath.addSegment(SegmentType.MOVE, PartialPosition.from(Axis.Z, 0d, UnitUtils.Units.MM));
+        if (!isFirst) {
+            gcodePath.addSegment(SegmentType.MOVE, PartialPosition.from(Axis.Z, 0d, UnitUtils.Units.MM));
+        }
     }
 
     public GeometryFactory getGeometryFactory() {
@@ -84,15 +90,17 @@ public abstract class AbstractToolPath implements PathGenerator {
             if (source.getSpindleSpeed() > 0) {
                 gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d)), null));
             }
+            
             coordinateList.forEach(cl -> {
                 if (!cl.isEmpty()) {
-                    addSafeHeightSegmentTo(gcodePath, cl.get(0));
+                    addSafeHeightSegmentTo(gcodePath, cl.get(0), coordinateList.get(0) == cl);
+                            
                     gcodePath.addSegment(SegmentType.POINT, cl.get(0));
                     cl.forEach(c -> gcodePath.addSegment(SegmentType.LINE, c, source.getFeedRate()));
                 }
             });
 
-            addSafeHeightSegment(gcodePath);
+            addSafeHeightSegment(gcodePath, null,true);
         }
     }
 

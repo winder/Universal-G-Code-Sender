@@ -50,7 +50,18 @@ public class OutlineToolPath extends AbstractToolPath {
     public void setOffset(double offset) {
         this.offset = offset;
     }
-
+    
+    @Override
+    protected Double getSafeHeightToUse(Double currentZ, boolean isFirst) {
+        
+        Double result = settings.getSafeHeight()+currentZ;
+        if (isFirst) {
+            result = settings.getSafeHeight();
+        }
+        // Outline Paths always Start and end in the same spot so its worthwhile to only climb a smaller amount
+        return result;
+    }
+    
     @Override
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
         List<Geometry> geometries;
