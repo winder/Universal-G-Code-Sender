@@ -25,7 +25,9 @@ import org.openide.util.ImageUtilities;
 import javax.swing.JFileChooser;
 import java.awt.event.ActionEvent;
 import java.io.File;
-
+import javax.swing.JOptionPane;
+import org.apache.commons.lang3.StringUtils;
+    
 /**
  * @author Joacim Breiler
  */
@@ -33,13 +35,15 @@ public class SaveAction extends AbstractDesignAction {
     private static final String ICON_SMALL_PATH = "img/save.svg";
     private static final String ICON_LARGE_PATH = "img/save24.svg";
     private final transient Controller controller;
-
+    public static String UGSD_EXT = ".ugsd";
+    
+    
     public SaveAction(Controller controller) {
         putValue("iconBase", ICON_SMALL_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_SMALL_PATH, false));
         putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(ICON_LARGE_PATH, false));
         putValue("menuText", "Save");
-        putValue(NAME, "Save");
+        putValue(NAME, "Save");        
         this.controller = controller;
     }
 
@@ -55,7 +59,15 @@ public class SaveAction extends AbstractDesignAction {
         fileDialog.setSelectedFile(new File("out.ugsd"));
         fileDialog.showSaveDialog(null);
 
-        File f = fileDialog.getSelectedFile();
+        File f = new File(StringUtils.appendIfMissing(fileDialog.getSelectedFile().getAbsolutePath(), UGSD_EXT));
+        if (f.exists()) {
+            if (JOptionPane.showConfirmDialog(null, "Are you sure you want to overwrite the file " + f.getName(), "Overwrite existing file", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
+                f.delete();
+            } else {
+                return;
+            }
+        }
+        
         if (f != null) {
             ThreadHelper.invokeLater(() -> controller.saveFile(f));
         }

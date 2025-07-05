@@ -19,6 +19,8 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
 import com.willwinder.ugs.nbp.core.actions.OpenFileAction;
+import com.willwinder.ugs.nbp.designer.actions.SaveAction;
+import static com.willwinder.ugs.nbp.designer.actions.SaveAction.UGSD_EXT;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import org.openide.filesystems.FileObject;
@@ -26,16 +28,19 @@ import org.openide.loaders.SaveAsCapable;
 import org.openide.nodes.Node;
 
 import java.io.File;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides support for saving the file as...
  *
  * @author Joacim Breiler
  */
-public class UgsSaveAsCookie implements SaveAsCapable, Node.Cookie {
+public class UgsSaveAsCookie implements SaveAsCapable, Node.Cookie {    
+    
     @Override
     public void saveAs(FileObject folder, String name) {
-        File file = new File(folder.getPath(), name);
+        File file = new File(folder.getPath(), StringUtils.appendIfMissing(name, UGSD_EXT));
+        
         UgsDesignWriter writer = new UgsDesignWriter();
         writer.write(file, ControllerFactory.getController());
         new OpenFileAction(file).actionPerformed(null);
