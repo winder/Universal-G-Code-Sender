@@ -47,6 +47,7 @@ import java.io.File;
 import java.io.Serial;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 
 /**
  * A designer component for editing vector graphics that will be converted to gcode.
@@ -179,15 +180,19 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
 
     @Override
     public void onChanged() {
-        dataObject.setModified(true);
+        SwingUtilities.invokeLater(() -> {        
+            dataObject.setModified(true);
+        });
     }
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
-        controller.getDrawing().repaint();
-        PlatformUtils.openSettings(controller);
-        PlatformUtils.openEntitesTree(controller);
-        requestActive();
+        SwingUtilities.invokeLater(() -> {
+            controller.getDrawing().repaint();
+            PlatformUtils.openSettings(controller);
+            PlatformUtils.openEntitesTree(controller);            
+            requestActive();
+        });
     }
 
     @Override

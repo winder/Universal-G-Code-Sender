@@ -117,11 +117,13 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
 
     @Override
     public void UGSEvent(UGSEvent ugsEvent) {
-        if (ugsEvent instanceof ControllerStateEvent) {
-            setEditable();
-        } else if (ugsEvent instanceof CommandEvent && ((CommandEvent) ugsEvent).getCommandEventType() == CommandEventType.COMMAND_COMPLETE) {
-            followLineUpdater.updateCurrentLine(obj, ((CommandEvent) ugsEvent).getCommand().getCommandNumber());
-        }
+        SwingUtilities.invokeLater(() -> {
+            if (ugsEvent instanceof ControllerStateEvent) {
+                setEditable();
+            } else if (ugsEvent instanceof CommandEvent && ((CommandEvent) ugsEvent).getCommandEventType() == CommandEventType.COMMAND_COMPLETE) {
+                followLineUpdater.updateCurrentLine(obj, ((CommandEvent) ugsEvent).getCommand().getCommandNumber());             
+            }
+        });
     }
 
     private void setEditable() {
