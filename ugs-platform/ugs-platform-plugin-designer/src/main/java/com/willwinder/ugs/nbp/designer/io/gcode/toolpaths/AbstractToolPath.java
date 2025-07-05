@@ -78,6 +78,8 @@ public abstract class AbstractToolPath implements PathGenerator {
         gcodePath.addSegment(SegmentType.MOVE, new PartialPosition(coordinate.getX(), coordinate.getY(), UnitUtils.Units.MM));
         if (!isFirst) {
             gcodePath.addSegment(SegmentType.MOVE, PartialPosition.from(Axis.Z, 0d, UnitUtils.Units.MM));
+        } else {
+            addSafeHeightSegment(gcodePath,coordinate, isFirst);
         }
     }
 
