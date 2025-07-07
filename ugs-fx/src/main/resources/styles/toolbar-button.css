@@ -1,0 +1,8 @@
+.toolbar-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.toolbar-button:focused {
+    -fx-border-color: transparent;
+}

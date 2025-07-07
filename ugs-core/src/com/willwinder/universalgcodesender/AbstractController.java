@@ -441,18 +441,13 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
      * @return
      */
     public int getRowStat(RowStat stat) {
-        switch (stat) {
-            case TOTAL_ROWS:
-                return numCommands.get();
-            case ROWS_SENT:
-                return numCommandsSent.get();
-            case ROWS_COMPLETED:
-                return numCommandsCompleted.get() + numCommandsSkipped.get();
-            case ROWS_REMAINING:
-                return numCommands.get() <= 0 ? 0 : numCommands.get() - (numCommandsCompleted.get() + numCommandsSkipped.get());
-            default:
-                throw new IllegalStateException("This should be impossible - RowStat default case.");
-        }
+        return switch (stat) {
+            case TOTAL_ROWS -> numCommands.get();
+            case ROWS_SENT -> numCommandsSent.get();
+            case ROWS_COMPLETED -> numCommandsCompleted.get() + numCommandsSkipped.get();
+            case ROWS_REMAINING ->
+                    numCommands.get() <= 0 ? 0 : numCommands.get() - (numCommandsCompleted.get() + numCommandsSkipped.get());
+        };
     }
 
     @Override
@@ -690,7 +685,6 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         this.activeCommands.add(command);
 
         dispatchCommandSent(command);
-        dispatchConsoleMessage(MessageType.INFO, ">>> " + StringUtils.trimToEmpty(command.getCommandString()) + "\n");
     }
 
     @Override
@@ -826,7 +820,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
     }
 
     protected void dispatchStreamComplete() {
-        listeners.forEach(l -> l.streamComplete());
+        listeners.forEach(ControllerListener::streamComplete);
     }
 
     protected void dispatchCommandSkipped(GcodeCommand command) {

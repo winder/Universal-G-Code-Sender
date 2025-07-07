@@ -799,4 +799,8 @@ public class GUIBackend implements BackendAPI {
             logger.info("Took " + (end - start) + "ms to preprocess");
         }
     }
+
+    public GcodeStats getGcodeStats() {
+        return gcp.getCurrentStats();
+    }
 }

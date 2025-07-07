@@ -7,7 +7,8 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-20.04
+    if: github.repository_owner == 'winder'
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v3
@@ -43,3 +44,182 @@ jobs:
         prerelease: true
         tag_name: "nightly"
         overwrite: true
+
+  build-linux-x64:
+    if: github.repository_owner == 'winder'
+    needs: build-and-test
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache the Maven packages to speed up build
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build
+        run: mvn clean install -DskipTests
+
+      - name: Package Linux
+        run: mvn package -pl ugs-fx -P fx-build-linux-x64
+
+      - name: Upload DEB binaries to snapshot release
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: "ugs-fx/target/installer/ugs-*.deb;ugs-fx/target/installer/ugs-*.rpm"
+          prerelease: true
+          tag_name: "nightly"
+          overwrite: true
+
+  build-linux-aarch64:
+    if: github.repository_owner == 'winder'
+    needs: build-and-test
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache the Maven packages to speed up build
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build
+        run: mvn clean install -DskipTests
+
+      - name: Package Linux
+        run: mvn package -pl ugs-fx -P fx-build-linux-aarch64
+
+      - name: Upload DEB binaries to snapshot release
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: "ugs-fx/target/installer/ugs-*.deb;ugs-fx/target/installer/ugs-*.rpm"
+          prerelease: true
+          tag_name: "nightly"
+          overwrite: true
+
+  build-macosx-x64:
+    if: github.repository_owner == 'winder'
+    needs: build-and-test
+    runs-on: macos-13
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache the Maven packages to speed up build
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build
+        run: mvn clean install -DskipTests
+
+      - name: Package Linux
+        run: mvn package -pl ugs-fx -P fx-build-macosx-x64
+
+      - name: Upload DMG binaries to snapshot release
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: "ugs-fx/target/installer/ugs-*.dmg"
+          prerelease: true
+          tag_name: "nightly"
+          overwrite: true
+
+  build-macosx-aarch64:
+    if: github.repository_owner == 'winder'
+    needs: build-and-test
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache the Maven packages to speed up build
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build
+        run: mvn clean install -DskipTests
+
+      - name: Package Linux
+        run: mvn package -pl ugs-fx -P fx-build-macosx-aarch64
+
+      - name: Upload DMG binaries to snapshot release
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: "ugs-fx/target/installer/ugs-*.dmg"
+          prerelease: true
+          tag_name: "nightly"
+          overwrite: true
+
+  build-windows:
+    if: github.repository_owner == 'winder'
+    needs: build-and-test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache the Maven packages to speed up build
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build
+        run: mvn clean install -DskipTests
+
+      - name: Package Windows
+        run: mvn package -pl ugs-fx -P fx-build-windows
+
+      - name: Upload binaries to snapshot release
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: "ugs-fx/target/installer/ugs-*.exe;ugs-fx/target/installer/ugs-*.msi"
+          prerelease: true
+          tag_name: "nightly"
+          overwrite: true

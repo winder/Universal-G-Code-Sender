@@ -1,0 +1,12 @@
+@import url(root.css);
+
+.button,
+.combo-box .box,
+.text-field {
+    -fx-min-height: 32;
+}
+
+.button {
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}

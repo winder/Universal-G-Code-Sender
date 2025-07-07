@@ -61,7 +61,7 @@ public class OutlineToolPathTest {
         assertEquals(SegmentType.MOVE, segments.get(2).type);
         assertFalse(segments.get(2).point.hasX());
         assertFalse(segments.get(2).point.hasY());
-        assertEquals(0, segments.get(2).point.getZ(), 0.01);
+        assertEquals(10, segments.get(2).point.getZ(), 0.01);
 
         // Move into material
         assertEquals(SegmentType.POINT, segments.get(3).type);
@@ -129,7 +129,7 @@ public class OutlineToolPathTest {
         assertEquals(SegmentType.MOVE, segments.get(2).type);
         assertFalse(segments.get(2).point.hasX());
         assertFalse(segments.get(2).point.hasY());
-        assertEquals(0, segments.get(2).point.getZ(), 0.01);
+        assertEquals(10, segments.get(2).point.getZ(), 0.01);
 
         // Move into material
         assertEquals(SegmentType.POINT, segments.get(3).type);

@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="UGS-FX" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.willwinder.universalgcodesender.fx.Main" />
+    <module name="ugs-fx" />
+    <option name="VM_PARAMETERS" value="-Dprism.forceGPU=true -Djavafx.preloader=com.willwinder.universalgcodesender.fx.Preloader" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

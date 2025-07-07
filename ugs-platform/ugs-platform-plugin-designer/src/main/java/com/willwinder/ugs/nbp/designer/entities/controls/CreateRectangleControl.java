@@ -36,7 +36,7 @@ import java.awt.geom.Rectangle2D;
  *
  * @author Joacim Breiler
  */
-public class CreateRectangleControl extends AbstractControl {
+public class CreateRectangleControl extends SnapToGridControl {
 
     private final Controller controller;
     private Point2D startPosition;
@@ -86,14 +86,14 @@ public class CreateRectangleControl extends AbstractControl {
     }
 
     private void createEntity() {
-        double startX = Math.min(startPosition.getX(), endPosition.getX());
-        double endX = Math.max(startPosition.getX(), endPosition.getX());
-        double startY = Math.min(startPosition.getY(), endPosition.getY());
-        double endY = Math.max(startPosition.getY(), endPosition.getY());
-
+        double startX = snapToGrid(Math.min(startPosition.getX(), endPosition.getX()));
+        double endX = (Math.max(startPosition.getX(), endPosition.getX()));
+        double startY = snapToGrid(Math.min(startPosition.getY(), endPosition.getY()));
+        double endY = (Math.max(startPosition.getY(), endPosition.getY()));
+        
         Rectangle rectangle = new Rectangle(startX, startY);
-        rectangle.setWidth(endX - startX);
-        rectangle.setHeight(endY - startY);
+        rectangle.setWidth(snapToGrid(endX - startX));
+        rectangle.setHeight(snapToGrid(endY - startY));
         controller.addEntity(rectangle);
 
         controller.setTool(Tool.SELECT);

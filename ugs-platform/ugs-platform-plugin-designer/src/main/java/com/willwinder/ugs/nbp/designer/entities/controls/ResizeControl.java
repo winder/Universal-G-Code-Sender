@@ -48,7 +48,7 @@ import java.util.Optional;
 /**
  * @author Joacim Breiler
  */
-public class ResizeControl extends AbstractControl {
+public class ResizeControl extends SnapToGridControl {
     public static final int SIZE = 8;
     public static final int MARGIN = 6;
     public static final double ARC_SIZE = 1d;
@@ -212,9 +212,14 @@ public class ResizeControl extends AbstractControl {
 
         Entity target = getSelectionManager();
 
-        Point2D deltaMovement = new Point2D.Double(Utils.roundToDecimals(mousePosition.getX() - getPosition().getX() - startOffset.getX(), decimals), Utils.roundToDecimals(mousePosition.getY() - getPosition().getY() - startOffset.getY(), decimals));
+        Point2D deltaMovement = new Point2D.Double(
+                Utils.roundToDecimals(snapToGrid(mousePosition.getX() - getPosition().getX() - startOffset.getX()), decimals), 
+                Utils.roundToDecimals(snapToGrid(mousePosition.getY() - getPosition().getY() - startOffset.getY()), decimals)
+        );
         Point2D scaleFactor = getScaleFactor(deltaMovement.getX() / size.getWidth(), deltaMovement.getY() / size.getHeight());
-        return new Size(Utils.roundToDecimals(target.getSize().getWidth() * scaleFactor.getX(), decimals), Utils.roundToDecimals(target.getSize().getHeight() * scaleFactor.getY(), decimals));
+        Size result = new Size(Utils.roundToDecimals((target.getSize().getWidth() * scaleFactor.getX()), decimals), 
+                               Utils.roundToDecimals((target.getSize().getHeight() * scaleFactor.getY()), decimals));        
+        return result;
     }
 
 

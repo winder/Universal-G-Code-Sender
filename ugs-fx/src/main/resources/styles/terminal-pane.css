@@ -1,0 +1,38 @@
+
+.terminal {
+    -fx-background-color: #353A40;
+    -fx-text-fill: white;
+    -fx-font-family: Monospaced;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+}
+
+.text-area .scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.text-area .scroll-pane .viewport{
+    -fx-background-color: transparent;
+}
+
+.terminal .scroll-pane .content{
+    -fx-background-color: transparent;
+}
+
+.text-field {
+    -fx-border-radius: 0 0 4 4;
+    -fx-background-radius: 0 0 4 4;
+}
+
+.verbose {
+    -fx-fill: gray;
+}
+
+.info {
+    -fx-fill: white;
+}
+
+
+.error {
+    -fx-fill: #ff9797;
+}

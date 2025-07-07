@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.gcode.processors.Stats;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.types.PointSegment;
 
 import java.util.ArrayList;
@@ -119,6 +120,7 @@ public class GcodeParser implements IGcodeParser {
     public void reset() {
         this.statsProcessor = new Stats();
         this.state = new GcodeState();
+        this.state.currentPoint = Position.INVALID;
         this.state.commandNumber = -1;
 
         for (CommandProcessor processor : processors) {

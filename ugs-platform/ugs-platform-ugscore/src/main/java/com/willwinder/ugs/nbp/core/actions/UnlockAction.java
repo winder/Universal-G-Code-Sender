@@ -38,6 +38,9 @@ import javax.swing.*;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 
+@com.willwinder.universalgcodesender.actions.Action(
+        icon = UnlockAction.ICON_BASE
+)
 @ActionID(
         category = LocalizingService.UnlockCategory,
         id = LocalizingService.UnlockActionId)

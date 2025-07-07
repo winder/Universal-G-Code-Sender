@@ -38,6 +38,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
+@com.willwinder.universalgcodesender.actions.Action(
+        icon = SoftResetAction.ICON_BASE
+)
 @ActionID(
         category = LocalizingService.SoftResetCategory,
         id = LocalizingService.SoftResetActionId)
@@ -83,7 +86,8 @@ public final class SoftResetAction extends AbstractAction implements UGSEventLis
         return backend.getControllerState() == ControllerState.IDLE ||
                 backend.getControllerState() == ControllerState.HOLD ||
                 backend.getControllerState() == ControllerState.CHECK ||
-                backend.getControllerState() == ControllerState.ALARM;
+                backend.getControllerState() == ControllerState.ALARM ||
+                backend.getControllerState() == ControllerState.SLEEP;
     }
 
     @Override

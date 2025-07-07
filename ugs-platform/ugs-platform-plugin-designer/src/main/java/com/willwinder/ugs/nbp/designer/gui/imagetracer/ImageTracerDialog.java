@@ -229,9 +229,8 @@ public class ImageTracerDialog extends JDialog {
                                     layerGroup.addChild(entity);                                
                                 } 
                             }
-    //                        layerGroup.addAll(entityLayersMap.get(""+x));
                             pm.setProgress(progressCounter);
-                            System.out.println ("Adding Slice: " + x + " to " + curLayerIndex);
+
                         }
                         /////////////
                         Area sliceArea = new Area(outputBounds.getBounds2D());
@@ -273,7 +272,6 @@ public class ImageTracerDialog extends JDialog {
     }
     private Double getShapeSize(Shape shape) {
         return calcAreaSize(new Area(shape));
-//        return shape.getBounds2D().getWidth() * shape.getBounds2D().getHeight();
     }
     
     private Area cleanGarbage(Area input, boolean shouldInvertOutput, double minSize) {
@@ -302,10 +300,6 @@ public class ImageTracerDialog extends JDialog {
             if (tmpShapeSize >= minSize) {
                 shapeListOut.add(shape);
             }
-//            if (tmpShapeSize > curShapeSize) {
-//                targetShape = shape;
-//                curShapeSize = tmpShapeSize; 
-//            }
         }
         
         if (shouldInvertOutput) {
@@ -313,9 +307,6 @@ public class ImageTracerDialog extends JDialog {
             for (Shape shape: shapeListOut) {
                 toReturn.subtract(new Area(shape));
             }
-//            Rectangle2D rBounds = toReturn.getBounds2D();//new Rectangle2D.Double();
-//            rBounds.setRect(0, 0, rBounds.getWidth(), rBounds.getHeight());
-//            toReturn.subtract(new Area(rBounds));
             return toReturn;
         } else {
             Area toReturn = new Area();

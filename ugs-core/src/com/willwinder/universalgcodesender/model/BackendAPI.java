@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -114,6 +115,7 @@ public interface BackendAPI extends BackendAPIReadOnly {
     void sendGcodeCommand(String commandText) throws Exception;
     void sendGcodeCommand(boolean restoreParserState, String commandText) throws Exception;
     void sendGcodeCommand(GcodeCommand command) throws Exception;
+    GcodeStats getGcodeStats();
 
     /**
      * Jogs the machine by a specified direction given by the partial position.

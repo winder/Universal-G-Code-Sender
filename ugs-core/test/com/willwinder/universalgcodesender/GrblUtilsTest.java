@@ -737,6 +737,22 @@ public class GrblUtilsTest {
         assertFalse(GrblUtils.isGrblStatusStringV1("<Idle,MPos:5.529,0.560,7.000,WPos:1.529,-5.440,-0.000>"));
     }
 
+    @Test
+    public void isControllerResponsiveWhenControllerInStateSleep() throws Exception {
+        GrblController controller = mock(GrblController.class);
+        when(controller.isCommOpen()).thenReturn(true);
+        MessageService messageService = mock(MessageService.class);
+        when(controller.getMessageService()).thenReturn(messageService);
+
+        // Respond with status hold
+        doAnswer(answer -> {
+            GcodeCommand command = answer.getArgument(0, GcodeCommand.class);
+            command.appendResponse("<Sleep>");
+            return null;
+        }).when(controller).sendCommandImmediately(any(GcodeCommand.class));
+
+        assertFalse(GrblUtils.isControllerResponsive(controller));
+    }
 
     @Test
     public void isControllerResponsiveWhenControllerInStateCheck() throws Exception {

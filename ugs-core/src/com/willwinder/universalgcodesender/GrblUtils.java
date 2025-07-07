@@ -41,6 +41,7 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletionWithRetry;
+import com.willwinder.universalgcodesender.utils.GrblLookups;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
@@ -93,6 +94,9 @@ public class GrblUtils {
 
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8 = "G28 X0 Y0 Z0";
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8C = "$H";
+
+    private static final GrblLookups ALARMS = new GrblLookups("alarm_codes");
+    private static final GrblLookups ERRORS = new GrblLookups("error_codes");
 
     /**
      * Checks if the string contains the GRBL version.
@@ -334,7 +338,7 @@ public class GrblUtils {
     private static final String SETTING_REGEX = "\\$\\d+=.+";
     private static final Pattern SETTING_PATTERN = Pattern.compile(SETTING_REGEX);
 
-    protected static boolean isGrblSettingMessage(final String response) {
+    public static boolean isGrblSettingMessage(final String response) {
         return SETTING_PATTERN.matcher(response).find();
     }
 
@@ -696,7 +700,7 @@ public class GrblUtils {
         }
 
         // The controller is not up and running properly
-        if (statusCommand.getControllerStatus().getState() == ControllerState.DOOR || statusCommand.getControllerStatus().getState() == ControllerState.HOLD || statusCommand.getControllerStatus().getState() == ControllerState.ALARM) {
+        if (statusCommand.getControllerStatus().getState() == ControllerState.SLEEP || statusCommand.getControllerStatus().getState() == ControllerState.DOOR || statusCommand.getControllerStatus().getState() == ControllerState.HOLD || statusCommand.getControllerStatus().getState() == ControllerState.ALARM) {
             try {
                 // Figure out if it is still responsive even if it is in HOLD or ALARM state
                 sendAndWaitForCompletion(controller, new GrblSystemCommand(""));
@@ -716,5 +720,35 @@ public class GrblUtils {
                 controller.getMessageService().dispatchMessage(MessageType.INFO, "*** Fetching device status (" + executionNumber + " of 10)...\n");
             }
         });
+    }
+
+    public static String lookupCode(String input) {
+        if (input.contains(":")) {
+            String[] inputParts = input.split(":");
+            if (inputParts.length == 2) {
+                String code = inputParts[1].trim();
+                if (StringUtils.isNumeric(code)) {
+                    String[] lookupParts;
+                    switch (inputParts[0].toLowerCase()) {
+                        case "error":
+                            lookupParts = ERRORS.lookup(code);
+                            break;
+                        case "alarm":
+                            lookupParts = ALARMS.lookup(code);
+                            break;
+                        default:
+                            return input;
+                    }
+
+                    if (lookupParts == null) {
+                        return "(" + input + ") An unknown error has occurred";
+                    } else {
+                        return "(" + input + ") " + lookupParts[2];
+                    }
+                }
+            }
+        }
+
+        return input;
     }
 }

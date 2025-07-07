@@ -203,7 +203,6 @@ public class TraceSettingsPanel extends JPanel {
         setEnabled(isEnabled());
         if (minimumDetailSize.getDoubleValue() < 1) {
             minimumDetailSize.setDoubleValue(1.0);            
-            System.out.println("Fixed Min Detail Size");
         }
     }
 
@@ -234,7 +233,6 @@ public class TraceSettingsPanel extends JPanel {
         settings.setCutLayerContents(cutLayerContents.isSelected()); // TODO REMOVE. 
                 
         settings.setMinimumDetailSize(minimumDetailSize.getDoubleValue());
-        System.out.println ("IsInverted: " + settings.isInvertedColorMap());
         return settings;
     }
 

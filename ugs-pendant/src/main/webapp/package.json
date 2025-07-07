@@ -20,7 +20,7 @@
     "react-bootstrap": "^2.9.2",
     "react-dom": "^18.2.0",
     "react-redux": "^9.0.4",
-    "react-router-dom": "^6.23.0"
+    "react-router-dom": "^7.5.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
@@ -33,6 +33,6 @@
     "eslint-plugin-react-refresh": "^0.4.5",
     "sass": "^1.69.6",
     "typescript": "^5.2.2",
-    "vite": "^6.2.5"
+    "vite": "^6.3.4"
   }
 }

@@ -45,7 +45,7 @@ import java.util.Optional;
 /**
  * @author Joacim Breiler
  */
-public class MoveControl extends AbstractControl {
+public class MoveControl extends SnapToGridControl {
     private final RoundRectangle2D.Double shape;
     private final Controller controller;
     private AffineTransform transform = new AffineTransform();
@@ -109,13 +109,16 @@ public class MoveControl extends AbstractControl {
                 Point2D deltaMovement = new Point2D.Double(mousePosition.getX() - target.getPosition().getX() - startOffset.getX(), mousePosition.getY() - target.getPosition().getY() - startOffset.getY());
                 if (mouseShapeEvent.isAltPressed()) {
                     Point2D newPosition = new Point2D.Double(Utils.roundToDecimals(target.getPosition().getX() + deltaMovement.getX(), 1), Utils.roundToDecimals(target.getPosition().getY() + deltaMovement.getY(), 1));
+                    newPosition.setLocation(snapToGrid(newPosition.getX()), snapToGrid(newPosition.getY()));
                     target.setPosition(newPosition);
                 } else {
                     Point2D newPosition = new Point2D.Double(Math.round(target.getPosition().getX() + deltaMovement.getX()), Math.round(target.getPosition().getY() + deltaMovement.getY()));
+                    newPosition.setLocation(snapToGrid(newPosition.getX()), snapToGrid(newPosition.getY()));
                     target.setPosition(newPosition);
                 }
             } else if (mouseShapeEvent.getType() == EventType.MOUSE_RELEASED && startPosition != null) {
                 Point2D deltaMovementTotal = new Point2D.Double(target.getPosition().getX() - startPosition.getX(), target.getPosition().getY() - startPosition.getY());
+                deltaMovementTotal.setLocation(snapToGrid(deltaMovementTotal.getX()), snapToGrid(deltaMovementTotal.getY()));
                 addUndoAction(deltaMovementTotal, target);
                 startPosition = null;
                 startOffset = null;

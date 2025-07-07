@@ -1,0 +1,28 @@
+@import "root.css";
+
+.drawer-pane {
+    -fx-background-color: #f2f2f2;
+    -fx-background-radius: 24 0 0 0;
+    -fx-border-radius: 24 0 0 0;
+    -fx-border-width: 1 0 0 1;
+    -fx-border-color: #aaa;
+
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.10), 10, 0.6, 0, 0);
+}
+
+.toggle-group {
+    -fx-background-color: transparent;
+    -fx-background-radius: 22 0 0 0;
+    -fx-border-color: transparent;
+    -fx-padding: 5;
+}
+
+.toggle-button, .collapse-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 5;
+    -fx-border-width: 1 0 1 0;
+    -fx-background-radius: 50% 50% 50% 50%;
+    -fx-border-radius: 50% 50% 50% 50%;
+}

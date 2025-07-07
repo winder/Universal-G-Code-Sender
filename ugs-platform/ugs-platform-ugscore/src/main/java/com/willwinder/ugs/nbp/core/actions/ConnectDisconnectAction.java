@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.actions.Action;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -46,6 +47,9 @@ import java.util.logging.Logger;
  *
  * @author wwinder
  */
+@Action(
+        icon = ConnectDisconnectAction.ICON_BASE_DISCONNECT
+)
 @ActionID(
         category = LocalizingService.ConnectDisconnectCategory,
         id = LocalizingService.ConnectDisconnectActionId)
@@ -66,7 +70,7 @@ public class ConnectDisconnectAction extends AbstractAction implements UGSEventL
     public static final String ICON_BASE_DISCONNECT = "resources/icons/disconnect.svg";
 
     private static final Logger logger = Logger.getLogger(ConnectDisconnectAction.class.getName());
-    private BackendAPI backend;
+    private final BackendAPI backend;
 
     public ConnectDisconnectAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);

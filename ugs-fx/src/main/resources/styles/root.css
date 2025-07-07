@@ -1,0 +1,146 @@
+* {
+    -fx-focus-border-color: rgb(79, 158, 176);
+    -fx-focus-background-color: rgb(199, 216, 225);
+
+}
+
+.button,
+.toggle-button {
+    -fx-border-width: 1;
+    -fx-background-color: white;
+    -fx-border-color: #c2c2c2;
+    -fx-padding: 5;
+    -fx-cursor: hand;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+
+.button:selected,
+.toggle-button:selected {
+    -fx-border-width: 1;
+    -fx-border-color: transparent;
+    -fx-background-color: -fx-focus-background-color;
+}
+
+.button:hover,
+.combo-box .list-cell:hover,
+.toggle-button:hover {
+    -fx-background-color: rgb(189, 205, 214);
+}
+
+.button:focused,
+.combo-box:focused,
+.toggle-button:focused {
+    -fx-border-color: -fx-focus-border-color;
+    -fx-border-width: 1;
+}
+
+.button:pressed,
+.toggle-button:pressed {
+    -fx-border-width: 1;
+    -fx-border-color: transparent;
+    -fx-background-color: #c2c2c2;
+}
+
+/**
+ * Text fields
+ */
+.text-field:focused {
+    -fx-border-width: 0;
+    -fx-effect: none;
+}
+
+/**
+ * Lists
+ */
+.list-view {
+    -fx-border-width: 0;
+}
+
+.list-view:focused .box {
+    -fx-border-color: -fx-focus-border-color;
+}
+
+.list-cell:selected {
+    -fx-background-color: -fx-focus-background-color;
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.list-cell:focused {
+    -fx-background-color: -fx-focus-background-color;
+}
+
+.list-cell:hover,
+.list-cell:hover .label,
+.list-cell:selected .label {
+    -fx-text-fill: -fx-text-base-color;
+}
+
+/**
+ * Tables
+ */
+.table-row-cell:selected,
+.table-row-cell:focused {
+    -fx-border-color: transparent;
+    -fx-background-color: -fx-focus-background-color;
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.table-row-cell:hover,
+.table-row-cell:hover .label,
+.table-row-cell:selected .label {
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.table-cell,
+.table-cell:selected,
+.table-cell:focused {
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-alignment: CENTER-LEFT;
+}
+
+/**
+ * Combo box
+ */
+.combo-box-base:focused {
+    -fx-background-color: -fx-focus-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-border-radius: 0;
+}
+
+.combo-box .list-cell:selected {
+    -fx-background-color: transparent;
+}
+
+/**
+ * Check box
+ */
+.check-box .box {
+    -fx-border-width: 1;
+    -fx-border-color: #c2c2c2;
+
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-radius: 2px;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-alignment: CENTER;
+    -fx-content-display: LEFT;
+
+}
+
+.check-box:focused .box {
+    -fx-border-color: #c2c2c2;
+}
+
+/**
+ * The actions pane is the lower part of a dialog containing buttons
+ */
+.actions-pane {
+    -fx-background-color: white;
+    -fx-border-color: #ccc;
+    -fx-border-width: 1px 0 0 0;
+    -fx-padding: 10;
+}
+

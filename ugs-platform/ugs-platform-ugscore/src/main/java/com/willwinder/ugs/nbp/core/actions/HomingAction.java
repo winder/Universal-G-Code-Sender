@@ -41,6 +41,9 @@ import javax.swing.Action;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 
+@com.willwinder.universalgcodesender.actions.Action(
+        icon = HomingAction.ICON_BASE
+)
 @ActionID(
         category = LocalizingService.HomeCategory,
         id = LocalizingService.HomeActionId)
