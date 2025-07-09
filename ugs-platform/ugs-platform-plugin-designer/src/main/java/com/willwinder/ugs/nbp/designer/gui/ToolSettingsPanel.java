@@ -56,8 +56,8 @@ public class ToolSettingsPanel extends JPanel {
     public ToolSettingsPanel(Controller controller) {
         this.controller = controller;
         initComponents();
-        setMinimumSize(new Dimension(300, 300));
-        setPreferredSize(new Dimension(300, 300));
+        setMinimumSize(new Dimension(300, 400));
+        setPreferredSize(new Dimension(300, 400));
     }
     private void initComponents() {
         setLayout(new MigLayout("fill", "[20%][80%]" ));
@@ -108,9 +108,6 @@ public class ToolSettingsPanel extends JPanel {
         add(new JLabel("Spindle Start Command" ));
         spindleDirection = new JComboBox(new DefaultComboBoxModel(new String[]{"M3","M4","M5"}));
         add(spindleDirection, TOOL_FIELD_CONSTRAINT);
-
-        laserDiameter = new TextFieldWithUnit(TextFieldUnit.MM, 3, controller.getSettings().getLaserDiameter());
-        add(laserDiameter, TOOL_FIELD_CONSTRAINT);
     }
 
     public double getToolDiameter() {

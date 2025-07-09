@@ -148,7 +148,8 @@ public class SimpleGcodeRouter {
                 "; Depth per pass: " + settings.getDepthPerPass() + "mm\n" +
                 "; Plunge speed: " + settings.getPlungeSpeed() + "mm/min\n" +
                 "; Safe height: " + settings.getSafeHeight() + "mm\n" +
-                "; Tool step over: " + settings.getToolStepOver() + "mm\n";
+                "; Tool step over: " + settings.getToolStepOver() + "mm\n"+
+                "; Spindle Start Command: " + settings.getSpindleDirection()+ "\n";
     }
 
     protected void toGcode(Writer writer, GcodePath path) throws IOException {

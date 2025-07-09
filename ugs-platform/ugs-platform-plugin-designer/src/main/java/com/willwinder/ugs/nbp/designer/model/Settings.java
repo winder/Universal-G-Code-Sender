@@ -69,8 +69,8 @@ public class Settings {
         return spindleDirection;
     }
 
-    public void setSpindleDirection(String spindleDirection) {
-        this.spindleDirection = spindleDirection;
+    public void setSpindleDirection(String newSpindleDirection) {
+        this.spindleDirection = newSpindleDirection;
         notifyListeners();
     }
 
@@ -198,7 +198,7 @@ public class Settings {
         setLaserDiameter(settings.getLaserDiameter());
         setMaxSpindleSpeed(settings.getMaxSpindleSpeed());
         setDetectMaxSpindleSpeed(settings.getDetectMaxSpindleSpeed());
-
+        setSpindleDirection(settings.getSpindleDirection());        
     }
 
     public double getLaserDiameter() {
