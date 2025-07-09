@@ -38,7 +38,8 @@ public class Settings {
     private double laserDiameter = 0.2;
     private int maxSpindleSpeed = 255;
     private boolean detectMaxSpindleSpeed = true;
-
+    private String spindleDirection = "M3";
+    
     public Settings() {
     }
 
@@ -61,6 +62,15 @@ public class Settings {
 
     public void setPlungeSpeed(int plungeSpeed) {
         this.plungeSpeed = plungeSpeed;
+        notifyListeners();
+    }
+    
+    public String getSpindleDirection() {
+        return spindleDirection;
+    }
+
+    public void setSpindleDirection(String spindleDirection) {
+        this.spindleDirection = spindleDirection;
         notifyListeners();
     }
 

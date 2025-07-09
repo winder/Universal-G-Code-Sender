@@ -167,7 +167,7 @@ public class SimpleGcodeRouter {
             }
 
             if (s.getSpindleSpeed() != null) {
-                writer.write("M3 S" + s.getSpindleSpeed() + "\n" );
+                writer.write(settings.getSpindleDirection() + " S" + s.getSpindleSpeed() + "\n" );
             }
 
             switch (s.type) {
