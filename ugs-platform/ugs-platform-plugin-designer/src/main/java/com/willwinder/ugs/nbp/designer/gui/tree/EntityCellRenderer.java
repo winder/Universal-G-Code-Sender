@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.gui.tree;
 
 import com.willwinder.ugs.nbp.designer.Utils;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.gui.CutTypeIcon;
@@ -32,6 +33,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.Component;
+import java.awt.Dimension;
 
 public class EntityCellRenderer extends DefaultTreeCellRenderer {
 
@@ -39,39 +41,53 @@ public class EntityCellRenderer extends DefaultTreeCellRenderer {
 
     @Override
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        super.getTreeCellRendererComponent(
-                tree, value, sel,
-                expanded, leaf, row,
-                hasFocus);
-
+        
+        String textToUse="";
+        Icon iconToUse = null;
+        
         BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         UnitUtils.Units preferredUnits = backendAPI.getSettings().getPreferredUnits();
-
+                
         Object treeObject = getUserObject(value);
         if (leaf && treeObject instanceof Cuttable cuttable) {
             CutType cutType = cuttable.getCutType();
             double cutDepth = UnitUtils.scaleUnits(UnitUtils.Units.MM, preferredUnits) * cuttable.getTargetDepth();
-            if (cuttable.isHidden()) {
-                setIcon(ICON_HIDDEN);
-            } else {
-                setIcon(new CutTypeIcon(cutType, CutTypeIcon.Size.SMALL));
+            if (cuttable.isHidden()) {                
+                iconToUse = ICON_HIDDEN;
+            } else {                
+                iconToUse = new CutTypeIcon(cutType, CutTypeIcon.Size.SMALL);
             }
 
             if (cutType == CutType.NONE) {
-                setText(cuttable.getName());
+                textToUse =cuttable.getName(); 
             } else {
-                setText((Utils.toString(cutDepth)) + " " + preferredUnits.abbreviation + " - " + cuttable.getName());
+                
+                textToUse = (Utils.toString(cutDepth)) + " " + preferredUnits.abbreviation + " - " + cuttable.getName();
             }
+            setText( textToUse );
         } else {
+            if (treeObject instanceof Entity entity) {
+                textToUse = entity.getName();
+            }
             setToolTipText(null); //no tool tip
         }
-
-        return this;
+        
+        EntityCellRenderer result = (EntityCellRenderer) super.getTreeCellRendererComponent(
+                tree, textToUse, sel,
+                expanded, leaf, row,
+                hasFocus);
+        result.setPreferredSize(new Dimension(tree.getWidth(), result.getPreferredSize().height));
+        if (iconToUse != null) {
+            result.setIcon(iconToUse);
+        }
+       
+//        result.setText(textToUse);               
+        return result;
     }
 
     private Object getUserObject(Object value) {
-        if (value instanceof DefaultMutableTreeNode) {
-            return ((DefaultMutableTreeNode) value).getUserObject();
+        if (value instanceof DefaultMutableTreeNode defaultMutableTreeNode) {
+            return defaultMutableTreeNode.getUserObject();
         }
         return value;
     }
