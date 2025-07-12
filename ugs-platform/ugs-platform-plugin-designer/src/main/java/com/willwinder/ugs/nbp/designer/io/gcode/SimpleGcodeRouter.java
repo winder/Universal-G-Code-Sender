@@ -87,57 +87,61 @@ public class SimpleGcodeRouter {
     private GcodePath getGcodePathFromCuttables(List<Cuttable> cuttables) {
         GcodePath gcodePath = new GcodePath();
         int index = 0;
+        
         for (Cuttable cuttable : cuttables) {
+            
             index++;
             gcodePath.addSegment(new Segment(" " + cuttable.getName() + " - " + cuttable.getCutType().getName() + " (" + index + "/" + cuttables.size() + ")" ));
-            switch (cuttable.getCutType()) {
-                case POCKET:
-                    PocketToolPath simplePocket = new PocketToolPath(settings, cuttable);
-                    simplePocket.setStartDepth(cuttable.getStartDepth());
-                    simplePocket.setTargetDepth(cuttable.getTargetDepth());
-                    simplePocket.appendGcodePath(gcodePath, settings);
-                    break;
-                case SURFACE:
-                    SurfaceToolPath surfaceToolPath = new SurfaceToolPath(settings, cuttable);
-                    surfaceToolPath.setStartDepth(cuttable.getStartDepth());
-                    surfaceToolPath.setTargetDepth(cuttable.getTargetDepth());
-                    surfaceToolPath.appendGcodePath(gcodePath, settings);
-                    break;
-                case OUTSIDE_PATH:
-                    OutlineToolPath simpleOutsidePath = new OutlineToolPath(settings, cuttable);
-                    simpleOutsidePath.setOffset(settings.getToolDiameter() / 2d);
-                    simpleOutsidePath.setStartDepth(cuttable.getStartDepth());
-                    simpleOutsidePath.setTargetDepth(cuttable.getTargetDepth());
-                    simpleOutsidePath.appendGcodePath(gcodePath, settings);
-                    break;
-                case INSIDE_PATH:
-                    OutlineToolPath simpleInsidePath = new OutlineToolPath(settings, cuttable);
-                    simpleInsidePath.setOffset(-settings.getToolDiameter() / 2d);
-                    simpleInsidePath.setStartDepth(cuttable.getStartDepth());
-                    simpleInsidePath.setTargetDepth(cuttable.getTargetDepth());
-                    simpleInsidePath.appendGcodePath(gcodePath, settings);
-                    break;
-                case ON_PATH:
-                    OutlineToolPath simpleOnPath = new OutlineToolPath(settings, cuttable);
-                    simpleOnPath.setStartDepth(cuttable.getStartDepth());
-                    simpleOnPath.setTargetDepth(cuttable.getTargetDepth());
-                    simpleOnPath.appendGcodePath(gcodePath, settings);
-                    break;
-                case CENTER_DRILL:
-                    DrillCenterToolPath drillToolPath = new DrillCenterToolPath(settings, cuttable);
-                    drillToolPath.setStartDepth(cuttable.getStartDepth());
-                    drillToolPath.setTargetDepth(cuttable.getTargetDepth());
-                    drillToolPath.appendGcodePath(gcodePath, settings);
-                    break;
-                case LASER_ON_PATH:
-                    LaserOutlineToolPath laserOutlineToolPath = new LaserOutlineToolPath(settings, cuttable);
-                    laserOutlineToolPath.appendGcodePath(gcodePath, settings);
-                    break;
-                case LASER_FILL:
-                    LaserFillToolPath laserFillToolPath = new LaserFillToolPath(settings, cuttable);
-                    laserFillToolPath.appendGcodePath(gcodePath, settings);
-                    break;
-                default:
+            if (cuttable.getIncludeInExport()) {                            
+                switch (cuttable.getCutType()) {
+                    case POCKET:
+                        PocketToolPath simplePocket = new PocketToolPath(settings, cuttable);
+                        simplePocket.setStartDepth(cuttable.getStartDepth());
+                        simplePocket.setTargetDepth(cuttable.getTargetDepth());
+                        simplePocket.appendGcodePath(gcodePath, settings);
+                        break;
+                    case SURFACE:
+                        SurfaceToolPath surfaceToolPath = new SurfaceToolPath(settings, cuttable);
+                        surfaceToolPath.setStartDepth(cuttable.getStartDepth());
+                        surfaceToolPath.setTargetDepth(cuttable.getTargetDepth());
+                        surfaceToolPath.appendGcodePath(gcodePath, settings);
+                        break;
+                    case OUTSIDE_PATH:
+                        OutlineToolPath simpleOutsidePath = new OutlineToolPath(settings, cuttable);
+                        simpleOutsidePath.setOffset(settings.getToolDiameter() / 2d);
+                        simpleOutsidePath.setStartDepth(cuttable.getStartDepth());
+                        simpleOutsidePath.setTargetDepth(cuttable.getTargetDepth());
+                        simpleOutsidePath.appendGcodePath(gcodePath, settings);
+                        break;
+                    case INSIDE_PATH:
+                        OutlineToolPath simpleInsidePath = new OutlineToolPath(settings, cuttable);
+                        simpleInsidePath.setOffset(-settings.getToolDiameter() / 2d);
+                        simpleInsidePath.setStartDepth(cuttable.getStartDepth());
+                        simpleInsidePath.setTargetDepth(cuttable.getTargetDepth());
+                        simpleInsidePath.appendGcodePath(gcodePath, settings);
+                        break;
+                    case ON_PATH:
+                        OutlineToolPath simpleOnPath = new OutlineToolPath(settings, cuttable);
+                        simpleOnPath.setStartDepth(cuttable.getStartDepth());
+                        simpleOnPath.setTargetDepth(cuttable.getTargetDepth());
+                        simpleOnPath.appendGcodePath(gcodePath, settings);
+                        break;
+                    case CENTER_DRILL:
+                        DrillCenterToolPath drillToolPath = new DrillCenterToolPath(settings, cuttable);
+                        drillToolPath.setStartDepth(cuttable.getStartDepth());
+                        drillToolPath.setTargetDepth(cuttable.getTargetDepth());
+                        drillToolPath.appendGcodePath(gcodePath, settings);
+                        break;
+                    case LASER_ON_PATH:
+                        LaserOutlineToolPath laserOutlineToolPath = new LaserOutlineToolPath(settings, cuttable);
+                        laserOutlineToolPath.appendGcodePath(gcodePath, settings);
+                        break;
+                    case LASER_FILL:
+                        LaserFillToolPath laserFillToolPath = new LaserFillToolPath(settings, cuttable);
+                        laserFillToolPath.appendGcodePath(gcodePath, settings);
+                        break;
+                    default:
+                }
             }
         }
         return gcodePath;

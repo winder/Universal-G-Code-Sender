@@ -47,6 +47,7 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
+import javax.swing.JCheckBox;
 
 /**
  * @author Joacim Breiler
@@ -213,8 +214,23 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         fieldEventDispatcher.registerListener(EntitySetting.TARGET_DEPTH, targetDepthSpinner);
         add(targetDepthSpinner, FIELD_CONSTRAINTS + ", spanx");
         setEnabled(false);
+        
+        targetDepthSpinner.setPreferredSize(targetDepthSpinner.getPreferredSize());
+        fieldEventDispatcher.registerListener(EntitySetting.TARGET_DEPTH, targetDepthSpinner);
+        add(targetDepthSpinner, FIELD_CONSTRAINTS + ", spanx");
+        setEnabled(false);
+        
+        includeInExport = new JCheckBox();
+        includeInExport.setSelected(true);
+        fieldEventDispatcher.registerListener(EntitySetting.INCLUDE_IN_EXPORT, includeInExport);
+        includeInExportLabel = createAndAddLabel(EntitySetting.INCLUDE_IN_EXPORT);
+        add(includeInExport, FIELD_CONSTRAINTS + ", spanx");
+        
     }
-
+    private JLabel includeInExportLabel;
+    
+    private JCheckBox includeInExport;
+    
     private void setController(Controller controller) {
         this.controller = controller;
         this.controller.getSelectionManager().addSelectionListener(this);
@@ -343,7 +359,11 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         } else if (entitySetting == EntitySetting.LEAD_OUT_PERCENT) {
             leadOutPercentSlider.setValue(model.getLeadOutPercent());
             selectionGroup.setLeadOutPercent(model.getLeadOutPercent());
+        } else if (entitySetting == EntitySetting.INCLUDE_IN_EXPORT) {
+            includeInExport.setSelected(model.getIncludeInExport());
+            selectionGroup.setIncludeInExport(model.getIncludeInExport());
         }
+
 
 
         handleComponentVisibility(selectionGroup);
@@ -361,7 +381,9 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         startDepthLabel.setEnabled(hasCutTypeSelection);
         targetDepthSpinner.setEnabled(hasCutTypeSelection);
         targetDepthLabel.setEnabled(hasCutTypeSelection);
-
+        includeInExport.setVisible(hasCutType);
+        includeInExportLabel.setVisible(hasCutType);
+        
         boolean isTextCuttable = selectionHasSetting(selectionGroup, EntitySetting.TEXT);
         textTextField.setVisible(isTextCuttable);
         textLabel.setVisible(isTextCuttable);
