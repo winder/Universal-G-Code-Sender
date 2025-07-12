@@ -41,12 +41,9 @@ public class EntityCellRenderer extends DefaultTreeCellRenderer {
     private static final Icon ICON_HIDDEN = ImageUtilities.loadImageIcon("img/eyeoff.svg", false);
 
     @Override
-    public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {        
         String textToUse="";
         Icon iconToUse = null;
-        
 
         BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         UnitUtils.Units preferredUnits = backendAPI.getSettings().getPreferredUnits();
