@@ -23,6 +23,7 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import javax.swing.SwingUtilities;
 
 /**
  * A test implementation of the gcode designer tool that works in stand alone mode
@@ -102,6 +103,9 @@ public class DesignerMain extends JFrame {
     }
 
     public static void main(String[] args) {
-        new DesignerMain();
+        SwingUtilities.invokeLater(() -> {
+            new DesignerMain();
+        });
+        
     }
 }

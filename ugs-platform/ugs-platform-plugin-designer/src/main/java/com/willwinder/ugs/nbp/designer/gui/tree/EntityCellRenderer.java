@@ -35,6 +35,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.Component;
 import java.awt.Dimension;
 
+
 public class EntityCellRenderer extends DefaultTreeCellRenderer {
 
     private static final Icon ICON_HIDDEN = ImageUtilities.loadImageIcon("img/eyeoff.svg", false);
@@ -42,9 +43,11 @@ public class EntityCellRenderer extends DefaultTreeCellRenderer {
     @Override
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         
+    public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {        
         String textToUse="";
         Icon iconToUse = null;
         
+
         BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         UnitUtils.Units preferredUnits = backendAPI.getSettings().getPreferredUnits();
                 
@@ -76,7 +79,10 @@ public class EntityCellRenderer extends DefaultTreeCellRenderer {
                 tree, textToUse, sel,
                 expanded, leaf, row,
                 hasFocus);
-        result.setPreferredSize(new Dimension(tree.getWidth(), result.getPreferredSize().height));
+        Dimension trueSize = new Dimension(tree.getWidth(), result.getPreferredSize().height);
+        result.setPreferredSize(trueSize);
+        result.setMinimumSize(trueSize);
+        result.setSize(trueSize);
         if (iconToUse != null) {
             result.setIcon(iconToUse);
         }
