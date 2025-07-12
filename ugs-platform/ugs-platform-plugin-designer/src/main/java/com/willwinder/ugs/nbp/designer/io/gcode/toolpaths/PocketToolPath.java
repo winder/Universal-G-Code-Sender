@@ -45,7 +45,7 @@ public class PocketToolPath extends AbstractToolPath {
     @Override
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
         double stepOver = Math.min(Math.max(0.01, Math.abs(settings.getToolStepOver())), 1.0);
-        Geometry geometryCollection = convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
+        Geometry geometryCollection = convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory(), settings.getFlatnessPrecision());
         Geometry shell = geometryCollection.buffer(-settings.getToolDiameter() / 2d);
         List<Geometry> geometries = bufferAndCollectGeometries(geometryCollection, settings.getToolDiameter(), stepOver);
 
