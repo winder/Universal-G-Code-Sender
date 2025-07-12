@@ -39,7 +39,8 @@ public class Settings {
     private int maxSpindleSpeed = 255;
     private boolean detectMaxSpindleSpeed = true;
     private String spindleDirection = "M3";
-    
+    private double flatnessPrecision = 0.1;
+
     public Settings() {
     }
 
@@ -64,7 +65,7 @@ public class Settings {
         this.plungeSpeed = plungeSpeed;
         notifyListeners();
     }
-    
+
     public String getSpindleDirection() {
         return spindleDirection;
     }
@@ -198,7 +199,8 @@ public class Settings {
         setLaserDiameter(settings.getLaserDiameter());
         setMaxSpindleSpeed(settings.getMaxSpindleSpeed());
         setDetectMaxSpindleSpeed(settings.getDetectMaxSpindleSpeed());
-        setSpindleDirection(settings.getSpindleDirection());        
+        setSpindleDirection(settings.getSpindleDirection());
+        setFlatnessPrecision(settings.getFlatnessPrecision());
     }
 
     public double getLaserDiameter() {
@@ -228,6 +230,15 @@ public class Settings {
 
     public void setDetectMaxSpindleSpeed(boolean detectMaxSpindleSpeed) {
         this.detectMaxSpindleSpeed = detectMaxSpindleSpeed;
+        notifyListeners();
+    }
+
+    public double getFlatnessPrecision() {
+        return flatnessPrecision;
+    }
+
+    public void setFlatnessPrecision(double flatnessPrecision) {
+        this.flatnessPrecision = flatnessPrecision;
         notifyListeners();
     }
 }

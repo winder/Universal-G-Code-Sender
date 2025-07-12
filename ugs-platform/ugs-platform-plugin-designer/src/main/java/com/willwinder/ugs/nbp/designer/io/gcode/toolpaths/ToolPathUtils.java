@@ -42,12 +42,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 public class ToolPathUtils {
     public static final double DISTANCE_TOLERANCE = 0.1;
-
-    public static final double FLATNESS_PRECISION = 0.1d;
 
     public static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
@@ -87,24 +84,6 @@ public class ToolPathUtils {
                 .toList();
     }
 
-    public static List<List<PartialPosition>> geometriesToCoordinates(List<Geometry> geometries, double depth) {
-        return geometries.stream()
-                .map(geometry -> {
-                    List<PartialPosition> bufferedCoordinates = geometryToCoordinates(geometry)
-                            .stream()
-                            .map(c -> new PartialPosition(c.getX(), c.getY(), -depth, UnitUtils.Units.MM))
-                            .toList();
-
-                    if (bufferedCoordinates.isEmpty() || bufferedCoordinates.size() <= 1) {
-                        return null;
-                    }
-
-                    return bufferedCoordinates;
-                })
-                .filter(Objects::nonNull)
-                .toList();
-    }
-
     public static List<PartialPosition> geometryToCoordinates(Geometry geometry, double depth) {
         org.locationtech.jts.geom.Coordinate[] coordinates = geometry.getCoordinates();
         return Arrays.stream(coordinates)
@@ -112,9 +91,9 @@ public class ToolPathUtils {
                 .toList();
     }
 
-    public static Geometry convertAreaToGeometry(final Area area, final GeometryFactory factory) {
+    public static Geometry convertAreaToGeometry(final Area area, final GeometryFactory factory, double flatnessPrecision) {
 
-        PathIterator iter = area.getPathIterator(null, FLATNESS_PRECISION);
+        PathIterator iter = area.getPathIterator(null, flatnessPrecision);
 
         PrecisionModel precisionModel = factory.getPrecisionModel();
         Polygonizer polygonizer = new Polygonizer(true);
@@ -132,8 +111,8 @@ public class ToolPathUtils {
         return polygonizer.getGeometry();
     }
 
-    public static List<Geometry> convertShapeToGeometry(Shape shape, GeometryFactory factory) {
-        PathIterator iter = shape.getPathIterator(null, FLATNESS_PRECISION);
+    public static List<Geometry> convertShapeToGeometry(Shape shape, GeometryFactory factory, double flatnessPrecision) {
+        PathIterator iter = shape.getPathIterator(null, flatnessPrecision);
         PrecisionModel precisionModel = factory.getPrecisionModel();
 
         List<Coordinate[]> coords = ShapeReader.toCoordinates(iter);
