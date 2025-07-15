@@ -21,7 +21,6 @@ package com.willwinder.ugs.nbp.designer.gui.imagetracer;
 import com.willwinder.ugs.nbp.designer.Throttler;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils;
@@ -30,19 +29,25 @@ import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
+import org.locationtech.jts.awt.ShapeWriter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Polygon;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.ProgressMonitor;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.PathIterator;
@@ -51,25 +56,18 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.swing.JOptionPane;
-import javax.swing.JTabbedPane;
-import javax.swing.ProgressMonitor;
-import org.locationtech.jts.awt.ShapeWriter;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Polygon;
 
 /**
  * @author Joacim Breiler
  */
 public class ImageTracerDialog extends JDialog {
     private final static String DEFAULT_SVG = "<svg height='30' width='200' xmlns='http://www.w3.org/2000/svg'>\n<text x='5' y='15' fill='black'>No File Selected</text>\n</svg>";
-    
+    public static final double FLATNESS_PRECISION = 0.1d;
+
     private transient List<Entity> entities = new ArrayList<>();
     private final transient Throttler refreshThrottler;
     private final SVGCanvas svgCanvas = new SVGCanvas();
@@ -276,7 +274,7 @@ public class ImageTracerDialog extends JDialog {
     
     private Area cleanGarbage(Area input, boolean shouldInvertOutput, double minSize) {
         
-        Geometry geometry = ToolPathUtils.convertAreaToGeometry(input, new GeometryFactory());
+        Geometry geometry = ToolPathUtils.convertAreaToGeometry(input, new GeometryFactory(), FLATNESS_PRECISION);
 
         List<Shape> shapeList = new ArrayList<>();
         List<Shape> shapeListOut = new ArrayList<>();

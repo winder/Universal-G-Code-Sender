@@ -25,7 +25,9 @@ import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
 import net.miginfocom.swing.MigLayout;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -49,14 +51,15 @@ public class ToolSettingsPanel extends JPanel {
     private JCheckBox detectMaxSpindleSpeed;
     private TextFieldWithUnit laserDiameter;
     private TextFieldWithUnit maxSpindleSpeed;
+    private JComboBox<String> spindleDirection;
+    private TextFieldWithUnit flatnessPrecision;
 
     public ToolSettingsPanel(Controller controller) {
         this.controller = controller;
         initComponents();
-        setMinimumSize(new Dimension(300, 300));
-        setPreferredSize(new Dimension(300, 300));
+        setMinimumSize(new Dimension(300, 400));
+        setPreferredSize(new Dimension(300, 400));
     }
-
     private void initComponents() {
         setLayout(new MigLayout("fill", "[20%][80%]" ));
 
@@ -102,6 +105,16 @@ public class ToolSettingsPanel extends JPanel {
         add(new JLabel("Laser diameter" ));
         laserDiameter = new TextFieldWithUnit(TextFieldUnit.MM, 3, controller.getSettings().getLaserDiameter());
         add(laserDiameter, TOOL_FIELD_CONSTRAINT);
+
+        add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2" );
+
+        add(new JLabel("Spindle Start Command" ));
+        spindleDirection = new JComboBox<>(new DefaultComboBoxModel<>(new String[]{"M3","M4","M5"}));
+        add(spindleDirection, TOOL_FIELD_CONSTRAINT);
+
+        add(new JLabel("Arc precision" ));
+        flatnessPrecision = new TextFieldWithUnit(TextFieldUnit.MM, 3, controller.getSettings().getFlatnessPrecision());
+        add(flatnessPrecision, TOOL_FIELD_CONSTRAINT);
     }
 
     public double getToolDiameter() {
@@ -172,6 +185,18 @@ public class ToolSettingsPanel extends JPanel {
         return detectMaxSpindleSpeed.isSelected();
     }
 
+    private String getSpindleDirection() {
+        return (String) spindleDirection.getSelectedItem();
+    }
+
+    private double getFlatnessPrecision() {
+        try {
+            return Utils.formatter.parse(flatnessPrecision.getText()).doubleValue();
+        } catch (ParseException e) {
+            return controller.getSettings().getFlatnessPrecision();
+        }
+    }
+
     public Settings getSettings() {
         Settings settings = new Settings();
         settings.applySettings(controller.getSettings());
@@ -184,6 +209,8 @@ public class ToolSettingsPanel extends JPanel {
         settings.setLaserDiameter(getLaserDiameter());
         settings.setMaxSpindleSpeed((int) getMaxSpindleSpeed());
         settings.setDetectMaxSpindleSpeed(getDetectMaxSpindleSpeed());
+        settings.setSpindleDirection(getSpindleDirection());
+        settings.setFlatnessPrecision(getFlatnessPrecision());
         return settings;
     }
 }

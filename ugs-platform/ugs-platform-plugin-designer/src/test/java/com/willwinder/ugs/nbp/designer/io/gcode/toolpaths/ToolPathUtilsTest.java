@@ -28,7 +28,7 @@ public class ToolPathUtilsTest {
 
         double toolDiameter = 1.2;
 
-        Geometry geometryCollection = convertAreaToGeometry(new Area(design.getEntities().get(0).getShape()), new GeometryFactory());
+        Geometry geometryCollection = convertAreaToGeometry(new Area(design.getEntities().get(0).getShape()), new GeometryFactory(), 0.1);
         Geometry shell = geometryCollection.buffer(-toolDiameter / 2d);
         List<Geometry> geometries = bufferAndCollectGeometries(geometryCollection, toolDiameter, 1);
         assertEquals(4, geometries.size());

@@ -67,14 +67,14 @@ public class OutlineToolPath extends AbstractToolPath {
     public final static int OUTSIDE_PATH = 0x02;
     
     public double toolWidth = settings.getToolDiameter();
-    public double lineWidth = 12.0;
+    public double lineWidth = 1.0;
     public int cutMode = INSIDE_PATH;
     @Override
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
         List<Geometry> geometries;
         
         if (ToolPathUtils.isClosedGeometry(source.getShape())) {
-            Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
+            Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory(), settings.getFlatnessPrecision());
             
             if (toolWidth >= lineWidth) {
                 Geometry bufferedGeometry = geometry.buffer(offset);
@@ -127,7 +127,7 @@ public class OutlineToolPath extends AbstractToolPath {
             
             // TODO: Loop through ( 0 -> width ) or ( width -> 0 ) and create an expanding or
             // Shrinking set of geometries. 
-            geometries = ToolPathUtils.convertShapeToGeometry(source.getShape(), getGeometryFactory());
+            geometries = ToolPathUtils.convertShapeToGeometry(source.getShape(), getGeometryFactory(), settings.getFlatnessPrecision());
         }
 
 

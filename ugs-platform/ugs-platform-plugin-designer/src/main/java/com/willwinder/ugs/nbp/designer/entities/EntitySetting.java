@@ -44,7 +44,9 @@ public enum EntitySetting {
     FEED_RATE("Feed rate"),
     LEAD_IN_PERCENT("Lead in percent"),
     LEAD_OUT_PERCENT("Lead out percent"),
-    LINE_WIDTH("Line Width");
+    LINE_WIDTH("Line Width"),
+    INCLUDE_IN_EXPORT("Include in export");
+
 
     public static final List<EntitySetting> DEFAULT_ENDMILL_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
@@ -61,8 +63,9 @@ public enum EntitySetting {
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.FEED_RATE,
             EntitySetting.TEXT,
-            EntitySetting.LINE_WIDTH
-            );
+            EntitySetting.LINE_WIDTH,
+            EntitySetting.INCLUDE_IN_EXPORT);
+
 
     public static final List<EntitySetting> DEFAULT_SURFACE_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
@@ -80,7 +83,8 @@ public enum EntitySetting {
             EntitySetting.FEED_RATE,
             EntitySetting.TEXT,
             EntitySetting.LEAD_IN_PERCENT,
-            EntitySetting.LEAD_OUT_PERCENT);
+            EntitySetting.LEAD_OUT_PERCENT,
+            EntitySetting.INCLUDE_IN_EXPORT);
 
     public static final List<EntitySetting> DEFAULT_LASER_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
@@ -95,7 +99,8 @@ public enum EntitySetting {
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.PASSES,
             EntitySetting.FEED_RATE,
-            EntitySetting.TEXT);
+            EntitySetting.TEXT,
+            EntitySetting.INCLUDE_IN_EXPORT);
 
     private final String label;
 

@@ -184,7 +184,26 @@ public class Group extends EntityGroup implements Cuttable {
             }
         });
     }
+    @Override
+    public boolean getIncludeInExport() {
+        for (Entity child : getChildren()) {
+            if (child instanceof Cuttable cuttable) {
+                if (cuttable.getIncludeInExport()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
+    @Override
+    public void setIncludeInExport(boolean value) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setIncludeInExport(value);
+            }
+        });
+    }
     @Override
     public boolean isHidden() {
         return getCuttableStream()
@@ -275,10 +294,17 @@ public class Group extends EntityGroup implements Cuttable {
             result.remove(EntitySetting.LEAD_OUT_PERCENT);
         }
         
+
         if (getCuttableStream().map(Cuttable::getLineWidth).distinct().toList().size() > 1) {
             result = new ArrayList<>(result);
             result.remove(EntitySetting.LINE_WIDTH);
         }
+
+        if (getCuttableStream().map(Cuttable::getIncludeInExport).distinct().toList().size() > 1) {
+            result = new ArrayList<>(result);
+            result.remove(EntitySetting.INCLUDE_IN_EXPORT);
+        }
+
         return result;
     }
     

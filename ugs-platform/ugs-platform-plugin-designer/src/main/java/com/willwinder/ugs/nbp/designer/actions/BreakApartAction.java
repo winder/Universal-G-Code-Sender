@@ -111,7 +111,7 @@ public class BreakApartAction extends AbstractDesignAction implements SelectionL
 
         @Override
         public void redo() {
-            Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(entity.getShape()), new GeometryFactory());
+            Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(entity.getShape()), new GeometryFactory(), controller.getSettings().getFlatnessPrecision());
             List<Shape> shapeList = breakShapeApart(geometry);
             newEntities = shapeList.stream().map(shape -> {
                 Path path = new Path();

@@ -42,6 +42,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.swing.JCheckBox;
 
 
 /**
@@ -140,7 +141,14 @@ public class FieldEventDispatcher {
         componentsMap.put(entitySetting, component);
         component.addItemListener(l -> updateValue(entitySetting, l.getItem()));
     }
-
+    
+    public void registerListener(EntitySetting entitySetting, JCheckBox component) {
+        componentsMap.put(entitySetting, component);
+        component.addActionListener((e) -> {
+            updateValue(entitySetting, component.isSelected());
+        });
+    }
+    
     private void valueUpdated(PropertyChangeEvent propertyChangeEvent) {
         Object source = propertyChangeEvent.getSource();
         componentsMap.entrySet()
