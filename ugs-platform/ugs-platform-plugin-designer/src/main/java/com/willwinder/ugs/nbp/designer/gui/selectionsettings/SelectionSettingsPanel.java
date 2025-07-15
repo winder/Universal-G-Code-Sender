@@ -90,7 +90,9 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private JLabel leadOutPercentSliderLabel;
     private JSlider leadOutPercentSlider;
 
-
+    private JLabel lineWidthLabel;    
+    private UnitSpinner lineWidthSpinner;
+    
     public SelectionSettingsPanel(Controller controller) {
         fieldEventDispatcher = new FieldEventDispatcher();
         setLayout(new MigLayout("hidemode 3, insets 10, gap 10", "[sg label] 10 [grow] 10 [60px]"));
@@ -212,6 +214,14 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         targetDepthSpinner.setPreferredSize(targetDepthSpinner.getPreferredSize());
         fieldEventDispatcher.registerListener(EntitySetting.TARGET_DEPTH, targetDepthSpinner);
         add(targetDepthSpinner, FIELD_CONSTRAINTS + ", spanx");
+        // Line Width
+        lineWidthLabel = createAndAddLabel(EntitySetting.LINE_WIDTH);
+        lineWidthSpinner = new UnitSpinner(0, TextFieldUnit.MM, -1d , null, 0.1d);
+
+        lineWidthSpinner.setPreferredSize(lineWidthSpinner.getPreferredSize());
+        fieldEventDispatcher.registerListener(EntitySetting.LINE_WIDTH, lineWidthSpinner);
+        add(lineWidthSpinner, FIELD_CONSTRAINTS + ", spanx");
+
         setEnabled(false);
     }
 
@@ -343,8 +353,10 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         } else if (entitySetting == EntitySetting.LEAD_OUT_PERCENT) {
             leadOutPercentSlider.setValue(model.getLeadOutPercent());
             selectionGroup.setLeadOutPercent(model.getLeadOutPercent());
+        } else if (entitySetting == EntitySetting.LINE_WIDTH) {
+            lineWidthSpinner.setValue(model.getLineWidth());
+            selectionGroup.setLineWidth(model.getLineWidth());
         }
-
 
         handleComponentVisibility(selectionGroup);
     }
@@ -362,6 +374,10 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         targetDepthSpinner.setEnabled(hasCutTypeSelection);
         targetDepthLabel.setEnabled(hasCutTypeSelection);
 
+        boolean hasLineWidth = (cutType == CutType.ON_PATH) || (cutType == CutType.INSIDE_PATH) || (cutType == CutType.OUTSIDE_PATH);        
+        lineWidthLabel.setVisible(hasLineWidth);
+        lineWidthSpinner.setVisible(hasLineWidth);
+        
         boolean isTextCuttable = selectionHasSetting(selectionGroup, EntitySetting.TEXT);
         textTextField.setVisible(isTextCuttable);
         textLabel.setVisible(isTextCuttable);

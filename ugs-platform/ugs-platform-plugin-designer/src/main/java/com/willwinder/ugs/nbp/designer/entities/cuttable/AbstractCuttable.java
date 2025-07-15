@@ -53,6 +53,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private int passes;
     private int feedRate;
     private boolean isHidden = false;
+    private double lineWidth = -1.0;
 
     protected AbstractCuttable() {
         this(0, 0);
@@ -259,7 +260,9 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
                 EntitySetting.PASSES,
                 EntitySetting.FEED_RATE,
                 EntitySetting.LEAD_IN_PERCENT,
-                EntitySetting.LEAD_OUT_PERCENT
+                EntitySetting.LEAD_OUT_PERCENT,
+                EntitySetting.LINE_WIDTH
+                
         );
     }
 
@@ -295,6 +298,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         copy.setSpindleSpeed(getSpindleSpeed());
         copy.setPasses(getPasses());
         copy.setHidden(isHidden());
+        copy.setLineWidth(getLineWidth());
+        
     }
 
     @Override
@@ -305,5 +310,16 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     @Override
     public void setEntitySetting(EntitySetting entitySetting, Object value) {
         entitySettings.setEntitySetting(entitySetting, value);
+    }
+    
+    @Override
+    public double getLineWidth() {
+        return lineWidth;
+    }
+
+    @Override
+    public void setLineWidth(double newLineWidth) {        
+        this.lineWidth = Math.abs(newLineWidth);
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 }

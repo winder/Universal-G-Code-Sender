@@ -161,5 +161,20 @@ public interface Cuttable extends Entity {
      * @return the tool lead-out
      */
     int getLeadOutPercent();
+        
+    /**
+     * Sets the Line width for outline paths.
+     *
+     * @param value the percentage value
+     */
+    void setLineWidth(double value);
 
+    /**
+     * Returns the Line width for outline paths.
+     *
+     * @return the tool lead-out
+     */
+    double getLineWidth();
+    
+    
 }

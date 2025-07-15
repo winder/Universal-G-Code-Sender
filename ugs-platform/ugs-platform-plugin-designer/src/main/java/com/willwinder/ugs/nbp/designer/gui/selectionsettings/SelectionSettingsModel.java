@@ -61,6 +61,8 @@ public class SelectionSettingsModel implements Serializable {
             case FEED_RATE -> getFeedRate();
             case LEAD_IN_PERCENT -> getLeadInPercent();
             case LEAD_OUT_PERCENT -> getLeadOutPercent();
+            case LINE_WIDTH -> getLineWidth();
+                
             default -> throw new SelectionSettingsModelException("Unknown setting " + key);
         };
     }
@@ -145,7 +147,16 @@ public class SelectionSettingsModel implements Serializable {
             notifyListeners(EntitySetting.LEAD_OUT_PERCENT);
         }
     }
+    public double getLineWidth() {
+        return (Double) settings.getOrDefault(EntitySetting.LINE_WIDTH, 0.0);
+    }
 
+    public void setLineWidth(double lineWidth) {
+        if (!valuesEquals(getLineWidth(), lineWidth)) {
+            settings.put(EntitySetting.LINE_WIDTH, lineWidth);
+            notifyListeners(EntitySetting.LINE_WIDTH);
+        }
+    }
     private void notifyListeners(EntitySetting setting) {
         listeners.forEach(l -> l.onModelUpdate(setting));
     }
@@ -164,6 +175,7 @@ public class SelectionSettingsModel implements Serializable {
         setLeadInPercent(0);
         setText("");
         setFontFamily(Font.SANS_SERIF);
+        setLineWidth(0);
     }
 
     public Anchor getAnchor() {
@@ -375,5 +387,10 @@ public class SelectionSettingsModel implements Serializable {
         if (settings.contains(EntitySetting.LEAD_OUT_PERCENT)) {
             setLeadOutPercent(selectionGroup.getLeadOutPercent());
         }
+        
+        if (settings.contains(EntitySetting.LINE_WIDTH)) {
+            setLineWidth(selectionGroup.getLineWidth());
+        }
+        
     }
 }

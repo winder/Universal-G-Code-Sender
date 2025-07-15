@@ -274,7 +274,29 @@ public class Group extends EntityGroup implements Cuttable {
             result = new ArrayList<>(result);
             result.remove(EntitySetting.LEAD_OUT_PERCENT);
         }
-
+        
+        if (getCuttableStream().map(Cuttable::getLineWidth).distinct().toList().size() > 1) {
+            result = new ArrayList<>(result);
+            result.remove(EntitySetting.LINE_WIDTH);
+        }
         return result;
     }
+    
+    @Override
+    public double getLineWidth() {
+        return getCuttableStream()
+                .mapToDouble(Cuttable::getLineWidth)
+                .max()
+                .orElse(-1);
+    }
+
+    @Override
+    public void setLineWidth(double lineWidth) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setLineWidth(lineWidth);
+            }
+        });
+    }
+    
 }

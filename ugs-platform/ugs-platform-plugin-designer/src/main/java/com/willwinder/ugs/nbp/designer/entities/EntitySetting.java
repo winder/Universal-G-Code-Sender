@@ -43,7 +43,8 @@ public enum EntitySetting {
     PASSES("Passes"),
     FEED_RATE("Feed rate"),
     LEAD_IN_PERCENT("Lead in percent"),
-    LEAD_OUT_PERCENT("Lead out percent");
+    LEAD_OUT_PERCENT("Lead out percent"),
+    LINE_WIDTH("Line Width");
 
     public static final List<EntitySetting> DEFAULT_ENDMILL_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
@@ -59,7 +60,9 @@ public enum EntitySetting {
             EntitySetting.TARGET_DEPTH,
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.FEED_RATE,
-            EntitySetting.TEXT);
+            EntitySetting.TEXT,
+            EntitySetting.LINE_WIDTH
+            );
 
     public static final List<EntitySetting> DEFAULT_SURFACE_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
