@@ -66,16 +66,17 @@ public class OutlineToolPath extends AbstractToolPath {
     public final static int INSIDE_PATH = 0x01;
     public final static int OUTSIDE_PATH = 0x02;
     
-    public double toolWidth = settings.getToolDiameter();
-    public double lineWidth = 1.0;
+    
+    
     public int cutMode = INSIDE_PATH;
     @Override
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
-        List<Geometry> geometries;
+        double toolWidth = settings.getToolDiameter();
         
+        List<Geometry> geometries;        
         if (ToolPathUtils.isClosedGeometry(source.getShape())) {
             Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory(), settings.getFlatnessPrecision());
-            
+            double lineWidth = source.getLineWidth();
             if (toolWidth >= lineWidth) {
                 Geometry bufferedGeometry = geometry.buffer(offset);
                 geometries = ToolPathUtils.toGeometryList(bufferedGeometry);                
