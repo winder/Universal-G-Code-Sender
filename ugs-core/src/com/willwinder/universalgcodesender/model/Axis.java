@@ -18,9 +18,14 @@
  */
 package com.willwinder.universalgcodesender.model;
 
+/*
+ * This class defines all axis.
+ * There are cartesian axis (default X, Y, Z) which are
+ * displayed in the controller state, and rotation axis.
+ */
 public enum Axis {
   // Cartesian
-  X, Y, Z, 
+  X, Y, Z,
   // Rotation
   A, // X
   B, // Y

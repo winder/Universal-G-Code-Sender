@@ -186,7 +186,7 @@ If you are more used to IntelliJ, you can also build, run and debug it there.
 </p>
 </details>
 
-<details><summary>Show a code documentation.</summary>
+<details><summary>Show code documentation.</summary>
 <p>
 
 ### High-Level Architecture
@@ -215,6 +215,8 @@ If you are more used to IntelliJ, you can also build, run and debug it there.
 The user-interface elements of ugs-platform can be found in the `ugs-platform` folder. Each window in the platform-application is a Panel object. We list differnt ui elements together with their location below:
 
 - Controller State (DRO): This is the window to see the current state of the machine (connected/disconnected) and its current position. The code is located under `ugs-platform/ugs-platform-plugin-dro/src/main/java/.../panels/MachineStatusPanel.java`.
+
+- Jog Controller: This window contains buttons to jog the machine. The code is located under `ugs-platform/ugs-platform-plugin-jog/src/main/java/.../jog/JogPannel.java`. In the resources folder, you will find svg images which are displayed inside the jog buttons.
 
 </p>
 </details>
