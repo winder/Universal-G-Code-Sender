@@ -70,18 +70,22 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
 
     public void updateControls() {
         if (backend.getControllerState() == ControllerState.DISCONNECTED || backend.getControllerState() == ControllerState.CONNECTING) {
-            removeComponents();
+            removeComponents(); // show not connected label
             return;
         } else if (!backend.getController().getCapabilities().hasOverrides() || (backend.getController().getOverrideManager().getSliderTypes().isEmpty() && backend.getController().getOverrideManager().getToggleTypes().isEmpty())) {
-            showNotSupportedPanel();
+            showNotSupportedPanel(); // show not suported label
             return;
         } else if (!overridesPanelInitiated) {
-            initAndShowOverridesPanel();
+            initAndShowOverridesPanel(); // show panel
         }
 
         setEnabled(backend.getController().getOverrideManager().isAvailable());
     }
 
+    /*
+     * This function will change the apearance of the panel
+     * to show the `Not Suported` message.
+     */
     private void showNotSupportedPanel() {
         notSupportedLabel.setVisible(true);
         notConnectedLabel.setVisible(false);
@@ -95,6 +99,11 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
         Arrays.stream(getComponents()).forEach(c -> c.setEnabled(enabled));
     }
 
+    /*
+     * This function will be called with an event.
+     * The event contains information on the buttons.
+     * e.g. if the flood button is toggled.
+     */
     @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt instanceof ControllerStateEvent) {
@@ -126,6 +135,9 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
         revalidate();
     }
 
+    /*
+     * Initialize the panel with the default apearance.
+     */
     private void initAndShowOverridesPanel() {
         overridesPanelInitiated = true;
         overridesControlsPanel.setVisible(true);
@@ -134,18 +146,25 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
 
         overridesControlsPanel.removeAll();
         IOverrideManager overrideManager = backend.getController().getOverrideManager();
+        // add toggle buttons
         createAndAddToggleButtons(overrideManager);
+        // create Rapid radio buttons
         overrideManager.getRadioTypes().forEach(this::createAndAddRadioButtons);
+        // create Feed- and Spindle sliders.
         overrideManager.getSliderTypes().forEach(this::createAndAddSpeedSlider);
+        
         revalidate();
     }
 
+    /*
+     * This function creates three toggle buttons: Spindle, Mist Coolant, Flood Cooland
+     */
     private void createAndAddToggleButtons(IOverrideManager overrideManager) {
         if (overrideManager.getToggleTypes().isEmpty()) {
             return;
         }
-        overridesControlsPanel.add(new JLabel(TOGGLE_SHORT), "spanx, grow, wrap, gaptop 10");
-        overrideToggleButtons = new OverrideToggleButtons(overrideManager);
+        overridesControlsPanel.add(new JLabel(TOGGLE_SHORT), "spanx, grow, wrap, gaptop 10"); // short lable
+        overrideToggleButtons = new OverrideToggleButtons(overrideManager); // add three toggle buttons
         overridesControlsPanel.add(overrideToggleButtons, "growx, w 40::");
     }
 
