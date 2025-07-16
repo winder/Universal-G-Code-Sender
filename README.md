@@ -222,6 +222,10 @@ The user-interface elements of ugs-platform can be found in the `ugs-platform` f
 
 - language-specific text: In the folder `ugs-core/src/com/.../resources/`, you will find a lot of `.properties` files. These contain language-specific text that is shown to the user, such as label text, button text etc.
 
+### Logs
+
+Application logs, including detailed debug messages and error reports, are primarily written to the messages.log file. This file is located within the application's user directory at `ugs-platform/application/target/userdir/var/log/messages.log` when running from the build target. In the event of an unexpected application crash or erratic behavior, reviewing this log file is the first recommended step, as it often contains stack traces and error messages that can pinpoint the root cause of the problem. Additionally, for severe JVM crashes, a `hs_err_pid<PID>.log` file might be generated in the application's working directory, offering further low-level diagnostic information.
+
 </p>
 </details>
 
