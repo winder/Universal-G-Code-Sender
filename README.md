@@ -186,5 +186,39 @@ If you are more used to IntelliJ, you can also build, run and debug it there.
 </p>
 </details>
 
+<details><summary>Show a code documentation.</summary>
+<p>
+
+### High-Level Architecture
+
+1.  **Core Module (`ugs-core`)**: This is the heart of UGS. It contains:
+    * **Communication Layer**: Handles serial communication (or other protocols like TCP/IP for some controllers) with the CNC machine's firmware (e.g., GRBL). It translates G-code commands into signals the controller understands and interprets responses from the controller.
+    * **G-code Parser and Interpreter**: Processes G-code files, breaks them down into individual commands, and manages the sending sequence.
+    * **Machine State Management**: Keeps track of the machine's current position (X, Y, Z coordinates), feed rate, spindle speed, and other relevant operational parameters. This is the data that populates the "Controller State (DRO)" panel.
+    * **Toolpath Generation/Visualization Logic**: While UGS isn't primarily a CAM (Computer-Aided Manufacturing) software, it contains logic to interpret G-code and generate a visual representation of the toolpath for the user.
+    * **Settings and Configuration Management**: Handles loading and saving user preferences, machine settings, and connection parameters.
+
+2.  **Platform/Application Layer (`ugs-platform/application` and other modules)**: This layer builds upon the core functionality and provides the graphical user interface (GUI) and specific features.
+    * **NetBeans Platform**: UGS Platform leverages the NetBeans Platform, which provides a robust framework for building desktop applications. This means the UI is composed of "modules" or "plugins," each responsible for a specific set of functionalities (e.g., a module for the visualizer, a module for the console, a module for the DRO).
+    * **User Interface (UI) Components**: These are the visual elements the user interacts with, such as buttons, text fields, tables, and the visualizer. These components are typically Swing-based (Java's GUI toolkit) or, less commonly, JavaFX.
+    * **Event Handling**: Manages user interactions (button clicks, keyboard input, mouse movements) and translates them into calls to the core module or other platform services.
+    * **Plugin System**: The modular nature allows for easy addition of new features or customization through plugins.
+
+3.  **Third-Party Libraries**: UGS relies on various external libraries for tasks like:
+    * Serial communication (e.g., JSSC - Java Simple Serial Connector).
+    * 3D visualization (e.g., JOGL for OpenGL integration).
+    * Logging.
+    * JSON parsing (for settings).
+
+### UI elements
+
+The user-interface elements of ugs-platform can be found in the `ugs-platform` folder. Each window in the platform-application is a Panel object. We list differnt ui elements together with their location below:
+
+- Controller State (DRO): This is the window to see the current state of the machine (connected/disconnected) and its current position. The code is located under `ugs-platform/ugs-platform-plugin-dro/src/main/java/.../panels/MachineStatusPanel.java`.
+
+</p>
+</details>
+
+
 ## Supported by
 [![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSourceSupport)
