@@ -218,6 +218,8 @@ The user-interface elements of ugs-platform can be found in the `ugs-platform` f
 
 - Jog Controller: This window contains buttons to jog the machine. The code is located under `ugs-platform/ugs-platform-plugin-jog/src/main/java/.../jog/JogPannel.java`. In the resources folder, you will find svg images which are displayed inside the jog buttons.
 
+- language-specific text: In the folder `ugs-core/src/com/.../resources/`, you will find a lot of `.properties` files. These contain language-specific text that is shown to the user, such as label text, button text etc.
+
 </p>
 </details>
 
