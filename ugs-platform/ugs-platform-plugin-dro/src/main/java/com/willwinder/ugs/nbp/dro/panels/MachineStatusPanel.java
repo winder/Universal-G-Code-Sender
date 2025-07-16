@@ -135,16 +135,19 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Axis
         activeStateValueLabel.setBorder(BorderFactory.createEmptyBorder());
         add(activeStatePanel, PANEL_CONSTRAINTS);
 
-        // Default to showing X, Y, Z
+        // Default to showing X, Y, Z (defined in Axis)
         axisPanel.setLayout(new MigLayout(debug + "fillx, wrap 1, hidemode 3, inset 0 0 0 0", "grow"));
         Stream.of(Axis.values()).forEach(this::initializeAxisPanel);
         add(axisPanel, PANEL_CONSTRAINTS);
 
+        // show feed rate
         JPanel speedPanel = new JPanel(new MigLayout(debug + "fillx, wrap 2, inset 0", "[al right][]"));
         speedPanel.setOpaque(false);
         JLabel feedLabel = new JLabel(Localization.getString("gcode.setting.feed"));
         speedPanel.add(feedLabel);
         speedPanel.add(feedValue, "pad 2 0 0 0");
+        
+        // show spindle
         JLabel spindleSpeedLabel = new JLabel(Localization.getString("overrides.spindle.short"));
         speedPanel.add(spindleSpeedLabel);
         speedPanel.add(spindleSpeedValue, "pad 2 0 0 0");
