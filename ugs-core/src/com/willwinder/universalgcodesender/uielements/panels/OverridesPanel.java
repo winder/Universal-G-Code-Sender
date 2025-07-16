@@ -70,13 +70,13 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
 
     public void updateControls() {
         if (backend.getControllerState() == ControllerState.DISCONNECTED || backend.getControllerState() == ControllerState.CONNECTING) {
-            removeComponents(); // show not connected label
+            clearAndShowNotConnected();
             return;
         } else if (!backend.getController().getCapabilities().hasOverrides() || (backend.getController().getOverrideManager().getSliderTypes().isEmpty() && backend.getController().getOverrideManager().getToggleTypes().isEmpty())) {
-            showNotSupportedPanel(); // show not suported label
+            showNotSupportedPanel();
             return;
         } else if (!overridesPanelInitiated) {
-            initAndShowOverridesPanel(); // show panel
+            initAndShowOverridesPanel();
         }
 
         setEnabled(backend.getController().getOverrideManager().isAvailable());
@@ -125,7 +125,10 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
         }
     }
 
-    private void removeComponents() {
+    /*
+    Clear the panel and show a "not connected" message.
+    */
+    private void clearAndShowNotConnected() {
         overridesControlsPanel.removeAll();
         speedSliders.clear();
         overridesControlsPanel.setVisible(false);
@@ -146,11 +149,8 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
 
         overridesControlsPanel.removeAll();
         IOverrideManager overrideManager = backend.getController().getOverrideManager();
-        // add toggle buttons
         createAndAddToggleButtons(overrideManager);
-        // create Rapid radio buttons
         overrideManager.getRadioTypes().forEach(this::createAndAddRadioButtons);
-        // create Feed- and Spindle sliders.
         overrideManager.getSliderTypes().forEach(this::createAndAddSpeedSlider);
         
         revalidate();
