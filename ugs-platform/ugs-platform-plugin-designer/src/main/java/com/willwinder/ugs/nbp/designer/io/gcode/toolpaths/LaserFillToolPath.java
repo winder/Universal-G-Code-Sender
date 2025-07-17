@@ -27,10 +27,10 @@ public class LaserFillToolPath extends AbstractToolPath {
 
     private List<Geometry> getGeometries() {
         if (ToolPathUtils.isClosedGeometry(source.getShape())) {
-            Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
+            Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory(), settings.getFlatnessPrecision());
             return List.of(geometry);
         } else {
-            return ToolPathUtils.convertShapeToGeometry(source.getShape(), getGeometryFactory());
+            return ToolPathUtils.convertShapeToGeometry(source.getShape(), getGeometryFactory(), settings.getFlatnessPrecision());
         }
     }
 

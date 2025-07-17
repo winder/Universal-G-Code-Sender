@@ -61,6 +61,7 @@ public class SelectionSettingsModel implements Serializable {
             case FEED_RATE -> getFeedRate();
             case LEAD_IN_PERCENT -> getLeadInPercent();
             case LEAD_OUT_PERCENT -> getLeadOutPercent();
+            case INCLUDE_IN_EXPORT -> getIncludeInExport();
             default -> throw new SelectionSettingsModelException("Unknown setting " + key);
         };
     }
@@ -145,7 +146,16 @@ public class SelectionSettingsModel implements Serializable {
             notifyListeners(EntitySetting.LEAD_OUT_PERCENT);
         }
     }
+    public boolean getIncludeInExport() {
+        return (Boolean) settings.getOrDefault(EntitySetting.INCLUDE_IN_EXPORT, true);
+    }
 
+    public void setIncludeInExport(boolean aValue) {
+        if (getIncludeInExport() != aValue) {
+            settings.put(EntitySetting.INCLUDE_IN_EXPORT, aValue);
+            notifyListeners(EntitySetting.INCLUDE_IN_EXPORT);
+        }
+    }
     private void notifyListeners(EntitySetting setting) {
         listeners.forEach(l -> l.onModelUpdate(setting));
     }
@@ -163,6 +173,7 @@ public class SelectionSettingsModel implements Serializable {
         setFeedRate(0);
         setLeadInPercent(0);
         setText("");
+        setIncludeInExport(true);        
         setFontFamily(Font.SANS_SERIF);
     }
 
@@ -374,6 +385,9 @@ public class SelectionSettingsModel implements Serializable {
 
         if (settings.contains(EntitySetting.LEAD_OUT_PERCENT)) {
             setLeadOutPercent(selectionGroup.getLeadOutPercent());
+        }
+        if (settings.contains(EntitySetting.INCLUDE_IN_EXPORT)) {
+            setIncludeInExport(selectionGroup.getIncludeInExport());
         }
     }
 }

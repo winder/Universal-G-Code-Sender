@@ -38,6 +38,8 @@ public class SettingsAdapter {
     private static final String TOOL_STEP_OVER = "toolStepOver";
     private static final String DEPTH_PER_PASS = "depthPerPass";
     private static final String STOCK_THICKNESS = "stockThickness";
+    private static final String SPINDLE_DIRECTION = "spindleDirection";
+    private static final String FLATNESS_PRECISION = "flatnessPrecision";
 
     private SettingsAdapter() {}
 
@@ -53,6 +55,8 @@ public class SettingsAdapter {
         settings.setSafeHeight(preferences.getDouble(SAFE_HEIGHT, 5d));
         settings.setToolStepOver(preferences.getDouble(TOOL_STEP_OVER, 0.3));
         settings.setStockThickness(preferences.getDouble(STOCK_THICKNESS, 10));
+        settings.setSpindleDirection(preferences.get(SPINDLE_DIRECTION, "M3"));
+        settings.setFlatnessPrecision(preferences.getDouble(FLATNESS_PRECISION, 0.1d));
         return settings;
     }
 
@@ -67,5 +71,7 @@ public class SettingsAdapter {
         preferences.putDouble(SAFE_HEIGHT, settings.getSafeHeight());
         preferences.putDouble(TOOL_STEP_OVER, settings.getToolStepOver());
         preferences.putDouble(STOCK_THICKNESS, settings.getStockThickness());
+        preferences.put(SPINDLE_DIRECTION, settings.getSpindleDirection());
+        preferences.putDouble(FLATNESS_PRECISION, settings.getFlatnessPrecision());
     }
 }

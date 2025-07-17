@@ -162,4 +162,17 @@ public interface Cuttable extends Entity {
      */
     int getLeadOutPercent();
 
+    /**
+     * If value is false then the cuttable will not be included in the exported g-code
+     *
+     * @param value the percentage value
+     */
+    void setIncludeInExport(boolean value);
+
+    /**
+     * Returns true if true then this cuttable will be included in the exported G-Code
+     *
+     * @return true if true then this cuttable will be included in the exported G-Code
+     */
+    boolean getIncludeInExport(); 
 }

@@ -66,11 +66,11 @@ public class OutlineToolPath extends AbstractToolPath {
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
         List<Geometry> geometries;
         if (ToolPathUtils.isClosedGeometry(source.getShape())) {
-            Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory());
+            Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory(), settings.getFlatnessPrecision());
             Geometry bufferedGeometry = geometry.buffer(offset);
             geometries = ToolPathUtils.toGeometryList(bufferedGeometry);
         } else {
-            geometries = ToolPathUtils.convertShapeToGeometry(source.getShape(), getGeometryFactory());
+            geometries = ToolPathUtils.convertShapeToGeometry(source.getShape(), getGeometryFactory(), settings.getFlatnessPrecision());
         }
 
 
