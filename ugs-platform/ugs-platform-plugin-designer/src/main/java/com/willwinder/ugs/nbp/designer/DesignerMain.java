@@ -23,6 +23,7 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import javax.swing.SwingUtilities;
 
 /**
  * A test implementation of the gcode designer tool that works in stand alone mode
@@ -95,13 +96,21 @@ public class DesignerMain extends JFrame {
         return toolsSplit;
     }
 
-    private void loadExample(Controller controller) {
-        SvgReader svgReader = new SvgReader();
-        svgReader.read(DesignerMain.class.getResourceAsStream("/com/willwinder/ugs/nbp/designer/platform/example.svg"))
-                .ifPresent(design -> design.getEntities().forEach(controller.getDrawing()::insertEntity));
+    private void loadExample(Controller controller) {        
+        new Thread(() -> {            
+            SvgReader svgReader = new SvgReader();
+            final var result = svgReader.read(DesignerMain.class.getResourceAsStream("/com/willwinder/ugs/nbp/designer/platform/example.svg"));        
+            SwingUtilities.invokeLater(() -> {
+                result.ifPresent(design -> design.getEntities().forEach(controller.getDrawing()::insertEntity));
+            });            
+        }).start();
+        
     }
 
     public static void main(String[] args) {
-        new DesignerMain();
+        SwingUtilities.invokeLater(() -> {
+            new DesignerMain();
+        });
+        
     }
 }

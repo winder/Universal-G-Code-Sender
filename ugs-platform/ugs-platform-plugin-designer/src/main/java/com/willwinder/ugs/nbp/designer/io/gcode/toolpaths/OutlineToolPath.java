@@ -62,14 +62,72 @@ public class OutlineToolPath extends AbstractToolPath {
         return result;
     }
     
+    public final static int ON_PATH = 0x00;
+    public final static int INSIDE_PATH = 0x01;
+    public final static int OUTSIDE_PATH = 0x02;
+    
+    
+    
+    public int cutMode = INSIDE_PATH;
     @Override
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
-        List<Geometry> geometries;
+        double toolWidth = settings.getToolDiameter();
+        
+        List<Geometry> geometries;        
         if (ToolPathUtils.isClosedGeometry(source.getShape())) {
             Geometry geometry = ToolPathUtils.convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory(), settings.getFlatnessPrecision());
-            Geometry bufferedGeometry = geometry.buffer(offset);
-            geometries = ToolPathUtils.toGeometryList(bufferedGeometry);
-        } else {
+            double lineWidth = source.getLineWidth();
+            if (toolWidth >= lineWidth) {
+                Geometry bufferedGeometry = geometry.buffer(offset);
+                geometries = ToolPathUtils.toGeometryList(bufferedGeometry);                
+            } else {
+                geometries = new ArrayList<>();
+                Geometry bufferedGeometry;
+                
+                double actualWidth = (cutMode == ON_PATH ? 2.0 : 1.0);
+                double stepSize = ( lineWidth / actualWidth  ) / ( toolWidth * settings.getToolStepOver() );
+                
+                switch (cutMode) {                    
+                    case ON_PATH: {                        
+                        bufferedGeometry = geometry.buffer(0); // On path First.
+                        geometries = ToolPathUtils.toGeometryList(bufferedGeometry);                         
+                        
+                        // Then Alternating inside/out 
+                        for (double curStep = stepSize; curStep <= actualWidth; curStep += stepSize ) {
+                            bufferedGeometry = geometry.buffer(curStep);
+                            geometries.addAll(ToolPathUtils.toGeometryList(bufferedGeometry));  
+                            bufferedGeometry = geometry.buffer(-curStep);
+                            geometries.addAll(ToolPathUtils.toGeometryList(bufferedGeometry));                              
+                        }
+                        
+                        
+                    }
+                    break;
+                    
+                    case INSIDE_PATH: {
+                        // to cut a clean inside path we go from outside In:
+                        for (double x = offset+lineWidth; x >= (offset); x-=stepSize) {                            
+                            bufferedGeometry = geometry.buffer(x);
+                            geometries.addAll(ToolPathUtils.toGeometryList(bufferedGeometry));                              
+                        }                        
+                    }
+                    break;
+                    
+                    case OUTSIDE_PATH: {
+                        // to cut a clean outside path we go from inside out;
+                        for (double x = offset-lineWidth; x <= (offset); x+=stepSize) {
+                            bufferedGeometry = geometry.buffer(x);
+                            geometries.addAll(ToolPathUtils.toGeometryList(bufferedGeometry));  
+                        }                                              
+                    }
+                    break;                        
+                }
+            }
+            
+        } else {     
+            
+            // TODO: Loop through ( 0 -> width ) or ( width -> 0 ) and create an expanding or
+            // Shrinking set of geometries. 
             geometries = ToolPathUtils.convertShapeToGeometry(source.getShape(), getGeometryFactory(), settings.getFlatnessPrecision());
         }
 
