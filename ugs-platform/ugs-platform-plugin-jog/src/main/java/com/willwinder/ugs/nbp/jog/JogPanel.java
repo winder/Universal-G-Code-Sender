@@ -120,8 +120,10 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         stealFocusButton.setToolTipText(Localization.getString("platform.plugin.jog.stealKeyboardFocus"));
         stealFocusButton.addActionListener(e -> stealFocusButton.requestFocusInWindow());
 
-        // Create our buttons
+        // Create the jog buttons
         Arrays.asList(JogPanelButtonEnum.values()).forEach(this::createJogButton);
+        
+        // add spinners
         Dimension minimumSize = new Dimension(80, 18);
         feedRateSpinner = new StepSizeSpinner();
         feedRateSpinner.setMinimumSize(minimumSize);
@@ -239,6 +241,10 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         return configurationPanel;
     }
 
+    /*
+     * This function creates the panel with jog buttons
+     * for each axis in a grid layout.
+     */
     private JPanel createXYZPanel() {
         JPanel xyzPanel = new JPanel();
         xyzPanel.setLayout(new MigLayout("fill, wrap 4, inset 0, gap 2"));
@@ -252,10 +258,12 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         xyzPanel.add(stealFocusButton, JOG_BUTTON_CONSTRAINTS);
         xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_XPOS), JOG_BUTTON_CONSTRAINTS);
 
+        // add spacer between Z+ and Z-
         JPanel space = new JPanel();
         space.setOpaque(false);
         xyzPanel.add(space, JOG_BUTTON_CONSTRAINTS);
 
+        // To add these buttons, change the grid layout in this::createConfigurationPanel and add a row/column.
         xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_DIAG_XNEG_YNEG), JOG_BUTTON_CONSTRAINTS);
         xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_YNEG), JOG_BUTTON_CONSTRAINTS);
         xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_DIAG_XPOS_YNEG), JOG_BUTTON_CONSTRAINTS);
