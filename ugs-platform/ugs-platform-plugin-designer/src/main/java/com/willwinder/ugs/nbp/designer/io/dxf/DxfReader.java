@@ -127,6 +127,4 @@ public class DxfReader implements DesignReader {
             group.addChild(layerGroup);
         }
     }
-
-
 }
