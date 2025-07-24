@@ -244,8 +244,8 @@ public class DxfReader implements DesignReader {
         }
 
         for (DXFArc arc : arcs) {
-            // We need to invert and offset the start angle
-            double startAngle = 270 - arc.getStartAngle();
+            double startAngle = -arc.getStartAngle();
+            double extent = -arc.getTotalAngle();
             if (startAngle < 0) {
                 startAngle += 360;
             }
@@ -253,7 +253,7 @@ public class DxfReader implements DesignReader {
             Path path1 = new Path();
             Arc2D arc2D = new Arc2D.Double();
             Point center = arc.getCenterPoint();
-            arc2D.setArcByCenter(center.getX(), center.getY(), arc.getRadius(), startAngle, arc.getTotalAngle(),
+            arc2D.setArcByCenter(center.getX(), center.getY(), arc.getRadius(), startAngle, extent,
                     Arc2D.OPEN);
             path1.append(arc2D);
             arcsGroup.addChild(path1);
