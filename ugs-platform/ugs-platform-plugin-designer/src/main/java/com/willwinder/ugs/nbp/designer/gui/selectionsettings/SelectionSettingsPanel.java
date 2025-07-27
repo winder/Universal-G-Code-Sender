@@ -65,6 +65,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private TextFieldWithUnit posXTextField;
     private TextFieldWithUnit posYTextField;
     private JSlider spindleSpeedSlider;
+    private UnitSpinner spindleSpeed2Spinner;
     private JLabel startDepthLabel;
     private JLabel targetDepthLabel;
     private CutTypeCombo cutTypeComboBox;
@@ -81,6 +82,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private JLabel heightLabel;
     private JToggleButton lockRatioButton;
     private JLabel spindleSpeedLabel;
+    private JLabel spindleSpeed2Label;
     private JLabel laserPassesLabel;
     private JSlider passesSlider;
     private JLabel feedRateLabel;
@@ -190,6 +192,11 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
         add(spindleSpeedSlider, SLIDER_FIELD_CONSTRAINTS + ", spanx");
         fieldEventDispatcher.registerListener(EntitySetting.SPINDLE_SPEED, spindleSpeedSlider);
+
+        spindleSpeed2Label = createAndAddLabel(EntitySetting.SPINDLE_SPEED);
+        spindleSpeed2Spinner = new UnitSpinner(50d, TextFieldUnit.PERCENT1, 0d, 100d, 1d);
+        add(spindleSpeed2Spinner, FIELD_CONSTRAINTS + ", spanx");
+        fieldEventDispatcher.registerListener(EntitySetting.SPINDLE_SPEED, spindleSpeed2Spinner);
 
         laserPassesLabel = createAndAddLabel(EntitySetting.PASSES);
         passesSlider = new JSlider(0, 10, 1);
@@ -346,6 +353,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             lockRatioButton.setSelected(!model.getLockRatio());
         } else if (entitySetting == EntitySetting.SPINDLE_SPEED) {
             spindleSpeedSlider.setValue(model.getSpindleSpeed());
+            spindleSpeed2Spinner.setValue(model.getSpindleSpeed());
             selectionGroup.setSpindleSpeed(model.getSpindleSpeed());
         } else if (entitySetting == EntitySetting.PASSES) {
             passesSlider.setValue(model.getPasses());
@@ -417,6 +425,9 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         spindleSpeedLabel.setText(cutType == CutType.LASER_FILL || cutType == CutType.LASER_ON_PATH ? "Power" : EntitySetting.SPINDLE_SPEED.getLabel());
         spindleSpeedLabel.setVisible(hasLaserPower);
         spindleSpeedSlider.setVisible(hasLaserPower);
+        spindleSpeed2Label.setText(cutType == CutType.LASER_FILL || cutType == CutType.LASER_ON_PATH ? "Power" : EntitySetting.SPINDLE_SPEED.getLabel());
+        spindleSpeed2Label.setVisible(hasLaserPower);
+        spindleSpeed2Spinner.setVisible(hasLaserPower);
 
         boolean hasLaserPasses = selectionHasSetting(selectionGroup, EntitySetting.PASSES) &&
                 cutType.getSettings().contains(EntitySetting.PASSES);
