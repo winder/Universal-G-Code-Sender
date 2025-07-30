@@ -28,7 +28,6 @@ public enum TextFieldUnit {
     INCHES_PER_MINUTE("inch/min"),
     ROTATIONS_PER_MINUTE("rpm"),
     PERCENT("%"),
-    PERCENT1("%"),
     DEGREE("°"),
     TIMES("times"),
     SECONDS("s");
