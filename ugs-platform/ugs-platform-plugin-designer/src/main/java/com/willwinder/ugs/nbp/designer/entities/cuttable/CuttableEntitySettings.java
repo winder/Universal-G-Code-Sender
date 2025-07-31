@@ -33,7 +33,7 @@ public class CuttableEntitySettings {
             case CUT_TYPE -> cuttable.setCutType((CutType) value);
             case START_DEPTH -> cuttable.setStartDepth((Double) value);
             case TARGET_DEPTH -> cuttable.setTargetDepth((Double) value);
-            case SPINDLE_SPEED -> cuttable.setSpindleSpeed((Integer) value);
+            case SPINDLE_SPEED -> cuttable.setSpindleSpeed((Integer) (value instanceof Double ? (int) Math.round((Double)value) : value));
             case PASSES -> cuttable.setPasses(Integer.parseInt(value.toString()));
             case FEED_RATE -> cuttable.setFeedRate(((Double) value).intValue());
             case LEAD_IN_PERCENT -> cuttable.setLeadInPercent((Integer) value);
