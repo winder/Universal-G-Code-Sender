@@ -92,7 +92,7 @@ public class SurfaceToolPath extends AbstractToolPath {
                     new CoordinateXY(envelope.getMaxX(), currentY),
             });
 
-            addLineIntersectionSegments(gcodePath, g, lineString, currentDepth, settings.getSafeHeight());
+            addLineIntersectionSegments(gcodePath, g, lineString, currentDepth, (-getStartDepth()) + settings.getSafeHeight());
             currentY += stepOver;
         }
     }

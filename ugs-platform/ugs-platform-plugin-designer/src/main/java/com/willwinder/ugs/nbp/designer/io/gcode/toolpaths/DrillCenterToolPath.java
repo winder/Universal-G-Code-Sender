@@ -49,7 +49,7 @@ public class DrillCenterToolPath extends AbstractToolPath {
 
     private void addUpSegment(GcodePath gcodePath) {
         gcodePath.addSegment(SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM)
-                .setZ(0d)
+                .setZ(-getStartDepth())
                 .build());
     }
 
@@ -68,7 +68,7 @@ public class DrillCenterToolPath extends AbstractToolPath {
         if (source.getSpindleSpeed() > 0) {
             gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d)), null));
         }
-        addDepthSegment(gcodePath, getStartDepth());
+        addDepthSegment(gcodePath, -getStartDepth());
 
         double currentDepth = getStartDepth();
         while (currentDepth < getTargetDepth()) {
@@ -77,8 +77,7 @@ public class DrillCenterToolPath extends AbstractToolPath {
                 currentDepth = getTargetDepth();
             }
 
-            final double depth = -currentDepth;
-            addDepthSegment(gcodePath, depth);
+            addDepthSegment(gcodePath, -currentDepth);
 
             if (currentDepth != 0) {
                 addUpSegment(gcodePath);
