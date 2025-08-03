@@ -198,13 +198,13 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         fieldEventDispatcher.registerListener(EntitySetting.PASSES, passesSlider);
 
         startDepthLabel = createAndAddLabel(EntitySetting.START_DEPTH);
-        startDepthSpinner = new UnitSpinner(0, TextFieldUnit.MM, null, null, 0.1d);
+        startDepthSpinner = new UnitSpinner(0, TextFieldUnit.MM, -10000d, 10000d, 0.1d);
         startDepthSpinner.setPreferredSize(startDepthSpinner.getPreferredSize());
         fieldEventDispatcher.registerListener(EntitySetting.START_DEPTH, startDepthSpinner);
         add(startDepthSpinner, FIELD_CONSTRAINTS + ", spanx");
 
         targetDepthLabel = createAndAddLabel(EntitySetting.TARGET_DEPTH);
-        targetDepthSpinner = new UnitSpinner(0, TextFieldUnit.MM, 0d, null, 0.1d);
+        targetDepthSpinner = new UnitSpinner(0, TextFieldUnit.MM, -10000d, 10000d, 0.1d);
 
         targetDepthSpinner.setPreferredSize(targetDepthSpinner.getPreferredSize());
         fieldEventDispatcher.registerListener(EntitySetting.TARGET_DEPTH, targetDepthSpinner);
