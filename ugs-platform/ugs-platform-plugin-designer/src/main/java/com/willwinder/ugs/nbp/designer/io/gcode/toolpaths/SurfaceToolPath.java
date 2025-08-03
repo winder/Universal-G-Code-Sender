@@ -122,8 +122,7 @@ public class SurfaceToolPath extends AbstractToolPath {
 
                 gcodePath.addSegment(SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(safeHeight).build());
                 gcodePath.addSegment(SegmentType.MOVE, startPosition);
-                gcodePath.addSegment(SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(0d).build());
-                gcodePath.addSegment(SegmentType.POINT, PartialPosition.builder(UnitUtils.Units.MM).setZ(-currentDepth).build());
+                gcodePath.addSegment(SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(-currentDepth).build());
                 gcodePath.addSegment(SegmentType.LINE, endPosition, source.getFeedRate());
             }
         }
