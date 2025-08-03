@@ -20,8 +20,10 @@ package com.willwinder.ugs.nbp.designer.gui.selectionsettings;
 
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
+import com.willwinder.universalgcodesender.uielements.components.PercentSpinner;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JSlider;
@@ -42,8 +44,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.swing.JCheckBox;
-
 
 /**
  * This event listener will listen to different types of components and dispatch
@@ -114,6 +114,18 @@ public class FieldEventDispatcher {
     public void registerListener(EntitySetting entitySetting, TextFieldWithUnit component) {
         componentsMap.put(entitySetting, component);
         component.addPropertyChangeListener("value", this::valueUpdated);
+    }
+
+    public void registerListener(EntitySetting entitySetting, PercentSpinner component) {
+        componentsMap.put(entitySetting, component);
+        component.addChangeListener((ChangeEvent propertyChangeEvent) -> {
+            Object source = propertyChangeEvent.getSource();
+            componentsMap.entrySet()
+                    .stream()
+                    .filter(entrySet -> entrySet.getValue() == source)
+                    .findFirst()
+                    .ifPresent(entry -> updateValue(entry.getKey(), component.getDoubleValue() * 100d));
+        });
     }
 
     public void registerListener(EntitySetting entitySetting, UnitSpinner component) {

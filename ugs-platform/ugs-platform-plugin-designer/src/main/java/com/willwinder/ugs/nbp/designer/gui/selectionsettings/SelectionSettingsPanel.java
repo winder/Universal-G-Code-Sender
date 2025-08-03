@@ -34,10 +34,12 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
+import com.willwinder.universalgcodesender.uielements.components.PercentSpinner;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -47,7 +49,6 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
-import javax.swing.JCheckBox;
 
 /**
  * @author Joacim Breiler
@@ -64,7 +65,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private TextFieldWithUnit rotation;
     private TextFieldWithUnit posXTextField;
     private TextFieldWithUnit posYTextField;
-    private JSlider spindleSpeedSlider;
+    private PercentSpinner spindleSpeedSpinner;
     private JLabel startDepthLabel;
     private JLabel targetDepthLabel;
     private CutTypeCombo cutTypeComboBox;
@@ -182,14 +183,9 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         fieldEventDispatcher.registerListener(EntitySetting.LEAD_OUT_PERCENT, leadOutPercentSlider);
 
         spindleSpeedLabel = createAndAddLabel(EntitySetting.SPINDLE_SPEED);
-        spindleSpeedSlider = new JSlider(0, 100, 0);
-        spindleSpeedSlider.setPaintLabels(true);
-        spindleSpeedSlider.setPaintTicks(true);
-        spindleSpeedSlider.setMinorTickSpacing(5);
-        spindleSpeedSlider.setMajorTickSpacing(25);
-
-        add(spindleSpeedSlider, SLIDER_FIELD_CONSTRAINTS + ", spanx");
-        fieldEventDispatcher.registerListener(EntitySetting.SPINDLE_SPEED, spindleSpeedSlider);
+        spindleSpeedSpinner = new PercentSpinner(0.5d, 0d);
+        add(spindleSpeedSpinner, FIELD_CONSTRAINTS + ", spanx");
+        fieldEventDispatcher.registerListener(EntitySetting.SPINDLE_SPEED, spindleSpeedSpinner);
 
         laserPassesLabel = createAndAddLabel(EntitySetting.PASSES);
         passesSlider = new JSlider(0, 10, 1);
@@ -345,7 +341,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         } else if (entitySetting == EntitySetting.LOCK_RATIO) {
             lockRatioButton.setSelected(!model.getLockRatio());
         } else if (entitySetting == EntitySetting.SPINDLE_SPEED) {
-            spindleSpeedSlider.setValue(model.getSpindleSpeed());
+            spindleSpeedSpinner.setValue(model.getSpindleSpeed() / 100d);
             selectionGroup.setSpindleSpeed(model.getSpindleSpeed());
         } else if (entitySetting == EntitySetting.PASSES) {
             passesSlider.setValue(model.getPasses());
@@ -363,8 +359,6 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             includeInExport.setSelected(model.getIncludeInExport());
             selectionGroup.setIncludeInExport(model.getIncludeInExport());
         }
-
-
 
         handleComponentVisibility(selectionGroup);
     }
@@ -416,7 +410,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
                 cutType.getSettings().contains(EntitySetting.SPINDLE_SPEED);
         spindleSpeedLabel.setText(cutType == CutType.LASER_FILL || cutType == CutType.LASER_ON_PATH ? "Power" : EntitySetting.SPINDLE_SPEED.getLabel());
         spindleSpeedLabel.setVisible(hasLaserPower);
-        spindleSpeedSlider.setVisible(hasLaserPower);
+        spindleSpeedSpinner.setVisible(hasLaserPower);
 
         boolean hasLaserPasses = selectionHasSetting(selectionGroup, EntitySetting.PASSES) &&
                 cutType.getSettings().contains(EntitySetting.PASSES);
