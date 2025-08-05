@@ -32,6 +32,7 @@ public class AvailableLanguages {
         LANGUAGES.add(new Language("af", "ZA", "Afrikaans"));
         LANGUAGES.add(new Language("ca", "ES", "Catalan"));
         LANGUAGES.add(new Language("zh", "CN", "Chinese (Simplified)"));
+        LANGUAGES.add(new Language("zh", "TW", "Chinese (Traditional)"));
         LANGUAGES.add(new Language("cs", "CZ", "Czech"));
         LANGUAGES.add(new Language("nl", "NL", "Dutch"));
         LANGUAGES.add(new Language("en", "US", "English"));
