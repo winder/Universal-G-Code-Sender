@@ -1,7 +1,26 @@
+/*
+    Copyright 2025 Joacim Breiler
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.fx.stage;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
+import com.willwinder.universalgcodesender.fx.component.ButtonBox;
 import com.willwinder.universalgcodesender.fx.component.PortComboBox;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -10,7 +29,6 @@ import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.RefreshThread;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -18,7 +36,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -126,12 +143,12 @@ public class ConnectStage extends Stage {
         GridPane.setHgrow(portRateCombo, Priority.ALWAYS);
         portRateCombo.setMaxWidth(Double.MAX_VALUE);
 
-        HBox buttonBox = new HBox(10, closeButton, connectButton);
-        buttonBox.getStyleClass().add("actions-pane");
-        buttonBox.setAlignment(Pos.CENTER_RIGHT);
-
         BorderPane root = new BorderPane();
         root.setCenter(grid);
+        ButtonBox buttonBox = new ButtonBox();
+        ButtonBox.setButtonData(closeButton, ButtonBox.ButtonData.CANCEL_CLOSE);
+        ButtonBox.setButtonData(connectButton, ButtonBox.ButtonData.OK_DONE);
+        buttonBox.getButtons().addAll(closeButton, connectButton);
         root.setBottom(buttonBox);
 
         Scene scene = new Scene(root);

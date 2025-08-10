@@ -1,5 +1,5 @@
 /*
-    Copyright 2018-2023 Will Winder
+    Copyright 2025 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -93,10 +93,6 @@ public class LongPressMouseEventProxy implements EventHandler<MouseEvent> {
     }
 
     public void mousePressed(MouseEvent e) {
-        if (!isSourceEnabled(e)) {
-            return;
-        }
-
         pressedSource = (Node) e.getSource();
         isLongPressed = false;
         handler.handle(e);
@@ -114,10 +110,6 @@ public class LongPressMouseEventProxy implements EventHandler<MouseEvent> {
     }
 
     public void mouseReleased(MouseEvent e) {
-        if (!isSourceEnabled(e)) {
-            return;
-        }
-
         if (isLongPressed) {
             e.copyFor(e.getSource(), e.getTarget(), MOUSE_LONG_PRESSED);
             handler.handle(e.copyFor(e.getSource(), e.getTarget(), MOUSE_LONG_RELEASE));
@@ -135,12 +127,5 @@ public class LongPressMouseEventProxy implements EventHandler<MouseEvent> {
 
         // Reset internal state
         longPressTimer = null;
-    }
-
-
-    private boolean isSourceEnabled(MouseEvent e) {
-        System.out.println(e.getSource().getClass().getSimpleName());
-
-        return true;
     }
 }

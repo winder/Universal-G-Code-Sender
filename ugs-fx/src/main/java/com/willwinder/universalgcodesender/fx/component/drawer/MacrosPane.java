@@ -1,6 +1,6 @@
 package com.willwinder.universalgcodesender.fx.component.drawer;
 
-import com.willwinder.universalgcodesender.fx.actions.ActionRegistry;
+import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.actions.MacroAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import javafx.geometry.Insets;
