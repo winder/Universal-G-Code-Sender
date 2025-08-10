@@ -35,7 +35,6 @@ public class JogButton extends Button {
     public JogButton(JogButtonEnum button) {
         super(button.getLabel(), SvgLoader.loadImageIcon(button.getIconUrl(), ICON_SIZE, Colors.BLACKISH).orElse(null));
         JogActionRegistry.getInstance().getAction(button).ifPresent(action -> this.action = action);
-        setOnAction(this::onAction);
         setOnMousePressed(this::onAction);
         setOnMouseReleased(this::onAction);
         setContentDisplay(button.getContentDisplay());
