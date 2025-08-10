@@ -1,3 +1,21 @@
+/*
+    Copyright 2025 Joacim Breiler
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.fx.component.jog;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
@@ -7,14 +25,11 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
-import com.willwinder.universalgcodesender.services.JogService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -22,7 +37,6 @@ import javafx.scene.layout.VBox;
 public class JogPane extends BorderPane {
     private final DirectionalPadPane directionalPadPane;
     private final BackendAPI backend;
-    private final JogService jogService;
 
     private static final ObservableList<Integer> FEED_RATES = FXCollections.observableArrayList(10, 20, 50, 100, 200, 500, 1000, 2000, 5000);
     private static final ObservableList<Double> STEP_SIZES = FXCollections.observableArrayList(0.001, 0.01, 0.1, 1d, 10d, 100d);
@@ -37,9 +51,6 @@ public class JogPane extends BorderPane {
         backend.addUGSEventListener(this::onEvent);
 
         directionalPadPane = new DirectionalPadPane();
-        directionalPadPane.setOnAction(this::onAction);
-        directionalPadPane.setOnMousePressed(this::onMousePressed);
-        directionalPadPane.setOnMouseReleased(this::onMouseReleased);
         directionalPadPane.setDisable(!backend.isConnected());
         setCenter(directionalPadPane);
 
@@ -84,76 +95,6 @@ public class JogPane extends BorderPane {
 
         VerticalPad verticalPadPane = new VerticalPad();
         verticalPadPane.setDisable(!backend.isConnected());
-
-        jogService = new JogService(backend);
-    }
-
-    private void onMouseReleased(MouseEvent mouseEvent) {
-        System.out.println("onMouseReleased: " + mouseEvent);
-    }
-
-    private void onMousePressed(MouseEvent mouseEvent) {
-        System.out.println("onMousePressed: " + mouseEvent);
-    }
-
-    private void onAction(ActionEvent actionEvent) {
-        if (actionEvent.getSource() instanceof JogButton jogButton) {
-            JogButtonEnum button = jogButton.getButton();
-            switch (button) {
-                case BUTTON_XNEG:
-                    jogService.adjustManualLocationXY(-1, 0);
-                    break;
-                case BUTTON_XPOS:
-                    jogService.adjustManualLocationXY(1, 0);
-                    break;
-                case BUTTON_YNEG:
-                    jogService.adjustManualLocationXY(0, -1);
-                    break;
-                case BUTTON_YPOS:
-                    jogService.adjustManualLocationXY(0, 1);
-                    break;
-                case BUTTON_DIAG_XNEG_YNEG:
-                    jogService.adjustManualLocationXY(-1, -1);
-                    break;
-                case BUTTON_DIAG_XNEG_YPOS:
-                    jogService.adjustManualLocationXY(-1, 1);
-                    break;
-                case BUTTON_DIAG_XPOS_YNEG:
-                    jogService.adjustManualLocationXY(1, -1);
-                    break;
-                case BUTTON_DIAG_XPOS_YPOS:
-                    jogService.adjustManualLocationXY(1, 1);
-                    break;
-                case BUTTON_ZNEG:
-                    jogService.adjustManualLocationZ(-1);
-                    break;
-                case BUTTON_ZPOS:
-                    jogService.adjustManualLocationZ(1);
-                    break;
-                case BUTTON_ANEG:
-                    jogService.adjustManualLocationABC(-1, 0, 0);
-                    break;
-                case BUTTON_APOS:
-                    jogService.adjustManualLocationABC(1, 0, 0);
-                    break;
-                case BUTTON_BNEG:
-                    jogService.adjustManualLocationABC(0, -1, 0);
-                    break;
-                case BUTTON_BPOS:
-                    jogService.adjustManualLocationABC(0, 1, 0);
-                    break;
-                case BUTTON_CNEG:
-                    jogService.adjustManualLocationABC(0, 0, -1);
-                    break;
-                case BUTTON_CPOS:
-                    jogService.adjustManualLocationABC(0, 0, 1);
-                    break;
-                case BUTTON_CANCEL:
-                    jogService.cancelJog();
-                    break;
-                default:
-            }
-        }
     }
 
     private void onEvent(UGSEvent event) {

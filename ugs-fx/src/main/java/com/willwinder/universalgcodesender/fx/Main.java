@@ -1,8 +1,25 @@
+/*
+    Copyright 2025 Joacim Breiler
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.fx;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.fx.actions.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.actions.StartAction;
 import com.willwinder.universalgcodesender.fx.component.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.ToolBarMenu;
@@ -10,7 +27,10 @@ import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
 import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
+import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
+import com.willwinder.universalgcodesender.fx.service.JogActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.MacroActionService;
+import com.willwinder.universalgcodesender.fx.service.ShortcutService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
@@ -61,6 +81,8 @@ public class Main extends Application {
         }
 
         MacroActionService.registerMacros();
+
+        JogActionRegistry.registerActions();
     }
 
     @Override
@@ -75,6 +97,9 @@ public class Main extends Application {
 
         VBox root = new VBox();
         Scene scene = new Scene(root);
+
+        ShortcutService.registerListener(scene);
+
         scene.getStylesheets().add(Main.class.getResource("/styles/root.css").toExternalForm());
         root.getChildren().addAll(toolBarMenu, contentSplitPane);
 

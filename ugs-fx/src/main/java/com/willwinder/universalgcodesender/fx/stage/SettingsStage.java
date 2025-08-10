@@ -6,6 +6,7 @@ import com.willwinder.universalgcodesender.fx.component.settings.GeneralSettings
 import com.willwinder.universalgcodesender.fx.component.settings.MachineStatusSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.MacroSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.PendantSettingsPane;
+import com.willwinder.universalgcodesender.fx.component.settings.KeyboardSettingPane;
 import com.willwinder.universalgcodesender.fx.component.settings.VisualizerSettingsPane;
 import com.willwinder.universalgcodesender.fx.model.SettingsListItem;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -60,6 +61,7 @@ public class SettingsStage extends Stage {
         sectionList.getItems().add(new SettingsListItem(Localization.getString("platform.window.visualizer"), "icons/cube.svg", new VisualizerSettingsPane()));
         //sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.gamepad"), "icons/gamepad.svg", new Label(Localization.getString("platform.gamepad"))));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("mainWindow.swing.pendant"), "resources/icons/pendant.svg", new PendantSettingsPane()));
+        sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.keyboard"), "icons/shortcut.svg", new KeyboardSettingPane()));
         sectionList.setCellFactory(listView -> new SettingsListCell());
         sectionList.getSelectionModel().select(0);
         sectionList.setPrefWidth(200);

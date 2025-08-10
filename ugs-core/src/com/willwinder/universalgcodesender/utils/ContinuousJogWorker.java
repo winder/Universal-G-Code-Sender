@@ -220,4 +220,8 @@ public class ContinuousJogWorker implements UGSEventListener {
             stop();
         }
     }
+
+    public boolean isWorking() {
+        return !jogCanceled;
+    }
 }

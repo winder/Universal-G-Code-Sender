@@ -134,13 +134,13 @@
     -fx-border-color: #c2c2c2;
 }
 
+
 /**
- * The actions pane is the lower part of a dialog containing buttons
+ * Button box
  */
-.actions-pane {
+.button-box {
     -fx-background-color: white;
     -fx-border-color: #ccc;
     -fx-border-width: 1px 0 0 0;
     -fx-padding: 10;
 }
-

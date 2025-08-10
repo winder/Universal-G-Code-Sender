@@ -11,6 +11,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
@@ -25,7 +26,14 @@ public class ToggleActionButton extends ToggleButton {
         this.action = action;
         this.iconSize.setValue(size);
 
-        setOnAction(action);
+        setOnAction(event -> {
+            if (event != null) {
+                action.handle(event);
+            }
+        });
+        addEventHandler(MouseEvent.MOUSE_CLICKED, action);
+        addEventHandler(MouseEvent.MOUSE_PRESSED, action);
+        addEventHandler(MouseEvent.MOUSE_RELEASED, action);
         registerPropertyListeners(action);
 
         setText(action.getTitle());
