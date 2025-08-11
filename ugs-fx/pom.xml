@@ -75,7 +75,7 @@
         <dependency>
             <groupId>com.neuronrobotics</groupId>
             <artifactId>JavaCad</artifactId>
-            <version>2.5.0</version>
+            <version>2.9.5</version>
         </dependency>
 
         <!-- For styling swing components -->

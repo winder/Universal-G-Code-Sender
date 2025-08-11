@@ -7,6 +7,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -14,6 +15,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.util.StringConverter;
 
 
@@ -22,7 +24,7 @@ public class VisualizerSettingsPane extends BorderPane {
     private final VBox settingsGroup;
 
     public VisualizerSettingsPane() {
-        settingsGroup = new VBox(5);
+        settingsGroup = new VBox(10);
         addTitle(Localization.getString("settings.visualizer.machine"));
         addMachineCombo();
 
@@ -57,6 +59,12 @@ public class VisualizerSettingsPane extends BorderPane {
             }
         });
         settingsGroup.getChildren().add(machineTypeComboBox);
+
+        CheckBox checkBox = new CheckBox();
+        checkBox.setText("Show");
+        checkBox.setTextAlignment(TextAlignment.LEFT);
+        checkBox.selectedProperty().bindBidirectional(VisualizerSettings.getInstance().showMachineProperty());
+        settingsGroup.getChildren().add(checkBox);
     }
 
     private void addTitle(String text) {

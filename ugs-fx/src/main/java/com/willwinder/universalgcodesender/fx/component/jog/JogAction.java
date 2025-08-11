@@ -102,6 +102,8 @@ public class JogAction extends BaseAction {
             continuousJogWorker.start();
         } else if (continuousJogWorker.isWorking() && (mouseEvent.getEventType() == MouseEvent.MOUSE_RELEASED || mouseEvent.getEventType() == MOUSE_LONG_RELEASE)) {
             continuousJogWorker.stop();
+        } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED) {
+            handleAction(new ActionEvent());
         }
     }
 }
