@@ -20,6 +20,8 @@ package com.willwinder.ugs.platform.surfacescanner.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
+import static com.willwinder.ugs.platform.surfacescanner.Utils.getRoundPosition;
+import static com.willwinder.ugs.platform.surfacescanner.Utils.removeProbeData;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -29,11 +31,9 @@ import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.utils.Settings;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import java.awt.event.ActionEvent;
-
-import static com.willwinder.ugs.platform.surfacescanner.Utils.getRoundPosition;
-import static com.willwinder.ugs.platform.surfacescanner.Utils.shouldEraseProbedData;
 
 public class UpdateMinMaxFromGcode extends AbstractAction implements UGSEventListener {
 
@@ -61,7 +61,8 @@ public class UpdateMinMaxFromGcode extends AbstractAction implements UGSEventLis
         if (!isEnabled() ) {
             return;
         }
-        if (surfaceScanner.isValid() && !shouldEraseProbedData()) {
+
+        if (!removeProbeData(surfaceScanner)) {
             return;
         }
 

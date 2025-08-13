@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2022 Will Winder
+    Copyright 2016-2025 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -31,9 +31,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author wwinder
  */
 public abstract class Renderable implements Comparable<Renderable> {
-    Integer priority;
-    String title;
-    boolean isEnabled;
+    private final Integer priority;
+    private final String title;
+
+    /**
+     * A locally cached setting for if the renderable is enabled.
+     * This is needed to make the rendering fast enough to not slow down the rendering thread.
+     */
+    private boolean isEnabled;
 
     private final Set<RenderableListener> listeners = ConcurrentHashMap.newKeySet();
     private final String enabledOptionKey;
@@ -45,7 +50,7 @@ public abstract class Renderable implements Comparable<Renderable> {
     protected Renderable(int priority, String title, String enabledOptionKey) {
         this.title = title;
         this.priority = priority;
-        this.isEnabled = true;
+        this.isEnabled = VisualizerOptions.getBooleanOption(enabledOptionKey, true);
         this.enabledOptionKey = enabledOptionKey;
     }
 
@@ -76,7 +81,9 @@ public abstract class Renderable implements Comparable<Renderable> {
      * @param enabled set to true for enabling it in the configuration
      */
     public void setEnabled(boolean enabled) {
+        isEnabled = enabled;
         VisualizerOptions.setBooleanOption(enabledOptionKey, enabled);
+        notifyListeners();
     }
 
     /**
@@ -110,6 +117,7 @@ public abstract class Renderable implements Comparable<Renderable> {
     public abstract boolean center();
 
     public abstract void init(GLAutoDrawable drawable);
+
     public void reloadPreferences(VisualizerOptions vo) {
         isEnabled = VisualizerOptions.getBooleanOption(enabledOptionKey, true);
     }
