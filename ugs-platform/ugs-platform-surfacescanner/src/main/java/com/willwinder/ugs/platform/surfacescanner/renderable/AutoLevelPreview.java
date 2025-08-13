@@ -237,12 +237,4 @@ public class AutoLevelPreview extends Renderable {
                 .mapToDouble(CNCPoint::getZ)
                 .filter(z -> !Double.isNaN(z));
     }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        if (VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_AUTOLEVEL_PREVIEW, true) != enabled) {
-            VisualizerOptions.setBooleanOption(VISUALIZER_OPTION_AUTOLEVEL_PREVIEW, enabled);
-            notifyListeners();
-        }
-    }
 }

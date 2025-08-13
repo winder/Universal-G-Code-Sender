@@ -20,9 +20,9 @@ package com.willwinder.ugs.platform.surfacescanner.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
+import com.willwinder.ugs.platform.surfacescanner.Utils;
 import static com.willwinder.ugs.platform.surfacescanner.Utils.getMaxPosition;
 import static com.willwinder.ugs.platform.surfacescanner.Utils.getMinPosition;
-import static com.willwinder.ugs.platform.surfacescanner.Utils.shouldEraseProbedData;
 import com.willwinder.ugs.platform.surfacescanner.io.XyzFileFilter;
 import com.willwinder.ugs.platform.surfacescanner.io.XyzSurfaceReader;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -77,7 +77,7 @@ public class OpenScannedSurfaceAction extends AbstractAction implements UGSEvent
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (surfaceScanner.isValid() && !shouldEraseProbedData()) {
+        if (!Utils.removeProbeData(surfaceScanner)) {
             return;
         }
 

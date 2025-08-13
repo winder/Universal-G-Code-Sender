@@ -39,10 +39,31 @@ public class Utils {
 
     public static final JFileChooser fileChooser = new JFileChooser();
 
-    public static boolean shouldEraseProbedData() {
+    /**
+     * Checks if there is probed data present and if so asks the user if it is ok to delete.
+     * If it is ok to delete, the data will be removed
+     *
+     * @param surfaceScanner the current surface scanner
+     * @return true if there is no probe data
+     */
+    public static boolean removeProbeData(SurfaceScanner surfaceScanner) {
+        if (!surfaceScanner.isValid()) {
+            return true;
+        }
+
+        if (!shouldEraseProbedData()) {
+            return false;
+        }
+
+        // Reset the scanner
+        surfaceScanner.reset();
+        return true;
+    }
+
+    private static boolean shouldEraseProbedData() {
         int result = JOptionPane.showConfirmDialog(new Frame(),
                 Localization.getString("autoleveler.panel.overwrite"),
-                Localization.getString("AutoLevelerTitle"),
+                Localization.getString("platform.window.autoleveler"),
                 JOptionPane.YES_NO_OPTION);
         return result == JOptionPane.YES_OPTION;
     }

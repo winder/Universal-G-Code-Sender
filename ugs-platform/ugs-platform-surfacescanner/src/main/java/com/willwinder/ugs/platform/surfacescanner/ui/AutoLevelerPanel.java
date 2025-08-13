@@ -154,7 +154,7 @@ public class AutoLevelerPanel extends JPanel {
     }
 
     private void syncControlsToSettings() {
-        if (surfaceScanner.isValid() && !Utils.shouldEraseProbedData()) {
+        if (!Utils.removeProbeData(surfaceScanner)) {
             return;
         }
 
