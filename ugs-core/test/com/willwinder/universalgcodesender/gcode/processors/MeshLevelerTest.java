@@ -22,19 +22,17 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.INCH;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.List;
-
-import static com.willwinder.universalgcodesender.model.UnitUtils.Units.INCH;
-import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author wwinder
@@ -164,6 +162,23 @@ public class MeshLevelerTest {
         };
 
         new MeshLeveler(0.0, grid);
+    }
+
+    @Test
+    public void smallerProbedAreaShouldNotInterpolateUnprobedArea() {
+        MeshLeveler ml = new MeshLeveler(0.0, BIG_FLAT_GRID_Z1);
+
+        GcodeState state = new GcodeState();
+        state.currentPoint = new Position(0, 0, 0, MM);
+        state.inAbsoluteMode = true;
+
+        // Probed area should be leveled
+        sendCommandExpectResult(ml, state, "G1X0Y0Z0", "G1X0Y0Z1");
+        sendCommandExpectResult(ml, state, "G1X10Y10Z0", "G1X10Y10Z1");
+
+        // Area outside should not be leveled
+        sendCommandExpectResult(ml, state, "G1X-1Y-1Z0", "G1X-1Y-1Z0");
+        sendCommandExpectResult(ml, state, "G1X11Y11Z0", "G1X11Y11Z0");
     }
 
     @Test
@@ -336,11 +351,6 @@ public class MeshLevelerTest {
         sendCommandExpectResult(ml, state, "G1X50.8Y50.8", "G1X50.8Y50.8Z50.8");
         sendCommandExpectResult(ml, state, "G1X25.4", "G1X25.4Z25.4");
         sendCommandExpectResult(ml, state, "G1X50.8", "G1X50.8Z50.8");
-    }
-
-
-    private double toInches(int valueInMM) {
-        return valueInMM * UnitUtils.scaleUnits(MM, INCH);
     }
 
     @Test
