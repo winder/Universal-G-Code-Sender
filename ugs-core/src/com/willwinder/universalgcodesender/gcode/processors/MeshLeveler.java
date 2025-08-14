@@ -46,12 +46,13 @@ public class MeshLeveler implements CommandProcessor {
     public final static String ERROR_X_ASCENTION = "Found a x coordinate that isn't ascending.";
     public final static String ERROR_UNEXPECTED_ARC = "The mesh leveler cannot process arcs. Enable the arc expander.";
     public final static String ERROR_MISSING_POINT_DATA = "Internal parser error: missing data. ";
-    final private double materialSurfaceHeightMM;
-    final private Position[][] surfaceMesh;
-    final private Position lowerLeft;
-    final private int xLen, yLen;
-    final private double resolution;
-    private Units surfaceMeshUnits;
+    private final double materialSurfaceHeightMM;
+    private final Position[][] surfaceMesh;
+    private Position lowerLeft;
+    private Position topRight;
+    private final int xLen, yLen;
+    private final double resolution;
+    private final Units surfaceMeshUnits;
 
     /**
      * @param materialSurfaceHeightMM Z height used in offset.
@@ -73,7 +74,19 @@ public class MeshLeveler implements CommandProcessor {
                 surfaceMesh[1][0].x - surfaceMesh[0][0].x,
                 surfaceMesh[0][1].y - surfaceMesh[0][0].y);
 
+        recalculateBounds();
+    }
+
+    private void recalculateBounds() {
         this.lowerLeft = surfaceMesh[0][0];
+        this.topRight = new Position(this.lowerLeft);
+
+        for (Position[] row : surfaceMesh) {
+            for (Position cell : row) {
+                this.topRight.setX(Math.max(cell.getX(), this.topRight.getX()));
+                this.topRight.setY(Math.max(cell.getY(), this.topRight.getY()));
+            }
+        }
     }
 
     private void validateMesh(Position[][] surfaceMesh) {
@@ -225,6 +238,11 @@ public class MeshLeveler implements CommandProcessor {
      * http://supercomputingblog.com/graphics/coding-bilinear-interpolation/
      */
     protected double surfaceHeightAt(double x, double y) {
+        // Do not adjust Z outside the probed area
+        if (x < lowerLeft.getX() || x > topRight.getX() || y < lowerLeft.getY() || y > topRight.getY()) {
+            return 0;
+        }
+
         Position[][] q = findBoundingArea(x, y);
 
         Position Q11 = q[0][0];
