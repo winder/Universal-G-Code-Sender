@@ -55,7 +55,6 @@ public class Utils {
             return false;
         }
 
-        // Reset the scanner
         surfaceScanner.reset();
         return true;
     }
