@@ -81,20 +81,32 @@ public class SurfaceToolPath extends AbstractToolPath {
                 addGeometriesToGcodePath(gcodePath, settings, g, envelope, currentDepth, stepOver);
             }
         });
-        addSafeHeightSegment(gcodePath,null, true);
+        addSafeHeightSegment(gcodePath, null, true);
     }
 
     private void addGeometriesToGcodePath(GcodePath gcodePath, Settings settings, Geometry g, Envelope envelope, double currentDepth, double stepOver) {
         double currentY = envelope.getMinY();
-        while (currentY <= envelope.getMaxY()) {
-            LineString lineString = getGeometryFactory().createLineString(new Coordinate[]{
-                    new CoordinateXY(envelope.getMinX(), currentY),
-                    new CoordinateXY(envelope.getMaxX(), currentY),
-            });
+        double minX = envelope.getMinX();
+        double maxX = envelope.getMaxX();
 
-            addLineIntersectionSegments(gcodePath, g, lineString, currentDepth, (-getStartDepth()) + settings.getSafeHeight());
+        while (currentY < envelope.getMaxY()) {
+            addLineSegment(gcodePath, settings, g, currentDepth, minX, maxX, currentY);
             currentY += stepOver;
         }
+
+        // Add the last line
+        if (currentY - stepOver < envelope.getMaxY()) {
+            addLineSegment(gcodePath, settings, g, currentDepth, minX, maxX, envelope.getMaxY());
+        }
+    }
+
+    private void addLineSegment(GcodePath gcodePath, Settings settings, Geometry g, double currentDepth, double minX, double maxX, double currentY) {
+        LineString lineString = getGeometryFactory().createLineString(new Coordinate[]{
+                new CoordinateXY(minX, currentY),
+                new CoordinateXY(maxX, currentY),
+        });
+
+        addLineIntersectionSegments(gcodePath, g, lineString, currentDepth, (-getStartDepth()) + settings.getSafeHeight());
     }
 
     private void addLineIntersectionSegments(GcodePath gcodePath, Geometry geometry, LineString lineString, double currentDepth, double safeHeight) {
