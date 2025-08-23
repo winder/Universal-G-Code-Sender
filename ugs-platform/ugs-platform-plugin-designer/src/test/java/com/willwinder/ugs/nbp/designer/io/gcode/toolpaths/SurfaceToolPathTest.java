@@ -95,7 +95,7 @@ public class SurfaceToolPathTest {
 
         // Move to safe height
         assertEquals(SegmentType.MOVE, segments.get(9).type);
-        assertZPoint(segments.get(9).point, 9);
+        assertZPoint(segments.get(9).point, 10);
     }
 
     @Test
@@ -159,7 +159,7 @@ public class SurfaceToolPathTest {
 
         // Move to safe height
         assertEquals(SegmentType.MOVE, segments.get(9).type);
-        assertZPoint(segments.get(9).point, 9);
+        assertZPoint(segments.get(9).point, 10);
     }
 
     @Test
@@ -293,7 +293,7 @@ public class SurfaceToolPathTest {
 
         // Move to safe height
         assertEquals(SegmentType.MOVE, segments.get(9).type);
-        assertZPoint(segments.get(9).point, 9);
+        assertZPoint(segments.get(9).point, 10);
     }
 
     @Test
@@ -358,7 +358,7 @@ public class SurfaceToolPathTest {
 
         // Move to safe height
         assertEquals(SegmentType.MOVE, segments.get(9).type);
-        assertZPoint(segments.get(9).point, 9);
+        assertZPoint(segments.get(9).point, 10);
     }
 
     @Test
@@ -422,7 +422,7 @@ public class SurfaceToolPathTest {
 
         // Move to safe height
         assertEquals(SegmentType.MOVE, segments.get(9).type);
-        assertZPoint(segments.get(9).point, 9);
+        assertZPoint(segments.get(9).point, 10);
     }
 
     private static void assertXYPoint(PartialPosition point, double expectedX, double expectedY) {
