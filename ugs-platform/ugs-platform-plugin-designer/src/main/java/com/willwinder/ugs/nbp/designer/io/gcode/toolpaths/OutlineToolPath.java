@@ -53,22 +53,17 @@ public class OutlineToolPath extends AbstractToolPath {
     public void setOffset(double offset) {
         this.offset = offset;
     }
-    
-    private Double getSafeHeightToUse(Double currentZ, boolean isFirst) {
-        
-        double result = settings.getSafeHeight()+currentZ;
-        if (isFirst) {
-            result = -getStartDepth() + settings.getSafeHeight();
-        }
-        // Outline Paths always Start and end in the same spot so its worthwhile to only climb a smaller amount
-        return result;
-    }
 
     @Override
     protected void addSafeHeightSegment(GcodePath gcodePath, PartialPosition coordinate, boolean isFirst) {
-        double safeHeightToUse = (coordinate != null && coordinate.hasZ() ? coordinate.getZ() : -getStartDepth());
-        PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, getSafeHeightToUse(safeHeightToUse,isFirst), UnitUtils.Units.MM);
-        gcodePath.addSegment(SegmentType.MOVE, safeHeightCoordinate);
+        if (isFirst) {
+            super.addSafeHeightSegment(gcodePath, coordinate, true);
+        } else {
+            // Outline Paths always Start and end in the same spot so its worthwhile to only climb a smaller amount
+            double safeHeightToUse = settings.getSafeHeight() + (coordinate != null && coordinate.hasZ() ? coordinate.getZ() : -getStartDepth());
+            PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, safeHeightToUse, UnitUtils.Units.MM);
+            gcodePath.addSegment(SegmentType.MOVE, safeHeightCoordinate);
+        }
     }
 
     @Override

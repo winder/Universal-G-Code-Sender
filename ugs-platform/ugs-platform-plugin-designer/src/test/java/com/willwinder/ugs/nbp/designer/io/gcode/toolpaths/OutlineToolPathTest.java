@@ -49,7 +49,7 @@ public class OutlineToolPathTest {
         assertEquals(SegmentType.MOVE, segments.get(0).type);
         assertFalse(segments.get(0).point.hasX());
         assertFalse(segments.get(0).point.hasY());
-        assertEquals(9, segments.get(0).point.getZ(), 0.01);
+        assertEquals(10, segments.get(0).point.getZ(), 0.01);
 
         // Move in XY-place
         assertEquals(SegmentType.MOVE, segments.get(1).type);
@@ -61,7 +61,7 @@ public class OutlineToolPathTest {
         assertEquals(SegmentType.MOVE, segments.get(2).type);
         assertFalse(segments.get(2).point.hasX());
         assertFalse(segments.get(2).point.hasY());
-        assertEquals(9, segments.get(2).point.getZ(), 0.01);
+        assertEquals(10, segments.get(2).point.getZ(), 0.01);
 
         // Move into material
         assertEquals(SegmentType.POINT, segments.get(3).type);
@@ -93,11 +93,212 @@ public class OutlineToolPathTest {
         assertEquals(SegmentType.MOVE, segments.get(9).type);
         assertFalse(segments.get(9).point.hasX());
         assertFalse(segments.get(9).point.hasY());
-        assertEquals(9, segments.get(9).point.getZ(), 0.01);
+        assertEquals(10, segments.get(9).point.getZ(), 0.01);
 
         assertEquals(10, segments.size());
     }
 
+    @Test
+    public void toGcodePathShouldGenerateGcodeWithSafeHeightZero() {
+        Rectangle rectangle = new Rectangle(0,0);
+        rectangle.setSize(new Size(10, 10));
+        Settings settings = new Settings();
+        settings.setSafeHeight(0);
+
+        OutlineToolPath toolPath = new OutlineToolPath(settings, rectangle);
+        toolPath.setStartDepth(1);
+        toolPath.setTargetDepth(1);
+        GcodePath gcodePath = toolPath.toGcodePath();
+
+        List<Segment> segments = gcodePath.getSegments();
+
+        // Move to safe height
+        assertEquals(SegmentType.MOVE, segments.get(0).type);
+        assertFalse(segments.get(0).point.hasX());
+        assertFalse(segments.get(0).point.hasY());
+        assertEquals(0, segments.get(0).point.getZ(), 0.01);
+
+        // Move in XY-place
+        assertEquals(SegmentType.MOVE, segments.get(1).type);
+        assertEquals(0, segments.get(1).point.getX(), 0.01);
+        assertEquals(0, segments.get(1).point.getY(), 0.01);
+        assertFalse(segments.get(1).point.hasZ());
+
+        // Move to Z zero
+        assertEquals(SegmentType.MOVE, segments.get(2).type);
+        assertFalse(segments.get(2).point.hasX());
+        assertFalse(segments.get(2).point.hasY());
+        assertEquals(0, segments.get(2).point.getZ(), 0.01);
+
+        // Move into material
+        assertEquals(SegmentType.POINT, segments.get(3).type);
+        assertTrue(segments.get(3).point.hasX());
+        assertTrue(segments.get(3).point.hasY());
+        assertEquals(-1, segments.get(3).point.getZ(), 0.01);
+
+        assertEquals(SegmentType.LINE, segments.get(4).type);
+        assertEquals(0, segments.get(4).point.getX(), 0.01);
+        assertEquals(0, segments.get(4).point.getY(), 0.01);
+        assertEquals(-1, segments.get(4).point.getZ(), 0.01);
+
+        assertEquals(SegmentType.LINE, segments.get(5).type);
+        assertEquals(0, segments.get(5).point.getX(), 0.01);
+        assertEquals(10, segments.get(5).point.getY(), 0.01);
+        assertEquals(-1, segments.get(5).point.getZ(), 0.01);
+
+        assertEquals(SegmentType.LINE, segments.get(7).type);
+        assertEquals(10, segments.get(7).point.getX(), 0.01);
+        assertEquals(0, segments.get(7).point.getY(), 0.01);
+        assertEquals(-1, segments.get(7).point.getZ(), 0.01);
+
+        assertEquals(SegmentType.LINE, segments.get(8).type);
+        assertEquals(0, segments.get(8).point.getX(), 0.01);
+        assertEquals(0, segments.get(8).point.getY(), 0.01);
+        assertEquals(-1, segments.get(8).point.getZ(), 0.01);
+
+        // Move to safe height
+        assertEquals(SegmentType.MOVE, segments.get(9).type);
+        assertFalse(segments.get(9).point.hasX());
+        assertFalse(segments.get(9).point.hasY());
+        assertEquals(0, segments.get(9).point.getZ(), 0.01);
+
+        assertEquals(10, segments.size());
+    }
+
+
+    @Test
+    public void toGcodePathShouldGenerateGcodeWithSafeHeightForNegativeStartDepthAndSafeHeightZero() {
+        Rectangle rectangle = new Rectangle(0,0);
+        rectangle.setSize(new Size(10, 10));
+        Settings settings = new Settings();
+        settings.setSafeHeight(0);
+
+        OutlineToolPath toolPath = new OutlineToolPath(settings, rectangle);
+        toolPath.setStartDepth(-15);
+        toolPath.setTargetDepth(-15);
+        GcodePath gcodePath = toolPath.toGcodePath();
+
+        List<Segment> segments = gcodePath.getSegments();
+
+        // Move to safe height
+        assertEquals(SegmentType.MOVE, segments.get(0).type);
+        assertFalse(segments.get(0).point.hasX());
+        assertFalse(segments.get(0).point.hasY());
+        assertEquals(15, segments.get(0).point.getZ(), 0.01);
+
+        // Move in XY-place
+        assertEquals(SegmentType.MOVE, segments.get(1).type);
+        assertEquals(0, segments.get(1).point.getX(), 0.01);
+        assertEquals(0, segments.get(1).point.getY(), 0.01);
+        assertFalse(segments.get(1).point.hasZ());
+
+        // Move to Z zero
+        assertEquals(SegmentType.MOVE, segments.get(2).type);
+        assertFalse(segments.get(2).point.hasX());
+        assertFalse(segments.get(2).point.hasY());
+        assertEquals(15, segments.get(2).point.getZ(), 0.01);
+
+        // Move into material
+        assertEquals(SegmentType.POINT, segments.get(3).type);
+        assertTrue(segments.get(3).point.hasX());
+        assertTrue(segments.get(3).point.hasY());
+        assertEquals(15, segments.get(3).point.getZ(), 0.01);
+
+        assertEquals(SegmentType.LINE, segments.get(4).type);
+        assertEquals(0, segments.get(4).point.getX(), 0.01);
+        assertEquals(0, segments.get(4).point.getY(), 0.01);
+        assertEquals(15, segments.get(4).point.getZ(), 0.01);
+
+        assertEquals(SegmentType.LINE, segments.get(5).type);
+        assertEquals(0, segments.get(5).point.getX(), 0.01);
+        assertEquals(10, segments.get(5).point.getY(), 0.01);
+        assertEquals(15, segments.get(5).point.getZ(), 0.01);
+
+        assertEquals(SegmentType.LINE, segments.get(7).type);
+        assertEquals(10, segments.get(7).point.getX(), 0.01);
+        assertEquals(0, segments.get(7).point.getY(), 0.01);
+        assertEquals(15, segments.get(7).point.getZ(), 0.01);
+
+        assertEquals(SegmentType.LINE, segments.get(8).type);
+        assertEquals(0, segments.get(8).point.getX(), 0.01);
+        assertEquals(0, segments.get(8).point.getY(), 0.01);
+        assertEquals(15, segments.get(8).point.getZ(), 0.01);
+
+        // Move to safe height
+        assertEquals(SegmentType.MOVE, segments.get(9).type);
+        assertFalse(segments.get(9).point.hasX());
+        assertFalse(segments.get(9).point.hasY());
+        assertEquals(15, segments.get(9).point.getZ(), 0.01);
+
+        assertEquals(10, segments.size());
+    }
+
+    @Test
+    public void toGcodePathShouldGenerateGcodeWithSafeHeightForNegativeStartDepthAndSafeHeight() {
+        Rectangle rectangle = new Rectangle(0,0);
+        rectangle.setSize(new Size(10, 10));
+        Settings settings = new Settings();
+        settings.setSafeHeight(10);
+
+        OutlineToolPath toolPath = new OutlineToolPath(settings, rectangle);
+        toolPath.setStartDepth(-15);
+        toolPath.setTargetDepth(-15);
+        GcodePath gcodePath = toolPath.toGcodePath();
+
+        List<Segment> segments = gcodePath.getSegments();
+
+        // Move to safe height
+        assertEquals(SegmentType.MOVE, segments.get(0).type);
+        assertFalse(segments.get(0).point.hasX());
+        assertFalse(segments.get(0).point.hasY());
+        assertEquals(25, segments.get(0).point.getZ(), 0.01);
+
+        // Move in XY-place
+        assertEquals(SegmentType.MOVE, segments.get(1).type);
+        assertEquals(0, segments.get(1).point.getX(), 0.01);
+        assertEquals(0, segments.get(1).point.getY(), 0.01);
+        assertFalse(segments.get(1).point.hasZ());
+
+        // Move to Z zero
+        assertEquals(SegmentType.MOVE, segments.get(2).type);
+        assertFalse(segments.get(2).point.hasX());
+        assertFalse(segments.get(2).point.hasY());
+        assertEquals(25, segments.get(2).point.getZ(), 0.01);
+
+        // Move into material
+        assertEquals(SegmentType.POINT, segments.get(3).type);
+        assertTrue(segments.get(3).point.hasX());
+        assertTrue(segments.get(3).point.hasY());
+        assertEquals(15, segments.get(3).point.getZ(), 0.01);
+
+        assertEquals(SegmentType.LINE, segments.get(4).type);
+        assertEquals(0, segments.get(4).point.getX(), 0.01);
+        assertEquals(0, segments.get(4).point.getY(), 0.01);
+        assertEquals(15, segments.get(4).point.getZ(), 0.01);
+
+        assertEquals(SegmentType.LINE, segments.get(5).type);
+        assertEquals(0, segments.get(5).point.getX(), 0.01);
+        assertEquals(10, segments.get(5).point.getY(), 0.01);
+        assertEquals(15, segments.get(5).point.getZ(), 0.01);
+
+        assertEquals(SegmentType.LINE, segments.get(7).type);
+        assertEquals(10, segments.get(7).point.getX(), 0.01);
+        assertEquals(0, segments.get(7).point.getY(), 0.01);
+        assertEquals(15, segments.get(7).point.getZ(), 0.01);
+
+        assertEquals(SegmentType.LINE, segments.get(8).type);
+        assertEquals(0, segments.get(8).point.getX(), 0.01);
+        assertEquals(0, segments.get(8).point.getY(), 0.01);
+        assertEquals(15, segments.get(8).point.getZ(), 0.01);
+
+        // Move to safe height
+        assertEquals(SegmentType.MOVE, segments.get(9).type);
+        assertFalse(segments.get(9).point.hasX());
+        assertFalse(segments.get(9).point.hasY());
+        assertEquals(25, segments.get(9).point.getZ(), 0.01);
+
+        assertEquals(10, segments.size());
+    }
 
     @Test
     public void toGcodePathShouldGenerateGcodeFromNegativeStartDepth() {
@@ -235,7 +436,7 @@ public class OutlineToolPathTest {
         assertEquals(SegmentType.MOVE, segments.get(0).type);
         assertFalse(segments.get(0).point.hasX());
         assertFalse(segments.get(0).point.hasY());
-        assertEquals(9, segments.get(0).point.getZ(), 0.01);
+        assertEquals(10, segments.get(0).point.getZ(), 0.01);
 
         // Move in XY-place
         assertEquals(SegmentType.MOVE, segments.get(1).type);
@@ -247,7 +448,7 @@ public class OutlineToolPathTest {
         assertEquals(SegmentType.MOVE, segments.get(2).type);
         assertFalse(segments.get(2).point.hasX());
         assertFalse(segments.get(2).point.hasY());
-        assertEquals(9, segments.get(2).point.getZ(), 0.01);
+        assertEquals(10, segments.get(2).point.getZ(), 0.01);
 
         // Move into material
         assertEquals(SegmentType.POINT, segments.get(3).type);
@@ -280,7 +481,7 @@ public class OutlineToolPathTest {
         assertEquals(SegmentType.MOVE, segments.get(9).type);
         assertFalse(segments.get(9).point.hasX());
         assertFalse(segments.get(9).point.hasY());
-        assertEquals(9, segments.get(9).point.getZ(), 0.01);
+        assertEquals(10, segments.get(9).point.getZ(), 0.01);
 
         assertEquals(10, segments.size());
     }

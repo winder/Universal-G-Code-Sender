@@ -161,6 +161,6 @@ public class PocketToolPathTest {
         }
 
         assertTrue("The tool path was " + Math.round(totalLength) + "mm long but should have been shorter", totalLength < 22144);
-        assertTrue("The tool path rapids was " + Math.round(totalRapidLength) + "mm long but should have been shorter", totalRapidLength < 721);
+        assertTrue("The tool path rapids was " + Math.round(totalRapidLength) + "mm long but should have been shorter", totalRapidLength < 730);
     }
 }

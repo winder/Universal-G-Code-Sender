@@ -65,7 +65,14 @@ public abstract class AbstractToolPath implements PathGenerator {
     }
 
     protected void addSafeHeightSegment(GcodePath gcodePath, PartialPosition coordinate, boolean isFirst) {
-        PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, -getStartDepth() + settings.getSafeHeight(), UnitUtils.Units.MM);
+        double safeHeight = settings.getSafeHeight();
+
+        // If the start depth is negative we need to add it to the safe height to clear the material
+        if (startDepth < 0) {
+            safeHeight = safeHeight - startDepth;
+        }
+
+        PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, safeHeight, UnitUtils.Units.MM);
         gcodePath.addSegment(SegmentType.MOVE, safeHeightCoordinate);
     }
 
