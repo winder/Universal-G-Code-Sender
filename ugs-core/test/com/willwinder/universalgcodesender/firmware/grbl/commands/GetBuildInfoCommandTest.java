@@ -69,4 +69,17 @@ public class GetBuildInfoCommandTest {
             assertFalse(options.isEnabled(option));
         }
     }
+
+    @Test
+    public void getBuildOptionsWithoutAnyResponseFromController() {
+        GetBuildInfoCommand command = new GetBuildInfoCommand();
+        command.appendResponse("ok");
+        GrblBuildOptions options = command.getBuildOptions();
+        for (GrblBuildOption option : GrblBuildOption.values()) {
+            assertFalse(options.isEnabled(option));
+        }
+
+        GrblVersion version = command.getVersion().orElseThrow(RuntimeException::new);
+        assertEquals(1.1, version.getVersionNumber(), 0.01);
+    }
 }
