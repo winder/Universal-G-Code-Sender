@@ -329,7 +329,11 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             targetDepthSpinner.setValue(model.getTargetDepth());
             selectionGroup.setTargetDepth(model.getTargetDepth());
         } else if (entitySetting == EntitySetting.TEXT) {
-            textTextField.setText(model.getText());
+            // Work around for when the text is being edited this would overwrite it
+            if (!textTextField.hasFocus()) {
+                textTextField.setText(model.getText());
+            }
+
             if (!selectionGroup.getChildren().isEmpty() && selectionGroup.getChildren().get(0) instanceof Text textEntity) {
                 textEntity.setText(model.getText());
             }
