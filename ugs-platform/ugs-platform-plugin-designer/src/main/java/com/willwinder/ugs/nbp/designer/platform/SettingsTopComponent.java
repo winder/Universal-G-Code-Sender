@@ -20,26 +20,27 @@ package com.willwinder.ugs.nbp.designer.platform;
 
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.SelectionSettingsPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
 import com.willwinder.ugs.nbp.lib.Mode;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import java.awt.BorderLayout;
+import java.io.Serial;
 
 /**
  * @author Joacim Breiler
  */
 @TopComponent.Description(
-        preferredID = "SettingsTopComponent",
-        persistenceType = TopComponent.PERSISTENCE_NEVER
+        preferredID = SettingsTopComponent.PREFERRED_ID
 )
 @TopComponent.Registration(mode = Mode.LEFT_TOP, openAtStartup = false)
-public class SettingsTopComponent extends TopComponent implements ControllerListener {
+public class SettingsTopComponent extends TopComponent {
+    @Serial
     private static final long serialVersionUID = 324234398723987873L;
+    public static final String PREFERRED_ID = "SettingsTopComponent";
 
     private transient SelectionSettingsPanel selectionSettingsPanel;
 
@@ -50,14 +51,23 @@ public class SettingsTopComponent extends TopComponent implements ControllerList
         setDisplayName("Cut settings");
     }
 
+    public static SettingsTopComponent findInstance() {
+        TopComponent tc = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
+        if (tc instanceof SettingsTopComponent) {
+            return (SettingsTopComponent) tc;
+        }
+
+        return TopComponent.getRegistry().getOpened().stream()
+                .filter(SettingsTopComponent.class::isInstance)
+                .map(SettingsTopComponent.class::cast)
+                .findFirst().orElseGet(SettingsTopComponent::new);
+    }
+
     @Override
     protected void componentClosed() {
         super.componentClosed();
         selectionSettingsPanel.release();
         selectionSettingsPanel = null;
-
-        Controller controller = ControllerFactory.getController();
-        controller.removeListener(this);
     }
 
     @Override
@@ -70,13 +80,5 @@ public class SettingsTopComponent extends TopComponent implements ControllerList
         scrollPane.getVerticalScrollBar().setUnitIncrement(10);
         scrollPane.getHorizontalScrollBar().setUnitIncrement(10);
         add(scrollPane);
-        controller.addListener(this);
-    }
-
-    @Override
-    public void onControllerEvent(ControllerEventType event) {
-        if (event == ControllerEventType.RELEASE) {
-            close();
-        }
     }
 }

@@ -121,10 +121,6 @@ public class Controller {
         drawing.setCursor(cursor);
     }
 
-    public void release() {
-        notifyListeners(ControllerEventType.RELEASE);
-    }
-
     public void loadFile(File file) {
         UgsDesignReader reader = new UgsDesignReader();
         setDesign(reader.read(file).orElse(new Design()));

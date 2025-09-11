@@ -27,7 +27,6 @@ import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
 import com.willwinder.ugs.nbp.designer.actions.UndoAction;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
 import com.willwinder.ugs.nbp.designer.io.gcode.GcodeDesignWriter;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -90,39 +89,36 @@ public class PlatformUtils {
         }
     }
 
-    public static SettingsTopComponent openSettings(Controller controller) {
-        SettingsTopComponent component = TopComponent.getRegistry().getOpened().stream().filter(SettingsTopComponent.class::isInstance)
+    public static void openSettings() {
+        SettingsTopComponent settingsTopComponent = TopComponent.getRegistry().getOpened().stream().filter(SettingsTopComponent.class::isInstance)
                 .map(SettingsTopComponent.class::cast)
                 .findFirst().orElseGet(() -> {
-                    SettingsTopComponent topComponent = new SettingsTopComponent();
-                    topComponent.open();
-
-                    Mode editorMode = WindowManager.getDefault().findMode(com.willwinder.ugs.nbp.lib.Mode.LEFT_TOP);
-                    editorMode.dockInto(topComponent);
+                    SettingsTopComponent topComponent = SettingsTopComponent.findInstance();
+                    dockComponentToPreferredMode(topComponent, com.willwinder.ugs.nbp.lib.Mode.LEFT_TOP);
                     return topComponent;
                 });
-
-        if (!controller.getSelectionManager().getSelection().isEmpty()) {
-            component.requestActive();
-        }
-        return component;
+        settingsTopComponent.requestActive();
     }
 
-    public static EntitiesTreeTopComponent openEntitesTree(Controller controller) {
-        EntitiesTreeTopComponent component = TopComponent.getRegistry().getOpened().stream().filter(EntitiesTreeTopComponent.class::isInstance)
+    private static void dockComponentToPreferredMode(TopComponent topComponent, String mode) {
+        if (!topComponent.isOpened()) {
+            Mode preferredMode = WindowManager.getDefault()
+                    .findMode(mode);
+            if (preferredMode != null) {
+                preferredMode.dockInto(topComponent);
+            }
+            topComponent.open();
+        }
+    }
+
+    public static void openEntitesTree() {
+        EntitiesTreeTopComponent entitiesTreeTopComponent = TopComponent.getRegistry().getOpened().stream().filter(EntitiesTreeTopComponent.class::isInstance)
                 .map(EntitiesTreeTopComponent.class::cast)
                 .findFirst().orElseGet(() -> {
-                    EntitiesTreeTopComponent topComponent = new EntitiesTreeTopComponent();
-                    topComponent.open();
-
-                    Mode editorMode = WindowManager.getDefault().findMode(com.willwinder.ugs.nbp.lib.Mode.LEFT_BOTTOM);
-                    editorMode.dockInto(topComponent);
+                    EntitiesTreeTopComponent topComponent = EntitiesTreeTopComponent.findInstance();
+                    dockComponentToPreferredMode(topComponent, com.willwinder.ugs.nbp.lib.Mode.LEFT_BOTTOM);
                     return topComponent;
                 });
-
-        if (!controller.getSelectionManager().getSelection().isEmpty()) {
-            component.requestActive();
-        }
-        return component;
+        entitiesTreeTopComponent.requestActive();
     }
 }
