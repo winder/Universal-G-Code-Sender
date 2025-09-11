@@ -20,19 +20,25 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
+import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.CommandListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Joacim Breiler
  */
 public class ControllerUtils {
+    private static final Logger LOGGER = Logger.getLogger(ControllerUtils.class.getName());
 
     private ControllerUtils() {
         // Can not be instanced
@@ -106,7 +112,7 @@ public class ControllerUtils {
      * @param onExecute        an action that should be executed before sending
      * @param <T>              a class extending from {@link GcodeCommand}
      * @return the last executed command with the response
-     * @throws InterruptedException
+     * @throws InterruptedException if the command didn't complete in time
      */
     public static <T extends GcodeCommand> T sendAndWaitForCompletionWithRetry(Supplier<T> commandSupplier, IController controller, long maxExecutionTime, int retryCount, Consumer<Integer> onExecute) throws InterruptedException {
         int times = 0;
@@ -175,6 +181,27 @@ public class ControllerUtils {
                 }
             default:
                 return CommunicatorState.COMM_IDLE;
+        }
+    }
+
+    /**
+     * Returns the distance to the soft limit in the given axis in millimeters. If the value is negative it means that the
+     * position has been passed. If soft limits are disabled in the controller this will return zero.
+     *
+     * @param controller the current controller
+     * @param axis the axis to get the position for
+     * @return the distance in mm.
+     */
+    public static double getDistanceToSoftLimit(IController controller, Axis axis) {
+        try {
+            if (!controller.getFirmwareSettings().isSoftLimitsEnabled()) {
+                return 0;
+            }
+
+            return controller.getControllerStatus().getMachineCoord().getPositionIn(UnitUtils.Units.MM).get(axis) + controller.getFirmwareSettings().getSoftLimit(axis);
+        } catch (FirmwareSettingsException e) {
+            LOGGER.log(Level.WARNING, "Could not retrieve settings from the controller", e);
+            return 0;
         }
     }
 }

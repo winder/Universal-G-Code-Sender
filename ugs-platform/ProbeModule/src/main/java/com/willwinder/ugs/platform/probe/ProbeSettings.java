@@ -48,6 +48,7 @@ public class ProbeSettings {
     public static final String SETTINGS_WORK_COORDINATE_SYSTEM = "settingsWorkCoordinateSystem";
     public static final String SETTINGS_UNITS = "settingsUnits";
     public static final String SELECTED_TAB_INDEX = "selectedTabIndex";
+    public static final String SETTINGS_COMPENSATE_FOR_SOFT_LIMITS = "settingsCompensateForSoftLimits";
 
     private ProbeSettings() {
     }
@@ -263,5 +264,13 @@ public class ProbeSettings {
 
     public static void setSelectedTabIdx(int selectedTabIdx) {
         preferences.putInt(SELECTED_TAB_INDEX, selectedTabIdx);
+    }
+
+    public static boolean getCompensateForSoftLimits() {
+        return Boolean.parseBoolean(preferences.get(SETTINGS_COMPENSATE_FOR_SOFT_LIMITS, Boolean.TRUE.toString()));
+    }
+
+    public static void setCompensateForSoftLimits(boolean compensateForSoftLimits) {
+        preferences.put(SETTINGS_COMPENSATE_FOR_SOFT_LIMITS, Boolean.toString(compensateForSoftLimits));
     }
 }

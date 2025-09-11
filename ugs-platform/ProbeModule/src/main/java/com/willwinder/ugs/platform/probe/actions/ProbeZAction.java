@@ -22,14 +22,20 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.platform.probe.ProbeParameters;
 import com.willwinder.ugs.platform.probe.ProbeService;
 import com.willwinder.ugs.platform.probe.ProbeSettings;
+import static com.willwinder.ugs.platform.probe.ProbeSettings.getCompensateForSoftLimits;
 import com.willwinder.ugs.platform.probe.renderable.ProbePreviewManager;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.utils.ControllerUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
+
+import java.util.logging.Logger;
 
 @ActionID(
         category = LocalizingService.CATEGORY_MACHINE,
@@ -44,6 +50,7 @@ import org.openide.util.Lookup;
                 position = 10)
 })
 public class ProbeZAction extends AbstractProbeAction {
+    private static final Logger LOGGER = Logger.getLogger(ProbeZAction.class.getName());
 
     public static final String BASE_ICON = "com/willwinder/ugs/platform/probe/icons/zprobe.svg";
     public static final String BASE_ICON_LARGE = "com/willwinder/ugs/platform/probe/icons/zprobe24.svg";
@@ -58,10 +65,12 @@ public class ProbeZAction extends AbstractProbeAction {
 
     @Override
     public void performProbeAction() {
+        double probeDistance = calculateSafeProbeDistance();
+
         ProbeService probeService = Lookup.getDefault().lookup(ProbeService.class);
         ProbeParameters pc = new ProbeParameters(
                 ProbeSettings.getSettingsProbeDiameter(), getBackend().getMachinePosition(),
-                0., 0., ProbeSettings.getzDistance(),
+                0., 0., probeDistance,
                 0., 0., ProbeSettings.getzOffset(),
                 0.0,
                 ProbeSettings.getSettingsFastFindRate(), ProbeSettings.getSettingsSlowMeasureRate(),
@@ -71,6 +80,38 @@ public class ProbeZAction extends AbstractProbeAction {
         probePreviewManager.updateContext(pc, getBackend().getWorkPosition(), getBackend().getMachinePosition());
 
         probeService.performZProbe(pc);
+    }
+
+    protected double calculateSafeProbeDistance() {
+        if (!getSettingCompensateForSoftLimits()) {
+            return getSettingProbeDistance();
+        }
+
+        double distanceToSoftLimitAfterProbing = getDistanceToSoftLimit();
+        double probeDistance = getSettingProbeDistance() * UnitUtils.scaleUnits(getSettingsUnits(), UnitUtils.Units.MM);
+
+        if (distanceToSoftLimitAfterProbing < 0.0) {
+            LOGGER.info(String.format("Subtracting the soft limit overshoot %fmm from the probe distance %fmm to avoid soft limit alarm", distanceToSoftLimitAfterProbing, probeDistance));
+            probeDistance = probeDistance - distanceToSoftLimitAfterProbing;
+        }
+
+        return probeDistance * UnitUtils.scaleUnits(UnitUtils.Units.MM, getSettingsUnits());
+    }
+
+    protected double getDistanceToSoftLimit() {
+        return ControllerUtils.getDistanceToSoftLimit(getBackend().getController(), Axis.Z) + (getSettingProbeDistance() * UnitUtils.scaleUnits(getSettingsUnits(), UnitUtils.Units.MM));
+    }
+
+    protected boolean getSettingCompensateForSoftLimits() {
+        return getCompensateForSoftLimits();
+    }
+
+    protected UnitUtils.Units getSettingsUnits() {
+        return ProbeSettings.getSettingsUnits();
+    }
+
+    protected double getSettingProbeDistance() {
+        return ProbeSettings.getzDistance();
     }
 
     @Override

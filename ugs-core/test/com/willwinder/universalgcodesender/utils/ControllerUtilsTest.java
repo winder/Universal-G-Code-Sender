@@ -20,9 +20,17 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
+import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import static com.willwinder.universalgcodesender.utils.ControllerUtils.getDistanceToSoftLimit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -70,7 +78,7 @@ public class ControllerUtilsTest {
     }
 
     @Test
-    public void sendAndWaitForCompletionShouldTimeOut() throws Exception {
+    public void sendAndWaitForCompletionShouldTimeOut() {
         IController controller = mock(IController.class);
         GcodeCommand command = new GcodeCommand("blah");
         assertThrows("The command \"blah\" has timed out as it wasn't finished within 100ms", InterruptedException.class, () -> ControllerUtils.sendAndWaitForCompletion(controller, command, 100));
@@ -175,5 +183,69 @@ public class ControllerUtilsTest {
         CommunicatorState communicatorState = ControllerUtils.getCommunicatorState(ControllerState.CHECK, controller, communicator);
 
         assertEquals(CommunicatorState.COMM_SENDING_PAUSED, communicatorState);
+    }
+
+    @Test
+    public void getDistanceToSoftLimitShouldReturnZeroIfSoftLimitsDisabled() throws FirmwareSettingsException {
+        IController controller = mock(IController.class);
+        IFirmwareSettings firmwareSettings = mock(IFirmwareSettings.class);
+
+        when(controller.getFirmwareSettings()).thenReturn(firmwareSettings);
+        when(firmwareSettings.isSoftLimitsEnabled()).thenReturn(false);
+
+        assertEquals(0.0, getDistanceToSoftLimit(controller, Axis.Z), 0.1);
+    }
+
+    @Test
+    public void getDistanceToSoftLimitShouldReturnThePositiveDistanceToTheSoftLimits() throws FirmwareSettingsException {
+        IController controller = mock(IController.class);
+        IFirmwareSettings firmwareSettings = mock(IFirmwareSettings.class);
+        ControllerStatus controllerStatus = ControllerStatusBuilder.newInstance().setMachineCoord(new Position(10, 10, 10, UnitUtils.Units.MM)).build();
+
+        when(controller.getFirmwareSettings()).thenReturn(firmwareSettings);
+        when(firmwareSettings.isSoftLimitsEnabled()).thenReturn(true);
+        when(controller.getControllerStatus()).thenReturn(controllerStatus);
+        when(firmwareSettings.getSoftLimit(Axis.Z)).thenReturn(10.0);
+
+        assertEquals(20.0, getDistanceToSoftLimit(controller, Axis.Z), 0.1);
+    }
+
+    @Test
+    public void getDistanceToSoftLimitShouldReturnTheNegativeDistanceToTheSoftLimits() throws FirmwareSettingsException {
+        IController controller = mock(IController.class);
+        IFirmwareSettings firmwareSettings = mock(IFirmwareSettings.class);
+        ControllerStatus controllerStatus = ControllerStatusBuilder.newInstance().setMachineCoord(new Position(10, 10, -20, UnitUtils.Units.MM)).build();
+
+        when(controller.getFirmwareSettings()).thenReturn(firmwareSettings);
+        when(firmwareSettings.isSoftLimitsEnabled()).thenReturn(true);
+        when(controller.getControllerStatus()).thenReturn(controllerStatus);
+        when(firmwareSettings.getSoftLimit(Axis.Z)).thenReturn(10.0);
+
+        assertEquals(-10.0, getDistanceToSoftLimit(controller, Axis.Z), 0.1);
+    }
+
+    @Test
+    public void getDistanceToSoftLimitShouldReturnConvertPositionsGivenInInches() throws FirmwareSettingsException {
+        IController controller = mock(IController.class);
+        IFirmwareSettings firmwareSettings = mock(IFirmwareSettings.class);
+        ControllerStatus controllerStatus = ControllerStatusBuilder.newInstance().setMachineCoord(new Position(1, 1, -1, UnitUtils.Units.INCH)).build();
+
+        when(controller.getFirmwareSettings()).thenReturn(firmwareSettings);
+        when(firmwareSettings.isSoftLimitsEnabled()).thenReturn(true);
+        when(controller.getControllerStatus()).thenReturn(controllerStatus);
+        when(firmwareSettings.getSoftLimit(Axis.Z)).thenReturn(10.0);
+
+        assertEquals(-15.4, getDistanceToSoftLimit(controller, Axis.Z), 0.1);
+    }
+
+    @Test
+    public void getDistanceToSoftLimitShouldReturnZeroOnFirmwareSettingsExceptions() throws FirmwareSettingsException {
+        IController controller = mock(IController.class);
+        IFirmwareSettings firmwareSettings = mock(IFirmwareSettings.class);
+
+        when(controller.getFirmwareSettings()).thenReturn(firmwareSettings);
+        when(firmwareSettings.isSoftLimitsEnabled()).thenThrow(new FirmwareSettingsException("An error!"));
+
+        assertEquals(0, getDistanceToSoftLimit(controller, Axis.Z), 0.1);
     }
 }
