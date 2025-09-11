@@ -42,12 +42,12 @@ import org.openide.text.DataEditorSupport;
 import org.openide.windows.TopComponent;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.io.File;
 import java.io.Serial;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
 
 /**
  * A designer component for editing vector graphics that will be converted to gcode.
@@ -150,7 +150,7 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     protected void componentClosed() {
         super.componentClosed();
         controller.getUndoManager().removeListener(this);
-        controller.release();
+        controller.newDrawing();
         try {
             backend.removeUGSEventListener(this);
             backend.unsetGcodeFile();
@@ -168,8 +168,8 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
     @Override
     protected void componentShowing() {
         super.componentShowing();
-        PlatformUtils.openSettings(controller);
-        PlatformUtils.openEntitesTree(controller);
+        PlatformUtils.openSettings();
+        PlatformUtils.openEntitesTree();
     }
 
 
@@ -180,17 +180,15 @@ public class DesignerTopComponent extends TopComponent implements UndoManagerLis
 
     @Override
     public void onChanged() {
-        SwingUtilities.invokeLater(() -> {        
-            dataObject.setModified(true);
-        });
+        SwingUtilities.invokeLater(() -> dataObject.setModified(true));
     }
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
         SwingUtilities.invokeLater(() -> {
             controller.getDrawing().repaint();
-            PlatformUtils.openSettings(controller);
-            PlatformUtils.openEntitesTree(controller);            
+            PlatformUtils.openSettings();
+            PlatformUtils.openEntitesTree();
             requestActive();
         });
     }
