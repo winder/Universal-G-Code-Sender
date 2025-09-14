@@ -22,8 +22,8 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.platform.probe.ProbeParameters;
 import com.willwinder.ugs.platform.probe.ProbeService;
 import com.willwinder.ugs.platform.probe.ProbeSettings;
-import static com.willwinder.ugs.platform.probe.ProbeSettings.getCompensateForSoftLimits;
 import com.willwinder.ugs.platform.probe.renderable.ProbePreviewManager;
+import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -83,7 +83,7 @@ public class ProbeZAction extends AbstractProbeAction {
     }
 
     protected double calculateSafeProbeDistance() {
-        if (!getSettingCompensateForSoftLimits()) {
+        if (!shouldCompensateForSoftLimits()) {
             return getSettingProbeDistance();
         }
 
@@ -102,8 +102,12 @@ public class ProbeZAction extends AbstractProbeAction {
         return ControllerUtils.getDistanceToSoftLimit(getBackend().getController(), Axis.Z) + (getSettingProbeDistance() * UnitUtils.scaleUnits(getSettingsUnits(), UnitUtils.Units.MM));
     }
 
-    protected boolean getSettingCompensateForSoftLimits() {
-        return getCompensateForSoftLimits();
+    protected boolean shouldCompensateForSoftLimits() {
+        try {
+            return getSettingsCompensateForSoftLimits() && getBackend().getController().getFirmwareSettings().isSoftLimitsEnabled();
+        } catch (FirmwareSettingsException e) {
+            return false;
+        }
     }
 
     protected UnitUtils.Units getSettingsUnits() {
@@ -112,6 +116,10 @@ public class ProbeZAction extends AbstractProbeAction {
 
     protected double getSettingProbeDistance() {
         return ProbeSettings.getzDistance();
+    }
+
+    protected boolean getSettingsCompensateForSoftLimits() {
+        return ProbeSettings.getCompensateForSoftLimits();
     }
 
     @Override
