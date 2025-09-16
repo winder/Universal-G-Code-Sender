@@ -18,13 +18,26 @@
  */
 package com.willwinder.universalgcodesender.fx.service;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.fx.actions.Action;
 import com.willwinder.universalgcodesender.fx.actions.MacroAction;
-import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.fx.model.MacroAdapter;
+import javafx.collections.ListChangeListener;
 
+import java.util.List;
+
+/**
+ * Registers macros as actions and keep them updated
+ *
+ * @author Joacim Breiler
+ */
 public class MacroActionService {
     public static void registerMacros() {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backend.getSettings().getMacros().forEach(macro -> ActionRegistry.getInstance().registerAction(new MacroAction(macro)));
+        MacroRegistry.getInstance().getMacros().addListener((ListChangeListener<MacroAdapter>) c -> {
+            List<Action> allActionsOfClass = ActionRegistry.getInstance().getAllActionsOfClass(MacroAction.class);
+            ActionRegistry.getInstance().unregisterActions(allActionsOfClass);
+            MacroRegistry.getInstance().getMacros().forEach(macro -> ActionRegistry.getInstance().registerAction(new MacroAction(macro)));
+        });
+
+        MacroRegistry.getInstance().getMacros().forEach(macro -> ActionRegistry.getInstance().registerAction(new MacroAction(macro)));
     }
 }

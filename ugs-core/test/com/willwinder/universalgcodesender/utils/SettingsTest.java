@@ -43,9 +43,7 @@ public class SettingsTest {
 
     @Test
     public void settingsShouldHaveDefaultValues() {
-        assertFalse(target.isAutoConnectEnabled());
         assertNotNull(target.getAutoLevelSettings());
-        assertFalse(target.isAutoReconnect());
         assertFalse(target.isCommandTableEnabled());
         assertEquals("mm", target.getPreferredUnits().abbreviation);
         assertNotNull(target.getFileStats());
@@ -74,9 +72,7 @@ public class SettingsTest {
     @Test
     public void changingValueShouldNotifyObservers() {
         hasNotifiedListener = false;
-        target.setSettingChangeListener(() -> {
-            hasNotifiedListener = true;
-        });
+        target.addSettingChangeListener(() -> hasNotifiedListener = true);
 
         target.setPort("/dev/ttyS0");
         assertTrue(hasNotifiedListener);

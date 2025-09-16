@@ -229,7 +229,7 @@ public class GUIBackend implements BackendAPI {
     public void applySettings(Settings settings) throws Exception {
         logger.log(Level.INFO, "Applying settings.");
         this.settings = settings;
-        this.settings.setSettingChangeListener(eventDispatcher);
+        this.settings.addSettingChangeListener(eventDispatcher);
         if (this.controller != null) {
             applySettingsToController(this.settings, this.controller);
         }

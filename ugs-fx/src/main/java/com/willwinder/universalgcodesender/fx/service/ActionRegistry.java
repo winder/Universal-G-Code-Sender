@@ -22,15 +22,15 @@ import com.willwinder.universalgcodesender.fx.actions.Action;
 import com.willwinder.universalgcodesender.fx.actions.ActionAdapter;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -39,14 +39,14 @@ import java.util.stream.Collectors;
  */
 public class ActionRegistry {
     private static ActionRegistry instance;
-    private static final Map<String, Action> actions = new ConcurrentHashMap<>();
+    private final ObservableMap<String, Action> actions = FXCollections.observableHashMap();
 
     public ActionRegistry() {
         loadActionsFromAnnotation();
         loadActionsOfClass();
     }
 
-    private static void loadActionsOfClass() {
+    private void loadActionsOfClass() {
 
         try (ScanResult scanResult = new ClassGraph()
                 .enableAllInfo() // Enables annotation and class scanning
@@ -76,7 +76,7 @@ public class ActionRegistry {
         }
     }
 
-    private static void loadActionsFromAnnotation() {
+    private void loadActionsFromAnnotation() {
         String annotationName = com.willwinder.universalgcodesender.actions.Action.class.getCanonicalName();
         try (ScanResult scanResult = new ClassGraph()
                 .enableAllInfo() // Enables annotation and class scanning
@@ -123,5 +123,9 @@ public class ActionRegistry {
                 .stream()
                 .filter(action -> clazz.isAssignableFrom(action.getClass()))
                 .collect(Collectors.toList());
+    }
+
+    public void unregisterActions(List<Action> allActionsOfClass) {
+        allActionsOfClass.forEach(action -> actions.remove(action.getId()));
     }
 }

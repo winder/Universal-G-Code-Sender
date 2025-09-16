@@ -29,7 +29,6 @@ import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.scene.Node;
 import javafx.stage.Window;
 import org.apache.commons.lang3.StringUtils;
 
@@ -66,10 +65,16 @@ public class ConnectDisconnectAction extends BaseAction {
     @Override
     public void handleAction(ActionEvent event) {
         if (backend.getControllerState() == ControllerState.DISCONNECTED) {
-            // Connect modal
-            Window window = ((Node) event.getSource()).getScene().getWindow();
-            ConnectStage connectModal = new ConnectStage(window);
-            connectModal.showAndWait();
+            Platform.runLater(() -> {
+                // Connect modal
+                Window window = Window.getWindows()
+                        .stream()
+                        .filter(Window::isShowing)
+                        .findFirst()
+                        .orElse(null);
+                ConnectStage connectModal = new ConnectStage(window);
+                connectModal.showAndWait();
+            });
         } else {
             try {
                 backend.disconnect();

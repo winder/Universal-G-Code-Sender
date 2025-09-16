@@ -25,6 +25,7 @@
 
 .button:hover,
 .combo-box .list-cell:hover,
+.combo-box .list-cell:selected:hover,
 .toggle-button:hover {
     -fx-background-color: rgb(189, 205, 214);
 }
