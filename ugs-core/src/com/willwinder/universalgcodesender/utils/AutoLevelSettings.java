@@ -4,6 +4,8 @@ import com.willwinder.universalgcodesender.model.Position;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AutoLevelSettings implements Serializable {
 
@@ -42,7 +44,7 @@ public class AutoLevelSettings implements Serializable {
     private double zSurface = 0;
 
     private boolean applyToGcode = true;
-    private transient SettingChangeListener settingChangeListener;
+    private transient final Set<SettingChangeListener> settingChangeListeners = ConcurrentHashMap.newKeySet();
 
     public AutoLevelSettings() {
     }
@@ -56,13 +58,11 @@ public class AutoLevelSettings implements Serializable {
     }
 
     public void setSettingChangeListener(SettingChangeListener settingChangeListener) {
-        this.settingChangeListener = settingChangeListener;
+        settingChangeListeners.add(settingChangeListener);
     }
 
     private void changed() {
-        if (settingChangeListener != null) {
-            settingChangeListener.settingChanged();
-        }
+        settingChangeListeners.forEach(SettingChangeListener::settingChanged);
     }
 
     public double getMinX() {
@@ -262,5 +262,9 @@ public class AutoLevelSettings implements Serializable {
         setMaxX(position.getX());
         setMaxY(position.getY());
         setMaxZ(position.getZ());
+    }
+
+    public void addSettingChangeListener(SettingChangeListener listener) {
+        settingChangeListeners.add(listener);
     }
 }

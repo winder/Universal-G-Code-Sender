@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.fx.service;
 
 import com.willwinder.universalgcodesender.fx.helper.ShortcutConverter;
 import com.willwinder.universalgcodesender.fx.model.ShortcutEvent;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import javafx.scene.Scene;
@@ -97,7 +98,7 @@ public class ShortcutService {
             pressedKeys.add(shortcut);
             ShortcutService.getActionId(shortcut)
                     .flatMap(id -> ActionRegistry.getInstance().getAction(id))
-                    .ifPresent(a -> a.handle(new ShortcutEvent(ShortcutEvent.SHORTCUT_PRESSED)));
+                    .ifPresent(a -> Platform.runLater(() -> a.handle(new ShortcutEvent(ShortcutEvent.SHORTCUT_PRESSED))));
         });
 
         scene.addEventFilter(KEY_RELEASED, e -> {
@@ -108,7 +109,7 @@ public class ShortcutService {
             pressedKeys.remove(shortcut);
             ShortcutService.getActionId(shortcut)
                     .flatMap(id -> ActionRegistry.getInstance().getAction(id))
-                    .ifPresent(a -> a.handle(new ShortcutEvent(ShortcutEvent.SHORTCUT_RELEASED)));
+                    .ifPresent(a -> Platform.runLater(() -> a.handle(new ShortcutEvent(ShortcutEvent.SHORTCUT_RELEASED))));
         });
     }
 }

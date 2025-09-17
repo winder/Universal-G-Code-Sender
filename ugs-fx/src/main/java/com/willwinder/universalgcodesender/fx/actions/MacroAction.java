@@ -20,26 +20,26 @@ package com.willwinder.universalgcodesender.fx.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.MacroHelper;
+import com.willwinder.universalgcodesender.fx.model.MacroAdapter;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
-import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.util.Exceptions;
 
 import java.awt.EventQueue;
 
 public class MacroAction extends BaseAction {
-    private final Macro macro;
+    private final MacroAdapter macro;
     private final BackendAPI backend;
 
-    public MacroAction(Macro macro) {
+    public MacroAction(MacroAdapter macro) {
         this.macro = macro;
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(backend.isConnected() && backend.isIdle());
-        titleProperty().set(macro.getName());
-        labelProperty().set(macro.getName());
+        titleProperty().bind(macro.nameProperty());
+        labelProperty().bind(macro.nameProperty());
     }
 
     private void onEvent(UGSEvent event) {
