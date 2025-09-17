@@ -21,18 +21,21 @@ package com.willwinder.universalgcodesender.fx.stage;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.fx.component.ButtonBox;
+import com.willwinder.universalgcodesender.fx.component.ErrorLabel;
 import com.willwinder.universalgcodesender.fx.component.PortComboBox;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.RefreshThread;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -41,7 +44,11 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class ConnectStage extends Stage {
+    private static final Logger LOGGER = Logger.getLogger(ConnectStage.class.getName());
     private ComboBox<String> connectionDriverCombo;
     private PortComboBox addressCombo;
     private Button connectButton;
@@ -51,6 +58,8 @@ public class ConnectStage extends Stage {
     private ComboBox<String> portRateCombo;
     private Label addressLabel;
     private Label portRateLabel;
+    private ErrorLabel errorLabel;
+    private TitledPane advancedPane;
 
     public ConnectStage(Window owner) {
         initModality(Modality.APPLICATION_MODAL);
@@ -75,7 +84,6 @@ public class ConnectStage extends Stage {
             updatePortRateLabel();
         });
 
-
         portRateCombo.getSelectionModel().select(backend.getSettings().getPortRate());
         portRateCombo.valueProperty().addListener((observable, oldValue, newValue) -> backend.getSettings().setPortRate(newValue));
 
@@ -98,24 +106,30 @@ public class ConnectStage extends Stage {
     }
 
     private void onConnect() {
-        try {
-            backend.connect(firmwareCombo.getSelectionModel().getSelectedItem(), addressCombo.getSelectionModel().getSelectedItem().getAddress(), Integer.parseInt(portRateCombo.getSelectionModel().getSelectedItem()));
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        } finally {
-            close();
-        }
+        Platform.runLater(() -> {
+            try {
+                LOGGER.info(String.format("Attempting to connect to %s on %s:%s", backend.getSettings().getFirmwareVersion(), backend.getSettings().getPort(), Integer.parseInt(backend.getSettings().getPortRate())));
+                errorLabel.setVisible(false);
+                advancedPane.setExpanded(false);
+                connectButton.setDisable(true);
+                backend.connect(backend.getSettings().getFirmwareVersion(), backend.getSettings().getPort(), Integer.parseInt(backend.getSettings().getPortRate()));
+                close();
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, "Could not connect", ex);
+                connectButton.setDisable(false);
+                errorLabel.setText(ex.getMessage());
+                errorLabel.setVisible(true);
+            }
+        });
     }
 
     private void createLayout() {
         GridPane grid = new GridPane();
-
         ColumnConstraints column1 = new ColumnConstraints();
         column1.setMinWidth(100);
         grid.getColumnConstraints().add(column1);
 
         ColumnConstraints column2 = new ColumnConstraints();
-        column2.setMaxWidth(200);
         column2.setHgrow(Priority.ALWAYS);
         grid.getColumnConstraints().add(column2);
 
@@ -128,20 +142,16 @@ public class ConnectStage extends Stage {
         GridPane.setHgrow(firmwareCombo, Priority.ALWAYS);
         firmwareCombo.setMaxWidth(Double.MAX_VALUE);
 
-        grid.add(new Label(Localization.getString("settings.connectionDriver")), 0, 1);
-        grid.add(connectionDriverCombo, 1, 1);
-        GridPane.setHgrow(connectionDriverCombo, Priority.ALWAYS);
-        connectionDriverCombo.setMaxWidth(Double.MAX_VALUE);
-
         grid.add(addressLabel, 0, 2);
         grid.add(addressCombo, 1, 2);
         GridPane.setHgrow(addressCombo, Priority.ALWAYS);
         addressCombo.setMaxWidth(Double.MAX_VALUE);
 
-        grid.add(portRateLabel, 0, 3);
-        grid.add(portRateCombo, 1, 3);
-        GridPane.setHgrow(portRateCombo, Priority.ALWAYS);
-        portRateCombo.setMaxWidth(Double.MAX_VALUE);
+        advancedPane = getAdvancedSettings();
+        GridPane.setMargin(advancedPane, new Insets(12, 0, 0, 0));
+        grid.add(advancedPane, 0, 3, 2, 1);
+
+        grid.add(errorLabel, 0, 4, 2, 1);
 
         BorderPane root = new BorderPane();
         root.setCenter(grid);
@@ -154,9 +164,37 @@ public class ConnectStage extends Stage {
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("/styles/root.css").toExternalForm());
         setScene(scene);
-        setWidth(350);
-        setHeight(300);
-        setResizable(false);
+        setWidth(360);
+        setHeight(400);
+        setResizable(true);
+    }
+
+    private TitledPane getAdvancedSettings() {
+        GridPane advancedGrid = new GridPane();
+        advancedGrid.setHgap(10);
+        advancedGrid.setVgap(12);
+
+        ColumnConstraints column1 = new ColumnConstraints();
+        column1.setMinWidth(120);
+        advancedGrid.getColumnConstraints().add(column1);
+
+        ColumnConstraints column2 = new ColumnConstraints();
+        column2.setHgrow(Priority.ALWAYS);
+        advancedGrid.getColumnConstraints().add(column2);
+
+        advancedGrid.add(new Label(Localization.getString("settings.connectionDriver")), 0, 0);
+        advancedGrid.add(connectionDriverCombo, 1, 0);
+        GridPane.setHgrow(connectionDriverCombo, Priority.ALWAYS);
+        connectionDriverCombo.setMaxWidth(Double.MAX_VALUE);
+
+        advancedGrid.add(portRateLabel, 0, 1);
+        advancedGrid.add(portRateCombo, 1, 1);
+        GridPane.setHgrow(portRateCombo, Priority.ALWAYS);
+        portRateCombo.setMaxWidth(Double.MAX_VALUE);
+
+        TitledPane advancedPane = new TitledPane(Localization.getString("settings.advanced"), advancedGrid);
+        advancedPane.setExpanded(false);
+        return advancedPane;
     }
 
     private void createComponents() {
@@ -171,9 +209,12 @@ public class ConnectStage extends Stage {
         portRateLabel = new Label();
         portRateLabel.setLabelFor(portRateCombo);
 
-        connectButton = new Button("Connect");
+        connectButton = new Button(Localization.getString("mainWindow.ui.connect"));
         connectButton.setDefaultButton(true);
-        closeButton = new Button("Close");
+        closeButton = new Button(Localization.getString("close"));
+
+        errorLabel = new ErrorLabel("Error");
+        errorLabel.setVisible(false);
 
         updateAddressLabel();
         updatePortRateLabel();

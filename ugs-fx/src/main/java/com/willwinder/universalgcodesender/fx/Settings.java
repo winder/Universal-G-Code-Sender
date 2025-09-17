@@ -15,6 +15,7 @@ public class Settings {
     private static final String WINDOW_DIVIDER_LEFT = "window.dividerLeft";
     private static final String WINDOW_DIVIDER_CONTENT = "window.dividerContent";
     private static final String PENDANT_AUTOSTART = "pendant.autostart";
+    private static final String SHOW_TOOLBAR_TEXT = "window.showToolBarText";
 
     private static final Preferences preferences = Preferences.userNodeForPackage(Settings.class);
     private static Settings instance;
@@ -26,6 +27,7 @@ public class Settings {
     private final DoubleProperty windowDividerLeft = new SimpleDoubleProperty(loadDouble(WINDOW_DIVIDER_LEFT, 0.5));
     private final DoubleProperty windowDividerContent = new SimpleDoubleProperty(loadDouble(WINDOW_DIVIDER_CONTENT, 0.3));
     private final BooleanProperty pendantAutostart = new SimpleBooleanProperty(loadBoolean(PENDANT_AUTOSTART, false));
+    private final BooleanProperty showToolbarText = new SimpleBooleanProperty(loadBoolean(SHOW_TOOLBAR_TEXT, false));
 
     public Settings() {
         windowWidth.addListener((obs, oldVal, newVal) -> saveDouble(WINDOW_WIDTH, newVal.doubleValue()));
@@ -35,6 +37,7 @@ public class Settings {
         windowDividerLeft.addListener((obs, oldVal, newVal) -> saveDouble(WINDOW_DIVIDER_LEFT, newVal.doubleValue()));
         windowDividerContent.addListener((obs, oldVal, newVal) -> saveDouble(WINDOW_DIVIDER_CONTENT, newVal.doubleValue()));
         pendantAutostart.addListener((obs, oldVal, newVal) -> saveBoolean(PENDANT_AUTOSTART, newVal));
+        showToolbarText.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_TOOLBAR_TEXT, newVal));
     }
 
     public static Settings getInstance() {
@@ -71,6 +74,10 @@ public class Settings {
 
     public BooleanProperty pendantAutostartProperty() {
         return pendantAutostart;
+    }
+
+    public BooleanProperty showToolbarTextProperty() {
+        return showToolbarText;
     }
 
     private double loadDouble(String key, double defaultVal) {

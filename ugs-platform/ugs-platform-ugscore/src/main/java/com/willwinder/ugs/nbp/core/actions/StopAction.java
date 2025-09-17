@@ -21,7 +21,6 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.actions.Action;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -33,13 +32,10 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 
-@Action(
-        icon = StopAction.ICON_BASE
-)
 @ActionID(
         category = LocalizingService.StopCategory,
         id = LocalizingService.StopActionId)

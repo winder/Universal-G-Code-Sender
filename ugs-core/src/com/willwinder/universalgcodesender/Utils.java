@@ -37,6 +37,7 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -52,7 +53,6 @@ import java.util.logging.Logger;
 public class Utils {
     public static final NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
     private static final Logger LOGGER = Logger.getLogger(Utils.class.getSimpleName());
-    private static final int MAX_WAIT_TIME_FOR_STATUS_REPORT = 1000;
 
     public static String formattedMillis(long millis) {
         String format = String.format("%%0%dd", 2);
@@ -170,9 +170,10 @@ public class Utils {
      * Creates a temporary listener and waits (for a maximum time) on a new status report
      *
      * @param backend the backend to listen to
+     * @param maxDuration the max time to wait for a status
      * @return the optional status report
      */
-    public static Optional<ControllerStatus> waitForStatusReport(BackendAPI backend) {
+    public static Optional<ControllerStatus> waitForControllerStatus(BackendAPI backend, Duration maxDuration) {
         AtomicReference<ControllerStatus> controllerStatus = new AtomicReference<>();
 
         try {
@@ -185,7 +186,6 @@ public class Utils {
 
                 try {
                     backend.addUGSEventListener(ugsEventListener);
-                    backend.getController().requestStatusReport();
                     while (controllerStatus.get() == null) {
                         try {
                             Thread.sleep(10);
@@ -199,9 +199,9 @@ public class Utils {
                     backend.removeUGSEventListener(ugsEventListener);
                 }
                 return true;
-            }, MAX_WAIT_TIME_FOR_STATUS_REPORT, TimeUnit.MILLISECONDS);
+            }, maxDuration.toMillis(), TimeUnit.MILLISECONDS);
         } catch (TimeoutException ex) {
-            LOGGER.warning("Could not get a status report within " + MAX_WAIT_TIME_FOR_STATUS_REPORT + " ms");
+            LOGGER.warning("Could not get a status report within " + maxDuration.toMillis() + " ms");
         }
 
         return Optional.ofNullable(controllerStatus.get());
