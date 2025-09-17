@@ -18,16 +18,17 @@
  */
 package com.willwinder.universalgcodesender.fx.component.drawer;
 
-import com.willwinder.ugs.nbp.core.actions.PauseAction;
-import com.willwinder.ugs.nbp.core.actions.StopAction;
+
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.fx.actions.Action;
-import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.actions.OpenFileAction;
+import com.willwinder.universalgcodesender.fx.actions.PauseAction;
 import com.willwinder.universalgcodesender.fx.actions.StartAction;
+import com.willwinder.universalgcodesender.fx.actions.StopAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
+import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;

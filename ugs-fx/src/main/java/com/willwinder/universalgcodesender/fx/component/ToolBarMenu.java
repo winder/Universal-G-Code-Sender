@@ -21,35 +21,55 @@ package com.willwinder.universalgcodesender.fx.component;
 import com.willwinder.ugs.nbp.core.actions.HomingAction;
 import com.willwinder.ugs.nbp.core.actions.SoftResetAction;
 import com.willwinder.ugs.nbp.core.actions.UnlockAction;
+import com.willwinder.universalgcodesender.fx.Settings;
 import com.willwinder.universalgcodesender.fx.actions.Action;
 import com.willwinder.universalgcodesender.fx.actions.ConnectDisconnectAction;
+import com.willwinder.universalgcodesender.fx.actions.OpenFileAction;
 import com.willwinder.universalgcodesender.fx.actions.OpenSettingsAction;
+import com.willwinder.universalgcodesender.fx.actions.PauseAction;
+import com.willwinder.universalgcodesender.fx.actions.ReturnToZeroAction;
+import com.willwinder.universalgcodesender.fx.actions.StartAction;
+import com.willwinder.universalgcodesender.fx.actions.StopAction;
 import com.willwinder.universalgcodesender.fx.actions.ToggleMachineVisualizationAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import com.willwinder.universalgcodesender.fx.control.ToggleActionButton;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.ButtonBase;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextAlignment;
 
 import java.util.List;
 import java.util.Optional;
 
 public class ToolBarMenu extends VBox {
+
+    private static final int BUTTON_WIDTH = 110;
+
     public ToolBarMenu() {
         getStylesheets().add(getClass().getResource("/styles/toolbar-button.css").toExternalForm());
 
         List<Node> children = getChildren();
         createButton(ConnectDisconnectAction.class).ifPresent(children::add);
         children.add(new Separator());
+        createButton(OpenFileAction.class).ifPresent(children::add);
+        children.add(new Separator());
+        createButton(StartAction.class).ifPresent(children::add);
+        createButton(PauseAction.class).ifPresent(children::add);
+        createButton(StopAction.class).ifPresent(children::add);
+        children.add(new Separator());
         createButton(UnlockAction.class).ifPresent(children::add);
         createButton(SoftResetAction.class).ifPresent(children::add);
         createButton(HomingAction.class).ifPresent(children::add);
-
+        children.add(new Separator());
+        createButton(ReturnToZeroAction.class).ifPresent(children::add);
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         children.add(spacer);
@@ -70,10 +90,17 @@ public class ToolBarMenu extends VBox {
                 .getAction(actionClass.getCanonicalName())
                 .map(action -> {
                     ActionButton actionButton = new ActionButton(action, ActionButton.SIZE_NORMAL);
-                    actionButton.setShowText(false);
-                    actionButton.getStyleClass().add("toolbar-button");
+                    setButtonProperties(actionButton);
+                    setShowText(actionButton);
+                    Settings.getInstance().showToolbarTextProperty().addListener(event -> setShowText(actionButton));
                     return actionButton;
                 });
+    }
+
+    private static void setShowText(ActionButton actionButton) {
+        boolean showText = Settings.getInstance().showToolbarTextProperty().get();
+        actionButton.setPrefWidth(showText ? BUTTON_WIDTH : ActionButton.USE_COMPUTED_SIZE);
+        actionButton.setShowText(showText);
     }
 
     private Optional<Node> createToggleButton(Class<? extends Action> actionClass) {
@@ -82,9 +109,24 @@ public class ToolBarMenu extends VBox {
                 .getAction(actionClass.getCanonicalName())
                 .map(action -> {
                     ToggleActionButton actionButton = new ToggleActionButton(action, ActionButton.SIZE_NORMAL, false);
-                    actionButton.setShowText(false);
-                    actionButton.getStyleClass().add("toolbar-button");
+                    setButtonProperties(actionButton);
+                    setShowText(actionButton);
+                    Settings.getInstance().showToolbarTextProperty().addListener(event -> setShowText(actionButton));
                     return actionButton;
                 });
+    }
+
+    private static void setButtonProperties(ButtonBase actionButton) {
+        actionButton.setContentDisplay(ContentDisplay.TOP);
+        actionButton.setTextAlignment(TextAlignment.CENTER);
+        actionButton.setAlignment(Pos.CENTER);
+        actionButton.setPrefWidth(BUTTON_WIDTH);
+        actionButton.getStyleClass().add("toolbar-button");
+    }
+
+    private static void setShowText(ToggleActionButton actionButton) {
+        boolean showText = Settings.getInstance().showToolbarTextProperty().get();
+        actionButton.setPrefWidth(showText ? BUTTON_WIDTH : ActionButton.USE_COMPUTED_SIZE);
+        actionButton.setShowText(showText);
     }
 }

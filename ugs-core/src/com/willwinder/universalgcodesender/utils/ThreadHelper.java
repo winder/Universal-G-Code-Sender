@@ -78,7 +78,7 @@ public class ThreadHelper {
      * @param units             the unit of the timeout value
      * @throws TimeoutException if a timeout has occured
      */
-    static public void waitUntil(final BooleanSupplier waitUntilSupplier, int timeout, TimeUnit units) throws TimeoutException {
+    static public void waitUntil(final BooleanSupplier waitUntilSupplier, long timeout, TimeUnit units) throws TimeoutException {
         try {
             scheduledExecutor.submit(() -> {
                 while (!waitUntilSupplier.getAsBoolean()) {
