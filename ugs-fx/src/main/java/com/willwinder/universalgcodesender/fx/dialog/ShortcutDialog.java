@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.fx.stage;
+package com.willwinder.universalgcodesender.fx.dialog;
 
 import com.willwinder.universalgcodesender.fx.actions.Action;
 import com.willwinder.universalgcodesender.fx.component.ButtonBox;
@@ -32,22 +32,21 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import java.util.Objects;
 import java.util.Optional;
 
-public class ShortcutDialog {
+public class ShortcutDialog extends Stage {
 
-    private final Stage dialog;
     private final Label shortcutLabel = new Label();
     private final Button acceptButton = new Button("Accept");
 
     private String newShortcut = null;
 
     public ShortcutDialog(Window parent, Action action) {
-        dialog = new Stage();
-        dialog.initOwner(parent);
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setAlwaysOnTop(true);
-        dialog.setTitle("Set Shortcut");
+        initOwner(parent);
+        initModality(Modality.APPLICATION_MODAL);
+        setAlwaysOnTop(true);
+        setTitle("Set Shortcut");
 
         Label instruction = new Label("Press the new shortcut...");
         Optional<String> currentShortcut = ShortcutService.getShortcut(action.getId());
@@ -72,7 +71,7 @@ public class ShortcutDialog {
         root.setBottom(buttonBar);
 
         Scene scene = new Scene(root, 300, 150);
-        scene.getStylesheets().add(getClass().getResource("/styles/root.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/root.css")).toExternalForm());
 
         // Capture key presses and update label
         scene.setOnKeyPressed(e -> {
@@ -94,7 +93,7 @@ public class ShortcutDialog {
             if (newShortcut != null && !newShortcut.isBlank()) {
                 ShortcutService.setShortcut(action.getId(), newShortcut);
             }
-            dialog.close();
+            close();
         });
 
         clearButton.setOnAction(e -> {
@@ -104,24 +103,18 @@ public class ShortcutDialog {
             ShortcutService.removeShortcut(action.getId());
         });
 
-        dialog.setScene(scene);
+        setScene(scene);
 
-        dialog.setOnShown(e -> {
-            Window owner = dialog.getOwner();
+        setOnShown(e -> {
+            Window owner = getOwner();
             if (owner != null) {
                 double centerX = owner.getX() + owner.getWidth() / 2;
                 double centerY = owner.getY() + owner.getHeight() / 2;
 
-                dialog.setX(centerX - dialog.getWidth() / 2);
-                dialog.setY(centerY - dialog.getHeight() / 2);
+                setX(centerX - getWidth() / 2);
+                setY(centerY - getHeight() / 2);
             }
         });
     }
 
-    /**
-     * Shows the dialog and waits for it to be closed.
-     */
-    public void showAndWait() {
-        dialog.showAndWait();
-    }
 }
