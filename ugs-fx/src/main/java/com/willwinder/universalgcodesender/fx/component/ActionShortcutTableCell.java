@@ -20,7 +20,7 @@ package com.willwinder.universalgcodesender.fx.component;
 
 import com.willwinder.universalgcodesender.fx.actions.Action;
 import com.willwinder.universalgcodesender.fx.service.ShortcutService;
-import com.willwinder.universalgcodesender.fx.stage.ShortcutDialog;
+import com.willwinder.universalgcodesender.fx.dialog.ShortcutDialog;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;

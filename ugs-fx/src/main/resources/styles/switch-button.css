@@ -1,0 +1,24 @@
+.switch-button {
+    -fx-background-color: #ccc;
+    -fx-background-radius: 15;
+    -fx-padding: 2 25 2 2;
+    -fx-cursor: hand;
+    -fx-min-width: 25;
+    -fx-min-height: 20;
+    -fx-alignment: center-left;
+    -fx-text-fill: transparent; /* hide text */
+    -fx-border-radius: 15;
+}
+
+.switch-button:selected {
+    -fx-background-color: #00C900FF; /* green */
+    -fx-padding: 2 2 2 25;
+    -fx-alignment: center-right;
+}
+
+.switch-button .thumb {
+    -fx-background-color: white;
+    -fx-background-radius: 50%;
+    -fx-min-width: 15;
+    -fx-min-height: 15;
+}

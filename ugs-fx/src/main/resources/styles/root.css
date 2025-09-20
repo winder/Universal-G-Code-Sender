@@ -145,3 +145,7 @@
     -fx-border-width: 1px 0 0 0;
     -fx-padding: 10;
 }
+
+.tooltip {
+    -fx-font-size: 14px;
+}

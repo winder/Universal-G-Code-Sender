@@ -7,6 +7,7 @@ import com.willwinder.universalgcodesender.fx.component.settings.KeyboardSetting
 import com.willwinder.universalgcodesender.fx.component.settings.MachineStatusSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.MacroSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.PendantSettingsPane;
+import com.willwinder.universalgcodesender.fx.component.settings.ProcessorConfigPane;
 import com.willwinder.universalgcodesender.fx.component.settings.TerminalSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.VisualizerSettingsPane;
 import com.willwinder.universalgcodesender.fx.model.SettingsListItem;
@@ -22,6 +23,8 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+
+import java.util.Objects;
 
 public class SettingsStage extends Stage {
 
@@ -42,7 +45,7 @@ public class SettingsStage extends Stage {
         });
 
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/styles/settings.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/settings.css")).toExternalForm());
         setScene(scene);
         setWidth(800);
         setHeight(600);
@@ -64,6 +67,7 @@ public class SettingsStage extends Stage {
         sectionList.getItems().add(new SettingsListItem(Localization.getString("mainWindow.swing.pendant"), "resources/icons/pendant.svg", new PendantSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.keyboard"), "icons/shortcut.svg", new KeyboardSettingPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("platform.window.visualizer"), "icons/cube.svg", new VisualizerSettingsPane()));
+        sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.processor"), "icons/scroll.svg", new ProcessorConfigPane()));
         sectionList.setCellFactory(listView -> new SettingsListCell());
         sectionList.getSelectionModel().select(0);
         sectionList.setPrefWidth(200);
