@@ -106,7 +106,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     }
 
     @Override
-    public void UGSEvent(UGSEvent evt) {
+    public void UGSEvent(UGSEvent evt) {    
         if (evt instanceof ControllerStatusEvent) {
             probePreviewManager.updateSettings();
 
