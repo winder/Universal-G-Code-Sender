@@ -205,28 +205,19 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
         targetDepthLabel = createAndAddLabel(EntitySetting.TARGET_DEPTH);
         targetDepthSpinner = new UnitSpinner(0, TextFieldUnit.MM, -10000d, 10000d, 0.1d);
+        targetDepthSpinner.setPreferredSize(targetDepthSpinner.getPreferredSize());
+        fieldEventDispatcher.registerListener(EntitySetting.TARGET_DEPTH, targetDepthSpinner);
+        add(targetDepthSpinner, FIELD_CONSTRAINTS + ", spanx");
 
-        targetDepthSpinner.setPreferredSize(targetDepthSpinner.getPreferredSize());
-        fieldEventDispatcher.registerListener(EntitySetting.TARGET_DEPTH, targetDepthSpinner);
-        add(targetDepthSpinner, FIELD_CONSTRAINTS + ", spanx");
-        setEnabled(false);
-        
-        targetDepthSpinner.setPreferredSize(targetDepthSpinner.getPreferredSize());
-        fieldEventDispatcher.registerListener(EntitySetting.TARGET_DEPTH, targetDepthSpinner);
-        add(targetDepthSpinner, FIELD_CONSTRAINTS + ", spanx");
-        setEnabled(false);
-        
         includeInExport = new JCheckBox();
         includeInExport.setSelected(true);
         fieldEventDispatcher.registerListener(EntitySetting.INCLUDE_IN_EXPORT, includeInExport);
         includeInExportLabel = createAndAddLabel(EntitySetting.INCLUDE_IN_EXPORT);
         add(includeInExport, FIELD_CONSTRAINTS + ", spanx");
-        
     }
     private JLabel includeInExportLabel;
-    
     private JCheckBox includeInExport;
-    
+
     private void setController(Controller controller) {
         this.controller = controller;
         this.controller.getSelectionManager().addSelectionListener(this);
@@ -253,6 +244,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         add(fontDropDown, FIELD_CONSTRAINTS + ", spanx");
 
         fontSeparator = new JSeparator(SwingConstants.HORIZONTAL);
+
         fontSeparator.setVisible(false);
         add(fontSeparator, "hmin 2, grow, spanx, wrap");
     }

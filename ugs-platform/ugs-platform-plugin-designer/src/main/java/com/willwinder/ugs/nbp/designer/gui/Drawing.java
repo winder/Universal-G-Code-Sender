@@ -23,9 +23,9 @@ import com.willwinder.ugs.nbp.designer.Throttler;
 import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
-import com.willwinder.ugs.nbp.designer.entities.controls.AbstractControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
 import com.willwinder.ugs.nbp.designer.entities.controls.CreateEllipseControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.CreateOffsetControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.CreatePointControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.CreateRectangleControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.CreateTextControl;
@@ -114,6 +114,7 @@ public class Drawing extends JPanel implements ISnapToGridListener {
         controlsRoot.addChild(new CreatePointControl(controller));
         controlsRoot.addChild(new CreateRectangleControl(controller));
         controlsRoot.addChild(new CreateEllipseControl(controller));
+        //controlsRoot.addChild(new CreateOffsetControl(controller));
         controlsRoot.addChild(new CreateTextControl(controller));
         controlsRoot.addChild(new EditTextControl(controller));
         controlsRoot.addChild(new ZoomControl(controller));
