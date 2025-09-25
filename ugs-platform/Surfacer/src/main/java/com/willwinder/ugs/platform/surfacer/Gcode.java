@@ -26,8 +26,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -39,8 +41,8 @@ public class Gcode {
     private static final int SPINUP_DELAY_SEC = 2;
     private static final int COMMENT_POSITION = 26;
     
-    private final DecimalFormat DF = new DecimalFormat("0.#####");
-    
+    private final DecimalFormat DF = (DecimalFormat)NumberFormat.getNumberInstance(Locale.US);
+        
     private Prefs prefs;
     private BackendAPI backend;
     private File file = null;
@@ -52,6 +54,7 @@ public class Gcode {
     public void init(Prefs prefs, BackendAPI backend) {
         this.prefs = Objects.requireNonNull(prefs);
         this.backend = Objects.requireNonNull(backend);
+        this.DF.applyPattern("0.#####");
     }
 
     public File getFile() { return file; }
@@ -91,7 +94,7 @@ public class Gcode {
     private boolean isMM() { return units == TextFieldUnit.MM; }
     private double prefConv(double value) { return isMM() ? value : value / 25.4; }
     private String prefUnits(double value) {
-        return String.format("%s %s", DF.format(prefConv(value)), isMM() ? "mm" : "in");
+        return String.format(Locale.US, "%s %s", DF.format(prefConv(value)), isMM() ? "mm" : "in");
     }
 
     private void beginGcode(List<String> lines) {
@@ -99,26 +102,26 @@ public class Gcode {
         addGLine(lines, "G90", "absolute coordinates");
         addGLine(lines, "G94", "units per minute feedrates");
         lines.add("");
-        lines.add(String.format("; Tool diameter: %s", prefUnits(prefs.toolDiameter())));
-        lines.add(String.format("; Spindle speed: %.0f rpm", prefs.spindleSpeed()));
-        lines.add(String.format("; Overlap      : %.0f%%", prefs.overlap()*100));
-        lines.add(String.format("; X0, Y0       : %s, %s", prefUnits(prefs.x0()), prefUnits(prefs.y0())));
-        lines.add(String.format("; X1, Y1       : %s, %s", prefUnits(prefs.x1()), prefUnits(prefs.y1())));
-        lines.add(String.format("; XY feedrate  : %s/min", prefUnits(prefs.xyFeedrate())));
-        lines.add(String.format("; Depth        : %s", prefUnits(prefs.depth())));
-        lines.add(String.format("; Cut step     : %s", prefUnits(prefs.cutStep())));
-        lines.add(String.format("; Plunge rate  : %s/min", prefUnits(prefs.plungeRate())));
+        lines.add(String.format(Locale.US, "; Tool diameter: %s", prefUnits(prefs.toolDiameter())));
+        lines.add(String.format(Locale.US, "; Spindle speed: %.0f rpm", prefs.spindleSpeed()));
+        lines.add(String.format(Locale.US, "; Overlap      : %.0f%%", prefs.overlap()*100));
+        lines.add(String.format(Locale.US, "; X0, Y0       : %s, %s", prefUnits(prefs.x0()), prefUnits(prefs.y0())));
+        lines.add(String.format(Locale.US, "; X1, Y1       : %s, %s", prefUnits(prefs.x1()), prefUnits(prefs.y1())));
+        lines.add(String.format(Locale.US, "; XY feedrate  : %s/min", prefUnits(prefs.xyFeedrate())));
+        lines.add(String.format(Locale.US, "; Depth        : %s", prefUnits(prefs.depth())));
+        lines.add(String.format(Locale.US, "; Cut step     : %s", prefUnits(prefs.cutStep())));
+        lines.add(String.format(Locale.US, "; Plunge rate  : %s/min", prefUnits(prefs.plungeRate())));
         lines.add("");
         addZLine(lines, "G0", prefs.zSafe());
         addSLine(lines, "M3", prefs.spindleSpeed(), "start spindle");
-        addPLine(lines, "G4", SPINUP_DELAY_SEC, String.format("%dsec spin-up pause", SPINUP_DELAY_SEC));
+        addPLine(lines, "G4", SPINUP_DELAY_SEC, String.format(Locale.US, "%dsec spin-up pause", SPINUP_DELAY_SEC));
         lines.add("");
     }
 
     private void gcodePath(List<String> lines) {
         List<Point> path;
         switch (prefs.pattern()) {
-            case 1 -> {
+            case Prefs.PATTERNS_SPIRAL -> {
                 path = generatePath.spiralPath();
             }
             default -> path = generatePath.rasterPath();
@@ -145,7 +148,7 @@ public class Gcode {
     }
     
     private void pathToLines(List<Point> path, List<String> lines, double zstart, double zcut, double feedrate) {
-        lines.add(String.format("; %s %s depth pass", DF.format(zcut), isMM() ? "mm" : "in"));
+        lines.add(String.format(Locale.US, "; %s %s depth pass", DF.format(zcut), isMM() ? "mm" : "in"));
         boolean newLine = true, atZstart = false, shorthand = false;
         
         for (Point p: path) {
@@ -190,12 +193,12 @@ public class Gcode {
 
     private String formatLine(String command, Double x, Double y, Double z, Double s, Integer p, Double f, String comment) {
         String out = command;
-        if (x != null) out += String.format(" X%.6f", prefConv(x));
-        if (y != null) out += String.format(" Y%.6f", prefConv(y));
-        if (z != null) out += String.format(" Z%.6f", prefConv(z));
-        if (s != null) out += String.format(" S%.0f", s);
-        if (p != null) out += String.format(" P%d", p);
-        if (f != null) out += String.format(" F%.0f", prefConv(f));
+        if (x != null) out += String.format(Locale.US, " X%.6f", prefConv(x));
+        if (y != null) out += String.format(Locale.US, " Y%.6f", prefConv(y));
+        if (z != null) out += String.format(Locale.US, " Z%.6f", prefConv(z));
+        if (s != null) out += String.format(Locale.US, " S%.0f", s);
+        if (p != null) out += String.format(Locale.US, " P%d", p);
+        if (f != null) out += String.format(Locale.US, " F%.0f", prefConv(f));
         if (comment != null) {
             int pad = COMMENT_POSITION - out.length();
             if (pad > 0) out += " ".repeat(pad);
