@@ -168,72 +168,72 @@ public class FluidNCControllerTest {
         inOrder.verifyNoMoreInteractions();
     }
 
-//    @Test
-//    public void rawResponseListenerShouldReportErrorOnCommandIfThereAreMoreActiveCommands() throws IOException, InterruptedException {
-//        ControllerListener listener = mock(ControllerListener.class);
-//        InOrder messagesInOrder = inOrder(messageService);
-//        InOrder inOrder = inOrder(listener);
-//        target.addListener(listener);
-//
-//        IGcodeStreamReader gcodeStream = new SimpleGcodeStreamReader("G0 X1", "G0 X0");
-//        target.queueStream(gcodeStream);
-//        target.beginStreaming();
-//
-//        GcodeCommand nextCommand = gcodeStream.getNextCommand();
-//        nextCommand.appendResponse("error:20");
-//        target.commandSent(nextCommand);
-//
-//        nextCommand = gcodeStream.getNextCommand();
-//        target.commandSent(nextCommand);
-//
-//        target.rawResponseListener("error:20");
-//
-//        Thread.sleep(100);
-//
-//        inOrder.verify(listener, times(1)).statusStringListener(any());
-//        inOrder.verify(listener, times(1)).streamStarted();
-//        inOrder.verify(listener, times(2)).commandSent(any());
-//        inOrder.verify(listener, times(1)).commandComplete(any());
-//        inOrder.verify(listener, times(1)).streamComplete();
-//        inOrder.verifyNoMoreInteractions();
-//
-//        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "> G0 X1\n");
-//        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.ERROR, "An error was detected while sending 'G0 X1': error:20. Streaming has been paused.\n");
-//        messagesInOrder.verify(messageService, times(1)).dispatchMessage(eq(MessageType.INFO), startsWith("\n**** Finished sending file in"));
-//        messagesInOrder.verifyNoMoreInteractions();
-//    }
+    @Test
+    public void rawResponseListenerShouldReportErrorOnCommandIfThereAreMoreActiveCommands() throws IOException, InterruptedException {
+        ControllerListener listener = mock(ControllerListener.class);
+        InOrder messagesInOrder = inOrder(messageService);
+        InOrder inOrder = inOrder(listener);
+        target.addListener(listener);
 
-//    @Test
-//    public void rawResponseListenerShouldNotReportErrorOnCommandIfOnlyOneActiveCommands() throws IOException, InterruptedException {
-//        ControllerListener listener = mock(ControllerListener.class);
-//        InOrder messagesInOrder = inOrder(messageService);
-//        InOrder inOrder = inOrder(listener);
-//        target.addListener(listener);
-//
-//        IGcodeStreamReader gcodeStream = new SimpleGcodeStreamReader("G0 X1");
-//        target.queueStream(gcodeStream);
-//        target.beginStreaming();
-//
-//        GcodeCommand nextCommand = gcodeStream.getNextCommand();
-//        nextCommand.appendResponse("error:20");
-//        target.commandSent(nextCommand);
-//
-//        target.rawResponseListener("error:20");
-//
-//        Thread.sleep(100);
-//
-//        inOrder.verify(listener, times(1)).statusStringListener(any());
-//        inOrder.verify(listener, times(1)).streamStarted();
-//        inOrder.verify(listener, times(1)).commandSent(any());
-//        inOrder.verify(listener, times(1)).commandComplete(any());
-//        inOrder.verify(listener, times(1)).streamComplete();
-//        inOrder.verifyNoMoreInteractions();
-//
-//        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "> G0 X1\n");
-//        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "error:20\n");
-//        messagesInOrder.verify(messageService, times(1)).dispatchMessage(eq(MessageType.INFO), startsWith("\n**** Finished sending file in"));
-//        messagesInOrder.verifyNoMoreInteractions();
-//    }
+        IGcodeStreamReader gcodeStream = new SimpleGcodeStreamReader("G0 X1", "G0 X0");
+        target.queueStream(gcodeStream);
+        target.beginStreaming();
+
+        GcodeCommand nextCommand = gcodeStream.getNextCommand();
+        nextCommand.appendResponse("error:20");
+        target.commandSent(nextCommand);
+
+        nextCommand = gcodeStream.getNextCommand();
+        target.commandSent(nextCommand);
+
+        target.rawResponseListener("error:20");
+
+        Thread.sleep(100);
+
+        inOrder.verify(listener, times(1)).statusStringListener(any());
+        inOrder.verify(listener, times(1)).streamStarted();
+        inOrder.verify(listener, times(2)).commandSent(any());
+        inOrder.verify(listener, times(1)).commandComplete(any());
+        inOrder.verify(listener, times(1)).streamComplete();
+        inOrder.verifyNoMoreInteractions();
+
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "> G0 X1\n");
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.ERROR, "An error was detected while sending 'G0 X1': error:20. Streaming has been paused.\n");
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(eq(MessageType.INFO), startsWith("\n**** Finished sending file in"));
+        messagesInOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void rawResponseListenerShouldNotReportErrorOnCommandIfOnlyOneActiveCommands() throws IOException, InterruptedException {
+        ControllerListener listener = mock(ControllerListener.class);
+        InOrder messagesInOrder = inOrder(messageService);
+        InOrder inOrder = inOrder(listener);
+        target.addListener(listener);
+
+        IGcodeStreamReader gcodeStream = new SimpleGcodeStreamReader("G0 X1");
+        target.queueStream(gcodeStream);
+        target.beginStreaming();
+
+        GcodeCommand nextCommand = gcodeStream.getNextCommand();
+        nextCommand.appendResponse("error:20");
+        target.commandSent(nextCommand);
+
+        target.rawResponseListener("error:20");
+
+        Thread.sleep(100);
+
+        inOrder.verify(listener, times(1)).statusStringListener(any());
+        inOrder.verify(listener, times(1)).streamStarted();
+        inOrder.verify(listener, times(1)).commandSent(any());
+        inOrder.verify(listener, times(1)).commandComplete(any());
+        inOrder.verify(listener, times(1)).streamComplete();
+        inOrder.verifyNoMoreInteractions();
+
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "> G0 X1\n");
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(MessageType.INFO, "error:20\n");
+        messagesInOrder.verify(messageService, times(1)).dispatchMessage(eq(MessageType.INFO), startsWith("\n**** Finished sending file in"));
+        messagesInOrder.verifyNoMoreInteractions();
+    }
 
     @Test
     public void restoreParserModalStateShouldRestoreRelativeMode() {
