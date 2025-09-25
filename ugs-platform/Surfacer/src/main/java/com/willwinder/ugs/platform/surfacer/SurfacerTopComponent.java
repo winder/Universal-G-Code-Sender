@@ -19,6 +19,7 @@ package com.willwinder.ugs.platform.surfacer;
 import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import static com.willwinder.ugs.platform.surfacer.Prefs.PREFS;
 
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -82,10 +83,12 @@ public final class SurfacerTopComponent extends TopComponent implements UGSEvent
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         gcode.init(prefs, backend);
         
-        lVersion.setText("v0.30");
+        lVersion.setText("v0.40");
 
         updateControls();
         initListeners();
+        
+        prefs.updateAllPrefs(); // write-back preference values in-case we are resetting from default
     }
 
     @Override
@@ -96,70 +99,51 @@ public final class SurfacerTopComponent extends TopComponent implements UGSEvent
         }
     }
     
-    private double mmToUnits(double mmvalue) {
-        return (units == TextFieldUnit.MM) ? mmvalue : mmvalue / 25.4;
-    }
+    private double mmToUnits(double mmvalue) { return (units == TextFieldUnit.MM) ? mmvalue : mmvalue / 25.4; }
+    private double unitsToMM(double value) { return (units == TextFieldUnit.MM) ? value : value * 25.4; }
 
-    private double unitsToMM(double value) {
-        return (units == TextFieldUnit.MM) ? value : value * 25.4;
-    }
-
-    private void updateToUnitsDouble(UnitSpinner spinner, String key) {
-        double value = mmToUnits(prefs.getDouble(key));  // this has to be called before updating the spinner
-        if (prefs.isRateKey(key)) {
-            spinner.setUnits(rateUnits);
-        } else {
-            spinner.setUnits(units);
-        }
+    private void updateSpinnerToUnits(UnitSpinner spinner, String key, Double _default) {
+        double value = mmToUnits(PREFS.getDouble(key, _default));
+        spinner.setUnits(prefs.isRateKey(key) ? rateUnits : units);
         spinner.setValue(value);
     }
 
-    private void updateDouble(UnitSpinner spinner, String key) {
-        double value = prefs.getDouble(key);
-        spinner.setValue(value);
-    }
-    
     private void updateControls() {
         units = backend.getSettings().getPreferredUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
         rateUnits = (units == TextFieldUnit.MM) ? TextFieldUnit.MM_PER_MINUTE : TextFieldUnit.INCHES_PER_MINUTE;
 
-        cbPattern.setSelectedIndex(prefs.getInt(Prefs.KEY_PATTERN));
-        setPatternControls((String)cbPattern.getSelectedItem());
-        updateDouble(sAngle, Prefs.KEY_ANGLE);
-        if (prefs.getBoolean(Prefs.KEY_CLIMB_CUT))
-        {
+        cbPattern.setSelectedIndex(PREFS.getInt(Prefs.KEY_PATTERN, Prefs.DEFAULT_PATTERN));
+        setPatternControls(PREFS.getInt(Prefs.KEY_PATTERN, Prefs.DEFAULT_PATTERN));
+        sAngle.setValue((Double)PREFS.getDouble(Prefs.KEY_ANGLE, Prefs.DEFAULT_ANGLE));
+        if (PREFS.getBoolean(Prefs.KEY_CLIMB_CUT, Prefs.DEFAULT_CLIMB_CUT)) {
             rbClimbCut.setSelected(true);
         } else {
             rbConventionalCut.setSelected(true);
         }
         
-        updateToUnitsDouble(sX0, Prefs.KEY_X0);
-        updateToUnitsDouble(sY0, Prefs.KEY_Y0);
-        updateToUnitsDouble(sX1, Prefs.KEY_X1);
-        updateToUnitsDouble(sY1, Prefs.KEY_Y1);
+        updateSpinnerToUnits(sX0, Prefs.KEY_X0, Prefs.DEFAULT_X0);
+        updateSpinnerToUnits(sY0, Prefs.KEY_Y0, Prefs.DEFAULT_Y0);
+        updateSpinnerToUnits(sX1, Prefs.KEY_X1, Prefs.DEFAULT_X1);
+        updateSpinnerToUnits(sY1, Prefs.KEY_Y1, Prefs.DEFAULT_Y1);
 
-        updateToUnitsDouble(sZSafe, Prefs.KEY_Z_SAFE);
-        updateToUnitsDouble(sZStart, Prefs.KEY_Z_START);
-        updateToUnitsDouble(sDepth, Prefs.KEY_DEPTH);
-        updateToUnitsDouble(sCutStep, Prefs.KEY_CUT_STEP);
-        updateToUnitsDouble(sPlungeRate, Prefs.KEY_PLUNGE_RATE);
-        updateToUnitsDouble(sXYFeedrate, Prefs.KEY_XY_FEEDRATE);
+        updateSpinnerToUnits(sZSafe, Prefs.KEY_Z_SAFE, Prefs.DEFAULT_Z_SAFE);
+        updateSpinnerToUnits(sZStart, Prefs.KEY_Z_START, Prefs.DEFAULT_Z_START);
+        updateSpinnerToUnits(sDepth, Prefs.KEY_DEPTH, Prefs.DEFAULT_DEPTH);
+        updateSpinnerToUnits(sCutStep, Prefs.KEY_CUT_STEP, Prefs.DEFAULT_CUT_STEP);
+        updateSpinnerToUnits(sPlungeRate, Prefs.KEY_PLUNGE_RATE, Prefs.DEFAULT_PLUNGE_RATE);
+        updateSpinnerToUnits(sXYFeedrate, Prefs.KEY_XY_FEEDRATE, Prefs.DEFAULT_XY_FEEDRATE);
 
-        updateToUnitsDouble(sFinishCut, Prefs.KEY_FINISH_CUT);
-        sFinishCount.setValue(prefs.getInt(Prefs.KEY_FINISH_COUNT));
-        updateToUnitsDouble(sFinishFeedrate, Prefs.KEY_FINISH_FEEDRATE);
+        updateSpinnerToUnits(sFinishCut, Prefs.KEY_FINISH_CUT, Prefs.DEFAULT_FINISH_CUT);
+        sFinishCount.setValue(PREFS.getInt(Prefs.KEY_FINISH_COUNT, Prefs.DEFAULT_FINISH_COUNT));
+        updateSpinnerToUnits(sFinishFeedrate, Prefs.KEY_FINISH_FEEDRATE, Prefs.DEFAULT_FINISH_FEEDRATE);
         
-        updateToUnitsDouble(sToolDiameter, Prefs.KEY_TOOL_DIAMETER);
-        updateDouble(sOverlap, Prefs.KEY_OVERLAP);
-        updateDouble(sSpindleSpeed, Prefs.KEY_SPINDLE_SPEED);
+        updateSpinnerToUnits(sToolDiameter, Prefs.KEY_TOOL_DIAMETER, Prefs.DEFAULT_TOOL_DIAMETER);
+        sOverlap.setValue((Double)PREFS.getDouble(Prefs.KEY_OVERLAP, Prefs.DEFAULT_OVERLAP));
+        sSpindleSpeed.setValue((Double)PREFS.getDouble(Prefs.KEY_SPINDLE_SPEED, Prefs.DEFAULT_SPINDLE_SPEED));
     }    
     
-    private void setPatternControls(String item) {
-        if (item.toLowerCase().contains("raster")) {
-            sAngle.setEnabled(true);
-        } else {
-            sAngle.setEnabled(false);
-        }
+    private void setPatternControls(int index) {
+        sAngle.setEnabled(index == Prefs.PATTERNS_RASTER);
     }
     
     private void initListeners() {
@@ -207,7 +191,7 @@ public final class SurfacerTopComponent extends TopComponent implements UGSEvent
     }
 
     private void changePatternSetting(int new_index) {
-        setPatternControls((String)cbPattern.getSelectedItem());
+        setPatternControls(new_index);
         changeSetting(Prefs.KEY_PATTERN, new_index);
     }
     
