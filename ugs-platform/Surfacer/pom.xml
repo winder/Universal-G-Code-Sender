@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.willwinder</groupId>
         <artifactId>ugs-platform-parent</artifactId>
-        <version>2.0-SNAPSHOT</version>
+        <version>${revision}${changelist}</version>
     </parent>
     
     <artifactId>Surfacer</artifactId>
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-annotations-common</artifactId>
-            <version>RELEASE230</version>
+            <version>${netbeans.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
