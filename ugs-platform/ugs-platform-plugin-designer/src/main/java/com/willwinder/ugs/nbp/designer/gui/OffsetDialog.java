@@ -66,7 +66,7 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
         this.controller.getDrawing().insertEntity(entityGroup);
         entityGroup.setName("Temporary offset group");
         setTitle("Offset selection");
-        setPreferredSize(new Dimension(400, 200));
+        setPreferredSize(new Dimension(400, 300));
         setLayout(new MigLayout("fill, insets 5", "", ""));
         setResizable(true);
 
@@ -161,20 +161,79 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
         String direction = (String) directionBox.getSelectedItem();
 
         selection.getChildren().forEach(entity -> {
-            Shape absoluteShape = entity.getShape();
-            List<Path> offsetPaths = createDirectionalOffsetPaths(absoluteShape, offset, direction);
+            System.out.println("Processing entity type: " + entity.getClass().getSimpleName());
+
+            // Try multiple ways to get the shape for different entity types
+            Shape shape = getEntityShape(entity);
+            if (shape == null) {
+                System.out.println("Could not extract shape from entity");
+                return;
+            }
+
+            System.out.println("Extracted shape bounds: " + shape.getBounds2D());
+
+            List<Path> offsetPaths = createDirectionalOffsetPaths(shape, offset, direction);
+            System.out.println("Generated " + offsetPaths.size() + " offset paths");
 
             for (Path offsetPath : offsetPaths) {
                 entityGroup.addChild(offsetPath);
             }
         });
 
+        System.out.println("Final entityGroup has " + entityGroup.getChildren().size() + " children");
         controller.getDrawing().repaint();
     }
 
     /**
+     * Extract shape from entity using multiple fallback methods for different entity types.
+     */
+    private Shape getEntityShape(Entity entity) {
+        try {
+            // Method 1: Try getShape() (works for most entities including rectangles)
+            Shape shape = entity.getShape();
+            if (shape != null && shape.getBounds2D().getWidth() > 0 && shape.getBounds2D().getHeight() > 0) {
+                System.out.println("Successfully got shape using getShape()");
+                return shape;
+            }
+        } catch (Exception e) {
+            System.out.println("getShape() failed: " + e.getMessage());
+        }
+
+        try {
+            // Method 2: Try combining relative shape with transform (fallback for problematic entities)
+            Shape relativeShape = entity.getRelativeShape();
+            if (relativeShape != null) {
+                AffineTransform transform = entity.getTransform();
+                if (transform != null) {
+                    Shape transformedShape = transform.createTransformedShape(relativeShape);
+                    if (transformedShape != null && transformedShape.getBounds2D().getWidth() > 0) {
+                        System.out.println("Successfully got shape using relative + transform");
+                        return transformedShape;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Relative shape + transform failed: " + e.getMessage());
+        }
+
+        try {
+            // Method 3: Build shape from bounds (last resort)
+            java.awt.geom.Rectangle2D bounds = entity.getBounds();
+            if (bounds.getWidth() > 0 && bounds.getHeight() > 0) {
+                System.out.println("Using bounds as rectangle shape (last resort)");
+                return new java.awt.geom.Rectangle2D.Double(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+            }
+        } catch (Exception e) {
+            System.out.println("Bounds fallback failed: " + e.getMessage());
+        }
+
+        System.out.println("All shape extraction methods failed");
+        return null;
+    }
+
+    /**
      * Create offset paths based on direction.
-     * Creates proper offset shapes without positioning artifacts.
+     * Creates proper offset shapes for all entity types (rectangles, ellipses, paths, etc.).
      */
     private List<Path> createDirectionalOffsetPaths(Shape shape, float offset, String direction) {
         List<Path> paths = new ArrayList<>();
@@ -182,69 +241,169 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
         try {
             GeometryFactory gf = new GeometryFactory();
             ShapeReader reader = new ShapeReader(gf);
-            Geometry geom = reader.read(shape.getPathIterator(new AffineTransform()));
+
+            // Flatten the shape to handle curves (ellipses, arcs, etc.)
+            Shape flattenedShape = flattenShape(shape);
+
+            // Convert the flattened shape to JTS geometry
+            Geometry geom = reader.read(flattenedShape.getPathIterator(new AffineTransform()));
+            System.out.println("JTS Geometry type: " + (geom != null ? geom.getGeometryType() : "null"));
+            System.out.println("JTS Geometry bounds: " + (geom != null ? geom.getEnvelopeInternal() : "null"));
+            System.out.println("JTS Geometry area: " + (geom != null ? geom.getArea() : "null"));
 
             if (geom == null || geom.isEmpty()) {
+                System.out.println("Geometry is null or empty, returning empty paths");
                 return paths;
             }
 
-            // Use buffer parameters for sharp corners on geometric shapes
-            BufferParameters bufferParams = new BufferParameters();
-            bufferParams.setEndCapStyle(BufferParameters.CAP_FLAT);
-            bufferParams.setJoinStyle(BufferParameters.JOIN_MITRE);
-            bufferParams.setQuadrantSegments(8);
-            bufferParams.setMitreLimit(2.0);
-            bufferParams.setSingleSided(false);
+            // Ensure the geometry is valid - fix any topology issues
+            if (!geom.isValid()) {
+                System.out.println("Geometry is invalid, fixing with buffer(0)");
+                geom = geom.buffer(0);
+            }
 
+            // Use different buffer strategies based on direction and shape characteristics
             if ("Outward".equals(direction)) {
-                Geometry buffered = BufferOp.bufferOp(geom, offset, bufferParams);
+                System.out.println("Creating outward offset...");
+                Geometry buffered = createOutwardOffset(geom, offset);
                 if (buffered != null && !buffered.isEmpty()) {
                     paths.add(shapeToPath(buffered));
+                    System.out.println("Successfully created outward offset");
+                } else {
+                    System.out.println("Outward offset failed or empty");
                 }
             } else if ("Inward".equals(direction)) {
-                Geometry buffered = BufferOp.bufferOp(geom, -offset, bufferParams);
+                System.out.println("Creating inward offset...");
+                Geometry buffered = createInwardOffset(geom, offset);
                 if (buffered != null && !buffered.isEmpty()) {
                     paths.add(shapeToPath(buffered));
+                    System.out.println("Successfully created inward offset");
                 } else {
-                    // Fallback: try with round joins which are more forgiving for inward offsets
-                    BufferParameters roundParams = new BufferParameters();
-                    roundParams.setEndCapStyle(BufferParameters.CAP_ROUND);
-                    roundParams.setJoinStyle(BufferParameters.JOIN_ROUND);
-                    roundParams.setQuadrantSegments(8);
-
-                    Geometry bufferedRound = BufferOp.bufferOp(geom, -offset, roundParams);
-                    if (bufferedRound != null && !bufferedRound.isEmpty()) {
-                        paths.add(shapeToPath(bufferedRound));
-                    }
+                    System.out.println("Inward offset failed or empty");
                 }
             } else if ("Both".equals(direction)) {
-                Geometry bufferedOut = BufferOp.bufferOp(geom, offset, bufferParams);
+                System.out.println("Creating both offsets...");
+                Geometry bufferedOut = createOutwardOffset(geom, offset);
                 if (bufferedOut != null && !bufferedOut.isEmpty()) {
                     paths.add(shapeToPath(bufferedOut));
+                    System.out.println("Successfully created outward offset");
+                } else {
+                    System.out.println("Outward offset failed or empty");
                 }
 
-                Geometry bufferedIn = BufferOp.bufferOp(geom, -offset, bufferParams);
+                Geometry bufferedIn = createInwardOffset(geom, offset);
                 if (bufferedIn != null && !bufferedIn.isEmpty()) {
                     paths.add(shapeToPath(bufferedIn));
+                    System.out.println("Successfully created inward offset");
                 } else {
-                    // Fallback for inward buffer
-                    BufferParameters roundParams = new BufferParameters();
-                    roundParams.setEndCapStyle(BufferParameters.CAP_ROUND);
-                    roundParams.setJoinStyle(BufferParameters.JOIN_ROUND);
-                    roundParams.setQuadrantSegments(8);
-
-                    Geometry bufferedRound = BufferOp.bufferOp(geom, -offset, roundParams);
-                    if (bufferedRound != null && !bufferedRound.isEmpty()) {
-                        paths.add(shapeToPath(bufferedRound));
-                    }
+                    System.out.println("Inward offset failed or empty");
                 }
             }
 
         } catch (Exception e) {
-            // Silently handle errors - offset operation failed
+            System.err.println("Exception in createDirectionalOffsetPaths: " + e.getMessage());
+            e.printStackTrace();
         }
 
+        System.out.println("Returning " + paths.size() + " paths");
         return paths;
+    }
+
+    /**
+     * Flatten curved shapes (ellipses, arcs) into linear segments that JTS can handle.
+     */
+    private Shape flattenShape(Shape shape) {
+        try {
+            // Use a high-resolution flattening to preserve curve quality
+            double flatness = 0.1; // Lower values = higher precision
+            java.awt.geom.PathIterator pathIterator = shape.getPathIterator(new AffineTransform(), flatness);
+
+            java.awt.geom.Path2D.Double flattenedPath = new java.awt.geom.Path2D.Double();
+            flattenedPath.append(pathIterator, false);
+
+            System.out.println("Successfully flattened shape for JTS compatibility");
+            return flattenedPath;
+
+        } catch (Exception e) {
+            System.out.println("Shape flattening failed: " + e.getMessage() + ", using original shape");
+            return shape;
+        }
+    }
+
+    /**
+     * Create outward offset using buffer parameters optimized for expansion.
+     */
+    private Geometry createOutwardOffset(Geometry geom, float offset) {
+        try {
+            BufferParameters bufferParams = new BufferParameters();
+            bufferParams.setEndCapStyle(BufferParameters.CAP_FLAT);
+            bufferParams.setJoinStyle(BufferParameters.JOIN_MITRE);
+            bufferParams.setQuadrantSegments(16); // Higher resolution for smooth curves
+            bufferParams.setMitreLimit(2.0);
+            bufferParams.setSingleSided(false);
+
+            return BufferOp.bufferOp(geom, offset, bufferParams);
+        } catch (Exception e) {
+            // Fallback to round joins for problematic geometries
+            BufferParameters roundParams = new BufferParameters();
+            roundParams.setEndCapStyle(BufferParameters.CAP_ROUND);
+            roundParams.setJoinStyle(BufferParameters.JOIN_ROUND);
+            roundParams.setQuadrantSegments(16);
+
+            return BufferOp.bufferOp(geom, offset, roundParams);
+        }
+    }
+
+    /**
+     * Create inward offset with multiple fallback strategies.
+     */
+    private Geometry createInwardOffset(Geometry geom, float offset) {
+        try {
+            // First try with mitre joins for sharp corners
+            BufferParameters bufferParams = new BufferParameters();
+            bufferParams.setEndCapStyle(BufferParameters.CAP_FLAT);
+            bufferParams.setJoinStyle(BufferParameters.JOIN_MITRE);
+            bufferParams.setQuadrantSegments(16);
+            bufferParams.setMitreLimit(2.0);
+            bufferParams.setSingleSided(false);
+
+            Geometry buffered = BufferOp.bufferOp(geom, -offset, bufferParams);
+            if (buffered != null && !buffered.isEmpty()) {
+                return buffered;
+            }
+        } catch (Exception e) {
+            // Continue to fallback
+        }
+
+        try {
+            // Fallback 1: Round joins (more forgiving for complex shapes)
+            BufferParameters roundParams = new BufferParameters();
+            roundParams.setEndCapStyle(BufferParameters.CAP_ROUND);
+            roundParams.setJoinStyle(BufferParameters.JOIN_ROUND);
+            roundParams.setQuadrantSegments(16);
+
+            Geometry buffered = BufferOp.bufferOp(geom, -offset, roundParams);
+            if (buffered != null && !buffered.isEmpty()) {
+                return buffered;
+            }
+        } catch (Exception e) {
+            // Continue to fallback
+        }
+
+        // Fallback 2: Try with smaller offset if the original is too large
+        try {
+            double maxDimension = Math.max(geom.getEnvelopeInternal().getWidth(), geom.getEnvelopeInternal().getHeight());
+            float safeOffset = Math.min(offset, (float)(maxDimension * 0.4)); // Max 40% of shape size
+
+            BufferParameters safeParams = new BufferParameters();
+            safeParams.setEndCapStyle(BufferParameters.CAP_ROUND);
+            safeParams.setJoinStyle(BufferParameters.JOIN_ROUND);
+            safeParams.setQuadrantSegments(8);
+
+            return BufferOp.bufferOp(geom, -safeOffset, safeParams);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
