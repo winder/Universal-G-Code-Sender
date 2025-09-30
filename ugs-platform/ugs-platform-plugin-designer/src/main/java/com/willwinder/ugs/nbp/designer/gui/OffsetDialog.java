@@ -23,7 +23,6 @@ import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.designer.model.Size;
 import net.miginfocom.swing.MigLayout;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.awt.ShapeWriter;
@@ -47,13 +46,13 @@ import java.util.List;
  */
 public class OffsetDialog extends JDialog implements ChangeListener, WindowListener {
     public static final int PADDING = 2;
-    public static final String PANEL_LAYOUT_CONFIG = "fill, insets 5";
+    public static final String PANEL_LAYOUT_CONFIG = "fill, insets 2";
     public static final String SPINNER_COL_CONSTRAINTS = "width 60:100:100, wrap";
 
     private JSpinner offsetDistance;
-    private JSpinner xDelta;
-    private JSpinner yDelta;
     private JComboBox<String> directionBox;
+    private JComboBox<String> joinStyleBox;
+    private JCheckBox unionResultsCheckbox;
     private JButton cancelButton;
     private JButton okButton;
 
@@ -79,36 +78,40 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
 
     private void addEventListeners() {
         offsetDistance.addChangeListener(this);
-        xDelta.addChangeListener(this);
-        yDelta.addChangeListener(this);
         directionBox.addActionListener(event -> stateChanged(null));
+        joinStyleBox.addActionListener(event -> stateChanged(null));
+        unionResultsCheckbox.addActionListener(event -> stateChanged(null));
         cancelButton.addActionListener(event -> onCancel());
         okButton.addActionListener(event -> onOk());
         addWindowListener(this);
     }
 
     private void createComponents() {
-        JPanel horizontalPanel = new JPanel(new MigLayout(PANEL_LAYOUT_CONFIG));
-        horizontalPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder("Offset"),
+        JPanel offsetPanel = new JPanel(new MigLayout(PANEL_LAYOUT_CONFIG));
+        offsetPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder("Offset Settings"),
                 BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING)));
-        horizontalPanel.add(new JLabel("Offset distance", SwingConstants.TRAILING), "grow");
+        offsetPanel.add(new JLabel("Offset distance", SwingConstants.TRAILING), "grow");
         offsetDistance = new JSpinner(new SpinnerNumberModel(1d, 1, 1000, 1));
-        horizontalPanel.add(offsetDistance, SPINNER_COL_CONSTRAINTS);
+        offsetPanel.add(offsetDistance, SPINNER_COL_CONSTRAINTS);
 
-        horizontalPanel.add(new JLabel("X Delta", SwingConstants.TRAILING), "grow");
-        xDelta = new JSpinner(new SpinnerNumberModel(0d, 0, 1000, .1));
-        horizontalPanel.add(xDelta, SPINNER_COL_CONSTRAINTS);
-        horizontalPanel.add(new JLabel("Y Delta", SwingConstants.TRAILING), "grow");
-        yDelta = new JSpinner(new SpinnerNumberModel(0d, 0, 1000, .1));
-        horizontalPanel.add(yDelta, SPINNER_COL_CONSTRAINTS);
-
-        horizontalPanel.add(new JLabel("Offset direction", SwingConstants.TRAILING), "grow");
+        offsetPanel.add(new JLabel("Offset direction", SwingConstants.TRAILING), "grow");
         directionBox = new JComboBox<>(new String[]{"Outward", "Inward", "Both"});
-        horizontalPanel.add(directionBox, SPINNER_COL_CONSTRAINTS);
+        offsetPanel.add(directionBox, SPINNER_COL_CONSTRAINTS);
+        add(offsetPanel, "grow");
 
-        add(horizontalPanel, "grow");
+        JPanel optionsPanel = new JPanel(new MigLayout(PANEL_LAYOUT_CONFIG));
+        optionsPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder("Options"),
+                BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING)));
+        optionsPanel.add(new JLabel("Join style", SwingConstants.TRAILING), "grow");
+        joinStyleBox = new JComboBox<>(new String[]{"Round", "Bevel", "Mitre"});
+        optionsPanel.add(joinStyleBox, SPINNER_COL_CONSTRAINTS);
 
+        unionResultsCheckbox = new JCheckBox("Union all", false);
+        optionsPanel.add(new JLabel("Boolean operation", SwingConstants.TRAILING), "grow");
+        optionsPanel.add(unionResultsCheckbox, SPINNER_COL_CONSTRAINTS);
+        add(optionsPanel, "grow, wrap");
 
         JPanel buttonPanel = new JPanel(new MigLayout("insets 5", "[center, grow]"));
         cancelButton = new JButton("Cancel");
@@ -159,6 +162,9 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
         }
 
         String direction = (String) directionBox.getSelectedItem();
+        boolean unionResults = unionResultsCheckbox.isSelected();
+
+        List<Path> allOffsetPaths = new ArrayList<>();
 
         selection.getChildren().forEach(entity -> {
             System.out.println("Processing entity type: " + entity.getClass().getSimpleName());
@@ -175,13 +181,91 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
             List<Path> offsetPaths = createDirectionalOffsetPaths(shape, offset, direction);
             System.out.println("Generated " + offsetPaths.size() + " offset paths");
 
-            for (Path offsetPath : offsetPaths) {
-                entityGroup.addChild(offsetPath);
-            }
+            allOffsetPaths.addAll(offsetPaths);
         });
+
+        // Apply union operation if requested and we have multiple paths
+        if (unionResults && allOffsetPaths.size() > 1) {
+            System.out.println("Performing union operation on " + allOffsetPaths.size() + " paths");
+            Path unionedPath = performUnionOperation(allOffsetPaths);
+            if (unionedPath != null) {
+                entityGroup.addChild(unionedPath);
+                System.out.println("Union operation successful - created single merged shape");
+            } else {
+                System.out.println("Union operation failed - adding individual paths");
+                allOffsetPaths.forEach(entityGroup::addChild);
+            }
+        } else {
+            // Add all paths individually
+            allOffsetPaths.forEach(entityGroup::addChild);
+        }
 
         System.out.println("Final entityGroup has " + entityGroup.getChildren().size() + " children");
         controller.getDrawing().repaint();
+    }
+
+    /**
+     * Perform boolean union operation on multiple paths to create a single merged shape.
+     */
+    private Path performUnionOperation(List<Path> paths) {
+        try {
+            GeometryFactory gf = new GeometryFactory();
+            ShapeReader reader = new ShapeReader(gf);
+            Geometry unionGeometry = null;
+
+            System.out.println("Starting union operation on " + paths.size() + " paths");
+
+            for (Path path : paths) {
+                try {
+                    // Get the shape from the path
+                    Shape pathShape = null;
+                    if (path.getShape() != null) {
+                        pathShape = path.getShape();
+                    } else {
+                        // Fallback: create shape from path bounds
+                        java.awt.geom.Rectangle2D bounds = path.getBounds();
+                        pathShape = new java.awt.geom.Rectangle2D.Double(
+                            bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight()
+                        );
+                    }
+
+                    if (pathShape != null) {
+                        // Flatten the shape and convert to JTS geometry
+                        Shape flattenedShape = flattenShape(pathShape);
+                        Geometry geom = reader.read(flattenedShape.getPathIterator(new AffineTransform()));
+
+                        if (geom != null && !geom.isEmpty()) {
+                            // Ensure geometry is valid
+                            if (!geom.isValid()) {
+                                geom = geom.buffer(0);
+                            }
+
+                            // Perform union
+                            if (unionGeometry == null) {
+                                unionGeometry = geom;
+                            } else {
+                                unionGeometry = unionGeometry.union(geom);
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Error processing path in union: " + ex.getMessage());
+                }
+            }
+
+            // Convert the union result back to a Path
+            if (unionGeometry != null && !unionGeometry.isEmpty()) {
+                System.out.println("Union geometry created successfully");
+                return shapeToPath(unionGeometry);
+            }
+
+        } catch (Exception e) {
+            System.err.println("Union operation failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        System.out.println("Union operation failed - returning null");
+        return null;
     }
 
     /**
@@ -331,17 +415,11 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
     }
 
     /**
-     * Create outward offset using buffer parameters optimized for expansion.
+     * Create outward offset using the selected join style.
      */
     private Geometry createOutwardOffset(Geometry geom, float offset) {
         try {
-            BufferParameters bufferParams = new BufferParameters();
-            bufferParams.setEndCapStyle(BufferParameters.CAP_FLAT);
-            bufferParams.setJoinStyle(BufferParameters.JOIN_MITRE);
-            bufferParams.setQuadrantSegments(16); // Higher resolution for smooth curves
-            bufferParams.setMitreLimit(2.0);
-            bufferParams.setSingleSided(false);
-
+            BufferParameters bufferParams = createBufferParameters();
             return BufferOp.bufferOp(geom, offset, bufferParams);
         } catch (Exception e) {
             // Fallback to round joins for problematic geometries
@@ -349,24 +427,17 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
             roundParams.setEndCapStyle(BufferParameters.CAP_ROUND);
             roundParams.setJoinStyle(BufferParameters.JOIN_ROUND);
             roundParams.setQuadrantSegments(16);
-
             return BufferOp.bufferOp(geom, offset, roundParams);
         }
     }
 
     /**
-     * Create inward offset with multiple fallback strategies.
+     * Create inward offset using the selected join style with fallback strategies.
      */
     private Geometry createInwardOffset(Geometry geom, float offset) {
         try {
-            // First try with mitre joins for sharp corners
-            BufferParameters bufferParams = new BufferParameters();
-            bufferParams.setEndCapStyle(BufferParameters.CAP_FLAT);
-            bufferParams.setJoinStyle(BufferParameters.JOIN_MITRE);
-            bufferParams.setQuadrantSegments(16);
-            bufferParams.setMitreLimit(2.0);
-            bufferParams.setSingleSided(false);
-
+            // First try with selected join style
+            BufferParameters bufferParams = createBufferParameters();
             Geometry buffered = BufferOp.bufferOp(geom, -offset, bufferParams);
             if (buffered != null && !buffered.isEmpty()) {
                 return buffered;
@@ -404,6 +475,34 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Create buffer parameters based on the selected join style.
+     */
+    private BufferParameters createBufferParameters() {
+        BufferParameters bufferParams = new BufferParameters();
+        bufferParams.setEndCapStyle(BufferParameters.CAP_FLAT);
+        bufferParams.setQuadrantSegments(16); // Higher resolution for smooth curves
+        bufferParams.setSingleSided(false);
+
+        String joinStyle = (String) joinStyleBox.getSelectedItem();
+        switch (joinStyle) {
+            case "Round":
+                bufferParams.setJoinStyle(BufferParameters.JOIN_ROUND);
+                break;
+            case "Bevel":
+                bufferParams.setJoinStyle(BufferParameters.JOIN_BEVEL);
+                break;
+            case "Mitre":
+                bufferParams.setJoinStyle(BufferParameters.JOIN_MITRE);
+                bufferParams.setMitreLimit(10.0); // Set a reasonable mitre limit
+                break;
+            default:
+                bufferParams.setJoinStyle(BufferParameters.JOIN_ROUND);
+        }
+
+        return bufferParams;
     }
 
     /**
