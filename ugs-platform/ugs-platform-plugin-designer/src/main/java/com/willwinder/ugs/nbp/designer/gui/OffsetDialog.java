@@ -18,8 +18,6 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
-import clipper2.Clipper;
-import clipper2.core.Path64;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
@@ -27,6 +25,12 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import net.miginfocom.swing.MigLayout;
+import org.locationtech.jts.awt.ShapeReader;
+import org.locationtech.jts.awt.ShapeWriter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.operation.buffer.BufferOp;
+import org.locationtech.jts.operation.buffer.BufferParameters;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -34,26 +38,22 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.geom.Area;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Joacim Breiler
  */
 public class OffsetDialog extends JDialog implements ChangeListener, WindowListener {
     public static final int PADDING = 2;
-    public static final String PANEL_LAYOUT_CONFIG = "fill, insets 2";
+    public static final String PANEL_LAYOUT_CONFIG = "fill, insets 5";
     public static final String SPINNER_COL_CONSTRAINTS = "width 60:100:100, wrap";
 
     private JSpinner offsetDistance;
     private JSpinner xDelta;
     private JSpinner yDelta;
-    private JToggleButton joinShapes;
-    private JComboBox<String> mode;
+    private JComboBox<String> directionBox;
     private JButton cancelButton;
     private JButton okButton;
 
@@ -81,8 +81,7 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
         offsetDistance.addChangeListener(this);
         xDelta.addChangeListener(this);
         yDelta.addChangeListener(this);
-        joinShapes.addChangeListener(this);
-        mode.addActionListener(event -> stateChanged(null));
+        directionBox.addActionListener(event -> stateChanged(null));
         cancelButton.addActionListener(event -> onCancel());
         okButton.addActionListener(event -> onOk());
         addWindowListener(this);
@@ -103,20 +102,13 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
         horizontalPanel.add(new JLabel("Y Delta", SwingConstants.TRAILING), "grow");
         yDelta = new JSpinner(new SpinnerNumberModel(0d, 0, 1000, .1));
         horizontalPanel.add(yDelta, SPINNER_COL_CONSTRAINTS);
+
+        horizontalPanel.add(new JLabel("Offset direction", SwingConstants.TRAILING), "grow");
+        directionBox = new JComboBox<>(new String[]{"Outward", "Inward", "Both"});
+        horizontalPanel.add(directionBox, SPINNER_COL_CONSTRAINTS);
+
         add(horizontalPanel, "grow");
 
-        JPanel verticalPanel = new JPanel(new MigLayout(PANEL_LAYOUT_CONFIG));
-        verticalPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder("Options"),
-                BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING)));
-        verticalPanel.add(new JLabel("Join shapes", SwingConstants.TRAILING), "grow");
-        joinShapes = new JToggleButton("Join shapes");
-        verticalPanel.add(joinShapes, SPINNER_COL_CONSTRAINTS);
-
-        verticalPanel.add(new JLabel("Y Spacing", SwingConstants.TRAILING), "grow");
-        mode = new JComboBox<>(new String[]{"None", "Round", "Bevel"});
-        verticalPanel.add(mode, SPINNER_COL_CONSTRAINTS);
-        add(verticalPanel, "grow, wrap");
 
         JPanel buttonPanel = new JPanel(new MigLayout("insets 5", "[center, grow]"));
         cancelButton = new JButton("Cancel");
@@ -159,131 +151,113 @@ public class OffsetDialog extends JDialog implements ChangeListener, WindowListe
         selection.addAll(controller.getSelectionManager().getSelection().stream()
                 .map(Entity::copy)
                 .toList());
+
         float offset = Double.valueOf((double) offsetDistance.getValue()).floatValue();
         if (offset <= 0 || selection.getChildren().isEmpty()) {
             controller.setTool(Tool.SELECT);
             return;
         }
-        selection.getChildren().forEach(entity -> {
-            Rectangle2D b = entity.getBounds();
-            double x = b.getX() - offset;
-            double y = b.getY() - offset;
-            double w = b.getWidth() + 2 * offset;
-            double h = b.getHeight() + 2 * offset;
 
-            Path offsetPath = createOuterOffsetPath(entity.getRelativeShape(), offset);
-            if (offsetPath != null) {
-                //controller.addEntity(offsetPath);
-                offsetPath.setPosition(new Point2D.Double(x, y));
-                offsetPath.setSize(new Size(w, h));
+        String direction = (String) directionBox.getSelectedItem();
+
+        selection.getChildren().forEach(entity -> {
+            Shape absoluteShape = entity.getShape();
+            List<Path> offsetPaths = createDirectionalOffsetPaths(absoluteShape, offset, direction);
+
+            for (Path offsetPath : offsetPaths) {
                 entityGroup.addChild(offsetPath);
             }
         });
+
         controller.getDrawing().repaint();
     }
 
+    /**
+     * Create offset paths based on direction.
+     * Creates proper offset shapes without positioning artifacts.
+     */
+    private List<Path> createDirectionalOffsetPaths(Shape shape, float offset, String direction) {
+        List<Path> paths = new ArrayList<>();
+
+        try {
+            GeometryFactory gf = new GeometryFactory();
+            ShapeReader reader = new ShapeReader(gf);
+            Geometry geom = reader.read(shape.getPathIterator(new AffineTransform()));
+
+            if (geom == null || geom.isEmpty()) {
+                return paths;
+            }
+
+            // Use buffer parameters for sharp corners on geometric shapes
+            BufferParameters bufferParams = new BufferParameters();
+            bufferParams.setEndCapStyle(BufferParameters.CAP_FLAT);
+            bufferParams.setJoinStyle(BufferParameters.JOIN_MITRE);
+            bufferParams.setQuadrantSegments(8);
+            bufferParams.setMitreLimit(2.0);
+            bufferParams.setSingleSided(false);
+
+            if ("Outward".equals(direction)) {
+                Geometry buffered = BufferOp.bufferOp(geom, offset, bufferParams);
+                if (buffered != null && !buffered.isEmpty()) {
+                    paths.add(shapeToPath(buffered));
+                }
+            } else if ("Inward".equals(direction)) {
+                Geometry buffered = BufferOp.bufferOp(geom, -offset, bufferParams);
+                if (buffered != null && !buffered.isEmpty()) {
+                    paths.add(shapeToPath(buffered));
+                } else {
+                    // Fallback: try with round joins which are more forgiving for inward offsets
+                    BufferParameters roundParams = new BufferParameters();
+                    roundParams.setEndCapStyle(BufferParameters.CAP_ROUND);
+                    roundParams.setJoinStyle(BufferParameters.JOIN_ROUND);
+                    roundParams.setQuadrantSegments(8);
+
+                    Geometry bufferedRound = BufferOp.bufferOp(geom, -offset, roundParams);
+                    if (bufferedRound != null && !bufferedRound.isEmpty()) {
+                        paths.add(shapeToPath(bufferedRound));
+                    }
+                }
+            } else if ("Both".equals(direction)) {
+                Geometry bufferedOut = BufferOp.bufferOp(geom, offset, bufferParams);
+                if (bufferedOut != null && !bufferedOut.isEmpty()) {
+                    paths.add(shapeToPath(bufferedOut));
+                }
+
+                Geometry bufferedIn = BufferOp.bufferOp(geom, -offset, bufferParams);
+                if (bufferedIn != null && !bufferedIn.isEmpty()) {
+                    paths.add(shapeToPath(bufferedIn));
+                } else {
+                    // Fallback for inward buffer
+                    BufferParameters roundParams = new BufferParameters();
+                    roundParams.setEndCapStyle(BufferParameters.CAP_ROUND);
+                    roundParams.setJoinStyle(BufferParameters.JOIN_ROUND);
+                    roundParams.setQuadrantSegments(8);
+
+                    Geometry bufferedRound = BufferOp.bufferOp(geom, -offset, roundParams);
+                    if (bufferedRound != null && !bufferedRound.isEmpty()) {
+                        paths.add(shapeToPath(bufferedRound));
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            // Silently handle errors - offset operation failed
+        }
+
+        return paths;
+    }
 
     /**
-     * Create a new Path that is an offset of the current path.
-     * This method uses BasicStroke to create the offset shape.
-     *
-     * @param offset The distance to offset the path.
-     * @return A new Path representing the offset, or null if the operation fails.
+     * Convert JTS Geometry to Path.
      */
-    public Path createOffsetPath(Shape shape, Float offset) {
-        Path64 point64s = shapeToPath64(shape);
-        Clipper.OffsetPath(point64s, offset.longValue(), offset.longValue());
-        java.awt.Shape strokedShape = new java.awt.BasicStroke(
-                offset * 2, // width of the stroke
-                getCapRound(),
-                getJoinRound()
-        ).createStrokedShape(shape);
-
+    private Path shapeToPath(Geometry geometry) {
+        ShapeWriter writer = new ShapeWriter();
+        Shape offsetShape = writer.toShape(geometry);
         Path offsetPath = new Path();
-        offsetPath.append(strokedShape);
+        offsetPath.append(offsetShape);
         return offsetPath;
     }
-    // Shape to Path64
-    public static Path64 shapeToPath64(Shape shape) {
-        Path64 path64 = new Path64();
-        PathIterator pi = shape.getPathIterator(null);
-        double[] coords = new double[6];
-        while (!pi.isDone()) {
-            int type = pi.currentSegment(coords);
-            if (type == PathIterator.SEG_MOVETO || type == PathIterator.SEG_LINETO) {
-                path64.add(new clipper2.core.Point64((long) coords[0], (long) coords[1]));
-            }
-            pi.next();
-        }
-        return path64;
-    }
 
-    // Path64 to Shape
-    public static Shape path64ToShape(Path64 path64) {
-        GeneralPath gp = new GeneralPath();
-        boolean first = true;
-        for (clipper2.core.Point64 pt : path64) {
-            if (first) {
-                gp.moveTo(pt.x, pt.y);
-                first = false;
-            } else {
-                gp.lineTo(pt.x, pt.y);
-            }
-        }
-        gp.closePath();
-        return gp;
-    }
-
-    private int getJoinRound() {
-        String capMode = (String) mode.getSelectedItem();
-        if (capMode == null) {
-            return BasicStroke.JOIN_ROUND;
-        }
-        return switch (capMode){
-            case "Bevel" -> BasicStroke.JOIN_BEVEL;
-            case "Round" -> BasicStroke.JOIN_ROUND;
-            case "None" -> BasicStroke.JOIN_MITER;
-            default -> BasicStroke.JOIN_ROUND;
-        };
-    }
-
-    private int getCapRound() {
-        String capMode = (String) mode.getSelectedItem();
-        if (capMode == null) {
-            return BasicStroke.CAP_ROUND;
-        }
-        return switch (capMode) {
-            case "Bevel" -> BasicStroke.CAP_BUTT;
-            case "Round" -> BasicStroke.CAP_ROUND;
-            case "None" -> BasicStroke.CAP_SQUARE;
-            default -> BasicStroke.CAP_ROUND;
-        };
-    }
-
-    /**
-     * Create a new Path that is an outer offset of the current path.
-     * This method uses BasicStroke to create the offset shape.
-     *
-     * @param offset The distance to offset the path outward.
-     * @return A new Path representing the outer offset, or null if the operation fails.
-     */
-    public Path createOuterOffsetPath(Shape shape, float offset) {
-
-        Shape strokedShape = new BasicStroke(
-                offset * 2,
-                getCapRound(),
-                getJoinRound()
-        ).createStrokedShape(shape);
-
-        Area outlineArea = new Area(strokedShape);
-        Area originalArea = new Area(shape);
-
-        outlineArea.add(originalArea);
-
-        Path outerOffsetPath = new Path();
-        outerOffsetPath.append(outlineArea);
-        return outerOffsetPath;
-    }
 
     @Override
     public void windowOpened(WindowEvent e) {
