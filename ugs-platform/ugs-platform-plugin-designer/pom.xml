@@ -10,9 +10,6 @@
 
     <artifactId>ugs-platform-plugin-designer</artifactId>
     <packaging>nbm</packaging>
-    <properties>
-        <clipper2.version>1.3.3</clipper2.version>
-    </properties>
 
     <build>
         <plugins>
@@ -34,12 +31,6 @@
             <version>${commons-lang3.version}</version>
         </dependency>
 
-        <!-- For offsetting paths -->
-        <dependency>
-            <groupId>com.github.micycle1</groupId>
-            <artifactId>Clipper2-java</artifactId>
-            <version>${clipper2.version}</version>
-        </dependency>
         <!-- For geometric operations -->
         <dependency>
             <groupId>org.locationtech.jts</groupId>
@@ -191,10 +182,4 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
 </project>
