@@ -109,6 +109,13 @@ public class ToolBox extends ToolBar {
         multiply.setBorderPainted(false);
         add(multiply);
 
+
+        JButton offset = new JButton(new OffsetAction());
+        offset.setText("");
+        offset.setToolTipText("Offset shape for selection");
+        offset.setBorderPainted(false);
+        add(offset);
+
         add(createJogDropDownButton());
         addSeparator();
 
