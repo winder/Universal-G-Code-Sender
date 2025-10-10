@@ -19,9 +19,11 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.SelectionSettingsPanel;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings.EntitySettingsComponent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.lib.Mode;
+import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 

@@ -24,12 +24,12 @@ import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.gui.CutTypeCombo;
-import com.willwinder.ugs.nbp.designer.gui.FontCombo;
 import com.willwinder.ugs.nbp.designer.gui.anchor.AnchorSelectorPanel;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings.EntitySettingsComponent;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings.TextSettingsPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
@@ -38,16 +38,22 @@ import com.willwinder.universalgcodesender.uielements.components.PercentSpinner;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
+import org.openide.util.Lookup;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
+import javax.swing.JComponent;
 import java.awt.geom.Point2D;
+import java.awt.Component;
+import java.awt.Container;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Joacim Breiler
@@ -101,11 +107,12 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private JCheckBox includeInExport;
 
     // Custom entity section components
-    private JLabel textLabel;
-    private JTextField textTextField;
-    private JLabel fontLabel;
-    private FontCombo fontDropDown;
-    private JSeparator fontSeparator;
+    // Replaced inline text controls with a dynamic content panel
+    private JPanel entityContentPanel;
+    // Registry of custom entity settings components
+    private final List<EntitySettingsComponent> entityComponents = new ArrayList<>();
+    private EntitySettingsComponent activeEntityComponent;
+    private PropertyChangeListener activeEntityComponentListener;
 
     public SelectionSettingsPanel(Controller controller) {
         fieldEventDispatcher = new FieldEventDispatcher();
@@ -114,7 +121,8 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         setLayout(new MigLayout("hidemode 3, insets 10, gap 10", "[sg label] 10 [grow] 10 [60px]"));
 
         // Build sections into the same panel
-        buildDefaultSection();
+        buildTransformSection();
+        // Add custom entity settings section placeholder (initially hidden)
         buildEntitySection();
         buildCuttingSection();
 
@@ -124,32 +132,47 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         FieldActionDispatcher fieldActionDispatcher = new FieldActionDispatcher(model, controller);
         fieldEventDispatcher.addListener(fieldActionDispatcher);
 
+        // Discover and register all EntitySettingsComponent implementations via Lookup
+        registerEntityComponent(new TextSettingsPanel());
+
+
         // Start disabled until a selection is available
         setEnabled(false);
+
+        // Optional: components can also be registered programmatically by callers via registerEntityComponent().
     }
 
-    private static Boolean selectionHasSetting(Group selectionGroup, EntitySetting entitySetting) {
-        return selectionGroup.getSettings().contains(entitySetting);
+    private void buildEntitySection() {
+        addSectionTitleAndSeparator("Custom entity settings", false);
+        entityContentPanel = new JPanel(new MigLayout("insets 0, gap 10, fillx", "[grow]"));
+        add(entityContentPanel, "spanx, growx, wrap");
+        entityContentPanel.setVisible(false);
     }
 
+    // Add a common helper for section headers and separators.
     private void addSectionTitleAndSeparator(String title, boolean visible) {
         JLabel titleLabel = new JLabel(title);
-        add(titleLabel, "spanx, gaptop 8, wrap");
-        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
-        add(separator, "hmin 2, growx, spanx, wrap");
+        JSeparator separator = new JSeparator();
+        add(titleLabel, "spanx, gaptop 5, gapbottom 0, alignx left, wrap");
+        add(separator, "spanx, growx, gaptop 0, gapbottom 5, wrap");
         titleLabel.setVisible(visible);
         separator.setVisible(visible);
 
+        // Keep references for sections that we toggle dynamically
         if ("Custom entity settings".equals(title)) {
-            entitySectionTitleLabel = titleLabel;
-            entitySectionSeparator = separator;
+            this.entitySectionTitleLabel = titleLabel;
+            this.entitySectionSeparator = separator;
         } else if ("Cutting options".equals(title)) {
-            cuttingSectionTitleLabel = titleLabel;
-            cuttingSectionSeparator = separator;
+            this.cuttingSectionTitleLabel = titleLabel;
+            this.cuttingSectionSeparator = separator;
         }
     }
 
-    private void buildDefaultSection() {
+    private boolean selectionHasSetting(Group selectionGroup, EntitySetting entitySetting) {
+        return selectionGroup.getSettings().contains(entitySetting);
+    }
+
+    private void buildTransformSection() {
         addSectionTitleAndSeparator("Transform", true);
 
         // Position X / Anchor
@@ -181,33 +204,14 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         rotation = createAndAddField(EntitySetting.ROTATION, TextFieldUnit.DEGREE, true);
     }
 
-    private void buildEntitySection() {
-        // Initially hidden until a text-capable entity is selected
-        addSectionTitleAndSeparator("Custom entity settings", false);
 
-        // Text controls (hidden by default)
-        textLabel = new JLabel("Text", SwingConstants.RIGHT);
-        textLabel.setVisible(false);
-        add(textLabel, LABEL_CONSTRAINTS);
-
-        textTextField = new JTextField();
-        textTextField.setVisible(false);
-        fieldEventDispatcher.registerListener(EntitySetting.TEXT, textTextField);
-        add(textTextField, FIELD_CONSTRAINTS + ", spanx");
-
-        fontLabel = new JLabel("Font", SwingConstants.RIGHT);
-        fontLabel.setVisible(false);
-        add(fontLabel, LABEL_CONSTRAINTS);
-
-        fontDropDown = new FontCombo();
-        fieldEventDispatcher.registerListener(EntitySetting.FONT_FAMILY, fontDropDown);
-        fontDropDown.setVisible(false);
-        add(fontDropDown, FIELD_CONSTRAINTS + ", spanx");
-
-        // Optional inner separator for text-only grouping
-        fontSeparator = new JSeparator(SwingConstants.HORIZONTAL);
-        fontSeparator.setVisible(false);
-        add(fontSeparator, "hmin 2, grow, spanx, wrap");
+    /**
+     * Allow external registration of custom entity settings components.
+     */
+    public void registerEntityComponent(EntitySettingsComponent component) {
+        if (component != null) {
+            entityComponents.add(component);
+        }
     }
 
     private void buildCuttingSection() {
@@ -301,15 +305,19 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-
-        // Special enable rules for depths depending on cut type selection
         boolean hasCutTypeSelection = enabled && model.getCutType() != null && model.getCutType() != CutType.NONE;
+        setEnabledRecursive(this, enabled, hasCutTypeSelection);
+    }
 
-        for (java.awt.Component component : getComponents()) {
-            if (component == startDepthSpinner || component == startDepthLabel || component == targetDepthSpinner || component == targetDepthLabel) {
-                component.setEnabled(hasCutTypeSelection);
+    private void setEnabledRecursive(Container container, boolean enabled, boolean hasCutTypeSelection) {
+        for (Component c : container.getComponents()) {
+            if (c == startDepthSpinner || c == startDepthLabel || c == targetDepthSpinner || c == targetDepthLabel) {
+                c.setEnabled(hasCutTypeSelection);
             } else {
-                component.setEnabled(enabled);
+                c.setEnabled(enabled);
+            }
+            if (c instanceof Container child) {
+                setEnabledRecursive(child, enabled, hasCutTypeSelection);
             }
         }
     }
@@ -378,20 +386,6 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         } else if (entitySetting == EntitySetting.TARGET_DEPTH) {
             targetDepthSpinner.setValue(model.getTargetDepth());
             selectionGroup.setTargetDepth(model.getTargetDepth());
-        } else if (entitySetting == EntitySetting.TEXT) {
-            // Work around for when the text is being edited this would overwrite it
-            if (!textTextField.hasFocus()) {
-                textTextField.setText(model.getText());
-            }
-
-            if (!selectionGroup.getChildren().isEmpty() && selectionGroup.getChildren().get(0) instanceof Text textEntity) {
-                textEntity.setText(model.getText());
-            }
-        } else if (entitySetting == EntitySetting.FONT_FAMILY) {
-            fontDropDown.setSelectedItem(model.getFontFamily());
-            if (!selectionGroup.getChildren().isEmpty() && selectionGroup.getChildren().get(0) instanceof Text textEntity) {
-                textEntity.setFontFamily(model.getFontFamily());
-            }
         } else if (entitySetting == EntitySetting.LOCK_RATIO) {
             lockRatioButton.setSelected(!model.getLockRatio());
         } else if (entitySetting == EntitySetting.SPINDLE_SPEED) {
@@ -432,15 +426,45 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         if (includeInExport != null) includeInExport.setVisible(hasCutType);
         if (includeInExportLabel != null) includeInExportLabel.setVisible(hasCutType);
 
-        boolean isTextCuttable = selectionHasSetting(selectionGroup, EntitySetting.TEXT);
-        // Toggle entity section title/separator
-        if (entitySectionTitleLabel != null) entitySectionTitleLabel.setVisible(isTextCuttable);
-        if (entitySectionSeparator != null) entitySectionSeparator.setVisible(isTextCuttable);
-        textTextField.setVisible(isTextCuttable);
-        textLabel.setVisible(isTextCuttable);
-        fontLabel.setVisible(isTextCuttable);
-        fontDropDown.setVisible(isTextCuttable);
-        fontSeparator.setVisible(isTextCuttable);
+        // Determine active custom entity component by applicability
+        EntitySettingsComponent newActive = entityComponents.stream()
+                .filter(c -> c.isApplicable(selectionGroup))
+                .findFirst()
+                .orElse(null);
+
+        if (newActive != activeEntityComponent) {
+            // Unwire old listener
+            if (activeEntityComponent != null && activeEntityComponentListener != null) {
+                activeEntityComponent.removeChangeListener(activeEntityComponentListener);
+            }
+            // Clear UI
+            clearEntityPanel();
+            activeEntityComponent = newActive;
+            activeEntityComponentListener = null;
+
+            if (activeEntityComponent != null) {
+                // Mount new component
+                ensureEntityPanelMounted(activeEntityComponent.getComponent());
+                // Wire generic change propagation
+                activeEntityComponentListener = evt -> {
+                    Group currentGroup = controller.getSelectionManager().getSelectionGroup();
+                    activeEntityComponent.applyChangeToSelection(evt.getPropertyName(), evt.getNewValue(), currentGroup);
+                };
+                activeEntityComponent.addChangeListener(activeEntityComponentListener);
+            }
+        }
+
+        // Sync UI of active component from current selection
+        if (activeEntityComponent != null) {
+            activeEntityComponent.setFromSelection(selectionGroup);
+            if (entitySectionTitleLabel != null) entitySectionTitleLabel.setVisible(true);
+            if (entitySectionSeparator != null) entitySectionSeparator.setVisible(true);
+            entityContentPanel.setVisible(true);
+        } else {
+            if (entitySectionTitleLabel != null) entitySectionTitleLabel.setVisible(false);
+            if (entitySectionSeparator != null) entitySectionSeparator.setVisible(false);
+            if (entityContentPanel != null) entityContentPanel.setVisible(false);
+        }
 
         boolean hasWidth = selectionHasSetting(selectionGroup, EntitySetting.WIDTH);
         widthLabel.setVisible(hasWidth);
@@ -489,11 +513,29 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         leadOutPercentSlider.setVisible(hasLeadOut);
         leadOutPercentSliderLabel.setVisible(hasLeadOut);
 
-        // Toggle cutting section title/separator depending on whether any cutting controls apply
         boolean showCutting = hasCutType || hasStartDepth || hasTargetDepth || hasLaserPower || hasLaserPasses || hasFeedRate || hasLeadIn || hasLeadOut;
         if (cuttingSectionTitleLabel != null) cuttingSectionTitleLabel.setVisible(showCutting);
         if (cuttingSectionSeparator != null) cuttingSectionSeparator.setVisible(showCutting);
 
         lockRatioButton.setVisible(hasWidth && hasHeight);
+    }
+
+    private void ensureEntityPanelMounted(JComponent panel) {
+        if (entityContentPanel == null) return;
+        if (panel.getParent() != entityContentPanel) {
+            entityContentPanel.removeAll();
+            entityContentPanel.add(panel, "growx, spanx, wrap");
+            entityContentPanel.revalidate();
+            entityContentPanel.repaint();
+        }
+    }
+
+    private void clearEntityPanel() {
+        if (entityContentPanel == null) return;
+        if (entityContentPanel.getComponentCount() > 0) {
+            entityContentPanel.removeAll();
+            entityContentPanel.revalidate();
+            entityContentPanel.repaint();
+        }
     }
 }
