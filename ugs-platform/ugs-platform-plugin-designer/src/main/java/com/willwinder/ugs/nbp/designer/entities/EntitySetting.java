@@ -46,6 +46,16 @@ public enum EntitySetting {
     LEAD_OUT_PERCENT("Lead out percent"),
     INCLUDE_IN_EXPORT("Include in export");
 
+    public static final List<EntitySetting> TRANSFORMATION_SETTINGS = List.of(
+            EntitySetting.POSITION_X,
+            EntitySetting.POSITION_Y,
+            EntitySetting.WIDTH,
+            EntitySetting.HEIGHT,
+            EntitySetting.ROTATION,
+            EntitySetting.ANCHOR,
+            EntitySetting.LOCK_RATIO
+    );
+
     public static final List<EntitySetting> DEFAULT_ENDMILL_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
             EntitySetting.ANCHOR,

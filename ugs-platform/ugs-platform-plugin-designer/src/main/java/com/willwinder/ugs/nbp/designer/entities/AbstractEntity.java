@@ -311,4 +311,15 @@ public abstract class AbstractEntity implements Entity {
     public List<EntitySetting> getSettings() {
         return Collections.emptyList();
     }
+
+    public TransformationSettingsHandler getTransformationSettings() {
+        return TransformationSettingsHandler.fromEntity(this);
+    }
+
+    public void applyTransformationSettings(TransformationSettingsHandler settings) {
+        if (settings != null) {
+            settings.applyToEntity(this);
+            notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+        }
+    }
 }

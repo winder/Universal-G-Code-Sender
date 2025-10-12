@@ -67,6 +67,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private final SelectionSettingsModel model = new SelectionSettingsModel();
     private final transient FieldEventDispatcher fieldEventDispatcher;
     private transient Controller controller;
+    private TransformationModelAdapter transformationAdapter;
 
     // Section titles and separators
     // Default section is always visible and doesn't need references
@@ -336,17 +337,50 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         if (selectionGroup.getChildren().isEmpty()) {
             model.reset();
             setEnabled(false);
+            // Dispose of transformation adapter when no selection
+            if (transformationAdapter != null) {
+                transformationAdapter.dispose();
+                transformationAdapter = null;
+            }
             return;
         }
 
         setEnabled(true);
         model.updateFromEntity(selectionGroup);
+
+        // Create or update transformation adapter
+        if (transformationAdapter == null) {
+            transformationAdapter = new TransformationModelAdapter(model, selectionGroup.getChildren());
+            // Add listener to apply transformation changes to entities
+            transformationAdapter.addPropertyChangeListener(evt -> {
+                // Apply transformation changes to selected entities
+                transformationAdapter.applyToEntities(selectionGroup.getChildren());
+                controller.getDrawing().invalidate();
+            });
+        } else {
+            // Update existing adapter with new entities
+            transformationAdapter.updateFromEntities(selectionGroup.getChildren());
+        }
+
         controller.getDrawing().invalidate();
     }
 
     public void release() {
         this.controller.getSelectionManager().removeSelectionListener(this);
         this.controller.getSelectionManager().removeListener(this);
+
+        // Cleanup transformation adapter
+        if (transformationAdapter != null) {
+            transformationAdapter.dispose();
+            transformationAdapter = null;
+        }
+    }
+
+    /**
+     * Gets the transformation model adapter for direct access to property change listeners
+     */
+    public TransformationModelAdapter getTransformationAdapter() {
+        return transformationAdapter;
     }
 
     private void setController(Controller controller) {

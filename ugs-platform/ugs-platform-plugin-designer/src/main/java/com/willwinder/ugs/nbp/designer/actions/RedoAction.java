@@ -19,6 +19,10 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -26,6 +30,21 @@ import java.awt.event.ActionEvent;
 /**
  * @author Joacim Breiler
  */
+@ActionID(
+        id = "com.willwinder.ugs.nbp.designer.actions.RedoAction",
+        category = "Edit")
+@ActionRegistration(
+        displayName = "Redo",
+        lazy = false)
+@ActionReferences({
+        @ActionReference(
+                path = "Menu/Edit",
+                name = "com-willwinder-ugs-nbp-designer-actions-RedoAction",
+                position = 110),
+        @ActionReference(
+                path = "Shortcuts",
+                name = "DS-Z")
+})
 public class RedoAction extends AbstractDesignAction implements UndoManagerListener {
     public static final String SMALL_ICON_PATH = "img/redo.svg";
     public static final String LARGE_ICON_PATH = "img/redo24.svg";

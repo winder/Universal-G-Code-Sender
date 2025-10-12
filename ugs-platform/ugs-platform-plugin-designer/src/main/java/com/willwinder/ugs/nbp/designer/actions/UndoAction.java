@@ -19,6 +19,10 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -26,6 +30,21 @@ import java.awt.event.ActionEvent;
 /**
  * @author Joacim Breiler
  */
+@ActionID(
+        id = "com.willwinder.ugs.nbp.designer.actions.UndoAction",
+        category = "Edit")
+@ActionRegistration(
+        displayName = "Undo",
+        lazy = false)
+@ActionReferences({
+        @ActionReference(
+                path = "Menu/Edit",
+                name = "com-willwinder-ugs-nbp-designer-actions-UndoAction",
+                position = 100),
+        @ActionReference(
+                path = "Shortcuts",
+                name = "D-Z")
+})
 public class UndoAction extends AbstractDesignAction implements UndoManagerListener {
     public static final String SMALL_ICON_PATH = "img/undo.svg";
     public static final String LARGE_ICON_PATH = "img/undo24.svg";
