@@ -109,6 +109,7 @@ public class Text extends AbstractCuttable {
     public List<EntitySetting> getSettings() {
         List<EntitySetting> entitySettings = new ArrayList<>(super.getSettings());
         entitySettings.add(EntitySetting.TEXT);
+        entitySettings.add(EntitySetting.FONT_FAMILY);
         return entitySettings;
     }
 }
