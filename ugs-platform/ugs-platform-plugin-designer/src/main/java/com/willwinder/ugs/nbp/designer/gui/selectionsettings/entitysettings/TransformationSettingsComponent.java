@@ -18,10 +18,14 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings;
 
+import com.willwinder.ugs.nbp.designer.actions.ChangeEntitySettingsAction;
+import com.willwinder.ugs.nbp.designer.actions.UndoableAction;
 import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.gui.anchor.AnchorSelectorPanel;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
@@ -34,6 +38,7 @@ import java.awt.Component;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.List;
 
 
 /*
@@ -227,5 +232,35 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
     @Override
     public void removeChangeListener(PropertyChangeListener l) {
         pcs.removePropertyChangeListener(l);
+    }
+
+    @Override
+    public void createAndExecuteUndoableAction(String propertyName, Object newValue, Group selectionGroup, Controller controller) {
+        List<Entity> entities = selectionGroup.getChildren();
+        if (entities.isEmpty()) return;
+
+        UndoableAction action = createAction(propertyName, newValue, entities);
+        if (action != null) {
+            action.redo();
+            controller.getUndoManager().addAction(action);
+        }
+    }
+
+    private UndoableAction createAction(String propertyName, Object newValue, List<Entity> entities) {
+        EntitySetting setting = mapPropertyToEntitySetting(propertyName);
+        return setting != null ? new ChangeEntitySettingsAction(entities, setting, newValue) : null;
+    }
+
+    private EntitySetting mapPropertyToEntitySetting(String propertyName) {
+        return switch (propertyName) {
+            case PROP_POSITION_X -> EntitySetting.POSITION_X;
+            case PROP_POSITION_Y -> EntitySetting.POSITION_Y;
+            case PROP_WIDTH -> EntitySetting.WIDTH;
+            case PROP_HEIGHT -> EntitySetting.HEIGHT;
+            case PROP_ROTATION -> EntitySetting.ROTATION;
+            case PROP_ANCHOR -> EntitySetting.ANCHOR;
+            case PROP_LOCK_RATIO -> null; // This is UI state, not an entity setting
+            default -> null;
+        };
     }
 }

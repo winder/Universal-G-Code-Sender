@@ -18,9 +18,14 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings;
 
+import com.willwinder.ugs.nbp.designer.actions.ChangeEntitySettingsAction;
+import com.willwinder.ugs.nbp.designer.actions.UndoableAction;
+import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 import com.willwinder.ugs.nbp.designer.gui.FontCombo;
+import com.willwinder.ugs.nbp.designer.logic.Controller;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -30,13 +35,14 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.List;
 
 
 /*
  * @Author giro-dev
  */
 @ServiceProvider(service = EntitySettingsComponent.class, position = 1)
-public class TextSettingsPanel extends JPanel implements EntitySettingsComponent {
+public class TextSettingsComponent extends JPanel implements EntitySettingsComponent {
     public static final String PROP_TEXT = "text";
     public static final String PROP_FONT_FAMILY = "fontFamily";
 
@@ -49,7 +55,7 @@ public class TextSettingsPanel extends JPanel implements EntitySettingsComponent
     private FontCombo fontCombo;
     private boolean updating = false;
 
-    public TextSettingsPanel() {
+    public TextSettingsComponent() {
         super(new MigLayout("insets 0, gap 10, fillx", "[sg label,right] 10 [grow]"));
         initializeComponents();
         buildLayout();
@@ -160,5 +166,40 @@ public class TextSettingsPanel extends JPanel implements EntitySettingsComponent
     @Override
     public void removeChangeListener(PropertyChangeListener l) {
         pcs.removePropertyChangeListener(l);
+    }
+
+    @Override
+    public void createAndExecuteUndoableAction(String propertyName, Object newValue, Group selectionGroup, Controller controller) {
+        List<Entity> entities = selectionGroup.getChildren();
+        if (entities.isEmpty()) return;
+
+        UndoableAction action = createAction(propertyName, newValue, entities);
+        if (action != null) {
+            action.redo();
+            controller.getUndoManager().addAction(action);
+        }
+    }
+
+    private UndoableAction createAction(String propertyName, Object newValue, List<Entity> entities) {
+        return switch (propertyName) {
+            case PROP_TEXT -> new ChangeEntitySettingsAction(entities, EntitySetting.TEXT, newValue);
+            case PROP_FONT_FAMILY -> createFontAction(entities, newValue);
+            default -> {
+                EntitySetting setting = mapPropertyToEntitySetting(propertyName);
+                yield setting != null ? new ChangeEntitySettingsAction(entities, setting, newValue) : null;
+            }
+        };
+    }
+
+    private UndoableAction createFontAction(List<Entity> entities, Object newValue) {
+        return new ChangeEntitySettingsAction(entities, EntitySetting.FONT_FAMILY, newValue);
+    }
+
+    private EntitySetting mapPropertyToEntitySetting(String propertyName) {
+        return switch (propertyName) {
+            case PROP_TEXT -> EntitySetting.TEXT;
+            case PROP_FONT_FAMILY -> EntitySetting.FONT_FAMILY;
+            default -> null;
+        };
     }
 }

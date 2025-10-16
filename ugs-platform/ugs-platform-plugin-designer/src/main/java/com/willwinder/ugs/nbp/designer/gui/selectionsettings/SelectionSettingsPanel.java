@@ -18,18 +18,13 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.selectionsettings;
 
-import com.willwinder.ugs.nbp.designer.actions.ChangeEntitySettingsAction;
-import com.willwinder.ugs.nbp.designer.actions.ChangeFontAction;
-import com.willwinder.ugs.nbp.designer.actions.UndoableAction;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EntityListener;
-import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings.ComponentWithListener;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings.EntitySettingsComponent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import net.miginfocom.swing.MigLayout;
@@ -47,8 +42,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private transient Controller controller;
     private final JPanel contentPanel;
     private final List<EntitySettingsComponent> availableComponents = new ArrayList<>();
-    private final List<EntitySettingsComponent> activeComponents = new ArrayList<>();
-    private final List<PropertyChangeListener> activeComponentListeners = new ArrayList<>();
+    private final List<ComponentWithListener> activeComponents = new ArrayList<>();
 
     public SelectionSettingsPanel(Controller controller) {
         setLayout(new MigLayout("fillx, insets 10, gap 0", "[grow]"));
@@ -67,9 +61,9 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         setEnabledRecursive(this, enabled);
-        activeComponents.forEach(component -> {
-            if (component.getComponent() != null) {
-                component.getComponent().setEnabled(enabled);
+        activeComponents.forEach(activeComponent -> {
+            if (activeComponent.component().getComponent() != null) {
+                activeComponent.component().getComponent().setEnabled(enabled);
             }
         });
     }
@@ -113,76 +107,17 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private void activateComponent(EntitySettingsComponent component, Group selectionGroup) {
         if (component == null || component.getComponent() == null) return;
 
-        activeComponents.add(component);
         mountComponent(component.getComponent());
 
         PropertyChangeListener listener = evt -> {
             Group currentGroup = controller.getSelectionManager().getSelectionGroup();
-            createAndExecuteUndoableAction(evt.getPropertyName(), evt.getNewValue(), currentGroup);
+            component.createAndExecuteUndoableAction(evt.getPropertyName(), evt.getNewValue(), currentGroup, controller);
             controller.getDrawing().invalidate();
         };
 
         component.addChangeListener(listener);
-        activeComponentListeners.add(listener);
+        activeComponents.add(new ComponentWithListener(component, listener));
         component.setFromSelection(selectionGroup);
-    }
-
-    private void createAndExecuteUndoableAction(String propertyName, Object newValue, Group selectionGroup) {
-        List<Entity> entities = selectionGroup.getChildren();
-        if (entities.isEmpty()) return;
-
-        UndoableAction action = createAction(propertyName, newValue, entities);
-        if (action != null) {
-            action.redo();
-            controller.getUndoManager().addAction(action);
-        }
-    }
-
-    private UndoableAction createAction(String propertyName, Object newValue, List<Entity> entities) {
-        return switch (propertyName) {
-            case "text" -> new ChangeEntitySettingsAction(entities, EntitySetting.TEXT, newValue);
-            case "fontFamily" -> createFontAction(entities, newValue);
-            default -> {
-                EntitySetting setting = mapPropertyToEntitySetting(propertyName);
-                yield setting != null ? new ChangeEntitySettingsAction(entities, setting, newValue) : null;
-            }
-        };
-    }
-
-    private UndoableAction createFontAction(List<Entity> entities, Object newValue) {
-        List<Text> textEntities = entities.stream()
-                .filter(Text.class::isInstance)
-                .map(Text.class::cast)
-                .toList();
-
-        if (textEntities.isEmpty()) return null;
-
-        return textEntities.size() == 1
-                ? new ChangeFontAction(textEntities.get(0), String.valueOf(newValue))
-                : new ChangeEntitySettingsAction(entities, EntitySetting.FONT_FAMILY, newValue);
-    }
-
-    private EntitySetting mapPropertyToEntitySetting(String propertyName) {
-        return switch (propertyName) {
-            case "positionX" -> EntitySetting.POSITION_X;
-            case "positionY" -> EntitySetting.POSITION_Y;
-            case "width" -> EntitySetting.WIDTH;
-            case "height" -> EntitySetting.HEIGHT;
-            case "rotation" -> EntitySetting.ROTATION;
-            case "anchor" -> EntitySetting.ANCHOR;
-            case "lockRatio" -> EntitySetting.LOCK_RATIO;
-            case "cutType" -> EntitySetting.CUT_TYPE;
-            case "startDepth" -> EntitySetting.START_DEPTH;
-            case "targetDepth" -> EntitySetting.TARGET_DEPTH;
-            case "spindleSpeed" -> EntitySetting.SPINDLE_SPEED;
-            case "passes" -> EntitySetting.PASSES;
-            case "feedRate" -> EntitySetting.FEED_RATE;
-            case "leadInPercent" -> EntitySetting.LEAD_IN_PERCENT;
-            case "leadOutPercent" -> EntitySetting.LEAD_OUT_PERCENT;
-            case "includeInExport" -> EntitySetting.INCLUDE_IN_EXPORT;
-            case "fontFamily" -> EntitySetting.FONT_FAMILY;
-            default -> null;
-        };
     }
 
     private void mountComponent(JComponent componentUI) {
@@ -192,12 +127,11 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     }
 
     private void clearAllComponents() {
-        for (int i = 0; i < activeComponents.size(); i++) {
-            activeComponents.get(i).removeChangeListener(activeComponentListeners.get(i));
-        }
+        activeComponents.forEach(activeComponent ->
+            activeComponent.component().removeChangeListener(activeComponent.listener())
+        );
 
         activeComponents.clear();
-        activeComponentListeners.clear();
         contentPanel.removeAll();
         contentPanel.revalidate();
         contentPanel.repaint();
