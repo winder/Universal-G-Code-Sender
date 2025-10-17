@@ -70,6 +70,7 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
 
     private boolean updating = false;
     private boolean lockRatio = false;
+    private Anchor currentAnchor = Anchor.CENTER; // Add field to store current anchor
 
     public TransformationSettingsComponent() {
         super(new MigLayout("insets 0, gap 10, fillx", "[sg label,right] 10 [grow] 10 [60px]"));
@@ -128,7 +129,12 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
         });
 
         rotationTextField.addPropertyChangeListener("value", evt -> firePropertyChange(PROP_ROTATION, evt.getNewValue()));
-        anchorSelector.addListener(anchor -> firePropertyChange(PROP_ANCHOR, anchor));
+
+        anchorSelector.addListener(anchor -> {
+            currentAnchor = anchor;
+            firePropertyChange(PROP_ANCHOR, anchor);
+        });
+
         lockRatioButton.addActionListener(e -> {
             lockRatio = lockRatioButton.isSelected();
             firePropertyChange(PROP_LOCK_RATIO, lockRatio);
@@ -137,7 +143,7 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
 
     private void handleRatioChange(double newValue, TextFieldWithUnit otherField,
                                   TextFieldWithUnit currentField, Double oldValue, String otherProp) {
-        if (lockRatio && otherField.getDoubleValue() > 0 && oldValue != null && oldValue > 0) {
+        if ( otherField.getDoubleValue() > 0 && oldValue != null && oldValue > 0) {
             double ratio = otherField.getDoubleValue() / oldValue;
             double newOtherValue = newValue * ratio;
             updating = true;
@@ -184,14 +190,13 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
         Entity firstEntity = selectionGroup.getChildren().get(0);
         updating = true;
         try {
-            Point2D position = firstEntity.getPosition();
+            Point2D position = firstEntity.getPosition(currentAnchor);
             posXTextField.setValue(position.getX());
             posYTextField.setValue(position.getY());
             widthTextField.setDoubleValue(firstEntity.getSize().getWidth());
             heightTextField.setDoubleValue(firstEntity.getSize().getHeight());
             rotationTextField.setValue(firstEntity.getRotation());
-            anchorSelector.setAnchor(Anchor.CENTER);
-            lockRatio = false;
+            anchorSelector.setAnchor(currentAnchor);
             lockRatioButton.setSelected(lockRatio);
         } finally {
             updating = false;
@@ -203,25 +208,57 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
         selectionGroup.getChildren().forEach(entity -> {
             switch (propertyName) {
                 case PROP_POSITION_X -> {
-                    Point2D currentPos = entity.getPosition();
-                    entity.setPosition(new Point2D.Double((Double) newValue, currentPos.getY()));
+                    Point2D currentPos = entity.getPosition(currentAnchor);
+                    entity.setPosition(currentAnchor, new Point2D.Double((Double) newValue, currentPos.getY()));
                 }
                 case PROP_POSITION_Y -> {
-                    Point2D currentPos = entity.getPosition();
-                    entity.setPosition(new Point2D.Double(currentPos.getX(), (Double) newValue));
+                    Point2D currentPos = entity.getPosition(currentAnchor);
+                    entity.setPosition(currentAnchor, new Point2D.Double(currentPos.getX(), (Double) newValue));
                 }
                 case PROP_WIDTH -> {
                     Size currentSize = entity.getSize();
-                    entity.setSize(new Size((Double) newValue, currentSize.getHeight()));
+                    double newWidth = (Double) newValue;
+                    if (lockRatio && currentSize.getHeight() > 0) {
+                        double ratio = currentSize.getHeight() / currentSize.getWidth();
+                        double newHeight = newWidth * ratio;
+                        entity.setSize(currentAnchor, new Size(newWidth, newHeight));
+                    } else {
+                        entity.setSize(currentAnchor, new Size(newWidth, currentSize.getHeight()));
+                    }
                 }
                 case PROP_HEIGHT -> {
                     Size currentSize = entity.getSize();
-                    entity.setSize(new Size(currentSize.getWidth(), (Double) newValue));
+                    double newHeight = (Double) newValue;
+                    if (lockRatio && currentSize.getHeight() > 0) {
+                        double ratio = currentSize.getWidth() / currentSize.getHeight();
+                        double newWidth = newHeight * ratio;
+                        entity.setSize(currentAnchor, new Size(newWidth, newHeight));
+                    } else {
+                        entity.setSize(currentAnchor, new Size(currentSize.getWidth(), newHeight));
+                    }
                 }
-                case PROP_ROTATION -> entity.setRotation((Double) newValue);
+                case PROP_ANCHOR -> {
+                    currentAnchor = (Anchor) newValue;
+                    updatePositionFieldsForAnchor(selectionGroup);
+                }
                 case PROP_LOCK_RATIO -> this.lockRatio = (Boolean) newValue;
             }
         });
+    }
+
+    private void updatePositionFieldsForAnchor(Group selectionGroup) {
+        if (selectionGroup.getChildren().isEmpty()) return;
+
+        Entity firstEntity = selectionGroup.getChildren().get(0);
+        Point2D position = firstEntity.getPosition(currentAnchor);
+
+        updating = true;
+        try {
+            posXTextField.setValue(position.getX());
+            posYTextField.setValue(position.getY());
+        } finally {
+            updating = false;
+        }
     }
 
     @Override

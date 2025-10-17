@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbp.designer.entities;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
-import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.geom.Point2D;
 import java.util.List;
