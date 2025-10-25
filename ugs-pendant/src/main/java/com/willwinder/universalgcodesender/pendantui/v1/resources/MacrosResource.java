@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.v1.model.Macro;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -33,6 +34,7 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Tag(name = "Machine", description = "Endpoints for managing the macros")
 @Path("/macros")
 public class MacrosResource {
 

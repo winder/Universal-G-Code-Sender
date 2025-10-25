@@ -18,16 +18,20 @@
  */
 package com.willwinder.universalgcodesender.pendantui.html;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
+import jakarta.ws.rs.core.UriInfo;
 
 import java.io.InputStream;
 import java.util.Objects;
 
+@Hidden
 @Path("/")
 public class StaticResource {
 
@@ -56,6 +60,22 @@ public class StaticResource {
     @Path("{path:(jog|macros|run)$}")
     public Response getSubPage() throws Exception {
         return getStaticResource("");
+    }
+
+    @GET
+    @Path("{path:swagger-ui(/.*)?}")
+    public Response getSwagger(@Context UriInfo uriInfo) throws Exception {
+        String requestPath = uriInfo.getPath();
+        if (requestPath.equals("swagger-ui") || requestPath.equals("swagger-ui/")) {
+            requestPath = "swagger-ui/index.html";
+        }
+
+        InputStream resource = StaticResource.class.getResourceAsStream(String.format(RESOURCES_PATH, requestPath));
+        String mimeType = getMimeType(requestPath);
+        return Objects.isNull(resource)
+                ? Response.status(NOT_FOUND).build()
+                : Response.ok(resource).header(HttpHeaders.CONTENT_TYPE, mimeType).build();
+
     }
 
     @GET
