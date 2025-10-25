@@ -50,6 +50,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jetty.version>12.0.3</jetty.version>
     <jersey.version>3.1.5</jersey.version>
+    <swagger.version>2.2.22</swagger.version>
+    <swagger-ui.version>5.17.14</swagger-ui.version>
     <gluegen.version>2.5.0</gluegen.version>
     <jogl.version>2.5.0</jogl.version>
     <miglayout.version>11.4.2</miglayout.version>

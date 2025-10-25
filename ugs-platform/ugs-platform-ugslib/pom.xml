@@ -48,7 +48,7 @@
                         <package>com.google.gson.internal.bind</package>
                         <package>com.google.gson.reflect</package>
                         <package>com.google.gson.stream</package>
-x                        <package>com.willwinder.universalgcodesender</package>
+                        <package>com.willwinder.universalgcodesender</package>
                         <package>com.willwinder.universalgcodesender.CLI</package>
                         <package>com.willwinder.universalgcodesender.connection</package>
                         <package>com.willwinder.universalgcodesender.communicator.*</package>
