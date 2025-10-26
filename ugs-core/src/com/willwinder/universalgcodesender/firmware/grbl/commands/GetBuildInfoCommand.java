@@ -49,6 +49,11 @@ public class GetBuildInfoCommand extends GrblSystemCommand {
             return Optional.of(new GrblVersion(FALLBACK_VERSION_STRING));
         }
 
+        // Some odd controllers they've removed the [VER: part of the build string, treat it as a 1.1
+        if (lines.length == 2 && StringUtils.equals(lines[1], "ok") && StringUtils.startsWith(lines[0], "[OPT:")) {
+            return Optional.of(new GrblVersion(FALLBACK_VERSION_STRING));
+        }
+
         // With GRBL 0.9 or older, the version string is only one line and an "ok"
         // treat those as a version string
         if (lines.length == 2 && StringUtils.equals(lines[1], "ok")) {
@@ -70,10 +75,6 @@ public class GetBuildInfoCommand extends GrblSystemCommand {
 
     public GrblBuildOptions getBuildOptions() {
         String[] lines = StringUtils.split(getResponse(), "\n");
-
-        if (lines.length == 2 && StringUtils.equals(lines[1], "ok")) {
-            return new GrblBuildOptions();
-        }
 
         return Arrays.stream(lines)
                 .filter(line -> line.startsWith("[OPT:"))
