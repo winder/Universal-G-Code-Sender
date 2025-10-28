@@ -22,7 +22,7 @@ import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
@@ -39,6 +39,8 @@ public abstract class AbstractEntity implements Entity {
     private final Set<EntityListener> listeners = Sets.newConcurrentHashSet();
 
     private AffineTransform transform = new AffineTransform();
+    private boolean lockedRatio = false;
+    private Anchor currentAnchor = Anchor.BOTTOM_LEFT;
     private String name = "AbstractEntity";
     private String description;
 
@@ -87,7 +89,7 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void setSize(Size size) {
-        setSize(Anchor.BOTTOM_LEFT, size);
+        setSize(currentAnchor, size);
     }
 
     @Override
@@ -275,12 +277,24 @@ public abstract class AbstractEntity implements Entity {
 
     public void setWidth(double width) {
         Size size = getSize();
-        setSize(new Size(width, size.getHeight()));
+        double height = size.getHeight();
+        if (lockedRatio && size.getWidth() != 0) {
+            double ratio = height / size.getWidth();
+            height = width * ratio;
+
+        }
+        setSize(new Size(width, height));
     }
 
     public void setHeight(double height) {
         Size size = getSize();
-        setSize(new Size(size.getWidth(), height));
+        double width = size.getWidth();
+        if (lockedRatio && size.getHeight() != 0) {
+            double ratio = width / size.getHeight();
+            width = height * ratio;
+        }
+        setSize(new Size(width, height));
+
     }
 
     protected void copyPropertiesTo(Entity copy) {
@@ -312,14 +326,23 @@ public abstract class AbstractEntity implements Entity {
         return Collections.emptyList();
     }
 
-    public TransformationSettingsHandler getTransformationSettings() {
-        return TransformationSettingsHandler.fromEntity(this);
+    @Override
+    public void setAnchor(Anchor anchor) {
+        this.currentAnchor = anchor;
     }
 
-    public void applyTransformationSettings(TransformationSettingsHandler settings) {
-        if (settings != null) {
-            settings.applyToEntity(this);
-            notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
-        }
+    @Override
+    public Anchor getAnchor() {
+        return currentAnchor;
+    }
+
+    @Override
+    public void setLockRatio(boolean lockRatio) {
+        this.lockedRatio = !lockRatio;
+    }
+
+    @Override
+    public boolean isLockRatio() {
+        return lockedRatio;
     }
 }

@@ -24,13 +24,14 @@ import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
+import com.willwinder.ugs.nbp.designer.entities.settings.TextSettingsManager;
 import com.willwinder.ugs.nbp.designer.gui.FontCombo;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.*;
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeListener;
@@ -174,32 +175,21 @@ public class TextSettingsComponent extends JPanel implements EntitySettingsCompo
         if (entities.isEmpty()) return;
 
         UndoableAction action = createAction(propertyName, newValue, entities);
-        if (action != null) {
-            action.redo();
-            controller.getUndoManager().addAction(action);
-        }
+        action.redo();
+        controller.getUndoManager().addAction(action);
     }
 
     private UndoableAction createAction(String propertyName, Object newValue, List<Entity> entities) {
         return switch (propertyName) {
-            case PROP_TEXT -> new ChangeEntitySettingsAction(entities, EntitySetting.TEXT, newValue);
+            case PROP_TEXT ->
+                    new ChangeEntitySettingsAction(entities, EntitySetting.TEXT, newValue, new TextSettingsManager());
             case PROP_FONT_FAMILY -> createFontAction(entities, newValue);
-            default -> {
-                EntitySetting setting = mapPropertyToEntitySetting(propertyName);
-                yield setting != null ? new ChangeEntitySettingsAction(entities, setting, newValue) : null;
-            }
+            default ->
+                    throw new IllegalArgumentException("Unsupported property: " + propertyName + " (valid properties are: " + PROP_TEXT + ", " + PROP_FONT_FAMILY + ")");
         };
     }
 
     private UndoableAction createFontAction(List<Entity> entities, Object newValue) {
-        return new ChangeEntitySettingsAction(entities, EntitySetting.FONT_FAMILY, newValue);
-    }
-
-    private EntitySetting mapPropertyToEntitySetting(String propertyName) {
-        return switch (propertyName) {
-            case PROP_TEXT -> EntitySetting.TEXT;
-            case PROP_FONT_FAMILY -> EntitySetting.FONT_FAMILY;
-            default -> null;
-        };
+        return new ChangeEntitySettingsAction(entities, EntitySetting.FONT_FAMILY, newValue, new TextSettingsManager());
     }
 }

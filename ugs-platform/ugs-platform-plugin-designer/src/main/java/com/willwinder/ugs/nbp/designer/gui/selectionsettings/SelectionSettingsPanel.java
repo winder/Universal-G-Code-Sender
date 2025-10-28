@@ -26,23 +26,29 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings.ComponentWithListener;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings.EntitySettingsComponent;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.EntitySettingsModel;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.EntitySettingsModelListener;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.SettingsModelFactory;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.Lookup;
 
 import javax.swing.*;
-import java.awt.Component;
-import java.awt.Container;
+import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class SelectionSettingsPanel extends JPanel implements SelectionListener, EntityListener {
+public class SelectionSettingsPanel extends JPanel implements SelectionListener, EntityListener, EntitySettingsModelListener {
     private transient Controller controller;
     private final JPanel contentPanel;
     private final List<EntitySettingsComponent> availableComponents = new ArrayList<>();
     private final List<ComponentWithListener> activeComponents = new ArrayList<>();
+
+    // New layered model architecture
+    private LayeredFieldActionDispatcher fieldDispatcher;
+    private EntitySettingsModel currentModel;
 
     public SelectionSettingsPanel(Controller controller) {
         setLayout(new MigLayout("fillx, insets 10, gap 0", "[grow]"));
@@ -93,7 +99,46 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
         setEnabled(true);
         updateActiveComponents(selectionGroup);
+        updateLayeredModel(selectionGroup);
         controller.getDrawing().invalidate();
+    }
+
+    /**
+     * Updates the layered model based on current selection
+     */
+    private void updateLayeredModel(Group selectionGroup) {
+        if (currentModel != null) {
+            currentModel.removeListener(this);
+        }
+
+        currentModel = SettingsModelFactory.createModelForSelection(selectionGroup);
+
+        currentModel.addListener(this);
+
+        if (fieldDispatcher != null) {
+            fieldDispatcher.updateModel(selectionGroup);
+        }
+    }
+
+    /**
+     * Gets the current layered model
+     */
+    public EntitySettingsModel getCurrentModel() {
+        return currentModel;
+    }
+
+    @Override
+    public void onModelUpdate(com.willwinder.ugs.nbp.designer.entities.EntitySetting setting) {
+
+
+        SwingUtilities.invokeLater(() -> {
+            // Notify active components that the model changed
+            activeComponents.forEach(activeComponent -> {
+                if (activeComponent.component() instanceof EntitySettingsModelListener listener) {
+                    listener.onModelUpdate(setting);
+                }
+            });
+        });
     }
 
     private void updateActiveComponents(Group selectionGroup) {
@@ -139,6 +184,18 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
     public void release() {
         clearAllComponents();
+
+        // Release layered model resources
+        if (currentModel != null) {
+            currentModel.removeListener(this);
+            currentModel = null;
+        }
+
+        if (fieldDispatcher != null) {
+            fieldDispatcher.release();
+            fieldDispatcher = null;
+        }
+
         if (controller != null) {
             controller.getSelectionManager().removeSelectionListener(this);
             controller.getSelectionManager().removeListener(this);
@@ -149,5 +206,8 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         this.controller = controller;
         this.controller.getSelectionManager().addSelectionListener(this);
         this.controller.getSelectionManager().addListener(this);
+
+        // Initialize the layered field dispatcher
+        this.fieldDispatcher = new LayeredFieldActionDispatcher(controller);
     }
 }

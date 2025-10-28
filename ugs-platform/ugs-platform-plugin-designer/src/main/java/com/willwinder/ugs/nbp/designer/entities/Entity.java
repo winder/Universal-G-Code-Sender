@@ -21,8 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
-import java.awt.Graphics2D;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -286,4 +285,22 @@ public interface Entity {
      * @return a list of settings
      */
     List<EntitySetting> getSettings();
+
+    default void setWidth(double width) {
+        Size currentSize = getSize();
+        setSize(new Size(width, currentSize.getHeight()));
+    }
+
+    default void setHeight(double height) {
+        Size currentSize = getSize();
+        setSize(new Size(currentSize.getWidth(), height));
+    }
+
+    void setAnchor(Anchor anchor);
+
+    Anchor getAnchor();
+
+    void setLockRatio(boolean lockRatio);
+
+    boolean isLockRatio();
 }

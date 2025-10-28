@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
+import com.willwinder.ugs.nbp.designer.entities.settings.TransformationEntitySettingsManager;
 import com.willwinder.ugs.nbp.designer.gui.anchor.AnchorSelectorPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
@@ -34,7 +35,7 @@ import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.*;
-import java.awt.Component;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -72,11 +73,13 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
     private boolean lockRatio = false;
     private Anchor currentAnchor = Anchor.CENTER; // Add field to store current anchor
 
+
     public TransformationSettingsComponent() {
         super(new MigLayout("insets 0, gap 10, fillx", "[sg label,right] 10 [grow] 10 [60px]"));
         initializeComponents();
         buildLayout();
         setupListeners();
+
     }
 
     private void initializeComponents() {
@@ -89,6 +92,7 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
 
         lockRatioButton = new JToggleButton(ImageUtilities.loadImageIcon("img/link.svg", false));
         lockRatioButton.setSelectedIcon(ImageUtilities.loadImageIcon("img/link-off.svg", false));
+        lockRatioButton.setSelected(false);
     }
 
     private void buildLayout() {
@@ -116,15 +120,10 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
 
         widthTextField.addPropertyChangeListener("value", evt -> {
             if (updating) return;
-            double newWidth = (Double) evt.getNewValue();
-            handleRatioChange(newWidth, heightTextField, widthTextField, (Double) evt.getOldValue(), PROP_HEIGHT);
             firePropertyChange(PROP_WIDTH, evt.getNewValue());
         });
-
         heightTextField.addPropertyChangeListener("value", evt -> {
             if (updating) return;
-            double newHeight = (Double) evt.getNewValue();
-            handleRatioChange(newHeight, widthTextField, heightTextField, (Double) evt.getOldValue(), PROP_WIDTH);
             firePropertyChange(PROP_HEIGHT, evt.getNewValue());
         });
 
@@ -141,17 +140,6 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
         });
     }
 
-    private void handleRatioChange(double newValue, TextFieldWithUnit otherField,
-                                  TextFieldWithUnit currentField, Double oldValue, String otherProp) {
-        if ( otherField.getDoubleValue() > 0 && oldValue != null && oldValue > 0) {
-            double ratio = otherField.getDoubleValue() / oldValue;
-            double newOtherValue = newValue * ratio;
-            updating = true;
-            otherField.setDoubleValue(newOtherValue);
-            updating = false;
-            firePropertyChange(otherProp, newOtherValue);
-        }
-    }
 
     private void firePropertyChange(String propertyName, Object newValue) {
         if (!updating) {
@@ -167,7 +155,7 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         Component[] components = {posXTextField, posYTextField, widthTextField, heightTextField,
-                                rotationTextField, anchorSelector, lockRatioButton};
+                rotationTextField, anchorSelector, lockRatioButton};
         for (Component component : components) {
             if (component != null) component.setEnabled(enabled);
         }
@@ -218,30 +206,18 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
                 case PROP_WIDTH -> {
                     Size currentSize = entity.getSize();
                     double newWidth = (Double) newValue;
-                    if (lockRatio && currentSize.getHeight() > 0) {
-                        double ratio = currentSize.getHeight() / currentSize.getWidth();
-                        double newHeight = newWidth * ratio;
-                        entity.setSize(currentAnchor, new Size(newWidth, newHeight));
-                    } else {
-                        entity.setSize(currentAnchor, new Size(newWidth, currentSize.getHeight()));
-                    }
+                    entity.setSize(currentAnchor, new Size(newWidth, currentSize.getHeight()));
                 }
                 case PROP_HEIGHT -> {
                     Size currentSize = entity.getSize();
                     double newHeight = (Double) newValue;
-                    if (lockRatio && currentSize.getHeight() > 0) {
-                        double ratio = currentSize.getWidth() / currentSize.getHeight();
-                        double newWidth = newHeight * ratio;
-                        entity.setSize(currentAnchor, new Size(newWidth, newHeight));
-                    } else {
-                        entity.setSize(currentAnchor, new Size(currentSize.getWidth(), newHeight));
-                    }
+                    entity.setSize(currentAnchor, new Size(currentSize.getWidth(), newHeight));
                 }
                 case PROP_ANCHOR -> {
                     currentAnchor = (Anchor) newValue;
                     updatePositionFieldsForAnchor(selectionGroup);
                 }
-                case PROP_LOCK_RATIO -> this.lockRatio = (Boolean) newValue;
+                case PROP_LOCK_RATIO -> this.lockRatio = !(Boolean) newValue;
             }
         });
     }
@@ -285,7 +261,7 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
 
     private UndoableAction createAction(String propertyName, Object newValue, List<Entity> entities) {
         EntitySetting setting = mapPropertyToEntitySetting(propertyName);
-        return setting != null ? new ChangeEntitySettingsAction(entities, setting, newValue) : null;
+        return setting != null ? new ChangeEntitySettingsAction(entities, setting, newValue, new TransformationEntitySettingsManager()) : null;
     }
 
     private EntitySetting mapPropertyToEntitySetting(String propertyName) {
@@ -296,7 +272,7 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
             case PROP_HEIGHT -> EntitySetting.HEIGHT;
             case PROP_ROTATION -> EntitySetting.ROTATION;
             case PROP_ANCHOR -> EntitySetting.ANCHOR;
-            case PROP_LOCK_RATIO -> null; // This is UI state, not an entity setting
+            case PROP_LOCK_RATIO -> EntitySetting.LOCK_RATIO;
             default -> null;
         };
     }

@@ -20,15 +20,16 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
-import com.willwinder.ugs.nbp.designer.entities.EntitySettingsManager;
+import com.willwinder.ugs.nbp.designer.entities.settings.EntitySettingsManager;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 /**
  * An undoable action for changing entity settings through the settings panel.
  * This action captures the previous values and can restore them on undo.
+ * Uses the service-based EntitySettingsServiceManager for improved extensibility.
  *
  * @author giro-dev
  */
@@ -37,23 +38,24 @@ public class ChangeEntitySettingsAction implements UndoableAction {
     private final EntitySetting setting;
     private final Object newValue;
     private final Map<Entity, Object> previousValues;
+    private final EntitySettingsManager settingsManager;
 
-    public ChangeEntitySettingsAction(List<Entity> entities, EntitySetting setting, Object newValue) {
+    public ChangeEntitySettingsAction(List<Entity> entities, EntitySetting setting, Object newValue, EntitySettingsManager entitySettingsManager) {
         this.entities = entities;
         this.setting = setting;
         this.newValue = newValue;
         this.previousValues = new HashMap<>();
-
+        this.settingsManager = entitySettingsManager;
         // Store the current values for all entities
         for (Entity entity : entities) {
-            Object currentValue = EntitySettingsManager.getSettingValue(setting, List.of(entity));
+            Object currentValue = settingsManager.getSettingValue(setting, entity);
             previousValues.put(entity, currentValue);
         }
     }
 
     @Override
     public void redo() {
-        EntitySettingsManager.applySettingToEntities(setting, newValue, entities);
+        settingsManager.applySetting(setting, newValue, entities);
 
         // Notify entities about the change
         for (Entity entity : entities) {
@@ -71,9 +73,8 @@ public class ChangeEntitySettingsAction implements UndoableAction {
         for (Entity entity : entities) {
             Object previousValue = previousValues.get(entity);
             if (previousValue != null) {
-                EntitySettingsManager.applySettingToEntities(setting, previousValue, List.of(entity));
+                settingsManager.applySetting(setting, previousValue, entity);
 
-                // Notify entity about the change
                 if (entity instanceof com.willwinder.ugs.nbp.designer.entities.AbstractEntity abstractEntity) {
                     abstractEntity.notifyEvent(new com.willwinder.ugs.nbp.designer.entities.EntityEvent(
                         entity,

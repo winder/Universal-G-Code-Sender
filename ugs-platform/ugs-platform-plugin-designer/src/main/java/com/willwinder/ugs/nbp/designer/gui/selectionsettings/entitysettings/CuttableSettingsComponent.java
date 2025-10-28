@@ -22,9 +22,10 @@ import com.willwinder.ugs.nbp.designer.actions.ChangeEntitySettingsAction;
 import com.willwinder.ugs.nbp.designer.actions.UndoableAction;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
+import com.willwinder.ugs.nbp.designer.entities.settings.CuttableSettingsManager;
 import com.willwinder.ugs.nbp.designer.gui.CutTypeCombo;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
@@ -34,7 +35,7 @@ import net.miginfocom.swing.MigLayout;
 import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.*;
-import java.awt.Component;
+import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.EnumMap;
@@ -296,7 +297,7 @@ public class CuttableSettingsComponent extends JPanel implements EntitySettingsC
 
     private UndoableAction createAction(String propertyName, Object newValue, List<Entity> entities) {
         EntitySetting setting = mapPropertyToEntitySetting(propertyName);
-        return setting != null ? new ChangeEntitySettingsAction(entities, setting, newValue) : null;
+        return setting != null ? new ChangeEntitySettingsAction(entities, setting, newValue, new CuttableSettingsManager()) : null;
     }
 
     private EntitySetting mapPropertyToEntitySetting(String propertyName) {
