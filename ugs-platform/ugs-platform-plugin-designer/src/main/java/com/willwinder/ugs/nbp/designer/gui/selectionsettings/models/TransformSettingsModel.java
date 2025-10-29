@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author giro-dev
  */
-public class EntitySettingsModel implements Serializable {
+public class TransformSettingsModel implements Serializable {
     private final transient Set<EntitySettingsModelListener> listeners = ConcurrentHashMap.newKeySet();
 
     private double width = 0d;
@@ -40,8 +40,10 @@ public class EntitySettingsModel implements Serializable {
     private double positionX = 0d;
     private double positionY = 0d;
     private double rotation = 0d;
-    private boolean lockRatio = false;
+    private boolean lockRatio = true;
     private Anchor anchor = Anchor.CENTER;
+    private transient boolean isUpdatingFromEntity = false;  // Add this flag
+
 
     public void addListener(EntitySettingsModelListener listener) {
         listeners.add(listener);
@@ -52,11 +54,13 @@ public class EntitySettingsModel implements Serializable {
     }
 
     protected void notifyListeners(EntitySetting setting) {
-        listeners.forEach(l -> l.onModelUpdate(setting));
+        if (!isUpdatingFromEntity) {
+            listeners.forEach(l -> l.onModelUpdate(setting));
+        }
     }
 
-    protected boolean valuesEquals(double value1, double value2) {
-        return Utils.roundToDecimals(value1, Utils.MAX_DECIMALS) == Utils.roundToDecimals(value2, Utils.MAX_DECIMALS);
+    protected boolean valuesNotEquals(double value1, double value2) {
+        return Utils.roundToDecimals(value1, Utils.MAX_DECIMALS) != Utils.roundToDecimals(value2, Utils.MAX_DECIMALS);
     }
 
     // Getters and setters for entity properties
@@ -65,7 +69,7 @@ public class EntitySettingsModel implements Serializable {
     }
 
     public void setWidth(double width) {
-        if (!valuesEquals(this.width, width)) {
+        if (valuesNotEquals(this.width, width)) {
             this.width = width;
             notifyListeners(EntitySetting.WIDTH);
         }
@@ -76,7 +80,7 @@ public class EntitySettingsModel implements Serializable {
     }
 
     public void setHeight(double height) {
-        if (!valuesEquals(this.height, height)) {
+        if (valuesNotEquals(this.height, height)) {
             this.height = height;
             notifyListeners(EntitySetting.HEIGHT);
         }
@@ -87,7 +91,7 @@ public class EntitySettingsModel implements Serializable {
     }
 
     public void setPositionX(double positionX) {
-        if (!valuesEquals(this.positionX, positionX)) {
+        if (valuesNotEquals(this.positionX, positionX)) {
             this.positionX = positionX;
             notifyListeners(EntitySetting.POSITION_X);
         }
@@ -98,7 +102,7 @@ public class EntitySettingsModel implements Serializable {
     }
 
     public void setPositionY(double positionY) {
-        if (!valuesEquals(this.positionY, positionY)) {
+        if (valuesNotEquals(this.positionY, positionY)) {
             this.positionY = positionY;
             notifyListeners(EntitySetting.POSITION_Y);
         }
@@ -109,7 +113,7 @@ public class EntitySettingsModel implements Serializable {
     }
 
     public void setRotation(double rotation) {
-        if (!valuesEquals(this.rotation, rotation)) {
+        if (valuesNotEquals(this.rotation, rotation)) {
             this.rotation = rotation;
             notifyListeners(EntitySetting.ROTATION);
         }
@@ -140,12 +144,12 @@ public class EntitySettingsModel implements Serializable {
         boolean updatedWidth = false;
         boolean updatedHeight = false;
 
-        if (!valuesEquals(this.width, width)) {
+        if (valuesNotEquals(this.width, width)) {
             this.width = width;
             updatedWidth = true;
         }
 
-        if (!valuesEquals(this.height, height)) {
+        if (valuesNotEquals(this.height, height)) {
             this.height = height;
             updatedHeight = true;
         }
@@ -165,30 +169,21 @@ public class EntitySettingsModel implements Serializable {
     }
 
     public void updateFromGroup(Group selectionGroup) {
-        if (selectionGroup.getSettings().contains(EntitySetting.POSITION_X)) {
-            setPositionX(selectionGroup.getPosition(getAnchor()).getX());
-        }
+        isUpdatingFromEntity = true;
+        try {
 
-        if (selectionGroup.getSettings().contains(EntitySetting.POSITION_Y)) {
-            setPositionY(selectionGroup.getPosition(getAnchor()).getY());
-        }
-
-        if (selectionGroup.getSettings().contains(EntitySetting.WIDTH)) {
-            setWidth(selectionGroup.getSize().getWidth());
-        }
-
-        if (selectionGroup.getSettings().contains(EntitySetting.HEIGHT)) {
-            setHeight(selectionGroup.getSize().getHeight());
-        }
-
-        if (selectionGroup.getSettings().contains(EntitySetting.ROTATION)) {
-            setRotation(selectionGroup.getRotation());
-        }
-        if (selectionGroup.getSettings().contains(EntitySetting.ANCHOR)) {
-            setAnchor(selectionGroup.getAnchor());
-        }
-        if (selectionGroup.getSettings().contains(EntitySetting.LOCK_RATIO)) {
-            setLockRatio(selectionGroup.isLockRatio());
+            if (EntitySetting.TRANSFORMATION_SETTINGS.stream().allMatch(setting ->
+                    selectionGroup.getSettings().contains(setting))) {
+                setPositionX(selectionGroup.getPosition(getAnchor()).getX());
+                setPositionY(selectionGroup.getPosition(getAnchor()).getY());
+                setWidth(selectionGroup.getSize().getWidth());
+                setHeight(selectionGroup.getSize().getHeight());
+                setRotation(selectionGroup.getRotation());
+                setAnchor(selectionGroup.getAnchor());
+                setLockRatio(selectionGroup.isLockRatio());
+            }
+        } finally {
+            isUpdatingFromEntity = false;
         }
     }
 

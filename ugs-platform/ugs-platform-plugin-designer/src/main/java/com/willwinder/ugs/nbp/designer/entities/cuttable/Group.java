@@ -248,8 +248,10 @@ public class Group extends EntityGroup implements Cuttable {
 
     @Override
     public List<EntitySetting> getSettings() {
-        List<List<EntitySetting>> list = getCuttableStream().map(Entity::getSettings).toList();
-        if (list.isEmpty()) {
+        List<List<EntitySetting>> list = getCuttableStream()
+                .map(Entity::getSettings)
+                .toList();
+        if (list.isEmpty() || list.get(0).isEmpty()) {
             return List.of();
         }
 
@@ -258,7 +260,7 @@ public class Group extends EntityGroup implements Cuttable {
             result.retainAll(settings);
         }
 
-        // Remove cut type if they are of differnt types
+        // Remove cut type if has diferents values
         if (getCuttableStream().map(Cuttable::getCutType).distinct().toList().size() > 1) {
             result = new ArrayList<>(result);
             result.remove(EntitySetting.CUT_TYPE);

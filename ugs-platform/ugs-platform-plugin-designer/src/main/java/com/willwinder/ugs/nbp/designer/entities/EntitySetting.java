@@ -58,55 +58,33 @@ public enum EntitySetting {
 
     public static final List<EntitySetting> DEFAULT_ENDMILL_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
-            EntitySetting.ANCHOR,
-            EntitySetting.HEIGHT,
-            EntitySetting.WIDTH,
-            EntitySetting.FONT_FAMILY,
-            EntitySetting.LOCK_RATIO,
-            EntitySetting.POSITION_X,
-            EntitySetting.POSITION_Y,
-            EntitySetting.ROTATION,
             EntitySetting.START_DEPTH,
             EntitySetting.TARGET_DEPTH,
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.FEED_RATE,
-            EntitySetting.TEXT,
             EntitySetting.INCLUDE_IN_EXPORT);
 
     public static final List<EntitySetting> DEFAULT_SURFACE_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
-            EntitySetting.ANCHOR,
-            EntitySetting.HEIGHT,
-            EntitySetting.WIDTH,
-            EntitySetting.FONT_FAMILY,
-            EntitySetting.LOCK_RATIO,
-            EntitySetting.POSITION_X,
-            EntitySetting.POSITION_Y,
-            EntitySetting.ROTATION,
             EntitySetting.START_DEPTH,
             EntitySetting.TARGET_DEPTH,
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.FEED_RATE,
-            EntitySetting.TEXT,
             EntitySetting.LEAD_IN_PERCENT,
             EntitySetting.LEAD_OUT_PERCENT,
             EntitySetting.INCLUDE_IN_EXPORT);
 
     public static final List<EntitySetting> DEFAULT_LASER_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
-            EntitySetting.ANCHOR,
-            EntitySetting.HEIGHT,
-            EntitySetting.WIDTH,
-            EntitySetting.FONT_FAMILY,
-            EntitySetting.LOCK_RATIO,
-            EntitySetting.POSITION_X,
-            EntitySetting.POSITION_Y,
-            EntitySetting.ROTATION,
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.PASSES,
             EntitySetting.FEED_RATE,
-            EntitySetting.TEXT,
             EntitySetting.INCLUDE_IN_EXPORT);
+
+    public static final List<EntitySetting> DEFAULT_TEXT_SETTINGS = List.of(
+            EntitySetting.TEXT,
+            EntitySetting.FONT_FAMILY);
+
 
     private final String label;
 

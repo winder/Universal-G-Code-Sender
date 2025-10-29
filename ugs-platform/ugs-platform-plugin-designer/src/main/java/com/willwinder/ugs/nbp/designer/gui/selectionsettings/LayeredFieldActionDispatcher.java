@@ -24,9 +24,9 @@ import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.entities.settings.EntitySettingsManager;
-import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.EntitySettingsModel;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.EntitySettingsModelListener;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.SettingsModelFactory;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.TransformSettingsModel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.openide.util.Lookup;
 
@@ -45,7 +45,7 @@ public class LayeredFieldActionDispatcher implements FieldEventListener, EntityS
     private static final Logger LOGGER = Logger.getLogger(LayeredFieldActionDispatcher.class.getSimpleName());
 
     private final Controller controller;
-    private EntitySettingsModel currentModel;
+    private TransformSettingsModel currentModel;
     private final List<EntitySettingsManager> settingsManagers = new ArrayList<>();
 
     public LayeredFieldActionDispatcher(Controller controller) {
@@ -69,7 +69,7 @@ public class LayeredFieldActionDispatcher implements FieldEventListener, EntityS
         currentModel.addListener(this);
     }
 
-    public EntitySettingsModel getCurrentModel() {
+    public TransformSettingsModel getCurrentModel() {
         return currentModel;
     }
 

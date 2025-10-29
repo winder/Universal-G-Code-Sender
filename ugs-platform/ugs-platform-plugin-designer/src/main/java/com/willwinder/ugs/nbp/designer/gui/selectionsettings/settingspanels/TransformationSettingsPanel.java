@@ -16,12 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings;
+package com.willwinder.ugs.nbp.designer.gui.selectionsettings.settingspanels;
 
 import com.willwinder.ugs.nbp.designer.actions.ChangeEntitySettingsAction;
 import com.willwinder.ugs.nbp.designer.actions.UndoableAction;
 import com.willwinder.ugs.nbp.designer.entities.Anchor;
-import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.settings.TransformationEntitySettingsManager;
@@ -80,7 +79,7 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
         initializeComponents();
         buildLayout();
         setupListeners();
-
+        lockRatioButton.setSelected(true);
     }
 
     private void initializeComponents() {
@@ -93,7 +92,7 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
 
         lockRatioButton = new JToggleButton(ImageUtilities.loadImageIcon("img/link.svg", false));
         lockRatioButton.setSelectedIcon(ImageUtilities.loadImageIcon("img/link-off.svg", false));
-        lockRatioButton.setSelected(false);
+
     }
 
     private void buildLayout() {
@@ -122,10 +121,41 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
         widthTextField.addPropertyChangeListener("value", evt -> {
             if (updating) return;
             firePropertyChange(PROP_WIDTH, evt.getNewValue());
+
+            // Update height field when lockRatio is enabled
+            if (lockRatio && evt.getNewValue() instanceof Double newWidth) {
+                updating = true;
+                try {
+                    double currentWidth = widthTextField.getDoubleValue();
+                    double currentHeight = heightTextField.getDoubleValue();
+                    if (currentWidth > 0) {
+                        double ratio = currentHeight / currentWidth;
+                        heightTextField.setDoubleValue(newWidth * ratio);
+                    }
+                } finally {
+                    updating = false;
+                }
+            }
         });
+
         heightTextField.addPropertyChangeListener("value", evt -> {
             if (updating) return;
             firePropertyChange(PROP_HEIGHT, evt.getNewValue());
+
+            // Update width field when lockRatio is enabled
+            if (lockRatio && evt.getNewValue() instanceof Double newHeight) {
+                updating = true;
+                try {
+                    double currentWidth = widthTextField.getDoubleValue();
+                    double currentHeight = heightTextField.getDoubleValue();
+                    if (currentHeight > 0) {
+                        double ratio = currentWidth / currentHeight;
+                        widthTextField.setDoubleValue(newHeight * ratio);
+                    }
+                } finally {
+                    updating = false;
+                }
+            }
         });
 
         rotationTextField.addPropertyChangeListener("value", evt -> firePropertyChange(PROP_ROTATION, evt.getNewValue()));
@@ -176,15 +206,14 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
     public void setFromSelection(Group selectionGroup) {
         if (selectionGroup.getChildren().isEmpty()) return;
 
-        Entity firstEntity = selectionGroup.getChildren().get(0);
         updating = true;
         try {
-            Point2D position = firstEntity.getPosition(currentAnchor);
+            Point2D position = selectionGroup.getPosition(currentAnchor);
             posXTextField.setValue(position.getX());
             posYTextField.setValue(position.getY());
-            widthTextField.setDoubleValue(firstEntity.getSize().getWidth());
-            heightTextField.setDoubleValue(firstEntity.getSize().getHeight());
-            rotationTextField.setValue(firstEntity.getRotation());
+            widthTextField.setDoubleValue(selectionGroup.getSize().getWidth());
+            heightTextField.setDoubleValue(selectionGroup.getSize().getHeight());
+            rotationTextField.setValue(selectionGroup.getRotation());
             anchorSelector.setAnchor(currentAnchor);
             lockRatioButton.setSelected(lockRatio);
         } finally {
@@ -194,25 +223,26 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
 
     @Override
     public void applyChangeToSelection(String propertyName, Object newValue, Group selectionGroup) {
-        selectionGroup.getChildren().forEach(entity -> {
             switch (propertyName) {
                 case PROP_POSITION_X -> {
-                    Point2D currentPos = entity.getPosition(currentAnchor);
-                    entity.setPosition(currentAnchor, new Point2D.Double((Double) newValue, currentPos.getY()));
+                    Point2D currentPos = selectionGroup.getPosition(currentAnchor);
+                    selectionGroup.setPosition(currentAnchor, new Point2D.Double((Double) newValue, currentPos.getY()));
                 }
                 case PROP_POSITION_Y -> {
-                    Point2D currentPos = entity.getPosition(currentAnchor);
-                    entity.setPosition(currentAnchor, new Point2D.Double(currentPos.getX(), (Double) newValue));
+                    Point2D currentPos = selectionGroup.getPosition(currentAnchor);
+                    selectionGroup.setPosition(currentAnchor, new Point2D.Double(currentPos.getX(), (Double) newValue));
                 }
                 case PROP_WIDTH -> {
-                    Size currentSize = entity.getSize();
+                    Size currentSize = selectionGroup.getSize();
                     double newWidth = (Double) newValue;
-                    entity.setSize(currentAnchor, new Size(newWidth, currentSize.getHeight()));
+                    double newHeight = lockRatio ? currentSize.getHeight() * (newWidth / currentSize.getWidth()) : currentSize.getHeight();
+                    selectionGroup.setSize(currentAnchor, new Size(newWidth, newHeight));
                 }
                 case PROP_HEIGHT -> {
-                    Size currentSize = entity.getSize();
+                    Size currentSize = selectionGroup.getSize();
                     double newHeight = (Double) newValue;
-                    entity.setSize(currentAnchor, new Size(currentSize.getWidth(), newHeight));
+                    double newWidth = lockRatio ? currentSize.getWidth() * (newHeight / currentSize.getHeight()) : currentSize.getWidth();
+                    selectionGroup.setSize(currentAnchor, new Size(newWidth, newHeight));
                 }
                 case PROP_ANCHOR -> {
                     currentAnchor = (Anchor) newValue;
@@ -220,14 +250,12 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
                 }
                 case PROP_LOCK_RATIO -> this.lockRatio = !(Boolean) newValue;
             }
-        });
     }
 
     private void updatePositionFieldsForAnchor(Group selectionGroup) {
         if (selectionGroup.getChildren().isEmpty()) return;
 
-        Entity firstEntity = selectionGroup.getChildren().get(0);
-        Point2D position = firstEntity.getPosition(currentAnchor);
+        Point2D position = selectionGroup.getPosition(currentAnchor);
 
         updating = true;
         try {
@@ -250,19 +278,55 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
 
     @Override
     public void createAndExecuteUndoableAction(String propertyName, Object newValue, Group selectionGroup, Controller controller) {
-        List<Entity> entities = selectionGroup.getChildren();
-        if (entities.isEmpty()) return;
+        if (selectionGroup.getChildren().isEmpty()) return;
 
-        UndoableAction action = createAction(propertyName, newValue, entities);
+        // For transformations, we need to work with the group as a whole to maintain relationships
+        UndoableAction action = createGroupAction(propertyName, newValue, selectionGroup);
         if (action != null) {
             action.redo();
             controller.getUndoManager().addAction(action);
         }
     }
 
-    private UndoableAction createAction(String propertyName, Object newValue, List<Entity> entities) {
+    private UndoableAction createGroupAction(String propertyName, Object newValue, Group selectionGroup) {
+        // For width/height changes, we need to transform the entire group together
+        if (PROP_WIDTH.equals(propertyName) || PROP_HEIGHT.equals(propertyName)) {
+            return new UndoableAction() {
+                private final Size originalSize = selectionGroup.getSize();
+                private final Point2D originalPosition = selectionGroup.getPosition(currentAnchor);
+
+                @Override
+                public void redo() {
+                    Size currentSize = selectionGroup.getSize();
+                    double newWidth, newHeight;
+
+                    if (PROP_WIDTH.equals(propertyName)) {
+                        newWidth = (Double) newValue;
+                        newHeight = lockRatio ? currentSize.getHeight() * (newWidth / currentSize.getWidth()) : currentSize.getHeight();
+                    } else {
+                        newHeight = (Double) newValue;
+                        newWidth = lockRatio ? currentSize.getWidth() * (newHeight / currentSize.getHeight()) : currentSize.getWidth();
+                    }
+
+                    selectionGroup.setSize(currentAnchor, new Size(newWidth, newHeight));
+                }
+
+                @Override
+                public void undo() {
+                    selectionGroup.setSize(currentAnchor, originalSize);
+                    selectionGroup.setPosition(currentAnchor, originalPosition);
+                }
+
+                @Override
+                public String toString() {
+                    return "Change group " + (PROP_WIDTH.equals(propertyName) ? "width" : "height");
+                }
+            };
+        }
+
+        // For other transformations, create appropriate actions
         EntitySetting setting = mapPropertyToEntitySetting(propertyName);
-        return setting != null ? new ChangeEntitySettingsAction(entities, setting, newValue, new TransformationEntitySettingsManager()) : null;
+        return setting != null ? new ChangeEntitySettingsAction(List.of(selectionGroup), setting, newValue, new TransformationEntitySettingsManager()) : null;
     }
 
     private EntitySetting mapPropertyToEntitySetting(String propertyName) {

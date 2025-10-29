@@ -33,36 +33,36 @@ public class SettingsModelFactory {
      * Creates the most appropriate settings model for the given selection.
      * Returns the most specific model that can handle all entities in the selection.
      */
-    public static EntitySettingsModel createModelForSelection(Group selectionGroup) {
+    public static TransformSettingsModel createModelForSelection(Group selectionGroup) {
 
-        EntitySettingsModel model = selectionGroup.getAllChildren().stream()
+        TransformSettingsModel model = selectionGroup.getAllChildren().stream()
                 .map(SettingsModelFactory::getModelTypeForEntity)
                 .reduce(SettingsModelFactory::getMoreSpecificModel)
-                .orElse(new EntitySettingsModel());
+                .orElse(new TransformSettingsModel());
 
         model.updateFromGroup(selectionGroup);
         return model;
     }
 
-    private static EntitySettingsModel getMoreSpecificModel(EntitySettingsModel model1, EntitySettingsModel model2) {
+    private static TransformSettingsModel getMoreSpecificModel(TransformSettingsModel model1, TransformSettingsModel model2) {
         return model1 instanceof TextSettingsModel || model2 instanceof TextSettingsModel
                 ? new TextSettingsModel()
                 : model1 instanceof CuttableSettingsModel || model2 instanceof CuttableSettingsModel
                 ? new CuttableSettingsModel()
-                : new EntitySettingsModel();
+                : new TransformSettingsModel();
     }
 
 
     /**
      * Gets the appropriate model type for a specific entity
      */
-    public static EntitySettingsModel getModelTypeForEntity(Entity entity) {
+    public static TransformSettingsModel getModelTypeForEntity(Entity entity) {
         if (entity instanceof Text) {
             return new TextSettingsModel();
         } else if (entity instanceof Cuttable) {
             return new CuttableSettingsModel();
         } else {
-            return new EntitySettingsModel();
+            return new TransformSettingsModel();
         }
     }
 }

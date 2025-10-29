@@ -24,11 +24,11 @@ import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
-import com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings.ComponentWithListener;
-import com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings.EntitySettingsPanel;
-import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.EntitySettingsModel;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.EntitySettingsModelListener;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.SettingsModelFactory;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.TransformSettingsModel;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.settingspanels.ComponentWithListener;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.settingspanels.EntitySettingsPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.Lookup;
@@ -48,7 +48,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
     // New layered model architecture
     private LayeredFieldActionDispatcher fieldDispatcher;
-    private EntitySettingsModel currentModel;
+    private TransformSettingsModel currentModel;
 
     public SelectionSettingsPanel(Controller controller) {
         setLayout(new MigLayout("fillx, insets 10, gap 0", "[grow]"));
@@ -123,7 +123,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     /**
      * Gets the current layered model
      */
-    public EntitySettingsModel getCurrentModel() {
+    public TransformSettingsModel getCurrentModel() {
         return currentModel;
     }
 

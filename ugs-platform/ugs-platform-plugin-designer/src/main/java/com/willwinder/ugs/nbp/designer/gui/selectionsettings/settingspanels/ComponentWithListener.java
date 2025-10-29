@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings;
+package com.willwinder.ugs.nbp.designer.gui.selectionsettings.settingspanels;
 
 import java.beans.PropertyChangeListener;
 

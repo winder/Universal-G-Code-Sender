@@ -28,7 +28,7 @@ import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
  * Model for cuttable-specific properties (cutting parameters, depths, speeds, etc.)
  * Extends EntitySettingsModel to include transformation properties.
  */
-public class CuttableSettingsModel extends EntitySettingsModel {
+public class CuttableSettingsModel extends TransformSettingsModel {
 
     private CutType cutType = CutType.NONE;
     private double targetDepth = 0d;
@@ -57,7 +57,7 @@ public class CuttableSettingsModel extends EntitySettingsModel {
     }
 
     public void setTargetDepth(double targetDepth) {
-        if (!valuesEquals(this.targetDepth, targetDepth)) {
+        if (valuesNotEquals(this.targetDepth, targetDepth)) {
             this.targetDepth = targetDepth;
             notifyListeners(EntitySetting.TARGET_DEPTH);
         }
@@ -68,7 +68,7 @@ public class CuttableSettingsModel extends EntitySettingsModel {
     }
 
     public void setStartDepth(double startDepth) {
-        if (!valuesEquals(this.startDepth, startDepth)) {
+        if (valuesNotEquals(this.startDepth, startDepth)) {
             this.startDepth = startDepth;
             notifyListeners(EntitySetting.START_DEPTH);
         }
@@ -79,7 +79,7 @@ public class CuttableSettingsModel extends EntitySettingsModel {
     }
 
     public void setSpindleSpeed(Integer speed) {
-        if (!valuesEquals(this.spindleSpeed, speed)) {
+        if (valuesNotEquals(this.spindleSpeed, speed)) {
             if (speed == 0) speed = 100;
             this.spindleSpeed = speed;
             notifyListeners(EntitySetting.SPINDLE_SPEED);
@@ -91,7 +91,7 @@ public class CuttableSettingsModel extends EntitySettingsModel {
     }
 
     public void setPasses(Integer passes) {
-        if (!valuesEquals(this.passes, passes)) {
+        if (valuesNotEquals(this.passes, passes)) {
             passes = Math.max(1, passes);
             this.passes = passes;
             notifyListeners(EntitySetting.PASSES);
@@ -103,7 +103,7 @@ public class CuttableSettingsModel extends EntitySettingsModel {
     }
 
     public void setFeedRate(Integer feedRate) {
-        if (!valuesEquals(this.feedRate, feedRate)) {
+        if (valuesNotEquals(this.feedRate, feedRate)) {
             if (feedRate == 0) feedRate = getDefaultFeedRate();
             this.feedRate = feedRate;
             notifyListeners(EntitySetting.FEED_RATE);
@@ -115,7 +115,7 @@ public class CuttableSettingsModel extends EntitySettingsModel {
     }
 
     public void setLeadInPercent(int leadInPercent) {
-        if (!valuesEquals(this.leadInPercent, leadInPercent)) {
+        if (valuesNotEquals(this.leadInPercent, leadInPercent)) {
             this.leadInPercent = leadInPercent;
             notifyListeners(EntitySetting.LEAD_IN_PERCENT);
         }
@@ -126,7 +126,7 @@ public class CuttableSettingsModel extends EntitySettingsModel {
     }
 
     public void setLeadOutPercent(int leadOutPercent) {
-        if (!valuesEquals(this.leadOutPercent, leadOutPercent)) {
+        if (valuesNotEquals(this.leadOutPercent, leadOutPercent)) {
             this.leadOutPercent = leadOutPercent;
             notifyListeners(EntitySetting.LEAD_OUT_PERCENT);
         }
