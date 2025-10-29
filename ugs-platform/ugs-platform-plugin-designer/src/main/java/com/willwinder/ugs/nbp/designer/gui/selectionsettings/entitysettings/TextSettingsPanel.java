@@ -27,6 +27,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 import com.willwinder.ugs.nbp.designer.entities.settings.TextSettingsManager;
 import com.willwinder.ugs.nbp.designer.gui.FontCombo;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -42,8 +43,8 @@ import java.util.List;
 /*
  * @Author giro-dev
  */
-@ServiceProvider(service = EntitySettingsComponent.class, position = 1)
-public class TextSettingsComponent extends JPanel implements EntitySettingsComponent {
+@ServiceProvider(service = EntitySettingsPanel.class, position = 1)
+public class TextSettingsPanel extends JPanel implements EntitySettingsPanel {
     public static final String PROP_TEXT = "text";
     public static final String PROP_FONT_FAMILY = "fontFamily";
 
@@ -56,7 +57,7 @@ public class TextSettingsComponent extends JPanel implements EntitySettingsCompo
     private FontCombo fontCombo;
     private boolean updating = false;
 
-    public TextSettingsComponent() {
+    public TextSettingsPanel() {
         super(new MigLayout("insets 0, gap 10, fillx", "[sg label,right] 10 [grow]"));
         initializeComponents();
         buildLayout();
@@ -69,7 +70,7 @@ public class TextSettingsComponent extends JPanel implements EntitySettingsCompo
     }
 
     private void buildLayout() {
-        add(new JLabel("Text Properties", SwingConstants.LEFT), "spanx, gaptop 5, gapbottom 0, wrap");
+        add(new JLabel(Localization.getString("designer.panel.shape-settings.text.title"), SwingConstants.LEFT), "spanx, gaptop 5, gapbottom 0, wrap");
         add(new JSeparator(), "spanx, growx, gaptop 0, gapbottom 5, wrap");
 
         add(new JLabel("Text", SwingConstants.RIGHT), LABEL_CONSTRAINTS);

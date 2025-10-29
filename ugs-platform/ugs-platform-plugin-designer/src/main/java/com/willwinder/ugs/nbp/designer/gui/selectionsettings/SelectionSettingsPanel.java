@@ -25,7 +25,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings.ComponentWithListener;
-import com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings.EntitySettingsComponent;
+import com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings.EntitySettingsPanel;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.EntitySettingsModel;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.EntitySettingsModelListener;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.SettingsModelFactory;
@@ -43,7 +43,7 @@ import java.util.List;
 public class SelectionSettingsPanel extends JPanel implements SelectionListener, EntityListener, EntitySettingsModelListener {
     private transient Controller controller;
     private final JPanel contentPanel;
-    private final List<EntitySettingsComponent> availableComponents = new ArrayList<>();
+    private final List<EntitySettingsPanel> availableComponents = new ArrayList<>();
     private final List<ComponentWithListener> activeComponents = new ArrayList<>();
 
     // New layered model architecture
@@ -56,7 +56,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         contentPanel = new JPanel(new MigLayout("fillx, insets 0, gap 10", "[grow]"));
         add(contentPanel, "growx, wrap");
 
-        Collection<? extends EntitySettingsComponent> components = Lookup.getDefault().lookupAll(EntitySettingsComponent.class);
+        Collection<? extends EntitySettingsPanel> components = Lookup.getDefault().lookupAll(EntitySettingsPanel.class);
         availableComponents.addAll(components);
 
         setController(controller);
@@ -149,7 +149,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
                 .forEach(component -> activateComponent(component, selectionGroup));
     }
 
-    private void activateComponent(EntitySettingsComponent component, Group selectionGroup) {
+    private void activateComponent(EntitySettingsPanel component, Group selectionGroup) {
         if (component == null || component.getComponent() == null) return;
 
         mountComponent(component.getComponent());

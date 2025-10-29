@@ -227,7 +227,7 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void rotate(double angle) {
-        rotate(getCenter(), angle);
+        rotate(getPosition(getAnchor()), angle);
     }
 
     @Override

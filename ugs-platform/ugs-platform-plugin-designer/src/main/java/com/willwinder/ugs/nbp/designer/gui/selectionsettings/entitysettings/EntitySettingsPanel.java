@@ -21,7 +21,7 @@ package com.willwinder.ugs.nbp.designer.gui.selectionsettings.entitysettings;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 
-import javax.swing.JComponent;
+import javax.swing.*;
 import java.beans.PropertyChangeListener;
 
 /**
@@ -30,7 +30,7 @@ import java.beans.PropertyChangeListener;
  * events, and know how to apply their changes to the current selection.
  * @author giro-dev
  */
-public interface EntitySettingsComponent {
+public interface EntitySettingsPanel {
     /**
      * Whether this settings component should be shown for the current selection.
      */

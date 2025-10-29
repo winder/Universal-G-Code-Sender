@@ -58,9 +58,9 @@ public class TransformationEntitySettingsManager implements EntitySettingsManage
             case WIDTH -> entity.getSize().getWidth();
             case HEIGHT -> entity.getSize().getHeight();
             case ROTATION -> entity.getRotation();
-            case ANCHOR -> Anchor.BOTTOM_LEFT; // Default anchor for compatibility
-            case LOCK_RATIO -> false; // Default lock ratio
-            default -> null; // Not a transformation setting
+            case ANCHOR -> entity.getAnchor();
+            case LOCK_RATIO -> false;
+            default -> null;
         };
     }
 

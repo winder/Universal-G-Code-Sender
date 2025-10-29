@@ -23,5 +23,5 @@ import java.beans.PropertyChangeListener;
 /*
  * @Author giro-dev
  */
-public record ComponentWithListener(EntitySettingsComponent component, PropertyChangeListener listener) {
+public record ComponentWithListener(EntitySettingsPanel component, PropertyChangeListener listener) {
 }

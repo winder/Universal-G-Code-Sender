@@ -28,6 +28,7 @@ import com.willwinder.ugs.nbp.designer.entities.settings.TransformationEntitySet
 import com.willwinder.ugs.nbp.designer.gui.anchor.AnchorSelectorPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
 import net.miginfocom.swing.MigLayout;
@@ -45,8 +46,8 @@ import java.util.List;
 /*
  * @Author giro-dev
  */
-@ServiceProvider(service = EntitySettingsComponent.class, position = 9)
-public class TransformationSettingsComponent extends JPanel implements EntitySettingsComponent {
+@ServiceProvider(service = EntitySettingsPanel.class, position = 9)
+public class TransformationSettingsPanel extends JPanel implements EntitySettingsPanel {
 
     public static final String PROP_POSITION_X = "positionX";
     public static final String PROP_POSITION_Y = "positionY";
@@ -74,7 +75,7 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
     private Anchor currentAnchor = Anchor.CENTER; // Add field to store current anchor
 
 
-    public TransformationSettingsComponent() {
+    public TransformationSettingsPanel() {
         super(new MigLayout("insets 0, gap 10, fillx", "[sg label,right] 10 [grow] 10 [60px]"));
         initializeComponents();
         buildLayout();
@@ -96,7 +97,7 @@ public class TransformationSettingsComponent extends JPanel implements EntitySet
     }
 
     private void buildLayout() {
-        add(new JLabel("Transform", SwingConstants.LEFT), "spanx, gaptop 5, gapbottom 0, wrap");
+        add(new JLabel(Localization.getString("designer.panel.shape-settings.transform.title"), SwingConstants.LEFT), "spanx, gaptop 5, gapbottom 0, wrap");
         add(new JSeparator(), "spanx, growx, gaptop 0, gapbottom 5, wrap");
 
         addLabeledField("X", posXTextField, anchorSelector, "span 1 2");

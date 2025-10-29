@@ -28,6 +28,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.settings.CuttableSettingsManager;
 import com.willwinder.ugs.nbp.designer.gui.CutTypeCombo;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
 import com.willwinder.universalgcodesender.uielements.components.PercentSpinner;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
@@ -42,8 +43,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-@ServiceProvider(service = EntitySettingsComponent.class, position = 10)
-public class CuttableSettingsComponent extends JPanel implements EntitySettingsComponent {
+@ServiceProvider(service = EntitySettingsPanel.class, position = 10)
+public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel {
 
     public static final String PROP_CUT_TYPE = "cutType";
     public static final String PROP_START_DEPTH = "startDepth";
@@ -75,7 +76,7 @@ public class CuttableSettingsComponent extends JPanel implements EntitySettingsC
 
     private boolean updating = false;
 
-    public CuttableSettingsComponent() {
+    public CuttableSettingsPanel() {
         super(new MigLayout("insets 0, gap 10, fillx", "[sg label,right] 10 [grow]"));
         initializeComponents();
         buildLayout();
@@ -109,7 +110,7 @@ public class CuttableSettingsComponent extends JPanel implements EntitySettingsC
     }
 
     private void buildLayout() {
-        add(new JLabel("Cutting Options", SwingConstants.LEFT), "spanx, gaptop 5, gapbottom 0, wrap");
+        add(new JLabel(Localization.getString("designer.panel.shape-settings.cutting.title"), SwingConstants.LEFT), "spanx, gaptop 5, gapbottom 0, wrap");
         add(new JSeparator(), "spanx, growx, gaptop 0, gapbottom 5, wrap");
 
         addLabeledComponent(EntitySetting.CUT_TYPE, "Cut Type", cutTypeComboBox);
