@@ -45,13 +45,16 @@ import java.util.List;
  */
 @ServiceProvider(service = EntitySettingsPanel.class, position = 1)
 public class TextSettingsPanel extends JPanel implements EntitySettingsPanel {
-    public static final String PROP_TEXT = "text";
-    public static final String PROP_FONT_FAMILY = "fontFamily";
+
+    // Use EntitySetting property names instead of string constants
+    public static final String PROP_TEXT = EntitySetting.TEXT.getPropertyName();
+    public static final String PROP_FONT_FAMILY = EntitySetting.FONT_FAMILY.getPropertyName();
 
     private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";
     private static final String FIELD_CONSTRAINTS = "grow, w 60:60:300, hmin 32, hmax 36, wrap, spanx";
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    private final TextSettingsManager settingsManager = new TextSettingsManager();
 
     private JTextField textField;
     private FontCombo fontCombo;
@@ -153,9 +156,10 @@ public class TextSettingsPanel extends JPanel implements EntitySettingsPanel {
                 .filter(Text.class::isInstance)
                 .map(Text.class::cast)
                 .forEach(text -> {
-                    switch (propertyName) {
-                        case PROP_TEXT -> text.setText(value);
-                        case PROP_FONT_FAMILY -> text.setFontFamily(value);
+                    if (PROP_TEXT.equals(propertyName)) {
+                        text.setText(value);
+                    } else if (PROP_FONT_FAMILY.equals(propertyName)) {
+                        text.setFontFamily(value);
                     }
                 });
     }
@@ -181,16 +185,16 @@ public class TextSettingsPanel extends JPanel implements EntitySettingsPanel {
     }
 
     private UndoableAction createAction(String propertyName, Object newValue, List<Entity> entities) {
-        return switch (propertyName) {
-            case PROP_TEXT ->
-                    new ChangeEntitySettingsAction(entities, EntitySetting.TEXT, newValue, new TextSettingsManager());
-            case PROP_FONT_FAMILY -> createFontAction(entities, newValue);
-            default ->
-                    throw new IllegalArgumentException("Unsupported property: " + propertyName + " (valid properties are: " + PROP_TEXT + ", " + PROP_FONT_FAMILY + ")");
-        };
+        if (PROP_TEXT.equals(propertyName)) {
+            return new ChangeEntitySettingsAction(entities, EntitySetting.TEXT, newValue, settingsManager);
+        } else if (PROP_FONT_FAMILY.equals(propertyName)) {
+            return createFontAction(entities, newValue);
+        } else {
+            throw new IllegalArgumentException("Unsupported property: " + propertyName + " (valid properties are: " + PROP_TEXT + ", " + PROP_FONT_FAMILY + ")");
+        }
     }
 
     private UndoableAction createFontAction(List<Entity> entities, Object newValue) {
-        return new ChangeEntitySettingsAction(entities, EntitySetting.FONT_FAMILY, newValue, new TextSettingsManager());
+        return new ChangeEntitySettingsAction(entities, EntitySetting.FONT_FAMILY, newValue, settingsManager);
     }
 }

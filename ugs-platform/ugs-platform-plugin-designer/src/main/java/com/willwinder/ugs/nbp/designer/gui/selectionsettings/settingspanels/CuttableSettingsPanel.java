@@ -46,21 +46,23 @@ import java.util.Map;
 @ServiceProvider(service = EntitySettingsPanel.class, position = 10)
 public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel {
 
-    public static final String PROP_CUT_TYPE = "cutType";
-    public static final String PROP_START_DEPTH = "startDepth";
-    public static final String PROP_TARGET_DEPTH = "targetDepth";
-    public static final String PROP_SPINDLE_SPEED = "spindleSpeed";
-    public static final String PROP_PASSES = "passes";
-    public static final String PROP_FEED_RATE = "feedRate";
-    public static final String PROP_LEAD_IN_PERCENT = "leadInPercent";
-    public static final String PROP_LEAD_OUT_PERCENT = "leadOutPercent";
-    public static final String PROP_INCLUDE_IN_EXPORT = "includeInExport";
+    // Use EntitySetting property names instead of string constants
+    public static final String PROP_CUT_TYPE = EntitySetting.CUT_TYPE.getPropertyName();
+    public static final String PROP_START_DEPTH = EntitySetting.START_DEPTH.getPropertyName();
+    public static final String PROP_TARGET_DEPTH = EntitySetting.TARGET_DEPTH.getPropertyName();
+    public static final String PROP_SPINDLE_SPEED = EntitySetting.SPINDLE_SPEED.getPropertyName();
+    public static final String PROP_PASSES = EntitySetting.PASSES.getPropertyName();
+    public static final String PROP_FEED_RATE = EntitySetting.FEED_RATE.getPropertyName();
+    public static final String PROP_LEAD_IN_PERCENT = EntitySetting.LEAD_IN_PERCENT.getPropertyName();
+    public static final String PROP_LEAD_OUT_PERCENT = EntitySetting.LEAD_OUT_PERCENT.getPropertyName();
+    public static final String PROP_INCLUDE_IN_EXPORT = EntitySetting.INCLUDE_IN_EXPORT.getPropertyName();
 
     private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";
     private static final String FIELD_CONSTRAINTS = "grow, w 60:60:300, hmin 32, hmax 36, wrap, spanx";
     private static final String SLIDER_CONSTRAINTS = "grow, w 60:60:300, hmin 32, hmax 44, wrap, spanx";
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    private final CuttableSettingsManager settingsManager = new CuttableSettingsManager();
 
     private CutTypeCombo cutTypeComboBox;
     private UnitSpinner startDepthSpinner;
@@ -262,15 +264,22 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     }
 
     private void applyCuttableProperty(Cuttable cuttable, String propertyName, Object newValue) {
-        switch (propertyName) {
-            case PROP_CUT_TYPE -> cuttable.setCutType((CutType) newValue);
-            case PROP_START_DEPTH -> cuttable.setStartDepth((Double) newValue);
-            case PROP_TARGET_DEPTH -> cuttable.setTargetDepth((Double) newValue);
-            case PROP_SPINDLE_SPEED -> cuttable.setSpindleSpeed((Integer) newValue);
-            case PROP_FEED_RATE -> cuttable.setFeedRate((Integer) newValue);
-            case PROP_PASSES -> cuttable.setPasses((Integer) newValue);
-            case PROP_LEAD_IN_PERCENT -> cuttable.setLeadInPercent((Integer) newValue);
-            case PROP_LEAD_OUT_PERCENT -> cuttable.setLeadOutPercent((Integer) newValue);
+        if (PROP_CUT_TYPE.equals(propertyName)) {
+            cuttable.setCutType((CutType) newValue);
+        } else if (PROP_START_DEPTH.equals(propertyName)) {
+            cuttable.setStartDepth((Double) newValue);
+        } else if (PROP_TARGET_DEPTH.equals(propertyName)) {
+            cuttable.setTargetDepth((Double) newValue);
+        } else if (PROP_SPINDLE_SPEED.equals(propertyName)) {
+            cuttable.setSpindleSpeed((Integer) newValue);
+        } else if (PROP_FEED_RATE.equals(propertyName)) {
+            cuttable.setFeedRate((Integer) newValue);
+        } else if (PROP_PASSES.equals(propertyName)) {
+            cuttable.setPasses((Integer) newValue);
+        } else if (PROP_LEAD_IN_PERCENT.equals(propertyName)) {
+            cuttable.setLeadInPercent((Integer) newValue);
+        } else if (PROP_LEAD_OUT_PERCENT.equals(propertyName)) {
+            cuttable.setLeadOutPercent((Integer) newValue);
         }
     }
 
@@ -297,22 +306,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     }
 
     private UndoableAction createAction(String propertyName, Object newValue, List<Entity> entities) {
-        EntitySetting setting = mapPropertyToEntitySetting(propertyName);
-        return setting != null ? new ChangeEntitySettingsAction(entities, setting, newValue, new CuttableSettingsManager()) : null;
-    }
-
-    private EntitySetting mapPropertyToEntitySetting(String propertyName) {
-        return switch (propertyName) {
-            case PROP_CUT_TYPE -> EntitySetting.CUT_TYPE;
-            case PROP_START_DEPTH -> EntitySetting.START_DEPTH;
-            case PROP_TARGET_DEPTH -> EntitySetting.TARGET_DEPTH;
-            case PROP_SPINDLE_SPEED -> EntitySetting.SPINDLE_SPEED;
-            case PROP_PASSES -> EntitySetting.PASSES;
-            case PROP_FEED_RATE -> EntitySetting.FEED_RATE;
-            case PROP_LEAD_IN_PERCENT -> EntitySetting.LEAD_IN_PERCENT;
-            case PROP_LEAD_OUT_PERCENT -> EntitySetting.LEAD_OUT_PERCENT;
-            case PROP_INCLUDE_IN_EXPORT -> EntitySetting.INCLUDE_IN_EXPORT;
-            default -> null;
-        };
+        EntitySetting setting = EntitySetting.fromPropertyName(propertyName);
+        return setting != null ? new ChangeEntitySettingsAction(entities, setting, newValue, settingsManager) : null;
     }
 }

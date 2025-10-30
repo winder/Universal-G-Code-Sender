@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.selectionsettings.settingspanels;
 
-import com.willwinder.ugs.nbp.designer.actions.ChangeEntitySettingsAction;
+import com.willwinder.ugs.nbp.designer.actions.SettingsActionFactory;
 import com.willwinder.ugs.nbp.designer.actions.UndoableAction;
 import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
@@ -39,7 +39,7 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.List;
+import java.util.Objects;
 
 
 /*
@@ -48,18 +48,20 @@ import java.util.List;
 @ServiceProvider(service = EntitySettingsPanel.class, position = 9)
 public class TransformationSettingsPanel extends JPanel implements EntitySettingsPanel {
 
-    public static final String PROP_POSITION_X = "positionX";
-    public static final String PROP_POSITION_Y = "positionY";
-    public static final String PROP_WIDTH = "width";
-    public static final String PROP_HEIGHT = "height";
-    public static final String PROP_ROTATION = "rotation";
-    public static final String PROP_ANCHOR = "anchor";
-    public static final String PROP_LOCK_RATIO = "lockRatio";
+    // Use EntitySetting property names instead of string constants
+    private static final String PROP_POSITION_X = EntitySetting.POSITION_X.getPropertyName();
+    private static final String PROP_POSITION_Y = EntitySetting.POSITION_Y.getPropertyName();
+    private static final String PROP_WIDTH = EntitySetting.WIDTH.getPropertyName();
+    private static final String PROP_HEIGHT = EntitySetting.HEIGHT.getPropertyName();
+    private static final String PROP_ROTATION = EntitySetting.ROTATION.getPropertyName();
+    private static final String PROP_ANCHOR = EntitySetting.ANCHOR.getPropertyName();
+    private static final String PROP_LOCK_RATIO = EntitySetting.LOCK_RATIO.getPropertyName();
 
     private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";
     private static final String FIELD_CONSTRAINTS = "grow, w 60:60:300, hmin 32, hmax 36";
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    private final TransformationEntitySettingsManager settingsManager = new TransformationEntitySettingsManager();
 
     private TextFieldWithUnit posXTextField;
     private TextFieldWithUnit posYTextField;
@@ -90,8 +92,8 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
         rotationTextField = new TextFieldWithUnit(TextFieldUnit.DEGREE, 4, 0);
         anchorSelector = new AnchorSelectorPanel();
 
-        lockRatioButton = new JToggleButton(ImageUtilities.loadImageIcon("img/link.svg", false));
-        lockRatioButton.setSelectedIcon(ImageUtilities.loadImageIcon("img/link-off.svg", false));
+        lockRatioButton = new JToggleButton(ImageUtilities.loadImageIcon("img/link-off.svg", false));
+        lockRatioButton.setSelectedIcon(ImageUtilities.loadImageIcon("img/link.svg", false));
 
     }
 
@@ -222,33 +224,33 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
     }
 
     @Override
-    public void applyChangeToSelection(String propertyName, Object newValue, Group selectionGroup) {
-            switch (propertyName) {
-                case PROP_POSITION_X -> {
+    public void applyChangeToSelection(String setting, Object newValue, Group selectionGroup) {
+        switch (Objects.requireNonNull(EntitySetting.fromPropertyName(setting))) {
+            case POSITION_X -> {
                     Point2D currentPos = selectionGroup.getPosition(currentAnchor);
                     selectionGroup.setPosition(currentAnchor, new Point2D.Double((Double) newValue, currentPos.getY()));
                 }
-                case PROP_POSITION_Y -> {
+            case POSITION_Y -> {
                     Point2D currentPos = selectionGroup.getPosition(currentAnchor);
                     selectionGroup.setPosition(currentAnchor, new Point2D.Double(currentPos.getX(), (Double) newValue));
                 }
-                case PROP_WIDTH -> {
+            case WIDTH -> {
                     Size currentSize = selectionGroup.getSize();
                     double newWidth = (Double) newValue;
                     double newHeight = lockRatio ? currentSize.getHeight() * (newWidth / currentSize.getWidth()) : currentSize.getHeight();
                     selectionGroup.setSize(currentAnchor, new Size(newWidth, newHeight));
                 }
-                case PROP_HEIGHT -> {
+            case HEIGHT -> {
                     Size currentSize = selectionGroup.getSize();
                     double newHeight = (Double) newValue;
                     double newWidth = lockRatio ? currentSize.getWidth() * (newHeight / currentSize.getHeight()) : currentSize.getWidth();
                     selectionGroup.setSize(currentAnchor, new Size(newWidth, newHeight));
                 }
-                case PROP_ANCHOR -> {
+            case ANCHOR -> {
                     currentAnchor = (Anchor) newValue;
                     updatePositionFieldsForAnchor(selectionGroup);
                 }
-                case PROP_LOCK_RATIO -> this.lockRatio = !(Boolean) newValue;
+            case LOCK_RATIO -> this.lockRatio = !(Boolean) newValue;
             }
     }
 
@@ -277,68 +279,30 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
     }
 
     @Override
-    public void createAndExecuteUndoableAction(String propertyName, Object newValue, Group selectionGroup, Controller controller) {
+    public void createAndExecuteUndoableAction(String setting, Object newValue, Group selectionGroup, Controller controller) {
         if (selectionGroup.getChildren().isEmpty()) return;
 
         // For transformations, we need to work with the group as a whole to maintain relationships
-        UndoableAction action = createGroupAction(propertyName, newValue, selectionGroup);
+        UndoableAction action = createGroupAction(EntitySetting.fromPropertyName(setting), newValue, selectionGroup);
         if (action != null) {
             action.redo();
             controller.getUndoManager().addAction(action);
         }
     }
 
-    private UndoableAction createGroupAction(String propertyName, Object newValue, Group selectionGroup) {
-        // For width/height changes, we need to transform the entire group together
-        if (PROP_WIDTH.equals(propertyName) || PROP_HEIGHT.equals(propertyName)) {
-            return new UndoableAction() {
-                private final Size originalSize = selectionGroup.getSize();
-                private final Point2D originalPosition = selectionGroup.getPosition(currentAnchor);
-
-                @Override
-                public void redo() {
-                    Size currentSize = selectionGroup.getSize();
-                    double newWidth, newHeight;
-
-                    if (PROP_WIDTH.equals(propertyName)) {
-                        newWidth = (Double) newValue;
-                        newHeight = lockRatio ? currentSize.getHeight() * (newWidth / currentSize.getWidth()) : currentSize.getHeight();
-                    } else {
-                        newHeight = (Double) newValue;
-                        newWidth = lockRatio ? currentSize.getWidth() * (newHeight / currentSize.getHeight()) : currentSize.getWidth();
-                    }
-
-                    selectionGroup.setSize(currentAnchor, new Size(newWidth, newHeight));
-                }
-
-                @Override
-                public void undo() {
-                    selectionGroup.setSize(currentAnchor, originalSize);
-                    selectionGroup.setPosition(currentAnchor, originalPosition);
-                }
-
-                @Override
-                public String toString() {
-                    return "Change group " + (PROP_WIDTH.equals(propertyName) ? "width" : "height");
-                }
-            };
-        }
-
-        // For other transformations, create appropriate actions
-        EntitySetting setting = mapPropertyToEntitySetting(propertyName);
-        return setting != null ? new ChangeEntitySettingsAction(List.of(selectionGroup), setting, newValue, new TransformationEntitySettingsManager()) : null;
+    private UndoableAction createGroupAction(EntitySetting propertyName, Object newValue, Group selectionGroup) {
+        // Use the centralized factory to create actions
+        return SettingsActionFactory.createAction(
+                propertyName,
+                newValue,
+                selectionGroup,
+                currentAnchor,
+                lockRatio,
+                settingsManager
+        );
     }
 
     private EntitySetting mapPropertyToEntitySetting(String propertyName) {
-        return switch (propertyName) {
-            case PROP_POSITION_X -> EntitySetting.POSITION_X;
-            case PROP_POSITION_Y -> EntitySetting.POSITION_Y;
-            case PROP_WIDTH -> EntitySetting.WIDTH;
-            case PROP_HEIGHT -> EntitySetting.HEIGHT;
-            case PROP_ROTATION -> EntitySetting.ROTATION;
-            case PROP_ANCHOR -> EntitySetting.ANCHOR;
-            case PROP_LOCK_RATIO -> EntitySetting.LOCK_RATIO;
-            default -> null;
-        };
+        return SettingsActionFactory.mapPropertyToEntitySetting(propertyName);
     }
 }
