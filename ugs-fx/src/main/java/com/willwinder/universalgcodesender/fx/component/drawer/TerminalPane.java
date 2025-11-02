@@ -1,11 +1,14 @@
 package com.willwinder.universalgcodesender.fx.component.drawer;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
@@ -24,6 +27,8 @@ public class TerminalPane extends BorderPane {
     private final BackendAPI backend;
 
     public TerminalPane() {
+        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+
         getStylesheets().add(getClass().getResource("/styles/terminal-pane.css").toExternalForm());
         setupLogArea();
         setupInputField();
@@ -32,7 +37,6 @@ public class TerminalPane extends BorderPane {
         setBottom(inputField);
         BorderPane.setMargin(inputField, new Insets(0, 0, 10, 0));
 
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         backend.addMessageListener(this::onMessage);
     }
@@ -63,6 +67,13 @@ public class TerminalPane extends BorderPane {
         logArea.setFocusTraversable(false);
         logArea.getStyleClass().add("terminal");
         logArea.setPadding(new Insets(5));
+
+        ContextMenu contextMenu = new ContextMenu();
+        CheckMenuItem verboseLoggingItem = new CheckMenuItem(Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
+        verboseLoggingItem.setSelected(backend.getSettings().isVerboseOutputEnabled());
+        verboseLoggingItem.selectedProperty().addListener((observable, oldValue, newValue) -> backend.getSettings().setVerboseOutputEnabled(newValue));
+        contextMenu.getItems().add(verboseLoggingItem);
+        logArea.setContextMenu(contextMenu);
     }
 
     private void setupInputField() {
@@ -80,7 +91,9 @@ public class TerminalPane extends BorderPane {
                     backend.sendGcodeCommand(command);
                     inputField.clear();
                 } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Could not send command: " + e.getMessage());
+                    String message = "Could not send command: " + e.getMessage();
+                    LOGGER.log(Level.SEVERE, message);
+                    logArea.append(message + "\n", "error");
                 }
             }
         });

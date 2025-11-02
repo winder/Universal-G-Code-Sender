@@ -21,25 +21,27 @@ package com.willwinder.ugs.nbp.designer.platform;
 import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTree;
 import com.willwinder.ugs.nbp.designer.gui.tree.EntityTreeModel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
 import com.willwinder.ugs.nbp.lib.Mode;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
+import java.io.Serial;
 
 /**
  * @author Joacim Breiler
  */
 @TopComponent.Description(
-        preferredID = "EntitiesTreeTopComponent",
-        persistenceType = TopComponent.PERSISTENCE_NEVER
+        preferredID = EntitiesTreeTopComponent.PREFERRED_ID
 )
 @TopComponent.Registration(mode = Mode.LEFT_BOTTOM, openAtStartup = false)
-public class EntitiesTreeTopComponent extends TopComponent implements ControllerListener {
+public class EntitiesTreeTopComponent extends TopComponent {
+    @Serial
     private static final long serialVersionUID = 432423498723987873L;
+    public static final String PREFERRED_ID = "EntitiesTreeTopComponent";
+
     private transient EntitiesTree entitesTree;
     private transient EntityTreeModel entitiesTreeModel;
 
@@ -48,6 +50,18 @@ public class EntitiesTreeTopComponent extends TopComponent implements Controller
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());
         setDisplayName("Design objects");
+    }
+
+    public static EntitiesTreeTopComponent findInstance() {
+        TopComponent tc = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
+        if (tc instanceof EntitiesTreeTopComponent) {
+            return (EntitiesTreeTopComponent) tc;
+        }
+
+        return TopComponent.getRegistry().getOpened().stream()
+                .filter(EntitiesTreeTopComponent.class::isInstance)
+                .map(EntitiesTreeTopComponent.class::cast)
+                .findFirst().orElseGet(EntitiesTreeTopComponent::new);
     }
 
     @Override
@@ -63,18 +77,10 @@ public class EntitiesTreeTopComponent extends TopComponent implements Controller
     protected void componentOpened() {
         super.componentOpened();
         Controller controller = ControllerFactory.getController();
-        controller.addListener(this);
         entitiesTreeModel = new EntityTreeModel(controller);
         entitesTree = new EntitiesTree(controller, entitiesTreeModel);
 
         removeAll();
         add(new JScrollPane(entitesTree), BorderLayout.CENTER);
-    }
-
-    @Override
-    public void onControllerEvent(ControllerEventType event) {
-        if (event == ControllerEventType.RELEASE) {
-            close();
-        }
     }
 }

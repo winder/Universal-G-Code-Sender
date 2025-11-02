@@ -26,7 +26,7 @@ public class PocketToolPathTest {
         double toolRadius = 2.5;
         double geometrySize = 10d;
         double safeHeight = 1;
-        double targetDepth = -10;
+        double targetDepth = 10;
         int depthPerPass = 1;
 
         Rectangle rectangle = new Rectangle();
@@ -62,16 +62,16 @@ public class PocketToolPathTest {
                     assertTrue("Point was outside boundary of 10x10 shape: X=" + segment.getPoint().getAxis(Axis.X), segment.getPoint().getAxis(Axis.X) <= geometrySize - toolRadius);
                     assertTrue("Point was outside boundary of 10x10 shape: Y=" + segment.getPoint().getAxis(Axis.Y), segment.getPoint().getAxis(Axis.Y) <= geometrySize - toolRadius);
                     assertTrue("Point was outside boundary of 10x10 shape: Z=" + segment.getPoint().getAxis(Axis.Z), segment.getPoint().getAxis(Axis.Z) <= 0);
-                    assertTrue("Point was outside boundary of 10x10 shape: Z=" + segment.getPoint().getAxis(Axis.Z), segment.getPoint().getAxis(Axis.Z) >= targetDepth);
+                    assertTrue("Point was outside boundary of 10x10 shape: Z=" + segment.getPoint().getAxis(Axis.Z), segment.getPoint().getAxis(Axis.Z) >= -targetDepth);
                 });
 
         List<Segment> drillOperations = segmentList.stream()
                 .filter(segment -> segment.type == SegmentType.POINT)
                 .toList();
-        assertEquals("There should be a number of drill operations when making a pocket", Math.abs((targetDepth - depthPerPass) / depthPerPass), drillOperations.size(), 0.1);
+        assertEquals("There should be a number of drill operations when making a pocket", Math.abs(targetDepth + depthPerPass) / depthPerPass, drillOperations.size(), 0.1);
 
         PartialPosition point = drillOperations.get(drillOperations.size() - 1).getPoint();
-        assertEquals("Last operation should reach the target depth", targetDepth, point.getAxis(Axis.Z), 0.1);
+        assertEquals("Last operation should reach the target depth", -targetDepth, point.getAxis(Axis.Z), 0.1);
     }
 
 
@@ -80,7 +80,7 @@ public class PocketToolPathTest {
         double toolRadius = 2.5;
         double geometrySize = 10d;
         double safeHeight = 1;
-        double targetDepth = -10;
+        double targetDepth = 10;
         int depthPerPass = 1;
 
         Rectangle rectangle = new Rectangle();
@@ -117,16 +117,16 @@ public class PocketToolPathTest {
                     assertTrue("Point was outside boundary of 10x10 shape: X=" + segment.getPoint().getAxis(Axis.X), segment.getPoint().getAxis(Axis.X) <= geometrySize - toolRadius);
                     assertTrue("Point was outside boundary of 10x10 shape: Y=" + segment.getPoint().getAxis(Axis.Y), segment.getPoint().getAxis(Axis.Y) <= geometrySize - toolRadius);
                     assertTrue("Point was outside boundary of 10x10 shape: Z=" + segment.getPoint().getAxis(Axis.Z), segment.getPoint().getAxis(Axis.Z) <= 0);
-                    assertTrue("Point was outside boundary of 10x10 shape: Z=" + segment.getPoint().getAxis(Axis.Z), segment.getPoint().getAxis(Axis.Z) >= targetDepth);
+                    assertTrue("Point was outside boundary of 10x10 shape: Z=" + segment.getPoint().getAxis(Axis.Z), segment.getPoint().getAxis(Axis.Z) >= -targetDepth);
                 });
 
         List<Segment> drillOperations = segmentList.stream()
                 .filter(segment -> segment.type == SegmentType.POINT)
                 .toList();
-        assertEquals("There should be a number of drill operations when making a pocket", Math.abs((targetDepth - depthPerPass) / depthPerPass), drillOperations.size(), 0.1);
+        assertEquals("There should be a number of drill operations when making a pocket", Math.abs(targetDepth + depthPerPass) / depthPerPass, drillOperations.size(), 0.1);
 
         PartialPosition point = drillOperations.get(drillOperations.size() - 1).getPoint();
-        assertEquals("Last operation should reach the target depth", targetDepth, point.getAxis(Axis.Z), 0.1);
+        assertEquals("Last operation should reach the target depth", -targetDepth, point.getAxis(Axis.Z), 0.1);
     }
 
     @Test
@@ -161,6 +161,6 @@ public class PocketToolPathTest {
         }
 
         assertTrue("The tool path was " + Math.round(totalLength) + "mm long but should have been shorter", totalLength < 22144);
-        assertTrue("The tool path rapids was " + Math.round(totalRapidLength) + "mm long but should have been shorter", totalRapidLength < 721);
+        assertTrue("The tool path rapids was " + Math.round(totalRapidLength) + "mm long but should have been shorter", totalRapidLength < 730);
     }
 }

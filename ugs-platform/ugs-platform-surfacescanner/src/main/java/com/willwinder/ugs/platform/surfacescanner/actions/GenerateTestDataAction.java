@@ -20,6 +20,7 @@ package com.willwinder.ugs.platform.surfacescanner.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
+import com.willwinder.ugs.platform.surfacescanner.Utils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -27,10 +28,10 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
-import static com.willwinder.ugs.platform.surfacescanner.Utils.shouldEraseProbedData;
 
 /**
  * An action for generating test data and add it to the surface scanner
@@ -64,7 +65,7 @@ public class GenerateTestDataAction extends AbstractAction implements UGSEventLi
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (surfaceScanner.isValid() && !shouldEraseProbedData()) {
+        if (!Utils.removeProbeData(surfaceScanner)) {
             return;
         }
 

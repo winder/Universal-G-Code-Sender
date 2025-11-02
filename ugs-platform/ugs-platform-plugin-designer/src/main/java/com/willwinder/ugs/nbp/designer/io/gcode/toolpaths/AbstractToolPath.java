@@ -49,11 +49,11 @@ public abstract class AbstractToolPath implements PathGenerator {
     }
 
     public double getStartDepth() {
-        return Math.abs(startDepth);
+        return startDepth;
     }
 
     public void setStartDepth(double startDepth) {
-        this.startDepth = Math.abs(startDepth);
+        this.startDepth = startDepth;
     }
 
     public double getTargetDepth() {
@@ -61,15 +61,18 @@ public abstract class AbstractToolPath implements PathGenerator {
     }
 
     public void setTargetDepth(double targetDepth) {
-        this.targetDepth = Math.abs(targetDepth);
+        this.targetDepth = targetDepth;
     }
-    protected Double getSafeHeightToUse(Double currentZ, boolean isFirst) {
-        return settings.getSafeHeight();
-    }
+
     protected void addSafeHeightSegment(GcodePath gcodePath, PartialPosition coordinate, boolean isFirst) {
-        Double safeHeightToUse;
-        safeHeightToUse = (coordinate != null && coordinate.hasZ() ? coordinate.getZ():0.0);
-        PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, getSafeHeightToUse(safeHeightToUse,isFirst), UnitUtils.Units.MM);
+        double safeHeight = settings.getSafeHeight();
+
+        // If the start depth is negative we need to add it to the safe height to clear the material
+        if (startDepth < 0) {
+            safeHeight = safeHeight - startDepth;
+        }
+
+        PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, safeHeight, UnitUtils.Units.MM);
         gcodePath.addSegment(SegmentType.MOVE, safeHeightCoordinate);
     }
 
@@ -77,7 +80,7 @@ public abstract class AbstractToolPath implements PathGenerator {
         addSafeHeightSegment(gcodePath,coordinate, isFirst);
         gcodePath.addSegment(SegmentType.MOVE, new PartialPosition(coordinate.getX(), coordinate.getY(), UnitUtils.Units.MM));
         if (!isFirst) {
-            gcodePath.addSegment(SegmentType.MOVE, PartialPosition.from(Axis.Z, 0d, UnitUtils.Units.MM));
+            gcodePath.addSegment(SegmentType.MOVE, PartialPosition.from(Axis.Z, -getStartDepth(), UnitUtils.Units.MM));
         } else {
             addSafeHeightSegment(gcodePath,coordinate, isFirst);
         }

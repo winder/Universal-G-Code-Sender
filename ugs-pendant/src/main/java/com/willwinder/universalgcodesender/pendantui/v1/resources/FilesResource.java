@@ -21,6 +21,8 @@ package com.willwinder.universalgcodesender.pendantui.v1.resources;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.v1.model.FileStatus;
 import com.willwinder.universalgcodesender.pendantui.v1.model.WorkspaceFileList;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -29,17 +31,16 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-import org.apache.commons.io.IOUtils;
-import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import java.io.File;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 
+@Tag(name = "Files", description = "Endpoints for loading files and handling files")
 @Path("/files")
 public class FilesResource {
 
@@ -49,13 +50,16 @@ public class FilesResource {
     @POST
     @Path("uploadAndOpen")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public void open(@FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataBodyPart bodyPart) throws Exception {
-        String tempDir = System.getProperty("java.io.tmpdir");
-        String fileName = bodyPart.getContentDisposition().getFileName();
-        File file = new File(tempDir + File.separator + fileName);
-        Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        IOUtils.closeQuietly(fileInputStream);
-        backendAPI.setGcodeFile(file);
+    @Operation(summary = "Upload a file and open it")
+    public void open(
+            @FormDataParam("file") FormDataContentDisposition disposition, @FormDataParam("file") File file) throws Exception {
+        String originalFileName = disposition.getFileName();
+        File renamedFile = new File(file.getParentFile(), originalFileName);
+        if (!file.renameTo(renamedFile)) {
+            Files.copy(file.toPath(), renamedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            file.delete();
+        }
+        backendAPI.setGcodeFile(renamedFile);
     }
 
     @POST

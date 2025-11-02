@@ -20,8 +20,11 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
 import com.willwinder.ugs.nbp.designer.model.Settings;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.locationtech.jts.geom.Geometry;
 
 import java.awt.geom.Area;
@@ -50,18 +53,19 @@ public class OutlineToolPath extends AbstractToolPath {
     public void setOffset(double offset) {
         this.offset = offset;
     }
-    
+
     @Override
-    protected Double getSafeHeightToUse(Double currentZ, boolean isFirst) {
-        
-        Double result = settings.getSafeHeight()+currentZ;
+    protected void addSafeHeightSegment(GcodePath gcodePath, PartialPosition coordinate, boolean isFirst) {
         if (isFirst) {
-            result = settings.getSafeHeight();
+            super.addSafeHeightSegment(gcodePath, coordinate, true);
+        } else {
+            // Outline Paths always Start and end in the same spot so its worthwhile to only climb a smaller amount
+            double safeHeightToUse = settings.getSafeHeight() + (coordinate != null && coordinate.hasZ() ? coordinate.getZ() : -getStartDepth());
+            PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, safeHeightToUse, UnitUtils.Units.MM);
+            gcodePath.addSegment(SegmentType.MOVE, safeHeightCoordinate);
         }
-        // Outline Paths always Start and end in the same spot so its worthwhile to only climb a smaller amount
-        return result;
     }
-    
+
     @Override
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
         List<Geometry> geometries;

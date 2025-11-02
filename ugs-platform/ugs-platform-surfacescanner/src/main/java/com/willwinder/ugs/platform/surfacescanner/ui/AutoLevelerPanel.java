@@ -154,10 +154,13 @@ public class AutoLevelerPanel extends JPanel {
     }
 
     private void syncControlsToSettings() {
-        if (surfaceScanner.isValid() && !Utils.shouldEraseProbedData()) {
+        AutoLevelSettings newSettings = copySettings();
+
+        if (!Utils.removeProbeData(surfaceScanner)) {
             return;
         }
 
+        autoLevelSettings.apply(newSettings);
         xMax.setMinimum(xMin.getDoubleValue());
         xMin.setMaximum(xMax.getDoubleValue());
         yMax.setMinimum(yMin.getDoubleValue());
@@ -165,19 +168,24 @@ public class AutoLevelerPanel extends JPanel {
         zMax.setMinimum(zMin.getDoubleValue());
         zMin.setMaximum(zMax.getDoubleValue());
 
-        autoLevelSettings.setZSurface(zSurface.getDoubleValue());
-        autoLevelSettings.setStepResolution(stepResolution.getDoubleValue());
-        autoLevelSettings.setMinX(xMin.getDoubleValue());
-        autoLevelSettings.setMinY(yMin.getDoubleValue());
-        autoLevelSettings.setMinZ(zMin.getDoubleValue());
-        autoLevelSettings.setMaxX(xMax.getDoubleValue());
-        autoLevelSettings.setMaxY(yMax.getDoubleValue());
-        autoLevelSettings.setMaxZ(zMax.getDoubleValue());
-        autoLevelSettings.setZRetract(zRetract.getDoubleValue());
 
         // There is no point in having the step resolution bigger than the largest size
         double stepResolutionMax = Math.max(Math.abs(xMin.getDoubleValue()) + xMax.getDoubleValue(), Math.abs(yMin.getDoubleValue()) + yMax.getDoubleValue());
         stepResolution.setMaximum(stepResolutionMax);
+    }
+
+    private AutoLevelSettings copySettings() {
+        AutoLevelSettings newSettings = new AutoLevelSettings(autoLevelSettings);
+        newSettings.setZSurface(zSurface.getDoubleValue());
+        newSettings.setStepResolution(stepResolution.getDoubleValue());
+        newSettings.setMinX(xMin.getDoubleValue());
+        newSettings.setMinY(yMin.getDoubleValue());
+        newSettings.setMinZ(zMin.getDoubleValue());
+        newSettings.setMaxX(xMax.getDoubleValue());
+        newSettings.setMaxY(yMax.getDoubleValue());
+        newSettings.setMaxZ(zMax.getDoubleValue());
+        newSettings.setZRetract(zRetract.getDoubleValue());
+        return newSettings;
     }
 
     public AutoLevelSettings getSettings() {

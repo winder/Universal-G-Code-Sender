@@ -3,7 +3,6 @@
 
 [![Last commit](https://img.shields.io/github/last-commit/winder/Universal-G-Code-Sender.svg?maxAge=1800)](https://github.com/winder/Universal-G-Code-Sender/commits/master)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/winder/Universal-G-code-sender/nightly.yaml?branch=master)](https://github.com/winder/Universal-G-Code-Sender/actions/workflows/nightly.yaml)
-[![Codebeat badge](https://codebeat.co/badges/48cc1265-2f6b-4163-8a8a-964acc073100)](https://codebeat.co/projects/github-com-winder-universal-g-code-sender-master)
 [![Crowdin](https://badges.crowdin.net/universalgcodesender/localized.svg)](https://translate.universalgcodesender.com/project/universalgcodesender)
 [![Downloads](https://img.shields.io/github/downloads/winder/universal-g-code-sender/total?label=downloads)](https://github.com/winder/Universal-G-Code-Sender#downloads)
 [![Releases](https://img.shields.io/github/v/release/winder/Universal-G-Code-Sender)](https://github.com/winder/Universal-G-Code-Sender/releases)
@@ -27,32 +26,21 @@ Technical details:
 ## Downloads
 Below you will find the latest release of UGS.<br/> For older releases please visit the [releases page](https://github.com/winder/Universal-G-Code-Sender/releases).
 
-**UGS Platform**<br>
-The next generation, feature packed variant based on the Netbeans Platform.<br>
 Unpack and start the program ```bin/ugsplatform```
 
 
-| Latest release (v2.1.15)                                                                                                                                                       | Nightly build                                                                                                                                                                         |
+| Latest release (v2.1.17)                                                                                                                                                       | Nightly build                                                                                                                                                                         |
 |:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [![Windows 64-bit](pictures/os_windows.png) Windows 64-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.15/win64-ugs-platform-app-2.1.15.zip)      | [![Windows 64-bit](pictures/os_windows.png) Windows 64-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/win64-ugs-platform-app-2.0-SNAPSHOT.zip)      |
-| [![Mac OSX](pictures/os_mac.png) Mac OSX](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.15/macosx-x64-ugs-platform-app-2.1.15.dmg)                   | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/macosx-x64-ugs-platform-app-2.0-SNAPSHOT.dmg)                   |
-| [![Mac OSX](pictures/os_mac.png) Mac OSX ARM64](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.15/macosx-aarch64-ugs-platform-app-2.1.15.dmg)         | [![Mac OSX ARM64](pictures/os_mac.png) Mac OSX ARM64](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/macosx-aarch64-ugs-platform-app-2.0-SNAPSHOT.dmg)   | 
-| [![Linux x64](pictures/os_linux.png) Linux 64-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.15/linux-x64-ugs-platform-app-2.1.15.tar.gz)        | [![Linux x64](pictures/os_linux.png) Linux 64-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/linux-x64-ugs-platform-app-2.0-SNAPSHOT.tar.gz)        |
-| [![Linux ARM](pictures/os_linux_arm.png) Linux ARM](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.15/linux-arm-ugs-platform-app-2.1.15.tar.gz)       | [![Linux ARM](pictures/os_linux_arm.png) Linux ARM](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/linux-arm-ugs-platform-app-2.0-SNAPSHOT.tar.gz)       |
-| [![Linux ARM](pictures/os_linux_arm.png) Linux ARM64](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.15/linux-aarch64-ugs-platform-app-2.1.15.tar.gz) | [![Linux ARM](pictures/os_linux_arm.png) Linux ARM64](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/linux-aarch64-ugs-platform-app-2.0-SNAPSHOT.tar.gz) | 
-| [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.15/ugs-platform-app-2.1.15.zip)                               | [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/ugs-platform-app-2.0-SNAPSHOT.zip)                               |
+| [![Windows 64-bit](pictures/os_windows.png) Windows 64-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.17/win64-ugs-platform-app-2.1.17.zip)      | [![Windows 64-bit](pictures/os_windows.png) Windows 64-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/win64-ugs-platform-app-2.0-SNAPSHOT.zip)      |
+| [![Mac OSX](pictures/os_mac.png) Mac OSX](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.17/macosx-x64-ugs-platform-app-2.1.17.dmg)                   | [![Mac OSX](pictures/os_mac.png) Mac OSX](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/macosx-x64-ugs-platform-app-2.0-SNAPSHOT.dmg)                   |
+| [![Mac OSX](pictures/os_mac.png) Mac OSX ARM64](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.17/macosx-aarch64-ugs-platform-app-2.1.17.dmg)         | [![Mac OSX ARM64](pictures/os_mac.png) Mac OSX ARM64](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/macosx-aarch64-ugs-platform-app-2.0-SNAPSHOT.dmg)   | 
+| [![Linux x64](pictures/os_linux.png) Linux 64-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.17/linux-x64-ugs-platform-app-2.1.17.tar.gz)        | [![Linux x64](pictures/os_linux.png) Linux 64-bit](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/linux-x64-ugs-platform-app-2.0-SNAPSHOT.tar.gz)        |
+| [![Linux ARM](pictures/os_linux_arm.png) Linux ARM](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.17/linux-arm-ugs-platform-app-2.1.17.tar.gz)       | [![Linux ARM](pictures/os_linux_arm.png) Linux ARM](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/linux-arm-ugs-platform-app-2.0-SNAPSHOT.tar.gz)       |
+| [![Linux ARM](pictures/os_linux_arm.png) Linux ARM64](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.17/linux-aarch64-ugs-platform-app-2.1.17.tar.gz) | [![Linux ARM](pictures/os_linux_arm.png) Linux ARM64](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/linux-aarch64-ugs-platform-app-2.0-SNAPSHOT.tar.gz) | 
+| [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.17/ugs-platform-app-2.1.17.zip)                               | [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/ugs-platform-app-2.0-SNAPSHOT.zip)                               |
 
-**UGS Classic**<br>
-A clean and lightweight variant of UGS (requires [Java 17](https://adoptium.net/temurin/releases/?package=jre&version=17)). <br>
-Unpack and start the program by double clicking the jar file. On some platforms you may need to run the included start script. <br>
-
-| Latest release (v2.1.15)                                                                                                                       | Nightly build                                                                                                                                  |
-|:----------------------------------------------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------|
-| [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/v2.1.15/UniversalGcodeSender.zip) | [![Zip](pictures/zip.png) All platforms](https://github.com/winder/Universal-G-Code-Sender/releases/download/nightly/UniversalGcodeSender.zip) |
 
 ## Screenshots
-
-### UGS Platform
 
 UGS Platform main window
 
@@ -81,17 +69,6 @@ Basic gcode editor
 Vector graphics designer for generating GCode toolpaths
 
 ![Designer](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_designer.png "Basic gcode editor")
-
-
-### UGS Classic
-
-UGS Classic main window
-
-![Classic main window](https://winder.github.io/ugs_website/img/screenshots/finished.png)
-
-UGS Classic with visualizer
-
-![Classic visualizer](https://winder.github.io/ugs_website/img/screenshots/visualizer.png)
 
 
 ## Development
@@ -185,6 +162,50 @@ If you are more used to IntelliJ, you can also build, run and debug it there.
 
 </p>
 </details>
+
+<details><summary>Show code documentation.</summary>
+<p>
+
+### High-Level Architecture
+
+1.  **Core Module (`ugs-core`)**: This is the heart of UGS. It contains:
+    * **Communication Layer**: Handles serial communication (or other protocols like TCP/IP for some controllers) with the CNC machine's firmware (e.g., GRBL). It translates G-code commands into signals the controller understands and interprets responses from the controller.
+    * **G-code Parser and Interpreter**: Processes G-code files, breaks them down into individual commands, and manages the sending sequence.
+    * **Machine State Management**: Keeps track of the machine's current position (X, Y, Z coordinates), feed rate, spindle speed, and other relevant operational parameters. This is the data that populates the "Controller State (DRO)" panel.
+    * **Toolpath Generation/Visualization Logic**: While UGS isn't primarily a CAM (Computer-Aided Manufacturing) software, it contains logic to interpret G-code and generate a visual representation of the toolpath for the user.
+    * **Settings and Configuration Management**: Handles loading and saving user preferences, machine settings, and connection parameters.
+
+2.  **Platform/Application Layer (`ugs-platform/application` and other modules)**: This layer builds upon the core functionality and provides the graphical user interface (GUI) and specific features.
+    * **NetBeans Platform**: UGS Platform leverages the NetBeans Platform, which provides a robust framework for building desktop applications. This means the UI is composed of "modules" or "plugins," each responsible for a specific set of functionalities (e.g., a module for the visualizer, a module for the console, a module for the DRO).
+    * **User Interface (UI) Components**: These are the visual elements the user interacts with, such as buttons, text fields, tables, and the visualizer. These components are typically Swing-based (Java's GUI toolkit) or, less commonly, JavaFX.
+    * **Event Handling**: Manages user interactions (button clicks, keyboard input, mouse movements) and translates them into calls to the core module or other platform services.
+    * **Plugin System**: The modular nature allows for easy addition of new features or customization through plugins.
+
+3.  **Third-Party Libraries**: UGS relies on various external libraries for tasks like:
+    * Serial communication (e.g., JSSC - Java Simple Serial Connector).
+    * 3D visualization (e.g., JOGL for OpenGL integration).
+    * Logging.
+    * JSON parsing (for settings).
+
+### UI elements
+
+The user-interface elements of ugs-platform can be found in the `ugs-platform` folder. Each window in the platform-application is a Panel object. We list differnt ui elements together with their location below:
+
+- Controller State (DRO): This is the window to see the current state of the machine (connected/disconnected) and its current position. The code is located under `ugs-platform/ugs-platform-plugin-dro/src/main/java/.../panels/MachineStatusPanel.java`.
+
+- Jog Controller: This window contains buttons to jog the machine. The code is located under `ugs-platform/ugs-platform-plugin-jog/src/main/java/.../jog/JogPannel.java`. In the resources folder, you will find svg images which are displayed inside the jog buttons.
+
+- Overrides pannel: `ugs-core/src/com/.../uielements/panels/OverridesPanel.java`.
+
+- language-specific text: In the folder `ugs-core/src/com/.../resources/`, you will find a lot of `.properties` files. These contain language-specific text that is shown to the user, such as label text, button text etc.
+
+### Logs
+
+Application logs, including detailed debug messages and error reports, are primarily written to the messages.log file. This file is located within the application's user directory at `ugs-platform/application/target/userdir/var/log/messages.log` when running from the build target. In the event of an unexpected application crash or erratic behavior, reviewing this log file is the first recommended step, as it often contains stack traces and error messages that can pinpoint the root cause of the problem. Additionally, for severe JVM crashes, a `hs_err_pid<PID>.log` file might be generated in the application's working directory, offering further low-level diagnostic information.
+
+</p>
+</details>
+
 
 ## Supported by
 [![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSourceSupport)

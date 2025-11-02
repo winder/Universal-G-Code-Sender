@@ -40,14 +40,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class Settings {
     private static final Logger logger = Logger.getLogger(Settings.class.getName());
 
     // Transient, don't serialize or deserialize.
-    transient private SettingChangeListener listener = null;
-    transient public static int HISTORY_SIZE = 10;
+    transient private final Set<SettingChangeListener> listeners = ConcurrentHashMap.newKeySet();
+    public static int HISTORY_SIZE = 10;
 
     private String firmwareVersion = "GRBL";
     private String fileName = System.getProperty("user.home");
@@ -75,8 +76,8 @@ public class Settings {
     private boolean commandTableEnabled = false;
 
     // Sender Settings
-    private WindowSettings mainWindowSettings = new WindowSettings(0,0,640,520);
-    private WindowSettings visualizerWindowSettings = new WindowSettings(0,0,640,480);
+    private WindowSettings mainWindowSettings = new WindowSettings(0, 0, 640, 520);
+    private WindowSettings visualizerWindowSettings = new WindowSettings(0, 0, 640, 480);
     private boolean singleStepMode = false;
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
@@ -88,8 +89,6 @@ public class Settings {
     private boolean showSerialPortWarning = true;
     private boolean autoStartPendant = false;
     private int pendantPort = 8080;
-    private boolean autoConnect = false;
-    private boolean autoReconnect = false;
 
     private final AutoLevelSettings autoLevelSettings = new AutoLevelSettings();
 
@@ -155,11 +154,11 @@ public class Settings {
             customGcode1 = null;
         }
         if (customGcode2 != null) {
-            updateMacro("customGcode2",2, null, null, customGcode2);
+            updateMacro("customGcode2", 2, null, null, customGcode2);
             customGcode2 = null;
         }
         if (customGcode3 != null) {
-            updateMacro("customGcode3",3, null, null, customGcode3);
+            updateMacro("customGcode3", 3, null, null, customGcode3);
             customGcode3 = null;
         }
         if (customGcode4 != null) {
@@ -172,21 +171,13 @@ public class Settings {
         }
     }
 
-    /**
-     * This method should only be called once during setup, a runtime exception
-     * will be thrown if that contract is violated.
-     */
-    public void setSettingChangeListener(SettingChangeListener listener) {
-        this.listener = listener;
-        if (this.autoLevelSettings != null) {
-            autoLevelSettings.setSettingChangeListener(listener);
-        }
+    public void addSettingChangeListener(SettingChangeListener listener) {
+        listeners.add(listener);
+        autoLevelSettings.addSettingChangeListener(listener);
     }
 
     private void changed() {
-        if (listener != null) {
-            listener.settingChanged();
-        }
+        listeners.forEach(SettingChangeListener::settingChanged);
     }
 
     public String getFirmwareVersion() {
@@ -212,26 +203,26 @@ public class Settings {
     }
 
     public Collection<String> getRecentFiles() {
-      return Collections.unmodifiableCollection(fileHistory);
+        return Collections.unmodifiableCollection(fileHistory);
     }
 
     public void updateRecentFiles(String absolutePath) {
-      updateRecent(this.fileHistory, HISTORY_SIZE, absolutePath);
+        updateRecent(this.fileHistory, HISTORY_SIZE, absolutePath);
     }
 
     public Collection<String> getRecentDirectories() {
-      return Collections.unmodifiableCollection(dirHistory);
+        return Collections.unmodifiableCollection(dirHistory);
     }
 
     public void updateRecentDirectory(String absolutePath) {
-      updateRecent(this.dirHistory, HISTORY_SIZE, absolutePath);
+        updateRecent(this.dirHistory, HISTORY_SIZE, absolutePath);
     }
 
     private static void updateRecent(Deque<String> stack, int maxSize, String element) {
-      stack.remove(element);
-      stack.push(element);
-      while( stack.size() > maxSize)
-        stack.removeLast();
+        stack.remove(element);
+        stack.push(element);
+        while (stack.size() > maxSize)
+            stack.removeLast();
     }
 
     public String getPort() {
@@ -462,27 +453,19 @@ public class Settings {
     public String getLanguage() {
         // "zh_CHS" is a legacy format that has been renamed.
         if ("zh_CHS".equals(this.language)) {
-          this.language = "zh_CN";
+            this.language = "zh_CN";
         }
 
         return this.language;
     }
 
-    public void setLanguage (String language) {
+    public void setLanguage(String language) {
         this.language = language;
         changed();
     }
 
-    public boolean isAutoConnectEnabled() {
-        return autoConnect;
-    }
-
-    public boolean isAutoReconnect() {
-        return autoReconnect;
-    }
-
     public void setAutoLevelSettings(AutoLevelSettings settings) {
-        if (! settings.equals(this.autoLevelSettings)) {
+        if (!settings.equals(this.autoLevelSettings)) {
             this.autoLevelSettings.apply(settings);
             changed();
         }
@@ -535,15 +518,16 @@ public class Settings {
         return this.workspaceDirectory;
     }
 
-    public void addMacro(Macro macro) {
-        int newIndex = macros.keySet().stream().max(Integer::compareTo).orElse(0) + 1;
-        macros.put(newIndex, macro);
-        changed();
-    }
+    public void setMacros(List<Macro> newMacros) {
+        if (new HashSet<>(this.macros.values()).equals(new HashSet<>(newMacros))) {
+            return;
+        }
 
-    public void setMacros(List<Macro> macros) {
         this.macros.clear();
-        macros.forEach(this::addMacro);
+        newMacros.forEach(m -> {
+            int newIndex = macros.keySet().stream().max(Integer::compareTo).orElse(0) + 1;
+            macros.put(newIndex, m);
+        });
         changed();
     }
 

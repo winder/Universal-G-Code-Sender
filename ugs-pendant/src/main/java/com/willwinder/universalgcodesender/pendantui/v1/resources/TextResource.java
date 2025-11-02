@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.pendantui.v1.resources;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -26,6 +27,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import java.util.Map;
 
+@Tag(name = "Text", description = "Endpoints for getting texts")
 @Path("/text")
 public class TextResource {
     @GET

@@ -31,7 +31,7 @@ import java.util.List;
 
 public class PortComboBox extends JComboBox<IConnectionDevice> implements UGSEventListener {
     private final transient BackendAPI backend;
-    private final transient RefreshThread refreshThread;
+    private transient RefreshThread refreshThread;
 
     public PortComboBox(BackendAPI backend) {
         super(new PortComboBoxModel());
@@ -43,8 +43,7 @@ public class PortComboBox extends JComboBox<IConnectionDevice> implements UGSEve
 
         setSelectedItem(backend.getSettings().getPort());
 
-        refreshThread = new RefreshThread(this::refreshPorts, 3000);
-        refreshThread.start();
+        startRefreshing();
     }
 
     private void onUpdate() {
@@ -78,8 +77,9 @@ public class PortComboBox extends JComboBox<IConnectionDevice> implements UGSEve
         }
     }
     public void startRefreshing() {
-        if (!refreshThread.isAlive()) {
+        if (refreshThread == null || !refreshThread.isAlive()) {
             try {
+                refreshThread = new RefreshThread(this::refreshPorts, 3000);
                 refreshThread.start();
             } catch (IllegalThreadStateException e) {
                 // Ignore

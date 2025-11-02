@@ -72,8 +72,6 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
 
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue(NAME, LocalizingService.ConnectionSerialPortToolbarTitle);
-
-        initializeComponents();
     }
 
     @Override
@@ -89,6 +87,8 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
 
     @Override
     public void UGSEvent(UGSEvent evt) {
+        initializeComponents();
+
         // If a setting has changed elsewhere, update the combo box.
         if (evt instanceof SettingChangedEvent) {
             updatePortSettings();
@@ -129,6 +129,10 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
     }
 
     private void initializeComponents() {
+        if (panel != null) {
+            return;
+        }
+
         portCombo = new PortComboBox(backend);
         setMaximumWidth(portCombo, 150);
 

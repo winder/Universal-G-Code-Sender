@@ -20,6 +20,7 @@ package com.willwinder.ugs.platform.surfacescanner.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
+import com.willwinder.ugs.platform.surfacescanner.Utils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -27,10 +28,9 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import java.awt.event.ActionEvent;
-
-import static com.willwinder.ugs.platform.surfacescanner.Utils.shouldEraseProbedData;
 
 public class ScanSurfaceAction extends AbstractAction implements UGSEventListener {
 
@@ -60,10 +60,9 @@ public class ScanSurfaceAction extends AbstractAction implements UGSEventListene
     @Override
     public void actionPerformed(ActionEvent e) {
         // Exit early if we have probed data and it is not ok to erase
-        if (surfaceScanner.isValid() && !shouldEraseProbedData()) {
+        if (!Utils.removeProbeData(surfaceScanner)) {
             return;
         }
-        surfaceScanner.reset();
         surfaceScanner.scan();
     }
 

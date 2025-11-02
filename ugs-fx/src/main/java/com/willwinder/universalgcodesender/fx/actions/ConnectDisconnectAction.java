@@ -1,8 +1,27 @@
+/*
+    Copyright 2025 Joacim Breiler
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.fx.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.fx.stage.ConnectStage;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -10,7 +29,6 @@ import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.scene.Node;
 import javafx.stage.Window;
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,8 +38,8 @@ public class ConnectDisconnectAction extends BaseAction {
 
     private final BackendAPI backend;
 
-    ConnectDisconnectAction() {
-        super(LocalizingService.ConnectDisconnectTitleConnect, ICON_BASE_DISCONNECT);
+    public ConnectDisconnectAction() {
+        super(LocalizingService.ConnectDisconnectTitleConnect, LocalizingService.ConnectDisconnectTitleConnect, Localization.getString("actions.category.machine"), ICON_BASE_DISCONNECT);
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(true);
@@ -45,12 +63,18 @@ public class ConnectDisconnectAction extends BaseAction {
     }
 
     @Override
-    public void handle(ActionEvent event) {
+    public void handleAction(ActionEvent event) {
         if (backend.getControllerState() == ControllerState.DISCONNECTED) {
-            // Connect modal
-            Window window = ((Node) event.getSource()).getScene().getWindow();
-            ConnectStage connectModal = new ConnectStage(window);
-            connectModal.showAndWait();
+            Platform.runLater(() -> {
+                // Connect modal
+                Window window = Window.getWindows()
+                        .stream()
+                        .filter(Window::isShowing)
+                        .findFirst()
+                        .orElse(null);
+                ConnectStage connectModal = new ConnectStage(window);
+                connectModal.showAndWait();
+            });
         } else {
             try {
                 backend.disconnect();

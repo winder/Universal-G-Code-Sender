@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.actions.Action;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -36,8 +35,8 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,9 +46,6 @@ import java.util.logging.Logger;
  *
  * @author wwinder
  */
-@Action(
-        icon = ConnectDisconnectAction.ICON_BASE_DISCONNECT
-)
 @ActionID(
         category = LocalizingService.ConnectDisconnectCategory,
         id = LocalizingService.ConnectDisconnectActionId)

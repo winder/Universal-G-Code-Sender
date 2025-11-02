@@ -38,19 +38,20 @@ public class TogglePreviewAction extends AbstractAction {
     }
 
     private void updateState() {
-        String title = Localization.getString("autoleveler.panel.visible");
-        String icon = renderable.isEnabled() ? ICON_BASE_ENABLED : ICON_BASE_DISABLED;
-        putValue(NAME, title);
-        putValue("menuText", title);
-        putValue(Action.SHORT_DESCRIPTION, title);
-        putValue("iconBase", icon);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(icon, false));
-        putValue(Action.SELECTED_KEY, !renderable.isEnabled());
+        SwingUtilities.invokeLater(() -> {
+            String title = Localization.getString("autoleveler.panel.visible");
+            String icon = renderable.isEnabled() ? ICON_BASE_ENABLED : ICON_BASE_DISABLED;
+            putValue(NAME, title);
+            putValue("menuText", title);
+            putValue(Action.SHORT_DESCRIPTION, title);
+            putValue("iconBase", icon);
+            putValue(SMALL_ICON, ImageUtilities.loadImageIcon(icon, false));
+            putValue(Action.SELECTED_KEY, renderable.isEnabled());
+        });
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        renderable.setEnabled(!renderable.isEnabled());
-        updateState();
+        SwingUtilities.invokeLater(() -> renderable.setEnabled(!renderable.isEnabled()));
     }
 }

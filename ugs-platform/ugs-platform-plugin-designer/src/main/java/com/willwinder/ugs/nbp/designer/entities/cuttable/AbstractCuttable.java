@@ -82,7 +82,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
 
     @Override
     public void setStartDepth(double startDepth) {
-        this.startDepth = Math.abs(startDepth);
+        this.startDepth = startDepth;
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 
@@ -93,7 +93,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
 
     @Override
     public void setTargetDepth(double targetDepth) {
-        this.targetDepth = Math.abs(targetDepth);
+        this.targetDepth = targetDepth;
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 

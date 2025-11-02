@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -45,6 +46,7 @@ public class SettingsPanel extends JPanel {
     private final UnitSpinner settingsSlowMeasureRate;
     private final UnitSpinner settingsRetractAmount;
     private final UnitSpinner settingsDelayAfterRetract;
+    private final JCheckBox settingsCompensateForSoftLimits;
 
     public SettingsPanel() {
         var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
@@ -58,6 +60,7 @@ public class SettingsPanel extends JPanel {
         settingsSlowMeasureRate = new UnitSpinner(Math.max(ProbeSettings.getSettingsSlowMeasureRate(), 0.1), rateUnits, 0.1d, null, 1.);
         settingsRetractAmount = new UnitSpinner(Math.max(ProbeSettings.getSettingsRetractAmount(), 0.01), units, 0.01d, null, 0.1);
         settingsDelayAfterRetract = new UnitSpinner(Math.max(ProbeSettings.getSettingsDelayAfterRetract(), 0.0), TextFieldUnit.SECONDS, 0d, null, 0.1d);
+        settingsCompensateForSoftLimits = new JCheckBox();
         createLayout();
         registerListeners();
     }
@@ -93,6 +96,11 @@ public class SettingsPanel extends JPanel {
 
         add(new JLabel(Localization.getString("probe.work-coordinates") + ":"), "al right");
         add(settingsWorkCoordinate, "growx");
+
+        add(new JLabel(Localization.getString("probe.compensate-for-soft-limits") + ":"), "al right");
+        settingsCompensateForSoftLimits.setToolTipText(Localization.getString("probe.compensate-for-soft-limits.tooltip"));
+        add(settingsCompensateForSoftLimits, "growx");
+        settingsCompensateForSoftLimits.setSelected(ProbeSettings.getCompensateForSoftLimits());
     }
 
     private void registerListeners() {
@@ -109,6 +117,7 @@ public class SettingsPanel extends JPanel {
         settingsSlowMeasureRate.addChangeListener(l -> ProbeSettings.setSettingsSlowMeasureRate(settingsSlowMeasureRate.getDoubleValue()));
         settingsRetractAmount.addChangeListener(l -> ProbeSettings.setSettingsRetractAmount(settingsRetractAmount.getDoubleValue()));
         settingsDelayAfterRetract.addChangeListener(l -> ProbeSettings.setSettingsDelayAfterRetract(settingsDelayAfterRetract.getDoubleValue()));
+        settingsCompensateForSoftLimits.addChangeListener(l -> ProbeSettings.setCompensateForSoftLimits(settingsCompensateForSoftLimits.isSelected()));
 
         ProbeSettings.addPreferenceChangeListener(this::onSettingsChanged);
     }
@@ -140,6 +149,9 @@ public class SettingsPanel extends JPanel {
                 break;
             case ProbeSettings.SETTINGS_DELAY_AFTER_RETRACT:
                 settingsDelayAfterRetract.setValue(ProbeSettings.getSettingsDelayAfterRetract());
+                break;
+            case ProbeSettings.SETTINGS_COMPENSATE_FOR_SOFT_LIMITS:
+                settingsCompensateForSoftLimits.setSelected(ProbeSettings.getCompensateForSoftLimits());
                 break;
         }
     }
