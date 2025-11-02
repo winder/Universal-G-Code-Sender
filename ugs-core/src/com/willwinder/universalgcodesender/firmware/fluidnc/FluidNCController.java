@@ -112,7 +112,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     private String distanceModeCode;
     private String unitsCode;
     private boolean isInitialized = false;
-
+    private final static int TIMEOUT_TIME = 6000;
     public FluidNCController() {
         this(new GrblCommunicator());
     }
@@ -594,17 +594,17 @@ public class FluidNCController implements IController, ICommunicatorListener {
      * @throws Exception
      */
     private void queryControllerInformation() throws Exception {
-        sendAndWaitForCompletion(this, new GetStartupMessagesCommand(), 3000);
+        sendAndWaitForCompletion(this, new GetStartupMessagesCommand(), TIMEOUT_TIME);
 
         messageService.dispatchMessage(MessageType.INFO, "*** Fetching device status codes\n");
-        sendAndWaitForCompletion(this, new GetErrorCodesCommand(), 3000);
-        sendAndWaitForCompletion(this, new GetAlarmCodesCommand(), 3000);
+        sendAndWaitForCompletion(this, new GetErrorCodesCommand(), TIMEOUT_TIME);
+        sendAndWaitForCompletion(this, new GetAlarmCodesCommand(), TIMEOUT_TIME);
 
         // A sleep is required to make the next query reliable
         Thread.sleep(200);
 
         messageService.dispatchMessage(MessageType.INFO, "*** Fetching device state\n");
-        GetParserStateCommand getParserStateCommand = sendAndWaitForCompletion(this, new GetParserStateCommand(), 3000);
+        GetParserStateCommand getParserStateCommand = sendAndWaitForCompletion(this, new GetParserStateCommand(), TIMEOUT_TIME);
         String state = getParserStateCommand.getState().orElseThrow(() -> new ConnectionException("Could not get controller state"));
         gcodeParser.addCommand(state);
 

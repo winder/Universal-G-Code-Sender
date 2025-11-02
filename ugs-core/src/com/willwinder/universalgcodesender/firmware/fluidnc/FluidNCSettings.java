@@ -62,7 +62,7 @@ public class FluidNCSettings implements IFirmwareSettings {
         GetFirmwareSettingsCommand firmwareSettingsCommand = new GetFirmwareSettingsCommand();
 
         try {
-            ControllerUtils.sendAndWaitForCompletion(controller, firmwareSettingsCommand);
+            ControllerUtils.sendAndWaitForCompletion(controller, firmwareSettingsCommand,6000*3);
         } catch (InterruptedException e) {
             throw new FirmwareSettingsException("Timed out waiting for the controller settings", e);
         }
