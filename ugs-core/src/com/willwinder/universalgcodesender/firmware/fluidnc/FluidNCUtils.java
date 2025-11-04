@@ -151,7 +151,7 @@ public class FluidNCUtils {
      */
     public static GetBuildInfoCommand queryBuildInformation(IController controller, MessageService messageService) throws Exception {
         messageService.dispatchMessage(MessageType.INFO, "*** Fetching device firmware version\n");
-        GetBuildInfoCommand getBuildInfoCommand = sendAndWaitForCompletion(controller, new GetBuildInfoCommand());
+        GetBuildInfoCommand getBuildInfoCommand = sendAndWaitForCompletion(controller, new GetBuildInfoCommand(),6000);
         String firmwareVariant = getBuildInfoCommand.getFirmware();
         SemanticVersion semanticVersion = getBuildInfoCommand.getVersion();
 
