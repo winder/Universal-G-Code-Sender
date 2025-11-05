@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
+import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
@@ -27,7 +28,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -94,6 +95,7 @@ public class CreateRectangleControl extends SnapToGridControl {
         Rectangle rectangle = new Rectangle(startX, startY);
         rectangle.setWidth(snapToGrid(endX - startX));
         rectangle.setHeight(snapToGrid(endY - startY));
+        rectangle.setAnchor(Anchor.CENTER);
         controller.addEntity(rectangle);
 
         controller.setTool(Tool.SELECT);

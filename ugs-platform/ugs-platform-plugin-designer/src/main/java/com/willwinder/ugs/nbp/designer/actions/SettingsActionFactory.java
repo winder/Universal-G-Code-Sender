@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @author giro-dev
  */
-public class SettingsActionFactory {
+public final class SettingsActionFactory {
 
     /**
      * Creates an appropriate undoable action for a group transformation.

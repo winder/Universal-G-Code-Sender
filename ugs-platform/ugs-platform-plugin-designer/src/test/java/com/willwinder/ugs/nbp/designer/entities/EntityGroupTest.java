@@ -3,14 +3,13 @@ package com.willwinder.ugs.nbp.designer.entities;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.model.Size;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.Assert.*;
 
 public class EntityGroupTest {
 
@@ -19,6 +18,7 @@ public class EntityGroupTest {
         EntityGroup entityGroup = new EntityGroup();
 
         Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
         entityGroup.addChild(rectangle);
@@ -38,10 +38,11 @@ public class EntityGroupTest {
         EntityGroup entityGroup = new EntityGroup();
 
         Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
         entityGroup.addChild(rectangle);
-
+        entityGroup.setAnchor(Anchor.BOTTOM_LEFT);
         entityGroup.move(new Point2D.Double(10, 10));
 
         assertEquals(20, rectangle.getPosition().getX(), 0.1);
@@ -52,6 +53,7 @@ public class EntityGroupTest {
     public void moveShouldMoveChildren() {
         EntityGroup entityGroup = new EntityGroup();
         Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
         entityGroup.addChild(rectangle);
@@ -77,6 +79,7 @@ public class EntityGroupTest {
         entityGroup.move(new Point2D.Double(10, 10));
 
         Rectangle rectangle = new Rectangle(100, 100);
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
         entityGroup.addChild(rectangle);
@@ -94,6 +97,7 @@ public class EntityGroupTest {
     public void scalingGroupShouldScaleChild() {
         EntityGroup entityGroup = new EntityGroup();
         Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
         entityGroup.addChild(rectangle);
@@ -115,11 +119,13 @@ public class EntityGroupTest {
     public void scalingGroupShouldScaleChildrenAndTheirRelativePosition() {
         EntityGroup entityGroup = new EntityGroup();
         Rectangle rectangle1 = new Rectangle(10, 10);
+        rectangle1.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle1.setWidth(10);
         rectangle1.setHeight(10);
         entityGroup.addChild(rectangle1);
 
         Rectangle rectangle2 = new Rectangle(20, 20);
+        rectangle2.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle2.setWidth(10);
         rectangle2.setHeight(10);
         entityGroup.addChild(rectangle2);
@@ -141,14 +147,17 @@ public class EntityGroupTest {
     public void setSizeShouldResizeChildrenRelativly() {
         EntityGroup entityGroup = new EntityGroup();
         Rectangle rectangle1 = new Rectangle(10, 10);
+        rectangle1.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle1.setWidth(10);
         rectangle1.setHeight(10);
         entityGroup.addChild(rectangle1);
 
         Rectangle rectangle2 = new Rectangle(20, 20);
+        rectangle2.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle2.setWidth(10);
         rectangle2.setHeight(10);
         entityGroup.addChild(rectangle2);
+        entityGroup.setAnchor(Anchor.BOTTOM_LEFT);
 
         assertEquals(20, entityGroup.getSize().getWidth(), 0.1);
         assertEquals(20, entityGroup.getSize().getHeight(), 0.1);
@@ -326,10 +335,12 @@ public class EntityGroupTest {
     public void onEventShouldUpdateBounds() {
         EntityGroup entityGroup = new EntityGroup();
         Rectangle rectangle1 = new Rectangle(0, 0);
+        rectangle1.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle1.setSize(new Size(10, 10));
         entityGroup.addChild(rectangle1);
 
         Rectangle rectangle2 = new Rectangle(5, 5);
+        rectangle2.setAnchor(Anchor.BOTTOM_LEFT);
         entityGroup.addChild(rectangle2);
         assertEquals(0, entityGroup.getBounds().getX(), 0.1);
         assertEquals(0, entityGroup.getBounds().getY(), 0.1);

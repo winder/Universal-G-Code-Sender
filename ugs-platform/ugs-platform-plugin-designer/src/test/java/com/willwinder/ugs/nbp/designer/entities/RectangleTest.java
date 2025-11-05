@@ -22,6 +22,7 @@ public class RectangleTest {
     @Test
     public void isWithinShouldReturnFalseIfPointIsNotWithin() {
         Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
         assertFalse(rectangle.isWithin(new Point2D.Double(9, 11)));
@@ -30,6 +31,7 @@ public class RectangleTest {
     @Test
     public void getPositionShouldReturnTheTransformedPosition() {
         Rectangle rectangle = new Rectangle(10, 20);
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
         assertEquals(Double.valueOf(10), Double.valueOf(rectangle.getPosition().getX()));
@@ -39,6 +41,7 @@ public class RectangleTest {
     @Test
     public void getCenterShouldReturnTheTransformedCenterPosition() {
         Rectangle rectangle = new Rectangle(10, 20);
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
         assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getX()));
@@ -48,6 +51,7 @@ public class RectangleTest {
     @Test
     public void setRotationShouldRotateAroundItsCenter() {
         Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
 
@@ -63,6 +67,7 @@ public class RectangleTest {
     @Test
     public void moveShouldTranslateTheEntity() {
         Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
 
@@ -80,6 +85,7 @@ public class RectangleTest {
     @Test
     public void moveShouldTranslateScaledEntity() {
         Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.applyTransform(AffineTransform.getScaleInstance(2, 2));
         rectangle.setWidth(10);
         rectangle.setHeight(10);
@@ -96,6 +102,7 @@ public class RectangleTest {
     @Test
     public void rotateShouldRotateAroundItsCenter() {
         Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
 
@@ -113,6 +120,7 @@ public class RectangleTest {
     @Test
     public void getShapeShouldReturnATransformedShape() {
         Rectangle rectangle = new Rectangle(10, 10);
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
 
@@ -146,6 +154,7 @@ public class RectangleTest {
     @Test
     public void setPositionShouldTranslateTheRectangle() {
         Rectangle rectangle = new Rectangle();
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
         rectangle.move(new Point2D.Double(10, 0));
@@ -157,8 +166,10 @@ public class RectangleTest {
     @Test
     public void rotateShouldRotateAroundRectangleCenter() {
         Rectangle rectangle = new Rectangle();
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setWidth(10);
         rectangle.setHeight(10);
+        rectangle.setAnchor(Anchor.CENTER);
         rectangle.move(new Point2D.Double(10, 10));
 
         // Rotate 360
@@ -235,6 +246,7 @@ public class RectangleTest {
     @Test
     public void scaleShouldChangeSizeWhenRotated() {
         Rectangle rectangle = new Rectangle();
+        rectangle.setAnchor(Anchor.BOTTOM_LEFT);
         rectangle.setPosition(new Point2D.Double(1, 1));
         rectangle.setWidth(100);
         rectangle.setHeight(100);

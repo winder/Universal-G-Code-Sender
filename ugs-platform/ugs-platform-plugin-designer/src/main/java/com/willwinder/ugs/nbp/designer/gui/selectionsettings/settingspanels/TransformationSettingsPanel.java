@@ -250,6 +250,7 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
                     currentAnchor = (Anchor) newValue;
                     updatePositionFieldsForAnchor(selectionGroup);
                 }
+            case ROTATION -> selectionGroup.setRotation((Double) newValue);
             case LOCK_RATIO -> this.lockRatio = !(Boolean) newValue;
             }
     }
@@ -300,9 +301,5 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
                 lockRatio,
                 settingsManager
         );
-    }
-
-    private EntitySetting mapPropertyToEntitySetting(String propertyName) {
-        return SettingsActionFactory.mapPropertyToEntitySetting(propertyName);
     }
 }

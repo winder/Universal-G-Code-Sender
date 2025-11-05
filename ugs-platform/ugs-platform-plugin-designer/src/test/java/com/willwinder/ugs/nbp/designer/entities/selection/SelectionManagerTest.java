@@ -1,5 +1,6 @@
 package com.willwinder.ugs.nbp.designer.entities.selection;
 
+import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.controls.MoveControl;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -26,11 +27,14 @@ public class SelectionManagerTest {
     @Test
     public void moveShouldMoveAllEntites() {
         Rectangle firstEntity = new Rectangle();
+        firstEntity.setAnchor(Anchor.BOTTOM_LEFT);
+
         firstEntity.setPosition(new Point2D.Double(10, 20));
         firstEntity.setSize(new Size(10, 10));
         target.addSelection(firstEntity);
 
         Rectangle secondEntity = new Rectangle();
+        secondEntity.setAnchor(Anchor.BOTTOM_LEFT);
         secondEntity.setPosition(new Point2D.Double(20, 30));
         secondEntity.setSize(new Size(40, 40));
         target.addSelection(secondEntity);

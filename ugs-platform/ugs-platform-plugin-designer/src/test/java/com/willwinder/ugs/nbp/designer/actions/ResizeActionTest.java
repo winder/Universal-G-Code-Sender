@@ -4,18 +4,22 @@ import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.model.Size;
-import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import java.awt.geom.Point2D;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
 public class ResizeActionTest {
 
     @Test
     public void resizeWithTopLeftAnchor() {
-        Entity entity = new Rectangle(10, 10);
+        Entity entity = new Rectangle();
+        entity.setAnchor(Anchor.BOTTOM_LEFT);
+        entity.setPosition(new Point2D.Double(10, 10));
         entity.setSize(new Size(10, 10));
+        entity.setAnchor(Anchor.CENTER);
 
         ResizeAction resizeAction = new ResizeAction(List.of(entity), Anchor.TOP_LEFT, new Size(10, 10), new Size(20, 20));
         resizeAction.redo();
@@ -27,6 +31,7 @@ public class ResizeActionTest {
     @Test
     public void resizeWithBottomLeftAnchor() {
         Entity entity = new Rectangle(10, 10);
+        entity.setAnchor(Anchor.BOTTOM_LEFT);
         entity.setSize(new Size(10, 10));
 
         ResizeAction resizeAction = new ResizeAction(List.of(entity), Anchor.BOTTOM_LEFT, new Size(10, 10), new Size(20, 20));
@@ -39,6 +44,7 @@ public class ResizeActionTest {
     @Test
     public void resizeWithBottomRightAnchor() {
         Entity entity = new Rectangle(10, 10);
+        entity.setAnchor(Anchor.BOTTOM_LEFT);
         entity.setSize(new Size(10, 10));
 
         ResizeAction resizeAction = new ResizeAction(List.of(entity), Anchor.BOTTOM_RIGHT, new Size(10, 10), new Size(20, 20));
@@ -51,6 +57,7 @@ public class ResizeActionTest {
     @Test
     public void resizeWithTopRightAnchor() {
         Entity entity = new Rectangle(10, 10);
+        entity.setAnchor(Anchor.BOTTOM_LEFT);
         entity.setSize(new Size(10, 10));
 
         ResizeAction resizeAction = new ResizeAction(List.of(entity), Anchor.TOP_RIGHT, new Size(10, 10), new Size(20, 20));
@@ -63,6 +70,7 @@ public class ResizeActionTest {
     @Test
     public void resizeWithTopCenterAnchor() {
         Entity entity = new Rectangle(10, 10);
+        entity.setAnchor(Anchor.BOTTOM_LEFT);
         entity.setSize(new Size(10, 10));
 
         ResizeAction resizeAction = new ResizeAction(List.of(entity), Anchor.TOP_CENTER, new Size(10, 10), new Size(20, 20));
@@ -75,6 +83,7 @@ public class ResizeActionTest {
     @Test
     public void resizeWithBottomCenterAnchor() {
         Entity entity = new Rectangle(10, 10);
+        entity.setAnchor(Anchor.BOTTOM_LEFT);
         entity.setSize(new Size(10, 10));
 
         ResizeAction resizeAction = new ResizeAction(List.of(entity), Anchor.BOTTOM_CENTER, new Size(10, 10), new Size(20, 20));
@@ -87,6 +96,7 @@ public class ResizeActionTest {
     @Test
     public void resizeWithLeftCenterAnchor() {
         Entity entity = new Rectangle(10, 10);
+        entity.setAnchor(Anchor.BOTTOM_LEFT);
         entity.setSize(new Size(10, 10));
 
         ResizeAction resizeAction = new ResizeAction(List.of(entity), Anchor.LEFT_CENTER, new Size(10, 10), new Size(20, 20));
@@ -99,6 +109,7 @@ public class ResizeActionTest {
     @Test
     public void resizeWithRightCenterAnchor() {
         Entity entity = new Rectangle(10, 10);
+        entity.setAnchor(Anchor.BOTTOM_LEFT);
         entity.setSize(new Size(10, 10));
 
         ResizeAction resizeAction = new ResizeAction(List.of(entity), Anchor.RIGHT_CENTER, new Size(10, 10), new Size(20, 20));
@@ -111,6 +122,7 @@ public class ResizeActionTest {
     @Test
     public void resizeWithCenterAnchor() {
         Entity entity = new Rectangle(10, 10);
+        entity.setAnchor(Anchor.BOTTOM_LEFT);
         entity.setSize(new Size(10, 10));
 
         ResizeAction resizeAction = new ResizeAction(List.of(entity), Anchor.CENTER, new Size(10, 10), new Size(20, 20));

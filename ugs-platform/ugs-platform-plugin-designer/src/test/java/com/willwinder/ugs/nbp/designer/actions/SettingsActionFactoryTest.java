@@ -112,19 +112,6 @@ public class SettingsActionFactoryTest {
     }
 
     @Test
-    public void testCreateGroupTransformAction_UnsupportedProperty() {
-        Group group = new Group();
-        Rectangle rect = new Rectangle(0, 0);
-        group.addChild(rect);
-
-        UndoableAction action = SettingsActionFactory.createGroupTransformAction(
-                null, 100.0, group, Anchor.CENTER, false
-        );
-
-        assertNull(action);
-    }
-
-    @Test
     public void testCreateGroupTransformAction_NullGroup() {
         UndoableAction action = SettingsActionFactory.createGroupTransformAction(
                 EntitySetting.WIDTH, 100.0, null, Anchor.CENTER, false

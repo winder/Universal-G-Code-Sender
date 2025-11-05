@@ -172,8 +172,7 @@ public class TransformSettingsModel implements Serializable {
         isUpdatingFromEntity = true;
         try {
 
-            if (EntitySetting.TRANSFORMATION_SETTINGS.stream().allMatch(setting ->
-                    selectionGroup.getSettings().contains(setting))) {
+            if (selectionGroup.getSettings().containsAll(EntitySetting.TRANSFORMATION_SETTINGS)) {
                 setPositionX(selectionGroup.getPosition(getAnchor()).getX());
                 setPositionY(selectionGroup.getPosition(getAnchor()).getY());
                 setWidth(selectionGroup.getSize().getWidth());
