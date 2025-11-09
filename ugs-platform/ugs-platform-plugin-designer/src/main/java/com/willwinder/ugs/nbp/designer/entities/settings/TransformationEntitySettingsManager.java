@@ -58,7 +58,6 @@ public class TransformationEntitySettingsManager implements EntitySettingsManage
             case WIDTH -> entity.getSize().getWidth();
             case HEIGHT -> entity.getSize().getHeight();
             case ROTATION -> entity.getRotation();
-            case ANCHOR -> entity.getAnchor();
             case LOCK_RATIO -> false;
             default -> null;
         };
@@ -94,7 +93,7 @@ public class TransformationEntitySettingsManager implements EntitySettingsManage
             }
             case ANCHOR -> {
                 if (value instanceof Anchor anchor) {
-                    entity.setAnchor(anchor);
+                    entity.setPivotPoint(anchor);
                 }
             }
             case LOCK_RATIO -> {

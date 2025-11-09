@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
-import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
@@ -70,8 +69,8 @@ public class CreateRectangleControl extends SnapToGridControl {
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
-        if (entityEvent instanceof MouseEntityEvent) {
-            MouseEntityEvent mouseEntityEvent = (MouseEntityEvent) entityEvent;
+        if (entityEvent instanceof MouseEntityEvent mouseEntityEvent) {
+
             startPosition = mouseEntityEvent.getStartMousePosition();
             endPosition = mouseEntityEvent.getCurrentMousePosition();
 
@@ -95,7 +94,6 @@ public class CreateRectangleControl extends SnapToGridControl {
         Rectangle rectangle = new Rectangle(startX, startY);
         rectangle.setWidth(snapToGrid(endX - startX));
         rectangle.setHeight(snapToGrid(endY - startY));
-        rectangle.setAnchor(Anchor.CENTER);
         controller.addEntity(rectangle);
 
         controller.setTool(Tool.SELECT);

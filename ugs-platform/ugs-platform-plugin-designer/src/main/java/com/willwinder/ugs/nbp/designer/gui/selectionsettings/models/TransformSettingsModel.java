@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -172,13 +173,12 @@ public class TransformSettingsModel implements Serializable {
         isUpdatingFromEntity = true;
         try {
 
-            if (selectionGroup.getSettings().containsAll(EntitySetting.TRANSFORMATION_SETTINGS)) {
+            if (new HashSet<>(selectionGroup.getSettings()).containsAll(EntitySetting.TRANSFORMATION_SETTINGS)) {
                 setPositionX(selectionGroup.getPosition(getAnchor()).getX());
                 setPositionY(selectionGroup.getPosition(getAnchor()).getY());
                 setWidth(selectionGroup.getSize().getWidth());
                 setHeight(selectionGroup.getSize().getHeight());
                 setRotation(selectionGroup.getRotation());
-                setAnchor(selectionGroup.getAnchor());
                 setLockRatio(selectionGroup.isLockRatio());
             }
         } finally {

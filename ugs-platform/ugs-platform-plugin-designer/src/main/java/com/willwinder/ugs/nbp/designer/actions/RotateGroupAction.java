@@ -20,6 +20,8 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 
+import java.awt.geom.Point2D;
+
 /**
  * An undoable action for rotating a group.
  * This action handles rotation angle changes for groups.
@@ -31,6 +33,7 @@ public class RotateGroupAction implements UndoableAction {
     private final Group selectionGroup;
     private final double originalRotation;
     private final double newRotation;
+    private final Point2D originalPivotPoint;
 
     /**
      * Creates a rotate action for a group.
@@ -42,6 +45,7 @@ public class RotateGroupAction implements UndoableAction {
         this.selectionGroup = selectionGroup;
         this.originalRotation = selectionGroup.getRotation();
         this.newRotation = normalizeAngle(newRotation);
+        this.originalPivotPoint = selectionGroup.getPivotPoint();
     }
 
     /**
@@ -54,8 +58,10 @@ public class RotateGroupAction implements UndoableAction {
     public RotateGroupAction(Group selectionGroup, double deltaRotation, boolean relative) {
         this.selectionGroup = selectionGroup;
         this.originalRotation = selectionGroup.getRotation();
+        this.originalPivotPoint = selectionGroup.getPivotPoint();
 
         if (relative) {
+
             this.newRotation = normalizeAngle(originalRotation + deltaRotation);
         } else {
             this.newRotation = normalizeAngle(deltaRotation);
@@ -89,11 +95,13 @@ public class RotateGroupAction implements UndoableAction {
 
     @Override
     public void redo() {
+        selectionGroup.setPivotPoint(this.originalPivotPoint);
         selectionGroup.setRotation(newRotation);
     }
 
     @Override
     public void undo() {
+        selectionGroup.setPivotPoint(this.originalPivotPoint);
         selectionGroup.setRotation(originalRotation);
     }
 

@@ -261,7 +261,7 @@ public interface Entity {
     /**
      * An optional description
      *
-     * @param description
+     * @param description the description
      */
     void setDescription(String description);
 
@@ -296,9 +296,26 @@ public interface Entity {
         setSize(new Size(currentSize.getWidth(), height));
     }
 
-    void setAnchor(Anchor anchor);
+    /**
+     * Sets the pivot point based on the given anchor position
+     *
+     * @param anchor the anchor to use for determining the pivot point
+     */
+    void setPivotPoint(Anchor anchor);
 
-    Anchor getAnchor();
+    /**
+     * Sets the pivot point to a specific location
+     *
+     * @param pivotPoint the pivot point to use for rotations
+     */
+    void setPivotPoint(Point2D pivotPoint);
+
+    /**
+     * Gets the current pivot point
+     *
+     * @return the pivot point or null if not set
+     */
+    Point2D getPivotPoint();
 
     void setLockRatio(boolean lockRatio);
 

@@ -210,6 +210,9 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
 
         updating = true;
         try {
+            selectionGroup.setPivotPoint(currentAnchor);
+            selectionGroup.getChildren().forEach(entity -> entity.setPivotPoint(currentAnchor));
+
             Point2D position = selectionGroup.getPosition(currentAnchor);
             posXTextField.setValue(position.getX());
             posYTextField.setValue(position.getY());
@@ -248,6 +251,10 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
                 }
             case ANCHOR -> {
                     currentAnchor = (Anchor) newValue;
+                // Update pivot point for the selection group itself
+                selectionGroup.setPivotPoint(currentAnchor);
+                // Also update pivot point for all entities in the selection
+                selectionGroup.getChildren().forEach(entity -> entity.setPivotPoint(currentAnchor));
                     updatePositionFieldsForAnchor(selectionGroup);
                 }
             case ROTATION -> selectionGroup.setRotation((Double) newValue);

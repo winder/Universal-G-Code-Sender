@@ -40,7 +40,7 @@ public abstract class AbstractEntity implements Entity {
 
     private AffineTransform transform = new AffineTransform();
     private boolean lockedRatio = false;
-    private Anchor currentAnchor = Anchor.BOTTOM_LEFT;
+    private Point2D pivotPoint;
     private String name = "AbstractEntity";
     private String description;
 
@@ -89,7 +89,7 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void setSize(Size size) {
-        setSize(currentAnchor, size);
+        setSize(Anchor.BOTTOM_LEFT, size);
     }
 
     @Override
@@ -227,7 +227,12 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void rotate(double angle) {
-        rotate(getPosition(getAnchor()), angle);
+        Point2D pivotPoint = getPivotPoint();
+        if (pivotPoint != null) {
+            rotate(pivotPoint, angle);
+        } else {
+            rotate(getCenter(), angle);
+        }
     }
 
     @Override
@@ -327,13 +332,18 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
-    public void setAnchor(Anchor anchor) {
-        this.currentAnchor = anchor;
+    public void setPivotPoint(Anchor anchor) {
+        this.pivotPoint = getPosition(anchor);
     }
 
     @Override
-    public Anchor getAnchor() {
-        return currentAnchor;
+    public void setPivotPoint(Point2D pivotPoint) {
+        this.pivotPoint = pivotPoint != null ? new Point2D.Double(pivotPoint.getX(), pivotPoint.getY()) : null;
+    }
+
+    @Override
+    public Point2D getPivotPoint() {
+        return this.pivotPoint;
     }
 
     @Override
