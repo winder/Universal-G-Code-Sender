@@ -44,6 +44,8 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Joacim Breiler
@@ -56,6 +58,8 @@ import java.util.Optional;
         displayName = "Import file",
         lazy = false)
 public final class ToolImportAction extends AbstractDesignAction {
+    private static final Logger LOGGER = Logger.getLogger(ToolImportAction.class.getName());
+
     public static final FileNameExtensionFilter[] FILE_NAME_EXTENSION_FILTERS = new FileNameExtensionFilter[]{
             new FileNameExtensionFilter("Scalable Vector Graphics (.svg)", "svg"),
             new FileNameExtensionFilter("Autodesk CAD (.dxf)", "dxf"),
@@ -124,7 +128,11 @@ public final class ToolImportAction extends AbstractDesignAction {
         ThreadHelper.invokeLater(() -> {
             File f = fileDialog.getSelectedFile();
             if (f != null) {
-                readDesign(controller, backend, f);
+                try {
+                    readDesign(controller, backend, f);
+                } catch (Exception exception) {
+                    LOGGER.log(Level.SEVERE, "Could not import file " + f.getName(), exception);
+                }
             }
         });
     }
