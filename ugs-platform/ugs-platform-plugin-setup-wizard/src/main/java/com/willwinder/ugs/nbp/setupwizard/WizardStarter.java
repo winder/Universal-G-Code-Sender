@@ -46,9 +46,7 @@ import org.openide.util.Exceptions;
  * @author Joacim Breiler
  */
 public class WizardStarter {
-    
-    private static final Logger logger = Logger.getLogger(WizardStarter.class.getSimpleName());
-    
+        
     public static void openWizard(BackendAPI backend) {
         List<AbstractWizardPanel> panels = createWizardStepPanels(backend);
 
@@ -57,17 +55,14 @@ public class WizardStarter {
         panelIterator.initialize(wizardDescriptor);
 
         Dialog dialog = DialogDisplayer.getDefault().createDialog(wizardDescriptor);
-         logger.info("WizardStarter Started");
+         
         dialog.addWindowListener(new WindowAdapter(){
 
             @Override
-            public void windowClosing(WindowEvent e) {
-                logger.info("windowClosing");
+            public void windowClosed(WindowEvent e) {
                 if (backend.getController().getCapabilities().hasConfigPersistence()) {
-                    logger.info("hasConfigPersistence");
                     try {
                         if (((AbstractWizardPanel)panelIterator.current()).isFinishPanel() ) {
-                            logger.info("isFinishPanel");
                             backend.getController().getFirmwareSettings().saveFirmwareSettings();
                         }
                     } catch (FirmwareSettingsException ex) {
