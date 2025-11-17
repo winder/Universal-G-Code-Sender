@@ -594,7 +594,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
 //        capabilities.addCapability(CapabilitiesConstants.PROBE_SETUP);      // let user configure which pin us used for probe.
 //        capabilities.addCapability(CapabilitiesConstants.LIMIT_PIN_SETUP);  // let user configure limit pins positions.
-//        capabilities.addCapability(CapabilitiesConstants.PER_MOTOR_HOMING);  // setup pulloff mm  / mpos_mm    
+        capabilities.addCapability(CapabilitiesConstants.ADVANCED_HOMING);  // setup pulloff_mm  / mpos_mm    
 //        capabilities.addCapability(CapabilitiesConstants.FLUIDNC_CONFIG_UPLOAD);  // Upload / Download / Edit full config file in one go. 
         
         // Both of these feel like the user should be editing the config.yaml
@@ -627,7 +627,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
         FluidNCUtils.addCapabilities(capabilities, semanticVersion, firmwareSettings);
     }
 
-    private void refreshFirmwareSettings() throws FirmwareSettingsException {
+    public void refreshFirmwareSettings() throws FirmwareSettingsException {
         messageService.dispatchMessage(MessageType.INFO, "*** Fetching device settings\n");
         try {
             firmwareSettings.refresh();

@@ -27,6 +27,8 @@ import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelSoftLimits;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelStepCalibration;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.GUIBackend;
+import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 
@@ -46,7 +48,11 @@ import org.openide.util.Exceptions;
  * @author Joacim Breiler
  */
 public class WizardStarter {
-        
+    public static void main(String[] args) throws Exception {
+        BackendAPI backend = new GUIBackend();
+        backend.applySettings(SettingsFactory.loadSettings());
+        openWizard(backend);
+    }    
     public static void openWizard(BackendAPI backend) {
         List<AbstractWizardPanel> panels = createWizardStepPanels(backend);
 

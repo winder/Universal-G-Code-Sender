@@ -251,6 +251,23 @@ public interface IFirmwareSettings {
     default boolean hasZ1() {
         return false;
     }
+    default void setMposMM(Axis axis, double limit) throws FirmwareSettingsException {
+        
+    }
 
+    default double getMposMM(Axis axis) throws FirmwareSettingsException {
+        return 0;
+    }
+    
+    default void setPulloffMM(Axis axis, String aMotor, double limit) throws FirmwareSettingsException {
+        
+    }
+
+    default double getPulloffMM(Axis axis, String aMotor) throws FirmwareSettingsException {
+        return 0;
+    }
+    
+    default void refreshFirmwareSettings() throws FirmwareSettingsException {
+    }
 }
 

@@ -68,13 +68,15 @@ public class FluidNCSettings implements IFirmwareSettings {
             throw new FirmwareSettingsException("Timed out waiting for the controller settings", e);
         }
 
-
+         LOGGER.info("refresh() Starting");
         if (firmwareSettingsCommand.isOk()) {
             Map<String, String> responseSettings = firmwareSettingsCommand.getSettings();
             responseSettings.keySet().forEach(key -> {
                 String value = responseSettings.get(key);
                 FirmwareSetting firmwareSetting = new FirmwareSetting(key, value, "", "", "");
-                settings.put(key.toLowerCase(), firmwareSetting);
+                settings.put(key.toLowerCase(), firmwareSetting);                   
+                
+         LOGGER.info("GOT DATA " + key.toLowerCase() + "="+ firmwareSetting);
                 listeners.forEach(l -> l.onUpdatedFirmwareSetting(firmwareSetting));
             });
         }
@@ -275,7 +277,44 @@ public class FluidNCSettings implements IFirmwareSettings {
                 })
                 .orElse(0d);
     }
+    @Override
+    public void setMposMM(Axis axis, double limit) throws FirmwareSettingsException {
+        String keyName = "axes/" + axis.name().toLowerCase() + "/homing/mpos_mm";
+        
+        setValue(keyName, Utils.formatter.format(limit));
+    }
 
+    @Override
+    public double getMposMM(Axis axis) throws FirmwareSettingsException {
+        String keyName = "axes/" + axis.name().toLowerCase() + "/homing/mpos_mm";
+        
+        return getSetting(keyName)
+                .map(s -> {
+                    try {
+                        return Utils.formatter.parse(s.getValue()).doubleValue();
+                    } catch (ParseException e) {
+                        return 0d;
+                    }
+                })
+                .orElse(0d);
+    }
+    @Override
+    public void setPulloffMM(Axis axis, String aMotor, double limit) throws FirmwareSettingsException {
+        setValue("axes/" + axis.name().toLowerCase() + "/"+aMotor+"/pulloff_mm", Utils.formatter.format(limit));
+    }
+
+    @Override
+    public double getPulloffMM(Axis axis, String aMotor) throws FirmwareSettingsException {
+        return getSetting("axes/" + axis.name().toLowerCase() + "/"+aMotor+"/pulloff_mm")
+                .map(s -> {
+                    try {
+                        return Utils.formatter.parse(s.getValue()).doubleValue();
+                    } catch (ParseException e) {
+                        return 0d;
+                    }
+                })
+                .orElse(0d);
+    }
     @Override
     public boolean isHomingDirectionInverted(Axis axis) {
         String key = "axes/" + axis.name().toLowerCase() + "/homing/positive_direction";

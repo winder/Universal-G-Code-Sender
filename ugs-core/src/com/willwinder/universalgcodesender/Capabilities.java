@@ -180,7 +180,15 @@ public class Capabilities {
     public boolean hasConfigPersistence() {
         return hasCapability(CapabilitiesConstants.CONFIG_PERSISTANCE);
     }
-    
+    /**
+     * Returns if true if the hardware has the ability for advanced Homing
+     *
+     * @return true if the machine has advanced homing.
+     */
+    public boolean hasAdvancedHoming() {
+        return hasCapability(CapabilitiesConstants.ADVANCED_HOMING);
+    }
+        
     /**
      * Returns if the hardware have support for check mode. The capability
      * is defined by the capability {@link CapabilitiesConstants#CHECK_MODE}
