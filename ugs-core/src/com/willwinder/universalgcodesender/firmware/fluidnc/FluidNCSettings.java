@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -83,7 +84,17 @@ public class FluidNCSettings implements IFirmwareSettings {
     public Optional<FirmwareSetting> getSetting(String key) {
         return Optional.ofNullable(settings.get(key));
     }
-
+    
+    @Override
+    public void saveFirmwareSettings() throws FirmwareSettingsException {
+        FluidNCCommand cmdPersist = new FluidNCCommand("$CD=config.yaml");
+        try{
+            ControllerUtils.sendAndWaitForCompletion(controller, cmdPersist);  
+        } catch (Exception e) {
+            throw new FirmwareSettingsException("Couldn't save settings to the controller", e);
+        }
+                
+    }
     @Override
     public FirmwareSetting setValue(String key, String value) throws FirmwareSettingsException {
         try {
@@ -95,7 +106,7 @@ public class FluidNCSettings implements IFirmwareSettings {
                     FirmwareSetting firmwareSetting = new FirmwareSetting(key, value, "", "", "");
                     settings.put(key, firmwareSetting);
                     listeners.forEach(l -> l.onUpdatedFirmwareSetting(firmwareSetting));
-                }
+                }                
             }
         } catch (Exception e) {
             throw new FirmwareSettingsException("Couldn't store setting", e);
@@ -145,12 +156,68 @@ public class FluidNCSettings implements IFirmwareSettings {
 
     @Override
     public boolean isHardLimitsEnabled() {
-        return false;
+        return getSetting("axes/x/motor0/hard_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
+                getSetting("axes/x/motor1/hard_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
+                getSetting("axes/y/motor0/hard_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
+                getSetting("axes/y/motor1/hard_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
+                getSetting("axes/z/motor0/hard_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
+                getSetting("axes/z/motor1/hard_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent();
     }
-
+    
+    private boolean checkMotorHasEndstop( String aAxis, String aMotor) {
+        return getSetting("axes/"+aAxis+"/"+aMotor+"/limit_neg_pin").filter(s -> !StringUtils.equalsIgnoreCase("NO_PIN", s.getValue())).isPresent() || 
+                getSetting("axes/"+aAxis+"/"+aMotor+"/limit_pos_pin").filter(s -> !StringUtils.equalsIgnoreCase("NO_PIN", s.getValue())).isPresent() || 
+                getSetting("axes/"+aAxis+"/"+aMotor+"/limit_all_pin").filter(s -> !StringUtils.equalsIgnoreCase("NO_PIN", s.getValue())).isPresent();
+    }
+    
+    @Override
+    public boolean hasX0() {
+        return checkMotorHasEndstop("x","motor0");
+    }
+    
+    @Override
+    public boolean hasX1() {
+        return checkMotorHasEndstop("x","motor1");
+    }
+    
+    @Override
+    public boolean hasY0() {
+        return checkMotorHasEndstop("y","motor0");
+    }
+    
+    @Override
+    public boolean hasY1() {
+        return checkMotorHasEndstop("y","motor1");
+    }
+    
+    @Override
+    public boolean hasZ0() {
+        return checkMotorHasEndstop("z","motor0");
+    }
+    
+    @Override
+    public boolean hasZ1() {
+        return checkMotorHasEndstop("z","motor1");
+    }    
+    private void setHardLimitEnabled(String aAxis,String aMotor,boolean enabled) throws FirmwareSettingsException{
+            if (checkMotorHasEndstop(aAxis, aMotor)) {
+                setValue("axes/"+aAxis+"/"+aMotor+"/hard_limits", enabled ? "true" : "false");
+            }
+    }
+    
     @Override
     public void setHardLimitsEnabled(boolean enabled) {
-
+        // Only set Hard limits on 
+        try {
+            setHardLimitEnabled("x","motor0",enabled);
+            setHardLimitEnabled("x","motor1",enabled);
+            setHardLimitEnabled("y","motor0",enabled);
+            setHardLimitEnabled("y","motor1",enabled);
+            setHardLimitEnabled("z","motor0",enabled);
+            setHardLimitEnabled("z","motor1",enabled);         
+        } catch (FirmwareSettingsException ex) {
+            Logger.getLogger(FluidNCSettings.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -162,7 +229,13 @@ public class FluidNCSettings implements IFirmwareSettings {
 
     @Override
     public void setSoftLimitsEnabled(boolean enabled) {
-
+        try {
+            setValue("axes/x/soft_limits", enabled ? "true" : "false");
+            setValue("axes/y/soft_limits", enabled ? "true" : "false");
+            setValue("axes/z/soft_limits", enabled ? "true" : "false");
+        } catch (FirmwareSettingsException ex) {
+            Logger.getLogger(FluidNCSettings.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -212,7 +285,12 @@ public class FluidNCSettings implements IFirmwareSettings {
 
     @Override
     public void setHomingDirectionInverted(Axis axis, boolean inverted) {
-
+        String key = "axes/" + axis.name().toLowerCase() + "/homing/positive_direction";
+        try {
+            setValue(key, inverted ? "false" : "true");
+        } catch (FirmwareSettingsException ex) {
+            Logger.getLogger(FluidNCSettings.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override

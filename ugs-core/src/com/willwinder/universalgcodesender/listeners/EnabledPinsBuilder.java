@@ -20,8 +20,14 @@ package com.willwinder.universalgcodesender.listeners;
 
 public class EnabledPinsBuilder {
     private boolean x = false;
+    private boolean x0 = false;    
+    private boolean x1 = false;    
     private boolean y = false;
+    private boolean y0 = false;
+    private boolean y1 = false;
     private boolean z = false;
+    private boolean z0 = false;
+    private boolean z1 = false;
     private boolean a = false;
     private boolean b = false;
     private boolean c = false;
@@ -36,16 +42,44 @@ public class EnabledPinsBuilder {
         return this;
     }
 
+    public EnabledPinsBuilder setX0(boolean x) {
+        this.x0 = x;
+        return this;
+    }
+
+    public EnabledPinsBuilder setX1(boolean x) {
+        this.x1 = x;
+        return this;
+    }
+    
     public EnabledPinsBuilder setY(boolean y) {
         this.y = y;
         return this;
     }
-
+    
+    public EnabledPinsBuilder setY0(boolean y) {
+        this.y0 = y;
+        return this;
+    }
+    
+    public EnabledPinsBuilder setY1(boolean y) {
+        this.y1 = y;
+        return this;
+    }
     public EnabledPinsBuilder setZ(boolean z) {
         this.z = z;
         return this;
     }
-
+    
+    public EnabledPinsBuilder setZ0(boolean z) {
+        this.z0 = z;
+        return this;
+    }
+    
+    public EnabledPinsBuilder setZ1(boolean z) {
+        this.z1 = z;
+        return this;
+    }
     public EnabledPinsBuilder setA(boolean a) {
         this.a = a;
         return this;
@@ -87,6 +121,6 @@ public class EnabledPinsBuilder {
     }
 
     public EnabledPins createEnabledPins() {
-        return new EnabledPins(x, y, z, a, b, c, probe, door, hold, softReset, cycleStart);
+        return new EnabledPins(x, x0, x1, y, y0, y1, z, z0, z1, a, b, c, probe, door, hold, softReset, cycleStart);
     }
 }

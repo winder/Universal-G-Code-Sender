@@ -59,6 +59,15 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
     private JLabel labelLimitX;
     private JLabel labelLimitY;
     private JLabel labelLimitZ;
+
+    private JLabel labelLimitX0;
+    private JLabel labelLimitY0;
+    private JLabel labelLimitZ0;
+    
+    private JLabel labelLimitX1;
+    private JLabel labelLimitY1;
+    private JLabel labelLimitZ1;
+    
     private JCheckBox checkboxInvertLimitPins;
 
     public WizardPanelHardLimits(BackendAPI backend) {
@@ -79,7 +88,15 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         panel.add(labelLimitX, "wmin 56, hmin 36, gapleft 5");
         panel.add(labelLimitY, "wmin 56, hmin 36, gapleft 10");
         panel.add(labelLimitZ, "wmin 56, hmin 36, gapleft 10, wrap");
+        
+        panel.add(labelLimitX0, "wmin 56, hmin 36, gapleft 5");
+        panel.add(labelLimitY0, "wmin 56, hmin 36, gapleft 10");
+        panel.add(labelLimitZ0, "wmin 56, hmin 36, gapleft 10, wrap");
 
+        panel.add(labelLimitX1, "wmin 56, hmin 36, gapleft 5");
+        panel.add(labelLimitY1, "wmin 56, hmin 36, gapleft 10");
+        panel.add(labelLimitZ1, "wmin 56, hmin 36, gapleft 10, wrap");
+        
         panel.add(checkboxInvertLimitPins, "gaptop 10, spanx, wrap");
         getPanel().add(panel, "grow, wrap");
     }
@@ -107,6 +124,20 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         labelLimitZ = createLimitLabel("Z");
         labelLimitZ.setVisible(false);
 
+        labelLimitX0 = createLimitLabel("X0");
+        labelLimitX0.setVisible(false);
+        labelLimitY0 = createLimitLabel("Y0");
+        labelLimitY0.setVisible(false);
+        labelLimitZ0 = createLimitLabel("Z0");
+        labelLimitZ0.setVisible(false);
+        
+        labelLimitX1 = createLimitLabel("X1");
+        labelLimitX1.setVisible(false);
+        labelLimitY1 = createLimitLabel("Y1");
+        labelLimitY1.setVisible(false);
+        labelLimitZ1 = createLimitLabel("Z1");
+        labelLimitZ1.setVisible(false);
+        
         checkboxInvertLimitPins = new JCheckBox(Localization.getString("platform.plugin.setupwizard.limit-switches.invert"));
         checkboxInvertLimitPins.setVisible(false);
         checkboxInvertLimitPins.addActionListener(event -> {
@@ -165,6 +196,13 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
                 labelLimitX.setBackground(controllerStatus.getStatus().getEnabledPins().x() ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
                 labelLimitY.setBackground(controllerStatus.getStatus().getEnabledPins().y() ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
                 labelLimitZ.setBackground(controllerStatus.getStatus().getEnabledPins().z() ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
+                labelLimitX0.setBackground(controllerStatus.getStatus().getEnabledPins().x0() ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
+                labelLimitY0.setBackground(controllerStatus.getStatus().getEnabledPins().y0() ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
+                labelLimitZ0.setBackground(controllerStatus.getStatus().getEnabledPins().z0() ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
+                labelLimitX1.setBackground(controllerStatus.getStatus().getEnabledPins().x1() ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
+                labelLimitY1.setBackground(controllerStatus.getStatus().getEnabledPins().y1() ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
+                labelLimitZ1.setBackground(controllerStatus.getStatus().getEnabledPins().z1() ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
+                
             });
         } else if (evt instanceof AlarmEvent alarmEvent && alarmEvent.getAlarm() == Alarm.HARD_LIMIT) {
             ThreadHelper.invokeLater(() -> {
@@ -190,6 +228,15 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
                     labelLimitX.setVisible(firmwareSettings.isHardLimitsEnabled());
                     labelLimitY.setVisible(firmwareSettings.isHardLimitsEnabled());
                     labelLimitZ.setVisible(firmwareSettings.isHardLimitsEnabled());
+                    
+                    labelLimitX0.setVisible(firmwareSettings.isHardLimitsEnabled() && firmwareSettings.hasX0());
+                    labelLimitY0.setVisible(firmwareSettings.isHardLimitsEnabled() && firmwareSettings.hasY0());
+                    labelLimitZ0.setVisible(firmwareSettings.isHardLimitsEnabled() && firmwareSettings.hasZ0());
+
+                    labelLimitX1.setVisible(firmwareSettings.isHardLimitsEnabled() && firmwareSettings.hasX1());
+                    labelLimitY1.setVisible(firmwareSettings.isHardLimitsEnabled() && firmwareSettings.hasY1());
+                    labelLimitZ1.setVisible(firmwareSettings.isHardLimitsEnabled() && firmwareSettings.hasZ1());
+                    
                     labelHardLimitsNotSupported.setVisible(false);
                 } else {
                     checkboxEnableHardLimits.setVisible(false);
@@ -198,6 +245,13 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
                     labelLimitX.setVisible(false);
                     labelLimitY.setVisible(false);
                     labelLimitZ.setVisible(false);
+                    labelLimitX0.setVisible(false);
+                    labelLimitY0.setVisible(false);
+                    labelLimitZ0.setVisible(false);
+                    labelLimitX1.setVisible(false);
+                    labelLimitY1.setVisible(false);
+                    labelLimitZ1.setVisible(false);
+                    
                     labelHardLimitsNotSupported.setVisible(true);
                 }
             } catch (FirmwareSettingsException e) {

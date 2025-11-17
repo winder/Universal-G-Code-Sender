@@ -18,7 +18,10 @@
  */
 package com.willwinder.universalgcodesender.listeners;
 
-public record EnabledPins(boolean x, boolean y, boolean z, boolean a, boolean b, boolean c, boolean probe, boolean door,
+public record EnabledPins(boolean x, boolean x0, boolean x1, 
+                          boolean y, boolean y0, boolean y1,
+                          boolean z, boolean z0, boolean z1,
+                          boolean a, boolean b, boolean c, boolean probe, boolean door,
                           boolean hold, boolean softReset, boolean cycleStart) {
     public static final EnabledPins EMPTY_PINS = new EnabledPinsBuilder().createEnabledPins();
 }

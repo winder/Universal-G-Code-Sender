@@ -61,6 +61,19 @@ public class CapabilitiesConstants {
     public static final String SETUP_WIZARD = "SETUP_WIZARD";
 
     /**
+     * A key for identifying if the hardware have support for motor wiring
+     */
+    public static final String MOTOR_WIRING = "MOTOR_WIRING";    
+    /**
+     * A key for identifying if the hardware have support for motor wiring
+     */
+    public static final String CONFIG_PERSISTANCE = "CONFIG_PERSISTANCE";  
+    /**
+     * A key for identifying if the hardware have support for motor wiring
+     */
+    public static final String STEP_CALIBRATION = "STEP_CALIBRATION";        
+    
+    /**
      * A key for identifying if the firmware has functions for checking the gcode
      */
     public static final String CHECK_MODE = "CHECK_MODE";

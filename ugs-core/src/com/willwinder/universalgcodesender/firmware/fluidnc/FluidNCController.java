@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc;
 
 import com.willwinder.universalgcodesender.Capabilities;
+import com.willwinder.universalgcodesender.CapabilitiesConstants;
 import com.willwinder.universalgcodesender.ConnectionWatchTimer;
 import com.willwinder.universalgcodesender.ControllerException;
 import com.willwinder.universalgcodesender.GrblUtils;
@@ -586,6 +587,19 @@ public class FluidNCController implements IController, ICommunicatorListener {
         semanticVersion = getBuildInfoCommand.getVersion();
         firmwareVariant = getBuildInfoCommand.getFirmware();
         capabilities.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
+        capabilities.addCapability(CapabilitiesConstants.SETUP_WIZARD);
+        capabilities.addCapability(CapabilitiesConstants.HARD_LIMITS);
+        capabilities.addCapability(CapabilitiesConstants.SOFT_LIMITS);
+        capabilities.addCapability(CapabilitiesConstants.CONFIG_PERSISTANCE);
+
+//        capabilities.addCapability(CapabilitiesConstants.PROBE_SETUP);      // let user configure which pin us used for probe.
+//        capabilities.addCapability(CapabilitiesConstants.LIMIT_PIN_SETUP);  // let user configure limit pins positions.
+//        capabilities.addCapability(CapabilitiesConstants.PER_MOTOR_HOMING);  // setup pulloff mm  / mpos_mm    
+//        capabilities.addCapability(CapabilitiesConstants.FLUIDNC_CONFIG_UPLOAD);  // Upload / Download / Edit full config file in one go. 
+        
+        // Both of these feel like the user should be editing the config.yaml
+        capabilities.removeCapability(CapabilitiesConstants.STEP_CALIBRATION);
+        capabilities.removeCapability(CapabilitiesConstants.MOTOR_WIRING);        
     }
 
     /**

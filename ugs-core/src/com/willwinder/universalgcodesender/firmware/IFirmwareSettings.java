@@ -225,4 +225,32 @@ public interface IFirmwareSettings {
      * @return the max spindle speed
      */
     int getMaxSpindleSpeed() throws FirmwareSettingsException;
+    
+    /**
+     * Persists the firmware settings to flash (if supported)
+     *     
+     */
+    default void saveFirmwareSettings() throws FirmwareSettingsException {
+    }
+                
+    default boolean hasX0() {
+        return false;
+    }
+    default boolean hasX1() {
+        return false;
+    }
+    default boolean hasY0() {
+        return false;
+    }
+    default boolean hasY1() {
+        return false;
+    }
+    default boolean hasZ0() {
+        return false;
+    }
+    default boolean hasZ1() {
+        return false;
+    }
+
 }
+
