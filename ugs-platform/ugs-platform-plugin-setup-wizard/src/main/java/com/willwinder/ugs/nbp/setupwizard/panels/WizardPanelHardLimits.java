@@ -19,6 +19,8 @@
 package com.willwinder.ugs.nbp.setupwizard.panels;
 
 import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
+import com.willwinder.universalgcodesender.Capabilities;
+import com.willwinder.universalgcodesender.CapabilitiesConstants;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -67,6 +69,13 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
     private JLabel labelLimitX1;
     private JLabel labelLimitY1;
     private JLabel labelLimitZ1;
+
+    private JPanel pnlX0Spacer;
+    private JPanel pnlX1Spacer;
+    private JPanel pnlY0Spacer;
+    private JPanel pnlY1Spacer;    
+    private JPanel pnlZ0Spacer;
+    private JPanel pnlZ1Spacer;    
     
     private JCheckBox checkboxInvertLimitPins;
 
@@ -76,7 +85,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         initComponents();
         initLayout();
         setValid(true);
-    }
+    } 
 
     private void initLayout() {
         JPanel panel = new JPanel(new MigLayout("fillx, inset 0, gap 5, hidemode 3"));
@@ -90,12 +99,18 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         panel.add(labelLimitZ, "wmin 56, hmin 36, gapleft 10, wrap");
         
         panel.add(labelLimitX0, "wmin 56, hmin 36, gapleft 5");
+        panel.add(pnlX0Spacer, "wmin 56, hmin 36, gapleft 5");
         panel.add(labelLimitY0, "wmin 56, hmin 36, gapleft 10");
+        panel.add(pnlY0Spacer, "wmin 56, hmin 36, gapleft 10");
         panel.add(labelLimitZ0, "wmin 56, hmin 36, gapleft 10, wrap");
+        panel.add(pnlZ0Spacer, "wmin 56, hmin 36, gapleft 10, wrap");
 
         panel.add(labelLimitX1, "wmin 56, hmin 36, gapleft 5");
+        panel.add(pnlX1Spacer, "wmin 56, hmin 36, gapleft 5");
         panel.add(labelLimitY1, "wmin 56, hmin 36, gapleft 10");
+        panel.add(pnlX1Spacer, "wmin 56, hmin 36, gapleft 10");
         panel.add(labelLimitZ1, "wmin 56, hmin 36, gapleft 10, wrap");
+        panel.add(pnlX1Spacer, "wmin 56, hmin 36, gapleft 10, wrap");
         
         panel.add(checkboxInvertLimitPins, "gaptop 10, spanx, wrap");
         getPanel().add(panel, "grow, wrap");
@@ -137,6 +152,13 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         labelLimitY1.setVisible(false);
         labelLimitZ1 = createLimitLabel("Z1");
         labelLimitZ1.setVisible(false);
+        
+        pnlX0Spacer=new JPanel();   
+        pnlX1Spacer=new JPanel();   
+        pnlY0Spacer=new JPanel();   
+        pnlX1Spacer=new JPanel();   
+        pnlZ0Spacer=new JPanel();   
+        pnlX1Spacer=new JPanel(); 
         
         checkboxInvertLimitPins = new JCheckBox(Localization.getString("platform.plugin.setupwizard.limit-switches.invert"));
         checkboxInvertLimitPins.setVisible(false);
@@ -214,28 +236,44 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
             }, TIME_BEFORE_RESET_ON_ALARM);
         }
     }
-
+        
     private void refreshComponents() {
         ThreadHelper.invokeLater(() -> {
             try {
                 if (getBackend().getController() != null && getBackend().getController().getCapabilities().hasHardLimits()) {
                     IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
+                    Capabilities caps = getBackend().getController().getCapabilities();
+                    
                     checkboxEnableHardLimits.setSelected(firmwareSettings.isHardLimitsEnabled());
                     checkboxInvertLimitPins.setSelected(firmwareSettings.isHardLimitsInverted());
                     checkboxEnableHardLimits.setVisible(true);
-                    checkboxInvertLimitPins.setVisible(firmwareSettings.isHardLimitsEnabled());
+                    checkboxInvertLimitPins.setVisible(firmwareSettings.isHardLimitsEnabled() && (!caps.hasCapability(CapabilitiesConstants.PER_AXIS_ENDSTOP_INVERSION)));
                     labelInstructions.setVisible(firmwareSettings.isHardLimitsEnabled());
-                    labelLimitX.setVisible(firmwareSettings.isHardLimitsEnabled());
-                    labelLimitY.setVisible(firmwareSettings.isHardLimitsEnabled());
-                    labelLimitZ.setVisible(firmwareSettings.isHardLimitsEnabled());
                     
-                    labelLimitX0.setVisible(firmwareSettings.isHardLimitsEnabled() && firmwareSettings.hasX0());
-                    labelLimitY0.setVisible(firmwareSettings.isHardLimitsEnabled() && firmwareSettings.hasY0());
-                    labelLimitZ0.setVisible(firmwareSettings.isHardLimitsEnabled() && firmwareSettings.hasZ0());
-
-                    labelLimitX1.setVisible(firmwareSettings.isHardLimitsEnabled() && firmwareSettings.hasX1());
-                    labelLimitY1.setVisible(firmwareSettings.isHardLimitsEnabled() && firmwareSettings.hasY1());
-                    labelLimitZ1.setVisible(firmwareSettings.isHardLimitsEnabled() && firmwareSettings.hasZ1());
+                    int xAxisEndstopCount = (firmwareSettings.hasX0() ? 1 : 0) + (firmwareSettings.hasX1() ? 1 : 0);
+                    int yAxisEndstopCount = (firmwareSettings.hasY0() ? 1 : 0) + (firmwareSettings.hasY1() ? 1 : 0);
+                    int zAxisEndstopCount = (firmwareSettings.hasZ0() ? 1 : 0) + (firmwareSettings.hasZ1() ? 1 : 0);
+                    int maxEndstopCount = Math.max(xAxisEndstopCount,Math.max(yAxisEndstopCount,zAxisEndstopCount));
+                    boolean showSingleEndstopMode = firmwareSettings.isHardLimitsEnabled() && (maxEndstopCount == 1);
+                    boolean showDualEndstopMode = firmwareSettings.isHardLimitsEnabled() && (maxEndstopCount == 2);
+                    
+                    labelLimitX.setVisible(showSingleEndstopMode);
+                    labelLimitY.setVisible(showSingleEndstopMode);
+                    labelLimitZ.setVisible(showSingleEndstopMode);
+                    
+                    labelLimitX0.setVisible(showDualEndstopMode && (firmwareSettings.hasX0()));
+                    pnlX0Spacer.setVisible(showDualEndstopMode && (!firmwareSettings.hasX0()));                    
+                    labelLimitY0.setVisible(showDualEndstopMode && (firmwareSettings.hasY0()) );
+                    pnlY0Spacer.setVisible(showDualEndstopMode && (!firmwareSettings.hasY0()));                    
+                    labelLimitZ0.setVisible(showDualEndstopMode && (firmwareSettings.hasZ0()));
+                    pnlZ0Spacer.setVisible(showDualEndstopMode && (firmwareSettings.hasZ0()));
+                    
+                    labelLimitX1.setVisible(showDualEndstopMode && (firmwareSettings.hasX1()));
+                    pnlX1Spacer.setVisible(showDualEndstopMode && (!firmwareSettings.hasX1()));   
+                    labelLimitY1.setVisible(showDualEndstopMode && (firmwareSettings.hasY1()) );
+                    pnlY1Spacer.setVisible(showDualEndstopMode && (!firmwareSettings.hasY1()));                      
+                    labelLimitZ1.setVisible(showDualEndstopMode && (firmwareSettings.hasZ1()));
+                    pnlZ1Spacer.setVisible(showDualEndstopMode && (firmwareSettings.hasZ1()));
                     
                     labelHardLimitsNotSupported.setVisible(false);
                 } else {

@@ -65,7 +65,7 @@ public class CapabilitiesConstants {
      */
     public static final String MOTOR_WIRING = "MOTOR_WIRING";    
     /**
-     * A key for identifying if the hardware have support for Config Persistance
+     * A key for identifying if the hardware have support for Config Persistence
      */
     public static final String CONFIG_PERSISTANCE = "CONFIG_PERSISTANCE";  
     
@@ -73,9 +73,14 @@ public class CapabilitiesConstants {
      * A key for identifying if the hardware have support for Advanced Homing
      */
     public static final String ADVANCED_HOMING = "ADVANCED_HOMING";  
+    
+    /**
+     * A key for identifying if the hardware have support for Advanced Homing
+     */
+    public static final String PER_AXIS_ENDSTOP_INVERSION = "PER_AXIS_ENDSTOP_INVERSION";  
 
     /**
-     * A key for identifying if the hardware have support for motor wiring
+     * A key for identifying if the hardware have support for Step Calibration
      */
     public static final String STEP_CALIBRATION = "STEP_CALIBRATION";        
     

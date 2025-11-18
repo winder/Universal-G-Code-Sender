@@ -591,7 +591,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
         capabilities.addCapability(CapabilitiesConstants.HARD_LIMITS);
         capabilities.addCapability(CapabilitiesConstants.SOFT_LIMITS);
         capabilities.addCapability(CapabilitiesConstants.CONFIG_PERSISTANCE);
-
+        capabilities.addCapability(CapabilitiesConstants.PER_AXIS_ENDSTOP_INVERSION);
 //        capabilities.addCapability(CapabilitiesConstants.PROBE_SETUP);      // let user configure which pin us used for probe.
 //        capabilities.addCapability(CapabilitiesConstants.LIMIT_PIN_SETUP);  // let user configure limit pins positions.
         capabilities.addCapability(CapabilitiesConstants.ADVANCED_HOMING);  // setup pulloff_mm  / mpos_mm    

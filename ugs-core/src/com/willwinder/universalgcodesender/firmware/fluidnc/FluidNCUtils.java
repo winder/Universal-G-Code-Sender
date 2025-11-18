@@ -22,8 +22,10 @@ import com.willwinder.universalgcodesender.utils.SemanticVersion;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.ParseException;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -199,8 +201,8 @@ public class FluidNCUtils {
 
         return true;
     }
-    public static LinkedList<String> getAllGpioPins() {
-        LinkedList<String> result = new LinkedList<>();
+    public static Set<String> getAllGpioPins() {
+        Set<String> result = new HashSet<>();
         // List based on: http://wiki.fluidnc.com/en/hardware/esp32_pin_reference
         result.add("gpio.0");
         result.add("gpio.2");
