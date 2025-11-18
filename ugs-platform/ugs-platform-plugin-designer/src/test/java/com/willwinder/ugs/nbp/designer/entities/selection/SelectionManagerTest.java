@@ -26,6 +26,7 @@ public class SelectionManagerTest {
     @Test
     public void moveShouldMoveAllEntites() {
         Rectangle firstEntity = new Rectangle();
+
         firstEntity.setPosition(new Point2D.Double(10, 20));
         firstEntity.setSize(new Size(10, 10));
         target.addSelection(firstEntity);

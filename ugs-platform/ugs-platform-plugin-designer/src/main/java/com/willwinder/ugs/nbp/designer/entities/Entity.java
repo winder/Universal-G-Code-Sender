@@ -21,8 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
-import java.awt.Graphics2D;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -262,7 +261,7 @@ public interface Entity {
     /**
      * An optional description
      *
-     * @param description
+     * @param description the description
      */
     void setDescription(String description);
 
@@ -286,4 +285,39 @@ public interface Entity {
      * @return a list of settings
      */
     List<EntitySetting> getSettings();
+
+    default void setWidth(double width) {
+        Size currentSize = getSize();
+        setSize(new Size(width, currentSize.getHeight()));
+    }
+
+    default void setHeight(double height) {
+        Size currentSize = getSize();
+        setSize(new Size(currentSize.getWidth(), height));
+    }
+
+    /**
+     * Sets the pivot point based on the given anchor position
+     *
+     * @param anchor the anchor to use for determining the pivot point
+     */
+    void setPivotPoint(Anchor anchor);
+
+    /**
+     * Sets the pivot point to a specific location
+     *
+     * @param pivotPoint the pivot point to use for rotations
+     */
+    void setPivotPoint(Point2D pivotPoint);
+
+    /**
+     * Gets the current pivot point
+     *
+     * @return the pivot point or null if not set
+     */
+    Point2D getPivotPoint();
+
+    void setLockRatio(boolean lockRatio);
+
+    boolean isLockRatio();
 }

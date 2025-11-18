@@ -21,8 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities;
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 
-import java.awt.Graphics2D;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -57,8 +56,9 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     public void rotate(double angle) {
         try {
             groupRotation += angle;
-            Point2D center = getCenter();
-            getAllChildren().forEach(entity -> entity.rotate(center, angle));
+            Point2D pivotPoint = getPivotPoint();
+            Point2D rotationCenter = pivotPoint != null ? pivotPoint : getCenter();
+            getAllChildren().forEach(entity -> entity.rotate(rotationCenter, angle));
             invalidateBounds();
             notifyEvent(new EntityEvent(this, EventType.ROTATED));
         } catch (Exception e) {
@@ -271,10 +271,11 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
 
     @Override
     public void setRotation(double rotation) {
-        Point2D center = getCenter();
+        Point2D pivotPoint = getPivotPoint();
+        Point2D rotationCenter = pivotPoint != null ? pivotPoint : getCenter();
         double deltaRotation = rotation - getRotation();
         if (deltaRotation != 0) {
-            children.forEach(entity -> entity.rotate(center, deltaRotation));
+            children.forEach(entity -> entity.rotate(rotationCenter, deltaRotation));
         }
         groupRotation += deltaRotation;
         invalidateBounds();
@@ -306,6 +307,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
             child.scale(sx, sy);
             child.setPosition(new Point2D.Double(originalPosition.getX() + (relativePosition.getX() * sx), originalPosition.getY() + (relativePosition.getY() * sy)));
         });
+
         invalidateBounds();
         notifyEvent(new EntityEvent(this, EventType.RESIZED));
     }

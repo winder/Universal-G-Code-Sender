@@ -27,7 +27,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -69,8 +69,8 @@ public class CreateRectangleControl extends SnapToGridControl {
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
-        if (entityEvent instanceof MouseEntityEvent) {
-            MouseEntityEvent mouseEntityEvent = (MouseEntityEvent) entityEvent;
+        if (entityEvent instanceof MouseEntityEvent mouseEntityEvent) {
+
             startPosition = mouseEntityEvent.getStartMousePosition();
             endPosition = mouseEntityEvent.getCurrentMousePosition();
 

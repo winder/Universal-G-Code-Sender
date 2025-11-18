@@ -53,15 +53,24 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private int passes;
     private int feedRate;
     private boolean isHidden = false;
-    private boolean includeInExport = true;    
-    
+    private boolean includeInExport = true;
+
     protected AbstractCuttable() {
         this(0, 0);
+        setDefaults();
     }
 
     protected AbstractCuttable(double relativeX, double relativeY) {
         super(relativeX, relativeY);
         entitySettings = new CuttableEntitySettings(this);
+        setDefaults();
+    }
+
+    private void setDefaults() {
+        feedRate = 1000;
+        spindleSpeed = 100;
+        passes = 1;
+        includeInExport = true;
     }
 
     @Override
@@ -309,7 +318,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     public void setEntitySetting(EntitySetting entitySetting, Object value) {
         entitySettings.setEntitySetting(entitySetting, value);
     }
-    
+
     @Override
     public boolean getIncludeInExport() {
         return includeInExport;
