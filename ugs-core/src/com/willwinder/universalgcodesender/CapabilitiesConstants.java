@@ -107,6 +107,10 @@ public class CapabilitiesConstants {
     public static final String B_AXIS = "B_AXIS";
     public static final String C_AXIS = "C_AXIS";
 
+    public static final String DUAL_X_AXIS = "DUAL_X_AXIS";
+    public static final String DUAL_Y_AXIS = "DUAL_Y_AXIS";
+    public static final String DUAL_Z_AXIS = "DUAL_Z_AXIS";
+
     /**
      * A key for identifying if the firmware supports handling the device file system
      */

@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetFirmwareSettingsCommand;
 import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.Motor;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.CommandException;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
@@ -36,6 +37,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,7 +56,8 @@ public class FluidNCSettings implements IFirmwareSettings {
     private final Map<String, FirmwareSetting> settings = new ConcurrentHashMap<>();
     private final IController controller;
     private final Set<IFirmwareSettingsListener> listeners = Collections.synchronizedSet(new HashSet<>());
-
+    
+    public final static String NO_PIN = "NO_PIN";
     public FluidNCSettings(IController controller) {
         this.controller = controller;
     }
@@ -68,15 +71,14 @@ public class FluidNCSettings implements IFirmwareSettings {
             throw new FirmwareSettingsException("Timed out waiting for the controller settings", e);
         }
 
-         LOGGER.info("refresh() Starting");
+
         if (firmwareSettingsCommand.isOk()) {
             Map<String, String> responseSettings = firmwareSettingsCommand.getSettings();
             responseSettings.keySet().forEach(key -> {
                 String value = responseSettings.get(key);
                 FirmwareSetting firmwareSetting = new FirmwareSetting(key, value, "", "", "");
                 settings.put(key.toLowerCase(), firmwareSetting);                   
-                
-         LOGGER.info("GOT DATA " + key.toLowerCase() + "="+ firmwareSetting);
+
                 listeners.forEach(l -> l.onUpdatedFirmwareSetting(firmwareSetting));
             });
         }
@@ -158,75 +160,103 @@ public class FluidNCSettings implements IFirmwareSettings {
 
     @Override
     public boolean isHardLimitsEnabled() {
-        return getSetting("axes/x/motor0/hard_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
-                getSetting("axes/x/motor1/hard_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
-                getSetting("axes/y/motor0/hard_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
-                getSetting("axes/y/motor1/hard_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
-                getSetting("axes/z/motor0/hard_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
-                getSetting("axes/z/motor1/hard_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent();
+        return settingEquals("axes/x/motor0/hard_limits",true) ||
+               settingEquals("axes/x/motor1/hard_limits",true) ||
+               settingEquals("axes/y/motor0/hard_limits",true) ||
+               settingEquals("axes/y/motor1/hard_limits",true) ||
+               settingEquals("axes/z/motor0/hard_limits",true) ||
+               settingEquals("axes/z/motor1/hard_limits",true);
     }
     
-    private boolean checkMotorHasEndstop( String aAxis, String aMotor) {
-        return getSetting("axes/"+aAxis+"/"+aMotor+"/limit_neg_pin").filter(s -> !StringUtils.equalsIgnoreCase("NO_PIN", s.getValue())).isPresent() || 
-                getSetting("axes/"+aAxis+"/"+aMotor+"/limit_pos_pin").filter(s -> !StringUtils.equalsIgnoreCase("NO_PIN", s.getValue())).isPresent() || 
-                getSetting("axes/"+aAxis+"/"+aMotor+"/limit_all_pin").filter(s -> !StringUtils.equalsIgnoreCase("NO_PIN", s.getValue())).isPresent();
-    }
+    private boolean checkMotorHasEndstop( Axis aAxis, Motor aMotor) {
+        return settingNotEqualsIgnoreCase("axes/"+aAxis.name().toLowerCase()+"/"+aMotor+"/limit_neg_pin", NO_PIN) ||
+               settingNotEqualsIgnoreCase("axes/"+aAxis.name().toLowerCase()+"/"+aMotor+"/limit_pos_pin", NO_PIN) ||
+               settingNotEqualsIgnoreCase("axes/"+aAxis.name().toLowerCase()+"/"+aMotor+"/limit_all_pin", NO_PIN);
+    }  
     
     @Override
     public boolean hasX0() {
-        return checkMotorHasEndstop("x","motor0");
+        return checkMotorHasEndstop(Axis.X, Motor.M0);
     }
     
     @Override
     public boolean hasX1() {
-        return checkMotorHasEndstop("x","motor1");
+        return checkMotorHasEndstop(Axis.X, Motor.M1);
     }
     
     @Override
     public boolean hasY0() {
-        return checkMotorHasEndstop("y","motor0");
+        return checkMotorHasEndstop(Axis.Y, Motor.M0);
     }
     
     @Override
     public boolean hasY1() {
-        return checkMotorHasEndstop("y","motor1");
+        return checkMotorHasEndstop(Axis.Y, Motor.M1);
     }
     
     @Override
     public boolean hasZ0() {
-        return checkMotorHasEndstop("z","motor0");
+        return checkMotorHasEndstop(Axis.Z, Motor.M0);
     }
     
     @Override
     public boolean hasZ1() {
-        return checkMotorHasEndstop("z","motor1");
+        return checkMotorHasEndstop(Axis.Z, Motor.M1);
     }    
-    private void setHardLimitEnabled(String aAxis,String aMotor,boolean enabled) throws FirmwareSettingsException{
-            if (checkMotorHasEndstop(aAxis, aMotor)) {
-                setValue("axes/"+aAxis+"/"+aMotor+"/hard_limits", enabled ? "true" : "false");
-            }
+    
+//    @Override
+//    public boolean hasMotor(Axis aAxis,Motor aMotor) {       
+//       Optional<FirmwareSetting> setting = getSetting("axes/"+aAxis.name().toLowerCase()+"/"+aMotor+"/pulloff_mm");
+//        
+//       return !setting.isEmpty();
+//    }
+    
+    private void setHardLimitEnabled(Axis aAxis,Motor aMotor,boolean enabled) throws FirmwareSettingsException{
+        if (checkMotorHasEndstop(aAxis, aMotor)) {
+            setValue("axes/"+aAxis.name().toLowerCase()+"/"+aMotor+"/hard_limits", enabled ? "true" : "false");
+        }
     }
     
+    public LinkedList<String> getUsedGpio() {
+        // Syntax: gpio.14:high:pd or gpio.14:low:pu.
+        LinkedList<String> result = new LinkedList<>();
+        
+        for (FirmwareSetting s: getAllSettings()) {
+            if (s.getValue().toLowerCase().contains("gpio")) {
+                result.add(s.getValue().toLowerCase().split("[:]")[0]);
+            }
+        }
+        return result;
+    }
+        
     @Override
     public void setHardLimitsEnabled(boolean enabled) {
         // Only set Hard limits on 
         try {
-            setHardLimitEnabled("x","motor0",enabled);
-            setHardLimitEnabled("x","motor1",enabled);
-            setHardLimitEnabled("y","motor0",enabled);
-            setHardLimitEnabled("y","motor1",enabled);
-            setHardLimitEnabled("z","motor0",enabled);
-            setHardLimitEnabled("z","motor1",enabled);         
+            setHardLimitEnabled(Axis.X,Motor.M0,enabled);
+            setHardLimitEnabled(Axis.X,Motor.M1,enabled);
+            setHardLimitEnabled(Axis.Y,Motor.M0,enabled);
+            setHardLimitEnabled(Axis.Y,Motor.M1,enabled);
+            setHardLimitEnabled(Axis.Z,Motor.M0,enabled);
+            setHardLimitEnabled(Axis.Z,Motor.M1,enabled);         
         } catch (FirmwareSettingsException ex) {
             Logger.getLogger(FluidNCSettings.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
+    private boolean settingEqualsIgnoreCase(String aSetting,String aExpectedValue) {
+        return getSetting(aSetting).filter(s -> StringUtils.equalsIgnoreCase(aExpectedValue, s.getValue())).isPresent();
+    }
+    private boolean settingNotEqualsIgnoreCase(String aSetting,String aExpectedValue) {
+        return getSetting(aSetting).filter(s -> !StringUtils.equalsIgnoreCase(aExpectedValue, s.getValue())).isPresent();
+    }    
+    private boolean settingEquals(String aSetting,boolean aExpectedValue) {
+        return settingEqualsIgnoreCase(aSetting,aExpectedValue?"true":"false");
+    }
+    
     @Override
     public boolean isSoftLimitsEnabled() throws FirmwareSettingsException {
-        return getSetting("axes/x/soft_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
-                getSetting("axes/y/soft_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent() ||
-                getSetting("axes/z/soft_limits").filter(s -> StringUtils.equalsIgnoreCase("true", s.getValue())).isPresent();
+        return settingEquals("axes/x/soft_limits",true) || settingEquals("axes/y/soft_limits",true) || settingEquals("axes/z/soft_limits",true);
     }
 
     @Override
@@ -299,12 +329,12 @@ public class FluidNCSettings implements IFirmwareSettings {
                 .orElse(0d);
     }
     @Override
-    public void setPulloffMM(Axis axis, String aMotor, double limit) throws FirmwareSettingsException {
+    public void setPulloffMM(Axis axis, Motor aMotor, double limit) throws FirmwareSettingsException {
         setValue("axes/" + axis.name().toLowerCase() + "/"+aMotor+"/pulloff_mm", Utils.formatter.format(limit));
     }
 
     @Override
-    public double getPulloffMM(Axis axis, String aMotor) throws FirmwareSettingsException {
+    public double getPulloffMM(Axis axis, Motor aMotor) throws FirmwareSettingsException {
         return getSetting("axes/" + axis.name().toLowerCase() + "/"+aMotor+"/pulloff_mm")
                 .map(s -> {
                     try {

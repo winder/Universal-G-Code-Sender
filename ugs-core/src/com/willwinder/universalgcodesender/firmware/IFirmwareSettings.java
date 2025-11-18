@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.firmware;
 
 import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.Motor;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
 import java.util.List;
@@ -259,15 +260,16 @@ public interface IFirmwareSettings {
         return 0;
     }
     
-    default void setPulloffMM(Axis axis, String aMotor, double limit) throws FirmwareSettingsException {
+    default void setPulloffMM(Axis axis, Motor aMotor, double limit) throws FirmwareSettingsException {
         
     }
 
-    default double getPulloffMM(Axis axis, String aMotor) throws FirmwareSettingsException {
+    default double getPulloffMM(Axis axis, Motor aMotor) throws FirmwareSettingsException {
         return 0;
     }
     
     default void refreshFirmwareSettings() throws FirmwareSettingsException {
     }
+ 
 }
 
