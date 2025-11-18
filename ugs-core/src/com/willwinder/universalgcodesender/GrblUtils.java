@@ -262,6 +262,8 @@ public class GrblUtils {
             ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
             ret.addCapability(CapabilitiesConstants.SOFT_LIMITS);
             ret.addCapability(CapabilitiesConstants.SETUP_WIZARD);
+            ret.addCapability(CapabilitiesConstants.STEP_CALIBRATION);
+            ret.addCapability(CapabilitiesConstants.MOTOR_WIRING);
 
         }
 
@@ -498,8 +500,14 @@ public class GrblUtils {
         String enabledUpper = value.toUpperCase();
         return  new EnabledPinsBuilder()
                 .setX(enabledUpper.contains("X"))
+                .setX0(enabledUpper.contains("X0"))
+                .setX1(enabledUpper.contains("X1"))
                 .setY(enabledUpper.contains("Y"))
+                .setY0(enabledUpper.contains("Y0"))
+                .setY1(enabledUpper.contains("Y1"))
                 .setZ(enabledUpper.contains("Z"))
+                .setZ0(enabledUpper.contains("Z0"))
+                .setZ1(enabledUpper.contains("Z1"))
                 .setA(enabledUpper.contains("A"))
                 .setB(enabledUpper.contains("B"))
                 .setC(enabledUpper.contains("C"))

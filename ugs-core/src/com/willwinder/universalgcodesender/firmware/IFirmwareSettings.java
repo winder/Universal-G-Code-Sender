@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.firmware;
 
 import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.Motor;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
 import java.util.List;
@@ -225,4 +226,50 @@ public interface IFirmwareSettings {
      * @return the max spindle speed
      */
     int getMaxSpindleSpeed() throws FirmwareSettingsException;
+    
+    /**
+     * Persists the firmware settings to flash (if supported)
+     *     
+     */
+    default void saveFirmwareSettings() throws FirmwareSettingsException {
+    }
+                
+    default boolean hasX0() {
+        return false;
+    }
+    default boolean hasX1() {
+        return false;
+    }
+    default boolean hasY0() {
+        return false;
+    }
+    default boolean hasY1() {
+        return false;
+    }
+    default boolean hasZ0() {
+        return false;
+    }
+    default boolean hasZ1() {
+        return false;
+    }
+    default void setMposMM(Axis axis, double limit) throws FirmwareSettingsException {
+        
+    }
+
+    default double getMposMM(Axis axis) throws FirmwareSettingsException {
+        return 0;
+    }
+    
+    default void setPulloffMM(Axis axis, Motor aMotor, double limit) throws FirmwareSettingsException {
+        
+    }
+
+    default double getPulloffMM(Axis axis, Motor aMotor) throws FirmwareSettingsException {
+        return 0;
+    }
+    
+    default void refreshFirmwareSettings() throws FirmwareSettingsException {
+    }
+ 
 }
+

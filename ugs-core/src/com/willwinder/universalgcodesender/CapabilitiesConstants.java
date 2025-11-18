@@ -61,6 +61,30 @@ public class CapabilitiesConstants {
     public static final String SETUP_WIZARD = "SETUP_WIZARD";
 
     /**
+     * A key for identifying if the hardware have support for motor wiring
+     */
+    public static final String MOTOR_WIRING = "MOTOR_WIRING";    
+    /**
+     * A key for identifying if the hardware have support for Config Persistence
+     */
+    public static final String CONFIG_PERSISTANCE = "CONFIG_PERSISTANCE";  
+    
+    /**
+     * A key for identifying if the hardware have support for Advanced Homing
+     */
+    public static final String ADVANCED_HOMING = "ADVANCED_HOMING";  
+    
+    /**
+     * A key for identifying if the hardware have support for Advanced Homing
+     */
+    public static final String PER_AXIS_ENDSTOP_INVERSION = "PER_AXIS_ENDSTOP_INVERSION";  
+
+    /**
+     * A key for identifying if the hardware have support for Step Calibration
+     */
+    public static final String STEP_CALIBRATION = "STEP_CALIBRATION";        
+    
+    /**
      * A key for identifying if the firmware has functions for checking the gcode
      */
     public static final String CHECK_MODE = "CHECK_MODE";
@@ -87,6 +111,10 @@ public class CapabilitiesConstants {
     public static final String A_AXIS = "A_AXIS";
     public static final String B_AXIS = "B_AXIS";
     public static final String C_AXIS = "C_AXIS";
+
+    public static final String DUAL_X_AXIS = "DUAL_X_AXIS";
+    public static final String DUAL_Y_AXIS = "DUAL_Y_AXIS";
+    public static final String DUAL_Z_AXIS = "DUAL_Z_AXIS";
 
     /**
      * A key for identifying if the firmware supports handling the device file system

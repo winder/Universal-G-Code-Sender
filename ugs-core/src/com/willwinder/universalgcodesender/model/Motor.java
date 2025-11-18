@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2024 Will Winder
+    Copyright 2025 Damian Nikodem
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,12 +16,24 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.listeners;
+package com.willwinder.universalgcodesender.model;
 
-public record EnabledPins(boolean x, boolean x0, boolean x1, 
-                          boolean y, boolean y0, boolean y1,
-                          boolean z, boolean z0, boolean z1,
-                          boolean a, boolean b, boolean c, boolean probe, boolean door,
-                          boolean hold, boolean softReset, boolean cycleStart) {
-    public static final EnabledPins EMPTY_PINS = new EnabledPinsBuilder().createEnabledPins();
+
+public enum Motor {
+    M0 {
+        @Override
+        public String toString(){
+            return "motor0"; 
+            
+        }
+    },
+    M1{
+        @Override
+        public String toString(){
+            return "motor1"; 
+            
+        }
+    };
+
 }
+

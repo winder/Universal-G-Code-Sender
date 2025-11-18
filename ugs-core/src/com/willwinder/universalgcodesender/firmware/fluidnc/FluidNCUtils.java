@@ -22,7 +22,10 @@ import com.willwinder.universalgcodesender.utils.SemanticVersion;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.ParseException;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -117,6 +120,10 @@ public class FluidNCUtils {
                 addCapabilityIfSettingStartsWith(capabilities, setting, "axes/x", CapabilitiesConstants.X_AXIS);
                 addCapabilityIfSettingStartsWith(capabilities, setting, "axes/y", CapabilitiesConstants.Y_AXIS);
                 addCapabilityIfSettingStartsWith(capabilities, setting, "axes/z", CapabilitiesConstants.Z_AXIS);
+                
+                addCapabilityIfSettingStartsWith(capabilities, setting, "axes/x/motor1", CapabilitiesConstants.DUAL_X_AXIS);
+                addCapabilityIfSettingStartsWith(capabilities, setting, "axes/y/motor1", CapabilitiesConstants.DUAL_Y_AXIS);
+                addCapabilityIfSettingStartsWith(capabilities, setting, "axes/z/motor1", CapabilitiesConstants.DUAL_Z_AXIS);                                
             });
         } catch (FirmwareSettingsException e) {
             // Never mind
@@ -194,4 +201,37 @@ public class FluidNCUtils {
 
         return true;
     }
+    public static Set<String> getAllGpioPins() {
+        Set<String> result = new HashSet<>();
+        // List based on: http://wiki.fluidnc.com/en/hardware/esp32_pin_reference
+        result.add("gpio.0");
+        result.add("gpio.2");
+        result.add("gpio.4");
+        result.add("gpio.5");
+        result.add("gpio.12");
+        result.add("gpio.13");
+        result.add("gpio.14");
+        result.add("gpio.15");
+        result.add("gpio.16");
+        result.add("gpio.17");
+        result.add("gpio.18");
+        result.add("gpio.19");
+        result.add("gpio.21");
+        result.add("gpio.22");
+        result.add("gpio.23");
+        result.add("gpio.25");                
+        result.add("gpio.26");
+        result.add("gpio.27");        
+        result.add("gpio.32");
+        result.add("gpio.33");          
+        // Input Only (no pullup/pulldown)
+        result.add("gpio.34");
+        result.add("gpio.35");                
+        result.add("gpio.36");
+        result.add("gpio.37");        
+        result.add("gpio.38");
+        result.add("gpio.39");          
+        return result;
+    }
+
 }

@@ -25,14 +25,22 @@ import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelHoming;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelMotorWiring;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelSoftLimits;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelStepCalibration;
+import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.GUIBackend;
+import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 
 import java.awt.Dialog;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+import org.openide.util.Exceptions;
 
 /**
  * Starts the wizard
@@ -40,6 +48,11 @@ import java.util.List;
  * @author Joacim Breiler
  */
 public class WizardStarter {
+    public static void main(String[] args) throws Exception {
+        BackendAPI backend = new GUIBackend();
+        backend.applySettings(SettingsFactory.loadSettings());
+        openWizard(backend);
+    }    
     public static void openWizard(BackendAPI backend) {
         List<AbstractWizardPanel> panels = createWizardStepPanels(backend);
 
@@ -48,6 +61,23 @@ public class WizardStarter {
         panelIterator.initialize(wizardDescriptor);
 
         Dialog dialog = DialogDisplayer.getDefault().createDialog(wizardDescriptor);
+         
+        dialog.addWindowListener(new WindowAdapter(){
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+                if (backend.getController().getCapabilities().hasConfigPersistence()) {
+                    try {
+                        if (((AbstractWizardPanel)panelIterator.current()).isFinishPanel() ) {
+                            backend.getController().getFirmwareSettings().saveFirmwareSettings();
+                        }
+                    } catch (FirmwareSettingsException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }                
+            }
+
+        });
         dialog.setVisible(true);
         dialog.toFront();
 
