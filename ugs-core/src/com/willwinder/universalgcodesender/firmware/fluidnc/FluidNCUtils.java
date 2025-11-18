@@ -118,6 +118,7 @@ public class FluidNCUtils {
                 addCapabilityIfSettingStartsWith(capabilities, setting, "axes/x", CapabilitiesConstants.X_AXIS);
                 addCapabilityIfSettingStartsWith(capabilities, setting, "axes/y", CapabilitiesConstants.Y_AXIS);
                 addCapabilityIfSettingStartsWith(capabilities, setting, "axes/z", CapabilitiesConstants.Z_AXIS);
+                
                 addCapabilityIfSettingStartsWith(capabilities, setting, "axes/x/motor1", CapabilitiesConstants.DUAL_X_AXIS);
                 addCapabilityIfSettingStartsWith(capabilities, setting, "axes/y/motor1", CapabilitiesConstants.DUAL_Y_AXIS);
                 addCapabilityIfSettingStartsWith(capabilities, setting, "axes/z/motor1", CapabilitiesConstants.DUAL_Z_AXIS);                                
