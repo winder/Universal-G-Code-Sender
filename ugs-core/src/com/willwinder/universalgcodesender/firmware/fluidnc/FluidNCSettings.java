@@ -91,8 +91,20 @@ public class FluidNCSettings implements IFirmwareSettings {
     
     @Override
     public void saveFirmwareSettings() throws FirmwareSettingsException {
-        FluidNCCommand cmdPersist = new FluidNCCommand("$CD=config.yaml");
         try{
+            FluidNCCommand cmdGetCfg = new FluidNCCommand("$Config/Filename");
+            ControllerUtils.sendAndWaitForCompletion(controller, cmdGetCfg);
+            String configToUse=cmdGetCfg.getResponse();
+            if (configToUse != null) {
+                String[] split = configToUse.split("\n");
+                if (split[0].startsWith("$Config/Filename=")) {
+                    configToUse=split[0].split("=")[1];
+                }
+            } else {
+                configToUse = "config.yaml";
+            }
+            FluidNCCommand cmdPersist = new FluidNCCommand("$CD="+configToUse);
+
             ControllerUtils.sendAndWaitForCompletion(controller, cmdPersist);  
         } catch (Exception e) {
             throw new FirmwareSettingsException("Couldn't save settings to the controller", e);
@@ -168,10 +180,10 @@ public class FluidNCSettings implements IFirmwareSettings {
                settingEquals("axes/z/motor1/hard_limits",true);
     }
     
-    private boolean checkMotorHasEndstop( Axis aAxis, Motor aMotor) {
-        return settingNotEqualsIgnoreCase("axes/"+aAxis.name().toLowerCase()+"/"+aMotor+"/limit_neg_pin", NO_PIN) ||
-               settingNotEqualsIgnoreCase("axes/"+aAxis.name().toLowerCase()+"/"+aMotor+"/limit_pos_pin", NO_PIN) ||
-               settingNotEqualsIgnoreCase("axes/"+aAxis.name().toLowerCase()+"/"+aMotor+"/limit_all_pin", NO_PIN);
+    private boolean checkMotorHasEndstop( Axis axis, Motor motor) {
+        return settingNotEqualsIgnoreCase("axes/"+axis.name().toLowerCase()+"/"+motor+"/limit_neg_pin", NO_PIN) ||
+               settingNotEqualsIgnoreCase("axes/"+axis.name().toLowerCase()+"/"+motor+"/limit_pos_pin", NO_PIN) ||
+               settingNotEqualsIgnoreCase("axes/"+axis.name().toLowerCase()+"/"+motor+"/limit_all_pin", NO_PIN);
     }  
     
     @Override
@@ -204,22 +216,15 @@ public class FluidNCSettings implements IFirmwareSettings {
         return checkMotorHasEndstop(Axis.Z, Motor.M1);
     }    
     
-//    @Override
-//    public boolean hasMotor(Axis aAxis,Motor aMotor) {       
-//       Optional<FirmwareSetting> setting = getSetting("axes/"+aAxis.name().toLowerCase()+"/"+aMotor+"/pulloff_mm");
-//        
-//       return !setting.isEmpty();
-//    }
-    
-    private void setHardLimitEnabled(Axis aAxis,Motor aMotor,boolean enabled) throws FirmwareSettingsException{
-        if (checkMotorHasEndstop(aAxis, aMotor)) {
-            setValue("axes/"+aAxis.name().toLowerCase()+"/"+aMotor+"/hard_limits", enabled ? "true" : "false");
+    private void setHardLimitEnabled(Axis axis,Motor motor,boolean enabled) throws FirmwareSettingsException{
+        if (checkMotorHasEndstop(axis, motor)) {
+            setValue("axes/"+axis.name().toLowerCase()+"/"+motor+"/hard_limits", enabled ? "true" : "false");
         }
     }
     
-    public LinkedList<String> getUsedGpio() {
+    public Set<String> getUsedGpio() {
         // Syntax: gpio.14:high:pd or gpio.14:low:pu.
-        LinkedList<String> result = new LinkedList<>();
+        Set<String> result = new HashSet<>();
         
         for (FirmwareSetting s: getAllSettings()) {
             if (s.getValue().toLowerCase().contains("gpio")) {

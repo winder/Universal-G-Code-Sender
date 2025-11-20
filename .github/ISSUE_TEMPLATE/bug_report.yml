@@ -11,8 +11,7 @@ We really appreciate community efforts to improve Universal Gcode Sender.
 
 It is usually helpful to have the log file from UGS, locations for different types of operating systems can be found here:<br/>
 <ul>
-  <li>**Windows 7 and higher**: C:/Users/[your username>]/AppData/ugsplatform/var/log/messages.log</li>
-  <li>**Windows XP**: C:/Documents and Settings/[your username>]/AppData/ugsplatform/var/log/messages.log</li>
+  <li>**Windows**: C:/Users/[your username>]/AppData/ugsplatform/var/log/messages.log</li>
   <li>**Mac**: ~/Library/Application Support/ugsplatform/var/log/messages.log</li>
   <li>**Linux**: ~/.ugsplatform/var/log/messages.log</li>
 </ul>"
@@ -23,6 +22,7 @@ It is usually helpful to have the log file from UGS, locations for different typ
         Which UGS version are you using?
       multiple: false
       options:
+        - "2.1.17"
         - "2.1.15"
         - "2.1.14"
         - "2.1.13"
