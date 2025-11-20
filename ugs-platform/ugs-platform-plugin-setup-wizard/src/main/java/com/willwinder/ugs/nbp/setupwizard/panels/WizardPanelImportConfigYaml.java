@@ -67,7 +67,7 @@ public class WizardPanelImportConfigYaml extends AbstractWizardPanel {
     private RoundedPanel fileInfoPanel;
 
     public WizardPanelImportConfigYaml(BackendAPI backend) {
-        super(backend, Localization.getString("platform.plugin.setupwizard.import-settings.title"), false);
+        super(backend, Localization.getString("platform.plugin.setupwizard.import-config-yaml.title"), false);
 
         initComponents();
         initLayout();
@@ -97,7 +97,7 @@ public class WizardPanelImportConfigYaml extends AbstractWizardPanel {
 
     private void initComponents() {
         labelDescription = new JLabel("<html><body><p>" +
-                Localization.getString("platform.plugin.setupwizard.import-settings.intro") +
+                Localization.getString("platform.plugin.setupwizard.import-config-yaml.intro") +
                 "</p></body></html>");
 
         fileInfoPanel = new RoundedPanel(8);
@@ -107,39 +107,39 @@ public class WizardPanelImportConfigYaml extends AbstractWizardPanel {
         labelNameValue = new JLabel("");
         labelNameValue.setFont(labelNameValue.getFont().deriveFont(Font.BOLD, 16));
 
-        labelFirmware = new JLabel(Localization.getString("platform.plugin.setupwizard.import-settings.firmware"), SwingConstants.RIGHT);
+        labelFirmware = new JLabel(Localization.getString("platform.plugin.setupwizard.import-config-yaml.firmware"), SwingConstants.RIGHT);
         labelFirmware.setFont(labelFirmware.getFont().deriveFont(Font.BOLD));
         labelFirmwareValue = new JLabel("");
 
-        labelCreatedBy = new JLabel(Localization.getString("platform.plugin.setupwizard.import-settings.created-by"), SwingConstants.RIGHT);
+        labelCreatedBy = new JLabel(Localization.getString("platform.plugin.setupwizard.import-config-yaml.created-by"), SwingConstants.RIGHT);
         labelCreatedBy.setFont(labelCreatedBy.getFont().deriveFont(Font.BOLD));
         labelCreatedByValue = new JLabel("");
 
-        labelDate = new JLabel(Localization.getString("platform.plugin.setupwizard.import-settings.created-date"), SwingConstants.RIGHT);
+        labelDate = new JLabel(Localization.getString("platform.plugin.setupwizard.import-config-yaml.created-date"), SwingConstants.RIGHT);
         labelDate.setFont(labelDate.getFont().deriveFont(Font.BOLD));
         labelDateValue = new JLabel("");
 
         labelSettingsImported = new JLabel("<html><body>" +
-                "<h3>" + Localization.getString("platform.plugin.setupwizard.import-settings.finished-title") + "</h3>" +
-                "<p>" + Localization.getString("platform.plugin.setupwizard.import-settings.finished-description") + "</p>" +
+                "<h3>" + Localization.getString("platform.plugin.setupwizard.import-config-yaml.finished-title") + "</h3>" +
+                "<p>" + Localization.getString("platform.plugin.setupwizard.import-config-yaml.finished-description") + "</p>" +
                 "</body></html>");
         labelSettingsImported.setVerticalAlignment(SwingConstants.CENTER);
         labelSettingsImported.setIcon(ImageUtilities.loadImageIcon("icons/checked32.png", false));
 
-        buttonOpen = new JButton(Localization.getString("platform.plugin.setupwizard.import-settings.open-settings"));
+        buttonOpen = new JButton(Localization.getString("platform.plugin.setupwizard.import-config-yaml.open-settings"));
         buttonOpen.addActionListener(event -> {
             FileOpenDialog fileChooser = FirmwareSettingsFileTypeFilter.getSettingsFileChooser();
             fileChooser.setVisible(true);
             fileChooser.getSelectedFile().ifPresent(this::loadSettingsFile);
         });
 
-        buttonImport = new JButton(Localization.getString("platform.plugin.setupwizard.import-settings.import"));
+        buttonImport = new JButton(Localization.getString("platform.plugin.setupwizard.import-config-yaml.import"));
         buttonImport.addActionListener(event -> importSettings());
     }
 
     private void importSettings() {
-        String title = Localization.getString("platform.plugin.setupwizard.import-settings.overwrite-title");
-        String message = Localization.getString("platform.plugin.setupwizard.import-settings.overwrite-message");
+        String title = Localization.getString("platform.plugin.setupwizard.import-config-yaml.overwrite-title");
+        String message = Localization.getString("platform.plugin.setupwizard.import-config-yaml.overwrite-message");
         int result = JOptionPane.showConfirmDialog(this.getComponent(), message,
                 title, JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.OK_OPTION) {
