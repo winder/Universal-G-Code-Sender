@@ -469,7 +469,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         objects.add(new MachineBoundries(Localization.getString("platform.visualizer.renderable.machine-boundries")));
         objects.add(new Tool(Localization.getString("platform.visualizer.renderable.tool-location")));
         objects.add(new MouseOver(Localization.getString("platform.visualizer.renderable.mouse-indicator")));
-        objects.add(new OrientationCube(Localization.getString("platform.visualizer.renderable.orientation-cube")));
+        objects.add(new OrientationCube(0.5f, Localization.getString("platform.visualizer.renderable.orientation-cube")));
         objects.add(new Grid(Localization.getString("platform.visualizer.renderable.grid")));
         objects.add(new Plane(Localization.getString("platform.visualizer.renderable.grid")));
         Collections.sort(objects);
