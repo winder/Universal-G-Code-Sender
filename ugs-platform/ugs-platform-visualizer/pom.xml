@@ -171,12 +171,5 @@
             <artifactId>jogl-all-main</artifactId>
             <version>${jogl.version}</version>
         </dependency>
-
-        <!-- For creating Constructive Solid Geometry -->
-        <dependency>
-            <groupId>com.breiler.jcsg</groupId>
-            <artifactId>jcsg-core</artifactId>
-            <version>0.0.3</version>
-        </dependency>
     </dependencies>
 </project>
