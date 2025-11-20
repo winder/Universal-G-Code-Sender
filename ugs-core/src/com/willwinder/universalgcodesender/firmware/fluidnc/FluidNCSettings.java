@@ -91,8 +91,20 @@ public class FluidNCSettings implements IFirmwareSettings {
     
     @Override
     public void saveFirmwareSettings() throws FirmwareSettingsException {
-        FluidNCCommand cmdPersist = new FluidNCCommand("$CD=config.yaml");
         try{
+            FluidNCCommand cmdGetCfg = new FluidNCCommand("$Config/Filename");
+            ControllerUtils.sendAndWaitForCompletion(controller, cmdGetCfg);
+            String configToUse=cmdGetCfg.getResponse();
+            if (configToUse != null) {
+                String[] split = configToUse.split("\n");
+                if (split[0].startsWith("$Config/Filename=")) {
+                    configToUse=split[0].split("=")[1];
+                }
+            } else {
+                configToUse = "config.yaml";
+            }
+            FluidNCCommand cmdPersist = new FluidNCCommand("$CD="+configToUse);
+        
             ControllerUtils.sendAndWaitForCompletion(controller, cmdPersist);  
         } catch (Exception e) {
             throw new FirmwareSettingsException("Couldn't save settings to the controller", e);
