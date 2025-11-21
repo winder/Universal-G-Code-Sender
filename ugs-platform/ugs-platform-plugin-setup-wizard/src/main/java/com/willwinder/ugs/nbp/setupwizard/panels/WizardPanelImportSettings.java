@@ -197,6 +197,7 @@ public class WizardPanelImportSettings extends AbstractWizardPanel {
     @Override
     public boolean isEnabled() {
         return getBackend().isConnected() &&
-                getBackend().getController().getCapabilities().hasSetupWizardSupport();
+                getBackend().getController().getCapabilities().hasSetupWizardSupport() && 
+                !getBackend().getController().getCapabilities().hasConfigPersistence();
     }
 }

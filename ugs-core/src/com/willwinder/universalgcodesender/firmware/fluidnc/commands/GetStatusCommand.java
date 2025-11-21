@@ -37,6 +37,8 @@ public class GetStatusCommand extends SystemCommand {
         super.appendResponse(response);
         if (GrblUtils.isGrblStatusString(response)) {
             controllerStatus = GrblUtils.getStatusFromStatusStringV1(new ControllerStatus(ControllerState.DISCONNECTED, Position.ZERO, Position.ZERO), response, UnitUtils.Units.MM);
+        } else if ( response.contains("WARN: Active limit switch") || response.contains("ok") ) {
+            // First command after FluidNC boot could contain OK or a warning. on top of <alarm|...
         } else {
             setError(true);
         }

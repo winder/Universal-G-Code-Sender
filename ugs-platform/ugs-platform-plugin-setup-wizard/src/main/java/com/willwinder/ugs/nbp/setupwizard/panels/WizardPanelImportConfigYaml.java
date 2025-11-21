@@ -1,5 +1,5 @@
 /*
-    Copyright 2018-2020 Will Winder
+    Copyright 2025 Damian Nikodem
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,17 +19,22 @@
 package com.willwinder.ugs.nbp.setupwizard.panels;
 
 import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
-import com.willwinder.universalgcodesender.firmware.FirmwareSettingUtils;
+import com.willwinder.universalgcodesender.IFileService;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
-import com.willwinder.universalgcodesender.firmware.FirmwareSettingsFile;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.types.CommandException;
 import com.willwinder.universalgcodesender.uielements.FileOpenDialog;
-import com.willwinder.universalgcodesender.uielements.components.FirmwareSettingsFileTypeFilter;
+import com.willwinder.universalgcodesender.uielements.FileSaveDialog;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
+import com.willwinder.universalgcodesender.uielements.components.YamlSettingsFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 
@@ -38,56 +43,49 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import java.awt.Font;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
+import javax.swing.JComboBox;
 
 /**
  * A wizard step panel for importing settings
  *
  * @author Joacim Breiler
  */
-public class WizardPanelImportConfigYaml extends AbstractWizardPanel {
-
-    private static final Logger LOGGER = Logger.getLogger(WizardPanelImportConfigYaml.class.getSimpleName());
+public class WizardPanelImportConfigYaml extends AbstractWizardPanel implements UGSEventListener {
+   
     private JLabel labelDescription;
-    private JLabel labelNameValue;
-    private JLabel labelCreatedBy;
-    private JLabel labelCreatedByValue;
-    private JLabel labelDate;
-    private JLabel labelDateValue;
-    private JLabel labelFirmware;
-    private JLabel labelFirmwareValue;
     private JLabel labelSettingsImported;
+    private JLabel labelConfigFileToUse;
+        
     private JButton buttonOpen;
-    private JButton buttonImport;
-    private FirmwareSettingsFile firmwareSettingsFile;
+    private JButton buttonSave;
+    private JComboBox<String> comboSettingsFileToUse;
     private RoundedPanel fileInfoPanel;
-
+    private String settingsFileToUse;
+    private int updateCount=0;
+        
     public WizardPanelImportConfigYaml(BackendAPI backend) {
         super(backend, Localization.getString("platform.plugin.setupwizard.import-config-yaml.title"), false);
 
         initComponents();
         initLayout();
-        loadSettingsFile(null);
     }
 
     private void initLayout() {
         JPanel panel = new JPanel(new MigLayout("wrap 1, fillx, inset 0, gap 5, hidemode 3"));
         panel.add(labelDescription, "gapbottom 5, spanx");
         panel.add(buttonOpen, "gaptop 5, gapbottom 10, wmin 200, hmin 36, spanx");
-
+        panel.add(buttonSave, "gaptop 5, gapbottom 10, wmin 200, hmin 36, spanx");        
         fileInfoPanel.setLayout(new MigLayout("wrap 2, fillx, inset 20, gap 5, hidemode 3", "[20%][80%]"));
-        fileInfoPanel.add(labelNameValue, "gapleft 10, gapbottom 10, spanx");
-        fileInfoPanel.add(labelFirmware, "gapleft 10, grow");
-        fileInfoPanel.add(labelFirmwareValue);
-        fileInfoPanel.add(labelCreatedBy, "gapleft 10, grow");
-        fileInfoPanel.add(labelCreatedByValue);
-        fileInfoPanel.add(labelDate, "gapleft 10, grow");
-        fileInfoPanel.add(labelDateValue);
-        fileInfoPanel.add(buttonImport, "gaptop 10, growx, spanx, hmin 36");
+        fileInfoPanel.add(labelConfigFileToUse, "gapleft 10, grow");
+        fileInfoPanel.add(comboSettingsFileToUse);
+
         panel.add(fileInfoPanel, "wmin 400, gapleft 2, spanx");
         panel.add(labelSettingsImported, "gaptop 20, grow");
 
@@ -104,21 +102,6 @@ public class WizardPanelImportConfigYaml extends AbstractWizardPanel {
         fileInfoPanel.setBackground(ThemeColors.VERY_LIGHT_BLUE_GREY);
         fileInfoPanel.setForeground(ThemeColors.LIGHT_GREY);
 
-        labelNameValue = new JLabel("");
-        labelNameValue.setFont(labelNameValue.getFont().deriveFont(Font.BOLD, 16));
-
-        labelFirmware = new JLabel(Localization.getString("platform.plugin.setupwizard.import-config-yaml.firmware"), SwingConstants.RIGHT);
-        labelFirmware.setFont(labelFirmware.getFont().deriveFont(Font.BOLD));
-        labelFirmwareValue = new JLabel("");
-
-        labelCreatedBy = new JLabel(Localization.getString("platform.plugin.setupwizard.import-config-yaml.created-by"), SwingConstants.RIGHT);
-        labelCreatedBy.setFont(labelCreatedBy.getFont().deriveFont(Font.BOLD));
-        labelCreatedByValue = new JLabel("");
-
-        labelDate = new JLabel(Localization.getString("platform.plugin.setupwizard.import-config-yaml.created-date"), SwingConstants.RIGHT);
-        labelDate.setFont(labelDate.getFont().deriveFont(Font.BOLD));
-        labelDateValue = new JLabel("");
-
         labelSettingsImported = new JLabel("<html><body>" +
                 "<h3>" + Localization.getString("platform.plugin.setupwizard.import-config-yaml.finished-title") + "</h3>" +
                 "<p>" + Localization.getString("platform.plugin.setupwizard.import-config-yaml.finished-description") + "</p>" +
@@ -128,75 +111,206 @@ public class WizardPanelImportConfigYaml extends AbstractWizardPanel {
 
         buttonOpen = new JButton(Localization.getString("platform.plugin.setupwizard.import-config-yaml.open-settings"));
         buttonOpen.addActionListener(event -> {
-            FileOpenDialog fileChooser = FirmwareSettingsFileTypeFilter.getSettingsFileChooser();
+            FileSaveDialog fileChooser = YamlSettingsFileTypeFilter.getSettingsFileSaveChooser();
+            fileChooser.setFile(settingsFileToUse);            
             fileChooser.setVisible(true);
-            fileChooser.getSelectedFile().ifPresent(this::loadSettingsFile);
+            fileChooser.getSelectedFile().ifPresent(this::downloadSettingsFile);
         });
-
-        buttonImport = new JButton(Localization.getString("platform.plugin.setupwizard.import-config-yaml.import"));
-        buttonImport.addActionListener(event -> importSettings());
-    }
-
-    private void importSettings() {
-        String title = Localization.getString("platform.plugin.setupwizard.import-config-yaml.overwrite-title");
-        String message = Localization.getString("platform.plugin.setupwizard.import-config-yaml.overwrite-message");
-        int result = JOptionPane.showConfirmDialog(this.getComponent(), message,
-                title, JOptionPane.YES_NO_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            try {
-                getBackend().getController().getFirmwareSettings().setSettings(firmwareSettingsFile.getSettings());
-            } catch (FirmwareSettingsException e) {
-                LOGGER.log(Level.SEVERE, "Couldn't set firmware settings", e);
+        
+        buttonSave = new JButton(Localization.getString("platform.plugin.setupwizard.import-config-yaml.save-settings"));
+        buttonSave.addActionListener(event -> {
+            FileOpenDialog fileChooser = YamlSettingsFileTypeFilter.getSettingsFileChooser();
+            fileChooser.setFile(settingsFileToUse);
+            fileChooser.setVisible(true);
+            fileChooser.getSelectedFile().ifPresent(this::uploadSettingsFile);
+            refreshComponents();
+        });
+        
+        comboSettingsFileToUse = new JComboBox<>();
+        comboSettingsFileToUse.addActionListener(event -> {
+            if (!canUpdate()) {
+                return;
             }
-            labelSettingsImported.setVisible(true);
-        }
+            try {
+                beginUpdate();
+                IFirmwareSettings firmware = getBackend().getController().getFirmwareSettings();
+                try {
+                    String newConfigFilename= ""+comboSettingsFileToUse.getSelectedItem();
+                    if ( (newConfigFilename == null) || (newConfigFilename.equals("null")) ) {
+                        return;
+                    }
+                    if (!newConfigFilename.equals(settingsFileToUse)) {                    
 
-        loadSettingsFile(null);
+                        String title = Localization.getString("platform.plugin.setupwizard.import-config-yaml.overwrite-config-filename-title");
+                        String message = Localization.getString("platform.plugin.setupwizard.import-config-yaml.overwrite-config-filename-message");
+                        title = String.format(title, settingsFileToUse);
+                        message = String.format(message,newConfigFilename);
+                        int result = JOptionPane.showConfirmDialog(this.getComponent(), message,
+                                title, JOptionPane.YES_NO_OPTION);
+
+                        if (result == JOptionPane.YES_OPTION) {
+                            firmware.setConfigFilename(newConfigFilename);
+                            firmwareSettingsUpdated();
+                        }                        
+                    }                
+                } catch (FirmwareSettingsException e) {
+                    GUIHelpers.displayErrorDialog("Couldn't Update Active Configuration file: " + e.getMessage(), true);
+                }
+            } finally {
+                endUpdate();
+            }
+            
+            refreshComponents();
+            
+        });
+        
+        labelConfigFileToUse = new JLabel(Localization.getString("platform.plugin.setupwizard.import-config-yaml.config-to-use"));
+        refreshComponents();
+    }
+    
+    private void beginUpdate() {
+        updateCount++;
+    }
+    
+    private void endUpdate() {
+        if (updateCount == 0) {
+            throw new RuntimeException("endUpdate called more times than beginUpdate");
+        }
+        updateCount--;
+    }
+    
+    private boolean canUpdate() {
+        return updateCount == 0;
+    }
+    
+    private void refreshComponents() {
+        ControllerState controllerState = getBackend().getControllerState();
+        boolean isConnected = getBackend().isConnected() && (controllerState == ControllerState.IDLE || controllerState == ControllerState.ALARM || controllerState == ControllerState.HOLD);
+        try {
+            beginUpdate();        
+            if (isConnected) {
+                try {
+                    settingsFileToUse = getBackend().getController().getFirmwareSettings().getConfigFilename();
+                    List<com.willwinder.universalgcodesender.model.File> files = getBackend().getController().getFileService().getFiles();
+                    comboSettingsFileToUse.removeAllItems();
+                    for (com.willwinder.universalgcodesender.model.File f : files) {
+                        if (f.getAbsolutePath().startsWith("/localfs/")) {                        
+                            comboSettingsFileToUse.addItem(f.getName());
+                        }                                        
+                    }
+                    comboSettingsFileToUse.setEnabled(comboSettingsFileToUse.getItemCount() != 1);
+
+                    comboSettingsFileToUse.setSelectedItem(settingsFileToUse);
+
+                } catch (FirmwareSettingsException | IOException ex) {
+                    comboSettingsFileToUse.removeAllItems();
+                    comboSettingsFileToUse.addItem("ERROR");
+                    comboSettingsFileToUse.setEnabled(false);
+                }     
+
+            }
+        } finally {
+            endUpdate();
+        }        
     }
 
-    private void loadSettingsFile(File file) {
-        if (file == null) {
-            firmwareSettingsFile = null;
-        } else {
+    private void downloadSettingsFile(File file) {
+        boolean downloaded = false;
+        if (file != null) {            
             try {
-                firmwareSettingsFile = FirmwareSettingUtils.readSettings(file);
+                IFileService ifs = getBackend().getController().getFileService();
+                List<com.willwinder.universalgcodesender.model.File> files = ifs.getFiles();
+                for (com.willwinder.universalgcodesender.model.File remoteFile: files) {
+                    if (remoteFile.getAbsolutePath().equals("/localfs/"+this.settingsFileToUse )) {
+                        BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(file));
+                        fos.write(ifs.downloadFile(remoteFile));
+                        fos.flush();                        
+                        downloaded = true;
+                    }
+                }
+                
+                if (!downloaded) {
+                    throw new Exception("Could not find: /localfs/"+this.settingsFileToUse + " To Download");
+                }
+            } catch (Exception fse) {
+                GUIHelpers.displayErrorDialog("Couldn't download settings file: " + fse.getMessage(), true);
+            }
+        }
+    }
+    
+    private void uploadSettingsFile(File file) {
+        if (file != null) {
+            try {
+                 IFileService ifs = getBackend().getController().getFileService();
+                 
+                 if (file.getName().equalsIgnoreCase(settingsFileToUse)) {
+                    String title = Localization.getString("platform.plugin.setupwizard.import-config-yaml.overwrite-config-file-title");
+                    String message = Localization.getString("platform.plugin.setupwizard.import-config-yaml.overwrite-config-file-message");
+                    message = String.format(message,settingsFileToUse);
+                    int result = JOptionPane.showConfirmDialog(this.getComponent(), message,
+                            title, JOptionPane.YES_NO_OPTION);
+
+                    if (result == JOptionPane.NO_OPTION) {
+                        return;
+                    } else {
+                        firmwareSettingsUpdated();
+                    }                                        
+                 }
+                 BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file),(int)file.length());
+                 
+                 byte[] data = new byte[(int)file.length()];
+                 bis.read(data);
+                 ifs.uploadFile("/localfs/"+file.getName(), data);
+                
             } catch (IOException e) {
-                GUIHelpers.displayErrorDialog("Couldn't read settings file: " + e.getMessage(), true);
-                firmwareSettingsFile = null;
+                GUIHelpers.displayErrorDialog("Couldn't upload configuration file: " + e.getMessage(), true);                
             }
         }
-        showSettingsInformation();
-    }
-
-    private void showSettingsInformation() {
-        // Wait until we show the information so that the user notices that something happened
-        ThreadHelper.invokeLater(() -> {
-            boolean showSettingsInformation = false;
-            if (firmwareSettingsFile != null) {
-                showSettingsInformation = true;
-                labelNameValue.setText(firmwareSettingsFile.getName());
-                labelFirmwareValue.setText(firmwareSettingsFile.getFirmwareName());
-                labelCreatedByValue.setText(firmwareSettingsFile.getCreatedBy());
-                labelDateValue.setText(firmwareSettingsFile.getDate());
-            }
-
-            fileInfoPanel.setVisible(showSettingsInformation);
-        }, 500);
+        refreshComponents();
     }
 
     @Override
     public void initialize() {
-        loadSettingsFile(null);
+        getBackend().addUGSEventListener(this);        
+        refreshComponents();        
         labelSettingsImported.setVisible(false);
     }
-
+    
+    
+    public void firmwareSettingsUpdated() {     
+        try {
+            getBackend().getController().getFirmwareSettings().refresh();        
+        } catch ( FirmwareSettingsException | CommandException e) {
+            
+        }
+        labelSettingsImported.setVisible(true);
+    }
+    
     @Override
     public void destroy() {
+        getBackend().removeUGSEventListener(this);
     }
 
     @Override
     public boolean isEnabled() {
         return getBackend().isConnected() &&
-                getBackend().getController().getCapabilities().hasSetupWizardSupport();
+                getBackend().getController().getCapabilities().hasSetupWizardSupport() && 
+                getBackend().getController().getCapabilities().hasConfigPersistence();                
+    }
+    
+    @Override
+    public void UGSEvent(UGSEvent evt) {
+        if (evt instanceof ControllerStateEvent controllerStateEvent) {
+            ControllerState state = controllerStateEvent.getState();
+            if (state == ControllerState.DISCONNECTED) {
+//               Future Revisions may want to reboot the controller and reconnect.                
+//               isErrorConnecting = true;
+//               Settings settings = getBackend().getSettings();
+//               getBackend().connect(settings.getFirmwareVersion(), settings.getPort(), Integer.parseInt(settings.getPortRate()));
+            } 
+            if (canUpdate()) {
+                refreshComponents();
+            }
+        }
     }
 }

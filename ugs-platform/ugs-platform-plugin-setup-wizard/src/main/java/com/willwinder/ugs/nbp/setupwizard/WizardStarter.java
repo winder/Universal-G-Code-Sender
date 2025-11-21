@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelConnection;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelImportSettings;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelHardLimits;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelHoming;
+import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelImportConfigYaml;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelMotorWiring;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelSoftLimits;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelStepCalibration;
@@ -35,11 +36,9 @@ import org.openide.WizardDescriptor;
 import java.awt.Dialog;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import org.openide.util.Exceptions;
 
 /**
@@ -107,6 +106,7 @@ public class WizardStarter {
         List<AbstractWizardPanel> panels = new ArrayList<>();
         panels.add(new WizardPanelConnection(backend));
         panels.add(new WizardPanelImportSettings(backend));
+        panels.add(new WizardPanelImportConfigYaml(backend));
         panels.add(new WizardPanelMotorWiring(backend));
         panels.add(new WizardPanelStepCalibration(backend));
         panels.add(new WizardPanelHardLimits(backend));

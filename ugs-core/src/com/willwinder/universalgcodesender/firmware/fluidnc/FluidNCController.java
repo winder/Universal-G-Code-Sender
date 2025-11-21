@@ -39,6 +39,7 @@ import com.willwinder.universalgcodesender.firmware.IOverrideManager;
 import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.DISABLE_ECHO_COMMAND;
 import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.GRBL_COMPABILITY_VERSION;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.DetectEchoCommand;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.DetectHardLimitCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetAlarmCodesCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetBuildInfoCommand;
@@ -58,6 +59,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
+import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
@@ -127,6 +129,12 @@ public class FluidNCController implements IController, ICommunicatorListener {
         this.fileService = new FluidNCFileService(this, positionPollTimer);
         this.commandCreator = new FluidNCCommandCreator();
         this.overrideManager = new GrblOverrideManager(this, communicator, messageService);
+        messageService.addListener(new MessageListener() {
+            @Override
+            public void onMessage(MessageType messageType, String message) {
+                System.err.println(message);
+            }
+        });
     }
 
     @Override
@@ -530,7 +538,33 @@ public class FluidNCController implements IController, ICommunicatorListener {
         ControllerState state = this.controllerStatus == null ? ControllerState.DISCONNECTED : this.controllerStatus.getState();
         return ControllerUtils.getCommunicatorState(state, this, communicator);
     }
-
+    
+    private boolean detectAndUnlockHardLimits() throws InterruptedException, Exception {
+        boolean result = false;
+        if (relockHardLimits == null) {  
+            Thread.sleep(2000); 
+            issueSoftReset();
+            DetectHardLimitCommand hardLimitCheck = new DetectHardLimitCommand(false);
+            sendAndWaitForCompletion(this, hardLimitCheck);
+            System.err.println(hardLimitCheck.getResponse());
+            if (!hardLimitCheck.hasHardLimit()) {
+                hardLimitCheck = new DetectHardLimitCommand(true);
+                sendAndWaitForCompletion(this, hardLimitCheck);    
+            }
+            System.err.println(hardLimitCheck.getResponse());
+            if (hardLimitCheck.hasHardLimit()) {
+                relockHardLimits = hardLimitCheck.getRelockCommands();
+                for (SystemCommand cmd: hardLimitCheck.getUnlockCommands()) {
+                    sendAndWaitForCompletion(this, cmd);                            
+                }
+                result = true;
+            }
+        }
+        return result;
+    }
+    
+    private Set<SystemCommand> relockHardLimits;
+    
     private void initializeController() {
         positionPollTimer.stop();
         gcodeParser.reset();
@@ -540,7 +574,12 @@ public class FluidNCController implements IController, ICommunicatorListener {
         try {
             if (!FluidNCUtils.isControllerResponsive(this, messageService)) {
                 messageService.dispatchMessage(MessageType.INFO, "*** Device is in a holding or alarm state and needs to be reset\n");
+                Thread.sleep(200);
+                if (detectAndUnlockHardLimits()) {
+                    messageService.dispatchMessage(MessageType.INFO, "*** Device is locked due to hard limits, hard limits will be disabled temporarily\n");
+                }
                 issueSoftReset();
+             
                 return;
             }
             disableEcho();
@@ -553,6 +592,17 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
             messageService.dispatchMessage(MessageType.INFO, String.format("*** Connected to %s\n", getFirmwareVersion()));
             requestStatusReport();
+            
+            // Re-enable hard limits now that we have access to the controller. 
+            if (relockHardLimits != null) {
+                messageService.dispatchMessage(MessageType.INFO, "*** Re-enabling hard limits\n");
+                for (SystemCommand cmd: relockHardLimits) {
+                    sendAndWaitForCompletion(this, cmd);            
+                }                
+                // Refreshing controller information.
+                queryControllerInformation();
+                relockHardLimits = null;
+            }
             positionPollTimer.start();
             isInitialized = true;
         } catch (Exception e) {

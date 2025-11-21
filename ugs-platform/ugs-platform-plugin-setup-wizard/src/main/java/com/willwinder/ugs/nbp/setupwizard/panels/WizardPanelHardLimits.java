@@ -108,9 +108,9 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         panel.add(labelLimitX1, "wmin 56, hmin 36, gapleft 5");
         panel.add(pnlX1Spacer, "wmin 56, hmin 36, gapleft 5");
         panel.add(labelLimitY1, "wmin 56, hmin 36, gapleft 10");
-        panel.add(pnlX1Spacer, "wmin 56, hmin 36, gapleft 10");
+        panel.add(pnlY1Spacer, "wmin 56, hmin 36, gapleft 10");
         panel.add(labelLimitZ1, "wmin 56, hmin 36, gapleft 10, wrap");
-        panel.add(pnlX1Spacer, "wmin 56, hmin 36, gapleft 10, wrap");
+        panel.add(pnlZ1Spacer, "wmin 56, hmin 36, gapleft 10, wrap");
         
         panel.add(checkboxInvertLimitPins, "gaptop 10, spanx, wrap");
         getPanel().add(panel, "grow, wrap");
@@ -153,12 +153,16 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         labelLimitZ1 = createLimitLabel("Z1");
         labelLimitZ1.setVisible(false);
         
-        pnlX0Spacer=new JPanel();   
+        pnlX0Spacer=new JPanel();  
+//        pnlX0Spacer.setBackground(new Color(255,0,0));
         pnlX1Spacer=new JPanel();   
+//        pnlX1Spacer.setBackground(new Color(128,0,0));
         pnlY0Spacer=new JPanel();   
-        pnlX1Spacer=new JPanel();   
+//        pnlY0Spacer.setBackground(new Color(0,255,0));
+        pnlY1Spacer=new JPanel();   
+//        pnlY0Spacer.setBackground(new Color(0,255,0));        
         pnlZ0Spacer=new JPanel();   
-        pnlX1Spacer=new JPanel(); 
+        pnlZ1Spacer=new JPanel(); 
         
         checkboxInvertLimitPins = new JCheckBox(Localization.getString("platform.plugin.setupwizard.limit-switches.invert"));
         checkboxInvertLimitPins.setVisible(false);
@@ -250,12 +254,12 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
                     checkboxInvertLimitPins.setVisible(firmwareSettings.isHardLimitsEnabled() && (!caps.hasCapability(CapabilitiesConstants.PER_AXIS_ENDSTOP_INVERSION)));
                     labelInstructions.setVisible(firmwareSettings.isHardLimitsEnabled());
                     
-                    int xAxisEndstopCount = (firmwareSettings.hasX0() ? 1 : 0) + (firmwareSettings.hasX1() ? 1 : 0);
-                    int yAxisEndstopCount = (firmwareSettings.hasY0() ? 1 : 0) + (firmwareSettings.hasY1() ? 1 : 0);
-                    int zAxisEndstopCount = (firmwareSettings.hasZ0() ? 1 : 0) + (firmwareSettings.hasZ1() ? 1 : 0);
+                    int xAxisEndstopCount = (firmwareSettings.hasX0() ? 1 : 0) + (firmwareSettings.hasX1() ? 2 : 0);
+                    int yAxisEndstopCount = (firmwareSettings.hasY0() ? 1 : 0) + (firmwareSettings.hasY1() ? 2 : 0);
+                    int zAxisEndstopCount = (firmwareSettings.hasZ0() ? 1 : 0) + (firmwareSettings.hasZ1() ? 2 : 0);
                     int maxEndstopCount = Math.max(xAxisEndstopCount,Math.max(yAxisEndstopCount,zAxisEndstopCount));
                     boolean showSingleEndstopMode = firmwareSettings.isHardLimitsEnabled() && (maxEndstopCount == 1);
-                    boolean showDualEndstopMode = firmwareSettings.isHardLimitsEnabled() && (maxEndstopCount == 2);
+                    boolean showDualEndstopMode = firmwareSettings.isHardLimitsEnabled() && (maxEndstopCount != 1);
                     
                     labelLimitX.setVisible(showSingleEndstopMode);
                     labelLimitY.setVisible(showSingleEndstopMode);
