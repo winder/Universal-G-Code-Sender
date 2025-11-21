@@ -24,22 +24,13 @@ import org.apache.commons.lang3.StringUtils;
 import static com.willwinder.universalgcodesender.GrblUtils.isGrblStatusString;
 
 /**
- * A command which will either get or set the current config filename depending
- * on which constructor is called. 
+ * A command which will either set the current config filename 
  */
-public class GetSetCurrentConfigFilename extends GcodeCommand {
-    private boolean isGet;
+public class SetCurrentConfigFilename extends GcodeCommand {    
     
-    public GetSetCurrentConfigFilename(String newConfigFilename) {
+    public SetCurrentConfigFilename(String newConfigFilename) {
         super( "$Config/Filename=" + newConfigFilename );
-        isGet = false;
-    }
-    
-    public GetSetCurrentConfigFilename() {
-        super("$Config/Filename");
-        isGet = true;
-    }
-
+    }   
 
     @Override
     public void setResponse(String response) {
@@ -61,21 +52,5 @@ public class GetSetCurrentConfigFilename extends GcodeCommand {
 
         super.appendResponse(response);
     }
-    
-    public String GetFilename() {
-        String configToUse = "";
-        if (isGet) {
-            configToUse=getResponse();
-            if (configToUse != null) {
-                String[] split = configToUse.split("\n");
-                if (split[0].startsWith("$Config/Filename=")) {
-                    configToUse=split[0].split("=")[1];
-                }
-            } else {
-                configToUse = "config.yaml";
-            }
-            
-        }
-        return configToUse;
-    } 
+
 }

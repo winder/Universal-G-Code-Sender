@@ -26,7 +26,8 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetFirmwareSettingsCommand;
-import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetSetCurrentConfigFilename;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetCurrentConfigFilename;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SetCurrentConfigFilename;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Motor;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -124,7 +125,7 @@ public class FluidNCSettings implements IFirmwareSettings {
     @Override
     public String getConfigFilename() throws FirmwareSettingsException {
         try {
-            GetSetCurrentConfigFilename cmd = new GetSetCurrentConfigFilename();
+            GetCurrentConfigFilename cmd = new GetCurrentConfigFilename();
             ControllerUtils.sendAndWaitForCompletion(controller, cmd);
             return cmd.GetFilename();
         } catch ( Exception e) {
@@ -134,8 +135,7 @@ public class FluidNCSettings implements IFirmwareSettings {
     @Override
     public void setConfigFilename(String newFilename) throws FirmwareSettingsException {
         try {
-            GetSetCurrentConfigFilename cmd = new GetSetCurrentConfigFilename(newFilename);
-            ControllerUtils.sendAndWaitForCompletion(controller, cmd);            
+            ControllerUtils.sendAndWaitForCompletion(controller, new SetCurrentConfigFilename(newFilename));            
         } catch ( Exception e) {
             throw new FirmwareSettingsException("Couldn't get Config Filename", e);    
         }        

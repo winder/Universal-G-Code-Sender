@@ -154,13 +154,9 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         labelLimitZ1.setVisible(false);
         
         pnlX0Spacer=new JPanel();  
-//        pnlX0Spacer.setBackground(new Color(255,0,0));
         pnlX1Spacer=new JPanel();   
-//        pnlX1Spacer.setBackground(new Color(128,0,0));
         pnlY0Spacer=new JPanel();   
-//        pnlY0Spacer.setBackground(new Color(0,255,0));
         pnlY1Spacer=new JPanel();   
-//        pnlY0Spacer.setBackground(new Color(0,255,0));        
         pnlZ0Spacer=new JPanel();   
         pnlZ1Spacer=new JPanel(); 
         
