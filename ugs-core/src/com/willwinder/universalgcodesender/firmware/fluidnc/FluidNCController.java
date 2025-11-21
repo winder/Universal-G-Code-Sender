@@ -540,12 +540,12 @@ public class FluidNCController implements IController, ICommunicatorListener {
             issueSoftReset();
             DetectHardLimitCommand hardLimitCheck = new DetectHardLimitCommand(false);
             sendAndWaitForCompletion(this, hardLimitCheck);
-            System.err.println(hardLimitCheck.getResponse());
+            
             if (!hardLimitCheck.hasHardLimit()) {
                 hardLimitCheck = new DetectHardLimitCommand(true);
                 sendAndWaitForCompletion(this, hardLimitCheck);    
             }
-            System.err.println(hardLimitCheck.getResponse());
+            
             if (hardLimitCheck.hasHardLimit()) {
                 relockHardLimits = hardLimitCheck.getRelockCommands();
                 for (SystemCommand cmd: hardLimitCheck.getUnlockCommands()) {
