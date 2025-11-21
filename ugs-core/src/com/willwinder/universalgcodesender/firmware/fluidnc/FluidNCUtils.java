@@ -7,6 +7,7 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.DetectHardLimitCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetBuildInfoCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SystemCommand;
@@ -192,9 +193,13 @@ public class FluidNCUtils {
             try {
                 // Figure out if it is still responsive even if it is in HOLD or ALARM state
                 // We can do this
-                SystemCommand systemCommand = sendAndWaitForCompletion(controller, new SystemCommand("$I"));
+                GetBuildInfoCommand systemCommand = sendAndWaitForCompletion(controller, new GetBuildInfoCommand());
+                if (systemCommand.getErrorCode() == 8) {
+                    // The controller is being locked by either movement or hard limit switches. 
+                    return false;
+                }
                 return systemCommand.isOk();
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
                 return false;
             }
         }
