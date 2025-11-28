@@ -175,6 +175,8 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
         add(getOption(VISUALIZER_OPTION_EDITOR_POSITION, Localization.getString(VISUALIZER_OPTION_EDITOR_POSITION_DESC), true));
         add(getOption(VISUALIZER_OPTION_PROBE_PREVIEW, Localization.getString(VISUALIZER_OPTION_PROBE_PREVIEW_DESC), true));
         add(getOption(VISUALIZER_OPTION_DOWEL_PREVIEW, Localization.getString(VISUALIZER_OPTION_DOWEL_PREVIEW_DESC), true));
+
+        add(getOption(VISUALIZER_OPTION_MIN_SEGMENT_LENGTH_MM, "", 0.0));
     }
 
     public static void addListener(Runnable runnable) {
@@ -183,6 +185,10 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
 
     private Option<Integer> getOption(String op, String desc, int defaultValue) {
         return new Option<>(op, Localization.getString(op), desc, getIntegerOption(op, defaultValue));
+    }
+
+    private Option<Double> getOption(String op, String desc, double defaultValue) {
+        return new Option<>(op, Localization.getString(op), desc, getDoubleOption(op, defaultValue));
     }
 
     private Option<Color> getOption(String op, String description, Color def) {
@@ -230,6 +236,14 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
 
     public static void setStringOption(String option, String value) {
         NbPreferences.forModule(VisualizerOptions.class).put(option, value);
+    }
+
+    public static double getDoubleOption(String option, double defaultValue) {
+        return NbPreferences.forModule(VisualizerOptions.class).getDouble(option, defaultValue);
+    }
+
+    public static void setDoubleOption(String option, double value) {
+        NbPreferences.forModule(VisualizerOptions.class).getDouble(option, value);
     }
 
     public static boolean getBooleanOption(String option, boolean defaultValue) {
