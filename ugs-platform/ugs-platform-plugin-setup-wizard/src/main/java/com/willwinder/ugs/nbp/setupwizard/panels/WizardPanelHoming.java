@@ -34,7 +34,6 @@ import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -232,11 +231,8 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
         });
         btnResetMPos = new JButton("Reset");
         btnResetMPos.setEnabled(false);
-        btnResetMPos.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                resetMachinePosSettings();
-            }
+        btnResetMPos.addActionListener((ActionEvent e) -> {
+            resetMachinePosSettings();
         });                
         pnlMPosButtons = new JPanel();
         pnlMPosButtons.setLayout(new BorderLayout());
@@ -247,19 +243,13 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
         ///
         btnApplyPulloffMM = new JButton("Apply");
         btnApplyPulloffMM.setEnabled(false);
-        btnApplyPulloffMM.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                sendMotorPulloffSettings();
-            }
+        btnApplyPulloffMM.addActionListener((ActionEvent e) -> {
+            sendMotorPulloffSettings();
         });
         btnResetPulloffMM = new JButton("Reset");
         btnResetPulloffMM.setEnabled(false);
-        btnResetPulloffMM.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                resetMotorPulloffSettings();
-            }
+        btnResetPulloffMM.addActionListener((ActionEvent e) -> {
+            resetMotorPulloffSettings();
         });                
         pnlPulloffMMButtons = new JPanel();
         pnlPulloffMMButtons.setLayout(new BorderLayout());
@@ -384,7 +374,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
                     canReset = true;
                 }
                 
-            } catch ( Exception ex) {
+            } catch ( FirmwareSettingsException ex) {
                 ex.printStackTrace();
             }
 
@@ -474,7 +464,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
                     canReset = true;
                 }
                 
-            } catch ( Exception ex) {
+            } catch ( FirmwareSettingsException ex) {
                 ex.printStackTrace();
             }
 
@@ -489,7 +479,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
             textfieldMposMMX.setText(mPosMMDecimalFormat.format(firmwareSettings.getMposMM(Axis.X)));
             textfieldMposMMY.setText(mPosMMDecimalFormat.format(firmwareSettings.getMposMM(Axis.Y)));
             textfieldMposMMZ.setText(mPosMMDecimalFormat.format(firmwareSettings.getMposMM(Axis.Z)));
-        } catch (Exception e) {
+        } catch (FirmwareSettingsException e) {
              e.printStackTrace();
         }
         updateMachinePositionTextfields();
@@ -625,7 +615,12 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
         getBackend().addUGSEventListener(this);
         refreshControls();
     }
-
+    private void resetTextfieldColor(JTextField...textFields) {
+        for (JTextField tf: textFields) {
+            tf.setBackground(Color.WHITE);
+            tf.setForeground(Color.BLACK);        
+        }
+    }
     private void refreshControls() {
         ThreadHelper.invokeLater(() -> {
                     try {
@@ -668,7 +663,8 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
                             textfieldPullOffMMY0.setText(mPosMMDecimalFormat.format(firmwareSettings.getPulloffMM(Axis.Y,Motor.M0)));
                             textfieldPullOffMMY1.setText(mPosMMDecimalFormat.format(firmwareSettings.getPulloffMM(Axis.Y,Motor.M1)));
                             textfieldPullOffMMZ0.setText(mPosMMDecimalFormat.format(firmwareSettings.getPulloffMM(Axis.Z,Motor.M0)));
-                            textfieldPullOffMMZ1.setText(mPosMMDecimalFormat.format(firmwareSettings.getPulloffMM(Axis.Z,Motor.M1)));                                                                                   
+                            textfieldPullOffMMZ1.setText(mPosMMDecimalFormat.format(firmwareSettings.getPulloffMM(Axis.Z,Motor.M1)));                                                                                                               
+                            resetTextfieldColor(textfieldPullOffMMX0,textfieldPullOffMMX1,textfieldPullOffMMY0,textfieldPullOffMMY1,textfieldPullOffMMZ0,textfieldPullOffMMZ1);
                             
                             pnlPullOffMMX0.setVisible(labelHomingMposMM.isVisible() && capabilties.hasAxis(Axis.X));
                             pnlPullOffMMX1.setVisible(labelHomingMposMM.isVisible() && capabilties.hasCapability(CapabilitiesConstants.DUAL_X_AXIS));
@@ -676,7 +672,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
                             pnlPullOffMMY1.setVisible(labelHomingMposMM.isVisible() && capabilties.hasCapability(CapabilitiesConstants.DUAL_Y_AXIS));
                             pnlPullOffMMZ0.setVisible(labelHomingMposMM.isVisible() && capabilties.hasAxis(Axis.Z));
                             pnlPullOffMMZ1.setVisible(labelHomingMposMM.isVisible() && capabilties.hasCapability(CapabilitiesConstants.DUAL_Z_AXIS));
-                            
+
                             pnlPulloffMMButtons.setVisible(labelHomingMposMM.isVisible());  
                             pnlPulloffMMSpacer.setVisible(labelHomingMposMM.isVisible());  
                             pnlPulloffMMSpacerB.setVisible(labelHomingMposMM.isVisible());  

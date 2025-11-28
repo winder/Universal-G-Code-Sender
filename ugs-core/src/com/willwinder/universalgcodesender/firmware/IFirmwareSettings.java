@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.firmware;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Motor;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.types.CommandException;
 
 import java.util.List;
 import java.util.Optional;
@@ -270,6 +271,16 @@ public interface IFirmwareSettings {
     
     default void refreshFirmwareSettings() throws FirmwareSettingsException {
     }
- 
+    
+    default String getConfigFilename() throws FirmwareSettingsException {
+        return "";
+    }
+    
+    default void setConfigFilename(String newFilename) throws FirmwareSettingsException {
+        
+    }
+    default void refresh() throws FirmwareSettingsException, CommandException {
+
+    }
 }
 
