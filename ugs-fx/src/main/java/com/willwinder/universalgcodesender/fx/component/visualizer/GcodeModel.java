@@ -59,11 +59,11 @@ public class GcodeModel extends Group {
 
     private List<LineSegment> loadModel(GcodeViewParse gcvp, String gcodeFile) throws IOException, GcodeParserException {
         try (IGcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile), new DefaultCommandCreator())) {
-            return gcvp.toObjFromReader(gsr, ARC_SEGMENT_LENGTH);
+            return gcvp.toObjFromReader(gsr, ARC_SEGMENT_LENGTH, 0);
         } catch (GcodeStreamReader.NotGcodeStreamFile e) {
             List<String> linesInFile;
             linesInFile = VisualizerUtils.readFiletoArrayList(gcodeFile);
-            return gcvp.toObjRedux(linesInFile, ARC_SEGMENT_LENGTH);
+            return gcvp.toObjRedux(linesInFile, ARC_SEGMENT_LENGTH, 0);
         }
     }
 

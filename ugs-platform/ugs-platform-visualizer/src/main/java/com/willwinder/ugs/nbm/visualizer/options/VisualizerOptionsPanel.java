@@ -53,6 +53,8 @@ final public class VisualizerOptionsPanel extends AbstractOptionsPanel {
                 VisualizerOptions.setStringOption(op.option, op.getValue().toString());
             } else if (op.value instanceof Integer) {
                 VisualizerOptions.setStringOption(op.option, op.getValue().toString());
+            } else if (op.value instanceof Double) {
+                VisualizerOptions.setStringOption(op.option, op.getValue().toString());
             } else {
                 VisualizerOptions.setStringOption(op.option, (String) op.getValue());
             }

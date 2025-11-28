@@ -114,6 +114,8 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
     public static String VISUALIZER_OPTION_BOUNDARY_INVERT_Z = "platform.visualizer.boundary.invert.z";
     public static String VISUALIZER_OPTION_BOUNDARY_INVERT_DESC = "platform.visualizer.boundary.invert.desc";
 
+    public static final String VISUALIZER_OPTION_MIN_SEGMENT_LENGTH_MM = "platform.visualizer.min.segment.mm";
+
     public VisualizerOptions() {
         add(getOption(VISUALIZER_OPTION_LEGACY, Localization.getString(VISUALIZER_OPTION_LEGACY_DESC), true));
         add(getOption(VISUALIZER_OPTION_NEWT_SAMPLES, Localization.getString(VISUALIZER_OPTION_NEWT_SAMPLES_DESC), 4));

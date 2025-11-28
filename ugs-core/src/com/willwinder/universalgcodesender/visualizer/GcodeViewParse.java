@@ -22,6 +22,7 @@ package com.willwinder.universalgcodesender.visualizer;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.SimplifyProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.model.Position;
@@ -55,10 +56,11 @@ public class GcodeViewParse {
     /**
      * Create a gcode parser with required configuration.
      */
-    private static GcodeParser getParser() {
+    private static GcodeParser getParser(double minSegmentLength) {
         GcodeParser gp = new GcodeParser();
         gp.addCommandProcessor(new CommentProcessor());
         gp.addCommandProcessor(new WhitespaceProcessor());
+        gp.addCommandProcessor(new SimplifyProcessor(minSegmentLength));
         return gp;
     }
 
@@ -126,9 +128,9 @@ public class GcodeViewParse {
      * @param arcSegmentLength length of line segments when expanding an arc.
      */
     public List<LineSegment> toObjFromReader(IGcodeStreamReader reader,
-                                             double arcSegmentLength) throws IOException, GcodeParserException {
+                                             double arcSegmentLength, double minSegmentLength) throws IOException, GcodeParserException {
         lines.clear();
-        GcodeParser gp = getParser();
+        GcodeParser gp = getParser(minSegmentLength);
 
         // Save the state
         Position start = new Position(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, gp.getCurrentState().getUnits());
@@ -167,8 +169,8 @@ public class GcodeViewParse {
      * @param gcode            commands to visualize.
      * @param arcSegmentLength length of line segments when expanding an arc.
      */
-    public List<LineSegment> toObjRedux(List<String> gcode, double arcSegmentLength) throws GcodeParserException {
-        GcodeParser gp = getParser();
+    public List<LineSegment> toObjRedux(List<String> gcode, double arcSegmentLength, double minSegmentLength) throws GcodeParserException {
+        GcodeParser gp = getParser(minSegmentLength);
 
         lines.clear();
 
