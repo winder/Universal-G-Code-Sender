@@ -65,7 +65,7 @@ public class SimplifyProcessor implements CommandProcessor {
         double length = start.distanceXYZ(end);
 
         // Check if line needs splitting.
-        if (length > this.minSegmentLength || Double.isNaN(length)) {
+        if (length >= this.minSegmentLength || Double.isNaN(length)) {
             return Collections.singletonList(commandString);
         } else {
             return Collections.emptyList();
