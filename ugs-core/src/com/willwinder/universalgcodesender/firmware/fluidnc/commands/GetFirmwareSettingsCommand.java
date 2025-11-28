@@ -27,7 +27,6 @@ import org.snakeyaml.engine.v2.resolver.JsonScalarResolver;
 import org.snakeyaml.engine.v2.resolver.ScalarResolver;
 import org.snakeyaml.engine.v2.schema.JsonSchema;
 
-
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -51,7 +50,11 @@ public class GetFirmwareSettingsCommand extends SystemCommand {
                 Pattern.compile("^(-?(0|[1-9][0-9]*)(\\.[0-9]*)?)$");
         @Override
         protected void addImplicitResolvers() {
-            super.addImplicitResolvers();
+            addImplicitResolver(Tag.NULL, EMPTY, null);
+            addImplicitResolver(Tag.BOOL, BOOL, "tf");
+            addImplicitResolver(Tag.INT, INT, "-0123456789");
+            addImplicitResolver(Tag.NULL, NULL, "n\u0000");
+            addImplicitResolver(Tag.ENV_TAG, ENV_FORMAT, "$");
             addImplicitResolver(Tag.FLOAT, SIMPLE_FLOAT, "-0123456789.");
         }
     }
