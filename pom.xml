@@ -82,7 +82,7 @@
     <ugs.commons-cli.version>1.4</ugs.commons-cli.version>
     <ugs.easymock.version>5.2.0</ugs.easymock.version>
     <ugs.maven-assembly-plugin.version>2.5.3</ugs.maven-assembly-plugin.version>
-    <ugs.snakeyaml.version>2.2</ugs.snakeyaml.version>
+    <ugs.snakeyaml.version>3.0.1</ugs.snakeyaml.version>
     <ugs.nashorn-core.version>15.4</ugs.nashorn-core.version>
     <ugs.jackson.version>2.15.3</ugs.jackson.version>
 

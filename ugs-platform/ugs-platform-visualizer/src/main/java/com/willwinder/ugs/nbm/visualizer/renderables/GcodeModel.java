@@ -266,11 +266,10 @@ public class GcodeModel extends Renderable implements UGSEventListener {
 
     private List<LineSegment> loadModel(GcodeViewParse gcvp) throws IOException, GcodeParserException {
         try (IGcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile), new DefaultCommandCreator())) {
-            return gcvp.toObjFromReader(gsr, ARC_SEGMENT_LENGTH);
+            return gcvp.toObjFromReader(gsr, ARC_SEGMENT_LENGTH, VisualizerOptions.getDoubleOption(VisualizerOptions.VISUALIZER_OPTION_MIN_SEGMENT_LENGTH_MM, 0));
         } catch (GcodeStreamReader.NotGcodeStreamFile e) {
-            List<String> linesInFile;
-            linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
-            return gcvp.toObjRedux(linesInFile, ARC_SEGMENT_LENGTH);
+            List<String> linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
+            return gcvp.toObjRedux(linesInFile, ARC_SEGMENT_LENGTH, VisualizerOptions.getDoubleOption(VisualizerOptions.VISUALIZER_OPTION_MIN_SEGMENT_LENGTH_MM, 0));
         }
     }
 

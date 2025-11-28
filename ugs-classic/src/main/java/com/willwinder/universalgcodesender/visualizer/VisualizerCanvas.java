@@ -470,13 +470,13 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
             // Load from stream
             if (this.processedGcodeFile) {
                 IGcodeStreamReader gsr = new GcodeStreamReader(new File(this.gcodeFile), new DefaultCommandCreator());
-                gcodeLineList = gcvp.toObjFromReader(gsr, 0.3);
+                gcodeLineList = gcvp.toObjFromReader(gsr, 0.3, 0);
             }
             // Load raw file
             else {
                 List<String> linesInFile;
                 linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
-                gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
+                gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3, 0);
             }
             
             this.objectMin = gcvp.getMinimumExtremes();
