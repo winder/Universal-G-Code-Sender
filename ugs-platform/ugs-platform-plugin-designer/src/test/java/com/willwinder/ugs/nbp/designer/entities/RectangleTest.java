@@ -150,8 +150,8 @@ public class RectangleTest {
         rectangle.setHeight(10);
         rectangle.move(new Point2D.Double(10, 0));
 
-        assertEquals(rectangle.getPosition().getX(), 10, 0.1);
-        assertEquals(rectangle.getPosition().getY(), 0, 0.1);
+        assertEquals(10, rectangle.getPosition().getX(), 0.1);
+        assertEquals(0, rectangle.getPosition().getY(), 0.1);
     }
 
     @Test

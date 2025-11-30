@@ -19,6 +19,7 @@
 
 package com.willwinder.ugs.nbp.designer.entities;
 
+
 import java.util.List;
 
 /**
@@ -27,84 +28,94 @@ import java.util.List;
  * @author Joacim Breiler
  */
 public enum EntitySetting {
-    POSITION_X("X"),
-    POSITION_Y("Y"),
-    WIDTH("Width"),
-    HEIGHT("Height"),
-    ROTATION("Rotation"),
-    CUT_TYPE("Cut type"),
-    TEXT("Text"),
-    START_DEPTH("Start depth"),
-    TARGET_DEPTH("Target depth"),
-    ANCHOR("Anchor"),
-    FONT_FAMILY("Font"),
-    LOCK_RATIO("Lock ratio"),
-    SPINDLE_SPEED("Spindle speed"),
-    PASSES("Passes"),
-    FEED_RATE("Feed rate"),
-    LEAD_IN_PERCENT("Lead in percent"),
-    LEAD_OUT_PERCENT("Lead out percent"),
-    INCLUDE_IN_EXPORT("Include in export");
+    POSITION_X("X", "positionX"),
+    POSITION_Y("Y", "positionY"),
+    WIDTH("Width", "width"),
+    HEIGHT("Height", "height"),
+    ANCHOR("Anchor", "anchor"),
+    ROTATION("Rotation", "rotation"),
+    LOCK_RATIO("Lock ratio", "lockRatio"),
+    CUT_TYPE("Cut type", "cutType"),
+    TEXT("Text", "text"),
+    FONT_FAMILY("Font", "fontFamily"),
+    START_DEPTH("Start depth", "startDepth"),
+    TARGET_DEPTH("Target depth", "targetDepth"),
+    SPINDLE_SPEED("Spindle speed", "spindleSpeed"),
+    PASSES("Passes", "passes"),
+    FEED_RATE("Feed rate", "feedRate"),
+    LEAD_IN_PERCENT("Lead in percent", "leadInPercent"),
+    LEAD_OUT_PERCENT("Lead out percent", "leadOutPercent"),
+    INCLUDE_IN_EXPORT("Include in export", "includeInExport");
+
+    public static final List<EntitySetting> TRANSFORMATION_SETTINGS = List.of(
+            EntitySetting.POSITION_X,
+            EntitySetting.POSITION_Y,
+            EntitySetting.WIDTH,
+            EntitySetting.HEIGHT,
+            EntitySetting.ROTATION,
+            EntitySetting.ANCHOR,
+            EntitySetting.LOCK_RATIO
+    );
 
     public static final List<EntitySetting> DEFAULT_ENDMILL_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
-            EntitySetting.ANCHOR,
-            EntitySetting.HEIGHT,
-            EntitySetting.WIDTH,
-            EntitySetting.FONT_FAMILY,
-            EntitySetting.LOCK_RATIO,
-            EntitySetting.POSITION_X,
-            EntitySetting.POSITION_Y,
-            EntitySetting.ROTATION,
             EntitySetting.START_DEPTH,
             EntitySetting.TARGET_DEPTH,
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.FEED_RATE,
-            EntitySetting.TEXT,
             EntitySetting.INCLUDE_IN_EXPORT);
 
     public static final List<EntitySetting> DEFAULT_SURFACE_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
-            EntitySetting.ANCHOR,
-            EntitySetting.HEIGHT,
-            EntitySetting.WIDTH,
-            EntitySetting.FONT_FAMILY,
-            EntitySetting.LOCK_RATIO,
-            EntitySetting.POSITION_X,
-            EntitySetting.POSITION_Y,
-            EntitySetting.ROTATION,
             EntitySetting.START_DEPTH,
             EntitySetting.TARGET_DEPTH,
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.FEED_RATE,
-            EntitySetting.TEXT,
             EntitySetting.LEAD_IN_PERCENT,
             EntitySetting.LEAD_OUT_PERCENT,
             EntitySetting.INCLUDE_IN_EXPORT);
 
     public static final List<EntitySetting> DEFAULT_LASER_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
-            EntitySetting.ANCHOR,
-            EntitySetting.HEIGHT,
-            EntitySetting.WIDTH,
-            EntitySetting.FONT_FAMILY,
-            EntitySetting.LOCK_RATIO,
-            EntitySetting.POSITION_X,
-            EntitySetting.POSITION_Y,
-            EntitySetting.ROTATION,
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.PASSES,
             EntitySetting.FEED_RATE,
-            EntitySetting.TEXT,
             EntitySetting.INCLUDE_IN_EXPORT);
 
-    private final String label;
+    public static final List<EntitySetting> DEFAULT_TEXT_SETTINGS = List.of(
+            EntitySetting.TEXT,
+            EntitySetting.FONT_FAMILY);
 
-    EntitySetting(String label) {
+
+    private final String label;
+    private final String propertyName;
+
+    EntitySetting(String label, String propertyName) {
         this.label = label;
+        this.propertyName = propertyName;
     }
 
     public String getLabel() {
         return label;
+    }
+
+    public String getPropertyName() {
+        return propertyName;
+    }
+
+    /**
+     * Find an EntitySetting by its property name.
+     *
+     * @param propertyName the property name to search for
+     * @return the matching EntitySetting, or null if not found
+     */
+    public static EntitySetting fromPropertyName(String propertyName) {
+        if (propertyName == null) throw new IllegalArgumentException("propertyName cannot be null");
+        for (EntitySetting setting : values()) {
+            if (setting.propertyName.equals(propertyName)) {
+                return setting;
+            }
+        }
+        return null;
     }
 }
