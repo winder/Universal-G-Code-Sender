@@ -26,13 +26,13 @@ jobs:
         restore-keys: ${{ runner.os }}-m2      
 
     - name: Build and test
-      run: mvn clean install
+      run: ./mvnw clean install
       
     - name: Package
       run: |
         sudo apt-get install -qq genisoimage
-        mvn package -pl ugs-classic assembly:assembly -DskipTests=true          
-        mvn package -pl ugs-platform/application -P create-macosx-x64-package,create-macosx-aarch64-package,create-win32-package,create-win64-package,create-linux-x64-package,create-linux-arm-package,create-linux-aarch64-package -DskipTests=true
+        ./mvnw package -pl ugs-classic assembly:assembly -DskipTests=true          
+        ./mvnw package -pl ugs-platform/application -P create-macosx-x64-package,create-macosx-aarch64-package,create-win32-package,create-win64-package,create-linux-x64-package,create-linux-arm-package,create-linux-aarch64-package -DskipTests=true
 
     # https://github.com/marketplace/actions/upload-to-github-release
     - name: Upload binaries to snapshot release
@@ -66,10 +66,10 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build
-        run: mvn clean install -DskipTests
+        run: ./mvnw clean install -DskipTests
 
       - name: Package Linux
-        run: mvn package -pl ugs-fx -P fx-build-linux-x64
+        run: ./mvnw package -pl ugs-fx -P fx-build-linux-x64
 
       - name: Upload DEB binaries to snapshot release
         uses: xresloader/upload-to-github-release@v1
@@ -102,10 +102,10 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build
-        run: mvn clean install -DskipTests
+        run: ./mvnw clean install -DskipTests
 
       - name: Package Linux
-        run: mvn package -pl ugs-fx -P fx-build-linux-aarch64
+        run: ./mvnw package -pl ugs-fx -P fx-build-linux-aarch64
 
       - name: Upload DEB binaries to snapshot release
         uses: xresloader/upload-to-github-release@v1
@@ -138,10 +138,10 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build
-        run: mvn clean install -DskipTests
+        run: ./mvnw clean install -DskipTests
 
       - name: Package Linux
-        run: mvn package -pl ugs-fx -P fx-build-macosx-x64
+        run: ./mvnw package -pl ugs-fx -P fx-build-macosx-x64
 
       - name: Upload DMG binaries to snapshot release
         uses: xresloader/upload-to-github-release@v1
@@ -174,10 +174,10 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build
-        run: mvn clean install -DskipTests
+        run: ./mvnw clean install -DskipTests
 
       - name: Package Linux
-        run: mvn package -pl ugs-fx -P fx-build-macosx-aarch64
+        run: ./mvnw package -pl ugs-fx -P fx-build-macosx-aarch64
 
       - name: Upload DMG binaries to snapshot release
         uses: xresloader/upload-to-github-release@v1
@@ -209,10 +209,10 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build
-        run: mvn clean install -DskipTests
+        run: ./mvnw clean install -DskipTests
 
       - name: Package Windows
-        run: mvn package -pl ugs-fx -P fx-build-windows
+        run: ./mvnw package -pl ugs-fx -P fx-build-windows
 
       - name: Upload binaries to snapshot release
         uses: xresloader/upload-to-github-release@v1
