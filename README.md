@@ -81,43 +81,43 @@ For development we use [Maven](http://maven.apache.org) and [Java 17](https://ad
 
 UGS Classic: 
 ```bash
-mvn install
-mvn exec:java -Dexec.mainClass="com.willwinder.universalgcodesender.MainWindow" -pl ugs-core
+./mvnw install
+./mvnw exec:java -Dexec.mainClass="com.willwinder.universalgcodesender.MainWindow" -pl ugs-core
 ```
 
 UGS Platform: 
 ```bash
-mvn install
-mvn nbm:run-platform -pl ugs-platform/application
+./mvnw install
+./mvnw nbm:run-platform -pl ugs-platform/application
 ```
 
 
 #### Execute all tests
 
 ```bash
-mvn test
+./mvnw test
 ```
 
 
 #### Building the self-executing JAR
 
 ```bash
-mvn install
-mvn package -pl ugs-classic
+./mvnw install
+./mvnw package -pl ugs-classic
 ```
 
 
 #### Build a UniversalGcodeSender.zip release file
 
 ```bash
-mvn package -pl ugs-classic assembly:assembly
+./mvnw package -pl ugs-classic assembly:assembly
 ```
 
 #### Develop via IntelliJ
 
 If you are more used to IntelliJ, you can also build, run and debug it there.
 
-- Run  `mvn nbm:run-platform -pl ugs-platform/application` once via terminal to build everything
+- Run  `./mvnw nbm:run-platform -pl ugs-platform/application` once via terminal to build everything
 - Import the Source, `File` -> `New` -> `Project from existing Sources`
 - Setup a new "Run Configuration", `Java Application`, with following settings:
   - Main Class: `org.netbeans.Main`

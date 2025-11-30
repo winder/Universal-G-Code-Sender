@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-mvn install
-mvn exec:java -Dexec.mainClass="com.willwinder.universalgcodesender.MainWindow" -pl ugs-classic
+./mvnw install
+./mvnw exec:java -Dexec.mainClass="com.willwinder.universalgcodesender.MainWindow" -pl ugs-classic
