@@ -95,7 +95,11 @@ public interface IController {
     void toggleCheckMode() throws Exception;
     void viewParserState() throws Exception;
     void issueSoftReset() throws Exception;
-
+    
+    default void issueHardReset() throws Exception {
+        issueSoftReset();
+    }
+    
     /**
      * Requests a status report from the controller with position and current state.
      * This is usually used for updating the GUI with the live state of the machine.

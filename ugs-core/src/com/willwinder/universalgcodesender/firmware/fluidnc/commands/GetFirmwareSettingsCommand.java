@@ -75,7 +75,7 @@ public class GetFirmwareSettingsCommand extends SystemCommand {
 
         try {
             Load load = new Load(LoadSettings.builder()
-                    .setAllowDuplicateKeys(false)
+                    .setAllowDuplicateKeys(true)
                     .setAllowNonScalarKeys(false)
                     .setAllowRecursiveKeys(false)
                     .setCodePointLimit(1_000_000) // ~1 MB

@@ -150,6 +150,7 @@ public class WizardPanelImportConfigYaml extends AbstractWizardPanel implements 
 
                         if (result == JOptionPane.YES_OPTION) {
                             firmware.setConfigFilename(newConfigFilename);
+                            // Rebooot Controller
                             firmwareSettingsUpdated();
                         }                        
                     }                
@@ -239,6 +240,7 @@ public class WizardPanelImportConfigYaml extends AbstractWizardPanel implements 
     }
     
     private void uploadSettingsFile(File file) {
+        boolean rebootAfterUpload = false;
         if (file != null) {
             try {
                  IFileService ifs = getBackend().getController().getFileService();
@@ -253,7 +255,8 @@ public class WizardPanelImportConfigYaml extends AbstractWizardPanel implements 
                     if (result == JOptionPane.NO_OPTION) {
                         return;
                     } else {
-                        firmwareSettingsUpdated();
+                        rebootAfterUpload = true;
+                        
                     }                                        
                  }
                  BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file),(int)file.length());
@@ -261,8 +264,12 @@ public class WizardPanelImportConfigYaml extends AbstractWizardPanel implements 
                  byte[] data = new byte[(int)file.length()];
                  bis.read(data);
                  ifs.uploadFile("/localfs/"+file.getName(), data);
-                
-            } catch (IOException e) {
+                 if (rebootAfterUpload) {
+                    getBackend().getController().issueHardReset();
+                    firmwareSettingsUpdated();        
+                 }
+                 
+            } catch (Exception e) {
                 GUIHelpers.displayErrorDialog("Couldn't upload configuration file: " + e.getMessage(), true);                
             }
         }

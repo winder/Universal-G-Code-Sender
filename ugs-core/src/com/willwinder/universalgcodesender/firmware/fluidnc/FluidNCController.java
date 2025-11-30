@@ -226,7 +226,20 @@ public class FluidNCController implements IController, ICommunicatorListener {
             sendCommandImmediately(new FluidNCCommand(GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND));
         }
     }
-
+    
+    @Override
+    public void issueHardReset() throws Exception {
+        messageService.dispatchMessage(MessageType.INFO, "*** Resetting controller\n");
+        isInitialized = false;
+        positionPollTimer.stop();
+        setControllerState(ControllerState.CONNECTING);
+        resetBuffers();
+        communicator.cancelSend();
+        SystemCommand hardReset = new SystemCommand("$System/Control=RESTART");
+        sendAndWaitForCompletion(this, hardReset);
+        resetBuffers();        
+    }
+    
     @Override
     public void issueSoftReset() throws Exception {
         messageService.dispatchMessage(MessageType.INFO, "*** Resetting controller\n");
@@ -533,31 +546,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
         return ControllerUtils.getCommunicatorState(state, this, communicator);
     }
     
-    private boolean detectAndUnlockHardLimits() throws InterruptedException, Exception {
-        boolean result = false;
-        if (relockHardLimits == null) {  
-            Thread.sleep(2000); 
-            issueSoftReset();
-            DetectHardLimitCommand hardLimitCheck = new DetectHardLimitCommand(false);
-            sendAndWaitForCompletion(this, hardLimitCheck);
-            
-            if (!hardLimitCheck.hasHardLimit()) {
-                hardLimitCheck = new DetectHardLimitCommand(true);
-                sendAndWaitForCompletion(this, hardLimitCheck);    
-            }
-            
-            if (hardLimitCheck.hasHardLimit()) {
-                relockHardLimits = hardLimitCheck.getRelockCommands();
-                for (SystemCommand cmd: hardLimitCheck.getUnlockCommands()) {
-                    sendAndWaitForCompletion(this, cmd);                            
-                }
-                result = true;
-            }
-        }
-        return result;
-    }
-    
-    private Set<SystemCommand> relockHardLimits;
     
     private void initializeController() {
         positionPollTimer.stop();
@@ -569,9 +557,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
             if (!FluidNCUtils.isControllerResponsive(this, messageService)) {
                 messageService.dispatchMessage(MessageType.INFO, "*** Device is in a holding or alarm state and needs to be reset\n");
                 Thread.sleep(200);
-                if (detectAndUnlockHardLimits()) {
-                    messageService.dispatchMessage(MessageType.INFO, "*** Device is locked due to hard limits, hard limits will be disabled temporarily\n");
-                }
                 issueSoftReset();
              
                 return;
@@ -587,16 +572,6 @@ public class FluidNCController implements IController, ICommunicatorListener {
             messageService.dispatchMessage(MessageType.INFO, String.format("*** Connected to %s\n", getFirmwareVersion()));
             requestStatusReport();
             
-            // Re-enable hard limits now that we have access to the controller. 
-            if (relockHardLimits != null) {
-                messageService.dispatchMessage(MessageType.INFO, "*** Re-enabling hard limits\n");
-                for (SystemCommand cmd: relockHardLimits) {
-                    sendAndWaitForCompletion(this, cmd);            
-                }                
-                // Refreshing controller information.
-                queryControllerInformation();
-                relockHardLimits = null;
-            }
             positionPollTimer.start();
             isInitialized = true;
         } catch (Exception e) {
