@@ -102,4 +102,15 @@ public class GetBuildInfoCommand extends SystemCommand {
         }
         return Optional.empty();
     }
+    
+    public int getErrorCode() {
+        int result = -1;
+        String resp = getResponse();
+        if ((resp != null) && resp.contains("error:")) {
+            String[] split = resp.split("[:]");
+            result = Integer.parseInt(split[1]);
+        }
+        return result;        
+    }
+    
 }
