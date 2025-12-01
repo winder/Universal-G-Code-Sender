@@ -157,7 +157,6 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     }
 
     private void firePropertyChange(String propertyName, Object newValue) {
-        System.out.println(propertyName + " " + newValue);
         if (!updating) {
             pcs.firePropertyChange(propertyName, null, newValue);
         }
