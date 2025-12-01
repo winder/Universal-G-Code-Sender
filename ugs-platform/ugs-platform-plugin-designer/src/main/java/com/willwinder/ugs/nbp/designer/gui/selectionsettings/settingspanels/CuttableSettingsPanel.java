@@ -146,7 +146,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
             // Update layout when cut type changes
             setEnabled(isEnabled());
         });
-        startDepthSpinner.addChangeListener(e -> firePropertyChange(PROP_START_DEPTH, targetDepthSpinner.getValue()));
+        startDepthSpinner.addChangeListener(e -> firePropertyChange(PROP_START_DEPTH, startDepthSpinner.getValue()));
         targetDepthSpinner.addChangeListener(e -> firePropertyChange(PROP_TARGET_DEPTH, targetDepthSpinner.getValue()));
         spindleSpeedSpinner.addChangeListener(e -> firePropertyChange(PROP_SPINDLE_SPEED, (int) (((Double)spindleSpeedSpinner.getValue()) * 100)));
         feedRateSpinner.addChangeListener(e -> firePropertyChange(PROP_FEED_RATE, ((Double)feedRateSpinner.getValue()).intValue()));
@@ -157,6 +157,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     }
 
     private void firePropertyChange(String propertyName, Object newValue) {
+        System.out.println(propertyName + " " + newValue);
         if (!updating) {
             pcs.firePropertyChange(propertyName, null, newValue);
         }
