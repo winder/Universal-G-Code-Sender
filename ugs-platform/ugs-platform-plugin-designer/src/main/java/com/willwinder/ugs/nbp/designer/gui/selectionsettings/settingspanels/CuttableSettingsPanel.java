@@ -146,13 +146,10 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
             // Update layout when cut type changes
             setEnabled(isEnabled());
         });
-        startDepthSpinner.addPropertyChangeListener("value", evt -> firePropertyChange(PROP_START_DEPTH, evt.getNewValue()));
-        targetDepthSpinner.addPropertyChangeListener("value", evt -> firePropertyChange(PROP_TARGET_DEPTH, evt.getNewValue()));
-        spindleSpeedSpinner.addPropertyChangeListener("value", evt -> {
-            Double value = (Double) evt.getNewValue();
-            firePropertyChange(PROP_SPINDLE_SPEED, (int) (value * 100));
-        });
-        feedRateSpinner.addPropertyChangeListener("value", evt -> firePropertyChange(PROP_FEED_RATE, evt.getNewValue()));
+        startDepthSpinner.addChangeListener(e -> firePropertyChange(PROP_START_DEPTH, targetDepthSpinner.getValue()));
+        targetDepthSpinner.addChangeListener(e -> firePropertyChange(PROP_TARGET_DEPTH, targetDepthSpinner.getValue()));
+        spindleSpeedSpinner.addChangeListener(e -> firePropertyChange(PROP_SPINDLE_SPEED, (int) (((Double)spindleSpeedSpinner.getValue()) * 100)));
+        feedRateSpinner.addChangeListener(e -> firePropertyChange(PROP_FEED_RATE, ((Double)feedRateSpinner.getValue()).intValue()));
         passesSlider.addChangeListener(e -> firePropertyChange(PROP_PASSES, passesSlider.getValue()));
         leadInPercentSlider.addChangeListener(e -> firePropertyChange(PROP_LEAD_IN_PERCENT, leadInPercentSlider.getValue()));
         leadOutPercentSlider.addChangeListener(e -> firePropertyChange(PROP_LEAD_OUT_PERCENT, leadOutPercentSlider.getValue()));
@@ -235,7 +232,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
                 startDepthSpinner.setValue(firstCuttable.getStartDepth());
                 targetDepthSpinner.setValue(firstCuttable.getTargetDepth());
                 spindleSpeedSpinner.setValue(firstCuttable.getSpindleSpeed() / 100.0);
-                feedRateSpinner.setValue(firstCuttable.getFeedRate());
+                feedRateSpinner.setValue((double) firstCuttable.getFeedRate());
                 passesSlider.setValue(firstCuttable.getPasses());
                 leadInPercentSlider.setValue(firstCuttable.getLeadInPercent());
                 leadOutPercentSlider.setValue(firstCuttable.getLeadOutPercent());
