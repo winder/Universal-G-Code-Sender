@@ -19,14 +19,25 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.entities.Anchor;
+import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
+import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.nbp.designer.entities.settings.CuttableSettingsManager;
 import com.willwinder.ugs.nbp.designer.entities.settings.TransformationEntitySettingsManager;
 import com.willwinder.ugs.nbp.designer.model.Size;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Unit tests for SettingsActionFactory
@@ -44,11 +55,11 @@ public class SettingsActionFactoryTest {
 
         UndoableAction action = SettingsActionFactory.createGroupTransformAction(
                 EntitySetting.WIDTH, 200.0, group, Anchor.CENTER, false
-        );
+        ).orElse(null);
 
         assertNotNull(action);
-        assertTrue(action instanceof ResizeGroupAction);
-        assertEquals("Change group width", action.toString());
+        assertTrue(action instanceof ResizeAction);
+        assertEquals("resize entity", action.toString());
     }
 
     @Test
@@ -60,11 +71,11 @@ public class SettingsActionFactoryTest {
 
         UndoableAction action = SettingsActionFactory.createGroupTransformAction(
                 EntitySetting.HEIGHT, 100.0, group, Anchor.CENTER, true
-        );
+        ).orElse(null);
 
         assertNotNull(action);
-        assertTrue(action instanceof ResizeGroupAction);
-        assertEquals("Change group height", action.toString());
+        assertTrue(action instanceof ResizeAction);
+        assertEquals("resize entity", action.toString());
     }
 
     @Test
@@ -75,11 +86,11 @@ public class SettingsActionFactoryTest {
 
         UndoableAction action = SettingsActionFactory.createGroupTransformAction(
                 EntitySetting.POSITION_X, 50.0, group, Anchor.CENTER, false
-        );
+        ).orElse(null);
 
         assertNotNull(action);
-        assertTrue(action instanceof MoveGroupAction);
-        assertEquals("Change group X position", action.toString());
+        assertTrue(action instanceof MoveAction);
+        assertEquals("move entity", action.toString());
     }
 
     @Test
@@ -90,11 +101,11 @@ public class SettingsActionFactoryTest {
 
         UndoableAction action = SettingsActionFactory.createGroupTransformAction(
                 EntitySetting.POSITION_Y, 75.0, group, Anchor.CENTER, false
-        );
+        ).orElse(null);
 
         assertNotNull(action);
-        assertTrue(action instanceof MoveGroupAction);
-        assertEquals("Change group Y position", action.toString());
+        assertTrue(action instanceof MoveAction);
+        assertEquals("move entity", action.toString());
     }
 
     @Test
@@ -105,17 +116,17 @@ public class SettingsActionFactoryTest {
 
         UndoableAction action = SettingsActionFactory.createGroupTransformAction(
                 EntitySetting.ROTATION, 45.0, group, Anchor.CENTER, false
-        );
+        ).orElse(null);
 
         assertNotNull(action);
-        assertTrue(action instanceof RotateGroupAction);
+        assertTrue(action instanceof RotateAction);
     }
 
     @Test
     public void testCreateGroupTransformAction_NullGroup() {
         UndoableAction action = SettingsActionFactory.createGroupTransformAction(
                 EntitySetting.WIDTH, 100.0, null, Anchor.CENTER, false
-        );
+        ).orElse(null);
 
         assertNull(action);
     }
@@ -126,7 +137,7 @@ public class SettingsActionFactoryTest {
 
         UndoableAction action = SettingsActionFactory.createGroupTransformAction(
                 EntitySetting.WIDTH, 100.0, emptyGroup, Anchor.CENTER, false
-        );
+        ).orElse(null);
 
         assertNull(action);
     }
@@ -161,7 +172,7 @@ public class SettingsActionFactoryTest {
                 EntitySetting.ROTATION,
                 45.0,
                 new TransformationEntitySettingsManager()
-        );
+        ).orElse(null);
 
         assertNotNull(action);
         assertTrue(action instanceof ChangeEntitySettingsAction);
@@ -169,13 +180,12 @@ public class SettingsActionFactoryTest {
 
     @Test
     public void testCreateEntitySettingAction_NullEntities() {
-
-        assertNull(SettingsActionFactory.createEntitySettingAction(
+        assertTrue(SettingsActionFactory.createEntitySettingAction(
                 null,
                 EntitySetting.ROTATION,
                 45.0,
                 new TransformationEntitySettingsManager()
-        ));
+        ).isEmpty());
     }
 
     @Test
@@ -190,23 +200,23 @@ public class SettingsActionFactoryTest {
         // Test width resize
         UndoableAction widthAction = SettingsActionFactory.createAction(
                 EntitySetting.WIDTH, 200.0, group, Anchor.CENTER, true, manager
-        );
+        ).orElse(null);
         assertNotNull(widthAction);
-        assertTrue(widthAction instanceof ResizeGroupAction);
+        assertTrue(widthAction instanceof ResizeAction);
 
         // Test position
         UndoableAction posAction = SettingsActionFactory.createAction(
                 EntitySetting.POSITION_X, 50.0, group, Anchor.CENTER, false, manager
-        );
+        ).orElse(null);
         assertNotNull(posAction);
-        assertTrue(posAction instanceof MoveGroupAction);
+        assertTrue(posAction instanceof MoveAction);
 
         // Test rotation
         UndoableAction rotateAction = SettingsActionFactory.createAction(
                 EntitySetting.ROTATION, 90.0, group, Anchor.CENTER, false, manager
-        );
+        ).orElse(null);
         assertNotNull(rotateAction);
-        assertTrue(rotateAction instanceof RotateGroupAction);
+        assertTrue(rotateAction instanceof RotateAction);
     }
 
     @Test
@@ -220,13 +230,53 @@ public class SettingsActionFactoryTest {
         UndoableAction action = SettingsActionFactory.createAction(
                 EntitySetting.ANCHOR, Anchor.TOP_LEFT, group, Anchor.CENTER, false,
                 new TransformationEntitySettingsManager()
-        );
+        ).orElse(null);
 
         // May be null or ChangeEntitySettingsAction depending on implementation
         // At minimum, should not throw an exception
         if (action != null) {
             assertTrue(action instanceof ChangeEntitySettingsAction);
         }
+    }
+
+    @Test
+    public void redo_ShouldNotifyListenersOnce() {
+        EntityListener listener = mock(EntityListener.class);
+
+        Group group = new Group();
+        Rectangle rect = new Rectangle(0, 0);
+        group.addChild(rect);
+        group.addListener(listener);
+
+        UndoableAction action = SettingsActionFactory.createAction(
+                EntitySetting.CUT_TYPE, CutType.ON_PATH, group, Anchor.CENTER, false,
+                new CuttableSettingsManager()
+        ).orElse(null);
+
+        assertNotNull(action);
+        action.redo();
+
+        verify(listener, times(1)).onEvent(any(EntityEvent.class));
+    }
+
+    @Test
+    public void undo_ShouldNotifyListenersOnce() {
+        EntityListener listener = mock(EntityListener.class);
+
+        Group group = new Group();
+        Rectangle rect = new Rectangle(0, 0);
+        group.addChild(rect);
+        group.addListener(listener);
+
+        UndoableAction action = SettingsActionFactory.createAction(
+                EntitySetting.CUT_TYPE, CutType.ON_PATH, group, Anchor.CENTER, false,
+                new CuttableSettingsManager()
+        ).orElse(null);
+
+        assertNotNull(action);
+        action.undo();
+
+        verify(listener, times(1)).onEvent(any(EntityEvent.class));
     }
 }
 

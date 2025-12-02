@@ -21,7 +21,8 @@ package com.willwinder.ugs.nbp.designer.entities;
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -258,7 +259,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
      * @return a list of children entities
      */
     public final List<Entity> getChildren() {
-        return Collections.unmodifiableList(this.children);
+        return List.copyOf(this.children);
     }
 
     @Override

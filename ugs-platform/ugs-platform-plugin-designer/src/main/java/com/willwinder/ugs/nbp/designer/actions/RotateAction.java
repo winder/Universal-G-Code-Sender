@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -49,6 +50,17 @@ public class RotateAction implements DrawAction, UndoableAction {
         this.entityList = new ArrayList<>(entityList);
         this.rotation = rotation;
         this.center = new Point2D.Double(center.getX(), center.getY());
+    }
+
+    /**
+     * Creates an action for rotating the group to the given angle in degrees
+     *
+     * @param group the group to rotate
+     * @param angle the angle to rotate to
+     * @return an undoable action
+     */
+    public static RotateAction rotateTo(Group group, double angle) {
+        return new RotateAction(group.getChildren(), group.getCenter(), angle - group.getRotation());
     }
 
     public void execute() {

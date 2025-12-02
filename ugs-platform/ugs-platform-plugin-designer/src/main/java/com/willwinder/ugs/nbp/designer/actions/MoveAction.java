@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2024 Will Winder
+    Copyright 2021-2025 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -40,13 +40,21 @@ public class MoveAction implements DrawAction, UndoableAction {
      * direction given by the point. The movement is relative to the shapes
      * original position.
      *
-     * @param entityList a selection which contains the shapes to be moved
+     * @param entityList    a selection which contains the shapes to be moved
      * @param deltaMovement the amount the shapes should be moved, relative to the
-     *          original position
+     *                      original position
      */
     public MoveAction(List<Entity> entityList, Point2D deltaMovement) {
         this.entityList = new ArrayList<>(entityList);
         this.movement = deltaMovement;
+    }
+
+    public static UndoableAction moveX(List<Entity> entityList, Double deltaX) {
+        return new MoveAction(entityList, new Point2D.Double(deltaX, 0));
+    }
+
+    public static UndoableAction moveY(List<Entity> entityList, Double deltaY) {
+        return new MoveAction(entityList, new Point2D.Double(0, deltaY));
     }
 
     public void execute() {

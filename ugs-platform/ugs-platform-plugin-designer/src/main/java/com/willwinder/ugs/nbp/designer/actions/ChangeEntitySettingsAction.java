@@ -1,5 +1,5 @@
 /*
-    Copyright 2024 Albert Giró Quer
+    Copyright 2025 Albert Giró Quer
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -56,16 +56,6 @@ public class ChangeEntitySettingsAction implements UndoableAction {
     @Override
     public void redo() {
         settingsManager.applySetting(setting, newValue, entities);
-
-        // Notify entities about the change
-        for (Entity entity : entities) {
-            if (entity instanceof com.willwinder.ugs.nbp.designer.entities.AbstractEntity abstractEntity) {
-                abstractEntity.notifyEvent(new com.willwinder.ugs.nbp.designer.entities.EntityEvent(
-                    entity,
-                    com.willwinder.ugs.nbp.designer.entities.EventType.SETTINGS_CHANGED
-                ));
-            }
-        }
     }
 
     @Override
@@ -74,13 +64,6 @@ public class ChangeEntitySettingsAction implements UndoableAction {
             Object previousValue = previousValues.get(entity);
             if (previousValue != null) {
                 settingsManager.applySetting(setting, previousValue, entity);
-
-                if (entity instanceof com.willwinder.ugs.nbp.designer.entities.AbstractEntity abstractEntity) {
-                    abstractEntity.notifyEvent(new com.willwinder.ugs.nbp.designer.entities.EntityEvent(
-                        entity,
-                        com.willwinder.ugs.nbp.designer.entities.EventType.SETTINGS_CHANGED
-                    ));
-                }
             }
         }
     }

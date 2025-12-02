@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.ResizeUtils;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.util.ArrayList;
@@ -52,6 +53,24 @@ public class ResizeAction implements UndoableAction {
         this.originalSize = originalSize;
         this.newSize = newSize;
         this.anchor = anchor;
+    }
+
+    public static UndoableAction resizeHeight(List<Entity> entities, Anchor anchor, boolean lockRatio, double newHeight) {
+        Group group = new Group(entities);
+        Size originalSize = group.getSize();
+        double newWidth = lockRatio && originalSize.getHeight() > 0
+                ? originalSize.getWidth() * (newHeight / originalSize.getHeight())
+                : originalSize.getWidth();
+        return new ResizeAction(entities, anchor, group.getSize(), new Size(newWidth, newHeight));
+    }
+
+    public static UndoableAction resizeWidth(List<Entity> entities, Anchor anchor, boolean lockRatio, double newWidth) {
+        Group group = new Group(entities);
+        Size originalSize = group.getSize();
+        double newHeight = lockRatio && originalSize.getWidth() > 0
+                ? originalSize.getHeight() * (newWidth / originalSize.getWidth())
+                : originalSize.getHeight();
+        return new ResizeAction(entities, anchor, originalSize, new Size(newWidth, newHeight));
     }
 
     @Override

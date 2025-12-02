@@ -25,6 +25,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.settings.EntitySettingsManager;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Factory for creating undoable actions for entity settings changes.
@@ -42,9 +43,9 @@ public final class SettingsActionFactory {
      * @param selectionGroup the group being transformed
      * @param anchor         the anchor point for transformations
      * @param lockRatio      whether aspect ratio should be locked for resize operations
-     * @return an UndoableAction or null if the property is not supported
+     * @return an UndoableAction or an empty optional if the property is not supported
      */
-    public static UndoableAction createGroupTransformAction(
+    public static Optional<UndoableAction> createGroupTransformAction(
             EntitySetting setting,
             Object newValue,
             Group selectionGroup,
@@ -52,44 +53,37 @@ public final class SettingsActionFactory {
             boolean lockRatio) {
 
         if (selectionGroup == null || selectionGroup.getChildren().isEmpty()) {
-            return null;
+            return Optional.empty();
         }
 
         return switch (setting) {
-            case WIDTH -> new ResizeGroupAction(
-                    selectionGroup,
+            case WIDTH -> Optional.of(ResizeAction.resizeWidth(
+                    selectionGroup.getChildren(),
                     anchor,
-                    ResizeGroupAction.DimensionType.WIDTH,
-                    (Double) newValue,
-                    lockRatio
-            );
+                    lockRatio,
+                    (Double) newValue));
 
-            case HEIGHT -> new ResizeGroupAction(
-                    selectionGroup,
+            case HEIGHT -> Optional.of(ResizeAction.resizeHeight(
+                    selectionGroup.getChildren(),
                     anchor,
-                    ResizeGroupAction.DimensionType.HEIGHT,
-                    (Double) newValue,
-                    lockRatio
-            );
+                    lockRatio,
+                    (Double) newValue));
 
-            case POSITION_X -> MoveGroupAction.moveX(
-                    selectionGroup,
-                    anchor,
-                    (Double) newValue
-            );
+            case POSITION_X -> Optional.of(MoveAction.moveX(
+                    selectionGroup.getChildren(),
+                    (Double) newValue - selectionGroup.getPosition(anchor).getX()
+            ));
 
-            case POSITION_Y -> MoveGroupAction.moveY(
-                    selectionGroup,
-                    anchor,
-                    (Double) newValue
-            );
+            case POSITION_Y -> Optional.of(MoveAction.moveY(
+                    selectionGroup.getChildren(),
+                    (Double) newValue - selectionGroup.getPosition(anchor).getY()));
 
-            case ROTATION -> RotateGroupAction.rotateTo(
+            case ROTATION -> Optional.of(RotateAction.rotateTo(
                     selectionGroup,
                     (Double) newValue
-            );
+            ));
 
-            default -> null;
+            default -> Optional.empty();
         };
     }
 
@@ -102,17 +96,17 @@ public final class SettingsActionFactory {
      * @param settingsManager the manager that handles the setting
      * @return an UndoableAction
      */
-    public static UndoableAction createEntitySettingAction(
+    public static Optional<UndoableAction> createEntitySettingAction(
             List<Entity> entities,
             EntitySetting setting,
             Object newValue,
             EntitySettingsManager settingsManager) {
 
         if (entities == null || entities.isEmpty() || setting == null) {
-            return null;
+            return Optional.empty();
         }
 
-        return new ChangeEntitySettingsAction(entities, setting, newValue, settingsManager);
+        return Optional.of(new ChangeEntitySettingsAction(entities, setting, newValue, settingsManager));
     }
 
     /**
@@ -138,7 +132,7 @@ public final class SettingsActionFactory {
      * @param settingsManager the settings manager to use
      * @return an appropriate UndoableAction or null
      */
-    public static UndoableAction createAction(
+    public static Optional<UndoableAction> createAction(
             EntitySetting setting,
             Object newValue,
             Group selectionGroup,
@@ -146,8 +140,12 @@ public final class SettingsActionFactory {
             boolean lockRatio,
             EntitySettingsManager settingsManager) {
 
+        if (setting == null || selectionGroup == null || selectionGroup.getChildren().isEmpty() ) {
+            return Optional.empty();
+        }
+
         // Try to create a group transformation action first
-        UndoableAction groupAction = createGroupTransformAction(
+        Optional<UndoableAction> groupAction = createGroupTransformAction(
                 setting,
                 newValue,
                 selectionGroup,
@@ -155,22 +153,17 @@ public final class SettingsActionFactory {
                 lockRatio
         );
 
-        if (groupAction != null) {
+        if (groupAction.isPresent()) {
             return groupAction;
         }
 
         // Fall back to entity setting action
-
-        if (setting != null && selectionGroup != null) {
-            return createEntitySettingAction(
-                    selectionGroup.getChildren(),
-                    setting,
-                    newValue,
-                    settingsManager
-            );
-        }
-
-        return null;
+        return createEntitySettingAction(
+                selectionGroup.getChildren(),
+                setting,
+                newValue,
+                settingsManager
+        );
     }
 }
 

@@ -34,12 +34,18 @@ import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
+import java.awt.Component;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Objects;
+import java.util.Optional;
 
 
 /*
@@ -291,14 +297,13 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
         if (selectionGroup.getChildren().isEmpty()) return;
 
         // For transformations, we need to work with the group as a whole to maintain relationships
-        UndoableAction action = createGroupAction(EntitySetting.fromPropertyName(setting), newValue, selectionGroup);
-        if (action != null) {
+        createGroupAction(EntitySetting.fromPropertyName(setting), newValue, selectionGroup).ifPresent(action -> {
             action.redo();
             controller.getUndoManager().addAction(action);
-        }
+        });
     }
 
-    private UndoableAction createGroupAction(EntitySetting propertyName, Object newValue, Group selectionGroup) {
+    private Optional<UndoableAction> createGroupAction(EntitySetting propertyName, Object newValue, Group selectionGroup) {
         // Use the centralized factory to create actions
         return SettingsActionFactory.createAction(
                 propertyName,

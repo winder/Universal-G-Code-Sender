@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2024 Will Winder
+    Copyright 2021-2025 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -47,7 +47,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private final List<ComponentWithListener> activeComponents = new ArrayList<>();
 
     // New layered model architecture
-    private LayeredFieldActionDispatcher fieldDispatcher;
+    private final LayeredFieldActionDispatcher fieldDispatcher = new LayeredFieldActionDispatcher();
     private TransformSettingsModel currentModel;
 
     public SelectionSettingsPanel(Controller controller) {
@@ -112,12 +112,9 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         }
 
         currentModel = SettingsModelFactory.createModelForSelection(selectionGroup);
-
         currentModel.addListener(this);
 
-        if (fieldDispatcher != null) {
-            fieldDispatcher.updateModel(selectionGroup);
-        }
+        fieldDispatcher.updateModel(selectionGroup);
     }
 
     /**
@@ -191,10 +188,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             currentModel = null;
         }
 
-        if (fieldDispatcher != null) {
-            fieldDispatcher.release();
-            fieldDispatcher = null;
-        }
+        fieldDispatcher.release();
 
         if (controller != null) {
             controller.getSelectionManager().removeSelectionListener(this);
@@ -206,8 +200,5 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         this.controller = controller;
         this.controller.getSelectionManager().addSelectionListener(this);
         this.controller.getSelectionManager().addListener(this);
-
-        // Initialize the layered field dispatcher
-        this.fieldDispatcher = new LayeredFieldActionDispatcher(controller);
     }
 }
