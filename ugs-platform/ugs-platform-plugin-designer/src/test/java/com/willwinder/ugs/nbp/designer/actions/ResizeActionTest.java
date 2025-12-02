@@ -4,17 +4,19 @@ import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.model.Size;
-import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import java.awt.geom.Point2D;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
 public class ResizeActionTest {
 
     @Test
     public void resizeWithTopLeftAnchor() {
-        Entity entity = new Rectangle(10, 10);
+        Entity entity = new Rectangle();
+        entity.setPosition(new Point2D.Double(10, 10));
         entity.setSize(new Size(10, 10));
 
         ResizeAction resizeAction = new ResizeAction(List.of(entity), Anchor.TOP_LEFT, new Size(10, 10), new Size(20, 20));

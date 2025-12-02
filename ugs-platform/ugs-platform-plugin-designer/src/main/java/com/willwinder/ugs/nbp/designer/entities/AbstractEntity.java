@@ -22,7 +22,7 @@ import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
@@ -39,6 +39,8 @@ public abstract class AbstractEntity implements Entity {
     private final Set<EntityListener> listeners = Sets.newConcurrentHashSet();
 
     private AffineTransform transform = new AffineTransform();
+    private boolean lockedRatio = false;
+    private Point2D pivotPoint;
     private String name = "AbstractEntity";
     private String description;
 
@@ -225,7 +227,12 @@ public abstract class AbstractEntity implements Entity {
 
     @Override
     public void rotate(double angle) {
-        rotate(getCenter(), angle);
+        Point2D pivotPoint = getPivotPoint();
+        if (pivotPoint != null) {
+            rotate(pivotPoint, angle);
+        } else {
+            rotate(getCenter(), angle);
+        }
     }
 
     @Override
@@ -275,12 +282,24 @@ public abstract class AbstractEntity implements Entity {
 
     public void setWidth(double width) {
         Size size = getSize();
-        setSize(new Size(width, size.getHeight()));
+        double height = size.getHeight();
+        if (lockedRatio && size.getWidth() != 0) {
+            double ratio = height / size.getWidth();
+            height = width * ratio;
+
+        }
+        setSize(new Size(width, height));
     }
 
     public void setHeight(double height) {
         Size size = getSize();
-        setSize(new Size(size.getWidth(), height));
+        double width = size.getWidth();
+        if (lockedRatio && size.getHeight() != 0) {
+            double ratio = width / size.getHeight();
+            width = height * ratio;
+        }
+        setSize(new Size(width, height));
+
     }
 
     protected void copyPropertiesTo(Entity copy) {
@@ -310,5 +329,30 @@ public abstract class AbstractEntity implements Entity {
     @Override
     public List<EntitySetting> getSettings() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public void setPivotPoint(Anchor anchor) {
+        this.pivotPoint = getPosition(anchor);
+    }
+
+    @Override
+    public void setPivotPoint(Point2D pivotPoint) {
+        this.pivotPoint = pivotPoint != null ? new Point2D.Double(pivotPoint.getX(), pivotPoint.getY()) : null;
+    }
+
+    @Override
+    public Point2D getPivotPoint() {
+        return this.pivotPoint;
+    }
+
+    @Override
+    public void setLockRatio(boolean lockRatio) {
+        this.lockedRatio = !lockRatio;
+    }
+
+    @Override
+    public boolean isLockRatio() {
+        return lockedRatio;
     }
 }

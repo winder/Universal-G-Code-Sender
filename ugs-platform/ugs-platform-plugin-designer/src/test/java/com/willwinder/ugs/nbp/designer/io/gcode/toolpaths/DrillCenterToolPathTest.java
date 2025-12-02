@@ -2,6 +2,7 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
+import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
 import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.ugs.nbp.designer.model.Size;
@@ -11,6 +12,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 import java.awt.geom.Point2D;
+import java.util.List;
 
 public class DrillCenterToolPathTest {
     @Test
@@ -27,61 +29,78 @@ public class DrillCenterToolPathTest {
         drillCenterToolPath.setTargetDepth(10);
         GcodePath gcodePath = drillCenterToolPath.toGcodePath();
 
-        assertEquals(9, gcodePath.getSegments().size());
+        List<Segment> segments = gcodePath.getSegments();
+        int segmentIndex = 0;
+        assertEquals(10, segments.size());
 
         // Move to safe height
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(0).type);
-        assertFalse(gcodePath.getSegments().get(0).point.hasX());
-        assertFalse(gcodePath.getSegments().get(0).point.hasY());
-        assertEquals(11, gcodePath.getSegments().get(0).point.getZ(), 0.01);
+        Segment segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(11, segment.point.getZ(), 0.01);
 
         // Move in XY-place
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(1).type);
-        assertEquals(17.5, gcodePath.getSegments().get(1).point.getX(), 0.01);
-        assertEquals(17.5, gcodePath.getSegments().get(1).point.getY(), 0.01);
-        assertFalse(gcodePath.getSegments().get(1).point.hasZ());
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertEquals(17.5, segment.point.getX(), 0.01);
+        assertEquals(17.5, segment.point.getY(), 0.01);
+        assertFalse(segment.point.hasZ());
 
         // Move to Z zero
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(2).type);
-        assertFalse(gcodePath.getSegments().get(2).point.hasX());
-        assertFalse(gcodePath.getSegments().get(2).point.hasY());
-        assertEquals(11, gcodePath.getSegments().get(2).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(11, segment.point.getZ(), 0.01);
+
+        // Start spindle
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.SEAM, segment.type);
+        assertNull(segment.point);
+        assertEquals(Integer.valueOf(255), segment.getSpindleSpeed());
 
         // First depth pass
-        assertEquals(SegmentType.POINT, gcodePath.getSegments().get(3).type);
-        assertFalse(gcodePath.getSegments().get(3).point.hasX());
-        assertFalse(gcodePath.getSegments().get(3).point.hasY());
-        assertEquals(0, gcodePath.getSegments().get(3).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.POINT, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(0, segment.point.getZ(), 0.01);
 
         // Second depth pass
-        assertEquals(SegmentType.POINT, gcodePath.getSegments().get(4).type);
-        assertFalse(gcodePath.getSegments().get(4).point.hasX());
-        assertFalse(gcodePath.getSegments().get(4).point.hasY());
-        assertEquals(-5, gcodePath.getSegments().get(4).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.POINT, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(-5, segment.point.getZ(), 0.01);
 
         // Clear material
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(5).type);
-        assertFalse(gcodePath.getSegments().get(5).point.hasX());
-        assertFalse(gcodePath.getSegments().get(5).point.hasY());
-        assertEquals(-0, gcodePath.getSegments().get(5).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(-0, segment.point.getZ(), 0.01);
 
         // Third depth pass
-        assertEquals(SegmentType.POINT, gcodePath.getSegments().get(6).type);
-        assertFalse(gcodePath.getSegments().get(6).point.hasX());
-        assertFalse(gcodePath.getSegments().get(6).point.hasY());
-        assertEquals(-10, gcodePath.getSegments().get(6).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.POINT, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(-10, segment.point.getZ(), 0.01);
 
         // Clear material
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(7).type);
-        assertFalse(gcodePath.getSegments().get(7).point.hasX());
-        assertFalse(gcodePath.getSegments().get(7).point.hasY());
-        assertEquals(0, gcodePath.getSegments().get(7).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(0, segment.point.getZ(), 0.01);
 
         // Move to safe height
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(8).type);
-        assertFalse(gcodePath.getSegments().get(8).point.hasX());
-        assertFalse(gcodePath.getSegments().get(8).point.hasY());
-        assertEquals(11, gcodePath.getSegments().get(8).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(11, segment.point.getZ(), 0.01);
     }
 
     @Test
@@ -99,61 +118,78 @@ public class DrillCenterToolPathTest {
         drillCenterToolPath.setTargetDepth(-5);
         GcodePath gcodePath = drillCenterToolPath.toGcodePath();
 
-        assertEquals(9, gcodePath.getSegments().size());
+        List<Segment> segments = gcodePath.getSegments();
+        int segmentIndex = 0;
+        assertEquals(10, gcodePath.getSegments().size());
 
         // Move to safe height
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(0).type);
-        assertFalse(gcodePath.getSegments().get(0).point.hasX());
-        assertFalse(gcodePath.getSegments().get(0).point.hasY());
-        assertEquals(25, gcodePath.getSegments().get(0).point.getZ(), 0.01);
+        Segment segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(25, segment.point.getZ(), 0.01);
 
         // Move in XY-place
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(1).type);
-        assertEquals(17.5, gcodePath.getSegments().get(1).point.getX(), 0.01);
-        assertEquals(17.5, gcodePath.getSegments().get(1).point.getY(), 0.01);
-        assertFalse(gcodePath.getSegments().get(1).point.hasZ());
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertEquals(17.5, segment.point.getX(), 0.01);
+        assertEquals(17.5, segment.point.getY(), 0.01);
+        assertFalse(segment.point.hasZ());
 
         // Move to Z zero
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(2).type);
-        assertFalse(gcodePath.getSegments().get(2).point.hasX());
-        assertFalse(gcodePath.getSegments().get(2).point.hasY());
-        assertEquals(25, gcodePath.getSegments().get(2).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(25, segment.point.getZ(), 0.01);
+
+        // Start spindle
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.SEAM, segment.type);
+        assertNull(segment.point);
+        assertEquals(Integer.valueOf(255), segment.getSpindleSpeed());
 
         // First depth pass
-        assertEquals(SegmentType.POINT, gcodePath.getSegments().get(3).type);
-        assertFalse(gcodePath.getSegments().get(3).point.hasX());
-        assertFalse(gcodePath.getSegments().get(3).point.hasY());
-        assertEquals(15, gcodePath.getSegments().get(3).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.POINT, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(15, segment.point.getZ(), 0.01);
 
         // Second depth pass
-        assertEquals(SegmentType.POINT, gcodePath.getSegments().get(4).type);
-        assertFalse(gcodePath.getSegments().get(4).point.hasX());
-        assertFalse(gcodePath.getSegments().get(4).point.hasY());
-        assertEquals(10, gcodePath.getSegments().get(4).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.POINT, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(10, segment.point.getZ(), 0.01);
 
         // Clear material
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(5).type);
-        assertFalse(gcodePath.getSegments().get(5).point.hasX());
-        assertFalse(gcodePath.getSegments().get(5).point.hasY());
-        assertEquals(15, gcodePath.getSegments().get(5).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(15, segment.point.getZ(), 0.01);
 
         // Third depth pass
-        assertEquals(SegmentType.POINT, gcodePath.getSegments().get(6).type);
-        assertFalse(gcodePath.getSegments().get(6).point.hasX());
-        assertFalse(gcodePath.getSegments().get(6).point.hasY());
-        assertEquals(5, gcodePath.getSegments().get(6).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.POINT, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(5, segment.point.getZ(), 0.01);
 
         // Clear material
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(7).type);
-        assertFalse(gcodePath.getSegments().get(7).point.hasX());
-        assertFalse(gcodePath.getSegments().get(7).point.hasY());
-        assertEquals(15, gcodePath.getSegments().get(7).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(15, segment.point.getZ(), 0.01);
 
         // Move to safe height
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(8).type);
-        assertFalse(gcodePath.getSegments().get(8).point.hasX());
-        assertFalse(gcodePath.getSegments().get(8).point.hasY());
-        assertEquals(25, gcodePath.getSegments().get(8).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(25, segment.point.getZ(), 0.01);
     }
 
     @Test
@@ -171,49 +207,64 @@ public class DrillCenterToolPathTest {
         drillCenterToolPath.setTargetDepth(10);
         GcodePath gcodePath = drillCenterToolPath.toGcodePath();
 
-        assertEquals(7, gcodePath.getSegments().size());
+        List<Segment> segments = gcodePath.getSegments();
+        int segmentIndex = 0;
+        assertEquals(8, segments.size());
 
         // Move to safe height
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(0).type);
-        assertFalse(gcodePath.getSegments().get(0).point.hasX());
-        assertFalse(gcodePath.getSegments().get(0).point.hasY());
-        assertEquals(10, gcodePath.getSegments().get(0).point.getZ(), 0.01);
+        Segment segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(10, segment.point.getZ(), 0.01);
 
         // Move in XY-place
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(1).type);
-        assertEquals(17.5, gcodePath.getSegments().get(1).point.getX(), 0.01);
-        assertEquals(17.5, gcodePath.getSegments().get(1).point.getY(), 0.01);
-        assertFalse(gcodePath.getSegments().get(1).point.hasZ());
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertEquals(17.5, segment.point.getX(), 0.01);
+        assertEquals(17.5, segment.point.getY(), 0.01);
+        assertFalse(segment.point.hasZ());
 
         // Move to safe height
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(2).type);
-        assertFalse(gcodePath.getSegments().get(2).point.hasX());
-        assertFalse(gcodePath.getSegments().get(2).point.hasY());
-        assertEquals(10, gcodePath.getSegments().get(2).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(10, segment.point.getZ(), 0.01);
+
+        // Start spindle
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.SEAM, segment.type);
+        assertNull(segment.point);
+        assertEquals(Integer.valueOf(255), segment.getSpindleSpeed());
 
         // First depth pass
-        assertEquals(SegmentType.POINT, gcodePath.getSegments().get(3).type);
-        assertFalse(gcodePath.getSegments().get(3).point.hasX());
-        assertFalse(gcodePath.getSegments().get(3).point.hasY());
-        assertEquals(-5, gcodePath.getSegments().get(3).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.POINT, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(-5, segment.point.getZ(), 0.01);
 
         // Second depth pass
-        assertEquals(SegmentType.POINT, gcodePath.getSegments().get(4).type);
-        assertFalse(gcodePath.getSegments().get(4).point.hasX());
-        assertFalse(gcodePath.getSegments().get(4).point.hasY());
-        assertEquals(-10, gcodePath.getSegments().get(4).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.POINT, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(-10, segment.point.getZ(), 0.01);
 
         // Clear material
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(5).type);
-        assertFalse(gcodePath.getSegments().get(5).point.hasX());
-        assertFalse(gcodePath.getSegments().get(5).point.hasY());
-        assertEquals(-5, gcodePath.getSegments().get(5).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(-5, segment.point.getZ(), 0.01);
 
         // Move to safe height
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(6).type);
-        assertFalse(gcodePath.getSegments().get(6).point.hasX());
-        assertFalse(gcodePath.getSegments().get(6).point.hasY());
-        assertEquals(10, gcodePath.getSegments().get(6).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(10, segment.point.getZ(), 0.01);
     }
 
     @Test
@@ -232,33 +283,41 @@ public class DrillCenterToolPathTest {
         drillCenterToolPath.setTargetDepth(10);
         GcodePath gcodePath = drillCenterToolPath.toGcodePath();
 
+        List<Segment> segments = gcodePath.getSegments();
+        int segmentIndex = 0;
+
         // Move to safe height
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(0).type);
-        assertFalse(gcodePath.getSegments().get(0).point.hasX());
-        assertFalse(gcodePath.getSegments().get(0).point.hasY());
-        assertEquals(11, gcodePath.getSegments().get(0).point.getZ(), 0.01);
+        Segment segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(11, segment.point.getZ(), 0.01);
 
         // Move in XY-place
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(1).type);
-        assertEquals(17.5, gcodePath.getSegments().get(1).point.getX(), 0.01);
-        assertEquals(17.5, gcodePath.getSegments().get(1).point.getY(), 0.01);
-        assertFalse(gcodePath.getSegments().get(1).point.hasZ());
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertEquals(17.5, segment.point.getX(), 0.01);
+        assertEquals(17.5, segment.point.getY(), 0.01);
+        assertFalse(segment.point.hasZ());
 
         // Move to Z zero
-        assertEquals(SegmentType.MOVE, gcodePath.getSegments().get(2).type);
-        assertFalse(gcodePath.getSegments().get(2).point.hasX());
-        assertFalse(gcodePath.getSegments().get(2).point.hasY());
-        assertEquals(11, gcodePath.getSegments().get(2).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(11, segment.point.getZ(), 0.01);
 
         // Turn on spindle
-        assertEquals(SegmentType.SEAM, gcodePath.getSegments().get(3).type);
-        assertNull(gcodePath.getSegments().get(3).point);
-        assertEquals(1000, gcodePath.getSegments().get(3).getSpindleSpeed(), 0.1);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.SEAM, segment.type);
+        assertNull(segment.point);
+        assertEquals(1000, segment.getSpindleSpeed(), 0.1);
 
         // First depth pass
-        assertEquals(SegmentType.POINT, gcodePath.getSegments().get(4).type);
-        assertFalse(gcodePath.getSegments().get(4).point.hasX());
-        assertFalse(gcodePath.getSegments().get(4).point.hasY());
-        assertEquals(0, gcodePath.getSegments().get(4).point.getZ(), 0.01);
+        segment = segments.get(segmentIndex);
+        assertEquals(SegmentType.POINT, segment.type);
+        assertFalse(segment.point.hasX());
+        assertFalse(segment.point.hasY());
+        assertEquals(0, segment.point.getZ(), 0.01);
     }
 }

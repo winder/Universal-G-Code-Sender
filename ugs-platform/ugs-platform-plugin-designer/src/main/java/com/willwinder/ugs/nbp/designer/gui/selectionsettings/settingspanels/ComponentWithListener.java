@@ -1,5 +1,5 @@
 /*
-    Copyright 2024 Will Winder
+    Copyright 2024 Albert Giro Quer
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,10 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gui.selectionsettings;
+package com.willwinder.ugs.nbp.designer.gui.selectionsettings.settingspanels;
 
-import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
+import java.beans.PropertyChangeListener;
 
-public interface FieldEventListener {
-    void onFieldUpdate(EntitySetting entitySetting, Object object);
+/*
+ * @Author giro-dev
+ */
+public record ComponentWithListener(EntitySettingsPanel component, PropertyChangeListener listener) {
 }

@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2025 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,17 +28,21 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Handles a group of entities and enables to set cut settings for all child entites.
+ * Handles a group of entities and enables to set cut settings for all child entities.
  *
  * @author Joacim Breiler
  */
 public class Group extends EntityGroup implements Cuttable {
     private final CuttableEntitySettings entitySettings;
 
-
     public Group() {
         setName("Group");
         entitySettings = new CuttableEntitySettings(this);
+    }
+
+    public Group(List<Entity> children) {
+        this();
+        addAll(children);
     }
 
     @Override
@@ -248,8 +252,10 @@ public class Group extends EntityGroup implements Cuttable {
 
     @Override
     public List<EntitySetting> getSettings() {
-        List<List<EntitySetting>> list = getCuttableStream().map(Entity::getSettings).toList();
-        if (list.isEmpty()) {
+        List<List<EntitySetting>> list = getCuttableStream()
+                .map(Entity::getSettings)
+                .toList();
+        if (list.isEmpty() || list.get(0).isEmpty()) {
             return List.of();
         }
 
@@ -258,7 +264,7 @@ public class Group extends EntityGroup implements Cuttable {
             result.retainAll(settings);
         }
 
-        // Remove cut type if they are of differnt types
+        // Remove cut type if it has different values
         if (getCuttableStream().map(Cuttable::getCutType).distinct().toList().size() > 1) {
             result = new ArrayList<>(result);
             result.remove(EntitySetting.CUT_TYPE);

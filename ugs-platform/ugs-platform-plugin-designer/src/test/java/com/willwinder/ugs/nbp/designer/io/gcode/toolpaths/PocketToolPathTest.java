@@ -44,14 +44,18 @@ public class PocketToolPathTest {
         List<Segment> segmentList = simplePocket.toGcodePath().getSegments();
 
         Segment firstSegment = segmentList.get(0);
-        assertEquals("The first segment should move to safe height", safeHeight, firstSegment.point.getAxis(Axis.Z), 0.1);
-        assertFalse("The first segment should not move X", firstSegment.point.hasAxis(Axis.X));
-        assertFalse("The first segment should not move Y", firstSegment.point.hasAxis(Axis.Y));
+        assertEquals("The segment should turn on spindle", SegmentType.SEAM, firstSegment.type);
+        assertEquals("Default spindle speed is 100%", Integer.valueOf(255), firstSegment.getSpindleSpeed());
 
         Segment secondSegment = segmentList.get(1);
-        assertEquals("The second segment should move to safe height", safeHeight, firstSegment.point.getAxis(Axis.Z), 0.1);
-        assertEquals("The second segment should move to first X position", safeHeight, secondSegment.point.getAxis(Axis.X), toolRadius);
-        assertEquals("The second segment should move to first Y position", safeHeight, secondSegment.point.getAxis(Axis.Y), toolRadius);
+        assertEquals("The segment should move to safe height", safeHeight, secondSegment.point.getAxis(Axis.Z), 0.1);
+        assertFalse("The segment should not move X", secondSegment.point.hasAxis(Axis.X));
+        assertFalse("The segment should not move Y", secondSegment.point.hasAxis(Axis.Y));
+
+        Segment thirdSegment = segmentList.get(2);
+        assertFalse("The segment should not include height", thirdSegment.point.hasAxis(Axis.Z));
+        assertEquals("The segment should move to first X position", safeHeight, thirdSegment.point.getAxis(Axis.X), toolRadius);
+        assertEquals("The segment should move to first Y position", safeHeight, thirdSegment.point.getAxis(Axis.Y), toolRadius);
 
         // Make sure that we don't move outside the boundary of the geometry
         segmentList.stream()
@@ -99,14 +103,18 @@ public class PocketToolPathTest {
         List<Segment> segmentList = simplePocket.toGcodePath().getSegments();
 
         Segment firstSegment = segmentList.get(0);
-        assertEquals("The first segment should move to safe height", safeHeight, firstSegment.point.getAxis(Axis.Z), 0.1);
-        assertFalse("The first segment should not move X", firstSegment.point.hasAxis(Axis.X));
-        assertFalse("The first segment should not move Y", firstSegment.point.hasAxis(Axis.Y));
+        assertEquals("The segment should turn on spindle", SegmentType.SEAM, firstSegment.type);
+        assertEquals("Default spindle speed is 100%", Integer.valueOf(255), firstSegment.getSpindleSpeed());
 
         Segment secondSegment = segmentList.get(1);
-        assertEquals("The second segment should move to safe height", safeHeight, firstSegment.point.getAxis(Axis.Z), 0.1);
-        assertEquals("The second segment should move to first X position", safeHeight, secondSegment.point.getAxis(Axis.X), toolRadius);
-        assertEquals("The second segment should move to first Y position", safeHeight, secondSegment.point.getAxis(Axis.Y), toolRadius);
+        assertEquals("The first segment should move to safe height", safeHeight, secondSegment.point.getAxis(Axis.Z), 0.1);
+        assertFalse("The first segment should not move X", secondSegment.point.hasAxis(Axis.X));
+        assertFalse("The first segment should not move Y", secondSegment.point.hasAxis(Axis.Y));
+
+        Segment thirdSegment = segmentList.get(2);
+        assertFalse("The segment should not include height", thirdSegment.point.hasAxis(Axis.Z));
+        assertEquals("The segment should move to first X position", safeHeight, thirdSegment.point.getAxis(Axis.X), toolRadius);
+        assertEquals("The segment should move to first Y position", safeHeight, thirdSegment.point.getAxis(Axis.Y), toolRadius);
 
         // Make sure that we don't move outside the boundary of the geometry
         segmentList.stream()
