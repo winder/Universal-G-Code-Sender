@@ -152,6 +152,44 @@ public class Capabilities {
     }
 
     /**
+     * Returns if the hardware has support for changing the motor wiring. The capability
+     * is defined by the capability {@link CapabilitiesConstants#MOTOR_WIRING}
+     *
+     * @return true if the setup wizard is to display the motor wiring panel
+     */
+    public boolean hasMotorWiring() {
+        return hasCapability(CapabilitiesConstants.MOTOR_WIRING);
+    }
+    
+    /**
+     * Returns if the hardware has support for Step Calibration. The capability
+     * is defined by the capability {@link CapabilitiesConstants#STEP_CALIBRATION}
+     *
+     * @return true if step Calibration is supported
+     */
+    public boolean hasStepCalibration() {
+        return hasCapability(CapabilitiesConstants.STEP_CALIBRATION);
+    }
+    
+    /**
+     * Returns if true if the hardware has the ability to persist 
+     * the Setup Wizard Settings
+     *
+     * @return true if the config can be saved. 
+     */
+    public boolean hasConfigPersistence() {
+        return hasCapability(CapabilitiesConstants.CONFIG_PERSISTANCE);
+    }
+    /**
+     * Returns if true if the hardware has the ability for advanced Homing
+     *
+     * @return true if the machine has advanced homing.
+     */
+    public boolean hasAdvancedHoming() {
+        return hasCapability(CapabilitiesConstants.ADVANCED_HOMING);
+    }
+        
+    /**
      * Returns if the hardware have support for check mode. The capability
      * is defined by the capability {@link CapabilitiesConstants#CHECK_MODE}
      *

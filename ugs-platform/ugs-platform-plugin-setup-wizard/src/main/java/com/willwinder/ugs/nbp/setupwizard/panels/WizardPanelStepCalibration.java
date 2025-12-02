@@ -283,7 +283,8 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     @Override
     public boolean isEnabled() {
         return getBackend().isConnected() &&
-                getBackend().getController().getCapabilities().hasSetupWizardSupport();
+                getBackend().getController().getCapabilities().hasSetupWizardSupport() &&
+                getBackend().getController().getCapabilities().hasStepCalibration();
     }
 
     @Override

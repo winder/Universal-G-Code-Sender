@@ -49,6 +49,24 @@ public class GetBuildInfoCommandTest {
     }
 
     @Test
+    public void getVersionAndOptionsWithRoomark() {
+        GetBuildInfoCommand command = new GetBuildInfoCommand();
+        command.appendResponse("[OPT:VMZHI,18,256]");
+        command.appendResponse("ok");
+
+        GrblVersion version = command.getVersion().orElseThrow(RuntimeException::new);
+        assertEquals(1.1, version.getVersionNumber(), 0.01);
+        assertEquals(Character.valueOf('f'), version.getVersionLetter());
+
+        GrblBuildOptions options = command.getBuildOptions();
+        assertTrue(options.isEnabled(GrblBuildOption.BUILD_INFO_USER_STRING_DISABLED));
+        assertTrue(options.isEnabled(GrblBuildOption.VARIABLE_SPINDLE_ENABLED));
+        assertTrue(options.isEnabled(GrblBuildOption.HOMING_SINGLE_AXIS_COMMAND_ENABLED));
+        assertTrue(options.isEnabled(GrblBuildOption.MIST_COOLANT_ENABLED));
+        assertTrue(options.isEnabled(GrblBuildOption.HOMING_FORCE_ORIGIN_ENABLED));
+    }
+
+    @Test
     public void getBuildOptionsShouldReturnDefinedOptions() {
         GetBuildInfoCommand command = new GetBuildInfoCommand();
         command.appendResponse("[OPT: V]");

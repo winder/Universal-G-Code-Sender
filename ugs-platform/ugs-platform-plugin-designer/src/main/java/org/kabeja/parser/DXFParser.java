@@ -108,7 +108,7 @@ public class DXFParser implements HandlerManager, Handler, Parser, DXFHandler {
         try {
             if ("".equals(encoding)) {
                 BufferedInputStream buf = new BufferedInputStream(input);
-                buf.mark(9000);
+                buf.mark(Integer.MAX_VALUE);
 
                 try {
                     BufferedReader r = new BufferedReader(new InputStreamReader(

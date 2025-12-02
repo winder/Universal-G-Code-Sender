@@ -147,7 +147,9 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     @Override
     public boolean isEnabled() {
         return getBackend().isConnected() &&
-                getBackend().getController().getCapabilities().hasSetupWizardSupport();
+                getBackend().getController().getCapabilities().hasSetupWizardSupport() &&
+                getBackend().getController().getCapabilities().hasMotorWiring();
+        
     }
 
     @Override
