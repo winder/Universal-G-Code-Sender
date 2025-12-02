@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
+    <folder name="Preferences">
+        <folder name="org">
+            <folder name="netbeans">
+                <folder name="modules">
+                    <file name="favorites.properties">
+                        initial-open-done=false
+                    </file>
+                </folder>
+                <folder name="swing">
+                    <folder name="laf">
+                        <file name="flatlaf.properties">
+                            useWindowDecorations=true
+                        </file>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+        <file name="laf.properties">
+            laf=com.formdev.flatlaf.FlatLightLaf
+        </file>
+    </folder>
     <folder name="Editors">
         <attr name="currentFontColorProfile" stringvalue="FlatLaf Light" />
     </folder>
@@ -139,10 +160,17 @@
         </folder>
     </folder>
     <folder name="Windows2">
+        <folder name="Modes">
+            <folder name="explorer">
+                <file name="favorites.wstcref_hidden"/>
+            </folder>
+            <file name="explorer.wsmode_hidden"/>
+        </folder>
         <folder name="Components">
             <!-- ugs deprecated item -->
             <!-- Moved to another package -->
             <file name="ProbeTopComponent.settings_hidden"/>
+            <file name="favorites.settings_hidden"/>
         </folder>
     </folder>
     <folder name="Shortcuts">
