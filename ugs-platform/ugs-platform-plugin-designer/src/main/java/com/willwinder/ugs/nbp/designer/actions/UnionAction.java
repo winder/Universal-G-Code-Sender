@@ -92,10 +92,8 @@ public class UnionAction extends AbstractDesignAction implements SelectionListen
 
         @Override
         public void redo() {
-            Path temporaryPath = new Path();
-            entities.forEach(e -> temporaryPath.append(e.getShape()));
-            Area area = new Area(temporaryPath.getShape());
-
+            Area area = new Area();
+            entities.forEach(e -> area.add(new Area(e.getShape())));
             path = new Path();
             path.append(area);
 

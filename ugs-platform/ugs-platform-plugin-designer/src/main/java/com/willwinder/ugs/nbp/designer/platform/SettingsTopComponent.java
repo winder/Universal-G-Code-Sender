@@ -22,12 +22,12 @@ import com.willwinder.ugs.nbp.designer.gui.selectionsettings.SelectionSettingsPa
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.lib.Mode;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.io.Serial;
 
 /**
@@ -48,7 +48,7 @@ public class SettingsTopComponent extends TopComponent {
         setMinimumSize(new java.awt.Dimension(50, 50));
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new BorderLayout());
-        setDisplayName("Cut settings");
+        setDisplayName(Localization.getString("designer.panel.shape-settings.title"));
     }
 
     public static SettingsTopComponent findInstance() {

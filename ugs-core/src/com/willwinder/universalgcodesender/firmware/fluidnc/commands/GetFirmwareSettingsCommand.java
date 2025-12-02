@@ -19,8 +19,13 @@
 package com.willwinder.universalgcodesender.firmware.fluidnc.commands;
 
 import com.willwinder.universalgcodesender.types.CommandException;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.error.YAMLException;
+import org.snakeyaml.engine.v2.api.Load;
+import org.snakeyaml.engine.v2.api.LoadSettings;
+import org.snakeyaml.engine.v2.exceptions.YamlEngineException;
+import org.snakeyaml.engine.v2.nodes.Tag;
+import org.snakeyaml.engine.v2.resolver.JsonScalarResolver;
+import org.snakeyaml.engine.v2.resolver.ScalarResolver;
+import org.snakeyaml.engine.v2.schema.JsonSchema;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
@@ -28,11 +33,31 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GetFirmwareSettingsCommand extends SystemCommand {
 
+    static class InternalSchema extends JsonSchema {
+        @Override
+        public ScalarResolver getScalarResolver() {
+            return new InternalResolver();
+        }
+    }
+    static class InternalResolver extends JsonScalarResolver {
+        public static final Pattern SIMPLE_FLOAT =
+                Pattern.compile("^(-?(0|[1-9][0-9]*)(\\.[0-9]*)?)$");
+        @Override
+        protected void addImplicitResolvers() {
+            addImplicitResolver(Tag.NULL, EMPTY, null);
+            addImplicitResolver(Tag.BOOL, BOOL, "tf");
+            addImplicitResolver(Tag.INT, INT, "-0123456789");
+            addImplicitResolver(Tag.NULL, NULL, "n\u0000");
+            addImplicitResolver(Tag.ENV_TAG, ENV_FORMAT, "$");
+            addImplicitResolver(Tag.FLOAT, SIMPLE_FLOAT, "-0123456789.");
+        }
+    }
     public GetFirmwareSettingsCommand() {
         super("$Config/Dump");
     }
@@ -49,10 +74,17 @@ public class GetFirmwareSettingsCommand extends SystemCommand {
                 .collect(Collectors.joining("\n"));
 
         try {
-            Yaml yaml = new Yaml();
-            Map<String, Object> settingsTree = yaml.load(response);
+            Load load = new Load(LoadSettings.builder()
+                    .setAllowDuplicateKeys(true)
+                    .setAllowNonScalarKeys(false)
+                    .setAllowRecursiveKeys(false)
+                    .setCodePointLimit(1_000_000) // ~1 MB
+                    .setMaxAliasesForCollections(10)
+                    .setSchema(new InternalSchema())
+                    .build());
+            Map<String, Object> settingsTree = (Map<String, Object>) load.loadFromString(response);
             return flatten(settingsTree);
-        } catch (YAMLException e) {
+        } catch (YamlEngineException e) {
             throw new CommandException(e);
         }
     }

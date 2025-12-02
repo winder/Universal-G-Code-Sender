@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2024 Albert Giro Quer
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,27 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.core.lifecycle;
+package com.willwinder.ugs.nbp.designer.gui.selectionsettings.settingspanels;
 
-import org.openide.modules.ModuleInstall;
-import org.openide.util.NbPreferences;
+import java.beans.PropertyChangeListener;
 
-import java.util.prefs.Preferences;
-
-/**
- * Sets the look and feel (if not already set)
+/*
+ * @Author giro-dev
  */
-public class LookAndFeelInstaller extends ModuleInstall {
-
-    @Override
-    public void validate() {
-        setLaF();
-    }
-
-    private void setLaF() {
-        Preferences prefs = NbPreferences.root().node("laf");
-        if (prefs.get("laf", "").isBlank()) {
-            prefs.put("laf", "com.formdev.flatlaf.FlatLightLaf");
-        }
-    }
+public record ComponentWithListener(EntitySettingsPanel component, PropertyChangeListener listener) {
 }

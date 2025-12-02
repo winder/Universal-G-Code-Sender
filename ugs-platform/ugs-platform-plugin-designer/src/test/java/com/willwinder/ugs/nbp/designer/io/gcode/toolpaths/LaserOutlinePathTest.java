@@ -19,6 +19,7 @@ public class LaserOutlinePathTest {
         rectangle.setFeedRate(100);
         rectangle.setSpindleSpeed(100);
         rectangle.setSize(new Size(10, 10));
+        rectangle.setPasses(0);
 
         Settings settings = new Settings();
         settings.setMaxSpindleSpeed(10000);
@@ -30,9 +31,10 @@ public class LaserOutlinePathTest {
 
         List<Segment> segments = gcodePath.getSegments();
 
-        assertEquals(SegmentType.SEAM, segments.get(0).type);
-        assertNull(segments.get(0).point);
-        assertEquals(10000, segments.get(0).getSpindleSpeed(), 0.01);
+        Segment segment = segments.get(0);
+        assertEquals(SegmentType.SEAM, segment.type);
+        assertNull(segment.point);
+        assertEquals(10000, segment.getSpindleSpeed(), 0.01);
 
         assertEquals(1, segments.size());
     }
@@ -54,36 +56,44 @@ public class LaserOutlinePathTest {
         GcodePath gcodePath = toolPath.toGcodePath();
 
         List<Segment> segments = gcodePath.getSegments();
+        int segmentIndex = 0;
 
         // Start spindle
-        assertEquals(SegmentType.SEAM, segments.get(0).type);
-        assertNull(segments.get(0).point);
-        assertEquals(5000, segments.get(0).getSpindleSpeed(), 0.01);
-        assertEquals(500, segments.get(0).getFeedSpeed(), 0.01);
+        Segment segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.SEAM, segment.type);
+        assertNull(segment.point);
+        assertEquals(5000, segment.getSpindleSpeed(), 0.01);
+        assertEquals(500, segment.getFeedSpeed(), 0.01);
 
-        assertEquals(SegmentType.MOVE, segments.get(1).type);
-        assertEquals(0, segments.get(1).getPoint().getX(), 0.01);
-        assertEquals(0, segments.get(1).getPoint().getY(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertEquals(0, segment.getPoint().getX(), 0.01);
+        assertEquals(0, segment.getPoint().getY(), 0.01);
 
-        assertEquals(SegmentType.LINE, segments.get(2).type);
-        assertEquals(0, segments.get(2).getPoint().getX(), 0.01);
-        assertEquals(0, segments.get(2).getPoint().getY(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertEquals(0, segment.getPoint().getX(), 0.01);
+        assertEquals(0, segment.getPoint().getY(), 0.01);
 
-        assertEquals(SegmentType.LINE, segments.get(3).type);
-        assertEquals(0, segments.get(3).getPoint().getX(), 0.01);
-        assertEquals(10, segments.get(3).getPoint().getY(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertEquals(0, segment.getPoint().getX(), 0.01);
+        assertEquals(10, segment.getPoint().getY(), 0.01);
 
-        assertEquals(SegmentType.LINE, segments.get(4).type);
-        assertEquals(10, segments.get(4).getPoint().getX(), 0.01);
-        assertEquals(10, segments.get(4).getPoint().getY(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertEquals(10, segment.getPoint().getX(), 0.01);
+        assertEquals(10, segment.getPoint().getY(), 0.01);
 
-        assertEquals(SegmentType.LINE, segments.get(5).type);
-        assertEquals(10, segments.get(5).getPoint().getX(), 0.01);
-        assertEquals(0, segments.get(5).getPoint().getY(), 0.01);
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertEquals(10, segment.getPoint().getX(), 0.01);
+        assertEquals(0, segment.getPoint().getY(), 0.01);
 
-        assertEquals(SegmentType.LINE, segments.get(6).type);
-        assertEquals(0, segments.get(6).getPoint().getX(), 0.01);
-        assertEquals(0, segments.get(6).getPoint().getY(), 0.01);
+        segment = segments.get(segmentIndex);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertEquals(0, segment.getPoint().getX(), 0.01);
+        assertEquals(0, segment.getPoint().getY(), 0.01);
 
         assertEquals(7, segments.size());
     }

@@ -26,6 +26,8 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetFirmwareSettingsCommand;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetCurrentConfigFilename;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SetCurrentConfigFilename;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Motor;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -58,6 +60,7 @@ public class FluidNCSettings implements IFirmwareSettings {
     private final Set<IFirmwareSettingsListener> listeners = Collections.synchronizedSet(new HashSet<>());
     
     public final static String NO_PIN = "NO_PIN";
+    
     public FluidNCSettings(IController controller) {
         this.controller = controller;
     }
@@ -91,26 +94,15 @@ public class FluidNCSettings implements IFirmwareSettings {
     
     @Override
     public void saveFirmwareSettings() throws FirmwareSettingsException {
-        try{
-            FluidNCCommand cmdGetCfg = new FluidNCCommand("$Config/Filename");
-            ControllerUtils.sendAndWaitForCompletion(controller, cmdGetCfg);
-            String configToUse=cmdGetCfg.getResponse();
-            if (configToUse != null) {
-                String[] split = configToUse.split("\n");
-                if (split[0].startsWith("$Config/Filename=")) {
-                    configToUse=split[0].split("=")[1];
-                }
-            } else {
-                configToUse = "config.yaml";
-            }
-            FluidNCCommand cmdPersist = new FluidNCCommand("$CD="+configToUse);
-        
+        try{            
+            FluidNCCommand cmdPersist = new FluidNCCommand("$CD="+this.getConfigFilename());
             ControllerUtils.sendAndWaitForCompletion(controller, cmdPersist);  
         } catch (Exception e) {
             throw new FirmwareSettingsException("Couldn't save settings to the controller", e);
         }
                 
     }
+    
     @Override
     public FirmwareSetting setValue(String key, String value) throws FirmwareSettingsException {
         try {
@@ -130,7 +122,25 @@ public class FluidNCSettings implements IFirmwareSettings {
 
         return getSetting(key).orElse(null);
     }
-
+    @Override
+    public String getConfigFilename() throws FirmwareSettingsException {
+        try {
+            GetCurrentConfigFilename cmd = new GetCurrentConfigFilename();
+            ControllerUtils.sendAndWaitForCompletion(controller, cmd);
+            return cmd.GetFilename();
+        } catch ( Exception e) {
+            throw new FirmwareSettingsException("Couldn't get Config Filename", e);    
+        }        
+    }
+    @Override
+    public void setConfigFilename(String newFilename) throws FirmwareSettingsException {
+        try {
+            ControllerUtils.sendAndWaitForCompletion(controller, new SetCurrentConfigFilename(newFilename));            
+        } catch ( Exception e) {
+            throw new FirmwareSettingsException("Couldn't get Config Filename", e);    
+        }        
+    }    
+    
     @Override
     public void addListener(IFirmwareSettingsListener listener) {
         synchronized (listeners) {
@@ -411,5 +421,10 @@ public class FluidNCSettings implements IFirmwareSettings {
                 .map(SpeedMap::getMax)
                 .findFirst()
                 .orElseThrow(() -> new FirmwareSettingsException("Could not find setting for max speed"));
+    }
+    
+    @Override
+    public void refreshFirmwareSettings() throws FirmwareSettingsException, CommandException {
+        this.refresh();
     }
 }

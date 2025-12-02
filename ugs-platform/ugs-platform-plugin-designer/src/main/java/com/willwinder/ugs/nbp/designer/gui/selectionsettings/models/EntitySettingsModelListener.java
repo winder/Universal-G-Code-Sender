@@ -16,10 +16,18 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.gui.selectionsettings;
+package com.willwinder.ugs.nbp.designer.gui.selectionsettings.models;
 
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 
-public interface FieldEventListener {
-    void onFieldUpdate(EntitySetting entitySetting, Object object);
+/**
+ * Listener interface for entity settings model changes
+ */
+public interface EntitySettingsModelListener {
+    /**
+     * Called when a setting in the model is updated
+     *
+     * @param setting the setting that was changed
+     */
+    void onModelUpdate(EntitySetting setting);
 }

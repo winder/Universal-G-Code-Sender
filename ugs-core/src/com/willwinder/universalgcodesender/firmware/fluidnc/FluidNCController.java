@@ -39,6 +39,7 @@ import com.willwinder.universalgcodesender.firmware.IOverrideManager;
 import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.DISABLE_ECHO_COMMAND;
 import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.GRBL_COMPABILITY_VERSION;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.DetectEchoCommand;
+import com.willwinder.universalgcodesender.firmware.fluidnc.commands.DetectHardLimitCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetAlarmCodesCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetBuildInfoCommand;
@@ -58,6 +59,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
+import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
@@ -224,7 +226,20 @@ public class FluidNCController implements IController, ICommunicatorListener {
             sendCommandImmediately(new FluidNCCommand(GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND));
         }
     }
-
+    
+    @Override
+    public void issueHardReset() throws Exception {
+        messageService.dispatchMessage(MessageType.INFO, "*** Resetting controller\n");
+        isInitialized = false;
+        positionPollTimer.stop();
+        setControllerState(ControllerState.CONNECTING);
+        resetBuffers();
+        communicator.cancelSend();
+        SystemCommand hardReset = new SystemCommand("$System/Control=RESTART");
+        sendAndWaitForCompletion(this, hardReset);
+        resetBuffers();        
+    }
+    
     @Override
     public void issueSoftReset() throws Exception {
         messageService.dispatchMessage(MessageType.INFO, "*** Resetting controller\n");
@@ -530,7 +545,8 @@ public class FluidNCController implements IController, ICommunicatorListener {
         ControllerState state = this.controllerStatus == null ? ControllerState.DISCONNECTED : this.controllerStatus.getState();
         return ControllerUtils.getCommunicatorState(state, this, communicator);
     }
-
+    
+    
     private void initializeController() {
         positionPollTimer.stop();
         gcodeParser.reset();
@@ -540,7 +556,9 @@ public class FluidNCController implements IController, ICommunicatorListener {
         try {
             if (!FluidNCUtils.isControllerResponsive(this, messageService)) {
                 messageService.dispatchMessage(MessageType.INFO, "*** Device is in a holding or alarm state and needs to be reset\n");
+                Thread.sleep(200);
                 issueSoftReset();
+             
                 return;
             }
             disableEcho();
@@ -553,6 +571,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
 
             messageService.dispatchMessage(MessageType.INFO, String.format("*** Connected to %s\n", getFirmwareVersion()));
             requestStatusReport();
+            
             positionPollTimer.start();
             isInitialized = true;
         } catch (Exception e) {
@@ -592,6 +611,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
         capabilities.addCapability(CapabilitiesConstants.SOFT_LIMITS);
         capabilities.addCapability(CapabilitiesConstants.CONFIG_PERSISTANCE);
         capabilities.addCapability(CapabilitiesConstants.PER_AXIS_ENDSTOP_INVERSION);
+
 //        capabilities.addCapability(CapabilitiesConstants.PROBE_SETUP);      // let user configure which pin us used for probe.
 //        capabilities.addCapability(CapabilitiesConstants.LIMIT_PIN_SETUP);  // let user configure limit pins positions.
         capabilities.addCapability(CapabilitiesConstants.ADVANCED_HOMING);  // setup pulloff_mm  / mpos_mm    
