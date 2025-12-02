@@ -5,8 +5,9 @@
         <folder name="org">
             <folder name="netbeans">
                 <folder name="modules">
+                    <!-- Prevent the favorites window to open -->
                     <file name="favorites.properties">
-                        initial-open-done=false
+                        initial-open-done=true
                     </file>
                 </folder>
                 <folder name="swing">
@@ -160,17 +161,10 @@
         </folder>
     </folder>
     <folder name="Windows2">
-        <folder name="Modes">
-            <folder name="explorer">
-                <file name="favorites.wstcref_hidden"/>
-            </folder>
-            <file name="explorer.wsmode_hidden"/>
-        </folder>
         <folder name="Components">
             <!-- ugs deprecated item -->
             <!-- Moved to another package -->
             <file name="ProbeTopComponent.settings_hidden"/>
-            <file name="favorites.settings_hidden"/>
         </folder>
     </folder>
     <folder name="Shortcuts">
