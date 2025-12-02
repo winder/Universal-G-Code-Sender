@@ -34,15 +34,6 @@
     </developer>
   </developers>
 
-  <repositories>
-	  <repository>
-	    <id>jogamp-remote</id>
-	    <name>jogamp test mirror</name>
-	    <url>https://jogamp.org/deployment/maven/</url>
-	    <layout>default</layout>
-	  </repository>
-  </repositories>
-
   <properties>
     <revision>2.0</revision>
     <changelist>-SNAPSHOT</changelist>
@@ -52,8 +43,8 @@
     <jersey.version>3.1.5</jersey.version>
     <swagger.version>2.2.22</swagger.version>
     <swagger-ui.version>5.17.14</swagger-ui.version>
-    <gluegen.version>2.5.0</gluegen.version>
-    <jogl.version>2.5.0</jogl.version>
+    <gluegen.version>2.6.0</gluegen.version>
+    <jogl.version>2.6.0</jogl.version>
     <miglayout.version>11.4.2</miglayout.version>
     <guava.version>33.0.0-jre</guava.version>
     <jserialcomm.version>2.11.0</jserialcomm.version>
@@ -69,9 +60,9 @@
     <ugs.surefire.version>3.0.0-M5</ugs.surefire.version>
     <download-maven-plugin.version>1.3.0</download-maven-plugin.version>
     <mockito.version>5.12.0</mockito.version>
-    <batik.version>1.17</batik.version>
-    <jts.version>1.19.0</jts.version>
-    <netbeans.version>RELEASE230</netbeans.version>
+    <batik.version>1.19</batik.version>
+    <jts.version>1.20.0</jts.version>
+    <netbeans.version>RELEASE280</netbeans.version>
     <ugs.maven-resources-plugin.version>3.1.0</ugs.maven-resources-plugin.version>
     <ugs.maven-jar-plugin.version>3.2.0</ugs.maven-jar-plugin.version>
     <ugs.flatten-maven-plugin.version>1.2.2</ugs.flatten-maven-plugin.version>
