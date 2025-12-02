@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2024 Will Winder
+    Copyright 2021-2025 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -50,6 +50,7 @@ public class EntitiesTree extends JTree implements TreeSelectionListener, Select
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setCellRenderer(new EntityCellRenderer());
         enableDragAndDrop();
+        setRowHeight(0);
 
         expandRow(0);
         ((EntityTreeModel) getModel()).notifyTreeStructureChanged(controller.getDrawing().getRootEntity());
