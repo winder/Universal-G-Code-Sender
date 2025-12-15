@@ -28,6 +28,7 @@ import com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction;
 import com.willwinder.ugs.nbp.designer.actions.NewAction;
 import com.willwinder.ugs.nbp.designer.actions.OpenAction;
 import com.willwinder.ugs.nbp.designer.actions.PasteAction;
+import com.willwinder.ugs.nbp.designer.actions.PrintDesignAction;
 import com.willwinder.ugs.nbp.designer.actions.QuitAction;
 import com.willwinder.ugs.nbp.designer.actions.RedoAction;
 import com.willwinder.ugs.nbp.designer.actions.SaveAction;
@@ -60,6 +61,7 @@ public class MainMenu extends JMenuBar {
         JMenuItem save = new JMenuItem(new SaveAction(controller));
         JMenuItem export = new JMenuItem(new ExportPngAction(controller));
         JMenuItem exportGcode = new JMenuItem(new ExportGcodeAction());
+        JMenuItem printDesign = new JMenuItem(new PrintDesignAction());
         JMenuItem quit = new JMenuItem(new QuitAction());
 
         JMenuItem undo = new JMenuItem(new UndoAction());
@@ -92,6 +94,7 @@ public class MainMenu extends JMenuBar {
         delete.setAccelerator(Utilities.stringToKey("DELETE"));
         copy.setAccelerator(Utilities.stringToKey("D-C"));
         paste.setAccelerator(Utilities.stringToKey("D-V"));
+        printDesign.setAccelerator(Utilities.stringToKey("D-P"));
 
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(newdrawing);
@@ -100,6 +103,8 @@ public class MainMenu extends JMenuBar {
         fileMenu.addSeparator();
         fileMenu.add(export);
         fileMenu.add(exportGcode);
+        fileMenu.addSeparator();
+        fileMenu.add(printDesign);
         fileMenu.addSeparator();
         fileMenu.add(quit);
 

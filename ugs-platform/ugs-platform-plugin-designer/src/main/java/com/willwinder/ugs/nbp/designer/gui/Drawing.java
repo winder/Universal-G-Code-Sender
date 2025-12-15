@@ -137,10 +137,33 @@ public class Drawing extends JPanel implements ISnapToGridListener {
     }
 
     public BufferedImage getImage() {
-        BufferedImage bi = new BufferedImage(getPreferredSize().width,
-                getPreferredSize().height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage bi = new BufferedImage((int)Math.ceil(getPreferredSize().width) ,
+               (int)Math.ceil(getPreferredSize().height) ,
+                BufferedImage.TYPE_INT_RGB);
+        
         Graphics g = bi.createGraphics();
-        this.print(g);
+        g.setClip(0, 0,bi.getWidth(),bi.getHeight());
+ 
+        Graphics2D g2 = (Graphics2D) g;
+        AffineTransform previousTransform = g2.getTransform();
+
+        AffineTransform affineTransform = new AffineTransform(g2.getTransform());
+        AffineTransform midForm = AffineTransform.getScaleInstance(1, -1);
+        midForm.translate(0, -getPreferredSize().height);
+        midForm.scale(scale, scale);
+        affineTransform.concatenate(midForm);
+        
+        g2.setTransform(affineTransform);
+
+        RenderingHints rh = ((Graphics2D) g).getRenderingHints();
+        rh.put(KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        rh.put(KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        rh.put(KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        rh.put(KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2.setRenderingHints(rh);
+        globalRoot.render(g2, this);
+        g2.setTransform(previousTransform);
+        
         return bi;
     }
 
