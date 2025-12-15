@@ -47,7 +47,6 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private final List<ComponentWithListener> activeComponents = new ArrayList<>();
 
     // New layered model architecture
-    private final LayeredFieldActionDispatcher fieldDispatcher = new LayeredFieldActionDispatcher();
     private TransformSettingsModel currentModel;
 
     public SelectionSettingsPanel(Controller controller) {
@@ -113,15 +112,6 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
         currentModel = SettingsModelFactory.createModelForSelection(selectionGroup);
         currentModel.addListener(this);
-
-        fieldDispatcher.updateModel(selectionGroup);
-    }
-
-    /**
-     * Gets the current layered model
-     */
-    public TransformSettingsModel getCurrentModel() {
-        return currentModel;
     }
 
     @Override
@@ -187,8 +177,6 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             currentModel.removeListener(this);
             currentModel = null;
         }
-
-        fieldDispatcher.release();
 
         if (controller != null) {
             controller.getSelectionManager().removeSelectionListener(this);

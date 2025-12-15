@@ -171,23 +171,6 @@ public class Group extends EntityGroup implements Cuttable {
         });
     }
 
-
-    @Override
-    public int getLeadOutPercent() {
-        return getCuttableStream()
-                .mapToInt(Cuttable::getLeadOutPercent)
-                .max()
-                .orElse(0);
-    }
-
-    @Override
-    public void setLeadOutPercent(int value) {
-        getChildren().forEach(child -> {
-            if (child instanceof Cuttable cuttable) {
-                cuttable.setLeadOutPercent(value);
-            }
-        });
-    }
     @Override
     public boolean getIncludeInExport() {
         for (Entity child : getChildren()) {
@@ -198,6 +181,23 @@ public class Group extends EntityGroup implements Cuttable {
             }
         }
         return false;
+    }
+
+    @Override
+    public void setToolPathDirection(double toolPathDirection) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setToolPathDirection(toolPathDirection);
+            }
+        });
+    }
+
+    @Override
+    public double getToolPathDirection() {
+        return getCuttableStream()
+                .mapToDouble(Cuttable::getToolPathDirection)
+                .max()
+                .orElse(0);
     }
 
     @Override
@@ -295,14 +295,14 @@ public class Group extends EntityGroup implements Cuttable {
             result.remove(EntitySetting.LEAD_IN_PERCENT);
         }
 
-        if (getCuttableStream().map(Cuttable::getLeadOutPercent).distinct().toList().size() > 1) {
-            result = new ArrayList<>(result);
-            result.remove(EntitySetting.LEAD_OUT_PERCENT);
-        }
-        
         if (getCuttableStream().map(Cuttable::getIncludeInExport).distinct().toList().size() > 1) {
             result = new ArrayList<>(result);
             result.remove(EntitySetting.INCLUDE_IN_EXPORT);
+        }
+
+        if (getCuttableStream().map(Cuttable::getIncludeInExport).distinct().toList().size() > 1) {
+            result = new ArrayList<>(result);
+            result.remove(EntitySetting.TOOL_PATH_DIRECTION);
         }
         
         return result;

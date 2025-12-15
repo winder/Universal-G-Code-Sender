@@ -54,7 +54,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     public static final String PROP_PASSES = EntitySetting.PASSES.getPropertyName();
     public static final String PROP_FEED_RATE = EntitySetting.FEED_RATE.getPropertyName();
     public static final String PROP_LEAD_IN_PERCENT = EntitySetting.LEAD_IN_PERCENT.getPropertyName();
-    public static final String PROP_LEAD_OUT_PERCENT = EntitySetting.LEAD_OUT_PERCENT.getPropertyName();
+    public static final String PROP_TOOL_PATH_DIRECTION = EntitySetting.TOOL_PATH_DIRECTION.getPropertyName();
     public static final String PROP_INCLUDE_IN_EXPORT = EntitySetting.INCLUDE_IN_EXPORT.getPropertyName();
 
     private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";
@@ -71,8 +71,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     private JSlider passesSlider;
     private UnitSpinner feedRateSpinner;
     private JSlider leadInPercentSlider;
-    private JSlider leadOutPercentSlider;
     private JCheckBox includeInExport;
+    private UnitSpinner toolPathDirectionSpinner;
 
     private final Map<EntitySetting, List<JComponent>> settingToComponentMap = new EnumMap<>(EntitySetting.class);
 
@@ -95,7 +95,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         passesSlider = createSlider(0, 10, 1, 1, 5);
 
         leadInPercentSlider = createSlider(0, 300, 0, 50, 100);
-        leadOutPercentSlider = createSlider(0, 300, 0, 50, 100);
+        toolPathDirectionSpinner = new UnitSpinner(0, TextFieldUnit.DEGREE, 0d, 360d, 5d);
 
         includeInExport = new JCheckBox();
         includeInExport.setSelected(true);
@@ -121,8 +121,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         addLabeledComponent(EntitySetting.SPINDLE_SPEED, "Spindle Speed", spindleSpeedSpinner);
         addLabeledComponent(EntitySetting.FEED_RATE, "Feed Rate", feedRateSpinner);
         addLabeledSlider(EntitySetting.PASSES, "Passes", passesSlider);
-        addLabeledSlider(EntitySetting.LEAD_IN_PERCENT, "Lead In %", leadInPercentSlider);
-        addLabeledSlider(EntitySetting.LEAD_OUT_PERCENT, "Lead Out %", leadOutPercentSlider);
+        addLabeledSlider(EntitySetting.LEAD_IN_PERCENT, "Lead In/Out %", leadInPercentSlider);
+        addLabeledComponent(EntitySetting.TOOL_PATH_DIRECTION, "Tool Path Direction", toolPathDirectionSpinner);
         addLabeledComponent(EntitySetting.INCLUDE_IN_EXPORT, "Include in Export", includeInExport);
     }
 
@@ -152,7 +152,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         feedRateSpinner.addChangeListener(e -> firePropertyChange(PROP_FEED_RATE, ((Double)feedRateSpinner.getValue()).intValue()));
         passesSlider.addChangeListener(e -> firePropertyChange(PROP_PASSES, passesSlider.getValue()));
         leadInPercentSlider.addChangeListener(e -> firePropertyChange(PROP_LEAD_IN_PERCENT, leadInPercentSlider.getValue()));
-        leadOutPercentSlider.addChangeListener(e -> firePropertyChange(PROP_LEAD_OUT_PERCENT, leadOutPercentSlider.getValue()));
+        toolPathDirectionSpinner.addChangeListener(e -> firePropertyChange(PROP_TOOL_PATH_DIRECTION, toolPathDirectionSpinner.getValue()));
         includeInExport.addActionListener(e -> firePropertyChange(PROP_INCLUDE_IN_EXPORT, includeInExport.isSelected()));
     }
 
@@ -235,7 +235,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
                 feedRateSpinner.setValue((double) firstCuttable.getFeedRate());
                 passesSlider.setValue(firstCuttable.getPasses());
                 leadInPercentSlider.setValue(firstCuttable.getLeadInPercent());
-                leadOutPercentSlider.setValue(firstCuttable.getLeadOutPercent());
+                toolPathDirectionSpinner.setValue(firstCuttable.getToolPathDirection());
                 updateLabelsForCutType(firstCuttable.getCutType());
             } finally {
                 updating = false;
@@ -275,8 +275,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
             cuttable.setPasses((Integer) newValue);
         } else if (PROP_LEAD_IN_PERCENT.equals(propertyName)) {
             cuttable.setLeadInPercent((Integer) newValue);
-        } else if (PROP_LEAD_OUT_PERCENT.equals(propertyName)) {
-            cuttable.setLeadOutPercent((Integer) newValue);
+        } else if (PROP_TOOL_PATH_DIRECTION.equals(propertyName)) {
+            cuttable.setToolPathDirection((Double) newValue);
         }
     }
 

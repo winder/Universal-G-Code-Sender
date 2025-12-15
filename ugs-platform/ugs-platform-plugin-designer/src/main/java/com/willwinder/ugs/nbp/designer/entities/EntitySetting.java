@@ -44,8 +44,8 @@ public enum EntitySetting {
     PASSES("Passes", "passes"),
     FEED_RATE("Feed rate", "feedRate"),
     LEAD_IN_PERCENT("Lead in percent", "leadInPercent"),
-    LEAD_OUT_PERCENT("Lead out percent", "leadOutPercent"),
-    INCLUDE_IN_EXPORT("Include in export", "includeInExport");
+    INCLUDE_IN_EXPORT("Include in export", "includeInExport"),
+    TOOL_PATH_DIRECTION("Tool path direction", "toolPathDirection"),;
 
     public static final List<EntitySetting> TRANSFORMATION_SETTINGS = List.of(
             EntitySetting.POSITION_X,
@@ -72,8 +72,8 @@ public enum EntitySetting {
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.FEED_RATE,
             EntitySetting.LEAD_IN_PERCENT,
-            EntitySetting.LEAD_OUT_PERCENT,
-            EntitySetting.INCLUDE_IN_EXPORT);
+            EntitySetting.INCLUDE_IN_EXPORT,
+            EntitySetting.TOOL_PATH_DIRECTION);
 
     public static final List<EntitySetting> DEFAULT_LASER_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,

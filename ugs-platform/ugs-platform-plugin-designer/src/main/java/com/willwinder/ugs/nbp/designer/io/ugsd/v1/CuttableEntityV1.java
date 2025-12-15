@@ -53,7 +53,7 @@ public class CuttableEntityV1 extends EntityV1 {
     private int leadInPercent;
 
     @Expose
-    private int leadOutPercent;
+    private double toolPathDirection;
 
     @Expose
     private AffineTransform transform;
@@ -106,8 +106,12 @@ public class CuttableEntityV1 extends EntityV1 {
         this.leadInPercent = leadInPercent;
     }
 
-    public void setLeadOutPercent(int leadOutPercent) {
-        this.leadOutPercent = leadOutPercent;
+    public double getToolPathDirection() {
+        return toolPathDirection;
+    }
+
+    public void setToolPathDirection(double toolPathDirection) {
+        this.toolPathDirection = toolPathDirection;
     }
 
     @Override
@@ -126,7 +130,7 @@ public class CuttableEntityV1 extends EntityV1 {
             cuttable.setPasses(passes);
             cuttable.setFeedRate(feedRate);
             cuttable.setLeadInPercent(leadInPercent);
-            cuttable.setLeadOutPercent(leadOutPercent);
+            cuttable.setToolPathDirection(toolPathDirection);
         }
     }
 

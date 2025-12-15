@@ -121,17 +121,6 @@ public class CuttableSettingsModel extends TransformSettingsModel {
         }
     }
 
-    public int getLeadOutPercent() {
-        return leadOutPercent;
-    }
-
-    public void setLeadOutPercent(int leadOutPercent) {
-        if (valuesNotEquals(this.leadOutPercent, leadOutPercent)) {
-            this.leadOutPercent = leadOutPercent;
-            notifyListeners(EntitySetting.LEAD_OUT_PERCENT);
-        }
-    }
-
     public boolean getIncludeInExport() {
         return includeInExport;
     }
@@ -160,7 +149,6 @@ public class CuttableSettingsModel extends TransformSettingsModel {
         setSpindleSpeed(100);
         setFeedRate(getDefaultFeedRate());
         setLeadInPercent(0);
-        setLeadOutPercent(0);
         setPasses(1);
         setIncludeInExport(true);
     }
@@ -197,10 +185,6 @@ public class CuttableSettingsModel extends TransformSettingsModel {
             setLeadInPercent(selectionGroup.getLeadInPercent());
         }
 
-        if (selectionGroup.getSettings().contains(EntitySetting.LEAD_OUT_PERCENT)) {
-            setLeadOutPercent(selectionGroup.getLeadOutPercent());
-        }
-
         if (selectionGroup.getSettings().contains(EntitySetting.INCLUDE_IN_EXPORT)) {
             setIncludeInExport(selectionGroup.getIncludeInExport());
         }
@@ -215,7 +199,6 @@ public class CuttableSettingsModel extends TransformSettingsModel {
             case PASSES -> getPasses();
             case FEED_RATE -> getFeedRate();
             case LEAD_IN_PERCENT -> getLeadInPercent();
-            case LEAD_OUT_PERCENT -> getLeadOutPercent();
             case INCLUDE_IN_EXPORT -> getIncludeInExport();
             default -> super.getValueFor(setting);
         };
@@ -230,7 +213,6 @@ public class CuttableSettingsModel extends TransformSettingsModel {
             case PASSES -> setPasses((Integer) newValue);
             case FEED_RATE -> setFeedRate((Integer) newValue);
             case LEAD_IN_PERCENT -> setLeadInPercent((Integer) newValue);
-            case LEAD_OUT_PERCENT -> setLeadOutPercent((Integer) newValue);
             case INCLUDE_IN_EXPORT -> setIncludeInExport((Boolean) newValue);
             default -> super.updateValueFor(setting, newValue);
         }

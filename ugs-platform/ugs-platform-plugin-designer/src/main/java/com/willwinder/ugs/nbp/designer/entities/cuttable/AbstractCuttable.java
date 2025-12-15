@@ -33,6 +33,7 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
@@ -48,12 +49,12 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private double targetDepth;
     private double startDepth;
     private int leadInPercent;
-    private int leadOutPercent;
     private int spindleSpeed;
     private int passes;
     private int feedRate;
     private boolean isHidden = false;
     private boolean includeInExport = true;
+    private double toolPathDirection;
 
     protected AbstractCuttable() {
         this(0, 0);
@@ -71,6 +72,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         spindleSpeed = 100;
         passes = 1;
         includeInExport = true;
+        toolPathDirection = 0;
     }
 
     @Override
@@ -150,18 +152,6 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         return leadInPercent;
     }
 
-
-    @Override
-    public void setLeadOutPercent(int percent) {
-        this.leadOutPercent = percent;
-        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
-    }
-
-    @Override
-    public int getLeadOutPercent() {
-        return leadOutPercent;
-    }
-
     @Override
     public boolean isWithin(Point2D point) {
         if (cutType != CutType.SURFACE) {
@@ -194,9 +184,17 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             graphics.setColor(getCutColor());
             graphics.fill(surfacingShape);
             drawShape(graphics, dashedStroke, Colors.SHAPE_HINT, surfacingShape);
-
             graphics.setStroke(new BasicStroke(strokeWidth));
             graphics.draw(shape);
+
+            // Draw surfacing direction arrow
+            graphics.setColor(Colors.CONTROL_BORDER);
+            Rectangle2D bounds = surfacingShape.getBounds2D();
+            double cx = bounds.getCenterX();
+            double cy = bounds.getCenterY();
+            double angleDeg = getToolPathDirection();
+            double arrowLength = Math.min(shape.getBounds2D().getWidth(), shape.getBounds2D().getHeight());
+            drawArrow(drawing, graphics, cx, cy, angleDeg, arrowLength);
         } else if (getCutType() == CutType.INSIDE_PATH || getCutType() == CutType.ON_PATH || getCutType() == CutType.OUTSIDE_PATH) {
             drawShape(graphics, new BasicStroke(strokeWidth), getCutColor(), shape);
         } else if (getCutType() == CutType.LASER_ON_PATH) {
@@ -218,16 +216,58 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         }
     }
 
+    private void drawArrow(Drawing drawing, Graphics2D g, double cx, double cy, double angleDeg, double length) {
+        double angle = Math.toRadians(angleDeg);
+        double half = length / 2.0;
+
+        // Arrow line
+        double x1 = cx - Math.cos(angle) * half;
+        double y1 = cy + Math.sin(angle) * half;
+        double x2 = cx + Math.cos(angle) * half;
+        double y2 = cy - Math.sin(angle) * half;
+
+        // Arrow head
+        double headSize = length * 0.2;
+        double xb = x2 - Math.cos(angle) * headSize;
+        double yb = y2 + Math.sin(angle) * headSize;
+
+        float strokeWidth = 1.2f / (float) drawing.getScale();
+        float dashWidth = 2f / (float) drawing.getScale();
+        BasicStroke dashedStroke = new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1,
+                new float[]{dashWidth, dashWidth}, 0);
+
+        g.setStroke(dashedStroke);
+
+        // Draw shaft
+        g.draw(new Line2D.Double(x1, y1, xb, yb));
+
+        // Draw arrow head
+        double angleLeft = angle + Math.toRadians(150);
+        double angleRight = angle - Math.toRadians(150);
+
+        double xLeft = x2 + Math.cos(angleLeft) * headSize;
+        double yLeft = y2 - Math.sin(angleLeft) * headSize;
+
+        double xRight = x2 + Math.cos(angleRight) * headSize;
+        double yRight = y2 - Math.sin(angleRight) * headSize;
+
+        Path2D head = new Path2D.Double();
+        head.moveTo(x2, y2);      // tip
+        head.lineTo(xLeft, yLeft);
+        head.lineTo(xRight, yRight);
+        head.closePath();
+        g.draw(head);
+    }
+
     private Shape getBufferedShape(double leadInMillimeters, double leadOutMillimeters) {
         Rectangle2D shape = getShape().getBounds2D();
-        shape.setFrame(shape.getX() - leadInMillimeters, shape.getY(), shape.getWidth() + leadInMillimeters + leadOutMillimeters, shape.getHeight());
+        shape.setFrame(shape.getX() - leadInMillimeters, shape.getY() - leadInMillimeters, shape.getWidth() + leadInMillimeters + leadOutMillimeters, shape.getHeight() + leadInMillimeters + leadOutMillimeters);
         return new Area(shape);
     }
 
     private Shape getSurfacingShape() {
         double leadInMillimeters = ControllerFactory.getController().getSettings().getToolDiameter() * ((double) getLeadInPercent() / 100d);
-        double leadOutMillimeters = ControllerFactory.getController().getSettings().getToolDiameter() * ((double) getLeadOutPercent() / 100d);
-        return getBufferedShape(leadInMillimeters, leadOutMillimeters);
+        return getBufferedShape(leadInMillimeters, leadInMillimeters);
     }
 
     private void drawShape(Graphics2D graphics, BasicStroke strokeWidth, Color shapeHint, Shape shape) {
@@ -269,8 +309,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
                 EntitySetting.PASSES,
                 EntitySetting.FEED_RATE,
                 EntitySetting.LEAD_IN_PERCENT,
-                EntitySetting.LEAD_OUT_PERCENT,
-                EntitySetting.INCLUDE_IN_EXPORT
+                EntitySetting.INCLUDE_IN_EXPORT,
+                EntitySetting.TOOL_PATH_DIRECTION
         );
     }
 
@@ -307,6 +347,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         copy.setPasses(getPasses());
         copy.setHidden(isHidden());
         copy.setIncludeInExport(getIncludeInExport());
+        copy.setToolPathDirection(getToolPathDirection());
     }
 
     @Override
@@ -327,6 +368,17 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     @Override
     public void setIncludeInExport(boolean value) {
         includeInExport = value;
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public double getToolPathDirection() {
+        return toolPathDirection;
+    }
+
+    @Override
+    public void setToolPathDirection(double toolPathDirection) {
+        this.toolPathDirection = toolPathDirection % 360;
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 }

@@ -48,12 +48,11 @@ public class SurfaceToolPath extends AbstractToolPath {
         Rectangle2D bounds = source.getShape().getBounds2D();
         double toolRadius = settings.getToolDiameter() / 2.0;
         double leadInMm = (settings.getToolDiameter() * (source.getLeadInPercent() / 100d)) - toolRadius;
-        double leadOutMm = (settings.getToolDiameter() * (source.getLeadOutPercent() / 100d)) - toolRadius;
         LinearRing linearRing = getGeometryFactory().createLinearRing(new Coordinate[]{
                 new Coordinate(bounds.getX() - leadInMm, bounds.getY() + toolRadius),
                 new Coordinate(bounds.getX() - leadInMm, bounds.getY() + bounds.getHeight() - toolRadius),
-                new Coordinate(bounds.getX() + bounds.getWidth() + leadOutMm, bounds.getY() + bounds.getHeight() - toolRadius),
-                new Coordinate(bounds.getX() + bounds.getWidth() + leadOutMm, bounds.getY() + toolRadius),
+                new Coordinate(bounds.getX() + bounds.getWidth() + leadInMm, bounds.getY() + bounds.getHeight() - toolRadius),
+                new Coordinate(bounds.getX() + bounds.getWidth() + leadInMm, bounds.getY() + toolRadius),
                 new Coordinate(bounds.getX() - leadInMm, bounds.getY() + toolRadius),
         });
         return List.of(linearRing.getEnvelope());
