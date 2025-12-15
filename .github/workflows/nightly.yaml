@@ -120,7 +120,7 @@ jobs:
   build-macosx-x64:
     if: github.repository_owner == 'winder'
     needs: build-and-test
-    runs-on: macos-13
+    runs-on: macos-14
 
     steps:
       - uses: actions/checkout@v3
