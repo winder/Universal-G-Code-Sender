@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -31,6 +32,7 @@ import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import javax.swing.JOptionPane;
 
 /**
  * @author Damian Nikodem
@@ -38,7 +40,9 @@ import java.awt.print.PrinterJob;
 public class PrintDesignAction extends AbstractDesignAction {
     public static final String SMALL_ICON_PATH = "img/export.svg";
     public static final String LARGE_ICON_PATH = "img/export24.svg";
-    public static String lastDirectory = "";
+    
+    private final static double MM_IN_INCH = 0.0393700787401575; // 5 / 127
+    private final static double PRINT_SYSTEM_DPI = 72.0; 
 
     public PrintDesignAction() {
         putValue("iconBase", SMALL_ICON_PATH);
@@ -47,7 +51,40 @@ public class PrintDesignAction extends AbstractDesignAction {
         putValue("menuText", "Print");
         putValue(NAME, "Print");
     }
+    private int centerPos(double pageSize, double imageWidth) {
+        int result = 0;
+        if ( ( imageWidth / pageSize) < 1.0) {
+            result = (int) ( ( pageSize - imageWidth ) / 2.0 );
+        }        
+        return result;
+    }
+    
+    private Point centerPoint(PageFormat pageFormat, BufferedImage bi) {
+        Point result = new Point (
+            centerPos(pageFormat.getImageableWidth(), bi.getWidth()),
+            centerPos(pageFormat.getImageableHeight(), bi.getHeight())                            
+        );
+        return result;        
+    }
+    private boolean translateGraphicsForPage(PageFormat pageFormat, BufferedImage bi, int pageIndex, Graphics2D g2d) {
+        int xPageCount = (int)Math.ceil(bi.getWidth() / pageFormat.getImageableWidth());
+        int yPageCount = (int)Math.ceil(bi.getHeight() / pageFormat.getImageableHeight());
 
+        int totalPages = xPageCount * yPageCount;
+
+        if (pageIndex >= totalPages) {
+            return false;//Printable.NO_SUCH_PAGE;
+        }
+        
+        int yPageIndex = (int)Math.floor(pageIndex / xPageCount);
+        int xPageIndex = pageIndex % xPageCount;
+        
+        g2d.translate( pageFormat.getImageableX() - (xPageIndex * pageFormat.getImageableWidth() ),
+            pageFormat.getImageableY() - (yPageIndex * pageFormat.getImageableHeight())  );
+        // Page is valid
+        return true;      
+    }    
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         // Render image first. 
@@ -59,54 +96,32 @@ public class PrintDesignAction extends AbstractDesignAction {
         Point2D.Double oldPos = controller.getDrawing().getPosition();
         
         // Reset Scale so it draws properly. 
-        // 1px == 1mm in UGS Drawing
-        //
-        // 72px == 1in in Java Printing
-        //
-        // Therefore Scale = 2.83464576
-        controller.getDrawing().setScale(2.83464576); 
-        
-        
+        controller.getDrawing().setScale(MM_IN_INCH * PRINT_SYSTEM_DPI); 
+                
         BufferedImage bi = controller.getDrawing().getImage();
         
         controller.getDrawing().setScale(oldScale);
         controller.getDrawing().setPosition(oldPos.x,oldPos.y);
               
         job.setPrintable((Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
-            int xPages = (int)Math.ceil(bi.getWidth() / pageFormat.getImageableWidth());
-            int yPages = (int)Math.ceil(bi.getHeight() / pageFormat.getImageableHeight());
-            
-            int totalPages = xPages * yPages;
-            
-            if (pageIndex >= totalPages) {
+            Graphics2D g2d = (Graphics2D)graphics;
+                        
+            if (!translateGraphicsForPage(pageFormat,bi,pageIndex,g2d)) {
                 return Printable.NO_SUCH_PAGE;
             }
             
-            int yPageIndex = (int)Math.floor(pageIndex / xPages);
-            int xPageIndex = pageIndex % xPages;
-            int xPos = 0;
-            int yPos = 0;
-            Graphics2D g2d = (Graphics2D)graphics;
-            
-            g2d.translate(pageFormat.getImageableX() - (xPageIndex * pageFormat.getImageableWidth() ),
-                    pageFormat.getImageableY() - (yPageIndex * pageFormat.getImageableHeight())  );
-            
-            if ( (((double)bi.getWidth()) / pageFormat.getImageableWidth()) < 1.0) {
-                xPos = (int) ((double)( pageFormat.getImageableWidth() - (double)bi.getWidth() ) / 2.0);
-            }
-            
-            if ( (((double)bi.getHeight()) / pageFormat.getImageableHeight()) < 1.0) {
-                yPos = (int) ((double)( pageFormat.getImageableHeight() - (double)bi.getHeight() ) / 2.0);
-            }
-            
-            g2d.drawImage(bi,null, xPos, yPos);
+            Point imagePosition = centerPoint(pageFormat, bi);                                                           
+            g2d.drawImage(bi,null, imagePosition.x, imagePosition.y);
             
             return Printable.PAGE_EXISTS;
         });
+        
         if (job.printDialog()) {
-            try {job.print();}
-            catch (PrinterException exc) {
-                System.out.println(exc);
+            try {
+                job.print();
+            }
+            catch (PrinterException exc) {                
+                JOptionPane.showMessageDialog(null, "Error Printing: "+ exc.getMessage(), "Error Printing!", JOptionPane.ERROR_MESSAGE);    
              }
          }   
     }
