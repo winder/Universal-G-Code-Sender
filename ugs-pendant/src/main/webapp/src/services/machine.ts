@@ -101,3 +101,16 @@ export const send = (): Promise<void> => {
 
   return fetch(url, request).then();
 };
+
+export const sendGcode = (commands: string): Promise<void> => {
+  const url = "api/v1/machine/sendGcode";
+  const request = {
+    method: "POST",
+    headers: {
+      'Content-Type': "application/json"
+    },
+    body: JSON.stringify({ commands })
+  };
+
+  return fetch(url, request).then();
+};
