@@ -10,6 +10,6 @@ body {
 .app {
     .appContainer {
         padding-top: 54px;
-        height: calc(100vh);
+        min-height: calc(100vh);
     }
 }
