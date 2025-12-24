@@ -64,7 +64,7 @@ const MainPage = () => {
   const state = useAppSelector((state) => state.status.state);
 
   return (
-    <Row style={{ margin: 0, height: "100%" }}>
+    <Row style={{ margin: 0, height: "100%" }} className="mainPageRow">
       <Col xs={'auto'} className="d-none d-sm-block sideMenu">
         <Navbar bg="dark" data-bs-theme="dark">
           <Menu className="flex-column" />

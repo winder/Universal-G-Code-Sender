@@ -24,3 +24,10 @@
   padding-left: 10px;
   padding-right: 10px;
 }
+
+@media (max-width: 575.98px) {
+  .mainPageRow {
+    height: auto !important;
+    padding-bottom: 100px;
+  }
+}
