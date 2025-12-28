@@ -61,7 +61,7 @@ public class EntitiesTree extends JTree implements TreeSelectionListener, Select
 
     private void registerListeners() {
         addTreeSelectionListener(this);
-        addMouseListener(new EntitiesTreePopupListener());
+        addMouseListener(new EntitiesTreePopupListener(this));
         controller.getSelectionManager().addSelectionListener(this);
     }
 
@@ -100,7 +100,11 @@ public class EntitiesTree extends JTree implements TreeSelectionListener, Select
         TreePath[] treePaths = treePathList.toArray(new TreePath[0]);
         setSelectionPaths(treePaths);
     }
-
+    
+    public void renameSelectedTreeNode() {        
+        startEditingAtPath(getSelectionPath());
+    }
+    
     @Override
     protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
         // filter property change of "dropLocation" with newValue==null,

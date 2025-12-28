@@ -34,7 +34,8 @@ public class DesignerMain extends JFrame {
     private static final long serialVersionUID = 0;
     public static final String PROPERTY_IS_STANDALONE = "ugs.designer.standalone";
     public static final String PROPERTY_USE_SCREEN_MENU = "apple.laf.useScreenMenuBar";
-
+    private EntitiesTree entitiesTree;
+    
     /**
      * Constructs a new graphical user interface for the program and shows it.
      */
@@ -77,7 +78,7 @@ public class DesignerMain extends JFrame {
         setVisible(true);
 
         loadExample(controller);
-        controller.getDrawing().setComponentPopupMenu(PopupMenuFactory.createPopupMenu());
+        controller.getDrawing().setComponentPopupMenu(PopupMenuFactory.createPopupMenu(entitiesTree));
         controller.getDrawing().repaint();
     }
 
@@ -87,10 +88,11 @@ public class DesignerMain extends JFrame {
 
         UIManager.put( "MenuBar.background", "@background");
     }
-
+    
     private JSplitPane createRightPanel(Controller controller) {
         EntityTreeModel entityTreeModel = new EntityTreeModel(controller);
-        JSplitPane toolsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(new EntitiesTree(controller, entityTreeModel)), new SelectionSettingsPanel(controller));
+        entitiesTree = new EntitiesTree(controller, entityTreeModel);
+        JSplitPane toolsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(entitiesTree), new SelectionSettingsPanel(controller));
         toolsSplit.setResizeWeight(0.9);
         return toolsSplit;
     }

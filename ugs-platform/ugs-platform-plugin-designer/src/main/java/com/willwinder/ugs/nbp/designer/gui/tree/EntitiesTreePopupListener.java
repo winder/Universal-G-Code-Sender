@@ -30,9 +30,9 @@ import java.awt.event.MouseEvent;
  */
 public class EntitiesTreePopupListener extends MouseAdapter {
     private final JPopupMenu popupMenu;
-
-    public EntitiesTreePopupListener() {
-        popupMenu = PopupMenuFactory.createPopupMenu();
+    
+    public EntitiesTreePopupListener(EntitiesTree tree) {
+        popupMenu = PopupMenuFactory.createPopupMenu(tree);
     }
 
     @Override
