@@ -33,8 +33,11 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.Lookup;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import java.awt.Component;
+import java.awt.Container;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;

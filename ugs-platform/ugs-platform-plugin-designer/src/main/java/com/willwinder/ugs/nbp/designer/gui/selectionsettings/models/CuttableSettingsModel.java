@@ -37,7 +37,6 @@ public class CuttableSettingsModel extends TransformSettingsModel {
     private int passes = 1;
     private int feedRate = getDefaultFeedRate();
     private int leadInPercent = 0;
-    private int leadOutPercent = 0;
     private boolean includeInExport = true;
 
     // Getters and setters for cuttable properties

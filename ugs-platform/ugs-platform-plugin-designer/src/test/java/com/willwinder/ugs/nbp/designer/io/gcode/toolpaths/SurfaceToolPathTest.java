@@ -39,7 +39,6 @@ public class SurfaceToolPathTest {
         Rectangle rectangle = new Rectangle(0,0);
         rectangle.setSize(new Size(10, 10));
         rectangle.setLeadInPercent(0);
-        rectangle.setLeadOutPercent(0);
 
         Settings settings = new Settings();
         settings.setToolDiameter(5);
@@ -113,7 +112,6 @@ public class SurfaceToolPathTest {
         Rectangle rectangle = new Rectangle(0,0);
         rectangle.setSize(new Size(10, 10));
         rectangle.setLeadInPercent(0);
-        rectangle.setLeadOutPercent(0);
 
         Settings settings = new Settings();
         settings.setToolDiameter(8);
@@ -186,7 +184,6 @@ public class SurfaceToolPathTest {
         Rectangle rectangle = new Rectangle(0,0);
         rectangle.setSize(new Size(10, 10));
         rectangle.setLeadInPercent(0);
-        rectangle.setLeadOutPercent(0);
 
         Settings settings = new Settings();
         settings.setToolDiameter(5);
@@ -261,159 +258,10 @@ public class SurfaceToolPathTest {
     }
 
     @Test
-    public void toGcodePathShouldGenerateGcodeFromStartDepthWithLeadIn() {
-        Rectangle rectangle = new Rectangle(0,0);
-        rectangle.setSize(new Size(10, 10));
-        rectangle.setLeadInPercent(100);
-        rectangle.setLeadOutPercent(0);
-
-        Settings settings = new Settings();
-        settings.setToolDiameter(5);
-        settings.setToolStepOver(1);
-        settings.setSafeHeight(10);
-
-        SurfaceToolPath toolPath = new SurfaceToolPath(settings, rectangle);
-        toolPath.setStartDepth(1);
-        toolPath.setTargetDepth(1);
-
-        GcodePath gcodePath = toolPath.toGcodePath();
-
-        List<Segment> segments = gcodePath.getSegments();
-        int segmentIndex = 0;
-        assertEquals(10, segments.size());
-
-        // Move to safe height
-        Segment segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.SEAM, segment.type);
-        assertNull(segment.point);
-        assertEquals(Integer.valueOf(1000), segment.getFeedSpeed());
-        assertEquals(Integer.valueOf(255), segment.getSpindleSpeed());
-
-        // Move to Z zero
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertZPoint(segment.point, 9);
-
-        // Move to XY start
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertXYPoint(segment.point, -2.5, 2.5);
-        assertFalse(segment.point.hasZ());
-
-        // Move towards material
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertZPoint(segment.point, -1);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        PartialPosition point = segment.point;
-        assertXYPoint(point, 7.5, 2.5);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertZPoint(segment.point, 9);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertXYPoint(segment.point, -2.5, 7.5);
-        assertFalse(segment.point.hasZ());
-
-        // Move towards material
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertZPoint(segment.point, -1);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        assertXYPoint(segment.point, 7.5, 7.5);
-
-        // Move to safe height
-        segment = segments.get(segmentIndex);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertZPoint(segment.point, 10);
-    }
-
-    @Test
-    public void toGcodePathShouldGenerateGcodeFromStartDepthWithLeadOut() {
-        Rectangle rectangle = new Rectangle(0,0);
-        rectangle.setSize(new Size(10, 10));
-        rectangle.setLeadInPercent(0);
-        rectangle.setLeadOutPercent(100);
-
-        Settings settings = new Settings();
-        settings.setToolDiameter(5);
-        settings.setToolStepOver(1);
-        settings.setSafeHeight(10);
-
-        SurfaceToolPath toolPath = new SurfaceToolPath(settings, rectangle);
-        toolPath.setStartDepth(1);
-        toolPath.setTargetDepth(1);
-
-        GcodePath gcodePath = toolPath.toGcodePath();
-
-        List<Segment> segments = gcodePath.getSegments();
-        int segmentIndex = 0;
-        assertEquals(10, segments.size());
-
-        // Move to safe height
-        Segment segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.SEAM, segment.type);
-        assertNull(segment.point);
-        assertEquals(Integer.valueOf(1000), segment.getFeedSpeed());
-        assertEquals(Integer.valueOf(255), segment.getSpindleSpeed());
-
-        // Move to Z zero
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertZPoint(segment.point, 9);
-
-        // Move to XY start
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertXYPoint(segment.point, 2.5, 2.5);
-        assertFalse(segment.point.hasZ());
-
-        // Move towards material
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertZPoint(segment.point, -1);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        PartialPosition point = segment.point;
-        assertXYPoint(point, 12.5, 2.5);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertZPoint(segment.point, 9);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertXYPoint(segment.point, 2.5, 7.5);
-        assertFalse(segment.point.hasZ());
-
-        // Move towards material
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertZPoint(segment.point, -1);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        assertXYPoint(segment.point, 12.5, 7.5);
-
-        // Move to safe height
-        segment = segments.get(segmentIndex);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertZPoint(segment.point, 10);
-    }
-
-    @Test
     public void toGcodePathShouldGenerateGcodeFromStartDepthWithLeadInAndOut() {
         Rectangle rectangle = new Rectangle(0,0);
         rectangle.setSize(new Size(10, 10));
         rectangle.setLeadInPercent(100);
-        rectangle.setLeadOutPercent(100);
 
         Settings settings = new Settings();
         settings.setToolDiameter(5);
