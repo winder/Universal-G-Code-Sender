@@ -21,8 +21,9 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
-import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTree;
+import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTreeController;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -46,15 +47,8 @@ import java.awt.event.ActionEvent;
 public class RenameAction extends AbstractDesignAction implements SelectionListener {
     public static final String SMALL_ICON_PATH = "img/text.svg";
     private static final String LARGE_ICON_PATH = "img/text.svg";
-    
-    private final EntitiesTree tree;
-    
+
     public RenameAction() {
-        this(null);
-    }
-    public RenameAction(EntitiesTree tree) {   
-        super();
-        this.tree = tree;
         putValue("menuText", "Rename");
         putValue(NAME, "Rename");
         putValue("iconBase", SMALL_ICON_PATH);
@@ -67,20 +61,21 @@ public class RenameAction extends AbstractDesignAction implements SelectionListe
     private void registerSelectionListener() {
         SelectionManager selectionManager = ControllerFactory.getController().getSelectionManager();
         selectionManager.addSelectionListener(this);
-        setEnabled((tree != null) && (selectionManager.getChildren().size() == 1 ));
+        setEnabled(selectionManager.getChildren().size() == 1);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-          tree.renameSelectedTreeNode();
+        EntitiesTreeController entitiesTreeController = CentralLookup.getDefault().lookup(EntitiesTreeController.class);
+        if (entitiesTreeController == null) {
+            return;
+        }
+        entitiesTreeController.renameSelectedNode();
     }
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
         SelectionManager selectionManager = ControllerFactory.getSelectionManager();
         setEnabled(!selectionManager.getSelection().isEmpty());
-        
     }
-
-   
 }

@@ -61,7 +61,7 @@ public class EntitiesTree extends JTree implements TreeSelectionListener, Select
 
     private void registerListeners() {
         addTreeSelectionListener(this);
-        addMouseListener(new EntitiesTreePopupListener(this));
+        addMouseListener(new EntitiesTreePopupListener());
         controller.getSelectionManager().addSelectionListener(this);
     }
 
@@ -99,10 +99,6 @@ public class EntitiesTree extends JTree implements TreeSelectionListener, Select
         List<TreePath> treePathList = EntityTreeUtils.getSelectedPaths(controller, rootEntity, Collections.emptyList());
         TreePath[] treePaths = treePathList.toArray(new TreePath[0]);
         setSelectionPaths(treePaths);
-    }
-    
-    public void renameSelectedTreeNode() {        
-        startEditingAtPath(getSelectionPath());
     }
     
     @Override
