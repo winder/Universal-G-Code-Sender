@@ -147,21 +147,6 @@ public interface Cuttable extends Entity {
      */
     int getLeadInPercent();
 
-
-    /**
-     * Sets the tool lead-out in percent of the tool diameter (ie: 100 for 100%)
-     *
-     * @param value the percentage value
-     */
-    void setLeadOutPercent(int value);
-
-    /**
-     * Returns the tool lead-out in percent of the tool diameter (ie: 100 for 100%)
-     *
-     * @return the tool lead-out
-     */
-    int getLeadOutPercent();
-
     /**
      * If value is false then the cuttable will not be included in the exported g-code
      *
@@ -174,5 +159,19 @@ public interface Cuttable extends Entity {
      *
      * @return true if true then this cuttable will be included in the exported G-Code
      */
-    boolean getIncludeInExport(); 
+    boolean getIncludeInExport();
+
+    /**
+     * Sets the tool path direction in degrees
+     *
+     * @param toolPathDirection the direction in degrees
+     */
+    void setToolPathDirection(double toolPathDirection);
+
+    /**
+     * Returns the angle of the tool path direction
+     *
+     * @return the angle in degrees
+     */
+    double getToolPathDirection();
 }

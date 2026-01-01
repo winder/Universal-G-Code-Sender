@@ -25,6 +25,7 @@ import org.openide.util.lookup.ServiceProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Settings manager specialized for Cuttable entities.
@@ -34,6 +35,8 @@ import java.util.List;
  */
 @ServiceProvider(service = EntitySettingsManager.class, position = 2)
 public class CuttableSettingsManager implements EntitySettingsManager {
+
+    private static final Logger LOGGER = Logger.getLogger(CuttableSettingsManager.class.getName());
 
     @Override
     public boolean canHandle(Entity entity) {
@@ -67,7 +70,6 @@ public class CuttableSettingsManager implements EntitySettingsManager {
             case PASSES -> cuttable.getPasses();
             case FEED_RATE -> cuttable.getFeedRate();
             case LEAD_IN_PERCENT -> cuttable.getLeadInPercent();
-            case LEAD_OUT_PERCENT -> cuttable.getLeadOutPercent();
             case INCLUDE_IN_EXPORT -> cuttable.getIncludeInExport();
             default -> null;
         };
@@ -115,16 +117,17 @@ public class CuttableSettingsManager implements EntitySettingsManager {
                     cuttable.setLeadInPercent(percent);
                 }
             }
-            case LEAD_OUT_PERCENT -> {
-                if (value instanceof Integer percent) {
-                    cuttable.setLeadOutPercent(percent);
-                }
-            }
             case INCLUDE_IN_EXPORT -> {
                 if (value instanceof Boolean include) {
                     cuttable.setIncludeInExport(include);
                 }
             }
+            case TOOL_PATH_DIRECTION -> {
+                if (value instanceof Double toolPathDirection) {
+                    cuttable.setToolPathDirection(toolPathDirection);
+                }
+            }
+            default -> LOGGER.info("Do not know how to set " + setting + " to " + value);
         }
     }
 
@@ -145,7 +148,6 @@ public class CuttableSettingsManager implements EntitySettingsManager {
         settings.add(EntitySetting.PASSES);
         settings.add(EntitySetting.FEED_RATE);
         settings.add(EntitySetting.LEAD_IN_PERCENT);
-        settings.add(EntitySetting.LEAD_OUT_PERCENT);
         settings.add(EntitySetting.INCLUDE_IN_EXPORT);
         return settings;
     }

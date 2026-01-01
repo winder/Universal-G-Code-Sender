@@ -108,7 +108,7 @@ public class UgsDesignWriter implements DesignWriter {
             cuttableEntity.setPasses(cuttable.getPasses());
             cuttableEntity.setFeedRate(cuttable.getFeedRate());
             cuttableEntity.setLeadInPercent(cuttable.getLeadInPercent());
-            cuttableEntity.setLeadOutPercent(cuttable.getLeadOutPercent());
+            cuttableEntity.setToolPathDirection(cuttable.getToolPathDirection());
         }
         return result;
     }

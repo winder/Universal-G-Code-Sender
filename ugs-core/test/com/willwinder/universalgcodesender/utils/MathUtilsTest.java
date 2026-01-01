@@ -21,11 +21,15 @@ package com.willwinder.universalgcodesender.utils;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
+import static com.willwinder.universalgcodesender.utils.MathUtils.liangBarskyClipLine;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.List;
 
@@ -66,15 +70,15 @@ public class MathUtilsTest {
         List<PartialPosition> points = Arrays.asList(
                 new PartialPosition(0d, 0d, UnitUtils.Units.MM),
                 new PartialPosition(0d, 10d, UnitUtils.Units.MM),
-                new PartialPosition(10d,10d, UnitUtils.Units.MM),
+                new PartialPosition(10d, 10d, UnitUtils.Units.MM),
                 new PartialPosition(5d, 5d, UnitUtils.Units.MM)
         );
 
         List<PartialPosition> convexHull = MathUtils.generateConvexHull(points);
         assertEquals(3, convexHull.size());
-        assertEquals(new PartialPosition(0d,0d, UnitUtils.Units.MM), convexHull.get(0));
-        assertEquals(new PartialPosition(10d,10d, UnitUtils.Units.MM), convexHull.get(1));
-        assertEquals(new PartialPosition(0d,10d, UnitUtils.Units.MM), convexHull.get(2));
+        assertEquals(new PartialPosition(0d, 0d, UnitUtils.Units.MM), convexHull.get(0));
+        assertEquals(new PartialPosition(10d, 10d, UnitUtils.Units.MM), convexHull.get(1));
+        assertEquals(new PartialPosition(0d, 10d, UnitUtils.Units.MM), convexHull.get(2));
     }
 
     @Test
@@ -108,5 +112,24 @@ public class MathUtilsTest {
         assertEquals(Math.PI, MathUtils.normalizeAngle(Math.PI * 3), 0.001);
         assertEquals(Math.PI, MathUtils.normalizeAngle(-Math.PI), 0.001);
         assertEquals(0, MathUtils.normalizeAngle(0), 0.001);
+    }
+
+    @Test
+    public void liangBarskyClipLineShouldClipLines() {
+        Rectangle2D.Double box = new Rectangle2D.Double(0, 0, 2, 2);
+        Point2D[] result = liangBarskyClipLine(new Point2D.Double(-1, -1), new Point2D.Double(3, 3), box);
+        assertArrayEquals(new Point2D[]{new Point2D.Double(0, 0), new Point2D.Double(2, 2)}, result);
+
+        result = liangBarskyClipLine(new Point2D.Double(1, -1), new Point2D.Double(1, 3), box);
+        assertArrayEquals(new Point2D[]{new Point2D.Double(1, 0), new Point2D.Double(1, 2)}, result);
+
+        result = liangBarskyClipLine(new Point2D.Double(-1, 1), new Point2D.Double(3, 1), box);
+        assertArrayEquals(new Point2D[]{new Point2D.Double(0, 1), new Point2D.Double(2, 1)}, result);
+
+        result = liangBarskyClipLine(new Point2D.Double(-1, 0), new Point2D.Double(3, 0), box);
+        assertArrayEquals(new Point2D[]{new Point2D.Double(0, 0), new Point2D.Double(2, 0)}, result);
+
+        result = liangBarskyClipLine(new Point2D.Double(-1, 2), new Point2D.Double(3, 2), box);
+        assertArrayEquals(new Point2D[]{new Point2D.Double(0, 2), new Point2D.Double(2, 2)}, result);
     }
 }

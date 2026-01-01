@@ -18,45 +18,37 @@
  */
 package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
+import com.willwinder.ugs.nbp.designer.GeometryUtils;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
+import static com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils.GEOMETRY_FACTORY;
 import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 
 import java.awt.geom.Rectangle2D;
-import java.util.List;
 
 public class SurfaceToolPath extends AbstractToolPath {
     private final Cuttable source;
+    private final double toolPathAngle;
 
     public SurfaceToolPath(Settings settings, Cuttable source) {
         super(settings);
         this.source = source;
+        this.toolPathAngle = source.getToolPathDirection();
     }
 
-    private List<Geometry> getGeometries() {
+    private Envelope getEnvelope() {
         Rectangle2D bounds = source.getShape().getBounds2D();
         double toolRadius = settings.getToolDiameter() / 2.0;
         double leadInMm = (settings.getToolDiameter() * (source.getLeadInPercent() / 100d)) - toolRadius;
-        double leadOutMm = (settings.getToolDiameter() * (source.getLeadOutPercent() / 100d)) - toolRadius;
-        LinearRing linearRing = getGeometryFactory().createLinearRing(new Coordinate[]{
-                new Coordinate(bounds.getX() - leadInMm, bounds.getY() + toolRadius),
-                new Coordinate(bounds.getX() - leadInMm, bounds.getY() + bounds.getHeight() - toolRadius),
-                new Coordinate(bounds.getX() + bounds.getWidth() + leadOutMm, bounds.getY() + bounds.getHeight() - toolRadius),
-                new Coordinate(bounds.getX() + bounds.getWidth() + leadOutMm, bounds.getY() + toolRadius),
-                new Coordinate(bounds.getX() - leadInMm, bounds.getY() + toolRadius),
-        });
-        return List.of(linearRing.getEnvelope());
+        return new Envelope(bounds.getMinX() - leadInMm, bounds.getMaxX() + leadInMm, bounds.getMinY() - leadInMm, bounds.getMaxY() + leadInMm);
     }
 
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
@@ -64,79 +56,87 @@ public class SurfaceToolPath extends AbstractToolPath {
 
         double stepOver = settings.getToolDiameter() * Math.min(Math.max(0.01, Math.abs(settings.getToolStepOver())), 1.0);
 
+        Envelope envelope = getEnvelope();
 
-        List<Geometry> geometries = getGeometries();
-        geometries.forEach(g -> {
-            Envelope envelope = g.getEnvelopeInternal();
+        double currentDepth = getStartDepth();
+        addGeometriesToGcodePath(gcodePath, settings, envelope, currentDepth, stepOver);
 
-            double currentDepth = getStartDepth();
-            addGeometriesToGcodePath(gcodePath, settings, g, envelope, currentDepth, stepOver);
-
-            while (currentDepth < getTargetDepth()) {
-                currentDepth += settings.getDepthPerPass();
-                if (currentDepth > getTargetDepth()) {
-                    currentDepth = getTargetDepth();
-                }
-
-                addGeometriesToGcodePath(gcodePath, settings, g, envelope, currentDepth, stepOver);
+        while (currentDepth < getTargetDepth()) {
+            currentDepth += settings.getDepthPerPass();
+            if (currentDepth > getTargetDepth()) {
+                currentDepth = getTargetDepth();
             }
-        });
+
+            addGeometriesToGcodePath(gcodePath, settings, envelope, currentDepth, stepOver);
+        }
+
         addSafeHeightSegment(gcodePath, null, true);
     }
 
-    private void addGeometriesToGcodePath(GcodePath gcodePath, Settings settings, Geometry g, Envelope envelope, double currentDepth, double stepOver) {
-        double currentY = envelope.getMinY();
-        double minX = envelope.getMinX();
-        double maxX = envelope.getMaxX();
+    private void addGeometriesToGcodePath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, double stepOver) {
+        double currentY = envelope.getMinY() - envelope.getHeight();
 
-        while (currentY < envelope.getMaxY()) {
-            addLineSegment(gcodePath, settings, g, currentDepth, minX, maxX, currentY);
+        while (currentY < envelope.getMaxY() + envelope.getHeight()) {
+            addLineSegment(gcodePath, settings, envelope, currentDepth, currentY);
             currentY += stepOver;
         }
-
-        // Add the last line
-        if (currentY - stepOver < envelope.getMaxY()) {
-            addLineSegment(gcodePath, settings, g, currentDepth, minX, maxX, envelope.getMaxY());
-        }
     }
 
-    private void addLineSegment(GcodePath gcodePath, Settings settings, Geometry g, double currentDepth, double minX, double maxX, double currentY) {
-        LineString lineString = getGeometryFactory().createLineString(new Coordinate[]{
-                new CoordinateXY(minX, currentY),
-                new CoordinateXY(maxX, currentY),
-        });
+    private void addLineSegment(
+            GcodePath gcodePath,
+            Settings settings,
+            Envelope envelope,
+            double currentDepth,
+            double offsetAlongNormal) {
 
-        addLineIntersectionSegments(gcodePath, g, lineString, currentDepth, (-getStartDepth()) + settings.getSafeHeight());
-    }
+        // Convert angle to radians
+        double radians = Math.toRadians(-this.toolPathAngle);
 
-    private void addLineIntersectionSegments(GcodePath gcodePath, Geometry geometry, LineString lineString, double currentDepth, double safeHeight) {
-        Geometry intersection = geometry.intersection(lineString);
+        // Direction vector for the toolpath line
+        double dx = Math.cos(radians);
+        double dy = Math.sin(radians);
 
-        // If the intersection is a multipoint we should not connect the points with a line
-        if (intersection instanceof MultiPoint) {
+        // Normal vector (perpendicular) for stepping passes
+        double nx = -dy;
+        double ny = dx;
+
+        // Create a point on the pass using the offset along the normal vector
+        double px = envelope.getMinX() + nx * offsetAlongNormal;
+        double py = envelope.getMinY() + ny * offsetAlongNormal;
+
+        // Create a long segment centered at that point in direction (dx, dy)
+        // The value is intentionally large so clipping will cut it down
+        double far = envelope.getWidth() * envelope.getHeight();
+        double sx = px - dx * far;
+        double sy = py - dy * far;
+        double ex = px + dx * far;
+        double ey = py + dy * far;
+
+        LineString lineString = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(sx, sy), new Coordinate(ex, ey)}), GEOMETRY_FACTORY);
+        lineString = GeometryUtils.clipLineToEnvelope(lineString, envelope);
+
+        if (lineString == null) {
             return;
         }
 
-        List<PartialPosition> geometryCoordinates = ToolPathUtils.geometryToCoordinates(intersection);
-        List<PartialPosition> partialPosition = geometryCoordinates.stream()
-                .map(numericCoordinate -> PartialPosition.builder(numericCoordinate).build()).toList();
+        double safeHeight = (-getStartDepth()) + settings.getSafeHeight();
+        Coordinate startCoord = lineString.getCoordinateN(0);
+        Coordinate endCoord = lineString.getCoordinateN(1);
 
-        if (partialPosition.size() > 1) {
-            for (int i = 0; i + 1 < partialPosition.size(); i += 2) {
-                PartialPosition startPosition = partialPosition.get(i);
-                PartialPosition endPosition = partialPosition.get(i + 1);
+        PartialPosition start = PartialPosition.builder(UnitUtils.Units.MM)
+                .setX(startCoord.x).setY(startCoord.y).build();
+        PartialPosition end = PartialPosition.builder(UnitUtils.Units.MM)
+                .setX(endCoord.x).setY(endCoord.y).build();
 
-                // Make sure we are working from left to right
-                if (startPosition.getX() > endPosition.getX()) {
-                    startPosition = partialPosition.get(i + 1);
-                    endPosition = partialPosition.get(i);
-                }
-
-                gcodePath.addSegment(SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(safeHeight).build());
-                gcodePath.addSegment(SegmentType.MOVE, startPosition);
-                gcodePath.addSegment(SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(-currentDepth).build());
-                gcodePath.addSegment(SegmentType.LINE, endPosition, source.getFeedRate());
-            }
-        }
+        gcodePath.addSegment(
+                SegmentType.MOVE,
+                PartialPosition.builder(UnitUtils.Units.MM).setZ(safeHeight).build()
+        );
+        gcodePath.addSegment(SegmentType.MOVE, start);
+        gcodePath.addSegment(
+                SegmentType.MOVE,
+                PartialPosition.builder(UnitUtils.Units.MM).setZ(-currentDepth).build()
+        );
+        gcodePath.addSegment(SegmentType.LINE, end, source.getFeedRate());
     }
 }

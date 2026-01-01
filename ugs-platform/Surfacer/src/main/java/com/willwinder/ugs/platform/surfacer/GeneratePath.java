@@ -16,6 +16,10 @@
  */
 package com.willwinder.ugs.platform.surfacer;
 
+import static com.willwinder.universalgcodesender.utils.MathUtils.liangBarskyClipLine;
+
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,17 +35,16 @@ public class GeneratePath {
     
     double xmin, ymin, xmax, ymax;
     double width, height;
-    Box box = new Box();
 
     private enum Dirs { UP, RIGHT, DOWN, LEFT }
 
     public void init(Prefs prefs) {
         this.prefs = prefs;
         double toolRad = prefs.toolDiameter() / 2;
-        xmin = box.xmin = Math.min(prefs.x0(), prefs.x1()) + toolRad;
-        ymin = box.ymin = Math.min(prefs.y0(), prefs.y1()) + toolRad;
-        xmax = box.xmax = Math.max(prefs.x0(), prefs.x1()) - toolRad;
-        ymax = box.ymax = Math.max(prefs.y0(), prefs.y1()) - toolRad;
+        xmin = Math.min(prefs.x0(), prefs.x1()) + toolRad;
+        ymin = Math.min(prefs.y0(), prefs.y1()) + toolRad;
+        xmax = Math.max(prefs.x0(), prefs.x1()) - toolRad;
+        ymax = Math.max(prefs.y0(), prefs.y1()) - toolRad;
         width = xmax - xmin;
         height = ymax - ymin;
     }
@@ -64,39 +67,7 @@ public class GeneratePath {
         Box() {}
     }
     
-    private Point[] liangBarskyClip(Point p1, Point p2, Box b) {
-        double x0 = p1.x, y0 = p1.y;
-        double x1 = p2.x, y1 = p2.y;
 
-        double dx = x1 - x0;
-        double dy = y1 - y0;
-
-        double t0 = 0.0;
-        double t1 = 1.0;
-
-        double[] p = {-dx, dx, -dy, dy};
-        double[] q = {x0 - b.xmin, b.xmax - x0, y0 - b.ymin, b.ymax - y0};
-
-        for (int i = 0; i < 4; i++) {
-            if (p[i] == 0) {
-                if (q[i] < 0) return null; // Line is parallel and outside
-            } else {
-                double r = q[i] / p[i];
-                if (p[i] < 0) {
-                    t0 = Math.max(t0, r);
-                } else {
-                    t1 = Math.min(t1, r);
-                }
-            }
-        }
-
-        if (t0 > t1) return null; // No visible segment
-
-        Point clippedStart = new Point(x0 + t0 * dx, y0 + t0 * dy);
-        Point clippedEnd   = new Point(x0 + t1 * dx, y0 + t1 * dy);
-        return new Point[]{clippedStart, clippedEnd};
-    }
-    
     List<Point> rasterPath() {
         List<Point> path = new ArrayList<>();
 
@@ -134,7 +105,7 @@ public class GeneratePath {
         path.add(null);
         
         double x0, y0, lastMax = maxProj, lastMin = minProj;
-        Point[] clipped;
+        Point2D[] clipped;
         boolean topline = true;
         while (lastMax - lastMin >= step) {
             if (topline) {
@@ -147,16 +118,16 @@ public class GeneratePath {
                 maxProj -= step;
             }
 
-            Point p1 = new Point(x0 - dx * 1e6, y0 - dy * 1e6);
-            Point p2 = new Point(x0 + dx * 1e6, y0 + dy * 1e6);
-            clipped = liangBarskyClip(p1, p2, box);
+            Point2D p1 = new Point2D.Double(x0 - dx * 1e6, y0 - dy * 1e6);
+            Point2D p2 = new Point2D.Double(x0 + dx * 1e6, y0 + dy * 1e6);
+            clipped = liangBarskyClipLine(p1, p2, new Rectangle2D.Double(xmin, xmax, width, height));
             if (clipped != null) {
                 if (prefs.climbCut() ^ topline) {
-                    path.add(clipped[1]);
-                    path.add(clipped[0]);
+                    path.add(new Point(clipped[1].getX(), clipped[1].getY()));
+                    path.add(new Point(clipped[0].getX(), clipped[0].getY()));
                 } else {
-                    path.add(clipped[0]);
-                    path.add(clipped[1]);
+                    path.add(new Point(clipped[0].getX(), clipped[0].getY()));
+                    path.add(new Point(clipped[1].getX(), clipped[1].getY()));
                 }
                 if (topline) lastMin = minProj - step;
                 else lastMax = maxProj + step;

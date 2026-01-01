@@ -33,8 +33,11 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.Lookup;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import java.awt.Component;
+import java.awt.Container;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,7 +50,6 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     private final List<ComponentWithListener> activeComponents = new ArrayList<>();
 
     // New layered model architecture
-    private final LayeredFieldActionDispatcher fieldDispatcher = new LayeredFieldActionDispatcher();
     private TransformSettingsModel currentModel;
 
     public SelectionSettingsPanel(Controller controller) {
@@ -113,15 +115,6 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
         currentModel = SettingsModelFactory.createModelForSelection(selectionGroup);
         currentModel.addListener(this);
-
-        fieldDispatcher.updateModel(selectionGroup);
-    }
-
-    /**
-     * Gets the current layered model
-     */
-    public TransformSettingsModel getCurrentModel() {
-        return currentModel;
     }
 
     @Override
@@ -187,8 +180,6 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
             currentModel.removeListener(this);
             currentModel = null;
         }
-
-        fieldDispatcher.release();
 
         if (controller != null) {
             controller.getSelectionManager().removeSelectionListener(this);
