@@ -120,7 +120,7 @@ public class GeneratePath {
 
             Point2D p1 = new Point2D.Double(x0 - dx * 1e6, y0 - dy * 1e6);
             Point2D p2 = new Point2D.Double(x0 + dx * 1e6, y0 + dy * 1e6);
-            clipped = liangBarskyClipLine(p1, p2, new Rectangle2D.Double(xmin, xmax, width, height));
+            clipped = liangBarskyClipLine(p1, p2, new Rectangle2D.Double(xmin, ymin, width, height));
             if (clipped != null) {
                 if (prefs.climbCut() ^ topline) {
                     path.add(new Point(clipped[1].getX(), clipped[1].getY()));
