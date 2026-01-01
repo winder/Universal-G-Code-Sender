@@ -100,7 +100,7 @@ public class EntitiesTree extends JTree implements TreeSelectionListener, Select
         TreePath[] treePaths = treePathList.toArray(new TreePath[0]);
         setSelectionPaths(treePaths);
     }
-
+    
     @Override
     protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
         // filter property change of "dropLocation" with newValue==null,

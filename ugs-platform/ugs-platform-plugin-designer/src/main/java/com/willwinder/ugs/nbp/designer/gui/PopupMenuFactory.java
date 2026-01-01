@@ -32,6 +32,7 @@ import com.willwinder.ugs.nbp.designer.actions.JogMachineToLowerRightCornerActio
 import com.willwinder.ugs.nbp.designer.actions.JogMachineToTopLeftCornerAction;
 import com.willwinder.ugs.nbp.designer.actions.JogMachineToTopRightCornerAction;
 import com.willwinder.ugs.nbp.designer.actions.PasteAction;
+import com.willwinder.ugs.nbp.designer.actions.RenameAction;
 import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
 import com.willwinder.ugs.nbp.designer.actions.SubtractAction;
 import com.willwinder.ugs.nbp.designer.actions.ToggleHidden;
@@ -59,6 +60,7 @@ public class PopupMenuFactory {
         popupMenu.add(new SelectAllAction());
         popupMenu.add(new ClearSelectionAction());
         popupMenu.add(new DeleteAction());
+        popupMenu.add(new RenameAction());
         popupMenu.add(new GroupAction());
         popupMenu.addSeparator();
         popupMenu.add(new CopyAction());

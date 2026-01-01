@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2025 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,34 +18,27 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.tree;
 
-import com.willwinder.ugs.nbp.designer.gui.PopupMenuFactory;
-
-import javax.swing.JComponent;
-import javax.swing.JPopupMenu;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import javax.swing.tree.TreePath;
 
 /**
+ * A tree controller for handling global actions on the selection tree
+ *
  * @author Joacim Breiler
  */
-public class EntitiesTreePopupListener extends MouseAdapter {
-    private final JPopupMenu popupMenu;
-    
-    public EntitiesTreePopupListener() {
-        popupMenu = PopupMenuFactory.createPopupMenu();
+public class EntitiesTreeController {
+
+    private final EntitiesTree entitiesTree;
+
+    public EntitiesTreeController(EntitiesTree entitiesTree) {
+        this.entitiesTree = entitiesTree;
     }
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if (e.isPopupTrigger()) {
-            popupMenu.show((JComponent) e.getSource(), e.getX(), e.getY());
+    public void renameSelectedNode() {
+        TreePath path = entitiesTree.getSelectionPath();
+        if (path == null) {
+            return;
         }
-    }
 
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        if (e.isPopupTrigger()) {
-            popupMenu.show((JComponent) e.getSource(), e.getX(), e.getY());
-        }
+        entitiesTree.startEditingAtPath(path);
     }
 }

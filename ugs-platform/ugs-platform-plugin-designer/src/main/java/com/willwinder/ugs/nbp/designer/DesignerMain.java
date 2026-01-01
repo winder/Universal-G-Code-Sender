@@ -2,13 +2,14 @@ package com.willwinder.ugs.nbp.designer;
 
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
-import com.willwinder.ugs.nbp.designer.gui.MainMenu;
-import com.willwinder.ugs.nbp.designer.gui.DrawingScrollContainer;
 import com.willwinder.ugs.nbp.designer.gui.DrawingOverlayContainer;
+import com.willwinder.ugs.nbp.designer.gui.DrawingScrollContainer;
+import com.willwinder.ugs.nbp.designer.gui.MainMenu;
 import com.willwinder.ugs.nbp.designer.gui.PopupMenuFactory;
 import com.willwinder.ugs.nbp.designer.gui.ToolBox;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.SelectionSettingsPanel;
 import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTree;
+import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTreeController;
 import com.willwinder.ugs.nbp.designer.gui.tree.EntityTreeModel;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -31,7 +32,6 @@ import java.awt.Dimension;
  */
 public class DesignerMain extends JFrame {
 
-    private static final long serialVersionUID = 0;
     public static final String PROPERTY_IS_STANDALONE = "ugs.designer.standalone";
     public static final String PROPERTY_USE_SCREEN_MENU = "apple.laf.useScreenMenuBar";
 
@@ -87,10 +87,19 @@ public class DesignerMain extends JFrame {
 
         UIManager.put( "MenuBar.background", "@background");
     }
-
+    
     private JSplitPane createRightPanel(Controller controller) {
         EntityTreeModel entityTreeModel = new EntityTreeModel(controller);
-        JSplitPane toolsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(new EntitiesTree(controller, entityTreeModel)), new SelectionSettingsPanel(controller));
+        EntitiesTree entitiesTree = new EntitiesTree(controller, entityTreeModel);
+        CentralLookup.getDefault().add(new EntitiesTreeController(entitiesTree));
+
+        JSplitPane toolsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                new JScrollPane(entitiesTree,
+                        JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED),
+                new JScrollPane(new SelectionSettingsPanel(controller),
+                        JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
         toolsSplit.setResizeWeight(0.9);
         return toolsSplit;
     }
