@@ -309,8 +309,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
                 EntitySetting.PASSES,
                 EntitySetting.FEED_RATE,
                 EntitySetting.LEAD_IN_PERCENT,
-                EntitySetting.INCLUDE_IN_EXPORT,
-                EntitySetting.TOOL_PATH_DIRECTION
+                EntitySetting.TOOL_PATH_DIRECTION,
+                EntitySetting.INCLUDE_IN_EXPORT
         );
     }
 

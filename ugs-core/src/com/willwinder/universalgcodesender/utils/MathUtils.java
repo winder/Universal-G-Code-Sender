@@ -22,6 +22,8 @@ import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -131,8 +133,8 @@ public class MathUtils {
     /**
      * Compares two double values if they are equal or very close to each other using a delta threshold.
      *
-     * @param d1 a double value
-     * @param d2 a double value
+     * @param d1    a double value
+     * @param d2    a double value
      * @param delta a decimal delta value with the smallest allowed difference, smaller value means more precision.
      * @return true if they are equal or very close to equal
      */
@@ -203,5 +205,41 @@ public class MathUtils {
                 minPos.getY(),
                 minPos.getZ(),
                 units);
+    }
+
+    public static Point2D[] liangBarskyClipLine(Point2D point1, Point2D point2, Rectangle2D bounds) {
+        double dx = point2.getX() - point1.getX();
+        double dy = point2.getY() - point1.getY();
+
+        double t0 = 0.0;
+        double t1 = 1.0;
+
+        double[] p = {-dx, dx, -dy, dy};
+        double[] q = {point1.getX() - bounds.getMinX(), bounds.getMaxX() - point1.getX(), point1.getY() - bounds.getMinY(), bounds.getMaxY() - point1.getY()};
+
+        for (int i = 0; i < 4; i++) {
+            if (p[i] == 0) {
+                if (q[i] < 0) {
+                    return null; // Parallel and outside
+                }
+                continue; // Parallel and inside → no constraint
+            }
+
+            double r = q[i] / p[i];
+            if (p[i] < 0) {
+                t0 = Math.max(t0, r);
+            } else {
+                t1 = Math.min(t1, r);
+            }
+        }
+
+        if (t0 > t1) return null;
+
+        double sx = point1.getX() + t0 * dx;
+        double sy = point1.getY() + t0 * dy;
+        double ex = point1.getX() + t1 * dx;
+        double ey = point1.getY() + t1 * dy;
+
+        return new Point2D[]{new Point2D.Double(sx, sy), new Point2D.Double(ex, ey)};
     }
 }

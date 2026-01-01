@@ -36,7 +36,7 @@ import java.awt.geom.Rectangle2D;
 
 public class SurfaceToolPath extends AbstractToolPath {
     private final Cuttable source;
-    private double toolPathAngle = 0;
+    private final double toolPathAngle;
 
     public SurfaceToolPath(Settings settings, Cuttable source) {
         super(settings);
@@ -48,7 +48,7 @@ public class SurfaceToolPath extends AbstractToolPath {
         Rectangle2D bounds = source.getShape().getBounds2D();
         double toolRadius = settings.getToolDiameter() / 2.0;
         double leadInMm = (settings.getToolDiameter() * (source.getLeadInPercent() / 100d)) - toolRadius;
-        return new Envelope(bounds.getMinX() - leadInMm, bounds.getMaxX() + leadInMm, bounds.getMinY() - leadInMm, bounds.getMaxY() + leadInMm); //linearRing.getEnvelopeInternal();
+        return new Envelope(bounds.getMinX() - leadInMm, bounds.getMaxX() + leadInMm, bounds.getMinY() - leadInMm, bounds.getMaxY() + leadInMm);
     }
 
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
@@ -92,7 +92,7 @@ public class SurfaceToolPath extends AbstractToolPath {
         // Convert angle to radians
         double radians = Math.toRadians(-this.toolPathAngle);
 
-        // Direction vector for the toolpath line (unit length)
+        // Direction vector for the toolpath line
         double dx = Math.cos(radians);
         double dy = Math.sin(radians);
 
@@ -139,5 +139,4 @@ public class SurfaceToolPath extends AbstractToolPath {
         );
         gcodePath.addSegment(SegmentType.LINE, end, source.getFeedRate());
     }
-
 }
