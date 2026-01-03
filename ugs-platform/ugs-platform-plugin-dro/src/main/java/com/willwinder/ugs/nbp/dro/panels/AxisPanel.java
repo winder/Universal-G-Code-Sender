@@ -95,18 +95,12 @@ public class AxisPanel extends JPanel {
 
     private static Action createAction(Axis axis) {
         return switch (axis) {
-            case X:
-                yield new ResetXCoordinateToZeroAction();
-            case Y:
-                yield new ResetYCoordinateToZeroAction();
-            case Z:
-                yield new ResetZCoordinateToZeroAction();
-            case A:
-                yield new ResetACoordinateToZeroAction();
-            case B:
-                yield new ResetBCoordinateToZeroAction();
-            case C:
-                yield new ResetCCoordinateToZeroAction();
+            case X -> new ResetXCoordinateToZeroAction();
+            case Y -> new ResetYCoordinateToZeroAction();
+            case Z -> new ResetZCoordinateToZeroAction();
+            case A -> new ResetACoordinateToZeroAction();
+            case B -> new ResetBCoordinateToZeroAction();
+            case C -> new ResetCCoordinateToZeroAction();
         };
     }
 
