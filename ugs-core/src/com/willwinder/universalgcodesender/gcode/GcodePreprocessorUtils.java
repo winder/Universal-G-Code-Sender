@@ -218,9 +218,10 @@ public class GcodePreprocessorUtils {
         double a = parseCoord(commandArgs, 'A');
         double b = parseCoord(commandArgs, 'B');
         double c = parseCoord(commandArgs, 'C');
+        double e = parseCoord(commandArgs, 'E');
 
         if (Double.isNaN(x) && Double.isNaN(y) && Double.isNaN(z) &&
-                Double.isNaN(a) && Double.isNaN(b) && Double.isNaN(c)) {
+                Double.isNaN(a) && Double.isNaN(b) && Double.isNaN(c) && Double.isNaN(e)) {
             return null;
         }
 
