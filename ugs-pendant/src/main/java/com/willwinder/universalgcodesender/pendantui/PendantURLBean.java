@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2019 Will Winder
+    Copyright 2016-2025 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,15 +19,13 @@
 package com.willwinder.universalgcodesender.pendantui;
 
 public class PendantURLBean {
-    private String urlString;
-    private byte[] qrCodeJpg;
+    private final String displayName;
+    private final String urlString;
+    private final byte[] qrCodeJpg;
 
-    public PendantURLBean() {
-    }
-
-    public PendantURLBean(String urlString, byte[] qrCodeJpg) {
-        super();
+    public PendantURLBean(String urlString, String displayName, byte[] qrCodeJpg) {
         this.urlString = urlString;
+        this.displayName = displayName;
         this.qrCodeJpg = qrCodeJpg;
     }
 
@@ -35,21 +33,16 @@ public class PendantURLBean {
         return urlString;
     }
 
-    public void setUrlString(String urlString) {
-        this.urlString = urlString;
-    }
-
     public byte[] getQrCodeJpg() {
         return qrCodeJpg;
     }
 
-    public void setQrCodeJpg(byte[] qrCodeJpg) {
-        this.qrCodeJpg = qrCodeJpg;
+    public String getDisplayName() {
+        return displayName;
     }
 
     @Override
     public String toString() {
         return urlString;
     }
-
 }

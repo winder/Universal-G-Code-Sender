@@ -74,4 +74,8 @@ public class PendantService {
         }
         return results;
     }
+
+    public int getPort() {
+        return backend.getSettings().getPendantPort();
+    }
 }
