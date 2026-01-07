@@ -610,13 +610,10 @@
                                         </exec>
 
                                         <!-- Remove quarantine bit set recursively on JRE -->
-                                        <!--
-                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="xattr" failonerror="true">
-                                            <arg line="-rd"/>
-                                            <arg line="com.apple.quarantine"/>
-                                            <arg line="&quot;${ugs.appbundle.name}.app/Contents/PlugIns&quot;"/>
+                                        <exec dir="${project.build.directory}" executable="xattr" failonerror="true">
+                                            <arg line="-cr"/>
+                                            <arg line="&quot;${ugs.appbundle.name}.app&quot;"/>
                                         </exec>
-                                        -->
 
                                         <!-- Get the JRE folder name -->
                                         <path id="jre_name_osx">
