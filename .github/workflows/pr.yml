@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: .github/actions/setup-java-maven
+    - uses: ./.github/actions/setup-java-maven
 
     - name: Build and test
       run: ./mvnw clean install

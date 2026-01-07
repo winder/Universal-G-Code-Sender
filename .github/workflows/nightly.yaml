@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: .github/actions/setup-java-maven
+    - uses: ./.github/actions/setup-java-maven
 
     - name: Build and test
       run: ./mvnw clean install
@@ -45,7 +45,7 @@ jobs:
           brew install cdrtools
 
       - uses: actions/checkout@v3
-      - uses: .github/actions/setup-java-maven
+      - uses: ./.github/actions/setup-java-maven
 
       - name: Build
         run: ./mvnw clean install -DskipTests
@@ -71,7 +71,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: .github/actions/setup-java-maven
+      - uses: ./.github/actions/setup-java-maven
 
       - name: Build
         run: ./mvnw clean install -DskipTests
@@ -96,7 +96,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: .github/actions/setup-java-maven
+      - uses: ./.github/actions/setup-java-maven
 
       - name: Build
         run: ./mvnw clean install -DskipTests
@@ -121,7 +121,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: .github/actions/setup-java-maven
+      - uses: ./.github/actions/setup-java-maven
 
       - name: Build
         run: ./mvnw clean install -DskipTests
@@ -146,7 +146,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: .github/actions/setup-java-maven
+      - uses: ./.github/actions/setup-java-maven
 
       - name: Build
         run: ./mvnw clean install -DskipTests
@@ -170,7 +170,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: .github/actions/setup-java-maven
+      - uses: ./.github/actions/setup-java-maven
 
       - name: Build
         run: ./mvnw clean install -DskipTests
