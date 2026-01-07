@@ -4,22 +4,12 @@ on: [pull_request]
 
 jobs:
   build-and-test:
+    if: github.repository_owner == 'winder'
     runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up JDK
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-
-    - name: Cache the Maven packages to speed up build
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2      
+    - uses: .github/actions/setup-java-maven
 
     - name: Build and test
       run: ./mvnw clean install

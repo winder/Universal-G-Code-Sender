@@ -12,25 +12,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up JDK
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-
-    - name: Cache the Maven packages to speed up build
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2      
+    - uses: .github/actions/setup-java-maven
 
     - name: Build and test
       run: ./mvnw clean install
       
     - name: Package
       run: |
-        sudo apt-get install -qq genisoimage
         ./mvnw package -pl ugs-classic assembly:assembly -DskipTests=true          
         ./mvnw package -pl ugs-platform/application -P create-win32-package,create-win64-package,create-linux-x64-package,create-linux-arm-package,create-linux-aarch64-package -DskipTests=true
 
@@ -45,31 +33,19 @@ jobs:
         tag_name: "nightly"
         overwrite: true
 
-  build-ugs-platform-macosx-aarch64:
+  build-ugs-platform-macosx:
     if: github.repository_owner == 'winder'
     needs: build-and-test
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v3
-
       - name: Install Homebrew package
         run: |
           brew update
           brew install cdrtools
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Cache the Maven packages to speed up build
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+      - uses: actions/checkout@v3
+      - uses: .github/actions/setup-java-maven
 
       - name: Build
         run: ./mvnw clean install -DskipTests
@@ -95,18 +71,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Cache the Maven packages to speed up build
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+      - uses: .github/actions/setup-java-maven
 
       - name: Build
         run: ./mvnw clean install -DskipTests
@@ -131,18 +96,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Cache the Maven packages to speed up build
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+      - uses: .github/actions/setup-java-maven
 
       - name: Build
         run: ./mvnw clean install -DskipTests
@@ -167,18 +121,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Cache the Maven packages to speed up build
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+      - uses: .github/actions/setup-java-maven
 
       - name: Build
         run: ./mvnw clean install -DskipTests
@@ -203,18 +146,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Cache the Maven packages to speed up build
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+      - uses: .github/actions/setup-java-maven
 
       - name: Build
         run: ./mvnw clean install -DskipTests
@@ -238,18 +170,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Cache the Maven packages to speed up build
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+      - uses: .github/actions/setup-java-maven
 
       - name: Build
         run: ./mvnw clean install -DskipTests
