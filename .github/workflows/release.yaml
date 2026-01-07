@@ -42,7 +42,6 @@ jobs:
 
   release-macosx:
     if: github.repository_owner == 'winder'
-    needs: build-and-test
     runs-on: macos-latest
 
     steps:
