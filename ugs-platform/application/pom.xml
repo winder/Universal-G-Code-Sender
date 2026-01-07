@@ -481,12 +481,6 @@
                                             <arg line="-C &quot;${ugs.appbundle.name}.app/Contents/PlugIns&quot;"/>
                                         </exec>
 
-                                        <!-- Remove quarantine bit set recursively on JRE -->
-                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="xattr" failonerror="true">
-                                            <arg line="-cr"/>
-                                            <arg line="&quot;${ugs.appbundle.name}.app&quot;"/>
-                                        </exec>
-
                                         <!-- Get the JRE folder name -->
                                         <path id="jre_name_osx">
                                             <dirset dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns" includes="jdk*" />
@@ -499,24 +493,22 @@
                                         <chmod file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns/**" perm="+x" type="both"/>
 
                                         <!-- Codesign JRE -->
-                                        <!--
                                         <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign" failonerror="true">
-                                            <arg value="-fs"/>
+                                            <arg value="--deep"/>
+                                            <arg value="--force"/>
+                                            <arg value="--sign"/>
                                             <arg value="${ugs.codesign.identity}"/>
-                                            <arg value="-v"/>
-                                            <arg value="${ugs.appbundle.name}.app/Contents/PlugIns/${bundle.mac.jvm.name}/"/>
-                                        </exec>
-                                        -->
-
-                                        <!-- Codesign app -->
-                                        <!--
-                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign" failonerror="true">
-                                            <arg value="-fs"/>
-                                            <arg value="${ugs.codesign.identity}"/>
-                                            <arg value="-v"/>
                                             <arg value="${ugs.appbundle.name}.app"/>
                                         </exec>
-                                        -->
+
+                                        <!-- Codesign app -->
+                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign" failonerror="true">
+                                            <arg value="--deep"/>
+                                            <arg value="--force"/>
+                                            <arg value="--sign"/>
+                                            <arg value="${ugs.codesign.identity}"/>
+                                            <arg value="${ugs.appbundle.name}.app"/>
+                                        </exec>
 
                                         <!-- Create application folder and add Applications dynamic link -->
                                         <mkdir dir="${project.build.directory}/${ugs.app.title}"/>
@@ -606,12 +598,6 @@
                                             <arg line="-C &quot;${ugs.appbundle.name}.app/Contents/PlugIns&quot;"/>
                                         </exec>
 
-                                        <!-- Remove quarantine bit set recursively on JRE -->
-                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="xattr" failonerror="true">
-                                            <arg line="-cr"/>
-                                            <arg line="&quot;${ugs.appbundle.name}.app&quot;"/>
-                                        </exec>
-
                                         <!-- Get the JRE folder name -->
                                         <path id="jre_name_osx">
                                             <dirset dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns" includes="jdk*" />
@@ -624,24 +610,22 @@
                                         <chmod file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns/**" perm="+x" type="both"/>
 
                                         <!-- Codesign JRE -->
-                                        <!--
                                         <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign" failonerror="true">
-                                            <arg value="-fs"/>
+                                            <arg value="--deep"/>
+                                            <arg value="--force"/>
+                                            <arg value="--sign"/>
                                             <arg value="${ugs.codesign.identity}"/>
-                                            <arg value="-v"/>
-                                            <arg value="${ugs.appbundle.name}.app/Contents/PlugIns/${bundle.mac.jvm.name}/"/>
-                                        </exec>
-                                        -->
-
-                                        <!-- Codesign app -->
-                                        <!--
-                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign" failonerror="true">
-                                            <arg value="-fs"/>
-                                            <arg value="${ugs.codesign.identity}"/>
-                                            <arg value="-v"/>
                                             <arg value="${ugs.appbundle.name}.app"/>
                                         </exec>
-                                        -->
+
+                                        <!-- Codesign app -->
+                                        <exec dir="${project.build.directory}" os="Mac OS X" executable="codesign" failonerror="true">
+                                            <arg value="--deep"/>
+                                            <arg value="--force"/>
+                                            <arg value="--sign"/>
+                                            <arg value="${ugs.codesign.identity}"/>
+                                            <arg value="${ugs.appbundle.name}.app"/>
+                                        </exec>
 
                                         <!-- Create application folder and add Applications dynamic link -->
                                         <mkdir dir="${project.build.directory}/${ugs.app.title}"/>

@@ -41,7 +41,7 @@
       <ugs.bundle.java.linux.aarch64.url>https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jre_aarch64_linux_hotspot_17.0.15_6.tar.gz</ugs.bundle.java.linux.aarch64.url>
 
       <!-- Mac OS X signing identity - must match with a verified Apple developer certificate in the keychain -->
-      <ugs.codesign.identity>Developer ID Application</ugs.codesign.identity>
+      <ugs.codesign.identity>-</ugs.codesign.identity>
 
       <!--==== Netbeans Plugin Settings ====-->
       <brandingToken>ugsplatform</brandingToken>
