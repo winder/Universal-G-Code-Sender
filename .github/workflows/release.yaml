@@ -61,6 +61,7 @@ jobs:
           ./mvnw clean install -B -Drevision=${REVISION} -Dchangelist=${CHANGELIST} -DskipTests=true
 
       - name: Package
+
         run: ./mvnw package -pl ugs-platform/application -P create-macosx-x64-package,create-macosx-aarch64-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       # https://github.com/marketplace/actions/upload-to-github-release
