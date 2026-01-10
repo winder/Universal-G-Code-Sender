@@ -45,7 +45,7 @@ public enum EntitySetting {
     FEED_RATE("Feed rate", "feedRate"),
     LEAD_IN_PERCENT("Lead in percent", "leadInPercent"),
     INCLUDE_IN_EXPORT("Include in export", "includeInExport"),
-    TOOL_PATH_ANGLE("Tool path angle", "toolPathDirection"),
+    TOOL_PATH_ANGLE("Tool path angle", "toolPathAngle"),
     DIRECTION("Tool path direction", "direction");
 
 

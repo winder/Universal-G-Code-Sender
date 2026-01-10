@@ -129,7 +129,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         addLabeledComponent(EntitySetting.FEED_RATE, "Feed Rate", feedRateSpinner);
         addLabeledSlider(EntitySetting.PASSES, "Passes", passesSlider);
         addLabeledSlider(EntitySetting.LEAD_IN_PERCENT, "Lead In/Out %", leadInPercentSlider);
-        addLabeledComponent(EntitySetting.TOOL_PATH_ANGLE, "Tool Path Direction", toolPathAngleSpinner);
+        addLabeledComponent(EntitySetting.TOOL_PATH_ANGLE, "Tool Path Angle", toolPathAngleSpinner);
         addLabeledComponent(EntitySetting.INCLUDE_IN_EXPORT, "Include in Export", includeInExport);
     }
 
