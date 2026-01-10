@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import static com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils.addGeometriesToCoordinatesList;
 import static com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils.bufferAndCollectGeometries;
@@ -44,13 +45,14 @@ public class PocketToolPath extends AbstractToolPath {
 
     @Override
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
+        boolean clockwise = source.getDirection() == Direction.CLIMB;
         double stepOver = Math.min(Math.max(0.01, Math.abs(settings.getToolStepOver())), 1.0);
         Geometry geometryCollection = convertAreaToGeometry(new Area(source.getShape()), getGeometryFactory(), settings.getFlatnessPrecision());
         Geometry shell = geometryCollection.buffer(-settings.getToolDiameter() / 2d);
         List<Geometry> geometries = bufferAndCollectGeometries(geometryCollection, settings.getToolDiameter(), stepOver);
 
         List<List<PartialPosition>> coordinateList = new ArrayList<>();
-        addGeometriesToCoordinatesList(shell, geometries, coordinateList, getStartDepth());
+        addGeometriesToCoordinatesList(shell, geometries, coordinateList, getStartDepth(), clockwise);
 
         double currentDepth = getStartDepth();
         while (currentDepth < getTargetDepth()) {
@@ -59,7 +61,7 @@ public class PocketToolPath extends AbstractToolPath {
                 currentDepth = getTargetDepth();
             }
 
-            addGeometriesToCoordinatesList(shell, geometries, coordinateList, currentDepth);
+            addGeometriesToCoordinatesList(shell, geometries, coordinateList, currentDepth, clockwise);
         }
 
         addToGcodePath(gcodePath, coordinateList, source);

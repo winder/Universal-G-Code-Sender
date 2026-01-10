@@ -24,9 +24,11 @@ import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.settings.CuttableSettingsManager;
 import com.willwinder.ugs.nbp.designer.gui.CutTypeCombo;
+import com.willwinder.ugs.nbp.designer.gui.DirectionCombo;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
@@ -39,6 +41,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +57,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     public static final String PROP_PASSES = EntitySetting.PASSES.getPropertyName();
     public static final String PROP_FEED_RATE = EntitySetting.FEED_RATE.getPropertyName();
     public static final String PROP_LEAD_IN_PERCENT = EntitySetting.LEAD_IN_PERCENT.getPropertyName();
-    public static final String PROP_TOOL_PATH_DIRECTION = EntitySetting.TOOL_PATH_DIRECTION.getPropertyName();
+    public static final String PROP_TOOL_PATH_ANGLE = EntitySetting.TOOL_PATH_ANGLE.getPropertyName();
+    public static final String PROP_DIRECTION = EntitySetting.DIRECTION.getPropertyName();
     public static final String PROP_INCLUDE_IN_EXPORT = EntitySetting.INCLUDE_IN_EXPORT.getPropertyName();
 
     private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";
@@ -72,7 +76,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     private UnitSpinner feedRateSpinner;
     private JSlider leadInPercentSlider;
     private JCheckBox includeInExport;
-    private UnitSpinner toolPathDirectionSpinner;
+    private UnitSpinner toolPathAngleSpinner;
+    private DirectionCombo directionCombo;
 
     private final Map<EntitySetting, List<JComponent>> settingToComponentMap = new EnumMap<>(EntitySetting.class);
 
@@ -95,7 +100,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         passesSlider = createSlider(0, 10, 1, 1, 5);
 
         leadInPercentSlider = createSlider(0, 300, 0, 50, 100);
-        toolPathDirectionSpinner = new UnitSpinner(0, TextFieldUnit.DEGREE, 0d, 360d, 5d);
+        toolPathAngleSpinner = new UnitSpinner(0, TextFieldUnit.DEGREE, 0d, 360d, 5d);
+        directionCombo = new DirectionCombo();
 
         includeInExport = new JCheckBox();
         includeInExport.setSelected(true);
@@ -116,13 +122,14 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         add(new JSeparator(), "spanx, growx, gaptop 0, gapbottom 5, wrap");
 
         addLabeledComponent(EntitySetting.CUT_TYPE, "Cut Type", cutTypeComboBox);
+        addLabeledComponent(EntitySetting.DIRECTION, "Cut direction", directionCombo);
         addLabeledComponent(EntitySetting.START_DEPTH,"Start Depth", startDepthSpinner);
         addLabeledComponent(EntitySetting.TARGET_DEPTH, "Target Depth", targetDepthSpinner);
         addLabeledComponent(EntitySetting.SPINDLE_SPEED, "Spindle Speed", spindleSpeedSpinner);
         addLabeledComponent(EntitySetting.FEED_RATE, "Feed Rate", feedRateSpinner);
         addLabeledSlider(EntitySetting.PASSES, "Passes", passesSlider);
         addLabeledSlider(EntitySetting.LEAD_IN_PERCENT, "Lead In/Out %", leadInPercentSlider);
-        addLabeledComponent(EntitySetting.TOOL_PATH_DIRECTION, "Tool Path Direction", toolPathDirectionSpinner);
+        addLabeledComponent(EntitySetting.TOOL_PATH_ANGLE, "Tool Path Angle", toolPathAngleSpinner);
         addLabeledComponent(EntitySetting.INCLUDE_IN_EXPORT, "Include in Export", includeInExport);
     }
 
@@ -152,8 +159,9 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         feedRateSpinner.addChangeListener(e -> firePropertyChange(PROP_FEED_RATE, ((Double)feedRateSpinner.getValue()).intValue()));
         passesSlider.addChangeListener(e -> firePropertyChange(PROP_PASSES, passesSlider.getValue()));
         leadInPercentSlider.addChangeListener(e -> firePropertyChange(PROP_LEAD_IN_PERCENT, leadInPercentSlider.getValue()));
-        toolPathDirectionSpinner.addChangeListener(e -> firePropertyChange(PROP_TOOL_PATH_DIRECTION, toolPathDirectionSpinner.getValue()));
+        toolPathAngleSpinner.addChangeListener(e -> firePropertyChange(PROP_TOOL_PATH_ANGLE, toolPathAngleSpinner.getValue()));
         includeInExport.addActionListener(e -> firePropertyChange(PROP_INCLUDE_IN_EXPORT, includeInExport.isSelected()));
+        directionCombo.addActionListener(e -> firePropertyChange(PROP_DIRECTION, directionCombo.getSelectedDirection()));
     }
 
     private void firePropertyChange(String propertyName, Object newValue) {
@@ -179,8 +187,9 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         add(new JSeparator(), "spanx, growx, gaptop 0, gapbottom 5, wrap");
 
         // Add only the components that are relevant for the selected cut type
-        settingToComponentMap.forEach((setting, components) -> {
-            if (selectedCutType.getSettings().contains(setting)) {
+        selectedCutType.getSettings().forEach(setting -> {
+            List<JComponent> components = settingToComponentMap.getOrDefault(setting, Collections.emptyList());
+            if (!components.isEmpty()) {
                 JLabel label = (JLabel) components.get(0);
                 JComponent component = components.get(1);
 
@@ -235,7 +244,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
                 feedRateSpinner.setValue((double) firstCuttable.getFeedRate());
                 passesSlider.setValue(firstCuttable.getPasses());
                 leadInPercentSlider.setValue(firstCuttable.getLeadInPercent());
-                toolPathDirectionSpinner.setValue(firstCuttable.getToolPathDirection());
+                toolPathAngleSpinner.setValue(firstCuttable.getToolPathAngle());
+                directionCombo.setSelectedItem(firstCuttable.getDirection());
                 updateLabelsForCutType(firstCuttable.getCutType());
             } finally {
                 updating = false;
@@ -275,8 +285,10 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
             cuttable.setPasses((Integer) newValue);
         } else if (PROP_LEAD_IN_PERCENT.equals(propertyName)) {
             cuttable.setLeadInPercent((Integer) newValue);
-        } else if (PROP_TOOL_PATH_DIRECTION.equals(propertyName)) {
-            cuttable.setToolPathDirection((Double) newValue);
+        } else if (PROP_TOOL_PATH_ANGLE.equals(propertyName)) {
+            cuttable.setToolPathAngle((Double) newValue);
+        } else if (PROP_DIRECTION.equals(propertyName)) {
+            cuttable.setDirection((Direction) newValue);
         }
     }
 

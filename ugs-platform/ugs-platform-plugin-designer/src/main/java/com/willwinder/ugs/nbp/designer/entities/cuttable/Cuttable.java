@@ -166,12 +166,29 @@ public interface Cuttable extends Entity {
      *
      * @param toolPathDirection the direction in degrees
      */
-    void setToolPathDirection(double toolPathDirection);
+    void setToolPathAngle(double toolPathDirection);
 
     /**
      * Returns the angle of the tool path direction
      *
      * @return the angle in degrees
      */
-    double getToolPathDirection();
+    double getToolPathAngle();
+
+    /**
+     * Returns the tool path direction
+     *
+     * @param direction the tool path direction
+     */
+    void setDirection(Direction direction);
+
+    /**
+     * Returns the tool path direction.
+     * <p>
+     * If the cut operations starts from the center moving outwards, CLIMB will be clockwise
+     * and CONVENTIONAL as counterclockwise
+     *
+     * @return tool path direction
+     */
+    Direction getDirection();
 }

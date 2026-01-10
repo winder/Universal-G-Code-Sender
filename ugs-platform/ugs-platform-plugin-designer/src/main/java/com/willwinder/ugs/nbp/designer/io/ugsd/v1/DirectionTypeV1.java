@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2021 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,26 +16,33 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
+package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
 
-import org.locationtech.jts.geom.Geometry;
-
-import java.util.Comparator;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
 
 /**
  * @author Joacim Breiler
  */
-public class GeometrySizeComparator implements Comparator<Geometry> {
-    @Override
-    public int compare(Geometry o1, Geometry o2) {
-        if (o2.within(o1)) {
-            return 1;
+public enum DirectionTypeV1 {
+    CLIMB,
+    CONVENTIONAL;
+
+    public static DirectionTypeV1 fromDirection(Direction direction) {
+        return switch (direction) {
+            case CLIMB -> CLIMB;
+            case CONVENTIONAL -> CONVENTIONAL;
+        };
+    }
+
+    public static Direction toDirection(DirectionTypeV1 direction) {
+        if (direction == null) {
+            return Direction.CLIMB;
         }
 
-        if (o1.within(o2)) {
-            return -1;
-        }
-
-        return 0;
+        return switch (direction) {
+            case CLIMB -> Direction.CLIMB;
+            case CONVENTIONAL -> Direction.CONVENTIONAL;
+        };
     }
 }
+

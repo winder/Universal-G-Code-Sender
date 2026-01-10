@@ -41,7 +41,7 @@ public class SurfaceToolPath extends AbstractToolPath {
     public SurfaceToolPath(Settings settings, Cuttable source) {
         super(settings);
         this.source = source;
-        this.toolPathAngle = source.getToolPathDirection();
+        this.toolPathAngle = source.getToolPathAngle();
     }
 
     private Envelope getEnvelope() {

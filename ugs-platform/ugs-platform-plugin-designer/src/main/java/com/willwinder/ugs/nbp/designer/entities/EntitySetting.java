@@ -45,7 +45,9 @@ public enum EntitySetting {
     FEED_RATE("Feed rate", "feedRate"),
     LEAD_IN_PERCENT("Lead in percent", "leadInPercent"),
     INCLUDE_IN_EXPORT("Include in export", "includeInExport"),
-    TOOL_PATH_DIRECTION("Tool path direction", "toolPathDirection"),;
+    TOOL_PATH_ANGLE("Tool path angle", "toolPathAngle"),
+    DIRECTION("Tool path direction", "direction");
+
 
     public static final List<EntitySetting> TRANSFORMATION_SETTINGS = List.of(
             EntitySetting.POSITION_X,
@@ -65,15 +67,24 @@ public enum EntitySetting {
             EntitySetting.FEED_RATE,
             EntitySetting.INCLUDE_IN_EXPORT);
 
+    public static final List<EntitySetting> DEFAULT_POCKET_SETTINGS = List.of(
+            EntitySetting.CUT_TYPE,
+            EntitySetting.DIRECTION,
+            EntitySetting.START_DEPTH,
+            EntitySetting.TARGET_DEPTH,
+            EntitySetting.SPINDLE_SPEED,
+            EntitySetting.FEED_RATE,
+            EntitySetting.INCLUDE_IN_EXPORT);
+
     public static final List<EntitySetting> DEFAULT_SURFACE_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
+            EntitySetting.TOOL_PATH_ANGLE,
             EntitySetting.START_DEPTH,
             EntitySetting.TARGET_DEPTH,
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.FEED_RATE,
             EntitySetting.LEAD_IN_PERCENT,
-            EntitySetting.INCLUDE_IN_EXPORT,
-            EntitySetting.TOOL_PATH_DIRECTION);
+            EntitySetting.INCLUDE_IN_EXPORT);
 
     public static final List<EntitySetting> DEFAULT_LASER_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,

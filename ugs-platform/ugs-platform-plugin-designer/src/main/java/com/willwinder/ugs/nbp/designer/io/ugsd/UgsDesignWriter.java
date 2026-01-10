@@ -16,6 +16,7 @@ import com.willwinder.ugs.nbp.designer.io.DesignWriterException;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.CutTypeV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.CuttableEntityV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.DesignV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.DirectionTypeV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityEllipseV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityGroupV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathSegmentV1;
@@ -108,7 +109,8 @@ public class UgsDesignWriter implements DesignWriter {
             cuttableEntity.setPasses(cuttable.getPasses());
             cuttableEntity.setFeedRate(cuttable.getFeedRate());
             cuttableEntity.setLeadInPercent(cuttable.getLeadInPercent());
-            cuttableEntity.setToolPathDirection(cuttable.getToolPathDirection());
+            cuttableEntity.setToolPathAngle(cuttable.getToolPathAngle());
+            cuttableEntity.setDirection(DirectionTypeV1.fromDirection(cuttable.getDirection()));
         }
         return result;
     }
