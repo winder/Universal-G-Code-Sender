@@ -55,6 +55,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private boolean isHidden = false;
     private boolean includeInExport = true;
     private double toolPathDirection;
+    private Direction direction = Direction.CLIMB;
 
     protected AbstractCuttable() {
         this(0, 0);
@@ -192,7 +193,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             Rectangle2D bounds = surfacingShape.getBounds2D();
             double cx = bounds.getCenterX();
             double cy = bounds.getCenterY();
-            double angleDeg = getToolPathDirection();
+            double angleDeg = getToolPathAngle();
             double arrowLength = Math.min(shape.getBounds2D().getWidth(), shape.getBounds2D().getHeight());
             drawArrow(drawing, graphics, cx, cy, angleDeg, arrowLength);
         } else if (getCutType() == CutType.INSIDE_PATH || getCutType() == CutType.ON_PATH || getCutType() == CutType.OUTSIDE_PATH) {
@@ -309,7 +310,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
                 EntitySetting.PASSES,
                 EntitySetting.FEED_RATE,
                 EntitySetting.LEAD_IN_PERCENT,
-                EntitySetting.TOOL_PATH_DIRECTION,
+                EntitySetting.TOOL_PATH_ANGLE,
+                EntitySetting.DIRECTION,
                 EntitySetting.INCLUDE_IN_EXPORT
         );
     }
@@ -347,7 +349,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         copy.setPasses(getPasses());
         copy.setHidden(isHidden());
         copy.setIncludeInExport(getIncludeInExport());
-        copy.setToolPathDirection(getToolPathDirection());
+        copy.setDirection(getDirection());
+        copy.setToolPathAngle(getToolPathAngle());
     }
 
     @Override
@@ -372,13 +375,24 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     }
 
     @Override
-    public double getToolPathDirection() {
+    public double getToolPathAngle() {
         return toolPathDirection;
     }
 
     @Override
-    public void setToolPathDirection(double toolPathDirection) {
+    public void setToolPathAngle(double toolPathDirection) {
         this.toolPathDirection = toolPathDirection % 360;
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public Direction getDirection() {
+        return this.direction;
+    }
+
+    @Override
+    public void setDirection(Direction direction) {
+        this.direction = direction;
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 }

@@ -184,18 +184,18 @@ public class Group extends EntityGroup implements Cuttable {
     }
 
     @Override
-    public void setToolPathDirection(double toolPathDirection) {
+    public void setToolPathAngle(double toolPathDirection) {
         getChildren().forEach(child -> {
             if (child instanceof Cuttable cuttable) {
-                cuttable.setToolPathDirection(toolPathDirection);
+                cuttable.setToolPathAngle(toolPathDirection);
             }
         });
     }
 
     @Override
-    public double getToolPathDirection() {
+    public double getToolPathAngle() {
         return getCuttableStream()
-                .mapToDouble(Cuttable::getToolPathDirection)
+                .mapToDouble(Cuttable::getToolPathAngle)
                 .max()
                 .orElse(0);
     }
@@ -221,6 +221,23 @@ public class Group extends EntityGroup implements Cuttable {
         getChildren().forEach(child -> {
             if (child instanceof Cuttable cuttable) {
                 cuttable.setHidden(hidden);
+            }
+        });
+    }
+
+    @Override
+    public Direction getDirection() {
+        return getCuttableStream()
+                .findFirst()
+                .map(Cuttable::getDirection)
+                .orElse(Direction.CLIMB);
+    }
+
+    @Override
+    public void setDirection(Direction direction) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setDirection(direction);
             }
         });
     }
@@ -300,11 +317,16 @@ public class Group extends EntityGroup implements Cuttable {
             result.remove(EntitySetting.INCLUDE_IN_EXPORT);
         }
 
-        if (getCuttableStream().map(Cuttable::getIncludeInExport).distinct().toList().size() > 1) {
+        if (getCuttableStream().map(Cuttable::getToolPathAngle).distinct().toList().size() > 1) {
             result = new ArrayList<>(result);
-            result.remove(EntitySetting.TOOL_PATH_DIRECTION);
+            result.remove(EntitySetting.TOOL_PATH_ANGLE);
         }
-        
+
+        if (getCuttableStream().map(Cuttable::getDirection).distinct().toList().size() > 1) {
+            result = new ArrayList<>(result);
+            result.remove(EntitySetting.DIRECTION);
+        }
+
         return result;
     }
 }

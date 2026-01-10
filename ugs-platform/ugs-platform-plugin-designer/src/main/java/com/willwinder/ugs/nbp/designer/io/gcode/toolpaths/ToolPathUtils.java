@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
 import com.willwinder.universalgcodesender.model.CNCPoint;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -84,8 +85,12 @@ public class ToolPathUtils {
                 .toList();
     }
 
-    public static List<PartialPosition> geometryToCoordinates(Geometry geometry, double depth) {
+    public static List<PartialPosition> geometryToCoordinates(Geometry geometry, double depth, boolean clockwise) {
         org.locationtech.jts.geom.Coordinate[] coordinates = geometry.getCoordinates();
+        if (!clockwise) {
+            ArrayUtils.reverse(coordinates);
+        }
+
         return Arrays.stream(coordinates)
                 .map(c -> toPartialPosition(c, depth))
                 .toList();
@@ -245,6 +250,10 @@ public class ToolPathUtils {
     }
 
     public static void addGeometriesToCoordinatesList(Geometry shell, List<Geometry> geometries, List<List<PartialPosition>> coordinateList, double currentDepth) {
+        addGeometriesToCoordinatesList(shell, geometries, coordinateList, currentDepth, true);
+    }
+
+    public static void addGeometriesToCoordinatesList(Geometry shell, List<Geometry> geometries, List<List<PartialPosition>> coordinateList, double currentDepth, boolean clockwise) {
         Geometry previousGeometry = null;
         List<PartialPosition> geometryLine = new ArrayList<>();
         for (int x = 0; x < geometries.size(); x++) {
@@ -258,7 +267,9 @@ public class ToolPathUtils {
                     geometry = rotateCoordinates(linearRing, newStartIndex);
                 }
 
-                Coordinate firstCoordinate = geometry.getCoordinates()[0];
+                Coordinate[] coordinates = geometry.getCoordinates();
+
+                Coordinate firstCoordinate = coordinates[0];
                 PartialPosition nextPosition = toPartialPosition(firstCoordinate, currentDepth);
 
                 LineString lineString = ToolPathUtils.createLineString(fromPosition, nextPosition);
@@ -268,7 +279,7 @@ public class ToolPathUtils {
                 }
             }
 
-            geometryLine.addAll(geometryToCoordinates(geometry, currentDepth));
+            geometryLine.addAll(geometryToCoordinates(geometry, currentDepth, clockwise));
             previousGeometry = geometry;
         }
 

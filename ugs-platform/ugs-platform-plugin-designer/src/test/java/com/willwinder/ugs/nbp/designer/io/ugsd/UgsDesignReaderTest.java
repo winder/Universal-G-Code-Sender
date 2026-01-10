@@ -4,6 +4,7 @@ import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
@@ -121,6 +122,7 @@ public class UgsDesignReaderTest {
         entity.setName("ellipse");
         entity.setTargetDepth(12);
         entity.setCutType(CutType.POCKET);
+        entity.setDirection(Direction.CONVENTIONAL);
         String data = convertEntityToString(entity);
 
         UgsDesignReader reader = new UgsDesignReader();
@@ -140,6 +142,7 @@ public class UgsDesignReaderTest {
         assertEquals(entity.getSize().getWidth(), readEntity.getSize().getWidth(), 0.1);
         assertEquals(entity.getSize().getHeight(), readEntity.getSize().getHeight(), 0.1);
         assertEquals(entity.getRotation(), readEntity.getRotation(), 0.1);
+        assertEquals(entity.getDirection(), readEntity.getDirection());
     }
 
     @Test

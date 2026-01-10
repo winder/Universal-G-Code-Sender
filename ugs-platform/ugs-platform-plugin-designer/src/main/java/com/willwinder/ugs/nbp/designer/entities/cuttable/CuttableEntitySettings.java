@@ -23,7 +23,8 @@ public class CuttableEntitySettings {
             case FEED_RATE -> Optional.of(cuttable.getFeedRate());
             case LEAD_IN_PERCENT -> Optional.of(cuttable.getLeadInPercent());
             case INCLUDE_IN_EXPORT -> Optional.of(cuttable.getIncludeInExport());
-            case TOOL_PATH_DIRECTION -> Optional.of(cuttable.getToolPathDirection());
+            case TOOL_PATH_ANGLE -> Optional.of(cuttable.getToolPathAngle());
+            case DIRECTION -> Optional.of(cuttable.getDirection());
             default -> Optional.empty();
         };
     }
@@ -38,7 +39,8 @@ public class CuttableEntitySettings {
             case FEED_RATE -> cuttable.setFeedRate(((Double) value).intValue());
             case LEAD_IN_PERCENT -> cuttable.setLeadInPercent((Integer) value);
             case INCLUDE_IN_EXPORT -> cuttable.setIncludeInExport((Boolean) value);
-            case TOOL_PATH_DIRECTION -> cuttable.setToolPathDirection((Double) value);
+            case TOOL_PATH_ANGLE -> cuttable.setToolPathAngle((Double) value);
+            case DIRECTION -> cuttable.setDirection((Direction) value);
             default -> LOGGER.info("Do not know how to set " + entitySetting + " to " + value);
         }
     }

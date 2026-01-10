@@ -2,6 +2,7 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
@@ -12,6 +13,7 @@ import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -76,6 +78,83 @@ public class PocketToolPathTest {
 
         PartialPosition point = drillOperations.get(drillOperations.size() - 1).getPoint();
         assertEquals("Last operation should reach the target depth", -targetDepth, point.getAxis(Axis.Z), 0.1);
+    }
+
+    @Test
+    public void pocketDirectionClimb() {
+        double toolRadius = 2.5;
+        double geometrySize = 10d;
+        double safeHeight = 1;
+        double targetDepth = 1;
+
+        Rectangle rectangle = new Rectangle();
+        rectangle.setSize(new Size(geometrySize, geometrySize));
+        rectangle.setDirection(Direction.CLIMB);
+
+        Settings settings = new Settings();
+        settings.setSafeHeight(safeHeight);
+        settings.setToolStepOver(1);
+        settings.setToolDiameter(toolRadius * 2);
+        settings.setDepthPerPass(1);
+
+
+        PocketToolPath simplePocket = new PocketToolPath(settings, rectangle);
+        simplePocket.setTargetDepth(targetDepth);
+
+        List<Segment> segmentList = simplePocket.toGcodePath().getSegments();
+
+
+        assertEquals(SegmentType.SEAM, segmentList.get(0).getType());
+        assertSegment(segmentList.get(1), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build());
+        assertSegment(segmentList.get(2), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).build());
+        assertSegment(segmentList.get(3), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build());
+        assertSegment(segmentList.get(4), SegmentType.POINT, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build());
+        assertSegment(segmentList.get(5), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build());
+        assertSegment(segmentList.get(6), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(7.5).setZ(-0d).build());
+        assertSegment(segmentList.get(7), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(7.5).setZ(-0d).build());
+        assertSegment(segmentList.get(8), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(2.5).setZ(-0d).build());
+    }
+
+    @Test
+    public void pocketDirectionConventional() {
+        double toolRadius = 2.5;
+        double geometrySize = 10d;
+        double safeHeight = 1;
+        double targetDepth = 1;
+
+        Rectangle rectangle = new Rectangle();
+        rectangle.setSize(new Size(geometrySize, geometrySize));
+        rectangle.setDirection(Direction.CONVENTIONAL);
+
+        Settings settings = new Settings();
+        settings.setSafeHeight(safeHeight);
+        settings.setToolStepOver(1);
+        settings.setToolDiameter(toolRadius * 2);
+        settings.setDepthPerPass(1);
+
+
+        PocketToolPath simplePocket = new PocketToolPath(settings, rectangle);
+        simplePocket.setTargetDepth(targetDepth);
+
+        List<Segment> segmentList = simplePocket.toGcodePath().getSegments();
+
+
+        assertEquals(SegmentType.SEAM, segmentList.get(0).getType());
+        assertSegment(segmentList.get(1), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build());
+        assertSegment(segmentList.get(2), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).build());
+        assertSegment(segmentList.get(3), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build());
+        assertSegment(segmentList.get(4), SegmentType.POINT, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build());
+        assertSegment(segmentList.get(5), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build());
+        assertSegment(segmentList.get(6), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(2.5).setZ(-0d).build());
+        assertSegment(segmentList.get(7), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(7.5).setZ(-0d).build());
+        assertSegment(segmentList.get(8), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(7.5).setZ(-0d).build());
+    }
+
+
+    private void assertSegment(Segment segment, SegmentType segmentType, PartialPosition partialPosition) {
+        assertEquals(segmentType, segment.getType());
+        assertEquals(UnitUtils.Units.MM, segment.getPoint().getUnits());
+        assertEquals(partialPosition, segment.getPoint());
     }
 
 

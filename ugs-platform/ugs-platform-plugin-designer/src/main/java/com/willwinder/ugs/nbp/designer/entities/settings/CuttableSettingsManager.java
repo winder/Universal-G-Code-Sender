@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities.settings;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
 import org.openide.util.lookup.ServiceProvider;
 
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ public class CuttableSettingsManager implements EntitySettingsManager {
             case FEED_RATE -> cuttable.getFeedRate();
             case LEAD_IN_PERCENT -> cuttable.getLeadInPercent();
             case INCLUDE_IN_EXPORT -> cuttable.getIncludeInExport();
+            case DIRECTION -> cuttable.getDirection();
             default -> null;
         };
     }
@@ -122,9 +124,14 @@ public class CuttableSettingsManager implements EntitySettingsManager {
                     cuttable.setIncludeInExport(include);
                 }
             }
-            case TOOL_PATH_DIRECTION -> {
-                if (value instanceof Double toolPathDirection) {
-                    cuttable.setToolPathDirection(toolPathDirection);
+            case TOOL_PATH_ANGLE -> {
+                if (value instanceof Double toolPathAngle) {
+                    cuttable.setToolPathAngle(toolPathAngle);
+                }
+            }
+            case DIRECTION -> {
+                if (value instanceof Direction direction) {
+                    cuttable.setDirection(direction);
                 }
             }
             default -> LOGGER.info("Do not know how to set " + setting + " to " + value);
