@@ -31,10 +31,15 @@ public class DirectionIcon extends ImageIcon {
                 setDescription(direction.getLabel());
                 break;
             case CONVENTIONAL:
-            default:
                 icon = ImageUtilities.loadImageIcon("img/direction-conventional" + size.value + ".svg", false);
                 setDescription(direction.getLabel());
                 break;
+            case BOTH:
+            default:
+                icon = ImageUtilities.loadImageIcon("img/direction-both" + size.value + ".svg", false);
+                setDescription(direction.getLabel());
+                break;
+
         }
     }
 

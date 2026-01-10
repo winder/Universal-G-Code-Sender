@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.GeometryUtils;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
@@ -37,6 +38,11 @@ import java.awt.geom.Rectangle2D;
 public class SurfaceToolPath extends AbstractToolPath {
     private final Cuttable source;
     private final double toolPathAngle;
+
+    private enum PassDirection {
+        FORWARD,
+        REVERSE
+    }
 
     public SurfaceToolPath(Settings settings, Cuttable source) {
         super(settings);
@@ -74,21 +80,121 @@ public class SurfaceToolPath extends AbstractToolPath {
     }
 
     private void addGeometriesToGcodePath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, double stepOver) {
-        double currentY = envelope.getMinY() - envelope.getHeight();
+        Direction direction = source.getDirection();
+        if (direction == Direction.CLIMB) {
+            generateClimbPath(gcodePath, settings, envelope, currentDepth, stepOver);
+        } else if (direction == Direction.CONVENTIONAL) {
+            generateConventinalPath(gcodePath, settings, envelope, currentDepth, stepOver);
+        } else if (direction == Direction.BOTH) {
+            generateBothPath(gcodePath, settings, envelope, currentDepth, stepOver);
+        }
+    }
 
-        while (currentY < envelope.getMaxY() + envelope.getHeight()) {
-            addLineSegment(gcodePath, settings, envelope, currentDepth, currentY);
+    private void generateBothPath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, double stepOver) {
+        boolean reverse = false;
+        boolean isFirstSegment = true;
+        double currentY = envelope.getMinY() - (envelope.getHeight() * 2);
+        while (currentY < envelope.getMaxY() + (envelope.getHeight() * 2)) {
+            if (addReversibleLineSegment(gcodePath, settings, envelope, currentDepth, currentY, reverse ? PassDirection.REVERSE : PassDirection.FORWARD, isFirstSegment)) {
+                isFirstSegment = false;
+            }
+            reverse = !reverse;
             currentY += stepOver;
         }
     }
 
-    private void addLineSegment(
+    private void generateConventinalPath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, double stepOver) {
+        double currentY = envelope.getMaxY() + (envelope.getHeight() * 2);
+        while (currentY > envelope.getMinY() - (envelope.getHeight() * 2)) {
+            addSingleLineSegment(gcodePath, settings, envelope, currentDepth, currentY);
+            currentY -= stepOver;
+        }
+    }
+
+    private void generateClimbPath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, double stepOver) {
+        double currentY = envelope.getMinY() - (envelope.getHeight() * 2);
+        while (currentY < envelope.getMaxY() + (envelope.getHeight() * 2)) {
+            addSingleLineSegment(gcodePath, settings, envelope, currentDepth, currentY);
+            currentY += stepOver;
+        }
+    }
+
+    private void addSingleLineSegment(
             GcodePath gcodePath,
             Settings settings,
             Envelope envelope,
             double currentDepth,
             double offsetAlongNormal) {
 
+        LineString lineString = generateLineString(envelope, offsetAlongNormal);
+        if (lineString == null) return;
+
+        double safeHeight = calculateSafeHeight(settings);
+        Coordinate startCoord = lineString.getCoordinateN(0);
+        Coordinate endCoord = lineString.getCoordinateN(1);
+
+        PartialPosition start = PartialPosition.builder(UnitUtils.Units.MM)
+                .setX(startCoord.x).setY(startCoord.y).build();
+        PartialPosition end = PartialPosition.builder(UnitUtils.Units.MM)
+                .setX(endCoord.x).setY(endCoord.y).build();
+
+        gcodePath.addSegment(
+                SegmentType.MOVE,
+                PartialPosition.builder(UnitUtils.Units.MM).setZ(safeHeight).build()
+        );
+        gcodePath.addSegment(SegmentType.MOVE, start);
+        gcodePath.addSegment(
+                SegmentType.MOVE,
+                PartialPosition.builder(UnitUtils.Units.MM).setZ(-currentDepth).build()
+        );
+        gcodePath.addSegment(SegmentType.LINE, end, source.getFeedRate());
+    }
+
+    private double calculateSafeHeight(Settings settings) {
+        return (-getStartDepth()) + settings.getSafeHeight();
+    }
+
+    private boolean addReversibleLineSegment(
+            GcodePath gcodePath,
+            Settings settings,
+            Envelope envelope,
+            double currentDepth,
+            double offsetAlongNormal,
+            PassDirection passDirection,
+            boolean isFirstSegment) {
+
+        LineString lineString = generateLineString(envelope, offsetAlongNormal);
+        if (lineString == null) return false;
+
+        Coordinate startCoord = lineString.getCoordinateN(0);
+        Coordinate endCoord = lineString.getCoordinateN(1);
+        if (passDirection == PassDirection.REVERSE) {
+            startCoord = lineString.getCoordinateN(1);
+            endCoord = lineString.getCoordinateN(0);
+        }
+
+        PartialPosition start = PartialPosition.builder(UnitUtils.Units.MM)
+                .setX(startCoord.x).setY(startCoord.y).build();
+        PartialPosition end = PartialPosition.builder(UnitUtils.Units.MM)
+                .setX(endCoord.x).setY(endCoord.y).build();
+
+        if (isFirstSegment) {
+            gcodePath.addSegment(
+                    SegmentType.MOVE,
+                    PartialPosition.builder(UnitUtils.Units.MM).setZ(calculateSafeHeight(settings)).build()
+            );
+        }
+
+        gcodePath.addSegment(isFirstSegment ? SegmentType.MOVE : SegmentType.LINE, start);
+        gcodePath.addSegment(
+                isFirstSegment ? SegmentType.MOVE : SegmentType.LINE,
+                PartialPosition.builder(UnitUtils.Units.MM).setZ(-currentDepth).build()
+        );
+        gcodePath.addSegment(SegmentType.LINE, end, source.getFeedRate());
+        return true;
+    }
+
+    private LineString generateLineString(Envelope envelope, double offsetAlongNormal) {
         // Convert angle to radians
         double radians = Math.toRadians(-this.toolPathAngle);
 
@@ -114,29 +220,6 @@ public class SurfaceToolPath extends AbstractToolPath {
 
         LineString lineString = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(sx, sy), new Coordinate(ex, ey)}), GEOMETRY_FACTORY);
         lineString = GeometryUtils.clipLineToEnvelope(lineString, envelope);
-
-        if (lineString == null) {
-            return;
-        }
-
-        double safeHeight = (-getStartDepth()) + settings.getSafeHeight();
-        Coordinate startCoord = lineString.getCoordinateN(0);
-        Coordinate endCoord = lineString.getCoordinateN(1);
-
-        PartialPosition start = PartialPosition.builder(UnitUtils.Units.MM)
-                .setX(startCoord.x).setY(startCoord.y).build();
-        PartialPosition end = PartialPosition.builder(UnitUtils.Units.MM)
-                .setX(endCoord.x).setY(endCoord.y).build();
-
-        gcodePath.addSegment(
-                SegmentType.MOVE,
-                PartialPosition.builder(UnitUtils.Units.MM).setZ(safeHeight).build()
-        );
-        gcodePath.addSegment(SegmentType.MOVE, start);
-        gcodePath.addSegment(
-                SegmentType.MOVE,
-                PartialPosition.builder(UnitUtils.Units.MM).setZ(-currentDepth).build()
-        );
-        gcodePath.addSegment(SegmentType.LINE, end, source.getFeedRate());
+        return lineString;
     }
 }

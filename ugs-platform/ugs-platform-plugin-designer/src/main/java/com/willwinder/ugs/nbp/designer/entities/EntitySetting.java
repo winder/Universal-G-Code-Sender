@@ -78,6 +78,7 @@ public enum EntitySetting {
 
     public static final List<EntitySetting> DEFAULT_SURFACE_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
+            EntitySetting.DIRECTION,
             EntitySetting.TOOL_PATH_ANGLE,
             EntitySetting.START_DEPTH,
             EntitySetting.TARGET_DEPTH,

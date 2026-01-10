@@ -39,15 +39,15 @@ import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Container;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 public class SelectionSettingsPanel extends JPanel implements SelectionListener, EntityListener, EntitySettingsModelListener {
     private transient Controller controller;
     private final JPanel contentPanel;
-    private final List<EntitySettingsPanel> availableComponents = new ArrayList<>();
-    private final List<ComponentWithListener> activeComponents = new ArrayList<>();
+    private final List<EntitySettingsPanel> availableComponents = new LinkedList<>();
+    private final List<ComponentWithListener> activeComponents = new LinkedList<>();
 
     // New layered model architecture
     private TransformSettingsModel currentModel;

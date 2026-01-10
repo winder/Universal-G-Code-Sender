@@ -25,12 +25,14 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
  */
 public enum DirectionTypeV1 {
     CLIMB,
-    CONVENTIONAL;
+    CONVENTIONAL,
+    BOTH;
 
     public static DirectionTypeV1 fromDirection(Direction direction) {
         return switch (direction) {
             case CLIMB -> CLIMB;
             case CONVENTIONAL -> CONVENTIONAL;
+            case BOTH -> BOTH;
         };
     }
 
@@ -42,6 +44,7 @@ public enum DirectionTypeV1 {
         return switch (direction) {
             case CLIMB -> Direction.CLIMB;
             case CONVENTIONAL -> Direction.CONVENTIONAL;
+            case BOTH -> Direction.BOTH;
         };
     }
 }
