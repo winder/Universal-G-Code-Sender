@@ -196,6 +196,9 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             double angleDeg = getToolPathAngle();
             double arrowLength = Math.min(shape.getBounds2D().getWidth(), shape.getBounds2D().getHeight());
             drawArrow(drawing, graphics, cx, cy, angleDeg, arrowLength);
+            if (getDirection() == Direction.BOTH) {
+                drawArrow(drawing, graphics, cx, cy, angleDeg + 180, arrowLength);
+            }
         } else if (getCutType() == CutType.INSIDE_PATH || getCutType() == CutType.ON_PATH || getCutType() == CutType.OUTSIDE_PATH) {
             drawShape(graphics, new BasicStroke(strokeWidth), getCutColor(), shape);
         } else if (getCutType() == CutType.LASER_ON_PATH) {

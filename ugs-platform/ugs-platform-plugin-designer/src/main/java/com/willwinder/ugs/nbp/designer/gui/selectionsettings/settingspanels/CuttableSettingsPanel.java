@@ -254,6 +254,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     }
 
     private void updateLabelsForCutType(CutType cutType) {
+        directionCombo.setDirections(cutType.getDirections());
+
         for (Component comp : getComponents()) {
             if (comp instanceof JLabel label && ("Spindle Speed".equals(label.getText()) || "Power".equals(label.getText()))) {
                 label.setText((cutType == CutType.LASER_FILL || cutType == CutType.LASER_ON_PATH) ? "Power" : "Spindle Speed");

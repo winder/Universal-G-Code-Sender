@@ -26,6 +26,7 @@ import javax.swing.JList;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * A combo box for selecting a cut direction
@@ -52,5 +53,12 @@ public class DirectionCombo extends JComboBox<Direction> {
 
     public Direction getSelectedDirection() {
         return (Direction) getSelectedItem();
+    }
+
+    public void setDirections(List<Direction> directions) {
+        Direction selectedDirection = getSelectedDirection();
+        removeAllItems();
+        directions.forEach(this::addItem);
+        setSelectedItem(selectedDirection);
     }
 }
