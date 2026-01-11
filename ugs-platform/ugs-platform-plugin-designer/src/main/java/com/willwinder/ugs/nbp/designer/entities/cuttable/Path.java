@@ -100,10 +100,14 @@ public class Path extends AbstractCuttable {
         int numberOfCompunds = 0;
         double[] params = new double[6];
         while (!pathIterator.isDone() && numberOfCompunds <= 1) {
-            pathIterator.next();
-            int type = pathIterator.currentSegment(params);
-            if (type == PathIterator.SEG_CLOSE) {
-                numberOfCompunds++;
+            try {
+                pathIterator.next();
+                int type = pathIterator.currentSegment(params);
+                if (type == PathIterator.SEG_CLOSE) {
+                    numberOfCompunds++;
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                break;
             }
         }
         return numberOfCompunds > 1;

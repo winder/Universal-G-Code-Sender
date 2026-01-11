@@ -48,6 +48,7 @@ import com.willwinder.ugs.nbp.designer.actions.SubtractAction;
 import com.willwinder.ugs.nbp.designer.actions.ToggleHidden;
 import com.willwinder.ugs.nbp.designer.actions.ToolClipartAction;
 import com.willwinder.ugs.nbp.designer.actions.ToolDrawCircleAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolDrawLineAction;
 import com.willwinder.ugs.nbp.designer.actions.ToolDrawPointAction;
 import com.willwinder.ugs.nbp.designer.actions.ToolDrawRectangleAction;
 import com.willwinder.ugs.nbp.designer.actions.ToolDrawTextAction;
@@ -276,6 +277,7 @@ public class ToolBox extends ToolBar {
         addDropDownAction(popupMenu, new ToolDrawCircleAction(), toolMenuListener);
         addDropDownAction(popupMenu, new ToolDrawPointAction(), toolMenuListener);
         addDropDownAction(popupMenu, new ToolDrawTextAction(), toolMenuListener);
+        addDropDownAction(popupMenu, new ToolDrawLineAction(), toolMenuListener);
         popupMenu.addSeparator();
         addDropDownAction(popupMenu, new ToolImportAction(), null);
         addDropDownAction(popupMenu, new ToolClipartAction(), null);
