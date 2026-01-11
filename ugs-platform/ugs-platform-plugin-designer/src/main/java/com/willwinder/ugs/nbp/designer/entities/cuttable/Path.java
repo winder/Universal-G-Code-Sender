@@ -19,9 +19,11 @@
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EntityException;
+import com.willwinder.ugs.nbp.designer.entities.EventType;
 
-import java.awt.*;
+import java.awt.Shape;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -120,11 +122,7 @@ public class Path extends AbstractCuttable {
     }
 
     public void setShape(Path2D shape) {
-        try {
-            shape.transform(getTransform().createInverse());
-            this.shape = shape;
-        } catch (NoninvertibleTransformException e) {
-            throw new RuntimeException(e);
-        }
+        this.shape = shape;
+        notifyEvent(new EntityEvent(this, EventType.PATH_CHANGED));
     }
 }
