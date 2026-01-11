@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2026 Will Winder
+    Copyright 2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,11 +16,36 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.logic;
+package com.willwinder.ugs.nbp.designer.model.path;
+
+import java.awt.geom.Point2D;
 
 /**
+ * A segment to be used in a editable path
+ *
  * @author Joacim Breiler
  */
-public enum Tool {
-    POINT, CIRCLE, RECTANGLE, LINE, SELECT, INSERT, TEXT, ZOOM, VERTEX
+public class Segment {
+    private final SegmentType type;
+    private final Point2D[] points;
+
+    public Segment(SegmentType type, Point2D[] points) {
+        this.type = type;
+        this.points = points;
+    }
+
+    public SegmentType getType() {
+        return type;
+    }
+
+    public Point2D[] getPoints() {
+        return points;
+    }
+
+    public Point2D getPoint(int index) {
+        if (index >= points.length) {
+            return new Point2D.Double();
+        }
+        return points[index];
+    }
 }

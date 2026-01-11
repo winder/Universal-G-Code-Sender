@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2024 Will Winder
+    Copyright 2021-2026 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbp.designer.gui;
 
 import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.Throttler;
-import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.Control;
@@ -33,9 +32,10 @@ import com.willwinder.ugs.nbp.designer.entities.controls.GridControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.HighlightModelControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.ISnapToGridListener;
 import com.willwinder.ugs.nbp.designer.entities.controls.MoveControl;
-import com.willwinder.ugs.nbp.designer.entities.controls.ResizeControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.ResizeControlGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.RotationControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.SelectionControl;
+import com.willwinder.ugs.nbp.designer.entities.controls.VertexControlGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.ZoomControl;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -82,8 +82,6 @@ public class Drawing extends JPanel implements ISnapToGridListener {
     private Dimension oldMinimumSize;
     private transient DropHandler dropHandler;
     private transient DropTarget dropTarget;
-
-    private double gridSize = 1.0;
     
     public Drawing(Controller controller) {
         refreshThrottler = new Throttler(this::refresh, 1000);
@@ -98,15 +96,8 @@ public class Drawing extends JPanel implements ISnapToGridListener {
 
         controlsRoot = new EntityGroup();
         globalRoot.addChild(controlsRoot);
-        controlsRoot.addChild(new ResizeControl(controller, Anchor.TOP_CENTER));
-        controlsRoot.addChild(new ResizeControl(controller, Anchor.LEFT_CENTER));
-        controlsRoot.addChild(new ResizeControl(controller, Anchor.RIGHT_CENTER));
-        controlsRoot.addChild(new ResizeControl(controller, Anchor.BOTTOM_CENTER));
-        controlsRoot.addChild(new ResizeControl(controller, Anchor.BOTTOM_LEFT));
-        controlsRoot.addChild(new ResizeControl(controller, Anchor.BOTTOM_RIGHT));
-        controlsRoot.addChild(new ResizeControl(controller, Anchor.TOP_LEFT));
-        controlsRoot.addChild(new ResizeControl(controller, Anchor.TOP_RIGHT));
-        controlsRoot.addChild(new HighlightModelControl(controller.getSelectionManager()));
+        controlsRoot.addChild(new ResizeControlGroup(controller));
+        controlsRoot.addChild(new HighlightModelControl(controller));
         controlsRoot.addChild(new MoveControl(controller));
         controlsRoot.addChild(new RotationControl(controller));
         controlsRoot.addChild(new SelectionControl(controller));
@@ -116,6 +107,7 @@ public class Drawing extends JPanel implements ISnapToGridListener {
         controlsRoot.addChild(new CreateTextControl(controller));
         controlsRoot.addChild(new EditTextControl(controller));
         controlsRoot.addChild(new ZoomControl(controller));
+        controlsRoot.addChild(new VertexControlGroup(controller));
 
         setFocusable(true);
         setBackground(Colors.BACKGROUND);
@@ -141,28 +133,27 @@ public class Drawing extends JPanel implements ISnapToGridListener {
                (int)Math.ceil(getPreferredSize().height) ,
                 BufferedImage.TYPE_INT_RGB);
         
-        Graphics g = bi.createGraphics();
+        Graphics2D g = bi.createGraphics();
         g.setClip(0, 0,bi.getWidth(),bi.getHeight());
  
-        Graphics2D g2 = (Graphics2D) g;
-        AffineTransform previousTransform = g2.getTransform();
+        AffineTransform previousTransform = g.getTransform();
 
-        AffineTransform affineTransform = new AffineTransform(g2.getTransform());
+        AffineTransform affineTransform = new AffineTransform(g.getTransform());
         AffineTransform midForm = AffineTransform.getScaleInstance(1, -1);
         midForm.translate(0, -getPreferredSize().height);
         midForm.scale(scale, scale);
         affineTransform.concatenate(midForm);
         
-        g2.setTransform(affineTransform);
+        g.setTransform(affineTransform);
 
-        RenderingHints rh = ((Graphics2D) g).getRenderingHints();
+        RenderingHints rh = g.getRenderingHints();
         rh.put(KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         rh.put(KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         rh.put(KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         rh.put(KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2.setRenderingHints(rh);
-        globalRoot.render(g2, this);
-        g2.setTransform(previousTransform);
+        g.setRenderingHints(rh);
+        globalRoot.render(g, this);
+        g.setTransform(previousTransform);
         
         return bi;
     }
@@ -344,7 +335,6 @@ public class Drawing extends JPanel implements ISnapToGridListener {
 
     @Override
     public void snapToGridUpdated(double aNewValue) {
-        this.gridSize = aNewValue;
         for ( Entity ctrl : this.controlsRoot.getAllChildren() ) {
             if (ctrl instanceof ISnapToGridListener iSnapToGridListener) {
                 iSnapToGridListener.snapToGridUpdated(aNewValue);

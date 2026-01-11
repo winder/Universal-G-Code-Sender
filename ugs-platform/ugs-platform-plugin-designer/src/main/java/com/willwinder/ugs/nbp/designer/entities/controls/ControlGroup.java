@@ -19,45 +19,49 @@
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
-import com.willwinder.ugs.nbp.designer.gui.Colors;
+import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.Tool;
 
-import java.awt.BasicStroke;
+import java.awt.Cursor;
 import java.awt.Graphics2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.util.Optional;
 
-public class HighlightModelControl extends AbstractControl {
-    private final Controller controller;
+/**
+ * A control group that can wrap multiple controls
+ *
+ * @author Joacim Breiler
+ */
+public class ControlGroup extends EntityGroup implements Control {
 
-    public HighlightModelControl(Controller controller) {
-        super(controller.getSelectionManager());
+    protected final Controller controller;
+
+    public ControlGroup(Controller controller) {
         this.controller = controller;
     }
 
     @Override
     public void render(Graphics2D graphics, Drawing drawing) {
-        if (getSelectionManager().getSelection().isEmpty() || controller.getTool() != Tool.SELECT) {
-            return;
-        }
-
-        // Draw the bounds
-        graphics.setColor(Colors.CONTROL_BORDER);
-        graphics.setStroke(new BasicStroke((float) (0.8f / drawing.getScale())));
-        Rectangle2D bounds = getRelativeShape().getBounds2D();
-        bounds.setFrame(bounds.getX() , bounds.getY() , bounds.getWidth(), bounds.getHeight());
-        graphics.draw(getSelectionManager().getTransform().createTransformedShape(bounds));
-    }
-
-    @Override
-    public boolean isWithin(Point2D point) {
-        return false;
+        getChildren()
+                .forEach(c -> c.render(graphics, drawing));
     }
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
-        // Not applicable
+        getChildren().stream()
+                .filter(c -> c instanceof Control)
+                .map(c -> (Control) c)
+                .forEach(c -> c.onEvent(entityEvent));
+    }
+
+    @Override
+    public SelectionManager getSelectionManager() {
+        return controller.getSelectionManager();
+    }
+
+    @Override
+    public Optional<Cursor> getHoverCursor() {
+        return Optional.empty();
     }
 }

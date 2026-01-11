@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2026 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,7 +19,44 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.core.ui.ToolBar;
-import com.willwinder.ugs.nbp.designer.actions.*;
+import com.willwinder.ugs.nbp.designer.actions.AlignBottomAction;
+import com.willwinder.ugs.nbp.designer.actions.AlignCenterAction;
+import com.willwinder.ugs.nbp.designer.actions.AlignLeftAction;
+import com.willwinder.ugs.nbp.designer.actions.AlignMiddleAction;
+import com.willwinder.ugs.nbp.designer.actions.AlignRightAction;
+import com.willwinder.ugs.nbp.designer.actions.AlignTopAction;
+import com.willwinder.ugs.nbp.designer.actions.BreakApartAction;
+import com.willwinder.ugs.nbp.designer.actions.FlipHorizontallyAction;
+import com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction;
+import com.willwinder.ugs.nbp.designer.actions.IntersectionAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToCenterAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToLowerLeftCornerAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToLowerRightCornerAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToNextAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToPreviousAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToTopLeftCornerAction;
+import com.willwinder.ugs.nbp.designer.actions.JogMachineToTopRightCornerAction;
+import com.willwinder.ugs.nbp.designer.actions.MultiplyAction;
+import com.willwinder.ugs.nbp.designer.actions.OffsetAction;
+import com.willwinder.ugs.nbp.designer.actions.SnapToGridFiveAction;
+import com.willwinder.ugs.nbp.designer.actions.SnapToGridHalfAction;
+import com.willwinder.ugs.nbp.designer.actions.SnapToGridNoneAction;
+import com.willwinder.ugs.nbp.designer.actions.SnapToGridOneAction;
+import com.willwinder.ugs.nbp.designer.actions.SnapToGridTenAction;
+import com.willwinder.ugs.nbp.designer.actions.SnapToGridTwoAction;
+import com.willwinder.ugs.nbp.designer.actions.SubtractAction;
+import com.willwinder.ugs.nbp.designer.actions.ToggleHidden;
+import com.willwinder.ugs.nbp.designer.actions.ToolClipartAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolDrawCircleAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolDrawPointAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolDrawRectangleAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolDrawTextAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolImportAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolSelectAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolVertextAction;
+import com.willwinder.ugs.nbp.designer.actions.ToolZoomAction;
+import com.willwinder.ugs.nbp.designer.actions.TraceImageAction;
+import com.willwinder.ugs.nbp.designer.actions.UnionAction;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import org.openide.awt.DropDownButtonFactory;
@@ -52,6 +89,12 @@ public class ToolBox extends ToolBar {
         select.setText("");
         select.setToolTipText("Select and move shapes");
         add(select);
+
+        JToggleButton vertex = new JToggleButton(new ToolVertextAction());
+        vertex.setSelected(false);
+        vertex.setText("");
+        vertex.setToolTipText("Manipulate vector points");
+        add(vertex);
 
         add(createToolDropDownButton());
 
@@ -127,6 +170,7 @@ public class ToolBox extends ToolBar {
 
         ButtonGroup buttons = new ButtonGroup();
         buttons.add(select);
+        buttons.add(vertex);
         buttons.add(toolDropDownButton);
         buttons.add(zoom);
         
@@ -135,21 +179,26 @@ public class ToolBox extends ToolBar {
         controller.addListener(event -> {
             if (event == ControllerEventType.TOOL_SELECTED) {
                 buttons.clearSelection();
-                controller.getSelectionManager().clearSelection();
                 switch (controller.getTool()) {
                     case SELECT:
                         select.setSelected(true);
+                        break;
+                    case VERTEX:
+                        vertex.setSelected(true);
                         break;
                     case POINT:
                     case RECTANGLE:
                     case CIRCLE:
                     case TEXT:
+                        controller.getSelectionManager().clearSelection();
                         toolDropDownButton.setSelected(true);
                         break;
                     case ZOOM:
+                        controller.getSelectionManager().clearSelection();
                         zoom.setSelected(true);
                         break;
                     default:
+                        controller.getSelectionManager().clearSelection();
                         toolDropDownButton.setSelected(false);
                 }
                 repaint();

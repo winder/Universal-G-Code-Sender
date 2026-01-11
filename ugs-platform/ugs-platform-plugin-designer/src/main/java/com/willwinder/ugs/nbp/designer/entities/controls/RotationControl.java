@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2026 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -30,6 +30,7 @@ import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.nbp.designer.logic.Tool;
 import org.openide.util.ImageUtilities;
 
 import java.awt.Cursor;
@@ -114,12 +115,13 @@ public class RotationControl extends AbstractControl {
     @Override
     public boolean isWithin(Point2D point) {
         return !controller.getSelectionManager().isEmpty() &&
+                controller.getTool() == Tool.SELECT &&
                 super.isWithin(point);
     }
 
     @Override
     public void render(Graphics2D graphics, Drawing drawing) {
-        if (getSelectionManager().getSelection().isEmpty()) {
+        if (getSelectionManager().getSelection().isEmpty() || controller.getTool() != Tool.SELECT) {
             return;
         }
 

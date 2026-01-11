@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2026 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -30,6 +30,7 @@ import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.nbp.designer.logic.Tool;
 
 import java.awt.Cursor;
 import java.awt.Graphics2D;
@@ -62,6 +63,7 @@ public class MoveControl extends SnapToGridControl {
     @Override
     public boolean isWithin(Point2D point) {
         return !controller.getSelectionManager().isEmpty() &&
+                controller.getTool() == Tool.SELECT &&
                 getSelectionManager().getShape().contains(point);
     }
 
@@ -77,7 +79,7 @@ public class MoveControl extends SnapToGridControl {
 
     @Override
     public void render(Graphics2D graphics, Drawing drawing) {
-        if (controller.getSelectionManager().isEmpty()) {
+        if (controller.getSelectionManager().isEmpty() || controller.getTool() != Tool.SELECT) {
             return;
         }
 
@@ -97,8 +99,7 @@ public class MoveControl extends SnapToGridControl {
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
-        if (entityEvent instanceof MouseEntityEvent && entityEvent.getTarget() == this) {
-            MouseEntityEvent mouseShapeEvent = (MouseEntityEvent) entityEvent;
+        if (entityEvent instanceof MouseEntityEvent mouseShapeEvent && entityEvent.getTarget() == this) {
             Point2D mousePosition = mouseShapeEvent.getCurrentMousePosition();
 
             Entity target = getSelectionManager();
