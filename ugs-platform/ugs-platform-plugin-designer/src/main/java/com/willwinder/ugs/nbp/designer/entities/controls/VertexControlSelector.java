@@ -18,11 +18,11 @@
  */
 package com.willwinder.ugs.nbp.designer.entities.controls;
 
-import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
-import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
+import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -42,7 +42,7 @@ import java.util.Optional;
  *
  * @author Joacim Breiler
  */
-public class VertexControlSelector extends AbstractControl implements ControllerListener {
+public class VertexControlSelector extends AbstractControl implements ControllerListener, SelectionListener {
 
     private final VertexControlGroup vertexControlGroup;
     private final Controller controller;
@@ -52,6 +52,8 @@ public class VertexControlSelector extends AbstractControl implements Controller
         this.controller = controller;
         this.controller.addListener(this);
         this.vertexControlGroup = vertexControlGroup;
+
+        controller.getSelectionManager().addSelectionListener(this);
     }
 
     @Override
@@ -76,13 +78,11 @@ public class VertexControlSelector extends AbstractControl implements Controller
     }
 
     private void selectOne(Point2D mousePosition) {
-        Optional<Entity> entitiesAt = controller.getDrawing()
+        Optional<Cuttable> entitiesAt = controller.getDrawing()
                 .getEntitiesAt(mousePosition)
                 .stream()
-                .filter(e -> e != this)
-                .filter(e -> !(e instanceof Control))
-                .filter(e -> !(e instanceof Cuttable && ((Cuttable) e).isHidden()))
-                .filter(e -> e != controller.getSelectionManager())
+                .filter(e -> e instanceof Cuttable)
+                .map(e -> (Cuttable) e)
                 .findFirst();
 
         if (entitiesAt.isEmpty()) {
@@ -90,24 +90,18 @@ public class VertexControlSelector extends AbstractControl implements Controller
             controller.getSelectionManager().clearSelection();
         }
 
-        entitiesAt.ifPresent(entity -> {
-            if (entity instanceof Path path) {
-                controller.getSelectionManager().setSelection(List.of(path));
-
-                createVertexControls(path);
-            }
-        });
+        entitiesAt.ifPresent(entity -> controller.getSelectionManager().setSelection(List.of(entity)));
     }
 
-    private void createVertexControls(Path path) {
+    private void createVertexControls(Cuttable cuttable) {
         vertexControlGroup.removeVertexControls();
 
-        EditablePath editablePath = EditablePath.fromShape(path.getShape());
+        EditablePath editablePath = EditablePath.fromShape(cuttable.getShape());
         editablePath.getSegments().forEach(segment -> {
             for (int p = 0; p < segment.getPoints().length; p++) {
                 VertexControl vc = new VertexControl(
                         controller,
-                        path,
+                        cuttable,
                         editablePath,
                         segment,
                         p
@@ -120,12 +114,27 @@ public class VertexControlSelector extends AbstractControl implements Controller
     @Override
     public void onControllerEvent(ControllerEventType event) {
         if (event == ControllerEventType.TOOL_SELECTED && controller.getTool() == Tool.VERTEX) {
-            System.out.println("Tool selected " + getSelectionManager().getSelection());
-            getSelectionManager().getSelection().stream()
-                    .filter(c -> c instanceof Path)
-                    .map(c -> (Path) c)
+            getSelectionManager().getSelection()
+                    .stream()
+                    .filter(e -> e instanceof Cuttable)
+                    .map(e -> (Cuttable) e)
                     .findFirst()
                     .ifPresent(this::createVertexControls);
         }
+    }
+
+    @Override
+    public void onSelectionEvent(SelectionEvent selectionEvent) {
+        if (controller.getTool() != Tool.VERTEX) {
+            return;
+        }
+
+        getSelectionManager()
+                .getSelection()
+                .stream()
+                .filter(c -> c instanceof Cuttable)
+                .map(p -> (Cuttable) p)
+                .findFirst()
+                .ifPresent(this::createVertexControls);
     }
 }
