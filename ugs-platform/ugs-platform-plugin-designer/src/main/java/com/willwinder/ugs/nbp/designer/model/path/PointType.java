@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2026 Will Winder
+    Copyright 2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,11 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.logic;
+package com.willwinder.ugs.nbp.designer.model.path;
 
 /**
+ * A segment point type
+ *
  * @author Joacim Breiler
  */
-public enum Tool {
-    POINT, CIRCLE, RECTANGLE, LINE, SELECT, INSERT, TEXT, ZOOM, VERTEX
+public enum PointType {
+    COORDINATE,
+    CONTROL_POINT,
 }

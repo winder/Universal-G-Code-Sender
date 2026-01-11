@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2026 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,7 +32,7 @@ import java.awt.geom.Point2D;
  */
 public class Path extends AbstractCuttable {
 
-    private final Path2D.Double shape;
+    private Path2D shape;
 
     public Path() {
         super();
@@ -117,5 +117,14 @@ public class Path extends AbstractCuttable {
 
     public void close() {
         shape.closePath();
+    }
+
+    public void setShape(Path2D shape) {
+        try {
+            shape.transform(getTransform().createInverse());
+            this.shape = shape;
+        } catch (NoninvertibleTransformException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

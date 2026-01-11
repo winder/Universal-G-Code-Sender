@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2026 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,6 +32,7 @@ import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.nbp.designer.logic.Tool;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.Cursor;
@@ -95,6 +96,7 @@ public class ResizeControl extends SnapToGridControl {
     @Override
     public boolean isWithin(Point2D point) {
         return !controller.getSelectionManager().isEmpty() &&
+                controller.getTool() == Tool.SELECT &&
                 super.isWithin(point);
     }
 
@@ -110,7 +112,7 @@ public class ResizeControl extends SnapToGridControl {
 
     @Override
     public void render(Graphics2D graphics, Drawing drawing) {
-        if (getSelectionManager().getSelection().isEmpty()) {
+        if (getSelectionManager().getSelection().isEmpty() || controller.getTool() != Tool.SELECT) {
             return;
         }
 
@@ -217,9 +219,8 @@ public class ResizeControl extends SnapToGridControl {
                 Utils.roundToDecimals(snapToGrid(mousePosition.getY() - getPosition().getY() - startOffset.getY()), decimals)
         );
         Point2D scaleFactor = getScaleFactor(deltaMovement.getX() / size.getWidth(), deltaMovement.getY() / size.getHeight());
-        Size result = new Size(Utils.roundToDecimals((target.getSize().getWidth() * scaleFactor.getX()), decimals), 
-                               Utils.roundToDecimals((target.getSize().getHeight() * scaleFactor.getY()), decimals));        
-        return result;
+        return new Size(Utils.roundToDecimals((target.getSize().getWidth() * scaleFactor.getX()), decimals),
+                               Utils.roundToDecimals((target.getSize().getHeight() * scaleFactor.getY()), decimals));
     }
 
 
