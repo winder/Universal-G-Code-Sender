@@ -519,7 +519,7 @@ public class Settings {
     }
 
     public void setMacros(List<Macro> newMacros) {
-        if (new HashSet<>(this.macros.values()).equals(new HashSet<>(newMacros))) {
+        if (new ArrayList<>(this.macros.values()).equals(new ArrayList<>(newMacros))) {
             return;
         }
 
