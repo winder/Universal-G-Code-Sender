@@ -18,15 +18,21 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
+import com.willwinder.universalgcodesender.types.Macro;
 import static com.willwinder.universalgcodesender.utils.Settings.HISTORY_SIZE;
 import org.assertj.core.api.Assertions;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Joacim Breiler
@@ -125,5 +131,26 @@ public class SettingsTest {
               .hasSize(HISTORY_SIZE)
               .doesNotContain(path + "2")
               .startsWith(path + "11", path + "1");
+    }
+
+    @Test
+    public void setMacrosShouldBeAbleToChangeOrder() {
+        Macro macro1 = new Macro(UUID.randomUUID().toString(), "1", "", "");
+        Macro macro2 = new Macro(UUID.randomUUID().toString(), "1", "", "");
+        Macro macro3 = new Macro(UUID.randomUUID().toString(), "1", "", "");
+        AtomicInteger numberOfChangeEvents = new AtomicInteger();
+
+        target.setMacros(List.of(macro1, macro2, macro3));
+        target.addSettingChangeListener(() -> numberOfChangeEvents.addAndGet(1));
+
+        // Update with same order
+        target.setMacros(List.of(macro1, macro2, macro3));
+        assertEquals(List.of(macro1, macro2, macro3), target.getMacros());
+        assertEquals(0, numberOfChangeEvents.get());
+
+        // Update with new order
+        target.setMacros(List.of(macro2, macro3, macro1));
+        assertEquals(List.of(macro2, macro3, macro1), target.getMacros());
+        assertEquals(1, numberOfChangeEvents.get());
     }
 }
