@@ -22,6 +22,8 @@ It is usually helpful to have the log file from UGS, locations for different typ
         Which UGS version are you using?
       multiple: false
       options:
+        - "2.1.19"
+        - "2.1.18"
         - "2.1.17"
         - "2.1.15"
         - "2.1.14"
