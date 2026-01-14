@@ -186,7 +186,7 @@ public class WizardPanelImportConfigYaml extends AbstractWizardPanel implements 
 
     private void refreshComponents() {
         ControllerState controllerState = getBackend().getControllerState();
-        boolean isConnected = getBackend().isConnected() && (controllerState == ControllerState.IDLE || controllerState == ControllerState.ALARM || controllerState == ControllerState.HOLD);
+        boolean isConnected = isEnabled() && (controllerState == ControllerState.IDLE || controllerState == ControllerState.ALARM || controllerState == ControllerState.HOLD);
         try {
             beginUpdate();
             if (isConnected) {
