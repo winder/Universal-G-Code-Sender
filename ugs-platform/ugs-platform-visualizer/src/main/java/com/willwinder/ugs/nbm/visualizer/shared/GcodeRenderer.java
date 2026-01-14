@@ -216,55 +216,60 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      */
     @Override
     public void init(GLAutoDrawable drawable) {
-        logger.info("Initializing OpenGL context on " + Thread.currentThread());
-        logger.info("Chosen GLCapabilities: " + drawable.getChosenGLCapabilities());
-        logger.info("GL version: " + drawable.getGL().getClass().getName());
-        logger.info(JoglVersion.getGLStrings(drawable.getGL(), null, false).toString());
+        try {
+            logger.info("Initializing OpenGL context on " + Thread.currentThread());
+            logger.info("Chosen GLCapabilities: " + drawable.getChosenGLCapabilities());
+            logger.info("GL version: " + drawable.getGL().getClass().getName());
+            logger.info(JoglVersion.getGLStrings(drawable.getGL(), null, false).toString());
 
-        this.fpsCounter = new FPSCounter(drawable, new Font("SansSerif", Font.BOLD, 12));
-        this.overlay = new Overlay(drawable, new Font("SansSerif", Font.BOLD, 12));
-        this.overlay.setColor(127, 127, 127, 100);
-        this.overlay.setTextLocation(Overlay.LOWER_LEFT);
+            this.fpsCounter = new FPSCounter(drawable, new Font("SansSerif", Font.BOLD, 12));
+            this.overlay = new Overlay(drawable, new Font("SansSerif", Font.BOLD, 12));
+            this.overlay.setColor(127, 127, 127, 100);
+            this.overlay.setTextLocation(Overlay.LOWER_LEFT);
 
-        // Parse random gcode file and generate something to draw.
-        GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
-        glu = new GLU();                         // get GL Utilities
-        gl.glClearColor(clearColor.getRed() / 255f, clearColor.getGreen() / 255f, clearColor.getBlue() / 255f, clearColor.getAlpha() / 255f);
-        gl.glClearDepth(1.0f);      // set clear depth value to farthest
-        gl.glEnable(GL2.GL_BLEND);
-        gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
-        gl.glEnable(GL.GL_DEPTH_TEST);
-        gl.glDepthFunc(GL2.GL_LEQUAL);  // the type of depth test to do
-        gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST); // best perspective correction
+            // Parse random gcode file and generate something to draw.
+            GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
+            glu = new GLU();                         // get GL Utilities
+            gl.glClearColor(clearColor.getRed() / 255f, clearColor.getGreen() / 255f, clearColor.getBlue() / 255f, clearColor.getAlpha() / 255f);
+            gl.glClearDepth(1.0f);      // set clear depth value to farthest
+            gl.glEnable(GL2.GL_BLEND);
+            gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+            gl.glEnable(GL.GL_DEPTH_TEST);
+            gl.glDepthFunc(GL2.GL_LEQUAL);  // the type of depth test to do
+            gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST); // best perspective correction
 
-        // init lighting
-        float[] ambient = {.6f, .6f, .6f, 1.f};
-        float[] diffuse = {.6f, .6f, .6f, 1.0f};
-        float[] position = {0f, 0f, 20f, 1.0f};
+            // init lighting
+            float[] ambient = {.6f, .6f, .6f, 1.f};
+            float[] diffuse = {.6f, .6f, .6f, 1.0f};
+            float[] position = {0f, 0f, 20f, 1.0f};
 
-        gl.glEnable(GL2.GL_LIGHT0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position, 0);
+            gl.glEnable(GL2.GL_LIGHT0);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position, 0);
 
-        // Allow glColor to set colors
-        gl.glEnable(GL2.GL_COLOR_MATERIAL);
-        gl.glColorMaterial(GL.GL_FRONT, GL2.GL_DIFFUSE);
-        gl.glColorMaterial(GL.GL_FRONT, GL2.GL_AMBIENT);
+            // Allow glColor to set colors
+            gl.glEnable(GL2.GL_COLOR_MATERIAL);
+            gl.glColorMaterial(GL.GL_FRONT, GL2.GL_DIFFUSE);
+            gl.glColorMaterial(GL.GL_FRONT, GL2.GL_AMBIENT);
 
-        float diffuseMaterial[] =
-                {0.5f, 0.5f, 0.5f, 1.0f};
+            float diffuseMaterial[] =
+                    {0.5f, 0.5f, 0.5f, 1.0f};
 
-        gl.glMaterialfv(GL.GL_FRONT, GL2.GL_DIFFUSE, diffuseMaterial, 0);
+            gl.glMaterialfv(GL.GL_FRONT, GL2.GL_DIFFUSE, diffuseMaterial, 0);
 
-        gl.glEnable(GL2.GL_LIGHTING);
-        for (Renderable r : objects) {
-            try {
-                r.init(drawable);
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Error while rendering " + r.getTitle() + ", disabling it", e);
-                r.setEnabled(false);
+            gl.glEnable(GL2.GL_LIGHTING);
+            for (Renderable r : objects) {
+                try {
+                    r.init(drawable);
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, "Error while rendering " + r.getTitle() + ", disabling it", e);
+                    r.setEnabled(false);
+                }
             }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Could not initialize gcode renderer", e);
+            throw new RuntimeException(e);
         }
     }
 
