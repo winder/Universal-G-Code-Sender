@@ -6,17 +6,22 @@ import com.jogamp.opengl.util.GLBuffers;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shader.Shader;
 import com.willwinder.ugs.nbm.visualizer.utils.RenderableUtils;
+
 import static com.willwinder.ugs.nbm.visualizer.utils.RenderableUtils.bindVertexBuffer;
+
 import com.willwinder.universalgcodesender.model.Position;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A base class for rendering a vertex buffer object using a shader
  */
 public abstract class VertexObjectRenderable extends Renderable {
+    private static final Logger LOGGER = Logger.getLogger(VertexObjectRenderable.class.getName());
     private double stepSize;
     private final IntBuffer bufferName = GLBuffers.newDirectIntBuffer(Buffer.MAX);
     private final List<Float> vertexList = new ArrayList<>();
@@ -149,6 +154,8 @@ public abstract class VertexObjectRenderable extends Renderable {
 
         try {
             // Use the shader program
+            int program = shader.getProgramId();
+            if (program <= 0) return;
             gl.glUseProgram(shader.getProgramId());
             checkGLError(gl);
 
@@ -173,12 +180,14 @@ public abstract class VertexObjectRenderable extends Renderable {
             gl.glDisableVertexAttribArray(colorAttribute);
             checkGLError(gl);
 
+            gl.glFinish();
             gl.glUseProgram(0);
             gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
             checkGLError(gl);
         } catch (Exception e) {
             // Temporarily disable the renderable
             disabled = true;
+            LOGGER.log(Level.WARNING, "Could not render vertex object", e);
         } finally {
             gl.glUseProgram(0);
             gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
@@ -198,12 +207,10 @@ public abstract class VertexObjectRenderable extends Renderable {
     }
 
     private void updateBuffers(GL2 gl) {
-        gl.glDeleteBuffers(3, new int[]{
-                        bufferName.get(Buffer.VERTEX),
-                        bufferName.get(Buffer.COLOR),
-                        bufferName.get(Buffer.NORMAL)},
-                0);
-
+        LOGGER.log(Level.INFO, "Updating vertex object buffer data");
+        bufferName.rewind();
+        gl.glDeleteBuffers(Buffer.MAX, bufferName);
+        bufferName.rewind();
 
         bindVertexBuffer(gl, bufferName.get(Buffer.VERTEX), vertexList);
         bindVertexBuffer(gl, bufferName.get(Buffer.COLOR), colorList);
