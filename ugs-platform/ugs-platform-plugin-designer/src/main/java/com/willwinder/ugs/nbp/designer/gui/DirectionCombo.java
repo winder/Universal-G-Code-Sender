@@ -20,13 +20,17 @@ package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
 
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
 import javax.swing.JList;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A combo box for selecting a cut direction
@@ -41,9 +45,13 @@ public class DirectionCombo extends JComboBox<Direction> {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                Direction cutType = (Direction) value;
-                setText(cutType.getLabel());
-                setIcon(new DirectionIcon(cutType, DirectionIcon.Size.SMALL));
+                if (value == null) {
+                    return this;
+                }
+
+                Direction direction = (Direction) value;
+                setText(direction.getLabel());
+                setIcon(new DirectionIcon(direction, DirectionIcon.Size.SMALL));
                 return this;
             }
         });
@@ -56,9 +64,28 @@ public class DirectionCombo extends JComboBox<Direction> {
     }
 
     public void setDirections(List<Direction> directions) {
-        Direction selectedDirection = getSelectedDirection();
-        removeAllItems();
-        directions.forEach(this::addItem);
-        setSelectedItem(selectedDirection);
+        if (!needsUpdating(directions)) {
+            return;
+        }
+
+        Direction selected = getSelectedDirection();
+        setModel(new DefaultComboBoxModel<>(directions.toArray(Direction[]::new)));
+        if (selected != null && directions.contains(selected)) {
+            setSelectedItem(selected);
+        }
+    }
+
+    private boolean needsUpdating(List<Direction> directions) {
+        ComboBoxModel<Direction> model = getModel();
+        boolean needsUpdating = false;
+        if (model.getSize() == directions.size()) {
+            Set<Direction> current = new HashSet<>();
+            for (int i = 0; i < model.getSize(); i++) {
+                current.add(model.getElementAt(i));
+            }
+
+            needsUpdating = !current.equals(new HashSet<>(directions));
+        }
+        return needsUpdating;
     }
 }
