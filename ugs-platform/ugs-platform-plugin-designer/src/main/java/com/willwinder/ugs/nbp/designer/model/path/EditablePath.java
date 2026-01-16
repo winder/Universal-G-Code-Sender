@@ -44,26 +44,53 @@ public final class EditablePath {
         EditablePath result = new EditablePath();
         PathIterator it = shape.getPathIterator(null);
         double[] coords = new double[6];
+        Point2D start = null;
+        Point2D last = null;
 
         while (!it.isDone()) {
+            start = last;
             int type = it.currentSegment(coords);
-            Point2D[] points = switch (type) {
-                case PathIterator.SEG_MOVETO, PathIterator.SEG_LINETO -> new Point2D[]{
-                        new Point2D.Double(coords[0], coords[1])
-                };
-                case PathIterator.SEG_QUADTO -> new Point2D[]{
-                        new Point2D.Double(coords[0], coords[1]), // ctrl
-                        new Point2D.Double(coords[2], coords[3])  // end
-                };
-                case PathIterator.SEG_CUBICTO -> new Point2D[]{
-                        new Point2D.Double(coords[0], coords[1]),
-                        new Point2D.Double(coords[2], coords[3]),
-                        new Point2D.Double(coords[4], coords[5])
-                };
-                default -> new Point2D[0];
-            };
+            Point2D[] points = new Point2D[0];
+            switch (type) {
+                case PathIterator.SEG_MOVETO:
+                    points = new Point2D[]{
+                            new Point2D.Double(coords[0], coords[1])
+                    };
+                    last = start = new Point2D.Double(coords[0], coords[1]);
+                    break;
+                case PathIterator.SEG_LINETO:
+                    points = new Point2D[]{
+                            new Point2D.Double(coords[0], coords[1])
+                    };
+                    last = new Point2D.Double(coords[0], coords[1]);
+                    break;
+                case PathIterator.SEG_QUADTO:
+                    points = new Point2D[]{
+                            new Point2D.Double(coords[0], coords[1]), // ctrl
+                            new Point2D.Double(coords[2], coords[3])  // end
+                    };
+                    last = new Point2D.Double(coords[2], coords[3]);
+                    break;
+                case PathIterator.SEG_CUBICTO:
+                    points = new Point2D[]{
+                            new Point2D.Double(coords[0], coords[1]), // ctrl
+                            new Point2D.Double(coords[2], coords[3]), // ctrl
+                            new Point2D.Double(coords[4], coords[5]) // end
+                    };
+                    last = new Point2D.Double(coords[4], coords[5]);
+                    break;
+                case PathIterator.SEG_CLOSE:
+                    result.getSegments().add(new Segment(fromPathIteratorType(type), last, last, new Point2D[0]));
+                    start = null;
+                    break;
 
-            result.getSegments().add(new Segment(fromPathIteratorType(type), points));
+                default:
+                    points = null;
+            }
+
+            if (start != null && points != null) {
+                result.getSegments().add(new Segment(fromPathIteratorType(type), start, last, points));
+            }
             it.next();
         }
 
