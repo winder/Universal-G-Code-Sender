@@ -31,11 +31,12 @@ public class AsyncCommunicatorEventDispatcherTest {
     }
 
     @Test
-    public void dispatchShouldStartWorkerThread() throws TimeoutException {
+    public void dispatchShouldStartWorkerThread() throws TimeoutException, InterruptedException {
         ICommunicatorListener listener = mock(ICommunicatorListener.class);
         eventDispatcher.addListener(listener);
 
         eventDispatcher.communicatorPausedOnError();
+        Thread.sleep(100);
 
         waitUntil(() -> eventDispatcher.getEventCount() == 0, 2000, TimeUnit.MILLISECONDS);
 
