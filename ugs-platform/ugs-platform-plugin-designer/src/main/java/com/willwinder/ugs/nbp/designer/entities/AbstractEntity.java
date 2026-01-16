@@ -19,12 +19,12 @@
 package com.willwinder.ugs.nbp.designer.entities;
 
 import com.google.common.collect.Sets;
+import static com.willwinder.ugs.nbp.designer.PathUtils.isClosed;
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collections;
@@ -309,24 +309,6 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
-    public Point2D getFirstPoint() {
-        double[] coord = new double[6];
-        getShape().getPathIterator(null).currentSegment(coord);
-        return new Point2D.Double(coord[0], coord[1]);
-    }
-
-    @Override
-    public Point2D getLastPoint() {
-        double[] coord = new double[6];
-        PathIterator pathIterator = getShape().getPathIterator(null);
-        while (!pathIterator.isDone()) {
-            pathIterator.currentSegment(coord);
-            pathIterator.next();
-        }
-        return new Point2D.Double(coord[0], coord[1]);
-    }
-
-    @Override
     public List<EntitySetting> getSettings() {
         return Collections.emptyList();
     }
@@ -334,11 +316,6 @@ public abstract class AbstractEntity implements Entity {
     @Override
     public void setPivotPoint(Anchor anchor) {
         this.pivotPoint = getPosition(anchor);
-    }
-
-    @Override
-    public void setPivotPoint(Point2D pivotPoint) {
-        this.pivotPoint = pivotPoint != null ? new Point2D.Double(pivotPoint.getX(), pivotPoint.getY()) : null;
     }
 
     @Override
@@ -354,5 +331,10 @@ public abstract class AbstractEntity implements Entity {
     @Override
     public boolean isLockRatio() {
         return lockedRatio;
+    }
+
+    @Override
+    public boolean isClosedShape() {
+        return isClosed(getShape());
     }
 }
