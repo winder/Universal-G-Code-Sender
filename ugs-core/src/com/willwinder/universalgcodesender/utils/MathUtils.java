@@ -135,15 +135,29 @@ public class MathUtils {
      *
      * @param d1    a double value
      * @param d2    a double value
-     * @param delta a decimal delta value with the smallest allowed difference, smaller value means more precision.
+     * @param epsilon a decimal delta value with the smallest allowed difference, smaller value means more precision.
      * @return true if they are equal or very close to equal
      */
-    public static boolean isEqual(double d1, double d2, double delta) {
+    public static boolean isEqual(double d1, double d2, double epsilon) {
         if (Double.compare(d1, d2) == 0) {
             return true;
         }
 
-        return Math.abs(d1 - d2) <= delta;
+        return Math.abs(d1 - d2) <= epsilon;
+    }
+
+    /**
+     * Compares if two points are equal or very close to each other using a delta threshold.
+     *
+     * @param a     a point
+     * @param b     a point
+     * @param epsilon a decimal delta value with the smallest allowed difference, smaller value means more precision.
+     * @return true if they are equal or very close to equal
+     */
+    public static boolean isEqual(Point2D a, Point2D b, double epsilon) {
+        double dx = a.getX() - b.getX();
+        double dy = a.getY() - b.getY();
+        return dx * dx + dy * dy <= epsilon * epsilon;
     }
 
     /**

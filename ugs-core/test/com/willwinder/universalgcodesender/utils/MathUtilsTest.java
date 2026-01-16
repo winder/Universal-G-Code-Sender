@@ -132,4 +132,11 @@ public class MathUtilsTest {
         result = liangBarskyClipLine(new Point2D.Double(-1, 2), new Point2D.Double(3, 2), box);
         assertArrayEquals(new Point2D[]{new Point2D.Double(0, 2), new Point2D.Double(2, 2)}, result);
     }
+
+    @Test
+    public void isEqualShouldCompareTwoPointsWithDelta() {
+        assertTrue(isEqual(new Point2D.Double(0d, 0d), new Point2D.Double(0.000001d, 0.000001d), 1e-5d));
+        assertFalse(isEqual(new Point2D.Double(0d, 0d), new Point2D.Double(0.000001d, 0.000001d), 1e-6d));
+        assertTrue(isEqual(new Point2D.Double(0d, 0d), new Point2D.Double(0, 0), 1e-6d));
+    }
 }
