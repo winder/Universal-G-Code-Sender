@@ -142,8 +142,10 @@ public class SvgReader implements DesignReader {
             createdShape = parseEllipse((Ellipse2D) shape);
         } else if (shape instanceof GeneralPath) {
             createdShape = parseGeneralPath((GeneralPath) shape);
+        } else if (shape instanceof Line2D) {
+            createdShape = parseLine((Line2D) shape);
         } else {
-            LOGGER.finest(shape.toString());
+            LOGGER.info("Could not parse shape of type: " + shape.getClass().getSimpleName());
         }
 
         if (createdShape != null) {
@@ -162,6 +164,13 @@ public class SvgReader implements DesignReader {
             }
             parent.addChild(createdShape);
         }
+    }
+
+    private AbstractEntity parseLine(Line2D shape) {
+        Path path = new Path();
+        path.moveTo(shape.getX1(), shape.getY1());
+        path.lineTo(shape.getX2(), shape.getY2());
+        return path;
     }
 
     private void parseGroupNode(Node node, Group parent, int level, BridgeContext bridgeContext, CompositeGraphicsNode graphicsNode) {
