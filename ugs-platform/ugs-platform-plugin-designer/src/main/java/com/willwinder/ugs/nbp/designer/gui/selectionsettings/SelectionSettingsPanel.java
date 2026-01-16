@@ -42,6 +42,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public class SelectionSettingsPanel extends JPanel implements SelectionListener, EntityListener, EntitySettingsModelListener {
     private transient Controller controller;
@@ -145,6 +146,9 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         mountComponent(component.getComponent());
 
         PropertyChangeListener listener = evt -> {
+            if (Objects.equals(evt.getNewValue(), evt.getOldValue())) {
+                return;
+            }
             Group currentGroup = controller.getSelectionManager().getSelectionGroup();
             component.createAndExecuteUndoableAction(evt.getPropertyName(), evt.getNewValue(), currentGroup, controller);
             controller.getDrawing().invalidate();
@@ -163,7 +167,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
     private void clearAllComponents() {
         activeComponents.forEach(activeComponent ->
-            activeComponent.component().removeChangeListener(activeComponent.listener())
+                activeComponent.component().removeChangeListener(activeComponent.listener())
         );
 
         activeComponents.clear();
