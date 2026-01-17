@@ -16,9 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer;
+package com.willwinder.ugs.nbp.designer.utils;
 
 import com.github.weisj.jsvg.geometry.util.ReversePathIterator;
+import com.willwinder.ugs.nbp.designer.model.path.Segment;
+import static com.willwinder.ugs.nbp.designer.model.path.SegmentType.fromPathIteratorType;
 import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
 
 import java.awt.Shape;
@@ -27,6 +29,7 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class PathUtils {
     public static final double EPS = 1e-4;
@@ -68,6 +71,112 @@ public class PathUtils {
 
         return path;
     }
+
+    /**
+     * Creates a path given a list of segments
+     *
+     * @param segments a list of segments
+     * @return a Path2D shape
+     */
+    public static Path2D toPath2D(List<Segment> segments) {
+        Path2D path = new Path2D.Double();
+
+        for (Segment seg : segments) {
+            switch (seg.getType()) {
+                case MOVE_TO -> path.moveTo(seg.getPoint(0).getX(), seg.getPoint(0).getY());
+
+                case LINE_TO -> path.lineTo(seg.getPoint(0).getX(), seg.getPoint(0).getY());
+
+                case QUAD_TO -> path.quadTo(
+                        seg.getPoint(0).getX(), seg.getPoint(0).getY(),
+                        seg.getPoint(1).getX(), seg.getPoint(1).getY()
+                );
+
+                case CUBIC_TO -> path.curveTo(
+                        seg.getPoint(0).getX(), seg.getPoint(0).getY(),
+                        seg.getPoint(1).getX(), seg.getPoint(1).getY(),
+                        seg.getPoint(2).getX(), seg.getPoint(2).getY()
+                );
+
+                case CLOSE -> path.closePath();
+            }
+        }
+
+        return path;
+    }
+
+    /**
+     * Breaks down a shape into its segments
+     *
+     * @param shape the shape to break down
+     * @return a list of segments
+     */
+    public static List<Segment> getSegments(Shape shape) {
+        return getSegments(shape.getPathIterator(null));
+    }
+
+    /**
+     * Breaks down a path iterator into its segments
+     *
+     * @param pathIterator the path iterator to break down
+     * @return a list of segments
+     */
+    public static List<Segment> getSegments(PathIterator pathIterator) {
+        List<Segment> segments = new ArrayList<>();
+
+        double[] coords = new double[6];
+        Point2D start;
+        Point2D last = null;
+
+        while (!pathIterator.isDone()) {
+            start = last;
+            int type = pathIterator.currentSegment(coords);
+            Point2D[] points = new Point2D[0];
+            switch (type) {
+                case PathIterator.SEG_MOVETO:
+                    points = new Point2D[]{
+                            new Point2D.Double(coords[0], coords[1])
+                    };
+                    last = start = new Point2D.Double(coords[0], coords[1]);
+                    break;
+                case PathIterator.SEG_LINETO:
+                    points = new Point2D[]{
+                            new Point2D.Double(coords[0], coords[1])
+                    };
+                    last = new Point2D.Double(coords[0], coords[1]);
+                    break;
+                case PathIterator.SEG_QUADTO:
+                    points = new Point2D[]{
+                            new Point2D.Double(coords[0], coords[1]), // ctrl
+                            new Point2D.Double(coords[2], coords[3])  // end
+                    };
+                    last = new Point2D.Double(coords[2], coords[3]);
+                    break;
+                case PathIterator.SEG_CUBICTO:
+                    points = new Point2D[]{
+                            new Point2D.Double(coords[0], coords[1]), // ctrl
+                            new Point2D.Double(coords[2], coords[3]), // ctrl
+                            new Point2D.Double(coords[4], coords[5]) // end
+                    };
+                    last = new Point2D.Double(coords[4], coords[5]);
+                    break;
+                case PathIterator.SEG_CLOSE:
+                    segments.add(new Segment(fromPathIteratorType(type), last, last, new Point2D[0]));
+                    start = null;
+                    break;
+
+                default:
+                    points = null;
+            }
+
+            if (start != null && points != null) {
+                segments.add(new Segment(fromPathIteratorType(type), start, last, points));
+            }
+            pathIterator.next();
+        }
+        return segments;
+    }
+
 
     /**
      * Reverses the path direction by iterating through all segments in reverse
@@ -152,62 +261,90 @@ public class PathUtils {
     }
 
     /**
-     * Joins a list of paths making a continuous path
+     * Joins a list of paths making a continuous path if it can, or else it will start a new path.
      *
      * @param paths   a list of paths to join
      * @param epsilon the largest difference between two points before joining them
      * @return a new path
      */
-    public static Path2D joinPaths(List<Path2D> paths, double epsilon) {
-        if (paths.isEmpty()) {
-            return new Path2D.Double();
+    public static Optional<Path2D> joinPaths(List<Path2D> paths, double epsilon) {
+        List<Path2D> remaining = new ArrayList<>(paths.stream()
+                .filter(PathUtils::hasDrawableSegments)
+                .toList());
+
+        if (remaining.isEmpty()) {
+            return Optional.empty();
         }
 
-        if (paths.size() == 1) {
-            return paths.get(0);
-        }
-
-        List<Path2D> remaining = new ArrayList<>(paths);
         Path2D result = new Path2D.Double();
+        while (!remaining.isEmpty()) {
 
-        Path2D current = remaining.remove(0);
-        Point2D start = getStartPoint(current);
-        Point2D end = getEndPoint(current);
+            // Start a new subpath
+            Path2D current = remaining.remove(0);
+            Point2D start = getStartPoint(current);
+            Point2D end = getEndPoint(current);
+            result.append(current, false);
 
-        result.append(current, false);
+            boolean progress;
+            do {
+                progress = false;
 
-        boolean progress;
-        do {
-            progress = false;
+                for (int i = 0; i < remaining.size(); i++) {
+                    Path2D p = remaining.get(i);
 
-            for (int i = 0; i < remaining.size(); i++) {
-                Path2D p = remaining.get(i);
+                    Point2D ps = getStartPoint(p);
+                    Point2D pe = getEndPoint(p);
 
-                Point2D ps = getStartPoint(p);
-                Point2D pe = getEndPoint(p);
+                    if (isEqual(end, ps, epsilon)) {
+                        appendPath(result, p);
+                        end = pe;
+                    } else if (isEqual(end, pe, epsilon)) {
+                        Path2D r = reversePath(p);
+                        appendPath(result, r);
+                        end = getEndPoint(r);
+                    } else {
+                        continue;
+                    }
 
-                if (isEqual(end, ps, epsilon)) {
-                    appendPath(result, p);
-                    end = pe;
-                } else if (isEqual(end, pe, epsilon)) {
-                    Path2D r = reversePath(p);
-                    appendPath(result, r);
-                    end = getEndPoint(r);
-                } else {
-                    continue;
+                    remaining.remove(i);
+                    progress = true;
+                    break;
                 }
+            } while (progress);
 
-                remaining.remove(i);
-                progress = true;
-                break;
+            // Close only the current subpath if applicable
+            if (isEqual(start, end, epsilon)) {
+                result.closePath();
             }
-        } while (progress);
-
-        if (isEqual(start, end, epsilon)) {
-            result.closePath();
         }
 
-        return result;
+        return Optional.of(result);
+    }
+
+    /**
+     * Checks if the path has a drawable elements
+     *
+     * @param path the path to check
+     * @return true if it has any drawable elements
+     */
+    protected static boolean hasDrawableSegments(Path2D path) {
+        PathIterator it = path.getPathIterator(null);
+        double[] c = new double[6];
+        while (!it.isDone()) {
+            int t = it.currentSegment(c);
+
+            switch (t) {
+                case PathIterator.SEG_LINETO,
+                     PathIterator.SEG_QUADTO,
+                     PathIterator.SEG_CUBICTO -> {
+                    return true; // produces geometry
+                }
+            }
+
+            it.next();
+        }
+
+        return false;
     }
 
     /**
@@ -281,7 +418,7 @@ public class PathUtils {
 
         while (!it.isDone()) {
             int type = it.currentSegment(c);
-            if(type == PathIterator.SEG_CLOSE) {
+            if (type == PathIterator.SEG_CLOSE) {
                 return true;
             }
 

@@ -29,7 +29,8 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.designer.model.path.EditablePath;
+import com.willwinder.ugs.nbp.designer.model.path.Segment;
+import com.willwinder.ugs.nbp.designer.utils.PathUtils;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
@@ -96,13 +97,13 @@ public class VertexControlSelector extends AbstractControl implements Controller
     private void createVertexControls(Cuttable cuttable) {
         vertexControlGroup.removeVertexControls();
 
-        EditablePath editablePath = EditablePath.fromShape(cuttable.getShape());
-        editablePath.getSegments().forEach(segment -> {
+        List<Segment> segments = PathUtils.getSegments(cuttable.getShape());
+        segments.forEach(segment -> {
             for (int p = 0; p < segment.getPoints().length; p++) {
                 VertexControl vc = new VertexControl(
                         controller,
                         cuttable,
-                        editablePath,
+                        segments,
                         segment,
                         p
                 );

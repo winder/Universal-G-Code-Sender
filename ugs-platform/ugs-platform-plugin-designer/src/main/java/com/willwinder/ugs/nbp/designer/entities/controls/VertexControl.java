@@ -30,10 +30,10 @@ import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.designer.model.path.EditablePath;
 import com.willwinder.ugs.nbp.designer.model.path.PointType;
 import com.willwinder.ugs.nbp.designer.model.path.Segment;
 import com.willwinder.ugs.nbp.designer.model.path.SegmentType;
+import com.willwinder.ugs.nbp.designer.utils.PathUtils;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 
 import java.awt.BasicStroke;
@@ -49,6 +49,7 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -61,7 +62,7 @@ public class VertexControl extends SnapToGridControl {
     private static final int SIZE = 6;
     private final Controller controller;
 
-    private final EditablePath editablePath;
+    private final List<Segment> editablePath;
     private final int pointIndex;
     private final Cuttable target;
 
@@ -71,7 +72,7 @@ public class VertexControl extends SnapToGridControl {
     private boolean isHover = false;
     private Shape originalShape = null;
 
-    public VertexControl(Controller controller, Cuttable target, EditablePath editablePath, Segment segment, int pointIndex) {
+    public VertexControl(Controller controller, Cuttable target, List<Segment> editablePath, Segment segment, int pointIndex) {
         super(controller.getSelectionManager());
         this.controller = controller;
         this.target = target;
@@ -172,13 +173,13 @@ public class VertexControl extends SnapToGridControl {
                 try {
                     segment.setPosition(pointIndex, mousePosition);
                     AffineTransform transform = target.getTransform().createInverse();
-                    path.setShape((Path2D) transform.createTransformedShape(EditablePath.toPath2D(editablePath)));
+                    path.setShape((Path2D) transform.createTransformedShape(PathUtils.toPath2D(editablePath)));
                 } catch (NoninvertibleTransformException e) {
                     throw new EntityException("Could not tranform shape", e);
                 }
             } else if (mouseEvent.getType() == EventType.MOUSE_RELEASED && target instanceof Path path) {
                 UndoManager undoManager = controller.getUndoManager();
-                ChangePathAction action = new ChangePathAction(controller, path, (Path2D) originalShape, EditablePath.toPath2D(editablePath));
+                ChangePathAction action = new ChangePathAction(controller, path, (Path2D) originalShape, PathUtils.toPath2D(editablePath));
                 action.redo();
                 undoManager.addAction(action);
             }

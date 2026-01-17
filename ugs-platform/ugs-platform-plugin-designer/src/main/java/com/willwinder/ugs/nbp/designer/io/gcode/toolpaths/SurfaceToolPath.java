@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
-import com.willwinder.ugs.nbp.designer.GeometryUtils;
+import com.willwinder.ugs.nbp.designer.utils.GeometryUtils;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;

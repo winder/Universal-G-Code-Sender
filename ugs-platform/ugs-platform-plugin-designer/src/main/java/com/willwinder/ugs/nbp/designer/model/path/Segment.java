@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.model.path;
 
-import com.willwinder.ugs.nbp.designer.PathUtils;
+import com.willwinder.ugs.nbp.designer.utils.PathUtils;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;

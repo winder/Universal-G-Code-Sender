@@ -1,12 +1,11 @@
-package com.willwinder.ugs.nbp.designer;
+package com.willwinder.ugs.nbp.designer.utils;
 
-import static com.willwinder.ugs.nbp.designer.PathUtils.getEndPoint;
-import static com.willwinder.ugs.nbp.designer.PathUtils.getStartPoint;
-import static com.willwinder.ugs.nbp.designer.StitchPathUtils.shapeToSegments;
-import static com.willwinder.ugs.nbp.designer.StitchPathUtils.stitchSegments;
-import com.willwinder.ugs.nbp.designer.model.path.EditablePath;
 import com.willwinder.ugs.nbp.designer.model.path.Segment;
 import com.willwinder.ugs.nbp.designer.model.path.SegmentType;
+import static com.willwinder.ugs.nbp.designer.utils.PathUtils.getEndPoint;
+import static com.willwinder.ugs.nbp.designer.utils.PathUtils.getSegments;
+import static com.willwinder.ugs.nbp.designer.utils.PathUtils.getStartPoint;
+import static com.willwinder.ugs.nbp.designer.utils.StitchPathUtils.stitchSegments;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
@@ -38,10 +37,10 @@ public class StitchPathUtilsTest {
         assertEquals(POINT_1, getStartPoint(shape1));
         assertEquals(POINT_2, getEndPoint(shape1));
 
-        EditablePath path = EditablePath.fromShape(result.get(0));
-        assertEquals("Expects shape to contain one line", 2, path.getSegments().size());
-        assertEquals(SegmentType.MOVE_TO, path.getSegments().get(0).getType());
-        assertEquals(SegmentType.LINE_TO, path.getSegments().get(1).getType());
+        List<Segment> path = PathUtils.getSegments(result.get(0));
+        assertEquals("Expects shape to contain one line", 2, path.size());
+        assertEquals(SegmentType.MOVE_TO, path.get(0).getType());
+        assertEquals(SegmentType.LINE_TO, path.get(1).getType());
     }
 
     @Test
@@ -55,10 +54,10 @@ public class StitchPathUtilsTest {
         List<Path2D> result = stitchSegments(segments);
         assertEquals("Expects one shape to be generated", 1, result.size());
 
-        EditablePath path = EditablePath.fromShape(result.get(0));
-        assertEquals("Expects shape to contain all lines", 6, path.getSegments().size());
-        assertEquals(SegmentType.MOVE_TO, path.getSegments().get(0).getType());
-        assertEquals(SegmentType.CLOSE, path.getSegments().get(5).getType());
+        List<Segment> path = PathUtils.getSegments(result.get(0));
+        assertEquals("Expects shape to contain all lines", 6, path.size());
+        assertEquals(SegmentType.MOVE_TO, path.get(0).getType());
+        assertEquals(SegmentType.CLOSE, path.get(5).getType());
     }
 
     @Test
@@ -70,8 +69,10 @@ public class StitchPathUtilsTest {
         List<Path2D> result = stitchSegments(segments);
         assertEquals("Expects one shape to be generated", 1, result.size());
 
-        List<Segment> s = shapeToSegments(result.get(0));
-        assertEquals("Expects shape to contain all lines", 1, s.size());
+        List<Segment> s = getSegments(result.get(0));
+        assertEquals("Expects shape to contain all lines", 2, s.size());
+        assertEquals(SegmentType.MOVE_TO, s.get(0).getType());
+        assertEquals(SegmentType.LINE_TO, s.get(1).getType());
     }
 
     @Test
@@ -85,10 +86,10 @@ public class StitchPathUtilsTest {
         List<Path2D> result = stitchSegments(segments);
         assertEquals("Expects one shape to be generated", 1, result.size());
 
-        EditablePath path = EditablePath.fromShape(result.get(0));
-        assertEquals("Expects shape to contain all lines", 6, path.getSegments().size());
-        assertEquals(SegmentType.MOVE_TO, path.getSegments().get(0).getType());
-        assertEquals(SegmentType.CLOSE, path.getSegments().get(5).getType());
+        List<Segment> path = PathUtils.getSegments(result.get(0));
+        assertEquals("Expects shape to contain all lines", 6, path.size());
+        assertEquals(SegmentType.MOVE_TO, path.get(0).getType());
+        assertEquals(SegmentType.CLOSE, path.get(5).getType());
     }
 
     @Test
@@ -102,10 +103,10 @@ public class StitchPathUtilsTest {
         List<Path2D> result = stitchSegments(segments);
         assertEquals("Expects one shape to be generated", 1, result.size());
 
-        EditablePath path = EditablePath.fromShape(result.get(0));
-        assertEquals("Expects shape to contain all lines", 6, path.getSegments().size());
-        assertEquals(SegmentType.MOVE_TO, path.getSegments().get(0).getType());
-        assertEquals(SegmentType.CLOSE, path.getSegments().get(5).getType());
+        List<Segment> path = PathUtils.getSegments(result.get(0));
+        assertEquals("Expects shape to contain all lines", 6, path.size());
+        assertEquals(SegmentType.MOVE_TO, path.get(0).getType());
+        assertEquals(SegmentType.CLOSE, path.get(5).getType());
     }
 
     @Test

@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
-import static com.willwinder.ugs.nbp.designer.StitchPathUtils.stitchEntities;
+import static com.willwinder.ugs.nbp.designer.utils.StitchPathUtils.stitchEntities;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
@@ -71,7 +71,7 @@ public class StitchAction extends AbstractDesignAction implements SelectionListe
         boolean hasMultipleOpenShapes = controller.getSelectionManager()
                 .getSelection()
                 .stream()
-                .filter(e -> !e.isClosedShape()).count() > 1;
+                .anyMatch(e -> !e.isClosedShape()) || controller.getSelectionManager().getSelection().size() > 1;
         setEnabled(hasMultipleOpenShapes);
     }
 

@@ -19,7 +19,7 @@
 package com.willwinder.ugs.nbp.designer.entities;
 
 import com.google.common.collect.Sets;
-import static com.willwinder.ugs.nbp.designer.PathUtils.isClosed;
+import static com.willwinder.ugs.nbp.designer.utils.PathUtils.isClosed;
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.model.Size;
 
