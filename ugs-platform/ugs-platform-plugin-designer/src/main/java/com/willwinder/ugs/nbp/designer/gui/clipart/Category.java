@@ -32,6 +32,7 @@ public enum Category {
     FOOD("platform.plugin.designer.clipart.food"),
     HOLIDAY("platform.plugin.designer.clipart.holiday"),
     LOGOS("platform.plugin.designer.clipart.logos"),
+    MONOGRAMS("platform.plugin.designer.clipart.monograms"),
     MYTHICAL("platform.plugin.designer.clipart.mythical"),
     PEOPLE_AND_CHARACTERS("platform.plugin.designer.clipart.people"),
     PLANTS("platform.plugin.designer.clipart.plants"),

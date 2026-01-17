@@ -76,7 +76,10 @@ public class PreviewListPanel extends JPanel {
             "/fonts/eagle/mapping.json",
             "/fonts/black-white-banners/mapping.json",
             "/fonts/superhero/mapping.json",
-            "/fonts/laurus-nobilis/mapping.json"
+            "/fonts/laurus-nobilis/mapping.json",
+            "/fonts/vintage-monogram/mapping.json",
+            "/fonts/berlin-monogram/mapping.json",
+            "/fonts/auro-monogram/mapping.json"
     );
 
     public PreviewListPanel(ActionListener selectAction) {
