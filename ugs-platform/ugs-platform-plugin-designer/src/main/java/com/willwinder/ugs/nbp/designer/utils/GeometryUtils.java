@@ -1,4 +1,4 @@
-package com.willwinder.ugs.nbp.designer;
+package com.willwinder.ugs.nbp.designer.utils;
 
 import static com.willwinder.universalgcodesender.utils.MathUtils.liangBarskyClipLine;
 import org.locationtech.jts.geom.Coordinate;

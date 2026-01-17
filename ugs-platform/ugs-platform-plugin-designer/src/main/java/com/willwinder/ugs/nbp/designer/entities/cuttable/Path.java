@@ -37,9 +37,13 @@ public class Path extends AbstractCuttable {
     private Path2D shape;
 
     public Path() {
+        this(new Path2D.Double());
+    }
+
+    public Path(Path2D shape) {
         super();
         setName("Path");
-        this.shape = new Path2D.Double();
+        this.shape = shape;
     }
 
     @Override

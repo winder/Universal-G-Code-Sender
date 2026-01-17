@@ -266,20 +266,6 @@ public interface Entity {
     void setDescription(String description);
 
     /**
-     * Get the first point in the shape
-     *
-     * @return the point in the shape
-     */
-    Point2D getFirstPoint();
-
-    /**
-     * Get the last point in the shape
-     *
-     * @return the point in the shape
-     */
-    Point2D getLastPoint();
-
-    /**
      * Return a list of possible settings for this entity
      *
      * @return a list of settings
@@ -304,13 +290,6 @@ public interface Entity {
     void setPivotPoint(Anchor anchor);
 
     /**
-     * Sets the pivot point to a specific location
-     *
-     * @param pivotPoint the pivot point to use for rotations
-     */
-    void setPivotPoint(Point2D pivotPoint);
-
-    /**
      * Gets the current pivot point
      *
      * @return the pivot point or null if not set
@@ -320,4 +299,11 @@ public interface Entity {
     void setLockRatio(boolean lockRatio);
 
     boolean isLockRatio();
+
+    /**
+     * Returns true if the shape is closed
+     *
+     * @return true if closed
+     */
+    boolean isClosedShape();
 }

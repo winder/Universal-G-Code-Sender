@@ -1,8 +1,8 @@
-package com.willwinder.ugs.nbp.designer;
+package com.willwinder.ugs.nbp.designer.utils;
 
+import com.willwinder.ugs.nbp.designer.Utils;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class UtilsTest {
 

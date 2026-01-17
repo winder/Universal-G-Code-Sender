@@ -44,6 +44,7 @@ import com.willwinder.ugs.nbp.designer.actions.SnapToGridNoneAction;
 import com.willwinder.ugs.nbp.designer.actions.SnapToGridOneAction;
 import com.willwinder.ugs.nbp.designer.actions.SnapToGridTenAction;
 import com.willwinder.ugs.nbp.designer.actions.SnapToGridTwoAction;
+import com.willwinder.ugs.nbp.designer.actions.StitchAction;
 import com.willwinder.ugs.nbp.designer.actions.SubtractAction;
 import com.willwinder.ugs.nbp.designer.actions.ToggleHidden;
 import com.willwinder.ugs.nbp.designer.actions.ToolClipartAction;
@@ -138,6 +139,11 @@ public class ToolBox extends ToolBar {
         breakApart.setText("");
         breakApart.setBorderPainted(false);
         add(breakApart);
+
+        JButton stitch = new JButton(new StitchAction());
+        stitch.setText("");
+        stitch.setBorderPainted(false);
+        add(stitch);
 
         addSeparator();
 

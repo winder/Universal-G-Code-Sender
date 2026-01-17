@@ -30,10 +30,10 @@ import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.designer.model.path.EditablePath;
 import com.willwinder.ugs.nbp.designer.model.path.PointType;
 import com.willwinder.ugs.nbp.designer.model.path.Segment;
 import com.willwinder.ugs.nbp.designer.model.path.SegmentType;
+import com.willwinder.ugs.nbp.designer.utils.PathUtils;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 
 import java.awt.BasicStroke;
@@ -49,6 +49,7 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -61,7 +62,7 @@ public class VertexControl extends SnapToGridControl {
     private static final int SIZE = 6;
     private final Controller controller;
 
-    private final EditablePath editablePath;
+    private final List<Segment> editablePath;
     private final int pointIndex;
     private final Cuttable target;
 
@@ -71,7 +72,7 @@ public class VertexControl extends SnapToGridControl {
     private boolean isHover = false;
     private Shape originalShape = null;
 
-    public VertexControl(Controller controller, Cuttable target, EditablePath editablePath, Segment segment, int pointIndex) {
+    public VertexControl(Controller controller, Cuttable target, List<Segment> editablePath, Segment segment, int pointIndex) {
         super(controller.getSelectionManager());
         this.controller = controller;
         this.target = target;
@@ -107,7 +108,7 @@ public class VertexControl extends SnapToGridControl {
     @Override
     public boolean isWithin(Point2D point) {
         double size = SIZE / controller.getDrawing().getScale();
-        double hitBuffer = (size / 2d) * 1.2;
+        double hitBuffer = (size / 2d) * 1.3;
 
         return controller.getTool() == Tool.VERTEX && (getShape().contains(point) || getShape().intersects(point.getX() - hitBuffer, point.getY() - hitBuffer, hitBuffer * 2, hitBuffer * 2));
     }
@@ -123,22 +124,23 @@ public class VertexControl extends SnapToGridControl {
             return;
         }
 
-        float strokeWidth = 1.2f / (float) drawing.getScale();
+        float strokeWidth = 0.5f / (float) drawing.getScale();
         float dashWidth = 2f / (float) drawing.getScale();
         BasicStroke dashedStroke = new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1, new float[]{dashWidth, dashWidth}, 0);
         g.setStroke(dashedStroke);
 
         if (segment.getType() == SegmentType.CUBIC_TO) {
-            Point2D start = segment.getPoint(2);
+            Point2D start = segment.getStartPoint();
+            Point2D end = segment.getPoint(2);
             Point2D control1 = segment.getPoint(0);
             Point2D control2 = segment.getPoint(1);
-            g.setColor(Colors.SHAPE_OUTLINE);
+            g.setColor(Colors.CURSOR);
             g.draw(new Line2D.Double(start.getX(), start.getY(), control1.getX(), control1.getY()));
-            g.draw(new Line2D.Double(start.getX(), start.getY(), control2.getX(), control2.getY()));
+            g.draw(new Line2D.Double(end.getX(), end.getY(), control2.getX(), control2.getY()));
         }
 
         if (segment.getType() == SegmentType.QUAD_TO) {
-            Point2D start = segment.getPoint(1);
+            Point2D start = segment.getStartPoint();
             Point2D control1 = segment.getPoint(0);
             g.setColor(Colors.SHAPE_OUTLINE);
             g.draw(new Line2D.Double(start.getX(), start.getY(), control1.getX(), control1.getY()));
@@ -169,15 +171,15 @@ public class VertexControl extends SnapToGridControl {
                 originalShape = target.getShape();
             } else if (mouseEvent.getType() == EventType.MOUSE_DRAGGED && target instanceof Path path) {
                 try {
-                    segment.getPoint(pointIndex).setLocation(mousePosition);
+                    segment.setPosition(pointIndex, mousePosition);
                     AffineTransform transform = target.getTransform().createInverse();
-                    path.setShape((Path2D) transform.createTransformedShape(EditablePath.toPath2D(editablePath)));
+                    path.setShape((Path2D) transform.createTransformedShape(PathUtils.toPath2D(editablePath)));
                 } catch (NoninvertibleTransformException e) {
                     throw new EntityException("Could not tranform shape", e);
                 }
             } else if (mouseEvent.getType() == EventType.MOUSE_RELEASED && target instanceof Path path) {
                 UndoManager undoManager = controller.getUndoManager();
-                ChangePathAction action = new ChangePathAction(controller, path, (Path2D) originalShape, EditablePath.toPath2D(editablePath));
+                ChangePathAction action = new ChangePathAction(controller, path, (Path2D) originalShape, PathUtils.toPath2D(editablePath));
                 action.redo();
                 undoManager.addAction(action);
             }

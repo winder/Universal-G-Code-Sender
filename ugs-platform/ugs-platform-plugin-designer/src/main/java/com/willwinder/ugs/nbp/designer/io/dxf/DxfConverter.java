@@ -100,6 +100,7 @@ public class DxfConverter {
 
             path.lineTo(convertCoordinate(line.getEndPoint().getX()), convertCoordinate(line.getEndPoint().getY()));
             lastPoint = line.getEndPoint();
+            result.add(path);
         }
         return result;
     }
