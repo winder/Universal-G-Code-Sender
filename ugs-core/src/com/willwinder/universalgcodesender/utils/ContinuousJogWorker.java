@@ -65,6 +65,10 @@ public class ContinuousJogWorker implements UGSEventListener {
         this.b = 0f;
         this.c = 0f;
 
+        init();
+    }
+
+    public void init() {
         // Registers itself as a listener for completed commands
         this.backendAPI.addUGSEventListener(this);
     }

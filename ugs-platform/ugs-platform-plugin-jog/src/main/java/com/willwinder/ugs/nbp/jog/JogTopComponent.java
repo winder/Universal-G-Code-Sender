@@ -88,7 +88,6 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         updateSettings();
         jogPanel.addListener(this);
 
-        backend.addUGSEventListener(this);
 
         setLayout(new BorderLayout());
         add(jogPanel, BorderLayout.CENTER);
@@ -120,6 +119,8 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         setToolTipText(LocalizingService.JogControlTooltip);
         updateControls();
         updateSettings();
+        backend.addUGSEventListener(this);
+        continuousJogWorker.init();
     }
 
     @Override
