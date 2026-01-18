@@ -108,6 +108,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     public void addChild(Entity entity) {
         if (!containsChild(entity)) {
             children.add(entity);
+            notifyEvent(new EntityEvent(entity, this, EventType.CHILD_ADDED));
             entity.addListener(this);
             invalidateBounds();
         }
@@ -119,6 +120,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         }
 
         children.add(index, entity);
+        notifyEvent(new EntityEvent(entity, this, EventType.CHILD_ADDED));
         entity.addListener(this);
         invalidateBounds();
     }
@@ -131,6 +133,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         entities.forEach(entity -> {
             if (!containsChild(entity)) {
                 children.add(entity);
+                notifyEvent(new EntityEvent(entity, this, EventType.CHILD_ADDED));
                 entity.addListener(this);
             }
         });
@@ -209,18 +212,21 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     public void removeChild(Entity entity) {
         entity.removeListener(this);
         children.remove(entity);
+        notifyEvent(new EntityEvent(entity, this, EventType.CHILD_REMOVED));
         invalidateBounds();
     }
 
     @Override
     public void destroy() {
         super.destroy();
+        this.children.forEach(entity -> notifyEvent(new EntityEvent(entity, this, EventType.CHILD_REMOVED)));
         children.forEach(Entity::destroy);
     }
 
     public void removeAll() {
         this.groupRotation = 0;
         this.children.forEach(entity -> entity.removeListener(this));
+        this.children.forEach(entity -> notifyEvent(new EntityEvent(entity, this, EventType.CHILD_REMOVED)));
         this.children.clear();
         invalidateBounds();
     }
