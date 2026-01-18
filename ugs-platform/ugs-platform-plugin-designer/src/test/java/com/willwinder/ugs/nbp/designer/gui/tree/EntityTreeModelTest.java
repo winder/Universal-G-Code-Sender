@@ -6,6 +6,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import static org.junit.Assert.assertEquals;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -17,6 +18,7 @@ import org.mockito.MockitoAnnotations;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
+import java.awt.GraphicsEnvironment;
 
 public class EntityTreeModelTest {
     @Captor
@@ -29,6 +31,7 @@ public class EntityTreeModelTest {
 
     @Test
     public void getRootShouldReturnTheDrawingRoot() {
+        Assume.assumeFalse(GraphicsEnvironment.isHeadless());
         Controller controller = new Controller(new SelectionManager(), new SimpleUndoManager());
         EntityTreeModel model = new EntityTreeModel(controller);
         Object root = model.getRoot();
@@ -37,6 +40,7 @@ public class EntityTreeModelTest {
 
     @Test
     public void addChildShouldCreateTreeNodesInsertedEvent() throws Exception {
+        Assume.assumeFalse(GraphicsEnvironment.isHeadless());
         Controller controller = new Controller(new SelectionManager(), new SimpleUndoManager());
         EntityGroup root = controller.getDrawing().getRootEntity();
 
@@ -55,6 +59,7 @@ public class EntityTreeModelTest {
 
     @Test
     public void removeChildShouldCreateTreeNodesRemovedEvent() throws Exception {
+        Assume.assumeFalse(GraphicsEnvironment.isHeadless());
         Controller controller = new Controller(new SelectionManager(), new SimpleUndoManager());
         EntityGroup root = controller.getDrawing().getRootEntity();
         Rectangle rectangle = new Rectangle();
