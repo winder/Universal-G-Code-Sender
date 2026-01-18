@@ -19,8 +19,6 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
-import com.willwinder.ugs.nbp.designer.gui.DrawingEvent;
-import com.willwinder.ugs.nbp.designer.gui.DrawingListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -42,7 +40,7 @@ import java.awt.event.ActionEvent;
                 path = "Shortcuts",
                 name = "D-A")
 })
-public class SelectAllAction extends AbstractDesignAction implements DrawingListener {
+public class SelectAllAction extends AbstractDesignAction {
 
     public static final String SMALL_ICON_PATH = "img/select-all.svg";
     public static final String LARGE_ICON_PATH = "img/select-all24.svg";
@@ -57,9 +55,7 @@ public class SelectAllAction extends AbstractDesignAction implements DrawingList
         putValue(NAME, "Select all");
 
         this.controller = ControllerFactory.getController();
-
         setEnabled(!this.controller.getDrawing().getEntities().isEmpty());
-        this.controller.getDrawing().addListener(this);
     }
 
     @Override
@@ -70,10 +66,5 @@ public class SelectAllAction extends AbstractDesignAction implements DrawingList
             selectionManager.setSelection(controller.getDrawing().getEntities());
             controller.getDrawing().repaint();
         });
-    }
-
-    @Override
-    public void onDrawingEvent(DrawingEvent event) {
-        setEnabled(!controller.getDrawing().getEntities().isEmpty());
     }
 }

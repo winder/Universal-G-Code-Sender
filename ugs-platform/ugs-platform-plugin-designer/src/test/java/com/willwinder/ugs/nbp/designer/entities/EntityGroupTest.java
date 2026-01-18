@@ -3,15 +3,31 @@ package com.willwinder.ugs.nbp.designer.entities;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.model.Size;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import org.mockito.MockitoAnnotations;
 
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
-
 public class EntityGroupTest {
+    @Captor
+    private ArgumentCaptor<EntityEvent> entityEventCaptor;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     public void getChildrenAtShouldReturnEntitiesWithinPoint() {
@@ -358,5 +374,137 @@ public class EntityGroupTest {
         assertEquals(new Size(10, 5), entityGroup.getSize());
         assertEquals(new Size(5, 5), rectangle1.getSize());
         assertEquals(new Size(5, 5), rectangle2.getSize());
+    }
+
+    @Test
+    public void removeChildShouldShouldNotifyListeners() {
+        EntityGroup parent = new EntityGroup();
+        Rectangle child = new Rectangle();
+        parent.addChild(child);
+
+        EntityListener entityListener = mock(EntityListener.class);
+        parent.addListener(entityListener);
+
+        parent.removeChild(child);
+
+        verify(entityListener).onEvent(entityEventCaptor.capture());
+        assertEquals(1, entityEventCaptor.getAllValues().size());
+        assertEquals(parent, entityEventCaptor.getValue().getParent().orElse(null));
+        assertEquals(child, entityEventCaptor.getValue().getTarget());
+        assertEquals(EventType.CHILD_REMOVED, entityEventCaptor.getValue().getType());
+    }
+
+    @Test
+    public void removeChildThatDoesNotExistShouldNotNotifyListeners() {
+        EntityGroup parent = new EntityGroup();
+        Rectangle child = new Rectangle();
+
+        EntityListener entityListener = mock(EntityListener.class);
+        parent.addListener(entityListener);
+
+        parent.removeChild(child);
+
+        verifyNoInteractions(entityListener);
+    }
+
+    @Test
+    public void removeAllShouldShouldNotifyListeners() {
+        EntityGroup parent = new EntityGroup();
+        Rectangle child1 = new Rectangle();
+        parent.addChild(child1);
+
+        Rectangle child2 = new Rectangle();
+        parent.addChild(child2);
+
+
+        EntityListener entityListener = mock(EntityListener.class);
+        parent.addListener(entityListener);
+
+        parent.removeAll();
+
+        verify(entityListener, times(2)).onEvent(entityEventCaptor.capture());
+        assertEquals(2, entityEventCaptor.getAllValues().size());
+
+        assertEquals(parent, entityEventCaptor.getAllValues().get(0).getParent().orElse(null));
+        assertEquals(child1, entityEventCaptor.getAllValues().get(0).getTarget());
+        assertEquals(EventType.CHILD_REMOVED, entityEventCaptor.getAllValues().get(0).getType());
+
+        assertEquals(parent, entityEventCaptor.getAllValues().get(1).getParent().orElse(null));
+        assertEquals(child2, entityEventCaptor.getAllValues().get(1).getTarget());
+        assertEquals(EventType.CHILD_REMOVED, entityEventCaptor.getAllValues().get(1).getType());
+    }
+
+    @Test
+    public void removeChildShouldPropagateEventsToRootParent() {
+        EntityGroup root = new EntityGroup();
+        EntityGroup parent = new EntityGroup();
+        root.addChild(parent);
+        Rectangle child = new Rectangle();
+        parent.addChild(child);
+
+        EntityListener entityListener = mock(EntityListener.class);
+        root.addListener(entityListener);
+
+        parent.removeChild(child);
+
+        verify(entityListener).onEvent(entityEventCaptor.capture());
+        assertEquals(1, entityEventCaptor.getAllValues().size());
+        assertEquals(parent, entityEventCaptor.getValue().getParent().orElse(null));
+        assertEquals(child, entityEventCaptor.getValue().getTarget());
+        assertEquals(EventType.CHILD_REMOVED, entityEventCaptor.getValue().getType());
+    }
+
+
+    @Test
+    public void addChildShouldNotifyEventListeners() {
+        EntityGroup parent = new EntityGroup();
+        EntityListener entityListener = mock(EntityListener.class);
+        parent.addListener(entityListener);
+
+        Rectangle child = new Rectangle();
+        parent.addChild(child);
+
+        verify(entityListener).onEvent(entityEventCaptor.capture());
+        assertEquals(1, entityEventCaptor.getAllValues().size());
+        assertEquals(parent, entityEventCaptor.getValue().getParent().orElse(null));
+        assertEquals(child, entityEventCaptor.getValue().getTarget());
+        assertEquals(EventType.CHILD_ADDED, entityEventCaptor.getValue().getType());
+    }
+
+    @Test
+    public void addChildWithIndexShouldNotifyEventListeners() {
+        EntityGroup parent = new EntityGroup();
+        EntityListener entityListener = mock(EntityListener.class);
+        parent.addListener(entityListener);
+
+        Rectangle child = new Rectangle();
+        parent.addChild(child, 0);
+
+        verify(entityListener).onEvent(entityEventCaptor.capture());
+        assertEquals(1, entityEventCaptor.getAllValues().size());
+        assertEquals(parent, entityEventCaptor.getValue().getParent().orElse(null));
+        assertEquals(child, entityEventCaptor.getValue().getTarget());
+        assertEquals(EventType.CHILD_ADDED, entityEventCaptor.getValue().getType());
+    }
+
+    @Test
+    public void addAllShouldNotifyEventListeners() {
+        EntityGroup parent = new EntityGroup();
+        EntityListener entityListener = mock(EntityListener.class);
+        parent.addListener(entityListener);
+
+        Rectangle child1 = new Rectangle();
+        Rectangle child2 = new Rectangle();
+        parent.addAll(List.of(child1, child2));
+
+        verify(entityListener, times(2)).onEvent(entityEventCaptor.capture());
+        assertEquals(2, entityEventCaptor.getAllValues().size());
+        assertEquals(parent, entityEventCaptor.getAllValues().get(0).getParent().orElse(null));
+        assertEquals(child1, entityEventCaptor.getAllValues().get(0).getTarget());
+        assertEquals(EventType.CHILD_ADDED, entityEventCaptor.getAllValues().get(0).getType());
+
+        assertEquals(parent, entityEventCaptor.getAllValues().get(1).getParent().orElse(null));
+        assertEquals(child2, entityEventCaptor.getAllValues().get(1).getTarget());
+        assertEquals(EventType.CHILD_ADDED, entityEventCaptor.getAllValues().get(1).getType());
     }
 }

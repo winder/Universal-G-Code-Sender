@@ -37,5 +37,7 @@ public enum EventType {
     KEY_PRESSED,
     KEY_TYPED,
     KEY_RELEASED,
+    CHILD_REMOVED,
+    CHILD_ADDED,
     PATH_CHANGED
 }

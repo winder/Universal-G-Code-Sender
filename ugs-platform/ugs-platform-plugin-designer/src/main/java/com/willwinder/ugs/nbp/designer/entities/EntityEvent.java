@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,16 +18,24 @@
  */
 package com.willwinder.ugs.nbp.designer.entities;
 
+import java.util.Optional;
+
 /**
  * @author Joacim Breiler
  */
 public class EntityEvent {
     private final Entity target;
     private final EventType type;
+    private final Entity parent;
 
     public EntityEvent(Entity target, EventType type) {
-        this.target = target;
-        this.type = type;
+        this(target, null, type);
+    }
+
+    public EntityEvent(Entity entity, Entity parent, EventType eventType) {
+        this.target = entity;
+        this.type = eventType;
+        this.parent = parent;
     }
 
     public EventType getType() {
@@ -36,5 +44,14 @@ public class EntityEvent {
 
     public Entity getTarget() {
         return target;
+    }
+
+    public Optional<Entity> getParent() {
+        return Optional.ofNullable(parent);
+    }
+
+    @Override
+    public String toString() {
+        return EntityEvent.class.getSimpleName() + " " + type + " " + target + " " + parent;
     }
 }

@@ -2,12 +2,13 @@ package com.willwinder.ugs.nbp.designer.entities;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.model.Size;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-
-import static org.junit.Assert.*;
 
 public class RectangleTest {
 

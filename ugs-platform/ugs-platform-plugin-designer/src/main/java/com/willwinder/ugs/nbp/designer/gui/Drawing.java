@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
-import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.Throttler;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
@@ -39,7 +38,6 @@ import com.willwinder.ugs.nbp.designer.entities.controls.SelectionControl;
 import com.willwinder.ugs.nbp.designer.entities.controls.VertexControlGroup;
 import com.willwinder.ugs.nbp.designer.entities.controls.ZoomControl;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
 import static java.awt.RenderingHints.KEY_ANTIALIASING;
 import static java.awt.RenderingHints.KEY_RENDERING;
@@ -62,7 +60,6 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Joacim Breiler
@@ -75,7 +72,6 @@ public class Drawing extends JPanel implements ISnapToGridListener {
     private final transient EntityGroup globalRoot;
     private final transient EntityGroup entitiesRoot;
     private final transient EntityGroup controlsRoot;
-    private final transient Set<DrawingListener> listeners = Sets.newConcurrentHashSet();
     private final transient Throttler refreshThrottler;
     private final transient Rectangle2D currentBounds = new Rectangle(0, 0, 8, 8);
     private double scale;
@@ -83,7 +79,7 @@ public class Drawing extends JPanel implements ISnapToGridListener {
     private Dimension oldMinimumSize;
     private transient DropHandler dropHandler;
     private transient DropTarget dropTarget;
-    
+
     public Drawing(Controller controller) {
         refreshThrottler = new Throttler(this::refresh, 1000);
 
@@ -131,13 +127,13 @@ public class Drawing extends JPanel implements ISnapToGridListener {
     }
 
     public BufferedImage getImage() {
-        BufferedImage bi = new BufferedImage((int)Math.ceil(getPreferredSize().width) ,
-               (int)Math.ceil(getPreferredSize().height) ,
+        BufferedImage bi = new BufferedImage((int) Math.ceil(getPreferredSize().width),
+                (int) Math.ceil(getPreferredSize().height),
                 BufferedImage.TYPE_INT_RGB);
-        
+
         Graphics2D g = bi.createGraphics();
-        g.setClip(0, 0,bi.getWidth(),bi.getHeight());
- 
+        g.setClip(0, 0, bi.getWidth(), bi.getHeight());
+
         AffineTransform previousTransform = g.getTransform();
 
         AffineTransform affineTransform = new AffineTransform(g.getTransform());
@@ -145,7 +141,7 @@ public class Drawing extends JPanel implements ISnapToGridListener {
         midForm.translate(0, -getPreferredSize().height);
         midForm.scale(scale, scale);
         affineTransform.concatenate(midForm);
-        
+
         g.setTransform(affineTransform);
 
         RenderingHints rh = g.getRenderingHints();
@@ -156,7 +152,7 @@ public class Drawing extends JPanel implements ISnapToGridListener {
         g.setRenderingHints(rh);
         globalRoot.render(g, this);
         g.setTransform(previousTransform);
-        
+
         return bi;
     }
 
@@ -170,17 +166,10 @@ public class Drawing extends JPanel implements ISnapToGridListener {
 
     public void insertEntity(Entity entity) {
         entitiesRoot.addChild(entity);
-        notifyListeners(DrawingEvent.ENTITY_ADDED);
-    }
-
-    public void notifyListeners(DrawingEvent event) {
-        listeners.forEach(l -> l.onDrawingEvent(event));
-        refresh();
     }
 
     public void insertEntities(List<Entity> entities) {
         entities.forEach(entitiesRoot::addChild);
-        notifyListeners(DrawingEvent.ENTITY_ADDED);
     }
 
     public List<Entity> getEntities() {
@@ -229,7 +218,6 @@ public class Drawing extends JPanel implements ISnapToGridListener {
 
     public void removeEntities(List<Entity> entities) {
         removeEntitiesRecursively(globalRoot, entities);
-        ThreadHelper.invokeLater(() -> listeners.forEach(l -> l.onDrawingEvent(DrawingEvent.ENTITY_REMOVED)));
         refresh();
     }
 
@@ -256,14 +244,13 @@ public class Drawing extends JPanel implements ISnapToGridListener {
         double newScale = Math.max(Math.abs(scale), MIN_SCALE);
         if (this.scale != newScale) {
             this.scale = newScale;
-            notifyListeners(DrawingEvent.SCALE_CHANGED);
             refresh();
         }
     }
 
     @Override
     public Dimension getMinimumSize() {
-        int width = (int) (currentBounds.getWidth() );
+        int width = (int) (currentBounds.getWidth());
         int height = (int) (currentBounds.getHeight());
         return new Dimension(width, height);
     }
@@ -284,20 +271,12 @@ public class Drawing extends JPanel implements ISnapToGridListener {
         revalidate();
     }
 
-    public void addListener(DrawingListener listener) {
-        listeners.add(listener);
-    }
-
     public AffineTransform getTransform() {
         AffineTransform transform = AffineTransform.getScaleInstance(1, -1);
         transform.translate(0, -getHeight());
         transform.scale(scale, scale);
         transform.translate(-position.x, -position.y);
         return transform;
-    }
-
-    public void removeListener(DrawingListener drawingListener) {
-        listeners.remove(drawingListener);
     }
 
     public List<Control> getControls() {
@@ -337,7 +316,7 @@ public class Drawing extends JPanel implements ISnapToGridListener {
 
     @Override
     public void snapToGridUpdated(double aNewValue) {
-        for ( Entity ctrl : this.controlsRoot.getAllChildren() ) {
+        for (Entity ctrl : this.controlsRoot.getAllChildren()) {
             if (ctrl instanceof ISnapToGridListener iSnapToGridListener) {
                 iSnapToGridListener.snapToGridUpdated(aNewValue);
             }

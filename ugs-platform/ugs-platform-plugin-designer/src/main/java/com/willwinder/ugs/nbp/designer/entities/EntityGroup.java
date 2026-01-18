@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -34,6 +34,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 /**
+ * An entity group for storing multiple entities
+ *
  * @author Joacim Breiler
  */
 public class EntityGroup extends AbstractEntity implements EntityListener {
@@ -108,17 +110,23 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     public void addChild(Entity entity) {
         if (!containsChild(entity)) {
             children.add(entity);
+            notifyEvent(new EntityEvent(entity, this, EventType.CHILD_ADDED));
             entity.addListener(this);
             invalidateBounds();
         }
     }
 
     public void addChild(Entity entity, int index) {
+        if (children.contains(entity)) {
+            return;
+        }
+
         if (children.size() < index) {
             index = children.size();
         }
 
         children.add(index, entity);
+        notifyEvent(new EntityEvent(entity, this, EventType.CHILD_ADDED));
         entity.addListener(this);
         invalidateBounds();
     }
@@ -131,6 +139,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         entities.forEach(entity -> {
             if (!containsChild(entity)) {
                 children.add(entity);
+                notifyEvent(new EntityEvent(entity, this, EventType.CHILD_ADDED));
                 entity.addListener(this);
             }
         });
@@ -207,7 +216,12 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
      * @param entity the entity to remove
      */
     public void removeChild(Entity entity) {
+        if (!children.contains(entity)) {
+            return;
+        }
+
         entity.removeListener(this);
+        notifyEvent(new EntityEvent(entity, this, EventType.CHILD_REMOVED));
         children.remove(entity);
         invalidateBounds();
     }
@@ -215,11 +229,13 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
     @Override
     public void destroy() {
         super.destroy();
+        this.children.forEach(entity -> notifyEvent(new EntityEvent(entity, this, EventType.CHILD_REMOVED)));
         children.forEach(Entity::destroy);
     }
 
     public void removeAll() {
         this.groupRotation = 0;
+        this.children.forEach(entity -> notifyEvent(new EntityEvent(entity, this, EventType.CHILD_REMOVED)));
         this.children.forEach(entity -> entity.removeListener(this));
         this.children.clear();
         invalidateBounds();
