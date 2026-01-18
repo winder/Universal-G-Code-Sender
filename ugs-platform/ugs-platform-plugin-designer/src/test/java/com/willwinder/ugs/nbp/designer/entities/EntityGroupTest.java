@@ -13,6 +13,7 @@ import org.mockito.Captor;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import org.mockito.MockitoAnnotations;
 
 import java.awt.geom.Point2D;
@@ -20,6 +21,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class EntityGroupTest {
+    @Captor
+    private ArgumentCaptor<EntityEvent> entityEventCaptor;
 
     @Before
     public void setup() {
@@ -373,9 +376,6 @@ public class EntityGroupTest {
         assertEquals(new Size(5, 5), rectangle2.getSize());
     }
 
-    @Captor
-    private ArgumentCaptor<EntityEvent> entityEventCaptor;
-
     @Test
     public void removeChildShouldShouldNotifyListeners() {
         EntityGroup parent = new EntityGroup();
@@ -392,6 +392,19 @@ public class EntityGroupTest {
         assertEquals(parent, entityEventCaptor.getValue().getParent().orElse(null));
         assertEquals(child, entityEventCaptor.getValue().getTarget());
         assertEquals(EventType.CHILD_REMOVED, entityEventCaptor.getValue().getType());
+    }
+
+    @Test
+    public void removeChildThatDoesNotExistShouldNotNotifyListeners() {
+        EntityGroup parent = new EntityGroup();
+        Rectangle child = new Rectangle();
+
+        EntityListener entityListener = mock(EntityListener.class);
+        parent.addListener(entityListener);
+
+        parent.removeChild(child);
+
+        verifyNoInteractions(entityListener);
     }
 
     @Test
@@ -440,6 +453,7 @@ public class EntityGroupTest {
         assertEquals(child, entityEventCaptor.getValue().getTarget());
         assertEquals(EventType.CHILD_REMOVED, entityEventCaptor.getValue().getType());
     }
+
 
     @Test
     public void addChildShouldNotifyEventListeners() {

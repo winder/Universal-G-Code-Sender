@@ -36,7 +36,6 @@ public class ToolButton extends PanelButton {
         super("", "");
         this.controller = controller;
         controller.getSettings().addListener(this::updateText);
-        controller.getDrawing().addListener(e -> updateText());
         controller.getDrawing().getRootEntity().addListener(e -> updateText());
         updateText();
     }

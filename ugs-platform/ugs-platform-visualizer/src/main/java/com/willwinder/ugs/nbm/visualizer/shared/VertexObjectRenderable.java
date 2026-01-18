@@ -121,6 +121,11 @@ public abstract class VertexObjectRenderable extends Renderable {
     public final void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
         GL2 gl = drawable.getGL().getGL2();
 
+        // Nothing to render, exit early
+        if (objectMax.x - objectMin.x == 0.0 && objectMax.y - objectMin.y == 0.0 && objectMax.z - objectMin.z == 0.0) {
+            return;
+        }
+
         if (!gl.isFunctionAvailable("glVertexAttribPointer") ||
                 !gl.isFunctionAvailable("glBindBuffer") ||
                 !gl.isFunctionAvailable("glUseProgram")) {

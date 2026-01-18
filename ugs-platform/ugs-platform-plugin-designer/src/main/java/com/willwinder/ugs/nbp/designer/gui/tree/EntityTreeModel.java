@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,35 +20,46 @@ package com.willwinder.ugs.nbp.designer.gui.tree;
 
 import com.google.common.collect.Sets;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
+import com.willwinder.ugs.nbp.designer.entities.EntityListener;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
-import com.willwinder.ugs.nbp.designer.gui.DrawingEvent;
-import com.willwinder.ugs.nbp.designer.gui.DrawingListener;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.ugs.nbp.designer.logic.ControllerListener;
 
+import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
-import java.util.List;
+import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class EntityTreeModel implements TreeModel, ControllerListener, DrawingListener {
+/**
+ * A entity tree model that listens to events for keeping the
+ * tree updated
+ *
+ * @author Joacim Breiler
+ */
+public class EntityTreeModel implements TreeModel, ControllerListener, EntityListener {
+    private static final Logger LOGGER = Logger.getLogger(EntityTreeModel.class.getName());
+
     private final Controller controller;
     private final Set<TreeModelListener> treeModelListeners = Sets.newConcurrentHashSet();
 
     public EntityTreeModel(Controller controller) {
         this.controller = controller;
         controller.addListener(this);
-        controller.getDrawing().addListener(this);
+        controller.getDrawing().getRootEntity().addListener(this);
+        fireFullReload();
     }
 
     public void release() {
         controller.removeListener(this);
-        controller.getDrawing().removeListener(this);
     }
 
     @Override
@@ -97,18 +108,6 @@ public class EntityTreeModel implements TreeModel, ControllerListener, DrawingLi
         treeModelListeners.remove(l);
     }
 
-    protected void fireTreeStructureChanged(Object object) {
-        List<Entity> selection = controller.getSelectionManager().getSelection();
-        notifyTreeStructureChanged(object);
-
-        // Restore old selection
-        List<Entity> existingEntities = controller.getDrawing().getEntities();
-        List<Entity> newSelection = selection.stream()
-                .filter(existingEntities::contains)
-                .collect(Collectors.toList());
-        controller.getSelectionManager().setSelection(newSelection);
-    }
-
     public void notifyTreeStructureChanged(Object object) {
         TreeModelEvent e = new TreeModelEvent(this,
                 new Object[]{object});
@@ -119,17 +118,96 @@ public class EntityTreeModel implements TreeModel, ControllerListener, DrawingLi
 
     @Override
     public void onControllerEvent(ControllerEventType event) {
-        fireTreeStructureChanged(controller.getDrawing().getRootEntity());
-    }
-
-    @Override
-    public void onDrawingEvent(DrawingEvent event) {
-        if (event == DrawingEvent.ENTITY_ADDED || event == DrawingEvent.ENTITY_REMOVED) {
-            fireTreeStructureChanged(controller.getDrawing().getRootEntity());
+        if (event == ControllerEventType.NEW_DRAWING) {
+            fireFullReload();
+            controller.getDrawing().getRootEntity().addListener(this);
         }
     }
 
     public Drawing getDrawing() {
         return controller.getDrawing();
+    }
+
+    @Override
+    public void onEvent(EntityEvent entityEvent) {
+        switch (entityEvent.getType()) {
+            case CHILD_ADDED -> entityEvent.getParent()
+                    .filter(p -> p instanceof EntityGroup)
+                    .map(p -> (EntityGroup) p)
+                    .ifPresent(parent -> fireChildAdded(parent, entityEvent.getTarget(), parent.getChildren().indexOf(entityEvent.getTarget())));
+
+            case CHILD_REMOVED -> entityEvent.getParent()
+                    .filter(p -> p instanceof EntityGroup)
+                    .map(p -> (EntityGroup) p)
+                    .ifPresent(parent -> fireChildRemoved(parent, entityEvent.getTarget(), parent.getChildren().indexOf(entityEvent.getTarget())));
+        }
+    }
+
+    private void fireFullReload() {
+        fireOnEdt(() -> {
+            TreeModelEvent e = new TreeModelEvent(
+                    this,
+                    new Object[]{getRoot()}
+            );
+            treeModelListeners.forEach(l -> l.treeStructureChanged(e));
+        });
+    }
+
+    private void fireOnEdt(Runnable r) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            r.run();
+        } else {
+            SwingUtilities.invokeLater(r);
+        }
+    }
+
+    private void fireChildAdded(EntityGroup parent, Entity target, int index) {
+        if (index < 0) {
+            LOGGER.warning("Entity does not exist in parent " + parent + " > " + target);
+            return;
+        }
+
+        fireOnEdt(() -> {
+            TreeModelEvent e = new TreeModelEvent(this,
+                    buildTreeTo(parent), new int[]{index}, new Object[]{target});
+            for (TreeModelListener tml : treeModelListeners) {
+                tml.treeNodesInserted(e);
+            }
+        });
+    }
+
+    private void fireChildRemoved(EntityGroup parent, Entity target, int index) {
+        if (index < 0) {
+            LOGGER.warning("Entity does not exist in parent " + parent + " > " + target);
+            return;
+        }
+
+        fireOnEdt(() -> {
+            TreeModelEvent e = new TreeModelEvent(this,
+                    buildTreeTo(parent), new int[]{index}, new Object[]{target});
+            for (TreeModelListener tml : treeModelListeners) {
+                try {
+                    tml.treeNodesRemoved(e);
+                } catch (Exception ex) {
+                    LOGGER.log(Level.INFO, "Could not delete node " + target + " from tree");
+                }
+            }
+        });
+    }
+
+    private TreePath buildTreeTo(Entity target) {
+        LinkedList<Entity> path = new LinkedList<>();
+        path.add(target);
+
+        Optional<EntityGroup> parentFor = controller.getDrawing().getRootEntity().findParentFor(target);
+        parentFor.ifPresent(path::addFirst);
+        EntityGroup current = parentFor.orElse(null);
+        while (current != null) {
+            parentFor = controller.getDrawing().getRootEntity().findParentFor(current);
+            parentFor.ifPresent(path::addFirst);
+            current = parentFor.orElse(null);
+        }
+
+        return new TreePath(path.toArray());
     }
 }

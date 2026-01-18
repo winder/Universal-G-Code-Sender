@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -48,5 +48,10 @@ public class EntityEvent {
 
     public Optional<Entity> getParent() {
         return Optional.ofNullable(parent);
+    }
+
+    @Override
+    public String toString() {
+        return EntityEvent.class.getSimpleName() + " " + type + " " + target + " " + parent;
     }
 }
