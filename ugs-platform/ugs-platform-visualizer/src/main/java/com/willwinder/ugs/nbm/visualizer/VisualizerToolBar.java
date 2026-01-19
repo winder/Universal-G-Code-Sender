@@ -27,7 +27,6 @@ import com.willwinder.ugs.nbm.visualizer.actions.ToggleGridFeatureAction;
 import com.willwinder.ugs.nbm.visualizer.actions.ToggleModelFeatureAction;
 import com.willwinder.ugs.nbm.visualizer.actions.ToggleMouseFeatureAction;
 import com.willwinder.ugs.nbm.visualizer.actions.ToggleOrientationFeatureAction;
-import com.willwinder.ugs.nbm.visualizer.actions.TogglePlaneFeatureAction;
 import com.willwinder.ugs.nbm.visualizer.actions.ToggleSelectFeatureAction;
 import com.willwinder.ugs.nbm.visualizer.actions.ToggleSizeFeatureAction;
 import com.willwinder.ugs.nbm.visualizer.actions.ToggleToolFeatureAction;
@@ -62,7 +61,6 @@ public class VisualizerToolBar extends ToolBar {
     private void initComponents() {
         add(createCameraPresetDropDownButton());
         addSeparator();
-        createAndAddToggleButton(new TogglePlaneFeatureAction());
         createAndAddToggleButton(new ToggleGridFeatureAction());
         createAndAddToggleButton(new ToggleSizeFeatureAction());
         createAndAddToggleButton(new ToggleToolFeatureAction());
