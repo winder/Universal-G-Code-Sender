@@ -134,12 +134,14 @@ public class EntityTreeModel implements TreeModel, ControllerListener, EntityLis
             case CHILD_ADDED -> entityEvent.getParent()
                     .filter(p -> p instanceof EntityGroup)
                     .map(p -> (EntityGroup) p)
-                    .ifPresent(parent -> fireChildAdded(parent, entityEvent.getTarget(), parent.getChildren().indexOf(entityEvent.getTarget())));
+                    .ifPresent(parent -> fireChildAdded(entityEvent.getTarget(), parent.getChildren().indexOf(entityEvent.getTarget())));
 
             case CHILD_REMOVED -> entityEvent.getParent()
                     .filter(p -> p instanceof EntityGroup)
                     .map(p -> (EntityGroup) p)
-                    .ifPresent(parent -> fireChildRemoved(parent, entityEvent.getTarget(), parent.getChildren().indexOf(entityEvent.getTarget())));
+                    .ifPresent(parent -> fireChildRemoved(entityEvent.getTarget(), parent.getChildren().indexOf(entityEvent.getTarget())));
+
+            case SETTINGS_CHANGED -> fireChildChanged(entityEvent.getTarget());
         }
     }
 
@@ -161,35 +163,53 @@ public class EntityTreeModel implements TreeModel, ControllerListener, EntityLis
         }
     }
 
-    private void fireChildAdded(EntityGroup parent, Entity target, int index) {
+    private void fireChildAdded(Entity target, int index) {
+        TreePath parentPath = buildTreeTo(target).getParentPath();
         if (index < 0) {
-            LOGGER.warning("Entity does not exist in parent " + parent + " > " + target);
+            LOGGER.warning("Entity does not exist in parent " + parentPath.getLastPathComponent() + " > " + target);
             return;
         }
 
         fireOnEdt(() -> {
             TreeModelEvent e = new TreeModelEvent(this,
-                    buildTreeTo(parent), new int[]{index}, new Object[]{target});
+                    parentPath, new int[]{index}, new Object[]{target});
             for (TreeModelListener tml : treeModelListeners) {
                 tml.treeNodesInserted(e);
             }
         });
     }
 
-    private void fireChildRemoved(EntityGroup parent, Entity target, int index) {
+    private void fireChildRemoved(Entity target, int index) {
+        TreePath parentPath = buildTreeTo(target).getParentPath();
         if (index < 0) {
-            LOGGER.warning("Entity does not exist in parent " + parent + " > " + target);
+            LOGGER.warning("Entity does not exist in parent " + parentPath.getLastPathComponent() + " > " + target);
             return;
         }
 
         fireOnEdt(() -> {
             TreeModelEvent e = new TreeModelEvent(this,
-                    buildTreeTo(parent), new int[]{index}, new Object[]{target});
+                    parentPath, new int[]{index}, new Object[]{target});
             for (TreeModelListener tml : treeModelListeners) {
                 try {
                     tml.treeNodesRemoved(e);
                 } catch (Exception ex) {
                     LOGGER.log(Level.INFO, "Could not delete node " + target + " from tree");
+                }
+            }
+        });
+    }
+
+    private void fireChildChanged(Entity target) {
+        fireOnEdt(() -> {
+            TreePath parentPath = buildTreeTo(target).getParentPath();
+            EntityGroup parent = (EntityGroup) parentPath.getLastPathComponent();
+            TreeModelEvent e = new TreeModelEvent(this,
+                    parentPath, new int[]{parent.getChildren().indexOf(target)}, new Object[]{target});
+            for (TreeModelListener tml : treeModelListeners) {
+                try {
+                    tml.treeNodesChanged(e);
+                } catch (Exception ex) {
+                    LOGGER.log(Level.INFO, "Could change the node " + target + " in tree", ex);
                 }
             }
         });

@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -86,18 +86,17 @@ public interface Cuttable extends Entity {
     void setSpindleSpeed(int power);
 
     /**
-     * Returns the laser feed rate in percent where min is 0 and max is 100.
+     * Returns the feed rate in mm/min.
      *
-     * @return the laser feed rate in percent
+     * @return the feed rate in mm/min
      */
     int getFeedRate();
 
     /**
-     * Sets the laser feed rate in percent where min is 0 and max is 100
+     * Sets the feed rate in mm/min where min
      *
-     * @param feedRate the feed rate in percent
+     * @param feedRate the feed rate in mm/min
      */
-
     void setFeedRate(int feedRate);
 
     /**

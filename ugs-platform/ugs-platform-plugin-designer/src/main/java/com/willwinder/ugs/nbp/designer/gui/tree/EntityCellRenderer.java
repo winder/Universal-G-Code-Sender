@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2025 Will Winder
+    Copyright 2021-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.gui.tree;
 
 import com.willwinder.ugs.nbp.designer.Utils;
+import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.gui.CutTypeIcon;
@@ -29,61 +30,67 @@ import org.openide.util.ImageUtilities;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeCellRenderer;
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 
-public class EntityCellRenderer implements TreeCellRenderer {
+public class EntityCellRenderer extends DefaultTreeCellRenderer {
 
-    private static final Icon ICON_HIDDEN = ImageUtilities.loadImageIcon("img/eyeoff.svg", false);
-    private final DefaultTreeCellRenderer delegate = new DefaultTreeCellRenderer();
-    private final JPanel wrapper = new JPanel(new BorderLayout());
-
-    public EntityCellRenderer() {
-        wrapper.setBorder(BorderFactory.createEmptyBorder());
-        wrapper.setOpaque(false);
-        wrapper.add(delegate, BorderLayout.CENTER);
-    }
+    private static final Icon ICON_HIDDEN = ImageUtilities.loadImageIcon("img/eyeoff24.svg", false);
+    private static final Icon ICON_GROUP_OPEN = ImageUtilities.loadImageIcon("img/open24.svg", false);
+    private static final Icon ICON_GROUP_CLOSED = ImageUtilities.loadImageIcon("img/folder24.svg", false);
 
     @Override
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        Component c = delegate.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+        super.getTreeCellRendererComponent(
+                tree, value, sel,
+                expanded, leaf, row,
+                hasFocus);
+
+        setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
 
         BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         UnitUtils.Units preferredUnits = backendAPI.getSettings().getPreferredUnits();
 
         Object treeObject = getUserObject(value);
-        if (leaf && treeObject instanceof Cuttable cuttable) {
-            CutType cutType = cuttable.getCutType();
-            double cutDepth = UnitUtils.scaleUnits(UnitUtils.Units.MM, preferredUnits) * cuttable.getTargetDepth();
-            if (cuttable.isHidden()) {
-                delegate.setIcon(ICON_HIDDEN);
-            } else {
-                delegate.setIcon(new CutTypeIcon(cutType, CutTypeIcon.Size.SMALL));
-            }
-
-            if (cutType == CutType.NONE) {
-                delegate.setText(cuttable.getName());
-            } else {
-                delegate.setText((Utils.toString(cutDepth)) + " " + preferredUnits.abbreviation + " - " + cuttable.getName());
-            }
+        if (treeObject instanceof EntityGroup group) {
+            renderGroup(group, expanded);
+        } else if (treeObject instanceof Cuttable cuttable) {
+            renderCuttable(cuttable, preferredUnits);
         } else {
-            delegate.setToolTipText(null); //no tool tip
+            setToolTipText(null); //no tool tip
         }
 
-        wrapper.setPreferredSize(new Dimension(tree.getWidth(), c.getPreferredSize().height));
-        return wrapper;
+        return this;
+    }
+
+    private void renderGroup(EntityGroup group, boolean expanded) {
+        setIcon(expanded ? ICON_GROUP_OPEN : ICON_GROUP_CLOSED);
+        setText(group.getName());
+        setToolTipText(null);
+    }
+
+    private void renderCuttable(Cuttable cuttable, UnitUtils.Units preferredUnits) {
+        CutType cutType = cuttable.getCutType();
+        double cutStart = UnitUtils.scaleUnits(UnitUtils.Units.MM, preferredUnits) * cuttable.getStartDepth();
+        double cutDepth = UnitUtils.scaleUnits(UnitUtils.Units.MM, preferredUnits) * cuttable.getTargetDepth();
+        if (cuttable.isHidden()) {
+            setIcon(ICON_HIDDEN);
+        } else {
+            setIcon(new CutTypeIcon(cutType, CutTypeIcon.Size.MEDIUM));
+        }
+
+        if (cutType == CutType.NONE) {
+            setText(cuttable.getName());
+        } else {
+            setText("<html>" + cuttable.getName() + "<br/><small>" + Utils.toString(cutStart) + " - "  + Utils.toString(cutDepth) + " " + preferredUnits.abbreviation + ", " + cuttable.getFeedRate() + " mm/min, " + cuttable.getSpindleSpeed() + "% <small></html>");
+        }
     }
 
     private Object getUserObject(Object value) {
-        if (value instanceof DefaultMutableTreeNode node) {
-            return node.getUserObject();
+        if (value instanceof DefaultMutableTreeNode) {
+            return ((DefaultMutableTreeNode) value).getUserObject();
         }
         return value;
     }
