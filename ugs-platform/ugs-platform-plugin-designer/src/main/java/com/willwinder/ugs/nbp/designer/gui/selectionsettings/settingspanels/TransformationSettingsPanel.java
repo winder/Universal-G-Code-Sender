@@ -40,6 +40,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeListener;
@@ -128,42 +129,47 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
 
         widthTextField.addPropertyChangeListener("value", evt -> {
             if (updating) return;
-            firePropertyChange(PROP_WIDTH, evt.getNewValue());
 
-            // Update height field when lockRatio is enabled
-            if (lockRatio && evt.getNewValue() instanceof Double newWidth) {
-                updating = true;
-                try {
-                    double currentWidth = widthTextField.getDoubleValue();
-                    double currentHeight = heightTextField.getDoubleValue();
-                    if (currentWidth > 0) {
-                        double ratio = currentHeight / currentWidth;
-                        heightTextField.setDoubleValue(newWidth * ratio);
+            SwingUtilities.invokeLater(() -> {
+                firePropertyChange(PROP_WIDTH, evt.getNewValue());
+
+                // Update height field when lockRatio is enabled
+                if (lockRatio && evt.getNewValue() instanceof Double newWidth) {
+                    updating = true;
+                    try {
+                        double currentWidth = widthTextField.getDoubleValue();
+                        double currentHeight = heightTextField.getDoubleValue();
+                        if (currentWidth > 0) {
+                            double ratio = currentHeight / currentWidth;
+                            heightTextField.setDoubleValue(newWidth * ratio);
+                        }
+                    } finally {
+                        updating = false;
                     }
-                } finally {
-                    updating = false;
                 }
-            }
+            });
         });
 
         heightTextField.addPropertyChangeListener("value", evt -> {
             if (updating) return;
-            firePropertyChange(PROP_HEIGHT, evt.getNewValue());
+            SwingUtilities.invokeLater(() -> {
+                firePropertyChange(PROP_HEIGHT, evt.getNewValue());
 
-            // Update width field when lockRatio is enabled
-            if (lockRatio && evt.getNewValue() instanceof Double newHeight) {
-                updating = true;
-                try {
-                    double currentWidth = widthTextField.getDoubleValue();
-                    double currentHeight = heightTextField.getDoubleValue();
-                    if (currentHeight > 0) {
-                        double ratio = currentWidth / currentHeight;
-                        widthTextField.setDoubleValue(newHeight * ratio);
+                // Update width field when lockRatio is enabled
+                if (lockRatio && evt.getNewValue() instanceof Double newHeight) {
+                    updating = true;
+                    try {
+                        double currentWidth = widthTextField.getDoubleValue();
+                        double currentHeight = heightTextField.getDoubleValue();
+                        if (currentHeight > 0) {
+                            double ratio = currentWidth / currentHeight;
+                            widthTextField.setDoubleValue(newHeight * ratio);
+                        }
+                    } finally {
+                        updating = false;
                     }
-                } finally {
-                    updating = false;
                 }
-            }
+            });
         });
 
         rotationTextField.addPropertyChangeListener("value", evt -> firePropertyChange(PROP_ROTATION, evt.getNewValue()));
@@ -236,36 +242,36 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
     public void applyChangeToSelection(String setting, Object newValue, Group selectionGroup) {
         switch (Objects.requireNonNull(EntitySetting.fromPropertyName(setting))) {
             case POSITION_X -> {
-                    Point2D currentPos = selectionGroup.getPosition(currentAnchor);
-                    selectionGroup.setPosition(currentAnchor, new Point2D.Double((Double) newValue, currentPos.getY()));
-                }
+                Point2D currentPos = selectionGroup.getPosition(currentAnchor);
+                selectionGroup.setPosition(currentAnchor, new Point2D.Double((Double) newValue, currentPos.getY()));
+            }
             case POSITION_Y -> {
-                    Point2D currentPos = selectionGroup.getPosition(currentAnchor);
-                    selectionGroup.setPosition(currentAnchor, new Point2D.Double(currentPos.getX(), (Double) newValue));
-                }
+                Point2D currentPos = selectionGroup.getPosition(currentAnchor);
+                selectionGroup.setPosition(currentAnchor, new Point2D.Double(currentPos.getX(), (Double) newValue));
+            }
             case WIDTH -> {
-                    Size currentSize = selectionGroup.getSize();
-                    double newWidth = (Double) newValue;
-                    double newHeight = lockRatio ? currentSize.getHeight() * (newWidth / currentSize.getWidth()) : currentSize.getHeight();
-                    selectionGroup.setSize(currentAnchor, new Size(newWidth, newHeight));
-                }
+                Size currentSize = selectionGroup.getSize();
+                double newWidth = (Double) newValue;
+                double newHeight = lockRatio ? currentSize.getHeight() * (newWidth / currentSize.getWidth()) : currentSize.getHeight();
+                selectionGroup.setSize(currentAnchor, new Size(newWidth, newHeight));
+            }
             case HEIGHT -> {
-                    Size currentSize = selectionGroup.getSize();
-                    double newHeight = (Double) newValue;
-                    double newWidth = lockRatio ? currentSize.getWidth() * (newHeight / currentSize.getHeight()) : currentSize.getWidth();
-                    selectionGroup.setSize(currentAnchor, new Size(newWidth, newHeight));
-                }
+                Size currentSize = selectionGroup.getSize();
+                double newHeight = (Double) newValue;
+                double newWidth = lockRatio ? currentSize.getWidth() * (newHeight / currentSize.getHeight()) : currentSize.getWidth();
+                selectionGroup.setSize(currentAnchor, new Size(newWidth, newHeight));
+            }
             case ANCHOR -> {
-                    currentAnchor = (Anchor) newValue;
+                currentAnchor = (Anchor) newValue;
                 // Update pivot point for the selection group itself
                 selectionGroup.setPivotPoint(currentAnchor);
                 // Also update pivot point for all entities in the selection
                 selectionGroup.getChildren().forEach(entity -> entity.setPivotPoint(currentAnchor));
-                    updatePositionFieldsForAnchor(selectionGroup);
-                }
+                updatePositionFieldsForAnchor(selectionGroup);
+            }
             case ROTATION -> selectionGroup.setRotation((Double) newValue);
             case LOCK_RATIO -> this.lockRatio = !(Boolean) newValue;
-            }
+        }
     }
 
     private void updatePositionFieldsForAnchor(Group selectionGroup) {
