@@ -39,6 +39,7 @@ import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Container;
 import java.beans.PropertyChangeListener;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,7 +79,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
     }
 
     private void setEnabledRecursive(Container container, boolean enabled) {
-        for (Component c : container.getComponents()) {
+        for (Component c : Arrays.stream(container.getComponents()).filter(Objects::nonNull).toList()) {
             c.setEnabled(enabled);
             if (c instanceof Container child) {
                 setEnabledRecursive(child, enabled);

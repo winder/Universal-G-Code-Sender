@@ -1,5 +1,5 @@
 /*
-    Copyright 2022 Will Winder
+    Copyright 2022-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.io.c2d.C2dReader;
 import com.willwinder.ugs.nbp.designer.io.dxf.DxfReader;
 import com.willwinder.ugs.nbp.designer.io.eagle.EaglePnpReader;
+import com.willwinder.ugs.nbp.designer.io.gerber.GerberReader;
 import com.willwinder.ugs.nbp.designer.io.kicad.KiCadPosReader;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
@@ -66,6 +67,7 @@ public final class ToolImportAction extends AbstractDesignAction {
             new FileNameExtensionFilter("Carbide Create (.c2d)", "c2d"),
             new FileNameExtensionFilter("Eagle (.mnt, .mnb)", "mnt", "mnb"),
             new FileNameExtensionFilter("KiCad (.pos)", "pos"),
+            new FileNameExtensionFilter("Gerber (.gbr)", "gbr"),
             new FileNameExtensionFilter("UGS design (.ugsd)", "ugsd")
     };
 
@@ -102,6 +104,13 @@ public final class ToolImportAction extends AbstractDesignAction {
             optionalDesign = reader.read(f);
         } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".ugsd")) {
             UgsDesignReader reader = new UgsDesignReader();
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), "-drl.gbr")) {
+            // Treat as a KiCad drill file
+            GerberReader reader = new GerberReader(true);
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".gbr")) {
+            GerberReader reader = new GerberReader();
             optionalDesign = reader.read(f);
         }
 

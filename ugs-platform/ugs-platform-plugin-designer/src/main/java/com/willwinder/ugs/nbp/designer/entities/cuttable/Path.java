@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2026 Will Winder
+    Copyright 2021-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -44,6 +44,11 @@ public class Path extends AbstractCuttable {
         super();
         setName("Path");
         this.shape = shape;
+    }
+
+    public Path(Shape shape) {
+        this(new Path2D.Double());
+        this.shape.append(shape, false);
     }
 
     @Override

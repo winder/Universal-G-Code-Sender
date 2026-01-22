@@ -1,5 +1,5 @@
 /*
-    Copyright 2022 Will Winder
+    Copyright 2022-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
 import com.willwinder.ugs.nbp.designer.io.c2d.C2dReader;
+import com.willwinder.ugs.nbp.designer.io.gerber.GerberReader;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
@@ -42,6 +43,7 @@ public class OpenAction extends AbstractDesignAction {
     private static final String ICON_LARGE_PATH = "img/open24.svg";
     private static final FileFilter SVG_FILE_FILTER = new FileNameExtensionFilter("Scalable Vector Graphics (svg)", "svg");
     private static final FileFilter C2D_FILE_FILTER = new FileNameExtensionFilter("Carbide Create (c2d)", "c2d");
+    private static final FileFilter GERBER_FILE_FILTER = new FileNameExtensionFilter("Gerber (gbr)", "gbr");
     private final JFileChooser fileChooser;
 
     public OpenAction() {
@@ -56,6 +58,7 @@ public class OpenAction extends AbstractDesignAction {
         fileChooser.addChoosableFileFilter(DESIGN_FILE_FILTER);
         fileChooser.addChoosableFileFilter(SVG_FILE_FILTER);
         fileChooser.addChoosableFileFilter(C2D_FILE_FILTER);
+        fileChooser.addChoosableFileFilter(GERBER_FILE_FILTER);
         fileChooser.setFileFilter(DESIGN_FILE_FILTER);
     }
 
@@ -76,6 +79,8 @@ public class OpenAction extends AbstractDesignAction {
                 designReader = new SvgReader();
             } else if (fileChooser.getFileFilter() == C2D_FILE_FILTER) {
                 designReader = new C2dReader();
+            } else if (fileChooser.getFileFilter() == GERBER_FILE_FILTER) {
+                designReader = new GerberReader();
             }
 
             File selectedFile = fileChooser.getSelectedFile();

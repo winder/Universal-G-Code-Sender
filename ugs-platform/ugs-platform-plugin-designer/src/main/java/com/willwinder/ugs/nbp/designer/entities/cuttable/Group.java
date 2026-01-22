@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2025 Will Winder
+    Copyright 2021-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -276,7 +276,7 @@ public class Group extends EntityGroup implements Cuttable {
             return List.of();
         }
 
-        List<EntitySetting> result = list.get(0);
+        List<EntitySetting> result = new ArrayList<>(list.get(0));
         for (List<EntitySetting> settings : list) {
             result.retainAll(settings);
         }
