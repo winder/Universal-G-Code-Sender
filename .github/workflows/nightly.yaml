@@ -33,7 +33,7 @@ jobs:
         tag_name: "nightly"
         overwrite: true
 
-  build-ugs-platform-macosx:
+  build-ugs-platform-macosx-aarch64:
     if: github.repository_owner == 'winder'
     needs: build-and-test
     runs-on: macos-latest
@@ -51,7 +51,7 @@ jobs:
         run: ./mvnw clean install -DskipTests
 
       - name: Package
-        run: ./mvnw package -pl ugs-platform/application -P create-macosx-x64-package,create-macosx-aarch64-package -DskipTests=true
+        run: ./mvnw package -pl ugs-platform/application -P create-macosx-aarch64-package -DskipTests=true
 
       # https://github.com/marketplace/actions/upload-to-github-release
       - name: Upload binaries to snapshot release
@@ -63,6 +63,38 @@ jobs:
           prerelease: true
           tag_name: "nightly"
           overwrite: true
+
+  build-ugs-platform-macosx-x64:
+    if: github.repository_owner == 'winder'
+    needs: build-and-test
+    runs-on: macos-latest
+
+    steps:
+      - name: Install Homebrew package
+        run: |
+          brew update
+          brew install cdrtools
+
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-java-maven
+
+      - name: Build
+        run: ./mvnw clean install -DskipTests
+
+      - name: Package
+        run: ./mvnw package -pl ugs-platform/application -P create-macosx-x64-package -DskipTests=true
+
+      # https://github.com/marketplace/actions/upload-to-github-release
+      - name: Upload binaries to snapshot release
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: "ugs-platform/application/target/macosx-*-ugs-platform-app-*.dmg"
+          prerelease: true
+          tag_name: "nightly"
+          overwrite: true
+
 
   build-fx-linux-x64:
     if: github.repository_owner == 'winder'

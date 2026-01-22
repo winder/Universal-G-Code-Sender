@@ -40,7 +40,7 @@ jobs:
         tag_name: ${GITHUB_REF_NAME}
         overwrite: true
 
-  release-macosx:
+  release-macosx-x64:
     if: github.repository_owner == 'winder'
     runs-on: macos-latest
 
@@ -65,7 +65,45 @@ jobs:
           export REVISION=${GITHUB_REF_NAME:1}
           export CHANGELIST=""
           echo "Building version ${REVISION}${CHANGELIST}"
-          ./mvnw package -pl ugs-platform/application -P create-macosx-x64-package,create-macosx-aarch64-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
+          ./mvnw package -pl ugs-platform/application -P create-macosx-x64-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
+
+      # https://github.com/marketplace/actions/upload-to-github-release
+      - name: Upload binaries to snapshot release
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: "ugs-platform/application/target/macosx-*-ugs-platform-app-*.dmg;"
+          prerelease: true
+          tag_name: ${GITHUB_REF_NAME}
+          overwrite: true
+
+  release-macosx-aarch64:
+    if: github.repository_owner == 'winder'
+    runs-on: macos-latest
+
+    steps:
+      - name: Install Homebrew package
+        run: |
+          brew update
+          brew install cdrtools
+
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-java-maven
+
+      - name: Build and test
+        run: |
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Building version ${REVISION}${CHANGELIST}"
+          ./mvnw clean install -B -Drevision=${REVISION} -Dchangelist=${CHANGELIST} -DskipTests=true
+
+      - name: Package
+        run: |
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Building version ${REVISION}${CHANGELIST}"
+          ./mvnw package -pl ugs-platform/application -P create-macosx-aarch64-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       # https://github.com/marketplace/actions/upload-to-github-release
       - name: Upload binaries to snapshot release
