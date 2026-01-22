@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.model.Size;
 
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
@@ -44,6 +45,11 @@ public class Rectangle extends AbstractCuttable {
         super(x, y);
         this.shape = new Rectangle2D.Double(0, 0, 1, 1);
         setName("Rectangle");
+    }
+
+    public Rectangle(double x, double y, double w, double h) {
+        this(x, y);
+        setSize(new Size(w, h));
     }
 
     @Override

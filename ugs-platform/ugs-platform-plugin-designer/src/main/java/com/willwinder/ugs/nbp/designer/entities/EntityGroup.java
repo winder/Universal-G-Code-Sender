@@ -27,6 +27,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -135,7 +136,7 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         cachedBounds = null;
     }
 
-    public void addAll(List<Entity> entities) {
+    public void addAll(Collection<? extends Entity> entities) {
         entities.forEach(entity -> {
             if (!containsChild(entity)) {
                 children.add(entity);
