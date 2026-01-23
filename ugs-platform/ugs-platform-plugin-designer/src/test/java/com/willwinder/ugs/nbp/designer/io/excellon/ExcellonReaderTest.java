@@ -3,6 +3,7 @@ package com.willwinder.ugs.nbp.designer.io.excellon;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import org.apache.commons.io.IOUtils;
 import static org.junit.Assert.assertEquals;
@@ -56,5 +57,58 @@ public class ExcellonReaderTest {
         assertEquals(0.4, first.getBounds().getHeight(), 0.0001);
         assertEquals(12.8, first.getBounds().getX(), 0.0001);
         assertEquals(57.15, first.getBounds().getY(), 0.0001);
+    }
+
+    @Test
+    public void readKicadExcellonRoutingMode() {
+        String data = """
+                M48
+                METRIC
+                T7C1.000
+                %
+                G90
+                T7
+                G00X8.58Y63.0
+                M15
+                G01X8.58Y61.0
+                M16
+                G05
+                G00X8.58Y15.9
+                M15
+                G01X8.58Y13.9
+                M16
+                G05
+                """;
+
+        ExcellonReader reader = new ExcellonReader();
+        Design design = reader.read(IOUtils.toInputStream(data, StandardCharsets.UTF_8)).orElseThrow();
+
+        // Holes + Routes
+        assertEquals(2, design.getEntities().size());
+
+        Entity holesEntity = design.getEntities().get(0);
+        assertTrue(holesEntity instanceof Group);
+        assertEquals("Holes", holesEntity.getName());
+
+        Entity routesEntity = design.getEntities().get(1);
+        assertTrue(routesEntity instanceof Group);
+
+        Group routes = (Group) routesEntity;
+        assertEquals("Routes", routes.getName());
+        assertEquals(1, routes.getChildren().size());
+
+        Entity routeDiaGroupEntity = routes.getChildren().get(0);
+        assertTrue(routeDiaGroupEntity instanceof Group);
+
+        Group routeDiaGroup = (Group) routeDiaGroupEntity;
+        assertTrue(routeDiaGroup.getName().startsWith("1.0 mm"));
+        assertEquals(2, routeDiaGroup.getChildren().size());
+
+        assertTrue(routeDiaGroup.getChildren().get(0) instanceof Path);
+        assertTrue(routeDiaGroup.getChildren().get(1) instanceof Path);
+
+        Entity firstRoute = routeDiaGroup.getChildren().get(0);
+        assertEquals(0.001, firstRoute.getBounds().getWidth(), 0.01);
+        assertEquals(2.0, firstRoute.getBounds().getHeight(), 0.01);
     }
 }
