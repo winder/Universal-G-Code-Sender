@@ -31,6 +31,8 @@ import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -135,26 +137,51 @@ public class DrawingScrollContainer extends JPanel implements MouseWheelListener
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        Drawing drawing = controller.getDrawing();
 
-        double horizontalPercent = getScrollbarPercent(horizontalScrollBar);
-        double verticalPercent = getScrollbarPercent(verticalScrollBar);
+        // Mouse point in Drawing component coordinates
+        Point2D mouseScreen = new Point2D.Double(e.getPoint().getX(), e.getPoint().getY());
 
-        // Apply the scaling
-        double scaleFactor = (e.getPreciseWheelRotation() * controller.getDrawing().getScale() * 0.1) * (backend.getSettings().isInvertMouseZoom() ? -1d : 1d);
-        controller.getDrawing().setScale(controller.getDrawing().getScale() + scaleFactor);
+        // World point currently under the mouse
+        Point2D mouseWorld;
+        try {
+            AffineTransform inv = drawing.getTransform().createInverse();
+            mouseWorld = inv.transform(mouseScreen, null);
+        } catch (Exception ex) {
+            // If transform is temporarily non-invertible, fall back to old behavior (no anchor).
+            double scaleFactor = (e.getPreciseWheelRotation() * drawing.getScale() * 0.1)
+                    * (backend.getSettings().isInvertMouseZoom() ? -1d : 1d);
+            drawing.setScale(drawing.getScale() + scaleFactor);
+            updateScrollBarsSizes();
+            return;
+        }
 
+        double scaleFactor = (e.getPreciseWheelRotation() * drawing.getScale() * 0.1)
+                * (backend.getSettings().isInvertMouseZoom() ? -1d : 1d);
+
+        double newScale = Math.max(Math.abs(drawing.getScale() + scaleFactor), Drawing.MIN_SCALE);
+        drawing.setScale(newScale);
+
+        // Scrollbar ranges depend on scale, so update them after scaling
         updateScrollBarsSizes();
-        setScrollbarPercent(horizontalScrollBar, horizontalPercent);
-        setScrollbarPercent(verticalScrollBar, verticalPercent);
+
+        // Get that same world point ends up after scaling
+        Point2D mouseScreenAfter = drawing.getTransform().transform(mouseWorld, null);
+
+        // Adjust position so the world point stays under the mouse delta in screen coords
+        double dx = mouseScreen.getX() - mouseScreenAfter.getX();
+        double dy = mouseScreen.getY() - mouseScreenAfter.getY();
+
+        Point2D.Double posPx = drawing.getPosition();
+        double newPosPxX = posPx.getX() - dx;
+        double newPosPxY = posPx.getY() + dy;
+
+        horizontalScrollBar.setValue((int) Math.round(newPosPxX));
+        verticalScrollBar.setValue((int) Math.round(-newPosPxY));
     }
 
     private void setScrollbarPercent(JScrollBar scrollBar, double percent) {
         double width = ((double) scrollBar.getMaximum() - (double) scrollBar.getMinimum());
         scrollBar.setValue((int) Math.round(width * percent));
-    }
-
-    private double getScrollbarPercent(JScrollBar scrollBar) {
-        double width = ((double) scrollBar.getMaximum() - (double) scrollBar.getMinimum());
-        return scrollBar.getValue() == 0 ? 0 : (scrollBar.getValue() / width);
     }
 }
