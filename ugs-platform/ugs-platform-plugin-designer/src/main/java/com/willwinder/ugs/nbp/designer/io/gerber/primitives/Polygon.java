@@ -16,6 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.io.gerber;
+package com.willwinder.ugs.nbp.designer.io.gerber.primitives;
 
-interface Primitive {}
+import com.willwinder.ugs.nbp.designer.io.gerber.expressions.Expression;
+
+import java.util.List;
+
+public record Polygon(int vertices, List<Expression> params) implements Primitive {
+}

@@ -16,11 +16,6 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.io.gerber;
+package com.willwinder.ugs.nbp.designer.io.gerber.primitives;
 
-public record CenterLinePrimitive(double width,
-                                  double height,
-                                  double cx,
-                                  double cy,
-                                  double rotation) implements Primitive {
-}
+public interface Primitive {}
