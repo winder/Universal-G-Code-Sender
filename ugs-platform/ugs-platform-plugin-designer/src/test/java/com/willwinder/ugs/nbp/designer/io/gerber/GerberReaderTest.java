@@ -55,20 +55,20 @@ public class GerberReaderTest {
 
         // One entity for "Copper" (empty) and one "Lines" group
         assertEquals(2, design.getEntities().size());
-        
+
         Entity linesGroup = design.getEntities().stream()
                 .filter(e -> "Lines".equals(e.getName()))
                 .findFirst()
                 .orElseThrow();
-        
+
         assertTrue(linesGroup instanceof Group);
         Group group = (Group) linesGroup;
-        
+
         // Should contain one path representing the center line
         assertEquals(1, group.getChildren().size());
         Entity path = group.getChildren().get(0);
         assertTrue(path instanceof Path);
-        
+
         // Verify bounds of the line from (0,0) to (1,1)
         assertEquals(1.0, path.getBounds().getWidth(), 0.001);
         assertEquals(1.0, path.getBounds().getHeight(), 0.001);
@@ -191,7 +191,7 @@ public class GerberReaderTest {
         assertEquals(3.75, entity.getBounds().getX(), 0.001);
         assertEquals(2.25, entity.getBounds().getY(), 0.001);
     }
-    
+
     @Test
     public void readObroundAperture() {
         String data = """
@@ -213,9 +213,9 @@ public class GerberReaderTest {
         assertEquals(0.5, entity.getBounds().getX(), 0.001);
         assertEquals(1.5, entity.getBounds().getY(), 0.001);
     }
-    
+
     @Test
-    public void readRotatedMacroRectangle() {
+    public void readRotatedRectangleMacro() {
         // Macro 'ROTRECT': primitive 21 (Center Line/Rectangle)
         // Parameters: exposure(1), width(2), height(3), center_x(4), center_y(5), rotation(6)
         String data = """
@@ -232,14 +232,45 @@ public class GerberReaderTest {
         assertEquals(1, design.getEntities().size());
         Entity entity = design.getEntities().get(0);
 
-        // A 10x2 rectangle rotated 45 degrees around (0,0)
-        // The bounding box for a rotated rectangle is larger than the original dimensions.
-        // Width/Height will be approx: 10*cos(45) + 2*sin(45) = 7.071 + 1.414 = 8.485
+
         assertEquals(1, entity.getBounds().getWidth(), 0.001);
         assertEquals(2, entity.getBounds().getHeight(), 0.001);
 
-        // Centered at 0,0, so minX should be approx -4.242
         assertEquals(-0.5, entity.getBounds().getX(), 0.001);
         assertEquals(-1, entity.getBounds().getY(), 0.001);
+    }
+
+    @Test
+    public void readRoundRectMacro() {
+        String data = """
+                %LPD*%
+                %FSLAX46Y46*%
+                %MOMM*%
+                %AMRoundRect*
+                0 Rectangle with rounded corners*
+                0 $1 Rounding radius*
+                0 $2 $3 $4 $5 $6 $7 $8 $9 X,Y pos of 4 corners*
+                4,1,4,$2,$3,$4,$5,$6,$7,$8,$9,$2,$3,0*
+                1,1,$1+$1,$2,$3*
+                1,1,$1+$1,$4,$5*
+                1,1,$1+$1,$6,$7*
+                1,1,$1+$1,$8,$9*
+                20,1,$1+$1,$2,$3,$4,$5,0*
+                20,1,$1+$1,$4,$5,$6,$7,0*
+                20,1,$1+$1,$6,$7,$8,$9,0*
+                20,1,$1+$1,$8,$9,$2,$3,0*%
+                %ADD10RoundRect,0.243902X0.256098X0.456098X-0.256098X0.456098X-0.256098X-0.456098X0.256098X-0.456098X0*%
+                D10*
+                X000000Y000000D03*
+                """;
+
+        GerberReader reader = new GerberReader();
+        Design design = reader.read(IOUtils.toInputStream(data, StandardCharsets.UTF_8)).orElseThrow();
+
+        assertEquals(1, design.getEntities().size());
+        Entity e = design.getEntities().get(0);
+
+        assertEquals(1.0, e.getBounds().getWidth(), 0.01);
+        assertEquals(1.4, e.getBounds().getHeight(), 0.01);
     }
 }

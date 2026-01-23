@@ -16,11 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.io.gerber;
+package com.willwinder.ugs.nbp.designer.io.gerber.primitives;
 
-import com.willwinder.ugs.nbp.designer.io.gerber.primitives.Primitive;
+import com.willwinder.ugs.nbp.designer.io.gerber.expressions.Expression;
 
-import java.util.List;
-
-public record Macro(String name, List<Primitive> primitives) {
+public record CenterLine(Expression width,
+                         Expression height,
+                         Expression cx,
+                         Expression cy,
+                         Expression rotation) implements Primitive {
 }

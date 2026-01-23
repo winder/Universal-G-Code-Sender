@@ -26,6 +26,15 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.io.DesignReader;
 import com.willwinder.ugs.nbp.designer.io.DesignReaderException;
+import com.willwinder.ugs.nbp.designer.io.gerber.expressions.Add;
+import com.willwinder.ugs.nbp.designer.io.gerber.expressions.Constant;
+import com.willwinder.ugs.nbp.designer.io.gerber.expressions.Expression;
+import com.willwinder.ugs.nbp.designer.io.gerber.expressions.Paramameter;
+import com.willwinder.ugs.nbp.designer.io.gerber.primitives.CenterLine;
+import com.willwinder.ugs.nbp.designer.io.gerber.primitives.Circle;
+import com.willwinder.ugs.nbp.designer.io.gerber.primitives.Polygon;
+import com.willwinder.ugs.nbp.designer.io.gerber.primitives.Primitive;
+import com.willwinder.ugs.nbp.designer.io.gerber.primitives.VectorLine;
 import com.willwinder.ugs.nbp.designer.model.Design;
 import com.willwinder.ugs.nbp.designer.utils.StitchPathUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -68,6 +77,20 @@ public final class GerberReader implements DesignReader {
     private final State state = new State();
     private final boolean importDrillHoles;
 
+    /**
+     * The current name of the macro being read
+     */
+    private String currentMacroName = null;
+
+    /**
+     * Is in a multiline macro definition
+     */
+    private boolean inMacro = false;
+
+    /**
+     * The rows of the current multiline macro
+     */
+    private final StringBuilder macroBuffer = new StringBuilder();
 
     public GerberReader() {
         this(false);
@@ -169,7 +192,7 @@ public final class GerberReader implements DesignReader {
                 line = line.trim();
                 if (line.isEmpty()) continue;
 
-                if (line.startsWith("%")) {
+                if (line.startsWith("%") || inMacro) {
                     parseExtended(line);
                 } else {
                     parseStandard(line);
@@ -181,6 +204,10 @@ public final class GerberReader implements DesignReader {
     }
 
     private void parseExtended(String line) {
+        if (inMacro) {
+            parseMacro(line);
+            return;
+        }
 
         if (line.startsWith("%MO")) {
             state.setUnits(line.contains("IN") ? UnitUtils.Units.INCH : UnitUtils.Units.MM);
@@ -216,7 +243,7 @@ public final class GerberReader implements DesignReader {
         }
 
         // 2️⃣ Macro apertures
-        Matcher macro = Pattern.compile("%ADD(\\d+)([A-Z0-9_]+),(.+)\\*%").matcher(line);
+        Matcher macro = Pattern.compile("%ADD(\\d+)([A-Za-z0-9_]+),(.+)\\*%").matcher(line);
 
         if (macro.matches()) {
             String code = "D" + macro.group(1);
@@ -234,36 +261,123 @@ public final class GerberReader implements DesignReader {
     }
 
     private void parseMacro(String line) {
-        // %AMMACRO1*21,1,$1,$2,0,0,$3*%
-        String body = line.substring(3, line.length() - 2);
-        String[] parts = body.split("\\*", 2);
+        // Case 1: single-line macro: %AMname*body*%
+        if (line.startsWith("%AM") && line.endsWith("*%") && line.indexOf('*', 3) != -1) {
+            String body = line.substring(3, line.length() - 2); // strip %AM and *%
+            String[] parts = body.split("\\*", 2);
 
-        String name = parts[0];
-        String content = parts[1];
+            String name = parts[0];
+            String content = parts.length > 1 ? parts[1] : "";
+
+            finalizeMacro(name, content);
+            return;
+        }
+
+        // Case 2: start of multi-line macro: %AMname*
+        if (currentMacroName == null) {
+            currentMacroName = line.substring(3, line.length() - 1); // strip %AM and trailing *
+            macroBuffer.setLength(0);
+            inMacro = true;
+            return;
+        }
+
+        // Case 3: end of multi-line macro: *%
+        if (line.endsWith("*%")) {
+            macroBuffer.append(line, 0, line.length() - 2); // strip *%
+            finalizeMacro(currentMacroName, macroBuffer.toString());
+            currentMacroName = null;
+            macroBuffer.setLength(0);
+            inMacro = false;
+            return;
+        }
+
+        // Case 4: middle of multi-line macro
+        macroBuffer.append(line);
+    }
+
+    private void finalizeMacro(String name, String content) {
         List<Primitive> primitives = new ArrayList<>();
 
         for (String prim : content.split("\\*")) {
+            prim = prim.trim();
+            if (prim.isEmpty()) continue;
+
             String[] p = prim.split(",");
 
+            // 🔒 Guard: primitive opcode must be numeric
+            if (!isInteger(p[0])) {
+                LOGGER.fine("Skipping non-primitive macro line: " + prim);
+                continue;
+            }
+
             int code = Integer.parseInt(p[0]);
-            if (code == 21) {
-                primitives.add(new CenterLinePrimitive(
-                        parseMacroValue(p[2]),
-                        parseMacroValue(p[3]),
-                        parseMacroValue(p[4]),
-                        parseMacroValue(p[5]),
-                        parseMacroValue(p[6])));
+
+            switch (code) {
+                case 0 -> {
+                    // Comment — ignore
+                }
+
+                case 1 -> {
+                    // Circle: 1, exposure, diameter, cx, cy
+                    if (p.length < 5) break;
+                    primitives.add(new Circle(
+                            parseExpr(p[2]),
+                            parseExpr(p[3]),
+                            parseExpr(p[4])
+                    ));
+                }
+
+                case 4 -> {
+                    // Polygon: 4, exposure, vertices, x1,y1,...
+                    if (p.length < 6) break;
+                    int vertices = Integer.parseInt(p[2]);
+                    primitives.add(new Polygon(
+                            vertices,
+                            Arrays.stream(Arrays.copyOfRange(p, 3, p.length - 1))
+                                    .map(this::parseExpr)
+                                    .toList()
+                    ));
+                }
+
+                case 20 -> {
+                    // Vector line
+                    if (p.length < 8) break;
+                    primitives.add(new VectorLine(
+                            parseExpr(p[2]),
+                            parseExpr(p[3]),
+                            parseExpr(p[4]),
+                            parseExpr(p[5]),
+                            parseExpr(p[6]),
+                            parseExpr(p[7])
+                    ));
+                }
+
+                case 21 -> {
+                    // Center line
+                    if (p.length < 7) break;
+                    primitives.add(new CenterLine(
+                            parseExpr(p[2]),
+                            parseExpr(p[3]),
+                            parseExpr(p[4]),
+                            parseExpr(p[5]),
+                            parseExpr(p[6])
+                    ));
+                }
+
+                default -> LOGGER.warning("Unsupported macro primitive: " + code);
             }
         }
 
         state.getMacros().put(name, new Macro(name, primitives));
     }
 
-    private double parseMacroValue(String s) {
-        if (s.startsWith("$")) {
-            return Double.NaN; // resolved later
+    private boolean isInteger(String s) {
+        try {
+            Integer.parseInt(s);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
-        return Double.parseDouble(s);
     }
 
     private String extractNetName(String line) {
@@ -428,25 +542,81 @@ public final class GerberReader implements DesignReader {
         }
 
         for (Primitive prim : aperture.macro().primitives()) {
-            if (prim instanceof CenterLinePrimitive cl) {
+            if (prim instanceof CenterLine cl) {
                 double[] params = aperture.params();
-                double w = resolve(cl.width(), params, 0);
-                double h = resolve(cl.height(), params, 1);
-                double rot = resolve(cl.rotation(), params, 2);
+                double w = cl.width().eval(params);
+                double h = cl.height().eval(params);
+                double cx = cl.cx().eval(params);
+                double cy = cl.cy().eval(params);
+                double rot = cl.rotation().eval(params);
 
-                Shape rect = new Rectangle2D.Double(-w / 2, -h / 2, w, h);
+                Shape rect = new Rectangle2D.Double(cx - w / 2, cy - h / 2, w, h);
+
+                AffineTransform tx = new AffineTransform();
+                tx.rotate(Math.toRadians(rot));
+                tx.translate(x, y);
+                addEntity(new Path(tx.createTransformedShape(rect)));
+            } else if (prim instanceof Circle cp) {
+                double diameter = cp.diameter().eval(aperture.params());
+                double cx = cp.cx().eval(aperture.params());
+                double cy = cp.cy().eval(aperture.params());
+                addEntity(new Ellipse(x + cx - (diameter / 2), y + cy - (diameter / 2), diameter, diameter));
+            } else if (prim instanceof Polygon pp) {
+                double[] params = aperture.params();
+
+                int n = pp.vertices();
+                List<Expression> exprs = pp.params();
+
+                if (exprs.size() < n * 2 + 1) {
+                    LOGGER.warning("Invalid polygon primitive parameter count");
+                    return;
+                }
+
+                double[] vx = new double[n];
+                double[] vy = new double[n];
+
+                int idx = 0;
+                for (int i = 0; i < n; i++) {
+                    vx[i] = exprs.get(idx++).eval(params);
+                    vy[i] = exprs.get(idx++).eval(params);
+                }
+
+
+                Path2D p = new Path2D.Double();
+                p.moveTo(vx[0], vy[0]);
+
+                for (int i = 1; i < n; i++) {
+                    p.lineTo(vx[i], vy[i]);
+                }
+                p.closePath();
 
                 AffineTransform tx = new AffineTransform();
                 tx.translate(x, y);
+                addEntity(new Path(tx.createTransformedShape(p)));
+            } else if (prim instanceof VectorLine vl) {
+                double[] params = aperture.params();
+                double x1 = vl.x1().eval(params);
+                double y1 = vl.y1().eval(params);
+                double x2 = vl.x2().eval(params);
+                double y2 = vl.y2().eval(params);
+                double width = vl.width().eval(params);
+                double rot = vl.rotation().eval(params);
+
+                Shape line = new Line2D.Double(x1, y1, x2, y2);
+                BasicStroke stroke = new BasicStroke(
+                        (float) width,
+                        BasicStroke.CAP_BUTT,
+                        BasicStroke.JOIN_MITER
+                );
+
+                Shape stroked = stroke.createStrokedShape(line);
+
+                AffineTransform tx = new AffineTransform();
                 tx.rotate(Math.toRadians(rot));
-                addEntity(new Path(tx.createTransformedShape(rect)));
+                tx.translate(x, y);
+                addEntity(new Path(tx.createTransformedShape(stroked)));
             }
         }
-    }
-
-    private double resolve(double v, double[] params, int index) {
-        if (!Double.isNaN(v)) return v;
-        return params[index];
     }
 
     private void finalizeRegion() {
@@ -476,5 +646,16 @@ public final class GerberReader implements DesignReader {
 
     private double scaleToMM(double value) {
         return UnitUtils.scaleUnits(state.getUnits(), UnitUtils.Units.MM) * value;
+    }
+
+    private Expression parseExpr(String s) {
+        if (s.contains("+")) {
+            String[] p = s.split("\\+");
+            return new Add(parseExpr(p[0]), parseExpr(p[1]));
+        }
+        if (s.startsWith("$")) {
+            return new Paramameter(Integer.parseInt(s.substring(1)) - 1);
+        }
+        return new Constant(scaleToMM(Double.parseDouble(s)));
     }
 }
