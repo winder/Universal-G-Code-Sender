@@ -1,5 +1,5 @@
 /*
-    Copyright 2024 Will Winder
+    Copyright 2024-2026 Albert Giro Quer
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,6 +28,7 @@ import com.willwinder.ugs.nbp.designer.entities.settings.TextSettingsManager;
 import com.willwinder.ugs.nbp.designer.gui.FontCombo;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -73,8 +74,7 @@ public class TextSettingsPanel extends JPanel implements EntitySettingsPanel {
     }
 
     private void buildLayout() {
-        add(new JLabel(Localization.getString("designer.panel.shape-settings.text.title"), SwingConstants.LEFT), "spanx, gaptop 5, gapbottom 0, wrap");
-        add(new JSeparator(), "spanx, growx, gaptop 0, gapbottom 5, wrap");
+        add(new SeparatorLabel(Localization.getString("designer.panel.shape-settings.text.title"), SwingConstants.RIGHT), "spanx, growx");
 
         add(new JLabel("Text", SwingConstants.RIGHT), LABEL_CONSTRAINTS);
         add(textField, FIELD_CONSTRAINTS);

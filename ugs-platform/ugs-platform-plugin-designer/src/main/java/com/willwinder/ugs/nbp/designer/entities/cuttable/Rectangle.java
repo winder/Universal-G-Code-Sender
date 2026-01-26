@@ -19,17 +19,24 @@
 package com.willwinder.ugs.nbp.designer.entities.cuttable;
 
 import com.willwinder.ugs.nbp.designer.entities.Entity;
+import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
+import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
+import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.model.Size;
+import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
 
 import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Joacim Breiler
  */
 public class Rectangle extends AbstractCuttable {
 
-    private final Rectangle2D.Double shape;
+    private final RoundRectangle2D.Double shape;
+    private double cornerRadiusPercent = 0.0;
 
     public Rectangle() {
         this(0, 0);
@@ -43,7 +50,7 @@ public class Rectangle extends AbstractCuttable {
      */
     public Rectangle(double x, double y) {
         super(x, y);
-        this.shape = new Rectangle2D.Double(0, 0, 1, 1);
+        this.shape = new RoundRectangle2D.Double(0, 0, 1, 1, 0, 0);
         setName("Rectangle");
     }
 
@@ -62,5 +69,58 @@ public class Rectangle extends AbstractCuttable {
         Rectangle rectangle = new Rectangle();
         copyPropertiesTo(rectangle);
         return rectangle;
+    }
+
+    @Override
+    public List<EntitySetting> getSettings() {
+        List<EntitySetting> settings = new ArrayList<>(super.getSettings());
+        settings.add(EntitySetting.CORNER_RADIUS);
+        return settings;
+    }
+
+    @Override
+    public void scale(double sx, double sy) {
+        super.scale(sx, sy);
+        setCornerRadiusPercent(cornerRadiusPercent);
+    }
+
+    public void setCornerRadius(Double cornerRadius) {
+        if (cornerRadius == null) return;
+
+        double w = getSize().getWidth();
+        double h = getSize().getHeight();
+        double minSide = Math.min(w, h);
+        double percent = Math.max(0d, Math.min(1d, cornerRadius / minSide));
+
+        if (!isEqual(percent, this.cornerRadiusPercent, 0.01)) {
+            setCornerRadiusPercent(percent);
+            this.notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+        }
+    }
+
+    private void setCornerRadiusPercent(double percent) {
+        double w = getSize().getWidth();
+        double h = getSize().getHeight();
+        this.cornerRadiusPercent = percent;
+
+        // Avoid divide-by-zero; also no meaningful rounding for degenerate sizes
+        if (w <= 0 || h <= 0) {
+            shape.setRoundRect(0, 0, 1, 1, 0, 0);
+        } else {
+            // Desired arc diameter in "world space" (after transform)
+            double worldArc = (Math.min(w, h) * 2) * percent;
+
+            // Convert to local arc diameters so that after scaling they become worldArc
+            double localArcW = worldArc / w;
+            double localArcH = worldArc / h;
+
+            shape.setRoundRect(0, 0, 1, 1, localArcW, localArcH);
+        }
+    }
+
+    public double getCornerRadius() {
+        double w = getSize().getWidth();
+        double h = getSize().getHeight();
+        return Math.min(w, h) * cornerRadiusPercent;
     }
 }

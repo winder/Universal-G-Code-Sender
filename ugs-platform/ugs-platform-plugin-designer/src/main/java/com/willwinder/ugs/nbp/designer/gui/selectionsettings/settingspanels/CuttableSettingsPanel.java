@@ -1,5 +1,5 @@
 /*
-    Copyright 2024 Albert Giro Quer
+    Copyright 2024-2026 Albert Giro Quer
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -33,6 +33,7 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
 import com.willwinder.universalgcodesender.uielements.components.PercentSpinner;
+import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.lookup.ServiceProvider;
@@ -46,7 +47,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-@ServiceProvider(service = EntitySettingsPanel.class, position = 10)
+@ServiceProvider(service = EntitySettingsPanel.class, position = 15)
 public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel {
 
     // Use EntitySetting property names instead of string constants
@@ -118,8 +119,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     }
 
     private void buildLayout() {
-        add(new JLabel(Localization.getString("designer.panel.shape-settings.cutting.title"), SwingConstants.LEFT), "spanx, gaptop 5, gapbottom 0, wrap");
-        add(new JSeparator(), "spanx, growx, gaptop 0, gapbottom 5, wrap");
+        add(new SeparatorLabel(Localization.getString("designer.panel.shape-settings.cutting.title"), SwingConstants.RIGHT), "spanx, growx");
 
         addLabeledComponent(EntitySetting.CUT_TYPE, "Cut Type", cutTypeComboBox);
         addLabeledComponent(EntitySetting.DIRECTION, "Cut direction", directionCombo);
