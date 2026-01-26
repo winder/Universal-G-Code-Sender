@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
 
+import com.google.gson.annotations.Expose;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 
@@ -25,14 +26,22 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
  * @author Joacim Breiler
  */
 public class EntityRectangleV1 extends CuttableEntityV1 {
+    @Expose
+    private double cornerRadius = 0.0;
+
     public EntityRectangleV1() {
         super(EntityTypeV1.RECTANGLE);
+    }
+
+    public void setCornerRadius(double cornerRadius) {
+        this.cornerRadius = cornerRadius;
     }
 
     @Override
     public Entity toInternal() {
         Rectangle rectangle = new Rectangle();
         applyCommonAttributes(rectangle);
+        rectangle.setCornerRadius(cornerRadius);
         return rectangle;
     }
 }

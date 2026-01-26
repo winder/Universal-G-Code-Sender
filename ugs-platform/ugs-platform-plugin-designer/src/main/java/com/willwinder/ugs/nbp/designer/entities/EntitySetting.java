@@ -46,8 +46,8 @@ public enum EntitySetting {
     LEAD_IN_PERCENT("Lead in percent", "leadInPercent"),
     INCLUDE_IN_EXPORT("Include in export", "includeInExport"),
     TOOL_PATH_ANGLE("Tool path angle", "toolPathAngle"),
-    DIRECTION("Tool path direction", "direction");
-
+    DIRECTION("Tool path direction", "direction"),
+    CORNER_RADIUS("Corner radius", "cornerRadius");
 
     public static final List<EntitySetting> TRANSFORMATION_SETTINGS = List.of(
             EntitySetting.POSITION_X,
@@ -93,11 +93,6 @@ public enum EntitySetting {
             EntitySetting.PASSES,
             EntitySetting.FEED_RATE,
             EntitySetting.INCLUDE_IN_EXPORT);
-
-    public static final List<EntitySetting> DEFAULT_TEXT_SETTINGS = List.of(
-            EntitySetting.TEXT,
-            EntitySetting.FONT_FAMILY);
-
 
     private final String label;
     private final String propertyName;

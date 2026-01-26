@@ -82,8 +82,8 @@ public class UgsDesignWriter implements DesignWriter {
         EntityV1 result;
         if (entity instanceof EntityGroup entityGroup) {
             result = parseGroup(entityGroup);
-        } else if (entity instanceof Rectangle) {
-            result = parseRectangle(entity);
+        } else if (entity instanceof Rectangle rectangle) {
+            result = parseRectangle(rectangle);
         } else if (entity instanceof Ellipse) {
             result = parseEllipse(entity);
         } else if (entity instanceof Path) {
@@ -136,9 +136,10 @@ public class UgsDesignWriter implements DesignWriter {
         return ellipse;
     }
 
-    private EntityV1 parseRectangle(Entity entity) {
+    private EntityV1 parseRectangle(Rectangle entity) {
         EntityRectangleV1 rectangle = new EntityRectangleV1();
         rectangle.setTransform(entity.getTransform());
+        rectangle.setCornerRadius(entity.getCornerRadius());
         return rectangle;
     }
 

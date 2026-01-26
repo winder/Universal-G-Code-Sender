@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities.settings;
 import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import org.openide.util.lookup.ServiceProvider;
 
 import java.awt.geom.Point2D;
@@ -58,6 +59,7 @@ public class TransformationEntitySettingsManager implements EntitySettingsManage
             case WIDTH -> entity.getSize().getWidth();
             case HEIGHT -> entity.getSize().getHeight();
             case ROTATION -> entity.getRotation();
+            case CORNER_RADIUS -> entity instanceof Rectangle rectangle ? rectangle.getCornerRadius() : null;
             case LOCK_RATIO -> false;
             default -> null;
         };
@@ -99,6 +101,11 @@ public class TransformationEntitySettingsManager implements EntitySettingsManage
             case LOCK_RATIO -> {
                 if (value instanceof Boolean lockRatio) {
                     entity.setLockRatio(lockRatio);
+                }
+            }
+            case CORNER_RADIUS -> {
+                if (value instanceof Double cornerRounding && entity instanceof Rectangle rectangle) {
+                    rectangle.setCornerRadius(cornerRounding);
                 }
             }
         }

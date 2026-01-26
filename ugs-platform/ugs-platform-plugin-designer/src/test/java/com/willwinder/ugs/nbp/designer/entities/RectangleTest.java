@@ -2,13 +2,18 @@ package com.willwinder.ugs.nbp.designer.entities;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.model.Size;
+import com.willwinder.ugs.nbp.designer.model.path.Segment;
+import com.willwinder.ugs.nbp.designer.model.path.SegmentType;
+import com.willwinder.ugs.nbp.designer.utils.PathUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.List;
 
 public class RectangleTest {
 
@@ -59,6 +64,57 @@ public class RectangleTest {
 
         assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getX()));
         assertEquals(Double.valueOf(15), Double.valueOf(rectangle.getCenter().getY()));
+    }
+
+    @Test
+    public void setCornerRadiusShouldRoundTheRectangle() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setWidth(20);
+        rectangle.setHeight(20);
+        rectangle.setCornerRadius(5d);
+
+        Shape shape = rectangle.getShape();
+        List<Segment> segments = PathUtils.getSegments(shape);
+        assertEquals(10, segments.size());
+        assertSegment(0, 5, SegmentType.MOVE_TO, segments.get(0));
+        assertSegment(0, 5, SegmentType.LINE_TO, segments.get(1));
+        assertSegment(0, 15, SegmentType.CUBIC_TO, segments.get(2));
+        assertSegment(5, 20, SegmentType.LINE_TO, segments.get(3));
+        assertSegment(15, 20, SegmentType.CUBIC_TO, segments.get(4));
+        assertSegment(20, 15, SegmentType.LINE_TO, segments.get(5));
+        assertSegment(20, 5, SegmentType.CUBIC_TO, segments.get(6));
+        assertSegment(15, 0, SegmentType.LINE_TO, segments.get(7));
+        assertSegment(5, 0, SegmentType.CUBIC_TO, segments.get(8));
+        assertSegment(0, 5, SegmentType.CLOSE, segments.get(9));
+    }
+
+    @Test
+    public void scaleWithCornerRadiusShouldScaleRadiusToo() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setWidth(20);
+        rectangle.setHeight(20);
+        rectangle.setCornerRadius(5d);
+
+        rectangle.scale(0.5, 0.5);
+
+        Shape shape = rectangle.getShape();
+        List<Segment> segments = PathUtils.getSegments(shape);
+        assertEquals(10, segments.size());
+        assertSegment(0, 2.5d, SegmentType.MOVE_TO, segments.get(0));
+        assertSegment(0, 2.5d, SegmentType.LINE_TO, segments.get(1));
+        assertSegment(0, 7.5, SegmentType.CUBIC_TO, segments.get(2));
+        assertSegment(2.5, 10, SegmentType.LINE_TO, segments.get(3));
+        assertSegment(7.5, 10, SegmentType.CUBIC_TO, segments.get(4));
+        assertSegment(10, 7.5, SegmentType.LINE_TO, segments.get(5));
+        assertSegment(10, 2.5, SegmentType.CUBIC_TO, segments.get(6));
+        assertSegment(7.5, 0, SegmentType.LINE_TO, segments.get(7));
+        assertSegment(2.5, 0, SegmentType.CUBIC_TO, segments.get(8));
+        assertSegment(0, 2.5, SegmentType.CLOSE, segments.get(9));
+    }
+
+    private static void assertSegment(double startX, double startY, SegmentType type, Segment segment) {
+        assertEquals(type, segment.getType());
+        assertEquals( new Point2D.Double(startX, startY), segment.getStartPoint());
     }
 
     @Test

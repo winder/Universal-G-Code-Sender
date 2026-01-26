@@ -1,5 +1,5 @@
 /*
-    Copyright 2024 Will Winder
+    Copyright 2024-2025 Albert Giro Quer
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -30,6 +30,7 @@ import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
+import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
@@ -37,7 +38,6 @@ import org.openide.util.lookup.ServiceProvider;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -101,13 +101,10 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
 
         lockRatioButton = new JToggleButton(ImageUtilities.loadImageIcon("img/link-off.svg", false));
         lockRatioButton.setSelectedIcon(ImageUtilities.loadImageIcon("img/link.svg", false));
-
     }
 
     private void buildLayout() {
-        add(new JLabel(Localization.getString("designer.panel.shape-settings.transform.title"), SwingConstants.LEFT), "spanx, gaptop 5, gapbottom 0, wrap");
-        add(new JSeparator(), "spanx, growx, gaptop 0, gapbottom 5, wrap");
-
+        add(new SeparatorLabel(Localization.getString("designer.panel.shape-settings.transform.title"), SwingConstants.RIGHT), "spanx, growx");
         addLabeledField("X", posXTextField, anchorSelector, "span 1 2");
         addLabeledField("Y", posYTextField, null, null);
         addLabeledField("Width", widthTextField, lockRatioButton, "span 1 2, growy");
