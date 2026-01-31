@@ -1,7 +1,6 @@
 package com.willwinder.ugs.nbm.visualizer;
 
 import com.willwinder.ugs.nbm.visualizer.actions.OpenTestFileAction;
-import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbp.core.actions.BaudRateAction;
 import com.willwinder.ugs.nbp.core.actions.ConnectDisconnectAction;
 import com.willwinder.ugs.nbp.core.actions.FirmwareAction;
@@ -36,10 +35,9 @@ public class VisualizerTestMain extends JFrame {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
 
-    private void start() throws Exception {
+    private void start() {
         setPreferredSize(new Dimension(1024, 768));
         setLayout(new BorderLayout());
-        VisualizerOptions.setBooleanOption(VisualizerOptions.VISUALIZER_OPTION_LEGACY, true);
         Visualizer2TopComponent visualizer = new Visualizer2TopComponent();
         add(visualizer, BorderLayout.CENTER);
         visualizer.componentOpened();
