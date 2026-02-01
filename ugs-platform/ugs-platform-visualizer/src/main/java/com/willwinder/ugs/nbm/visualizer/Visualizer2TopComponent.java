@@ -18,9 +18,7 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.willwinder.ugs.nbm.visualizer.jogl.NewtVisualizationPanel;
 import com.willwinder.ugs.nbm.visualizer.jogl.VisualizationPanel;
-import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
@@ -35,12 +33,8 @@ import org.openide.windows.WindowManager;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Setup JOGL canvas, GcodeRenderer and RendererInputHandler.
@@ -61,7 +55,6 @@ public final class Visualizer2TopComponent extends TopComponent {
     public final static String VisualizerWindowPath = LocalizingService.MENU_WINDOW;
     public final static String VisualizerActionId = "com.willwinder.ugs.nbm.visualizer.Visualizer2TopComponent";
     public final static String VisualizerCategory = LocalizingService.CATEGORY_WINDOW;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "Visualizer2TopComponent GL Init"));
 
     public Visualizer2TopComponent() {
         setMinimumSize(new java.awt.Dimension(50, 50));
@@ -94,27 +87,8 @@ public final class Visualizer2TopComponent extends TopComponent {
         JPanel borderedPanel = new JPanel();
         borderedPanel.setLayout(new BorderLayout());
         borderedPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
-        if (VisualizerOptions.getBooleanOption(VisualizerOptions.VISUALIZER_OPTION_LEGACY, true)) {
-            borderedPanel.add(new VisualizationPanel(), BorderLayout.CENTER);
-        } else {
-            createAndAddNewtPanel(borderedPanel);
-        }
+        borderedPanel.add(new VisualizationPanel(), BorderLayout.CENTER);
         add(borderedPanel, BorderLayout.CENTER);
-    }
-
-    private void createAndAddNewtPanel(JPanel borderedPanel) {
-        WindowManager.getDefault().invokeWhenUIReady(() -> {
-            executor.execute(() -> {
-                try {
-                    SwingUtilities.invokeAndWait(() -> {
-                        borderedPanel.add(new NewtVisualizationPanel(), BorderLayout.CENTER);
-                        borderedPanel.revalidate();
-                    });
-                } catch (InterruptedException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        });
     }
 
     @OnStart

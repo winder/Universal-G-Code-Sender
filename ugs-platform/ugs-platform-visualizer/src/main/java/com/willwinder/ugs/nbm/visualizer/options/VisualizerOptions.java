@@ -31,11 +31,6 @@ import java.util.ArrayList;
  */
 public class VisualizerOptions extends ArrayList<Option<?>> {
 
-    public static String VISUALIZER_OPTION_LEGACY = "platform.visualizer.use.legacy";
-    public static String VISUALIZER_OPTION_LEGACY_DESC = "platform.visualizer.use.legacy.desc";
-    public static String VISUALIZER_OPTION_NEWT_SAMPLES = "platform.visualizer.newt.samples";
-    public static String VISUALIZER_OPTION_NEWT_SAMPLES_DESC = "platform.visualizer.newt.samples.desc";
-
     // GcodeRenderer clear color
     public static String VISUALIZER_OPTION_BG = "platform.visualizer.color.background";
 
@@ -101,9 +96,6 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
     public static String VISUALIZER_OPTION_PROBE_PREVIEW = "platform.visualizer.probe.preview";
     public static String VISUALIZER_OPTION_PROBE_PREVIEW_DESC = "platform.visualizer.probe.preview.desc";
 
-    public static String VISUALIZER_OPTION_DOWEL_PREVIEW = "platform.visualizer.dowel.preview";
-    public static String VISUALIZER_OPTION_DOWEL_PREVIEW_DESC = "platform.visualizer.dowel.preview.desc";
-
     // Machine boundries
     public static final String VISUALIZER_OPTION_BOUNDRY = "platform.visualizer.boundary";
     public static final String VISUALIZER_OPTION_BOUNDRY_DESC = "platform.visualizer.boundary.desc";
@@ -115,10 +107,9 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
     public static String VISUALIZER_OPTION_BOUNDARY_INVERT_DESC = "platform.visualizer.boundary.invert.desc";
 
     public static final String VISUALIZER_OPTION_MIN_SEGMENT_LENGTH_MM = "platform.visualizer.min.segment.mm";
+    public static final String VISUALIZER_OPTION_MIN_SEGMENT_LENGTH_MM_DESC = "platform.visualizer.min.segment.mm.desc";
 
     public VisualizerOptions() {
-        add(getOption(VISUALIZER_OPTION_LEGACY, Localization.getString(VISUALIZER_OPTION_LEGACY_DESC), true));
-        add(getOption(VISUALIZER_OPTION_NEWT_SAMPLES, Localization.getString(VISUALIZER_OPTION_NEWT_SAMPLES_DESC), 4));
 
         // GcodeRenderer clear color
         add(getOption(VISUALIZER_OPTION_BG, "", new Color(220,235,255)));
@@ -174,9 +165,8 @@ public class VisualizerOptions extends ArrayList<Option<?>> {
         add(getOption(VISUALIZER_OPTION_SELECTION, Localization.getString(VISUALIZER_OPTION_SELECTION_DESC), true));
         add(getOption(VISUALIZER_OPTION_EDITOR_POSITION, Localization.getString(VISUALIZER_OPTION_EDITOR_POSITION_DESC), true));
         add(getOption(VISUALIZER_OPTION_PROBE_PREVIEW, Localization.getString(VISUALIZER_OPTION_PROBE_PREVIEW_DESC), true));
-        add(getOption(VISUALIZER_OPTION_DOWEL_PREVIEW, Localization.getString(VISUALIZER_OPTION_DOWEL_PREVIEW_DESC), true));
 
-        add(getOption(VISUALIZER_OPTION_MIN_SEGMENT_LENGTH_MM, "", 0.0));
+        add(getOption(VISUALIZER_OPTION_MIN_SEGMENT_LENGTH_MM, VISUALIZER_OPTION_MIN_SEGMENT_LENGTH_MM_DESC, 0.0));
     }
 
     public static void addListener(Runnable runnable) {
