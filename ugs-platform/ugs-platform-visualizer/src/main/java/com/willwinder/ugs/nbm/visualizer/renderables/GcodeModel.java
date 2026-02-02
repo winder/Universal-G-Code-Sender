@@ -60,7 +60,7 @@ import java.util.logging.Logger;
  * @author wwinder
  */
 public class GcodeModel extends Renderable implements UGSEventListener {
-    public static final double ARC_SEGMENT_LENGTH = 0.8;
+    public static final double ARC_SEGMENT_LENGTH = 0.1;
     private static final Logger logger = Logger.getLogger(GcodeModel.class.getName());
     private final GcodeLineColorizer colorizer = new GcodeLineColorizer();
     private final BackendAPI backend;

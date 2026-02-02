@@ -190,6 +190,8 @@ public class RendererInputHandler implements
             } else {
                 gcodeRenderer.mouseRotate(point);
             }
+        } else if ((SwingUtilities.isRightMouseButton(e)) || SwingUtilities.isMiddleMouseButton(e)) {
+            gcodeRenderer.mousePan(point);
         }
     }
 
@@ -260,6 +262,9 @@ public class RendererInputHandler implements
 
             VisualizerPopupMenu visualizerPopupMenu = new VisualizerPopupMenu(backend, position);
             visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+        } else if (SwingUtilities.isMiddleMouseButton(e)) {
+            gcodeRenderer.resetView();
+
         }
     }
 
