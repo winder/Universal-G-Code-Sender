@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2026 Joacim Breiler
+    Copyright 2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,11 +16,16 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.designer.io.ugsd.v1;
+package com.willwinder.ugs.nbp.designer.io.gcode.writer;
 
-/**
- * @author Joacim Breiler
- */
-public enum EntityTypeV1 {
-    PATH, GROUP, ELLIPSE, RECTANGLE, POINT, TEXT, RASTER
+import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
+
+import java.io.IOException;
+
+public interface GcodeWriter {
+    void begin() throws IOException;
+
+    void writeSegment(Segment segment) throws IOException;
+
+    void end() throws IOException;
 }

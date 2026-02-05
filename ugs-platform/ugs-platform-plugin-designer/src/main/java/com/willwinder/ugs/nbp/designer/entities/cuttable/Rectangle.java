@@ -123,4 +123,9 @@ public class Rectangle extends AbstractCuttable {
         double h = getSize().getHeight();
         return Math.min(w, h) * cornerRadiusPercent;
     }
+
+    @Override
+    public List<CutType> getAvailableCutTypes() {
+        return List.of(CutType.POCKET, CutType.SURFACE, CutType.ON_PATH, CutType.INSIDE_PATH, CutType.OUTSIDE_PATH, CutType.LASER_ON_PATH, CutType.LASER_FILL, CutType.CENTER_DRILL);
+    }
 }

@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities.cuttable;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -190,4 +191,11 @@ public interface Cuttable extends Entity {
      * @return tool path direction
      */
     Direction getDirection();
+
+    /**
+     * Returns a list of available cut types for this entity
+     *
+     * @return a list of cut types
+     */
+    List<CutType> getAvailableCutTypes();
 }

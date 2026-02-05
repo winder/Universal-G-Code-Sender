@@ -24,6 +24,7 @@ import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
 
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.util.List;
 
 /**
  * @author Joacim Breiler
@@ -61,5 +62,10 @@ public class Ellipse extends AbstractCuttable {
 
     public boolean isCircle() {
         return isEqual(getSize().getHeight(), getSize().getWidth(), 0.01);
+    }
+
+    @Override
+    public List<CutType> getAvailableCutTypes() {
+        return List.of(CutType.POCKET, CutType.SURFACE, CutType.ON_PATH, CutType.INSIDE_PATH, CutType.OUTSIDE_PATH, CutType.LASER_ON_PATH, CutType.LASER_FILL, CutType.CENTER_DRILL);
     }
 }

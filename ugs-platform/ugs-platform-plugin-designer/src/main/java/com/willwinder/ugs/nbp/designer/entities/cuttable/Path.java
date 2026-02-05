@@ -28,6 +28,7 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
+import java.util.List;
 
 /**
  * @author Joacim Breiler
@@ -137,5 +138,10 @@ public class Path extends AbstractCuttable {
     public void setShape(Path2D shape) {
         this.shape = shape;
         notifyEvent(new EntityEvent(this, EventType.PATH_CHANGED));
+    }
+
+    @Override
+    public List<CutType> getAvailableCutTypes() {
+        return List.of(CutType.POCKET, CutType.SURFACE, CutType.ON_PATH, CutType.INSIDE_PATH, CutType.OUTSIDE_PATH, CutType.LASER_ON_PATH, CutType.LASER_FILL, CutType.CENTER_DRILL);
     }
 }

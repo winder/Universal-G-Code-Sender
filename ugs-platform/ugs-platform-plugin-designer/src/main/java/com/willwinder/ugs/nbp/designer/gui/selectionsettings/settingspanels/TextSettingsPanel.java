@@ -47,10 +47,6 @@ import java.util.List;
 @ServiceProvider(service = EntitySettingsPanel.class, position = 1)
 public class TextSettingsPanel extends JPanel implements EntitySettingsPanel {
 
-    // Use EntitySetting property names instead of string constants
-    public static final String PROP_TEXT = EntitySetting.TEXT.getPropertyName();
-    public static final String PROP_FONT_FAMILY = EntitySetting.FONT_FAMILY.getPropertyName();
-
     private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";
     private static final String FIELD_CONSTRAINTS = "grow, w 60:60:300, hmin 32, hmax 36, wrap, spanx";
 
@@ -94,14 +90,14 @@ public class TextSettingsPanel extends JPanel implements EntitySettingsPanel {
             @Override
             public void focusLost(FocusEvent e) {
                 if (!updating) {
-                    pcs.firePropertyChange(PROP_TEXT, null, textField.getText());
+                    pcs.firePropertyChange(EntitySetting.TEXT.name(), null, textField.getText());
                 }
             }
         });
 
         fontCombo.addActionListener(e -> {
             if (!updating) {
-                pcs.firePropertyChange(PROP_FONT_FAMILY, null, fontCombo.getSelectedItem());
+                pcs.firePropertyChange(EntitySetting.FONT_FAMILY.name(), null, fontCombo.getSelectedItem());
             }
         });
     }
@@ -150,15 +146,15 @@ public class TextSettingsPanel extends JPanel implements EntitySettingsPanel {
     }
 
     @Override
-    public void applyChangeToSelection(String propertyName, Object newValue, Group selectionGroup) {
+    public void applyChangeToSelection(EntitySetting entitySetting, Object newValue, Group selectionGroup) {
         String value = newValue != null ? String.valueOf(newValue) : "";
         selectionGroup.getChildren().stream()
                 .filter(Text.class::isInstance)
                 .map(Text.class::cast)
                 .forEach(text -> {
-                    if (PROP_TEXT.equals(propertyName)) {
+                    if (EntitySetting.TEXT.equals(entitySetting)) {
                         text.setText(value);
-                    } else if (PROP_FONT_FAMILY.equals(propertyName)) {
+                    } else if (EntitySetting.FONT_FAMILY.equals(entitySetting)) {
                         text.setFontFamily(value);
                     }
                 });
@@ -175,22 +171,22 @@ public class TextSettingsPanel extends JPanel implements EntitySettingsPanel {
     }
 
     @Override
-    public void createAndExecuteUndoableAction(String propertyName, Object newValue, Group selectionGroup, Controller controller) {
+    public void createAndExecuteUndoableAction(EntitySetting entitySetting, Object newValue, Group selectionGroup, Controller controller) {
         List<Entity> entities = selectionGroup.getChildren();
         if (entities.isEmpty()) return;
 
-        UndoableAction action = createAction(propertyName, newValue, entities);
+        UndoableAction action = createAction(entitySetting, newValue, entities);
         action.redo();
         controller.getUndoManager().addAction(action);
     }
 
-    private UndoableAction createAction(String propertyName, Object newValue, List<Entity> entities) {
-        if (PROP_TEXT.equals(propertyName)) {
+    private UndoableAction createAction(EntitySetting entitySetting, Object newValue, List<Entity> entities) {
+        if (EntitySetting.TEXT.equals(entitySetting)) {
             return new ChangeEntitySettingsAction(entities, EntitySetting.TEXT, newValue, settingsManager);
-        } else if (PROP_FONT_FAMILY.equals(propertyName)) {
+        } else if (EntitySetting.FONT_FAMILY.equals(entitySetting)) {
             return createFontAction(entities, newValue);
         } else {
-            throw new IllegalArgumentException("Unsupported property: " + propertyName + " (valid properties are: " + PROP_TEXT + ", " + PROP_FONT_FAMILY + ")");
+            throw new IllegalArgumentException("Unsupported property: " + entitySetting + " (valid properties are: " + EntitySetting.TEXT + ", " + EntitySetting.FONT_FAMILY + ")");
         }
     }
 

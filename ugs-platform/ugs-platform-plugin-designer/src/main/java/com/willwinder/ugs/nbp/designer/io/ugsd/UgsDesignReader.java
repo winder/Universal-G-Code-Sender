@@ -94,6 +94,7 @@ public class UgsDesignReader implements DesignReader {
         entityAdapterFactory.registerSubtype(EntityEllipseV1.class, EntityTypeV1.ELLIPSE.name());
         entityAdapterFactory.registerSubtype(EntityTextV1.class, EntityTypeV1.TEXT.name());
         entityAdapterFactory.registerSubtype(EntityPointV1.class, EntityTypeV1.POINT.name());
+        entityAdapterFactory.registerSubtype(EntityRasterV1.class, EntityTypeV1.RASTER.name());
 
         return new GsonBuilder()
                 .registerTypeAdapterFactory(entityAdapterFactory)

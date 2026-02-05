@@ -256,4 +256,28 @@ public class MathUtils {
 
         return new Point2D[]{new Point2D.Double(sx, sy), new Point2D.Double(ex, ey)};
     }
+
+    /**
+     * Clamps a value between a min and max value
+     *
+     * @param value the value to clamp
+     * @param min the minimum allowed value
+     * @param max the maximum allowed value
+     * @return the clamped value
+     */
+    public static double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    /**
+     * Clamps a value between a min and max value
+     *
+     * @param value the value to clamp
+     * @param min the minimum allowed value
+     * @param max the maximum allowed value
+     * @return the clamped value
+     */
+    public static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
 }

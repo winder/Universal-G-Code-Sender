@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.gui.selectionsettings;
 
 import com.willwinder.ugs.nbp.designer.entities.EntityEvent;
 import com.willwinder.ugs.nbp.designer.entities.EntityListener;
+import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.EventType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
@@ -151,7 +152,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
                 return;
             }
             Group currentGroup = controller.getSelectionManager().getSelectionGroup();
-            component.createAndExecuteUndoableAction(evt.getPropertyName(), evt.getNewValue(), currentGroup, controller);
+            component.createAndExecuteUndoableAction(EntitySetting.valueOf(evt.getPropertyName()), evt.getNewValue(), currentGroup, controller);
             controller.getDrawing().invalidate();
         };
 

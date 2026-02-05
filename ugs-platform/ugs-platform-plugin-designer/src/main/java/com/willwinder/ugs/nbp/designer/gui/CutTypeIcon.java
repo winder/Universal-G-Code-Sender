@@ -51,6 +51,7 @@ public class CutTypeIcon extends ImageIcon {
                 break;
             case SURFACE:
             case LASER_FILL:
+            case LASER_RASTER:
                 icon = ImageUtilities.loadImageIcon("img/cutfill" + size.value + ".svg", false);
                 setDescription(cutType.getName());
                 break;

@@ -1,5 +1,5 @@
 /*
-    Copyright 2022 Will Winder
+    Copyright 2022-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,12 +23,12 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
 import com.willwinder.ugs.nbp.designer.io.DesignWriterException;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,8 +60,7 @@ public class GcodeDesignWriter implements DesignWriter {
                     .filter(cuttable -> cuttable.getCutType() != CutType.NONE)
                     .collect(Collectors.toList());
 
-            String gcode = gcodeRouter.toGcode( cuttables);
-            IOUtils.write(gcode, outputStream, StandardCharsets.UTF_8);
+            gcodeRouter.toGcode(cuttables, new OutputStreamWriter(outputStream, StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new DesignWriterException("Could not write gcode to stream", e);
         }

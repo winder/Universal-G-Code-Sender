@@ -74,7 +74,7 @@ public class RectangleSettingsPanel extends JPanel implements EntitySettingsPane
     }
 
     private void setupListeners() {
-        cornerRadiusTextField.addPropertyChangeListener("value", evt -> firePropertyChange(CORNER_RADIUS.getPropertyName(), evt.getNewValue()));
+        cornerRadiusTextField.addPropertyChangeListener("value", evt -> firePropertyChange(CORNER_RADIUS.name(), evt.getNewValue()));
     }
 
     public String getTitle() {
@@ -115,8 +115,8 @@ public class RectangleSettingsPanel extends JPanel implements EntitySettingsPane
     }
 
     @Override
-    public void applyChangeToSelection(String setting, Object newValue, Group selectionGroup) {
-        if (EntitySetting.fromPropertyName(setting).equals(CORNER_RADIUS)) {
+    public void applyChangeToSelection(EntitySetting setting, Object newValue, Group selectionGroup) {
+        if (setting.equals(CORNER_RADIUS)) {
             selectionGroup.getAllChildren().stream()
                     .filter(c -> c instanceof Rectangle)
                     .map(c -> (Rectangle) c)
@@ -135,20 +135,20 @@ public class RectangleSettingsPanel extends JPanel implements EntitySettingsPane
     }
 
     @Override
-    public void createAndExecuteUndoableAction(String propertyName, Object newValue, Group selectionGroup, Controller controller) {
+    public void createAndExecuteUndoableAction(EntitySetting entitySetting, Object newValue, Group selectionGroup, Controller controller) {
         List<Entity> entities = selectionGroup.getChildren();
         if (entities.isEmpty()) return;
 
-        UndoableAction action = createAction(propertyName, newValue, entities);
+        UndoableAction action = createAction(entitySetting, newValue, entities);
         action.redo();
         controller.getUndoManager().addAction(action);
     }
 
-    private UndoableAction createAction(String propertyName, Object newValue, List<Entity> entities) {
-        if (CORNER_RADIUS.getPropertyName().equals(propertyName)) {
+    private UndoableAction createAction(EntitySetting entitySetting, Object newValue, List<Entity> entities) {
+        if (CORNER_RADIUS.equals(entitySetting)) {
             return new ChangeEntitySettingsAction(entities, CORNER_RADIUS, newValue, settingsManager);
         } else {
-            throw new IllegalArgumentException("Unsupported property: " + propertyName + " (valid properties are: " + CORNER_RADIUS.getPropertyName() + ")");
+            throw new IllegalArgumentException("Unsupported property: " + entitySetting + " (valid properties are: " + CORNER_RADIUS + ")");
         }
     }
 

@@ -143,22 +143,10 @@ public class SettingsActionFactoryTest {
     }
 
     @Test
-    public void testMapPropertyToEntitySetting() {
-        assertEquals(EntitySetting.POSITION_X, SettingsActionFactory.mapPropertyToEntitySetting("positionX"));
-        assertEquals(EntitySetting.POSITION_Y, SettingsActionFactory.mapPropertyToEntitySetting("positionY"));
-        assertEquals(EntitySetting.WIDTH, SettingsActionFactory.mapPropertyToEntitySetting("width"));
-        assertEquals(EntitySetting.HEIGHT, SettingsActionFactory.mapPropertyToEntitySetting("height"));
-        assertEquals(EntitySetting.ROTATION, SettingsActionFactory.mapPropertyToEntitySetting("rotation"));
-        assertEquals(EntitySetting.CUT_TYPE, SettingsActionFactory.mapPropertyToEntitySetting("cutType"));
-        assertEquals(EntitySetting.TEXT, SettingsActionFactory.mapPropertyToEntitySetting("text"));
-        assertEquals(EntitySetting.FONT_FAMILY, SettingsActionFactory.mapPropertyToEntitySetting("fontFamily"));
-    }
-
-    @Test
     public void testMapPropertyToEntitySetting_Unknown() {
-        assertNull(SettingsActionFactory.mapPropertyToEntitySetting("unknownProperty"));
-        assertNull(SettingsActionFactory.mapPropertyToEntitySetting(""));
-        assertThrows(IllegalArgumentException.class, () -> SettingsActionFactory.mapPropertyToEntitySetting(null));
+        assertThrows(IllegalArgumentException.class, () -> EntitySetting.valueOf("unknownProperty"));
+        assertThrows(IllegalArgumentException.class, () -> EntitySetting.valueOf(""));
+        assertThrows(NullPointerException.class, () -> EntitySetting.valueOf(null));
     }
 
     @Test

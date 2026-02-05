@@ -90,4 +90,9 @@ public class Point extends AbstractCuttable {
                 EntitySetting.TARGET_DEPTH
         );
     }
+
+    @Override
+    public List<CutType> getAvailableCutTypes() {
+        return List.of(CutType.CENTER_DRILL);
+    }
 }

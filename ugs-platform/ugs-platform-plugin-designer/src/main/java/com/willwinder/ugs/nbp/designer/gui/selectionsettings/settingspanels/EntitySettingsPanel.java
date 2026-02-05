@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.selectionsettings.settingspanels;
 
+import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 
@@ -50,15 +51,15 @@ public interface EntitySettingsPanel {
      * Apply a change originating from this component to the selection.
      * This avoids leaking entity-specific logic into the container.
      */
-    void applyChangeToSelection(String propertyName, Object newValue, Group selectionGroup);
+    void applyChangeToSelection(EntitySetting entitySetting, Object newValue, Group selectionGroup);
 
     /**
      * Create and execute an undoable action for a property change.
      * This method handles the undoable action creation and execution internally.
      */
-    default void createAndExecuteUndoableAction(String propertyName, Object newValue, Group selectionGroup, Controller controller) {
+    default void createAndExecuteUndoableAction(EntitySetting entitySetting, Object newValue, Group selectionGroup, Controller controller) {
         // Default implementation - subclasses should override for specific behavior
-        applyChangeToSelection(propertyName, newValue, selectionGroup);
+        applyChangeToSelection(entitySetting, newValue, selectionGroup);
     }
 
     void addChangeListener(PropertyChangeListener l);
