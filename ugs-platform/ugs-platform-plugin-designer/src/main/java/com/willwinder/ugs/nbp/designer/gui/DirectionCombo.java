@@ -77,15 +77,15 @@ public class DirectionCombo extends JComboBox<Direction> {
 
     private boolean needsUpdating(List<Direction> directions) {
         ComboBoxModel<Direction> model = getModel();
-        boolean needsUpdating = false;
-        if (model.getSize() == directions.size()) {
-            Set<Direction> current = new HashSet<>();
-            for (int i = 0; i < model.getSize(); i++) {
-                current.add(model.getElementAt(i));
-            }
-
-            needsUpdating = !current.equals(new HashSet<>(directions));
+        if (model.getSize() != directions.size()) {
+            return true;
         }
-        return needsUpdating;
+
+        Set<Direction> current = new HashSet<>();
+        for (int i = 0; i < model.getSize(); i++) {
+            current.add(model.getElementAt(i));
+        }
+
+        return !current.equals(new HashSet<>(directions));
     }
 }

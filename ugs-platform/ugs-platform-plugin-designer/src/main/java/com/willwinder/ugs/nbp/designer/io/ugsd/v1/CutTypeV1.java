@@ -32,50 +32,37 @@ public enum CutTypeV1 {
     OUTSIDE_PATH,
     CENTER_DRILL,
     LASER_ON_PATH,
-    LASER_FILL;
+    LASER_FILL,
+    LASER_RASTER;
 
     public static CutTypeV1 fromCutType(CutType cutType) {
-        if (cutType == CutType.POCKET) {
-            return POCKET;
-        } else if (cutType == CutType.SURFACE) {
-            return SURFACE;
-        } else if (cutType == CutType.ON_PATH) {
-            return ON_PATH;
-        } else if (cutType == CutType.INSIDE_PATH) {
-            return INSIDE_PATH;
-        } else if (cutType == CutType.OUTSIDE_PATH) {
-            return OUTSIDE_PATH;
-        } else if (cutType == CutType.CENTER_DRILL) {
-            return CENTER_DRILL;
-        } else if (cutType == CutType.LASER_ON_PATH) {
-            return LASER_ON_PATH;
-        } else if (cutType == CutType.LASER_FILL) {
-            return LASER_FILL;
-        } else {
-            return NONE;
-        }
+        return switch (cutType) {
+            case NONE -> NONE;
+            case POCKET -> POCKET;
+            case SURFACE -> SURFACE;
+            case ON_PATH -> ON_PATH;
+            case INSIDE_PATH -> INSIDE_PATH;
+            case OUTSIDE_PATH -> OUTSIDE_PATH;
+            case LASER_ON_PATH -> LASER_ON_PATH;
+            case LASER_FILL -> LASER_FILL;
+            case LASER_RASTER -> LASER_RASTER;
+            case CENTER_DRILL -> CENTER_DRILL;
+        };
     }
 
     public static CutType toCutType(CutTypeV1 cutType) {
-        if (cutType == POCKET) {
-            return CutType.POCKET;
-        } else if (cutType == SURFACE) {
-            return CutType.SURFACE;
-        } else if (cutType == ON_PATH) {
-            return CutType.ON_PATH;
-        } else if (cutType == INSIDE_PATH) {
-            return CutType.INSIDE_PATH;
-        } else if (cutType == OUTSIDE_PATH) {
-            return CutType.OUTSIDE_PATH;
-        } else if (cutType == CENTER_DRILL) {
-            return CutType.CENTER_DRILL;
-        } else if (cutType == LASER_ON_PATH) {
-            return CutType.LASER_ON_PATH;
-        } else if (cutType == LASER_FILL) {
-            return CutType.LASER_FILL;
-        } else {
-            return CutType.NONE;
-        }
+        return switch (cutType) {
+            case NONE -> CutType.NONE;
+            case POCKET -> CutType.POCKET;
+            case SURFACE -> CutType.SURFACE;
+            case ON_PATH -> CutType.ON_PATH;
+            case INSIDE_PATH -> CutType.INSIDE_PATH;
+            case OUTSIDE_PATH -> CutType.OUTSIDE_PATH;
+            case CENTER_DRILL -> CutType.CENTER_DRILL;
+            case LASER_ON_PATH -> CutType.LASER_ON_PATH;
+            case LASER_FILL ->CutType.LASER_FILL;
+            case LASER_RASTER -> CutType.LASER_RASTER;
+        };
     }
 }
 

@@ -28,26 +28,31 @@ import java.util.List;
  * @author Joacim Breiler
  */
 public enum EntitySetting {
-    POSITION_X("X", "positionX"),
-    POSITION_Y("Y", "positionY"),
-    WIDTH("Width", "width"),
-    HEIGHT("Height", "height"),
-    ANCHOR("Anchor", "anchor"),
-    ROTATION("Rotation", "rotation"),
-    LOCK_RATIO("Lock ratio", "lockRatio"),
-    CUT_TYPE("Cut type", "cutType"),
-    TEXT("Text", "text"),
-    FONT_FAMILY("Font", "fontFamily"),
-    START_DEPTH("Start depth", "startDepth"),
-    TARGET_DEPTH("Target depth", "targetDepth"),
-    SPINDLE_SPEED("Spindle speed", "spindleSpeed"),
-    PASSES("Passes", "passes"),
-    FEED_RATE("Feed rate", "feedRate"),
-    LEAD_IN_PERCENT("Lead in percent", "leadInPercent"),
-    INCLUDE_IN_EXPORT("Include in export", "includeInExport"),
-    TOOL_PATH_ANGLE("Tool path angle", "toolPathAngle"),
-    DIRECTION("Tool path direction", "direction"),
-    CORNER_RADIUS("Corner radius", "cornerRadius");
+    POSITION_X("X"),
+    POSITION_Y("Y"),
+    WIDTH("Width"),
+    HEIGHT("Height"),
+    ANCHOR("Anchor"),
+    ROTATION("Rotation"),
+    LOCK_RATIO("Lock ratio"),
+    CUT_TYPE("Cut type"),
+    TEXT("Text"),
+    FONT_FAMILY("Font"),
+    START_DEPTH("Start depth"),
+    TARGET_DEPTH("Target depth"),
+    SPINDLE_SPEED("Spindle speed"),
+    PASSES("Passes"),
+    FEED_RATE("Feed rate"),
+    LEAD_IN_PERCENT("Lead in percent"),
+    INCLUDE_IN_EXPORT("Include in export"),
+    TOOL_PATH_ANGLE("Tool path angle"),
+    DIRECTION("Tool path direction"),
+    CORNER_RADIUS("Corner radius"),
+    RASTER_BRIGHTNESS("Brightness"),
+    RASTER_CONTRAST("Contrast"),
+    RASTER_GAMMA("Gamma"),
+    RASTER_INVERT("Invert"),
+    RASTER_LEVELS("Levels");
 
     public static final List<EntitySetting> TRANSFORMATION_SETTINGS = List.of(
             EntitySetting.POSITION_X,
@@ -89,40 +94,19 @@ public enum EntitySetting {
 
     public static final List<EntitySetting> DEFAULT_LASER_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
+            EntitySetting.TOOL_PATH_ANGLE,
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.PASSES,
             EntitySetting.FEED_RATE,
             EntitySetting.INCLUDE_IN_EXPORT);
 
     private final String label;
-    private final String propertyName;
 
-    EntitySetting(String label, String propertyName) {
+    EntitySetting(String label) {
         this.label = label;
-        this.propertyName = propertyName;
     }
 
     public String getLabel() {
         return label;
-    }
-
-    public String getPropertyName() {
-        return propertyName;
-    }
-
-    /**
-     * Find an EntitySetting by its property name.
-     *
-     * @param propertyName the property name to search for
-     * @return the matching EntitySetting, or null if not found
-     */
-    public static EntitySetting fromPropertyName(String propertyName) {
-        if (propertyName == null) throw new IllegalArgumentException("propertyName cannot be null");
-        for (EntitySetting setting : values()) {
-            if (setting.propertyName.equals(propertyName)) {
-                return setting;
-            }
-        }
-        return null;
     }
 }

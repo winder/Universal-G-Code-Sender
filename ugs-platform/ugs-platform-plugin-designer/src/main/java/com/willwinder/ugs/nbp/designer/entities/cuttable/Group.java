@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -328,5 +329,13 @@ public class Group extends EntityGroup implements Cuttable {
         }
 
         return result;
+    }
+
+    @Override
+    public List<CutType> getAvailableCutTypes() {
+        return getCuttableStream()
+                .findFirst()
+                .map(Cuttable::getAvailableCutTypes)
+                .orElse(Collections.emptyList());
     }
 }

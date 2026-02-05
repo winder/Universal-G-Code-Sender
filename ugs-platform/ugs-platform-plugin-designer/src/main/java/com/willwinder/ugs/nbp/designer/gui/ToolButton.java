@@ -1,5 +1,5 @@
 /*
-    Copyright 2024 Will Winder
+    Copyright 2024-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -45,7 +45,7 @@ public class ToolButton extends PanelButton {
     }
 
     private static boolean isLaserOperation(Cuttable c) {
-        return c.getCutType() == CutType.LASER_FILL || c.getCutType() == CutType.LASER_ON_PATH;
+        return c.getCutType() == CutType.LASER_FILL || c.getCutType() == CutType.LASER_ON_PATH || c.getCutType() == CutType.LASER_RASTER;
     }
 
     private void updateText() {

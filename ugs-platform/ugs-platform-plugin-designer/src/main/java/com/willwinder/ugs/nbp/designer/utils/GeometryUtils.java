@@ -1,10 +1,12 @@
 package com.willwinder.ugs.nbp.designer.utils;
 
+import static com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils.GEOMETRY_FACTORY;
 import static com.willwinder.universalgcodesender.utils.MathUtils.liangBarskyClipLine;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -33,6 +35,36 @@ public class GeometryUtils {
 
         GeometryFactory gf = line.getFactory();
         return gf.createLineString(new Coordinate[]{start, end});
+    }
+
+
+    public static LineString generateLineString(Envelope envelope, double offsetAlongNormal, double angleInDegrees) {
+        // Convert angle to radians
+        double radians = Math.toRadians(-angleInDegrees);
+
+        // Direction vector for the toolpath line
+        double dx = Math.cos(radians);
+        double dy = Math.sin(radians);
+
+        // Normal vector (perpendicular) for stepping passes
+        double nx = -dy;
+        double ny = dx;
+
+        // Create a point on the pass using the offset along the normal vector
+        double px = envelope.getMinX() + nx * offsetAlongNormal;
+        double py = envelope.getMinY() + ny * offsetAlongNormal;
+
+        // Create a long segment centered at that point in direction (dx, dy)
+        // The value is intentionally large so clipping will cut it down
+        double far = envelope.getWidth() * envelope.getHeight();
+        double sx = px - dx * far;
+        double sy = py - dy * far;
+        double ex = px + dx * far;
+        double ey = py + dy * far;
+
+        LineString lineString = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(sx, sy), new Coordinate(ex, ey)}), GEOMETRY_FACTORY);
+        lineString = GeometryUtils.clipLineToEnvelope(lineString, envelope);
+        return lineString;
     }
 }
 

@@ -20,12 +20,17 @@ package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
 import javax.swing.JList;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A combo box for selecting a cut type
@@ -52,5 +57,31 @@ public class CutTypeCombo extends JComboBox<CutType> {
 
     public CutType getSelectedCutType() {
         return (CutType) getSelectedItem();
+    }
+
+    public void setItems(List<CutType> cutTypes) {
+        if (!needsUpdating(cutTypes)) {
+            return;
+        }
+
+        CutType selected = getSelectedCutType();
+        setModel(new DefaultComboBoxModel<>(cutTypes.toArray(CutType[]::new)));
+        if (selected != null && cutTypes.contains(selected)) {
+            setSelectedItem(selected);
+        }
+    }
+
+    private boolean needsUpdating(List<CutType> cutTypes) {
+        ComboBoxModel<CutType> model = getModel();
+        if (model.getSize() != cutTypes.size()) {
+            return true;
+        }
+
+        Set<CutType> current = new HashSet<>();
+        for (int i = 0; i < model.getSize(); i++) {
+            current.add(model.getElementAt(i));
+        }
+
+        return !current.equals(new HashSet<>(cutTypes));
     }
 }

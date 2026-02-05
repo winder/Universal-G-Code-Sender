@@ -23,10 +23,10 @@ public class SeparatorLabel extends JPanel {
      *                            <code>TRAILING</code>.
      */
     public SeparatorLabel(String text, int horizontalAlignment) {
-        setLayout(new MigLayout("insets 0, gap 10, fillx"));
+        setLayout(new MigLayout("insets 0, fillx"));
         label = new JLabel(text, horizontalAlignment);
-        add(label, "spanx, growx, gaptop 5, gapbottom 0, wrap");
-        add(new JSeparator(), "spanx, growx, gaptop 0, gapbottom 5, wrap");
+        add(label, "spanx, growx, gapbottom 0, wrap");
+        add(new JSeparator(), "spanx, growx, gaptop 5, wrap");
     }
 
     public void setText(String text) {

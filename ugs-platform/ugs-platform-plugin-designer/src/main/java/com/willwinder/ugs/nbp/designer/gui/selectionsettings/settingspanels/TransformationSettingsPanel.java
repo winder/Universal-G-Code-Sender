@@ -55,15 +55,6 @@ import java.util.Optional;
 @ServiceProvider(service = EntitySettingsPanel.class, position = 9)
 public class TransformationSettingsPanel extends JPanel implements EntitySettingsPanel {
 
-    // Use EntitySetting property names instead of string constants
-    private static final String PROP_POSITION_X = EntitySetting.POSITION_X.getPropertyName();
-    private static final String PROP_POSITION_Y = EntitySetting.POSITION_Y.getPropertyName();
-    private static final String PROP_WIDTH = EntitySetting.WIDTH.getPropertyName();
-    private static final String PROP_HEIGHT = EntitySetting.HEIGHT.getPropertyName();
-    private static final String PROP_ROTATION = EntitySetting.ROTATION.getPropertyName();
-    private static final String PROP_ANCHOR = EntitySetting.ANCHOR.getPropertyName();
-    private static final String PROP_LOCK_RATIO = EntitySetting.LOCK_RATIO.getPropertyName();
-
     private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";
     private static final String FIELD_CONSTRAINTS = "grow, w 60:60:300, hmin 32, hmax 36";
 
@@ -121,14 +112,14 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
     }
 
     private void setupListeners() {
-        posXTextField.addPropertyChangeListener("value", evt -> firePropertyChange(PROP_POSITION_X, evt.getNewValue()));
-        posYTextField.addPropertyChangeListener("value", evt -> firePropertyChange(PROP_POSITION_Y, evt.getNewValue()));
+        posXTextField.addPropertyChangeListener("value", evt -> firePropertyChange(EntitySetting.POSITION_X.name(), evt.getNewValue()));
+        posYTextField.addPropertyChangeListener("value", evt -> firePropertyChange(EntitySetting.POSITION_Y.name(), evt.getNewValue()));
 
         widthTextField.addPropertyChangeListener("value", evt -> {
             if (updating) return;
 
             SwingUtilities.invokeLater(() -> {
-                firePropertyChange(PROP_WIDTH, evt.getNewValue());
+                firePropertyChange(EntitySetting.WIDTH.name(), evt.getNewValue());
 
                 // Update height field when lockRatio is enabled
                 if (lockRatio && evt.getNewValue() instanceof Double newWidth) {
@@ -150,7 +141,7 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
         heightTextField.addPropertyChangeListener("value", evt -> {
             if (updating) return;
             SwingUtilities.invokeLater(() -> {
-                firePropertyChange(PROP_HEIGHT, evt.getNewValue());
+                firePropertyChange(EntitySetting.HEIGHT.name(), evt.getNewValue());
 
                 // Update width field when lockRatio is enabled
                 if (lockRatio && evt.getNewValue() instanceof Double newHeight) {
@@ -169,16 +160,16 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
             });
         });
 
-        rotationTextField.addPropertyChangeListener("value", evt -> firePropertyChange(PROP_ROTATION, evt.getNewValue()));
+        rotationTextField.addPropertyChangeListener("value", evt -> firePropertyChange(EntitySetting.ROTATION.name(), evt.getNewValue()));
 
         anchorSelector.addListener(anchor -> {
             currentAnchor = anchor;
-            firePropertyChange(PROP_ANCHOR, anchor);
+            firePropertyChange(EntitySetting.ANCHOR.name(), anchor);
         });
 
         lockRatioButton.addActionListener(e -> {
             lockRatio = lockRatioButton.isSelected();
-            firePropertyChange(PROP_LOCK_RATIO, lockRatio);
+            firePropertyChange(EntitySetting.LOCK_RATIO.name(), lockRatio);
         });
     }
 
@@ -236,8 +227,8 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
     }
 
     @Override
-    public void applyChangeToSelection(String setting, Object newValue, Group selectionGroup) {
-        switch (Objects.requireNonNull(EntitySetting.fromPropertyName(setting))) {
+    public void applyChangeToSelection(EntitySetting setting, Object newValue, Group selectionGroup) {
+        switch (Objects.requireNonNull(setting)) {
             case POSITION_X -> {
                 Point2D currentPos = selectionGroup.getPosition(currentAnchor);
                 selectionGroup.setPosition(currentAnchor, new Point2D.Double((Double) newValue, currentPos.getY()));
@@ -296,11 +287,11 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
     }
 
     @Override
-    public void createAndExecuteUndoableAction(String setting, Object newValue, Group selectionGroup, Controller controller) {
+    public void createAndExecuteUndoableAction(EntitySetting setting, Object newValue, Group selectionGroup, Controller controller) {
         if (selectionGroup.getChildren().isEmpty()) return;
 
         // For transformations, we need to work with the group as a whole to maintain relationships
-        createGroupAction(EntitySetting.fromPropertyName(setting), newValue, selectionGroup).ifPresent(action -> {
+        createGroupAction(setting, newValue, selectionGroup).ifPresent(action -> {
             action.redo();
             controller.getUndoManager().addAction(action);
         });

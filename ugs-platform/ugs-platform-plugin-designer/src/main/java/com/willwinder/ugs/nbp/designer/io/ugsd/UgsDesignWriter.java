@@ -8,6 +8,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Path;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Point;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Raster;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
 import com.willwinder.ugs.nbp.designer.io.AffineTransformSerializer;
@@ -23,6 +24,7 @@ import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathSegmentV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathTypeV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPathV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityPointV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityRasterV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityRectangleV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityTextV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityV1;
@@ -92,6 +94,8 @@ public class UgsDesignWriter implements DesignWriter {
             result = parsePoint(entity);
         } else if (entity instanceof Text text) {
             result = parseText(text);
+        } else if (entity instanceof Raster raster) {
+            result = parseRaster(raster);
         } else {
             return null;
         }
@@ -101,6 +105,7 @@ public class UgsDesignWriter implements DesignWriter {
         }
 
         if (entity instanceof Cuttable cuttable && result instanceof CuttableEntityV1 cuttableEntity) {
+            cuttableEntity.setName(cuttableEntity.getName());
             cuttableEntity.setStartDepth(cuttable.getStartDepth());
             cuttableEntity.setCutDepth(cuttable.getTargetDepth());
             cuttableEntity.setCutType(CutTypeV1.fromCutType(cuttable.getCutType()));
@@ -113,6 +118,17 @@ public class UgsDesignWriter implements DesignWriter {
             cuttableEntity.setDirection(DirectionTypeV1.fromDirection(cuttable.getDirection()));
         }
         return result;
+    }
+
+    private EntityV1 parseRaster(Raster raster) {
+        EntityRasterV1 entity = new EntityRasterV1();
+        entity.setTransform(raster.getTransform());
+        entity.setImage(raster.getImageData());
+        entity.setBrightness(raster.getBrightness());
+        entity.setContrast(raster.getContrast());
+        entity.setGamma(raster.getGamma());
+        entity.setLevels(raster.getLevels());
+        return entity;
     }
 
     private EntityV1 parseText(Text entity) {

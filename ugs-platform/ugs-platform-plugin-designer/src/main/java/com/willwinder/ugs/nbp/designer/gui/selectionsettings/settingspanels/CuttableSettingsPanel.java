@@ -50,18 +50,6 @@ import java.util.Map;
 @ServiceProvider(service = EntitySettingsPanel.class, position = 15)
 public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel {
 
-    // Use EntitySetting property names instead of string constants
-    public static final String PROP_CUT_TYPE = EntitySetting.CUT_TYPE.getPropertyName();
-    public static final String PROP_START_DEPTH = EntitySetting.START_DEPTH.getPropertyName();
-    public static final String PROP_TARGET_DEPTH = EntitySetting.TARGET_DEPTH.getPropertyName();
-    public static final String PROP_SPINDLE_SPEED = EntitySetting.SPINDLE_SPEED.getPropertyName();
-    public static final String PROP_PASSES = EntitySetting.PASSES.getPropertyName();
-    public static final String PROP_FEED_RATE = EntitySetting.FEED_RATE.getPropertyName();
-    public static final String PROP_LEAD_IN_PERCENT = EntitySetting.LEAD_IN_PERCENT.getPropertyName();
-    public static final String PROP_TOOL_PATH_ANGLE = EntitySetting.TOOL_PATH_ANGLE.getPropertyName();
-    public static final String PROP_DIRECTION = EntitySetting.DIRECTION.getPropertyName();
-    public static final String PROP_INCLUDE_IN_EXPORT = EntitySetting.INCLUDE_IN_EXPORT.getPropertyName();
-
     private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";
     private static final String FIELD_CONSTRAINTS = "grow, w 60:60:300, hmin 32, hmax 36, wrap, spanx";
     private static final String SLIDER_CONSTRAINTS = "grow, w 60:60:300, hmin 32, hmax 44, wrap, spanx";
@@ -149,24 +137,24 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
 
     private void setupListeners() {
         cutTypeComboBox.addActionListener(e -> {
-            firePropertyChange(PROP_CUT_TYPE, cutTypeComboBox.getSelectedItem());
+            firePropertyChange(EntitySetting.CUT_TYPE, cutTypeComboBox.getSelectedItem());
             // Update layout when cut type changes
             setEnabled(isEnabled());
         });
-        startDepthSpinner.addChangeListener(e -> firePropertyChange(PROP_START_DEPTH, startDepthSpinner.getValue()));
-        targetDepthSpinner.addChangeListener(e -> firePropertyChange(PROP_TARGET_DEPTH, targetDepthSpinner.getValue()));
-        spindleSpeedSpinner.addChangeListener(e -> firePropertyChange(PROP_SPINDLE_SPEED, (int) (((Double)spindleSpeedSpinner.getValue()) * 100)));
-        feedRateSpinner.addChangeListener(e -> firePropertyChange(PROP_FEED_RATE, ((Double)feedRateSpinner.getValue()).intValue()));
-        passesSlider.addChangeListener(e -> firePropertyChange(PROP_PASSES, passesSlider.getValue()));
-        leadInPercentSlider.addChangeListener(e -> firePropertyChange(PROP_LEAD_IN_PERCENT, leadInPercentSlider.getValue()));
-        toolPathAngleSpinner.addChangeListener(e -> firePropertyChange(PROP_TOOL_PATH_ANGLE, toolPathAngleSpinner.getValue()));
-        includeInExport.addActionListener(e -> firePropertyChange(PROP_INCLUDE_IN_EXPORT, includeInExport.isSelected()));
-        directionCombo.addActionListener(e -> firePropertyChange(PROP_DIRECTION, directionCombo.getSelectedDirection()));
+        startDepthSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.START_DEPTH, startDepthSpinner.getValue()));
+        targetDepthSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.TARGET_DEPTH, targetDepthSpinner.getValue()));
+        spindleSpeedSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.SPINDLE_SPEED, (int) (((Double)spindleSpeedSpinner.getValue()) * 100)));
+        feedRateSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.FEED_RATE, ((Double)feedRateSpinner.getValue()).intValue()));
+        passesSlider.addChangeListener(e -> firePropertyChange(EntitySetting.PASSES, passesSlider.getValue()));
+        leadInPercentSlider.addChangeListener(e -> firePropertyChange(EntitySetting.LEAD_IN_PERCENT, leadInPercentSlider.getValue()));
+        toolPathAngleSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.TOOL_PATH_ANGLE, toolPathAngleSpinner.getValue()));
+        includeInExport.addActionListener(e -> firePropertyChange(EntitySetting.INCLUDE_IN_EXPORT, includeInExport.isSelected()));
+        directionCombo.addActionListener(e -> firePropertyChange(EntitySetting.DIRECTION, directionCombo.getSelectedDirection()));
     }
 
-    private void firePropertyChange(String propertyName, Object newValue) {
+    private void firePropertyChange(EntitySetting entitySetting, Object newValue) {
         if (!updating) {
-            SwingUtilities.invokeLater(() -> pcs.firePropertyChange(propertyName, null, newValue));
+            SwingUtilities.invokeLater(() -> pcs.firePropertyChange(entitySetting.name(), null, newValue));
         }
     }
 
@@ -237,6 +225,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         if (firstCuttable != null) {
             updating = true;
             try {
+                cutTypeComboBox.setItems(firstCuttable.getAvailableCutTypes());
                 cutTypeComboBox.setSelectedItem(firstCuttable.getCutType());
                 startDepthSpinner.setValue(firstCuttable.getStartDepth());
                 targetDepthSpinner.setValue(firstCuttable.getTargetDepth());
@@ -258,38 +247,38 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
 
         for (Component comp : getComponents()) {
             if (comp instanceof JLabel label && ("Spindle Speed".equals(label.getText()) || "Power".equals(label.getText()))) {
-                label.setText((cutType == CutType.LASER_FILL || cutType == CutType.LASER_ON_PATH) ? "Power" : "Spindle Speed");
+                label.setText((cutType == CutType.LASER_FILL || cutType == CutType.LASER_ON_PATH || cutType == CutType.LASER_RASTER) ? "Power" : "Spindle Speed");
                 break;
             }
         }
     }
 
     @Override
-    public void applyChangeToSelection(String propertyName, Object newValue, Group selectionGroup) {
+    public void applyChangeToSelection(EntitySetting entitySetting, Object newValue, Group selectionGroup) {
         selectionGroup.getChildren().stream()
                 .filter(Cuttable.class::isInstance)
                 .map(Cuttable.class::cast)
-                .forEach(cuttable -> applyCuttableProperty(cuttable, propertyName, newValue));
+                .forEach(cuttable -> applyCuttableProperty(cuttable, entitySetting, newValue));
     }
 
-    private void applyCuttableProperty(Cuttable cuttable, String propertyName, Object newValue) {
-        if (PROP_CUT_TYPE.equals(propertyName)) {
+    private void applyCuttableProperty(Cuttable cuttable, EntitySetting setting, Object newValue) {
+        if (EntitySetting.CUT_TYPE.equals(setting)) {
             cuttable.setCutType((CutType) newValue);
-        } else if (PROP_START_DEPTH.equals(propertyName)) {
+        } else if (EntitySetting.START_DEPTH.equals(setting)) {
             cuttable.setStartDepth((Double) newValue);
-        } else if (PROP_TARGET_DEPTH.equals(propertyName)) {
+        } else if (EntitySetting.TARGET_DEPTH.equals(setting)) {
             cuttable.setTargetDepth((Double) newValue);
-        } else if (PROP_SPINDLE_SPEED.equals(propertyName)) {
+        } else if (EntitySetting.SPINDLE_SPEED.equals(setting)) {
             cuttable.setSpindleSpeed((Integer) newValue);
-        } else if (PROP_FEED_RATE.equals(propertyName)) {
+        } else if (EntitySetting.FEED_RATE.equals(setting)) {
             cuttable.setFeedRate((Integer) newValue);
-        } else if (PROP_PASSES.equals(propertyName)) {
+        } else if (EntitySetting.PASSES.equals(setting)) {
             cuttable.setPasses((Integer) newValue);
-        } else if (PROP_LEAD_IN_PERCENT.equals(propertyName)) {
+        } else if (EntitySetting.LEAD_IN_PERCENT.equals(setting)) {
             cuttable.setLeadInPercent((Integer) newValue);
-        } else if (PROP_TOOL_PATH_ANGLE.equals(propertyName)) {
+        } else if (EntitySetting.TOOL_PATH_ANGLE.equals(setting)) {
             cuttable.setToolPathAngle((Double) newValue);
-        } else if (PROP_DIRECTION.equals(propertyName)) {
+        } else if (EntitySetting.DIRECTION.equals(setting)) {
             cuttable.setDirection((Direction) newValue);
         }
     }
@@ -305,19 +294,18 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     }
 
     @Override
-    public void createAndExecuteUndoableAction(String propertyName, Object newValue, Group selectionGroup, Controller controller) {
+    public void createAndExecuteUndoableAction(EntitySetting entitySetting, Object newValue, Group selectionGroup, Controller controller) {
         List<Entity> entities = selectionGroup.getChildren();
         if (entities.isEmpty()) return;
 
-        UndoableAction action = createAction(propertyName, newValue, entities);
+        UndoableAction action = createAction(entitySetting, newValue, entities);
         if (action != null) {
             action.redo();
             controller.getUndoManager().addAction(action);
         }
     }
 
-    private UndoableAction createAction(String propertyName, Object newValue, List<Entity> entities) {
-        EntitySetting setting = EntitySetting.fromPropertyName(propertyName);
+    private UndoableAction createAction(EntitySetting setting, Object newValue, List<Entity> entities) {
         return setting != null ? new ChangeEntitySettingsAction(entities, setting, newValue, settingsManager) : null;
     }
 }

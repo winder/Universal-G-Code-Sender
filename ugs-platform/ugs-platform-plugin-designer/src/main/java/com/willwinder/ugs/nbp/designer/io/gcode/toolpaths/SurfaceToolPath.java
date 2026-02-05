@@ -18,20 +18,18 @@
  */
 package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
-import com.willwinder.ugs.nbp.designer.utils.GeometryUtils;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
-import static com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils.GEOMETRY_FACTORY;
 import com.willwinder.ugs.nbp.designer.model.Settings;
+import static com.willwinder.ugs.nbp.designer.utils.GeometryUtils.generateLineString;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 
 import java.awt.geom.Rectangle2D;
 
@@ -126,7 +124,7 @@ public class SurfaceToolPath extends AbstractToolPath {
             double currentDepth,
             double offsetAlongNormal) {
 
-        LineString lineString = generateLineString(envelope, offsetAlongNormal);
+        LineString lineString = generateLineString(envelope, offsetAlongNormal, toolPathAngle);
         if (lineString == null) return;
 
         double safeHeight = calculateSafeHeight(settings);
@@ -163,7 +161,7 @@ public class SurfaceToolPath extends AbstractToolPath {
             PassDirection passDirection,
             boolean isFirstSegment) {
 
-        LineString lineString = generateLineString(envelope, offsetAlongNormal);
+        LineString lineString = generateLineString(envelope, offsetAlongNormal, toolPathAngle);
         if (lineString == null) return false;
 
         Coordinate startCoord = lineString.getCoordinateN(0);
@@ -192,34 +190,5 @@ public class SurfaceToolPath extends AbstractToolPath {
         );
         gcodePath.addSegment(SegmentType.LINE, end, source.getFeedRate());
         return true;
-    }
-
-    private LineString generateLineString(Envelope envelope, double offsetAlongNormal) {
-        // Convert angle to radians
-        double radians = Math.toRadians(-this.toolPathAngle);
-
-        // Direction vector for the toolpath line
-        double dx = Math.cos(radians);
-        double dy = Math.sin(radians);
-
-        // Normal vector (perpendicular) for stepping passes
-        double nx = -dy;
-        double ny = dx;
-
-        // Create a point on the pass using the offset along the normal vector
-        double px = envelope.getMinX() + nx * offsetAlongNormal;
-        double py = envelope.getMinY() + ny * offsetAlongNormal;
-
-        // Create a long segment centered at that point in direction (dx, dy)
-        // The value is intentionally large so clipping will cut it down
-        double far = envelope.getWidth() * envelope.getHeight();
-        double sx = px - dx * far;
-        double sy = py - dy * far;
-        double ex = px + dx * far;
-        double ey = py + dy * far;
-
-        LineString lineString = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(sx, sy), new Coordinate(ex, ey)}), GEOMETRY_FACTORY);
-        lineString = GeometryUtils.clipLineToEnvelope(lineString, envelope);
-        return lineString;
     }
 }

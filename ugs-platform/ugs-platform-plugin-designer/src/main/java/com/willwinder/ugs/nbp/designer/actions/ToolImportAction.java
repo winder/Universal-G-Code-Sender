@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
+import com.willwinder.ugs.nbp.designer.entities.cuttable.Raster;
 import com.willwinder.ugs.nbp.designer.io.c2d.C2dReader;
 import com.willwinder.ugs.nbp.designer.io.dxf.DxfReader;
 import com.willwinder.ugs.nbp.designer.io.eagle.EaglePnpReader;
@@ -63,6 +64,7 @@ public final class ToolImportAction extends AbstractDesignAction {
     private static final Logger LOGGER = Logger.getLogger(ToolImportAction.class.getName());
 
     public static final FileNameExtensionFilter[] FILE_NAME_EXTENSION_FILTERS = new FileNameExtensionFilter[]{
+            new FileNameExtensionFilter("All supported formats", "svg", "dxf", "c2d", "mnt", "mnb", "drl", "pos", "gbr", "ugsd", "png", "jpg", "jpeg"),
             new FileNameExtensionFilter("Scalable Vector Graphics (.svg)", "svg"),
             new FileNameExtensionFilter("Autodesk CAD (.dxf)", "dxf"),
             new FileNameExtensionFilter("Carbide Create (.c2d)", "c2d"),
@@ -70,7 +72,10 @@ public final class ToolImportAction extends AbstractDesignAction {
             new FileNameExtensionFilter("Excellon (.drl)", "drl"),
             new FileNameExtensionFilter("KiCad (.pos)", "pos"),
             new FileNameExtensionFilter("Gerber (.gbr)", "gbr"),
-            new FileNameExtensionFilter("UGS design (.ugsd)", "ugsd")
+            new FileNameExtensionFilter("UGS design (.ugsd)", "ugsd"),
+            new FileNameExtensionFilter("Portable Network Graphics (.png)", "png"),
+            new FileNameExtensionFilter("JPEG (.jpg)", "jpg", "jpeg"),
+            new FileNameExtensionFilter("Bitmap (.bmp)", "bmp"),
     };
 
     public static final String SMALL_ICON_PATH = "img/import.svg";
@@ -134,6 +139,7 @@ public final class ToolImportAction extends AbstractDesignAction {
     public void actionPerformed(ActionEvent e) {
         JFileChooser fileDialog = new JFileChooser();
         fileDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileDialog.setAcceptAllFileFilterUsed(false);
         Arrays.asList(FILE_NAME_EXTENSION_FILTERS).forEach(fileDialog::addChoosableFileFilter);
         fileDialog.showOpenDialog(SwingHelpers.getRootFrame());
 
@@ -142,12 +148,21 @@ public final class ToolImportAction extends AbstractDesignAction {
         ThreadHelper.invokeLater(() -> {
             File f = fileDialog.getSelectedFile();
             if (f != null) {
-                try {
-                    readDesign(controller, backend, f);
-                } catch (Exception exception) {
-                    LOGGER.log(Level.SEVERE, "Could not import file " + f.getName(), exception);
+                if (isRasterFile(f)) {
+                    Controller controller = ControllerFactory.getController();
+                    controller.getDrawing().insertEntity(new Raster(f));
+                } else {
+                    try {
+                        readDesign(controller, backend, f);
+                    } catch (Exception exception) {
+                        LOGGER.log(Level.SEVERE, "Could not import file " + f.getName(), exception);
+                    }
                 }
             }
         });
+    }
+
+    private static boolean isRasterFile(File f) {
+        return StringUtils.endsWithIgnoreCase(f.getName(), ".png") || StringUtils.endsWithIgnoreCase(f.getName(), ".jpg") || StringUtils.endsWithIgnoreCase(f.getName(), ".jpeg") || StringUtils.endsWithIgnoreCase(f.getName(), ".bmp");
     }
 }

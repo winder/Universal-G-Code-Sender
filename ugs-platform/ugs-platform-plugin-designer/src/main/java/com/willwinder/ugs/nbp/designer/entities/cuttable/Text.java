@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2024 Will Winder
+    Copyright 2021-2026 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -111,5 +111,10 @@ public class Text extends AbstractCuttable {
         entitySettings.add(EntitySetting.TEXT);
         entitySettings.add(EntitySetting.FONT_FAMILY);
         return entitySettings;
+    }
+
+    @Override
+    public List<CutType> getAvailableCutTypes() {
+        return List.of(CutType.POCKET, CutType.SURFACE, CutType.ON_PATH, CutType.INSIDE_PATH, CutType.OUTSIDE_PATH, CutType.LASER_ON_PATH, CutType.LASER_FILL, CutType.CENTER_DRILL);
     }
 }

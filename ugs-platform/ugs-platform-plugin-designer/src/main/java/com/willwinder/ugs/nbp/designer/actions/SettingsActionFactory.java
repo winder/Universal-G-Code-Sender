@@ -110,17 +110,6 @@ public final class SettingsActionFactory {
     }
 
     /**
-     * Maps a property name to an EntitySetting enum.
-     * Now delegates to EntitySetting.fromPropertyName() for cleaner, centralized lookup.
-     *
-     * @param propertyName the property name
-     * @return the corresponding EntitySetting or null if not found
-     */
-    public static EntitySetting mapPropertyToEntitySetting(String propertyName) {
-        return EntitySetting.fromPropertyName(propertyName);
-    }
-
-    /**
      * Creates the appropriate action based on property name and context.
      * This is a high-level method that determines which type of action to create.
      *

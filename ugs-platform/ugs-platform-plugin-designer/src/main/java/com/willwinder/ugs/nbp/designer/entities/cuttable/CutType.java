@@ -39,6 +39,7 @@ public enum CutType {
     OUTSIDE_PATH("Mill - Outside path", DEFAULT_ENDMILL_SETTINGS, Collections.emptyList()),
     LASER_ON_PATH("Laser - On path", DEFAULT_LASER_SETTINGS, Collections.emptyList()),
     LASER_FILL("Laser - Fill", DEFAULT_LASER_SETTINGS, Collections.emptyList()),
+    LASER_RASTER("Laser - Raster", DEFAULT_LASER_SETTINGS, Collections.emptyList()),
     CENTER_DRILL("Center drill", DEFAULT_ENDMILL_SETTINGS, Collections.emptyList()),
     ;
 
