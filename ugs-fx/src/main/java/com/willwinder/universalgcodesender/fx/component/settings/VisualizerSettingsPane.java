@@ -12,6 +12,7 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -24,9 +25,12 @@ public class VisualizerSettingsPane extends BorderPane {
     private final VBox settingsGroup;
 
     public VisualizerSettingsPane() {
-        settingsGroup = new VBox(10);
+        settingsGroup = new VBox(16);
         addTitle(Localization.getString("settings.visualizer.machine"));
         addMachineCombo();
+
+        addTitle("Mouse controls");
+        addMouseControls();
 
         addTitle(Localization.getString("settings.visualizer.colors"));
         addColor(Localization.getString("platform.visualizer.color.rapid"), VisualizerSettings.getInstance().colorRapidProperty());
@@ -67,23 +71,99 @@ public class VisualizerSettingsPane extends BorderPane {
         settingsGroup.getChildren().add(checkBox);
     }
 
+    private void addMouseControls() {
+        // Invert zoom
+        CheckBox invertZoom = new CheckBox("Invert scroll wheel zoom");
+        invertZoom.selectedProperty().bindBidirectional(
+                VisualizerSettings.getInstance().invertZoomProperty()
+        );
+        settingsGroup.getChildren().add(invertZoom);
+
+        // Pan binding
+        VBox panBox = new VBox(8);
+        panBox.getChildren().add(new Label("Pan mouse button"));
+
+        ComboBox<String> panButton =
+                new ComboBox<>(FXCollections.observableArrayList("PRIMARY", "MIDDLE", "SECONDARY"));
+        panButton.valueProperty().bindBidirectional(
+                VisualizerSettings.getInstance().panMouseButtonProperty()
+        );
+        panButton.setValue(
+                VisualizerSettings.getInstance().panMouseButtonProperty().getValue()
+        );
+
+        ComboBox<VisualizerSettings.ModifierKey> panModifier =
+                new ComboBox<>(FXCollections.observableArrayList(VisualizerSettings.ModifierKey.values()));
+        panModifier.valueProperty().addListener((obs, oldVal, newVal) ->
+                VisualizerSettings.getInstance().panModifierKeyProperty()
+                        .set(newVal == null
+                                ? VisualizerSettings.ModifierKey.NONE.name()
+                                : newVal.name())
+        );
+        panModifier.setValue(
+                VisualizerSettings.ModifierKey.fromString(
+                        VisualizerSettings.getInstance().panModifierKeyProperty().getValue(),
+                        VisualizerSettings.ModifierKey.NONE
+                )
+        );
+
+        HBox panControls = new HBox(16, panButton, panModifier);
+        panBox.getChildren().add(panControls);
+        VBox.setMargin(panBox, new Insets(0, 0, 5, 0));
+
+        settingsGroup.getChildren().add(panBox);
+
+        // Rotate binding
+        VBox rotateBox = new VBox(8);
+        rotateBox.getChildren().add(new Label("Rotate mouse button"));
+
+        ComboBox<String> rotateButton =
+                new ComboBox<>(FXCollections.observableArrayList("PRIMARY", "MIDDLE", "SECONDARY"));
+        rotateButton.valueProperty().bindBidirectional(
+                VisualizerSettings.getInstance().rotateMouseButtonProperty()
+        );
+        rotateButton.setValue(
+                VisualizerSettings.getInstance().rotateMouseButtonProperty().getValue()
+        );
+
+        ComboBox<VisualizerSettings.ModifierKey> rotateModifier =
+                new ComboBox<>(FXCollections.observableArrayList(VisualizerSettings.ModifierKey.values()));
+        rotateModifier.valueProperty().addListener((obs, oldVal, newVal) ->
+                VisualizerSettings.getInstance().rotateModifierKeyProperty()
+                        .set(newVal == null
+                                ? VisualizerSettings.ModifierKey.NONE.name()
+                                : newVal.name())
+        );
+        rotateModifier.setValue(
+                VisualizerSettings.ModifierKey.fromString(
+                        VisualizerSettings.getInstance().rotateModifierKeyProperty().getValue(),
+                        VisualizerSettings.ModifierKey.NONE
+                )
+        );
+
+        HBox rotateControls = new HBox(16, rotateButton, rotateModifier);
+        rotateBox.getChildren().add(rotateControls);
+
+        settingsGroup.getChildren().add(rotateBox);
+    }
+
     private void addTitle(String text) {
         Label title = new Label(text);
         title.setFont(Font.font(16));
         settingsGroup.getChildren().add(title);
-        VBox.setMargin(title, new Insets(10, 0, 0, 0));
+        VBox.setMargin(title, new Insets(16, 0, 0, 0));
     }
 
     private void addTitleSection() {
         Label title = new Label(Localization.getString("platform.window.visualizer"));
-        title.setPadding(new Insets(0, 0, 15, 0));
+        title.setPadding(new Insets(0, 0, 16, 0));
         title.setFont(Font.font(20));
         setTop(title);
     }
 
     private void addColor(String text, StringProperty stringProperty) {
         Color value = stringProperty.map(Color::web).getValue();
-        VBox vBox = new VBox(5);
+        VBox vBox = new VBox(8);
         ColorPicker colorPicker = new ColorPicker(value);
         colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> {
             String value1 = Colors.toWeb(newValue);

@@ -30,10 +30,7 @@ import org.fxyz3d.geometry.Point3D;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,9 +41,9 @@ public class GcodeModel extends Group {
     private final GcodeViewParse gcvp;
     private final MeshView meshView;
     private final BackendAPI backendAPI;
+    private final float lineWidth;
 
     private GcodeModelMaterial material = new GcodeModelMaterial(0);
-    private Map<Integer, List<Integer>> lineToTextureMap = new HashMap<>();
 
     private Color rapidColor;
     private Color arcColor;
@@ -75,7 +72,7 @@ public class GcodeModel extends Group {
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         gcvp = new GcodeViewParse();
         backendAPI.addUGSEventListener(this::onEvent);
-
+        lineWidth = 0.03f;
         addSettingListeners();
     }
 
@@ -124,9 +121,7 @@ public class GcodeModel extends Group {
             }
         } else if (event instanceof CommandEvent commandEvent) {
             if (commandEvent.getCommand().isDone()) {
-                lineToTextureMap.getOrDefault(commandEvent.getCommand().getCommandNumber(), new ArrayList<>()).forEach(
-                        lineIndex -> material.updateLineColor(lineIndex, completedColor)
-                );
+                material.updateLineColor(commandEvent.getCommand().getCommandNumber(), completedColor);
             }
         } else if (event instanceof SettingChangedEvent) {
             addSettingListeners();
@@ -135,29 +130,25 @@ public class GcodeModel extends Group {
 
     private TriangleMesh pointsToMesh(List<LineSegment> lineSegments) {
         TriangleMesh mesh = new TriangleMesh();
-        float width = 0.05f; // Thin width for visual line approximation
-        lineToTextureMap = new HashMap<>();
 
         material = new GcodeModelMaterial(lineSegments.size());
         meshView.setMaterial(material);
 
         for (int i = 0; i < lineSegments.size(); i++) {
-            float v = (i + 0.5f) / lineSegments.size(); // Center of texel
-            mesh.getTexCoords().addAll(0f, v);          // one per segment
+            float[] uv = material.getTextureUV(i);
+            mesh.getTexCoords().addAll(uv[0], uv[1]);
         }
-
 
         for (int i = 0; i < lineSegments.size(); i++) {
             LineSegment lineSegment = lineSegments.get(i);
-            List<Integer> lineSegmentTextureIndexes = lineToTextureMap.getOrDefault(lineSegment.getLineNumber(), new ArrayList<>());
             Point3D p1 = toPoint(lineSegment.getStart().getPositionIn(UnitUtils.Units.MM));
             Point3D p2 = toPoint(lineSegment.getEnd().getPositionIn(UnitUtils.Units.MM));
 
             // Compute direction and a perpendicular vector for width
             Point3D dir = p2.substract(p1).normalize();
-            Point3D perp = dir.crossProduct(ZERO.add(0, 0, 1)).normalize().multiply(width);
+            Point3D perp = dir.crossProduct(ZERO.add(0, 0, 1)).normalize().multiply(lineWidth);
             if (perp.magnitude() == 0) { // If dir is parallel to Z, use X axis
-                perp = new Point3D(width, 0, width);
+                perp = new Point3D(lineWidth, 0, lineWidth);
             }
 
             // Add 4 points for the rectangle
@@ -170,10 +161,8 @@ public class GcodeModel extends Group {
             Point3D p2b = p2.substract(perp);
 
             material.setLineColor(i, getColor(lineSegment));
-            lineSegmentTextureIndexes.add(i);
-            lineToTextureMap.put(lineSegment.getLineNumber(), lineSegmentTextureIndexes);
 
-            // Two triangles per segment (rectangle)
+            // Two triangles per segment to create a rectangle
             mesh.getFaces().addAll(
                     baseIndex, i, baseIndex + 2, i, baseIndex + 1, i,
                     baseIndex + 2, i, baseIndex + 3, i, baseIndex + 1, i
@@ -190,7 +179,6 @@ public class GcodeModel extends Group {
         material.reset();
         return mesh;
     }
-
 
     private Color getColor(LineSegment lineSegment) {
         if (lineSegment.isArc()) {

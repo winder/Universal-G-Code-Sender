@@ -7,22 +7,39 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 
+import java.awt.Point;
+import java.util.logging.Logger;
+
 public class GcodeModelMaterial extends PhongMaterial {
+    private static final Logger LOGGER = Logger.getLogger(GcodeModelMaterial.class.getSimpleName());
+    private static final int MAX_TEXTURE_WIDTH = 8192;
+
+    private final int numberOfLines;
+    private final int textureWidth;
+    private final int textureHeight;
+
     private final WritableImage originalTexture;
     private final WritableImage texture;
 
     public GcodeModelMaterial(int numberOfLines) {
         super();
-        numberOfLines = Math.max(numberOfLines, 1);
+        this.numberOfLines = Math.max(numberOfLines, 1);
+        textureWidth = MAX_TEXTURE_WIDTH;
+        textureHeight = Math.max(1, (int) Math.ceil((double) numberOfLines / (double) textureWidth));
+        LOGGER.info(String.format("Generated Gcode texture: %sx%s for %d lines", textureWidth, textureHeight, numberOfLines));
 
-        originalTexture = new WritableImage(1, numberOfLines);
-        texture = new WritableImage(1, numberOfLines);
+        originalTexture = new WritableImage(textureWidth, textureHeight);
+        texture = new WritableImage(textureWidth, textureHeight);
 
+        // Initialize all pixels to BLACK (including unused padding pixels)
         PixelWriter writer = originalTexture.getPixelWriter();
-        for (int i = 0; i < numberOfLines; i++) {
-            writer.setColor(0, i, Color.BLACK);
+        for (int y = 0; y < textureHeight; y++) {
+            for (int x = 0; x < textureWidth; x++) {
+                writer.setColor(x, y, Color.BLACK);
+            }
         }
 
+        copyTexture(originalTexture, texture);
         setDiffuseMap(texture);
     }
 
@@ -33,8 +50,9 @@ public class GcodeModelMaterial extends PhongMaterial {
      * @param color     the color to set
      */
     public void setLineColor(int lineIndex, Color color) {
-        originalTexture.getPixelWriter().setColor(0, lineIndex, color);
-        texture.getPixelWriter().setColor(0, lineIndex, color);
+        Point pixel = getTexturePosition(lineIndex);
+        originalTexture.getPixelWriter().setColor(pixel.x, pixel.y, color);
+        texture.getPixelWriter().setColor(pixel.x, pixel.y, color);
     }
 
     /**
@@ -44,7 +62,8 @@ public class GcodeModelMaterial extends PhongMaterial {
      * @param color     the color to temporarily use
      */
     public void updateLineColor(int lineIndex, Color color) {
-        texture.getPixelWriter().setColor(0, lineIndex, color);
+        Point pixel = getTexturePosition(lineIndex);
+        texture.getPixelWriter().setColor(pixel.x, pixel.y, color);
     }
 
     /**
@@ -52,6 +71,16 @@ public class GcodeModelMaterial extends PhongMaterial {
      */
     public void reset() {
         copyTexture(originalTexture, texture);
+    }
+
+    public Point getTexturePosition(int lineIndex) {
+        if (lineIndex < 0 || lineIndex >= numberOfLines) {
+            throw new IndexOutOfBoundsException(
+                    "lineIndex out of range: " + lineIndex + " (0.." + (numberOfLines - 1) + ")");
+        }
+        int x = lineIndex % textureWidth;
+        int y = lineIndex / textureWidth;
+        return new Point(x, y);
     }
 
     private void copyTexture(WritableImage source, WritableImage destination) {
@@ -66,4 +95,15 @@ public class GcodeModelMaterial extends PhongMaterial {
         writer.setPixels(0, 0, width, height, PixelFormat.getByteBgraInstance(), buffer, 0, width * 4);
     }
 
+    /**
+     * UV coordinate for the *center* of the cell, to avoid sampling borders.
+     */
+    public float[] getTextureUV(int lineIndex) {
+        Point p = getTexturePosition(lineIndex);
+
+        float u = (float) (p.x + 0.5) / (float) textureWidth;
+        float v = (float) (p.y + 0.5) / (float) textureHeight;
+
+        return new float[]{u, v};
+    }
 }

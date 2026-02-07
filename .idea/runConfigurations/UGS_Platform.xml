@@ -1,7 +1,5 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="UGS-Platform" type="Application" factoryName="Application">
-    <option name="ALTERNATIVE_JRE_PATH" value="temurin-17" />
-    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="org.netbeans.Main" />
     <module name="ugs-platform-app" />
     <option name="PROGRAM_PARAMETERS" value="--branding ugsplatform --clearcache" />

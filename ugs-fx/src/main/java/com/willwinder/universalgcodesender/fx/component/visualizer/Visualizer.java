@@ -97,6 +97,35 @@ public class Visualizer extends Pane {
         timeline.play();
     }
 
+    private static MouseButton parseMouseButton(String value, MouseButton fallback) {
+        if (value == null || value.isBlank()) return fallback;
+        try {
+            return MouseButton.valueOf(value.trim().toUpperCase());
+        } catch (Exception ignored) {
+            return fallback;
+        }
+    }
+
+    private static boolean isModifierDown(MouseEvent event, VisualizerSettings.ModifierKey modifier) {
+        if (modifier == null) return true;
+        return switch (modifier) {
+            case NONE -> true;
+            case SHIFT -> event.isShiftDown();
+            case CTRL -> event.isControlDown();
+            case ALT -> event.isAltDown();
+            case META -> event.isMetaDown();
+        };
+    }
+
+    private static boolean isButtonDown(MouseEvent event, MouseButton button) {
+        if (button == null) return false;
+        return switch (button) {
+            case PRIMARY -> event.isPrimaryButtonDown();
+            case MIDDLE -> event.isMiddleButtonDown();
+            case SECONDARY -> event.isSecondaryButtonDown();
+            default -> false;
+        };
+    }
 
     private void setMouseInteraction() {
         // Handle mouse press event to store the initial position
@@ -110,16 +139,32 @@ public class Visualizer extends Pane {
             double dx = event.getSceneX() - mouseOldX;
             double dy = event.getSceneY() - mouseOldY;
 
-            if (event.getButton() == MouseButton.SECONDARY) {
-                if (event.isShiftDown()) {
-                    // Pan (translate) the 3D scene
-                    translate.setX(translate.getX() + dx * 0.5);
-                    translate.setY(translate.getY() + dy * 0.5);
-                } else {
-                    // Regular orbit rotation
-                    rotateX.setAngle(rotateX.getAngle() + dy * 0.5);
-                    rotateZ.setAngle(rotateZ.getAngle() + dx * 0.5);
-                }
+            VisualizerSettings settings = VisualizerSettings.getInstance();
+
+            MouseButton panButton = parseMouseButton(settings.panMouseButtonProperty().getValue(), MouseButton.SECONDARY);
+            VisualizerSettings.ModifierKey panModifier = VisualizerSettings.ModifierKey.fromString(
+                    settings.panModifierKeyProperty().getValue(),
+                    VisualizerSettings.ModifierKey.NONE
+            );
+
+            MouseButton rotateButton = parseMouseButton(settings.rotateMouseButtonProperty().getValue(), MouseButton.SECONDARY);
+            VisualizerSettings.ModifierKey rotateModifier = VisualizerSettings.ModifierKey.fromString(
+                    settings.rotateModifierKeyProperty().getValue(),
+                    VisualizerSettings.ModifierKey.NONE
+            );
+
+            boolean doPan = isButtonDown(event, panButton) && isModifierDown(event, panModifier);
+            boolean doRotate = isButtonDown(event, rotateButton) && isModifierDown(event, rotateModifier);
+
+            // If both match (misconfiguration), prefer panning.
+            if (doPan) {
+                // Pan (translate) the 3D scene
+                translate.setX(translate.getX() + dx * 0.5);
+                translate.setY(translate.getY() + dy * 0.5);
+            } else if (doRotate) {
+                // Orbit rotation
+                rotateX.setAngle(rotateX.getAngle() + dy * 0.5);
+                rotateZ.setAngle(rotateZ.getAngle() + dx * 0.5);
             }
 
             mouseOldX = event.getSceneX();
@@ -128,13 +173,15 @@ public class Visualizer extends Pane {
 
         // Zoom with mouse scroll
         subScene.setOnScroll(event -> {
+            boolean invert = VisualizerSettings.getInstance().invertZoomProperty().get();
+            double delta = invert ? -event.getDeltaY() : event.getDeltaY();
+
             if (camera instanceof ParallelCamera) {
-                double scale = root3D.getScaleY() + (event.getDeltaY() / 200f);
+                double scale = root3D.getScaleY() + (delta / 200f);
                 root3D.setScaleX(scale);
                 root3D.setScaleY(scale);
             } else {
-                double zoomFactor = event.getDeltaY();
-                cameraTranslate.setZ(cameraTranslate.getZ() + zoomFactor);
+                cameraTranslate.setZ(cameraTranslate.getZ() + delta);
             }
         });
     }
