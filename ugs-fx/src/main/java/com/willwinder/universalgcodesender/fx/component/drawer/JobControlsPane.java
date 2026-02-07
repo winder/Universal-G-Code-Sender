@@ -29,8 +29,10 @@ import com.willwinder.universalgcodesender.fx.actions.StopAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
+import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
@@ -41,67 +43,123 @@ import static com.willwinder.universalgcodesender.model.events.StreamEventType.S
 import static com.willwinder.universalgcodesender.model.events.StreamEventType.STREAM_STARTED;
 import com.willwinder.universalgcodesender.utils.RefreshThread;
 import javafx.application.Platform;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+import java.util.Optional;
+
 public class JobControlsPane extends VBox {
-    private final Label loadedFileLabel;
-    private final Label progressLabel;
+    private final Label fileNameLabel = new Label("No file loaded");
+    private final Label fileInfoLabel = new Label("");
+    private final Label progressLabel = new Label("00:00:00");
+    private final Label timeLeftLabel = new Label("00:00:00");
+    private final ProgressBar progressBar = new ProgressBar(0);
+    private final Label progressBarLabel = new Label();
     private final BackendAPI backendAPI;
-    private final ProgressBar progressBar;
     private RefreshThread refreshThread;
 
     public JobControlsPane() {
-        super(10);
-        getStylesheets().add(getClass().getResource("/styles/job-controls-pane.css").toExternalForm());
+        super(12);
+        getStyleClass().add("job-card");
+        getStylesheets().add(
+                getClass().getResource("/styles/job-controls-pane.css").toExternalForm()
+        );
 
-        HBox hBox = new HBox();
-        hBox.setAlignment(Pos.CENTER);
-        hBox.setSpacing(10);
-        hBox.setPadding(new Insets(10, 10, 10, 10));
-        loadedFileLabel = new Label("No file loaded");
-        loadedFileLabel.setStyle("-fx-font-weight: bold;");
-        ActionRegistry.getInstance().getAction(OpenFileAction.class.getCanonicalName()).ifPresent(action -> hBox.getChildren().add(createActionButton(action)));
-        hBox.getChildren().add(loadedFileLabel);
-        getChildren().add(hBox);
-
-        progressLabel = new Label("");
-        getChildren().add(progressLabel);
-
-        progressBar = new ProgressBar(0);
-        progressBar.setProgress(0);
-        progressBar.setMaxWidth(200);
-        progressBar.setPadding(new Insets(0, 10, 0, 10));
-
-        getChildren().add(progressBar);
-
-        HBox hbox = new HBox();
-        hbox.setStyle("-fx-spacing: 20; -fx-alignment: center;");
-        ActionRegistry.getInstance().getAction(StartAction.class.getCanonicalName()).ifPresent(action -> hbox.getChildren().add(createActionButton(action)));
-        ActionRegistry.getInstance().getAction(PauseAction.class.getCanonicalName()).ifPresent(action -> hbox.getChildren().add(createActionButton(action)));
-        ActionRegistry.getInstance().getAction(StopAction.class.getCanonicalName()).ifPresent(action -> hbox.getChildren().add(createActionButton(action)));
-        getChildren().add(hbox);
-
-        setAlignment(Pos.CENTER);
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         backendAPI.addUGSEventListener(this::onEvent);
+
+        getChildren().addAll(
+                createFileSection(),
+                createProgressSection(),
+                createControlSection()
+        );
+    }
+
+    private HBox createFileSection() {
+        fileNameLabel.getStyleClass().add("job-file-name");
+        fileInfoLabel.getStyleClass().add("job-file-info");
+
+        setGcodeStats(0, Position.ZERO, Position.ZERO);
+
+        HBox section = new HBox(8);
+        Optional<ActionButton> openButton = ActionRegistry.getInstance()
+                .getAction(OpenFileAction.class.getCanonicalName())
+                .map(action -> createActionButton(action, false, "job-file-open-button"));
+
+        openButton.ifPresent(actionButton -> section.getChildren().add(actionButton));
+
+        section.getChildren().add(new VBox(4, fileNameLabel, fileInfoLabel));
+        section.getStyleClass().add("job-section");
+        section.setAlignment(Pos.CENTER_LEFT);
+        return section;
+    }
+
+    private VBox createProgressSection() {
+        progressBar.setMaxWidth(Double.MAX_VALUE);
+        progressBar.getStyleClass().add("job-progress-bar");
+
+        progressBarLabel.getStyleClass().add("job-progress-text");
+        progressBarLabel.setMouseTransparent(true); // clicks go through
+
+        StackPane progressStack = new StackPane(progressBar, progressBarLabel);
+        StackPane.setAlignment(progressBarLabel, Pos.CENTER);
+
+        HBox labelsRow = new HBox();
+        labelsRow.setAlignment(Pos.CENTER_LEFT);
+        labelsRow.setFillHeight(true);
+
+        HBox.setHgrow(progressLabel, Priority.ALWAYS);
+        progressLabel.setMaxWidth(Double.MAX_VALUE);
+        progressLabel.setAlignment(Pos.CENTER_LEFT);
+        timeLeftLabel.setAlignment(Pos.CENTER_RIGHT);
+        labelsRow.getChildren().addAll(progressLabel, timeLeftLabel);
+
+        VBox box = new VBox(6, progressStack, labelsRow);
+        box.getStyleClass().add("job-section");
+
+        return box;
+    }
+
+    private HBox createControlSection() {
+        HBox box = new HBox(20);
+        box.setAlignment(Pos.CENTER);
+        box.getStyleClass().add("job-controls");
+
+        ActionRegistry.getInstance().getAction(StartAction.class.getCanonicalName())
+                .ifPresent(a -> box.getChildren().add(createActionButton(a, true, "job-controls-button")));
+        ActionRegistry.getInstance().getAction(PauseAction.class.getCanonicalName())
+                .ifPresent(a -> box.getChildren().add(createActionButton(a, true, "job-controls-button")));
+        ActionRegistry.getInstance().getAction(StopAction.class.getCanonicalName())
+                .ifPresent(a -> box.getChildren().add(createActionButton(a, true, "job-controls-button")));
+        return box;
     }
 
     private void onStreamRefresh() {
         Platform.runLater(() -> {
             progressBar.setProgress((double) backendAPI.getNumSentRows() / backendAPI.getNumRows());
-            progressLabel.setText(Utils.formattedMillis(backendAPI.getSendRemainingDuration()));
+            progressLabel.setText(Utils.formattedMillis(backendAPI.getSendDuration()));
+            timeLeftLabel.setText("Time left: " + Utils.formattedMillis(backendAPI.getSendRemainingDuration()));
+            progressBarLabel.setText(String.format("%d / %d (%d%%)", backendAPI.getNumCompletedRows(), backendAPI.getNumRows(), (int) (backendAPI.getNumCompletedRows() * 100 / backendAPI.getNumRows())));
         });
     }
 
     private void onEvent(UGSEvent event) {
         if (event instanceof FileStateEvent) {
-            loadedFileLabel.setText(backendAPI.getGcodeFile() == null ? "No file loaded" : backendAPI.getGcodeFile().getName());
+            if (backendAPI.getGcodeFile() == null) {
+                fileNameLabel.setText("No file loaded");
+                fileInfoLabel.setText("");
+                return;
+            }
+
+            fileNameLabel.setText(backendAPI.getGcodeFile().getName());
+            GcodeStats stats = backendAPI.getGcodeStats();
+            setGcodeStats(backendAPI.getNumRows(), stats.getMin(), stats.getMax());
         } else if (event instanceof StreamEvent streamEvent) {
             StreamEventType streamEventType = streamEvent.getType();
             if (streamEventType == STREAM_STARTED) {
@@ -127,6 +185,17 @@ public class JobControlsPane extends VBox {
         }
     }
 
+    private void setGcodeStats(long numberOfLines, Position min, Position max) {
+        String info = String.format(
+                "%,d lines · %.1f × %.1f mm",
+                numberOfLines,
+                max.getX() - min.getX(),
+                max.getY() - min.getY()
+        );
+
+        fileInfoLabel.setText(info);
+    }
+
     private void setProgressBarColor(Color color) {
         var style = "-fx-background-color: " + toWebHex(color) + ";";
         progressBar.lookup(".bar").setStyle(style);
@@ -139,7 +208,9 @@ public class JobControlsPane extends VBox {
         return String.format("#%02X%02X%02X", r, g, b);
     }
 
-    private static ActionButton createActionButton(Action action) {
-        return new ActionButton(action, 24, false);
+    private static ActionButton createActionButton(Action action, boolean showText, String className) {
+        ActionButton actionButton = new ActionButton(action, 24, showText);
+        actionButton.getStyleClass().add(className);
+        return actionButton;
     }
 }
