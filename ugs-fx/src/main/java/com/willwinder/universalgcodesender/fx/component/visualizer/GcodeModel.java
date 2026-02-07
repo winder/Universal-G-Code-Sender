@@ -139,41 +139,58 @@ public class GcodeModel extends Group {
             mesh.getTexCoords().addAll(uv[0], uv[1]);
         }
 
-        for (int i = 0; i < lineSegments.size(); i++) {
-            LineSegment lineSegment = lineSegments.get(i);
-            Point3D p1 = toPoint(lineSegment.getStart().getPositionIn(UnitUtils.Units.MM));
-            Point3D p2 = toPoint(lineSegment.getEnd().getPositionIn(UnitUtils.Units.MM));
+        float r = lineWidth;
 
-            // Compute direction and a perpendicular vector for width
+        for (int i = 0; i < lineSegments.size(); i++) {
+            LineSegment segment = lineSegments.get(i);
+
+            Point3D p1 = toPoint(segment.getStart().getPositionIn(UnitUtils.Units.MM));
+            Point3D p2 = toPoint(segment.getEnd().getPositionIn(UnitUtils.Units.MM));
+
             Point3D dir = p2.substract(p1).normalize();
-            Point3D perp = dir.crossProduct(ZERO.add(0, 0, 1)).normalize().multiply(lineWidth);
-            if (perp.magnitude() == 0) { // If dir is parallel to Z, use X axis
-                perp = new Point3D(lineWidth, 0, lineWidth);
+
+            // Pick a stable reference vector
+            Point3D ref = Math.abs(dir.getZ()) > 0.9
+                    ? new Point3D(1, 0, 0)
+                    : new Point3D(0, 0, 1);
+
+            Point3D normal = dir.crossProduct(ref).normalize();
+            Point3D binormal = dir.crossProduct(normal).normalize();
+
+            // Triangle cross-section (120° apart)
+            Point3D[] offsets = new Point3D[]{
+                    normal.multiply(r),
+                    normal.multiply(-0.5f * r).add(binormal.multiply((float) Math.sqrt(3) * 0.5f * r)),
+                    normal.multiply(-0.5f * r).substract(binormal.multiply((float) Math.sqrt(3) * 0.5f * r))
+            };
+
+            int base = mesh.getPoints().size() / 3;
+
+            // Add vertices
+            for (Point3D o : offsets) {
+                Point3D a = p1.add(o);
+                mesh.getPoints().addAll(a.getX(), a.getY(), a.getZ());
             }
 
-            // Add 4 points for the rectangle
-            int baseIndex = mesh.getPoints().size() / 3;
+            for (Point3D o : offsets) {
+                Point3D b = p2.add(o);
+                mesh.getPoints().addAll(b.getX(), b.getY(), b.getZ());
+            }
 
+            material.setLineColor(i, getColor(segment));
 
-            Point3D p1a = p1.add(perp);
-            Point3D p1b = p1.substract(perp);
-            Point3D p2a = p2.add(perp);
-            Point3D p2b = p2.substract(perp);
+            // Side faces (6 triangles)
+            for (int j = 0; j < 3; j++) {
+                int a0 = base + j;
+                int a1 = base + (j + 1) % 3;
+                int b0 = base + j + 3;
+                int b1 = base + (j + 1) % 3 + 3;
 
-            material.setLineColor(i, getColor(lineSegment));
-
-            // Two triangles per segment to create a rectangle
-            mesh.getFaces().addAll(
-                    baseIndex, i, baseIndex + 2, i, baseIndex + 1, i,
-                    baseIndex + 2, i, baseIndex + 3, i, baseIndex + 1, i
-            );
-
-            mesh.getPoints().addAll(
-                    p1a.getX(), p1a.getY(), p1a.getZ(),
-                    p1b.getX(), p1b.getY(), p1b.getZ(),
-                    p2a.getX(), p2a.getY(), p2a.getZ(),
-                    p2b.getX(), p2b.getY(), p2b.getZ()
-            );
+                mesh.getFaces().addAll(
+                        a0, i, b0, i, a1, i,
+                        a1, i, b0, i, b1, i
+                );
+            }
         }
 
         material.reset();
