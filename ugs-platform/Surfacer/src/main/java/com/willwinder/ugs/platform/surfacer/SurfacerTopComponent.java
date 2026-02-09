@@ -27,7 +27,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
-import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
@@ -71,8 +71,8 @@ public final class SurfacerTopComponent extends TopComponent implements UGSEvent
     private static final Gcode gcode = new Gcode();
     private transient final BackendAPI backend;
     
-    private TextFieldUnit units = TextFieldUnit.MM;
-    private TextFieldUnit rateUnits = TextFieldUnit.MM_PER_MINUTE;
+    private Unit units = Unit.MM;
+    private Unit rateUnits = Unit.MM_PER_MINUTE;
     
     public SurfacerTopComponent() {
         initComponents();
@@ -99,8 +99,8 @@ public final class SurfacerTopComponent extends TopComponent implements UGSEvent
         }
     }
     
-    private double mmToUnits(double mmvalue) { return (units == TextFieldUnit.MM) ? mmvalue : mmvalue / 25.4; }
-    private double unitsToMM(double value) { return (units == TextFieldUnit.MM) ? value : value * 25.4; }
+    private double mmToUnits(double mmvalue) { return (units == Unit.MM) ? mmvalue : mmvalue / 25.4; }
+    private double unitsToMM(double value) { return (units == Unit.MM) ? value : value * 25.4; }
 
     private void updateSpinnerToUnits(UnitSpinner spinner, String key, Double _default) {
         double value = mmToUnits(PREFS.getDouble(key, _default));
@@ -109,8 +109,8 @@ public final class SurfacerTopComponent extends TopComponent implements UGSEvent
     }
 
     private void updateControls() {
-        units = backend.getSettings().getPreferredUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
-        rateUnits = (units == TextFieldUnit.MM) ? TextFieldUnit.MM_PER_MINUTE : TextFieldUnit.INCHES_PER_MINUTE;
+        units = backend.getSettings().getPreferredUnits() == UnitUtils.Units.MM ? Unit.MM : Unit.INCH;
+        rateUnits = (units == Unit.MM) ? Unit.MM_PER_MINUTE : Unit.INCHES_PER_MINUTE;
 
         cbPattern.setSelectedIndex(PREFS.getInt(Prefs.KEY_PATTERN, Prefs.DEFAULT_PATTERN));
         setPatternControls(PREFS.getInt(Prefs.KEY_PATTERN, Prefs.DEFAULT_PATTERN));
@@ -245,7 +245,7 @@ public final class SurfacerTopComponent extends TopComponent implements UGSEvent
         cbPattern = new javax.swing.JComboBox<>();
         jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
-        sAngle = new UnitSpinner(0, TextFieldUnit.DEGREE, 0d, 90d, 1d);
+        sAngle = new UnitSpinner(0, Unit.DEGREE, 0d, 90d, 1d);
         rbClimbCut = new javax.swing.JRadioButton();
         rbConventionalCut = new javax.swing.JRadioButton();
         pnlZ = new javax.swing.JPanel();
@@ -270,10 +270,10 @@ public final class SurfacerTopComponent extends TopComponent implements UGSEvent
         jLabel1 = new javax.swing.JLabel();
         sToolDiameter = new UnitSpinner(0, units, 0.d, null, 0.1d);
         jLabel6 = new javax.swing.JLabel();
-        sOverlap = new UnitSpinner(0.3, TextFieldUnit.PERCENT, 0.d, 0.99d, 0.01d);
+        sOverlap = new UnitSpinner(0.3, Unit.PERCENT, 0.d, 0.99d, 0.01d);
         sXYFeedrate = new UnitSpinner(0, rateUnits, 0d, null, 1d);
         jLabel14 = new javax.swing.JLabel();
-        sSpindleSpeed = new UnitSpinner(10000, TextFieldUnit.ROTATIONS_PER_MINUTE, 0.d, 10000.d, 100.d);
+        sSpindleSpeed = new UnitSpinner(10000, Unit.REVOLUTIONS_PER_MINUTE, 0.d, 10000.d, 100.d);
         jLabel15 = new javax.swing.JLabel();
         bExport = new javax.swing.JButton();
 

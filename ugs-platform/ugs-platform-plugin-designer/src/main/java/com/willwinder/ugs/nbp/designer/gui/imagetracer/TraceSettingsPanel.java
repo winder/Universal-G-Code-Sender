@@ -18,9 +18,8 @@
  */
 package com.willwinder.ugs.nbp.designer.gui.imagetracer;
 
-import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
-import java.awt.Dimension;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JLabel;
@@ -32,10 +31,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.Color;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
@@ -59,11 +54,11 @@ public class TraceSettingsPanel extends JPanel {
     
     private final JCheckBox invertDepthmap = new JCheckBox("Invert Z-Axis", false);
     private final JCheckBox cutLayerContents = new JCheckBox("Cut Layer Contents", false);
-    private final TextFieldWithUnit minimumDetailSize = new TextFieldWithUnit(TextFieldUnit.MM, 2, 1);
+    private final TextFieldWithUnit minimumDetailSize = new TextFieldWithUnit(Unit.MM, 2, 1);
     
     private final List<ChangeListener> changeListeners = new ArrayList<>();
-    private final TextFieldWithUnit startDepth = new TextFieldWithUnit(TextFieldUnit.MM, 2, 0 /* Default Value Here*/);
-    private final TextFieldWithUnit targetDepth = new TextFieldWithUnit(TextFieldUnit.MM, 2, 10 /* Default Value Here*/);
+    private final TextFieldWithUnit startDepth = new TextFieldWithUnit(Unit.MM, 2, 0 /* Default Value Here*/);
+    private final TextFieldWithUnit targetDepth = new TextFieldWithUnit(Unit.MM, 2, 10 /* Default Value Here*/);
 
     private final JLabel lblColors = new JLabel("Layer Count");
     private final JLabel lblColorsStart = new JLabel("Color range start");

@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.utils.MathUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,15 +31,15 @@ import java.text.ParseException;
  */
 public class TextFieldUnitFormatter extends JFormattedTextField.AbstractFormatter {
 
-    private final TextFieldUnit unit;
+    private final Unit unit;
     private final int numberOfDecimals;
     private final boolean showAbbreviation;
 
-    public TextFieldUnitFormatter(TextFieldUnit unit, int numberOfDecimals) {
+    public TextFieldUnitFormatter(Unit unit, int numberOfDecimals) {
         this(unit, numberOfDecimals, true);
     }
 
-    public TextFieldUnitFormatter(TextFieldUnit unit, int numberOfDecimals, boolean showAbbreviation) {
+    public TextFieldUnitFormatter(Unit unit, int numberOfDecimals, boolean showAbbreviation) {
         this.unit = unit;
         this.numberOfDecimals = numberOfDecimals;
         this.showAbbreviation = showAbbreviation;
@@ -46,17 +47,17 @@ public class TextFieldUnitFormatter extends JFormattedTextField.AbstractFormatte
 
     @Override
     public Object stringToValue(String text) throws ParseException {
-        String value = StringUtils.removeEnd(text, TextFieldUnit.MM.getAbbreviation());
+        String value = StringUtils.removeEnd(text, Unit.MM.getAbbreviation());
         value = StringUtils.replace(value, ",", ".");
-        value = StringUtils.removeEnd(value, TextFieldUnit.INCH.getAbbreviation());
-        value = StringUtils.removeEnd(value, TextFieldUnit.INCHES_PER_MINUTE.getAbbreviation());
-        value = StringUtils.removeEnd(value, TextFieldUnit.MM_PER_MINUTE.getAbbreviation());
-        value = StringUtils.removeEnd(value, TextFieldUnit.ROTATIONS_PER_MINUTE.getAbbreviation());
-        value = StringUtils.removeEnd(value, TextFieldUnit.PERCENT.getAbbreviation());
+        value = StringUtils.removeEnd(value, Unit.INCH.getAbbreviation());
+        value = StringUtils.removeEnd(value, Unit.INCHES_PER_MINUTE.getAbbreviation());
+        value = StringUtils.removeEnd(value, Unit.MM_PER_MINUTE.getAbbreviation());
+        value = StringUtils.removeEnd(value, Unit.REVOLUTIONS_PER_MINUTE.getAbbreviation());
+        value = StringUtils.removeEnd(value, Unit.PERCENT.getAbbreviation());
         value = StringUtils.trim(value);
         double numericValue = MathUtils.round(Utils.formatter.parse(value).doubleValue(), numberOfDecimals);
 
-        if (unit == TextFieldUnit.PERCENT) {
+        if (unit == Unit.PERCENT) {
             numericValue = numericValue / 100d;
         }
         return numericValue;
@@ -65,7 +66,7 @@ public class TextFieldUnitFormatter extends JFormattedTextField.AbstractFormatte
     @Override
     public String valueToString(Object text) throws ParseException {
         double value = Utils.formatter.parse(text.toString()).doubleValue();
-        if (unit == TextFieldUnit.PERCENT) {
+        if (unit == Unit.PERCENT) {
             value = value * 100d;
         }
 

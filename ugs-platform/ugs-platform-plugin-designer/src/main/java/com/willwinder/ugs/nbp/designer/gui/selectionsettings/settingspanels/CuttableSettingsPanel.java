@@ -31,7 +31,7 @@ import com.willwinder.ugs.nbp.designer.gui.CutTypeCombo;
 import com.willwinder.ugs.nbp.designer.gui.DirectionCombo;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.uielements.components.PercentSpinner;
 import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
@@ -81,15 +81,15 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
 
     private void initializeComponents() {
         cutTypeComboBox = new CutTypeCombo();
-        startDepthSpinner = new UnitSpinner(0, TextFieldUnit.MM, -10000d, 10000d, 0.1d);
-        targetDepthSpinner = new UnitSpinner(0, TextFieldUnit.MM, -10000d, 10000d, 0.1d);
+        startDepthSpinner = new UnitSpinner(0, Unit.MM, -10000d, 10000d, 0.1d);
+        targetDepthSpinner = new UnitSpinner(0, Unit.MM, -10000d, 10000d, 0.1d);
         spindleSpeedSpinner = new PercentSpinner(0.5d, 0d);
-        feedRateSpinner = new UnitSpinner(100, TextFieldUnit.MM_PER_MINUTE, 50d, 10000d, 10d);
+        feedRateSpinner = new UnitSpinner(100, Unit.MM_PER_MINUTE, 50d, 10000d, 10d);
 
         passesSlider = createSlider(0, 10, 1, 1, 5);
 
         leadInPercentSlider = createSlider(0, 300, 0, 50, 100);
-        toolPathAngleSpinner = new UnitSpinner(0, TextFieldUnit.DEGREE, 0d, 360d, 5d);
+        toolPathAngleSpinner = new UnitSpinner(0, Unit.DEGREE, 0d, 360d, 5d);
         directionCombo = new DirectionCombo();
 
         includeInExport = new JCheckBox();

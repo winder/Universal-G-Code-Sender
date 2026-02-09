@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.model.Unit;
 
 import javax.swing.JFormattedTextField;
 import javax.swing.text.DefaultFormatterFactory;
@@ -28,7 +29,7 @@ import java.text.ParseException;
  * @author Joacim Breiler
  */
 public class TextFieldWithUnit extends JFormattedTextField {
-    public TextFieldWithUnit(TextFieldUnit unit, int numberOfDecimals, double value) {
+    public TextFieldWithUnit(Unit unit, int numberOfDecimals, double value) {
         super(new DefaultFormatterFactory(
                 new TextFieldUnitFormatter(unit, numberOfDecimals),
                 new TextFieldUnitFormatter(unit, numberOfDecimals),
