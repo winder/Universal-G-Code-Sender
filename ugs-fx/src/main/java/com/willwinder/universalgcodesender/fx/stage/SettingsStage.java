@@ -1,6 +1,25 @@
+/*
+    Copyright 2026 Joacim Breiler
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.fx.stage;
 
 import com.willwinder.universalgcodesender.fx.component.SettingsListCell;
+import com.willwinder.universalgcodesender.fx.component.settings.ProbeSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.FirmwareSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.GeneralSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.KeyboardSettingPane;
@@ -61,7 +80,7 @@ public class SettingsStage extends Stage {
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.firmware"), "icons/microchip.svg", new FirmwareSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.machineStatus"), "icons/position.svg", new MachineStatusSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("platform.menu.macros"), "icons/robot.svg", new MacroSettingsPane()));
-        //sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.probe"), "icons/probe.svg", new Label(Localization.getString("settings.probe"))));
+        sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.probe"), "icons/probe.svg", new ProbeSettingsPane()));
         //sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.gamepad"), "icons/gamepad.svg", new Label(Localization.getString("platform.gamepad"))));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.terminal"), "icons/terminal.svg", new TerminalSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("mainWindow.swing.pendant"), "resources/icons/pendant.svg", new PendantSettingsPane()));

@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.CommandListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -69,6 +70,18 @@ public class ControllerUtils {
         }
 
         return command;
+    }
+
+    /**
+     * Sends a command and blocks the thread until the command is done - either with an ok or error.
+     *
+     * @param controller       the controller to send the command through
+     * @param command          a command to send
+     * @param maxExecutionTime the max time to wait before throwing a timeout error
+     * @throws InterruptedException if the command could not be sent or a timeout occurred
+     */
+    public static <T extends GcodeCommand> T sendAndWaitForCompletion(IController controller, T command, Duration maxExecutionTime) throws InterruptedException {
+        return sendAndWaitForCompletion(controller, command, maxExecutionTime.toMillis());
     }
 
     /**
@@ -189,7 +202,7 @@ public class ControllerUtils {
      * position has been passed. If soft limits are disabled in the controller this will return zero.
      *
      * @param controller the current controller
-     * @param axis the axis to get the position for
+     * @param axis       the axis to get the position for
      * @return the distance in mm.
      */
     public static double getDistanceToSoftLimit(IController controller, Axis axis) {

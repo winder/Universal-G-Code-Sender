@@ -135,6 +135,14 @@
     -fx-border-color: #c2c2c2;
 }
 
+/**
+ * Unit text field
+ */
+.unit-text-field .unit-label {
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-opacity: 0.4;
+    -fx-padding: 0 6 0 6; /* a bit of breathing room */
+}
 
 /**
  * Button box

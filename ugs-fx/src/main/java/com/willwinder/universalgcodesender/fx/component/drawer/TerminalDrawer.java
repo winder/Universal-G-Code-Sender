@@ -1,3 +1,21 @@
+/*
+    Copyright 2026 Joacim Breiler
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.fx.component.drawer;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
@@ -19,24 +37,26 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TerminalPane extends BorderPane {
-    private static final Logger LOGGER = Logger.getLogger(TerminalPane.class.getCanonicalName());
+public class TerminalDrawer extends Drawer {
+    private static final Logger LOGGER = Logger.getLogger(TerminalDrawer.class.getCanonicalName());
     private final StyleClassedTextArea logArea = new StyleClassedTextArea();
 
     private final TextField inputField = new TextField();
     private final BackendAPI backend;
 
-    public TerminalPane() {
+    public TerminalDrawer() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BorderPane borderPane = new BorderPane();
 
         getStylesheets().add(getClass().getResource("/styles/terminal-pane.css").toExternalForm());
         setupLogArea();
         setupInputField();
 
-        setCenter(new VirtualizedScrollPane<>(logArea));
-        setBottom(inputField);
-        BorderPane.setMargin(inputField, new Insets(0, 0, 10, 0));
 
+        borderPane.setCenter(new VirtualizedScrollPane<>(logArea));
+        borderPane.setBottom(inputField);
+        BorderPane.setMargin(inputField, new Insets(0, 0, 10, 0));
+        getChildren().add(borderPane);
         backend.addUGSEventListener(this::onEvent);
         backend.addMessageListener(this::onMessage);
     }
@@ -97,5 +117,10 @@ public class TerminalPane extends BorderPane {
                 }
             }
         });
+    }
+
+    @Override
+    public void setActive(boolean active) {
+
     }
 }

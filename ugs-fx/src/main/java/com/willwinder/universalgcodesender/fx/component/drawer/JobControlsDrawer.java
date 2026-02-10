@@ -1,5 +1,5 @@
 /*
-    Copyright 2025 Joacim Breiler
+    Copyright 2025-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -54,7 +54,7 @@ import javafx.scene.paint.Color;
 
 import java.util.Optional;
 
-public class JobControlsPane extends VBox {
+public class JobControlsDrawer extends Drawer {
     private final Label fileNameLabel = new Label("No file loaded");
     private final Label fileInfoLabel = new Label("");
     private final Label progressLabel = new Label("00:00:00");
@@ -64,8 +64,9 @@ public class JobControlsPane extends VBox {
     private final BackendAPI backendAPI;
     private RefreshThread refreshThread;
 
-    public JobControlsPane() {
-        super(12);
+    public JobControlsDrawer() {
+        VBox vBox = new VBox(12);
+
         getStyleClass().add("job-card");
         getStylesheets().add(
                 getClass().getResource("/styles/job-controls-pane.css").toExternalForm()
@@ -74,11 +75,12 @@ public class JobControlsPane extends VBox {
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         backendAPI.addUGSEventListener(this::onEvent);
 
-        getChildren().addAll(
+        vBox.getChildren().addAll(
                 createFileSection(),
                 createProgressSection(),
                 createControlSection()
         );
+        getChildren().add(vBox);
     }
 
     private HBox createFileSection() {
@@ -212,5 +214,10 @@ public class JobControlsPane extends VBox {
         ActionButton actionButton = new ActionButton(action, 24, showText);
         actionButton.getStyleClass().add(className);
         return actionButton;
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        // Ignore
     }
 }

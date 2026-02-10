@@ -16,13 +16,25 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.fx;
+package com.willwinder.universalgcodesender.types;
+
+import com.willwinder.universalgcodesender.model.Position;
+
+import java.util.Optional;
 
 /**
- * This starter class is needed to start the application from the IDE
+ * A base class for probe commands that are responsible for
+ * parsing the probed coordinate
  */
-public class Starter {
-    public static void main(String[] args) {
-        Main.main(args);
+public abstract class ProbeGcodeCommand extends GcodeCommand{
+    public ProbeGcodeCommand(String command) {
+        super(command);
     }
+
+    /**
+     * Returns the probed machine position
+     *
+     * @return an optional position
+     */
+    public abstract Optional<Position> getProbedPosition();
 }

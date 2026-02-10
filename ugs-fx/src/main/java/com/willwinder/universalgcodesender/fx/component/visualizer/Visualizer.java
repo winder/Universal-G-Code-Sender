@@ -1,10 +1,32 @@
+/*
+    Copyright 2026 Joacim Breiler
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machine;
+import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
+import com.willwinder.universalgcodesender.fx.service.VisualizerService;
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Point3D;
 import javafx.scene.AmbientLight;
 import javafx.scene.Camera;
@@ -25,6 +47,7 @@ import javafx.util.Duration;
 
 public class Visualizer extends Pane {
     private final Camera camera;
+    private final Group worldGroup;
     private double mouseOldX;
     private double mouseOldY;
 
@@ -42,8 +65,8 @@ public class Visualizer extends Pane {
         // Rotate group contains 3D objects
         Tool tool = new Tool();
         Machine machine = new Machine();
-        Group rotateGroup = new Group(new Axes(), new Grid(), new GcodeModel(), tool, machine);
-        rotateGroup.getTransforms().addAll(rotateX, rotateY, rotateZ);
+        worldGroup = new Group(new Axes(), new Grid(), new GcodeModel(), tool, machine);
+        worldGroup.getTransforms().addAll(rotateX, rotateY, rotateZ);
 
         // Lighting
         DirectionalLight light = new DirectionalLight(Color.WHITE);
@@ -60,7 +83,7 @@ public class Visualizer extends Pane {
 
         // Root group applies panning
         AmbientLight ambient = new AmbientLight(Color.rgb(255, 255, 255));
-        root3D = new Group(rotateGroup, ambient, light, spotLight);
+        root3D = new Group(worldGroup, ambient, light, spotLight);
         root3D.getTransforms().add(translate);
 
         subScene = new SubScene(root3D, 800, 600, true, SceneAntialiasing.BALANCED);
@@ -78,6 +101,20 @@ public class Visualizer extends Pane {
         orientationCube.layoutYProperty().set(5);
 
         getChildren().addAll(subScene, orientationCube);
+
+        // Add new models added through the visualizer service
+        VisualizerService.getInstance().getModels().addListener((ListChangeListener<Model>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    worldGroup.getChildren().addAll(change.getAddedSubList());
+                    spotLight.getScope().addAll(change.getAddedSubList());
+                }
+                if (change.wasRemoved()) {
+                    worldGroup.getChildren().removeAll(change.getRemoved());
+                    spotLight.getScope().removeAll(change.getRemoved());
+                }
+            }
+        });
     }
 
     private void rotateTo(OrientationCubeFace face) {

@@ -1,8 +1,27 @@
+/*
+    Copyright 2026 Joacim Breiler
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import static com.willwinder.universalgcodesender.fx.helper.Colors.blend;
 import static com.willwinder.universalgcodesender.fx.helper.Colors.interpolate;
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -36,7 +55,6 @@ import java.util.logging.Logger;
 
 public class GcodeModel extends Group {
     private static final Logger LOGGER = Logger.getLogger(GcodeModel.class.getName());
-    public static final Point3D ZERO = new Point3D(0, 0, 0);
     public static final double ARC_SEGMENT_LENGTH = 0.8;
     private final GcodeViewParse gcvp;
     private final MeshView meshView;

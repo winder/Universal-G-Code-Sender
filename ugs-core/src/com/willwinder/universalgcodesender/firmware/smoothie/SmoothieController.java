@@ -40,7 +40,9 @@ import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_I
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.UnitValue;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.types.ProbeGcodeCommand;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
 import com.willwinder.universalgcodesender.firmware.DefaultOverrideManager;
 import com.willwinder.universalgcodesender.firmware.IOverrideManager;
@@ -276,6 +278,11 @@ public class SmoothieController extends AbstractController {
     @Override
     public IOverrideManager getOverrideManager() {
         return new DefaultOverrideManager();
+    }
+
+    @Override
+    public ProbeGcodeCommand createProbeCommand(PartialPosition distance, UnitValue feedRate) {
+        throw new UnsupportedOperationException("Not supported yet");
     }
 
     @Override

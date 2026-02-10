@@ -39,7 +39,6 @@ import com.willwinder.universalgcodesender.firmware.IOverrideManager;
 import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.DISABLE_ECHO_COMMAND;
 import static com.willwinder.universalgcodesender.firmware.fluidnc.FluidNCUtils.GRBL_COMPABILITY_VERSION;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.DetectEchoCommand;
-import com.willwinder.universalgcodesender.firmware.fluidnc.commands.DetectHardLimitCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.FluidNCCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetAlarmCodesCommand;
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetBuildInfoCommand;
@@ -50,6 +49,7 @@ import com.willwinder.universalgcodesender.firmware.fluidnc.commands.GetStatusCo
 import com.willwinder.universalgcodesender.firmware.fluidnc.commands.SystemCommand;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblCapabilitiesConstants;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblOverrideManager;
+import com.willwinder.universalgcodesender.firmware.grbl.commands.GrblProbeCommand;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.ICommandCreator;
@@ -59,7 +59,6 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
-import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
@@ -68,9 +67,11 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
+import com.willwinder.universalgcodesender.model.UnitValue;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.CommandException;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.types.ProbeGcodeCommand;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
 import static com.willwinder.universalgcodesender.utils.ControllerUtils.sendAndWaitForCompletion;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
@@ -152,7 +153,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     }
 
     @Override
-    public void returnToHome(double safetyHeightInMm) throws Exception {
+    public void returnToHome(double safetyHeightInMm) {
         if (!isIdle()) {
             return;
         }
@@ -221,7 +222,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     }
 
     @Override
-    public void viewParserState() throws Exception {
+    public void viewParserState() {
         if (isCommOpen()) {
             sendCommandImmediately(new FluidNCCommand(GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND));
         }
@@ -396,7 +397,7 @@ public class FluidNCController implements IController, ICommunicatorListener {
     }
 
     @Override
-    public Boolean isReadyToStreamFile() throws Exception {
+    public Boolean isReadyToStreamFile() {
         return controllerStatus.getState() == ControllerState.IDLE;
     }
 
@@ -903,5 +904,10 @@ public class FluidNCController implements IController, ICommunicatorListener {
     @Override
     public IOverrideManager getOverrideManager() {
         return overrideManager;
+    }
+
+    @Override
+    public ProbeGcodeCommand createProbeCommand(PartialPosition distance, UnitValue feedRate) {
+        return new GrblProbeCommand(distance, feedRate);
     }
 }

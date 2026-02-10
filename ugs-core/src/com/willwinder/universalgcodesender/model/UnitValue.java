@@ -16,13 +16,19 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.fx;
+package com.willwinder.universalgcodesender.model;
 
 /**
- * This starter class is needed to start the application from the IDE
+ * Represents a value with a unit.
+ *
+ * @author Joacim Breiler
  */
-public class Starter {
-    public static void main(String[] args) {
-        Main.main(args);
+public record UnitValue(Unit unit, Number value) {
+    public Number convertTo(Unit unit) {
+        return value().doubleValue() * this.unit.getInStandardUnit() / unit.getInStandardUnit();
+    }
+
+    public UnitValue invert() {
+        return new UnitValue(unit, -value.doubleValue());
     }
 }

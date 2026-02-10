@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
-import com.willwinder.universalgcodesender.fx.component.visualizer.VisualizerSettings;
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import javafx.event.ActionEvent;
 

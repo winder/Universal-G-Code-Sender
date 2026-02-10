@@ -74,7 +74,8 @@ public class PartialPosition {
 
     /**
      * Creates a partial position with only one axis
-     * @param axis the axis to set
+     *
+     * @param axis  the axis to set
      * @param value the position
      * @param units the units of the position
      * @return a partial position
@@ -90,6 +91,12 @@ public class PartialPosition {
 
     public static PartialPosition fromXY(Position position) {
         return new PartialPosition(position.getX(), position.getY(), position.getUnits());
+    }
+
+    public static PartialPosition from(Axis axis, UnitValue position) {
+        return builder(position.unit() == Unit.MM ? UnitUtils.Units.MM : UnitUtils.Units.INCH)
+                .setValue(axis, position.value().doubleValue())
+                .build();
     }
 
 
@@ -159,7 +166,7 @@ public class PartialPosition {
         return c;
     }
 
-    public UnitUtils.Units getUnits(){
+    public UnitUtils.Units getUnits() {
         return units;
     }
 
@@ -431,6 +438,6 @@ public class PartialPosition {
 
     @Override
     public String toString() {
-        return "PartialPosition{" + getFormattedGCode() + " ["+ units + "]}";
+        return "PartialPosition{" + getFormattedGCode() + " [" + units + "]}";
     }
 }

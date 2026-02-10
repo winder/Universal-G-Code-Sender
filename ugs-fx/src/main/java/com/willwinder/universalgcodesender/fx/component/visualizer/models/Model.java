@@ -16,13 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.fx;
+package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
-/**
- * This starter class is needed to start the application from the IDE
- */
-public class Starter {
-    public static void main(String[] args) {
-        Main.main(args);
-    }
+import javafx.scene.Group;
+
+public abstract class Model extends Group {
 }

@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.firmware.grbl.GrblCommandLogger;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettingsInterceptor;
 import com.willwinder.universalgcodesender.firmware.grbl.GrblOverrideManager;
+import com.willwinder.universalgcodesender.firmware.grbl.commands.GrblProbeCommand;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -44,9 +45,11 @@ import static com.willwinder.universalgcodesender.model.CommunicatorState.COMM_I
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.model.UnitValue;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
+import com.willwinder.universalgcodesender.types.ProbeGcodeCommand;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -535,6 +538,11 @@ public class GrblController extends AbstractController {
     @Override
     public IOverrideManager getOverrideManager() {
         return overrideManager;
+    }
+
+    @Override
+    public ProbeGcodeCommand createProbeCommand(PartialPosition distance, UnitValue feedRate) {
+        return new GrblProbeCommand(distance, feedRate);
     }
 
     // No longer a listener event

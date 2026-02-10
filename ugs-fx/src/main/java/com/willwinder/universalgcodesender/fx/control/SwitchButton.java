@@ -16,13 +16,25 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.fx;
+package com.willwinder.universalgcodesender.fx.control;
 
-/**
- * This starter class is needed to start the application from the IDE
- */
-public class Starter {
-    public static void main(String[] args) {
-        Main.main(args);
+import javafx.scene.layout.Region;
+
+import java.util.Objects;
+
+public class SwitchButton extends javafx.scene.control.ToggleButton {
+    public SwitchButton() {
+        super();
+        getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/switch-button.css")).toExternalForm());
+        getStyleClass().add("switch-button");
+
+        Region thumb = new Region();
+        thumb.getStyleClass().add("thumb");
+        setGraphic(thumb);
+    }
+
+    public SwitchButton(boolean selected) {
+        this();
+        setSelected(selected);
     }
 }

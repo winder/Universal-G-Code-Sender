@@ -31,6 +31,7 @@ import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.JogActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.MacroActionService;
 import com.willwinder.universalgcodesender.fx.service.ShortcutService;
+import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;

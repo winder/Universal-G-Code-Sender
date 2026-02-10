@@ -16,13 +16,30 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.fx;
+package com.willwinder.universalgcodesender.fx.service;
 
-/**
- * This starter class is needed to start the application from the IDE
- */
-public class Starter {
-    public static void main(String[] args) {
-        Main.main(args);
+import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+public class VisualizerService {
+    private static final VisualizerService INSTANCE = new VisualizerService();
+
+    private final ObservableList<Model> models = FXCollections.observableArrayList();
+
+    public static VisualizerService getInstance() {
+        return INSTANCE;
+    }
+
+    public ObservableList<Model> getModels() {
+        return models;
+    }
+
+    public void addModel(Model model) {
+        models.add(model);
+    }
+
+    public void removeModel(Model model) {
+        models.remove(model);
     }
 }

@@ -16,13 +16,19 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.fx;
+package com.willwinder.universalgcodesender.fx.component.drawer;
 
-/**
- * This starter class is needed to start the application from the IDE
- */
-public class Starter {
-    public static void main(String[] args) {
-        Main.main(args);
+import javafx.scene.layout.StackPane;
+
+public abstract class Drawer extends StackPane {
+    public Drawer() {
+        setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
     }
+
+    /**
+     * Is set to true if the drawer is currently opened
+     *
+     * @param active set to true if open
+     */
+    public abstract void setActive(boolean active);
 }

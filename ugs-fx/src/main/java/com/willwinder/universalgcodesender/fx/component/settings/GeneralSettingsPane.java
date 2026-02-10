@@ -1,5 +1,5 @@
 /*
-    Copyright 2025 Joacim Breiler
+    Copyright 2025-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,7 +19,7 @@
 package com.willwinder.universalgcodesender.fx.component.settings;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.fx.Settings;
+import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.i18n.AvailableLanguages;
 import com.willwinder.universalgcodesender.i18n.Language;
 import com.willwinder.universalgcodesender.i18n.Localization;

@@ -23,7 +23,7 @@ import com.willwinder.ugs.platform.probe.ProbeSettings;
 import com.willwinder.ugs.platform.probe.actions.ProbeHoleCenterAction;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
 
@@ -39,7 +39,7 @@ public class ProbeHoleCenterPanel extends JPanel {
     private final UnitSpinner hcDiameterSpinner;
 
     public ProbeHoleCenterPanel() {
-        var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
+        var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? Unit.MM : Unit.INCH;
         hcDiameterSpinner = new UnitSpinner(ProbeSettings.getHcDiameter(), units);
 
         createLayout();
@@ -69,7 +69,7 @@ public class ProbeHoleCenterPanel extends JPanel {
 
     private void onSettingsChanged(PreferenceChangeEvent e) {
         if (e.getKey().endsWith(ProbeSettings.SETTINGS_UNITS)) {
-            var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
+            var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? Unit.MM : Unit.INCH;
             hcDiameterSpinner.setUnits(units);
         } else if (e.getKey().equals(ProbeSettings.HC_DIAMETER)) {
             hcDiameterSpinner.setValue(ProbeSettings.getHcDiameter());

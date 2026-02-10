@@ -16,13 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.fx;
+package com.willwinder.universalgcodesender.fx.exceptions;
 
-/**
- * This starter class is needed to start the application from the IDE
- */
-public class Starter {
-    public static void main(String[] args) {
-        Main.main(args);
+public class ProbeException extends Exception {
+    public ProbeException(String message) {
+        super(message);
+    }
+
+    public ProbeException(String message, Exception exception) {
+        super(message, exception);
     }
 }

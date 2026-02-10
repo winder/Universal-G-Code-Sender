@@ -28,7 +28,7 @@ import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G56
 import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G57;
 import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G58;
 import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G59;
-import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
 
@@ -49,8 +49,8 @@ public class SettingsPanel extends JPanel {
     private final JCheckBox settingsCompensateForSoftLimits;
 
     public SettingsPanel() {
-        var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
-        var rateUnits = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM_PER_MINUTE : TextFieldUnit.INCHES_PER_MINUTE;
+        var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? Unit.MM : Unit.INCH;
+        var rateUnits = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? Unit.MM_PER_MINUTE : Unit.INCHES_PER_MINUTE;
 
         settingsWorkCoordinate = new JComboBox<>(new WorkCoordinateSystem[]{G54, G55, G56, G57, G58, G59});
         settingsWorkCoordinate.setSelectedItem(ProbeSettings.getSettingsWorkCoordinate());
@@ -59,7 +59,7 @@ public class SettingsPanel extends JPanel {
         settingsFastFindRate = new UnitSpinner(Math.max(ProbeSettings.getSettingsFastFindRate(), 0.1), rateUnits, 0.1d, null, 1.);
         settingsSlowMeasureRate = new UnitSpinner(Math.max(ProbeSettings.getSettingsSlowMeasureRate(), 0.1), rateUnits, 0.1d, null, 1.);
         settingsRetractAmount = new UnitSpinner(Math.max(ProbeSettings.getSettingsRetractAmount(), 0.01), units, 0.01d, null, 0.1);
-        settingsDelayAfterRetract = new UnitSpinner(Math.max(ProbeSettings.getSettingsDelayAfterRetract(), 0.0), TextFieldUnit.SECONDS, 0d, null, 0.1d);
+        settingsDelayAfterRetract = new UnitSpinner(Math.max(ProbeSettings.getSettingsDelayAfterRetract(), 0.0), Unit.SECONDS, 0d, null, 0.1d);
         settingsCompensateForSoftLimits = new JCheckBox();
         createLayout();
         registerListeners();
@@ -125,8 +125,8 @@ public class SettingsPanel extends JPanel {
     private void onSettingsChanged(PreferenceChangeEvent e) {
         switch (e.getKey()) {
             case ProbeSettings.SETTINGS_UNITS:
-                var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
-                var rateUnits = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM_PER_MINUTE : TextFieldUnit.INCHES_PER_MINUTE;
+                var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? Unit.MM : Unit.INCH;
+                var rateUnits = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? Unit.MM_PER_MINUTE : Unit.INCHES_PER_MINUTE;
                 settingsProbeDiameter.setUnits(units);
                 settingsRetractAmount.setUnits(units);
                 settingsFastFindRate.setUnits(rateUnits);
