@@ -1,5 +1,5 @@
 /*
-    Copyright 2023 Will Winder
+    Copyright 2023-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.uielements.components;
 
-import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.uielements.TextFieldUnitFormatter;
 
 import javax.swing.JSpinner;
@@ -33,28 +33,27 @@ import javax.swing.text.DefaultFormatterFactory;
  */
 public class UnitSpinner extends JSpinner {
 
-    private SpinnerNumberModel spinnerNumberModel;
-    private NumberEditor numberEditor;
+    private final SpinnerNumberModel spinnerNumberModel;
 
-    public UnitSpinner(double value, TextFieldUnit units) {
+    public UnitSpinner(double value, Unit units) {
         this(value, units, null, null, 0.01d);
     }
 
-    public UnitSpinner(double value, TextFieldUnit units, Double minimum, Double maximum, Double stepSize) {
+    public UnitSpinner(double value, Unit units, Double minimum, Double maximum, Double stepSize) {
         spinnerNumberModel = new SpinnerNumberModel(Double.valueOf(value), minimum, maximum, stepSize);
         setModel(spinnerNumberModel);
         setValue(value);
         setUnits(units);
     }
 
-    public void setUnits(TextFieldUnit units) {
-        if (units == TextFieldUnit.MM) {
+    public void setUnits(Unit units) {
+        if (units == Unit.MM) {
             spinnerNumberModel.setStepSize(0.01);
-        } else if (units == TextFieldUnit.INCH) {
+        } else if (units == Unit.INCH) {
             spinnerNumberModel.setStepSize(0.001);
         }
 
-        numberEditor = new JSpinner.NumberEditor(this);
+        NumberEditor numberEditor = new NumberEditor(this);
         numberEditor.getTextField().setFormatterFactory(new DefaultFormatterFactory(
                 new TextFieldUnitFormatter(units, 3),
                 new TextFieldUnitFormatter(units, 3),

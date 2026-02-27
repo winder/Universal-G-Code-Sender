@@ -22,7 +22,7 @@ import com.willwinder.ugs.platform.probe.ProbeSettings;
 import com.willwinder.ugs.platform.probe.actions.ProbeZAction;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
 
@@ -37,7 +37,7 @@ public class ProbeZPanel extends JPanel {
     private final UnitSpinner zProbeOffsetSpinner;
 
     public ProbeZPanel() {
-        var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
+        var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? Unit.MM : Unit.INCH;
         zProbeDistanceSpinner = new UnitSpinner(ProbeSettings.getzDistance(), units);
         zProbeOffsetSpinner = new UnitSpinner(ProbeSettings.getzOffset(), units);
         createLayout();
@@ -69,7 +69,7 @@ public class ProbeZPanel extends JPanel {
     private void onSettingsChanged(PreferenceChangeEvent event) {
         switch (event.getKey()) {
             case ProbeSettings.SETTINGS_UNITS:
-                var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
+                var units = ProbeSettings.getSettingsUnits() == UnitUtils.Units.MM ? Unit.MM : Unit.INCH;
                 zProbeOffsetSpinner.setUnits(units);
                 zProbeDistanceSpinner.setUnits(units);
                 break;

@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.gcode.util.Code;
-import com.willwinder.universalgcodesender.i18n.Language;
 import com.willwinder.universalgcodesender.i18n.Localization;
 
 /**

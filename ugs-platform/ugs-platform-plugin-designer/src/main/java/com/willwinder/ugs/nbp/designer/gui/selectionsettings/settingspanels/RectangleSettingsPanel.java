@@ -28,7 +28,7 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.nbp.designer.entities.settings.RectangleSettingsManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
 import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
 import net.miginfocom.swing.MigLayout;
@@ -63,7 +63,7 @@ public class RectangleSettingsPanel extends JPanel implements EntitySettingsPane
     }
 
     private void initializeComponents() {
-        cornerRadiusTextField = new TextFieldWithUnit(TextFieldUnit.MM, 4, 0);
+        cornerRadiusTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
     }
 
     private void buildLayout() {

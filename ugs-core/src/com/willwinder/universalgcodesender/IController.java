@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.IOverrideManager;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.ICommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -29,10 +30,11 @@ import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.CommunicatorState;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.UnitValue;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.types.ProbeGcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
-import com.willwinder.universalgcodesender.firmware.IOverrideManager;
 
 import java.util.Optional;
 
@@ -187,6 +189,17 @@ public interface IController {
     Stream content
     */
     GcodeCommand createCommand(String gcode) throws Exception;
+
+    /**
+     * Generates a probe gcode command that can be used to probe in a certain direction and parse
+     * the probe response.
+     *
+     * @param distance the direction and distance to probe
+     * @param feedRate the feed rate to use which should be given in either MM_PER_MINUTE or INCH_PER_MINUTE
+     * @return a probe gcode command
+     */
+    ProbeGcodeCommand createProbeCommand(PartialPosition distance, UnitValue feedRate);
+
     void sendCommandImmediately(GcodeCommand cmd) throws ControllerException;
     void queueStream(IGcodeStreamReader r);
 

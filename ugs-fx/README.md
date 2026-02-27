@@ -17,3 +17,10 @@ https://phosphoricons.com/
 
 Simply add them as SVG:s and use the SvgLoader to take care of the loading. It will also
 take care of the color tinting and sizing.
+
+## Settings
+
+The settings are stored using Javas preference system and are located here on each platform:
+* **Linux**: `~/.java/.userPrefs/com/willwinder/universalgcodesender`
+* **Windows**: `HKEY_CURRENT_USER\Software\JavaSoft\Prefs\com\willwinder\universalgcodesender`
+* **MacOSX**: `~/Library/Preferences/com.willwinder.universalgcodesender`

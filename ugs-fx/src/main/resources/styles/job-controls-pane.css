@@ -1,4 +1,37 @@
-.button {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
+.job-card {
+    -fx-padding: 16;
+    -fx-background-color: -fx-control-inner-background;
+    -fx-border-color: rgba(0,0,0,0.08);
+}
+
+.job-file-name {
+    -fx-font-size: 1.8em;
+    -fx-font-weight: bold;
+}
+
+.job-file-info {
+    -fx-text-fill: -fx-text-base-color;
+    -fx-opacity: 0.75;
+}
+
+.job-progress-bar {
+    -fx-min-height: 24;
+}
+
+.job-controls {
+    -fx-padding: 6 0 0 0;
+}
+
+.job-controls-button {
+    -fx-padding: 12 12;
+}
+
+.job-file-open-button {
+    -fx-padding: 12 12;
+    -fx-border-width: 1px;
+    -fx-border-color: -ugs-border-color;
+}
+
+.job-progress-text {
+    -fx-font-weight: bold;
 }

@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.uielements.components;
 
-import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.uielements.TextFieldUnitFormatter;
 
 import javax.swing.*;
@@ -38,9 +38,9 @@ public class PercentSpinner extends JSpinner {
         setModel(spinnerNumberModel);
         JSpinner.NumberEditor numberEditor = new JSpinner.NumberEditor(this);
         numberEditor.getTextField().setFormatterFactory(new DefaultFormatterFactory(
-                new TextFieldUnitFormatter(TextFieldUnit.PERCENT, 1),
-                new TextFieldUnitFormatter(TextFieldUnit.PERCENT, 1),
-                new TextFieldUnitFormatter(TextFieldUnit.PERCENT, 1, false)));
+                new TextFieldUnitFormatter(Unit.PERCENT, 1),
+                new TextFieldUnitFormatter(Unit.PERCENT, 1),
+                new TextFieldUnitFormatter(Unit.PERCENT, 1, false)));
         numberEditor.getTextField().setHorizontalAlignment(SwingConstants.LEFT);
         setEditor(numberEditor);
     }

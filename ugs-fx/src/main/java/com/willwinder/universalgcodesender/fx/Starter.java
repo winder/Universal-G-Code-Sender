@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2023 Will Winder
+    Copyright 2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,29 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.uielements;
+package com.willwinder.universalgcodesender.fx;
 
 /**
- * @author Joacim Breiler
+ * This starter class is needed to start the application from the IDE
  */
-public enum TextFieldUnit {
-    MM("mm"),
-    INCH("\""),
-    MM_PER_MINUTE("mm/min"),
-    INCHES_PER_MINUTE("inch/min"),
-    ROTATIONS_PER_MINUTE("rpm"),
-    PERCENT("%"),
-    DEGREE("°"),
-    TIMES("times"),
-    SECONDS("s");
-
-    private final String abbreviation;
-
-    TextFieldUnit(String abbreviation) {
-        this.abbreviation = abbreviation;
-    }
-
-    public String getAbbreviation() {
-        return abbreviation;
+public class Starter {
+    public static void main(String[] args) {
+        Main.main(args);
     }
 }

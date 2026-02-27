@@ -21,7 +21,7 @@ package com.willwinder.ugs.nbp.designer.gui;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Settings;
 import com.willwinder.universalgcodesender.Utils;
-import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
 import net.miginfocom.swing.MigLayout;
 
@@ -64,30 +64,30 @@ public class ToolSettingsPanel extends JPanel {
         setLayout(new MigLayout("fill", "[20%][80%]" ));
 
         add(new JLabel("Tool diameter" ));
-        toolDiameter = new TextFieldWithUnit(TextFieldUnit.MM, 3, controller.getSettings().getToolDiameter());
+        toolDiameter = new TextFieldWithUnit(Unit.MM, 3, controller.getSettings().getToolDiameter());
         add(toolDiameter, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Tool step over" ));
-        stepOver = new TextFieldWithUnit(TextFieldUnit.PERCENT, 2,
+        stepOver = new TextFieldWithUnit(Unit.PERCENT, 2,
                 controller.getSettings().getToolStepOver());
         add(stepOver, TOOL_FIELD_CONSTRAINT);
 
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2" );
 
         add(new JLabel("Default feed speed" ));
-        feedSpeed = new TextFieldWithUnit(TextFieldUnit.MM_PER_MINUTE, 0, controller.getSettings().getFeedSpeed());
+        feedSpeed = new TextFieldWithUnit(Unit.MM_PER_MINUTE, 0, controller.getSettings().getFeedSpeed());
         add(feedSpeed, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Plunge speed" ));
-        plungeSpeed = new TextFieldWithUnit(TextFieldUnit.MM_PER_MINUTE, 0, controller.getSettings().getPlungeSpeed());
+        plungeSpeed = new TextFieldWithUnit(Unit.MM_PER_MINUTE, 0, controller.getSettings().getPlungeSpeed());
         add(plungeSpeed, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Depth per pass" ));
-        depthPerPass = new TextFieldWithUnit(TextFieldUnit.MM, 2, controller.getSettings().getDepthPerPass());
+        depthPerPass = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getDepthPerPass());
         add(depthPerPass, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Safe height" ));
-        safeHeight = new TextFieldWithUnit(TextFieldUnit.MM, 2, controller.getSettings().getSafeHeight());
+        safeHeight = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getSafeHeight());
         add(safeHeight, TOOL_FIELD_CONSTRAINT);
 
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2" );
@@ -97,13 +97,13 @@ public class ToolSettingsPanel extends JPanel {
         add(detectMaxSpindleSpeed, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Max spindle speed" ));
-        maxSpindleSpeed = new TextFieldWithUnit(TextFieldUnit.ROTATIONS_PER_MINUTE, 0, controller.getSettings().getMaxSpindleSpeed());
+        maxSpindleSpeed = new TextFieldWithUnit(Unit.REVOLUTIONS_PER_MINUTE, 0, controller.getSettings().getMaxSpindleSpeed());
         add(maxSpindleSpeed, TOOL_FIELD_CONSTRAINT);
 
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2" );
 
         add(new JLabel("Laser diameter" ));
-        laserDiameter = new TextFieldWithUnit(TextFieldUnit.MM, 3, controller.getSettings().getLaserDiameter());
+        laserDiameter = new TextFieldWithUnit(Unit.MM, 3, controller.getSettings().getLaserDiameter());
         add(laserDiameter, TOOL_FIELD_CONSTRAINT);
 
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2" );
@@ -113,7 +113,7 @@ public class ToolSettingsPanel extends JPanel {
         add(spindleDirection, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Arc precision" ));
-        flatnessPrecision = new TextFieldWithUnit(TextFieldUnit.MM, 3, controller.getSettings().getFlatnessPrecision());
+        flatnessPrecision = new TextFieldWithUnit(Unit.MM, 3, controller.getSettings().getFlatnessPrecision());
         add(flatnessPrecision, TOOL_FIELD_CONSTRAINT);
     }
 

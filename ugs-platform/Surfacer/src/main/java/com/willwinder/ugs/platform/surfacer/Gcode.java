@@ -19,7 +19,7 @@ package com.willwinder.ugs.platform.surfacer;
 import com.willwinder.ugs.platform.surfacer.GeneratePath.Point;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class Gcode {
     private File file = null;
     private final GeneratePath generatePath = new GeneratePath();
     
-    private TextFieldUnit units;
+    private Unit units;
     private double xmin, ymin, xmax, ymax;
     
     public void init(Prefs prefs, BackendAPI backend) {
@@ -61,7 +61,7 @@ public class Gcode {
 
     public void generate(File _file) {
         units = backend.getSettings().getPreferredUnits() ==
-            UnitUtils.Units.MM ? TextFieldUnit.MM : TextFieldUnit.INCH;
+            UnitUtils.Units.MM ? Unit.MM : Unit.INCH;
 
         generatePath.init(prefs);
         
@@ -91,7 +91,7 @@ public class Gcode {
         }
     }
 
-    private boolean isMM() { return units == TextFieldUnit.MM; }
+    private boolean isMM() { return units == Unit.MM; }
     private double prefConv(double value) { return isMM() ? value : value / 25.4; }
     private String prefUnits(double value) {
         return String.format(Locale.US, "%s %s", DF.format(prefConv(value)), isMM() ? "mm" : "in");

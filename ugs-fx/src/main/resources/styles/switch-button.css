@@ -6,12 +6,12 @@
     -fx-min-width: 25;
     -fx-min-height: 20;
     -fx-alignment: center-left;
-    -fx-text-fill: transparent; /* hide text */
+    -fx-text-fill: transparent;
     -fx-border-radius: 15;
 }
 
 .switch-button:selected {
-    -fx-background-color: #00C900FF; /* green */
+    -fx-background-color: #4F9EB0FF;
     -fx-padding: 2 2 2 25;
     -fx-alignment: center-right;
 }

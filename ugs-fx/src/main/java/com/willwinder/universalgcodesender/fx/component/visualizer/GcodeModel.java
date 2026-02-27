@@ -1,8 +1,27 @@
+/*
+    Copyright 2026 Joacim Breiler
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import static com.willwinder.universalgcodesender.fx.helper.Colors.blend;
 import static com.willwinder.universalgcodesender.fx.helper.Colors.interpolate;
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -30,23 +49,19 @@ import org.fxyz3d.geometry.Point3D;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GcodeModel extends Group {
     private static final Logger LOGGER = Logger.getLogger(GcodeModel.class.getName());
-    public static final Point3D ZERO = new Point3D(0, 0, 0);
     public static final double ARC_SEGMENT_LENGTH = 0.8;
     private final GcodeViewParse gcvp;
     private final MeshView meshView;
     private final BackendAPI backendAPI;
+    private final float lineWidth;
 
     private GcodeModelMaterial material = new GcodeModelMaterial(0);
-    private Map<Integer, List<Integer>> lineToTextureMap = new HashMap<>();
 
     private Color rapidColor;
     private Color arcColor;
@@ -75,7 +90,7 @@ public class GcodeModel extends Group {
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         gcvp = new GcodeViewParse();
         backendAPI.addUGSEventListener(this::onEvent);
-
+        lineWidth = 0.03f;
         addSettingListeners();
     }
 
@@ -124,9 +139,7 @@ public class GcodeModel extends Group {
             }
         } else if (event instanceof CommandEvent commandEvent) {
             if (commandEvent.getCommand().isDone()) {
-                lineToTextureMap.getOrDefault(commandEvent.getCommand().getCommandNumber(), new ArrayList<>()).forEach(
-                        lineIndex -> material.updateLineColor(lineIndex, completedColor)
-                );
+                material.updateLineColor(commandEvent.getCommand().getCommandNumber(), completedColor);
             }
         } else if (event instanceof SettingChangedEvent) {
             addSettingListeners();
@@ -135,62 +148,72 @@ public class GcodeModel extends Group {
 
     private TriangleMesh pointsToMesh(List<LineSegment> lineSegments) {
         TriangleMesh mesh = new TriangleMesh();
-        float width = 0.05f; // Thin width for visual line approximation
-        lineToTextureMap = new HashMap<>();
 
         material = new GcodeModelMaterial(lineSegments.size());
         meshView.setMaterial(material);
 
         for (int i = 0; i < lineSegments.size(); i++) {
-            float v = (i + 0.5f) / lineSegments.size(); // Center of texel
-            mesh.getTexCoords().addAll(0f, v);          // one per segment
+            float[] uv = material.getTextureUV(i);
+            mesh.getTexCoords().addAll(uv[0], uv[1]);
         }
 
+        float r = lineWidth;
 
         for (int i = 0; i < lineSegments.size(); i++) {
-            LineSegment lineSegment = lineSegments.get(i);
-            List<Integer> lineSegmentTextureIndexes = lineToTextureMap.getOrDefault(lineSegment.getLineNumber(), new ArrayList<>());
-            Point3D p1 = toPoint(lineSegment.getStart().getPositionIn(UnitUtils.Units.MM));
-            Point3D p2 = toPoint(lineSegment.getEnd().getPositionIn(UnitUtils.Units.MM));
+            LineSegment segment = lineSegments.get(i);
 
-            // Compute direction and a perpendicular vector for width
+            Point3D p1 = toPoint(segment.getStart().getPositionIn(UnitUtils.Units.MM));
+            Point3D p2 = toPoint(segment.getEnd().getPositionIn(UnitUtils.Units.MM));
+
             Point3D dir = p2.substract(p1).normalize();
-            Point3D perp = dir.crossProduct(ZERO.add(0, 0, 1)).normalize().multiply(width);
-            if (perp.magnitude() == 0) { // If dir is parallel to Z, use X axis
-                perp = new Point3D(width, 0, width);
+
+            // Pick a stable reference vector
+            Point3D ref = Math.abs(dir.getZ()) > 0.9
+                    ? new Point3D(1, 0, 0)
+                    : new Point3D(0, 0, 1);
+
+            Point3D normal = dir.crossProduct(ref).normalize();
+            Point3D binormal = dir.crossProduct(normal).normalize();
+
+            // Triangle cross-section (120° apart)
+            Point3D[] offsets = new Point3D[]{
+                    normal.multiply(r),
+                    normal.multiply(-0.5f * r).add(binormal.multiply((float) Math.sqrt(3) * 0.5f * r)),
+                    normal.multiply(-0.5f * r).substract(binormal.multiply((float) Math.sqrt(3) * 0.5f * r))
+            };
+
+            int base = mesh.getPoints().size() / 3;
+
+            // Add vertices
+            for (Point3D o : offsets) {
+                Point3D a = p1.add(o);
+                mesh.getPoints().addAll(a.getX(), a.getY(), a.getZ());
             }
 
-            // Add 4 points for the rectangle
-            int baseIndex = mesh.getPoints().size() / 3;
+            for (Point3D o : offsets) {
+                Point3D b = p2.add(o);
+                mesh.getPoints().addAll(b.getX(), b.getY(), b.getZ());
+            }
 
+            material.setLineColor(i, getColor(segment));
 
-            Point3D p1a = p1.add(perp);
-            Point3D p1b = p1.substract(perp);
-            Point3D p2a = p2.add(perp);
-            Point3D p2b = p2.substract(perp);
+            // Side faces (6 triangles)
+            for (int j = 0; j < 3; j++) {
+                int a0 = base + j;
+                int a1 = base + (j + 1) % 3;
+                int b0 = base + j + 3;
+                int b1 = base + (j + 1) % 3 + 3;
 
-            material.setLineColor(i, getColor(lineSegment));
-            lineSegmentTextureIndexes.add(i);
-            lineToTextureMap.put(lineSegment.getLineNumber(), lineSegmentTextureIndexes);
-
-            // Two triangles per segment (rectangle)
-            mesh.getFaces().addAll(
-                    baseIndex, i, baseIndex + 2, i, baseIndex + 1, i,
-                    baseIndex + 2, i, baseIndex + 3, i, baseIndex + 1, i
-            );
-
-            mesh.getPoints().addAll(
-                    p1a.getX(), p1a.getY(), p1a.getZ(),
-                    p1b.getX(), p1b.getY(), p1b.getZ(),
-                    p2a.getX(), p2a.getY(), p2a.getZ(),
-                    p2b.getX(), p2b.getY(), p2b.getZ()
-            );
+                mesh.getFaces().addAll(
+                        a0, i, b0, i, a1, i,
+                        a1, i, b0, i, b1, i
+                );
+            }
         }
 
         material.reset();
         return mesh;
     }
-
 
     private Color getColor(LineSegment lineSegment) {
         if (lineSegment.isArc()) {

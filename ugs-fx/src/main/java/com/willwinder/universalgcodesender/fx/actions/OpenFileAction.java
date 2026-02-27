@@ -57,7 +57,7 @@ public class OpenFileAction extends BaseAction {
         fileChooser.setTitle("Open Resource File");
         fileChooser.setInitialDirectory(new File(backend.getSettings().getLastWorkingDirectory()));
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Gcode files", "*.nc", "*.txt", "*.gcode"));
+                new FileChooser.ExtensionFilter("Gcode files", "*.nc", "*.txt", "*.gcode", "*.ngc"));
 
         Window window = ((Node) event.getSource()).getScene().getWindow();
 

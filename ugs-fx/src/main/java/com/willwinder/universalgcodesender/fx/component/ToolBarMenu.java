@@ -21,7 +21,7 @@ package com.willwinder.universalgcodesender.fx.component;
 import com.willwinder.ugs.nbp.core.actions.HomingAction;
 import com.willwinder.ugs.nbp.core.actions.SoftResetAction;
 import com.willwinder.ugs.nbp.core.actions.UnlockAction;
-import com.willwinder.universalgcodesender.fx.Settings;
+import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.fx.actions.Action;
 import com.willwinder.universalgcodesender.fx.actions.ConnectDisconnectAction;
 import com.willwinder.universalgcodesender.fx.actions.OpenFileAction;

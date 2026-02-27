@@ -1,5 +1,5 @@
 /*
-    Copyright 2025 Joacim Breiler
+    Copyright 2025-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,14 +19,15 @@
 package com.willwinder.universalgcodesender.fx.component.settings;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.fx.Settings;
+import com.willwinder.universalgcodesender.fx.component.SettingsRow;
+import com.willwinder.universalgcodesender.fx.control.SwitchButton;
+import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.i18n.AvailableLanguages;
 import com.willwinder.universalgcodesender.i18n.Language;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import javafx.collections.FXCollections;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
@@ -39,24 +40,24 @@ import java.util.ArrayList;
 public class GeneralSettingsPane extends VBox {
 
     private final BackendAPI backend;
+    private final VBox settings;
 
     public GeneralSettingsPane() {
         setSpacing(20);
-
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-
         addTitleSection();
+
+        settings = new VBox(10);
+        getChildren().add(settings);
         addUnitSection();
         addLanguageSection();
         addToolbarSection();
     }
 
     private void addToolbarSection() {
-        Label label = new Label(Localization.getString("settings.showToolbarText"));
-        CheckBox showToolbarText = new CheckBox();
+        SwitchButton showToolbarText = new SwitchButton();
         showToolbarText.selectedProperty().bindBidirectional(Settings.getInstance().showToolbarTextProperty());
-
-        getChildren().add(new VBox(5, label, showToolbarText));
+        settings.getChildren().add(new SettingsRow(Localization.getString("settings.showToolbarText"), showToolbarText));
     }
 
     private void addTitleSection() {
@@ -66,8 +67,6 @@ public class GeneralSettingsPane extends VBox {
     }
 
     private void addUnitSection() {
-        Label unitLabel = new Label(Localization.getString("gcode.setting.units"));
-
         ToggleGroup unitToggleGroup = new ToggleGroup();
         RadioButton metricRadio = new RadioButton(Localization.getString("settings.metric"));
         metricRadio.setToggleGroup(unitToggleGroup);
@@ -86,11 +85,10 @@ public class GeneralSettingsPane extends VBox {
             }
         });
 
-        getChildren().add(new VBox(5, unitLabel, metricRadio, imperialRadio));
+        settings.getChildren().add(new SettingsRow( Localization.getString("gcode.setting.units"), metricRadio, imperialRadio));
     }
 
     private void addLanguageSection() {
-        Label label = new Label(Localization.getString("settings.language"));
         ComboBox<Language> languageComboBox = new ComboBox<>(FXCollections.observableList(new ArrayList<>(AvailableLanguages.getAvailableLanguages())));
 
         languageComboBox.getItems()
@@ -101,6 +99,6 @@ public class GeneralSettingsPane extends VBox {
 
         languageComboBox.valueProperty().addListener((observable, oldValue, newValue) ->
                 backend.getSettings().setLanguage(newValue.getLanguageCode()));
-        getChildren().add(new VBox(5, label, languageComboBox));
+        settings.getChildren().add(new SettingsRow(Localization.getString("settings.language"), languageComboBox));
     }
 }

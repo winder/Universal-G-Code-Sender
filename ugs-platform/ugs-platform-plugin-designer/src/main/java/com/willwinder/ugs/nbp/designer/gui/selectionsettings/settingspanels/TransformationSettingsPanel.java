@@ -28,7 +28,7 @@ import com.willwinder.ugs.nbp.designer.gui.anchor.AnchorSelectorPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.uielements.TextFieldUnit;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
 import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
 import net.miginfocom.swing.MigLayout;
@@ -83,11 +83,11 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
     }
 
     private void initializeComponents() {
-        posXTextField = new TextFieldWithUnit(TextFieldUnit.MM, 4, 0);
-        posYTextField = new TextFieldWithUnit(TextFieldUnit.MM, 4, 0);
-        widthTextField = new TextFieldWithUnit(TextFieldUnit.MM, 4, 0);
-        heightTextField = new TextFieldWithUnit(TextFieldUnit.MM, 4, 0);
-        rotationTextField = new TextFieldWithUnit(TextFieldUnit.DEGREE, 4, 0);
+        posXTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
+        posYTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
+        widthTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
+        heightTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
+        rotationTextField = new TextFieldWithUnit(Unit.DEGREE, 4, 0);
         anchorSelector = new AnchorSelectorPanel();
 
         lockRatioButton = new JToggleButton(ImageUtilities.loadImageIcon("img/link-off.svg", false));
