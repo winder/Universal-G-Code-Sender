@@ -90,7 +90,6 @@ public class ProbeStatePane extends VBox implements Flow.Subscriber<ProbeEvent> 
     @Override
     public void onNext(ProbeEvent item) {
         if (item == null) return;
-        System.out.println("ProbeEvent: " + item);
 
         Platform.runLater(() -> {
             if (item instanceof ProbeEvent.JobCreated jobCreated) {
