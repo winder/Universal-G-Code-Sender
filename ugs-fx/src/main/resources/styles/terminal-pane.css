@@ -32,6 +32,9 @@
     -fx-fill: white;
 }
 
+.ok {
+    -fx-fill: #2e7d32;
+}
 
 .error {
     -fx-fill: #ff9797;

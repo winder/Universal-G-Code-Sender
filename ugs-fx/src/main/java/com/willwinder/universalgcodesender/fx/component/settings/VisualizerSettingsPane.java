@@ -18,23 +18,23 @@
  */
 package com.willwinder.universalgcodesender.fx.component.settings;
 
-import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
+import com.willwinder.universalgcodesender.fx.component.BorderedTitledPane;
+import com.willwinder.universalgcodesender.fx.component.SettingsRow;
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.MachineType;
+import com.willwinder.universalgcodesender.fx.control.SwitchButton;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.TextAlignment;
 import javafx.util.StringConverter;
 
 
@@ -43,25 +43,27 @@ public class VisualizerSettingsPane extends BorderPane {
     private final VBox settingsGroup;
 
     public VisualizerSettingsPane() {
-        settingsGroup = new VBox(16);
-        addTitle(Localization.getString("settings.visualizer.machine"));
+        settingsGroup = new VBox(32);
         addMachineCombo();
-
-        addTitle("Mouse controls");
         addMouseControls();
-
-        addTitle(Localization.getString("settings.visualizer.colors"));
-        addColor(Localization.getString("platform.visualizer.color.rapid"), VisualizerSettings.getInstance().colorRapidProperty());
-        addColor(Localization.getString("platform.visualizer.color.linear.min.speed"), VisualizerSettings.getInstance().colorFeedMinProperty());
-        addColor(Localization.getString("platform.visualizer.color.linear"), VisualizerSettings.getInstance().colorFeedMaxProperty());
-        addColor(Localization.getString("platform.visualizer.color.spindle.min.speed"), VisualizerSettings.getInstance().colorSpindleMinProperty());
-        addColor(Localization.getString("platform.visualizer.color.spindle.max.speed"), VisualizerSettings.getInstance().colorSpindleMaxProperty());
-        addColor(Localization.getString("platform.visualizer.color.arc"), VisualizerSettings.getInstance().colorArcProperty());
-        addColor(Localization.getString("platform.visualizer.color.completed"), VisualizerSettings.getInstance().colorCompletedProperty());
-        addColor(Localization.getString("platform.visualizer.color.plunge"), VisualizerSettings.getInstance().colorPlungeProperty());
-
+        addColorSettings();
         addTitleSection();
         setCenter(settingsGroup);
+    }
+
+    private void addColorSettings() {
+        settingsGroup.getChildren().add(new BorderedTitledPane(Localization.getString("settings.visualizer.colors"),
+                new VBox(10,
+                        createColorSetting(Localization.getString("platform.visualizer.color.rapid"), VisualizerSettings.getInstance().colorRapidProperty()),
+                        createColorSetting(Localization.getString("platform.visualizer.color.linear.min.speed"), VisualizerSettings.getInstance().colorFeedMinProperty()),
+                        createColorSetting(Localization.getString("platform.visualizer.color.linear"), VisualizerSettings.getInstance().colorFeedMaxProperty()),
+                        createColorSetting(Localization.getString("platform.visualizer.color.spindle.min.speed"), VisualizerSettings.getInstance().colorSpindleMinProperty()),
+                        createColorSetting(Localization.getString("platform.visualizer.color.spindle.max.speed"), VisualizerSettings.getInstance().colorSpindleMaxProperty()),
+                        createColorSetting(Localization.getString("platform.visualizer.color.arc"), VisualizerSettings.getInstance().colorArcProperty()),
+                        createColorSetting(Localization.getString("platform.visualizer.color.completed"), VisualizerSettings.getInstance().colorCompletedProperty()),
+                        createColorSetting(Localization.getString("platform.visualizer.color.plunge"), VisualizerSettings.getInstance().colorPlungeProperty())
+                )
+        ));
     }
 
     private void addMachineCombo() {
@@ -80,27 +82,29 @@ public class VisualizerSettingsPane extends BorderPane {
                 return MachineType.fromName(name);
             }
         });
-        settingsGroup.getChildren().add(machineTypeComboBox);
 
-        CheckBox checkBox = new CheckBox();
-        checkBox.setText("Show");
-        checkBox.setTextAlignment(TextAlignment.LEFT);
+        SwitchButton checkBox = new SwitchButton();
         checkBox.selectedProperty().bindBidirectional(VisualizerSettings.getInstance().showMachineProperty());
-        settingsGroup.getChildren().add(checkBox);
+
+        settingsGroup.getChildren().add(new BorderedTitledPane(Localization.getString("settings.visualizer.machine"),
+                        new VBox(10,
+                                new SettingsRow("Show", checkBox),
+                                new SettingsRow("Machine model", machineTypeComboBox))
+                )
+        );
     }
 
     private void addMouseControls() {
+        VBox mouseControls = new VBox(10);
+
         // Invert zoom
-        CheckBox invertZoom = new CheckBox("Invert scroll wheel zoom");
+        SwitchButton invertZoom = new SwitchButton();
         invertZoom.selectedProperty().bindBidirectional(
                 VisualizerSettings.getInstance().invertZoomProperty()
         );
-        settingsGroup.getChildren().add(invertZoom);
+        mouseControls.getChildren().add(new SettingsRow("Invert scroll wheel zoom", "Inverts the zoom direction when using the mouse scroll wheel", invertZoom));
 
         // Pan binding
-        VBox panBox = new VBox(8);
-        panBox.getChildren().add(new Label("Pan mouse button"));
-
         ComboBox<String> panButton =
                 new ComboBox<>(FXCollections.observableArrayList("PRIMARY", "MIDDLE", "SECONDARY"));
         panButton.valueProperty().bindBidirectional(
@@ -125,16 +129,9 @@ public class VisualizerSettingsPane extends BorderPane {
                 )
         );
 
-        HBox panControls = new HBox(16, panButton, panModifier);
-        panBox.getChildren().add(panControls);
-        VBox.setMargin(panBox, new Insets(0, 0, 5, 0));
-
-        settingsGroup.getChildren().add(panBox);
+        mouseControls.getChildren().add(new SettingsRow("Pan mouse button", panButton, panModifier));
 
         // Rotate binding
-        VBox rotateBox = new VBox(8);
-        rotateBox.getChildren().add(new Label("Rotate mouse button"));
-
         ComboBox<String> rotateButton =
                 new ComboBox<>(FXCollections.observableArrayList("PRIMARY", "MIDDLE", "SECONDARY"));
         rotateButton.valueProperty().bindBidirectional(
@@ -159,17 +156,9 @@ public class VisualizerSettingsPane extends BorderPane {
                 )
         );
 
-        HBox rotateControls = new HBox(16, rotateButton, rotateModifier);
-        rotateBox.getChildren().add(rotateControls);
+        mouseControls.getChildren().add(new SettingsRow("Rotate mouse button", rotateButton, rotateModifier));
 
-        settingsGroup.getChildren().add(rotateBox);
-    }
-
-    private void addTitle(String text) {
-        Label title = new Label(text);
-        title.setFont(Font.font(16));
-        settingsGroup.getChildren().add(title);
-        VBox.setMargin(title, new Insets(16, 0, 0, 0));
+        settingsGroup.getChildren().add(new BorderedTitledPane("Mouse settings", mouseControls));
     }
 
     private void addTitleSection() {
@@ -179,19 +168,15 @@ public class VisualizerSettingsPane extends BorderPane {
         setTop(title);
     }
 
-    private void addColor(String text, StringProperty stringProperty) {
+    private SettingsRow createColorSetting(String text, StringProperty stringProperty) {
         Color value = stringProperty.map(Color::web).getValue();
-        VBox vBox = new VBox(8);
         ColorPicker colorPicker = new ColorPicker(value);
         colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> {
             String value1 = Colors.toWeb(newValue);
             stringProperty.set(value1);
         });
         colorPicker.setMinHeight(24);
-        Label label = new Label(text);
-        vBox.getChildren().add(label);
-        vBox.getChildren().add(colorPicker);
-        settingsGroup.getChildren().add(vBox);
+        return new SettingsRow(text, colorPicker);
     }
 
 }

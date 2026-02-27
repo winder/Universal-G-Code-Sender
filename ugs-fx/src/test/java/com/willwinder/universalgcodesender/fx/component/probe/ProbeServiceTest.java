@@ -21,7 +21,7 @@ package com.willwinder.universalgcodesender.fx.component.probe;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
-import com.willwinder.universalgcodesender.fx.service.ProbeService;
+import com.willwinder.universalgcodesender.fx.service.probe.ProbeService;
 import com.willwinder.universalgcodesender.fx.settings.ProbeSettings;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;

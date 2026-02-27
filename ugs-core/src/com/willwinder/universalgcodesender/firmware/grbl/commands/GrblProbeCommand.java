@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.firmware.grbl.commands;
 
+import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.model.Axis;
@@ -64,6 +65,16 @@ public class GrblProbeCommand extends ProbeGcodeCommand {
         sb.append(" F")
                 .append(feedRate);
         return sb.toString();
+    }
+
+    @Override
+    public void appendResponse(String response) {
+        // We don't care about status strings
+        if (GrblUtils.isGrblStatusStringV1(response) || GrblUtils.isGrblStatusString(response)) {
+            return;
+        }
+
+        super.appendResponse(response);
     }
 
     @Override

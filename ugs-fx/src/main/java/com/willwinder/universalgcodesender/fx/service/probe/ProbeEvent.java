@@ -16,20 +16,27 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.fx.component;
+package com.willwinder.universalgcodesender.fx.service.probe;
 
-import com.willwinder.universalgcodesender.fx.helper.Colors;
-import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
-import javafx.util.Duration;
+import java.util.List;
 
-public class InfoTooltip extends Label {
-    public InfoTooltip(String tooltipText) {
-        super("", SvgLoader.loadImageIcon("icons/info.svg", 20, Colors.BLUE).orElse(null));
-        Tooltip tooltip = new Tooltip(tooltipText);
-        tooltip.setShowDelay(Duration.ZERO);
-        tooltip.setHideDelay(Duration.millis(400));
-        setTooltip(tooltip);
-    }
+public sealed interface ProbeEvent permits
+        ProbeEvent.JobCreated,
+        ProbeEvent.StepStarted,
+        ProbeEvent.StepCompleted,
+        ProbeEvent.StepFailed,
+        ProbeEvent.JobCompleted,
+        ProbeEvent.JobFailed {
+
+    record JobCreated(List<ProbeStep> steps) implements ProbeEvent {}
+
+    record StepStarted(ProbeStep step) implements ProbeEvent {}
+
+    record StepCompleted(ProbeStep step) implements ProbeEvent {}
+
+    record StepFailed(ProbeStep step) implements ProbeEvent {}
+
+    record JobCompleted() implements ProbeEvent {}
+
+    record JobFailed(Throwable error) implements ProbeEvent {}
 }

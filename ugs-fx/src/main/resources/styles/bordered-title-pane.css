@@ -1,0 +1,20 @@
+@import "root.css";
+
+.bordered-titled-pane {
+    -fx-content-display: top;
+    -fx-border-color: -ugs-border-color;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+}
+
+.title {
+    -fx-font-size: 1.2em;
+    -fx-background-color: -fx-background;
+    -fx-padding: 0 6 0 6;
+    -fx-translate-y: -0.8em;
+    -fx-translate-x: 16;
+}
+
+.content {
+    -fx-padding: 32 28 32 24;
+}

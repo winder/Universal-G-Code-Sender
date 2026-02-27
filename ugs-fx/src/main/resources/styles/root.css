@@ -1,14 +1,14 @@
 * {
     -fx-focus-border-color: rgb(79, 158, 176);
     -fx-focus-background-color: rgb(199, 216, 225);
-
+    -ugs-border-color: #c2c2c2;
 }
 
 .button,
 .toggle-button {
     -fx-border-width: 1;
     -fx-background-color: white;
-    -fx-border-color: #c2c2c2;
+    -fx-border-color: -ugs-border-color;
     -fx-padding: 5;
     -fx-cursor: hand;
     -fx-border-radius: 8;
@@ -41,7 +41,7 @@
 .toggle-button:pressed {
     -fx-border-width: 1;
     -fx-border-color: transparent;
-    -fx-background-color: #c2c2c2;
+    -fx-background-color: -ugs-border-color;
 }
 
 /**
@@ -120,7 +120,7 @@
  */
 .check-box .box {
     -fx-border-width: 1;
-    -fx-border-color: #c2c2c2;
+    -fx-border-color: -ugs-border-color;
 
     -fx-background-color: transparent;
     -fx-background-insets: 0;
@@ -132,7 +132,7 @@
 }
 
 .check-box:focused .box {
-    -fx-border-color: #c2c2c2;
+    -fx-border-color: -ugs-border-color;
 }
 
 /**

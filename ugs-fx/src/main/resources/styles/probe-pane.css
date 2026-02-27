@@ -1,0 +1,77 @@
+.probe-pane {
+    -fx-padding: 16;
+    -fx-background-color: -fx-control-inner-background;
+    -fx-border-color: rgba(0,0,0,0.08);
+}
+
+.probe-title {
+    -fx-font-size: 1.8em;
+    -fx-font-weight: bold;
+}
+
+.probe-state-pane {
+    -fx-padding: 8 0 0 0;
+}
+
+.probe-state-title {
+    -fx-font-weight: bold;
+}
+
+.probe-step-icon {
+    -fx-min-width: 18px;
+    -fx-alignment: center;
+    -fx-font-weight: bold;
+}
+
+.probe-step-icon.ok {
+    -fx-text-fill: #2e7d32;
+}
+
+.probe-step-icon.fail {
+    -fx-text-fill: #c62828;
+}
+
+.probe-step-icon.pending {
+    -fx-text-fill: rgba(0, 0, 0, 0.45);
+}
+
+.probe-step-pills {
+    -fx-padding: 4 0 4 0;
+}
+
+.probe-step-pill {
+    -fx-padding: 6 6 6 6;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
+    -fx-min-height: 26;
+    -fx-background-color: -fx-control-inner-background;
+    -fx-border-color: rgba(120, 120, 120, 0.35);
+}
+
+.probe-step-pill.pending {
+    -fx-background-color: rgba(120, 120, 120, 0.10);
+}
+
+.probe-step-pill.working {
+    -fx-background-color: rgba(30, 144, 255, 0.12);
+    -fx-border-color: rgba(30, 144, 255, 0.45);
+}
+
+.probe-step-pill.ok {
+    -fx-background-color: rgba(46, 204, 113, 0.14);
+    -fx-border-color: rgba(46, 204, 113, 0.55);
+}
+
+.probe-step-pill.fail {
+    -fx-background-color: rgba(231, 76, 60, 0.14);
+    -fx-border-color: rgba(231, 76, 60, 0.55);
+}
+
+.probe-step-icon {
+    -fx-min-width: 10;
+}
+
+.probe-step-label {
+    -fx-font-size: 12px;
+}

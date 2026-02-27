@@ -18,18 +18,25 @@
  */
 package com.willwinder.universalgcodesender.fx.component;
 
-import com.willwinder.universalgcodesender.fx.helper.Colors;
-import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
-import javafx.util.Duration;
+import javafx.scene.layout.StackPane;
 
-public class InfoTooltip extends Label {
-    public InfoTooltip(String tooltipText) {
-        super("", SvgLoader.loadImageIcon("icons/info.svg", 20, Colors.BLUE).orElse(null));
-        Tooltip tooltip = new Tooltip(tooltipText);
-        tooltip.setShowDelay(Duration.ZERO);
-        tooltip.setHideDelay(Duration.millis(400));
-        setTooltip(tooltip);
+import java.util.Objects;
+
+public class BorderedTitledPane extends StackPane {
+    public BorderedTitledPane(String title, Node... content) {
+        getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/bordered-title-pane.css")).toExternalForm());
+        getStyleClass().add("bordered-titled-pane");
+
+        Label label = new Label(title);
+        label.getStyleClass().add("title");
+        StackPane.setAlignment(label, Pos.TOP_LEFT);
+
+        StackPane contentPane = new StackPane();
+        contentPane.getStyleClass().add("content");
+        contentPane.getChildren().addAll(content);
+        getChildren().addAll(label, contentPane);
     }
 }

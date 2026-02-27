@@ -5,7 +5,7 @@
 }
 
 .job-file-name {
-    -fx-font-size: 20px;
+    -fx-font-size: 1.8em;
     -fx-font-weight: bold;
 }
 
@@ -29,7 +29,7 @@
 .job-file-open-button {
     -fx-padding: 12 12;
     -fx-border-width: 1px;
-    -fx-border-color: #c2c2c2;
+    -fx-border-color: -ugs-border-color;
 }
 
 .job-progress-text {

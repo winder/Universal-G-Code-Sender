@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender.fx.dialog;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.fx.component.ButtonBox;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
+import com.willwinder.universalgcodesender.fx.settings.ProbeSettings;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -30,6 +31,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -62,14 +64,20 @@ public class ProbeConfirmDialog extends Stage implements UGSEventListener {
 
         indicatorDot = new Circle(6);
         indicatorText = new Label();
-        HBox indicatorRow = new HBox(10, new Label("Probe signal:"), indicatorDot, indicatorText);
-        indicatorRow.setAlignment(Pos.CENTER_LEFT);
+        HBox indicatorRow = new HBox(10, indicatorDot, indicatorText);
+        indicatorRow.setAlignment(Pos.CENTER_RIGHT);
         updateProbeIndicator(false);
 
         acceptButton = new Button("Start probing");
         acceptButton.setDefaultButton(true);
-        acceptButton.setDisable(true);
+        acceptButton.setDisable(!ProbeSettings.getSkipProbeCheck());
 
+        CheckBox checkBox = new CheckBox("Don't ask again");
+        checkBox.setOnAction(e -> {
+            ProbeSettings.setSkipProbeCheck(checkBox.isSelected());
+            acceptButton.setDisable(false);
+        });
+        checkBox.setSelected(ProbeSettings.getSkipProbeCheck());
 
         VBox content = new VBox(10, instruction, indicatorRow);
         content.setAlignment(Pos.CENTER);
@@ -77,15 +85,15 @@ public class ProbeConfirmDialog extends Stage implements UGSEventListener {
 
         ButtonBox buttonBar = new ButtonBox();
         ButtonBox.setButtonData(acceptButton, ButtonBox.ButtonData.OK_DONE);
-        Button abortButton = new Button("Abort");
+        Button abortButton = new Button("Cancel");
         ButtonBox.setButtonData(abortButton, ButtonBox.ButtonData.LEFT);
-        buttonBar.getButtons().addAll(abortButton, acceptButton);
+        buttonBar.getButtons().addAll(abortButton, checkBox, acceptButton);
 
         BorderPane root = new BorderPane();
         root.setCenter(content);
         root.setBottom(buttonBar);
 
-        Scene scene = new Scene(root, 300, 150);
+        Scene scene = new Scene(root, 500, 150);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/root.css")).toExternalForm());
 
         acceptButton.setOnAction(e -> {
@@ -133,10 +141,10 @@ public class ProbeConfirmDialog extends Stage implements UGSEventListener {
     private void updateProbeIndicator(boolean touching) {
         if (touching) {
             indicatorDot.setFill(Colors.GREEN);
-            indicatorText.setText("Touching");
+            indicatorText.setText("Probe touching");
         } else {
             indicatorDot.setFill(Colors.RED);
-            indicatorText.setText("Not touching");
+            indicatorText.setText("Probe not touching");
         }
     }
 

@@ -23,14 +23,14 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.PositionAnima
 import static com.willwinder.universalgcodesender.fx.component.visualizer.VisualizerUtils.createCone;
 import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.Colors.COLOR_ALUMINIUM;
 import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.Colors.COLOR_DARK_GREY;
+import com.willwinder.universalgcodesender.fx.service.probe.ProbeService;
 import com.willwinder.universalgcodesender.fx.settings.ProbeSettings;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
-import javafx.beans.binding.Bindings;
-import javafx.beans.value.ObservableNumberValue;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -42,33 +42,24 @@ import javafx.scene.transform.Rotate;
 
 public class ProbeZModel extends Model {
     private final PositionAnimatorTimer positionAnimator = new PositionAnimatorTimer();
+    private final ProbeService probeService;
 
-    public ProbeZModel() {
+    public ProbeZModel(ProbeService probeService) {
         BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         backendAPI.addUGSEventListener(this::onEvent);
-
+        this.probeService = probeService;
         ObservableValue<Double> zPlateThickness = ProbeSettings.getInstance().zPlateThicknessProperty()
                 .map(s -> s.convertTo(Unit.MM).doubleValue());
 
-        ObservableNumberValue probeZDistanceMm = Bindings.createDoubleBinding(
-                () -> ProbeSettings.getInstance()
-                        .probeZDistanceProperty()
-                        .get()
-                        .convertTo(Unit.MM)
-                        .doubleValue(),
-                ProbeSettings.getInstance().probeZDistanceProperty()
-        );
-
         getChildren().addAll(createProbePuck(zPlateThickness));
-        getChildren().add(createArrow(probeZDistanceMm));
-
+        getChildren().add(createArrow());
 
         translateXProperty().bind(positionAnimator.posXProperty());
         translateYProperty().bind(positionAnimator.posYProperty());
-        translateZProperty().bind(positionAnimator.posZProperty().subtract(probeZDistanceMm));
+        translateZProperty().bind(positionAnimator.posZProperty());
     }
 
-    private Node createArrow(ObservableNumberValue probeZDistanceMm) {
+    private Node createArrow() {
         PhongMaterial material = new PhongMaterial(COLOR_DARK_GREY.deriveColor(0, 1, 1, 0.6));
         material.setSpecularColor(Color.BLACK);
         material.setSpecularPower(96);
@@ -77,8 +68,10 @@ public class ProbeZModel extends Model {
         Cylinder arrowShaft = new Cylinder(0.3, 1.0, 10);
         arrowShaft.setRotationAxis(Rotate.X_AXIS);
         arrowShaft.setRotate(-90);
-        arrowShaft.translateZProperty().bind(probeZDistanceMm.map(value -> (value.doubleValue() + arrowHeight) * .5));
-        arrowShaft.heightProperty().bind(probeZDistanceMm.map(value -> value.doubleValue() - arrowHeight));
+        arrowShaft.translateZProperty().bind(positionAnimator.posZProperty()
+                .subtract((probeService.getSafeProbeZDistance().convertTo(Unit.MM).doubleValue() + arrowHeight) * .5));
+        arrowShaft.heightProperty().bind(positionAnimator.posZProperty()
+                .subtract((probeService.getSafeProbeZDistance().convertTo(Unit.MM).doubleValue() - arrowHeight)));
         arrowShaft.setMaterial(material);
 
         MeshView arrowHead = createCone(2, (float) arrowHeight, 16);
@@ -120,7 +113,9 @@ public class ProbeZModel extends Model {
 
     private void onEvent(UGSEvent event) {
         if (event instanceof ControllerStatusEvent controllerStatusEvent) {
-            positionAnimator.setTarget(controllerStatusEvent.getStatus().getWorkCoord().getPositionIn(UnitUtils.Units.MM));
+            Position workPosition = controllerStatusEvent.getStatus().getWorkCoord().getPositionIn(UnitUtils.Units.MM);
+            workPosition.setZ(workPosition.getZ() + probeService.getSafeProbeZDistance().convertTo(Unit.MM).doubleValue());
+            positionAnimator.setTarget(workPosition);
             positionAnimator.start();
         }
     }

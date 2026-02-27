@@ -33,19 +33,15 @@ public final class ProbeSettings {
     }
 
     private static ProbeSettings instance;
-
-
     public static final String Z_PLATE_THICKNESS = "probe.z.plateThickness";
     private static final String Z_DISTANCE = "probe.z.distance";
-    public static final String Z_FEED_RATE = "probe.z.feedRate";
-    public static final String Z_RETRACT = "probe.z.retract";
-
     private static final String PROBE_DIAMETER = "probe.settings.diameter";
     private static final String FAST_FIND_RATE = "probe.settings.fastFindRate";
     private static final String SLOW_FIND_RATE = "probe.settings.slowFindRate";
     private static final String RETRACT_DISTANCE = "probe.settings.retractDistance";
     private static final String DELAY_AFTER_RETRACT = "probe.settings.delayAfterRetract";
     private static final String COMPENSATE_SOFT_LIMITS = "probe.settings.compensateSoftLimits";
+    private static final String SKIP_PROBE_CHECK = "probe.settings.skipProbeCheck";
 
     private final ObjectProperty<UnitValue> zPlateThickness = new SimpleObjectProperty<>(new UnitValue(Unit.MM, prefs.getDouble(Z_PLATE_THICKNESS, 20)));
     private final ObjectProperty<UnitValue> probeZDistance = new SimpleObjectProperty<>(new UnitValue(Unit.MM, prefs.getDouble(Z_DISTANCE, 50)));
@@ -103,13 +99,20 @@ public final class ProbeSettings {
         prefs.putDouble(RETRACT_DISTANCE, retractDistance.convertTo(Unit.MM).doubleValue());
     }
 
-
     public static void setCompensateSoftLimits(Boolean compensationEnabled) {
         prefs.putBoolean(COMPENSATE_SOFT_LIMITS, compensationEnabled);
     }
 
-    public static Boolean getCompensateSoftLimits() {
+    public static boolean getCompensateSoftLimits() {
         return prefs.getBoolean(COMPENSATE_SOFT_LIMITS, true);
+    }
+
+    public static boolean getSkipProbeCheck() {
+        return prefs.getBoolean(SKIP_PROBE_CHECK, false);
+    }
+
+    public static void setSkipProbeCheck(boolean skipProbeCheck) {
+        prefs.putBoolean(SKIP_PROBE_CHECK, skipProbeCheck);
     }
 
     public ObjectProperty<UnitValue> zPlateThicknessProperty() {

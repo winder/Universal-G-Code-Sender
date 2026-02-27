@@ -89,7 +89,7 @@ public class SettingsStage extends Stage {
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.processor"), "icons/scroll.svg", new ProcessorConfigPane()));
         sectionList.setCellFactory(listView -> new SettingsListCell());
         sectionList.getSelectionModel().select(0);
-        sectionList.setPrefWidth(200);
+        sectionList.setPrefWidth(240);
 
         // Right content area
         StackPane contentPane = new StackPane();

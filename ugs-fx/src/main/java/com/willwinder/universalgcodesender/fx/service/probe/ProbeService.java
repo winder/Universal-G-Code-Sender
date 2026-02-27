@@ -16,8 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.fx.service;
+package com.willwinder.universalgcodesender.fx.service.probe;
 
+import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.fx.exceptions.ProbeException;
 import com.willwinder.universalgcodesender.fx.settings.ProbeSettings;
@@ -36,12 +37,19 @@ import com.willwinder.universalgcodesender.utils.ControllerUtils;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Flow;
+import java.util.concurrent.SubmissionPublisher;
 
 public class ProbeService {
+    public static final ProbeStep FAST_FIND = new ProbeStep("Fast find");
+    public static final ProbeStep RETRACT = new ProbeStep("Retract");
+    public static final ProbeStep SLOW_FIND = new ProbeStep("Slow find");
+    public static final ProbeStep MOVE_TO_ORIGIN = new ProbeStep("Move to origin");
+    public static final ProbeStep WAITING = new ProbeStep("Waiting");
     private final BackendAPI backend;
     private final ProbeSettings settings;
 
@@ -51,69 +59,116 @@ public class ProbeService {
     }
 
     public UnitValue getSafeProbeZDistance() {
-        double probeDistance = -settings.probeZDistanceProperty().getValue().convertTo(Unit.MM).doubleValue();
-        if (!shouldCompensateForSoftLimits()) {
-            return new UnitValue(Unit.MM, probeDistance);
-        }
+        return settings.probeZDistanceProperty()
+                .map(u -> {
+                    double probeDistance = -settings.probeZDistanceProperty().getValue().convertTo(Unit.MM).doubleValue();
+                    if (!shouldCompensateForSoftLimits()) {
+                        return new UnitValue(Unit.MM, probeDistance);
+                    }
 
-        double distanceToSoftLimit = -ControllerUtils.getDistanceToSoftLimit(backend.getController(), Axis.Z);
-        if (distanceToSoftLimit > probeDistance) {
-            // Remove an additional small amount to avoid hitting the soft limit due to rounding errors
-            probeDistance = distanceToSoftLimit - 1e-6;
-        }
-        return new UnitValue(Unit.MM, probeDistance);
+                    double distanceToSoftLimit = -ControllerUtils.getDistanceToSoftLimit(backend.getController(), Axis.Z);
+                    if (distanceToSoftLimit > probeDistance) {
+                        // Remove an additional small amount to avoid hitting the soft limit due to rounding errors
+                        probeDistance = distanceToSoftLimit - 1e-6;
+                    }
+
+                    return new UnitValue(Unit.MM, probeDistance);
+                })
+                .getValue();
     }
 
     protected boolean shouldCompensateForSoftLimits() {
         try {
-            return ProbeSettings.getCompensateSoftLimits() && backend.getController().getFirmwareSettings().isSoftLimitsEnabled();
+            return ProbeSettings.getCompensateSoftLimits() &&
+                    backend.getController() != null &&
+                    backend.getController().getFirmwareSettings().isSoftLimitsEnabled();
         } catch (FirmwareSettingsException e) {
             return false;
         }
     }
 
-    public void probeZ() throws ProbeException {
+    public void probeZ(Flow.Subscriber<ProbeEvent> subscriber) {
+        SubmissionPublisher<ProbeEvent> publisher = new SubmissionPublisher<>();
+        publisher.subscribe(subscriber);
         try {
+            new Thread(() -> {
+                try (publisher) {
+                    probeZ(publisher);
+                }
+            }, "probe-thread").start();
+        } catch (RuntimeException threadStartFailure) {
+            publisher.closeExceptionally(threadStartFailure);
+            throw threadStartFailure;
+        }
+    }
+
+    public void probeZ(SubmissionPublisher<ProbeEvent> publisher) {
+        try {
+            publisher.submit(new ProbeEvent.JobCreated(List.of(FAST_FIND, RETRACT, WAITING, SLOW_FIND, MOVE_TO_ORIGIN)));
+
             double previousZ = backend.getController()
                     .getControllerStatus()
                     .getMachineCoord()
                     .getPositionIn(UnitUtils.Units.MM)
                     .getZ();
 
+            publisher.submit(new ProbeEvent.StepStarted(FAST_FIND));
             probeZ(getSafeProbeZDistance(), getFastFindRate()).get()
-                    .orElseThrow(() -> new ProbeException("Could not find the the probe"));
+                    .orElseThrow(() -> {
+                        publisher.submit(new ProbeEvent.StepFailed(FAST_FIND));
+                        return new ProbeException("Probe did not trigger within distance");
+                    });
+            publisher.submit(new ProbeEvent.StepCompleted(FAST_FIND));
 
-            backend.getController().jogMachine(
-                    PartialPosition.from(Axis.Z, ProbeSettings.getRetractDistance()).getPositionIn(UnitUtils.Units.MM),
-                    getFastFeedRateInMmPerMinute());
+            PartialPosition retractDistance = PartialPosition.from(Axis.Z, ProbeSettings.getRetractDistance()).getPositionIn(UnitUtils.Units.MM);
+            retractZ(publisher, RETRACT, retractDistance);
+
 
             // We should probably wait for the jog command to complete, but we don't have a way to do that yet
+            publisher.submit(new ProbeEvent.StepStarted(WAITING));
             Thread.sleep(ProbeSettings.getDelayAfterRetract().convertTo(Unit.MILLISECONDS).longValue());
+            publisher.submit(new ProbeEvent.StepCompleted(WAITING));
 
+            publisher.submit(new ProbeEvent.StepStarted(SLOW_FIND));
             double probedZ = probeZ(getSafeProbeZDistance(), ProbeSettings.getSlowFindRate())
                     .get()
                     .map(p -> p.getPositionIn(UnitUtils.Units.MM).getZ())
-                    .orElseThrow(() -> new ProbeException("Second probe failed"));
+                    .orElseThrow(() -> {
+                        publisher.submit(new ProbeEvent.StepFailed(SLOW_FIND));
+                        return new ProbeException("Second probe failed");
+                    });
+            publisher.submit(new ProbeEvent.StepCompleted(SLOW_FIND));
 
             // Reset zero minus the probe plate
             backend.setWorkPosition(PartialPosition.from(Axis.Z, settings.zPlateThicknessProperty().getValue()));
 
             // Jog back to the starting Z position
             double probedDistance = previousZ - probedZ;
-            backend.getController().jogMachine(
-                    PartialPosition.from(Axis.Z, probedDistance, UnitUtils.Units.MM).getPositionIn(UnitUtils.Units.MM),
-                    getFastFeedRateInMmPerMinute());
+            retractZ(publisher, MOVE_TO_ORIGIN, PartialPosition.from(Axis.Z, probedDistance, UnitUtils.Units.MM).getPositionIn(UnitUtils.Units.MM));
 
             backend.getController().restoreParserModalState();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new ProbeException("An unexpected error occurred during probing", e);
+            publisher.submit(new ProbeEvent.JobCompleted());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            publisher.submit(new ProbeEvent.JobFailed(e));
         }
     }
 
-    private static int getFastFeedRateInMmPerMinute() {
-        return getFastFindRate().convertTo(Unit.MM_PER_MINUTE).intValue();
+    private void retractZ(SubmissionPublisher<ProbeEvent> publisher, ProbeStep step, PartialPosition retractDistance) throws ProbeException {
+        try {
+            publisher.submit(new ProbeEvent.StepStarted(step));
+            GcodeCommand command = backend.getController().createCommand("G21 G91 G0 " + retractDistance.getPositionIn(UnitUtils.Units.MM).getFormattedGCode(Utils.formatter));
+            command.setTemporaryParserModalChange(true);
+            ControllerUtils.sendAndWaitForCompletion(backend.getController(), command, Duration.of(1, ChronoUnit.MINUTES));
+
+            if (command.isOk()) {
+                publisher.submit(new ProbeEvent.StepCompleted(step));
+            } else {
+                throw new ProbeException("Could not retract the probe");
+            }
+        } catch (Exception e) {
+            publisher.submit(new ProbeEvent.StepFailed(step));
+            throw new ProbeException("Could not retract the probe", e);
+        }
     }
 
     private static UnitValue getFastFindRate() {
