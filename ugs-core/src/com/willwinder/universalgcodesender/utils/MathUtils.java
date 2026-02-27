@@ -21,10 +21,13 @@ package com.willwinder.universalgcodesender.utils;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import org.locationtech.jts.algorithm.ConvexHull;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -69,60 +72,12 @@ public class MathUtils {
             return Collections.emptyList();
         }
 
-        // Start from leftmost point, keep moving counterclockwise until reach the start point again.
-        int leftMostPoint = findLeftMostPointIndex(points);
-        int currentPoint = leftMostPoint;
-        List<PartialPosition> result = new ArrayList<>();
-        do {
-            // Add current point to result
-            result.add(points.get(currentPoint));
+        ConvexHull convexHull = new ConvexHull(points.stream()
+                .map(s -> s.getPositionIn(UnitUtils.Units.MM))
+                .map(s -> new Coordinate(s.getX(), s.getY()))
+                .toArray(Coordinate[]::new), new GeometryFactory());
 
-            // Now q is the most counterclockwise with respect to currentPoint.
-            // Set currentPoint as q for next iteration, so that q is added to result 'hull'
-            currentPoint = findNextOuterPointIndex(points, currentPoint);
-
-        } while (currentPoint != leftMostPoint);  // While we don't come to first point
-
-        return result;
-    }
-
-    /**
-     * Given a list of points and the starting index, find the most adjacent outer point counter clockwise
-     * from the starting point
-     *
-     * @param points        a list of points
-     * @param startingIndex the index of the point to originate from
-     * @return the next outer point counter clockwise from the start point
-     */
-    private static int findNextOuterPointIndex(List<PartialPosition> points, int startingIndex) {
-        // Search for a point 'q' such that orientation(currentPoint, i, q) is counterclockwise
-        // for all points 'i'. The idea is to keep track of last visited most counterclock-
-        // wise point in q. If any point 'i' is more counterclock-wise than q, then update q.
-        int q = (startingIndex + 1) % points.size();
-
-        for (int i = 0; i < points.size(); i++) {
-            // If i is more counterclockwise than current q, then update q
-            if (orientation(points.get(startingIndex), points.get(i), points.get(q)) == COUNTER_CLOCKWISE) {
-                q = i;
-            }
-        }
-        return q;
-    }
-
-    /**
-     * Given a list of points find the point furthest to the left
-     *
-     * @param points a list of points
-     * @return the index of the point
-     */
-    private static int findLeftMostPointIndex(List<PartialPosition> points) {
-        int leftMostPoint = 0;
-        for (int i = 1; i < points.size(); i++) {
-            if (points.get(leftMostPoint).getX().isNaN() || points.get(i).getX() < points.get(leftMostPoint).getX()) {
-                leftMostPoint = i;
-            }
-        }
-        return leftMostPoint;
+        return  Arrays.stream(convexHull.getConvexHull().getCoordinates()).map(c -> new PartialPosition(c.x, c.y, UnitUtils.Units.MM)).toList();
     }
 
     public static double round(double value, int decimals) {
