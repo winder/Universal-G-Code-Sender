@@ -75,10 +75,11 @@ public class MathUtilsTest {
         );
 
         List<PartialPosition> convexHull = MathUtils.generateConvexHull(points);
-        assertEquals(3, convexHull.size());
+        assertEquals(4, convexHull.size());
         assertEquals(new PartialPosition(0d, 0d, UnitUtils.Units.MM), convexHull.get(0));
-        assertEquals(new PartialPosition(10d, 10d, UnitUtils.Units.MM), convexHull.get(1));
-        assertEquals(new PartialPosition(0d, 10d, UnitUtils.Units.MM), convexHull.get(2));
+        assertEquals(new PartialPosition(0d, 10d, UnitUtils.Units.MM), convexHull.get(1));
+        assertEquals(new PartialPosition(10d, 10d, UnitUtils.Units.MM), convexHull.get(2));
+        assertEquals(new PartialPosition(0d, 0d, UnitUtils.Units.MM), convexHull.get(3));
     }
 
     @Test
