@@ -36,7 +36,7 @@ public class GrblProbeCommandTest {
                 .build();
 
         GrblProbeCommand command = new GrblProbeCommand(distance, new UnitValue(Unit.MM_PER_MINUTE, 1000));
-        assertEquals("G21 G38.2 X10 Y20 Z30 F1000", command.getCommandString());
+        assertEquals("G21 G91 G38.2 X10 Y20 Z30 F1000", command.getCommandString());
     }
 
     @Test
@@ -47,6 +47,6 @@ public class GrblProbeCommandTest {
                 .build();
 
         GrblProbeCommand command = new GrblProbeCommand(distance, new UnitValue(Unit.INCHES_PER_MINUTE, 39.3701));
-        assertEquals("G21 G38.2 Z-10.111 F1000", command.getCommandString());
+        assertEquals("G21 G91 G38.2 Z-10.111 F1000", command.getCommandString());
     }
 }
