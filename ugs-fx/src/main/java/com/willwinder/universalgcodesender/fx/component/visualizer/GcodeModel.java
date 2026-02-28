@@ -59,7 +59,7 @@ public class GcodeModel extends Group {
     private final GcodeViewParse gcvp;
     private final MeshView meshView;
     private final BackendAPI backendAPI;
-    private final float lineWidth;
+    private float lineWidth;
 
     private GcodeModelMaterial material = new GcodeModelMaterial(0);
 
@@ -90,7 +90,11 @@ public class GcodeModel extends Group {
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
         gcvp = new GcodeViewParse();
         backendAPI.addUGSEventListener(this::onEvent);
-        lineWidth = 0.03f;
+        lineWidth = VisualizerSettings.getInstance().lineWidthProperty().getValue();
+        VisualizerSettings.getInstance().lineWidthProperty().addListener((s, o, n) -> {
+            lineWidth = n.floatValue();
+            loadModel();
+        });
         addSettingListeners();
     }
 
@@ -123,15 +127,7 @@ public class GcodeModel extends Group {
     private void onEvent(UGSEvent event) {
         if (event instanceof FileStateEvent fileStateEvent) {
             if (fileStateEvent.getFileState() == FileState.FILE_LOADED) {
-                ThreadHelper.invokeLater(() -> {
-                    try {
-                        List<LineSegment> lineSegments = loadModel(gcvp, backendAPI.getGcodeFile().getAbsolutePath());
-                        TriangleMesh mesh = pointsToMesh(lineSegments);
-                        meshView.setMesh(mesh);
-                    } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, "Could not load model", e);
-                    }
-                });
+                loadModel();
             }
         } else if (event instanceof StreamEvent streamEvent) {
             if (streamEvent.getType() == StreamEventType.STREAM_COMPLETE || streamEvent.getType() == StreamEventType.STREAM_CANCELED) {
@@ -144,6 +140,18 @@ public class GcodeModel extends Group {
         } else if (event instanceof SettingChangedEvent) {
             addSettingListeners();
         }
+    }
+
+    private void loadModel() {
+        ThreadHelper.invokeLater(() -> {
+            try {
+                List<LineSegment> lineSegments = loadModel(gcvp, backendAPI.getGcodeFile().getAbsolutePath());
+                TriangleMesh mesh = pointsToMesh(lineSegments);
+                meshView.setMesh(mesh);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Could not load model", e);
+            }
+        });
     }
 
     private TriangleMesh pointsToMesh(List<LineSegment> lineSegments) {

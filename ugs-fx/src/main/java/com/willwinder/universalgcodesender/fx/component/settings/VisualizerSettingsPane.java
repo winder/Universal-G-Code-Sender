@@ -22,12 +22,17 @@ import com.willwinder.universalgcodesender.fx.component.BorderedTitledPane;
 import com.willwinder.universalgcodesender.fx.component.SettingsRow;
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.MachineType;
 import com.willwinder.universalgcodesender.fx.control.SwitchButton;
+import com.willwinder.universalgcodesender.fx.control.UnitTextField;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Unit;
+import com.willwinder.universalgcodesender.model.UnitValue;
+import javafx.beans.property.FloatProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -43,12 +48,21 @@ public class VisualizerSettingsPane extends BorderPane {
     private final VBox settingsGroup;
 
     public VisualizerSettingsPane() {
+        addTitleSection();
         settingsGroup = new VBox(32);
         addMachineCombo();
+        addModelSettings();
         addMouseControls();
         addColorSettings();
-        addTitleSection();
         setCenter(settingsGroup);
+    }
+
+    private void addModelSettings() {
+        settingsGroup.getChildren().add(new BorderedTitledPane(Localization.getString("settings.visualizer.model"),
+                new VBox(10,
+                        createFloatSetting(Localization.getString("platform.visualizer.model.lineWidth"), VisualizerSettings.getInstance().lineWidthProperty())
+                )
+        ));
     }
 
     private void addColorSettings() {
@@ -179,4 +193,9 @@ public class VisualizerSettingsPane extends BorderPane {
         return new SettingsRow(text, colorPicker);
     }
 
+    private Node createFloatSetting(String text, FloatProperty floatProperty) {
+        UnitTextField unitTextField = new UnitTextField(new UnitValue(Unit.MM, floatProperty.getValue()), Unit.MM);
+        unitTextField.unitValueProperty().addListener((observable, oldValue, newValue) -> floatProperty.set(newValue.convertTo(Unit.MM).floatValue()));
+        return new SettingsRow(text, unitTextField);
+    }
 }
