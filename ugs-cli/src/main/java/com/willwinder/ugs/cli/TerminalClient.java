@@ -27,7 +27,6 @@ import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import com.willwinder.universalgcodesender.utils.Version;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.lang3.StringUtils;
 
@@ -46,7 +45,6 @@ import java.util.logging.LogManager;
 public class TerminalClient {
 
     private static final long WAIT_DURATION = 1000L;
-    private static final String SOFTWARE_NAME = "ugs-cli";
     private static final String SOFTWARE_DESCRIPTION = "This is a terminal version of Universal Gcode Sender used for sending gcode files to controllers using command line.";
     private final Configuration configuration;
     private BackendAPI backend;
@@ -186,13 +184,11 @@ public class TerminalClient {
      * Prints a help message with all available properties for the program
      */
     private void printHelpMessage() {
-        System.out.println(SOFTWARE_NAME + " " + Version.getVersionString());
-        System.out.println();
         System.out.println(SOFTWARE_DESCRIPTION);
         System.out.println();
 
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp(SOFTWARE_NAME, configuration.getOptions());
+        formatter.printHelp("ugs", configuration.getOptions());
     }
 
     /**

@@ -75,7 +75,7 @@ for %%s in ("msi" "exe") do call "%JAVA_HOME%\bin\jpackage" ^
   --dest target\installer ^
   --input target\installer\input\libs ^
   --name "Universal G-code Sender" ^
-  --main-class com.willwinder.universalgcodesender.fx.Main ^
+  --main-class com.willwinder.universalgcodesender.fx.Launcher ^
   --main-jar %MAIN_JAR% ^
   --resource-dir installer ^
   --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true -Djavafx.preloader=com.willwinder.universalgcodesender.fx.Preloader" ^

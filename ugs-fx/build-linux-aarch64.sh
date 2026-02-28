@@ -101,7 +101,7 @@ $JAVA_HOME/bin/jpackage \
   --input target/installer/input/libs \
   --name ugs \
   --linux-deb-maintainer "joacim@breiler.com" \
-  --main-class com.willwinder.universalgcodesender.fx.Main \
+  --main-class com.willwinder.universalgcodesender.fx.Launcher \
   --main-jar ${MAIN_JAR} \
   --resource-dir installer \
   --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true -Djavafx.preloader=com.willwinder.universalgcodesender.fx.Preloader"  \
@@ -116,7 +116,16 @@ mv target/installer/ugs_*.deb "target/installer/ugs-${APP_VERSION}-aarch64.deb"
 # Repackage using xz instead of zst
 cd target/installer
 dpkg-deb -R "ugs-${APP_VERSION}-aarch64.deb" ugs-tmp
+
+# Install icons into the icon theme so package managers/desktops can find them
+mkdir -p "ugs-tmp/usr/share/icons/hicolor/256x256/apps"
+mkdir -p "ugs-tmp/usr/share/icons/hicolor/scalable/apps"
+cp "../../installer/ugs.png" "ugs-tmp/usr/share/icons/hicolor/256x256/apps/ugs.png"
+cp "../../installer/ugs.svg" "ugs-tmp/usr/share/icons/hicolor/scalable/apps/ugs.svg"
+
 sed -i "/^Depends:/c\\Depends: libc6" "ugs-tmp/DEBIAN/control"
+sed -i "/^Maintainer:/c\\Maintainer: Joacim Breiler <joacim@breiler.com>" "ugs-tmp/DEBIAN/control"
+sed -i "/^Description:/c\\Description: Universal G-code Sender" "ugs-tmp/DEBIAN/control"
 rm "ugs-${APP_VERSION}-aarch64.deb"
 dpkg-deb -Zxz -b ugs-tmp "ugs-${APP_VERSION}-aarch64.deb"
 rm -r ugs-tmp
@@ -128,7 +137,7 @@ $JAVA_HOME/bin/jpackage \
   --input target/installer/input/libs \
   --name ugs \
   --linux-deb-maintainer "joacim@breiler.com" \
-  --main-class com.willwinder.universalgcodesender.fx.Main \
+  --main-class com.willwinder.universalgcodesender.fx.Launcher \
   --main-jar ${MAIN_JAR} \
   --resource-dir installer \
   --java-options "-XX:MaxRAMPercentage=85.0 -Dprism.forceGPU=true -Djavafx.preloader=com.willwinder.universalgcodesender.fx.Preloader"  \
