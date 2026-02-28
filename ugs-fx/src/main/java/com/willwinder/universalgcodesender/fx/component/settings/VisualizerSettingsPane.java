@@ -51,9 +51,18 @@ public class VisualizerSettingsPane extends BorderPane {
         addTitleSection();
         settingsGroup = new VBox(32);
         addMachineCombo();
+        addModelSettings();
         addMouseControls();
         addColorSettings();
         setCenter(settingsGroup);
+    }
+
+    private void addModelSettings() {
+        settingsGroup.getChildren().add(new BorderedTitledPane(Localization.getString("settings.visualizer.model"),
+                new VBox(10,
+                        createFloatSetting(Localization.getString("platform.visualizer.model.lineWidth"), VisualizerSettings.getInstance().lineWidthProperty())
+                )
+        ));
     }
 
     private void addColorSettings() {
