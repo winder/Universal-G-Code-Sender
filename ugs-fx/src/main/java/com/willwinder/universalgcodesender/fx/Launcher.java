@@ -18,11 +18,20 @@
  */
 package com.willwinder.universalgcodesender.fx;
 
+import com.willwinder.ugs.cli.TerminalClient;
+
+import java.io.IOException;
+
 /**
  * This starter class is needed to start the application from the IDE
  */
-public class Starter {
-    public static void main(String[] args) {
-        Main.main(args);
+public class Launcher {
+    public static void main(String[] args) throws IOException {
+        if (args.length == 0 || !args[0].startsWith("-")) {
+            Main.main(args);
+            return;
+        }
+
+        TerminalClient.main(args);
     }
 }
