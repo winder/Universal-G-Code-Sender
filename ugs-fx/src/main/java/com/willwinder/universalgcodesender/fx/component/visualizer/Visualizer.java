@@ -19,7 +19,10 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machine;
+import com.willwinder.universalgcodesender.fx.component.visualizer.models.Axes;
+import com.willwinder.universalgcodesender.fx.component.visualizer.models.Grid;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
+import com.willwinder.universalgcodesender.fx.component.visualizer.models.Tool;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import javafx.animation.KeyFrame;
@@ -63,15 +66,14 @@ public class Visualizer extends Pane {
     public Visualizer() {
 
         // Rotate group contains 3D objects
-        Tool tool = new Tool();
         Machine machine = new Machine();
-        worldGroup = new Group(new Axes(), new Grid(), new GcodeModel(), tool, machine);
+        worldGroup = new Group(new GcodeModel(), machine);
         worldGroup.getTransforms().addAll(rotateX, rotateY, rotateZ);
 
         // Lighting
         DirectionalLight light = new DirectionalLight(Color.WHITE);
         light.setDirection(new Point3D(1, -1, -1));
-        light.getScope().addAll(tool, machine);
+        light.getScope().addAll(machine);
 
         Point3D lightDirection = new Point3D(0.5, 0.7, 0);
         SpotLight spotLight = new SpotLight(Color.DARKGREY);
@@ -107,7 +109,7 @@ public class Visualizer extends Pane {
             while (change.next()) {
                 if (change.wasAdded()) {
                     worldGroup.getChildren().addAll(change.getAddedSubList());
-                    spotLight.getScope().addAll(change.getAddedSubList());
+                    spotLight.getScope().addAll(change.getAddedSubList().stream().filter(Model::useLighting).toList());
                 }
                 if (change.wasRemoved()) {
                     worldGroup.getChildren().removeAll(change.getRemoved());
@@ -115,10 +117,13 @@ public class Visualizer extends Pane {
                 }
             }
         });
+
+        VisualizerService.getInstance().addModel(new Axes());
+        VisualizerService.getInstance().addModel(new Tool());
+        VisualizerService.getInstance().addModel(new Grid());
     }
 
     private void rotateTo(OrientationCubeFace face) {
-        // Optional: animate instead of jumping
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.seconds(0),
                         new KeyValue(rotateX.angleProperty(), rotateX.getAngle()),
@@ -211,7 +216,8 @@ public class Visualizer extends Pane {
         // Zoom with mouse scroll
         subScene.setOnScroll(event -> {
             boolean invert = VisualizerSettings.getInstance().invertZoomProperty().get();
-            double delta = invert ? -event.getDeltaY() : event.getDeltaY();
+            double currentScale = getCurrentScale();
+            double delta = (invert ? -event.getDeltaY() : event.getDeltaY()) / currentScale;
 
             if (camera instanceof ParallelCamera) {
                 double scale = root3D.getScaleY() + (delta / 200f);
@@ -220,7 +226,21 @@ public class Visualizer extends Pane {
             } else {
                 cameraTranslate.setZ(cameraTranslate.getZ() + delta);
             }
+
+            VisualizerService.getInstance().onZoomChange(currentScale);
         });
+    }
+
+    private double getCurrentScale() {
+        double scale = root3D.getScaleX();
+        if (camera instanceof PerspectiveCamera) {
+            // Zoom == camera distance: use inverse so axes get thicker when you zoom in (camera closer)
+            double baseDistance = 500.0;                // matches initial |Z| from cameraTranslate = -500
+            double currentDistance = Math.max(1e-6, -cameraTranslate.getZ()); // ensure positive
+            scale = baseDistance / currentDistance;
+        }
+
+        return scale;
     }
 
     private Camera createCamera() {
@@ -253,20 +273,5 @@ public class Visualizer extends Pane {
         // Ensure SubScene resizes with the parent node
         subScene.setWidth(getWidth());
         subScene.setHeight(getHeight());
-    }
-
-    public void resetScene() {
-        // Reset transformations
-        rotateX.setAngle(0);
-        rotateY.setAngle(0);
-        translate.setX(0);
-        translate.setY(0);
-        cameraTranslate.setZ(-500); // reset zoom
-    }
-
-    public void setCameraPosition(double x, double y, double z) {
-        cameraTranslate.setX(x);
-        cameraTranslate.setY(y);
-        cameraTranslate.setZ(z);
     }
 }

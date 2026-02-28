@@ -20,5 +20,22 @@ package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
 import javafx.scene.Group;
 
+/**
+ * A visualizer model that can be registerd through the {@link com.willwinder.universalgcodesender.fx.service.VisualizerService#addModel(Model)}.
+ *
+ */
 public abstract class Model extends Group {
+    /**
+     * When the zoom factor is changed
+     *
+     * @param zoomFactor the current zoom factor
+     */
+    public abstract void onZoomChange(double zoomFactor);
+
+    /**
+     * Returns true if lighting should be applied to the model
+     *
+     * @return true if lighting should be used
+     */
+    public abstract boolean useLighting();
 }

@@ -119,4 +119,14 @@ public class ProbeZModel extends Model {
             positionAnimator.start();
         }
     }
+
+    @Override
+    public void onZoomChange(double zoomFactor) {
+        // Don't care
+    }
+
+    @Override
+    public boolean useLighting() {
+        return true;
+    }
 }

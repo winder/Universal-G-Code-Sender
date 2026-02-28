@@ -16,20 +16,21 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.fx.component.visualizer;
+package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.fx.component.visualizer.PositionAnimatorTimer;
+import com.willwinder.universalgcodesender.fx.component.visualizer.VisualizerUtils;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
-import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Rotate;
 
-public class Tool extends Group {
+public class Tool extends Model {
     private final PositionAnimatorTimer positionAnimator = new PositionAnimatorTimer();
 
     public Tool() {
@@ -60,7 +61,6 @@ public class Tool extends Group {
         }
     }
 
-
     public MeshView createCone(float radius, float height, int divisions, Color color) {
         MeshView cone = VisualizerUtils.createCone(radius, height, divisions);
         PhongMaterial material = new PhongMaterial();
@@ -70,5 +70,15 @@ public class Tool extends Group {
         cone.setMaterial(material);
 
         return cone;
+    }
+
+    @Override
+    public void onZoomChange(double zoomFactor) {
+        // TODO scale the tool
+    }
+
+    @Override
+    public boolean useLighting() {
+        return true;
     }
 }
