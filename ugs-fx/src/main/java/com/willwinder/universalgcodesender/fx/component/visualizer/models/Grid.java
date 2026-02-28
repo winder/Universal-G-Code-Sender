@@ -1,6 +1,5 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -55,7 +54,6 @@ public class Grid extends Model {
     private double currentGridStepMm = GRID_STEP_COARSE_MM;
 
     public Grid() {
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
         backend.addUGSEventListener(this::onEvent);
 
         regenerateGrid();
