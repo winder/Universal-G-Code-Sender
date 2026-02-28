@@ -110,6 +110,7 @@ public class ToolSettingsPanel extends JPanel {
 
         add(new JLabel("Spindle Start Command" ));
         spindleDirection = new JComboBox<>(new DefaultComboBoxModel<>(new String[]{"M3","M4","M5"}));
+        spindleDirection.setSelectedItem(controller.getSettings().getSpindleDirection());
         add(spindleDirection, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Arc precision" ));
