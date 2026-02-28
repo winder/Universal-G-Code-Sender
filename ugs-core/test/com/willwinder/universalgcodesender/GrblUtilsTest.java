@@ -364,6 +364,16 @@ public class GrblUtilsTest {
     }
 
     @Test
+    public void getStatusFromStatusStringV1Should() {
+        Capabilities version = new Capabilities();
+        version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
+
+        String status = "<Idle|MPos:0.000,0.000,0.000|FS:0,0|SN:0,sign:0|APP:17|USB:1|TEMP:0.0>";
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusStringV1(null, status, MM);
+        assertEquals(new Position(0, 0, 0, MM), controllerStatus.getMachineCoord());
+    }
+
+    @Test
     public void getStatusFromStatusStringV1ShouldReturnAccessoryStates() {
         Capabilities version = new Capabilities();
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);

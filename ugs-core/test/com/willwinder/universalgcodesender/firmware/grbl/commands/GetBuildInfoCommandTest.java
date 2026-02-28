@@ -89,6 +89,19 @@ public class GetBuildInfoCommandTest {
     }
 
     @Test
+    public void getBuildOptionsForAtomstack() {
+        GetBuildInfoCommand command = new GetBuildInfoCommand();
+        command.appendResponse("[VER:AAS11A0077-BO-V1.16.Jan 21 2026:,Machine:P1]");
+        command.appendResponse("[OPT:HSW,3000,4096]");
+        command.appendResponse("[PV=2.0:MSG:Mode=STA:SSID=:Status=Not connected:IP=0.0.0.0:MAC=98-A3-16-0C-35-20]");
+        command.appendResponse("[PV=2.0:MSG:Mode=AP:SSDI=P1_8245:IP=0.0.0.0:StationNum=0:MAC=No Wifi]");
+        command.appendResponse("[OPT:HSW,3000,4096]");
+        command.appendResponse("ok");
+        GrblVersion version = command.getVersion().orElseThrow(RuntimeException::new);
+        assertEquals(1.1, version.getVersionNumber(), 0.01);
+    }
+
+    @Test
     public void getBuildOptionsWithoutAnyResponseFromController() {
         GetBuildInfoCommand command = new GetBuildInfoCommand();
         command.appendResponse("ok");

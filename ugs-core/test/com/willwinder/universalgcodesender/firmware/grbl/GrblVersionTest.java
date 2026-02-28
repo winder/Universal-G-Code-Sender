@@ -90,6 +90,12 @@ public class GrblVersionTest {
     }
 
     @Test
+    public void parseAtomStackVersionString() {
+        GrblVersion version = new GrblVersion("[VER:AAS11A0077-BO-V1.16.Jan 21 2026:,Machine:P1]");
+        assertEquals(1.1d, version.getVersionNumber(), 0.001);
+    }
+
+    @Test
     public void parseGenmitsuArm32VersionString() {
         GrblVersion version = new GrblVersion("[VER:ARM32 V2.1.20220827:]");
         assertEquals(2.1d, version.getVersionNumber(), 0.001);
