@@ -9,6 +9,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -39,6 +40,8 @@ public class AxisLabel extends HBox {
         workCoordinate.setAlignment(Pos.CENTER_RIGHT);
         workCoordinate.setMaxWidth(Double.MAX_VALUE);
         workCoordinate.setWrapText(false);
+        workCoordinate.getStyleClass().add("work-coordinate");
+        workCoordinate.setCursor(Cursor.HAND);
 
         workUnitsLabel = new Label(UnitUtils.Units.MM.abbreviation);
         workUnitsLabel.getStyleClass().add("units");
@@ -86,6 +89,18 @@ public class AxisLabel extends HBox {
         });
 
         updatePosition(ControllerState.DISCONNECTED, Position.ZERO, Position.ZERO);
+    }
+
+    public void setOnWorkCoordinateClicked(Runnable onWorkCoordinateClicked) {
+        workCoordinate.setOnMouseClicked(event -> {
+            if (!isDisabled() && onWorkCoordinateClicked != null) {
+                onWorkCoordinateClicked.run();
+            }
+        });
+    }
+
+    public Label getWorkCoordinateLabel() {
+        return workCoordinate;
     }
 
     public void updatePosition(ControllerState state, Position workPosition, Position machinePosition) {
