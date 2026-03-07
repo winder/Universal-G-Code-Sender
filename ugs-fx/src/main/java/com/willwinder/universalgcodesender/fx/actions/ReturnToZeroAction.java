@@ -1,5 +1,5 @@
 /*
-    Copyright 2025 Joacim Breiler
+    Copyright 2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 

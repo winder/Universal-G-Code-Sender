@@ -1,5 +1,5 @@
 /*
-    Copyright 2025 Joacim Breiler
+    Copyright 2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -17,7 +17,6 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.universalgcodesender.fx.actions;
-
 
 import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.fx.stage.ConnectStage;
