@@ -1,0 +1,83 @@
+.state-label,
+.axis-label,
+.highlightable-label {
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+    -fx-padding: 5px 12px;
+    -fx-font-size: 1.6em;
+
+    -fx-alignment: center;
+
+    -fx-background-radius: 8px;
+    -fx-background-insets: 0;
+
+    -fx-background-color: #353A40;
+    -fx-text-fill: #cac9c9;
+}
+
+.state-label.idle,
+.state-label.disconnected,
+.state-label.connecting {
+    -fx-background-color: #353A40;
+    -fx-text-fill: #cac9c9;
+}
+
+.state-label.run,
+.state-label.jog,
+.state-label.home {
+    -fx-background-color: #00c900;
+    -fx-text-fill: #353A40;
+}
+
+
+.state-label.hold,
+.state-label.door {
+    -fx-background-color: #ff970b;
+    -fx-text-fill: black;
+}
+
+.state-label.alarm {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+}
+
+.state-label .label,
+.axis-label .label {
+    -fx-text-fill: inherit;
+}
+
+.axis-label .label,
+.highlightable-label .label {
+    -fx-font-family: "DJB Get Digital";
+    -fx-font-size: 1.4em;
+    -fx-text-fill: #05d4ff;
+    -fx-padding: 0;
+}
+
+.axis-label:disabled .label,
+.highlightable-label:disabled .label {;
+    -fx-opacity: 0.7;
+}
+
+.highlightable-label .icon {
+    -fx-padding-left: 1em;
+    -fx-fill: #05d4ff;
+}
+
+
+.highlightable-label.highlight .label,
+.highlightable-label.highlight .icon {
+    -fx-opacity: 1;
+    -fx-text-fill: #00E200;
+    -fx-fill: #00E200;
+}
+
+.axis-label .machine-coordinate {
+    -fx-font-size: 1em;
+}
+
+
+.label.units {
+    -fx-font-size: 0.8em;
+    -fx-padding: 0px 0px 5px 5px;
+}

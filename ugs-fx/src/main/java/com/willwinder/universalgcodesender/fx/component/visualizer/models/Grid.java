@@ -1,6 +1,6 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -37,11 +37,6 @@ public class Grid extends Model {
 
     /** Remember the current grid extents + step so the Visualizer can draw a 2D overlay. */
     public record TickSpec(double x1, double y1, double x2, double y2, double step) {}
-    private TickSpec tickSpec = new TickSpec(0, 0, 0, 0, GRID_STEP_COARSE_MM);
-
-    public TickSpec getTickSpec() {
-        return tickSpec;
-    }
 
     private final BackendAPI backend;
 
@@ -60,18 +55,11 @@ public class Grid extends Model {
     private double currentGridStepMm = GRID_STEP_COARSE_MM;
 
     public Grid() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
         backend.addUGSEventListener(this::onEvent);
-
-        // This is a line-only model; keep it unlit.
-        //gridGroup.setC(CullFace.NONE);
 
         regenerateGrid();
         getChildren().add(gridGroup);
-    }
-
-    private static double clamp(double v, double min, double max) {
-        return Math.max(min, Math.min(max, v));
     }
 
     private double desiredGridStepForZoom(double zoomFactor) {
@@ -96,9 +84,6 @@ public class Grid extends Model {
         double y1 = Math.round((minY.get() - step) / step) * step;
         double x2 = Math.round((maxX.get() + step) / step) * step;
         double y2 = Math.round((maxY.get() + step) / step) * step;
-
-        // Expose for overlay rendering
-        tickSpec = new TickSpec(x1, y1, x2, y2, step);
 
         double radius = cylinderRadiusForZoom(currentZoomFactor);
 

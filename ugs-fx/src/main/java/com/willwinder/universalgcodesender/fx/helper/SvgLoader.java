@@ -13,8 +13,12 @@ import javafx.scene.effect.ColorInput;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -67,5 +71,53 @@ public class SvgLoader {
             imageView.setEffect(blend);
             return imageView;
         });
+    }
+
+    public static Optional<SVGDocument> loadSvgResource(String icon) {
+        if (StringUtils.isEmpty(icon)) {
+            return Optional.empty();
+        }
+
+        InputStream resourceAsStream = ActionButton.class.getResourceAsStream("/" + icon);
+        if (resourceAsStream == null) {
+            return Optional.empty();
+        }
+
+        SVGLoader loader = new SVGLoader();
+        return Optional.ofNullable(loader.load(resourceAsStream));
+    }
+
+    public static Optional<SVGPath> loadSvgPath(String icon) {
+        if (StringUtils.isEmpty(icon)) {
+            return Optional.empty();
+        }
+
+        try (InputStream resourceAsStream = ActionButton.class.getResourceAsStream("/" + icon)) {
+            if (resourceAsStream == null) {
+                return Optional.empty();
+            }
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+
+            Document document = factory.newDocumentBuilder().parse(resourceAsStream);
+            NodeList pathNodes = document.getElementsByTagName("path");
+
+            if (pathNodes.getLength() != 1) {
+                return Optional.empty();
+            }
+
+            org.w3c.dom.Node pathNode = pathNodes.item(0);
+            org.w3c.dom.Node dAttribute = pathNode.getAttributes().getNamedItem("d");
+            if (dAttribute == null || StringUtils.isBlank(dAttribute.getNodeValue())) {
+                return Optional.empty();
+            }
+
+            SVGPath svgPath = new SVGPath();
+            svgPath.setContent(dAttribute.getNodeValue());
+            return Optional.of(svgPath);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 }

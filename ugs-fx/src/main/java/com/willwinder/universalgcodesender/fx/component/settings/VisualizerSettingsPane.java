@@ -51,23 +51,15 @@ public class VisualizerSettingsPane extends BorderPane {
         addTitleSection();
         settingsGroup = new VBox(32);
         addMachineCombo();
-        addModelSettings();
         addMouseControls();
         addColorSettings();
         setCenter(settingsGroup);
     }
 
-    private void addModelSettings() {
-        settingsGroup.getChildren().add(new BorderedTitledPane(Localization.getString("settings.visualizer.model"),
-                new VBox(10,
-                        createFloatSetting(Localization.getString("platform.visualizer.model.lineWidth"), VisualizerSettings.getInstance().lineWidthProperty())
-                )
-        ));
-    }
-
     private void addColorSettings() {
-        settingsGroup.getChildren().add(new BorderedTitledPane(Localization.getString("settings.visualizer.colors"),
+        settingsGroup.getChildren().add(new BorderedTitledPane(Localization.getString("platform.visualizer.gcodeModel"),
                 new VBox(10,
+                        createFloatSetting(Localization.getString("platform.visualizer.gcodeModel.lineWidth"), VisualizerSettings.getInstance().lineWidthProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.rapid"), VisualizerSettings.getInstance().colorRapidProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.linear.min.speed"), VisualizerSettings.getInstance().colorFeedMinProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.linear"), VisualizerSettings.getInstance().colorFeedMaxProperty()),
@@ -189,7 +181,7 @@ public class VisualizerSettingsPane extends BorderPane {
             String value1 = Colors.toWeb(newValue);
             stringProperty.set(value1);
         });
-        colorPicker.setMinHeight(24);
+        colorPicker.setMinHeight(28);
         return new SettingsRow(text, colorPicker);
     }
 

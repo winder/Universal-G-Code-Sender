@@ -19,20 +19,23 @@
 package com.willwinder.universalgcodesender.fx;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.fx.actions.StartAction;
-import com.willwinder.universalgcodesender.fx.component.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.ToolBarMenu;
 import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
+import com.willwinder.universalgcodesender.fx.component.dro.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.JogActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.MacroActionService;
 import com.willwinder.universalgcodesender.fx.service.ShortcutService;
 import com.willwinder.universalgcodesender.fx.settings.Settings;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -66,6 +69,11 @@ public class Main extends Application {
 
     @Override
     public void init() throws Exception {
+        GUIBackend backend = new GUIBackend();
+        backend.applySettings(SettingsFactory.loadSettings());
+        CentralLookup.register(backend);
+        Localization.initialize(backend.getSettings().getLanguage());
+
         try {
             FlatLightLaf.setup();
             UIManager.setLookAndFeel(new FlatLightLaf());
@@ -75,7 +83,6 @@ public class Main extends Application {
 
         if (Settings.getInstance().pendantAutostartProperty().get()) {
             ThreadHelper.invokeLater(() -> {
-                BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
                 PendantUI pendantUI = new PendantUI(backend);
                 pendantUI.start();
             }, 4000);
@@ -100,6 +107,7 @@ public class Main extends Application {
         Scene scene = new Scene(root);
 
         ShortcutService.registerListener(scene);
+        FontRegistry.registerFonts();
 
         scene.getStylesheets().add(Main.class.getResource("/styles/root.css").toExternalForm());
         root.getChildren().addAll(toolBarMenu, contentSplitPane);
@@ -112,7 +120,7 @@ public class Main extends Application {
 
         Parameters params = getParameters();
         if (!params.getUnnamed().isEmpty()) {
-            BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+            BackendAPI backendAPI = CentralLookup.lookup(BackendAPI.class).orElseThrow();
             try {
                 File file = new File(params.getUnnamed().get(0));
                 backendAPI.setGcodeFile(file);

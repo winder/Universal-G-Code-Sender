@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machine;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Axes;
+import com.willwinder.universalgcodesender.fx.component.visualizer.models.GcodeModel;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Grid;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Tool;
@@ -58,6 +59,10 @@ public class Visualizer extends Pane {
     private final Rotate rotateY = new Rotate(180, Rotate.Y_AXIS);
     private final Rotate rotateZ = new Rotate(180, Rotate.Z_AXIS);
 
+    private final Rotate orientationCubeRotateX = new Rotate(0, Rotate.X_AXIS);
+    private final Rotate orientationCubeRotateY = new Rotate(180, Rotate.Y_AXIS);
+    private final Rotate orientationCubeRotateZ = new Rotate(180, Rotate.Z_AXIS);
+
     private final Translate translate = new Translate(0, 0, 0);
     private final Translate cameraTranslate = new Translate(0, 0, -500); // initial zoom
     private final SubScene subScene;
@@ -67,7 +72,7 @@ public class Visualizer extends Pane {
 
         // Rotate group contains 3D objects
         Machine machine = new Machine();
-        worldGroup = new Group(new GcodeModel(), machine);
+        worldGroup = new Group(machine);
         worldGroup.getTransforms().addAll(translate, rotateX, rotateY, rotateZ);
 
         // Lighting
@@ -100,7 +105,7 @@ public class Visualizer extends Pane {
 
         OrientationCube orientationCube = new OrientationCube(110);
         orientationCube.setOnFaceClicked(this::rotateTo);
-        orientationCube.setRotations(rotateX, rotateY, rotateZ);
+        orientationCube.setRotations(orientationCubeRotateX, orientationCubeRotateY, orientationCubeRotateZ);
         orientationCube.layoutXProperty().bind(widthProperty().subtract(orientationCube.sizeProperty()).subtract(5));
         orientationCube.layoutYProperty().set(5);
 
@@ -123,6 +128,7 @@ public class Visualizer extends Pane {
         VisualizerService.getInstance().addModel(new Axes());
         VisualizerService.getInstance().addModel(new Tool());
         VisualizerService.getInstance().addModel(new Grid());
+        VisualizerService.getInstance().addModel(new GcodeModel());
     }
 
     private void rotateTo(OrientationCubeFace face) {
@@ -130,12 +136,18 @@ public class Visualizer extends Pane {
                 new KeyFrame(Duration.seconds(0),
                         new KeyValue(rotateX.angleProperty(), rotateX.getAngle()),
                         new KeyValue(rotateY.angleProperty(), rotateY.getAngle()),
-                        new KeyValue(rotateZ.angleProperty(), rotateZ.getAngle())
+                        new KeyValue(rotateZ.angleProperty(), rotateZ.getAngle()),
+                        new KeyValue(orientationCubeRotateX.angleProperty(), orientationCubeRotateX.getAngle()),
+                        new KeyValue(orientationCubeRotateY.angleProperty(), orientationCubeRotateY.getAngle()),
+                        new KeyValue(orientationCubeRotateZ.angleProperty(), orientationCubeRotateZ.getAngle())
                 ),
                 new KeyFrame(Duration.seconds(0.5),
                         new KeyValue(rotateX.angleProperty(), face.getRotation().getX()),
                         new KeyValue(rotateY.angleProperty(), face.getRotation().getY()),
-                        new KeyValue(rotateZ.angleProperty(), face.getRotation().getZ())
+                        new KeyValue(rotateZ.angleProperty(), face.getRotation().getZ()),
+                        new KeyValue(orientationCubeRotateX.angleProperty(), face.getRotation().getX()),
+                        new KeyValue(orientationCubeRotateY.angleProperty(), face.getRotation().getY()),
+                        new KeyValue(orientationCubeRotateZ.angleProperty(), face.getRotation().getZ())
                 )
         );
         timeline.play();
@@ -211,6 +223,8 @@ public class Visualizer extends Pane {
             } else if (doRotate) {
                 rotateX.setAngle(rotateX.getAngle() + dy * 0.5);
                 rotateZ.setAngle(rotateZ.getAngle() + dx * 0.5);
+                orientationCubeRotateX.setAngle(orientationCubeRotateX.getAngle() + dy * 0.5);
+                orientationCubeRotateZ.setAngle(orientationCubeRotateZ.getAngle() + dx * 0.5);
             }
 
             mouseOldX = event.getSceneX();

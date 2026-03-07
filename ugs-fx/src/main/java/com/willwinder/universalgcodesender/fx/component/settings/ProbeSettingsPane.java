@@ -18,11 +18,11 @@
  */
 package com.willwinder.universalgcodesender.fx.component.settings;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.fx.component.BorderedTitledPane;
 import com.willwinder.universalgcodesender.fx.component.SettingsRow;
 import com.willwinder.universalgcodesender.fx.control.SwitchButton;
 import com.willwinder.universalgcodesender.fx.control.UnitTextField;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.fx.settings.ProbeSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -41,7 +41,7 @@ public class ProbeSettingsPane extends VBox {
 
     public ProbeSettingsPane() {
         super(32);
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
 
         boolean useMetric = backend.getSettings().getPreferredUnits() == UnitUtils.Units.MM;
         addTitleSection();

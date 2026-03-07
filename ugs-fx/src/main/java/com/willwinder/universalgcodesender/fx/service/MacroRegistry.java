@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.service;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.fx.model.MacroAdapter;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import javafx.collections.FXCollections;
@@ -42,7 +42,7 @@ public class MacroRegistry {
     private final AtomicBoolean updatingMacros = new AtomicBoolean(false);
 
     protected MacroRegistry() {
-        this(CentralLookup.getDefault().lookup(BackendAPI.class));
+        this(CentralLookup.lookup(BackendAPI.class).orElseThrow());
     }
 
     protected MacroRegistry(BackendAPI backend) {

@@ -18,11 +18,11 @@
  */
 package com.willwinder.universalgcodesender.fx.component.drawer;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.fx.component.probe.ProbeZPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.ProbeZModel;
-import com.willwinder.universalgcodesender.fx.service.probe.ProbeService;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
+import com.willwinder.universalgcodesender.fx.service.probe.ProbeService;
 import com.willwinder.universalgcodesender.fx.settings.ProbeSettings;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import javafx.scene.layout.BorderPane;
@@ -32,7 +32,7 @@ public class ProbeDrawer extends Drawer {
     private final ProbeZModel probeModel;
 
     public ProbeDrawer() {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(new ProbeZPane(backend));
         getChildren().add(borderPane);

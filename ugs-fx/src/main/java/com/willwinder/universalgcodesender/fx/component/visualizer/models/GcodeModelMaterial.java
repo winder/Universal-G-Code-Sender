@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.fx.component.visualizer;
+package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelReader;

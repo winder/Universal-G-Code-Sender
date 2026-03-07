@@ -18,8 +18,8 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.fx.stage.ConnectStage;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -33,14 +33,14 @@ import javafx.stage.Window;
 import org.apache.commons.lang3.StringUtils;
 
 public class ConnectDisconnectAction extends BaseAction {
-    public static final String ICON_BASE = "resources/icons/connect.svg";
-    public static final String ICON_BASE_DISCONNECT = "resources/icons/disconnect.svg";
+    public static final String ICON_BASE = "icons/connect.svg";
+    public static final String ICON_BASE_DISCONNECT = "icons/disconnect.svg";
 
     private final BackendAPI backend;
 
     public ConnectDisconnectAction() {
-        super(LocalizingService.ConnectDisconnectTitleConnect, LocalizingService.ConnectDisconnectTitleConnect, Localization.getString("actions.category.machine"), ICON_BASE_DISCONNECT);
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        super(Localization.getString("mainWindow.ui.connect"), Localization.getString("mainWindow.ui.connect"), Localization.getString("actions.category.machine"), ICON_BASE_DISCONNECT);
+        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(true);
     }
@@ -52,12 +52,12 @@ public class ConnectDisconnectAction extends BaseAction {
     }
 
     private void updateIconAndText() {
-        titleProperty().set(LocalizingService.ConnectDisconnectActionTitle);
+        titleProperty().set(Localization.getString("mainWindow.ui.disconnect"));
         if (backend.getControllerState() == ControllerState.DISCONNECTED) {
-            titleProperty().set(LocalizingService.ConnectDisconnectTitleConnect);
+            titleProperty().set(Localization.getString("mainWindow.ui.connect"));
             iconProperty().set(ICON_BASE_DISCONNECT);
         } else {
-            titleProperty().set(LocalizingService.ConnectDisconnectTitleDisconnect);
+            titleProperty().set(Localization.getString("mainWindow.ui.disconnect"));
             iconProperty().set(ICON_BASE);
         }
     }

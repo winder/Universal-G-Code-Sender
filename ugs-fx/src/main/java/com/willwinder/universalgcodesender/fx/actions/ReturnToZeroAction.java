@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -35,7 +35,7 @@ public class ReturnToZeroAction extends BaseAction {
 
     public ReturnToZeroAction() {
         super(Localization.getString("mainWindow.swing.returnToZeroButton"), Localization.getString("mainWindow.swing.returnToZeroButton"), Localization.getString("actions.category.machine"), ICON_BASE);
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(canExecuteAction());
     }

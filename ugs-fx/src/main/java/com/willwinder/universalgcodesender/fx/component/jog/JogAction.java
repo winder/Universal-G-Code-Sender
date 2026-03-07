@@ -18,10 +18,10 @@
  */
 package com.willwinder.universalgcodesender.fx.component.jog;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.fx.actions.BaseAction;
 import static com.willwinder.universalgcodesender.fx.actions.LongPressMouseEventProxy.MOUSE_LONG_PRESSED;
 import static com.willwinder.universalgcodesender.fx.actions.LongPressMouseEventProxy.MOUSE_LONG_RELEASE;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
@@ -43,7 +43,7 @@ public class JogAction extends BaseAction {
 
         // Load an instance of the continuous jog worker for all actions to share
         if (continuousJogWorker == null) {
-            BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+            BackendAPI backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
             jogService = new JogService(backend);
             continuousJogWorker = new ContinuousJogWorker(backend, jogService);
         }

@@ -1,14 +1,15 @@
 package com.willwinder.universalgcodesender.fx.component.settings;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.fx.component.SettingsRow;
+import com.willwinder.universalgcodesender.fx.control.SwitchButton;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
+import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -29,7 +30,7 @@ public class PendantSettingsPane extends VBox {
     public PendantSettingsPane() {
         setSpacing(20);
 
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
 
         addTitleSection();
         addAutoStartPendant();
@@ -98,12 +99,8 @@ public class PendantSettingsPane extends VBox {
     }
 
     private void addAutoStartPendant() {
-        CheckBox autoStartPendant = new CheckBox(Localization.getString("sender.autostartpendant"));
-        autoStartPendant.setSelected(backend.getSettings().isAutoStartPendant());
-        autoStartPendant.setOnAction((event) -> ThreadHelper.invokeLater(() -> backend.getSettings().setAutoStartPendant(autoStartPendant.isSelected())));
-
-        getChildren().add(new VBox(5, autoStartPendant));
+        SwitchButton autoStartPendant = new SwitchButton();
+        autoStartPendant.selectedProperty().bindBidirectional(Settings.getInstance().pendantAutostartProperty());
+        getChildren().add(new SettingsRow(Localization.getString("sender.autostartpendant"), autoStartPendant));
     }
-
-
 }
