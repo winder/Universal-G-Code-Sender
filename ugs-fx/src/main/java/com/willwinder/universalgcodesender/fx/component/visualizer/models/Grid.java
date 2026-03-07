@@ -35,9 +35,6 @@ public class Grid extends Model {
     /** Slight Z lift to avoid z-fighting with the plane/model. */
     private static final double Z_OFFSET = 0.001;
 
-    /** Remember the current grid extents + step so the Visualizer can draw a 2D overlay. */
-    public record TickSpec(double x1, double y1, double x2, double y2, double step) {}
-
     private final BackendAPI backend;
 
     private final DoubleProperty minX = new SimpleDoubleProperty(0);
@@ -55,7 +52,7 @@ public class Grid extends Model {
     private double currentGridStepMm = GRID_STEP_COARSE_MM;
 
     public Grid() {
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        this.backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
         backend.addUGSEventListener(this::onEvent);
 
         regenerateGrid();

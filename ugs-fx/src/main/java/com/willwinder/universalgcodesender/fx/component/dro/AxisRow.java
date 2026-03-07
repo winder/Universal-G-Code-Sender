@@ -8,27 +8,35 @@ import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import javafx.application.Platform;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
+import java.util.function.Consumer;
+
 public class AxisRow extends HBox {
+    private final Axis axis;
     private final AxisLabel axisLabel;
 
-    public AxisRow(Axis axis) {
+    public AxisRow(Axis axis, Consumer<AxisRow> onWorkCoordinateClicked) {
         getStyleClass().add("axis-row");
         setSpacing(5);
         setFillHeight(true);
         managedProperty().bind(visibleProperty());
-
+        this.axis = axis;
         axisLabel = new AxisLabel(axis);
         axisLabel.setMaxWidth(Double.MAX_VALUE);
+        axisLabel.setOnWorkCoordinateClicked(() -> {
+            if (onWorkCoordinateClicked != null) {
+                onWorkCoordinateClicked.accept(this);
+            }
+        });
         HBox.setHgrow(axisLabel, Priority.ALWAYS);
 
         ActionButton button = new ActionButton(new ResetAxisZeroAction(axis), 24, false);
         button.setMaxHeight(Double.MAX_VALUE);
         button.setMinHeight(0);
         button.setMinWidth(40);
-
 
         ActionButton goToZeroButton = new ActionButton(new ReturnToAxisZeroAction(axis), 24, false);
         goToZeroButton.setMaxHeight(Double.MAX_VALUE);
@@ -39,7 +47,15 @@ public class AxisRow extends HBox {
         getChildren().add(button);
         getChildren().add(goToZeroButton);
 
-        updatePosition(ControllerState.DISCONNECTED, new Position(0, 0,0, UnitUtils.Units.MM), new Position(0, 0,0, UnitUtils.Units.MM));
+        updatePosition(ControllerState.DISCONNECTED, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+    }
+
+    public Label getWorkCoordinateLabel() {
+        return axisLabel.getWorkCoordinateLabel();
+    }
+
+    public Axis getAxis() {
+        return axis;
     }
 
     public void updatePosition(ControllerState state, Position workPosition, Position machinePosition) {

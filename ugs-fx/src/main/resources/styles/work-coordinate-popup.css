@@ -1,0 +1,54 @@
+.work-coordinate-popup-root {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.work-coordinate-popup-arrow {
+    -fx-pref-width: 12px;
+    -fx-min-width: 12px;
+    -fx-max-width: 12px;
+    -fx-pref-height: 8px;
+    -fx-min-height: 8px;
+    -fx-max-height: 8px;
+    -fx-background-color: #4F9EB0;
+    -fx-shape: "M 0 8 L 6 0 L 12 8 Z";
+    -fx-scale-shape: false;
+    -fx-position-shape: false;
+    -fx-translate-x: 50px;
+}
+
+.work-coordinate-popup {
+    -fx-background-color: -fx-background;
+    -fx-background-radius: 10px;
+    -fx-padding: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 12, 0.5, 0, 6);
+    -fx-max-width: 200px;
+    -fx-border-width: 3px;
+    -fx-border-color: #4F9EB0;
+    -fx-border-radius: 8px;
+}
+
+.work-coordinate-popup-title {
+    -fx-font-weight: bold;
+}
+
+.work-coordinate-popup-field {
+    -fx-font-family: "DJB Get Digital";
+    -fx-font-size: 1.6em;
+    -fx-background-color: #353A40;
+    -fx-text-fill: #05d4ff;
+    -fx-highlight-fill: #05d4ff;
+    -fx-highlight-text-fill: #353A40;
+    -fx-prompt-text-fill: #8c9299;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-padding: 6px 8px;
+}
+
+.work-coordinate-popup-button {
+    -fx-wrap-text: false;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-padding: 0 12px;
+    -fx-min-width: 50px;
+}

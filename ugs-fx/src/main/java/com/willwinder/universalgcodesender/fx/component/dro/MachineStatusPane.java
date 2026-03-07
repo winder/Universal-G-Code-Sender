@@ -7,6 +7,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.layout.ColumnConstraints;
@@ -14,9 +15,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
 import java.util.EnumMap;
+import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Objects;
-
 
 public class MachineStatusPane extends GridPane {
 
@@ -27,6 +28,7 @@ public class MachineStatusPane extends GridPane {
     private final Map<Axis, AxisRow> axisLabels = new EnumMap<>(Axis.class);
     private final HighlightableLabel feedRate;
     private final HighlightableLabel spindleSpeed;
+    private final DecimalFormat decimalFormatter = new DecimalFormat("0.000");
 
     public MachineStatusPane() {
         int row = 0;
@@ -90,7 +92,7 @@ public class MachineStatusPane extends GridPane {
             AxisRow axisRow = axisLabels.get(axis);
 
             if (shouldShow && axisRow == null) {
-                axisRow = new AxisRow(axis);
+                axisRow = new AxisRow(axis, this::showWorkCoordinatePopup);
                 axisLabels.put(axis, axisRow);
                 add(axisRow, 0, AXIS_START_ROW, 2, 1);
             } else if (!shouldShow && axisRow != null) {
@@ -109,6 +111,28 @@ public class MachineStatusPane extends GridPane {
 
         GridPane.setRowIndex(feedRate, row);
         GridPane.setRowIndex(spindleSpeed, row);
+    }
+
+    private void showWorkCoordinatePopup(AxisRow axisRow) {
+        if (!backend.isConnected() || backend.getControllerState() != ControllerState.IDLE) {
+            return;
+        }
+
+        Axis axis = axisRow.getAxis();
+        String currentValue = decimalFormatter.format(backend.getWorkPosition().get(axis));
+
+        WorkCoordinatePopup popup = new WorkCoordinatePopup(
+                "Set " + axis + " work position",
+                currentValue,
+                value -> {
+                    try {
+                        backend.setWorkPositionUsingExpression(axis, value);
+                    } catch (Exception ex) {
+                        GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
+                    }
+                });
+
+        popup.showBelow(axisRow.getWorkCoordinateLabel());
     }
 
     private void updateState() {

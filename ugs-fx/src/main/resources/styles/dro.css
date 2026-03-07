@@ -96,3 +96,11 @@
     -fx-font-size: 1em;
     -fx-padding: 0 2px 2px 0;
 }
+
+.axis-label .work-coordinate {
+    -fx-underline: false;
+}
+
+.axis-label .work-coordinate:hover {
+    -fx-text-fill: #7cecff;
+}
