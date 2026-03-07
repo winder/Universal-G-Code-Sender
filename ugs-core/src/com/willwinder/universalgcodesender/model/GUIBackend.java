@@ -635,6 +635,15 @@ public class GUIBackend implements BackendAPI {
     }
 
     @Override
+    public void returnToZero(Axis axis) {
+        try {
+            this.controller.sendCommandImmediately(this.controller.createCommand("G90 G0 " + axis.name() + "0"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public void resetCoordinatesToZero() throws Exception {
         this.controller.resetCoordinatesToZero();
     }

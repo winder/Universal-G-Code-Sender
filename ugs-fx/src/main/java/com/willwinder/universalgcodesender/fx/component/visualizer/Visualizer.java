@@ -19,7 +19,11 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machine;
+import com.willwinder.universalgcodesender.fx.component.visualizer.models.Axes;
+import com.willwinder.universalgcodesender.fx.component.visualizer.models.GcodeModel;
+import com.willwinder.universalgcodesender.fx.component.visualizer.models.Grid;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
+import com.willwinder.universalgcodesender.fx.component.visualizer.models.Tool;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import javafx.animation.KeyFrame;
@@ -55,6 +59,10 @@ public class Visualizer extends Pane {
     private final Rotate rotateY = new Rotate(180, Rotate.Y_AXIS);
     private final Rotate rotateZ = new Rotate(180, Rotate.Z_AXIS);
 
+    private final Rotate orientationCubeRotateX = new Rotate(0, Rotate.X_AXIS);
+    private final Rotate orientationCubeRotateY = new Rotate(180, Rotate.Y_AXIS);
+    private final Rotate orientationCubeRotateZ = new Rotate(180, Rotate.Z_AXIS);
+
     private final Translate translate = new Translate(0, 0, 0);
     private final Translate cameraTranslate = new Translate(0, 0, -500); // initial zoom
     private final SubScene subScene;
@@ -63,15 +71,14 @@ public class Visualizer extends Pane {
     public Visualizer() {
 
         // Rotate group contains 3D objects
-        Tool tool = new Tool();
         Machine machine = new Machine();
-        worldGroup = new Group(new Axes(), new Grid(), new GcodeModel(), tool, machine);
-        worldGroup.getTransforms().addAll(rotateX, rotateY, rotateZ);
+        worldGroup = new Group(machine);
+        worldGroup.getTransforms().addAll(translate, rotateX, rotateY, rotateZ);
 
         // Lighting
         DirectionalLight light = new DirectionalLight(Color.WHITE);
         light.setDirection(new Point3D(1, -1, -1));
-        light.getScope().addAll(tool, machine);
+        light.getScope().addAll(machine);
 
         Point3D lightDirection = new Point3D(0.5, 0.7, 0);
         SpotLight spotLight = new SpotLight(Color.DARKGREY);
@@ -84,7 +91,9 @@ public class Visualizer extends Pane {
         // Root group applies panning
         AmbientLight ambient = new AmbientLight(Color.rgb(255, 255, 255));
         root3D = new Group(worldGroup, ambient, light, spotLight);
-        root3D.getTransforms().add(translate);
+
+        // Make the rotation pivot follow the current pan position
+        updateRotationPivotFromPan();
 
         subScene = new SubScene(root3D, 800, 600, true, SceneAntialiasing.BALANCED);
         subScene.setFill(Color.LIGHTGRAY);
@@ -96,7 +105,7 @@ public class Visualizer extends Pane {
 
         OrientationCube orientationCube = new OrientationCube(110);
         orientationCube.setOnFaceClicked(this::rotateTo);
-        orientationCube.setRotations(rotateX, rotateY, rotateZ);
+        orientationCube.setRotations(orientationCubeRotateX, orientationCubeRotateY, orientationCubeRotateZ);
         orientationCube.layoutXProperty().bind(widthProperty().subtract(orientationCube.sizeProperty()).subtract(5));
         orientationCube.layoutYProperty().set(5);
 
@@ -107,7 +116,7 @@ public class Visualizer extends Pane {
             while (change.next()) {
                 if (change.wasAdded()) {
                     worldGroup.getChildren().addAll(change.getAddedSubList());
-                    spotLight.getScope().addAll(change.getAddedSubList());
+                    spotLight.getScope().addAll(change.getAddedSubList().stream().filter(Model::useLighting).toList());
                 }
                 if (change.wasRemoved()) {
                     worldGroup.getChildren().removeAll(change.getRemoved());
@@ -115,20 +124,30 @@ public class Visualizer extends Pane {
                 }
             }
         });
+
+        VisualizerService.getInstance().addModel(new Axes());
+        VisualizerService.getInstance().addModel(new Tool());
+        VisualizerService.getInstance().addModel(new Grid());
+        VisualizerService.getInstance().addModel(new GcodeModel());
     }
 
     private void rotateTo(OrientationCubeFace face) {
-        // Optional: animate instead of jumping
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.seconds(0),
                         new KeyValue(rotateX.angleProperty(), rotateX.getAngle()),
                         new KeyValue(rotateY.angleProperty(), rotateY.getAngle()),
-                        new KeyValue(rotateZ.angleProperty(), rotateZ.getAngle())
+                        new KeyValue(rotateZ.angleProperty(), rotateZ.getAngle()),
+                        new KeyValue(orientationCubeRotateX.angleProperty(), orientationCubeRotateX.getAngle()),
+                        new KeyValue(orientationCubeRotateY.angleProperty(), orientationCubeRotateY.getAngle()),
+                        new KeyValue(orientationCubeRotateZ.angleProperty(), orientationCubeRotateZ.getAngle())
                 ),
                 new KeyFrame(Duration.seconds(0.5),
                         new KeyValue(rotateX.angleProperty(), face.getRotation().getX()),
                         new KeyValue(rotateY.angleProperty(), face.getRotation().getY()),
-                        new KeyValue(rotateZ.angleProperty(), face.getRotation().getZ())
+                        new KeyValue(rotateZ.angleProperty(), face.getRotation().getZ()),
+                        new KeyValue(orientationCubeRotateX.angleProperty(), face.getRotation().getX()),
+                        new KeyValue(orientationCubeRotateY.angleProperty(), face.getRotation().getY()),
+                        new KeyValue(orientationCubeRotateZ.angleProperty(), face.getRotation().getZ())
                 )
         );
         timeline.play();
@@ -193,15 +212,19 @@ public class Visualizer extends Pane {
             boolean doPan = isButtonDown(event, panButton) && isModifierDown(event, panModifier);
             boolean doRotate = isButtonDown(event, rotateButton) && isModifierDown(event, rotateModifier);
 
-            // If both match (misconfiguration), prefer panning.
             if (doPan) {
                 // Pan (translate) the 3D scene
-                translate.setX(translate.getX() + dx * 0.5);
-                translate.setY(translate.getY() + dy * 0.5);
+                double worldPerPixel = getWorldUnitsPerPixel();
+                translate.setX(translate.getX() + (dx * worldPerPixel));
+                translate.setY(translate.getY() + (dy * worldPerPixel));
+
+                // Keep rotation centered on the screen center after panning
+                updateRotationPivotFromPan();
             } else if (doRotate) {
-                // Orbit rotation
                 rotateX.setAngle(rotateX.getAngle() + dy * 0.5);
                 rotateZ.setAngle(rotateZ.getAngle() + dx * 0.5);
+                orientationCubeRotateX.setAngle(orientationCubeRotateX.getAngle() + dy * 0.5);
+                orientationCubeRotateZ.setAngle(orientationCubeRotateZ.getAngle() + dx * 0.5);
             }
 
             mouseOldX = event.getSceneX();
@@ -211,7 +234,8 @@ public class Visualizer extends Pane {
         // Zoom with mouse scroll
         subScene.setOnScroll(event -> {
             boolean invert = VisualizerSettings.getInstance().invertZoomProperty().get();
-            double delta = invert ? -event.getDeltaY() : event.getDeltaY();
+            double currentScale = getCurrentScale();
+            double delta = (invert ? -event.getDeltaY() : event.getDeltaY()) / currentScale;
 
             if (camera instanceof ParallelCamera) {
                 double scale = root3D.getScaleY() + (delta / 200f);
@@ -220,7 +244,41 @@ public class Visualizer extends Pane {
             } else {
                 cameraTranslate.setZ(cameraTranslate.getZ() + delta);
             }
+
+            VisualizerService.getInstance().onZoomChange(currentScale);
         });
+    }
+
+    /**
+     * Converts a 1-pixel mouse movement into world units, based on the current projection.
+     */
+    private double getWorldUnitsPerPixel() {
+        double viewportHeight = Math.max(1.0, subScene.getHeight());
+
+        if (camera instanceof PerspectiveCamera pc) {
+            // Camera looks down -Z, and we keep cameraTranslate Z negative (e.g. -500)
+            double distance = Math.max(1e-6, -cameraTranslate.getZ());
+
+            // JavaFX PerspectiveCamera uses a vertical field-of-view by default.
+            double fovRad = Math.toRadians(pc.getFieldOfView());
+            double visibleWorldHeight = 2.0 * distance * Math.tan(fovRad * 0.5);
+
+            return visibleWorldHeight / viewportHeight;
+        }
+
+        double scale = Math.max(1e-6, root3D.getScaleY());
+        return 1.0 / scale;
+    }
+
+    private double getCurrentScale() {
+        double scale = root3D.getScaleX();
+        if (camera instanceof PerspectiveCamera) {
+            double baseDistance = 500.0;
+            double currentDistance = Math.max(1e-6, -cameraTranslate.getZ());
+            scale = baseDistance / currentDistance;
+        }
+
+        return scale;
     }
 
     private Camera createCamera() {
@@ -255,18 +313,21 @@ public class Visualizer extends Pane {
         subScene.setHeight(getHeight());
     }
 
-    public void resetScene() {
-        // Reset transformations
-        rotateX.setAngle(0);
-        rotateY.setAngle(0);
-        translate.setX(0);
-        translate.setY(0);
-        cameraTranslate.setZ(-500); // reset zoom
-    }
+    private void updateRotationPivotFromPan() {
+        double px = -translate.getX();
+        double py = translate.getY();
+        double pz = -translate.getZ();
 
-    public void setCameraPosition(double x, double y, double z) {
-        cameraTranslate.setX(x);
-        cameraTranslate.setY(y);
-        cameraTranslate.setZ(z);
+        rotateX.setPivotX(px);
+        rotateX.setPivotY(py);
+        rotateX.setPivotZ(pz);
+
+        rotateY.setPivotX(px);
+        rotateY.setPivotY(py);
+        rotateY.setPivotZ(pz);
+
+        rotateZ.setPivotX(px);
+        rotateZ.setPivotY(py);
+        rotateZ.setPivotZ(pz);
     }
 }

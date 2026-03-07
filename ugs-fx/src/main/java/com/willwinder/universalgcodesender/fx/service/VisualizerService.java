@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.fx.service;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -41,5 +42,9 @@ public class VisualizerService {
 
     public void removeModel(Model model) {
         models.remove(model);
+    }
+
+    public void onZoomChange(double zoom) {
+        Platform.runLater(() -> models.forEach(model -> model.onZoomChange(zoom)));
     }
 }

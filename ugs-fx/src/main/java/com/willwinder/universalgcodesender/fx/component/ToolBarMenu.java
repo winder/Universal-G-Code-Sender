@@ -18,22 +18,22 @@
  */
 package com.willwinder.universalgcodesender.fx.component;
 
-import com.willwinder.ugs.nbp.core.actions.HomingAction;
-import com.willwinder.ugs.nbp.core.actions.SoftResetAction;
-import com.willwinder.ugs.nbp.core.actions.UnlockAction;
-import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.fx.actions.Action;
 import com.willwinder.universalgcodesender.fx.actions.ConnectDisconnectAction;
+import com.willwinder.universalgcodesender.fx.actions.HomingAction;
 import com.willwinder.universalgcodesender.fx.actions.OpenFileAction;
 import com.willwinder.universalgcodesender.fx.actions.OpenSettingsAction;
 import com.willwinder.universalgcodesender.fx.actions.PauseAction;
 import com.willwinder.universalgcodesender.fx.actions.ReturnToZeroAction;
+import com.willwinder.universalgcodesender.fx.actions.SoftResetAction;
 import com.willwinder.universalgcodesender.fx.actions.StartAction;
 import com.willwinder.universalgcodesender.fx.actions.StopAction;
 import com.willwinder.universalgcodesender.fx.actions.ToggleMachineVisualizationAction;
+import com.willwinder.universalgcodesender.fx.actions.UnlockAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import com.willwinder.universalgcodesender.fx.control.ToggleActionButton;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
+import com.willwinder.universalgcodesender.fx.settings.Settings;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBase;

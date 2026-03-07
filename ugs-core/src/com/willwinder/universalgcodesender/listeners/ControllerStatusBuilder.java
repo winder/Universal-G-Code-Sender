@@ -28,8 +28,8 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
  */
 public class ControllerStatusBuilder {
     private ControllerState state = ControllerState.DISCONNECTED;
-    private Position machineCoord = Position.ZERO;
-    private Position workCoord = Position.ZERO;
+    private Position machineCoord = new Position(0, 0, 0, UnitUtils.Units.MM);
+    private Position workCoord = new Position(0, 0, 0, UnitUtils.Units.MM);
     private Double feedSpeed = 0d;
     private UnitUtils.Units feedSpeedUnits = UnitUtils.Units.MM;
     private Double spindleSpeed = 0d;

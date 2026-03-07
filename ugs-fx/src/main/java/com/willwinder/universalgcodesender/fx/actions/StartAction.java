@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -34,7 +34,7 @@ public class StartAction extends BaseAction {
 
     public StartAction() {
         super(Localization.getString("mainWindow.swing.sendButton"), Localization.getString("mainWindow.swing.sendButton"), Localization.getString("actions.category.machine"), ICON_BASE);
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(backend.canSend() || backend.isPaused());
     }
@@ -53,6 +53,9 @@ public class StartAction extends BaseAction {
             } else {
                 backend.send();
             }
+
+            // Disable the button until we get a new UGS event to prevent the button to be double clicked
+            enabledProperty().set(false);
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
         }

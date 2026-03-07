@@ -83,7 +83,7 @@ public class SettingsStage extends Stage {
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.probe"), "icons/probe.svg", new ProbeSettingsPane()));
         //sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.gamepad"), "icons/gamepad.svg", new Label(Localization.getString("platform.gamepad"))));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.terminal"), "icons/terminal.svg", new TerminalSettingsPane()));
-        sectionList.getItems().add(new SettingsListItem(Localization.getString("mainWindow.swing.pendant"), "resources/icons/pendant.svg", new PendantSettingsPane()));
+        sectionList.getItems().add(new SettingsListItem(Localization.getString("mainWindow.swing.pendant"), "icons/pendant.svg", new PendantSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.keyboard"), "icons/shortcut.svg", new KeyboardSettingPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("platform.window.visualizer"), "icons/cube.svg", new VisualizerSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.processor"), "icons/scroll.svg", new ProcessorConfigPane()));

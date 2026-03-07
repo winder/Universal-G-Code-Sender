@@ -18,24 +18,18 @@
  */
 package com.willwinder.universalgcodesender.fx.component.settings;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.fx.component.SettingsRow;
 import com.willwinder.universalgcodesender.fx.control.SwitchButton;
+import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.BackendAPI;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
 public class MachineStatusSettingsPane extends VBox {
 
-    private final BackendAPI backend;
-
     public MachineStatusSettingsPane() {
         setSpacing(20);
-
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-
         addTitleSection();
         addShowMachinePositionSection();
     }
@@ -48,8 +42,7 @@ public class MachineStatusSettingsPane extends VBox {
 
     private void addShowMachinePositionSection() {
         SwitchButton showMachinePositionToggle = new SwitchButton();
-        showMachinePositionToggle.setSelected(backend.getSettings().isShowMachinePosition());
-        showMachinePositionToggle.selectedProperty().addListener((observable, oldValue, newValue) -> backend.getSettings().setShowMachinePosition(newValue));
+        showMachinePositionToggle.selectedProperty().bindBidirectional(Settings.getInstance().showMachinePositionProperty());
         getChildren().add(new SettingsRow(Localization.getString("settings.showMachinePosition"), showMachinePositionToggle));
     }
 }

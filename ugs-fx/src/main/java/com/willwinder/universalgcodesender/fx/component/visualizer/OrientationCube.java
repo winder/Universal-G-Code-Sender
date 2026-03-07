@@ -76,11 +76,6 @@ public class OrientationCube extends Group {
                 SceneAntialiasing.BALANCED
         );
 
-        /*ParallelCamera cam = new ParallelCamera();
-        cam.translateXProperty().bind(subScene.widthProperty().divide(2).negate());
-        cam.translateYProperty().bind(subScene.heightProperty().divide(2).negate());
-        subScene.setCamera(cam);*/
-
         PerspectiveCamera cam = new PerspectiveCamera();
         cam.setNearClip(0.1);
         cam.setFarClip(100);

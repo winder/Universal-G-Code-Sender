@@ -20,7 +20,9 @@ package com.willwinder.universalgcodesender.fx.settings;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.MachineType;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.FloatProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -30,6 +32,7 @@ public class VisualizerSettings {
     private static final Preferences preferences = Preferences.userNodeForPackage(VisualizerSettings.class);
     private static final String SHOW_MACHINE_MODEL = "showMachineModel";
     private static final String MACHINE_MODEL = "machineModel";
+    private static final String LINE_WIDTH = "lineWidth";
     private static final String COLOR_RAPID = "color.rapid";
     private static final String COLOR_COMPLETED = "color.completed";
     private static final String COLOR_PLUNGE = "color.plunge";
@@ -76,6 +79,7 @@ public class VisualizerSettings {
     private final StringProperty panModifierKey = new SimpleStringProperty(loadString(MOUSE_PAN_MODIFIER, ModifierKey.SHIFT.name()));
     private final StringProperty rotateMouseButton = new SimpleStringProperty(loadString(MOUSE_ROTATE_BUTTON, "SECONDARY"));
     private final StringProperty rotateModifierKey = new SimpleStringProperty(loadString(MOUSE_ROTATE_MODIFIER, ModifierKey.NONE.name()));
+    private final FloatProperty lineWidth = new SimpleFloatProperty(loadFloat(LINE_WIDTH, 0.1f));
 
     VisualizerSettings() {
         showMachine.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_MACHINE_MODEL, newVal));
@@ -164,19 +168,28 @@ public class VisualizerSettings {
         return rotateModifierKey;
     }
 
-    private String loadString(String key, String defaultVal) {
-        return preferences.get(key, defaultVal);
+    public FloatProperty lineWidthProperty() {
+        return lineWidth;
     }
 
-    private void saveString(String key, String value) {
-        preferences.put(key, value);
+    private String loadString(String key, String defaultValue) {
+        return preferences.get(key, defaultValue);
     }
 
-    private boolean loadBoolean(String key, boolean defaultVal) {
-        return preferences.getBoolean(key, defaultVal);
+    private void saveString(String key, String defaultValue) {
+        preferences.put(key, defaultValue);
+    }
+
+    private boolean loadBoolean(String key, boolean defaultValue) {
+        return preferences.getBoolean(key, defaultValue);
     }
 
     private void saveBoolean(String key, boolean value) {
         preferences.putBoolean(key, value);
     }
+
+    private float loadFloat(String key, float defaultValue) {
+        return preferences.getFloat(key, defaultValue);
+    }
+
 }

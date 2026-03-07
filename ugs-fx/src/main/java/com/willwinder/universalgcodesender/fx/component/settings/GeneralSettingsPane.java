@@ -18,9 +18,9 @@
  */
 package com.willwinder.universalgcodesender.fx.component.settings;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.fx.component.SettingsRow;
 import com.willwinder.universalgcodesender.fx.control.SwitchButton;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.i18n.AvailableLanguages;
 import com.willwinder.universalgcodesender.i18n.Language;
@@ -44,7 +44,7 @@ public class GeneralSettingsPane extends VBox {
 
     public GeneralSettingsPane() {
         setSpacing(20);
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
         addTitleSection();
 
         settings = new VBox(10);

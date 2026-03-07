@@ -18,9 +18,9 @@
  */
 package com.willwinder.universalgcodesender.fx.component.settings;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.fx.component.SettingsRow;
 import com.willwinder.universalgcodesender.fx.control.SwitchButton;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import javafx.scene.control.Label;
@@ -34,7 +34,7 @@ public class TerminalSettingsPane extends VBox {
     public TerminalSettingsPane() {
         setSpacing(20);
 
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
 
         addTitleSection();
         addVerboseLoggingSection();

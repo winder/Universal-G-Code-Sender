@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender.fx.component.drawer;
 
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.fx.actions.Action;
 import com.willwinder.universalgcodesender.fx.actions.OpenFileAction;
@@ -27,6 +26,7 @@ import com.willwinder.universalgcodesender.fx.actions.PauseAction;
 import com.willwinder.universalgcodesender.fx.actions.StartAction;
 import com.willwinder.universalgcodesender.fx.actions.StopAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
@@ -72,7 +72,7 @@ public class JobControlsDrawer extends Drawer {
                 getClass().getResource("/styles/job-controls-pane.css").toExternalForm()
         );
 
-        backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backendAPI = CentralLookup.lookup(BackendAPI.class).orElseThrow();
         backendAPI.addUGSEventListener(this::onEvent);
 
         vBox.getChildren().addAll(

@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.component.drawer;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -45,7 +45,7 @@ public class TerminalDrawer extends Drawer {
     private final BackendAPI backend;
 
     public TerminalDrawer() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
         BorderPane borderPane = new BorderPane();
 
         getStylesheets().add(getClass().getResource("/styles/terminal-pane.css").toExternalForm());

@@ -78,6 +78,6 @@ public class PortComboBoxCell extends ListCell<String> {
         if (device instanceof JSerialCommConnectionDevice) {
             return SvgLoader.loadIcon("icons/usb.svg", 24).orElse(null);
         }
-        return SvgLoader.loadIcon("resources/icons/device.svg", 24).orElse(null);
+        return SvgLoader.loadIcon("icons/device.svg", 24).orElse(null);
     }
 }

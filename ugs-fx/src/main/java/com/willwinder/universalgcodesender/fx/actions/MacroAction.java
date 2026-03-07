@@ -18,14 +18,13 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.MacroHelper;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.fx.model.MacroAdapter;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import org.openide.util.Exceptions;
 
 import java.awt.EventQueue;
 
@@ -35,7 +34,7 @@ public class MacroAction extends BaseAction {
 
     public MacroAction(MacroAdapter macro) {
         this.macro = macro;
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(backend.isConnected() && backend.isIdle());
         titleProperty().bind(macro.nameProperty());
@@ -59,7 +58,6 @@ public class MacroAction extends BaseAction {
                 MacroHelper.executeCustomGcode(macro.getGcode(), backend);
             } catch (Exception ex) {
                 GUIHelpers.displayErrorDialog(ex.getMessage());
-                Exceptions.printStackTrace(ex);
             }
         });
     }

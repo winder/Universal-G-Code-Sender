@@ -16,9 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.fx.component.visualizer;
+package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import static com.willwinder.universalgcodesender.fx.helper.Colors.blend;
 import static com.willwinder.universalgcodesender.fx.helper.Colors.interpolate;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
@@ -40,7 +40,6 @@ import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
-import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.CullFace;
 import javafx.scene.shape.MeshView;
@@ -53,13 +52,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GcodeModel extends Group {
+public class GcodeModel extends Model {
     private static final Logger LOGGER = Logger.getLogger(GcodeModel.class.getName());
     public static final double ARC_SEGMENT_LENGTH = 0.8;
     private final GcodeViewParse gcvp;
     private final MeshView meshView;
     private final BackendAPI backendAPI;
-    private final float lineWidth;
+    private float lineWidth;
 
     private GcodeModelMaterial material = new GcodeModelMaterial(0);
 
@@ -87,10 +86,14 @@ public class GcodeModel extends Group {
         meshView.setCullFace(CullFace.NONE);
 
         getChildren().add(meshView);
-        backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backendAPI = CentralLookup.lookup(BackendAPI.class).orElseThrow();
         gcvp = new GcodeViewParse();
         backendAPI.addUGSEventListener(this::onEvent);
-        lineWidth = 0.03f;
+        lineWidth = VisualizerSettings.getInstance().lineWidthProperty().getValue();
+        VisualizerSettings.getInstance().lineWidthProperty().addListener((s, o, n) -> {
+            lineWidth = n.floatValue();
+            loadModel();
+        });
         addSettingListeners();
     }
 
@@ -123,15 +126,7 @@ public class GcodeModel extends Group {
     private void onEvent(UGSEvent event) {
         if (event instanceof FileStateEvent fileStateEvent) {
             if (fileStateEvent.getFileState() == FileState.FILE_LOADED) {
-                ThreadHelper.invokeLater(() -> {
-                    try {
-                        List<LineSegment> lineSegments = loadModel(gcvp, backendAPI.getGcodeFile().getAbsolutePath());
-                        TriangleMesh mesh = pointsToMesh(lineSegments);
-                        meshView.setMesh(mesh);
-                    } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, "Could not load model", e);
-                    }
-                });
+                loadModel();
             }
         } else if (event instanceof StreamEvent streamEvent) {
             if (streamEvent.getType() == StreamEventType.STREAM_COMPLETE || streamEvent.getType() == StreamEventType.STREAM_CANCELED) {
@@ -144,6 +139,18 @@ public class GcodeModel extends Group {
         } else if (event instanceof SettingChangedEvent) {
             addSettingListeners();
         }
+    }
+
+    private void loadModel() {
+        ThreadHelper.invokeLater(() -> {
+            try {
+                List<LineSegment> lineSegments = loadModel(gcvp, backendAPI.getGcodeFile().getAbsolutePath());
+                TriangleMesh mesh = pointsToMesh(lineSegments);
+                meshView.setMesh(mesh);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Could not load model", e);
+            }
+        });
     }
 
     private TriangleMesh pointsToMesh(List<LineSegment> lineSegments) {
@@ -244,5 +251,15 @@ public class GcodeModel extends Group {
 
     private Point3D toPoint(Position pos) {
         return new Point3D(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    @Override
+    public void onZoomChange(double zoomFactor) {
+
+    }
+
+    @Override
+    public boolean useLighting() {
+        return false;
     }
 }

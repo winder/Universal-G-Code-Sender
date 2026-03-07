@@ -1,14 +1,10 @@
 package com.willwinder.universalgcodesender.fx.component.jog;
 
-import com.willwinder.universalgcodesender.fx.actions.LongPressMouseEventProxy;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.control.Button;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 
@@ -116,13 +112,5 @@ public class DirectionalPadPane extends GridPane {
     private void bindButtonSize(Region button) {
         button.prefWidthProperty().bind(widthProperty().divide(4));
         button.prefHeightProperty().bind(widthProperty().divide(4));
-    }
-
-    public void setOnAction(EventHandler<ActionEvent> eventHandler) {
-        //buttons.forEach(button -> button.setOnAction(eventHandler));
-    }
-
-    public void setMouseListener(EventHandler<MouseEvent> mouseEventEventHandler) {
-        buttons.forEach(button -> button.addEventHandler(MouseEvent.ANY, new LongPressMouseEventProxy(300, mouseEventEventHandler)));
     }
 }

@@ -18,11 +18,11 @@
  */
 package com.willwinder.universalgcodesender.fx.stage;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.fx.component.ButtonBox;
 import com.willwinder.universalgcodesender.fx.component.ErrorLabel;
 import com.willwinder.universalgcodesender.fx.component.PortComboBox;
+import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
@@ -66,7 +66,7 @@ public class ConnectStage extends Stage {
         initOwner(owner);
         setTitle("Connect");
 
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
 
         createComponents();
         createLayout();
