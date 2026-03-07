@@ -4,6 +4,7 @@ import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import javafx.application.Platform;
@@ -12,18 +13,20 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Objects;
 
 
 public class MachineStatusPane extends GridPane {
 
+    private static final int AXIS_START_ROW = 1;
+
     private final BackendAPI backend;
     private final StateLabel state;
-    private final List<AxisRow> axisLabels = new ArrayList<>();
-    private final HiglightableLabel feedRate;
-    private final HiglightableLabel spindleSpeed;
+    private final Map<Axis, AxisRow> axisLabels = new EnumMap<>(Axis.class);
+    private final HighlightableLabel feedRate;
+    private final HighlightableLabel spindleSpeed;
 
     public MachineStatusPane() {
         int row = 0;
@@ -38,14 +41,8 @@ public class MachineStatusPane extends GridPane {
         state = new StateLabel();
         add(state, row++, 0, 2, 1);
 
-        for (Axis axis : Axis.values()) {
-            AxisRow axisLabel = new AxisRow(axis);
-            add(axisLabel, 0, row++, 2, 1);
-            axisLabels.add(axisLabel);
-        }
-
-        feedRate = new HiglightableLabel("0", new Icon("icons/gauge.svg", 24));
-        spindleSpeed = new HiglightableLabel("0", new Icon("icons/tool.svg", 24));
+        feedRate = new HighlightableLabel("0", new Icon("icons/gauge.svg", 24));
+        spindleSpeed = new HighlightableLabel("0", new Icon("icons/tool.svg", 24));
         add(feedRate, 0, row);
         add(spindleSpeed, 1, row);
 
@@ -74,17 +71,67 @@ public class MachineStatusPane extends GridPane {
         }
     }
 
+    private boolean containsAxis(Position position, Axis axis) {
+        if (position == null) {
+            return false;
+        }
+
+        double value = position.get(axis);
+        return Double.isFinite(value);
+    }
+
+    private boolean shouldShowAxis(Axis axis, Position workPosition, Position machinePosition) {
+        return containsAxis(workPosition, axis) || containsAxis(machinePosition, axis);
+    }
+
+    private void syncAxisRows(Position workPosition, Position machinePosition) {
+        for (Axis axis : Axis.values()) {
+            boolean shouldShow = shouldShowAxis(axis, workPosition, machinePosition);
+            AxisRow axisRow = axisLabels.get(axis);
+
+            if (shouldShow && axisRow == null) {
+                axisRow = new AxisRow(axis);
+                axisLabels.put(axis, axisRow);
+                add(axisRow, 0, AXIS_START_ROW, 2, 1);
+            } else if (!shouldShow && axisRow != null) {
+                getChildren().remove(axisRow);
+                axisLabels.remove(axis);
+            }
+        }
+
+        int row = AXIS_START_ROW;
+        for (Axis axis : Axis.values()) {
+            AxisRow axisRow = axisLabels.get(axis);
+            if (axisRow != null) {
+                GridPane.setRowIndex(axisRow, row++);
+            }
+        }
+
+        GridPane.setRowIndex(feedRate, row);
+        GridPane.setRowIndex(spindleSpeed, row);
+    }
+
     private void updateState() {
-        state.setState(backend.getControllerState());
-        axisLabels.forEach(label -> label.updatePosition(backend.getControllerState(), backend.getWorkPosition(), backend.getMachinePosition()));
+        Position workPosition = backend.getWorkPosition();
+        Position machinePosition = backend.getMachinePosition();
+        ControllerState controllerState = backend.getControllerState();
+
+        state.setState(controllerState);
+
         Platform.runLater(() -> {
+            syncAxisRows(workPosition, machinePosition);
+
+            axisLabels.values().forEach(label -> {
+                label.updatePosition(controllerState, workPosition, machinePosition);
+                label.setDisable(controllerState != ControllerState.IDLE);
+            });
+
             feedRate.setText(String.format("%d", Math.round(backend.getController().getControllerStatus().getFeedSpeed())));
             spindleSpeed.setText(String.format("%d", Math.round(backend.getController().getControllerStatus().getSpindleSpeed())));
         });
 
-        setDisabled(backend.getControllerState() != ControllerState.IDLE);
-        axisLabels.forEach(label -> label.setDisable(backend.getControllerState() != ControllerState.IDLE));
-        feedRate.setDisable(backend.getControllerState() != ControllerState.IDLE);
-        spindleSpeed.setDisable(backend.getControllerState() != ControllerState.IDLE);
+        setDisabled(controllerState != ControllerState.IDLE);
+        feedRate.setDisable(controllerState != ControllerState.IDLE);
+        spindleSpeed.setDisable(controllerState != ControllerState.IDLE);
     }
 }

@@ -10,25 +10,23 @@ import javafx.util.Duration;
 import org.apache.commons.lang3.StringUtils;
 
 
-public class HiglightableLabel extends HBox {
+public class HighlightableLabel extends HBox {
     private static final Duration HIGHLIGHT_TIME = Duration.millis(500);
     private final Label label;
     private final PauseTransition highlightTimer;
 
-    public HiglightableLabel(String text, Node icon) {
+    public HighlightableLabel(String text, Node icon) {
         getStyleClass().add("highlightable-label");
 
         setAlignment(Pos.CENTER_LEFT);
+        setSpacing(10);
         setMaxWidth(Double.MAX_VALUE);
 
         managedProperty().bind(visibleProperty());
 
-        setMaxWidth(Double.MAX_VALUE);
-        setAlignment(Pos.CENTER_LEFT);
-
         label = new Label(text);
-        label.setGraphicTextGap(10);
         HBox.setHgrow(label, Priority.ALWAYS);
+
         getChildren().add(icon);
         getChildren().add(label);
 

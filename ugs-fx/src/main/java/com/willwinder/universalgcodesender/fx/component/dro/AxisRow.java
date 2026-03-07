@@ -12,7 +12,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
 public class AxisRow extends HBox {
-    private final Axis axis;
     private final AxisLabel axisLabel;
 
     public AxisRow(Axis axis) {
@@ -20,8 +19,6 @@ public class AxisRow extends HBox {
         setSpacing(5);
         setFillHeight(true);
         managedProperty().bind(visibleProperty());
-
-        this.axis = axis;
 
         axisLabel = new AxisLabel(axis);
         axisLabel.setMaxWidth(Double.MAX_VALUE);
@@ -46,10 +43,6 @@ public class AxisRow extends HBox {
     }
 
     public void updatePosition(ControllerState state, Position workPosition, Position machinePosition) {
-        Platform.runLater(() -> {
-            double axisPosition = workPosition.get(axis);
-            axisLabel.updatePosition(state, workPosition, machinePosition);
-            setVisible(!Double.isNaN(axisPosition) && !Double.isInfinite(axisPosition));
-        });
+        Platform.runLater(() -> axisLabel.updatePosition(state, workPosition, machinePosition));
     }
 }
