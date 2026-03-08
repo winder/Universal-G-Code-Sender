@@ -252,18 +252,20 @@ jobs:
       - uses: ./.github/actions/setup-java-maven
 
       - name: Build
+        shell: bash
         run: |
-          $env:REVISION = $env:GITHUB_REF_NAME.Substring(1)
-          $env:CHANGELIST = ""
-          echo "Building version $env:REVISION$env:CHANGELIST"
-          ./mvnw clean install -DskipTests -Drevision=$env:REVISION -Dchangelist=$env:CHANGELIST
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Building version ${REVISION}${CHANGELIST}"
+          ./mvnw clean install -DskipTests -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       - name: Package Windows
+        shell: bash
         run: |
-          $env:REVISION = $env:GITHUB_REF_NAME.Substring(1)
-          $env:CHANGELIST = ""
-          echo "Packaging version $env:REVISION$env:CHANGELIST"
-          ./mvnw package -pl ugs-fx -P fx-build-windows -Drevision=$env:REVISION -Dchangelist=$env:CHANGELIST
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Packaging version ${REVISION}${CHANGELIST}"
+          ./mvnw package -pl ugs-fx -P fx-build-windows -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       - name: Upload binaries to snapshot release
         uses: xresloader/upload-to-github-release@v1
