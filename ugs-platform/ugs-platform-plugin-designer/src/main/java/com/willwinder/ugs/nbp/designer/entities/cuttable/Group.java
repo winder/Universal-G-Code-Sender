@@ -338,4 +338,21 @@ public class Group extends EntityGroup implements Cuttable {
                 .map(Cuttable::getAvailableCutTypes)
                 .orElse(Collections.emptyList());
     }
+
+    @Override
+    public void setToolPathDirection(ToolPathDirection toolPathAngle) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setToolPathDirection(toolPathAngle);
+            }
+        });
+    }
+
+    @Override
+    public ToolPathDirection getToolPathDirection() {
+        return getCuttableStream()
+                .findFirst()
+                .map(Cuttable::getToolPathDirection)
+                .orElse(ToolPathDirection.HORIZONTAL);
+    }
 }

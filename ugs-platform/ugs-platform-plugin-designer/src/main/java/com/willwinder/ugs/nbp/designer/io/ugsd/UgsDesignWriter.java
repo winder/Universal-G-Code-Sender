@@ -28,6 +28,7 @@ import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityRasterV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityRectangleV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityTextV1;
 import com.willwinder.ugs.nbp.designer.io.ugsd.v1.EntityV1;
+import com.willwinder.ugs.nbp.designer.io.ugsd.v1.ToolPathDirectionTypeV1;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -116,6 +117,7 @@ public class UgsDesignWriter implements DesignWriter {
             cuttableEntity.setLeadInPercent(cuttable.getLeadInPercent());
             cuttableEntity.setToolPathAngle(cuttable.getToolPathAngle());
             cuttableEntity.setDirection(DirectionTypeV1.fromDirection(cuttable.getDirection()));
+            cuttableEntity.setToolPathDirection(ToolPathDirectionTypeV1.fromDirection(cuttable.getToolPathDirection()));
         }
         return result;
     }

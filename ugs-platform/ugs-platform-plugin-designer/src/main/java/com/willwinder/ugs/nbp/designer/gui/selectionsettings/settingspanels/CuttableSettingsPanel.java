@@ -26,9 +26,11 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.ToolPathDirection;
 import com.willwinder.ugs.nbp.designer.entities.settings.CuttableSettingsManager;
 import com.willwinder.ugs.nbp.designer.gui.CutTypeCombo;
 import com.willwinder.ugs.nbp.designer.gui.DirectionCombo;
+import com.willwinder.ugs.nbp.designer.gui.ToolPathDirectionCombo;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Unit;
@@ -38,8 +40,15 @@ import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.lookup.ServiceProvider;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import java.awt.Component;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Collections;
@@ -67,6 +76,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     private JCheckBox includeInExport;
     private UnitSpinner toolPathAngleSpinner;
     private DirectionCombo directionCombo;
+    private ToolPathDirectionCombo toolPathDirectionCombo;
 
     private final Map<EntitySetting, List<JComponent>> settingToComponentMap = new EnumMap<>(EntitySetting.class);
 
@@ -90,6 +100,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
 
         leadInPercentSlider = createSlider(0, 300, 0, 50, 100);
         toolPathAngleSpinner = new UnitSpinner(0, Unit.DEGREE, 0d, 360d, 5d);
+        toolPathDirectionCombo = new ToolPathDirectionCombo();
         directionCombo = new DirectionCombo();
 
         includeInExport = new JCheckBox();
@@ -118,6 +129,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         addLabeledSlider(EntitySetting.PASSES, "Passes", passesSlider);
         addLabeledSlider(EntitySetting.LEAD_IN_PERCENT, "Lead In/Out %", leadInPercentSlider);
         addLabeledComponent(EntitySetting.TOOL_PATH_ANGLE, "Tool Path Angle", toolPathAngleSpinner);
+        addLabeledComponent(EntitySetting.TOOL_PATH_DIRECTION, "Tool Path Direction", toolPathDirectionCombo);
         addLabeledComponent(EntitySetting.INCLUDE_IN_EXPORT, "Include in Export", includeInExport);
     }
 
@@ -150,6 +162,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         toolPathAngleSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.TOOL_PATH_ANGLE, toolPathAngleSpinner.getValue()));
         includeInExport.addActionListener(e -> firePropertyChange(EntitySetting.INCLUDE_IN_EXPORT, includeInExport.isSelected()));
         directionCombo.addActionListener(e -> firePropertyChange(EntitySetting.DIRECTION, directionCombo.getSelectedDirection()));
+        toolPathDirectionCombo.addActionListener(e -> firePropertyChange(EntitySetting.TOOL_PATH_DIRECTION, toolPathDirectionCombo.getSelectedDirection()));
     }
 
     private void firePropertyChange(EntitySetting entitySetting, Object newValue) {
@@ -235,6 +248,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
                 leadInPercentSlider.setValue(firstCuttable.getLeadInPercent());
                 toolPathAngleSpinner.setValue(firstCuttable.getToolPathAngle());
                 directionCombo.setSelectedItem(firstCuttable.getDirection());
+                toolPathDirectionCombo.setSelectedItem(firstCuttable.getToolPathDirection());
                 updateLabelsForCutType(firstCuttable.getCutType());
             } finally {
                 updating = false;
@@ -280,6 +294,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
             cuttable.setToolPathAngle((Double) newValue);
         } else if (EntitySetting.DIRECTION.equals(setting)) {
             cuttable.setDirection((Direction) newValue);
+        } else if (EntitySetting.TOOL_PATH_DIRECTION.equals(setting)) {
+            cuttable.setToolPathDirection((ToolPathDirection) newValue);
         }
     }
 
