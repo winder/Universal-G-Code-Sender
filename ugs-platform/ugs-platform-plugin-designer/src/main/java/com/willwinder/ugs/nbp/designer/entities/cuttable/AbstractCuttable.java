@@ -54,8 +54,9 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private int feedRate;
     private boolean isHidden = false;
     private boolean includeInExport = true;
-    private double toolPathDirection;
+    private double toolPathAngle;
     private Direction direction = Direction.CLIMB;
+    private ToolPathDirection toolPathDirection = ToolPathDirection.HORIZONTAL;
 
     protected AbstractCuttable() {
         this(0, 0);
@@ -73,7 +74,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         spindleSpeed = 100;
         passes = 1;
         includeInExport = true;
-        toolPathDirection = 0;
+        toolPathAngle = 0;
     }
 
     @Override
@@ -193,7 +194,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             Rectangle2D bounds = surfacingShape.getBounds2D();
             double cx = bounds.getCenterX();
             double cy = bounds.getCenterY();
-            double angleDeg = getToolPathAngle();
+            double angleDeg = getToolPathDirection() == ToolPathDirection.VERTICAL ? 90 : 0;
             double arrowLength = Math.min(shape.getBounds2D().getWidth(), shape.getBounds2D().getHeight());
             drawArrow(drawing, graphics, cx, cy, angleDeg, arrowLength);
             if (getDirection() == Direction.BOTH) {
@@ -263,15 +264,19 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         g.draw(head);
     }
 
-    private Shape getBufferedShape(double leadInMillimeters, double leadOutMillimeters) {
+    private Shape getBufferedShape(double leadInMillimeters, double leadOutMillimeters, ToolPathDirection toolPathDirection) {
         Rectangle2D shape = getShape().getBounds2D();
-        shape.setFrame(shape.getX() - leadInMillimeters, shape.getY() - leadInMillimeters, shape.getWidth() + leadInMillimeters + leadOutMillimeters, shape.getHeight() + leadInMillimeters + leadOutMillimeters);
+        double startX = shape.getX() - (toolPathDirection == ToolPathDirection.HORIZONTAL ? leadInMillimeters : 0);
+        double startY = shape.getY() - (toolPathDirection == ToolPathDirection.VERTICAL ? leadInMillimeters : 0);
+        double width = shape.getWidth() + (toolPathDirection == ToolPathDirection.HORIZONTAL ? leadInMillimeters + leadOutMillimeters : 0);
+        double height = shape.getHeight() + (toolPathDirection == ToolPathDirection.VERTICAL ? leadInMillimeters + leadOutMillimeters : 0);
+        shape.setFrame(startX, startY, width, height);
         return new Area(shape);
     }
 
     private Shape getSurfacingShape() {
         double leadInMillimeters = ControllerFactory.getController().getSettings().getToolDiameter() * ((double) getLeadInPercent() / 100d);
-        return getBufferedShape(leadInMillimeters, leadInMillimeters);
+        return getBufferedShape(leadInMillimeters, leadInMillimeters, getToolPathDirection());
     }
 
     private void drawShape(Graphics2D graphics, BasicStroke strokeWidth, Color shapeHint, Shape shape) {
@@ -379,12 +384,12 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
 
     @Override
     public double getToolPathAngle() {
-        return toolPathDirection;
+        return toolPathAngle;
     }
 
     @Override
     public void setToolPathAngle(double toolPathDirection) {
-        this.toolPathDirection = toolPathDirection % 360;
+        this.toolPathAngle = toolPathDirection % 360;
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 
@@ -397,5 +402,16 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     public void setDirection(Direction direction) {
         this.direction = direction;
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public void setToolPathDirection(ToolPathDirection toolPathDirection) {
+        this.toolPathDirection = toolPathDirection;
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public ToolPathDirection getToolPathDirection() {
+        return toolPathDirection;
     }
 }

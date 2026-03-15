@@ -55,6 +55,13 @@ public class CuttableEntityV1 extends EntityV1 {
     @Expose
     private double toolPathDirection;
 
+    /**
+     * This can be confused with the {@link #toolPathDirection} field, in the V2 version of the file format
+     * these fields should be renamed. Kept like this for backwards compatibility
+     */
+    @Expose
+    private ToolPathDirectionTypeV1 pathDirection;
+
     @Expose
     private DirectionTypeV1 direction;
 
@@ -117,6 +124,14 @@ public class CuttableEntityV1 extends EntityV1 {
         this.direction = direction;
     }
 
+    public ToolPathDirectionTypeV1 getToolPathDirection() {
+        return pathDirection;
+    }
+
+    public void setToolPathDirection(ToolPathDirectionTypeV1 pathDirection) {
+        this.pathDirection = pathDirection;
+    }
+
     @Override
     protected void applyCommonAttributes(Entity entity) {
         super.applyCommonAttributes(entity);
@@ -135,6 +150,7 @@ public class CuttableEntityV1 extends EntityV1 {
             cuttable.setLeadInPercent(leadInPercent);
             cuttable.setToolPathAngle(toolPathDirection);
             cuttable.setDirection(DirectionTypeV1.toDirection(direction));
+            cuttable.setToolPathDirection(ToolPathDirectionTypeV1.toDirection(pathDirection));
         }
     }
 

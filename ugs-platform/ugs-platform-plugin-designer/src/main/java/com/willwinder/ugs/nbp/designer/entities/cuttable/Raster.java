@@ -376,6 +376,6 @@ public class Raster extends AbstractCuttable {
 
     @Override
     public List<CutType> getAvailableCutTypes() {
-        return List.of(CutType.LASER_RASTER, CutType.LASER_ON_PATH, CutType.ON_PATH, CutType.INSIDE_PATH, CutType.OUTSIDE_PATH, CutType.SURFACE);
+        return List.of(CutType.NONE, CutType.LASER_RASTER, CutType.LASER_ON_PATH, CutType.ON_PATH, CutType.INSIDE_PATH, CutType.OUTSIDE_PATH, CutType.SURFACE);
     }
 }

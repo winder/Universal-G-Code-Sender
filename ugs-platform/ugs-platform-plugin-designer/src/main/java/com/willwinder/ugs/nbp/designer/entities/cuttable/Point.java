@@ -93,6 +93,6 @@ public class Point extends AbstractCuttable {
 
     @Override
     public List<CutType> getAvailableCutTypes() {
-        return List.of(CutType.CENTER_DRILL);
+        return List.of(CutType.NONE, CutType.CENTER_DRILL);
     }
 }

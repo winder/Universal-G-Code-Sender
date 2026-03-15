@@ -46,6 +46,15 @@ public class GeometryUtils {
         double dx = Math.cos(radians);
         double dy = Math.sin(radians);
 
+        double epsilon = 1e-12;
+        if (Math.abs(dx) < epsilon) {
+            dx = 0;
+        }
+
+        if (Math.abs(dy) < epsilon) {
+            dy = 0;
+        }
+
         // Normal vector (perpendicular) for stepping passes
         double nx = -dy;
         double ny = dx;
@@ -67,4 +76,3 @@ public class GeometryUtils {
         return lineString;
     }
 }
-
