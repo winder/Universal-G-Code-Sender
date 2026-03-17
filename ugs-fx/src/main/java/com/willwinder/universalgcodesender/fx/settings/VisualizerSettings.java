@@ -65,6 +65,7 @@ public class VisualizerSettings {
 
     private final BooleanProperty showMachine = new SimpleBooleanProperty(loadBoolean(SHOW_MACHINE_MODEL, false));
     private final StringProperty machineModel = new SimpleStringProperty(loadString(MACHINE_MODEL, MachineType.GENMITSU_PRO_MAX.name()));
+    private final StringProperty colorBackground = new SimpleStringProperty(loadString(COLOR_RAPID, "#D3D3D3"));
     private final StringProperty colorRapid = new SimpleStringProperty(loadString(COLOR_RAPID, "#EDFF00FF"));
     private final StringProperty colorCompleted = new SimpleStringProperty(loadString(COLOR_COMPLETED, "#BEBEBEC8"));
     private final StringProperty colorPlunge = new SimpleStringProperty(loadString(COLOR_PLUNGE, "#006400FF"));
@@ -110,6 +111,10 @@ public class VisualizerSettings {
 
     public BooleanProperty showMachineProperty() {
         return showMachine;
+    }
+
+    public StringProperty colorBackgroundProperty() {
+        return colorBackground;
     }
 
     public StringProperty colorRapidProperty() {

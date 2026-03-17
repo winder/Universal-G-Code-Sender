@@ -60,6 +60,7 @@ public class VisualizerSettingsPane extends BorderPane {
         settingsGroup.getChildren().add(new BorderedTitledPane(Localization.getString("platform.visualizer.gcodeModel"),
                 new VBox(10,
                         createFloatSetting(Localization.getString("platform.visualizer.gcodeModel.lineWidth"), VisualizerSettings.getInstance().lineWidthProperty()),
+                        createColorSetting(Localization.getString("platform.visualizer.color.background"), VisualizerSettings.getInstance().colorBackgroundProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.rapid"), VisualizerSettings.getInstance().colorRapidProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.linear.min.speed"), VisualizerSettings.getInstance().colorFeedMinProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.linear"), VisualizerSettings.getInstance().colorFeedMaxProperty()),
