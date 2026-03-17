@@ -96,7 +96,7 @@ public class Visualizer extends Pane {
         updateRotationPivotFromPan();
 
         subScene = new SubScene(root3D, 800, 600, true, SceneAntialiasing.BALANCED);
-        subScene.setFill(Color.LIGHTGRAY);
+        subScene.fillProperty().bind(VisualizerSettings.getInstance().colorBackgroundProperty().map(Color::web));
 
         camera = createCamera();
         subScene.setCamera(camera);
