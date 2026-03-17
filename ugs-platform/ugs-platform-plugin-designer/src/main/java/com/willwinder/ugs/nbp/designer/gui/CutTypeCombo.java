@@ -30,6 +30,7 @@ import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -45,7 +46,7 @@ public class CutTypeCombo extends JComboBox<CutType> {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                CutType cutType = (CutType) value;
+                CutType cutType = Optional.ofNullable((CutType) value).orElse(CutType.NONE);
                 setText(cutType.getName());
                 setIcon(new CutTypeIcon(cutType, CutTypeIcon.Size.SMALL));
                 return this;
@@ -56,7 +57,7 @@ public class CutTypeCombo extends JComboBox<CutType> {
     }
 
     public CutType getSelectedCutType() {
-        return (CutType) getSelectedItem();
+        return Optional.ofNullable((CutType) getSelectedItem()).orElse(CutType.NONE);
     }
 
     public void setItems(List<CutType> cutTypes) {
