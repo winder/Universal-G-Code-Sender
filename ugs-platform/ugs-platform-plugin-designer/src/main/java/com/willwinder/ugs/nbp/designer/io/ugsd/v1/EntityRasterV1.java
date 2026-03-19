@@ -44,6 +44,12 @@ public class EntityRasterV1 extends CuttableEntityV1 {
     @Expose
     private int levels;
 
+    @Expose
+    private boolean invert;
+
+    @Expose
+    private int[][] powerCurveControlPoints;
+
     public EntityRasterV1() {
         super(EntityTypeV1.RASTER);
     }
@@ -80,6 +86,22 @@ public class EntityRasterV1 extends CuttableEntityV1 {
         this.levels = levels;
     }
 
+    public boolean isInvert() {
+        return invert;
+    }
+
+    public void setInvert(boolean invert) {
+        this.invert = invert;
+    }
+
+    public int[][] getPowerCurveControlPoints() {
+        return powerCurveControlPoints;
+    }
+
+    public void setPowerCurveControlPoints(int[][] powerCurveControlPoints) {
+        this.powerCurveControlPoints = powerCurveControlPoints;
+    }
+
     @Override
     public Entity toInternal() {
         try {
@@ -89,6 +111,10 @@ public class EntityRasterV1 extends CuttableEntityV1 {
             raster.setBrightness(this.brightness);
             raster.setGamma(this.gamma);
             raster.setLevels(this.levels);
+            raster.setInvert(this.invert);
+            if (this.powerCurveControlPoints != null) {
+                raster.setPowerCurveControlPoints(this.powerCurveControlPoints);
+            }
             return raster;
         } catch (final IOException ioe) {
             throw new UncheckedIOException(ioe);

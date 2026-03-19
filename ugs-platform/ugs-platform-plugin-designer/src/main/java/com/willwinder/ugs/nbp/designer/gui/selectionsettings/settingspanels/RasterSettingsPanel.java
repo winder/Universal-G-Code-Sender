@@ -27,6 +27,7 @@ import static com.willwinder.ugs.nbp.designer.entities.EntitySetting.RASTER_CONT
 import static com.willwinder.ugs.nbp.designer.entities.EntitySetting.RASTER_GAMMA;
 import static com.willwinder.ugs.nbp.designer.entities.EntitySetting.RASTER_INVERT;
 import static com.willwinder.ugs.nbp.designer.entities.EntitySetting.RASTER_LEVELS;
+import static com.willwinder.ugs.nbp.designer.entities.EntitySetting.RASTER_POWER_CURVE;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Group;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Raster;
 import com.willwinder.ugs.nbp.designer.entities.settings.RasterSettingsManager;
@@ -60,6 +61,7 @@ public class RasterSettingsPanel extends JPanel implements EntitySettingsPanel {
     private DoubleSlider gammaSlider;
     private JSlider levelSlider;
     private JCheckBox invert;
+    private PowerCurvePanel powerCurvePanel;
 
 
     public RasterSettingsPanel() {
@@ -75,6 +77,8 @@ public class RasterSettingsPanel extends JPanel implements EntitySettingsPanel {
         gammaSlider.addChangeListener(e -> firePropertyChange(RASTER_GAMMA, gammaSlider.getDoubleValue()));
         levelSlider.addChangeListener(e -> firePropertyChange(RASTER_LEVELS, levelSlider.getValue()));
         invert.addActionListener(e -> firePropertyChange(RASTER_INVERT, invert.isSelected()));
+        powerCurvePanel.addPropertyChangeListener(PowerCurvePanel.PROPERTY_CURVE_CHANGED,
+                e -> firePropertyChange(RASTER_POWER_CURVE, e.getNewValue()));
     }
 
     private void firePropertyChange(EntitySetting entitySetting, Object newValue) {
@@ -100,6 +104,9 @@ public class RasterSettingsPanel extends JPanel implements EntitySettingsPanel {
 
         add(new JLabel("Invert", SwingConstants.RIGHT), LABEL_CONSTRAINTS);
         add(invert, FIELD_CONSTRAINTS);
+
+        add(new JLabel("Power curve", SwingConstants.RIGHT), LABEL_CONSTRAINTS);
+        add(powerCurvePanel, "grow, w 60:200:300, h 200:200:300");
     }
 
     private void initializeComponents() {
@@ -108,6 +115,7 @@ public class RasterSettingsPanel extends JPanel implements EntitySettingsPanel {
         gammaSlider = createDoubleSlider(0.1d, 10d, 100);
         levelSlider = createIntegerSlider(2, 255, 255);
         invert = new JCheckBox();
+        powerCurvePanel = new PowerCurvePanel();
     }
 
     @Override
@@ -136,6 +144,8 @@ public class RasterSettingsPanel extends JPanel implements EntitySettingsPanel {
                 contrastSlider.setDoubleValue(raster.getContrast());
                 gammaSlider.setDoubleValue(raster.getGamma());
                 levelSlider.setValue(raster.getLevels());
+                invert.setSelected(raster.isInvert());
+                powerCurvePanel.setControlPoints(raster.getPowerCurveControlPoints());
             } finally {
                 updating = false;
             }
@@ -164,22 +174,7 @@ public class RasterSettingsPanel extends JPanel implements EntitySettingsPanel {
         selectionGroup.getChildren().stream()
                 .filter(Raster.class::isInstance)
                 .map(Raster.class::cast)
-                .forEach(raster -> applyRasterProperty(raster, entitySetting, newValue));
-    }
-
-    private void applyRasterProperty(Raster raster, EntitySetting setting, Object newValue) {
-        if (RASTER_BRIGHTNESS.equals(setting)) {
-            raster.setBrightness((Double) newValue);
-        } else if (RASTER_CONTRAST.equals(setting)) {
-            raster.setContrast((Double) newValue);
-        } else if (RASTER_GAMMA.equals(setting)) {
-            raster.setGamma((Double) newValue);
-        } else if (RASTER_INVERT.equals(setting)) {
-            raster.setInvert((Boolean) newValue);
-        } else if (RASTER_LEVELS.equals(setting)) {
-            System.out.println(newValue);
-            raster.setLevels((Integer) newValue);
-        }
+                .forEach(raster -> raster.setEntitySetting(entitySetting, newValue));
     }
 
     @Override

@@ -58,6 +58,11 @@ public class Raster extends AbstractCuttable {
     private int levels = 255;
 
     private boolean invert = false;
+
+    // Power curve control points: array of [x, y] pairs mapping brightness→power
+    private int[][] powerCurveControlPoints = MonotoneCubicSpline.defaultControlPoints();
+    private transient int[] powerCurveLut; // cached LUT from control points
+
     private transient BufferedImage processedGray; // cached grayscale image
     private transient BufferedImage processedInkMask;  // cached ARGB: black color with alpha derived from gray
 
@@ -129,6 +134,8 @@ public class Raster extends AbstractCuttable {
         copy.contrast = this.contrast;
         copy.gamma = this.gamma;
         copy.invert = this.invert;
+        copy.levels = this.levels;
+        copy.powerCurveControlPoints = MonotoneCubicSpline.deepClone(this.powerCurveControlPoints);
         copy.invalidateProcessedCache();
 
         return copy;
@@ -143,7 +150,8 @@ public class Raster extends AbstractCuttable {
                 EntitySetting.RASTER_CONTRAST,
                 EntitySetting.RASTER_GAMMA,
                 EntitySetting.RASTER_INVERT,
-                EntitySetting.RASTER_LEVELS
+                EntitySetting.RASTER_LEVELS,
+                EntitySetting.RASTER_POWER_CURVE
         ));
         return settings;
     }
@@ -156,6 +164,7 @@ public class Raster extends AbstractCuttable {
             case RASTER_GAMMA -> Optional.of(gamma);
             case RASTER_INVERT -> Optional.of(invert);
             case RASTER_LEVELS -> Optional.of(levels);
+            case RASTER_POWER_CURVE -> Optional.of(MonotoneCubicSpline.deepClone(powerCurveControlPoints));
             default -> super.getEntitySetting(entitySetting);
         };
     }
@@ -168,6 +177,7 @@ public class Raster extends AbstractCuttable {
             case RASTER_GAMMA -> setGamma(asDouble(value));
             case RASTER_INVERT -> setInvert(asBoolean(value));
             case RASTER_LEVELS -> setLevels(asInteger(value));
+            case RASTER_POWER_CURVE -> setPowerCurveControlPoints(asIntArray2D(value));
             default -> super.setEntitySetting(entitySetting, value);
         }
     }
@@ -217,9 +227,31 @@ public class Raster extends AbstractCuttable {
         invalidateProcessedCache();
     }
 
+    public int[][] getPowerCurveControlPoints() {
+        return MonotoneCubicSpline.deepClone(powerCurveControlPoints);
+    }
+
+    public void setPowerCurveControlPoints(int[][] controlPoints) {
+        if (controlPoints == null || controlPoints.length < 2) {
+            this.powerCurveControlPoints = MonotoneCubicSpline.defaultControlPoints();
+        } else {
+            this.powerCurveControlPoints = MonotoneCubicSpline.deepClone(controlPoints);
+        }
+        this.powerCurveLut = null;
+        invalidateProcessedCache();
+    }
+
+    private int[] getOrCreatePowerCurveLut() {
+        if (powerCurveLut == null) {
+            powerCurveLut = MonotoneCubicSpline.buildLut(powerCurveControlPoints);
+        }
+        return powerCurveLut;
+    }
+
     private void invalidateProcessedCache() {
         processedGray = null;
         processedInkMask = null;
+        powerCurveLut = null;
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 
@@ -259,6 +291,7 @@ public class Raster extends AbstractCuttable {
         final double brightness = this.brightness;
         final double invGamma = 1.0 / Math.max(0.0001, gamma);
         final boolean invert = this.invert;
+        final int[] curveLut = getOrCreatePowerCurveLut();
 
         for (int y = 0; y < src.getHeight(); y++) {
             for (int x = 0; x < src.getWidth(); x++) {
@@ -288,6 +321,8 @@ public class Raster extends AbstractCuttable {
 
                 int lv = (int) Math.round(ql * 255.0);
 
+                lv = curveLut[Math.max(0, Math.min(255, lv))];
+
                 int grayArgb = (0xFF << 24) | (lv << 16) | (lv << 8) | lv;
                 dst.setRGB(x, y, grayArgb);
             }
@@ -316,6 +351,11 @@ public class Raster extends AbstractCuttable {
     private static boolean asBoolean(Object value) {
         if (value instanceof Boolean b) return b;
         return Boolean.parseBoolean(String.valueOf(value));
+    }
+
+    private static int[][] asIntArray2D(Object value) {
+        if (value instanceof int[][] arr) return arr;
+        return MonotoneCubicSpline.defaultControlPoints();
     }
 
     /**

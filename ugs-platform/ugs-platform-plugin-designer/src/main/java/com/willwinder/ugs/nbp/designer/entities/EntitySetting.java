@@ -52,7 +52,8 @@ public enum EntitySetting {
     RASTER_CONTRAST("Contrast"),
     RASTER_GAMMA("Gamma"),
     RASTER_INVERT("Invert"),
-    RASTER_LEVELS("Levels");
+    RASTER_LEVELS("Levels"),
+    RASTER_POWER_CURVE("Power curve");
 
     public static final List<EntitySetting> TRANSFORMATION_SETTINGS = List.of(
             EntitySetting.POSITION_X,
