@@ -90,22 +90,22 @@ public class RasterSettingsPanel extends JPanel implements EntitySettingsPanel {
     private void buildLayout() {
         add(new SeparatorLabel(Localization.getString("designer.panel.shape-settings.raster.title"), SwingConstants.RIGHT), "spanx, growx");
 
-        add(new JLabel("Brightness", SwingConstants.RIGHT), LABEL_CONSTRAINTS);
+        add(new JLabel(Localization.getString("platform.plugin.designer.raster.brightness"), SwingConstants.RIGHT), LABEL_CONSTRAINTS);
         add(brightnessSlider, FIELD_CONSTRAINTS);
 
-        add(new JLabel("Contrast", SwingConstants.RIGHT), LABEL_CONSTRAINTS);
+        add(new JLabel(Localization.getString("platform.plugin.designer.raster.contrast"), SwingConstants.RIGHT), LABEL_CONSTRAINTS);
         add(contrastSlider, FIELD_CONSTRAINTS);
 
-        add(new JLabel("Gamma", SwingConstants.RIGHT), LABEL_CONSTRAINTS);
+        add(new JLabel(Localization.getString("platform.plugin.designer.raster.gamma"), SwingConstants.RIGHT), LABEL_CONSTRAINTS);
         add(gammaSlider, FIELD_CONSTRAINTS);
 
-        add(new JLabel("Levels", SwingConstants.RIGHT), LABEL_CONSTRAINTS);
+        add(new JLabel(Localization.getString("platform.plugin.designer.raster.levels"), SwingConstants.RIGHT), LABEL_CONSTRAINTS);
         add(levelSlider, FIELD_CONSTRAINTS);
 
-        add(new JLabel("Invert", SwingConstants.RIGHT), LABEL_CONSTRAINTS);
+        add(new JLabel(Localization.getString("platform.plugin.designer.raster.invert"), SwingConstants.RIGHT), LABEL_CONSTRAINTS);
         add(invert, FIELD_CONSTRAINTS);
 
-        add(new JLabel("Power curve", SwingConstants.RIGHT), LABEL_CONSTRAINTS);
+        add(new JLabel(Localization.getString("platform.plugin.designer.raster.power-curve"), SwingConstants.RIGHT), LABEL_CONSTRAINTS);
         add(powerCurvePanel, "grow, w 60:200:300, h 200:200:300");
     }
 
