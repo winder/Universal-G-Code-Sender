@@ -118,7 +118,6 @@ public class DxfConverter {
             vertex = polyline.getVertex(i);
             path.lineTo(convertCoordinate(vertex.getX()), convertCoordinate(vertex.getY()));
         }
-        path.close();
         return path;
     }
 

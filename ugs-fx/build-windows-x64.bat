@@ -2,8 +2,6 @@
 
 :: ------ ENVIRONMENT --------------------------------------------------------
 setlocal enabledelayedexpansion
-set PROJECT_VERSION=2.0-SNAPSHOT
-set APP_VERSION=2.0
 
 :: ----------- ENVIRONMENT CHECK ------------------------------------------
 if "%PROJECT_VERSION%"=="" (

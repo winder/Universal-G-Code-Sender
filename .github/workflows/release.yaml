@@ -64,7 +64,7 @@ jobs:
         run: |
           export REVISION=${GITHUB_REF_NAME:1}
           export CHANGELIST=""
-          echo "Building version ${REVISION}${CHANGELIST}"
+          echo "Packaging version ${REVISION}${CHANGELIST}"
           ./mvnw package -pl ugs-platform/application -P create-macosx-x64-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       # https://github.com/marketplace/actions/upload-to-github-release
@@ -102,7 +102,7 @@ jobs:
         run: |
           export REVISION=${GITHUB_REF_NAME:1}
           export CHANGELIST=""
-          echo "Building version ${REVISION}${CHANGELIST}"
+          echo "Packaging version ${REVISION}${CHANGELIST}"
           ./mvnw package -pl ugs-platform/application -P create-macosx-aarch64-package -DskipTests=true -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       # https://github.com/marketplace/actions/upload-to-github-release
@@ -125,10 +125,18 @@ jobs:
       - uses: ./.github/actions/setup-java-maven
 
       - name: Build
-        run: ./mvnw clean install -DskipTests
+        run: |
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Building version ${REVISION}${CHANGELIST}"
+          ./mvnw clean install -DskipTests -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       - name: Package Linux
-        run: ./mvnw package -pl ugs-fx -P fx-build-linux-x64
+        run: |
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Packaging version ${REVISION}${CHANGELIST}"
+          ./mvnw package -pl ugs-fx -P fx-build-linux-x64 -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       - name: Upload DEB binaries to snapshot release
         uses: xresloader/upload-to-github-release@v1
@@ -149,10 +157,18 @@ jobs:
       - uses: ./.github/actions/setup-java-maven
 
       - name: Build
-        run: ./mvnw clean install -DskipTests
+        run: |
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Building version ${REVISION}${CHANGELIST}"
+          ./mvnw clean install -DskipTests -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       - name: Package Linux
-        run: ./mvnw package -pl ugs-fx -P fx-build-linux-aarch64
+        run: |
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Packaging version ${REVISION}${CHANGELIST}"
+          ./mvnw package -pl ugs-fx -P fx-build-linux-aarch64 -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       - name: Upload DEB binaries to snapshot release
         uses: xresloader/upload-to-github-release@v1
@@ -173,10 +189,18 @@ jobs:
       - uses: ./.github/actions/setup-java-maven
 
       - name: Build
-        run: ./mvnw clean install -DskipTests
+        run: |
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Building version ${REVISION}${CHANGELIST}"
+          ./mvnw clean install -DskipTests -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       - name: Package Linux
-        run: ./mvnw package -pl ugs-fx -P fx-build-macosx-x64
+        run: |
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Packaging version ${REVISION}${CHANGELIST}"
+          ./mvnw package -pl ugs-fx -P fx-build-macosx-x64 -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       - name: Upload DMG binaries to snapshot release
         uses: xresloader/upload-to-github-release@v1
@@ -197,10 +221,18 @@ jobs:
       - uses: ./.github/actions/setup-java-maven
 
       - name: Build
-        run: ./mvnw clean install -DskipTests
+        run: |
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Building version ${REVISION}${CHANGELIST}"
+          ./mvnw clean install -DskipTests -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       - name: Package Linux
-        run: ./mvnw package -pl ugs-fx -P fx-build-macosx-aarch64
+        run: |
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Packaging version ${REVISION}${CHANGELIST}"
+          ./mvnw package -pl ugs-fx -P fx-build-macosx-aarch64 -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       - name: Upload DMG binaries to snapshot release
         uses: xresloader/upload-to-github-release@v1
@@ -220,10 +252,20 @@ jobs:
       - uses: ./.github/actions/setup-java-maven
 
       - name: Build
-        run: ./mvnw clean install -DskipTests
+        shell: bash
+        run: |
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Building version ${REVISION}${CHANGELIST}"
+          ./mvnw clean install -DskipTests -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       - name: Package Windows
-        run: ./mvnw package -pl ugs-fx -P fx-build-windows
+        shell: bash
+        run: |
+          export REVISION=${GITHUB_REF_NAME:1}
+          export CHANGELIST=""
+          echo "Packaging version ${REVISION}${CHANGELIST}"
+          ./mvnw package -pl ugs-fx -P fx-build-windows -Drevision=${REVISION} -Dchangelist=${CHANGELIST}
 
       - name: Upload binaries to snapshot release
         uses: xresloader/upload-to-github-release@v1

@@ -1,5 +1,5 @@
 /*
-    Copyright 2025 Will Winder
+    Copyright 2025-2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.ToolPathDirection;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
@@ -32,10 +33,12 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
 
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SurfaceToolPath extends AbstractToolPath {
     private final Cuttable source;
-    private final double toolPathAngle;
+    private final ToolPathDirection toolPathDirection;
 
     private enum PassDirection {
         FORWARD,
@@ -45,25 +48,40 @@ public class SurfaceToolPath extends AbstractToolPath {
     public SurfaceToolPath(Settings settings, Cuttable source) {
         super(settings);
         this.source = source;
-        this.toolPathAngle = source.getToolPathAngle();
+        this.toolPathDirection = source.getToolPathDirection();
     }
 
     private Envelope getEnvelope() {
         Rectangle2D bounds = source.getShape().getBounds2D();
         double toolRadius = settings.getToolDiameter() / 2.0;
-        double leadInMm = (settings.getToolDiameter() * (source.getLeadInPercent() / 100d)) - toolRadius;
-        return new Envelope(bounds.getMinX() - leadInMm, bounds.getMaxX() + leadInMm, bounds.getMinY() - leadInMm, bounds.getMaxY() + leadInMm);
+        double leadMm = settings.getToolDiameter() * (source.getLeadInPercent() / 100d);
+
+        if (toolPathDirection == ToolPathDirection.VERTICAL) {
+            return new Envelope(
+                    bounds.getMinX() + toolRadius,
+                    bounds.getMaxX() - toolRadius,
+                    bounds.getMinY() + toolRadius - leadMm,
+                    bounds.getMaxY() - toolRadius + leadMm
+            );
+        }
+
+        return new Envelope(
+                bounds.getMinX() + toolRadius - leadMm,
+                bounds.getMaxX() - toolRadius + leadMm,
+                bounds.getMinY() + toolRadius,
+                bounds.getMaxY() - toolRadius
+        );
     }
 
     public void appendGcodePath(GcodePath gcodePath, Settings settings) {
         gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d)), source.getFeedRate()));
 
-        double stepOver = settings.getToolDiameter() * Math.min(Math.max(0.01, Math.abs(settings.getToolStepOver())), 1.0);
-
+        double maxStepOver = settings.getToolDiameter() * Math.min(Math.max(0.01, Math.abs(settings.getToolStepOver())), 1.0);
         Envelope envelope = getEnvelope();
+        List<Double> offsets = getPassOffsets(maxStepOver);
 
         double currentDepth = getStartDepth();
-        addGeometriesToGcodePath(gcodePath, settings, envelope, currentDepth, stepOver);
+        addGeometriesToGcodePath(gcodePath, settings, envelope, currentDepth, offsets);
 
         while (currentDepth < getTargetDepth()) {
             currentDepth += settings.getDepthPerPass();
@@ -71,50 +89,67 @@ public class SurfaceToolPath extends AbstractToolPath {
                 currentDepth = getTargetDepth();
             }
 
-            addGeometriesToGcodePath(gcodePath, settings, envelope, currentDepth, stepOver);
+            addGeometriesToGcodePath(gcodePath, settings, envelope, currentDepth, offsets);
         }
 
         addSafeHeightSegment(gcodePath, null, true);
     }
 
-    private void addGeometriesToGcodePath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, double stepOver) {
+    private void addGeometriesToGcodePath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, List<Double> offsets) {
         Direction direction = source.getDirection();
         if (direction == Direction.CLIMB) {
-            generateClimbPath(gcodePath, settings, envelope, currentDepth, stepOver);
+            generateClimbPath(gcodePath, settings, envelope, currentDepth, offsets);
         } else if (direction == Direction.CONVENTIONAL) {
-            generateConventinalPath(gcodePath, settings, envelope, currentDepth, stepOver);
+            generateConventinalPath(gcodePath, settings, envelope, currentDepth, offsets);
         } else if (direction == Direction.BOTH) {
-            generateBothPath(gcodePath, settings, envelope, currentDepth, stepOver);
+            generateBothPath(gcodePath, settings, envelope, currentDepth, offsets);
         }
     }
 
-    private void generateBothPath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, double stepOver) {
+    private void generateBothPath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, List<Double> offsets) {
         boolean reverse = false;
         boolean isFirstSegment = true;
-        double currentY = envelope.getMinY() - (envelope.getHeight() * 2);
-        while (currentY < envelope.getMaxY() + (envelope.getHeight() * 2)) {
-            if (addReversibleLineSegment(gcodePath, settings, envelope, currentDepth, currentY, reverse ? PassDirection.REVERSE : PassDirection.FORWARD, isFirstSegment)) {
+
+        for (double offset : offsets) {
+            if (addReversibleLineSegment(gcodePath, settings, envelope, currentDepth, offset, reverse ? PassDirection.REVERSE : PassDirection.FORWARD, isFirstSegment)) {
                 isFirstSegment = false;
             }
             reverse = !reverse;
-            currentY += stepOver;
         }
     }
 
-    private void generateConventinalPath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, double stepOver) {
-        double currentY = envelope.getMaxY() + (envelope.getHeight() * 2);
-        while (currentY > envelope.getMinY() - (envelope.getHeight() * 2)) {
-            addSingleLineSegment(gcodePath, settings, envelope, currentDepth, currentY);
-            currentY -= stepOver;
+    private void generateConventinalPath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, List<Double> offsets) {
+        for (int i = offsets.size() - 1; i >= 0; i--) {
+            addSingleLineSegment(gcodePath, settings, envelope, currentDepth, offsets.get(i));
         }
     }
 
-    private void generateClimbPath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, double stepOver) {
-        double currentY = envelope.getMinY() - (envelope.getHeight() * 2);
-        while (currentY < envelope.getMaxY() + (envelope.getHeight() * 2)) {
-            addSingleLineSegment(gcodePath, settings, envelope, currentDepth, currentY);
-            currentY += stepOver;
+    private void generateClimbPath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, List<Double> offsets) {
+        for (double offset : offsets) {
+            addSingleLineSegment(gcodePath, settings, envelope, currentDepth, offset);
         }
+    }
+
+    private List<Double> getPassOffsets(double maxStepOver) {
+        Rectangle2D bounds = source.getShape().getBounds2D();
+        double toolDiameter = settings.getToolDiameter();
+        double perpendicularDimension = toolPathDirection == ToolPathDirection.VERTICAL ? bounds.getWidth() : bounds.getHeight();
+
+        int passCount = Math.max(1, (int) Math.ceil(perpendicularDimension / maxStepOver));
+        double centerlineSpan = Math.max(0, perpendicularDimension - toolDiameter);
+
+        List<Double> offsets = new ArrayList<>();
+        if (passCount == 1) {
+            offsets.add(centerlineSpan / 2.0);
+            return offsets;
+        }
+
+        double spacing = centerlineSpan / (passCount - 1);
+        for (int i = 0; i < passCount; i++) {
+            offsets.add(i * spacing);
+        }
+
+        return offsets;
     }
 
     private void addSingleLineSegment(
@@ -124,7 +159,7 @@ public class SurfaceToolPath extends AbstractToolPath {
             double currentDepth,
             double offsetAlongNormal) {
 
-        LineString lineString = generateLineString(envelope, offsetAlongNormal, toolPathAngle);
+        LineString lineString = generateLineString(envelope, offsetAlongNormal, getToolPathAngle());
         if (lineString == null) return;
 
         double safeHeight = calculateSafeHeight(settings);
@@ -148,6 +183,10 @@ public class SurfaceToolPath extends AbstractToolPath {
         gcodePath.addSegment(SegmentType.LINE, end, source.getFeedRate());
     }
 
+    private double getToolPathAngle() {
+        return toolPathDirection == ToolPathDirection.VERTICAL ? 90d : 0d;
+    }
+
     private double calculateSafeHeight(Settings settings) {
         return (-getStartDepth()) + settings.getSafeHeight();
     }
@@ -161,7 +200,7 @@ public class SurfaceToolPath extends AbstractToolPath {
             PassDirection passDirection,
             boolean isFirstSegment) {
 
-        LineString lineString = generateLineString(envelope, offsetAlongNormal, toolPathAngle);
+        LineString lineString = generateLineString(envelope, offsetAlongNormal, getToolPathAngle());
         if (lineString == null) return false;
 
         Coordinate startCoord = lineString.getCoordinateN(0);

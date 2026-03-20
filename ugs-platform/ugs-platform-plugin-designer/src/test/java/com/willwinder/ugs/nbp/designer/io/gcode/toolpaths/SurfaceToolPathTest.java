@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.nbp.designer.entities.cuttable.ToolPathDirection;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.nbp.designer.io.gcode.path.SegmentType;
@@ -54,7 +55,7 @@ public class SurfaceToolPathTest {
 
         List<Segment> segments = gcodePath.getSegments();
         int segmentIndex = 0;
-        assertEquals(6, segments.size());
+        assertEquals(10, segments.size());
 
 
         // Move to safe height
@@ -72,7 +73,7 @@ public class SurfaceToolPathTest {
         // Move to XY start
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.MOVE, segment.type);
-        assertXYPoint(segment.point, 2.5, 5.0);
+        assertXYPoint(segment.point, 2.5, 2.5);
         assertFalse(segment.point.hasZ());
 
         // Move towards material
@@ -82,7 +83,24 @@ public class SurfaceToolPathTest {
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
-        assertXYPoint(segment.point, 7.5, 5.0);
+        assertXYPoint(segment.point, 7.5, 2.5);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertZPoint(segment.point, 9);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertXYPoint(segment.point, 2.5, 7.5);
+        assertFalse(segment.point.hasZ());
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertZPoint(segment.point, -1);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertXYPoint(segment.point, 7.5, 7.5);
 
         segment = segments.get(segmentIndex);
         assertEquals(SegmentType.MOVE, segment.type);
@@ -109,7 +127,7 @@ public class SurfaceToolPathTest {
 
         List<Segment> segments = gcodePath.getSegments();
         int segmentIndex = 0;
-        assertEquals(6, segments.size());
+        assertEquals(10, segments.size());
 
         // Move to safe height
         Segment segment = segments.get(segmentIndex++);
@@ -138,6 +156,94 @@ public class SurfaceToolPathTest {
         assertEquals(SegmentType.LINE, segment.type);
         assertXYPoint(segment.point, 6, 6);
 
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertZPoint(segment.point, 9);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertXYPoint(segment.point, 4, 4);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertZPoint(segment.point, -1);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertXYPoint(segment.point, 6, 4);
+
+        segment = segments.get(segmentIndex);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertZPoint(segment.point, 10);
+    }
+
+
+    @Test
+    public void toGcodePathShouldCoverTheWholeWidthWithConventionalMillingVertically() {
+        Rectangle rectangle = new Rectangle(0,0);
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setLeadInPercent(0);
+        rectangle.setDirection(Direction.CONVENTIONAL);
+        rectangle.setToolPathDirection(ToolPathDirection.VERTICAL);
+
+        Settings settings = new Settings();
+        settings.setToolDiameter(8);
+        settings.setToolStepOver(1);
+        settings.setSafeHeight(10);
+
+        SurfaceToolPath toolPath = new SurfaceToolPath(settings, rectangle);
+        toolPath.setStartDepth(1);
+        toolPath.setTargetDepth(1);
+
+        GcodePath gcodePath = toolPath.toGcodePath();
+
+        List<Segment> segments = gcodePath.getSegments();
+        int segmentIndex = 0;
+        assertEquals(10, segments.size());
+
+        // Move to safe height
+        Segment segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.SEAM, segment.type);
+        assertNull(segment.point);
+        assertEquals(Integer.valueOf(1000), segment.getFeedSpeed());
+        assertEquals(Integer.valueOf(255), segment.getSpindleSpeed());
+
+        // Move to Z zero
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertZPoint(segment.point, 9);
+
+        // Move to XY start
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertXYPoint(segment.point, 6, 6);
+        assertFalse(segment.point.hasZ());
+
+        // Move towards material
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertZPoint(segment.point, -1);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertXYPoint(segment.point, 6, 4);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertZPoint(segment.point, 9);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertXYPoint(segment.point, 4, 6);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertZPoint(segment.point, -1);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertXYPoint(segment.point, 4, 4);
+
         segment = segments.get(segmentIndex);
         assertEquals(SegmentType.MOVE, segment.type);
         assertZPoint(segment.point, 10);
@@ -163,7 +269,7 @@ public class SurfaceToolPathTest {
 
         List<Segment> segments = gcodePath.getSegments();
         int segmentIndex = 0;
-        assertEquals(6, segments.size());
+        assertEquals(10, segments.size());
 
         // Move to safe height
         Segment segment = segments.get(segmentIndex++);
@@ -192,6 +298,25 @@ public class SurfaceToolPathTest {
         assertEquals(SegmentType.LINE, segment.type);
         assertXYPoint(segment.point, 6, 4);
 
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertZPoint(segment.point, 9);
+
+        // Move to XY start
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertXYPoint(segment.point, 4, 6);
+        assertFalse(segment.point.hasZ());
+
+        // Move towards material
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertZPoint(segment.point, -1);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertXYPoint(segment.point, 6, 6);
+
         segment = segments.get(segmentIndex);
         assertEquals(SegmentType.MOVE, segment.type);
         assertZPoint(segment.point, 10);
@@ -217,7 +342,7 @@ public class SurfaceToolPathTest {
 
         List<Segment> segments = gcodePath.getSegments();
         int segmentIndex = 0;
-        assertEquals(15, segments.size());
+        assertEquals(18, segments.size());
 
         // Move to safe height
         Segment segment = segments.get(segmentIndex++);
@@ -234,7 +359,7 @@ public class SurfaceToolPathTest {
         // Move to XY start
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.MOVE, segment.type);
-        assertXYPoint(segment.point, 1, 2);
+        assertXYPoint(segment.point, 1, 1);
         assertFalse(segment.point.hasZ());
 
         // Move towards material
@@ -244,23 +369,11 @@ public class SurfaceToolPathTest {
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
-        assertXYPoint(segment.point, 9, 2);
+        assertXYPoint(segment.point, 9, 1);
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
-        assertXYPoint(segment.point, 9, 4);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        assertZPoint(segment.point, -1);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        assertXYPoint(segment.point, 1, 4);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        assertXYPoint(segment.point, 1, 6);
+        assertXYPoint(segment.point, 9, 3);
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
@@ -268,11 +381,11 @@ public class SurfaceToolPathTest {
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
-        assertXYPoint(segment.point, 9, 6);
+        assertXYPoint(segment.point, 1, 3);
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
-        assertXYPoint(segment.point, 9, 8);
+        assertXYPoint(segment.point, 1, 5);
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
@@ -280,13 +393,36 @@ public class SurfaceToolPathTest {
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
-        assertXYPoint(segment.point, 1, 8);
+        assertXYPoint(segment.point, 9, 5);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertXYPoint(segment.point, 9, 7);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertZPoint(segment.point, -1);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertXYPoint(segment.point, 1, 7);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertXYPoint(segment.point, 1, 9);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertZPoint(segment.point, -1);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertXYPoint(segment.point, 9, 9);
 
         segment = segments.get(segmentIndex);
         assertEquals(SegmentType.MOVE, segment.type);
         assertZPoint(segment.point, 10);
     }
-
 
     @Test
     public void toGcodePathShouldGenerateGcodeFromNegativeStartDepth() {
@@ -307,7 +443,7 @@ public class SurfaceToolPathTest {
 
         List<Segment> segments = gcodePath.getSegments();
         int segmentIndex = 0;
-        assertEquals(6, segments.size());
+        assertEquals(10, segments.size());
 
         // Move to safe height
         Segment segment = segments.get(segmentIndex++);
@@ -324,7 +460,7 @@ public class SurfaceToolPathTest {
         // Move to XY start
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.MOVE, segment.type);
-        assertXYPoint(segment.point, 2.5, 5.0);
+        assertXYPoint(segment.point, 2.5, 2.5);
         assertFalse(segment.point.hasZ());
 
         // Move towards material
@@ -334,7 +470,26 @@ public class SurfaceToolPathTest {
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
-        assertXYPoint(segment.point, 7.5, 5.0);
+        assertXYPoint(segment.point, 7.5, 2.5);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertZPoint(segment.point, 11);
+
+        // Move to XY start
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertXYPoint(segment.point, 2.5, 7.5);
+        assertFalse(segment.point.hasZ());
+
+        // Move towards material
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertZPoint(segment.point, 1);
+
+        segment = segments.get(segmentIndex++);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertXYPoint(segment.point, 7.5, 7.5);
 
         segment = segments.get(segmentIndex);
         assertEquals(SegmentType.MOVE, segment.type);
@@ -366,7 +521,7 @@ public class SurfaceToolPathTest {
 
         List<Segment> segments = gcodePath.getSegments();
         int segmentIndex = 0;
-        assertEquals(14, segments.size());
+        assertEquals(10, segments.size());
 
         // Move to safe height
         Segment segment = segments.get(segmentIndex++);
@@ -383,7 +538,7 @@ public class SurfaceToolPathTest {
         // Move to XY start
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.MOVE, segment.type);
-        assertXYPoint(segment.point, -2.5, 0);
+        assertXYPoint(segment.point, -2.5, 2.5);
         assertFalse(segment.point.hasZ());
 
         // Move towards material
@@ -394,7 +549,7 @@ public class SurfaceToolPathTest {
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
         PartialPosition point = segment.point;
-        assertXYPoint(point, 12.5, 0);
+        assertXYPoint(point, 12.5, 2.5);
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.MOVE, segment.type);
@@ -402,7 +557,7 @@ public class SurfaceToolPathTest {
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.MOVE, segment.type);
-        assertXYPoint(segment.point, -2.5, 5.0);
+        assertXYPoint(segment.point, -2.5, 7.5);
         assertFalse(segment.point.hasZ());
 
         // Move towards material
@@ -412,35 +567,16 @@ public class SurfaceToolPathTest {
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
-        assertXYPoint(segment.point, 12.5, 5.0);
+        assertXYPoint(segment.point, 12.5, 7.5);
 
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertZPoint(segment.point, 9);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertXYPoint(segment.point, -2.5, 10.0);
-        assertFalse(segment.point.hasZ());
-
-        // Move towards material
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.MOVE, segment.type);
-        assertZPoint(segment.point, -1);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        assertXYPoint(segment.point, 12.5, 10.0);
-
-        // Move to safe height
         segment = segments.get(segmentIndex);
         assertEquals(SegmentType.MOVE, segment.type);
         assertZPoint(segment.point, 10);
     }
 
     private static void assertXYPoint(PartialPosition point, double expectedX, double expectedY) {
-        assertEquals(expectedX, point.getX(), 0.01);
-        assertEquals(expectedY, point.getY(), 0.01);
+        assertEquals("Expected another X", expectedX, point.getX(), 0.01);
+        assertEquals("Expected another Y", expectedY, point.getY(), 0.01);
     }
 
     @Test

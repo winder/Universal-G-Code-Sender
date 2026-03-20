@@ -198,4 +198,19 @@ public interface Cuttable extends Entity {
      * @return a list of cut types
      */
     List<CutType> getAvailableCutTypes();
+
+    /**
+     * Some tool paths allow setting a direction. This differs from the tool path angle which can be set arbitrarily.
+     *
+     * @param toolPathDirection the direction the tool path should move
+     */
+    void setToolPathDirection(ToolPathDirection toolPathDirection);
+
+    /**
+     * Returns the tool path direction. Some tool paths allow setting a direction.
+     * Not to be confused with the tool path angle.
+     *
+     * @return the tool path direction
+     */
+    ToolPathDirection getToolPathDirection();
 }

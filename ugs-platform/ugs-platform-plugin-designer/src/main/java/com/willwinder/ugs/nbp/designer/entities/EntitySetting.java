@@ -46,6 +46,7 @@ public enum EntitySetting {
     LEAD_IN_PERCENT("Lead in percent"),
     INCLUDE_IN_EXPORT("Include in export"),
     TOOL_PATH_ANGLE("Tool path angle"),
+    TOOL_PATH_DIRECTION("Tool path direction"),
     DIRECTION("Tool path direction"),
     CORNER_RADIUS("Corner radius"),
     RASTER_BRIGHTNESS("Brightness"),
@@ -85,7 +86,7 @@ public enum EntitySetting {
     public static final List<EntitySetting> DEFAULT_SURFACE_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
             EntitySetting.DIRECTION,
-            EntitySetting.TOOL_PATH_ANGLE,
+            EntitySetting.TOOL_PATH_DIRECTION,
             EntitySetting.START_DEPTH,
             EntitySetting.TARGET_DEPTH,
             EntitySetting.SPINDLE_SPEED,
