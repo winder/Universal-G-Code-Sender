@@ -261,17 +261,16 @@ public class Raster extends AbstractCuttable {
         }
 
         BufferedImage gray = getOrCreateProcessedGray();
-        BufferedImage mask = new BufferedImage(gray.getWidth(), gray.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        int w = gray.getWidth();
+        int h = gray.getHeight();
+        byte[] grayData = ((java.awt.image.DataBufferByte) gray.getRaster().getDataBuffer()).getData();
 
-        for (int y = 0; y < gray.getHeight(); y++) {
-            for (int x = 0; x < gray.getWidth(); x++) {
-                int argb = gray.getRGB(x, y);
-                int v = argb & 0xFF; // gray pixel intensity 0..255
+        BufferedImage mask = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        int[] maskData = ((java.awt.image.DataBufferInt) mask.getRaster().getDataBuffer()).getData();
 
-                int a = 255 - v; // white -> transparent, black -> opaque
-                int out = (a << 24); // black RGB = 0, alpha = a
-                mask.setRGB(x, y, out);
-            }
+        for (int i = 0; i < grayData.length; i++) {
+            int v = grayData[i] & 0xFF;
+            maskData[i] = (255 - v) << 24; // white → transparent, black → opaque
         }
 
         processedInkMask = mask;
@@ -285,51 +284,61 @@ public class Raster extends AbstractCuttable {
         }
 
         BufferedImage src = image;
-        BufferedImage dst = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        int w = src.getWidth();
+        int h = src.getHeight();
 
-        final double contrast = this.contrast;
-        final double brightness = this.brightness;
-        final double invGamma = 1.0 / Math.max(0.0001, gamma);
-        final boolean invert = this.invert;
-        final int[] curveLut = getOrCreatePowerCurveLut();
+        // Pre-compute a master LUT: luminance (0–255) → final gray value.
+        // The entire pipeline (brightness, contrast, gamma, invert, levels, power curve)
+        // depends only on the scalar luminance, so it collapses into a single table.
+        int[] masterLut = buildMasterLut();
 
-        for (int y = 0; y < src.getHeight(); y++) {
-            for (int x = 0; x < src.getWidth(); x++) {
-                int argb = src.getRGB(x, y);
+        int[] srcPixels = src.getRGB(0, 0, w, h, null, 0, w);
+        BufferedImage dst = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
+        byte[] dstData = ((java.awt.image.DataBufferByte) dst.getRaster().getDataBuffer()).getData();
 
-                int r = (argb >> 16) & 0xFF;
-                int g = (argb >> 8) & 0xFF;
-                int b = (argb) & 0xFF;
-
-                double l = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255.0;
-
-                l = l + brightness;
-                l = (l - 0.5) * contrast + 0.5;
-                l = clamp(l, 0.0, 1.0);
-
-                l = Math.pow(l, invGamma);
-
-                if (invert) {
-                    l = 1.0 - l;
-                }
-
-                double ql = clamp(l, 0.0, 1.0);
-                if (levels < 255) {
-                    double steps = levels - 1;
-                    ql = Math.round(ql * steps) / steps;
-                }
-
-                int lv = (int) Math.round(ql * 255.0);
-
-                lv = curveLut[Math.max(0, Math.min(255, lv))];
-
-                int grayArgb = (0xFF << 24) | (lv << 16) | (lv << 8) | lv;
-                dst.setRGB(x, y, grayArgb);
-            }
+        for (int i = 0; i < srcPixels.length; i++) {
+            int argb = srcPixels[i];
+            int r = (argb >> 16) & 0xFF;
+            int g = (argb >> 8) & 0xFF;
+            int b = argb & 0xFF;
+            int lum = (r * 54 + g * 183 + b * 19) >> 8;
+            dstData[i] = (byte) masterLut[lum];
         }
 
         processedGray = dst;
         return processedGray;
+    }
+
+    private int[] buildMasterLut() {
+        final int[] curveLut = getOrCreatePowerCurveLut();
+        final double invGamma = 1.0 / Math.max(0.0001, gamma);
+        int[] masterLut = new int[256];
+
+        for (int i = 0; i < 256; i++) {
+            double l = i / 255.0;
+
+            l = l + brightness;
+            l = (l - 0.5) * contrast + 0.5;
+            l = clamp(l, 0.0, 1.0);
+
+            l = Math.pow(l, invGamma);
+
+            if (invert) {
+                l = 1.0 - l;
+            }
+
+            double ql = clamp(l, 0.0, 1.0);
+            if (levels < 255) {
+                double steps = levels - 1;
+                ql = Math.round(ql * steps) / steps;
+            }
+
+            int lv = (int) Math.round(ql * 255.0);
+            lv = curveLut[Math.max(0, Math.min(255, lv))];
+            masterLut[i] = lv;
+        }
+
+        return masterLut;
     }
 
 

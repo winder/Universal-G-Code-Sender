@@ -23,8 +23,6 @@ import com.willwinder.universalgcodesender.utils.MathUtils;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * Shared power-curve utility for both raster LUT generation and the Swing editor preview.
