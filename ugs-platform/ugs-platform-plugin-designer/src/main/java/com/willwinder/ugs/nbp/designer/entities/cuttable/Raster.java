@@ -58,6 +58,11 @@ public class Raster extends AbstractCuttable {
     private int levels = 255;
 
     private boolean invert = false;
+
+    // Power curve control points: array of [x, y] pairs mapping brightness→power
+    private int[][] powerCurveControlPoints = MonotoneCubicSpline.defaultControlPoints();
+    private transient int[] powerCurveLut; // cached LUT from control points
+
     private transient BufferedImage processedGray; // cached grayscale image
     private transient BufferedImage processedInkMask;  // cached ARGB: black color with alpha derived from gray
 
@@ -129,6 +134,8 @@ public class Raster extends AbstractCuttable {
         copy.contrast = this.contrast;
         copy.gamma = this.gamma;
         copy.invert = this.invert;
+        copy.levels = this.levels;
+        copy.powerCurveControlPoints = MonotoneCubicSpline.deepClone(this.powerCurveControlPoints);
         copy.invalidateProcessedCache();
 
         return copy;
@@ -143,7 +150,8 @@ public class Raster extends AbstractCuttable {
                 EntitySetting.RASTER_CONTRAST,
                 EntitySetting.RASTER_GAMMA,
                 EntitySetting.RASTER_INVERT,
-                EntitySetting.RASTER_LEVELS
+                EntitySetting.RASTER_LEVELS,
+                EntitySetting.RASTER_POWER_CURVE
         ));
         return settings;
     }
@@ -156,6 +164,7 @@ public class Raster extends AbstractCuttable {
             case RASTER_GAMMA -> Optional.of(gamma);
             case RASTER_INVERT -> Optional.of(invert);
             case RASTER_LEVELS -> Optional.of(levels);
+            case RASTER_POWER_CURVE -> Optional.of(MonotoneCubicSpline.deepClone(powerCurveControlPoints));
             default -> super.getEntitySetting(entitySetting);
         };
     }
@@ -168,6 +177,7 @@ public class Raster extends AbstractCuttable {
             case RASTER_GAMMA -> setGamma(asDouble(value));
             case RASTER_INVERT -> setInvert(asBoolean(value));
             case RASTER_LEVELS -> setLevels(asInteger(value));
+            case RASTER_POWER_CURVE -> setPowerCurveControlPoints(asIntArray2D(value));
             default -> super.setEntitySetting(entitySetting, value);
         }
     }
@@ -217,9 +227,31 @@ public class Raster extends AbstractCuttable {
         invalidateProcessedCache();
     }
 
+    public int[][] getPowerCurveControlPoints() {
+        return MonotoneCubicSpline.deepClone(powerCurveControlPoints);
+    }
+
+    public void setPowerCurveControlPoints(int[][] controlPoints) {
+        if (controlPoints == null || controlPoints.length < 2) {
+            this.powerCurveControlPoints = MonotoneCubicSpline.defaultControlPoints();
+        } else {
+            this.powerCurveControlPoints = MonotoneCubicSpline.deepClone(controlPoints);
+        }
+        this.powerCurveLut = null;
+        invalidateProcessedCache();
+    }
+
+    private int[] getOrCreatePowerCurveLut() {
+        if (powerCurveLut == null) {
+            powerCurveLut = MonotoneCubicSpline.buildLut(powerCurveControlPoints);
+        }
+        return powerCurveLut;
+    }
+
     private void invalidateProcessedCache() {
         processedGray = null;
         processedInkMask = null;
+        powerCurveLut = null;
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 
@@ -229,17 +261,16 @@ public class Raster extends AbstractCuttable {
         }
 
         BufferedImage gray = getOrCreateProcessedGray();
-        BufferedImage mask = new BufferedImage(gray.getWidth(), gray.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        int w = gray.getWidth();
+        int h = gray.getHeight();
+        byte[] grayData = ((java.awt.image.DataBufferByte) gray.getRaster().getDataBuffer()).getData();
 
-        for (int y = 0; y < gray.getHeight(); y++) {
-            for (int x = 0; x < gray.getWidth(); x++) {
-                int argb = gray.getRGB(x, y);
-                int v = argb & 0xFF; // gray pixel intensity 0..255
+        BufferedImage mask = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        int[] maskData = ((java.awt.image.DataBufferInt) mask.getRaster().getDataBuffer()).getData();
 
-                int a = 255 - v; // white -> transparent, black -> opaque
-                int out = (a << 24); // black RGB = 0, alpha = a
-                mask.setRGB(x, y, out);
-            }
+        for (int i = 0; i < grayData.length; i++) {
+            int v = grayData[i] & 0xFF;
+            maskData[i] = (255 - v) << 24; // white → transparent, black → opaque
         }
 
         processedInkMask = mask;
@@ -253,48 +284,61 @@ public class Raster extends AbstractCuttable {
         }
 
         BufferedImage src = image;
-        BufferedImage dst = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        int w = src.getWidth();
+        int h = src.getHeight();
 
-        final double contrast = this.contrast;
-        final double brightness = this.brightness;
-        final double invGamma = 1.0 / Math.max(0.0001, gamma);
-        final boolean invert = this.invert;
+        // Pre-compute a master LUT: luminance (0–255) → final gray value.
+        // The entire pipeline (brightness, contrast, gamma, invert, levels, power curve)
+        // depends only on the scalar luminance, so it collapses into a single table.
+        int[] masterLut = buildMasterLut();
 
-        for (int y = 0; y < src.getHeight(); y++) {
-            for (int x = 0; x < src.getWidth(); x++) {
-                int argb = src.getRGB(x, y);
+        int[] srcPixels = src.getRGB(0, 0, w, h, null, 0, w);
+        BufferedImage dst = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
+        byte[] dstData = ((java.awt.image.DataBufferByte) dst.getRaster().getDataBuffer()).getData();
 
-                int r = (argb >> 16) & 0xFF;
-                int g = (argb >> 8) & 0xFF;
-                int b = (argb) & 0xFF;
-
-                double l = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255.0;
-
-                l = l + brightness;
-                l = (l - 0.5) * contrast + 0.5;
-                l = clamp(l, 0.0, 1.0);
-
-                l = Math.pow(l, invGamma);
-
-                if (invert) {
-                    l = 1.0 - l;
-                }
-
-                double ql = clamp(l, 0.0, 1.0);
-                if (levels < 255) {
-                    double steps = levels - 1;
-                    ql = Math.round(ql * steps) / steps;
-                }
-
-                int lv = (int) Math.round(ql * 255.0);
-
-                int grayArgb = (0xFF << 24) | (lv << 16) | (lv << 8) | lv;
-                dst.setRGB(x, y, grayArgb);
-            }
+        for (int i = 0; i < srcPixels.length; i++) {
+            int argb = srcPixels[i];
+            int r = (argb >> 16) & 0xFF;
+            int g = (argb >> 8) & 0xFF;
+            int b = argb & 0xFF;
+            int lum = (r * 54 + g * 183 + b * 19) >> 8;
+            dstData[i] = (byte) masterLut[lum];
         }
 
         processedGray = dst;
         return processedGray;
+    }
+
+    private int[] buildMasterLut() {
+        final int[] curveLut = getOrCreatePowerCurveLut();
+        final double invGamma = 1.0 / Math.max(0.0001, gamma);
+        int[] masterLut = new int[256];
+
+        for (int i = 0; i < 256; i++) {
+            double l = i / 255.0;
+
+            l = l + brightness;
+            l = (l - 0.5) * contrast + 0.5;
+            l = clamp(l, 0.0, 1.0);
+
+            l = Math.pow(l, invGamma);
+
+            if (invert) {
+                l = 1.0 - l;
+            }
+
+            double ql = clamp(l, 0.0, 1.0);
+            if (levels < 255) {
+                double steps = levels - 1;
+                ql = Math.round(ql * steps) / steps;
+            }
+
+            int lv = (int) Math.round(ql * 255.0);
+            lv = curveLut[Math.max(0, Math.min(255, lv))];
+            masterLut[i] = lv;
+        }
+
+        return masterLut;
     }
 
 
@@ -316,6 +360,11 @@ public class Raster extends AbstractCuttable {
     private static boolean asBoolean(Object value) {
         if (value instanceof Boolean b) return b;
         return Boolean.parseBoolean(String.valueOf(value));
+    }
+
+    private static int[][] asIntArray2D(Object value) {
+        if (value instanceof int[][] arr) return arr;
+        return MonotoneCubicSpline.defaultControlPoints();
     }
 
     /**

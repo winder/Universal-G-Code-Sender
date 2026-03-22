@@ -53,14 +53,7 @@ public class RasterSettingsManager implements EntitySettingsManager {
             return null;
         }
 
-        return switch (setting) {
-            case RASTER_BRIGHTNESS -> raster.getBrightness();
-            case RASTER_CONTRAST -> raster.getContrast();
-            case RASTER_GAMMA -> raster.getGamma();
-            case RASTER_INVERT -> raster.isInvert();
-            case RASTER_LEVELS -> raster.getLevels();
-            default -> null;
-        };
+        return raster.getEntitySetting(setting).orElse(null);
     }
 
     @Override
@@ -69,33 +62,7 @@ public class RasterSettingsManager implements EntitySettingsManager {
             return;
         }
 
-        switch (setting) {
-            case RASTER_BRIGHTNESS -> {
-                if (value instanceof Double doubleValue) {
-                    raster.setBrightness(doubleValue);
-                }
-            }
-            case RASTER_CONTRAST -> {
-                if (value instanceof Double doubleValue) {
-                    raster.setContrast(doubleValue);
-                }
-            }
-            case RASTER_GAMMA -> {
-                if (value instanceof Double doubleValue) {
-                    raster.setGamma(doubleValue);
-                }
-            }
-            case RASTER_LEVELS -> {
-                if (value instanceof Integer intValue) {
-                    raster.setLevels(intValue);
-                }
-            }
-            case RASTER_INVERT -> {
-                if (value instanceof Boolean booleanValue) {
-                    raster.setInvert(booleanValue);
-                }
-            }
-        }
+        raster.setEntitySetting(setting, value);
     }
 
     @Override
@@ -110,6 +77,7 @@ public class RasterSettingsManager implements EntitySettingsManager {
         settings.add(EntitySetting.RASTER_GAMMA);
         settings.add(EntitySetting.RASTER_LEVELS);
         settings.add(EntitySetting.RASTER_INVERT);
+        settings.add(EntitySetting.RASTER_POWER_CURVE);
         return settings;
     }
 }
