@@ -61,6 +61,7 @@ public class GrblGcodeWriter implements GcodeWriter {
         writer.write("; Safe height: " + settings.getSafeHeight() + "mm\n");
         writer.write("; Tool step over: " + settings.getToolStepOver() + "mm\n");
         writer.write("; Spindle start command: " + settings.getSpindleDirection() + "\n");
+        writer.write("; Max spindle speed: " + settings.getMaxSpindleSpeed() + "\n");
     }
 
     @Override
@@ -69,7 +70,7 @@ public class GrblGcodeWriter implements GcodeWriter {
             writer.write(";" + segment.getLabel() + "\n");
         }
 
-        if (segment.getSpindleSpeed() != null && !segment.getSpindleSpeed().equals(currentSpindle) && !hasStartedSpindle) {
+        if (segment.getSpindleSpeed() != null && (!segment.getSpindleSpeed().equals(currentSpindle) || !hasStartedSpindle)) {
             writer.write(settings.getSpindleDirection() + " S" + segment.getSpindleSpeed() + "\n");
             hasStartedSpindle = true;
             currentSpindle = segment.getSpindleSpeed();
@@ -77,14 +78,17 @@ public class GrblGcodeWriter implements GcodeWriter {
 
         switch (segment.type) {
             case SEAM -> {
-                if (!hasFeedRateSet && segment.getFeedSpeed() != null) {
+                if (segment.getFeedSpeed() != null) {
                     writer.write("F" + segment.getFeedSpeed() + " ");
-                    hasFeedRateSet = true;
+                    hasFeedRateSet = false;
                 }
             }
 
             case MOVE -> {
-                writer.write(("G0 " + getPointFormattedGCode(segment)).trim() + "\n");
+                String point = getPointFormattedGCode(segment);
+                if (!point.isEmpty()) {
+                    writer.write("G0 " + point + "\n");
+                }
                 hasFeedRateSet = false;
             }
 
@@ -96,15 +100,10 @@ public class GrblGcodeWriter implements GcodeWriter {
 
             case LINE, CWARC, CCWARC -> {
                 writer.write(segment.type.gcode + " ");
-                if (segment.getFeedSpeed() != null && !segment.getFeedSpeed().equals(currentFeed)) {
+                if (segment.getFeedSpeed() != null && (!hasFeedRateSet || !segment.getFeedSpeed().equals(currentFeed))) {
                     writer.write("F" + segment.getFeedSpeed() + " ");
                     currentFeed = segment.getFeedSpeed();
                     hasFeedRateSet = true;
-                }
-
-                if (segment.getSpindleSpeed() != null && !segment.getSpindleSpeed().equals(currentSpindle)) {
-                    writer.write("S" + segment.getSpindleSpeed() + " ");
-                    currentSpindle = segment.getSpindleSpeed();
                 }
 
                 writer.write(getPointFormattedGCode(segment) + "\n");

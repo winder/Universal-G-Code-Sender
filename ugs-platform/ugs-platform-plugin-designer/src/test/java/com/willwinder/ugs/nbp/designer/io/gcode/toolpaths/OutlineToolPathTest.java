@@ -35,8 +35,10 @@ public class OutlineToolPathTest {
     public void toGcodePathShouldGenerateGcodeFromStartDepth() {
         Rectangle rectangle = new Rectangle(0,0);
         rectangle.setSize(new Size(10, 10));
+        rectangle.setFeedRate(2000);
         Settings settings = new Settings();
         settings.setSafeHeight(10);
+        settings.setPlungeSpeed(500);
 
         OutlineToolPath toolPath = new OutlineToolPath(settings, rectangle);
         toolPath.setStartDepth(1);
@@ -73,36 +75,42 @@ public class OutlineToolPathTest {
         assertTrue(segment.point.hasX());
         assertTrue(segment.point.hasY());
         assertEquals(-1, segment.point.getZ(), 0.01);
+        assertNull(segment.getFeedSpeed());
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
         assertEquals(0, segment.point.getX(), 0.01);
         assertEquals(0, segment.point.getY(), 0.01);
         assertEquals(-1, segment.point.getZ(), 0.01);
+        assertEquals(2000, segment.getFeedSpeed(), 0.01);
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
         assertEquals(0, segment.point.getX(), 0.01);
         assertEquals(10, segment.point.getY(), 0.01);
         assertEquals(-1, segment.point.getZ(), 0.01);
+        assertEquals(2000, segment.getFeedSpeed(), 0.01);
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
         assertEquals(10, segment.point.getX(), 0.01);
         assertEquals(10, segment.point.getY(), 0.01);
         assertEquals(-1, segment.point.getZ(), 0.01);
+        assertEquals(2000, segment.getFeedSpeed(), 0.01);
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
         assertEquals(10, segment.point.getX(), 0.01);
         assertEquals(0, segment.point.getY(), 0.01);
         assertEquals(-1, segment.point.getZ(), 0.01);
+        assertEquals(2000, segment.getFeedSpeed(), 0.01);
 
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
         assertEquals(0, segment.point.getX(), 0.01);
         assertEquals(0, segment.point.getY(), 0.01);
         assertEquals(-1, segment.point.getZ(), 0.01);
+        assertEquals(2000, segment.getFeedSpeed(), 0.01);
 
         // Move to safe height
         segment = segments.get(segmentIndex);
@@ -188,7 +196,7 @@ public class OutlineToolPathTest {
         assertEquals(-1, segment.point.getZ(), 0.01);
 
         // Move to safe height
-        segment = segments.get(segmentIndex++);
+        segment = segments.get(segmentIndex);
         assertEquals(SegmentType.MOVE, segment.type);
         assertFalse(segment.point.hasX());
         assertFalse(segment.point.hasY());
