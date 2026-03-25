@@ -50,6 +50,7 @@ public class GrblGcodeWriterTest {
         assertTrue(lines[10].startsWith("; Safe height"));
         assertTrue(lines[11].startsWith("; Tool step over"));
         assertTrue(lines[12].startsWith("; Spindle start command"));
+        assertTrue(lines[13].startsWith("; Max spindle speed"));
     }
 
     @Test
@@ -74,9 +75,8 @@ public class GrblGcodeWriterTest {
                 10_000, 1_000));
 
         String[] lines = result.toString().split("\n");
-        assertEquals(2, lines.length);
+        assertEquals(1, lines.length);
         assertEquals("M3 S10000", lines[0]);
-        assertEquals("G0", lines[1]);
     }
 
     @Test
@@ -95,10 +95,8 @@ public class GrblGcodeWriterTest {
                 10_000, 1_000));
 
         String[] lines = result.toString().split("\n");
-        assertEquals(3, lines.length);
+        assertEquals(1, lines.length);
         assertEquals("M3 S10000", lines[0]);
-        assertEquals("G0", lines[1]);
-        assertEquals("G0", lines[2]);
     }
 
     @Test
@@ -149,12 +147,214 @@ public class GrblGcodeWriterTest {
                 11_000, 1_200));
 
         String[] lines = result.toString().split("\n");
-        assertEquals(5, lines.length);
+        assertEquals(6, lines.length);
         assertEquals("M3 S10000", lines[0]);
         assertEquals("G0 X0Y0", lines[1]);
         assertEquals("G1 F1000 X10Y10", lines[2]);
         assertEquals("G1 X15Y15", lines[3]);
-        assertEquals("G1 F1200 S11000 X20Y20", lines[4]);
+        assertEquals("M3 S11000", lines[4]);
+        assertEquals("G1 F1200 X20Y20", lines[5]);
     }
 
+    @Test
+    public void seamShouldWriteLabelAndFeedWithoutMotion() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+
+        writer.writeSegment(new Segment(
+                SegmentType.SEAM,
+                null,
+                "my seam",
+                null,
+                1234
+        ));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(2, lines.length);
+        assertEquals(";my seam", lines[0]);
+        assertEquals("F1234 ", lines[1]);
+    }
+
+    @Test
+    public void seamWithoutFeedShouldOnlyWriteLabel() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+
+        writer.writeSegment(new Segment(
+                SegmentType.SEAM,
+                null,
+                "only label"
+        ));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(1, lines.length);
+        assertEquals(";only label", lines[0]);
+    }
+
+    @Test
+    public void pointCommandShouldUsePlungeSpeedAndWriteCoordinates() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setPlungeSpeed(777);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.writeSegment(new Segment(
+                SegmentType.POINT,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(1d).setY(2d).setZ(3d).build()
+        ));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(1, lines.length);
+        assertEquals("G1 F777 X1Y2Z3", lines[0]);
+    }
+
+    @Test
+    public void moveShouldWriteOnlyChangedCoordinates() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+
+        writer.writeSegment(new Segment(
+                SegmentType.MOVE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(10d).setY(20d).setZ(30d).build()
+        ));
+
+        writer.writeSegment(new Segment(
+                SegmentType.MOVE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(10d).setY(25d).setZ(30d).build()
+        ));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(2, lines.length);
+        assertEquals("G0 X10Y20Z30", lines[0]);
+        assertEquals("G0 Y25", lines[1]);
+    }
+
+    @Test
+    public void lineShouldReuseFeedRateForRepeatedSegments() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+
+        writer.writeSegment(new Segment(
+                SegmentType.LINE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(0d).setY(0d).build(),
+                null,
+                null,
+                1200
+        ));
+
+        writer.writeSegment(new Segment(
+                SegmentType.LINE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(1d).setY(1d).build(),
+                null,
+                null,
+                1200
+        ));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(2, lines.length);
+        assertEquals("G1 F1200 X0Y0", lines[0]);
+        assertEquals("G1 X1Y1", lines[1]);
+    }
+
+    @Test
+    public void arcCommandsShouldBeWrittenWithFeedOnlyOncePerRun() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+
+        writer.writeSegment(new Segment(
+                SegmentType.CWARC,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(0d).setY(0d).build(),
+                null,
+                null,
+                900
+        ));
+
+        writer.writeSegment(new Segment(
+                SegmentType.CCWARC,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(1d).setY(1d).build(),
+                null,
+                null,
+                900
+        ));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(2, lines.length);
+        assertEquals("G2 F900 X0Y0", lines[0]);
+        assertEquals("G3 X1Y1", lines[1]);
+    }
+
+    @Test
+    public void spindleShouldNotRestartForSameSpeedUntilChanged() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+
+        writer.writeSegment(new Segment(
+                SegmentType.MOVE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(0d).build(),
+                null,
+                10000,
+                null
+        ));
+
+        writer.writeSegment(new Segment(
+                SegmentType.LINE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(1d).build(),
+                null,
+                10000,
+                500
+        ));
+
+        writer.writeSegment(new Segment(
+                SegmentType.LINE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(2d).build(),
+                null,
+                11000,
+                600
+        ));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(5, lines.length);
+        assertEquals("M3 S10000", lines[0]);
+        assertEquals("G0 X0", lines[1]);
+        assertEquals("G1 F500 X1", lines[2]);
+        assertEquals("M3 S11000", lines[3]);
+        assertEquals("G1 F600 X2", lines[4]);
+    }
+
+    @Test
+    public void separateLinesShouldApplyFeedSpeed() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+
+        writer.writeSegment(new Segment(SegmentType.MOVE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(0d).setY(0d).build(),
+                null,
+                10_000, 1_000));
+
+        writer.writeSegment(new Segment(SegmentType.LINE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(10d).setY(10d).build(),
+                null,
+                10_000, 1_000));
+
+        writer.writeSegment(new Segment(SegmentType.SEAM, PartialPosition.builder(UnitUtils.Units.MM).setX(10d).setY(10d).setZ(10d).build()));
+
+        writer.writeSegment(new Segment(SegmentType.MOVE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(15d).setY(15d).build(),
+                null,
+                10_000, 1_000));
+
+        writer.writeSegment(new Segment(SegmentType.LINE,
+                PartialPosition.builder(UnitUtils.Units.MM).setX(20d).setY(20d).build(),
+                null,
+                11_000, 1_200));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(6, lines.length);
+        assertEquals("M3 S10000", lines[0]);
+        assertEquals("G0 X0Y0", lines[1]);
+        assertEquals("G1 F1000 X10Y10", lines[2]);
+        assertEquals("G0 X15Y15", lines[3]);
+        assertEquals("M3 S11000", lines[4]);
+        assertEquals("G1 F1200 X20Y20", lines[5]);
+    }
 }

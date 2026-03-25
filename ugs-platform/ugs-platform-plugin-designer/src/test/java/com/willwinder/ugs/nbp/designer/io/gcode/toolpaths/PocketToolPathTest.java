@@ -105,14 +105,14 @@ public class PocketToolPathTest {
 
 
         assertEquals(SegmentType.SEAM, segmentList.get(0).getType());
-        assertSegment(segmentList.get(1), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build());
-        assertSegment(segmentList.get(2), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).build());
-        assertSegment(segmentList.get(3), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build());
-        assertSegment(segmentList.get(4), SegmentType.POINT, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build());
-        assertSegment(segmentList.get(5), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build());
-        assertSegment(segmentList.get(6), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(7.5).setZ(-0d).build());
-        assertSegment(segmentList.get(7), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(7.5).setZ(-0d).build());
-        assertSegment(segmentList.get(8), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(2.5).setZ(-0d).build());
+        assertSegment(segmentList.get(1), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build(), null);
+        assertSegment(segmentList.get(2), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).build(), null);
+        assertSegment(segmentList.get(3), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build(), null);
+        assertSegment(segmentList.get(4), SegmentType.POINT, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build(), null);
+        assertSegment(segmentList.get(5), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build(), 1000);
+        assertSegment(segmentList.get(6), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(7.5).setZ(-0d).build(), 1000);
+        assertSegment(segmentList.get(7), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(7.5).setZ(-0d).build(), 1000);
+        assertSegment(segmentList.get(8), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(2.5).setZ(-0d).build(), 1000);
     }
 
     @Test
@@ -125,6 +125,7 @@ public class PocketToolPathTest {
         Rectangle rectangle = new Rectangle();
         rectangle.setSize(new Size(geometrySize, geometrySize));
         rectangle.setDirection(Direction.CONVENTIONAL);
+        rectangle.setFeedRate(2000);
 
         Settings settings = new Settings();
         settings.setSafeHeight(safeHeight);
@@ -140,21 +141,22 @@ public class PocketToolPathTest {
 
 
         assertEquals(SegmentType.SEAM, segmentList.get(0).getType());
-        assertSegment(segmentList.get(1), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build());
-        assertSegment(segmentList.get(2), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).build());
-        assertSegment(segmentList.get(3), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build());
-        assertSegment(segmentList.get(4), SegmentType.POINT, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build());
-        assertSegment(segmentList.get(5), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build());
-        assertSegment(segmentList.get(6), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(2.5).setZ(-0d).build());
-        assertSegment(segmentList.get(7), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(7.5).setZ(-0d).build());
-        assertSegment(segmentList.get(8), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(7.5).setZ(-0d).build());
+        assertSegment(segmentList.get(1), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build(), null);
+        assertSegment(segmentList.get(2), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).build(), null);
+        assertSegment(segmentList.get(3), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build(), null);
+        assertSegment(segmentList.get(4), SegmentType.POINT, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build(), null);
+        assertSegment(segmentList.get(5), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build(), 2000);
+        assertSegment(segmentList.get(6), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(2.5).setZ(-0d).build(), 2000);
+        assertSegment(segmentList.get(7), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(7.5).setZ(-0d).build(), 2000);
+        assertSegment(segmentList.get(8), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(7.5).setZ(-0d).build(), 2000);
     }
 
 
-    private void assertSegment(Segment segment, SegmentType segmentType, PartialPosition partialPosition) {
+    private void assertSegment(Segment segment, SegmentType segmentType, PartialPosition partialPosition, Integer feedSpeed) {
         assertEquals(segmentType, segment.getType());
         assertEquals(UnitUtils.Units.MM, segment.getPoint().getUnits());
         assertEquals(partialPosition, segment.getPoint());
+        assertEquals(feedSpeed, segment.getFeedSpeed());
     }
 
 
