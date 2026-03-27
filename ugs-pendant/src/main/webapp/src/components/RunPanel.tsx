@@ -20,6 +20,7 @@ import { useAppDispatch } from "../hooks/useAppDispatch";
 import { pause, send, stop } from "../services/files";
 import "./RunPanel.scss";
 import OpenFileModal from "./OpenFileModal";
+import DroPanel from "./DroPanel";
 
 const getProgressVariant = (state: string) => {
   if (state === "HOLD") {
@@ -75,87 +76,94 @@ const RunPanel = () => {
         <OpenFileModal handleClose={() => setShowOpenFile(false)} />
       )}
       <Row>
-        <Col>
-          <h3>{getFileName(fileStatus.fileName)}</h3>
-          <Collapse
-            in={
-              status.state === "RUN" ||
-              status.state === "CHECK" ||
-              status.state === "HOLD"
-            }
-          >
-            <div>
-              <p>Time left: {formatTime(secondsRemaining)}</p>
-              <ProgressBar
-                style={{ height: "3em" }}
-                now={fileStatus.completedRowCount}
-                min={0}
-                max={fileStatus.rowCount}
-                variant={getProgressVariant(status.state)}
-                animated={status.state === "RUN"}
-                label={
-                  fileStatus.completedRowCount + " / " + fileStatus.rowCount
-                }
-              />
-            </div>
-          </Collapse>
+        <Col sm={6} style={{ marginBottom: "30px" }}>
+          <DroPanel />
         </Col>
-      </Row>
-      <Row className="actions">
-        {fileStatus.fileName !== "" && (
-          <Col xs={4}>
-            <Button
-              variant="success"
-              onClick={() => send()}
-              disabled={
-                (status.state !== "IDLE" && status.state != "HOLD") ||
-                fileStatus.fileName === ""
-              }
-            >
-              <FontAwesomeIcon icon={faPlay} /> Start
-            </Button>
-          </Col>
-        )}
+        <Col sm={6}>
+          <Row className="runRow">
+            <Col>
+              <h3>{getFileName(fileStatus.fileName)}</h3>
+              <Collapse
+                in={
+                  status.state === "RUN" ||
+                  status.state === "CHECK" ||
+                  status.state === "HOLD"
+                }
+              >
+                <div>
+                  <p>Time left: {formatTime(secondsRemaining)}</p>
+                  <ProgressBar
+                    style={{ height: "3em" }}
+                    now={fileStatus.completedRowCount}
+                    min={0}
+                    max={fileStatus.rowCount}
+                    variant={getProgressVariant(status.state)}
+                    animated={status.state === "RUN"}
+                    label={
+                      fileStatus.completedRowCount + " / " + fileStatus.rowCount
+                    }
+                  />
+                </div>
+              </Collapse>
+            </Col>
+          </Row>
+          <Row className="actions runRow">
+            {fileStatus.fileName !== "" && (
+              <Col xs={4}>
+                <Button
+                  variant="success"
+                  onClick={() => send()}
+                  disabled={
+                    (status.state !== "IDLE" && status.state != "HOLD") ||
+                    fileStatus.fileName === ""
+                  }
+                >
+                  <FontAwesomeIcon icon={faPlay} /> Start
+                </Button>
+              </Col>
+            )}
 
-        {(status.state === "RUN" ||
-          status.state === "HOLD" ||
-          status.state === "CHECK") && (
-          <Col xs={4}>
-            <Button
-              variant="warning"
-              disabled={status.state !== "RUN" && status.state !== "CHECK"}
-              onClick={() => pause()}
-            >
-              <FontAwesomeIcon icon={faPause} /> Pause
-            </Button>
-          </Col>
-        )}
+            {(status.state === "RUN" ||
+              status.state === "HOLD" ||
+              status.state === "CHECK") && (
+              <Col xs={4}>
+                <Button
+                  variant="warning"
+                  disabled={status.state !== "RUN" && status.state !== "CHECK"}
+                  onClick={() => pause()}
+                >
+                  <FontAwesomeIcon icon={faPause} /> Pause
+                </Button>
+              </Col>
+            )}
 
-        {(status.state === "RUN" ||
-          status.state === "HOLD" ||
-          status.state === "CHECK") && (
-          <Col xs={4}>
-            <Button
-              variant="danger"
-              disabled={
-                status.state !== "RUN" &&
-                status.state !== "HOLD" &&
-                status.state !== "CHECK" &&
-                status.state !== "JOG"
-              }
-              onClick={() => stop()}
-            >
-              <FontAwesomeIcon icon={faStop} /> Stop
-            </Button>
-          </Col>
-        )}
-        {status.state === "IDLE" && (
-          <Col xs={4}>
-            <Button onClick={() => setShowOpenFile(true)}>
-              <FontAwesomeIcon icon={faFile} /> Open
-            </Button>
-          </Col>
-        )}
+            {(status.state === "RUN" ||
+              status.state === "HOLD" ||
+              status.state === "CHECK") && (
+              <Col xs={4}>
+                <Button
+                  variant="danger"
+                  disabled={
+                    status.state !== "RUN" &&
+                    status.state !== "HOLD" &&
+                    status.state !== "CHECK" &&
+                    status.state !== "JOG"
+                  }
+                  onClick={() => stop()}
+                >
+                  <FontAwesomeIcon icon={faStop} /> Stop
+                </Button>
+              </Col>
+            )}
+            {status.state === "IDLE" && (
+              <Col xs={4}>
+                <Button onClick={() => setShowOpenFile(true)}>
+                  <FontAwesomeIcon icon={faFile} /> Open
+                </Button>
+              </Col>
+            )}
+          </Row>
+        </Col>
       </Row>
     </Container>
   );
