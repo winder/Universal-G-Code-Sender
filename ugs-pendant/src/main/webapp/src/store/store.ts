@@ -1,18 +1,18 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import counterReducer from "./counterSlice";
 import statusReducer from "./statusSlice";
 import socketReducer from "./socketSlice";
 import settingsReducer from "./settingsSlice";
 import fileStatusReducer from "./fileStatusSlice";
+import consoleReducer from "./consoleSlice";
 
 import { socketMiddleware } from "./socketMiddleware";
 
 const rootReducer = combineReducers({
-  counter: counterReducer,
   status: statusReducer,
   socket: socketReducer,
   settings: settingsReducer,
   fileStatus: fileStatusReducer,
+  console: consoleReducer,
 });
 
 export const store = configureStore({

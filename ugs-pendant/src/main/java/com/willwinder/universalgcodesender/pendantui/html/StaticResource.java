@@ -57,14 +57,14 @@ public class StaticResource {
     }
 
     @GET
-    @Path("{path:(jog|macros|run)$}")
-    public Response getSubPage() throws Exception {
+    @Path("{path:(jog|macros|run|console)$}")
+    public Response getSubPage() {
         return getStaticResource("");
     }
 
     @GET
     @Path("{path:swagger-ui(/.*)?}")
-    public Response getSwagger(@Context UriInfo uriInfo) throws Exception {
+    public Response getSwagger(@Context UriInfo uriInfo) {
         String requestPath = uriInfo.getPath();
         if (requestPath.equals("swagger-ui") || requestPath.equals("swagger-ui/")) {
             requestPath = "swagger-ui/index.html";

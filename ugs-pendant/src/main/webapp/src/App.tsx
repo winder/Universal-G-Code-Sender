@@ -8,10 +8,11 @@ import MainPage from "./pages/MainPage";
 import { socketActions } from "./store/socketSlice";
 import WaitingPage from "./pages/WaitingPage";
 import AlarmModal from "./components/AlarmModal";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import {RouterProvider, createBrowserRouter, Navigate} from "react-router-dom";
 import JogPanel from "./components/JogPanel";
 import MacrosPanel from "./components/MacrosPanel";
 import RunPanel from "./components/RunPanel";
+import ConsolePanel from "./components/ConsolePanel.tsx";
 
 function App() {
   const status = useAppSelector((state) => state.status);
@@ -27,13 +28,14 @@ function App() {
       path: "/",
       element: <MainPage />,
       children: [
-        {
-            path: "/",
-            element: <JogPanel />,
-        },
+        { index: true, element: <Navigate to="/jog" replace /> },
         {
           path: "jog",
           element: <JogPanel />,
+        },
+        {
+          path: "console",
+          element: <ConsolePanel />,
         },
         {
           path: "macros",

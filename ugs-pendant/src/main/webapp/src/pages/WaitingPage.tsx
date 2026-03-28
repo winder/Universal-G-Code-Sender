@@ -21,7 +21,7 @@ const WaitingPage = () => {
   return (
     <Container style={{marginTop: "24px"}}>
       <h1>Establishing connection</h1>
-      <p>Trying to establish connection to UGS <Spinner animation="border" variant="primary" size="sm" /></p>
+      <div>Trying to establish connection to UGS <Spinner animation="border" variant="primary" size="sm" /></div>
     </Container>
   );
 };
