@@ -25,7 +25,21 @@ public class GeometryUtils {
         Coordinate p0 = line.getCoordinateN(0);
         Coordinate p1 = line.getCoordinateN(1);
 
-        Point2D[] clipped = liangBarskyClipLine(new Point2D.Double(p0.x, p0.y), new Point2D.Double(p1.x, p1.y), new Rectangle2D.Double(envelope.getMinX(), envelope.getMinY(), envelope.getWidth(), envelope.getHeight()));
+        // Allow for tiny floating-point overshoots like 251.00000000000003
+        final double epsilon = 1e-9;
+        Rectangle2D expandedEnvelope = new Rectangle2D.Double(
+                envelope.getMinX() - epsilon,
+                envelope.getMinY() - epsilon,
+                envelope.getWidth() + (2 * epsilon),
+                envelope.getHeight() + (2 * epsilon)
+        );
+
+        Point2D[] clipped = liangBarskyClipLine(
+                new Point2D.Double(p0.x, p0.y),
+                new Point2D.Double(p1.x, p1.y),
+                expandedEnvelope
+        );
+
         if (clipped == null) {
             return null;
         }
@@ -36,7 +50,6 @@ public class GeometryUtils {
         GeometryFactory gf = line.getFactory();
         return gf.createLineString(new Coordinate[]{start, end});
     }
-
 
     public static LineString generateLineString(Envelope envelope, double offsetAlongNormal, double angleInDegrees) {
         // Convert angle to radians

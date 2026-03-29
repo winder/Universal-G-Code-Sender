@@ -604,4 +604,36 @@ public class SurfaceToolPathTest {
         assertEquals(9000, segment.getSpindleSpeed(), 0.01);
         assertEquals(200, segment.getFeedSpeed(), 0.01);
     }
+
+    @Test
+    public void toGcodePathShouldStartFromTheTopWithConventionalMilling() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setSize(new Size(250, 270));
+        rectangle.setLeadInPercent(0);
+        rectangle.setDirection(Direction.CONVENTIONAL);
+        rectangle.setToolPathDirection(ToolPathDirection.HORIZONTAL);
+
+        Settings settings = new Settings();
+        settings.setToolDiameter(38);
+        settings.setToolStepOver(100);
+        settings.setSafeHeight(10);
+
+        SurfaceToolPath toolPath = new SurfaceToolPath(settings, rectangle);
+        toolPath.setStartDepth(1);
+        toolPath.setTargetDepth(1);
+
+        GcodePath gcodePath = toolPath.toGcodePath();
+        List<Segment> segments = gcodePath.getSegments();
+
+        // 8 passes -> 4 segments each, plus SEAM and final safe-height move
+        assertEquals(34, segments.size());
+
+        // Conventional milling should start at the top-most usable pass.
+        // Segment layout for the first pass:
+        // 0 SEAM, 1 safe Z, 2 XY start, 3 Z plunge, 4 line end
+        Segment firstPassStart = segments.get(2);
+        assertEquals(SegmentType.MOVE, firstPassStart.type);
+        assertXYPoint(firstPassStart.point, 19, 251);
+        assertFalse(firstPassStart.point.hasZ());
+    }
 }
