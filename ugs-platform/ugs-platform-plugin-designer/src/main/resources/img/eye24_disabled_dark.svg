@@ -4,39 +4,12 @@
    viewBox="0 0 24 24"
    version="1.1"
    id="svg836"
-   sodipodi:docname="eye24.svg"
    width="24"
    height="24"
-   inkscape:version="1.1-dev (0486c1a, 2020-10-10)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:dc="http://purl.org/dc/elements/1.1/">
+   xmlns:svg="http://www.w3.org/2000/svg">
   <defs
      id="defs840" />
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1417"
-     inkscape:window-height="940"
-     id="namedview838"
-     showgrid="false"
-     inkscape:zoom="31.583333"
-     inkscape:cx="11.984169"
-     inkscape:cy="12"
-     inkscape:window-x="223"
-     inkscape:window-y="148"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg836" />
   <title
      id="title830">Eye</title>
   <circle
@@ -56,13 +29,4 @@
      height="24"
      x="0"
      y="0" />
-  <metadata
-     id="metadata844">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:title>Eye</dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
 </svg>
