@@ -22,7 +22,7 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.PositionAnima
 import static com.willwinder.universalgcodesender.fx.component.visualizer.VisualizerUtils.createCone;
 import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.Colors.COLOR_ALUMINIUM;
 import static com.willwinder.universalgcodesender.fx.component.visualizer.machine.Colors.COLOR_DARK_GREY;
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.service.probe.ProbeService;
 import com.willwinder.universalgcodesender.fx.settings.ProbeSettings;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -45,7 +45,7 @@ public class ProbeZModel extends Model {
     private final ProbeService probeService;
 
     public ProbeZModel(ProbeService probeService) {
-        BackendAPI backendAPI = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         backendAPI.addUGSEventListener(this::onEvent);
         this.probeService = probeService;
         ObservableValue<Double> zPlateThickness = ProbeSettings.getInstance().zPlateThicknessProperty()

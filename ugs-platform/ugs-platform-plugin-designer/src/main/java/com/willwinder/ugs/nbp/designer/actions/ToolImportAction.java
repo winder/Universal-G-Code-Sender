@@ -31,9 +31,9 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
 import com.willwinder.ugs.nbp.designer.model.Design;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -143,7 +143,7 @@ public final class ToolImportAction extends AbstractDesignAction {
         Arrays.asList(FILE_NAME_EXTENSION_FILTERS).forEach(fileDialog::addChoosableFileFilter);
         fileDialog.showOpenDialog(SwingHelpers.getRootFrame());
 
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
 
         ThreadHelper.invokeLater(() -> {
             File f = fileDialog.getSelectedFile();

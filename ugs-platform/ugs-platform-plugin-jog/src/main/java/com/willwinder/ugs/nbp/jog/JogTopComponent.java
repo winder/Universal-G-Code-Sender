@@ -21,7 +21,6 @@ package com.willwinder.ugs.nbp.jog;
 import com.willwinder.ugs.nbp.jog.actions.ShowABCStepSizeAction;
 import com.willwinder.ugs.nbp.jog.actions.UseSeparateStepSizeAction;
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Axis;
@@ -31,6 +30,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.services.JogService;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
@@ -77,8 +77,8 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     private boolean ignoreLongClick = false;
 
     public JogTopComponent() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        jogService = CentralLookup.getDefault().lookup(JogService.class);
+        backend = LookupService.lookup(BackendAPI.class);
+        jogService = LookupService.lookup(JogService.class);
         continuousJogWorker = new ContinuousJogWorker(backend, jogService);
         UseSeparateStepSizeAction separateStepSizeAction = Lookup.getDefault().lookup(UseSeparateStepSizeAction.class);
         ShowABCStepSizeAction showABCStepSizeAction = Lookup.getDefault().lookup(ShowABCStepSizeAction.class);

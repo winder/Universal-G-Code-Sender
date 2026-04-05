@@ -18,24 +18,23 @@
  */
 package com.willwinder.ugs.nbp.core.control;
 
+import com.willwinder.ugs.nbp.core.panels.FileBrowserPanel;
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.ugs.nbp.core.panels.FileBrowserPanel;
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelCategory;
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelActionId;
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelWindowPath;
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelTitle;
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelTooltip;
-
-
-import java.awt.BorderLayout;
-
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.modules.OnStart;
 import org.openide.windows.TopComponent;
+
+import java.awt.BorderLayout;
+
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelActionId;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelCategory;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelTitle;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelTooltip;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.FileBrowserPanelWindowPath;
 
 /**
  * Top component which displays something.
@@ -54,7 +53,7 @@ public final class FileBrowserTopComponent extends TopComponent {
 
     public FileBrowserTopComponent() {
         this.setLayout(new BorderLayout());
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         FileBrowserPanel panel = new FileBrowserPanel(backend);
         this.add(panel, BorderLayout.CENTER);
     }

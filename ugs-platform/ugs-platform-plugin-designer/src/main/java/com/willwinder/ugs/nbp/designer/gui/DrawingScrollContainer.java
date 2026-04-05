@@ -19,8 +19,8 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
@@ -136,7 +136,7 @@ public class DrawingScrollContainer extends JPanel implements MouseWheelListener
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         Drawing drawing = controller.getDrawing();
 
         // Mouse point in Drawing component coordinates

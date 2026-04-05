@@ -18,16 +18,14 @@
  */
 package com.willwinder.ugs.nbp.core.statusline;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.toolbars.SendStatusLine;
-
-import java.awt.Component;
-
 import org.openide.awt.StatusLineElementProvider;
 import org.openide.util.lookup.ServiceProvider;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import java.awt.Component;
 
 /**
  * A status line panel that displays the file send status
@@ -39,7 +37,7 @@ public class SendStatusLineService implements StatusLineElementProvider {
 
     @Override
     public Component getStatusLineElement() {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         JPanel panel = new JPanel();
         panel.add(new SendStatusLine(backend));
         return panel;

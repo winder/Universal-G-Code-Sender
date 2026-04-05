@@ -19,9 +19,9 @@
 package com.willwinder.ugs.nbp.core.services;
 
 import com.willwinder.ugs.nbp.core.actions.ContinuousAction;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.JogService;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
 
 import javax.swing.AbstractAction;
@@ -43,10 +43,10 @@ public class JogAction extends AbstractAction implements ContinuousAction {
     }
 
     public JogAction(Integer x, Integer y, Integer z, Integer a, Integer b, Integer c) {
-        js = CentralLookup.getDefault().lookup(JogService.class);
+        js = LookupService.lookup(JogService.class);
 
         if (continuousJogWorker == null) {
-            BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+            BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
             continuousJogWorker = new ContinuousJogWorker(backendAPI, js);
         }
 
@@ -76,7 +76,7 @@ public class JogAction extends AbstractAction implements ContinuousAction {
 
     private JogService getJogService() {
         if (js == null) {
-            js = CentralLookup.getDefault().lookup(JogService.class);
+            js = LookupService.lookup(JogService.class);
         }
 
         return js;

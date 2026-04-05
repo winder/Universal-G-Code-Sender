@@ -19,7 +19,6 @@
 package com.willwinder.ugs.platform.probe;
 
 import com.google.common.base.Preconditions;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -31,6 +30,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.ProbeEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.util.lookup.ServiceProvider;
 
 import java.util.ArrayList;
@@ -93,7 +93,7 @@ public class ProbeService implements UGSEventListener {
     }
 
     public ProbeService() {
-        this(CentralLookup.getDefault().lookup(BackendAPI.class));
+        this(LookupService.lookup(BackendAPI.class));
     }
 
     protected static double retractDistance(double spacing, double retractAmount) {

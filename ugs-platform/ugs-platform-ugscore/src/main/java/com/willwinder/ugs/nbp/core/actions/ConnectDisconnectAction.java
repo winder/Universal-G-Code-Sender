@@ -18,13 +18,13 @@ along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.willwinder.ugs.nbp.core.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -69,7 +69,7 @@ public class ConnectDisconnectAction extends AbstractAction implements UGSEventL
     private final BackendAPI backend;
 
     public ConnectDisconnectAction() {
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this.backend = LookupService.lookup(BackendAPI.class);
         if (this.backend != null) {
             this.backend.addUGSEventListener(this);
         }

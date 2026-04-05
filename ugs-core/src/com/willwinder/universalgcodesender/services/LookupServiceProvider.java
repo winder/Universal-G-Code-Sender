@@ -1,5 +1,6 @@
+
 /*
-    Copyright 2020 Will Winder
+    Copyright 2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,23 +17,19 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.joystick;
+package com.willwinder.universalgcodesender.services;
 
-import com.willwinder.ugs.nbp.joystick.service.JoystickService;
-import com.willwinder.universalgcodesender.services.LookupService;
-import org.openide.modules.OnStop;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Stops the JoystickService when UGS shuts down
+ * A lookup service provider that will be automatically discovered and registered by the {@link LookupService}
  */
-@OnStop
-public class Shutdown implements Runnable {
-    @Override
-    public void run() {
-        JoystickService joystickService = LookupService.lookup(JoystickService.class);
-        if (joystickService != null) {
-            joystickService.destroy();
-            joystickService.removeAllListeners();
-        }
-    }
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface LookupServiceProvider {
+    int position() default 0;
 }

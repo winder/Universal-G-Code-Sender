@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbp.editor;
 
 import com.willwinder.ugs.nbp.editor.highlight.GcodeHighlightsLayerFactory;
 import com.willwinder.ugs.nbp.editor.renderer.EditorListener;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -28,6 +27,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.CommandEvent;
 import com.willwinder.universalgcodesender.model.events.CommandEventType;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.netbeans.editor.EditorUI;
@@ -35,8 +35,11 @@ import org.netbeans.editor.Utilities;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Box;
+import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -62,7 +65,7 @@ public class SourceMultiviewElement extends MultiViewEditorElement implements UG
         super(lookup);
         obj = lookup.lookup(GcodeDataObject.class);
         fileListener = new GcodeFileListener();
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         followLineUpdater = new FollowLineUpdater();
     }
 

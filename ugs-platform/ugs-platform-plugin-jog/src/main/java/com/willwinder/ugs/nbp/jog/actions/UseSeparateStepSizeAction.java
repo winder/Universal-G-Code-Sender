@@ -18,23 +18,25 @@
  */
 package com.willwinder.ugs.nbp.jog.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.actions.Presenter;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
 import org.openide.util.lookup.ServiceProvider;
+
+import javax.swing.AbstractAction;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenuItem;
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
 
 /**
  * An action for activating/deactivating separate step values for XY and Z axis.
@@ -66,7 +68,7 @@ public class UseSeparateStepSizeAction extends AbstractAction implements Present
         menuItem = new JCheckBoxMenuItem(title);
         menuItem.setAction(this);
 
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onBackendEvent);
         setEnabled(isEnabled());
     }

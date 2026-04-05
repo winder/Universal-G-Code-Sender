@@ -21,9 +21,9 @@ package com.willwinder.ugs.nbp.core.lifecycle;
 import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.core.services.*;
 import com.willwinder.ugs.nbp.core.statusline.SendStatusLineService;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Version;
 import org.openide.modules.OnStart;
@@ -65,7 +65,7 @@ public class ServiceStarter implements Runnable {
         logger.info("Services loaded!");
 
         logger.info("Setting UGP version title.");
-        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
+        Settings settings = LookupService.lookup(Settings.class);
         setupVersionInformation(settings);
     }
 

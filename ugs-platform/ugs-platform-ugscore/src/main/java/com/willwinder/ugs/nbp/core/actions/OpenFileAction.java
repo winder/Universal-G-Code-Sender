@@ -19,8 +19,8 @@
 package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.EditorUtils;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileUtil;
@@ -53,7 +53,7 @@ public class OpenFileAction extends AbstractAction {
         }
 
         try {
-            BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+            BackendAPI backend = LookupService.lookup(BackendAPI.class);
             backend.getSettings().setLastOpenedFilename(selectedFile.getAbsolutePath());
             OpenCookie c = DataObject.find(FileUtil.toFileObject(selectedFile))
                     .getLookup()

@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.platform.probe.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.platform.probe.ProbeParameters;
 import com.willwinder.ugs.platform.probe.ProbeService;
@@ -26,6 +25,7 @@ import com.willwinder.ugs.platform.probe.ProbeSettings;
 import com.willwinder.ugs.platform.probe.renderable.ProbePreviewManager;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -59,7 +59,7 @@ public class ProbeXYZAction extends AbstractProbeAction {
 
     @Override
     public void performProbeAction() {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         ProbeService probeService = Lookup.getDefault().lookup(ProbeService.class);
 
         ProbeParameters pc = new ProbeParameters(ProbeSettings.getSettingsProbeDiameter(),

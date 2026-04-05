@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbp.joystick.action;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -26,9 +25,10 @@ import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
 public class AnalogJogAction extends AbstractAction implements AnalogAction, UGSEventListener {
@@ -42,7 +42,7 @@ public class AnalogJogAction extends AbstractAction implements AnalogAction, UGS
         this.putValue(NAME, Localization.getString("platform.plugin.joystick.action.continuousJogging") + " " + axis.name());
         setEnabled(false);
 
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
     }
 

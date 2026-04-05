@@ -20,11 +20,11 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.Utils;
 import com.willwinder.ugs.nbp.designer.platform.UgsDataObject;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.loaders.DataObject;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
@@ -46,7 +46,7 @@ public abstract class AbstractDesignAction extends AbstractAction implements Loo
 
     protected AbstractDesignAction() {
         super();
-        backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backendAPI = LookupService.lookup(BackendAPI.class);
         backendAPI.addUGSEventListener(this);
 
         Lookup.Result<UgsDataObject> lookupResult = Utilities.actionsGlobalContext().lookupResult(UgsDataObject.class);

@@ -14,7 +14,7 @@ import com.willwinder.ugs.nbp.designer.gui.tree.EntityTreeModel;
 import com.willwinder.ugs.nbp.designer.io.svg.SvgReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -46,13 +46,13 @@ public class DesignerMain extends JFrame {
         setPreferredSize(new Dimension(1024, 768));
 
         Controller controller = ControllerFactory.getController();
-        CentralLookup.getDefault().add(controller);
+        LookupService.register(controller);
 
         UndoManager undoManager = ControllerFactory.getUndoManager();
-        CentralLookup.getDefault().add(undoManager);
+        LookupService.register(undoManager);
 
         SelectionManager selectionManager = ControllerFactory.getSelectionManager();
-        CentralLookup.getDefault().add(selectionManager);
+        LookupService.register(selectionManager);
 
         DrawingScrollContainer drawingContainer = new DrawingScrollContainer(controller);
         selectionManager.addSelectionListener(e -> drawingContainer.repaint());
@@ -91,7 +91,7 @@ public class DesignerMain extends JFrame {
     private JSplitPane createRightPanel(Controller controller) {
         EntityTreeModel entityTreeModel = new EntityTreeModel(controller);
         EntitiesTree entitiesTree = new EntitiesTree(controller, entityTreeModel);
-        CentralLookup.getDefault().add(new EntitiesTreeController(entitiesTree));
+        LookupService.register(new EntitiesTreeController(entitiesTree));
 
         JSplitPane toolsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                 new JScrollPane(entitiesTree,

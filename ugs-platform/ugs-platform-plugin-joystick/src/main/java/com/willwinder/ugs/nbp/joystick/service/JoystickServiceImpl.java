@@ -19,6 +19,30 @@
 package com.willwinder.ugs.nbp.joystick.service;
 
 import com.willwinder.ugs.nbp.joystick.Settings;
+import com.willwinder.ugs.nbp.joystick.action.ActionDispatcher;
+import com.willwinder.ugs.nbp.joystick.action.ActionManager;
+import com.willwinder.ugs.nbp.joystick.action.AnalogFeedOverrideAction;
+import com.willwinder.ugs.nbp.joystick.action.AnalogJogAction;
+import com.willwinder.ugs.nbp.joystick.action.AnalogSpindleOverrideAction;
+import com.willwinder.ugs.nbp.joystick.driver.JamepadJoystickDriver;
+import com.willwinder.ugs.nbp.joystick.driver.JoystickDriver;
+import com.willwinder.ugs.nbp.joystick.driver.JoystickDriverListener;
+import com.willwinder.ugs.nbp.joystick.model.JoystickControl;
+import com.willwinder.ugs.nbp.joystick.model.JoystickDevice;
+import com.willwinder.ugs.nbp.joystick.model.JoystickState;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.JogService;
+import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_DIVIDE_FEED;
 import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_JOG_X;
 import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_JOG_X_MINUS;
@@ -32,29 +56,6 @@ import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_START;
 import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_STOP;
 import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_Z_DOWN;
 import static com.willwinder.ugs.nbp.joystick.Utils.ACTION_Z_UP;
-import com.willwinder.ugs.nbp.joystick.action.ActionDispatcher;
-import com.willwinder.ugs.nbp.joystick.action.ActionManager;
-import com.willwinder.ugs.nbp.joystick.action.AnalogFeedOverrideAction;
-import com.willwinder.ugs.nbp.joystick.action.AnalogJogAction;
-import com.willwinder.ugs.nbp.joystick.action.AnalogSpindleOverrideAction;
-import com.willwinder.ugs.nbp.joystick.driver.JamepadJoystickDriver;
-import com.willwinder.ugs.nbp.joystick.driver.JoystickDriver;
-import com.willwinder.ugs.nbp.joystick.driver.JoystickDriverListener;
-import com.willwinder.ugs.nbp.joystick.model.JoystickControl;
-import com.willwinder.ugs.nbp.joystick.model.JoystickDevice;
-import com.willwinder.ugs.nbp.joystick.model.JoystickState;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.services.JogService;
-import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A joystick service ties action managers, game controllers and event threads together.
@@ -83,8 +84,8 @@ public class JoystickServiceImpl implements JoystickService, JoystickDriverListe
         driver.addListener(this);
         listeners = new HashSet<>();
 
-        JogService jogService = CentralLookup.getDefault().lookup(JogService.class);
-        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        JogService jogService = LookupService.lookup(JogService.class);
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         ContinuousJogWorker continuousJogWorker = new ContinuousJogWorker(backendAPI, jogService);
 
         actionManager = new ActionManager();

@@ -24,7 +24,7 @@ import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.modules.OnStart;
 import org.openide.util.Lookup;
 
@@ -37,13 +37,13 @@ public class Startup implements Runnable {
     @Override
     public void run() {
         UndoManager undoManager = new SimpleUndoManager();
-        CentralLookup.getDefault().add(undoManager);
+        LookupService.register(undoManager);
 
         // Register a controller
         Controller controller = ControllerFactory.getController();
-        CentralLookup.getDefault().add(controller);
-        CentralLookup.getDefault().add(controller.getUndoManager());
-        CentralLookup.getDefault().add(controller.getSelectionManager());
+        LookupService.register(controller);
+        LookupService.register(controller.getUndoManager());
+        LookupService.register(controller.getSelectionManager());
 
         // Registers the file types that can be opened in UGSs
         FileFilterService fileFilterService = Lookup.getDefault().lookup(FileFilterService.class);

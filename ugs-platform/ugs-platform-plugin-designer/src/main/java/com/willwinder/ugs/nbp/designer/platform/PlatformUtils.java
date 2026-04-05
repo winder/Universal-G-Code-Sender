@@ -28,8 +28,8 @@ import com.willwinder.ugs.nbp.designer.actions.UndoAction;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
 import com.willwinder.ugs.nbp.designer.io.gcode.GcodeDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.util.Utilities;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
@@ -83,7 +83,7 @@ public class PlatformUtils {
             DesignWriter designWriter = new GcodeDesignWriter();
             File file = new File(Files.createTempDir(), name + ".gcode");
             designWriter.write(file, ControllerFactory.getController());
-            CentralLookup.getDefault().lookup(BackendAPI.class).setGcodeFile(file);
+            LookupService.lookup(BackendAPI.class).setGcodeFile(file);
         } catch (Exception e) {
             throw new RuntimeException("Could not generate gcode", e);
         }

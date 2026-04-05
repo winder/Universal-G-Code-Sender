@@ -18,10 +18,11 @@
  */
 package com.willwinder.ugs.nbp.lib.services;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.io.IOException;
+
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -57,7 +58,7 @@ public class LocalizingService {
     public static final String CATEGORY_TOOLS = "Tools";
 
     // Initialize backend (locale setting) before we load localized strings.
-    public static final String lang = CentralLookup.getDefault().lookup(BackendAPI.class).getSettings().getLanguage();
+    public static final String lang = LookupService.lookup(BackendAPI.class).getSettings().getLanguage();
 
     public final static String SerialConsoleTitle = Localization.getString("platform.window.serialconsole", lang);
     public final static String SerialConsoleTooltip = Localization.getString("platform.window.serialconsole.tooltip", lang);

@@ -23,7 +23,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTreeController;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -66,7 +66,7 @@ public class RenameAction extends AbstractDesignAction implements SelectionListe
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        EntitiesTreeController entitiesTreeController = CentralLookup.getDefault().lookup(EntitiesTreeController.class);
+        EntitiesTreeController entitiesTreeController = LookupService.lookup(EntitiesTreeController.class);
         if (entitiesTreeController == null) {
             return;
         }

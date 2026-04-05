@@ -111,6 +111,13 @@
             <artifactId>nashorn-core</artifactId>
             <version>${ugs.nashorn-core.version}</version>
         </dependency>
+
+        <!-- For classpath scanning -->
+        <dependency>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+            <version>${classgraph.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,6 +1,10 @@
 package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.GUIBackend;
+import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.utils.Settings;
+import org.junit.Before;
 import org.junit.Test;
 import org.openide.cookies.SaveCookie;
 import org.openide.nodes.Node;
@@ -13,6 +17,14 @@ import static org.mockito.Mockito.when;
 import static org.openide.nodes.Node.PROP_COOKIE;
 
 public class StartActionTest {
+
+    @Before
+    public void setUp() throws Exception {
+        GUIBackend backend = new GUIBackend();
+        Settings settings = new Settings();
+        backend.applySettings(settings);
+        LookupService.register(backend);
+    }
 
     @Test
     public void isEnabledShouldReturnTrueWhenCanSend() {

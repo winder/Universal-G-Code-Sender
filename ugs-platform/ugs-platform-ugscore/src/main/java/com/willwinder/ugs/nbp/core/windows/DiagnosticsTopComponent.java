@@ -19,14 +19,14 @@
 package com.willwinder.ugs.nbp.core.windows;
 
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.communicator.ICommunicator;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import net.miginfocom.swing.MigLayout;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
@@ -74,7 +74,7 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
         setToolTipText(LocalizingService.DiagnosticsTooltip);
         initComponents();
 
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
     }
 
     private void initComponents() {

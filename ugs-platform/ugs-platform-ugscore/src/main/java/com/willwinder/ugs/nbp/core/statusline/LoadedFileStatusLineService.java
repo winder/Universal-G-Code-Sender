@@ -18,15 +18,16 @@
  */
 package com.willwinder.ugs.nbp.core.statusline;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.awt.StatusLineElementProvider;
 import org.openide.util.lookup.ServiceProvider;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import java.awt.Component;
 import java.io.File;
 
 /**
@@ -43,7 +44,7 @@ public class LoadedFileStatusLineService implements StatusLineElementProvider {
     private final BackendAPI backend;
 
     public LoadedFileStatusLineService() {
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this.backend = LookupService.lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this::onEvent);
 
         this.label = new JLabel();

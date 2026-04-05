@@ -18,10 +18,10 @@
  */
 package com.willwinder.ugs.platform.surfacescanner.io;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,17 +36,15 @@ public class XyzSurfaceReader implements SurfaceReader {
 
     @Override
     public List<Position> read(InputStream inputStream) throws IOException {
-        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         UnitUtils.Units preferredUnits = backendAPI.getSettings().getPreferredUnits();
 
         String data = IOUtils.toString(inputStream, Charset.defaultCharset());
-        List<Position> positions = Arrays.stream(StringUtils.split(data, "\n"))
+        return Arrays.stream(StringUtils.split(data, "\n"))
                 .map(line -> {
                     String[] s = StringUtils.split(line, " ");
                     return new Position(Double.parseDouble(s[0]), Double.parseDouble(s[1]), Double.parseDouble(s[2]), preferredUnits);
                 })
                 .collect(Collectors.toList());
-
-        return positions;
     }
 }

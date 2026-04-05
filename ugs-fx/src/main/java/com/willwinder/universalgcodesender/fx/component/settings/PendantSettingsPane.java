@@ -2,7 +2,7 @@ package com.willwinder.universalgcodesender.fx.component.settings;
 
 import com.willwinder.universalgcodesender.fx.component.SettingsRow;
 import com.willwinder.universalgcodesender.fx.control.SwitchButton;
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.settings.Settings;
@@ -30,7 +30,7 @@ public class PendantSettingsPane extends VBox {
     public PendantSettingsPane() {
         setSpacing(20);
 
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backend = LookupService.lookup(BackendAPI.class);
 
         addTitleSection();
         addAutoStartPendant();

@@ -18,11 +18,8 @@
  */
 package com.willwinder.ugs.platform.surfacescanner.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
 import com.willwinder.ugs.platform.surfacescanner.Utils;
-import static com.willwinder.ugs.platform.surfacescanner.Utils.getMaxPosition;
-import static com.willwinder.ugs.platform.surfacescanner.Utils.getMinPosition;
 import com.willwinder.ugs.platform.surfacescanner.io.XyzFileFilter;
 import com.willwinder.ugs.platform.surfacescanner.io.XyzSurfaceReader;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -31,6 +28,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.FileOpenDialog;
 import com.willwinder.universalgcodesender.uielements.helpers.FilenameFilterAdapter;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
@@ -48,6 +46,9 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 
+import static com.willwinder.ugs.platform.surfacescanner.Utils.getMaxPosition;
+import static com.willwinder.ugs.platform.surfacescanner.Utils.getMinPosition;
+
 public class OpenScannedSurfaceAction extends AbstractAction implements UGSEventListener {
     public static final String ICON_BASE = "com/willwinder/ugs/platform/surfacescanner/icons/open.svg";
 
@@ -57,7 +58,7 @@ public class OpenScannedSurfaceAction extends AbstractAction implements UGSEvent
 
     public OpenScannedSurfaceAction(SurfaceScanner surfaceScanner) {
         this.fileOpenDialog = new FileOpenDialog();
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this.backend = LookupService.lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
         this.surfaceScanner = surfaceScanner;
 

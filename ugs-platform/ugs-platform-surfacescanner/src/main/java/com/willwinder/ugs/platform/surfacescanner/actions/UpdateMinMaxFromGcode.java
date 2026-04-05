@@ -18,10 +18,7 @@
  */
 package com.willwinder.ugs.platform.surfacescanner.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
-import static com.willwinder.ugs.platform.surfacescanner.Utils.getRoundPosition;
-import static com.willwinder.ugs.platform.surfacescanner.Utils.removeProbeData;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -29,11 +26,15 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.Settings;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
+
+import static com.willwinder.ugs.platform.surfacescanner.Utils.getRoundPosition;
+import static com.willwinder.ugs.platform.surfacescanner.Utils.removeProbeData;
 
 public class UpdateMinMaxFromGcode extends AbstractAction implements UGSEventListener {
 
@@ -42,7 +43,7 @@ public class UpdateMinMaxFromGcode extends AbstractAction implements UGSEventLis
 
     public UpdateMinMaxFromGcode(SurfaceScanner surfaceScanner) {
         this.surfaceScanner = surfaceScanner;
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this.backend = LookupService.lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
 
         String title = Localization.getString("autoleveler.panel.use-file");

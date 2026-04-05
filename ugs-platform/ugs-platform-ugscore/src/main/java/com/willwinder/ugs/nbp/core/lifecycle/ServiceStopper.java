@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.lifecycle;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import org.openide.modules.OnStop;
@@ -32,7 +32,7 @@ public class ServiceStopper implements Runnable {
     @Override
     public void run() {
         // Save settings.
-        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
+        Settings settings = LookupService.lookup(Settings.class);
         SettingsFactory.saveSettings(settings);
     }
     

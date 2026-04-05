@@ -23,9 +23,9 @@ import com.willwinder.ugs.nbp.designer.entities.EntityGroup;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.gui.CutTypeIcon;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.BorderFactory;
@@ -50,7 +50,7 @@ public class EntityCellRenderer extends DefaultTreeCellRenderer {
 
         setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
 
-        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         UnitUtils.Units preferredUnits = backendAPI.getSettings().getPreferredUnits();
 
         Object treeObject = getUserObject(value);

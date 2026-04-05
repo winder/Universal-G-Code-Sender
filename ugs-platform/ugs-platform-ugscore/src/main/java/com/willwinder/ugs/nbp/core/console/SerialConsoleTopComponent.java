@@ -20,13 +20,14 @@ package com.willwinder.ugs.nbp.core.console;
 
 import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.panels.CommandPanel;
-import java.awt.BorderLayout;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
+
+import java.awt.BorderLayout;
 
 /**
  * Top component which displays something.
@@ -49,7 +50,7 @@ public final class SerialConsoleTopComponent extends TopComponent {
     private final BackendAPI backend;
 
     public SerialConsoleTopComponent() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         commandPanel = new CommandPanel(backend);
         this.setLayout(new BorderLayout());
         this.add(commandPanel, BorderLayout.CENTER);

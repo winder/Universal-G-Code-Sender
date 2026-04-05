@@ -19,7 +19,7 @@
 package com.willwinder.ugs.nbp.editor.highlight;
 
 import com.willwinder.ugs.nbp.editor.GcodeLanguageConfig;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.services.RunFromService;
 import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.settings.FontColorSettings;
@@ -31,7 +31,7 @@ import org.netbeans.spi.editor.highlighting.support.OffsetsBag;
 import org.openide.cookies.EditorCookie;
 import org.openide.loaders.DataObject;
 
-import javax.swing.*;
+import javax.swing.JEditorPane;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
@@ -55,7 +55,7 @@ public class RunFromHereHighlightContainer extends AbstractHighlightsContainer i
         FontColorSettings fontColorSettings = MimeLookup.getLookup(GcodeLanguageConfig.MIME_TYPE).lookup(FontColorSettings.class);
         highlightAttributes = fontColorSettings.getTokenFontColors(FONT_STYLE);
 
-        RunFromService runFromService = CentralLookup.getDefault().lookup(RunFromService.class);
+        RunFromService runFromService = LookupService.lookup(RunFromService.class);
         runFromService.addListener(this);
         bag = new OffsetsBag(doc);
         weakDoc = new WeakReference<>(doc);
@@ -88,7 +88,7 @@ public class RunFromHereHighlightContainer extends AbstractHighlightsContainer i
 
     @Override
     public void released() {
-        RunFromService runFromService = CentralLookup.getDefault().lookup(RunFromService.class);
+        RunFromService runFromService = LookupService.lookup(RunFromService.class);
         runFromService.removeListener(this);
     }
 

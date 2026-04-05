@@ -20,7 +20,6 @@ package com.willwinder.ugs.platform.surfacescanner;
 
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.ugs.platform.surfacescanner.renderable.AutoLevelPreview;
@@ -30,14 +29,19 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.events.*;
+import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
+import com.willwinder.universalgcodesender.model.events.FileState;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.model.events.ProbeEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.modules.OnStart;
 import org.openide.windows.TopComponent;
 
-import java.awt.*;
+import java.awt.BorderLayout;
 
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 
@@ -93,7 +97,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements UGSEv
 
     @Override
     public void componentOpened() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
 
         scanner = new SurfaceScanner(this.backend);

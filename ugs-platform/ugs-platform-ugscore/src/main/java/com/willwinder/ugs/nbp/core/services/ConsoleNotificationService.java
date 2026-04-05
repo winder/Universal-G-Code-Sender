@@ -18,11 +18,11 @@
  */
 package com.willwinder.ugs.nbp.core.services;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.awt.Notification;
 import org.openide.awt.NotificationDisplayer;
@@ -45,7 +45,7 @@ public class ConsoleNotificationService implements MessageListener {
     private static final int TIME_TO_LIVE = 10000;
 
     public ConsoleNotificationService() {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         backend.addMessageListener(this);
     }
 

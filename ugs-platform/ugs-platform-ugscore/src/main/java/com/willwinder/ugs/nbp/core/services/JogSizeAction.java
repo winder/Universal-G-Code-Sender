@@ -18,11 +18,11 @@
  */
 package com.willwinder.ugs.nbp.core.services;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.services.JogService;
+import com.willwinder.universalgcodesender.services.LookupService;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import java.io.Serializable;
 
@@ -184,7 +184,7 @@ public class JogSizeAction extends AbstractAction implements Serializable {
 
     private JogService getJogService() {
         if (js == null) {
-            js = CentralLookup.getDefault().lookup(JogService.class);
+            js = LookupService.lookup(JogService.class);
         }
 
         return js;

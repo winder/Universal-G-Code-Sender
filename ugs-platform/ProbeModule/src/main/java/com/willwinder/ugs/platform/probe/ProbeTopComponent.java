@@ -20,9 +20,7 @@
 package com.willwinder.ugs.platform.probe;
 
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.ugs.platform.probe.renderable.HoleCenterPathPreview;
 import com.willwinder.ugs.platform.probe.renderable.ProbePreviewManager;
@@ -40,6 +38,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -51,6 +50,8 @@ import org.openide.windows.WindowManager;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
+
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 
 /**
  * Top component which displays something.
@@ -97,7 +98,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         setName(ProbeTitle);
         setToolTipText(ProbeTooltip);
         probePreviewManager = Lookup.getDefault().lookup(ProbePreviewManager.class);
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         ProbeSettings.setSettingsUnits(backend.getSettings().getPreferredUnits());
 
         registerPreviews();

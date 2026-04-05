@@ -6,10 +6,13 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import static org.junit.Assert.assertEquals;
+
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
@@ -22,13 +25,13 @@ public class ProbeZActionTest {
     private IController controller;
 
     @Mock
-    private BackendAPI backend;
-
-    @Mock
     private IFirmwareSettings firmwareSettings;
 
     @Before
     public void setUp() {
+        BackendAPI backend = mock(BackendAPI.class);
+        LookupService.register(backend);
+
         MockitoAnnotations.openMocks(this);
         when(action.getBackend()).thenReturn(backend);
         when(backend.getController()).thenReturn(controller);

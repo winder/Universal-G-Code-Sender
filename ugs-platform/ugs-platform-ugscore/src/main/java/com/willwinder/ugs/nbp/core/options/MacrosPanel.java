@@ -20,25 +20,26 @@ package com.willwinder.ugs.nbp.core.options;
 
 import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.macros.MacroSettingsPanel;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
-import java.awt.BorderLayout;
-import javax.swing.SwingUtilities;
 import org.openide.util.Lookup;
+
+import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
 
 final class MacrosPanel extends AbstractOptionsPanel {
 
     private MacroSettingsPanel mp;
-    private BackendAPI backend;
-    private MacroService macroService;
+    private final BackendAPI backend;
+    private final MacroService macroService;
 
     MacrosPanel(MacrosOptionsPanelController controller) {
         super(controller);
 
         macroService = Lookup.getDefault().lookup(MacroService.class);
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         super.setLayout(new BorderLayout());
     }
 

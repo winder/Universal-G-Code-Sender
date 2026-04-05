@@ -61,7 +61,7 @@
         <dependency>
             <groupId>com.github.weisj</groupId>
             <artifactId>jsvg</artifactId>
-            <version>1.7.1</version>
+            <version>${jsvg.version}</version>
         </dependency>
 
         <!-- For text editor and terminal -->
@@ -113,7 +113,7 @@
         <dependency>
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
-            <version>4.8.179</version>
+            <version>${classgraph.version}</version>
         </dependency>
 
         <!-- For scripting -->

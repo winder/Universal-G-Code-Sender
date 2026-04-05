@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -34,7 +34,7 @@ public class PauseAction extends BaseAction {
 
     public PauseAction() {
         super(Localization.getString("mainWindow.swing.pauseButton"), Localization.getString("mainWindow.swing.pauseButton"), Localization.getString("actions.category.machine"), ICON_BASE);
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(canPause());
     }

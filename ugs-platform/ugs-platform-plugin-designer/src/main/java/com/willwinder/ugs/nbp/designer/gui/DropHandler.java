@@ -19,10 +19,9 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.actions.ToolImportAction;
-import static com.willwinder.ugs.nbp.designer.actions.ToolImportAction.FILE_NAME_EXTENSION_FILTERS;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.apache.commons.lang3.StringUtils;
 
@@ -38,6 +37,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
+
+import static com.willwinder.ugs.nbp.designer.actions.ToolImportAction.FILE_NAME_EXTENSION_FILTERS;
 
 /**
  * Listens for drag'n'drop of known file types and imports it via the {@link ToolImportAction}.
@@ -121,7 +122,7 @@ public class DropHandler implements DropTargetListener {
 
         ThreadHelper.invokeLater(() -> {
             File file = filename.map(File::new).get();
-            ToolImportAction.readDesign(ControllerFactory.getController(), CentralLookup.getDefault().lookup(BackendAPI.class), file);
+            ToolImportAction.readDesign(ControllerFactory.getController(), LookupService.lookup(BackendAPI.class), file);
             dtde.dropComplete(true);
         });
     }

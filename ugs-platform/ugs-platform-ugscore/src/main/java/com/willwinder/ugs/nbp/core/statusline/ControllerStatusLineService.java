@@ -18,18 +18,18 @@
  */
 package com.willwinder.ugs.nbp.core.statusline;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.components.RoundedBorder;
 import org.openide.awt.StatusLineElementProvider;
 import org.openide.util.lookup.ServiceProvider;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JLabel;
+import java.awt.Component;
 
 /**
  * A service that provides a status line field with the current controller status.
@@ -47,7 +47,7 @@ public class ControllerStatusLineService implements StatusLineElementProvider, U
         label = new JLabel();
         label.setOpaque(true);
         label.setBorder(new RoundedBorder(BORDER_RADIUS));
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
 
         updateLabel();

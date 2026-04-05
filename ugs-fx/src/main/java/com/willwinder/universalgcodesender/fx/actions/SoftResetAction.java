@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -34,7 +34,7 @@ public class SoftResetAction extends BaseAction {
 
     public SoftResetAction() {
         super(Localization.getString("mainWindow.swing.softResetMachineControl"), Localization.getString("platform.actions.softreset.tooltip"), Localization.getString("actions.category.machine"), ICON_BASE);
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(canReset());
     }

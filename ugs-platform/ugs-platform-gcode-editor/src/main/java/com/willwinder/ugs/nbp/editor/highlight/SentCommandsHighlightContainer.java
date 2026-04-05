@@ -19,7 +19,6 @@
 package com.willwinder.ugs.nbp.editor.highlight;
 
 import com.willwinder.ugs.nbp.editor.GcodeLanguageConfig;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -27,6 +26,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.CommandEvent;
 import com.willwinder.universalgcodesender.model.events.CommandEventType;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.settings.FontColorSettings;
 import org.netbeans.spi.editor.highlighting.HighlightsSequence;
@@ -58,7 +58,7 @@ public class SentCommandsHighlightContainer extends AbstractHighlightsContainer 
     public SentCommandsHighlightContainer(Document doc) {
         FontColorSettings fontColorSettings = MimeLookup.getLookup(GcodeLanguageConfig.MIME_TYPE).lookup(FontColorSettings.class);
         highlightAttributes = fontColorSettings.getTokenFontColors(FONT_STYLE);
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
 
         bag = new OffsetsBag(doc);

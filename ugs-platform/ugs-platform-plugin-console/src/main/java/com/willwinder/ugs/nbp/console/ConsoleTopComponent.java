@@ -19,10 +19,10 @@
 package com.willwinder.ugs.nbp.console;
 
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.components.CommandTextArea;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -67,7 +67,7 @@ public final class ConsoleTopComponent extends TopComponent {
     @Override
     public void componentOpened() {
         removeAll();
-        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         consolePanel = new ConsolePanel(backendAPI);
         add(consolePanel, BorderLayout.CENTER);
         commandTextArea = new CommandTextArea(backendAPI);

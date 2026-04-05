@@ -18,11 +18,11 @@
  */
 package com.willwinder.ugs.nbp.core.services;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.Version;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.windows.WindowManager;
@@ -38,7 +38,7 @@ public class WindowTitleUpdaterService {
     private final BackendAPI backend;
 
     public WindowTitleUpdaterService() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         updateTitle();
         updateVersion();

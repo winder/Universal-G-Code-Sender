@@ -19,7 +19,6 @@
 package com.willwinder.ugp.tools;
 
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
@@ -32,6 +31,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -122,7 +122,7 @@ public final class GcodeTilerTopComponent extends TopComponent {
     setName(GcodeTilerTitle);
     setToolTipText(GcodeTilerTooltip);
 
-    backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+    backend = LookupService.lookup(BackendAPI.class);
 
     numCopiesX = new SpinnerNumberModel(3, 1, 1000, 1);
     numCopiesY = new SpinnerNumberModel(3, 1, 1000, 1);

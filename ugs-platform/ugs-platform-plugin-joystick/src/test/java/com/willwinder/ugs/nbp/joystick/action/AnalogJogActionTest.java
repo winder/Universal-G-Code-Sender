@@ -2,8 +2,11 @@ package com.willwinder.ugs.nbp.joystick.action;
 
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -11,6 +14,12 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class AnalogJogActionTest {
+
+    @Before
+    public void setUp() {
+        BackendAPI backendAPI = mock(BackendAPI.class);
+        LookupService.register(backendAPI);
+    }
 
     @Test
     public void actionPerformedShouldNotGenerateJogCommandsWhenStateIsRunning() {

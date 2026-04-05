@@ -20,7 +20,7 @@ package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.PositionAnimatorTimer;
 import com.willwinder.universalgcodesender.fx.component.visualizer.VisualizerUtils;
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -34,7 +34,7 @@ public class Tool extends Model {
     private final PositionAnimatorTimer positionAnimator = new PositionAnimatorTimer();
 
     public Tool() {
-        BackendAPI backendAPI = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         backendAPI.addUGSEventListener(this::onEvent);
 
         MeshView cone = createCone(4, 10, 16, Color.ORANGE);

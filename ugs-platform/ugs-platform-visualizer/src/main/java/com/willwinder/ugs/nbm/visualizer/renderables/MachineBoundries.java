@@ -18,19 +18,10 @@
 */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
-import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_X;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_Y;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_Z;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDRY;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_X;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Y;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.CapabilitiesConstants;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
@@ -43,6 +34,16 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
+
+import static com.jogamp.opengl.GL.GL_LINES;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_X;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_Y;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDARY_INVERT_Z;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BOUNDRY;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_X;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Y;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
 
 /**
  * Displays the machine boundries based on the soft limits
@@ -69,7 +70,7 @@ public class MachineBoundries extends Renderable {
     public MachineBoundries(String title) {
         super(Integer.MIN_VALUE, title, VISUALIZER_OPTION_BOUNDRY);
         reloadPreferences(new VisualizerOptions());
-        backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backendAPI = LookupService.lookup(BackendAPI.class);
         backendAPI.addUGSEventListener(this::onUGSEvent);
     }
 
@@ -140,7 +141,7 @@ public class MachineBoundries extends Renderable {
     }
 
     private void updateSettingsFromController() {
-        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         invertX = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_X, false) ? -1 : 1;
         invertY = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_Y, false) ? -1 : 1;
         invertZ = VisualizerOptions.getBooleanOption(VISUALIZER_OPTION_BOUNDARY_INVERT_Z, false) ? -1 : 1;

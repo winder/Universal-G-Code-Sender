@@ -19,7 +19,7 @@
 package com.willwinder.universalgcodesender.fx.actions;
 
 import com.willwinder.universalgcodesender.MacroHelper;
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.model.MacroAdapter;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -34,7 +34,7 @@ public class MacroAction extends BaseAction {
 
     public MacroAction(MacroAdapter macro) {
         this.macro = macro;
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(backend.isConnected() && backend.isIdle());
         titleProperty().bind(macro.nameProperty());

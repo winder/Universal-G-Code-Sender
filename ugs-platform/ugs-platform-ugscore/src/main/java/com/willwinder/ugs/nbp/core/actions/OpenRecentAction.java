@@ -18,9 +18,9 @@
  */
 package com.willwinder.ugs.nbp.core.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -73,7 +73,7 @@ public class OpenRecentAction extends AbstractAction implements DynamicMenuConte
     }
 
     private List<JComponent> createMenu() {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         return backend.getSettings().getRecentFiles().stream()
                 .map(file -> Paths.get(file).toFile())
                 .filter(File::exists)

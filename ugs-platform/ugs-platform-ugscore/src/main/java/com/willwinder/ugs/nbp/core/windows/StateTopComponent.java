@@ -19,7 +19,6 @@
 package com.willwinder.ugs.nbp.core.windows;
 
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
@@ -28,6 +27,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
@@ -36,14 +36,46 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.Timer;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.willwinder.universalgcodesender.gcode.util.Code.*;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G0;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G1;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G17;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G17_1;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G18;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G18_1;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G19;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G19_1;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G2;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G20;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G21;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G3;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G38_2;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G38_4;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G38_5;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G54;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G55;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G56;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G57;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G58;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G59;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G59_1;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G59_2;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G59_3;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G80;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G90;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G91;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G93;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G94;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G95;
 
 /**
  * Top component which displays something.
@@ -124,7 +156,7 @@ public final class StateTopComponent extends TopComponent implements UGSEventLis
     setName(LocalizingService.StateTitle);
     setToolTipText(LocalizingService.StateTooltip);
 
-    backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+    backend = LookupService.lookup(BackendAPI.class);
     backend.addUGSEventListener(this);
 
     statePollTimer = createTimer();

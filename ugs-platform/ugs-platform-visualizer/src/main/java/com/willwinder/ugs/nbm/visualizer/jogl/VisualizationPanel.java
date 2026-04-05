@@ -26,8 +26,8 @@ import com.willwinder.ugs.nbm.visualizer.RendererInputHandler;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptionsPanel;
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.willwinder.ugs.nbp.core.actions.OpenLogDirectoryAction;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.util.Lookup;
 import org.openide.util.NbPreferences;
 
@@ -50,7 +50,7 @@ public class VisualizationPanel extends JPanel {
     private transient RendererInputHandler rih;
 
     public VisualizationPanel() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         setLayout(new BorderLayout());
         add(initializeVisualizationPanel(), BorderLayout.CENTER);
     }

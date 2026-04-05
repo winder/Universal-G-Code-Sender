@@ -24,7 +24,7 @@ import com.willwinder.ugs.nbp.designer.gui.tree.EntityTreeModel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -74,7 +74,7 @@ public class EntitiesTreeTopComponent extends TopComponent {
 
         entitiesTreeModel.release();
         entitiesTreeModel = null;
-        CentralLookup.getDefault().remove(entitiesTreeController);
+        LookupService.remove(entitiesTreeController.getClass());
     }
 
     @Override
@@ -84,7 +84,7 @@ public class EntitiesTreeTopComponent extends TopComponent {
         entitiesTreeModel = new EntityTreeModel(controller);
         entitesTree = new EntitiesTree(controller, entitiesTreeModel);
         entitiesTreeController = new EntitiesTreeController(entitesTree);
-        CentralLookup.getDefault().add(entitiesTreeController);
+        LookupService.register(entitiesTreeController);
         removeAll();
         add(new JScrollPane(entitesTree), BorderLayout.CENTER);
     }

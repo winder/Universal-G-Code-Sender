@@ -20,11 +20,11 @@ package com.willwinder.ugs.nbp.joystick.service;
 
 import com.willwinder.ugs.nbp.core.statusline.SeparatorPanel;
 import com.willwinder.ugs.nbp.joystick.ui.JoystickStatusLine;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.awt.StatusLineElementProvider;
 import org.openide.util.lookup.ServiceProvider;
 
-import java.awt.*;
+import java.awt.Component;
 
 /**
  * Registers a status line for displaying the state of the connected controller
@@ -36,7 +36,7 @@ public class JoystickStatusLineService implements StatusLineElementProvider {
 
     @Override
     public Component getStatusLineElement() {
-        JoystickStatusLine jogStatusLine = new JoystickStatusLine(CentralLookup.getDefault().lookup(JoystickService.class));
+        JoystickStatusLine jogStatusLine = new JoystickStatusLine(LookupService.lookup(JoystickService.class));
         return new SeparatorPanel(jogStatusLine);
     }
 }
