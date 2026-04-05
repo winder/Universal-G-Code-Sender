@@ -31,8 +31,9 @@ import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
+import javax.swing.ImageIcon;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.HeadlessException;
@@ -69,7 +70,7 @@ public class RotationControl extends AbstractControl {
         this.controller = controller;
 
         try {
-            cursor = Toolkit.getDefaultToolkit().createCustomCursor(ImageUtilities.loadImage("img/cursors/rotate.svg", false), new Point(8, 8), "rotater");
+            SvgIconLoader.loadImageIcon("img/cursors/rotate.svg", SvgIconLoader.SIZE_SMALL).map(ImageIcon::getImage).ifPresent(image -> cursor = Toolkit.getDefaultToolkit().createCustomCursor(image, new Point(8, 8), "rotator"));
         } catch (HeadlessException e) {
             cursor = null;
         }

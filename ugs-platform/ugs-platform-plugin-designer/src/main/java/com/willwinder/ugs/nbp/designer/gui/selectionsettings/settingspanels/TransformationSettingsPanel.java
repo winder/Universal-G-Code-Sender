@@ -31,8 +31,8 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
 import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import net.miginfocom.swing.MigLayout;
-import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.JComponent;
@@ -90,8 +90,8 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
         rotationTextField = new TextFieldWithUnit(Unit.DEGREE, 4, 0);
         anchorSelector = new AnchorSelectorPanel();
 
-        lockRatioButton = new JToggleButton(ImageUtilities.loadImageIcon("img/link-off.svg", false));
-        lockRatioButton.setSelectedIcon(ImageUtilities.loadImageIcon("img/link.svg", false));
+        lockRatioButton = new JToggleButton(SvgIconLoader.loadImageIcon("img/link-off.svg", SvgIconLoader.SIZE_SMALL).orElse(null));
+        lockRatioButton.setSelectedIcon(SvgIconLoader.loadImageIcon("img/link.svg", SvgIconLoader.SIZE_SMALL).orElse(null));
     }
 
     private void buildLayout() {

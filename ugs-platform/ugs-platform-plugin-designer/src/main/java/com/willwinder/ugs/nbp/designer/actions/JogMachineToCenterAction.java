@@ -19,15 +19,12 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
 import java.awt.geom.Point2D;
@@ -37,13 +34,6 @@ import java.awt.geom.Point2D;
  *
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "JogMachineToCenterAction")
-@ActionRegistration(
-        iconBase = JogMachineToCenterAction.SMALL_ICON_PATH,
-        displayName = "Jog to center",
-        lazy = false)
 public class JogMachineToCenterAction extends JogMachineAbstractAction {
     public static final String SMALL_ICON_PATH = "img/jog-to.svg";
     public static final String LARGE_ICON_PATH = "img/jog-to24.svg";
@@ -54,8 +44,8 @@ public class JogMachineToCenterAction extends JogMachineAbstractAction {
         putValue(NAME, "Jog machine to center");
         putValue(SHORT_DESCRIPTION, "Jog machine to center");
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
     }
 
     @Override

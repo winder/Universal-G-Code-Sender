@@ -23,11 +23,8 @@ import com.willwinder.ugs.nbp.designer.gui.imagetracer.ImageTracerDialog;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
@@ -35,13 +32,6 @@ import java.util.List;
 /**
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "TraceImageAction")
-@ActionRegistration(
-        iconBase = TraceImageAction.SMALL_ICON_PATH,
-        displayName = "Import Depth Map",
-        lazy = false)
 public class TraceImageAction extends AbstractDesignAction {
 
     public static final String SMALL_ICON_PATH = "img/trace.svg";
@@ -50,8 +40,8 @@ public class TraceImageAction extends AbstractDesignAction {
 
     public TraceImageAction() {
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
         putValue("menuText", "Import Depth Map");
         putValue(NAME, "Import Depth Map");
         this.controller = ControllerFactory.getController();

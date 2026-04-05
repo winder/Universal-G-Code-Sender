@@ -8,33 +8,22 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.Drawing;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.List;
 
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "FlipHorizontallyAction")
-@ActionRegistration(
-        iconBase = FlipHorizontallyAction.SMALL_ICON_PATH,
-        displayName = "Flip horizontally",
-        lazy = false)
 public class FlipHorizontallyAction extends AbstractDesignAction implements SelectionListener {
     public static final String SMALL_ICON_PATH = "img/flip-horizontal.svg";
-    private static final String LARGE_ICON_PATH = "img/flip-horizontal24.svg";
     private final transient Controller controller;
 
     public FlipHorizontallyAction() {
         putValue("menuText", "Flip horizontally");
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
 
         putValue(NAME, "Flip horizontally");
 
@@ -65,37 +54,30 @@ public class FlipHorizontallyAction extends AbstractDesignAction implements Sele
         setEnabled(!selectionManager.getSelection().isEmpty());
     }
 
-    private static class UndoableFlipHorizontallyAction implements UndoableAction, DrawAction {
-
-        private final Entity entity;
-        private final Drawing drawing;
-
-        public UndoableFlipHorizontallyAction(Drawing drawing, Entity entity) {
-            this.drawing = drawing;
-            this.entity = entity;
-        }
+    private record UndoableFlipHorizontallyAction(Drawing drawing,
+                                                  Entity entity) implements UndoableAction, DrawAction {
 
         @Override
-        public void redo() {
-            Point2D position = entity.getPosition();
-            entity.applyTransform(AffineTransform.getScaleInstance(-1d, 1d));
-            entity.setPosition(position);
-            drawing.repaint();
-        }
+            public void redo() {
+                Point2D position = entity.getPosition();
+                entity.applyTransform(AffineTransform.getScaleInstance(-1d, 1d));
+                entity.setPosition(position);
+                drawing.repaint();
+            }
 
-        @Override
-        public void undo() {
-            redo();
-        }
+            @Override
+            public void undo() {
+                redo();
+            }
 
-        @Override
-        public void execute() {
-            redo();
-        }
+            @Override
+            public void execute() {
+                redo();
+            }
 
-        @Override
-        public String toString() {
-            return "flip horizontally";
+            @Override
+            public String toString() {
+                return "flip horizontally";
+            }
         }
-    }
 }

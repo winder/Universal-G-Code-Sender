@@ -6,24 +6,13 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
 import org.openide.awt.StatusDisplayer;
 
-import java.awt.*;
+import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 
-@ActionID(
-        id = "com.willwinder.ugs.nbp.designer.actions.CopyAction",
-        category = "Edit")
-@ActionReferences({
-        @ActionReference(
-                path = "Shortcuts",
-                name = "D-C")
-})
 public class CopyAction extends AbstractDesignAction implements SelectionListener {
 
     private final transient Controller controller;

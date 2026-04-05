@@ -24,10 +24,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
@@ -37,13 +34,6 @@ import java.util.stream.Stream;
 /**
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "ToggleHidden")
-@ActionRegistration(
-        iconBase = ToggleHidden.SMALL_ICON_PATH,
-        displayName = "Hidden",
-        lazy = false)
 public class ToggleHidden extends AbstractDesignAction implements SelectionListener {
     public static final String SMALL_ICON_PATH = "img/eye.svg";
     public static final String LARGE_ICON_PATH = "img/eye24.svg";
@@ -55,8 +45,8 @@ public class ToggleHidden extends AbstractDesignAction implements SelectionListe
         putValue(PROPERTY_MENU_TEXT, "Toggle hidden");
         putValue(NAME, "Toggle hidden");
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
 
         ControllerFactory.getSelectionManager().addSelectionListener(this);
         ControllerFactory.getController().addListener(e -> onSelectionEvent(null));
@@ -86,53 +76,46 @@ public class ToggleHidden extends AbstractDesignAction implements SelectionListe
 
         boolean allIsHidden = getCuttableStream().allMatch(Cuttable::isHidden);
         if (allIsHidden) {
-            putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-            putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+            putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+            putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
             putValue(PROPERTY_MENU_TEXT, "Show");
             putValue(NAME, "Show");
         } else {
-            putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_HIDDEN_PATH, false));
-            putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_HIDDEN_PATH, false));
+            putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_HIDDEN_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+            putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(LARGE_ICON_HIDDEN_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
             putValue(PROPERTY_MENU_TEXT, "Hide");
             putValue(NAME, "Hide");
         }
     }
 
-    private static class UndoableShowHideAction implements UndoableAction {
-        private final List<Cuttable> entities;
-        private final boolean setAsHidden;
-
-        public UndoableShowHideAction(List<Cuttable> entities, boolean setAsHidden) {
-            this.entities = entities;
-            this.setAsHidden = setAsHidden;
-        }
+    private record UndoableShowHideAction(List<Cuttable> entities, boolean setAsHidden) implements UndoableAction {
 
         @Override
-        public void redo() {
-            entities.forEach(entity -> entity.setHidden(setAsHidden));
-            triggerSelectionEvent();
-        }
+            public void redo() {
+                entities.forEach(entity -> entity.setHidden(setAsHidden));
+                triggerSelectionEvent();
+            }
 
-        @Override
-        public void undo() {
-            entities.forEach(entity -> entity.setHidden(!setAsHidden));
-            triggerSelectionEvent();
-        }
+            @Override
+            public void undo() {
+                entities.forEach(entity -> entity.setHidden(!setAsHidden));
+                triggerSelectionEvent();
+            }
 
-        private void triggerSelectionEvent() {
-            SelectionManager selectionManager = ControllerFactory.getSelectionManager();
-            List<Entity> selection = selectionManager.getSelection();
-            selectionManager.clearSelection();
-            selectionManager.setSelection(selection);
-        }
+            private void triggerSelectionEvent() {
+                SelectionManager selectionManager = ControllerFactory.getSelectionManager();
+                List<Entity> selection = selectionManager.getSelection();
+                selectionManager.clearSelection();
+                selectionManager.setSelection(selection);
+            }
 
-        @Override
-        public String toString() {
-            if (setAsHidden) {
-                return "hide entities";
-            } else {
-                return "show entities";
+            @Override
+            public String toString() {
+                if (setAsHidden) {
+                    return "hide entities";
+                } else {
+                    return "show entities";
+                }
             }
         }
-    }
 }

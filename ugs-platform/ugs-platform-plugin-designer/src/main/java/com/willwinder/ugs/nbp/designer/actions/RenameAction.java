@@ -24,36 +24,19 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTreeController;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.services.LookupService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import java.awt.event.ActionEvent;
 
-@ActionID(
-        id = "com.willwinder.ugs.nbp.designer.actions.RenameAction",
-        category = "Edit")
-@ActionRegistration(
-        iconBase = RenameAction.SMALL_ICON_PATH,
-        displayName = "Rename",
-        lazy = false)
-@ActionReferences({
-        @ActionReference(
-                path = "Shortcuts",
-                name = "F2")
-})
 public class RenameAction extends AbstractDesignAction implements SelectionListener {
     public static final String SMALL_ICON_PATH = "img/text.svg";
-    private static final String LARGE_ICON_PATH = "img/text.svg";
 
     public RenameAction() {
         putValue("menuText", "Rename");
         putValue(NAME, "Rename");
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
 
         registerSelectionListener();
     }

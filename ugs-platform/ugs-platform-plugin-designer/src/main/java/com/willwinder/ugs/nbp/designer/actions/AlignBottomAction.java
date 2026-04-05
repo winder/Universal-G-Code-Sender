@@ -25,10 +25,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import java.awt.event.ActionEvent;
 import java.awt.geom.Point2D;
@@ -39,13 +36,6 @@ import java.util.List;
  *
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "AlignBottomAction")
-@ActionRegistration(
-        iconBase = AlignBottomAction.SMALL_ICON_PATH,
-        displayName = "Align bottom",
-        lazy = false)
 public class AlignBottomAction extends AbstractDesignAction implements SelectionListener {
     public static final String SMALL_ICON_PATH = "img/alignbottom.svg";
     public static final String LARGE_ICON_PATH = "img/alignbottom24.svg";
@@ -56,8 +46,8 @@ public class AlignBottomAction extends AbstractDesignAction implements Selection
         putValue(NAME, "Align bottom");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SHORT_DESCRIPTION, "Align the objects at the bottom of the first selected entity");
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
 
         this.controller = ControllerFactory.getController();
         SelectionManager selectionManager = controller.getSelectionManager();

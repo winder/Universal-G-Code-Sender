@@ -7,9 +7,13 @@ import com.willwinder.ugs.nbp.designer.gui.KeyboardEntityEvent;
 import com.willwinder.ugs.nbp.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
-import java.awt.*;
+import javax.swing.ImageIcon;
+import java.awt.Cursor;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import java.util.Optional;
@@ -25,9 +29,9 @@ public class ZoomControl extends AbstractControl {
     public ZoomControl(Controller controller) {
         super(controller.getSelectionManager());
         this.controller = controller;
-        zoomInCursor = Toolkit.getDefaultToolkit().createCustomCursor(ImageUtilities.loadImage("img/zoom-in.svg", false), new Point(8, 8), "zoom-in");
-        zoomOutCursor = Toolkit.getDefaultToolkit().createCustomCursor(ImageUtilities.loadImage("img/zoom-out.svg", false), new Point(8, 8), "zoom-in");
 
+        zoomInCursor = Toolkit.getDefaultToolkit().createCustomCursor(SvgIconLoader.loadImageIcon("img/zoom-in.svg", SvgIconLoader.SIZE_SMALL).map(ImageIcon::getImage).orElse(null), new Point(8, 8), "zoom-in");
+        zoomOutCursor = Toolkit.getDefaultToolkit().createCustomCursor(SvgIconLoader.loadImageIcon("img/zoom-out.svg", SvgIconLoader.SIZE_SMALL).map(ImageIcon::getImage).orElse(null), new Point(8, 8), "zoom-out");
     }
 
     @Override
@@ -42,8 +46,7 @@ public class ZoomControl extends AbstractControl {
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
-        if (entityEvent instanceof MouseEntityEvent) {
-            MouseEntityEvent mouseEntityEvent = (MouseEntityEvent) entityEvent;
+        if (entityEvent instanceof MouseEntityEvent mouseEntityEvent) {
             isShiftPressed = mouseEntityEvent.isShiftPressed();
 
             if (mouseEntityEvent.getType() == EventType.MOUSE_PRESSED) {
@@ -53,8 +56,7 @@ public class ZoomControl extends AbstractControl {
                 }
                 controller.getDrawing().setScale(controller.getDrawing().getScale() + zoomFactor);
             }
-        } else if (entityEvent instanceof KeyboardEntityEvent) {
-            KeyboardEntityEvent keyboardEntityEvent = (KeyboardEntityEvent) entityEvent;
+        } else if (entityEvent instanceof KeyboardEntityEvent keyboardEntityEvent) {
             if (keyboardEntityEvent.getKeyCode() == KeyEvent.VK_SHIFT) {
                 isShiftPressed = keyboardEntityEvent.getType() == EventType.KEY_PRESSED;
                 controller.getDrawing().repaint();

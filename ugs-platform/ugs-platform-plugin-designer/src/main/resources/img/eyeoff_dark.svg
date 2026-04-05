@@ -4,41 +4,12 @@
    viewBox="0 0 16 16"
    version="1.1"
    id="svg884"
-   sodipodi:docname="eye-off.svg"
    width="16"
    height="16"
-   inkscape:version="1.1-dev (0486c1a, 2020-10-10)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:dc="http://purl.org/dc/elements/1.1/">
+   xmlns:svg="http://www.w3.org/2000/svg">
   <defs
      id="defs888" />
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1643"
-     inkscape:window-height="841"
-     id="namedview886"
-     showgrid="false"
-     inkscape:snap-page="true"
-     width="16px"
-     inkscape:zoom="1.1196396"
-     inkscape:cx="255.88591"
-     inkscape:cy="255.88591"
-     inkscape:window-x="61"
-     inkscape:window-y="25"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg884" />
   <title
      id="title878">Eye Off</title>
   <path
@@ -56,13 +27,4 @@
      height="16"
      x="0"
      y="0" />
-  <metadata
-     id="metadata956">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:title>Eye Off</dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
 </svg>

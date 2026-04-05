@@ -18,31 +18,18 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import java.awt.event.ActionEvent;
-import static javax.swing.Action.LARGE_ICON_KEY;
-import static javax.swing.Action.NAME;
-import static javax.swing.Action.SMALL_ICON;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "SnapToGridOneAction")
-@ActionRegistration(
-        iconBase = SnapToGridOneAction.SMALL_ICON_PATH,
-        displayName = "Snap to 1mm grid",
-        lazy = false)
+import java.awt.event.ActionEvent;
+
 public class SnapToGridOneAction extends AbstractDesignAction {
-    public static final String SMALL_ICON_PATH = "img/snap_to_grid_1mm_16.png";
-    public static final String LARGE_ICON_PATH = "img/snap_to_grid_1mm_24.png";
+    public static final String SMALL_ICON_PATH = "img/snap_to_grid_1mm.svg";
+    public static final String LARGE_ICON_PATH = "img/snap_to_grid_1mm_24.svg";
 
     public SnapToGridOneAction() {
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
         putValue("menuText", "Snap to 1mm grid");
         putValue(NAME, "Snap to 1mm grid");
     }

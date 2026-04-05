@@ -18,10 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import java.awt.event.ActionEvent;
 
@@ -30,13 +27,6 @@ import java.awt.event.ActionEvent;
  *
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "com.willwinder.ugs.nbp.designer.actions.JogMachineToPreviousAction")
-@ActionRegistration(
-        iconBase = JogMachineToPreviousAction.SMALL_ICON_PATH,
-        displayName = "Jog machine to previous",
-        lazy = false)
 public class JogMachineToPreviousAction extends JogMachineToCenterAction {
     public static final String SMALL_ICON_PATH = "img/jog-to.svg";
     public static final String LARGE_ICON_PATH = "img/jog-to24.svg";
@@ -47,8 +37,8 @@ public class JogMachineToPreviousAction extends JogMachineToCenterAction {
         putValue(NAME, "Jog machine to previous");
         putValue(SHORT_DESCRIPTION, "Jog machine to previous");
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
     }
 
     @Override

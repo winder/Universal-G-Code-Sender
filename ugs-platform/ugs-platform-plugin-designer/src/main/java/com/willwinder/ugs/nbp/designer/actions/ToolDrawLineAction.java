@@ -21,31 +21,21 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import java.awt.event.ActionEvent;
 
 /**
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "ToolDrawPointAction")
-@ActionRegistration(
-        iconBase = ToolDrawPointAction.SMALL_ICON_PATH,
-        displayName = "Draw point",
-        lazy = false)
 public class ToolDrawLineAction extends AbstractDesignAction {
-    public static final String SMALL_ICON_PATH = "img/line.png";
-    public static final String LARGE_ICON_PATH = "img/line24.png";
+    public static final String SMALL_ICON_PATH = "img/line.svg";
+    public static final String LARGE_ICON_PATH = "img/line24.svg";
 
     public ToolDrawLineAction() {
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
         putValue("menuText", "Draw line");
         putValue(NAME, "Draw line");
     }

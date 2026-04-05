@@ -26,10 +26,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import java.awt.event.ActionEvent;
 import java.awt.geom.Area;
@@ -41,13 +38,6 @@ import java.util.List;
  *
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "UnionAction")
-@ActionRegistration(
-        iconBase = UnionAction.SMALL_ICON_PATH,
-        displayName = "Union",
-        lazy = false)
 public class UnionAction extends AbstractDesignAction implements SelectionListener {
     public static final String SMALL_ICON_PATH = "img/union.svg";
     public static final String LARGE_ICON_PATH = "img/union24.svg";
@@ -58,8 +48,8 @@ public class UnionAction extends AbstractDesignAction implements SelectionListen
         putValue(NAME, "Union");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SHORT_DESCRIPTION, "Unions two or more entities with each other");
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
 
         this.controller = ControllerFactory.getController();
         SelectionManager selectionManager = controller.getSelectionManager();

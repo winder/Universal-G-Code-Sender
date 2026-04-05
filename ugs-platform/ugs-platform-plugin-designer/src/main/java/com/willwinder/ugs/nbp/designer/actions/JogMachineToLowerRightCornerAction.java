@@ -19,14 +19,11 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
 import java.awt.geom.Rectangle2D;
@@ -36,13 +33,6 @@ import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 /**
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "JogMachineToLowerRightCornerAction")
-@ActionRegistration(
-        iconBase = JogMachineToLowerRightCornerAction.SMALL_ICON_PATH,
-        displayName = "Jog machine to lower right",
-        lazy = false)
 public class JogMachineToLowerRightCornerAction extends JogMachineAbstractAction {
     public static final String SMALL_ICON_PATH = "img/jog-to-lower-right.svg";
     public static final String LARGE_ICON_PATH = "img/jog-to-lower-right24.svg";
@@ -53,8 +43,8 @@ public class JogMachineToLowerRightCornerAction extends JogMachineAbstractAction
         putValue(NAME, "Jog to lower right corner");
         putValue(SHORT_DESCRIPTION, "Jog to lower right corner");
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
     }
 
     @Override

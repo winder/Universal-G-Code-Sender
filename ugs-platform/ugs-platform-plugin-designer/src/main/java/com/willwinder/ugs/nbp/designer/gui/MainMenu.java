@@ -56,7 +56,7 @@ public class MainMenu extends JMenuBar {
     private static final long serialVersionUID = 0;
 
     public MainMenu(Controller controller) {
-        JMenuItem newdrawing = new JMenuItem(new NewAction());
+        JMenuItem newDrawing = new JMenuItem(new NewAction());
         JMenuItem open = new JMenuItem(new OpenAction());
         JMenuItem save = new JMenuItem(new SaveAction(controller));
         JMenuItem export = new JMenuItem(new ExportPngAction(controller));
@@ -82,7 +82,7 @@ public class MainMenu extends JMenuBar {
 
         open.setAccelerator(Utilities.stringToKey("D-O"));
         save.setAccelerator(Utilities.stringToKey("D-S"));
-        newdrawing.setAccelerator(Utilities.stringToKey("D-N"));
+        newDrawing.setAccelerator(Utilities.stringToKey("D-N"));
         undo.setAccelerator(Utilities.stringToKey("D-Z"));
         redo.setAccelerator(Utilities.stringToKey("SD-Z"));
         quit.setAccelerator(Utilities.stringToKey("D-Q"));
@@ -97,7 +97,7 @@ public class MainMenu extends JMenuBar {
         printDesign.setAccelerator(Utilities.stringToKey("D-P"));
 
         JMenu fileMenu = new JMenu("File");
-        fileMenu.add(newdrawing);
+        fileMenu.add(newDrawing);
         fileMenu.add(open);
         fileMenu.add(save);
         fileMenu.addSeparator();
