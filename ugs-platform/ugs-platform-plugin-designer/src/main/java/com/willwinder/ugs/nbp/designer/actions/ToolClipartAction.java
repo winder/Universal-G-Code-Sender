@@ -23,10 +23,7 @@ import com.willwinder.ugs.nbp.designer.gui.clipart.InsertClipartDialog;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -35,14 +32,7 @@ import java.util.Optional;
 /**
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "ToolClipartAction")
-@ActionRegistration(
-        iconBase = ToolClipartAction.SMALL_ICON_PATH,
-        displayName = "Insert clipart",
-        lazy = false)
-public final class ToolClipartAction extends AbstractDesignAction {
+public class ToolClipartAction extends AbstractDesignAction {
 
     public static final String SMALL_ICON_PATH = "img/clipart.svg";
     public static final String LARGE_ICON_PATH = "img/clipart24.svg";

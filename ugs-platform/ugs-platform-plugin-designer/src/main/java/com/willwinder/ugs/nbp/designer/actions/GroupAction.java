@@ -8,10 +8,6 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -19,18 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@ActionID(
-        id = "com.willwinder.ugs.nbp.designer.actions.GroupAction",
-        category = "Edit")
-@ActionRegistration(
-        iconBase = GroupAction.SMALL_ICON_PATH,
-        displayName = "Group entities",
-        lazy = false)
-@ActionReferences({
-        @ActionReference(
-                path = "Shortcuts",
-                name = "D-G")
-})
 public class GroupAction extends AbstractDesignAction implements SelectionListener {
     public static final String SMALL_ICON_PATH = "img/folder.svg";
     private static final String LARGE_ICON_PATH = "img/folder24.svg";

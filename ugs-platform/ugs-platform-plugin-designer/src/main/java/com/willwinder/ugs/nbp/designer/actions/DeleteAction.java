@@ -25,9 +25,6 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -40,14 +37,6 @@ import java.util.List;
  *
  * @author Joacim Breiler
  */
-@ActionID(
-        id = "com.willwinder.ugs.nbp.designer.actions.DeleteAction",
-        category = "Edit")
-@ActionReferences({
-        @ActionReference(
-                path = "Shortcuts",
-                name = "BACK_SPACE")
-})
 public class DeleteAction extends AbstractDesignAction implements SelectionListener {
 
     private static final String SMALL_ICON_PATH = "img/delete.svg";

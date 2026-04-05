@@ -25,9 +25,6 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -39,13 +36,7 @@ import java.util.List;
  *
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "AlignTopAction")
-@ActionRegistration(
-        iconBase = AlignTopAction.SMALL_ICON_PATH,
-        displayName = "Align top",
-        lazy = false)
+
 public class AlignTopAction extends AbstractDesignAction implements SelectionListener {
     public static final String SMALL_ICON_PATH = "img/aligntop.svg";
     public static final String LARGE_ICON_PATH = "img/aligntop24.svg";

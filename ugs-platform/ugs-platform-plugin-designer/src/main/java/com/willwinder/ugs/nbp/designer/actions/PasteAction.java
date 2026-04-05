@@ -5,9 +5,6 @@ import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
@@ -19,14 +16,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@ActionID(
-        id = "com.willwinder.ugs.nbp.designer.actions.PasteAction",
-        category = "Edit")
-@ActionReferences({
-        @ActionReference(
-                path = "Shortcuts",
-                name = "D-V")
-})
 public class PasteAction extends AbstractDesignAction {
 
     private static final Logger LOGGER = Logger.getLogger(PasteAction.class.getSimpleName());

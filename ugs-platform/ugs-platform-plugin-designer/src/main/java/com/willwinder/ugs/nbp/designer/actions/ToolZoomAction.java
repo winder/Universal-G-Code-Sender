@@ -18,12 +18,8 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
-import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.ImageUtilities;
 
@@ -33,13 +29,6 @@ import java.awt.event.ActionEvent;
 /**
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "ToolZoomAction")
-@ActionRegistration(
-        iconBase = ToolZoomAction.ICON_SMALL_PATH,
-        displayName = "Zoom",
-        lazy = false)
 public class ToolZoomAction extends AbstractAction {
     public static final String ICON_SMALL_PATH = "img/zoom.svg";
     private static final String ICON_LARGE_PATH = "img/zoom24.svg";

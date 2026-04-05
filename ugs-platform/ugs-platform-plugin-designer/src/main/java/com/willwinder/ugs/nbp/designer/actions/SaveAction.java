@@ -35,7 +35,7 @@ public class SaveAction extends AbstractDesignAction {
     private static final String ICON_SMALL_PATH = "img/save.svg";
     private static final String ICON_LARGE_PATH = "img/save24.svg";
     private final transient Controller controller;
-    public static String UGSD_EXT = ".ugsd";
+    public static final String UGSD_EXT = ".ugsd";
     
     
     public SaveAction(Controller controller) {

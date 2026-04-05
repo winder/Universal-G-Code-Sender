@@ -21,9 +21,6 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -33,13 +30,6 @@ import java.awt.event.ActionEvent;
  *
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "ToolVertexAction")
-@ActionRegistration(
-        iconBase = ToolVertextAction.SMALL_ICON_PATH,
-        displayName = "Vertex",
-        lazy = false)
 public class ToolVertextAction extends AbstractDesignAction {
     public static final String SMALL_ICON_PATH = "img/select-vertex.svg";
     public static final String LARGE_ICON_PATH = "img/select-vertex24.svg";

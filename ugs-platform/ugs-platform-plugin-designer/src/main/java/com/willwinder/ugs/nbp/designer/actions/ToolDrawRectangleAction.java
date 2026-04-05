@@ -21,9 +21,6 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -31,13 +28,6 @@ import java.awt.event.ActionEvent;
 /**
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "ToolDrawRectangleAction")
-@ActionRegistration(
-        iconBase = ToolDrawRectangleAction.SMALL_ICON_PATH,
-        displayName = "Draw Rectangle",
-        lazy = false)
 public class ToolDrawRectangleAction extends AbstractDesignAction {
     public static final String SMALL_ICON_PATH = "img/rectangle.png";
     public static final String LARGE_ICON_PATH = "img/rectangle24.png";

@@ -21,11 +21,6 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
-import org.openide.awt.ActionRegistration;
 
 import java.awt.event.ActionEvent;
 import java.util.Collections;
@@ -34,17 +29,6 @@ import java.util.List;
 /**
  * @author Joacim Breiler
  */
-@ActionID(
-        id = "com.willwinder.ugs.nbp.designer.actions.SelectNextAction",
-        category = LocalizingService.CATEGORY_DESIGNER)
-@ActionRegistration(
-        displayName = "Select next",
-        lazy = false)
-@ActionReferences({
-        @ActionReference(
-                path = "Shortcuts",
-                name = "SD-N")
-})
 public class SelectNextAction extends AbstractSelectAction {
 
     public SelectNextAction() {

@@ -21,11 +21,7 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
@@ -34,13 +30,6 @@ import java.awt.event.ActionEvent;
 /**
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "ClearSelectionAction")
-@ActionRegistration(
-        iconBase = ClearSelectionAction.SMALL_ICON_PATH,
-        displayName = "Clear selection",
-        lazy = false)
 public class ClearSelectionAction extends AbstractAction implements SelectionListener {
 
     public static final String SMALL_ICON_PATH = "img/clear-selection.svg";

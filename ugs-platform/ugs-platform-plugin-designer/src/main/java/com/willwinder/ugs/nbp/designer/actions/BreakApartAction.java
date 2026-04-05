@@ -27,13 +27,10 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.Shape;
@@ -50,13 +47,7 @@ import java.util.stream.Collectors;
  *
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "BreakApartAction")
-@ActionRegistration(
-        iconBase = BreakApartAction.SMALL_ICON_PATH,
-        displayName = "Break apart",
-        lazy = false)
+
 public class BreakApartAction extends AbstractDesignAction implements SelectionListener {
     public static final String SMALL_ICON_PATH = "img/break.svg";
     public static final String LARGE_ICON_PATH = "img/break24.svg";

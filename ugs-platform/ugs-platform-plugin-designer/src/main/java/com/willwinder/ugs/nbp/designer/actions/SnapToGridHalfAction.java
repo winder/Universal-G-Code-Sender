@@ -18,26 +18,13 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import java.awt.event.ActionEvent;
-import static javax.swing.Action.LARGE_ICON_KEY;
-import static javax.swing.Action.NAME;
-import static javax.swing.Action.SMALL_ICON;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "SnapToGridHalfAction")
-@ActionRegistration(
-        iconBase = SnapToGridHalfAction.SMALL_ICON_PATH,
-        displayName = "Snap to 0.5mm grid",
-        lazy = false)
+import java.awt.event.ActionEvent;
+
 public class SnapToGridHalfAction extends AbstractDesignAction {
-    public static final String SMALL_ICON_PATH = "img/snap_to_grid__5mm_16.png";
-    public static final String LARGE_ICON_PATH = "img/snap_to_grid__5mm_24.png";
+    public static final String SMALL_ICON_PATH = "img/snap_to_grid__5mm_16.svg";
+    public static final String LARGE_ICON_PATH = "img/snap_to_grid__5mm_24.svg";
 
     public SnapToGridHalfAction() {
         putValue("iconBase", SMALL_ICON_PATH);

@@ -19,15 +19,15 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
 import com.google.common.io.Files;
-import com.willwinder.ugs.nbp.designer.actions.CopyAction;
 import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
-import com.willwinder.ugs.nbp.designer.actions.PasteAction;
 import com.willwinder.ugs.nbp.designer.actions.RedoAction;
 import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
 import com.willwinder.ugs.nbp.designer.actions.UndoAction;
 import com.willwinder.ugs.nbp.designer.io.DesignWriter;
 import com.willwinder.ugs.nbp.designer.io.gcode.GcodeDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.nbp.designer.platform.actions.CopyAction;
+import com.willwinder.ugs.nbp.designer.platform.actions.PasteAction;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.util.Utilities;

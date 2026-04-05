@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.actions.BreakApartAction;
 import com.willwinder.ugs.nbp.designer.actions.ClearSelectionAction;
-import com.willwinder.ugs.nbp.designer.actions.CopyAction;
 import com.willwinder.ugs.nbp.designer.actions.DeleteAction;
 import com.willwinder.ugs.nbp.designer.actions.FlipHorizontallyAction;
 import com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction;
@@ -31,13 +30,14 @@ import com.willwinder.ugs.nbp.designer.actions.JogMachineToLowerLeftCornerAction
 import com.willwinder.ugs.nbp.designer.actions.JogMachineToLowerRightCornerAction;
 import com.willwinder.ugs.nbp.designer.actions.JogMachineToTopLeftCornerAction;
 import com.willwinder.ugs.nbp.designer.actions.JogMachineToTopRightCornerAction;
-import com.willwinder.ugs.nbp.designer.actions.PasteAction;
 import com.willwinder.ugs.nbp.designer.actions.RenameAction;
 import com.willwinder.ugs.nbp.designer.actions.SelectAllAction;
 import com.willwinder.ugs.nbp.designer.actions.StitchAction;
 import com.willwinder.ugs.nbp.designer.actions.SubtractAction;
 import com.willwinder.ugs.nbp.designer.actions.ToggleHidden;
 import com.willwinder.ugs.nbp.designer.actions.UnionAction;
+import com.willwinder.ugs.nbp.designer.actions.CopyAction;
+import com.willwinder.ugs.nbp.designer.actions.PasteAction;
 
 import javax.swing.JPopupMenu;
 

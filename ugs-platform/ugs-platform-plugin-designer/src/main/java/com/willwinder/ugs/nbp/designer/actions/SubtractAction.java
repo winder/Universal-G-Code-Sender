@@ -27,9 +27,6 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -42,13 +39,6 @@ import java.util.List;
  *
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "SubtractAction")
-@ActionRegistration(
-        iconBase = SubtractAction.SMALL_ICON_PATH,
-        displayName = "Subtract",
-        lazy = false)
 public class SubtractAction extends AbstractDesignAction implements SelectionListener {
     public static final String SMALL_ICON_PATH = "img/subtract.svg";
     public static final String LARGE_ICON_PATH = "img/subtract24.svg";

@@ -21,9 +21,6 @@ package com.willwinder.ugs.nbp.designer.actions;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -31,13 +28,6 @@ import java.awt.event.ActionEvent;
 /**
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "ToolDrawCircleAction")
-@ActionRegistration(
-        iconBase = ToolDrawCircleAction.ICON_SMALL_PATH,
-        displayName = "Draw ellipse",
-        lazy = false)
 public class ToolDrawCircleAction extends AbstractDesignAction {
     public static final String ICON_SMALL_PATH = "img/circle.svg";
     public static final String ICON_LARGE_PATH = "img/circle24.svg";

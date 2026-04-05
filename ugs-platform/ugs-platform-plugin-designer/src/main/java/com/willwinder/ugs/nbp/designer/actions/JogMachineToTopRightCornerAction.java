@@ -19,13 +19,10 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -36,13 +33,6 @@ import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 /**
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "JogMachineToTopRightCornerAction")
-@ActionRegistration(
-        iconBase = JogMachineToTopRightCornerAction.SMALL_ICON_PATH,
-        displayName = "Jog machine to top right",
-        lazy = false)
 public class JogMachineToTopRightCornerAction extends JogMachineAbstractAction {
     public static final String SMALL_ICON_PATH = "img/jog-to-top-right.svg";
     public static final String LARGE_ICON_PATH = "img/jog-to-top-right24.svg";

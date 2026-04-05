@@ -24,10 +24,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.gui.OffsetDialog;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -35,13 +32,6 @@ import java.awt.event.ActionEvent;
 /**
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "ToolDrawOffsetAction")
-@ActionRegistration(
-        iconBase = OffsetAction.SMALL_ICON_PATH,
-        displayName = "Draw Offset",
-        lazy = false)
 public class OffsetAction extends AbstractDesignAction implements SelectionListener {
     public static final String SMALL_ICON_PATH = "img/offset.svg";
     public static final String LARGE_ICON_PATH = "img/offset.svg";

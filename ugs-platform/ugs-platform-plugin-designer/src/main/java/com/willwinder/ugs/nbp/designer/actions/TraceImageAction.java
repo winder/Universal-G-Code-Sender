@@ -23,10 +23,7 @@ import com.willwinder.ugs.nbp.designer.gui.imagetracer.ImageTracerDialog;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
@@ -35,13 +32,6 @@ import java.util.List;
 /**
  * @author Joacim Breiler
  */
-@ActionID(
-        category = LocalizingService.CATEGORY_DESIGNER,
-        id = "TraceImageAction")
-@ActionRegistration(
-        iconBase = TraceImageAction.SMALL_ICON_PATH,
-        displayName = "Import Depth Map",
-        lazy = false)
 public class TraceImageAction extends AbstractDesignAction {
 
     public static final String SMALL_ICON_PATH = "img/trace.svg";
