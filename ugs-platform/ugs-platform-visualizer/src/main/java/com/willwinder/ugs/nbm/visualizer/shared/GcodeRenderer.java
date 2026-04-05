@@ -33,12 +33,12 @@ import com.willwinder.ugs.nbm.visualizer.renderables.MachineBoundries;
 import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
 import com.willwinder.ugs.nbm.visualizer.renderables.OrientationCube;
 import com.willwinder.ugs.nbm.visualizer.renderables.Tool;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import org.openide.util.lookup.ServiceProvider;
@@ -143,7 +143,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     }
 
     private void listenForSettingsEvents() {
-        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         Settings settings = backendAPI.getSettings();
         invertZoom = settings.isInvertMouseZoom();
 

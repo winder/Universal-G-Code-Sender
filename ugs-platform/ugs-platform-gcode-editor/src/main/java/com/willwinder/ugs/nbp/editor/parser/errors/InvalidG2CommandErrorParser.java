@@ -20,10 +20,10 @@ package com.willwinder.ugs.nbp.editor.parser.errors;
 
 import com.willwinder.ugs.nbp.editor.lexer.GcodeTokenId;
 import com.willwinder.ugs.nbp.editor.parser.GcodeError;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.TinyGController;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.csl.api.Severity;
 import org.openide.filesystems.FileObject;
@@ -38,7 +38,7 @@ public class InvalidG2CommandErrorParser implements ErrorParser {
 
     public InvalidG2CommandErrorParser(FileObject fileObject) {
         this.fileObject = fileObject;
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this.backend = LookupService.lookup(BackendAPI.class);
     }
 
     @Override

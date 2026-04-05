@@ -18,29 +18,31 @@
  */
 package com.willwinder.ugs.nbp;
 
-import static com.willwinder.ugs.nbp.CloudStorageSettingsPanel.S3_ID;
-import static com.willwinder.ugs.nbp.CloudStorageSettingsPanel.S3_SECRET;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.prefs.Preferences;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.Lookup;
 import org.openide.util.NbPreferences;
+
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.Preferences;
+
+import static com.willwinder.ugs.nbp.CloudStorageSettingsPanel.S3_ID;
+import static com.willwinder.ugs.nbp.CloudStorageSettingsPanel.S3_SECRET;
 
 @ActionID(
 	category = CloudStorageOpenAction.CATEGORY,
@@ -68,7 +70,7 @@ public final class CloudStorageOpenAction implements ActionListener {
     private final BackendAPI backend;
 
     public CloudStorageOpenAction() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
 
         ActionRegistrationService ars = Lookup.getDefault().lookup(ActionRegistrationService.class);
         if (ars != null) {

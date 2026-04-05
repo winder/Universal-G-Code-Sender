@@ -18,14 +18,14 @@
  */
 package com.willwinder.ugs.nbp.joystick.action;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.firmware.IOverrideManager;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.OverrideType;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
-import com.willwinder.universalgcodesender.firmware.IOverrideManager;
+import com.willwinder.universalgcodesender.services.LookupService;
 
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
@@ -44,7 +44,7 @@ public abstract class AnalogOverrideAction extends AbstractAction implements Ana
         this.overrideType = overrideType;
         setEnabled(false);
 
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
     }
 

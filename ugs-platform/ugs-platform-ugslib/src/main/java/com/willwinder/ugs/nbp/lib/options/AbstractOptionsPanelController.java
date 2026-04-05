@@ -18,27 +18,28 @@
  */
 package com.willwinder.ugs.nbp.lib.options;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
 import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
 public abstract class AbstractOptionsPanelController extends OptionsPanelController implements IChanged {
 
-    private AbstractUGSSettings panel;
+    private final AbstractUGSSettings panel;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private boolean changed;
     protected Settings settings;
 
     public AbstractOptionsPanelController() {
-        settings = CentralLookup.getDefault().lookup(Settings.class);
+        settings = LookupService.lookup(Settings.class);
         panel = initPanel();
         panel.updateComponents(settings);
     }

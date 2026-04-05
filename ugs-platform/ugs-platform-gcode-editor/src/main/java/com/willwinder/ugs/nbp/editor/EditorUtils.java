@@ -18,8 +18,8 @@
  */
 package com.willwinder.ugs.nbp.editor;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 
@@ -40,7 +40,7 @@ public class EditorUtils {
      * @param fileObject the file object to load
      */
     public static void openFile(FileObject fileObject) {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         try {
             backend.setGcodeFile(new File((fileObject.getPath())));
         } catch (Exception e) {
@@ -57,7 +57,7 @@ public class EditorUtils {
         }
 
         try {
-            BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+            BackendAPI backend = LookupService.lookup(BackendAPI.class);
             backend.unsetGcodeFile();
         } catch (Exception e) {
             ErrorManager.getDefault().notify(ErrorManager.WARNING, e);

@@ -1,6 +1,6 @@
 package com.willwinder.universalgcodesender.fx.component.dro;
 
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -33,7 +33,7 @@ public class MachineStatusPane extends GridPane {
     public MachineStatusPane() {
         int row = 0;
         getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/dro.css")).toExternalForm());
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onUGSEvent);
         setMaxWidth(Double.MAX_VALUE);
 
@@ -150,6 +150,7 @@ public class MachineStatusPane extends GridPane {
                 label.setDisable(controllerState != ControllerState.IDLE);
             });
 
+            if (backend.getController() == null) return;
             feedRate.setText(String.format("%d", Math.round(backend.getController().getControllerStatus().getFeedSpeed())));
             spindleSpeed.setText(String.format("%d", Math.round(backend.getController().getControllerStatus().getSpindleSpeed())));
         });

@@ -18,8 +18,9 @@ along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.willwinder.ugs.nbp.setupwizard;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.GUIBackend;
+import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.utils.Settings;
 
 /**
  * A test program for starting the setup wizard
@@ -27,8 +28,10 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
  * @author Joacim Breiler
  */
 public class SetupWizardTest {
-    public static void main(String[] args) {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        WizardStarter.openWizard(backend);
+    public static void main(String[] args) throws Exception {
+        GUIBackend guiBackend = new GUIBackend();
+        guiBackend.applySettings(new Settings());
+        LookupService.register(guiBackend);
+        WizardStarter.openWizard(guiBackend);
     }
 }

@@ -16,10 +16,10 @@
  */
 package com.willwinder.ugs.nbp.editor.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.ActionReferenceLocalizer;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.services.RunFromService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.netbeans.api.editor.EditorRegistry;
@@ -46,7 +46,7 @@ public final class RunFromHere implements ActionListener {
     private final RunFromService runFromService;
 
     public RunFromHere() {
-        this.runFromService = CentralLookup.getDefault().lookup(RunFromService.class);
+        this.runFromService = LookupService.lookup(RunFromService.class);
     }
 
     @OnStart

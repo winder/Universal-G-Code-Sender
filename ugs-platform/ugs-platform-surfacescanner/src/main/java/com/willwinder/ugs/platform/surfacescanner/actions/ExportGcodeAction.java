@@ -18,10 +18,7 @@
  */
 package com.willwinder.ugs.platform.surfacescanner.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
-import static com.willwinder.ugs.platform.surfacescanner.Utils.createCommandProcessor;
-import static com.willwinder.ugs.platform.surfacescanner.Utils.fileChooser;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessorList;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
@@ -31,6 +28,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamWriter;
@@ -47,6 +45,9 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.willwinder.ugs.platform.surfacescanner.Utils.createCommandProcessor;
+import static com.willwinder.ugs.platform.surfacescanner.Utils.fileChooser;
+
 /**
  * An action that will export the currently loaded gcode with the applied surface scan
  *
@@ -60,7 +61,7 @@ public class ExportGcodeAction extends AbstractAction implements UGSEventListene
 
     public ExportGcodeAction(SurfaceScanner surfaceScanner) {
         this.surfaceScanner = surfaceScanner;
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
 
         String title = Localization.getString("autoleveler.panel.export");

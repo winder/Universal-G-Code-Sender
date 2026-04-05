@@ -22,8 +22,8 @@ import com.willwinder.ugp.welcome.content.AbstractTab;
 import com.willwinder.ugp.welcome.content.JLinkButton;
 import com.willwinder.ugs.nbp.core.actions.OpenAction;
 import com.willwinder.ugs.nbp.core.actions.OpenFileAction;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import net.miginfocom.swing.MigLayout;
 
@@ -49,7 +49,7 @@ public class RecentWorkTab extends AbstractTab {
 
     public RecentWorkTab() {
         super("Recent Work");
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
     }
 
     @Override

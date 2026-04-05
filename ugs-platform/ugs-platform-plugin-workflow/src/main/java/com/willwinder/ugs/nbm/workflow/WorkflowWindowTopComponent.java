@@ -22,7 +22,6 @@ package com.willwinder.ugs.nbm.workflow;
 import com.willwinder.ugs.nbm.workflow.model.WorkflowFile;
 import com.willwinder.ugs.nbp.core.actions.OpenFileAction;
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -31,6 +30,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.StreamEvent;
 import com.willwinder.universalgcodesender.model.events.StreamEventType;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -76,7 +76,7 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
         // This is how to access the UGS backend and register the listener.
         // CentralLookup is used to get singleton instances of the UGS Settings
         // and BackendAPI objects.
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
 
         setLayout(new BorderLayout());
         add(workflowPanel, BorderLayout.CENTER);

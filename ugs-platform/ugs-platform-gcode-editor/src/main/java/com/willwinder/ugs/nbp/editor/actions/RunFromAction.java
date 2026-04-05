@@ -20,12 +20,12 @@
 package com.willwinder.ugs.nbp.editor.actions;
 
 import com.willwinder.ugs.nbp.editor.GcodeDataObject;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.services.RunFromService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
@@ -36,8 +36,9 @@ import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.actions.CookieAction;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import java.awt.EventQueue;
 
 @ActionID(
         category = LocalizingService.RunFromCategory,
@@ -59,9 +60,9 @@ public final class RunFromAction extends CookieAction implements UGSEventListene
     private final transient BackendAPI backend;
 
     public RunFromAction() {
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this.backend = LookupService.lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
-        this.runFromService = CentralLookup.getDefault().lookup(RunFromService.class);
+        this.runFromService = LookupService.lookup(RunFromService.class);
         setEnabled(isEnabled());
     }
 

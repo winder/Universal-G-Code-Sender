@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.Axis;
@@ -38,7 +38,7 @@ public class ReturnToAxisZeroAction extends BaseAction {
     public ReturnToAxisZeroAction(Axis axis) {
         super(Localization.getString("mainWindow.swing.returnToZeroButton"), Localization.getString("mainWindow.swing.returnToZeroButton"), Localization.getString("actions.category.machine"), ICON_BASE);
         this.axis = axis;
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(canExecuteAction());
     }

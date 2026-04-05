@@ -2,13 +2,15 @@ package com.willwinder.ugs.nbm.workflow.actions;
 
 import com.willwinder.ugs.nbm.workflow.WorkflowPanel;
 import com.willwinder.ugs.nbm.workflow.WorkflowWindowTopComponent;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JFileChooser;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
@@ -29,7 +31,7 @@ public class AddGcodeFileAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
+        Settings settings = LookupService.lookup(Settings.class);
         JFileChooser fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(settings.getLastOpenedFilename());
 
         int returnVal = fileChooser.showOpenDialog(workflowPanel);

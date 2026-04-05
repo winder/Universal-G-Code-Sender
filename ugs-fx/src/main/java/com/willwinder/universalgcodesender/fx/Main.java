@@ -25,7 +25,7 @@ import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
 import com.willwinder.universalgcodesender.fx.component.dro.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
@@ -71,7 +71,7 @@ public class Main extends Application {
     public void init() throws Exception {
         GUIBackend backend = new GUIBackend();
         backend.applySettings(SettingsFactory.loadSettings());
-        CentralLookup.register(backend);
+        LookupService.register(backend);
         Localization.initialize(backend.getSettings().getLanguage());
 
         try {
@@ -120,7 +120,7 @@ public class Main extends Application {
 
         Parameters params = getParameters();
         if (!params.getUnnamed().isEmpty()) {
-            BackendAPI backendAPI = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+            BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
             try {
                 File file = new File(params.getUnnamed().get(0));
                 backendAPI.setGcodeFile(file);

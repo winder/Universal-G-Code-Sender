@@ -26,9 +26,9 @@ import com.willwinder.ugs.nbp.joystick.ui.BindActionButton;
 import com.willwinder.ugs.nbp.joystick.ui.JoystickOptionsActivateRow;
 import com.willwinder.ugs.nbp.joystick.ui.ReverseAxisCheckBox;
 import com.willwinder.ugs.nbp.joystick.ui.StatusLabel;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.services.LookupService;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JCheckBox;
@@ -59,7 +59,7 @@ public class JoystickOptionsPanel extends AbstractOptionsPanel implements Joysti
 
     JoystickOptionsPanel(JoystickOptionsPanelController controller) {
         super(controller);
-        joystickService = CentralLookup.getDefault().lookup(JoystickService.class);
+        joystickService = LookupService.lookup(JoystickService.class);
         joystickService.addListener(this);
         setLayout(new MigLayout("fill"));
         removeAll();

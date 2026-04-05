@@ -77,7 +77,7 @@ public final class ${artifactId}TopComponent extends TopComponent {
     setName(${artifactId}Title);
     setToolTipText(${artifactId}Tooltip);
 
-    backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+    backend = LookupService.lookup(BackendAPI.class);
 
     setLayout(new BorderLayout());
     add(new JLabel("Hello ${artifactId}!"), BorderLayout.CENTER);

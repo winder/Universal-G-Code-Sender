@@ -18,9 +18,9 @@
  */
 package com.willwinder.ugs.nbp.core.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -49,7 +49,7 @@ public class ConfigureFirmwareAction extends com.willwinder.universalgcodesender
     public static final String ICON_BASE = "resources/icons/firmware.svg";
 
     public ConfigureFirmwareAction() {
-        super(CentralLookup.getDefault().lookup(BackendAPI.class));
+        super(LookupService.lookup(BackendAPI.class));
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));

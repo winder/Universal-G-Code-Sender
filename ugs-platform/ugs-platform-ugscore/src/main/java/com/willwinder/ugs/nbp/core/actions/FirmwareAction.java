@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbp.core.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -26,6 +25,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
@@ -64,7 +64,7 @@ public class FirmwareAction extends CallableSystemAction implements UGSEventList
     private JComboBox<String> firmwareCombo;
 
     public FirmwareAction() {
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this.backend = LookupService.lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
 
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));

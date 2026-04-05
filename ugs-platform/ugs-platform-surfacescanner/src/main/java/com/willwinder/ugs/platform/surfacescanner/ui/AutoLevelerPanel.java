@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.platform.surfacescanner.ui;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.platform.surfacescanner.MeshLevelManager;
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
 import com.willwinder.ugs.platform.surfacescanner.Utils;
@@ -31,6 +30,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.components.PercentSpinner;
 import com.willwinder.universalgcodesender.uielements.components.Spinner;
 import com.willwinder.universalgcodesender.utils.AutoLevelSettings;
@@ -253,12 +253,12 @@ public class AutoLevelerPanel extends JPanel {
     }
 
     public Position getMinPosition() {
-        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         return new Position(xMin.getDoubleValue(), yMin.getDoubleValue(), zMin.getDoubleValue(), backendAPI.getSettings().getPreferredUnits());
     }
 
     public Position getMaxPosition() {
-        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         return new Position(xMax.getDoubleValue(), yMax.getDoubleValue(), zMax.getDoubleValue(), backendAPI.getSettings().getPreferredUnits());
     }
 

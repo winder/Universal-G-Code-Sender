@@ -19,9 +19,9 @@
 package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.core.services.FileFilterService;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.FileOpenDialog;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -61,11 +61,11 @@ public final class OpenAction extends AbstractAction {
     private final FileOpenDialog fileOpenDialog;
 
     public OpenAction() {
-        this(CentralLookup.getDefault().lookup(BackendAPI.class).getSettings().getLastOpenedFilename());
+        this(LookupService.lookup(BackendAPI.class).getSettings().getLastOpenedFilename());
     }
 
     public OpenAction(String directory) {
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this.backend = LookupService.lookup(BackendAPI.class);
         this.fileFilterService = Lookup.getDefault().lookup(FileFilterService.class);
 
         putValue("iconBase", ICON_BASE);

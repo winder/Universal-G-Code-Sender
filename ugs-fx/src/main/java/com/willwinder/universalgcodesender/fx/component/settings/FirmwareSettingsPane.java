@@ -19,7 +19,7 @@
 package com.willwinder.universalgcodesender.fx.component.settings;
 
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -44,7 +44,7 @@ public class FirmwareSettingsPane extends BorderPane {
     private Label notConnectedLabel;
 
     public FirmwareSettingsPane() {
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backend = LookupService.lookup(BackendAPI.class);
 
         addTitleSection();
         addFirmwareSettingsTable();

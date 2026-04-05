@@ -18,11 +18,13 @@
  */
 package com.willwinder.ugs.platform.surfacescanner;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.GUIBackend;
+import com.willwinder.universalgcodesender.services.LookupService;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+import java.awt.Dimension;
 
 /**
  * A small program for testing the UI
@@ -30,7 +32,7 @@ import java.awt.*;
 public class AutoLevelerTestMain extends JFrame {
 
     public static void main(String[] args) throws Exception {
-        CentralLookup.getDefault().add(new GUIBackend());
+        LookupService.register(new GUIBackend());
 
         AutoLevelerTestMain autoLevelerTestMain = new AutoLevelerTestMain();
         autoLevelerTestMain.start();

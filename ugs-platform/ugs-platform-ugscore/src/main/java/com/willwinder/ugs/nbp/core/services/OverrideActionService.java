@@ -18,11 +18,18 @@
  */
 package com.willwinder.ugs.nbp.core.services;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.ServiceProvider;
+
+import java.io.IOException;
+
 import static com.willwinder.universalgcodesender.uielements.panels.OverrideLabels.FLOOD;
 import static com.willwinder.universalgcodesender.uielements.panels.OverrideLabels.MINUS_COARSE;
 import static com.willwinder.universalgcodesender.uielements.panels.OverrideLabels.MINUS_FINE;
@@ -34,12 +41,6 @@ import static com.willwinder.universalgcodesender.uielements.panels.OverrideLabe
 import static com.willwinder.universalgcodesender.uielements.panels.OverrideLabels.RAPID_MEDIUM;
 import static com.willwinder.universalgcodesender.uielements.panels.OverrideLabels.RESET_FEED;
 import static com.willwinder.universalgcodesender.uielements.panels.OverrideLabels.SPINDLE_SHORT;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
-import org.openide.util.lookup.ServiceProvider;
-
-import java.io.IOException;
 
 /**
  * A service for registering override actions as shortcuts
@@ -56,7 +57,7 @@ public class OverrideActionService {
     private final BackendAPI backend;
 
     public OverrideActionService() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         initActions();
     }
 

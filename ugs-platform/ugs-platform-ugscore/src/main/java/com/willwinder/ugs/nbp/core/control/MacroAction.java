@@ -18,13 +18,13 @@
  */
 package com.willwinder.ugs.nbp.core.control;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +55,7 @@ public class MacroAction extends AbstractAction implements Serializable {
 
     private BackendAPI getBackend() {
         if (backend == null) {
-            backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+            backend = LookupService.lookup(BackendAPI.class);
             backend.addUGSEventListener(this::onEvent);
         }
         return backend;

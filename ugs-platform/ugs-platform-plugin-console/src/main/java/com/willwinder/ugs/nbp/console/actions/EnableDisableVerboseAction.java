@@ -18,12 +18,12 @@
  */
 package com.willwinder.ugs.nbp.console.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
@@ -36,7 +36,7 @@ public class EnableDisableVerboseAction extends AbstractAction implements UGSEve
     private final transient BackendAPI backend;
 
     public EnableDisableVerboseAction() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
         setEnabled(true);
         updateName();

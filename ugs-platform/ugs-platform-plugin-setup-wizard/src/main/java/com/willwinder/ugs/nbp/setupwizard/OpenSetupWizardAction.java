@@ -18,9 +18,9 @@
  */
 package com.willwinder.ugs.nbp.setupwizard;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -45,10 +45,10 @@ import java.awt.event.ActionEvent;
 public class OpenSetupWizardAction extends AbstractAction {
 
     public static final String ICON_BASE = "icons/wizard.png";
-    private BackendAPI backend;
+    private final BackendAPI backend;
 
     public OpenSetupWizardAction() {
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this.backend = LookupService.lookup(BackendAPI.class);
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));

@@ -22,21 +22,22 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_SIZE;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_SIZE_DISPLAY;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
+
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_SIZE;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_SIZE_DISPLAY;
 
 /**
  * Display some lines and measurements for the current objects size.
@@ -56,7 +57,7 @@ public class SizeDisplay extends Renderable implements UGSEventListener {
     public SizeDisplay(String title) {
         super(8, title, VISUALIZER_OPTION_SIZE_DISPLAY);
         reloadPreferences(new VisualizerOptions());
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         units = backend.getSettings().getPreferredUnits();
         backend.addUGSEventListener(this);
     }

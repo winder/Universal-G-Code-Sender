@@ -18,13 +18,14 @@
 */
 package com.willwinder.ugs.nbp.editor;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileRenameEvent;
+
 import java.io.Serializable;
 
 /**
@@ -46,7 +47,7 @@ public class GcodeFileListener implements FileChangeListener, Serializable {
     @Override
     public void fileChanged(FileEvent fe) {
         try {
-            BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+            BackendAPI backend = LookupService.lookup(BackendAPI.class);
             // Do not reload the file if the machine is running.
             if (backend.isIdle() || !backend.isConnected()) {
                 backend.reloadGcodeFile();

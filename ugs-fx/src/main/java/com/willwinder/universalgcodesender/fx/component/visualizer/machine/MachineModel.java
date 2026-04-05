@@ -1,7 +1,7 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.machine;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.PositionAnimatorTimer;
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
@@ -30,7 +30,7 @@ public abstract class MachineModel extends Group {
     private final BackendAPI backend;
 
     public MachineModel() {
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
 
         updateControllerSettings();

@@ -18,18 +18,18 @@
  */
 package com.willwinder.ugs.nbp.core.statusline;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.Settings;
-import java.awt.Component;
-import javax.swing.JLabel;
 import org.openide.awt.StatusLineElementProvider;
 import org.openide.util.lookup.ServiceProvider;
+
+import javax.swing.JLabel;
+import java.awt.Component;
 
 /**
  *
@@ -39,7 +39,7 @@ import org.openide.util.lookup.ServiceProvider;
 public class JogStatusLineService implements StatusLineElementProvider {
     @Override
     public Component getStatusLineElement() {
-        JogStatusLine jogStatusLine = new JogStatusLine(CentralLookup.getDefault().lookup(BackendAPI.class));
+        JogStatusLine jogStatusLine = new JogStatusLine(LookupService.lookup(BackendAPI.class));
         return new SeparatorPanel(jogStatusLine);
     }
 

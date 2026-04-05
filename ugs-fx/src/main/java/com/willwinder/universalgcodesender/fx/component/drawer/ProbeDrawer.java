@@ -20,7 +20,7 @@ package com.willwinder.universalgcodesender.fx.component.drawer;
 
 import com.willwinder.universalgcodesender.fx.component.probe.ProbeZPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.ProbeZModel;
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
 import com.willwinder.universalgcodesender.fx.service.probe.ProbeService;
 import com.willwinder.universalgcodesender.fx.settings.ProbeSettings;
@@ -32,7 +32,7 @@ public class ProbeDrawer extends Drawer {
     private final ProbeZModel probeModel;
 
     public ProbeDrawer() {
-        BackendAPI backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(new ProbeZPane(backend));
         getChildren().add(borderPane);

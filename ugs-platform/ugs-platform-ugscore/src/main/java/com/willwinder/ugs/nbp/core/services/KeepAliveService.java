@@ -18,8 +18,8 @@
  */
 package com.willwinder.ugs.nbp.core.services;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.KeepAwakeUtils;
 import org.openide.modules.OnStart;
 import org.openide.util.lookup.ServiceProvider;
@@ -34,7 +34,7 @@ import org.openide.util.lookup.ServiceProvider;
 public class KeepAliveService implements Runnable {
     @Override
     public void run() {
-        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         KeepAwakeUtils.start(backendAPI);
     }
 }

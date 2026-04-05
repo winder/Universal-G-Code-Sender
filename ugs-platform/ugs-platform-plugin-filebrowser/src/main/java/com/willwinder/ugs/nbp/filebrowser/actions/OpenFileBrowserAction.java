@@ -19,7 +19,6 @@
 package com.willwinder.ugs.nbp.filebrowser.actions;
 
 import com.willwinder.ugs.nbp.filebrowser.FileBrowserDialog;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.CapabilitiesConstants;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -27,6 +26,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -58,7 +58,7 @@ public final class OpenFileBrowserAction extends AbstractAction implements UGSEv
     private final BackendAPI backend;
 
     public OpenFileBrowserAction() {
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this.backend = LookupService.lookup(BackendAPI.class);
 
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
@@ -80,7 +80,7 @@ public final class OpenFileBrowserAction extends AbstractAction implements UGSEv
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         FileBrowserDialog dialog = new FileBrowserDialog(backendAPI.getController().getFileService());
         dialog.setLocationRelativeTo(SwingUtilities.getWindowAncestor((Component) e.getSource()));
         ThreadHelper.invokeLater(dialog::showDialog);

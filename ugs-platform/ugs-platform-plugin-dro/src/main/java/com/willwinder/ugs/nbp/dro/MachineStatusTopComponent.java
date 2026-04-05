@@ -21,13 +21,13 @@ package com.willwinder.ugs.nbp.dro;
 import com.willwinder.ugs.nbp.dro.panels.DROPopup;
 import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.ugs.nbp.dro.panels.MachineStatusPanel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
@@ -60,7 +60,7 @@ import javax.swing.*;
 public final class MachineStatusTopComponent extends TopComponent {
 
     public MachineStatusTopComponent() {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         setLayout(new BorderLayout());
         JScrollPane scrollPane = new JScrollPane(new MachineStatusPanel(backend), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(scrollPane, BorderLayout.CENTER);

@@ -18,13 +18,13 @@
  */
 package com.willwinder.ugs.nbp.core.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -57,7 +57,7 @@ public final class StartAction extends ProgramAction implements UGSEventListener
     private final transient BackendAPI backend;
 
     public StartAction() {
-        this(CentralLookup.getDefault().lookup(BackendAPI.class));
+        this(LookupService.lookup(BackendAPI.class));
     }
 
     public StartAction(BackendAPI backendAPI) {

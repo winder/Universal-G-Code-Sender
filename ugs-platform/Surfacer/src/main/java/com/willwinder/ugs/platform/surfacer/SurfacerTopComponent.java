@@ -17,25 +17,24 @@
 package com.willwinder.ugs.platform.surfacer;
 
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import static com.willwinder.ugs.platform.surfacer.Prefs.PREFS;
-
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
-import com.willwinder.universalgcodesender.model.Unit;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
-
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.TopComponent;
+
+import static com.willwinder.ugs.platform.surfacer.Prefs.PREFS;
 
 
 /**
@@ -80,7 +79,7 @@ public final class SurfacerTopComponent extends TopComponent implements UGSEvent
         setName(Bundle.CTL_SurfacerTopComponent());
         setToolTipText(Bundle.HINT_SurfacerTopComponent());
         
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = LookupService.lookup(BackendAPI.class);
         gcode.init(prefs, backend);
         
         lVersion.setText("v0.40");

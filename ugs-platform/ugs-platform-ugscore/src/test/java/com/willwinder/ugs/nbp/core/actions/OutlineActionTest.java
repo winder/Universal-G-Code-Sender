@@ -18,12 +18,15 @@
  */
 package com.willwinder.ugs.nbp.core.actions;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import static org.junit.Assert.assertEquals;
+
+import com.willwinder.universalgcodesender.utils.Settings;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,13 +43,17 @@ public class OutlineActionTest {
     private OutlineAction outlineAction;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
+        GUIBackend backend = new GUIBackend();
+        Settings settings = new Settings();
+        backend.applySettings(settings);
+        LookupService.register(backend);
         outlineAction = new OutlineAction();
     }
 
     @Test
     public void generateOutlineCommandsOfSquare() throws IOException, GcodeParserException {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         backend.getSettings().setPreferredUnits(UnitUtils.Units.MM);
         backend.getSettings().setJogFeedRate(1000);
 
@@ -62,7 +69,7 @@ public class OutlineActionTest {
 
     @Test
     public void generateOutlineCommandsOfSquareWitEmptyCoordinate() throws IOException, GcodeParserException {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         backend.getSettings().setPreferredUnits(UnitUtils.Units.MM);
         backend.getSettings().setJogFeedRate(1000);
 
@@ -78,7 +85,7 @@ public class OutlineActionTest {
 
     @Test
     public void generatingOutlineCommandsOfMixedUnits() throws IOException, GcodeParserException {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         backend.getSettings().setPreferredUnits(UnitUtils.Units.MM);
         backend.getSettings().setJogFeedRate(1000);
 
@@ -94,7 +101,7 @@ public class OutlineActionTest {
 
     @Test
     public void generatingOutlineWithJogFeedRateInInchPerMinute() throws IOException, GcodeParserException {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         backend.getSettings().setPreferredUnits(UnitUtils.Units.INCH);
         backend.getSettings().setJogFeedRate(1); // One inch per minute
 
@@ -110,7 +117,7 @@ public class OutlineActionTest {
 
     @Test
     public void generatingOutlineWithUnknownStartPoint() throws IOException, GcodeParserException {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         backend.getSettings().setPreferredUnits(UnitUtils.Units.MM);
         backend.getSettings().setJogFeedRate(1);
 
@@ -126,7 +133,7 @@ public class OutlineActionTest {
 
     @Test
     public void generatingOutlineShouldNotLoopForever() throws IOException, GcodeParserException {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         backend.getSettings().setPreferredUnits(UnitUtils.Units.MM);
         backend.getSettings().setJogFeedRate(1);
 

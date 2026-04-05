@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.component.jog;
 
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -47,7 +47,7 @@ public class JogPane extends BorderPane {
     public JogPane() {
         setPadding(new Insets(10, 10, 10, 10));
 
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
 
         directionalPadPane = new DirectionalPadPane();

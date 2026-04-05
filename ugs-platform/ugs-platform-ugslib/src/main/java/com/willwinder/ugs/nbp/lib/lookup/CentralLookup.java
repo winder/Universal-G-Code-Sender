@@ -26,11 +26,10 @@ package com.willwinder.ugs.nbp.lib.lookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.services.JogService;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.services.RunFromService;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.NarrowOptionPane;
 import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 
@@ -43,6 +42,7 @@ import java.util.logging.Logger;
  * @author will
  */
 public class CentralLookup extends AbstractLookup {
+    private static final Logger LOGGER = Logger.getLogger(CentralLookup.class.getName());
     private static CentralLookup def = new CentralLookup();
 
     private InstanceContent content;
@@ -55,24 +55,23 @@ public class CentralLookup extends AbstractLookup {
     public CentralLookup() {
         this(new InstanceContent());
         try {
-            GUIBackend backend = new GUIBackend();
-            Settings settings = SettingsFactory.loadSettings();
+            LOGGER.info("Initializing CentralLookup");
+            LookupService.initialize();
 
-            checkTranslations(settings);
+            checkTranslations();
 
-            backend.applySettings(settings);
-
-            this.add(backend);
-            this.add(settings);
-            this.add(new JogService(backend));
-            this.add(new RunFromService(backend));
+            this.add(LookupService.lookup(GUIBackend.class));
+            this.add(LookupService.lookup(Settings.class));
+            this.add(LookupService.lookup(JogService.class));
+            this.add(LookupService.lookup(RunFromService.class));
         } catch (Exception ex) {
             Logger.getLogger(CentralLookup.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(1);
         }
     }
 
-    private static void checkTranslations(Settings settings) {
+    private static void checkTranslations() {
+        Settings settings = LookupService.lookup(Settings.class);
         boolean fullyLocalized = Localization.initialize(settings.getLanguage());
         if (!fullyLocalized && settings.isShowTranslationsWarning()) {
             EventQueue.invokeLater(() -> {

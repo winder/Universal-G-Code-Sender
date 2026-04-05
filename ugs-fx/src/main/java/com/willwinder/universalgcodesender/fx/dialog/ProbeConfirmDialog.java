@@ -19,7 +19,7 @@
 package com.willwinder.universalgcodesender.fx.dialog;
 
 import com.willwinder.universalgcodesender.fx.component.ButtonBox;
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.settings.ProbeSettings;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -52,7 +52,7 @@ public class ProbeConfirmDialog extends Stage implements UGSEventListener {
     private boolean isAccepted = false;
 
     public ProbeConfirmDialog(Window parent) {
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
         initOwner(parent);
         initModality(Modality.APPLICATION_MODAL);

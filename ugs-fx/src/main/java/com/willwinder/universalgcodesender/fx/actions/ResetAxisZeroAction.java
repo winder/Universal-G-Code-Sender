@@ -1,6 +1,6 @@
 package com.willwinder.universalgcodesender.fx.actions;
 
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -17,7 +17,7 @@ public class ResetAxisZeroAction extends BaseAction {
 
     public ResetAxisZeroAction(Axis axis) {
         super(Localization.getString("mainWindow.swing.resetCoordinatesButton"), Localization.getString("mainWindow.swing.resetCoordinatesButton"), Localization.getString("actions.category.machine"), ICON_BASE);
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         this.axis = axis;
         enabledProperty().set(canResetZero());

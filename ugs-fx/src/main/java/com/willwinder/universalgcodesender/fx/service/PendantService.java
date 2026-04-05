@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.service;
 
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
@@ -39,7 +39,7 @@ public class PendantService {
     private PendantUI pendantUI;
 
     private PendantService() {
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backend = LookupService.lookup(BackendAPI.class);
         autoStartPendant();
         backend.addUGSEventListener(this::onEvent);
     }

@@ -19,11 +19,11 @@
 package com.willwinder.ugs.nbp.core.control;
 
 import com.google.common.base.Strings;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.openide.filesystems.FileObject;
@@ -65,7 +65,7 @@ public final class MacroService {
             FileUtil.createFolder(root, actionPath).delete();
 
             ActionRegistrationService ars = Lookup.getDefault().lookup(ActionRegistrationService.class);
-            BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+            BackendAPI backend = LookupService.lookup(BackendAPI.class);
             Settings settings = backend.getSettings();
 
             List<Macro> macros = settings.getMacros();

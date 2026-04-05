@@ -19,11 +19,10 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.PartialPosition;
-import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import com.willwinder.universalgcodesender.services.JogService;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionRegistration;
@@ -31,6 +30,8 @@ import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
 import java.awt.geom.Rectangle2D;
+
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 
 /**
  * @author Joacim Breiler
@@ -62,7 +63,7 @@ public class JogMachineToLowerRightCornerAction extends JogMachineAbstractAction
             Rectangle2D bounds = ControllerFactory.getController().getSelectionManager().getBounds();
             PartialPosition centerPosition = new PartialPosition(bounds.getMaxX(), bounds.getMinY(), MM);
 
-            JogService jogService = CentralLookup.getDefault().lookup(JogService.class);
+            JogService jogService = LookupService.lookup(JogService.class);
             jogService.jogTo(centerPosition);
         });
     }

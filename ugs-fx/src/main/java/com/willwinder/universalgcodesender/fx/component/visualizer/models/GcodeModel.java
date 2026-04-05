@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import static com.willwinder.universalgcodesender.fx.helper.Colors.blend;
 import static com.willwinder.universalgcodesender.fx.helper.Colors.interpolate;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
@@ -86,7 +86,7 @@ public class GcodeModel extends Model {
         meshView.setCullFace(CullFace.NONE);
 
         getChildren().add(meshView);
-        backendAPI = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backendAPI = LookupService.lookup(BackendAPI.class);
         gcvp = new GcodeViewParse();
         backendAPI.addUGSEventListener(this::onEvent);
         lineWidth = VisualizerSettings.getInstance().lineWidthProperty().getValue();

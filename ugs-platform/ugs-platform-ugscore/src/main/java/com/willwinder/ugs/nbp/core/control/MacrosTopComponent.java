@@ -20,12 +20,12 @@ package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.core.actions.EditMacrosAction;
 import com.willwinder.ugs.nbp.lib.Mode;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.uielements.panels.ButtonGridPanel;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -65,7 +65,7 @@ public final class MacrosTopComponent extends TopComponent implements UGSEventLi
     private void settingsChanged() {
         buttonGridPanel.removeAll();
 
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         backend.getSettings().getMacros().forEach(macro -> {
             JButton button = new JButton(new MacroAction(macro));
             button.setMinimumSize(new Dimension(100, 16));
@@ -89,14 +89,14 @@ public final class MacrosTopComponent extends TopComponent implements UGSEventLi
     protected void componentOpened() {
         setName(LocalizingService.MacrosTitle);
         setToolTipText(LocalizingService.MacrosTooltip);
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
     }
 
     @Override
     protected void componentClosed() {
         super.componentClosed();
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         backend.removeUGSEventListener(this);
     }
 

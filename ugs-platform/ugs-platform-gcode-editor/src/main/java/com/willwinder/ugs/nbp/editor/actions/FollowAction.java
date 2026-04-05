@@ -19,13 +19,13 @@
 package com.willwinder.ugs.nbp.editor.actions;
 
 import com.willwinder.ugs.nbp.editor.GcodeLanguageConfig;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.netbeans.api.editor.EditorActionRegistration;
 import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.mimelookup.MimePath;
@@ -80,7 +80,7 @@ public class FollowAction extends AbstractEditorAction implements UGSEventListen
     }
 
     private void registerListeners() {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
         setEnabled(isEnabled());
 
@@ -98,7 +98,7 @@ public class FollowAction extends AbstractEditorAction implements UGSEventListen
 
     @Override
     public boolean isEnabled() {
-        return CentralLookup.getDefault().lookup(BackendAPI.class).getGcodeFile() != null;
+        return LookupService.lookup(BackendAPI.class).getGcodeFile() != null;
     }
 
     @Override

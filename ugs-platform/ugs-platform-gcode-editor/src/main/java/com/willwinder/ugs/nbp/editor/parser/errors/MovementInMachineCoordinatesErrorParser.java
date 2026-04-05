@@ -1,9 +1,9 @@
 package com.willwinder.ugs.nbp.editor.parser.errors;
 
 import com.willwinder.ugs.nbp.editor.parser.GcodeError;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
 import org.apache.commons.lang3.StringUtils;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.csl.api.Severity;
@@ -21,7 +21,7 @@ public class MovementInMachineCoordinatesErrorParser implements ErrorParser {
     public MovementInMachineCoordinatesErrorParser(FileObject fileObject) {
         this.fileObject = fileObject;
 
-        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this.backend = LookupService.lookup(BackendAPI.class);
     }
 
     @Override

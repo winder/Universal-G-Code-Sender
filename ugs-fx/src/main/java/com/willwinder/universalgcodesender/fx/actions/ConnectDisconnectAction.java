@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
-import com.willwinder.universalgcodesender.fx.helper.CentralLookup;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.stage.ConnectStage;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -39,7 +39,7 @@ public class ConnectDisconnectAction extends BaseAction {
 
     public ConnectDisconnectAction() {
         super(Localization.getString("mainWindow.ui.connect"), Localization.getString("mainWindow.ui.connect"), Localization.getString("actions.category.machine"), ICON_BASE_DISCONNECT);
-        backend = CentralLookup.lookup(BackendAPI.class).orElseThrow();
+        backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(true);
     }
