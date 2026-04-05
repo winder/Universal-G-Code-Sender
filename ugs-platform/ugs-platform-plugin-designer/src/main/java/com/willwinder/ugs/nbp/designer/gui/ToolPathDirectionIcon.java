@@ -19,7 +19,7 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.ToolPathDirection;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import javax.swing.ImageIcon;
 import java.awt.Component;
@@ -31,23 +31,23 @@ public class ToolPathDirectionIcon extends ImageIcon {
     private final ImageIcon icon;
 
     public enum Size {
-        SMALL(""),
-        MEDIUM("24"),
-        LARGE("32");
+        SMALL(16),
+        MEDIUM(24),
+        LARGE(32);
 
-        public final String value;
+        public final int value;
 
-        Size(String size) {
+        Size(int size) {
             this.value = size;
         }
     }
 
     public ToolPathDirectionIcon(ToolPathDirection direction, Size size) {
         if (Objects.requireNonNull(direction) == ToolPathDirection.VERTICAL) {
-            icon = ImageUtilities.loadImageIcon("img/vertical" + size.value + ".svg", false);
+            icon = SvgIconLoader.loadImageIcon("img/vertical.svg", size.value).orElse(null);
             setDescription(direction.getLabel());
         } else {
-            icon = ImageUtilities.loadImageIcon("img/horizontal" + size.value + ".svg", false);
+            icon = SvgIconLoader.loadImageIcon("img/horizontal.svg", size.value).orElse(null);
             setDescription(direction.getLabel());
         }
     }

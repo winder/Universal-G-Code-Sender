@@ -61,8 +61,8 @@ import com.willwinder.ugs.nbp.designer.actions.TraceImageAction;
 import com.willwinder.ugs.nbp.designer.actions.UnionAction;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import org.openide.awt.DropDownButtonFactory;
-import org.openide.util.ImageUtilities;
 
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
@@ -180,9 +180,9 @@ public class ToolBox extends ToolBar {
         buttons.add(vertex);
         buttons.add(toolDropDownButton);
         buttons.add(zoom);
-        
+
         add(createSnapDropdownButton());
-        
+
         controller.addListener(event -> {
             if (event == ControllerEventType.TOOL_SELECTED) {
                 buttons.clearSelection();
@@ -232,7 +232,7 @@ public class ToolBox extends ToolBar {
         addDropDownAction(popupMenu, new AlignTopAction(), toolMenuListener);
         addDropDownAction(popupMenu, new AlignMiddleAction(), toolMenuListener);
         addDropDownAction(popupMenu, new AlignBottomAction(), toolMenuListener);
-        alignDropDownButton = DropDownButtonFactory.createDropDownToggleButton(ImageUtilities.loadImageIcon(AlignCenterAction.LARGE_ICON_PATH, false), popupMenu);
+        alignDropDownButton = DropDownButtonFactory.createDropDownToggleButton(SvgIconLoader.loadImageIcon(AlignCenterAction.SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null), popupMenu);
         alignDropDownButton.setAction(alignCenterAction);
         alignDropDownButton.setSelected(false);
         return alignDropDownButton;
@@ -259,7 +259,7 @@ public class ToolBox extends ToolBar {
         addDropDownAction(popupMenu, new JogMachineToLowerRightCornerAction(), toolMenuListener);
         addDropDownAction(popupMenu, new JogMachineToNextAction(), toolMenuListener);
         addDropDownAction(popupMenu, new JogMachineToPreviousAction(), toolMenuListener);
-        jogDropDownButton = DropDownButtonFactory.createDropDownToggleButton(ImageUtilities.loadImageIcon(JogMachineToCenterAction.LARGE_ICON_PATH, false), popupMenu);
+        jogDropDownButton = DropDownButtonFactory.createDropDownToggleButton(SvgIconLoader.loadImageIcon(JogMachineToCenterAction.SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null), popupMenu);
         jogDropDownButton.setAction(toolDrawRectangleAction);
         return jogDropDownButton;
     }
@@ -288,11 +288,11 @@ public class ToolBox extends ToolBar {
         addDropDownAction(popupMenu, new ToolImportAction(), null);
         addDropDownAction(popupMenu, new ToolClipartAction(), null);
         addDropDownAction(popupMenu, new TraceImageAction(), null);
-        toolDropDownButton = DropDownButtonFactory.createDropDownToggleButton(ImageUtilities.loadImageIcon(ToolDrawRectangleAction.LARGE_ICON_PATH, false), popupMenu);
+        toolDropDownButton = DropDownButtonFactory.createDropDownToggleButton(SvgIconLoader.loadImageIcon(ToolDrawRectangleAction.SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null), popupMenu);
         toolDropDownButton.setAction(toolDrawRectangleAction);
         return toolDropDownButton;
     }
-    
+
     private JToggleButton createSnapDropdownButton() {
         // An action listener that listens to the popup menu items and changes the current action
         ActionListener toolMenuListener = e -> {
@@ -313,12 +313,13 @@ public class ToolBox extends ToolBar {
         addDropDownAction(popupMenu, snapToOneAction, toolMenuListener);
         addDropDownAction(popupMenu, new SnapToGridTwoAction(), toolMenuListener);
         addDropDownAction(popupMenu, new SnapToGridFiveAction(), toolMenuListener);
-        addDropDownAction(popupMenu, new SnapToGridTenAction(), toolMenuListener);        
-        
-        snapDropDownButton = DropDownButtonFactory.createDropDownToggleButton(ImageUtilities.loadImageIcon(SnapToGridOneAction.LARGE_ICON_PATH, false), popupMenu);
+        addDropDownAction(popupMenu, new SnapToGridTenAction(), toolMenuListener);
+
+        snapDropDownButton = DropDownButtonFactory.createDropDownToggleButton(SvgIconLoader.loadImageIcon(SnapToGridOneAction.SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null), popupMenu);
         snapDropDownButton.setAction(snapToOneAction);
         return snapDropDownButton;
     }
+
     private void addDropDownAction(JPopupMenu popupMenu, Action action, ActionListener actionListener) {
         JMenuItem menuItem = new JMenuItem(action);
         if (actionListener != null) {

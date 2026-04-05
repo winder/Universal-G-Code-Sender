@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbp.designer.actions.OpenAction;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -31,7 +32,6 @@ import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
-import org.openide.util.ImageUtilities;
 
 import javax.swing.Icon;
 import javax.swing.JFileChooser;
@@ -48,7 +48,7 @@ import static com.willwinder.ugs.nbp.designer.platform.UgsDataObject.ATTRIBUTE_T
  */
 public class UgsSaveCookie implements Icon, SaveCookie {
     private final UgsDataObject dataObject;
-    private final Icon icon = ImageUtilities.loadImageIcon("img/new.svg", false);
+    private final Icon icon = SvgIconLoader.loadImageIcon("img/new.svg", SvgIconLoader.SIZE_SMALL).orElse(null);
 
     public UgsSaveCookie(UgsDataObject dataObject) {
         this.dataObject = dataObject;

@@ -22,7 +22,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -39,8 +39,8 @@ public class ClearSelectionAction extends AbstractAction implements SelectionLis
 
     public ClearSelectionAction() {
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
         putValue("menuText", "Clear selection");
         putValue(NAME, "Clear selection");
 

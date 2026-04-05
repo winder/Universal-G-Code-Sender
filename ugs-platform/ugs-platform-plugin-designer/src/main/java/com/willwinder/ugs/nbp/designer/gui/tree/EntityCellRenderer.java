@@ -26,7 +26,7 @@ import com.willwinder.ugs.nbp.designer.gui.CutTypeIcon;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.LookupService;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -37,9 +37,9 @@ import java.awt.Component;
 
 public class EntityCellRenderer extends DefaultTreeCellRenderer {
 
-    private static final Icon ICON_HIDDEN = ImageUtilities.loadImageIcon("img/eyeoff24.svg", false);
-    private static final Icon ICON_GROUP_OPEN = ImageUtilities.loadImageIcon("img/open24.svg", false);
-    private static final Icon ICON_GROUP_CLOSED = ImageUtilities.loadImageIcon("img/folder24.svg", false);
+    private static final Icon ICON_HIDDEN = SvgIconLoader.loadImageIcon("img/eyeoff.svg", SvgIconLoader.SIZE_MEDIUM).orElse(null);
+    private static final Icon ICON_GROUP_OPEN = SvgIconLoader.loadImageIcon("img/open.svg", SvgIconLoader.SIZE_MEDIUM).orElse(null);
+    private static final Icon ICON_GROUP_CLOSED = SvgIconLoader.loadImageIcon("img/folder.svg", SvgIconLoader.SIZE_MEDIUM).orElse(null);
 
     @Override
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
@@ -84,7 +84,7 @@ public class EntityCellRenderer extends DefaultTreeCellRenderer {
         if (cutType == CutType.NONE) {
             setText(cuttable.getName());
         } else {
-            setText("<html>" + cuttable.getName() + "<br/><small>" + Utils.toString(cutStart) + " - "  + Utils.toString(cutDepth) + " " + preferredUnits.abbreviation + ", " + cuttable.getFeedRate() + " mm/min, " + cuttable.getSpindleSpeed() + "% <small></html>");
+            setText("<html>" + cuttable.getName() + "<br/><small>" + Utils.toString(cutStart) + " - " + Utils.toString(cutDepth) + " " + preferredUnits.abbreviation + ", " + cuttable.getFeedRate() + " mm/min, " + cuttable.getSpindleSpeed() + "% <small></html>");
         }
     }
 

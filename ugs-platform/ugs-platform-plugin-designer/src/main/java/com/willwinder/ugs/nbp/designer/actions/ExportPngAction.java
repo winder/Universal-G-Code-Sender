@@ -20,7 +20,7 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.io.png.PngWriter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
@@ -34,13 +34,12 @@ import java.io.File;
 public class ExportPngAction extends AbstractDesignAction {
 
     private static final String SMALL_ICON_PATH = "img/export.svg";
-    private static final String LARGE_ICON_PATH = "img/export24.svg";
     private final transient Controller controller;
 
     public ExportPngAction(Controller controller) {
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
         putValue("menuText", "Export PNG");
         putValue(NAME, "Export PNG");
         this.controller = controller;

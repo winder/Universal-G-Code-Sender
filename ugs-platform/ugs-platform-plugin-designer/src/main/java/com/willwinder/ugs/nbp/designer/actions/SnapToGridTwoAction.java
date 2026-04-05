@@ -18,18 +18,18 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import java.awt.event.ActionEvent;
 
 public class SnapToGridTwoAction extends AbstractDesignAction {
-    public static final String SMALL_ICON_PATH = "img/snap_to_grid_2mm_16.svg";
+    public static final String SMALL_ICON_PATH = "img/snap_to_grid_2mm.svg";
     public static final String LARGE_ICON_PATH = "img/snap_to_grid_2mm_24.svg";
 
     public SnapToGridTwoAction() {
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
         putValue("menuText", "Snap to 2mm grid");
         putValue(NAME, "Snap to 2mm grid");
     }

@@ -27,11 +27,11 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.io.gcode.toolpaths.ToolPathUtils;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
-import org.openide.util.ImageUtilities;
 
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
@@ -58,8 +58,8 @@ public class BreakApartAction extends AbstractDesignAction implements SelectionL
         putValue(NAME, "Break apart");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SHORT_DESCRIPTION, "Breaks apart multiple entities");
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
 
         this.controller = ControllerFactory.getController();
         SelectionManager selectionManager = controller.getSelectionManager();

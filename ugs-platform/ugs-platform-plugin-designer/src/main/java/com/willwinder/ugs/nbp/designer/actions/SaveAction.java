@@ -19,8 +19,8 @@
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.openide.util.ImageUtilities;
 
 import javax.swing.JFileChooser;
 import java.awt.event.ActionEvent;
@@ -40,8 +40,8 @@ public class SaveAction extends AbstractDesignAction {
     
     public SaveAction(Controller controller) {
         putValue("iconBase", ICON_SMALL_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_SMALL_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(ICON_LARGE_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(ICON_SMALL_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(ICON_LARGE_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
         putValue("menuText", "Save");
         putValue(NAME, "Save");        
         this.controller = controller;

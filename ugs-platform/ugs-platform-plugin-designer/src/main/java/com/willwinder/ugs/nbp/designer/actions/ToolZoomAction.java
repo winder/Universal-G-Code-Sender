@@ -20,8 +20,8 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import org.openide.awt.StatusDisplayer;
-import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -31,12 +31,11 @@ import java.awt.event.ActionEvent;
  */
 public class ToolZoomAction extends AbstractAction {
     public static final String ICON_SMALL_PATH = "img/zoom.svg";
-    private static final String ICON_LARGE_PATH = "img/zoom24.svg";
 
     public ToolZoomAction() {
         putValue("iconBase", ICON_SMALL_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_SMALL_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(ICON_LARGE_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(ICON_SMALL_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(ICON_SMALL_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
         putValue("menuText", "Zoom");
         putValue(NAME, "Zoom");
     }

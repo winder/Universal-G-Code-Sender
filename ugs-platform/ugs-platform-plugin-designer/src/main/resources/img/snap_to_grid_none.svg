@@ -4,8 +4,7 @@
    height="16"
    version="1.1"
    id="svg6"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
+   xmlns="http://www.w3.org/2000/svg">
   <defs
      id="defs10" />
   <text
@@ -13,7 +12,7 @@
      y="6"
      fill="#353a40"
      font-size="6px"
-     id="text2">1mm</text>
+     id="text2">no</text>
   <text
      x="0"
      y="14"

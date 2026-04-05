@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.actions;
 
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import java.awt.event.ActionEvent;
 
@@ -31,8 +31,8 @@ public class QuitAction extends AbstractDesignAction {
 
     public QuitAction() {
         putValue("iconBase", ICON_SMALL_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_SMALL_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(ICON_LARGE_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(ICON_SMALL_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(ICON_LARGE_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
         putValue("menuText", "Quit");
         putValue(NAME, "Quit");
     }

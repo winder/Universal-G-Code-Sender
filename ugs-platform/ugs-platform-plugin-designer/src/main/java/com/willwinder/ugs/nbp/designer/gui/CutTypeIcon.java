@@ -1,62 +1,63 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.CutType;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ImageIcon;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Image;
 
 public class CutTypeIcon extends ImageIcon {
     private final ImageIcon icon;
 
     public enum Size {
-        SMALL(""),
-        MEDIUM("24"),
-        LARGE("32");
+        SMALL(16),
+        MEDIUM(24),
+        LARGE(32);
 
-        public final String value;
+        public final int value;
 
-        Size(String size) {
+        Size(int size) {
             this.value = size;
         }
     }
 
-
     public CutTypeIcon(CutType cutType, Size size) {
         switch (cutType) {
             case NONE:
-                icon = ImageUtilities.loadImageIcon("img/cutnone" + size.value + ".svg", false);
+                icon = SvgIconLoader.loadImageIcon("img/cutnone.svg", size.value).orElse(null);
                 setDescription(cutType.getName());
                 break;
             case POCKET:
-                icon = ImageUtilities.loadImageIcon("img/cutpocket" + size.value + ".svg", false);
+                icon = SvgIconLoader.loadImageIcon("img/cutpocket.svg", size.value).orElse(null);
                 setDescription(cutType.getName());
                 break;
             case OUTSIDE_PATH:
-                icon = ImageUtilities.loadImageIcon("img/cutoutside" + size.value + ".svg", false);
+                icon = SvgIconLoader.loadImageIcon("img/cutoutside.svg", size.value).orElse(null);
                 setDescription(cutType.getName());
                 break;
             case INSIDE_PATH:
-                icon = ImageUtilities.loadImageIcon("img/cutinside" + size.value + ".svg", false);
+                icon = SvgIconLoader.loadImageIcon("img/cutinside.svg", size.value).orElse(null);
                 setDescription(cutType.getName());
                 break;
             case ON_PATH:
             case LASER_ON_PATH:
-                icon = ImageUtilities.loadImageIcon("img/cutonpath" + size.value + ".svg", false);
+                icon = SvgIconLoader.loadImageIcon("img/cutonpath.svg", size.value).orElse(null);
                 setDescription(cutType.getName());
                 break;
             case CENTER_DRILL:
-                icon = ImageUtilities.loadImageIcon("img/centerdrill" + size.value + ".svg", false);
+                icon = SvgIconLoader.loadImageIcon("img/centerdrill.svg", size.value).orElse(null);
                 setDescription(cutType.getName());
                 break;
             case SURFACE:
             case LASER_FILL:
             case LASER_RASTER:
-                icon = ImageUtilities.loadImageIcon("img/cutfill" + size.value + ".svg", false);
+                icon = SvgIconLoader.loadImageIcon("img/cutfill.svg", size.value).orElse(null);
                 setDescription(cutType.getName());
                 break;
             default:
-                icon = ImageUtilities.loadImageIcon("img/cutnone" + size.value + ".svg", false);
+                icon = SvgIconLoader.loadImageIcon("img/cutnone.svg", size.value).orElse(null);
                 setDescription(cutType.getName());
         }
     }

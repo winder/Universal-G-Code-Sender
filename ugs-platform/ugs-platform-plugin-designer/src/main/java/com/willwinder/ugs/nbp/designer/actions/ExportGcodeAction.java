@@ -22,10 +22,10 @@ import com.willwinder.ugs.nbp.designer.io.DesignWriter;
 import com.willwinder.ugs.nbp.designer.io.gcode.GcodeDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -41,8 +41,8 @@ public class ExportGcodeAction extends AbstractDesignAction {
 
     public ExportGcodeAction() {
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
         putValue("menuText", "Export Gcode");
         putValue(NAME, "Export Gcode");
     }

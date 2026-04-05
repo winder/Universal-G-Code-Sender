@@ -118,6 +118,13 @@
             <artifactId>classgraph</artifactId>
             <version>${classgraph.version}</version>
         </dependency>
+
+        <!-- For loading SVG icons -->
+        <dependency>
+            <groupId>com.github.weisj</groupId>
+            <artifactId>jsvg</artifactId>
+            <version>${jsvg.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

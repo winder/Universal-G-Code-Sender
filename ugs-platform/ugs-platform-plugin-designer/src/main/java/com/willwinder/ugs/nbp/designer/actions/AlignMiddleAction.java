@@ -25,7 +25,7 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import java.awt.event.ActionEvent;
 import java.awt.geom.Point2D;
@@ -47,8 +47,8 @@ public class AlignMiddleAction extends AbstractDesignAction implements Selection
         putValue(NAME, "Align middle");
         putValue("iconBase", SMALL_ICON_PATH);
         putValue(SHORT_DESCRIPTION, "Align the objects in middle of the first selected entity");
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
 
         this.controller = ControllerFactory.getController();
         SelectionManager selectionManager = controller.getSelectionManager();

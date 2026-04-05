@@ -22,8 +22,8 @@ import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.openide.util.ImageUtilities;
 
 import java.awt.event.ActionEvent;
 import java.awt.geom.Rectangle2D;
@@ -43,8 +43,8 @@ public class JogMachineToTopLeftCornerAction extends JogMachineAbstractAction {
         putValue(NAME, "Jog to top left corner");
         putValue(SHORT_DESCRIPTION, "Jog to top left corner");
         putValue("iconBase", SMALL_ICON_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(SMALL_ICON_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(LARGE_ICON_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
     }
 
     @Override

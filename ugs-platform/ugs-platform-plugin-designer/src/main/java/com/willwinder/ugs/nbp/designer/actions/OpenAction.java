@@ -27,8 +27,8 @@ import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.model.Design;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import org.openide.util.ImageUtilities;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
@@ -48,8 +48,8 @@ public class OpenAction extends AbstractDesignAction {
 
     public OpenAction() {
         putValue("iconBase", ICON_SMALL_PATH);
-        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_SMALL_PATH, false));
-        putValue(LARGE_ICON_KEY, ImageUtilities.loadImageIcon(ICON_LARGE_PATH, false));
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(ICON_SMALL_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(ICON_LARGE_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
         putValue("menuText", "Open");
         putValue(NAME, "Open");
 

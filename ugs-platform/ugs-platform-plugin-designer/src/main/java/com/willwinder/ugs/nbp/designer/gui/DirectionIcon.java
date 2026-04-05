@@ -1,7 +1,7 @@
 package com.willwinder.ugs.nbp.designer.gui;
 
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
-import org.openide.util.ImageUtilities;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import javax.swing.ImageIcon;
 import java.awt.Component;
@@ -12,13 +12,13 @@ public class DirectionIcon extends ImageIcon {
     private final ImageIcon icon;
 
     public enum Size {
-        SMALL(""),
-        MEDIUM("24"),
-        LARGE("32");
+        SMALL(16),
+        MEDIUM(24),
+        LARGE(32);
 
-        public final String value;
+        public final int value;
 
-        Size(String size) {
+        Size(int size) {
             this.value = size;
         }
     }
@@ -27,16 +27,16 @@ public class DirectionIcon extends ImageIcon {
     public DirectionIcon(Direction direction, Size size) {
         switch (direction) {
             case CLIMB:
-                icon = ImageUtilities.loadImageIcon("img/direction-climb" + size.value + ".svg", false);
+                icon = SvgIconLoader.loadImageIcon("img/direction-climb.svg", size.value).orElse(null);
                 setDescription(direction.getLabel());
                 break;
             case CONVENTIONAL:
-                icon = ImageUtilities.loadImageIcon("img/direction-conventional" + size.value + ".svg", false);
+                icon = SvgIconLoader.loadImageIcon("img/direction-conventional.svg", size.value).orElse(null);
                 setDescription(direction.getLabel());
                 break;
             case BOTH:
             default:
-                icon = ImageUtilities.loadImageIcon("img/direction-both" + size.value + ".svg", false);
+                icon = SvgIconLoader.loadImageIcon("img/direction-both.svg", size.value).orElse(null);
                 setDescription(direction.getLabel());
                 break;
 
