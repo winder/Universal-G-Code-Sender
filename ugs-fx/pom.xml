@@ -110,12 +110,6 @@
             <version>0.6.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>io.github.classgraph</groupId>
-            <artifactId>classgraph</artifactId>
-            <version>${classgraph.version}</version>
-        </dependency>
-
         <!-- For scripting -->
         <dependency>
             <groupId>org.openjdk.nashorn</groupId>
