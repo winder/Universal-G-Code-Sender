@@ -62,7 +62,6 @@ import com.willwinder.ugs.nbp.designer.actions.UnionAction;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerEventType;
 import com.willwinder.universalgcodesender.utils.SvgIconLoader;
-import org.openide.awt.DropDownButtonFactory;
 
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
