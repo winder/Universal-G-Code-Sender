@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Will Winder
+    Copyright 2021-2026 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -45,6 +45,7 @@ public class Startup implements Runnable {
         LookupService.register(controller);
         LookupService.register(controller.getUndoManager());
         LookupService.register(controller.getSelectionManager());
+        LookupService.register(new PlatformFileContext());
 
         // Register all lookup providers
         LookupService.discoverProviders(DesignerMain.class.getPackageName());
