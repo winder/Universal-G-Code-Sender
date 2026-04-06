@@ -21,7 +21,7 @@ package com.willwinder.ugs.nbp.designer.entities.settings;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Text;
-import org.openide.util.lookup.ServiceProvider;
+import com.willwinder.universalgcodesender.services.LookupServiceProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @author giro-dev
  */
-@ServiceProvider(service = EntitySettingsManager.class, position = 3)
+@LookupServiceProvider(position = 3)
 public class TextSettingsManager implements EntitySettingsManager {
 
     @Override

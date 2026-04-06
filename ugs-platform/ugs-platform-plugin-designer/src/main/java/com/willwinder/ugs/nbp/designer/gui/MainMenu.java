@@ -38,12 +38,16 @@ import com.willwinder.ugs.nbp.designer.actions.SelectPreviousAction;
 import com.willwinder.ugs.nbp.designer.actions.ToggleHidden;
 import com.willwinder.ugs.nbp.designer.actions.UndoAction;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import org.openide.util.Utilities;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
+import javax.swing.KeyStroke;
+import java.awt.Toolkit;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.io.Serial;
 
 /**
  * Represents a main menu for a DrawGUI
@@ -53,7 +57,8 @@ import javax.swing.JSeparator;
  */
 public class MainMenu extends JMenuBar {
 
-    private static final long serialVersionUID = 0;
+    @Serial
+    private static final long serialVersionUID = 3391060173341949629L;
 
     public MainMenu(Controller controller) {
         JMenuItem newDrawing = new JMenuItem(new NewAction());
@@ -80,21 +85,23 @@ public class MainMenu extends JMenuBar {
         JMenuItem delete = new JMenuItem(new DeleteAction());
         JMenuItem toggleHidden = new JMenuItem(new ToggleHidden());
 
-        open.setAccelerator(Utilities.stringToKey("D-O"));
-        save.setAccelerator(Utilities.stringToKey("D-S"));
-        newDrawing.setAccelerator(Utilities.stringToKey("D-N"));
-        undo.setAccelerator(Utilities.stringToKey("D-Z"));
-        redo.setAccelerator(Utilities.stringToKey("SD-Z"));
-        quit.setAccelerator(Utilities.stringToKey("D-Q"));
-        export.setAccelerator(Utilities.stringToKey("D-E"));
-        clear.setAccelerator(Utilities.stringToKey("O-C"));
-        previous.setAccelerator(Utilities.stringToKey("SD-P"));
-        all.setAccelerator(Utilities.stringToKey("D-A"));
-        next.setAccelerator(Utilities.stringToKey("SD-N"));
-        delete.setAccelerator(Utilities.stringToKey("DELETE"));
-        copy.setAccelerator(Utilities.stringToKey("D-C"));
-        paste.setAccelerator(Utilities.stringToKey("D-V"));
-        printDesign.setAccelerator(Utilities.stringToKey("D-P"));
+        int menuShortcut = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+
+        open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, menuShortcut));
+        save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, menuShortcut));
+        newDrawing.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, menuShortcut));
+        undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, menuShortcut));
+        redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, menuShortcut | InputEvent.SHIFT_DOWN_MASK));
+        quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, menuShortcut));
+        export.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, menuShortcut));
+        clear.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
+        previous.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, menuShortcut | InputEvent.SHIFT_DOWN_MASK));
+        all.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, menuShortcut));
+        next.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, menuShortcut | InputEvent.SHIFT_DOWN_MASK));
+        delete.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+        copy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, menuShortcut));
+        paste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, menuShortcut));
+        printDesign.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, menuShortcut));
 
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(newDrawing);

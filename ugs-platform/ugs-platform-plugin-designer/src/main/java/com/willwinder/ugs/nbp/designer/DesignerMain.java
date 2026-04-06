@@ -32,7 +32,6 @@ import java.awt.Dimension;
  */
 public class DesignerMain extends JFrame {
 
-    public static final String PROPERTY_IS_STANDALONE = "ugs.designer.standalone";
     public static final String PROPERTY_USE_SCREEN_MENU = "apple.laf.useScreenMenuBar";
 
     /**
@@ -83,8 +82,6 @@ public class DesignerMain extends JFrame {
 
     private static void setupLookAndFeel() {
         System.setProperty(PROPERTY_USE_SCREEN_MENU, "true");
-        System.setProperty(PROPERTY_IS_STANDALONE, "true");
-
         UIManager.put( "MenuBar.background", "@background");
     }
     
