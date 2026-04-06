@@ -1,14 +1,30 @@
+/*
+    Copyright 2026 Joacim Breiler
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.gui.StockSettingsPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
+import com.willwinder.universalgcodesender.uielements.DialogUtils;
 
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import static org.openide.NotifyDescriptor.OK_OPTION;
 
 public class OpenStockSettingsAction implements ActionListener {
     private final Controller controller;
@@ -20,8 +36,9 @@ public class OpenStockSettingsAction implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         StockSettingsPanel stockSettingsPanel = new StockSettingsPanel(controller);
-        DialogDescriptor dialogDescriptor = new DialogDescriptor(stockSettingsPanel, "Stock settings", true, null);
-        if (DialogDisplayer.getDefault().notify(dialogDescriptor) == OK_OPTION) {
+        Window parent = DialogUtils.getParentWindow(controller.getDrawing());
+
+        if (DialogUtils.showModalDialog(parent, "Stock settings", stockSettingsPanel)) {
             double stockThickness = stockSettingsPanel.getStockThickness();
             ChangeStockSettingsAction changeStockSettingsAction = new ChangeStockSettingsAction(controller, stockThickness);
             changeStockSettingsAction.actionPerformed(null);
