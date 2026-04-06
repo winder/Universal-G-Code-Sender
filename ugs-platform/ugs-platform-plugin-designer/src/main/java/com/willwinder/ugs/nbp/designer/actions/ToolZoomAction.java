@@ -20,8 +20,9 @@ package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.designer.logic.Tool;
+import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.services.NotificationService;
 import com.willwinder.universalgcodesender.utils.SvgIconLoader;
-import org.openide.awt.StatusDisplayer;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -42,7 +43,7 @@ public class ToolZoomAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        StatusDisplayer.getDefault().setStatusText("Click to Zoom in, SHIFT + Click to Zoom out");
+        LookupService.lookupOptional(NotificationService.class).ifPresent(s -> s.setStatusText("Click to Zoom in, SHIFT + Click to Zoom out"));
         ControllerFactory.getController().setTool(Tool.ZOOM);
     }
 }

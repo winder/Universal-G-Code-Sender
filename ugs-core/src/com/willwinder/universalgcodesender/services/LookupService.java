@@ -28,6 +28,7 @@ import java.lang.reflect.Constructor;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -85,6 +86,13 @@ public class LookupService {
         initialize();
         synchronized (LookupService.class) {
             return lookupAll(clazz).stream().findFirst().orElseGet(() -> createAndRegister(clazz));
+        }
+    }
+
+    public static <T> Optional<T> lookupOptional(Class<T> clazz) {
+        initialize();
+        synchronized (LookupService.class) {
+            return lookupAll(clazz).stream().findFirst();
         }
     }
 

@@ -1,3 +1,21 @@
+/*
+    Copyright 2026 Joacim Breiler
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.ugs.nbp.designer.actions;
 
 import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
@@ -6,7 +24,8 @@ import com.willwinder.ugs.nbp.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignWriter;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
-import org.openide.awt.StatusDisplayer;
+import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.services.NotificationService;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
@@ -37,10 +56,10 @@ public class CopyAction extends AbstractDesignAction implements SelectionListene
     @Override
     public void actionPerformed(ActionEvent e) {
         if (controller.getSelectionManager().getSelection().isEmpty()) {
-            StatusDisplayer.getDefault().setStatusText("");
+            LookupService.lookupOptional(NotificationService.class).ifPresent(s -> s.setStatusText(""));
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(null, null);
         } else {
-            StatusDisplayer.getDefault().setStatusText("Clipboard: " + controller.getSelectionManager().getSelection().size());
+            LookupService.lookupOptional(NotificationService.class).ifPresent(s -> s.setStatusText("Clipboard: " + controller.getSelectionManager().getSelection().size()));
             UgsDesignWriter writer = new UgsDesignWriter();
             String data = writer.serialize(controller.getSelectionManager().getChildren());
 
