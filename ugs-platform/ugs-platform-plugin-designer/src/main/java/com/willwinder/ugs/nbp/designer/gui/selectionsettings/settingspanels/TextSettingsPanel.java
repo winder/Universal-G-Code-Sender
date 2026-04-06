@@ -28,9 +28,9 @@ import com.willwinder.ugs.nbp.designer.entities.settings.TextSettingsManager;
 import com.willwinder.ugs.nbp.designer.gui.FontCombo;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.services.LookupServiceProvider;
 import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
 import net.miginfocom.swing.MigLayout;
-import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,7 +44,7 @@ import java.util.List;
 /*
  * @Author giro-dev
  */
-@ServiceProvider(service = EntitySettingsPanel.class, position = 1)
+@LookupServiceProvider(position = 1)
 public class TextSettingsPanel extends JPanel implements EntitySettingsPanel {
 
     private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";

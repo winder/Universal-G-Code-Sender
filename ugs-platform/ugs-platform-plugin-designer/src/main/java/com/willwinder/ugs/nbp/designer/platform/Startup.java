@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
 import com.willwinder.ugs.nbp.core.services.FileFilterService;
+import com.willwinder.ugs.nbp.designer.DesignerMain;
 import com.willwinder.ugs.nbp.designer.actions.OpenAction;
 import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
 import com.willwinder.ugs.nbp.designer.actions.UndoManager;
@@ -44,6 +45,9 @@ public class Startup implements Runnable {
         LookupService.register(controller);
         LookupService.register(controller.getUndoManager());
         LookupService.register(controller.getSelectionManager());
+
+        // Register all lookup providers
+        LookupService.discoverProviders(DesignerMain.class.getPackageName());
 
         // Registers the file types that can be opened in UGSs
         FileFilterService fileFilterService = Lookup.getDefault().lookup(FileFilterService.class);

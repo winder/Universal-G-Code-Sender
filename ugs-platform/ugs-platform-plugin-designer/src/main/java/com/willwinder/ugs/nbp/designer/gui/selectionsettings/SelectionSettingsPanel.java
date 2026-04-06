@@ -31,8 +31,8 @@ import com.willwinder.ugs.nbp.designer.gui.selectionsettings.models.TransformSet
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.settingspanels.ComponentWithListener;
 import com.willwinder.ugs.nbp.designer.gui.selectionsettings.settingspanels.EntitySettingsPanel;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
+import com.willwinder.universalgcodesender.services.LookupService;
 import net.miginfocom.swing.MigLayout;
-import org.openide.util.Lookup;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -61,7 +61,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         contentPanel = new JPanel(new MigLayout("fillx, insets 0, gap 10", "[grow]"));
         add(contentPanel, "growx, wrap");
 
-        Collection<? extends EntitySettingsPanel> components = Lookup.getDefault().lookupAll(EntitySettingsPanel.class);
+        Collection<? extends EntitySettingsPanel> components = LookupService.lookupAll(EntitySettingsPanel.class);
         availableComponents.addAll(components);
 
         setController(controller);
