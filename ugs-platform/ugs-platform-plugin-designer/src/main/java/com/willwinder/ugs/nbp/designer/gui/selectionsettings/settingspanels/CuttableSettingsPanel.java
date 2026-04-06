@@ -34,11 +34,11 @@ import com.willwinder.ugs.nbp.designer.gui.ToolPathDirectionCombo;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Unit;
+import com.willwinder.universalgcodesender.services.LookupServiceProvider;
 import com.willwinder.universalgcodesender.uielements.components.PercentSpinner;
 import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
 import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
 import net.miginfocom.swing.MigLayout;
-import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -56,7 +56,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-@ServiceProvider(service = EntitySettingsPanel.class, position = 15)
+@LookupServiceProvider(position = 15)
 public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel {
 
     private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";

@@ -29,11 +29,11 @@ import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.ugs.nbp.designer.model.Size;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Unit;
+import com.willwinder.universalgcodesender.services.LookupServiceProvider;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
 import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
 import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import net.miginfocom.swing.MigLayout;
-import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -52,7 +52,7 @@ import java.util.Optional;
 /*
  * @Author giro-dev
  */
-@ServiceProvider(service = EntitySettingsPanel.class, position = 9)
+@LookupServiceProvider(position = 9)
 public class TransformationSettingsPanel extends JPanel implements EntitySettingsPanel {
 
     private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";

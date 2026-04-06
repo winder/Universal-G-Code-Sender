@@ -33,10 +33,10 @@ import com.willwinder.ugs.nbp.designer.entities.cuttable.Raster;
 import com.willwinder.ugs.nbp.designer.entities.settings.RasterSettingsManager;
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.services.LookupServiceProvider;
 import com.willwinder.universalgcodesender.uielements.components.DoubleSlider;
 import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
 import net.miginfocom.swing.MigLayout;
-import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -49,7 +49,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.List;
 
-@ServiceProvider(service = EntitySettingsPanel.class, position = 1)
+@LookupServiceProvider(position = 1)
 public class RasterSettingsPanel extends JPanel implements EntitySettingsPanel {
     private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";
     private static final String FIELD_CONSTRAINTS = "grow, w 60:60:300, hmin 32, hmax 36";

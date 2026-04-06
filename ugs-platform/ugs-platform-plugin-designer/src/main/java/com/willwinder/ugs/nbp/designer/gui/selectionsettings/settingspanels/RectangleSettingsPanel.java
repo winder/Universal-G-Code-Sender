@@ -29,10 +29,10 @@ import com.willwinder.ugs.nbp.designer.entities.settings.RectangleSettingsManage
 import com.willwinder.ugs.nbp.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Unit;
+import com.willwinder.universalgcodesender.services.LookupServiceProvider;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
 import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
 import net.miginfocom.swing.MigLayout;
-import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -43,7 +43,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.List;
 import java.util.Optional;
 
-@ServiceProvider(service = EntitySettingsPanel.class, position = 10)
+@LookupServiceProvider(position = 10)
 public class RectangleSettingsPanel extends JPanel implements EntitySettingsPanel {
 
     private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";
