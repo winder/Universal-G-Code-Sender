@@ -23,7 +23,7 @@ import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.ToolPathDirection;
-import org.openide.util.lookup.ServiceProvider;
+import com.willwinder.universalgcodesender.services.LookupServiceProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  *
  * @author giro-dev
  */
-@ServiceProvider(service = EntitySettingsManager.class, position = 2)
+@LookupServiceProvider(position = 2)
 public class CuttableSettingsManager implements EntitySettingsManager {
 
     private static final Logger LOGGER = Logger.getLogger(CuttableSettingsManager.class.getName());

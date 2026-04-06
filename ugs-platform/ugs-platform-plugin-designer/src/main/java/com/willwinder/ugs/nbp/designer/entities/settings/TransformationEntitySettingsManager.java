@@ -22,7 +22,7 @@ import com.willwinder.ugs.nbp.designer.entities.Anchor;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
-import org.openide.util.lookup.ServiceProvider;
+import com.willwinder.universalgcodesender.services.LookupServiceProvider;
 
 import java.awt.geom.Point2D;
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.List;
  *
  * @author giro-dev
  */
-@ServiceProvider(service = EntitySettingsManager.class, position = 1)
+@LookupServiceProvider(position = 1)
 public class TransformationEntitySettingsManager implements EntitySettingsManager {
 
     @Override

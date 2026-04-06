@@ -21,12 +21,12 @@ package com.willwinder.ugs.nbp.designer.entities.settings;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Rectangle;
-import org.openide.util.lookup.ServiceProvider;
+import com.willwinder.universalgcodesender.services.LookupServiceProvider;
 
 import java.util.List;
 
 
-@ServiceProvider(service = EntitySettingsManager.class, position = 10)
+@LookupServiceProvider(position = 10)
 public class RectangleSettingsManager implements EntitySettingsManager {
 
     @Override

@@ -21,12 +21,12 @@ package com.willwinder.ugs.nbp.designer.entities.settings;
 import com.willwinder.ugs.nbp.designer.entities.Entity;
 import com.willwinder.ugs.nbp.designer.entities.EntitySetting;
 import com.willwinder.ugs.nbp.designer.entities.cuttable.Raster;
-import org.openide.util.lookup.ServiceProvider;
+import com.willwinder.universalgcodesender.services.LookupServiceProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@ServiceProvider(service = EntitySettingsManager.class, position = 5)
+@LookupServiceProvider(position = 5)
 public class RasterSettingsManager implements EntitySettingsManager {
 
     @Override
