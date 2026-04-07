@@ -32,7 +32,7 @@ import com.willwinder.ugs.nbm.visualizer.actions.ToggleSizeFeatureAction;
 import com.willwinder.ugs.nbm.visualizer.actions.ToggleToolFeatureAction;
 import com.willwinder.ugs.nbp.core.actions.OutlineAction;
 import com.willwinder.ugs.nbp.core.actions.ToggleUnitAction;
-import com.willwinder.ugs.nbp.core.ui.ToolBar;
+import com.willwinder.universalgcodesender.uielements.toolbar.ToolBar;
 import org.openide.awt.DropDownButtonFactory;
 import org.openide.util.ImageUtilities;
 

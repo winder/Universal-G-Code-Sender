@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.gui;
 
-import com.willwinder.ugs.nbp.core.ui.ToolBar;
+import com.willwinder.universalgcodesender.uielements.toolbar.ToolBar;
 import com.willwinder.ugs.nbp.designer.actions.AlignBottomAction;
 import com.willwinder.ugs.nbp.designer.actions.AlignCenterAction;
 import com.willwinder.ugs.nbp.designer.actions.AlignLeftAction;
