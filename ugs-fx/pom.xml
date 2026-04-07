@@ -36,6 +36,11 @@
             <artifactId>ugs-pendant</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.willwinder.universalgcodesender</groupId>
+            <artifactId>ugs-designer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.openjfx</groupId>
