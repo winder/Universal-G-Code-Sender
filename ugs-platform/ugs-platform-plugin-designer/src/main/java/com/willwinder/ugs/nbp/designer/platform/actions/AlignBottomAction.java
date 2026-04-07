@@ -34,6 +34,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = AlignBottomAction.SMALL_ICON_PATH,
         displayName = "Align bottom",
         lazy = false)
-public class AlignBottomAction extends com.willwinder.ugs.nbp.designer.actions.AlignBottomAction {
+public class AlignBottomAction extends com.willwinder.ugs.designer.actions.AlignBottomAction {
 
 }

@@ -34,6 +34,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = AlignCenterAction.SMALL_ICON_PATH,
         displayName = "Align center",
         lazy = false)
-public class AlignCenterAction extends com.willwinder.ugs.nbp.designer.actions.AlignCenterAction {
+public class AlignCenterAction extends com.willwinder.ugs.designer.actions.AlignCenterAction {
 
 }

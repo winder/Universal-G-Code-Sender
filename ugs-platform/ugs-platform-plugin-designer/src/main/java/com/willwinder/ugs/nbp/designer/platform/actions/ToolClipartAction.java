@@ -32,6 +32,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = ToolClipartAction.SMALL_ICON_PATH,
         displayName = "Insert clipart",
         lazy = false)
-public class ToolClipartAction extends com.willwinder.ugs.nbp.designer.actions.ToolClipartAction {
+public class ToolClipartAction extends com.willwinder.ugs.designer.actions.ToolClipartAction {
 
 }

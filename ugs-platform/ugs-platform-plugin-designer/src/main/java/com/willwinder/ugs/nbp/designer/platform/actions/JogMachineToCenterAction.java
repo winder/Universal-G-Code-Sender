@@ -34,6 +34,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = JogMachineToCenterAction.SMALL_ICON_PATH,
         displayName = "Jog to center",
         lazy = false)
-public class JogMachineToCenterAction extends com.willwinder.ugs.nbp.designer.actions.JogMachineToCenterAction {
+public class JogMachineToCenterAction extends com.willwinder.ugs.designer.actions.JogMachineToCenterAction {
 
 }

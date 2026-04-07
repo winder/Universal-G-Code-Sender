@@ -1,0 +1,14 @@
+Tool Dingbat Truetype Font for Windows (version 1)
+
+2009 Iconian Fonts - Daniel Zadorozny
+
+http://www.iconian.com
+
+This is a dingbat font with over 45 pictures of tools and hardware.
+
+Silhouettes have mirrored counterparts between the upper and lower cases. Use of a character map program, such as Windows' Character Map, will be very helpful in exploring and using this font.
+
+This font may be freely distributed and is free for all non-commercial uses.  This font is e-mailware; that is, if you like it, please e-mail the author at:
+
+iconian@aol.com
+

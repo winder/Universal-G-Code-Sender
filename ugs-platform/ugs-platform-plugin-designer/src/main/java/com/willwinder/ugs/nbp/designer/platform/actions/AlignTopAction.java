@@ -34,6 +34,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = AlignTopAction.SMALL_ICON_PATH,
         displayName = "Align top",
         lazy = false)
-public class AlignTopAction extends com.willwinder.ugs.nbp.designer.actions.AlignTopAction {
+public class AlignTopAction extends com.willwinder.ugs.designer.actions.AlignTopAction {
 
 }

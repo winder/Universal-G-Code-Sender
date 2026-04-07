@@ -34,6 +34,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = StitchAction.SMALL_ICON_PATH,
         displayName = "Stich",
         lazy = false)
-public class StitchAction extends com.willwinder.ugs.nbp.designer.actions.StitchAction {
+public class StitchAction extends com.willwinder.ugs.designer.actions.StitchAction {
 
 }

@@ -34,6 +34,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = ToolVertextAction.SMALL_ICON_PATH,
         displayName = "Vertex",
         lazy = false)
-public class ToolVertextAction extends com.willwinder.ugs.nbp.designer.actions.ToolVertextAction {
+public class ToolVertextAction extends com.willwinder.ugs.designer.actions.ToolVertextAction {
 
 }

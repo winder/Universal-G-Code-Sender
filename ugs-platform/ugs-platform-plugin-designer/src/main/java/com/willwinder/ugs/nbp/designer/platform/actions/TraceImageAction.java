@@ -32,6 +32,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = TraceImageAction.SMALL_ICON_PATH,
         displayName = "Import Depth Map",
         lazy = false)
-public class TraceImageAction extends com.willwinder.ugs.nbp.designer.actions.TraceImageAction {
+public class TraceImageAction extends com.willwinder.ugs.designer.actions.TraceImageAction {
 
 }

@@ -17,6 +17,6 @@ import org.openide.awt.ActionRegistration;
                 path = "Shortcuts",
                 name = "D-G")
 })
-public class GroupAction extends com.willwinder.ugs.nbp.designer.actions.GroupAction {
+public class GroupAction extends com.willwinder.ugs.designer.actions.GroupAction {
 
 }

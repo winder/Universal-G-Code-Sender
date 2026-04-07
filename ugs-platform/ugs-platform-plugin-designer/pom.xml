@@ -91,6 +91,12 @@
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>com.willwinder.universalgcodesender</groupId>
+            <artifactId>ugs-designer</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
 
         <!-- For netbeans editor API -->
         <dependency>

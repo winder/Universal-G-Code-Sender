@@ -32,6 +32,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = ToolDrawRectangleAction.SMALL_ICON_PATH,
         displayName = "Draw Rectangle",
         lazy = false)
-public class ToolDrawRectangleAction extends com.willwinder.ugs.nbp.designer.actions.ToolDrawRectangleAction {
+public class ToolDrawRectangleAction extends com.willwinder.ugs.designer.actions.ToolDrawRectangleAction {
 
 }

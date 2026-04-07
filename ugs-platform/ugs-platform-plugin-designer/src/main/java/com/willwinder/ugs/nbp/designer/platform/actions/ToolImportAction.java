@@ -32,6 +32,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = ToolImportAction.SMALL_ICON_PATH,
         displayName = "Import file",
         lazy = false)
-public final class ToolImportAction extends com.willwinder.ugs.nbp.designer.actions.ToolImportAction {
+public final class ToolImportAction extends com.willwinder.ugs.designer.actions.ToolImportAction {
 
 }

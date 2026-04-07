@@ -35,5 +35,5 @@ import org.openide.awt.ActionRegistration;
         iconBase = SubtractAction.SMALL_ICON_PATH,
         displayName = "Subtract",
         lazy = false)
-public class SubtractAction extends com.willwinder.ugs.nbp.designer.actions.SubtractAction {
+public class SubtractAction extends com.willwinder.ugs.designer.actions.SubtractAction {
 }

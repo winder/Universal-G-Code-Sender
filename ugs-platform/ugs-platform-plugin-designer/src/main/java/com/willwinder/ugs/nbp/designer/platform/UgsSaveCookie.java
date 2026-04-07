@@ -19,9 +19,9 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
 import com.google.common.io.Files;
-import com.willwinder.ugs.nbp.designer.actions.OpenAction;
-import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignWriter;
-import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.designer.actions.OpenAction;
+import com.willwinder.ugs.designer.io.ugsd.UgsDesignWriter;
+import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 import org.apache.commons.lang3.StringUtils;

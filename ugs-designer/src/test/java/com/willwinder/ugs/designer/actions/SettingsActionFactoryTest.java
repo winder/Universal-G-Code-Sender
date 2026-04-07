@@ -1,0 +1,276 @@
+/*
+    Copyright 2024 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.willwinder.ugs.designer.actions;
+
+import com.willwinder.ugs.designer.actions.ChangeEntitySettingsAction;
+import com.willwinder.ugs.designer.actions.MoveAction;
+import com.willwinder.ugs.designer.actions.ResizeAction;
+import com.willwinder.ugs.designer.actions.RotateAction;
+import com.willwinder.ugs.designer.actions.SettingsActionFactory;
+import com.willwinder.ugs.designer.actions.UndoableAction;
+import com.willwinder.ugs.designer.entities.entities.Anchor;
+import com.willwinder.ugs.designer.entities.entities.EntityEvent;
+import com.willwinder.ugs.designer.entities.entities.EntityListener;
+import com.willwinder.ugs.designer.entities.entities.EntitySetting;
+import com.willwinder.ugs.designer.entities.entities.cuttable.CutType;
+import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.entities.settings.CuttableSettingsManager;
+import com.willwinder.ugs.designer.entities.entities.settings.TransformationEntitySettingsManager;
+import com.willwinder.ugs.designer.model.Size;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+/**
+ * Unit tests for SettingsActionFactory
+ *
+ * @author giro-dev
+ */
+public class SettingsActionFactoryTest {
+
+    @Test
+    public void testCreateGroupTransformAction_Width() {
+        Group group = new Group();
+        Rectangle rect = new Rectangle(0, 0);
+        rect.setSize(new Size(100, 50));
+        group.addChild(rect);
+
+        UndoableAction action = SettingsActionFactory.createGroupTransformAction(
+                EntitySetting.WIDTH, 200.0, group, Anchor.CENTER, false
+        ).orElse(null);
+
+        assertNotNull(action);
+        assertTrue(action instanceof ResizeAction);
+        assertEquals("resize entity", action.toString());
+    }
+
+    @Test
+    public void testCreateGroupTransformAction_Height() {
+        Group group = new Group();
+        Rectangle rect = new Rectangle(0, 0);
+        rect.setSize(new Size(100, 50));
+        group.addChild(rect);
+
+        UndoableAction action = SettingsActionFactory.createGroupTransformAction(
+                EntitySetting.HEIGHT, 100.0, group, Anchor.CENTER, true
+        ).orElse(null);
+
+        assertNotNull(action);
+        assertTrue(action instanceof ResizeAction);
+        assertEquals("resize entity", action.toString());
+    }
+
+    @Test
+    public void testCreateGroupTransformAction_PositionX() {
+        Group group = new Group();
+        Rectangle rect = new Rectangle(0, 0);
+        group.addChild(rect);
+
+        UndoableAction action = SettingsActionFactory.createGroupTransformAction(
+                EntitySetting.POSITION_X, 50.0, group, Anchor.CENTER, false
+        ).orElse(null);
+
+        assertNotNull(action);
+        assertTrue(action instanceof MoveAction);
+        assertEquals("move entity", action.toString());
+    }
+
+    @Test
+    public void testCreateGroupTransformAction_PositionY() {
+        Group group = new Group();
+        Rectangle rect = new Rectangle(0, 0);
+        group.addChild(rect);
+
+        UndoableAction action = SettingsActionFactory.createGroupTransformAction(
+                EntitySetting.POSITION_Y, 75.0, group, Anchor.CENTER, false
+        ).orElse(null);
+
+        assertNotNull(action);
+        assertTrue(action instanceof MoveAction);
+        assertEquals("move entity", action.toString());
+    }
+
+    @Test
+    public void testCreateGroupTransformAction_Rotation() {
+        Group group = new Group();
+        Rectangle rect = new Rectangle(0, 0);
+        group.addChild(rect);
+
+        UndoableAction action = SettingsActionFactory.createGroupTransformAction(
+                EntitySetting.ROTATION, 45.0, group, Anchor.CENTER, false
+        ).orElse(null);
+
+        assertNotNull(action);
+        assertTrue(action instanceof RotateAction);
+    }
+
+    @Test
+    public void testCreateGroupTransformAction_NullGroup() {
+        UndoableAction action = SettingsActionFactory.createGroupTransformAction(
+                EntitySetting.WIDTH, 100.0, null, Anchor.CENTER, false
+        ).orElse(null);
+
+        assertNull(action);
+    }
+
+    @Test
+    public void testCreateGroupTransformAction_EmptyGroup() {
+        Group emptyGroup = new Group();
+
+        UndoableAction action = SettingsActionFactory.createGroupTransformAction(
+                EntitySetting.WIDTH, 100.0, emptyGroup, Anchor.CENTER, false
+        ).orElse(null);
+
+        assertNull(action);
+    }
+
+    @Test
+    public void testMapPropertyToEntitySetting_Unknown() {
+        assertThrows(IllegalArgumentException.class, () -> EntitySetting.valueOf("unknownProperty"));
+        assertThrows(IllegalArgumentException.class, () -> EntitySetting.valueOf(""));
+        assertThrows(NullPointerException.class, () -> EntitySetting.valueOf(null));
+    }
+
+    @Test
+    public void testCreateEntitySettingAction() {
+        Group group = new Group();
+        Rectangle rect = new Rectangle(0, 0);
+        group.addChild(rect);
+
+        UndoableAction action = SettingsActionFactory.createEntitySettingAction(
+                group.getChildren(),
+                EntitySetting.ROTATION,
+                45.0,
+                new TransformationEntitySettingsManager()
+        ).orElse(null);
+
+        assertNotNull(action);
+        assertTrue(action instanceof ChangeEntitySettingsAction);
+    }
+
+    @Test
+    public void testCreateEntitySettingAction_NullEntities() {
+        assertTrue(SettingsActionFactory.createEntitySettingAction(
+                null,
+                EntitySetting.ROTATION,
+                45.0,
+                new TransformationEntitySettingsManager()
+        ).isEmpty());
+    }
+
+    @Test
+    public void testCreateAction_Comprehensive() {
+        Group group = new Group();
+        Rectangle rect = new Rectangle(0, 0);
+        rect.setSize(new Size(100, 50));
+        group.addChild(rect);
+
+        TransformationEntitySettingsManager manager = new TransformationEntitySettingsManager();
+
+        // Test width resize
+        UndoableAction widthAction = SettingsActionFactory.createAction(
+                EntitySetting.WIDTH, 200.0, group, Anchor.CENTER, true, manager
+        ).orElse(null);
+        assertNotNull(widthAction);
+        assertTrue(widthAction instanceof ResizeAction);
+
+        // Test position
+        UndoableAction posAction = SettingsActionFactory.createAction(
+                EntitySetting.POSITION_X, 50.0, group, Anchor.CENTER, false, manager
+        ).orElse(null);
+        assertNotNull(posAction);
+        assertTrue(posAction instanceof MoveAction);
+
+        // Test rotation
+        UndoableAction rotateAction = SettingsActionFactory.createAction(
+                EntitySetting.ROTATION, 90.0, group, Anchor.CENTER, false, manager
+        ).orElse(null);
+        assertNotNull(rotateAction);
+        assertTrue(rotateAction instanceof RotateAction);
+    }
+
+    @Test
+    public void testCreateAction_FallbackToEntitySetting() {
+        Group group = new Group();
+        Rectangle rect = new Rectangle(0, 0);
+        group.addChild(rect);
+
+        // Test a property that doesn't have a dedicated action class
+        // Should fall back to ChangeEntitySettingsAction
+        UndoableAction action = SettingsActionFactory.createAction(
+                EntitySetting.ANCHOR, Anchor.TOP_LEFT, group, Anchor.CENTER, false,
+                new TransformationEntitySettingsManager()
+        ).orElse(null);
+
+        // May be null or ChangeEntitySettingsAction depending on implementation
+        // At minimum, should not throw an exception
+        if (action != null) {
+            assertTrue(action instanceof ChangeEntitySettingsAction);
+        }
+    }
+
+    @Test
+    public void redo_ShouldNotifyListenersOnce() {
+        EntityListener listener = mock(EntityListener.class);
+
+        Group group = new Group();
+        Rectangle rect = new Rectangle(0, 0);
+        group.addChild(rect);
+        group.addListener(listener);
+
+        UndoableAction action = SettingsActionFactory.createAction(
+                EntitySetting.CUT_TYPE, CutType.ON_PATH, group, Anchor.CENTER, false,
+                new CuttableSettingsManager()
+        ).orElse(null);
+
+        assertNotNull(action);
+        action.redo();
+
+        verify(listener, times(1)).onEvent(any(EntityEvent.class));
+    }
+
+    @Test
+    public void undo_ShouldNotifyListenersOnce() {
+        EntityListener listener = mock(EntityListener.class);
+
+        Group group = new Group();
+        Rectangle rect = new Rectangle(0, 0);
+        group.addChild(rect);
+        group.addListener(listener);
+
+        UndoableAction action = SettingsActionFactory.createAction(
+                EntitySetting.CUT_TYPE, CutType.ON_PATH, group, Anchor.CENTER, false,
+                new CuttableSettingsManager()
+        ).orElse(null);
+
+        assertNotNull(action);
+        action.undo();
+
+        verify(listener, times(1)).onEvent(any(EntityEvent.class));
+    }
+}
+

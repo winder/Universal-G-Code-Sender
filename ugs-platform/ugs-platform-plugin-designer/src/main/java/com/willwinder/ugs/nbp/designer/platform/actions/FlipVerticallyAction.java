@@ -11,6 +11,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = FlipVerticallyAction.SMALL_ICON_PATH,
         displayName = "Flip vertically",
         lazy = false)
-public class FlipVerticallyAction extends com.willwinder.ugs.nbp.designer.actions.FlipVerticallyAction {
+public class FlipVerticallyAction extends com.willwinder.ugs.designer.actions.FlipVerticallyAction {
 
 }

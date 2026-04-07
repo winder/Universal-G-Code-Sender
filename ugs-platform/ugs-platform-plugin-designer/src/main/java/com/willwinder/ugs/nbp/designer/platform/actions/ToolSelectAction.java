@@ -32,6 +32,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = ToolSelectAction.SMALL_ICON_PATH,
         displayName = "Select",
         lazy = false)
-public class ToolSelectAction extends com.willwinder.ugs.nbp.designer.actions.ToolSelectAction {
+public class ToolSelectAction extends com.willwinder.ugs.designer.actions.ToolSelectAction {
 
 }

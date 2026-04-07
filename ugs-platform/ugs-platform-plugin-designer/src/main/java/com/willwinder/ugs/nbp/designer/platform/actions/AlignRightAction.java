@@ -34,6 +34,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = AlignRightAction.SMALL_ICON_PATH,
         displayName = "Align right",
         lazy = false)
-public class AlignRightAction extends com.willwinder.ugs.nbp.designer.actions.AlignRightAction {
+public class AlignRightAction extends com.willwinder.ugs.designer.actions.AlignRightAction {
 
 }

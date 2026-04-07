@@ -32,6 +32,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = ClearSelectionAction.SMALL_ICON_PATH,
         displayName = "Clear selection",
         lazy = false)
-public class ClearSelectionAction extends com.willwinder.ugs.nbp.designer.actions.ClearSelectionAction {
+public class ClearSelectionAction extends com.willwinder.ugs.designer.actions.ClearSelectionAction {
 
 }

@@ -32,6 +32,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = ToggleHidden.SMALL_ICON_PATH,
         displayName = "Hidden",
         lazy = false)
-public class ToggleHidden extends com.willwinder.ugs.nbp.designer.actions.ToggleHidden {
+public class ToggleHidden extends com.willwinder.ugs.designer.actions.ToggleHidden {
 
 }

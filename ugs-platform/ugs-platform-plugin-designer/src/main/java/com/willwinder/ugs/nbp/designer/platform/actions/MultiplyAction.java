@@ -35,6 +35,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = MultiplyAction.SMALL_ICON_PATH,
         displayName = "Multiply",
         lazy = false)
-public class MultiplyAction extends com.willwinder.ugs.nbp.designer.actions.MultiplyAction {
+public class MultiplyAction extends com.willwinder.ugs.designer.actions.MultiplyAction {
 
 }

@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.platform;
 
-import com.willwinder.ugs.nbp.designer.actions.ExportGcodeAction;
+import com.willwinder.ugs.designer.actions.ExportGcodeAction;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import org.openide.awt.*;
 import org.openide.nodes.Node;

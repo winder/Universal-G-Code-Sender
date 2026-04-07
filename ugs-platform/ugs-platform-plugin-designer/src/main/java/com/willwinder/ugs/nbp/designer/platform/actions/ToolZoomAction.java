@@ -32,6 +32,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = ToolZoomAction.ICON_SMALL_PATH,
         displayName = "Zoom",
         lazy = false)
-public class ToolZoomAction extends com.willwinder.ugs.nbp.designer.actions.ToolZoomAction {
+public class ToolZoomAction extends com.willwinder.ugs.designer.actions.ToolZoomAction {
 
 }

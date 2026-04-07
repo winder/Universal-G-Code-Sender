@@ -35,6 +35,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = UnionAction.SMALL_ICON_PATH,
         displayName = "Union",
         lazy = false)
-public class UnionAction extends com.willwinder.ugs.nbp.designer.actions.UnionAction {
+public class UnionAction extends com.willwinder.ugs.designer.actions.UnionAction {
 
 }

@@ -18,9 +18,9 @@
  */
 package com.willwinder.ugs.nbp.designer.platform;
 
-import com.willwinder.ugs.nbp.designer.gui.selectionsettings.SelectionSettingsPanel;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.designer.gui.selectionsettings.SelectionSettingsPanel;
+import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import org.openide.windows.TopComponent;

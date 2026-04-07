@@ -32,5 +32,5 @@ import org.openide.awt.ActionRegistration;
         iconBase = ToolDrawPointAction.SMALL_ICON_PATH,
         displayName = "Draw point",
         lazy = false)
-public class ToolDrawLineAction extends com.willwinder.ugs.nbp.designer.actions.ToolDrawLineAction {
+public class ToolDrawLineAction extends com.willwinder.ugs.designer.actions.ToolDrawLineAction {
 }

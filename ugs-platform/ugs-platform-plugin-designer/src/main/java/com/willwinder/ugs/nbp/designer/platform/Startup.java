@@ -18,13 +18,13 @@
  */
 package com.willwinder.ugs.nbp.designer.platform;
 
+import com.willwinder.ugs.designer.DesignerMain;
 import com.willwinder.ugs.nbp.core.services.FileFilterService;
-import com.willwinder.ugs.nbp.designer.DesignerMain;
-import com.willwinder.ugs.nbp.designer.actions.OpenAction;
-import com.willwinder.ugs.nbp.designer.actions.SimpleUndoManager;
-import com.willwinder.ugs.nbp.designer.actions.UndoManager;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.designer.actions.OpenAction;
+import com.willwinder.ugs.designer.actions.SimpleUndoManager;
+import com.willwinder.ugs.designer.actions.UndoManager;
+import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.modules.OnStart;
 import org.openide.util.Lookup;
