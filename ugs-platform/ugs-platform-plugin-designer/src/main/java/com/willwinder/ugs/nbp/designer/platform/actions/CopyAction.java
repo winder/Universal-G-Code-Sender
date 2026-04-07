@@ -12,5 +12,5 @@ import org.openide.awt.ActionReferences;
                 path = "Shortcuts",
                 name = "D-C")
 })
-public class CopyAction extends com.willwinder.ugs.nbp.designer.actions.CopyAction {
+public class CopyAction extends com.willwinder.ugs.designer.actions.CopyAction {
 }

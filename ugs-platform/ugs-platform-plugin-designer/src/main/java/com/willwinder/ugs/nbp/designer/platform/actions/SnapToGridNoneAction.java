@@ -27,6 +27,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = SnapToGridNoneAction.SMALL_ICON_PATH,
         displayName = "Disable snap to grid",
         lazy = false)
-public class SnapToGridNoneAction extends com.willwinder.ugs.nbp.designer.actions.SnapToGridNoneAction {
+public class SnapToGridNoneAction extends com.willwinder.ugs.designer.actions.SnapToGridNoneAction {
 }
 

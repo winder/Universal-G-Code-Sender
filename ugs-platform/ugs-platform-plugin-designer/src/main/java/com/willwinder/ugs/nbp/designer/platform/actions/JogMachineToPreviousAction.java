@@ -34,6 +34,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = JogMachineToPreviousAction.SMALL_ICON_PATH,
         displayName = "Jog machine to previous",
         lazy = false)
-public class JogMachineToPreviousAction extends com.willwinder.ugs.nbp.designer.actions.JogMachineToPreviousAction {
+public class JogMachineToPreviousAction extends com.willwinder.ugs.designer.actions.JogMachineToPreviousAction {
 
 }

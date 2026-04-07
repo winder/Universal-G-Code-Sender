@@ -18,7 +18,7 @@ package com.willwinder.ugs.nbp.designer.platform;
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.willwinder.ugs.nbp.designer.model.Settings;
+import com.willwinder.ugs.designer.model.Settings;
 import org.openide.util.NbPreferences;
 
 import java.util.prefs.Preferences;

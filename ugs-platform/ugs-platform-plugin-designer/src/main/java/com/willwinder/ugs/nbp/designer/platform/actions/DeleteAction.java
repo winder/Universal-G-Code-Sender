@@ -36,6 +36,6 @@ import org.openide.awt.ActionReferences;
                 path = "Shortcuts",
                 name = "BACK_SPACE")
 })
-public class DeleteAction extends com.willwinder.ugs.nbp.designer.actions.DeleteAction {
+public class DeleteAction extends com.willwinder.ugs.designer.actions.DeleteAction {
 
 }

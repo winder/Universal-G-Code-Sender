@@ -32,6 +32,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = JogMachineToLowerRightCornerAction.SMALL_ICON_PATH,
         displayName = "Jog machine to lower right",
         lazy = false)
-public class JogMachineToLowerRightCornerAction extends com.willwinder.ugs.nbp.designer.actions.JogMachineToLowerRightCornerAction {
+public class JogMachineToLowerRightCornerAction extends com.willwinder.ugs.designer.actions.JogMachineToLowerRightCornerAction {
 
 }

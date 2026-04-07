@@ -32,6 +32,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = OffsetAction.SMALL_ICON_PATH,
         displayName = "Draw Offset",
         lazy = false)
-public class OffsetAction extends com.willwinder.ugs.nbp.designer.actions.OffsetAction {
+public class OffsetAction extends com.willwinder.ugs.designer.actions.OffsetAction {
 
 }

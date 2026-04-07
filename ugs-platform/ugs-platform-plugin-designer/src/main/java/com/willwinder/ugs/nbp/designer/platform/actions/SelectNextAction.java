@@ -38,5 +38,5 @@ import org.openide.awt.ActionRegistration;
                 path = "Shortcuts",
                 name = "SD-N")
 })
-public class SelectNextAction extends com.willwinder.ugs.nbp.designer.actions.SelectNextAction {
+public class SelectNextAction extends com.willwinder.ugs.designer.actions.SelectNextAction {
 }

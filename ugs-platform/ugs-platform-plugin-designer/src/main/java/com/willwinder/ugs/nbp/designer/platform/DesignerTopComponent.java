@@ -18,15 +18,15 @@
  */
 package com.willwinder.ugs.nbp.designer.platform;
 
-import com.willwinder.ugs.nbp.designer.actions.UndoManagerListener;
-import com.willwinder.ugs.nbp.designer.entities.selection.SelectionEvent;
-import com.willwinder.ugs.nbp.designer.entities.selection.SelectionListener;
-import com.willwinder.ugs.nbp.designer.gui.DrawingOverlayContainer;
-import com.willwinder.ugs.nbp.designer.gui.DrawingScrollContainer;
-import com.willwinder.ugs.nbp.designer.gui.PopupMenuFactory;
-import com.willwinder.ugs.nbp.designer.gui.ToolBox;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.designer.actions.UndoManagerListener;
+import com.willwinder.ugs.designer.entities.entities.selection.SelectionEvent;
+import com.willwinder.ugs.designer.entities.entities.selection.SelectionListener;
+import com.willwinder.ugs.designer.gui.DrawingOverlayContainer;
+import com.willwinder.ugs.designer.gui.DrawingScrollContainer;
+import com.willwinder.ugs.designer.gui.PopupMenuFactory;
+import com.willwinder.ugs.designer.gui.ToolBox;
+import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;

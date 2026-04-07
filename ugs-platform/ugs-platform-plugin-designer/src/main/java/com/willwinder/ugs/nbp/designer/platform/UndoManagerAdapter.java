@@ -1,7 +1,7 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
 import com.google.common.collect.Sets;
-import com.willwinder.ugs.nbp.designer.actions.UndoManager;
+import com.willwinder.ugs.designer.actions.UndoManager;
 import org.openide.awt.UndoRedo;
 
 import javax.swing.*;

@@ -1,0 +1,196 @@
+/*
+    Copyright 2024-2026 Albert Giro Quer
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.willwinder.ugs.designer.gui.selectionsettings.settingspanels;
+
+import com.willwinder.ugs.designer.actions.ChangeEntitySettingsAction;
+import com.willwinder.ugs.designer.actions.UndoableAction;
+import com.willwinder.ugs.designer.entities.entities.Entity;
+import com.willwinder.ugs.designer.entities.entities.EntitySetting;
+import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.entities.cuttable.Text;
+import com.willwinder.ugs.designer.entities.entities.settings.TextSettingsManager;
+import com.willwinder.ugs.designer.gui.FontCombo;
+import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.services.LookupServiceProvider;
+import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
+import net.miginfocom.swing.MigLayout;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.List;
+
+
+/*
+ * @Author giro-dev
+ */
+@LookupServiceProvider(position = 1)
+public class TextSettingsPanel extends JPanel implements EntitySettingsPanel {
+
+    private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";
+    private static final String FIELD_CONSTRAINTS = "grow, w 60:60:300, hmin 32, hmax 36, wrap, spanx";
+
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    private final TextSettingsManager settingsManager = new TextSettingsManager();
+
+    private JTextField textField;
+    private FontCombo fontCombo;
+    private boolean updating = false;
+
+    public TextSettingsPanel() {
+        super(new MigLayout("insets 0, gap 10, fillx", "[sg label,right] 10 [grow]"));
+        initializeComponents();
+        buildLayout();
+        setupListeners();
+    }
+
+    private void initializeComponents() {
+        textField = new JTextField();
+        fontCombo = new FontCombo();
+    }
+
+    private void buildLayout() {
+        add(new SeparatorLabel(Localization.getString("designer.panel.shape-settings.text.title"), SwingConstants.RIGHT), "spanx, growx");
+
+        add(new JLabel("Text", SwingConstants.RIGHT), LABEL_CONSTRAINTS);
+        add(textField, FIELD_CONSTRAINTS);
+
+        add(new JLabel("Font", SwingConstants.RIGHT), LABEL_CONSTRAINTS);
+        add(fontCombo, FIELD_CONSTRAINTS);
+    }
+
+    private void setupListeners() {
+        // Only fire property change when focus is lost, not on every keystroke
+        textField.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                // Do nothing
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (!updating) {
+                    pcs.firePropertyChange(EntitySetting.TEXT.name(), null, textField.getText());
+                }
+            }
+        });
+
+        fontCombo.addActionListener(e -> {
+            if (!updating) {
+                pcs.firePropertyChange(EntitySetting.FONT_FAMILY.name(), null, fontCombo.getSelectedItem());
+            }
+        });
+    }
+
+    public String getTitle() {
+        return "Text Properties";
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        Component[] components = {textField, fontCombo};
+        for (Component component : components) {
+            if (component != null) component.setEnabled(enabled);
+        }
+    }
+
+    @Override
+    public boolean isApplicable(Group selectionGroup) {
+        return selectionGroup.getChildren().stream()
+                .allMatch(Text.class::isInstance);
+    }
+
+    @Override
+    public JComponent getComponent() {
+        return this;
+    }
+
+    @Override
+    public void setFromSelection(Group selectionGroup) {
+        Text firstText = selectionGroup.getChildren().stream()
+                .filter(Text.class::isInstance)
+                .map(Text.class::cast)
+                .findFirst()
+                .orElse(null);
+
+        if (firstText != null) {
+            updating = true;
+            try {
+                textField.setText(firstText.getText());
+                fontCombo.setSelectedItem(firstText.getFontFamily());
+            } finally {
+                updating = false;
+            }
+        }
+    }
+
+    @Override
+    public void applyChangeToSelection(EntitySetting entitySetting, Object newValue, Group selectionGroup) {
+        String value = newValue != null ? String.valueOf(newValue) : "";
+        selectionGroup.getChildren().stream()
+                .filter(Text.class::isInstance)
+                .map(Text.class::cast)
+                .forEach(text -> {
+                    if (EntitySetting.TEXT.equals(entitySetting)) {
+                        text.setText(value);
+                    } else if (EntitySetting.FONT_FAMILY.equals(entitySetting)) {
+                        text.setFontFamily(value);
+                    }
+                });
+    }
+
+    @Override
+    public void addChangeListener(PropertyChangeListener l) {
+        pcs.addPropertyChangeListener(l);
+    }
+
+    @Override
+    public void removeChangeListener(PropertyChangeListener l) {
+        pcs.removePropertyChangeListener(l);
+    }
+
+    @Override
+    public void createAndExecuteUndoableAction(EntitySetting entitySetting, Object newValue, Group selectionGroup, Controller controller) {
+        List<Entity> entities = selectionGroup.getChildren();
+        if (entities.isEmpty()) return;
+
+        UndoableAction action = createAction(entitySetting, newValue, entities);
+        action.redo();
+        controller.getUndoManager().addAction(action);
+    }
+
+    private UndoableAction createAction(EntitySetting entitySetting, Object newValue, List<Entity> entities) {
+        if (EntitySetting.TEXT.equals(entitySetting)) {
+            return new ChangeEntitySettingsAction(entities, EntitySetting.TEXT, newValue, settingsManager);
+        } else if (EntitySetting.FONT_FAMILY.equals(entitySetting)) {
+            return createFontAction(entities, newValue);
+        } else {
+            throw new IllegalArgumentException("Unsupported property: " + entitySetting + " (valid properties are: " + EntitySetting.TEXT + ", " + EntitySetting.FONT_FAMILY + ")");
+        }
+    }
+
+    private UndoableAction createFontAction(List<Entity> entities, Object newValue) {
+        return new ChangeEntitySettingsAction(entities, EntitySetting.FONT_FAMILY, newValue, settingsManager);
+    }
+}

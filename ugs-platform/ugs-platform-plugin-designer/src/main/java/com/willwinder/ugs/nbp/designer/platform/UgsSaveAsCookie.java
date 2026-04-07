@@ -18,17 +18,18 @@
  */
 package com.willwinder.ugs.nbp.designer.platform;
 
+import com.willwinder.ugs.designer.io.ugsd.UgsDesignWriter;
+import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.core.actions.OpenFileAction;
-import com.willwinder.ugs.nbp.designer.actions.SaveAction;
-import static com.willwinder.ugs.nbp.designer.actions.SaveAction.UGSD_EXT;
-import com.willwinder.ugs.nbp.designer.io.ugsd.UgsDesignWriter;
-import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.SaveAsCapable;
 import org.openide.nodes.Node;
 
 import java.io.File;
 import org.apache.commons.lang3.StringUtils;
+
+import static com.willwinder.ugs.designer.actions.SaveAction.UGSD_EXT;
 
 /**
  * Provides support for saving the file as...

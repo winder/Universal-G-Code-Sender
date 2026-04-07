@@ -27,7 +27,7 @@ import org.openide.awt.ActionRegistration;
         iconBase = SnapToGridOneAction.SMALL_ICON_PATH,
         displayName = "Snap to 1mm grid",
         lazy = false)
-public class SnapToGridOneAction extends com.willwinder.ugs.nbp.designer.actions.SnapToGridOneAction {
+public class SnapToGridOneAction extends com.willwinder.ugs.designer.actions.SnapToGridOneAction {
 
 }
 

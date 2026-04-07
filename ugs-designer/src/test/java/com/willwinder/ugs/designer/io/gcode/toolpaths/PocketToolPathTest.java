@@ -1,0 +1,256 @@
+package com.willwinder.ugs.designer.io.gcode.toolpaths;
+
+import com.willwinder.ugs.designer.entities.entities.Entity;
+import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.entities.cuttable.Direction;
+import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
+import com.willwinder.ugs.designer.io.gcode.path.Segment;
+import com.willwinder.ugs.designer.io.gcode.path.SegmentType;
+import com.willwinder.ugs.designer.io.gcode.toolpaths.ToolPathStats;
+import com.willwinder.ugs.designer.io.ugsd.UgsDesignReader;
+import com.willwinder.ugs.designer.model.Design;
+import com.willwinder.ugs.designer.model.Settings;
+import com.willwinder.ugs.designer.model.Size;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+
+import java.util.List;
+
+public class PocketToolPathTest {
+
+    @Test
+    public void pocketShouldNotExceedTheGeometry() {
+        double toolRadius = 2.5;
+        double geometrySize = 10d;
+        double safeHeight = 1;
+        double targetDepth = 10;
+        int depthPerPass = 1;
+
+        Rectangle rectangle = new Rectangle();
+        rectangle.setSize(new Size(geometrySize, geometrySize));
+
+        Settings settings = new Settings();
+        settings.setSafeHeight(safeHeight);
+        settings.setToolStepOver(1);
+        settings.setToolDiameter(toolRadius * 2);
+        settings.setDepthPerPass(1);
+
+        com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath simplePocket = new com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath(settings, rectangle);
+        simplePocket.setTargetDepth(targetDepth);
+
+        List<Segment> segmentList = simplePocket.toGcodePath().getSegments();
+
+        Segment firstSegment = segmentList.get(0);
+        assertEquals("The segment should turn on spindle", SegmentType.SEAM, firstSegment.type);
+        assertEquals("Default spindle speed is 100%", Integer.valueOf(255), firstSegment.getSpindleSpeed());
+
+        Segment secondSegment = segmentList.get(1);
+        assertEquals("The segment should move to safe height", safeHeight, secondSegment.point.getAxis(Axis.Z), 0.1);
+        assertFalse("The segment should not move X", secondSegment.point.hasAxis(Axis.X));
+        assertFalse("The segment should not move Y", secondSegment.point.hasAxis(Axis.Y));
+
+        Segment thirdSegment = segmentList.get(2);
+        assertFalse("The segment should not include height", thirdSegment.point.hasAxis(Axis.Z));
+        assertEquals("The segment should move to first X position", safeHeight, thirdSegment.point.getAxis(Axis.X), toolRadius);
+        assertEquals("The segment should move to first Y position", safeHeight, thirdSegment.point.getAxis(Axis.Y), toolRadius);
+
+        // Make sure that we don't move outside the boundary of the geometry
+        segmentList.stream()
+                .filter(segment -> segment.type == SegmentType.LINE || segment.type == SegmentType.POINT)
+                .forEach(segment -> {
+                    assertTrue("Point was outside boundary of 10x10 shape: X=" + segment.getPoint().getAxis(Axis.X), segment.getPoint().getAxis(Axis.X) >= toolRadius);
+                    assertTrue("Point was outside boundary of 10x10 shape: Y=" + segment.getPoint().getAxis(Axis.Y), segment.getPoint().getAxis(Axis.Y) >= toolRadius);
+                    assertTrue("Point was outside boundary of 10x10 shape: X=" + segment.getPoint().getAxis(Axis.X), segment.getPoint().getAxis(Axis.X) <= geometrySize - toolRadius);
+                    assertTrue("Point was outside boundary of 10x10 shape: Y=" + segment.getPoint().getAxis(Axis.Y), segment.getPoint().getAxis(Axis.Y) <= geometrySize - toolRadius);
+                    assertTrue("Point was outside boundary of 10x10 shape: Z=" + segment.getPoint().getAxis(Axis.Z), segment.getPoint().getAxis(Axis.Z) <= 0);
+                    assertTrue("Point was outside boundary of 10x10 shape: Z=" + segment.getPoint().getAxis(Axis.Z), segment.getPoint().getAxis(Axis.Z) >= -targetDepth);
+                });
+
+        List<Segment> drillOperations = segmentList.stream()
+                .filter(segment -> segment.type == SegmentType.POINT)
+                .toList();
+        assertEquals("There should be a number of drill operations when making a pocket", Math.abs(targetDepth + depthPerPass) / depthPerPass, drillOperations.size(), 0.1);
+
+        PartialPosition point = drillOperations.get(drillOperations.size() - 1).getPoint();
+        assertEquals("Last operation should reach the target depth", -targetDepth, point.getAxis(Axis.Z), 0.1);
+    }
+
+    @Test
+    public void pocketDirectionClimb() {
+        double toolRadius = 2.5;
+        double geometrySize = 10d;
+        double safeHeight = 1;
+        double targetDepth = 1;
+
+        Rectangle rectangle = new Rectangle();
+        rectangle.setSize(new Size(geometrySize, geometrySize));
+        rectangle.setDirection(Direction.CLIMB);
+
+        Settings settings = new Settings();
+        settings.setSafeHeight(safeHeight);
+        settings.setToolStepOver(1);
+        settings.setToolDiameter(toolRadius * 2);
+        settings.setDepthPerPass(1);
+
+
+        com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath simplePocket = new com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath(settings, rectangle);
+        simplePocket.setTargetDepth(targetDepth);
+
+        List<Segment> segmentList = simplePocket.toGcodePath().getSegments();
+
+
+        assertEquals(SegmentType.SEAM, segmentList.get(0).getType());
+        assertSegment(segmentList.get(1), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build(), null);
+        assertSegment(segmentList.get(2), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).build(), null);
+        assertSegment(segmentList.get(3), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build(), null);
+        assertSegment(segmentList.get(4), SegmentType.POINT, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build(), null);
+        assertSegment(segmentList.get(5), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build(), 1000);
+        assertSegment(segmentList.get(6), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(7.5).setZ(-0d).build(), 1000);
+        assertSegment(segmentList.get(7), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(7.5).setZ(-0d).build(), 1000);
+        assertSegment(segmentList.get(8), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(2.5).setZ(-0d).build(), 1000);
+    }
+
+    @Test
+    public void pocketDirectionConventional() {
+        double toolRadius = 2.5;
+        double geometrySize = 10d;
+        double safeHeight = 1;
+        double targetDepth = 1;
+
+        Rectangle rectangle = new Rectangle();
+        rectangle.setSize(new Size(geometrySize, geometrySize));
+        rectangle.setDirection(Direction.CONVENTIONAL);
+        rectangle.setFeedRate(2000);
+
+        Settings settings = new Settings();
+        settings.setSafeHeight(safeHeight);
+        settings.setToolStepOver(1);
+        settings.setToolDiameter(toolRadius * 2);
+        settings.setDepthPerPass(1);
+
+
+        com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath simplePocket = new com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath(settings, rectangle);
+        simplePocket.setTargetDepth(targetDepth);
+
+        List<Segment> segmentList = simplePocket.toGcodePath().getSegments();
+
+
+        assertEquals(SegmentType.SEAM, segmentList.get(0).getType());
+        assertSegment(segmentList.get(1), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build(), null);
+        assertSegment(segmentList.get(2), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).build(), null);
+        assertSegment(segmentList.get(3), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build(), null);
+        assertSegment(segmentList.get(4), SegmentType.POINT, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build(), null);
+        assertSegment(segmentList.get(5), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build(), 2000);
+        assertSegment(segmentList.get(6), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(2.5).setZ(-0d).build(), 2000);
+        assertSegment(segmentList.get(7), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(7.5).setZ(-0d).build(), 2000);
+        assertSegment(segmentList.get(8), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(7.5).setZ(-0d).build(), 2000);
+    }
+
+
+    private void assertSegment(Segment segment, SegmentType segmentType, PartialPosition partialPosition, Integer feedSpeed) {
+        assertEquals(segmentType, segment.getType());
+        assertEquals(UnitUtils.Units.MM, segment.getPoint().getUnits());
+        assertEquals(partialPosition, segment.getPoint());
+        assertEquals(feedSpeed, segment.getFeedSpeed());
+    }
+
+
+    @Test
+    public void pocketOnRectangleWithHole() {
+        double toolRadius = 2.5;
+        double geometrySize = 10d;
+        double safeHeight = 1;
+        double targetDepth = 10;
+        int depthPerPass = 1;
+
+        Rectangle rectangle = new Rectangle();
+        rectangle.setSize(new Size(geometrySize, geometrySize));
+
+
+        Settings settings = new Settings();
+        settings.setToolDiameter(toolRadius * 2);
+        settings.setSafeHeight(safeHeight);
+        settings.setToolStepOver(1);
+        settings.setDepthPerPass(depthPerPass);
+
+        com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath simplePocket = new com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath(settings, rectangle);
+        simplePocket.setTargetDepth(targetDepth);
+
+        List<Segment> segmentList = simplePocket.toGcodePath().getSegments();
+
+        Segment firstSegment = segmentList.get(0);
+        assertEquals("The segment should turn on spindle", SegmentType.SEAM, firstSegment.type);
+        assertEquals("Default spindle speed is 100%", Integer.valueOf(255), firstSegment.getSpindleSpeed());
+
+        Segment secondSegment = segmentList.get(1);
+        assertEquals("The first segment should move to safe height", safeHeight, secondSegment.point.getAxis(Axis.Z), 0.1);
+        assertFalse("The first segment should not move X", secondSegment.point.hasAxis(Axis.X));
+        assertFalse("The first segment should not move Y", secondSegment.point.hasAxis(Axis.Y));
+
+        Segment thirdSegment = segmentList.get(2);
+        assertFalse("The segment should not include height", thirdSegment.point.hasAxis(Axis.Z));
+        assertEquals("The segment should move to first X position", safeHeight, thirdSegment.point.getAxis(Axis.X), toolRadius);
+        assertEquals("The segment should move to first Y position", safeHeight, thirdSegment.point.getAxis(Axis.Y), toolRadius);
+
+        // Make sure that we don't move outside the boundary of the geometry
+        segmentList.stream()
+                .filter(segment -> segment.type == SegmentType.LINE || segment.type == SegmentType.POINT)
+                .forEach(segment -> {
+                    assertTrue("Point was outside boundary of 10x10 shape: X=" + segment.getPoint().getAxis(Axis.X), segment.getPoint().getAxis(Axis.X) >= toolRadius);
+                    assertTrue("Point was outside boundary of 10x10 shape: Y=" + segment.getPoint().getAxis(Axis.Y), segment.getPoint().getAxis(Axis.Y) >= toolRadius);
+                    assertTrue("Point was outside boundary of 10x10 shape: X=" + segment.getPoint().getAxis(Axis.X), segment.getPoint().getAxis(Axis.X) <= geometrySize - toolRadius);
+                    assertTrue("Point was outside boundary of 10x10 shape: Y=" + segment.getPoint().getAxis(Axis.Y), segment.getPoint().getAxis(Axis.Y) <= geometrySize - toolRadius);
+                    assertTrue("Point was outside boundary of 10x10 shape: Z=" + segment.getPoint().getAxis(Axis.Z), segment.getPoint().getAxis(Axis.Z) <= 0);
+                    assertTrue("Point was outside boundary of 10x10 shape: Z=" + segment.getPoint().getAxis(Axis.Z), segment.getPoint().getAxis(Axis.Z) >= -targetDepth);
+                });
+
+        List<Segment> drillOperations = segmentList.stream()
+                .filter(segment -> segment.type == SegmentType.POINT)
+                .toList();
+        assertEquals("There should be a number of drill operations when making a pocket", Math.abs(targetDepth + depthPerPass) / depthPerPass, drillOperations.size(), 0.1);
+
+        PartialPosition point = drillOperations.get(drillOperations.size() - 1).getPoint();
+        assertEquals("Last operation should reach the target depth", -targetDepth, point.getAxis(Axis.Z), 0.1);
+    }
+
+    @Test
+    public void pocketOnTestFileCheckLengths() {
+        UgsDesignReader reader = new UgsDesignReader();
+        Design design = reader.read(PocketToolPathTest.class.getResourceAsStream("/pocket-test.ugsd")).orElseThrow(RuntimeException::new);
+
+        double toolDiameter = 1;
+        double safeHeight = 5;
+        double startDepth = 1;
+        double targetDepth = 1;
+        int depthPerPass = 1;
+
+        double totalLength = 0;
+        double totalRapidLength = 0;
+
+        Settings settings = new Settings();
+        settings.setToolStepOver(0.5);
+        settings.setSafeHeight(safeHeight);
+        settings.setToolDiameter(toolDiameter);
+        settings.setDepthPerPass(depthPerPass);
+
+        for (Entity entity : design.getEntities()) {
+            com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath simplePocket = new com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath(settings, (Cuttable) entity);
+            simplePocket.setTargetDepth(targetDepth);
+            simplePocket.setStartDepth(startDepth);
+
+            GcodePath gcodePath = simplePocket.toGcodePath();
+            ToolPathStats toolPathStats = com.willwinder.ugs.designer.io.gcode.toolpaths.ToolPathUtils.getToolPathStats(gcodePath);
+            totalLength += toolPathStats.getTotalFeedLength();
+            totalRapidLength += toolPathStats.getTotalRapidLength();
+        }
+
+        assertTrue("The tool path was " + Math.round(totalLength) + "mm long but should have been shorter", totalLength < 22144);
+        assertTrue("The tool path rapids was " + Math.round(totalRapidLength) + "mm long but should have been shorter", totalRapidLength < 730);
+    }
+}

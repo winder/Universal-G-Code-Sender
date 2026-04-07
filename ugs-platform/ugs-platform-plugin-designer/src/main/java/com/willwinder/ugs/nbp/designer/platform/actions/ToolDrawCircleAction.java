@@ -32,6 +32,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = ToolDrawCircleAction.ICON_SMALL_PATH,
         displayName = "Draw ellipse",
         lazy = false)
-public class ToolDrawCircleAction extends com.willwinder.ugs.nbp.designer.actions.ToolDrawCircleAction {
+public class ToolDrawCircleAction extends com.willwinder.ugs.designer.actions.ToolDrawCircleAction {
 
 }

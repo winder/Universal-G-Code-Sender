@@ -18,11 +18,11 @@
  */
 package com.willwinder.ugs.nbp.designer.platform;
 
-import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTree;
-import com.willwinder.ugs.nbp.designer.gui.tree.EntitiesTreeController;
-import com.willwinder.ugs.nbp.designer.gui.tree.EntityTreeModel;
-import com.willwinder.ugs.nbp.designer.logic.Controller;
-import com.willwinder.ugs.nbp.designer.logic.ControllerFactory;
+import com.willwinder.ugs.designer.gui.tree.EntitiesTree;
+import com.willwinder.ugs.designer.gui.tree.EntitiesTreeController;
+import com.willwinder.ugs.designer.gui.tree.EntityTreeModel;
+import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.ugs.nbp.lib.Mode;
 import com.willwinder.universalgcodesender.services.LookupService;
 import org.openide.windows.TopComponent;

@@ -1,0 +1,158 @@
+/*
+    Copyright 2022-2026 Joacim Breiler
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.willwinder.ugs.designer.actions;
+
+import com.willwinder.ugs.designer.entities.entities.cuttable.Raster;
+import com.willwinder.ugs.designer.io.c2d.C2dReader;
+import com.willwinder.ugs.designer.io.dxf.DxfReader;
+import com.willwinder.ugs.designer.io.eagle.EaglePnpReader;
+import com.willwinder.ugs.designer.io.excellon.ExcellonReader;
+import com.willwinder.ugs.designer.io.gerber.GerberReader;
+import com.willwinder.ugs.designer.io.kicad.KiCadPosReader;
+import com.willwinder.ugs.designer.io.svg.SvgReader;
+import com.willwinder.ugs.designer.io.ugsd.UgsDesignReader;
+import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.ugs.designer.logic.ControllerFactory;
+import com.willwinder.ugs.designer.logic.Tool;
+import com.willwinder.ugs.designer.model.Design;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * @author Joacim Breiler
+ */
+public class ToolImportAction extends AbstractDesignAction {
+    private static final Logger LOGGER = Logger.getLogger(ToolImportAction.class.getName());
+
+    public static final FileNameExtensionFilter[] FILE_NAME_EXTENSION_FILTERS = new FileNameExtensionFilter[]{
+            new FileNameExtensionFilter("All supported formats", "svg", "dxf", "c2d", "mnt", "mnb", "drl", "pos", "gbr", "ugsd", "png", "jpg", "jpeg"),
+            new FileNameExtensionFilter("Scalable Vector Graphics (.svg)", "svg"),
+            new FileNameExtensionFilter("Autodesk CAD (.dxf)", "dxf"),
+            new FileNameExtensionFilter("Carbide Create (.c2d)", "c2d"),
+            new FileNameExtensionFilter("Eagle (.mnt, .mnb)", "mnt", "mnb"),
+            new FileNameExtensionFilter("Excellon (.drl)", "drl"),
+            new FileNameExtensionFilter("KiCad (.pos)", "pos"),
+            new FileNameExtensionFilter("Gerber (.gbr)", "gbr"),
+            new FileNameExtensionFilter("UGS design (.ugsd)", "ugsd"),
+            new FileNameExtensionFilter("Portable Network Graphics (.png)", "png"),
+            new FileNameExtensionFilter("JPEG (.jpg)", "jpg", "jpeg"),
+            new FileNameExtensionFilter("Bitmap (.bmp)", "bmp"),
+    };
+
+    public static final String SMALL_ICON_PATH = "img/import.svg";
+    public static final String LARGE_ICON_PATH = "img/import24.svg";
+    private final transient Controller controller;
+
+    public ToolImportAction() {
+        putValue("iconBase", SMALL_ICON_PATH);
+        putValue(SMALL_ICON, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_SMALL).orElse(null));
+        putValue(LARGE_ICON_KEY, SvgIconLoader.loadImageIcon(SMALL_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null));
+        putValue("menuText", "Import file");
+        putValue(NAME, "Import file");
+        this.controller = ControllerFactory.getController();
+    }
+
+    public static void readDesign(Controller controller, BackendAPI backend, File f) {
+        Optional<Design> optionalDesign = Optional.empty();
+        if (StringUtils.endsWithIgnoreCase(f.getName(), ".svg")) {
+            SvgReader svgReader = new SvgReader();
+            optionalDesign = svgReader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".dxf")) {
+            DxfReader reader = new DxfReader(backend.getSettings());
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".c2d")) {
+            C2dReader reader = new C2dReader();
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".mnt") ||
+                StringUtils.endsWithIgnoreCase(f.getName(), ".mnb")) {
+            EaglePnpReader reader = new EaglePnpReader();
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".pos")) {
+            KiCadPosReader reader = new KiCadPosReader();
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".ugsd")) {
+            UgsDesignReader reader = new UgsDesignReader();
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), "-drl.gbr")) {
+            // Treat as a KiCad drill file
+            GerberReader reader = new GerberReader(true);
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".gbr")) {
+            GerberReader reader = new GerberReader();
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".drl")) {
+            ExcellonReader reader = new ExcellonReader();
+            optionalDesign = reader.read(f);
+        }
+
+        if (optionalDesign.isPresent()) {
+            Design design = optionalDesign.get();
+            controller.setTool(Tool.SELECT);
+            controller.addEntities(design.getEntities());
+            controller.getSelectionManager().addSelection(design.getEntities());
+            controller.getDrawing().repaint();
+        } else {
+            throw new RuntimeException("Could not open: " + f.getName());
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        JFileChooser fileDialog = new JFileChooser();
+        fileDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileDialog.setAcceptAllFileFilterUsed(false);
+        Arrays.asList(FILE_NAME_EXTENSION_FILTERS).forEach(fileDialog::addChoosableFileFilter);
+        fileDialog.showOpenDialog(SwingHelpers.getRootFrame());
+
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
+
+        ThreadHelper.invokeLater(() -> {
+            File f = fileDialog.getSelectedFile();
+            if (f != null) {
+                if (isRasterFile(f)) {
+                    Controller controller = ControllerFactory.getController();
+                    controller.getDrawing().insertEntity(new Raster(f));
+                } else {
+                    try {
+                        readDesign(controller, backend, f);
+                    } catch (Exception exception) {
+                        LOGGER.log(Level.SEVERE, "Could not import file " + f.getName(), exception);
+                    }
+                }
+            }
+        });
+    }
+
+    private static boolean isRasterFile(File f) {
+        return StringUtils.endsWithIgnoreCase(f.getName(), ".png") || StringUtils.endsWithIgnoreCase(f.getName(), ".jpg") || StringUtils.endsWithIgnoreCase(f.getName(), ".jpeg") || StringUtils.endsWithIgnoreCase(f.getName(), ".bmp");
+    }
+}

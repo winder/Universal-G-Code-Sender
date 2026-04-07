@@ -35,6 +35,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = IntersectionAction.SMALL_ICON_PATH,
         displayName = "Intersection",
         lazy = false)
-public class IntersectionAction extends com.willwinder.ugs.nbp.designer.actions.IntersectionAction {
+public class IntersectionAction extends com.willwinder.ugs.designer.actions.IntersectionAction {
 
 }

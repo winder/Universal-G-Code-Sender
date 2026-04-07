@@ -12,5 +12,5 @@ import org.openide.awt.ActionReferences;
                 path = "Shortcuts",
                 name = "D-V")
 })
-public class PasteAction extends com.willwinder.ugs.nbp.designer.actions.PasteAction {
+public class PasteAction extends com.willwinder.ugs.designer.actions.PasteAction {
 }

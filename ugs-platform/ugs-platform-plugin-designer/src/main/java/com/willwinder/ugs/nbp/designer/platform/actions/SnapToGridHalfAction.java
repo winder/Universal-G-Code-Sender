@@ -27,7 +27,7 @@ import org.openide.awt.ActionRegistration;
         iconBase = SnapToGridHalfAction.SMALL_ICON_PATH,
         displayName = "Snap to 0.5mm grid",
         lazy = false)
-public class SnapToGridHalfAction extends com.willwinder.ugs.nbp.designer.actions.SnapToGridHalfAction {
+public class SnapToGridHalfAction extends com.willwinder.ugs.designer.actions.SnapToGridHalfAction {
 
 }
 

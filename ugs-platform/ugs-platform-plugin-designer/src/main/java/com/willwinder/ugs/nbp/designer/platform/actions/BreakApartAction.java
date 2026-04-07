@@ -35,6 +35,6 @@ import org.openide.awt.ActionRegistration;
         iconBase = BreakApartAction.SMALL_ICON_PATH,
         displayName = "Break apart",
         lazy = false)
-public class BreakApartAction extends com.willwinder.ugs.nbp.designer.actions.BreakApartAction {
+public class BreakApartAction extends com.willwinder.ugs.designer.actions.BreakApartAction {
 
 }

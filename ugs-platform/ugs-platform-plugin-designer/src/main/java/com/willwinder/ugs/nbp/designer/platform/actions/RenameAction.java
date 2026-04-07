@@ -35,6 +35,6 @@ import org.openide.awt.ActionRegistration;
                 path = "Shortcuts",
                 name = "F2")
 })
-public class RenameAction extends com.willwinder.ugs.nbp.designer.actions.RenameAction {
+public class RenameAction extends com.willwinder.ugs.designer.actions.RenameAction {
 
 }

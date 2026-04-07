@@ -1,0 +1,327 @@
+/*
+    Copyright 2024-2026 Albert Giro Quer
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.willwinder.ugs.designer.gui.selectionsettings.settingspanels;
+
+import com.willwinder.ugs.designer.actions.ChangeEntitySettingsAction;
+import com.willwinder.ugs.designer.actions.UndoableAction;
+import com.willwinder.ugs.designer.entities.entities.Entity;
+import com.willwinder.ugs.designer.entities.entities.EntitySetting;
+import com.willwinder.ugs.designer.entities.entities.cuttable.CutType;
+import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.entities.cuttable.Direction;
+import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.entities.cuttable.ToolPathDirection;
+import com.willwinder.ugs.designer.entities.entities.settings.CuttableSettingsManager;
+import com.willwinder.ugs.designer.gui.CutTypeCombo;
+import com.willwinder.ugs.designer.gui.DirectionCombo;
+import com.willwinder.ugs.designer.gui.ToolPathDirectionCombo;
+import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Unit;
+import com.willwinder.universalgcodesender.services.LookupServiceProvider;
+import com.willwinder.universalgcodesender.uielements.components.PercentSpinner;
+import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
+import com.willwinder.universalgcodesender.uielements.components.UnitSpinner;
+import net.miginfocom.swing.MigLayout;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import java.awt.Component;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+
+@LookupServiceProvider(position = 15)
+public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel {
+
+    private static final String LABEL_CONSTRAINTS = "grow, hmin 32, hmax 36";
+    private static final String FIELD_CONSTRAINTS = "grow, w 60:60:300, hmin 32, hmax 36, wrap, spanx";
+    private static final String SLIDER_CONSTRAINTS = "grow, w 60:60:300, hmin 32, hmax 44, wrap, spanx";
+
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    private final CuttableSettingsManager settingsManager = new CuttableSettingsManager();
+
+    private CutTypeCombo cutTypeComboBox;
+    private UnitSpinner startDepthSpinner;
+    private UnitSpinner targetDepthSpinner;
+    private PercentSpinner spindleSpeedSpinner;
+    private JSlider passesSlider;
+    private UnitSpinner feedRateSpinner;
+    private JSlider leadInPercentSlider;
+    private JCheckBox includeInExport;
+    private UnitSpinner toolPathAngleSpinner;
+    private DirectionCombo directionCombo;
+    private ToolPathDirectionCombo toolPathDirectionCombo;
+
+    private final Map<EntitySetting, List<JComponent>> settingToComponentMap = new EnumMap<>(EntitySetting.class);
+
+    private boolean updating = false;
+
+    public CuttableSettingsPanel() {
+        super(new MigLayout("insets 0, gap 10, fillx", "[sg label,right] 10 [grow]"));
+        initializeComponents();
+        buildLayout();
+        setupListeners();
+    }
+
+    private void initializeComponents() {
+        cutTypeComboBox = new CutTypeCombo();
+        startDepthSpinner = new UnitSpinner(0, Unit.MM, -10000d, 10000d, 0.1d);
+        targetDepthSpinner = new UnitSpinner(0, Unit.MM, -10000d, 10000d, 0.1d);
+        spindleSpeedSpinner = new PercentSpinner(0.5d, 0d);
+        feedRateSpinner = new UnitSpinner(100, Unit.MM_PER_MINUTE, 50d, 10000d, 10d);
+
+        passesSlider = createSlider(0, 10, 1, 1, 5);
+
+        leadInPercentSlider = createSlider(0, 300, 0, 50, 100);
+        toolPathAngleSpinner = new UnitSpinner(0, Unit.DEGREE, 0d, 360d, 5d);
+        toolPathDirectionCombo = new ToolPathDirectionCombo();
+        directionCombo = new DirectionCombo();
+
+        includeInExport = new JCheckBox();
+        includeInExport.setSelected(true);
+    }
+
+    private JSlider createSlider(int min, int max, int value, int minorTick, int majorTick) {
+        JSlider slider = new JSlider(min, max, value);
+        slider.setPaintLabels(true);
+        slider.setPaintTicks(true);
+        slider.setSnapToTicks(true);
+        slider.setMinorTickSpacing(minorTick);
+        slider.setMajorTickSpacing(majorTick);
+        return slider;
+    }
+
+    private void buildLayout() {
+        add(new SeparatorLabel(Localization.getString("designer.panel.shape-settings.cutting.title"), SwingConstants.RIGHT), "spanx, growx");
+
+        addLabeledComponent(EntitySetting.CUT_TYPE, "Cut Type", cutTypeComboBox);
+        addLabeledComponent(EntitySetting.DIRECTION, "Cut direction", directionCombo);
+        addLabeledComponent(EntitySetting.START_DEPTH,"Start Depth", startDepthSpinner);
+        addLabeledComponent(EntitySetting.TARGET_DEPTH, "Target Depth", targetDepthSpinner);
+        addLabeledComponent(EntitySetting.SPINDLE_SPEED, "Spindle Speed", spindleSpeedSpinner);
+        addLabeledComponent(EntitySetting.FEED_RATE, "Feed Rate", feedRateSpinner);
+        addLabeledSlider(EntitySetting.PASSES, "Passes", passesSlider);
+        addLabeledSlider(EntitySetting.LEAD_IN_PERCENT, "Lead In/Out %", leadInPercentSlider);
+        addLabeledComponent(EntitySetting.TOOL_PATH_ANGLE, "Tool Path Angle", toolPathAngleSpinner);
+        addLabeledComponent(EntitySetting.TOOL_PATH_DIRECTION, "Tool Path Direction", toolPathDirectionCombo);
+        addLabeledComponent(EntitySetting.INCLUDE_IN_EXPORT, "Include in Export", includeInExport);
+    }
+
+    private void addLabeledComponent(EntitySetting setting, String labelText, JComponent component) {
+        JLabel label = new JLabel(labelText, SwingConstants.RIGHT);
+        add(label, LABEL_CONSTRAINTS);
+        add(component, FIELD_CONSTRAINTS);
+        settingToComponentMap.put(setting, List.of(label,component));
+    }
+
+    private void addLabeledSlider(EntitySetting setting, String labelText, JSlider slider) {
+        JLabel label = new JLabel(labelText, SwingConstants.RIGHT);
+        add(label, LABEL_CONSTRAINTS);
+        add(slider, SLIDER_CONSTRAINTS);
+        settingToComponentMap.put(setting, List.of(label,slider));
+    }
+
+    private void setupListeners() {
+        cutTypeComboBox.addActionListener(e -> {
+            firePropertyChange(EntitySetting.CUT_TYPE, cutTypeComboBox.getSelectedItem());
+            // Update layout when cut type changes
+            setEnabled(isEnabled());
+        });
+        startDepthSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.START_DEPTH, startDepthSpinner.getValue()));
+        targetDepthSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.TARGET_DEPTH, targetDepthSpinner.getValue()));
+        spindleSpeedSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.SPINDLE_SPEED, (int) (((Double)spindleSpeedSpinner.getValue()) * 100)));
+        feedRateSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.FEED_RATE, ((Double)feedRateSpinner.getValue()).intValue()));
+        passesSlider.addChangeListener(e -> firePropertyChange(EntitySetting.PASSES, passesSlider.getValue()));
+        leadInPercentSlider.addChangeListener(e -> firePropertyChange(EntitySetting.LEAD_IN_PERCENT, leadInPercentSlider.getValue()));
+        toolPathAngleSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.TOOL_PATH_ANGLE, toolPathAngleSpinner.getValue()));
+        includeInExport.addActionListener(e -> firePropertyChange(EntitySetting.INCLUDE_IN_EXPORT, includeInExport.isSelected()));
+        directionCombo.addActionListener(e -> firePropertyChange(EntitySetting.DIRECTION, directionCombo.getSelectedDirection()));
+        toolPathDirectionCombo.addActionListener(e -> firePropertyChange(EntitySetting.TOOL_PATH_DIRECTION, toolPathDirectionCombo.getSelectedDirection()));
+    }
+
+    private void firePropertyChange(EntitySetting entitySetting, Object newValue) {
+        if (!updating) {
+            SwingUtilities.invokeLater(() -> pcs.firePropertyChange(entitySetting.name(), null, newValue));
+        }
+    }
+
+    public String getTitle() {
+        return "Cutting Options";
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        CutType selectedCutType = cutTypeComboBox.getSelectedCutType();
+
+        // Remove all components except the header
+        removeAll();
+
+        // Re-add header
+        add(new JLabel("Cutting Options", SwingConstants.LEFT), "spanx, gaptop 5, gapbottom 0, wrap");
+        add(new JSeparator(), "spanx, growx, gaptop 0, gapbottom 5, wrap");
+
+        // Add only the components that are relevant for the selected cut type
+        selectedCutType.getSettings().forEach(setting -> {
+            List<JComponent> components = settingToComponentMap.getOrDefault(setting, Collections.emptyList());
+            if (!components.isEmpty()) {
+                JLabel label = (JLabel) components.get(0);
+                JComponent component = components.get(1);
+
+                // Set enabled state for the components
+                label.setEnabled(enabled);
+                component.setEnabled(enabled);
+
+                // Add to layout based on component type
+                add(label, LABEL_CONSTRAINTS);
+                if (component instanceof JSlider) {
+                    add(component, SLIDER_CONSTRAINTS);
+                } else {
+                    add(component, FIELD_CONSTRAINTS);
+                }
+            }
+        });
+
+        // Update the spindle speed label for laser cut types
+        updateLabelsForCutType(selectedCutType);
+
+        // Refresh the layout
+        revalidate();
+        repaint();
+    }
+
+    @Override
+    public boolean isApplicable(Group selectionGroup) {
+        return selectionGroup.getChildren().stream()
+                .allMatch(Cuttable.class::isInstance);
+    }
+
+    @Override
+    public JComponent getComponent() {
+        return this;
+    }
+
+    @Override
+    public void setFromSelection(Group selectionGroup) {
+        Cuttable firstCuttable = selectionGroup.getChildren().stream()
+                .filter(Cuttable.class::isInstance)
+                .map(Cuttable.class::cast)
+                .findFirst()
+                .orElse(null);
+
+        if (firstCuttable != null) {
+            updating = true;
+            try {
+                cutTypeComboBox.setItems(firstCuttable.getAvailableCutTypes());
+                cutTypeComboBox.setSelectedItem(firstCuttable.getCutType());
+                startDepthSpinner.setValue(firstCuttable.getStartDepth());
+                targetDepthSpinner.setValue(firstCuttable.getTargetDepth());
+                spindleSpeedSpinner.setValue(firstCuttable.getSpindleSpeed() / 100.0);
+                feedRateSpinner.setValue((double) firstCuttable.getFeedRate());
+                passesSlider.setValue(firstCuttable.getPasses());
+                leadInPercentSlider.setValue(firstCuttable.getLeadInPercent());
+                toolPathAngleSpinner.setValue(firstCuttable.getToolPathAngle());
+                directionCombo.setSelectedItem(firstCuttable.getDirection());
+                toolPathDirectionCombo.setSelectedItem(firstCuttable.getToolPathDirection());
+                updateLabelsForCutType(firstCuttable.getCutType());
+            } finally {
+                updating = false;
+            }
+        }
+    }
+
+    private void updateLabelsForCutType(CutType cutType) {
+        directionCombo.setDirections(cutType.getDirections());
+
+        for (Component comp : getComponents()) {
+            if (comp instanceof JLabel label && ("Spindle Speed".equals(label.getText()) || "Power".equals(label.getText()))) {
+                label.setText((cutType == CutType.LASER_FILL || cutType == CutType.LASER_ON_PATH || cutType == CutType.LASER_RASTER) ? "Power" : "Spindle Speed");
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void applyChangeToSelection(EntitySetting entitySetting, Object newValue, Group selectionGroup) {
+        selectionGroup.getChildren().stream()
+                .filter(Cuttable.class::isInstance)
+                .map(Cuttable.class::cast)
+                .forEach(cuttable -> applyCuttableProperty(cuttable, entitySetting, newValue));
+    }
+
+    private void applyCuttableProperty(Cuttable cuttable, EntitySetting setting, Object newValue) {
+        if (EntitySetting.CUT_TYPE.equals(setting)) {
+            cuttable.setCutType((CutType) newValue);
+        } else if (EntitySetting.START_DEPTH.equals(setting)) {
+            cuttable.setStartDepth((Double) newValue);
+        } else if (EntitySetting.TARGET_DEPTH.equals(setting)) {
+            cuttable.setTargetDepth((Double) newValue);
+        } else if (EntitySetting.SPINDLE_SPEED.equals(setting)) {
+            cuttable.setSpindleSpeed((Integer) newValue);
+        } else if (EntitySetting.FEED_RATE.equals(setting)) {
+            cuttable.setFeedRate((Integer) newValue);
+        } else if (EntitySetting.PASSES.equals(setting)) {
+            cuttable.setPasses((Integer) newValue);
+        } else if (EntitySetting.LEAD_IN_PERCENT.equals(setting)) {
+            cuttable.setLeadInPercent((Integer) newValue);
+        } else if (EntitySetting.TOOL_PATH_ANGLE.equals(setting)) {
+            cuttable.setToolPathAngle((Double) newValue);
+        } else if (EntitySetting.DIRECTION.equals(setting)) {
+            cuttable.setDirection((Direction) newValue);
+        } else if (EntitySetting.TOOL_PATH_DIRECTION.equals(setting)) {
+            cuttable.setToolPathDirection((ToolPathDirection) newValue);
+        }
+    }
+
+    @Override
+    public void addChangeListener(PropertyChangeListener l) {
+        pcs.addPropertyChangeListener(l);
+    }
+
+    @Override
+    public void removeChangeListener(PropertyChangeListener l) {
+        pcs.removePropertyChangeListener(l);
+    }
+
+    @Override
+    public void createAndExecuteUndoableAction(EntitySetting entitySetting, Object newValue, Group selectionGroup, Controller controller) {
+        List<Entity> entities = selectionGroup.getChildren();
+        if (entities.isEmpty()) return;
+
+        UndoableAction action = createAction(entitySetting, newValue, entities);
+        if (action != null) {
+            action.redo();
+            controller.getUndoManager().addAction(action);
+        }
+    }
+
+    private UndoableAction createAction(EntitySetting setting, Object newValue, List<Entity> entities) {
+        return setting != null ? new ChangeEntitySettingsAction(entities, setting, newValue, settingsManager) : null;
+    }
+}

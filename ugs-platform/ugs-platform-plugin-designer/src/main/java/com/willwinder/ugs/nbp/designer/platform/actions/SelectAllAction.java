@@ -33,6 +33,6 @@ import org.openide.awt.ActionReferences;
                 path = "Shortcuts",
                 name = "D-A")
 })
-public class SelectAllAction extends com.willwinder.ugs.nbp.designer.actions.SelectAllAction {
+public class SelectAllAction extends com.willwinder.ugs.designer.actions.SelectAllAction {
 
 }

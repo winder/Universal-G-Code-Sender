@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.designer.platform;
 
-import com.willwinder.ugs.nbp.designer.io.FileContext;
+import com.willwinder.ugs.designer.io.FileContext;
 import org.openide.loaders.DataObject;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;

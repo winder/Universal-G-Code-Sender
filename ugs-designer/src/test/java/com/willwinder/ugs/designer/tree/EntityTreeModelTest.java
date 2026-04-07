@@ -1,0 +1,88 @@
+package com.willwinder.ugs.designer.tree;
+
+import com.willwinder.ugs.designer.actions.SimpleUndoManager;
+import com.willwinder.ugs.designer.entities.entities.EntityGroup;
+import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.gui.tree.EntityTreeModel;
+import com.willwinder.ugs.designer.logic.Controller;
+import static org.junit.Assert.assertEquals;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.verify;
+import org.mockito.MockitoAnnotations;
+
+import javax.swing.SwingUtilities;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import java.awt.GraphicsEnvironment;
+
+public class EntityTreeModelTest {
+    @Captor
+    private ArgumentCaptor<TreeModelEvent> entityEventCaptor;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    public void getRootShouldReturnTheDrawingRoot() {
+        Assume.assumeFalse(GraphicsEnvironment.isHeadless());
+        Controller controller = new Controller(new SelectionManager(), new SimpleUndoManager());
+        EntityTreeModel model = new EntityTreeModel(controller);
+        Object root = model.getRoot();
+        assertEquals(controller.getDrawing().getRootEntity(), root);
+    }
+
+    @Test
+    public void addChildShouldCreateTreeNodesInsertedEvent() throws Exception {
+        Assume.assumeFalse(GraphicsEnvironment.isHeadless());
+        Controller controller = new Controller(new SelectionManager(), new SimpleUndoManager());
+        EntityGroup root = controller.getDrawing().getRootEntity();
+
+        TreeModelListener listener = Mockito.mock(TreeModelListener.class);
+        EntityTreeModel model = new EntityTreeModel(controller);
+        model.addTreeModelListener(listener);
+
+        Rectangle rectangle = new Rectangle();
+        root.addChild(rectangle);
+
+        waitForEdt();
+        verify(listener).treeNodesInserted(entityEventCaptor.capture());
+        assertEquals(rectangle, entityEventCaptor.getValue().getChildren()[0]);
+        assertEquals(root, entityEventCaptor.getValue().getPath()[0]);
+    }
+
+    @Test
+    public void removeChildShouldCreateTreeNodesRemovedEvent() throws Exception {
+        Assume.assumeFalse(GraphicsEnvironment.isHeadless());
+        Controller controller = new Controller(new SelectionManager(), new SimpleUndoManager());
+        EntityGroup root = controller.getDrawing().getRootEntity();
+        Rectangle rectangle = new Rectangle();
+        root.addChild(rectangle);
+
+        TreeModelListener listener = Mockito.mock(TreeModelListener.class);
+        EntityTreeModel model = new EntityTreeModel(controller);
+        model.addTreeModelListener(listener);
+
+        root.removeChild(rectangle);
+
+        waitForEdt();
+        verify(listener).treeNodesRemoved(entityEventCaptor.capture());
+        assertEquals(rectangle, entityEventCaptor.getValue().getChildren()[0]);
+        assertEquals(root, entityEventCaptor.getValue().getPath()[0]);
+    }
+
+    private static void waitForEdt() throws Exception {
+        if (SwingUtilities.isEventDispatchThread()) {
+            return;
+        }
+        SwingUtilities.invokeAndWait(() -> {
+        });
+    }
+}
