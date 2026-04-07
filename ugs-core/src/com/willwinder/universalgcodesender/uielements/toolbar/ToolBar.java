@@ -16,13 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.core.ui;
+package com.willwinder.universalgcodesender.uielements.toolbar;
 
-import org.openide.awt.ToolbarWithOverflow;
-
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.UIManager;
 import javax.swing.plaf.ToolBarUI;
-import java.awt.*;
+import java.awt.Dimension;
 
 /**
  * A generic toolbar with overflow and the netbeans LaF.

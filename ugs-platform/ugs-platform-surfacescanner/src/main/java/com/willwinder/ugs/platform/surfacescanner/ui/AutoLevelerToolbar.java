@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.platform.surfacescanner.ui;
 
-import com.willwinder.ugs.nbp.core.ui.ToolBar;
+import com.willwinder.universalgcodesender.uielements.toolbar.ToolBar;
 import com.willwinder.ugs.platform.surfacescanner.SurfaceScanner;
 import com.willwinder.ugs.platform.surfacescanner.actions.*;
 

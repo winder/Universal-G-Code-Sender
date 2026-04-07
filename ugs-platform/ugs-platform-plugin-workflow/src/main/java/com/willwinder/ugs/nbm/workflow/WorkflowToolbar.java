@@ -21,7 +21,7 @@ package com.willwinder.ugs.nbm.workflow;
 import com.willwinder.ugs.nbm.workflow.actions.AddGcodeFileAction;
 import com.willwinder.ugs.nbm.workflow.actions.RemoveGcodeFileAction;
 import com.willwinder.ugs.nbm.workflow.actions.ResetWorkflowAction;
-import com.willwinder.ugs.nbp.core.ui.ToolBar;
+import com.willwinder.universalgcodesender.uielements.toolbar.ToolBar;
 
 import javax.swing.*;
 
