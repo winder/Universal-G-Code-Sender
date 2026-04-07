@@ -1,7 +1,6 @@
 package org.kabeja.parser.entities;
 
 import org.kabeja.dxf.DXFConstants;
-import org.kabeja.dxf.DXFDocument;
 import org.kabeja.dxf.DXFEntity;
 import org.kabeja.dxf.DXFPoint;
 import org.kabeja.dxf.helpers.Point;
