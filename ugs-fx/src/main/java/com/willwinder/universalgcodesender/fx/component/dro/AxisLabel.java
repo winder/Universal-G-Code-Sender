@@ -4,8 +4,11 @@ import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.LookupService;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -88,7 +91,9 @@ public class AxisLabel extends HBox {
             }
         });
 
-        updatePosition(ControllerState.DISCONNECTED, Position.ZERO, Position.ZERO);
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
+        UnitUtils.Units preferredUnits = backendAPI.getSettings().getPreferredUnits();
+        updatePosition(ControllerState.DISCONNECTED, Position.ZERO.getPositionIn(preferredUnits), Position.ZERO.getPositionIn(preferredUnits));
     }
 
     public void setOnWorkCoordinateClicked(Runnable onWorkCoordinateClicked) {
@@ -111,8 +116,8 @@ public class AxisLabel extends HBox {
         Platform.runLater(() -> {
             double work = workPosition.get(axis);
             double machine = machinePosition.get(axis);
-            workUnitsLabel.setText(workPosition.getUnits().abbreviation);
-            machineUnitsLabel.setText(machinePosition.getUnits().abbreviation);
+            workUnitsLabel.setText(workPosition.getUnits() == UnitUtils.Units.MM ? Unit.MM.getAbbreviation() : Unit.INCH.getAbbreviation());
+            machineUnitsLabel.setText(machinePosition.getUnits() == UnitUtils.Units.MM ? Unit.MM.getAbbreviation() : Unit.INCH.getAbbreviation());
             workCoordinate.setText(decimalFormatter.format(work));
             machineCoordinate.setText(decimalFormatter.format(machine));
         });

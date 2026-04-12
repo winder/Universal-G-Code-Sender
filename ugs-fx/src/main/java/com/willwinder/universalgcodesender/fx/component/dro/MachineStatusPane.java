@@ -1,5 +1,9 @@
 package com.willwinder.universalgcodesender.fx.component.dro;
 
+import com.willwinder.universalgcodesender.model.Unit;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.UnitValue;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.Axis;
@@ -18,6 +22,7 @@ import java.util.EnumMap;
 import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public class MachineStatusPane extends GridPane {
 
@@ -68,7 +73,7 @@ public class MachineStatusPane extends GridPane {
     }
 
     private void onUGSEvent(UGSEvent event) {
-        if (event instanceof ControllerStatusEvent) {
+        if (event instanceof ControllerStatusEvent || event instanceof SettingChangedEvent) {
             updateState();
         }
     }
@@ -119,7 +124,8 @@ public class MachineStatusPane extends GridPane {
         }
 
         Axis axis = axisRow.getAxis();
-        String currentValue = decimalFormatter.format(backend.getWorkPosition().get(axis));
+        UnitUtils.Units preferredUnits = backend.getSettings().getPreferredUnits();
+        String currentValue = decimalFormatter.format(backend.getWorkPosition().getPositionIn(preferredUnits).get(axis));
 
         WorkCoordinatePopup popup = new WorkCoordinatePopup(
                 "Set " + axis + " work position",
@@ -136,14 +142,16 @@ public class MachineStatusPane extends GridPane {
     }
 
     private void updateState() {
-        Position workPosition = backend.getWorkPosition();
-        Position machinePosition = backend.getMachinePosition();
+        UnitUtils.Units preferredUnits = backend.getSettings().getPreferredUnits();
+        Position workPosition = backend.getWorkPosition().getPositionIn(backend.getSettings().getPreferredUnits());
+        Position machinePosition = backend.getMachinePosition().getPositionIn(backend.getSettings().getPreferredUnits());
         ControllerState controllerState = backend.getControllerState();
 
         state.setState(controllerState);
 
         Platform.runLater(() -> {
             syncAxisRows(workPosition, machinePosition);
+            UnitValue feedSpeedWithUnit = new UnitValue(Unit.MM_PER_MINUTE, Optional.ofNullable(backend.getController()).map(c -> c.getControllerStatus().getFeedSpeed()).orElse(0.0));
 
             axisLabels.values().forEach(label -> {
                 label.updatePosition(controllerState, workPosition, machinePosition);
@@ -151,7 +159,7 @@ public class MachineStatusPane extends GridPane {
             });
 
             if (backend.getController() == null) return;
-            feedRate.setText(String.format("%d", Math.round(backend.getController().getControllerStatus().getFeedSpeed())));
+            feedRate.setText(String.format("%d", Math.round(feedSpeedWithUnit.convertTo(preferredUnits == UnitUtils.Units.MM ? Unit.MM_PER_MINUTE : Unit.INCHES_PER_MINUTE).doubleValue())));
             spindleSpeed.setText(String.format("%d", Math.round(backend.getController().getControllerStatus().getSpindleSpeed())));
         });
 

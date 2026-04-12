@@ -5,8 +5,9 @@ import com.willwinder.universalgcodesender.fx.actions.ReturnToAxisZeroAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.LookupService;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -47,7 +48,8 @@ public class AxisRow extends HBox {
         getChildren().add(button);
         getChildren().add(goToZeroButton);
 
-        updatePosition(ControllerState.DISCONNECTED, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
+        updatePosition(ControllerState.DISCONNECTED, new Position(0, 0, 0, backendAPI.getSettings().getPreferredUnits()), new Position(0, 0, 0, backendAPI.getSettings().getPreferredUnits()));
     }
 
     public Label getWorkCoordinateLabel() {
