@@ -37,6 +37,7 @@ import javax.swing.JButton;
 import javax.swing.JPopupMenu;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.util.concurrent.Future;
 
 /**
  * Top component which displays something.
@@ -52,8 +53,8 @@ import java.awt.Dimension;
         preferredID = "MacrosTopComponent"
 )
 public final class MacrosTopComponent extends TopComponent implements UGSEventListener {
-    private final Object settingsLock = new Object();
     private final ButtonGridPanel buttonGridPanel;
+    private Future<?> settingsChangedFuture;
 
     public MacrosTopComponent() {
         super.setLayout(new BorderLayout());
@@ -77,6 +78,7 @@ public final class MacrosTopComponent extends TopComponent implements UGSEventLi
         SwingHelpers.traverse(this, comp -> comp.setComponentPopupMenu(popupMenu));
 
         revalidate();
+        settingsChangedFuture = null;
     }
 
     @Override
@@ -102,10 +104,8 @@ public final class MacrosTopComponent extends TopComponent implements UGSEventLi
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (!(evt instanceof SettingChangedEvent)) return;
-
-        synchronized (settingsLock) {
-            ThreadHelper.invokeLater(this::settingsChanged, 2000);
+        if (evt instanceof SettingChangedEvent && settingsChangedFuture == null) {
+            settingsChangedFuture = ThreadHelper.invokeLater(this::settingsChanged, 2000);
         }
     }
 
