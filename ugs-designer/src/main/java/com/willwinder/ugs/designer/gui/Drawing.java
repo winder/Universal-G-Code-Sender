@@ -80,11 +80,14 @@ public class Drawing extends JPanel implements ISnapToGridListener {
     private transient DropHandler dropHandler;
     private transient DropTarget dropTarget;
 
+    private final transient GridControl gridControl;
+
     public Drawing(Controller controller) {
         refreshThrottler = new Throttler(this::refresh, 1000);
 
         globalRoot = new EntityGroup();
-        globalRoot.addChild(new GridControl(controller));
+        gridControl = new GridControl(controller);
+        globalRoot.addChild(gridControl);
         globalRoot.addListener(event -> refreshThrottler.run());
 
         entitiesRoot = new EntityGroup();
@@ -180,6 +183,10 @@ public class Drawing extends JPanel implements ISnapToGridListener {
 
     public EntityGroup getRootEntity() {
         return entitiesRoot;
+    }
+
+    public GridControl getGridControl() {
+        return gridControl;
     }
 
     private void recursiveCollectEntities(Entity shape, List<Entity> result) {

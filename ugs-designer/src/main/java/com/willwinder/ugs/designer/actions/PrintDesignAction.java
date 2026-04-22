@@ -1,5 +1,5 @@
 /*
-    Copyright 2025 Damian Nikodem
+    Copyright 2025-2026 Damian Nikodem
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,21 +18,28 @@
  */
 package com.willwinder.ugs.designer.actions;
 
+import com.willwinder.ugs.designer.entities.entities.controls.GridControl;
+import com.willwinder.ugs.designer.gui.Drawing;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
+import com.willwinder.ugs.designer.print.DesignPrintable;
+import com.willwinder.ugs.designer.print.EngineeringTemplateRenderer;
+import com.willwinder.ugs.designer.print.PrintConfig;
+import com.willwinder.ugs.designer.print.PrintPreviewDialog;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import javax.swing.JOptionPane;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
-import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.time.LocalDate;
 
 /**
  * @author Damian Nikodem
@@ -41,8 +48,11 @@ public class PrintDesignAction extends AbstractDesignAction {
     public static final String SMALL_ICON_PATH = "img/print.svg";
     public static final String LARGE_ICON_PATH = "img/print24.svg";
 
-    private final static double MM_IN_INCH = 0.0393700787401575; // 5 / 127
-    private final static double PRINT_SYSTEM_DPI = 72.0;
+    private static final double MM_IN_INCH = 0.0393700787401575; // 5 / 127
+    private static final double PRINT_SYSTEM_DPI = 72.0;
+    private static final double MM_PER_POINT = 25.4 / 72.0;
+
+    private String filenameHint = "";
 
     public PrintDesignAction() {
         putValue("iconBase", SMALL_ICON_PATH);
@@ -52,78 +62,101 @@ public class PrintDesignAction extends AbstractDesignAction {
         putValue(NAME, "Print");
     }
 
-    private int centerPos(double pageSize, double imageWidth) {
-        int result = 0;
-        if ((imageWidth / pageSize) < 1.0) {
-            result = (int) ((pageSize - imageWidth) / 2.0);
-        }
-        return result;
-    }
-
-    private Point centerPoint(PageFormat pageFormat, BufferedImage bi) {
-        return new Point(
-                centerPos(pageFormat.getImageableWidth(), bi.getWidth()),
-                centerPos(pageFormat.getImageableHeight(), bi.getHeight())
-        );
-    }
-
-    private boolean translateGraphicsForPage(PageFormat pageFormat, BufferedImage bi, int pageIndex, Graphics2D g2d) {
-        int xPageCount = (int) Math.ceil(bi.getWidth() / pageFormat.getImageableWidth());
-        int yPageCount = (int) Math.ceil(bi.getHeight() / pageFormat.getImageableHeight());
-
-        int totalPages = xPageCount * yPageCount;
-
-        if (pageIndex >= totalPages) {
-            return false;
-        }
-
-        int yPageIndex = (int) Math.floor(pageIndex / xPageCount);
-        int xPageIndex = pageIndex % xPageCount;
-
-        g2d.translate(pageFormat.getImageableX() - (xPageIndex * pageFormat.getImageableWidth()),
-                pageFormat.getImageableY() - (yPageIndex * pageFormat.getImageableHeight()));
-        // Page is valid
-        return true;
+    /**
+     * Platform wrappers set this so the printed title block can show the current file's name.
+     * The core {@link Controller} has no file-path concept of its own.
+     */
+    public void setFilenameHint(String filenameHint) {
+        this.filenameHint = filenameHint == null ? "" : filenameHint;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Render image first. 
         Controller controller = ControllerFactory.getController();
         controller.getSelectionManager().clearSelection();
 
         PrinterJob job = PrinterJob.getPrinterJob();
-        double oldScale = controller.getDrawing().getScale();
-        Point2D.Double oldPos = controller.getDrawing().getPosition();
+        PageFormat pageFormat = job.defaultPage();
 
-        // Reset Scale so it draws properly. 
-        controller.getDrawing().setScale(MM_IN_INCH * PRINT_SYSTEM_DPI);
+        PrintConfig config = buildConfig(controller, pageFormat);
+        BufferedImage bi = renderSourceImage(controller, config);
+        config.setSourceImageSize(bi.getWidth(), bi.getHeight());
 
-        BufferedImage bi = controller.getDrawing().getImage();
+        EngineeringTemplateRenderer templateRenderer = new EngineeringTemplateRenderer();
+        DesignPrintable printable = new DesignPrintable(bi, config, templateRenderer);
 
-        controller.getDrawing().setScale(oldScale);
-        controller.getDrawing().setPosition(oldPos.x, oldPos.y);
+        PrintPreviewDialog dialog = new PrintPreviewDialog(controller.getDrawing(), printable, job);
+        dialog.setVisible(true);
+        if (!dialog.isConfirmed()) {
+            return;
+        }
 
-        job.setPrintable((Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
-            Graphics2D g2d = (Graphics2D) graphics;
-
-            if (!translateGraphicsForPage(pageFormat, bi, pageIndex, g2d)) {
-                return Printable.NO_SUCH_PAGE;
-            }
-
-            Point imagePosition = centerPoint(pageFormat, bi);
-            g2d.drawImage(bi, null, imagePosition.x, imagePosition.y);
-
-            return Printable.PAGE_EXISTS;
-        });
-
+        job.setPrintable(printable, config.getPageFormat());
         if (job.printDialog()) {
             try {
                 job.print();
             } catch (PrinterException exc) {
-                JOptionPane.showMessageDialog(null, "Error Printing: " + exc.getMessage(), "Error Printing!", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Error Printing: " + exc.getMessage(), "Error Printing!",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
+    private PrintConfig buildConfig(Controller controller, PageFormat pageFormat) {
+        PrintConfig config = new PrintConfig();
+        config.setPageFormat(pageFormat);
+        config.setFilename(filenameHint);
+        config.setAuthor(System.getProperty("user.name", ""));
+        config.setDate(LocalDate.now());
+        config.setIncludeTemplate(true);
+
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
+        if (backend != null && backend.getSettings() != null
+                && backend.getSettings().getPreferredUnits() != null) {
+            config.setDimensionsUnits(backend.getSettings().getPreferredUnits());
+        } else {
+            config.setDimensionsUnits(UnitUtils.Units.MM);
+        }
+
+        Rectangle2D designBounds = controller.getDrawing().getRootEntity().getBounds();
+        config.setDesignWidthMm(designBounds.getWidth());
+        config.setDesignHeightMm(designBounds.getHeight());
+        return config;
+    }
+
+    /**
+     * Renders the current design to a {@link BufferedImage} at printer DPI. The image always
+     * covers at least one full page so the grid extends to the page edges — fixing the long-
+     * standing bug where the grid was clipped to design content bounds during printing.
+     */
+    private BufferedImage renderSourceImage(Controller controller, PrintConfig config) {
+        Drawing drawing = controller.getDrawing();
+        PageFormat pageFormat = config.getPageFormat();
+        double oldScale = drawing.getScale();
+        Point2D.Double oldPos = drawing.getPosition();
+        GridControl gridControl = drawing.getGridControl();
+        Rectangle2D previousOverride = null;
+
+        double pageWidthMm = pageFormat.getImageableWidth() * MM_PER_POINT;
+        double pageHeightMm = pageFormat.getImageableHeight() * MM_PER_POINT;
+
+        Rectangle2D designBounds = drawing.getRootEntity().getBounds();
+        double minX = Math.min(designBounds.getMinX(), -pageWidthMm / 2.0);
+        double minY = Math.min(designBounds.getMinY(), -pageHeightMm / 2.0);
+        double maxX = Math.max(designBounds.getMaxX(), pageWidthMm / 2.0);
+        double maxY = Math.max(designBounds.getMaxY(), pageHeightMm / 2.0);
+        Rectangle2D printBounds = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
+
+        try {
+            gridControl.setPrintBoundsOverride(printBounds);
+            drawing.setScale(MM_IN_INCH * PRINT_SYSTEM_DPI);
+            drawing.refresh();
+            return drawing.getImage();
+        } finally {
+            gridControl.setPrintBoundsOverride(previousOverride);
+            drawing.setScale(oldScale);
+            drawing.setPosition(oldPos.x, oldPos.y);
+            drawing.refresh();
+        }
+    }
 }
