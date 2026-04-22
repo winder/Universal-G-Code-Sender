@@ -58,13 +58,25 @@ public class EngineeringTemplateRenderer {
         try {
             g.setColor(Color.BLACK);
 
+            double iw = pageFormat.getImageableWidth();
+            double ih = pageFormat.getImageableHeight();
             double innerX = BORDER_INSET_PT;
             double innerY = BORDER_INSET_PT;
-            double innerW = pageFormat.getImageableWidth() - 2 * BORDER_INSET_PT;
-            double innerH = pageFormat.getImageableHeight() - 2 * BORDER_INSET_PT;
+            double innerW = iw - 2 * BORDER_INSET_PT;
+            double innerH = ih - 2 * BORDER_INSET_PT;
             if (innerW <= 0 || innerH <= 0) {
                 return;
             }
+
+            // Mask the strip between the imageable edge and the template's inner border so any
+            // grid (or other) content rendered onto the source image doesn't bleed past the
+            // template boundary.
+            g.setColor(Color.WHITE);
+            g.fill(new Rectangle2D.Double(0, 0, iw, innerY));
+            g.fill(new Rectangle2D.Double(0, innerY + innerH, iw, ih - innerY - innerH));
+            g.fill(new Rectangle2D.Double(0, innerY, innerX, innerH));
+            g.fill(new Rectangle2D.Double(innerX + innerW, innerY, iw - innerX - innerW, innerH));
+            g.setColor(Color.BLACK);
 
             g.setStroke(BORDER_STROKE);
             g.draw(new Rectangle2D.Double(innerX, innerY, innerW, innerH));
@@ -73,6 +85,12 @@ public class EngineeringTemplateRenderer {
             if (titleTop <= innerY) {
                 return; // page too small for a title block — just draw the border
             }
+
+            // Mask out the grid (or anything else) underneath the title block so the labels
+            // remain readable on top of dense content.
+            g.setColor(Color.WHITE);
+            g.fill(new Rectangle2D.Double(innerX, titleTop, innerW, TITLE_BLOCK_HEIGHT_PT));
+            g.setColor(Color.BLACK);
 
             g.setStroke(DIVIDER_STROKE);
             g.draw(new Line2D.Double(innerX, titleTop, innerX + innerW, titleTop));

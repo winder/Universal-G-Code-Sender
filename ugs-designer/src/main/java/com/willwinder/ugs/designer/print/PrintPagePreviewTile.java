@@ -69,7 +69,15 @@ public class PrintPagePreviewTile extends JPanel {
             disableCheckBox.setOpaque(false);
             disableCheckBox.setSelected(printable.getConfig().isPageDisabled(gridIndex));
             disableCheckBox.addActionListener(e -> {
-                printable.getConfig().setPageDisabled(gridIndex, disableCheckBox.isSelected());
+                PrintConfig cfg = printable.getConfig();
+                boolean wantsDisable = disableCheckBox.isSelected();
+                int enabled = cfg.getTotalGridPages() - cfg.getDisabledPages().size();
+                if (wantsDisable && enabled <= 1) {
+                    // Refuse — at least one page must remain enabled.
+                    disableCheckBox.setSelected(false);
+                    return;
+                }
+                cfg.setPageDisabled(gridIndex, wantsDisable);
                 repaint();
                 if (onDisableChanged != null) {
                     onDisableChanged.run();
@@ -78,6 +86,24 @@ public class PrintPagePreviewTile extends JPanel {
             header.add(disableCheckBox, BorderLayout.EAST);
         }
         add(header, BorderLayout.NORTH);
+    }
+
+    /**
+     * Refresh the checkbox enabled state — greys out the checkbox if this is the only enabled
+     * page, since disabling it would leave nothing to print. Called by the panel after any
+     * disable change.
+     */
+    public void refreshDisableState() {
+        if (disableCheckBox == null) {
+            return;
+        }
+        PrintConfig cfg = printable.getConfig();
+        int enabled = cfg.getTotalGridPages() - cfg.getDisabledPages().size();
+        boolean isOnlyEnabled = !cfg.isPageDisabled(gridIndex) && enabled <= 1;
+        disableCheckBox.setEnabled(!isOnlyEnabled);
+        disableCheckBox.setToolTipText(isOnlyEnabled
+                ? Localization.getString("designer.print.page.disable.tooltip.last")
+                : null);
     }
 
     @Override

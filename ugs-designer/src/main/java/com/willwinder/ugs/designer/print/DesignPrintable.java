@@ -50,6 +50,35 @@ public class DesignPrintable implements Printable {
         return config;
     }
 
+    public BufferedImage getSourceImage() {
+        return sourceImage;
+    }
+
+    /**
+     * Computes the fit-to-page scale factor for the supplied source image and page format.
+     * Accounts for the engineering-template margins when {@code withTemplate} is {@code true}.
+     * Shared between {@link #renderFitToPage} and the preview panel so the displayed scale
+     * matches exactly what the printer will produce.
+     */
+    public static double computeFitScale(BufferedImage sourceImage, PageFormat pageFormat, boolean withTemplate) {
+        if (sourceImage == null || pageFormat == null
+                || sourceImage.getWidth() <= 0 || sourceImage.getHeight() <= 0) {
+            return 1.0;
+        }
+        double imageableW = pageFormat.getImageableWidth();
+        double imageableH = pageFormat.getImageableHeight();
+        double borderInset = withTemplate ? EngineeringTemplateRenderer.BORDER_INSET_PT : 0;
+        double titleBlock = withTemplate ? EngineeringTemplateRenderer.TITLE_BLOCK_HEIGHT_PT : 0;
+        double availW = imageableW - 2 * borderInset;
+        double availH = imageableH - 2 * borderInset - titleBlock;
+        if (availW <= 0 || availH <= 0) {
+            availW = imageableW;
+            availH = imageableH;
+        }
+        double scale = Math.min(availW / sourceImage.getWidth(), availH / sourceImage.getHeight());
+        return (scale > 0 && Double.isFinite(scale)) ? scale : 1.0;
+    }
+
     @Override
     public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) {
         if (sourceImage == null || pageFormat == null) {
@@ -91,18 +120,24 @@ public class DesignPrintable implements Printable {
             double offsetX = PrintConfig.mmToPt(config.getOffsetMmX());
             double offsetY = PrintConfig.mmToPt(config.getOffsetMmY());
 
+            // Apply the user-configured scale during drawing rather than re-rasterising.
+            double userScale = config.getScaleRatio();
+            double effectiveImgW = sourceImage.getWidth() * userScale;
+            double effectiveImgH = sourceImage.getHeight() * userScale;
+
             // Center the image within a single page only when it fits — matches prior behaviour.
-            int centerX = config.designFitsOnePage() ? centerOffset(imageableW, sourceImage.getWidth()) : 0;
-            int centerY = config.designFitsOnePage() ? centerOffset(imageableH, sourceImage.getHeight()) : 0;
+            double centerX = config.designFitsOnePage() ? centerOffset(imageableW, effectiveImgW) : 0;
+            double centerY = config.designFitsOnePage() ? centerOffset(imageableH, effectiveImgH) : 0;
 
             g2d.translate(
                     imageableX - (xPageIndex * imageableW) + centerX + offsetX,
                     imageableY - (yPageIndex * imageableH) + centerY + offsetY);
+            g2d.scale(userScale, userScale);
             g2d.drawImage(sourceImage, null, 0, 0);
 
             g2d.setTransform(saved);
 
-            if (shouldDrawTemplateNonFit()) {
+            if (shouldDrawTemplate()) {
                 g2d.translate(imageableX, imageableY);
                 templateRenderer.render(g2d, pageFormat, config);
             }
@@ -111,7 +146,7 @@ public class DesignPrintable implements Printable {
         }
     }
 
-    /** Render the entire design scaled to fit a single page, always with template overlay. */
+    /** Render the entire design scaled to fit a single page, with an optional template overlay. */
     public void renderFitToPage(Graphics2D g2d, PageFormat pageFormat) {
         AffineTransform saved = g2d.getTransform();
         try {
@@ -120,12 +155,14 @@ public class DesignPrintable implements Printable {
             double imageableW = pageFormat.getImageableWidth();
             double imageableH = pageFormat.getImageableHeight();
 
-            // Reserve space for the template border + title block.
-            double borderInset = EngineeringTemplateRenderer.BORDER_INSET_PT;
+            boolean drawTemplate = shouldDrawTemplate();
+            // Reserve space for the template border + title block only when we'll draw it.
+            double borderInset = drawTemplate ? EngineeringTemplateRenderer.BORDER_INSET_PT : 0;
+            double titleBlock = drawTemplate ? EngineeringTemplateRenderer.TITLE_BLOCK_HEIGHT_PT : 0;
             double availX = borderInset;
             double availY = borderInset;
             double availW = imageableW - 2 * borderInset;
-            double availH = imageableH - 2 * borderInset - EngineeringTemplateRenderer.TITLE_BLOCK_HEIGHT_PT;
+            double availH = imageableH - 2 * borderInset - titleBlock;
             if (availW <= 0 || availH <= 0) {
                 // Page too small to fit both template and content — fall back to drawing content full-bleed.
                 availX = 0;
@@ -134,10 +171,7 @@ public class DesignPrintable implements Printable {
                 availH = imageableH;
             }
 
-            double scale = Math.min(availW / sourceImage.getWidth(), availH / sourceImage.getHeight());
-            if (scale <= 0 || !Double.isFinite(scale)) {
-                scale = 1.0;
-            }
+            double scale = computeFitScale(sourceImage, pageFormat, drawTemplate);
             config.setScaleRatio(scale);
 
             double drawW = sourceImage.getWidth() * scale;
@@ -150,20 +184,27 @@ public class DesignPrintable implements Printable {
             imageTransform.scale(scale, scale);
             g2d.drawImage(sourceImage, imageTransform, null);
 
-            // Template draws in imageable-area coordinates — we're already translated there.
-            templateRenderer.render(g2d, pageFormat, config);
+            if (drawTemplate) {
+                // Template draws in imageable-area coordinates — we're already translated there.
+                templateRenderer.render(g2d, pageFormat, config);
+            }
         } finally {
             g2d.setTransform(saved);
         }
     }
 
-    private boolean shouldDrawTemplateNonFit() {
-        return config.isIncludeTemplate() && config.designFitsOnePage();
+    /**
+     * Template is drawn whenever the user asks for it AND the layout is a single page — either
+     * because the design naturally fits or because fit-to-page forced it. Multi-page printouts
+     * never render the template because the title block only makes sense on one sheet.
+     */
+    private boolean shouldDrawTemplate() {
+        return config.isIncludeTemplate() && (config.isFitToPage() || config.designFitsOnePage());
     }
 
-    private int centerOffset(double availableArea, double imageSize) {
+    private double centerOffset(double availableArea, double imageSize) {
         if (imageSize < availableArea) {
-            return (int) ((availableArea - imageSize) / 2.0);
+            return (availableArea - imageSize) / 2.0;
         }
         return 0;
     }

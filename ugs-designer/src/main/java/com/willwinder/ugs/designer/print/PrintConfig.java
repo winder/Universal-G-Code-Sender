@@ -183,18 +183,35 @@ public class PrintConfig {
         this.sourceImageHeight = height;
     }
 
+    /**
+     * Sub-pixel slack for the page-count ratio. Without it, a source image that is 1 pixel larger
+     * than the imageable width due to {@code Math.ceil} in the image creation tips {@code ceil}
+     * from 1.0 to 2.0 and creates a phantom second page.
+     */
+    private static final double PAGE_COUNT_EPSILON = 1e-3;
+
     public int getXPageCount() {
-        if (fitToPage || pageFormat == null || sourceImageWidth <= 0) {
+        if (fitToPage || pageFormat == null) {
             return 1;
         }
-        return Math.max(1, (int) Math.ceil(sourceImageWidth / pageFormat.getImageableWidth()));
+        double effectiveWidthPt = mmToPt(designWidthMm * scaleRatio);
+        if (effectiveWidthPt <= 0) {
+            return 1;
+        }
+        double ratio = effectiveWidthPt / pageFormat.getImageableWidth();
+        return Math.max(1, (int) Math.ceil(ratio - PAGE_COUNT_EPSILON));
     }
 
     public int getYPageCount() {
-        if (fitToPage || pageFormat == null || sourceImageHeight <= 0) {
+        if (fitToPage || pageFormat == null) {
             return 1;
         }
-        return Math.max(1, (int) Math.ceil(sourceImageHeight / pageFormat.getImageableHeight()));
+        double effectiveHeightPt = mmToPt(designHeightMm * scaleRatio);
+        if (effectiveHeightPt <= 0) {
+            return 1;
+        }
+        double ratio = effectiveHeightPt / pageFormat.getImageableHeight();
+        return Math.max(1, (int) Math.ceil(ratio - PAGE_COUNT_EPSILON));
     }
 
     public int getTotalGridPages() {
@@ -213,13 +230,17 @@ public class PrintConfig {
         return order;
     }
 
-    /** {@code true} when the rendered design fits within the current page's imageable area. */
+    /** {@code true} when the design — scaled by {@link #scaleRatio} — fits one page. */
     public boolean designFitsOnePage() {
         if (pageFormat == null) {
             return true;
         }
-        return sourceImageWidth <= pageFormat.getImageableWidth()
-                && sourceImageHeight <= pageFormat.getImageableHeight();
+        double widthPt = mmToPt(designWidthMm * scaleRatio);
+        double heightPt = mmToPt(designHeightMm * scaleRatio);
+        double widthSlack = pageFormat.getImageableWidth() * PAGE_COUNT_EPSILON;
+        double heightSlack = pageFormat.getImageableHeight() * PAGE_COUNT_EPSILON;
+        return widthPt <= pageFormat.getImageableWidth() + widthSlack
+                && heightPt <= pageFormat.getImageableHeight() + heightSlack;
     }
 
     public String formatDimensions() {
@@ -232,16 +253,83 @@ public class PrintConfig {
     }
 
     public String formatScale() {
-        if (scaleRatio <= 0) {
+        return formatScale(scaleRatio);
+    }
+
+    /**
+     * Formats a scale factor as a human-readable ratio. Follows engineering convention:
+     * reduction scales (less than 1:1) stay in {@code 1:N} form with {@code N} shown as an
+     * integer when clean or a short decimal otherwise ({@code 0.5 → "1:2"},
+     * {@code 0.8 → "1:1.25"}, {@code 0.3937 → "1:2.54"}); enlargement scales (greater than 1:1)
+     * prefer simple integer fractions ({@code 1.25 → "5:4"}, {@code 2.0 → "2:1"}) and fall
+     * back to {@code N:1} with a short decimal when no clean fraction exists.
+     */
+    public static String formatScale(double ratio) {
+        if (ratio <= 0 || !Double.isFinite(ratio)) {
             return "1:1";
         }
-        if (Math.abs(scaleRatio - 1.0) < 0.005) {
+        if (Math.abs(ratio - 1.0) < 1e-4) {
             return "1:1";
         }
-        if (scaleRatio < 1.0) {
-            return String.format("1:%.2f", 1.0 / scaleRatio);
+        if (ratio < 1.0) {
+            return "1:" + formatTerm(1.0 / ratio);
         }
-        return String.format("%.2f:1", scaleRatio);
+        int[] integers = findIntegerRatio(ratio);
+        if (integers != null) {
+            return integers[0] + ":" + integers[1];
+        }
+        return formatTerm(ratio) + ":1";
+    }
+
+    /** Formats a single side of a ratio — integer when clean, otherwise up to 3 decimals, trimmed. */
+    private static String formatTerm(double value) {
+        long rounded = Math.round(value);
+        if (Math.abs(value - rounded) < 1e-4) {
+            return Long.toString(rounded);
+        }
+        String s = String.format(java.util.Locale.ROOT, "%.3f", value);
+        if (s.contains(".")) {
+            s = s.replaceAll("0+$", "");
+            s = s.replaceAll("\\.$", "");
+        }
+        return s;
+    }
+
+    /**
+     * Returns {@code {numerator, denominator}} if {@code ratio} can be represented as a simple
+     * integer fraction (both terms ≤ 100 after GCD reduction, within a tight tolerance), else
+     * {@code null}.
+     */
+    private static int[] findIntegerRatio(double ratio) {
+        final int maxTerm = 100;
+        final double tolerance = 1e-4;
+        for (int denom = 1; denom <= maxTerm; denom++) {
+            double numerDouble = ratio * denom;
+            long numerRounded = Math.round(numerDouble);
+            if (numerRounded <= 0 || numerRounded > maxTerm) {
+                continue;
+            }
+            if (Math.abs(numerDouble - numerRounded) > tolerance * Math.max(1.0, numerDouble)) {
+                continue;
+            }
+            int numer = (int) numerRounded;
+            int g = gcd(numer, denom);
+            int a = numer / g;
+            int b = denom / g;
+            if (a <= maxTerm && b <= maxTerm) {
+                return new int[]{a, b};
+            }
+        }
+        return null;
+    }
+
+    private static int gcd(int a, int b) {
+        while (b != 0) {
+            int t = b;
+            b = a % b;
+            a = t;
+        }
+        return a;
     }
 
     public static double mmToPt(double mm) {

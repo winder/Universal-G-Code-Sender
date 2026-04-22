@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.designer.actions;
 
+import com.willwinder.ugs.designer.entities.entities.Entity;
 import com.willwinder.ugs.designer.entities.entities.controls.GridControl;
 import com.willwinder.ugs.designer.gui.Drawing;
 import com.willwinder.ugs.designer.logic.Controller;
@@ -32,8 +33,11 @@ import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import javax.swing.JOptionPane;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
-import java.awt.geom.Point2D;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
@@ -77,6 +81,7 @@ public class PrintDesignAction extends AbstractDesignAction {
 
         PrinterJob job = PrinterJob.getPrinterJob();
         PageFormat pageFormat = job.defaultPage();
+        pageFormat.setOrientation(PageFormat.LANDSCAPE);
 
         PrintConfig config = buildConfig(controller, pageFormat);
         BufferedImage bi = renderSourceImage(controller, config);
@@ -125,38 +130,87 @@ public class PrintDesignAction extends AbstractDesignAction {
     }
 
     /**
-     * Renders the current design to a {@link BufferedImage} at printer DPI. The image always
-     * covers at least one full page so the grid extends to the page edges — fixing the long-
-     * standing bug where the grid was clipped to design content bounds during printing.
+     * Renders the current design to a {@link BufferedImage} at printer DPI.
+     *
+     * <p>Bypasses {@link Drawing#getImage()} because that method derives both image size and
+     * transform from {@code globalRoot.getBounds()}, which unions with empty controls anchored at
+     * the origin and silently clips designs whose minX/minY are non-zero. Here we own the bounds
+     * decision: when the design fits on a single page the image becomes page-sized with the
+     * design centered; otherwise the image matches the design bounds, so the grid clips and the
+     * page count is driven purely by the drawing extent.
      */
     private BufferedImage renderSourceImage(Controller controller, PrintConfig config) {
         Drawing drawing = controller.getDrawing();
         PageFormat pageFormat = config.getPageFormat();
         double oldScale = drawing.getScale();
-        Point2D.Double oldPos = drawing.getPosition();
         GridControl gridControl = drawing.getGridControl();
-        Rectangle2D previousOverride = null;
 
         double pageWidthMm = pageFormat.getImageableWidth() * MM_PER_POINT;
         double pageHeightMm = pageFormat.getImageableHeight() * MM_PER_POINT;
-
         Rectangle2D designBounds = drawing.getRootEntity().getBounds();
-        double minX = Math.min(designBounds.getMinX(), -pageWidthMm / 2.0);
-        double minY = Math.min(designBounds.getMinY(), -pageHeightMm / 2.0);
-        double maxX = Math.max(designBounds.getMaxX(), pageWidthMm / 2.0);
-        double maxY = Math.max(designBounds.getMaxY(), pageHeightMm / 2.0);
-        Rectangle2D printBounds = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
+        Rectangle2D targetBounds = computeTargetBounds(designBounds, pageWidthMm, pageHeightMm);
 
+        double scale = MM_IN_INCH * PRINT_SYSTEM_DPI;
+        int imgWidth = Math.max(1, (int) Math.round(targetBounds.getWidth() * scale));
+        int imgHeight = Math.max(1, (int) Math.round(targetBounds.getHeight() * scale));
+
+        BufferedImage bi = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = bi.createGraphics();
         try {
-            gridControl.setPrintBoundsOverride(printBounds);
-            drawing.setScale(MM_IN_INCH * PRINT_SYSTEM_DPI);
-            drawing.refresh();
-            return drawing.getImage();
+            g.setColor(Color.WHITE);
+            g.fillRect(0, 0, imgWidth, imgHeight);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+            // GridControl.drawLargeGridAndText reads getClipBounds() to skip off-image grid lines;
+            // it crashes if no clip is set. Set the clip in pixel space; once we apply the transform
+            // the clip becomes the design-space rectangle that maps to the full image.
+            g.setClip(0, 0, imgWidth, imgHeight);
+
+            // Map design (minX, minY) → pixel (0, imgHeight) and (maxX, maxY) → (imgWidth, 0).
+            AffineTransform tx = new AffineTransform();
+            tx.scale(1, -1);
+            tx.translate(0, -imgHeight);
+            tx.scale(scale, scale);
+            tx.translate(-targetBounds.getMinX(), -targetBounds.getMinY());
+            g.setTransform(tx);
+
+            drawing.setScale(scale);
+            try {
+                gridControl.setPrintBoundsOverride(targetBounds);
+                try {
+                    gridControl.render(g, drawing);
+                } finally {
+                    gridControl.setPrintBoundsOverride(null);
+                }
+                for (Entity entity : drawing.getRootEntity().getChildren()) {
+                    entity.render(g, drawing);
+                }
+            } finally {
+                drawing.setScale(oldScale);
+                drawing.refresh();
+            }
         } finally {
-            gridControl.setPrintBoundsOverride(previousOverride);
-            drawing.setScale(oldScale);
-            drawing.setPosition(oldPos.x, oldPos.y);
-            drawing.refresh();
+            g.dispose();
         }
+        return bi;
+    }
+
+    private static Rectangle2D computeTargetBounds(Rectangle2D designBounds, double pageWidthMm, double pageHeightMm) {
+        double designW = designBounds.getWidth();
+        double designH = designBounds.getHeight();
+        if (designW <= pageWidthMm && designH <= pageHeightMm) {
+            // Single page — center a page-sized rectangle on the design's center so the design
+            // ends up centered within the rendered image.
+            double cx = (designBounds.getMinX() + designBounds.getMaxX()) / 2.0;
+            double cy = (designBounds.getMinY() + designBounds.getMaxY()) / 2.0;
+            return new Rectangle2D.Double(
+                    cx - pageWidthMm / 2.0, cy - pageHeightMm / 2.0, pageWidthMm, pageHeightMm);
+        }
+        // Multi-page — image matches design exactly so the grid clips at design bounds and the
+        // page count follows the drawing's actual extent.
+        return new Rectangle2D.Double(
+                designBounds.getMinX(), designBounds.getMinY(), designW, designH);
     }
 }
