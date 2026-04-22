@@ -30,8 +30,15 @@ public class ZoomControl extends AbstractControl {
         super(controller.getSelectionManager());
         this.controller = controller;
 
-        zoomInCursor = Toolkit.getDefaultToolkit().createCustomCursor(SvgIconLoader.loadImageIcon("img/zoom-in.svg", SvgIconLoader.SIZE_SMALL).map(ImageIcon::getImage).orElse(null), new Point(8, 8), "zoom-in");
-        zoomOutCursor = Toolkit.getDefaultToolkit().createCustomCursor(SvgIconLoader.loadImageIcon("img/zoom-out.svg", SvgIconLoader.SIZE_SMALL).map(ImageIcon::getImage).orElse(null), new Point(8, 8), "zoom-out");
+        zoomInCursor = createCursor("img/zoom-in.svg", "zoom-in");
+        zoomOutCursor = createCursor("img/zoom-out.svg", "zoom-out");
+    }
+
+    private static Cursor createCursor(String iconPath, String name) {
+        return SvgIconLoader.loadImageIcon(iconPath, SvgIconLoader.SIZE_SMALL)
+                .map(ImageIcon::getImage)
+                .map(image -> Toolkit.getDefaultToolkit().createCustomCursor(image, new Point(8, 8), name))
+                .orElseGet(Cursor::getDefaultCursor);
     }
 
     @Override
