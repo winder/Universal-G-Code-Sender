@@ -31,6 +31,7 @@ import javax.swing.SwingUtilities;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -327,7 +328,13 @@ public class ToolLibraryService {
             Path tmp = libraryPath.resolveSibling(libraryPath.getFileName().toString() + ".tmp");
             String json = createGson().toJson(snapshot);
             Files.writeString(tmp, json, StandardCharsets.UTF_8);
-            Files.move(tmp, libraryPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            try {
+                Files.move(tmp, libraryPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException notAtomic) {
+                // Some CI filesystems (overlayfs, certain tmpfs configs) reject atomic replace.
+                // Fall back to a plain move — non-atomic but still reliable.
+                Files.move(tmp, libraryPath, StandardCopyOption.REPLACE_EXISTING);
+            }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Failed to write tool library to " + libraryPath, e);
         }

@@ -18,12 +18,16 @@
  */
 package com.willwinder.ugs.designer.io.ugsd;
 
-import com.willwinder.ugs.designer.actions.SimpleUndoManager;
+import com.willwinder.ugs.designer.entities.entities.EntityGroup;
 import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.gui.Drawing;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.model.Design;
+import com.willwinder.ugs.designer.model.Settings;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,41 +38,55 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
  * Existing users who have never interacted with the Tool Library must be able to save and reopen
  * their projects without any new tool data appearing in the file, and without the reader
- * mistakenly inferring a tool from a missing field.
+ * mistakenly inferring a tool from a missing field. Uses the mock-Controller pattern from
+ * {@link UgsDesignReaderTest} so the test runs under headless CI.
  */
 public class UgsDesignWriterBackwardCompatTest {
 
+    @Mock
+    private Controller controller;
+
+    @Mock
+    private Drawing drawing;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
     @Test
     public void writingControllerWithoutLibrarySelectionEmitsNoActiveTool() throws Exception {
-        Controller controller = new Controller(new SelectionManager(), new SimpleUndoManager());
-        controller.addEntity(new Rectangle());
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new UgsDesignWriter().write(out, controller);
-        String json = out.toString(StandardCharsets.UTF_8);
-
-        // "tool" can be absent or explicitly null, but must not contain any real values.
+        String json = writeFreshController();
         assertTrue("Output must be valid JSON containing entities", json.contains("entities"));
+        // Tool field may be absent or explicit null, but must not contain library-tool payload.
         assertFalse("Output must not spontaneously embed a library tool",
                 json.contains("\"feedSpeed\":") && json.contains("\"diameterUnit\":"));
     }
 
     @Test
     public void roundTripOfLegacyStyleControllerYieldsNullToolSnapshot() throws Exception {
-        Controller controller = new Controller(new SelectionManager(), new SimpleUndoManager());
-        controller.addEntity(new Rectangle());
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new UgsDesignWriter().write(out, controller);
-
+        String json = writeFreshController();
         Optional<Design> reloaded = new UgsDesignReader()
-                .read(new ByteArrayInputStream(out.toByteArray()));
+                .read(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
         assertTrue(reloaded.isPresent());
         assertNull("Round-trip must not invent a tool snapshot", reloaded.get().getToolSnapshot());
         assertEquals(1, reloaded.get().getEntities().size());
+    }
+
+    private String writeFreshController() throws Exception {
+        when(controller.getSettings()).thenReturn(new Settings());
+        when(controller.getDrawing()).thenReturn(drawing);
+        EntityGroup root = new EntityGroup();
+        root.addChild(new Rectangle());
+        when(drawing.getRootEntity()).thenReturn(root);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new UgsDesignWriter().write(out, controller);
+        return out.toString(StandardCharsets.UTF_8);
     }
 }
