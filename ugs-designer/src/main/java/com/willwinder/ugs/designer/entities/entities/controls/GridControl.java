@@ -46,9 +46,20 @@ public class GridControl extends AbstractEntity implements Control {
     public static final int LARGE_GRID_SIZE = 100;
     public static final int SMALL_GRID_SIZE = 20;
     private final Controller controller;
+    private transient Rectangle2D printBoundsOverride;
 
     public GridControl(Controller controller) {
         this.controller = controller;
+    }
+
+    /**
+     * When non-null, {@link #render} uses the supplied rectangle to size the grid instead of the
+     * design's content bounds. This makes the grid extend to page/template edges during printing.
+     * Must be called on the EDT; the caller is responsible for clearing it in a {@code finally}
+     * block so the on-screen rendering behaviour stays unchanged.
+     */
+    public void setPrintBoundsOverride(Rectangle2D bounds) {
+        this.printBoundsOverride = bounds;
     }
 
     private static void drawZeroLines(Graphics2D graphics, Drawing drawing, int startPosX, int startPosY, int endPosX, int endPosY) {
@@ -117,7 +128,9 @@ public class GridControl extends AbstractEntity implements Control {
         double gridSize = LARGE_GRID_SIZE;
 
 
-        Rectangle2D bounds = controller.getDrawing().getRootEntity().getBounds();
+        Rectangle2D bounds = printBoundsOverride != null
+                ? printBoundsOverride
+                : controller.getDrawing().getRootEntity().getBounds();
         double gridMargin = (gridSize * 100);
 
 
@@ -159,12 +172,17 @@ public class GridControl extends AbstractEntity implements Control {
 
     @Override
     public Shape getShape() {
-        return new Rectangle();
+        return printBoundsOverride != null ? (Shape) printBoundsOverride.clone() : new Rectangle();
     }
 
     @Override
     public Shape getRelativeShape() {
-        return new Rectangle();
+        return printBoundsOverride != null ? (Shape) printBoundsOverride.clone() : new Rectangle();
+    }
+
+    @Override
+    public Rectangle2D getBounds() {
+        return printBoundsOverride != null ? (Rectangle2D) printBoundsOverride.clone() : super.getBounds();
     }
 
     @Override
