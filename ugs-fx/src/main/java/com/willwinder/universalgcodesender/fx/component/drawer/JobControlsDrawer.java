@@ -26,6 +26,8 @@ import com.willwinder.universalgcodesender.fx.actions.PauseAction;
 import com.willwinder.universalgcodesender.fx.actions.StartAction;
 import com.willwinder.universalgcodesender.fx.actions.StopAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
+import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
+import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
@@ -38,9 +40,11 @@ import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.model.events.StreamEvent;
 import com.willwinder.universalgcodesender.model.events.StreamEventType;
+
 import static com.willwinder.universalgcodesender.model.events.StreamEventType.STREAM_CANCELED;
 import static com.willwinder.universalgcodesender.model.events.StreamEventType.STREAM_COMPLETE;
 import static com.willwinder.universalgcodesender.model.events.StreamEventType.STREAM_STARTED;
+
 import com.willwinder.universalgcodesender.utils.RefreshThread;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -159,7 +163,12 @@ public class JobControlsDrawer extends Drawer {
                 return;
             }
 
-            fileNameLabel.setText(backendAPI.getGcodeFile().getName());
+            String fileName = WorkspaceManager.getInstance()
+                    .getActiveWorkspace()
+                    .map(WorkspaceContext::getDisplayName)
+                    .orElse(backendAPI.getGcodeFile().getName());
+
+            fileNameLabel.setText(fileName);
             GcodeStats stats = backendAPI.getGcodeStats();
             setGcodeStats(backendAPI.getNumRows(), stats.getMin(), stats.getMax());
         } else if (event instanceof StreamEvent streamEvent) {

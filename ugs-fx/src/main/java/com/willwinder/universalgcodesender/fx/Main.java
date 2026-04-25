@@ -32,9 +32,9 @@ import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.JogActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.MacroActionService;
 import com.willwinder.universalgcodesender.fx.service.ShortcutService;
+import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
@@ -120,11 +120,9 @@ public class Main extends Application {
 
         Parameters params = getParameters();
         if (!params.getUnnamed().isEmpty()) {
-            BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
             try {
                 File file = new File(params.getUnnamed().get(0));
-                backendAPI.setGcodeFile(file);
-                backendAPI.getSettings().setLastWorkingDirectory(file.getParent());
+                WorkspaceManager.getInstance().openWorkspace(file);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

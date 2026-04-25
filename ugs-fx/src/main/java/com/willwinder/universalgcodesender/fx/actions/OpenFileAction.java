@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
+import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -30,7 +31,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
 import java.io.File;
-
 
 public class OpenFileAction extends BaseAction {
 
@@ -57,15 +57,16 @@ public class OpenFileAction extends BaseAction {
         fileChooser.setTitle("Open Resource File");
         fileChooser.setInitialDirectory(new File(backend.getSettings().getLastWorkingDirectory()));
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Gcode files", "*.nc", "*.txt", "*.gcode", "*.ngc"));
+                new FileChooser.ExtensionFilter("All supported files", "*.nc", "*.txt", "*.gcode", "*.ngc", "*.ugsd"),
+                new FileChooser.ExtensionFilter("Gcode files", "*.nc", "*.txt", "*.gcode", "*.ngc"),
+                new FileChooser.ExtensionFilter("UGS design files", "*.ugsd"));
 
         Window window = ((Node) event.getSource()).getScene().getWindow();
 
         File selectedFile = fileChooser.showOpenDialog(window);
         if (selectedFile != null) {
             try {
-                backend.setGcodeFile(selectedFile);
-                backend.getSettings().setLastWorkingDirectory(selectedFile.getParent());
+                WorkspaceManager.getInstance().open(selectedFile);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

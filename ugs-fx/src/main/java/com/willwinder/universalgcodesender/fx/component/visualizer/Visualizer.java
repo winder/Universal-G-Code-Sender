@@ -21,7 +21,6 @@ package com.willwinder.universalgcodesender.fx.component.visualizer;
 import com.willwinder.universalgcodesender.fx.actions.ToggleProjectionAction;
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machine;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Axes;
-import com.willwinder.universalgcodesender.fx.component.visualizer.models.GcodeModel;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Grid;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Tool;
@@ -42,6 +41,8 @@ import javafx.scene.ParallelCamera;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SpotLight;
+import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.SubScene;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseButton;
@@ -59,6 +60,9 @@ public class Visualizer extends Pane {
     private final Group worldGroup;
     private double mouseOldX;
     private double mouseOldY;
+    private DragHandler activeDragHandler;
+    private double dragStartX;
+    private double dragStartY;
 
     private final Rotate rotateX = new Rotate(0, Rotate.X_AXIS);
     private final Rotate rotateY = new Rotate(180, Rotate.Y_AXIS);
@@ -144,7 +148,7 @@ public class Visualizer extends Pane {
         VisualizerService.getInstance().addModel(new Axes());
         VisualizerService.getInstance().addModel(new Tool());
         VisualizerService.getInstance().addModel(new Grid());
-        VisualizerService.getInstance().addModel(new GcodeModel());
+        VisualizerService.getInstance().addModel(new WorkspaceScene());
     }
 
     private void rotateTo(OrientationCubeFace face) {
@@ -206,8 +210,18 @@ public class Visualizer extends Pane {
             mouseOldY = event.getSceneY();
         });
 
-        // Handle mouse dragged event to implement panning and rotating
+        // Handle mouse dragged event to implement panning, rotating, and control dragging
         subScene.setOnMouseDragged((MouseEvent event) -> {
+            if (activeDragHandler != null && event.isPrimaryButtonDown()) {
+                Point2D pt = toDesignerPoint(event.getX(), event.getY());
+                if (pt != null) {
+                    activeDragHandler.onDrag(dragStartX, dragStartY, pt.getX(), pt.getY());
+                }
+                mouseOldX = event.getSceneX();
+                mouseOldY = event.getSceneY();
+                return;
+            }
+
             double dx = event.getSceneX() - mouseOldX;
             double dy = event.getSceneY() - mouseOldY;
 
@@ -245,6 +259,39 @@ public class Visualizer extends Pane {
 
             mouseOldX = event.getSceneX();
             mouseOldY = event.getSceneY();
+        });
+
+        subScene.setOnMouseReleased(event -> {
+            DragHandler handler = activeDragHandler;
+            activeDragHandler = null;
+            if (handler != null) {
+                Point2D pt = toDesignerPoint(event.getX(), event.getY());
+                if (pt != null) {
+                    handler.onDragEnd(dragStartX, dragStartY, pt.getX(), pt.getY());
+                }
+            }
+        });
+
+        // Detect drag start on control handles (DragHandler in userData) inside the SubScene.
+        // Only react to PRIMARY button so right-click pan/rotate is never intercepted.
+        worldGroup.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
+            if (event.getButton() != MouseButton.PRIMARY) return;
+            Node hit = event.getPickResult().getIntersectedNode();
+            Node current = hit;
+            while (current != null) {
+                if (current.getUserData() instanceof DragHandler dh) {
+                    // getIntersectedPoint() is in the hit node's local space; since control nodes
+                    // have no intermediate transforms, this equals worldGroup local (designer) space.
+                    Point3D pt = event.getPickResult().getIntersectedPoint();
+                    activeDragHandler = dh;
+                    dragStartX = pt.getX();
+                    dragStartY = pt.getY();
+                    dh.onDragStart(dragStartX, dragStartY);
+                    event.consume();
+                    return;
+                }
+                current = current.getParent();
+            }
         });
 
         // Zoom with mouse scroll
@@ -337,6 +384,38 @@ public class Visualizer extends Pane {
         // Ensure SubScene resizes with the parent node
         subScene.setWidth(getWidth());
         subScene.setHeight(getHeight());
+    }
+
+    /**
+     * Converts a SubScene pixel position to designer (worldGroup local) coordinates
+     * by intersecting the camera ray with the Z=0 plane in worldGroup local space.
+     */
+    private Point2D toDesignerPoint(double pixelX, double pixelY) {
+        if (!(camera instanceof PerspectiveCamera pc)) return null;
+
+        double W = subScene.getWidth();
+        double H = subScene.getHeight();
+        double camZ = cameraTranslate.getZ();
+
+        double tanHalf = Math.tan(Math.toRadians(pc.getFieldOfView()) / 2.0);
+        double ndcX = (pixelX - W / 2.0) / (H / 2.0);
+        double ndcY = (pixelY - H / 2.0) / (H / 2.0);
+
+        // Ray origin and a second point along the ray, both in root3D (parent of worldGroup) space
+        Point3D originRoot = new Point3D(0, 0, camZ);
+        Point3D endRoot = new Point3D(ndcX * tanHalf, ndcY * tanHalf, camZ + 1.0);
+
+        // Transform to worldGroup local (designer) space using the inverse of worldGroup's transform
+        Point3D localOrigin = worldGroup.parentToLocal(originRoot);
+        Point3D localEnd = worldGroup.parentToLocal(endRoot);
+        Point3D localDir = localEnd.subtract(localOrigin);
+
+        if (Math.abs(localDir.getZ()) < 1e-9) return null;
+        double t = -localOrigin.getZ() / localDir.getZ();
+        return new Point2D(
+                localOrigin.getX() + t * localDir.getX(),
+                localOrigin.getY() + t * localDir.getY()
+        );
     }
 
     private void updateRotationPivotFromPan() {

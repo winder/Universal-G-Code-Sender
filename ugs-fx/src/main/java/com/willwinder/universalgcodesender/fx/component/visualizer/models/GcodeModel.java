@@ -29,8 +29,6 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.CommandEvent;
-import com.willwinder.universalgcodesender.model.events.FileState;
-import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.model.events.StreamEvent;
 import com.willwinder.universalgcodesender.model.events.StreamEventType;
@@ -57,7 +55,6 @@ public class GcodeModel extends Model {
     public static final double ARC_TOLERANCE = 0.02;
     private final GcodeViewParse gcvp;
     private final MeshView meshView;
-    private final BackendAPI backendAPI;
     private float lineWidth;
 
     private GcodeModelMaterial material = new GcodeModelMaterial(0);
@@ -81,20 +78,20 @@ public class GcodeModel extends Model {
         }
     }
 
-    public GcodeModel() {
+    public GcodeModel(File file) {
         meshView = new MeshView();
         meshView.setCullFace(CullFace.NONE);
+        meshView.setMouseTransparent(true);
 
         getChildren().add(meshView);
-        backendAPI = LookupService.lookup(BackendAPI.class);
+        BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         gcvp = new GcodeViewParse();
         backendAPI.addUGSEventListener(this::onEvent);
-        lineWidth = VisualizerSettings.getInstance().lineWidthProperty().getValue();
         VisualizerSettings.getInstance().lineWidthProperty().addListener((s, o, n) -> {
-            lineWidth = n.floatValue();
-            loadModel();
+            loadModel(file);
         });
         addSettingListeners();
+        loadModel(file);
     }
 
     private void addSettingListeners() {
@@ -124,11 +121,7 @@ public class GcodeModel extends Model {
     }
 
     private void onEvent(UGSEvent event) {
-        if (event instanceof FileStateEvent fileStateEvent) {
-            if (fileStateEvent.getFileState() == FileState.FILE_LOADED) {
-                loadModel();
-            }
-        } else if (event instanceof StreamEvent streamEvent) {
+        if (event instanceof StreamEvent streamEvent) {
             if (streamEvent.getType() == StreamEventType.STREAM_COMPLETE || streamEvent.getType() == StreamEventType.STREAM_CANCELED) {
                 material.reset();
             }
@@ -141,10 +134,11 @@ public class GcodeModel extends Model {
         }
     }
 
-    private void loadModel() {
+    private void loadModel(File file) {
+        lineWidth = VisualizerSettings.getInstance().lineWidthProperty().getValue();
         ThreadHelper.invokeLater(() -> {
             try {
-                List<LineSegment> lineSegments = loadModel(gcvp, backendAPI.getGcodeFile().getAbsolutePath());
+                List<LineSegment> lineSegments = loadModel(gcvp, file.getAbsolutePath());
                 TriangleMesh mesh = pointsToMesh(lineSegments);
                 meshView.setMesh(mesh);
             } catch (Exception e) {
@@ -158,6 +152,8 @@ public class GcodeModel extends Model {
 
         material = new GcodeModelMaterial(lineSegments.size());
         meshView.setMaterial(material);
+        meshView.setCullFace(CullFace.NONE);
+        meshView.setMouseTransparent(true);
 
         for (int i = 0; i < lineSegments.size(); i++) {
             float[] uv = material.getTextureUV(i);
