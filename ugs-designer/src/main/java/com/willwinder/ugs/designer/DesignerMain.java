@@ -46,7 +46,7 @@ public class DesignerMain extends JFrame {
 
         Controller controller = ControllerFactory.getController();
         LookupService.register(controller);
-        LookupService.discoverProviders(DesignerMain.class.getPackageName());
+        LookupService.discoverProviders(DesignerMain.class);
 
         UndoManager undoManager = ControllerFactory.getUndoManager();
         LookupService.register(undoManager);
