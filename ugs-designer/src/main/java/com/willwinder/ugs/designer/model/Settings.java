@@ -20,6 +20,7 @@ package com.willwinder.ugs.designer.model;
 
 import com.google.common.collect.Sets;
 import com.willwinder.ugs.designer.logic.SettingsListener;
+import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
@@ -40,6 +41,8 @@ public class Settings {
     private boolean detectMaxSpindleSpeed = true;
     private String spindleDirection = "M3";
     private double flatnessPrecision = 0.1;
+    private String currentToolId;
+    private ToolDefinition currentToolSnapshot;
 
     public Settings() {
     }
@@ -201,6 +204,9 @@ public class Settings {
         setDetectMaxSpindleSpeed(settings.getDetectMaxSpindleSpeed());
         setSpindleDirection(settings.getSpindleDirection());
         setFlatnessPrecision(settings.getFlatnessPrecision());
+        setCurrentToolId(settings.getCurrentToolId());
+        ToolDefinition snapshot = settings.getCurrentToolSnapshot();
+        setCurrentToolSnapshot(snapshot == null ? null : new ToolDefinition(snapshot));
     }
 
     public double getLaserDiameter() {
@@ -239,6 +245,24 @@ public class Settings {
 
     public void setFlatnessPrecision(double flatnessPrecision) {
         this.flatnessPrecision = flatnessPrecision;
+        notifyListeners();
+    }
+
+    public String getCurrentToolId() {
+        return currentToolId;
+    }
+
+    public void setCurrentToolId(String currentToolId) {
+        this.currentToolId = currentToolId;
+        notifyListeners();
+    }
+
+    public ToolDefinition getCurrentToolSnapshot() {
+        return currentToolSnapshot;
+    }
+
+    public void setCurrentToolSnapshot(ToolDefinition currentToolSnapshot) {
+        this.currentToolSnapshot = currentToolSnapshot;
         notifyListeners();
     }
 }
