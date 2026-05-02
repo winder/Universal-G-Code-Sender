@@ -87,8 +87,9 @@ public class ToolEditorPanel extends JPanel {
     }
 
     private void initComponents() {
-        setLayout(new MigLayout("fillx, wrap 2", "[30%][70%]"));
+        setLayout(new MigLayout("fillx, wrap 2", "[pref!][grow,fill]"));
         setPreferredSize(new Dimension(360, 420));
+        setMinimumSize(new Dimension(360, 420));
 
         add(new JLabel("Name"));
         nameField = new JTextField();
@@ -194,7 +195,7 @@ public class ToolEditorPanel extends JPanel {
             feedField.setDoubleValue(convertFeedFromMmPerMin(tool.getFeedSpeed()));
             plungeField.setDoubleValue(convertFeedFromMmPerMin(tool.getPlungeSpeed()));
             depthField.setDoubleValue(convertDepthFromMm(tool.getDepthPerPass()));
-            stepOverField.setDoubleValue(tool.getStepOverPercent() * 100);
+            stepOverField.setDoubleValue(tool.getStepOverPercent());
             spindleSpeedField.setDoubleValue(tool.getMaxSpindleSpeed());
             spindleDirectionCombo.setSelectedItem(tool.getSpindleDirection());
             updateAngleVisibility();
@@ -294,7 +295,7 @@ public class ToolEditorPanel extends JPanel {
         edited.setFeedSpeed(convertFeedToMmPerMin(feedField.getDoubleValue()));
         edited.setPlungeSpeed(convertFeedToMmPerMin(plungeField.getDoubleValue()));
         edited.setDepthPerPass(convertDepthToMm(depthField.getDoubleValue()));
-        edited.setStepOverPercent(clampFraction(stepOverField.getDoubleValue() / 100));
+        edited.setStepOverPercent(clampFraction(stepOverField.getDoubleValue()));
         edited.setMaxSpindleSpeed((int) Math.round(spindleSpeedField.getDoubleValue()));
         edited.setSpindleDirection((String) spindleDirectionCombo.getSelectedItem());
         return edited;

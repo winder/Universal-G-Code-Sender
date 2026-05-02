@@ -62,7 +62,7 @@ public class ToolSettingsPanel extends JPanel {
     private JTextField feedSpeed;
     private JTextField plungeSpeed;
     private JTextField depthPerPass;
-    private JTextField stepOver;
+    private TextFieldWithUnit stepOver;
     private JTextField safeHeight;
     private JCheckBox detectMaxSpindleSpeed;
     private TextFieldWithUnit laserDiameter;
@@ -83,7 +83,7 @@ public class ToolSettingsPanel extends JPanel {
     }
 
     private void initComponents() {
-        setLayout(new MigLayout("fill", "[30%][70%]"));
+        setLayout(new MigLayout("fill", "[pref!][grow,fill]"));
 
         pickFromLibraryButton = new JButton("Pick from Library…");
         pickFromLibraryButton.addActionListener(e -> onPickFromLibrary());
@@ -100,7 +100,7 @@ public class ToolSettingsPanel extends JPanel {
 
         add(new JLabel("Tool step over (%)"));
         stepOver = new TextFieldWithUnit(Unit.PERCENT, 2,
-                controller.getSettings().getToolStepOver() * 100);
+                controller.getSettings().getToolStepOver());
         add(stepOver, TOOL_FIELD_CONSTRAINT);
 
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2");
@@ -165,14 +165,15 @@ public class ToolSettingsPanel extends JPanel {
         String activeId = settings.getCurrentToolId();
         if (activeId != null && libraryService != null) {
             Optional<ToolDefinition> tool = libraryService.getById(activeId);
-            if (tool.isPresent()) {
+            if (tool.isPresent() && !tool.get().isCustomSentinel()) {
                 librarySnapshot = tool.get();
                 SwingUtilities.invokeLater(() -> applyLibrarySnapshotToFields(false));
                 return;
             }
         }
-        if (settings.getCurrentToolSnapshot() != null) {
-            librarySnapshot = new ToolDefinition(settings.getCurrentToolSnapshot());
+        ToolDefinition snapshot = settings.getCurrentToolSnapshot();
+        if (snapshot != null && !snapshot.isCustomSentinel()) {
+            librarySnapshot = new ToolDefinition(snapshot);
         }
         updateSelectedToolLabel();
     }
@@ -194,9 +195,8 @@ public class ToolSettingsPanel extends JPanel {
                 () -> librarySnapshot == null ? null : String.valueOf(librarySnapshot.getPlungeSpeed()));
         DeviationHighlighter.attachText(depthPerPass,
                 () -> librarySnapshot == null ? null : String.valueOf(librarySnapshot.getDepthPerPass()));
-        DeviationHighlighter.attachText(stepOver,
-                () -> librarySnapshot == null ? null
-                        : Utils.formatter.format(librarySnapshot.getStepOverPercent() * 100));
+        DeviationHighlighter.attachDouble(stepOver,
+                () -> librarySnapshot == null ? null : librarySnapshot.getStepOverPercent());
         DeviationHighlighter.attachCombo(spindleDirection,
                 () -> librarySnapshot == null ? null : librarySnapshot.getSpindleDirection());
     }
@@ -216,8 +216,13 @@ public class ToolSettingsPanel extends JPanel {
                 SwingUtilities.getWindowAncestor(this),
                 controller.getSettings().getPreferredUnits());
         picked.ifPresent(tool -> {
-            librarySnapshot = tool;
-            applyLibrarySnapshotToFields(true);
+            if (tool.isCustomSentinel()) {
+                librarySnapshot = null;
+                updateSelectedToolLabel();
+            } else {
+                librarySnapshot = tool;
+                applyLibrarySnapshotToFields(true);
+            }
         });
     }
 
@@ -232,7 +237,7 @@ public class ToolSettingsPanel extends JPanel {
                 feedSpeed.setText(String.valueOf(librarySnapshot.getFeedSpeed()));
                 plungeSpeed.setText(String.valueOf(librarySnapshot.getPlungeSpeed()));
                 depthPerPass.setText(Utils.formatter.format(librarySnapshot.getDepthPerPass()));
-                stepOver.setText(Utils.formatter.format(librarySnapshot.getStepOverPercent() * 100));
+                stepOver.setValue(librarySnapshot.getStepOverPercent());
                 maxSpindleSpeed.setDoubleValue(librarySnapshot.getMaxSpindleSpeed());
                 spindleDirection.setSelectedItem(librarySnapshot.getSpindleDirection());
             } catch (RuntimeException ignored) {
@@ -261,11 +266,7 @@ public class ToolSettingsPanel extends JPanel {
     }
 
     public double getStepOver() {
-        try {
-            return Utils.formatter.parse(stepOver.getText()).doubleValue() / 100;
-        } catch (ParseException e) {
-            return controller.getSettings().getToolStepOver();
-        }
+        return stepOver.getDoubleValue();
     }
 
     public double getDepthPerPass() {

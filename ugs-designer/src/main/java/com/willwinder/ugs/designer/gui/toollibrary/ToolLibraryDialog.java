@@ -133,7 +133,8 @@ public class ToolLibraryDialog extends JDialog {
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-        pack();
+        setSize(getPreferredSize());
+        setMinimumSize(new Dimension(560, 400));
         setLocationRelativeTo(getOwner());
     }
 
