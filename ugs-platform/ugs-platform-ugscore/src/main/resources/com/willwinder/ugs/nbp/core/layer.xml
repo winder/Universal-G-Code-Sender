@@ -74,16 +74,6 @@
             <file name="org-openide-actions-SaveAsAction.instance_hidden"/>
             <file name="org-netbeans-modules-editor-ExportHtmlAction.shadow_hidden"/>
 
-            <file name="org-openide-actions-CloseAction.instance">
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
-                <attr name="delegate" methodvalue="org.openide.awt.Actions.performer"/>
-                <attr name="selectionType" stringvalue="ANY"/>
-                <attr name="surviveFocusChange" boolvalue="false"/>
-                <attr name="displayName" bundlevalue="org/openide/awt/Bundle#Close"/>
-                <attr name="noIconInMenu" boolvalue="true"/>
-                <attr name="type" stringvalue="org.netbeans.api.actions.Closable"/>
-            </file>
-
             <file name="Separator3.instance_hidden"/>
             <file name="org-openide-actions-PageSetupAction.shadow_hidden"/>
             <file name="org-openide-actions-PrintAction.shadow_hidden"/>
