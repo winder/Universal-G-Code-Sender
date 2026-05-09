@@ -18,18 +18,20 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
+import com.willwinder.universalgcodesender.fx.actions.ToggleProjectionAction;
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machine;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Axes;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.GcodeModel;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Grid;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Tool;
+import com.willwinder.universalgcodesender.fx.control.ActionButton;
+import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Point3D;
 import javafx.scene.AmbientLight;
@@ -41,6 +43,7 @@ import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SpotLight;
 import javafx.scene.SubScene;
+import javafx.scene.control.Button;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -50,7 +53,9 @@ import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
 public class Visualizer extends Pane {
-    private final Camera camera;
+    private final PerspectiveCamera perspectiveCamera;
+    private final ParallelCamera parallelCamera;
+    private Camera camera;
     private final Group worldGroup;
     private double mouseOldX;
     private double mouseOldY;
@@ -69,6 +74,7 @@ public class Visualizer extends Pane {
     private final Group root3D;
 
     public Visualizer() {
+        getStylesheets().add(getClass().getResource("/styles/visualizer.css").toExternalForm());
 
         // Rotate group contains 3D objects
         Machine machine = new Machine();
@@ -98,8 +104,13 @@ public class Visualizer extends Pane {
         subScene = new SubScene(root3D, 800, 600, true, SceneAntialiasing.BALANCED);
         subScene.fillProperty().bind(VisualizerSettings.getInstance().colorBackgroundProperty().map(Color::web));
 
-        camera = createCamera();
-        subScene.setCamera(camera);
+        perspectiveCamera = createPerspectiveCamera();
+        parallelCamera = createParallelCamera();
+        applyCameraMode(VisualizerSettings.getInstance().useParallelCameraProperty().get());
+
+        VisualizerSettings.getInstance().useParallelCameraProperty().addListener(
+                (obs, oldVal, newVal) -> applyCameraMode(newVal)
+        );
 
         setMouseInteraction();
 
@@ -109,7 +120,12 @@ public class Visualizer extends Pane {
         orientationCube.layoutXProperty().bind(widthProperty().subtract(orientationCube.sizeProperty()).subtract(5));
         orientationCube.layoutYProperty().set(5);
 
-        getChildren().addAll(subScene, orientationCube);
+        Button cameraToggle = new ActionButton(new ToggleProjectionAction(), 32, false, Color.WHITE);
+        cameraToggle.getStyleClass().add("visualizer-button");
+        cameraToggle.layoutXProperty().bind(widthProperty().subtract(cameraToggle.widthProperty()).subtract(38));
+        cameraToggle.layoutYProperty().bind(orientationCube.sizeProperty().add(10));
+
+        getChildren().addAll(subScene, orientationCube, cameraToggle);
 
         // Add new models added through the visualizer service
         VisualizerService.getInstance().getModels().addListener((ListChangeListener<Model>) change -> {
@@ -245,7 +261,7 @@ public class Visualizer extends Pane {
                 cameraTranslate.setZ(cameraTranslate.getZ() + delta);
             }
 
-            VisualizerService.getInstance().onZoomChange(currentScale);
+            VisualizerService.getInstance().onZoomChange(getCurrentScale());
         });
     }
 
@@ -276,32 +292,42 @@ public class Visualizer extends Pane {
             double baseDistance = 500.0;
             double currentDistance = Math.max(1e-6, -cameraTranslate.getZ());
             scale = baseDistance / currentDistance;
+        } else {
+            scale = scale / 8;
         }
 
         return scale;
     }
 
-    private Camera createCamera() {
-        boolean useParallelCamera = false;
-        if (useParallelCamera) {
-            Camera camera = new ParallelCamera();
+    private PerspectiveCamera createPerspectiveCamera() {
+        PerspectiveCamera camera = new PerspectiveCamera(true);
+        camera.setNearClip(0.1);
+        camera.setFarClip(10000);
+        camera.getTransforms().add(cameraTranslate);
+        return camera;
+    }
 
-            // Set the camera position and scale
-            Platform.runLater(() -> {
-                camera.setTranslateX(-(subScene.getWidth() / 2d));
-                camera.setTranslateY(-(subScene.getHeight() / 2d));
-                root3D.setScaleX(3);
-                root3D.setScaleY(3);
-            });
-            return camera;
+    private ParallelCamera createParallelCamera() {
+        ParallelCamera camera = new ParallelCamera();
+        Translate cameraOffset = new Translate();
+        cameraOffset.xProperty().bind(widthProperty().divide(-4));
+        cameraOffset.yProperty().bind(heightProperty().divide(1.6));
+        camera.getTransforms().add(cameraOffset);
+        return camera;
+    }
+
+    private void applyCameraMode(boolean useParallel) {
+        if (useParallel) {
+            camera = parallelCamera;
+            root3D.setScaleX(4);
+            root3D.setScaleY(4);
         } else {
-            // Camera
-            PerspectiveCamera camera = new PerspectiveCamera(true);
-            camera.setNearClip(0.1);
-            camera.setFarClip(10000);
-            camera.getTransforms().add(cameraTranslate);
-            return camera;
+            camera = perspectiveCamera;
+            root3D.setScaleX(1);
+            root3D.setScaleY(1);
         }
+        VisualizerService.getInstance().onZoomChange(getCurrentScale());
+        subScene.setCamera(camera);
     }
 
     @Override

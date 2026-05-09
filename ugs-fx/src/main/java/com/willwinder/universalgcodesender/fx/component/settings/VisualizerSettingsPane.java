@@ -104,6 +104,13 @@ public class VisualizerSettingsPane extends BorderPane {
     private void addMouseControls() {
         VBox mouseControls = new VBox(10);
 
+        // Parallel (orthographic) camera
+        SwitchButton parallelCamera = new SwitchButton();
+        parallelCamera.selectedProperty().bindBidirectional(
+                VisualizerSettings.getInstance().useParallelCameraProperty()
+        );
+        mouseControls.getChildren().add(new SettingsRow("Use parallel camera", "Switches between perspective (3D) and parallel (2D) camera projection", parallelCamera));
+
         // Invert zoom
         SwitchButton invertZoom = new SwitchButton();
         invertZoom.selectedProperty().bindBidirectional(
