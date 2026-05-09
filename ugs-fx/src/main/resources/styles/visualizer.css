@@ -1,0 +1,9 @@
+.visualizer-button {
+    -fx-background-color: #353A40;
+    -fx-border-color: transparent;
+}
+
+.visualizer-button:hover {
+    -fx-background-color: #353A40CC;
+    -fx-border-color: transparent;
+}

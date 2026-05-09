@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 
 public class Colors {
     public static final Color BLACKISH = Color.rgb(53, 58, 64);
+    public static final Color BLACKISH_HIGHLIGHT = Color.rgb(53, 58, 64, 0.8);
     public static final Color ORANGE = Color.rgb(255, 151, 11);
     public static final Color GREEN = Color.rgb(0, 201, 0);
     public static final Color LIGHT_GREEN = Color.rgb(0, 226, 0);
