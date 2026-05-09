@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.fx.actions.OpenFileAction;
 import com.willwinder.universalgcodesender.fx.actions.OpenSettingsAction;
 import com.willwinder.universalgcodesender.fx.actions.PauseAction;
 import com.willwinder.universalgcodesender.fx.actions.ReturnToZeroAction;
+import com.willwinder.universalgcodesender.fx.actions.SaveAction;
 import com.willwinder.universalgcodesender.fx.actions.SoftResetAction;
 import com.willwinder.universalgcodesender.fx.actions.StartAction;
 import com.willwinder.universalgcodesender.fx.actions.StopAction;
@@ -60,6 +61,7 @@ public class ToolBarMenu extends VBox {
         createButton(ConnectDisconnectAction.class).ifPresent(children::add);
         children.add(new Separator());
         createButton(OpenFileAction.class).ifPresent(children::add);
+        createButton(SaveAction.class).ifPresent(children::add);
         children.add(new Separator());
         createButton(StartAction.class).ifPresent(children::add);
         createButton(PauseAction.class).ifPresent(children::add);

@@ -1,5 +1,8 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
+import com.willwinder.ugs.designer.entities.entities.EntityListener;
+import com.willwinder.ugs.designer.entities.entities.EventType;
+import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.fx.component.visualizer.designer.ControlsNode;
 import com.willwinder.universalgcodesender.fx.component.visualizer.designer.EntityShapesNode;
@@ -14,9 +17,26 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 
+import java.io.File;
+import java.util.EnumSet;
+import java.util.Set;
+
 public class WorkspaceScene extends Model {
+    private static final Set<EventType> DESIGN_CHANGE_EVENTS = EnumSet.of(
+            EventType.MOVED,
+            EventType.RESIZED,
+            EventType.ROTATED,
+            EventType.PATH_CHANGED,
+            EventType.CHILD_ADDED,
+            EventType.CHILD_REMOVED,
+            EventType.SETTINGS_CHANGED
+    );
+
     private final EntityShapesNode entityShapesNode = new EntityShapesNode();
     private ControlsNode controlsNode;
+    private GcodeModel gcodeModel;
+    private Controller designController;
+    private EntityListener designChangeListener;
 
     public WorkspaceScene() {
         WorkspaceManager.getInstance().addListener(new WorkspaceManager.WorkspaceListener() {
@@ -32,7 +52,7 @@ public class WorkspaceScene extends Model {
 
             @Override
             public void onWorkspaceDirtyStateChanged(WorkspaceContext workspace, boolean dirty) {
-                // no-op for now
+                Platform.runLater(() -> onDirtyStateChanged(dirty));
             }
         });
 
@@ -54,11 +74,14 @@ public class WorkspaceScene extends Model {
 
     public void setWorkspace(WorkspaceContext workspace) {
         getChildren().clear();
+        gcodeModel = null;
 
         if (controlsNode != null) {
             controlsNode.dispose();
             controlsNode = null;
         }
+
+        detachDesignChangeListener();
 
         if (workspace == null) {
             return;
@@ -68,14 +91,57 @@ public class WorkspaceScene extends Model {
             entityShapesNode.refreshFromController();
             getChildren().add(entityShapesNode);
 
-            var controller = ControllerFactory.getController();
-            controlsNode = new ControlsNode(controller.getDrawing(), controller.getSelectionManager(),
+            designController = ControllerFactory.getController();
+            controlsNode = new ControlsNode(designController.getDrawing(), designController.getSelectionManager(),
                     entityShapesNode::refreshFromController);
             getChildren().add(controlsNode);
+
+            attachDesignChangeListener(designController);
         }
 
-        getChildren().add( new GcodeModel(LookupService.lookup(BackendAPI.class).getGcodeFile()));
+        addGcodeModel();
+    }
 
+    private void onDirtyStateChanged(boolean dirty) {
+        if (dirty) {
+            removeGcodeModel();
+        } else {
+            removeGcodeModel();
+            addGcodeModel();
+        }
+    }
+
+    private void addGcodeModel() {
+        File file = LookupService.lookup(BackendAPI.class).getGcodeFile();
+        if (file == null) {
+            return;
+        }
+        gcodeModel = new GcodeModel(file);
+        getChildren().add(gcodeModel);
+    }
+
+    private void removeGcodeModel() {
+        if (gcodeModel != null) {
+            getChildren().remove(gcodeModel);
+            gcodeModel = null;
+        }
+    }
+
+    private void attachDesignChangeListener(Controller controller) {
+        designChangeListener = event -> {
+            if (DESIGN_CHANGE_EVENTS.contains(event.getType())) {
+                WorkspaceManager.getInstance().markActiveWorkspaceDirty(true);
+            }
+        };
+        controller.getDrawing().getRootEntity().addListener(designChangeListener);
+    }
+
+    private void detachDesignChangeListener() {
+        if (designController != null && designChangeListener != null) {
+            designController.getDrawing().getRootEntity().removeListener(designChangeListener);
+        }
+        designController = null;
+        designChangeListener = null;
     }
 
     @Override
