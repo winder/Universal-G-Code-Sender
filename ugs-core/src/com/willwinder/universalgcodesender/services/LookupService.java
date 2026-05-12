@@ -25,6 +25,7 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 
 import java.lang.reflect.Constructor;
+import java.net.URL;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -68,9 +69,32 @@ public class LookupService {
         }
     }
 
-    public static synchronized void discoverProviders(String... packageRoots) {
-        try (ScanResult scanResult = new ClassGraph().enableClassInfo().enableAnnotationInfo().acceptPackages(packageRoots).scan()) {
-            scanResult.getClassesWithAnnotation(LookupServiceProvider.class.getName()).loadClasses().stream().sorted(Comparator.comparingInt(LookupService::positionOf)).forEach(LookupService::createAndRegister);
+    public static synchronized void discoverProviders(Class<?> reference) {
+        // ClassGraph cannot enumerate classes through NetBeans' ProxyClassLoader,
+        // so scan the JAR/directory backing the reference class directly. Loading
+        // must still go through the module's own classloader, otherwise dependent
+        // classes (e.g. MigLayout) won't resolve.
+        URL codeSource = reference.getProtectionDomain().getCodeSource().getLocation();
+        ClassLoader classLoader = reference.getClassLoader();
+        try (ScanResult scanResult = new ClassGraph()
+                .enableClassInfo().enableAnnotationInfo()
+                .overrideClasspath(codeSource)
+                .acceptPackages(reference.getPackageName())
+                .scan()) {
+            List<String> classNames = scanResult.getClassesWithAnnotation(LookupServiceProvider.class.getName()).getNames();
+            LOGGER.info("discoverProviders registered " + classNames.size() + " @LookupServiceProvider classes from " + reference.getPackageName());
+            classNames.stream()
+                    .map(name -> loadClass(name, classLoader))
+                    .sorted(Comparator.comparingInt(LookupService::positionOf))
+                    .forEach(LookupService::createAndRegister);
+        }
+    }
+
+    private static Class<?> loadClass(String name, ClassLoader classLoader) {
+        try {
+            return Class.forName(name, true, classLoader);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("Unable to load lookup service: " + name, e);
         }
     }
 

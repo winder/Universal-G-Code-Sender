@@ -47,6 +47,7 @@ public class VisualizerSettings {
     private static final String MOUSE_PAN_MODIFIER = "mouse.pan.modifier";
     private static final String MOUSE_ROTATE_BUTTON = "mouse.rotate.button";
     private static final String MOUSE_ROTATE_MODIFIER = "mouse.rotate.modifier";
+    private static final String USE_PARALLEL_CAMERA = "useParallelCamera";
 
     public enum ModifierKey {
         NONE, SHIFT, CTRL, ALT, META;
@@ -81,6 +82,7 @@ public class VisualizerSettings {
     private final StringProperty rotateMouseButton = new SimpleStringProperty(loadString(MOUSE_ROTATE_BUTTON, "SECONDARY"));
     private final StringProperty rotateModifierKey = new SimpleStringProperty(loadString(MOUSE_ROTATE_MODIFIER, ModifierKey.NONE.name()));
     private final FloatProperty lineWidth = new SimpleFloatProperty(loadFloat(LINE_WIDTH, 0.1f));
+    private final BooleanProperty useParallelCamera = new SimpleBooleanProperty(loadBoolean(USE_PARALLEL_CAMERA, false));
 
     VisualizerSettings() {
         showMachine.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_MACHINE_MODEL, newVal));
@@ -99,6 +101,7 @@ public class VisualizerSettings {
         panModifierKey.addListener((obs, oldVal, newVal) -> saveString(MOUSE_PAN_MODIFIER, newVal));
         rotateMouseButton.addListener((obs, oldVal, newVal) -> saveString(MOUSE_ROTATE_BUTTON, newVal));
         rotateModifierKey.addListener((obs, oldVal, newVal) -> saveString(MOUSE_ROTATE_MODIFIER, newVal));
+        useParallelCamera.addListener((obs, oldVal, newVal) -> saveBoolean(USE_PARALLEL_CAMERA, newVal));
     }
 
     public static VisualizerSettings getInstance() {
@@ -175,6 +178,10 @@ public class VisualizerSettings {
 
     public FloatProperty lineWidthProperty() {
         return lineWidth;
+    }
+
+    public BooleanProperty useParallelCameraProperty() {
+        return useParallelCamera;
     }
 
     private String loadString(String key, String defaultValue) {

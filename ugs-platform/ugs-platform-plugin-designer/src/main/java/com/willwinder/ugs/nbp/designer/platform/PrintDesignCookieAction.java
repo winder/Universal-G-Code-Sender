@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.designer.platform;
 import com.willwinder.ugs.designer.actions.PrintDesignAction;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import org.openide.awt.*;
+import org.openide.filesystems.FileObject;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.actions.CookieAction;
@@ -73,7 +74,23 @@ public class PrintDesignCookieAction extends CookieAction {
 
     @Override
     protected void performAction(Node[] nodes) {
+        action.setFilenameHint(resolveFilename(nodes));
         action.actionPerformed(new ActionEvent(this, 0, ""));
+    }
+
+    private String resolveFilename(Node[] nodes) {
+        if (nodes == null || nodes.length == 0) {
+            return "(unsaved)";
+        }
+        UgsDataObject dataObject = nodes[0].getLookup().lookup(UgsDataObject.class);
+        if (dataObject == null) {
+            return "(unsaved)";
+        }
+        FileObject fo = dataObject.getPrimaryFile();
+        if (fo == null || fo.getAttribute(UgsDataObject.ATTRIBUTE_TEMPORARY) != null) {
+            return "(unsaved)";
+        }
+        return fo.getNameExt();
     }
 
     @Override

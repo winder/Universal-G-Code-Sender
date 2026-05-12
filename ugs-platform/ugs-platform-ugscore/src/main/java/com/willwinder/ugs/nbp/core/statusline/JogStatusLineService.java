@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.utils.MathUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.openide.awt.StatusLineElementProvider;
 import org.openide.util.lookup.ServiceProvider;
@@ -56,7 +57,7 @@ public class JogStatusLineService implements StatusLineElementProvider {
             Settings s = backend.getSettings();
             Units u = s.getPreferredUnits();
             setText(String.format(FORMAT,
-                    s.getManualModeStepSize(),
+                    MathUtils.round(s.getManualModeStepSize(), 3),
                     u.abbreviation));
         }
 

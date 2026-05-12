@@ -1,6 +1,7 @@
 package com.willwinder.universalgcodesender.fx.control;
 
 import com.willwinder.universalgcodesender.fx.actions.Action;
+import com.willwinder.universalgcodesender.fx.actions.ToggleProjectionAction;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import static com.willwinder.universalgcodesender.fx.helper.SvgLoader.loadImageIcon;
 import javafx.beans.property.BooleanProperty;
@@ -28,8 +29,13 @@ public class ActionButton extends Button {
     }
 
     public ActionButton(Action action, int size, boolean showText) {
+        this(action, size, showText, Colors.BLACKISH);
+    }
+
+    public ActionButton(Action action, int size, boolean showText, Color iconColor) {
         this.action = action;
         this.iconSize.setValue(size);
+        this.iconColor.setValue(iconColor.toString());
 
         setOnAction(event -> {
             if (event != null) {

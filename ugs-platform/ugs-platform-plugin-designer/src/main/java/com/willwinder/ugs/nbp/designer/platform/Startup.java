@@ -47,8 +47,11 @@ public class Startup implements Runnable {
         LookupService.register(controller.getSelectionManager());
         LookupService.register(new PlatformFileContext());
 
-        // Register all lookup providers
-        LookupService.discoverProviders(DesignerMain.class.getPackageName());
+        // Register all lookup providers. Pass the class so ClassGraph uses the
+        // ugs-designer module's classloader — under the NetBeans Platform module
+        // isolation, the context classloader does not see the designer JAR.
+        LookupService.discoverProviders(DesignerMain.class);
+        LookupService.discoverProviders(Startup.class);
 
         // Registers the file types that can be opened in UGSs
         FileFilterService fileFilterService = Lookup.getDefault().lookup(FileFilterService.class);

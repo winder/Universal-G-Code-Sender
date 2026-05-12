@@ -24,7 +24,8 @@ import java.util.function.Consumer;
 
 public class OrientationCube extends Group {
 
-    private Consumer<OrientationCubeFace> onFaceClicked = (face) -> {};
+    private Consumer<OrientationCubeFace> onFaceClicked = (face) -> {
+    };
     private SubScene subScene;
     private Group cubeRoot = new Group();
 
@@ -51,12 +52,20 @@ public class OrientationCube extends Group {
         Box face = new Box(size, size, 0.1);
         face.getTransforms().addAll(new Rotate(rotateX, Rotate.X_AXIS), new Rotate(rotateY, Rotate.Y_AXIS), new Rotate(rotateZ, Rotate.Z_AXIS), new Translate(0, 0, translateZ));
         face.setOnMouseClicked(event -> onFaceClicked.accept(faceEnum));
+        PhongMaterial material = createFace(faceEnum);
+        face.setMaterial(material);
+
+        face.setOnMouseEntered(event -> material.setDiffuseMap(createLabeledFace(faceEnum.name(), Colors.BLACKISH_HIGHLIGHT)));
+        face.setOnMouseExited(event -> material.setDiffuseMap(createLabeledFace(faceEnum.name(), Colors.BLACKISH)));
+        return face;
+    }
+
+    private PhongMaterial createFace(OrientationCubeFace faceEnum) {
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseMap(createLabeledFace(faceEnum.name(), Colors.BLACKISH));
         material.setSpecularColor(Color.BLACK);
         material.setSpecularPower(1);
-        face.setMaterial(material);
-        return face;
+        return material;
     }
 
     private SubScene createOrientationSubScene(double size) {

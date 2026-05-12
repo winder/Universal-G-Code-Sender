@@ -42,8 +42,7 @@ public class SvgIconLoader {
     }
 
     private static Optional<ImageIcon> loadIconImageIcon(String icon, int size) {
-        try (InputStream resourceAsStream =
-                     SvgIconLoader.class.getResourceAsStream("/" + icon)) {
+        try (InputStream resourceAsStream = openResource(icon)) {
 
             if (resourceAsStream == null) {
                 return Optional.empty();
@@ -150,12 +149,23 @@ public class SvgIconLoader {
             return Optional.empty();
         }
 
-        InputStream resourceAsStream = SvgIconLoader.class.getResourceAsStream("/" + icon);
+        InputStream resourceAsStream = openResource(icon);
         if (resourceAsStream == null) {
             return Optional.empty();
         }
 
         SVGLoader loader = new SVGLoader();
         return Optional.ofNullable(loader.load(resourceAsStream));
+    }
+
+    private static InputStream openResource(String icon) {
+        ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
+        if (contextLoader != null) {
+            InputStream stream = contextLoader.getResourceAsStream(icon);
+            if (stream != null) {
+                return stream;
+            }
+        }
+        return SvgIconLoader.class.getResourceAsStream("/" + icon);
     }
 }

@@ -1,5 +1,5 @@
 /*
-    Copyright 2017-2018 Will Winder
+    Copyright 2017-2026 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -36,8 +36,8 @@ import java.util.regex.Pattern;
 public class SpindleOnDweller implements CommandProcessor {
     private final String dwellCommand;
 
-    // Contains an M3 not followed by another digit (i.e. M30)
-    private Pattern spindleOnPattern = Pattern.compile(".*[mM][34](?!\\d)(\\D.*)?");
+    // Contains an M3/M03 not followed by another digit (i.e. M30)
+    private final Pattern spindleOnPattern = Pattern.compile(".*[mM]0?[34](?!\\d)(\\D.*)?");
 
     public SpindleOnDweller(double dwellDuration) {
         this.dwellCommand = String.format(Locale.ROOT, "G4P%.2f", dwellDuration);

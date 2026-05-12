@@ -66,6 +66,11 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
         setController(controller);
         setEnabled(false);
+
+        // DesignerTopComponent re-opens this pane via invokeLater on selection,
+        // so the SelectionEvent has already fired by the time we're constructed.
+        // Seed from the current selection so the panel reflects an already-selected shape.
+        onEvent(new EntityEvent(controller.getSelectionManager(), EventType.SELECTED));
     }
 
     @Override
