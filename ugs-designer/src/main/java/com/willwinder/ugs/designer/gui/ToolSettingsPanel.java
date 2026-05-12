@@ -59,9 +59,9 @@ public class ToolSettingsPanel extends JPanel {
     private JPanel diameterSlot;
     private TextFieldWithUnit toolDiameter;
     private UnitUtils.Units diameterDisplayUnit = UnitUtils.Units.MM;
-    private JTextField feedSpeed;
-    private JTextField plungeSpeed;
-    private JTextField depthPerPass;
+    private TextFieldWithUnit feedSpeed;
+    private TextFieldWithUnit plungeSpeed;
+    private TextFieldWithUnit depthPerPass;
     private TextFieldWithUnit stepOver;
     private JTextField safeHeight;
     private JCheckBox detectMaxSpindleSpeed;
@@ -188,13 +188,12 @@ public class ToolSettingsPanel extends JPanel {
         DeviationHighlighter.attachDouble(laserDiameter,
                 () -> librarySnapshot == null ? null : null);
 
-        // JFormattedTextFields (inherited from JTextField) — watch document changes
-        DeviationHighlighter.attachText(feedSpeed,
-                () -> librarySnapshot == null ? null : String.valueOf(librarySnapshot.getFeedSpeed()));
-        DeviationHighlighter.attachText(plungeSpeed,
-                () -> librarySnapshot == null ? null : String.valueOf(librarySnapshot.getPlungeSpeed()));
-        DeviationHighlighter.attachText(depthPerPass,
-                () -> librarySnapshot == null ? null : String.valueOf(librarySnapshot.getDepthPerPass()));
+        DeviationHighlighter.attachDouble(feedSpeed,
+                () -> librarySnapshot == null ? null : (double) librarySnapshot.getFeedSpeed());
+        DeviationHighlighter.attachDouble(plungeSpeed,
+                () -> librarySnapshot == null ? null : (double) librarySnapshot.getPlungeSpeed());
+        DeviationHighlighter.attachDouble(depthPerPass,
+                () -> librarySnapshot == null ? null : librarySnapshot.getDepthPerPass());
         DeviationHighlighter.attachDouble(stepOver,
                 () -> librarySnapshot == null ? null : librarySnapshot.getStepOverPercent());
         DeviationHighlighter.attachCombo(spindleDirection,
@@ -234,10 +233,10 @@ public class ToolSettingsPanel extends JPanel {
                 : valueInDisplayUnit(librarySnapshot.getDiameterInMm()));
         if (populateAll) {
             try {
-                feedSpeed.setText(String.valueOf(librarySnapshot.getFeedSpeed()));
-                plungeSpeed.setText(String.valueOf(librarySnapshot.getPlungeSpeed()));
-                depthPerPass.setText(Utils.formatter.format(librarySnapshot.getDepthPerPass()));
-                stepOver.setValue(librarySnapshot.getStepOverPercent());
+                feedSpeed.setDoubleValue(librarySnapshot.getFeedSpeed());
+                plungeSpeed.setDoubleValue(librarySnapshot.getPlungeSpeed());
+                depthPerPass.setDoubleValue(librarySnapshot.getDepthPerPass());
+                stepOver.setDoubleValue(librarySnapshot.getStepOverPercent());
                 maxSpindleSpeed.setDoubleValue(librarySnapshot.getMaxSpindleSpeed());
                 spindleDirection.setSelectedItem(librarySnapshot.getSpindleDirection());
             } catch (RuntimeException ignored) {
