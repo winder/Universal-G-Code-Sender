@@ -19,6 +19,7 @@
 package com.willwinder.ugs.designer.model;
 
 import com.willwinder.ugs.designer.entities.entities.Entity;
+import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.List;
  */
 public class Design {
     private List<Entity> entities = Collections.emptyList();
+    private ToolDefinition toolSnapshot;
 
     public List<Entity> getEntities() {
         return entities;
@@ -35,5 +37,13 @@ public class Design {
 
     public void setEntities(List<Entity> entities) {
         this.entities = entities;
+    }
+
+    public ToolDefinition getToolSnapshot() {
+        return toolSnapshot;
+    }
+
+    public void setToolSnapshot(ToolDefinition toolSnapshot) {
+        this.toolSnapshot = toolSnapshot;
     }
 }

@@ -68,6 +68,7 @@ public class UgsDesignWriter implements DesignWriter {
 
             EntityGroup rootEntity = controller.getDrawing().getRootEntity();
             design.setEntities(rootEntity.getChildren().stream().map(this::convertToEntity).toList());
+            design.setTool(controller.getSettings().getCurrentToolSnapshot());
             IOUtils.write(gson.toJson(design), outputStream, StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new DesignWriterException("Could not write to file", e);

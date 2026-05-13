@@ -28,8 +28,12 @@ import com.willwinder.ugs.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.designer.io.ugsd.UgsDesignWriter;
 import com.willwinder.ugs.designer.model.Design;
 import com.willwinder.ugs.designer.model.Settings;
+import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
+import com.willwinder.universalgcodesender.services.LookupService;
 
+import javax.swing.SwingUtilities;
 import java.awt.Cursor;
+import java.awt.Window;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -123,7 +127,31 @@ public class Controller {
 
     public void loadFile(File file) {
         UgsDesignReader reader = new UgsDesignReader();
-        setDesign(reader.read(file).orElse(new Design()));
+        Design design = reader.read(file).orElse(new Design());
+        setDesign(design);
+        reconcileToolOnLoad(design.getToolSnapshot());
+    }
+
+    private void reconcileToolOnLoad(ToolDefinition projectTool) {
+        if (projectTool == null) {
+            return;
+        }
+        ToolLibraryService library = LookupService.lookupOptional(ToolLibraryService.class).orElse(null);
+        if (library == null) {
+            // Headless mode or no library — apply the project's tool as a raw snapshot.
+            applyToolSnapshot(projectTool);
+            return;
+        }
+        Window parent = SwingUtilities.getWindowAncestor(drawing);
+        ToolLibrarySyncService sync = new ToolLibrarySyncService(library);
+        ToolDefinition resolved = sync.resolveOnLoad(parent, projectTool);
+        if (resolved != null) {
+            applyToolSnapshot(resolved);
+        }
+    }
+
+    private void applyToolSnapshot(ToolDefinition tool) {
+        settings.applySettings(tool.applyToSettings(settings));
     }
 
     public void saveFile(File file) {
