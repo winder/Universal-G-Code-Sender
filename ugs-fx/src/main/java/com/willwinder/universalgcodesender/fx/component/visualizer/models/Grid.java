@@ -4,8 +4,10 @@ import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.Group;
@@ -19,12 +21,18 @@ import java.util.List;
 
 public class Grid extends Model {
 
-    // Grid settings
-    private static final double GRID_STEP_COARSE_MM = 10.0;
-    private static final double GRID_STEP_FINE_MM = 5.0;
+    private static final double MM_PER_INCH = 25.4;
+
+    /** Metric grid: coarse = 1cm, fine = 5mm. Matches Ruler's large/medium steps. */
+    private static final double METRIC_COARSE_MM = 10.0;
+    private static final double METRIC_FINE_MM = 5.0;
+
+    /** Imperial grid: coarse = 1″, fine = 1/4″. Matches Ruler's large/medium steps. */
+    private static final double IMPERIAL_COARSE_MM = MM_PER_INCH;
+    private static final double IMPERIAL_FINE_MM = MM_PER_INCH / 4.0;
 
     /**
-     * When zoom is >= this value we switch to the 5mm grid.
+     * When zoom is >= this value we switch to the fine grid.
      * Tune this if you want the fine grid to appear earlier/later.
      */
     private static final double FINE_GRID_ZOOM_THRESHOLD = 2.0;
@@ -49,18 +57,29 @@ public class Grid extends Model {
     private final List<Cylinder> gridCylinders = new ArrayList<>();
 
     private double currentZoomFactor = 1.0;
-    private double currentGridStepMm = GRID_STEP_COARSE_MM;
+    private UnitUtils.Units activeUnits = UnitUtils.Units.MM;
+    private double currentGridStepMm;
 
     public Grid() {
         this.backend = LookupService.lookup(BackendAPI.class);
+        activeUnits = backend.getSettings().getPreferredUnits();
+        currentGridStepMm = coarseStepMm();
         backend.addUGSEventListener(this::onEvent);
 
         regenerateGrid();
         getChildren().add(gridGroup);
     }
 
+    private double coarseStepMm() {
+        return activeUnits == UnitUtils.Units.INCH ? IMPERIAL_COARSE_MM : METRIC_COARSE_MM;
+    }
+
+    private double fineStepMm() {
+        return activeUnits == UnitUtils.Units.INCH ? IMPERIAL_FINE_MM : METRIC_FINE_MM;
+    }
+
     private double desiredGridStepForZoom(double zoomFactor) {
-        return zoomFactor >= FINE_GRID_ZOOM_THRESHOLD ? GRID_STEP_FINE_MM : GRID_STEP_COARSE_MM;
+        return zoomFactor >= FINE_GRID_ZOOM_THRESHOLD ? fineStepMm() : coarseStepMm();
     }
 
     private double cylinderRadiusForZoom(double zoomFactor) {
@@ -130,6 +149,13 @@ public class Grid extends Model {
                 minY.set(gcodeStats.getMin().getY());
                 maxX.set(gcodeStats.getMax().getX());
                 maxY.set(gcodeStats.getMax().getY());
+                regenerateGrid();
+            }
+        } else if (ugsEvent instanceof SettingChangedEvent) {
+            UnitUtils.Units preferred = backend.getSettings().getPreferredUnits();
+            if (preferred != activeUnits) {
+                activeUnits = preferred;
+                currentGridStepMm = desiredGridStepForZoom(currentZoomFactor);
                 regenerateGrid();
             }
         }

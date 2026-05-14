@@ -68,7 +68,9 @@ public class VisualizerSettingsPane extends BorderPane {
                         createColorSetting(Localization.getString("platform.visualizer.color.spindle.max.speed"), VisualizerSettings.getInstance().colorSpindleMaxProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.arc"), VisualizerSettings.getInstance().colorArcProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.completed"), VisualizerSettings.getInstance().colorCompletedProperty()),
-                        createColorSetting(Localization.getString("platform.visualizer.color.plunge"), VisualizerSettings.getInstance().colorPlungeProperty())
+                        createColorSetting(Localization.getString("platform.visualizer.color.plunge"), VisualizerSettings.getInstance().colorPlungeProperty()),
+                        createColorSetting(Localization.getString("platform.visualizer.color.ruler.lines"), VisualizerSettings.getInstance().colorRulerLinesProperty()),
+                        createColorSetting(Localization.getString("platform.visualizer.color.ruler.text"), VisualizerSettings.getInstance().colorRulerTextProperty())
                 )
         ));
     }

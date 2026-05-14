@@ -41,6 +41,8 @@ public class VisualizerSettings {
     private static final String COLOR_FEED_MAX = "color.feedMax";
     private static final String COLOR_SPINDLE_MIN = "color.spindleMin";
     private static final String COLOR_SPINDLE_MAX = "color.spindleMax";
+    private static final String COLOR_RULER_LINES = "color.rulerLines";
+    private static final String COLOR_RULER_TEXT = "color.rulerText";
 
     private static final String MOUSE_INVERT_ZOOM = "mouse.invertZoom";
     private static final String MOUSE_PAN_BUTTON = "mouse.pan.button";
@@ -75,6 +77,8 @@ public class VisualizerSettings {
     private final StringProperty colorFeedMax = new SimpleStringProperty(loadString(COLOR_FEED_MAX, "#00009EFF"));
     private final StringProperty colorSpindleMin = new SimpleStringProperty(loadString(COLOR_SPINDLE_MIN, "#CCFFFFFF"));
     private final StringProperty colorSpindleMax = new SimpleStringProperty(loadString(COLOR_SPINDLE_MAX, "#00009EFF"));
+    private final StringProperty colorRulerLines = new SimpleStringProperty(loadString(COLOR_RULER_LINES, "#000000FF"));
+    private final StringProperty colorRulerText = new SimpleStringProperty(loadString(COLOR_RULER_TEXT, "#000000FF"));
 
     private final BooleanProperty invertZoom = new SimpleBooleanProperty(loadBoolean(MOUSE_INVERT_ZOOM, false));
     private final StringProperty panMouseButton = new SimpleStringProperty(loadString(MOUSE_PAN_BUTTON, "SECONDARY"));
@@ -95,6 +99,8 @@ public class VisualizerSettings {
         colorFeedMax.addListener((obs, oldVal, newVal) -> saveString(COLOR_FEED_MAX, newVal));
         colorSpindleMin.addListener((obs, oldVal, newVal) -> saveString(COLOR_SPINDLE_MIN, newVal));
         colorSpindleMax.addListener((obs, oldVal, newVal) -> saveString(COLOR_SPINDLE_MAX, newVal));
+        colorRulerLines.addListener((obs, oldVal, newVal) -> saveString(COLOR_RULER_LINES, newVal));
+        colorRulerText.addListener((obs, oldVal, newVal) -> saveString(COLOR_RULER_TEXT, newVal));
 
         invertZoom.addListener((obs, oldVal, newVal) -> saveBoolean(MOUSE_INVERT_ZOOM, newVal));
         panMouseButton.addListener((obs, oldVal, newVal) -> saveString(MOUSE_PAN_BUTTON, newVal));
@@ -150,6 +156,14 @@ public class VisualizerSettings {
 
     public StringProperty colorSpindleMaxProperty() {
         return colorSpindleMax;
+    }
+
+    public StringProperty colorRulerLinesProperty() {
+        return colorRulerLines;
+    }
+
+    public StringProperty colorRulerTextProperty() {
+        return colorRulerText;
     }
 
     public StringProperty machineModelProperty() {

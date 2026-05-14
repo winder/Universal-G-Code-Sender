@@ -23,9 +23,9 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machi
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Axes;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Grid;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
+import com.willwinder.universalgcodesender.fx.component.visualizer.models.Ruler;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Tool;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
-import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import javafx.animation.KeyFrame;
@@ -148,6 +148,7 @@ public class Visualizer extends Pane {
         VisualizerService.getInstance().addModel(new Axes());
         VisualizerService.getInstance().addModel(new Tool());
         VisualizerService.getInstance().addModel(new Grid());
+        VisualizerService.getInstance().addModel(new Ruler());
         VisualizerService.getInstance().addModel(new WorkspaceScene());
     }
 
