@@ -117,6 +117,7 @@ public class WorkspaceScene extends Model {
             return;
         }
         gcodeModel = new GcodeModel(file);
+        gcodeModel.visibleProperty().bind(VisualizerSettings.getInstance().showGcodeModelProperty());
         getChildren().add(gcodeModel);
     }
 

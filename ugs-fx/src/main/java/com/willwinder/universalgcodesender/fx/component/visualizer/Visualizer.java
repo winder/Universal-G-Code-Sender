@@ -18,7 +18,9 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
+import com.willwinder.universalgcodesender.fx.actions.ToggleGcodeModelAction;
 import com.willwinder.universalgcodesender.fx.actions.ToggleProjectionAction;
+import com.willwinder.universalgcodesender.fx.actions.ToggleRulerAction;
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machine;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Axes;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Grid;
@@ -129,7 +131,17 @@ public class Visualizer extends Pane {
         cameraToggle.layoutXProperty().bind(widthProperty().subtract(cameraToggle.widthProperty()).subtract(38));
         cameraToggle.layoutYProperty().bind(orientationCube.sizeProperty().add(10));
 
-        getChildren().addAll(subScene, orientationCube, cameraToggle);
+        Button gcodeModelToggle = new ActionButton(new ToggleGcodeModelAction(), 32, false, Color.WHITE);
+        gcodeModelToggle.getStyleClass().add("visualizer-button");
+        gcodeModelToggle.layoutXProperty().bind(widthProperty().subtract(gcodeModelToggle.widthProperty()).subtract(38));
+        gcodeModelToggle.layoutYProperty().bind(cameraToggle.layoutYProperty().add(cameraToggle.heightProperty()).add(6));
+
+        Button rulerToggle = new ActionButton(new ToggleRulerAction(), 32, false, Color.WHITE);
+        rulerToggle.getStyleClass().add("visualizer-button");
+        rulerToggle.layoutXProperty().bind(widthProperty().subtract(rulerToggle.widthProperty()).subtract(38));
+        rulerToggle.layoutYProperty().bind(gcodeModelToggle.layoutYProperty().add(gcodeModelToggle.heightProperty()).add(6));
+
+        getChildren().addAll(subScene, orientationCube, cameraToggle, gcodeModelToggle, rulerToggle);
 
         // Add new models added through the visualizer service
         VisualizerService.getInstance().getModels().addListener((ListChangeListener<Model>) change -> {

@@ -53,12 +53,16 @@ public class VisualizerSettingsPane extends BorderPane {
         addMachineCombo();
         addMouseControls();
         addColorSettings();
+        addRulerSettings();
         setCenter(settingsGroup);
     }
 
     private void addColorSettings() {
+        SwitchButton showGcode = new SwitchButton();
+        showGcode.selectedProperty().bindBidirectional(VisualizerSettings.getInstance().showGcodeModelProperty());
         settingsGroup.getChildren().add(new BorderedTitledPane(Localization.getString("platform.visualizer.gcodeModel"),
                 new VBox(10,
+                        new SettingsRow(Localization.getString("platform.visualizer.model"), showGcode),
                         createFloatSetting(Localization.getString("platform.visualizer.gcodeModel.lineWidth"), VisualizerSettings.getInstance().lineWidthProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.background"), VisualizerSettings.getInstance().colorBackgroundProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.rapid"), VisualizerSettings.getInstance().colorRapidProperty()),
@@ -68,7 +72,18 @@ public class VisualizerSettingsPane extends BorderPane {
                         createColorSetting(Localization.getString("platform.visualizer.color.spindle.max.speed"), VisualizerSettings.getInstance().colorSpindleMaxProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.arc"), VisualizerSettings.getInstance().colorArcProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.completed"), VisualizerSettings.getInstance().colorCompletedProperty()),
-                        createColorSetting(Localization.getString("platform.visualizer.color.plunge"), VisualizerSettings.getInstance().colorPlungeProperty()),
+                        createColorSetting(Localization.getString("platform.visualizer.color.plunge"), VisualizerSettings.getInstance().colorPlungeProperty())
+                )
+        ));
+    }
+
+    private void addRulerSettings() {
+        SwitchButton showRuler = new SwitchButton();
+        showRuler.selectedProperty().bindBidirectional(VisualizerSettings.getInstance().showRulerProperty());
+
+        settingsGroup.getChildren().add(new BorderedTitledPane(Localization.getString("platform.visualizer.ruler"),
+                new VBox(10,
+                        new SettingsRow(Localization.getString("platform.visualizer.ruler.show"), showRuler),
                         createColorSetting(Localization.getString("platform.visualizer.color.ruler.lines"), VisualizerSettings.getInstance().colorRulerLinesProperty()),
                         createColorSetting(Localization.getString("platform.visualizer.color.ruler.text"), VisualizerSettings.getInstance().colorRulerTextProperty())
                 )
