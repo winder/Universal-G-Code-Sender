@@ -119,6 +119,7 @@ public class Ruler extends Model {
             applyTextColor(newVal);
             regenerate();
         });
+        visibleProperty().bind(settings.showRulerProperty());
 
         regenerate();
         getChildren().add(rulerGroup);
