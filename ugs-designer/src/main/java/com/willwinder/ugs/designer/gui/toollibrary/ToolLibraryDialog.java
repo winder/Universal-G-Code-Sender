@@ -75,7 +75,7 @@ public class ToolLibraryDialog extends JDialog {
 
     private void initComponents() {
         setLayout(new MigLayout("fill", "[250!][grow]", "[grow][]"));
-        setPreferredSize(new Dimension(720, 520));
+        setPreferredSize(new Dimension(780, 520));
 
         toolList = new JList<>(listModel);
         toolList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -134,7 +134,7 @@ public class ToolLibraryDialog extends JDialog {
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         setSize(getPreferredSize());
-        setMinimumSize(new Dimension(560, 400));
+        setMinimumSize(new Dimension(620, 400));
         setLocationRelativeTo(getOwner());
     }
 
