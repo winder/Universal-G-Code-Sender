@@ -25,6 +25,7 @@ import com.willwinder.ugs.designer.entities.entities.EntitySetting;
 import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
 import com.willwinder.ugs.designer.entities.entities.settings.TransformationEntitySettingsManager;
 import com.willwinder.ugs.designer.gui.anchor.AnchorSelectorPanel;
+import com.willwinder.ugs.designer.gui.expression.ExpressionAwareTextFieldFormatter;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.model.Size;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -41,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.text.DefaultFormatterFactory;
 import java.awt.Component;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeListener;
@@ -82,12 +84,22 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
         lockRatioButton.setSelected(true);
     }
 
+    private static TextFieldWithUnit createExpressionField(Unit unit, int decimals, double initial) {
+        TextFieldWithUnit field = new TextFieldWithUnit(unit, decimals, initial);
+        field.setFormatterFactory(new DefaultFormatterFactory(
+                new ExpressionAwareTextFieldFormatter(unit, decimals),
+                new ExpressionAwareTextFieldFormatter(unit, decimals),
+                new ExpressionAwareTextFieldFormatter(unit, decimals, false)));
+        field.setValue(initial);
+        return field;
+    }
+
     private void initializeComponents() {
-        posXTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
-        posYTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
-        widthTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
-        heightTextField = new TextFieldWithUnit(Unit.MM, 4, 0);
-        rotationTextField = new TextFieldWithUnit(Unit.DEGREE, 4, 0);
+        posXTextField = createExpressionField(Unit.MM, 4, 0);
+        posYTextField = createExpressionField(Unit.MM, 4, 0);
+        widthTextField = createExpressionField(Unit.MM, 4, 0);
+        heightTextField = createExpressionField(Unit.MM, 4, 0);
+        rotationTextField = createExpressionField(Unit.DEGREE, 4, 0);
         anchorSelector = new AnchorSelectorPanel();
 
         lockRatioButton = new JToggleButton(SvgIconLoader.loadImageIcon("img/link-off.svg", SvgIconLoader.SIZE_SMALL).orElse(null));
