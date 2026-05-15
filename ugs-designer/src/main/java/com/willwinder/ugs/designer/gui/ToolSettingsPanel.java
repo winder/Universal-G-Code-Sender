@@ -58,6 +58,8 @@ public class ToolSettingsPanel extends JPanel {
     private JLabel selectedToolLabel;
     private JPanel diameterSlot;
     private TextFieldWithUnit toolDiameter;
+    private JComboBox<UnitUtils.Units> diameterUnitCombo;
+    private boolean suppressEvents;
     private UnitUtils.Units diameterDisplayUnit = UnitUtils.Units.MM;
     private TextFieldWithUnit feedSpeed;
     private TextFieldWithUnit plungeSpeed;
@@ -94,9 +96,20 @@ public class ToolSettingsPanel extends JPanel {
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2");
 
         add(new JLabel("Tool diameter"));
+        JPanel diameterRow = new JPanel(new MigLayout("insets 0, fillx", "[grow][]"));
         diameterSlot = new JPanel(new MigLayout("insets 0, fill"));
+        diameterRow.add(diameterSlot, "growx");
+        diameterUnitCombo = new JComboBox<>(new DefaultComboBoxModel<>(
+                new UnitUtils.Units[]{UnitUtils.Units.MM, UnitUtils.Units.INCH}));
+        diameterUnitCombo.addItemListener(e -> {
+            if (suppressEvents) return;
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+                onDiameterUnitChanged();
+            }
+        });
+        diameterRow.add(diameterUnitCombo);
         rebuildDiameterField(UnitUtils.Units.MM, controller.getSettings().getToolDiameter());
-        add(diameterSlot, TOOL_FIELD_CONSTRAINT);
+        add(diameterRow, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Tool step over (%)"));
         stepOver = new TextFieldWithUnit(Unit.PERCENT, 2,
@@ -158,6 +171,24 @@ public class ToolSettingsPanel extends JPanel {
         diameterSlot.add(toolDiameter, "grow");
         diameterSlot.revalidate();
         diameterSlot.repaint();
+        suppressEvents = true;
+        try {
+            diameterUnitCombo.setSelectedItem(diameterDisplayUnit);
+        } finally {
+            suppressEvents = false;
+        }
+    }
+
+    private void onDiameterUnitChanged() {
+        UnitUtils.Units newUnit = (UnitUtils.Units) diameterUnitCombo.getSelectedItem();
+        if (newUnit == null || newUnit == diameterDisplayUnit) {
+            return;
+        }
+        double currentValue = toolDiameter.getDoubleValue();
+        double converted = currentValue * UnitUtils.scaleUnits(diameterDisplayUnit, newUnit);
+        rebuildDiameterField(newUnit, converted);
+        DeviationHighlighter.attachDouble(toolDiameter, () -> librarySnapshot == null ? null
+                : valueInDisplayUnit(librarySnapshot.getDiameterInMm()));
     }
 
     private void initialiseLibrarySnapshot() {
@@ -214,15 +245,17 @@ public class ToolSettingsPanel extends JPanel {
         Optional<ToolDefinition> picked = ToolLibraryPickerDialog.pick(
                 SwingUtilities.getWindowAncestor(this),
                 controller.getSettings().getPreferredUnits());
-        picked.ifPresent(tool -> {
-            if (tool.isCustomSentinel()) {
-                librarySnapshot = null;
-                updateSelectedToolLabel();
-            } else {
-                librarySnapshot = tool;
-                applyLibrarySnapshotToFields(true);
-            }
-        });
+        picked.ifPresent(this::selectTool);
+    }
+
+    void selectTool(ToolDefinition tool) {
+        if (tool == null || tool.isCustomSentinel()) {
+            librarySnapshot = null;
+            updateSelectedToolLabel();
+        } else {
+            librarySnapshot = tool;
+            applyLibrarySnapshotToFields(true);
+        }
     }
 
     private void applyLibrarySnapshotToFields(boolean populateAll) {
