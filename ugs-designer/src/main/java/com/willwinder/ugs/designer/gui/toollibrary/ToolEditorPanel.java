@@ -32,9 +32,9 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.Dimension;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.function.Consumer;
 
 /**
@@ -88,12 +88,18 @@ public class ToolEditorPanel extends JPanel {
 
     private void initComponents() {
         setLayout(new MigLayout("fillx, wrap 2", "[pref!][grow,fill]"));
-        setPreferredSize(new Dimension(360, 420));
-        setMinimumSize(new Dimension(360, 420));
+        setPreferredSize(new Dimension(420, 420));
+        setMinimumSize(new Dimension(420, 420));
 
         add(new JLabel("Name"));
         nameField = new JTextField();
-        nameField.getDocument().addDocumentListener(simpleDocListener(this::fireChange));
+        nameField.addActionListener(e -> { if (!suppressEvents) fireChange(); });
+        nameField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (!suppressEvents) fireChange();
+            }
+        });
         add(nameField, "growx");
 
         add(new JLabel("Shape"));
@@ -328,11 +334,4 @@ public class ToolEditorPanel extends JPanel {
         errorLabel.setText(error.isEmpty() ? " " : error);
     }
 
-    private DocumentListener simpleDocListener(Runnable onChange) {
-        return new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e) { if (!suppressEvents) onChange.run(); }
-            @Override public void removeUpdate(DocumentEvent e) { if (!suppressEvents) onChange.run(); }
-            @Override public void changedUpdate(DocumentEvent e) { if (!suppressEvents) onChange.run(); }
-        };
-    }
 }
