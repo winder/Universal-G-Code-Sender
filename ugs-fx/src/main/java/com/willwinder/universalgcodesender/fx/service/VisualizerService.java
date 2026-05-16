@@ -22,11 +22,17 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.input.MouseEvent;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 public class VisualizerService {
     private static final VisualizerService INSTANCE = new VisualizerService();
 
     private final ObservableList<Model> models = FXCollections.observableArrayList();
+    private final List<Consumer<MouseEvent>> backgroundClickHandlers = new CopyOnWriteArrayList<>();
 
     public static VisualizerService getInstance() {
         return INSTANCE;
@@ -45,6 +51,22 @@ public class VisualizerService {
     }
 
     public void onZoomChange(double zoom) {
-        Platform.runLater(() -> models.forEach(model -> model.onZoomChange(zoom)));
+        if (Platform.isFxApplicationThread()) {
+            models.forEach(model -> model.onZoomChange(zoom));
+        } else {
+            Platform.runLater(() -> models.forEach(model -> model.onZoomChange(zoom)));
+        }
+    }
+
+    public void addBackgroundClickHandler(Consumer<MouseEvent> handler) {
+        backgroundClickHandlers.add(handler);
+    }
+
+    public void removeBackgroundClickHandler(Consumer<MouseEvent> handler) {
+        backgroundClickHandlers.remove(handler);
+    }
+
+    public void fireBackgroundClick(MouseEvent event) {
+        backgroundClickHandlers.forEach(h -> h.accept(event));
     }
 }

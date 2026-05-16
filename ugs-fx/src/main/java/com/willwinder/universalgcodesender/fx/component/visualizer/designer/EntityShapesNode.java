@@ -3,33 +3,30 @@ package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
 import com.willwinder.ugs.designer.entities.entities.Entity;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
-import com.willwinder.universalgcodesender.fx.component.visualizer.PickHandler;
 import javafx.scene.Group;
 import javafx.scene.Node;
 
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-
 public class EntityShapesNode extends Group {
 
-    private final Map<Node, Entity> nodeToEntity = new IdentityHashMap<>();
+    private Runnable onEntityMoved = () -> {};
+
+    public void setOnEntityMoved(Runnable onEntityMoved) {
+        this.onEntityMoved = onEntityMoved != null ? onEntityMoved : () -> {};
+    }
 
     public void refreshFromController() {
         getChildren().clear();
-        nodeToEntity.clear();
 
         Controller controller = ControllerFactory.getController();
+        Runnable onMoved = () -> {
+            refreshFromController();
+            onEntityMoved.run();
+        };
+
         for (Entity entity : controller.getDrawing().getEntities()) {
             Node node = EntityShapeFactory.create(entity);
             if (node != null) {
-                PickHandler handler = multiSelect -> {
-                    if (multiSelect) {
-                        controller.getSelectionManager().toggleSelection(entity);
-                    } else {
-                        controller.getSelectionManager().setSelection(List.of(entity));
-                    }
-                };
+                EntityClickHandler handler = new EntityClickHandler(controller, entity, onMoved);
 
                 node.setUserData(handler);
 
@@ -39,7 +36,6 @@ public class EntityShapesNode extends Group {
                     }
                 }
 
-                nodeToEntity.put(node, entity);
                 getChildren().add(node);
             }
         }

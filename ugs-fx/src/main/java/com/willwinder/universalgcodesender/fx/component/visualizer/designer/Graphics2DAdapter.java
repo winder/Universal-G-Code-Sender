@@ -24,8 +24,15 @@ import java.text.AttributedCharacterIterator;
 import java.util.Map;
 
 public class Graphics2DAdapter extends java.awt.Graphics2D {
+    private boolean drewAnything = false;
+
+    public boolean drewAnything() {
+        return drewAnything;
+    }
+
     @Override
     public void draw(Shape s) {
+        if (s != null) drewAnything = true;
     }
 
     @Override
@@ -110,6 +117,7 @@ public class Graphics2DAdapter extends java.awt.Graphics2D {
 
     @Override
     public void fill(Shape s) {
+        if (s != null) drewAnything = true;
     }
 
     @Override

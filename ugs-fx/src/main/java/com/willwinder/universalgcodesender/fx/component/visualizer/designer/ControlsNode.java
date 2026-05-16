@@ -34,7 +34,7 @@ public class ControlsNode extends Group {
         selectionManager.removeSelectionListener(selectionListener);
     }
 
-    private void refresh() {
+    public void refresh() {
         List<Node> nodes = drawing.getControls().stream()
                 .map(this::createControlNode)
                 .filter(Objects::nonNull)

@@ -223,6 +223,30 @@ public class Visualizer extends Pane {
             mouseOldY = event.getSceneY();
         });
 
+        // Global pick dispatcher: for a primary-button press, walk the picked node's
+        // userData chain. A PickHandler means we hit a selectable entity — invoke it.
+        // A DragHandler-only userData means we hit a control handle — leave it to the
+        // worldGroup drag handler below. No handler found means an empty-space click;
+        // fire a background click so listeners (e.g. the designer) can clear selection.
+        subScene.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            if (event.getButton() != MouseButton.PRIMARY) return;
+
+            Node hit = event.getPickResult().getIntersectedNode();
+            while (hit != null) {
+                Object userData = hit.getUserData();
+                if (userData instanceof PickHandler handler) {
+                    handler.onPicked(event.isShiftDown());
+                    return;
+                }
+                if (userData instanceof DragHandler) {
+                    return;
+                }
+                hit = hit.getParent();
+            }
+
+            VisualizerService.getInstance().fireBackgroundClick(event);
+        });
+
         // Handle mouse dragged event to implement panning, rotating, and control dragging
         subScene.setOnMouseDragged((MouseEvent event) -> {
             if (activeDragHandler != null && event.isPrimaryButtonDown()) {
@@ -289,8 +313,7 @@ public class Visualizer extends Pane {
         // Only react to PRIMARY button so right-click pan/rotate is never intercepted.
         worldGroup.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
             if (event.getButton() != MouseButton.PRIMARY) return;
-            Node hit = event.getPickResult().getIntersectedNode();
-            Node current = hit;
+            Node current = event.getPickResult().getIntersectedNode();
             while (current != null) {
                 if (current.getUserData() instanceof DragHandler dh) {
                     // getIntersectedPoint() is in the hit node's local space; since control nodes

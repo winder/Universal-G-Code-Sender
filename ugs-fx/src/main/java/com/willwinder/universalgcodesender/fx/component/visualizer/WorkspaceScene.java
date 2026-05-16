@@ -10,16 +10,18 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.models.GcodeM
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
+import com.willwinder.universalgcodesender.fx.service.VisualizerService;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 import javafx.application.Platform;
-import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 
 import java.io.File;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class WorkspaceScene extends Model {
     private static final Set<EventType> DESIGN_CHANGE_EVENTS = EnumSet.of(
@@ -33,6 +35,7 @@ public class WorkspaceScene extends Model {
     );
 
     private final EntityShapesNode entityShapesNode = new EntityShapesNode();
+    private final Consumer<MouseEvent> backgroundClickHandler = this::onBackgroundClick;
     private ControlsNode controlsNode;
     private GcodeModel gcodeModel;
     private Controller designController;
@@ -55,21 +58,16 @@ public class WorkspaceScene extends Model {
                 Platform.runLater(() -> onDirtyStateChanged(dirty));
             }
         });
+    }
 
-        // Forward clicks to any PickHandler stored in the picked node's userData chain.
-        // Must be on worldGroup (inside SubScene) so getPickResult() returns real 3D intersection data.
-        entityShapesNode.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
-            Node hit = event.getPickResult().getIntersectedNode();
-            while (hit != null) {
-                if (hit.getUserData() instanceof PickHandler handler) {
-                    handler.onPicked(event.isShiftDown());
-                    event.consume();
-                    return;
-                }
-                hit = hit.getParent();
-            }
-        });
-
+    private void onBackgroundClick(MouseEvent event) {
+        if (designController == null) {
+            return;
+        }
+        if (event.isShiftDown()) {
+            return;
+        }
+        designController.getSelectionManager().clearSelection();
     }
 
     public void setWorkspace(WorkspaceContext workspace) {
@@ -82,31 +80,31 @@ public class WorkspaceScene extends Model {
         }
 
         detachDesignChangeListener();
+        VisualizerService.getInstance().removeBackgroundClickHandler(backgroundClickHandler);
 
         if (workspace == null) {
             return;
         }
 
         if (workspace instanceof UgsdWorkspaceContext) {
-            entityShapesNode.refreshFromController();
-            getChildren().add(entityShapesNode);
-
             designController = ControllerFactory.getController();
             controlsNode = new ControlsNode(designController.getDrawing(), designController.getSelectionManager(),
                     entityShapesNode::refreshFromController);
+            entityShapesNode.setOnEntityMoved(controlsNode::refresh);
+            entityShapesNode.refreshFromController();
+            getChildren().add(entityShapesNode);
             getChildren().add(controlsNode);
 
             attachDesignChangeListener(designController);
+            VisualizerService.getInstance().addBackgroundClickHandler(backgroundClickHandler);
         }
 
         addGcodeModel();
     }
 
     private void onDirtyStateChanged(boolean dirty) {
-        if (dirty) {
-            removeGcodeModel();
-        } else {
-            removeGcodeModel();
+        removeGcodeModel();
+        if (!dirty) {
             addGcodeModel();
         }
     }

@@ -2,6 +2,21 @@ package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
 
 import com.willwinder.ugs.designer.entities.entities.Entity;
 import com.willwinder.ugs.designer.entities.entities.controls.Control;
+import com.willwinder.ugs.designer.entities.entities.controls.CreateEllipseControl;
+import com.willwinder.ugs.designer.entities.entities.controls.CreateLineControl;
+import com.willwinder.ugs.designer.entities.entities.controls.CreateOffsetControl;
+import com.willwinder.ugs.designer.entities.entities.controls.CreatePointControl;
+import com.willwinder.ugs.designer.entities.entities.controls.CreateRectangleControl;
+import com.willwinder.ugs.designer.entities.entities.controls.CreateTextControl;
+import com.willwinder.ugs.designer.entities.entities.controls.EditTextControl;
+import com.willwinder.ugs.designer.entities.entities.controls.HighlightModelControl;
+import com.willwinder.ugs.designer.entities.entities.controls.MoveControl;
+import com.willwinder.ugs.designer.entities.entities.controls.ResizeControl;
+import com.willwinder.ugs.designer.entities.entities.controls.RotationControl;
+import com.willwinder.ugs.designer.entities.entities.controls.SelectionControl;
+import com.willwinder.ugs.designer.entities.entities.controls.VertexControl;
+import com.willwinder.ugs.designer.entities.entities.controls.VertexControlSelector;
+import com.willwinder.ugs.designer.entities.entities.controls.ZoomControl;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.fx.component.visualizer.DragHandler;
 import eu.mihosoft.vrl.v3d.CSG;
@@ -18,7 +33,6 @@ import org.fxyz3d.geometry.Point3D;
 
 import java.awt.Shape;
 import java.awt.geom.PathIterator;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -34,93 +48,114 @@ public final class EntityShapeFactory {
         if (entity == null) {
             return null;
         }
-        if (entity instanceof com.willwinder.ugs.designer.entities.entities.cuttable.Path path) {
-            return createPolylineNode(path);
-
-        }
-
-        return null;
+        return createPolylineNode(entity.getShape(), Color.DODGERBLUE, Color.WHITE, true);
     }
 
     static Node createControlNode(Control control, DragHandler dragHandler) {
         Graphics2DAdapter graphics2DAdapter = new Graphics2DAdapter();
         control.render(graphics2DAdapter, ControllerFactory.getController().getDrawing());
 
+        // Many controls short-circuit render() based on tool/selection state but still
+        // expose a stale shape via getShape(). Only build a node when the control
+        // actually drew something, otherwise the handles linger after clearSelection.
+        if (!graphics2DAdapter.drewAnything()) return null;
+
         Shape shape = control.getShape();
         if (shape == null) return null;
-        Rectangle2D bounds = shape.getBounds2D();
-        if (bounds.getWidth() == 0 || bounds.getHeight() == 0) return null;
-
-        MeshView fill = createFilledMesh(bounds, Color.DODGERBLUE);
-        Group node = new Group(fill);
+        Node node = createPolylineNode(shape, getColor(control), getColor(control), false);
         node.setUserData(dragHandler);
         return node;
     }
 
-    private static MeshView createFilledMesh(Rectangle2D bounds, Color color) {
-        float x = (float) bounds.getX();
-        float y = (float) bounds.getY();
-        float w = (float) bounds.getWidth();
-        float h = (float) bounds.getHeight();
-        float z = -0.2f;
-
-        TriangleMesh mesh = new TriangleMesh();
-        mesh.getTexCoords().addAll(0, 0);
-        mesh.getPoints().addAll(
-                x,     y,     z,
-                x + w, y,     z,
-                x + w, y + h, z,
-                x,     y + h, z
-        );
-        mesh.getFaces().addAll(
-                0, 0, 1, 0, 2, 0,
-                0, 0, 2, 0, 3, 0,
-                0, 0, 2, 0, 1, 0,
-                0, 0, 3, 0, 2, 0
-        );
-
-        MeshView view = new MeshView(mesh);
-        view.setMaterial(new PhongMaterial(color));
-        view.setCullFace(CullFace.NONE);
-        return view;
-    }
-
-    private static Node createPolylineNode(com.willwinder.ugs.designer.entities.entities.cuttable.Path path) {
-        Shape shape = path.getShape();
-        MeshView border = createBorderMesh(shape, Color.DODGERBLUE);
-        CSG csg = shapeToCSG(shape, 0.5);
-        if (csg == null) {
-            return new Group(border);
+    private static Color getColor(Control control) {
+        if (control instanceof ResizeControl) {
+            return Color.DODGERBLUE;
+        } else if (control instanceof RotationControl) {
+            return Color.DODGERBLUE;
+        } else if (control instanceof MoveControl) {
+            return Color.BLUE;
+        } else if (control instanceof SelectionControl) {
+            return Color.TRANSPARENT;
+        } else if (control instanceof HighlightModelControl) {
+            return Color.TRANSPARENT;
+        } else if (control instanceof CreatePointControl ||
+                control instanceof CreateEllipseControl ||
+                control instanceof CreateLineControl ||
+                control instanceof CreateOffsetControl ||
+                control instanceof CreateRectangleControl ||
+                control instanceof CreateTextControl ||
+                control instanceof EditTextControl ||
+                control instanceof ZoomControl) {
+            return Color.TRANSPARENT;
+        } else if (control instanceof VertexControlSelector || control instanceof VertexControl) {
+            return Color.TRANSPARENT;
+        } else {
+            return Color.RED;
         }
-        MeshView fill = csg.getMesh();
-        fill.setMaterial(new PhongMaterial(Color.WHITE));
-        fill.setCullFace(CullFace.NONE);
-        return new Group(fill, border);
     }
 
-    private static CSG shapeToCSG(Shape shape, double depth) {
+    private static Node createPolylineNode(Shape shape, Color lineColor, Color fillColor, boolean createBorder) {
+        Group result = new Group();
+
+
+        CSG csg = shapeToCSG(shape, 0.1);
+        if (csg != null) {
+            MeshView fill = csg.getMesh();
+            fill.setMaterial(new PhongMaterial(fillColor));
+            fill.setCullFace(CullFace.NONE);
+            result.getChildren().add(fill);
+        }
+
+        if (createBorder) {
+            MeshView border = createBorderMesh(shape, lineColor);
+            result.getChildren().add(border);
+        }
+
+        return result;
+    }
+
+    public static CSG shapeToCSG(Shape shape, double depth) {
         List<List<Vector3d>> subPaths = collectClosedSubPaths(shape);
         if (subPaths.isEmpty()) return null;
 
+        // Identify outer vs hole by geometric containment instead of winding —
+        // a subpath wrapped by an even number of other subpaths is an outer,
+        // an odd count means it is a hole. This stays correct regardless of
+        // how the path was wound (Extrude.points itself normalizes to CCW).
+        int n = subPaths.size();
+        java.awt.geom.Path2D[] paths = new java.awt.geom.Path2D[n];
+        Vector3d[] centroids = new Vector3d[n];
+        boolean[] isHole = new boolean[n];
+        for (int i = 0; i < n; i++) {
+            paths[i] = toPath2D(subPaths.get(i));
+            centroids[i] = centroid(subPaths.get(i));
+        }
+        for (int i = 0; i < n; i++) {
+            int containedBy = 0;
+            for (int j = 0; j < n; j++) {
+                if (i == j) continue;
+                if (paths[j].contains(centroids[i].x, centroids[i].y)) containedBy++;
+            }
+            isHole[i] = (containedBy % 2) == 1;
+        }
+
         CSG result = null;
-        for (List<Vector3d> outer : subPaths) {
-            if (signedArea(outer) >= 0) continue; // holes handled below
+        for (int i = 0; i < n; i++) {
+            if (isHole[i]) continue;
 
             CSG solid;
             try {
-                solid = Extrude.points(new Vector3d(0, 0, depth), outer);
+                solid = Extrude.points(new Vector3d(0, 0, depth), subPaths.get(i));
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "CSG extrusion failed for outer boundary", e);
                 continue;
             }
 
-            java.awt.geom.Path2D outerPath = toPath2D(outer);
-            for (List<Vector3d> hole : subPaths) {
-                if (signedArea(hole) <= 0) continue; // only holes (negative area)
-                Vector3d c = centroid(hole);
-                if (!outerPath.contains(c.x, c.y)) continue;
+            for (int j = 0; j < n; j++) {
+                if (!isHole[j]) continue;
+                if (!paths[i].contains(centroids[j].x, centroids[j].y)) continue;
                 try {
-                    solid = solid.difference(Extrude.points(new Vector3d(0, 0, depth), hole));
+                    solid = solid.difference(Extrude.points(new Vector3d(0, 0, depth), subPaths.get(j)));
                 } catch (Exception e) {
                     LOGGER.log(Level.WARNING, "CSG hole subtraction failed", e);
                 }
@@ -135,7 +170,7 @@ public final class EntityShapeFactory {
     private static List<List<Vector3d>> collectClosedSubPaths(Shape shape) {
         List<List<Vector3d>> result = new ArrayList<>();
         List<Vector3d> current = new ArrayList<>();
-        PathIterator it = shape.getPathIterator(null, 0.5);
+        PathIterator it = shape.getPathIterator(null, 0.1);
         double[] coords = new double[6];
 
         while (!it.isDone()) {
@@ -147,7 +182,9 @@ public final class EntityShapeFactory {
                 }
                 case PathIterator.SEG_LINETO -> current.add(new Vector3d(coords[0], coords[1], 0));
                 case PathIterator.SEG_CLOSE -> {
-                    if (current.size() >= 3) result.add(new ArrayList<>(current));
+                    if (current.size() >= 3 && Math.abs(signedArea(current)) > 1e-6) {
+                        result.add(new ArrayList<>(current));
+                    }
                     current = new ArrayList<>();
                 }
             }
@@ -156,20 +193,23 @@ public final class EntityShapeFactory {
         return result;
     }
 
-    /** Shoelace signed area. Positive = clockwise in AWT (Y-down) = outer boundary. */
     private static double signedArea(List<Vector3d> pts) {
         double area = 0;
         int n = pts.size();
         for (int i = 0; i < n; i++) {
-            Vector3d a = pts.get(i), b = pts.get((i + 1) % n);
+            Vector3d a = pts.get(i);
+            Vector3d b = pts.get((i + 1) % n);
             area += a.x * b.y - b.x * a.y;
         }
-        return area / 2.0;
+        return area * 0.5;
     }
 
     private static Vector3d centroid(List<Vector3d> pts) {
         double cx = 0, cy = 0;
-        for (Vector3d p : pts) { cx += p.x; cy += p.y; }
+        for (Vector3d p : pts) {
+            cx += p.x;
+            cy += p.y;
+        }
         return new Vector3d(cx / pts.size(), cy / pts.size(), 0);
     }
 
@@ -182,25 +222,30 @@ public final class EntityShapeFactory {
     }
 
     private static MeshView createBorderMesh(Shape shape, Color color) {
-        float r = 0.1f;
+        float r = 0.2f;
         TriangleMesh mesh = new TriangleMesh();
         mesh.getTexCoords().addAll(0, 0);
 
-        PathIterator it = shape.getPathIterator(null, 0.5);
+        PathIterator it = shape.getPathIterator(null, 0.1);
         double[] coords = new double[6];
         double prevX = 0, prevY = 0, moveX = 0, moveY = 0;
 
         while (!it.isDone()) {
             int type = it.currentSegment(coords);
             switch (type) {
-                case PathIterator.SEG_MOVETO -> { moveX = prevX = coords[0]; moveY = prevY = coords[1]; }
+                case PathIterator.SEG_MOVETO -> {
+                    moveX = prevX = coords[0];
+                    moveY = prevY = coords[1];
+                }
                 case PathIterator.SEG_LINETO -> {
                     appendTube(mesh, prevX, prevY, coords[0], coords[1], r);
-                    prevX = coords[0]; prevY = coords[1];
+                    prevX = coords[0];
+                    prevY = coords[1];
                 }
                 case PathIterator.SEG_CLOSE -> {
                     appendTube(mesh, prevX, prevY, moveX, moveY, r);
-                    prevX = moveX; prevY = moveY;
+                    prevX = moveX;
+                    prevY = moveY;
                 }
             }
             it.next();
@@ -221,11 +266,7 @@ public final class EntityShapeFactory {
         Point3D normal = dir.crossProduct(ref).normalize();
         Point3D binormal = dir.crossProduct(normal).normalize();
 
-        Point3D[] offsets = {
-            normal.multiply(r),
-            normal.multiply(-0.5f * r).add(binormal.multiply((float) (Math.sqrt(3) * 0.5 * r))),
-            normal.multiply(-0.5f * r).substract(binormal.multiply((float) (Math.sqrt(3) * 0.5 * r)))
-        };
+        Point3D[] offsets = {normal.multiply(r), normal.multiply(-0.5f * r).add(binormal.multiply((float) (Math.sqrt(3) * 0.5 * r))), normal.multiply(-0.5f * r).substract(binormal.multiply((float) (Math.sqrt(3) * 0.5 * r)))};
 
         int base = mesh.getPoints().size() / 3;
         for (Point3D o : offsets) {
