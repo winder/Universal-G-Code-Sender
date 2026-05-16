@@ -10,6 +10,7 @@ import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -61,6 +62,7 @@ public class Grid extends Model {
     private double currentGridStepMm;
 
     public Grid() {
+        setDepthTest(DepthTest.DISABLE);
         this.backend = LookupService.lookup(BackendAPI.class);
         activeUnits = backend.getSettings().getPreferredUnits();
         currentGridStepMm = coarseStepMm();

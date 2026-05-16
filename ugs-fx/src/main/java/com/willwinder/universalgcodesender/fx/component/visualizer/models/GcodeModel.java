@@ -38,6 +38,7 @@ import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
+import javafx.scene.DepthTest;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.CullFace;
 import javafx.scene.shape.MeshView;
@@ -82,14 +83,13 @@ public class GcodeModel extends Model {
         meshView = new MeshView();
         meshView.setCullFace(CullFace.NONE);
         meshView.setMouseTransparent(true);
+        meshView.setDepthTest(DepthTest.DISABLE);
 
         getChildren().add(meshView);
         BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
         gcvp = new GcodeViewParse();
         backendAPI.addUGSEventListener(this::onEvent);
-        VisualizerSettings.getInstance().lineWidthProperty().addListener((s, o, n) -> {
-            loadModel(file);
-        });
+        VisualizerSettings.getInstance().lineWidthProperty().addListener((s, o, n) -> loadModel(file));
         addSettingListeners();
         loadModel(file);
     }

@@ -3,19 +3,31 @@ package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
 import com.willwinder.ugs.designer.entities.entities.Entity;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
+import javafx.scene.DepthTest;
 import javafx.scene.Group;
-import javafx.scene.Node;
+import javafx.scene.shape.MeshView;
 
 public class EntityShapesNode extends Group {
 
+    // Fills go through normal depth testing so they Z-fight predictably when overlapping.
+    // Borders are drawn afterwards with depth testing disabled, so every entity's outline
+    // remains visible through any geometry in front of it.
+    private final Group fillsGroup = new Group();
+    private final Group bordersGroup = new Group();
     private Runnable onEntityMoved = () -> {};
+
+    public EntityShapesNode() {
+        bordersGroup.setDepthTest(DepthTest.DISABLE);
+        getChildren().addAll(fillsGroup, bordersGroup);
+    }
 
     public void setOnEntityMoved(Runnable onEntityMoved) {
         this.onEntityMoved = onEntityMoved != null ? onEntityMoved : () -> {};
     }
 
     public void refreshFromController() {
-        getChildren().clear();
+        fillsGroup.getChildren().clear();
+        bordersGroup.getChildren().clear();
 
         Controller controller = ControllerFactory.getController();
         Runnable onMoved = () -> {
@@ -24,19 +36,21 @@ public class EntityShapesNode extends Group {
         };
 
         for (Entity entity : controller.getDrawing().getEntities()) {
-            Node node = EntityShapeFactory.create(entity);
-            if (node != null) {
-                EntityClickHandler handler = new EntityClickHandler(controller, entity, onMoved);
+            EntityShapeFactory.EntityNodes nodes = EntityShapeFactory.create(entity);
+            if (nodes == null) {
+                continue;
+            }
 
-                node.setUserData(handler);
-
-                if (node instanceof Group group) {
-                    for (Node child : group.getChildren()) {
-                        child.setUserData(handler);
-                    }
-                }
-
-                getChildren().add(node);
+            EntityClickHandler handler = new EntityClickHandler(controller, entity, onMoved);
+            MeshView fill = nodes.fill();
+            if (fill != null) {
+                fill.setUserData(handler);
+                fillsGroup.getChildren().add(fill);
+            }
+            MeshView border = nodes.border();
+            if (border != null) {
+                border.setUserData(handler);
+                bordersGroup.getChildren().add(border);
             }
         }
     }

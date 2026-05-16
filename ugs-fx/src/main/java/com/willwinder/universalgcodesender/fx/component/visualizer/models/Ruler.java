@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.services.LookupService;
+import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.ImageView;
@@ -105,6 +106,8 @@ public class Ruler extends Model {
     private UnitUtils.Units activeUnits = UnitUtils.Units.MM;
 
     public Ruler() {
+        setDepthTest(DepthTest.DISABLE);
+
         this.backend = LookupService.lookup(BackendAPI.class);
         activeUnits = backend.getSettings().getPreferredUnits();
         backend.addUGSEventListener(this::onEvent);
@@ -112,9 +115,7 @@ public class Ruler extends Model {
         VisualizerSettings settings = VisualizerSettings.getInstance();
         applyLineColor(settings.colorRulerLinesProperty().getValue());
         applyTextColor(settings.colorRulerTextProperty().getValue());
-        settings.colorRulerLinesProperty().addListener((obs, oldVal, newVal) -> {
-            applyLineColor(newVal);
-        });
+        settings.colorRulerLinesProperty().addListener((obs, oldVal, newVal) -> applyLineColor(newVal));
         settings.colorRulerTextProperty().addListener((obs, oldVal, newVal) -> {
             applyTextColor(newVal);
             regenerate();
@@ -330,8 +331,7 @@ public class Ruler extends Model {
         currentZoomFactor = zoomFactor;
         double base = baseRadius();
         double tick = tickRadius();
-        for (int i = 0; i < cylinders.size(); i++) {
-            Cylinder c = cylinders.get(i);
+        for (Cylinder c : cylinders) {
             c.setRadius(c.getHeight() > TICK_LENGTH_CM ? base : tick);
         }
     }

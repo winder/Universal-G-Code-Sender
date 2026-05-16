@@ -22,7 +22,6 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.DragHandler;
 import eu.mihosoft.vrl.v3d.CSG;
 import eu.mihosoft.vrl.v3d.Extrude;
 import eu.mihosoft.vrl.v3d.Vector3d;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -44,11 +43,21 @@ public final class EntityShapeFactory {
     private EntityShapeFactory() {
     }
 
-    public static Node create(Entity entity) {
+    /**
+     * Fill and outline meshes for an entity. Either can be null (an open path has no
+     * fill, a degenerate path may have no border).
+     */
+    public record EntityNodes(MeshView fill, MeshView border) {
+    }
+
+    public static EntityNodes create(Entity entity) {
         if (entity == null) {
             return null;
         }
-        return createPolylineNode(entity.getShape(), Color.DODGERBLUE, Color.WHITE, true);
+        Shape shape = entity.getShape();
+        MeshView fill = createFillMesh(shape, Color.WHITE);
+        MeshView border = createBorderMesh(shape, Color.DODGERBLUE);
+        return new EntityNodes(fill, border);
     }
 
     static Node createControlNode(Control control, DragHandler dragHandler) {
@@ -62,7 +71,8 @@ public final class EntityShapeFactory {
 
         Shape shape = control.getShape();
         if (shape == null) return null;
-        Node node = createPolylineNode(shape, getColor(control), getColor(control), false);
+        MeshView node = createFillMesh(shape, getColor(control));
+        if (node == null) return null;
         node.setUserData(dragHandler);
         return node;
     }
@@ -94,24 +104,13 @@ public final class EntityShapeFactory {
         }
     }
 
-    private static Node createPolylineNode(Shape shape, Color lineColor, Color fillColor, boolean createBorder) {
-        Group result = new Group();
-
-
+    private static MeshView createFillMesh(Shape shape, Color color) {
         CSG csg = shapeToCSG(shape, 0.1);
-        if (csg != null) {
-            MeshView fill = csg.getMesh();
-            fill.setMaterial(new PhongMaterial(fillColor));
-            fill.setCullFace(CullFace.NONE);
-            result.getChildren().add(fill);
-        }
-
-        if (createBorder) {
-            MeshView border = createBorderMesh(shape, lineColor);
-            result.getChildren().add(border);
-        }
-
-        return result;
+        if (csg == null) return null;
+        MeshView fill = csg.getMesh();
+        fill.setMaterial(new PhongMaterial(color));
+        fill.setCullFace(CullFace.NONE);
+        return fill;
     }
 
     public static CSG shapeToCSG(Shape shape, double depth) {
