@@ -63,6 +63,7 @@ public class ToolLibraryDialog extends JDialog {
     private JButton revertButton;
     private JButton closeButton;
     private final ToolLibraryListener libraryListener = this::onLibraryChangedExternally;
+    private int pendingSelfTriggeredEvents = 0;
 
     public ToolLibraryDialog(Window owner, ToolLibraryService service, UnitUtils.Units preferredUnits) {
         super(owner, "Tool Library", ModalityType.APPLICATION_MODAL);
@@ -177,6 +178,7 @@ public class ToolLibraryDialog extends JDialog {
 
     private void onEditorChanged(ToolDefinition edited) {
         if (edited == null) return;
+        pendingSelfTriggeredEvents++;
         try {
             service.updateTool(edited);
             int index = toolList.getSelectedIndex();
@@ -184,6 +186,7 @@ public class ToolLibraryDialog extends JDialog {
                 listModel.set(index, edited);
             }
         } catch (RuntimeException ex) {
+            pendingSelfTriggeredEvents--;
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Tool Library", JOptionPane.WARNING_MESSAGE);
         }
     }
@@ -238,6 +241,10 @@ public class ToolLibraryDialog extends JDialog {
     }
 
     private void onLibraryChangedExternally() {
+        if (pendingSelfTriggeredEvents > 0) {
+            pendingSelfTriggeredEvents--;
+            return;
+        }
         SwingUtilities.invokeLater(() -> {
             ToolDefinition selected = toolList.getSelectedValue();
             refreshList(selected == null ? null : selected.getId());
