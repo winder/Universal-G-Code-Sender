@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
 import com.willwinder.universalgcodesender.fx.component.dro.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
+import com.willwinder.universalgcodesender.fx.component.visualizer.designer.EntitySettingsPanel;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
@@ -44,8 +45,12 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -61,7 +66,8 @@ import java.util.logging.Logger;
 
 public class Main extends Application {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
-    private SplitPane leftSplitPane;
+    private TabPane leftPane;
+    private SplitPane motionSplitPane;
     private SplitPane contentSplitPane;
     private StackPane contentPanel;
     private SplitPane.Divider contentPaneDivider;
@@ -177,7 +183,7 @@ public class Main extends Application {
         contentSplitPane = new SplitPane();
         contentSplitPane.setMinWidth(200);
         contentSplitPane.setOrientation(Orientation.HORIZONTAL);
-        contentSplitPane.getItems().addAll(leftSplitPane, contentPanel);
+        contentSplitPane.getItems().addAll(leftPane, contentPanel);
         SplitPane.setResizableWithParent(contentSplitPane, false);
 
         contentPaneDivider = contentSplitPane.getDividers().get(0);
@@ -185,16 +191,28 @@ public class Main extends Application {
     }
 
     private void createLeftPane() {
-        leftSplitPane = new SplitPane();
-        leftSplitPane.setStyle("-fx-border-color: transparent;");
+        motionSplitPane = new SplitPane();
 
-        leftSplitPane.setMinWidth(200);
-        leftSplitPane.setOrientation(Orientation.VERTICAL);
-        leftSplitPane.getItems().addAll(new MachineStatusPane(), new JogPane());
-        SplitPane.setResizableWithParent(leftSplitPane, false);
+        motionSplitPane.setOrientation(Orientation.VERTICAL);
+        motionSplitPane.getItems().addAll(new MachineStatusPane(), new JogPane());
 
-        leftPaneDivider = leftSplitPane.getDividers().get(0);
+        leftPaneDivider = motionSplitPane.getDividers().get(0);
         leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
+
+        ScrollPane entityScroll = new ScrollPane(new EntitySettingsPanel());
+        entityScroll.setFitToWidth(true);
+
+        Tab motionTab = new Tab("Motion", motionSplitPane);
+        motionTab.setClosable(false);
+
+        Tab editTab = new Tab("Edit", entityScroll);
+        editTab.setClosable(false);
+
+        leftPane = new TabPane(motionTab, editTab);
+        leftPane.setSide(Side.TOP);
+        leftPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        leftPane.setMinWidth(200);
+        SplitPane.setResizableWithParent(leftPane, false);
     }
 
     private void registerShortCuts(Scene scene) {

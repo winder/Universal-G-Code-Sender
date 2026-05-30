@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.DragHandler;
 import eu.mihosoft.vrl.v3d.CSG;
 import eu.mihosoft.vrl.v3d.Extrude;
 import eu.mihosoft.vrl.v3d.Vector3d;
+import javafx.scene.DepthTest;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -73,6 +74,7 @@ public final class EntityShapeFactory {
         if (shape == null) return null;
         MeshView node = createFillMesh(shape, getColor(control));
         if (node == null) return null;
+        node.setDepthTest(DepthTest.DISABLE);
         node.setUserData(dragHandler);
         return node;
     }

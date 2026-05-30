@@ -159,8 +159,8 @@ public class Visualizer extends Pane {
 
         VisualizerService.getInstance().addModel(new Axes());
         VisualizerService.getInstance().addModel(new Grid());
-        VisualizerService.getInstance().addModel(new Ruler());
         VisualizerService.getInstance().addModel(new WorkspaceScene());
+        VisualizerService.getInstance().addModel(new Ruler());
         VisualizerService.getInstance().addModel(new Tool());
     }
 
