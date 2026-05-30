@@ -190,16 +190,13 @@ public class GrblFirmwareSettings implements IFirmwareSettings {
 
     @Override
     public boolean isInvertDirection(Axis axis) throws FirmwareSettingsException {
-        switch (axis) {
-            case X:
-                return (getInvertDirectionMask() & 1) == 1;
-            case Y:
-                return (getInvertDirectionMask() & 2) == 2;
-            case Z:
-                return (getInvertDirectionMask() & 4) == 4;
-            default:
-                throw new FirmwareSettingsException("Couldn't get invert direction setting for axis " + axis + ", it's not supported by the controller");
-        }
+        return switch (axis) {
+            case X -> (getInvertDirectionMask() & 1) == 1;
+            case Y -> (getInvertDirectionMask() & 2) == 2;
+            case Z -> (getInvertDirectionMask() & 4) == 4;
+            default ->
+                    throw new FirmwareSettingsException("Couldn't get invert direction setting for axis " + axis + ", it's not supported by the controller");
+        };
     }
 
     @Override
@@ -254,16 +251,12 @@ public class GrblFirmwareSettings implements IFirmwareSettings {
 
     @Override
     public double getStepsPerMillimeter(Axis axis) throws FirmwareSettingsException {
-        switch (axis) {
-            case X:
-                return getValueAsDouble(KEY_STEPS_PER_MM_X);
-            case Y:
-                return getValueAsDouble(KEY_STEPS_PER_MM_Y);
-            case Z:
-                return getValueAsDouble(KEY_STEPS_PER_MM_Z);
-            default:
-                return 0;
-        }
+        return switch (axis) {
+            case X -> getValueAsDouble(KEY_STEPS_PER_MM_X);
+            case Y -> getValueAsDouble(KEY_STEPS_PER_MM_Y);
+            case Z -> getValueAsDouble(KEY_STEPS_PER_MM_Z);
+            default -> 0;
+        };
     }
 
     @Override
@@ -285,30 +278,22 @@ public class GrblFirmwareSettings implements IFirmwareSettings {
 
     @Override
     public double getSoftLimit(Axis axis) throws FirmwareSettingsException {
-        switch (axis) {
-            case X:
-                return getValueAsDouble(KEY_SOFT_LIMIT_X);
-            case Y:
-                return getValueAsDouble(KEY_SOFT_LIMIT_Y);
-            case Z:
-                return getValueAsDouble(KEY_SOFT_LIMIT_Z);
-            default:
-                return 0;
-        }
+        return switch (axis) {
+            case X -> getValueAsDouble(KEY_SOFT_LIMIT_X);
+            case Y -> getValueAsDouble(KEY_SOFT_LIMIT_Y);
+            case Z -> getValueAsDouble(KEY_SOFT_LIMIT_Z);
+            default -> 0;
+        };
     }
 
     @Override
     public boolean isHomingDirectionInverted(Axis axis) {
-        switch (axis) {
-            case X:
-                return (getHomingInvertDirectionMask() & 1) == 1;
-            case Y:
-                return (getHomingInvertDirectionMask() & 2) == 2;
-            case Z:
-                return (getHomingInvertDirectionMask() & 4) == 4;
-            default:
-                return false;
-        }
+        return switch (axis) {
+            case X -> (getHomingInvertDirectionMask() & 1) == 1;
+            case Y -> (getHomingInvertDirectionMask() & 2) == 2;
+            case Z -> (getHomingInvertDirectionMask() & 4) == 4;
+            default -> false;
+        };
     }
 
     @Override
@@ -370,16 +355,13 @@ public class GrblFirmwareSettings implements IFirmwareSettings {
 
     @Override
     public double getMaximumRate(Axis axis) throws FirmwareSettingsException {
-        switch (axis) {
-            case X:
-                return getValueAsDouble(KEY_MAXIMUM_RATE_X);
-            case Y:
-                return getValueAsDouble(KEY_MAXIMUM_RATE_Y);
-            case Z:
-                return getValueAsDouble(KEY_MAXIMUM_RATE_Z);
-            default:
-                throw new FirmwareSettingsException("Couldn't get maximum rate setting for axis " + axis + ", it's not supported by the controller");
-        }
+        return switch (axis) {
+            case X -> getValueAsDouble(KEY_MAXIMUM_RATE_X);
+            case Y -> getValueAsDouble(KEY_MAXIMUM_RATE_Y);
+            case Z -> getValueAsDouble(KEY_MAXIMUM_RATE_Z);
+            default ->
+                    throw new FirmwareSettingsException("Couldn't get maximum rate setting for axis " + axis + ", it's not supported by the controller");
+        };
     }
 
     @Override
@@ -470,6 +452,9 @@ public class GrblFirmwareSettings implements IFirmwareSettings {
     }
 
     private boolean getValueAsBoolean(String key, boolean defaultValue) {
-        return getSetting(key).map(FirmwareSetting::getValue).map("1"::equalsIgnoreCase).orElse(defaultValue);
+        return getSetting(key).map(FirmwareSetting::getValue)
+                .map("0"::equalsIgnoreCase)
+                .map(value -> !value)
+                .orElse(defaultValue);
     }
 }
