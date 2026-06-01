@@ -90,6 +90,12 @@ public class GrblFirmwareSettingsTest {
     }
 
     @Test
+    public void isHomingEnabledShouldBeTrueForNonZeroValueSeven() {
+        setFirmwareSetting("$22", "7");
+        assertTrue(target.isHomingEnabled());
+    }
+
+    @Test
     public void getReportingUnitsShouldReturnUnknownIfNotSet() {
         assertEquals(UnitUtils.Units.UNKNOWN, target.getReportingUnits());
     }
