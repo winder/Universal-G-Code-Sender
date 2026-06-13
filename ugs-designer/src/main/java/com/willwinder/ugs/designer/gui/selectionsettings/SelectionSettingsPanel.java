@@ -64,6 +64,15 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         Collection<? extends EntitySettingsPanel> components = LookupService.lookupAll(EntitySettingsPanel.class);
         availableComponents.addAll(components);
 
+        // The panels are instantiated eagerly at startup (@OnStart) via the LookupService,
+        // which can happen before the look and feel is installed - notably on Windows. The
+        // components then cache the wrong UI delegate and colors. Re-apply the current look
+        // and feel here, where we're guaranteed to run on the EDT after the L&F is installed.
+        availableComponents.stream()
+                .map(EntitySettingsPanel::getComponent)
+                .filter(Objects::nonNull)
+                .forEach(SwingUtilities::updateComponentTreeUI);
+
         setController(controller);
         setEnabled(false);
 
