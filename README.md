@@ -77,6 +77,11 @@ Vector graphics designer for generating GCode toolpaths
 
 For development we use [Maven](http://maven.apache.org) and [Java 17](https://adoptium.net/) for compiling.
 
+On Windows you might need to install `zip`:
+```
+winget install -e --id GnuWin32.Zip
+```
+
 #### Compiling and starting the application
 
 UGS Classic: 

@@ -19,7 +19,6 @@
 package com.willwinder.ugs.nbp.core.lifecycle;
 
 import org.apache.commons.io.FileUtils;
-import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
 import org.netbeans.spi.sendopts.OptionProcessor;
@@ -67,7 +66,9 @@ public class StartupOptionProcessor extends OptionProcessor {
      * CLI Handler.
      */
     @Override
-    protected void process(Env env, Map<Option, String[]> optionsMap) throws CommandException {
+    protected void process(Env env, Map<Option, String[]> optionsMap) {
+        pruneStaleVersionCaches();
+
         if (optionsMap.containsKey(clearCacheOption)) {
             clearCache();
         }
@@ -95,6 +96,14 @@ public class StartupOptionProcessor extends OptionProcessor {
         }
     }
 
+    /**
+     * Deletes the contents of the current version's cache directory. Note that
+     * on Windows the cache files are typically already memory-mapped by the
+     * module system at this point, so the deletion may only take full effect on
+     * the next startup. For reliably avoiding a corrupt cache after an upgrade,
+     * the cache directory is scoped per version (see ugsplatform.conf) and stale
+     * directories are pruned by {@link #pruneStaleVersionCaches()}.
+     */
     private void clearCache() {
         try {
             Arrays.stream(Objects.requireNonNull(Places.getCacheDirectory().listFiles(f -> f.getName().endsWith(".dat"))))
@@ -105,6 +114,37 @@ public class StartupOptionProcessor extends OptionProcessor {
             FileUtils.deleteDirectory(new File(Places.getCacheDirectory().getAbsolutePath() + File.separator + "lastModified"));
         } catch (IOException e) {
             logger.log(Level.WARNING, "An error occurred while clearing cache files", e);
+        }
+    }
+
+    /**
+     * Removes cache directories belonging to other (typically older) versions.
+     * The active cache directory is named after the running version and lives
+     * under a shared parent (e.g. {@code .../var/cache/<version>}); every sibling
+     * directory therefore belongs to a different version that is not running and
+     * can be deleted without hitting file locks.
+     */
+    private void pruneStaleVersionCaches() {
+        try {
+            File currentCacheDir = Places.getCacheDirectory();
+            File parent = currentCacheDir.getParentFile();
+            if (parent == null) {
+                return;
+            }
+
+            File[] siblings = parent.listFiles(File::isDirectory);
+            if (siblings == null) {
+                return;
+            }
+
+            Arrays.stream(siblings)
+                    .filter(dir -> !dir.equals(currentCacheDir))
+                    .forEach(dir -> {
+                        logger.info("Removing stale cache directory " + dir.getAbsolutePath());
+                        FileUtils.deleteQuietly(dir);
+                    });
+        } catch (RuntimeException e) {
+            logger.log(Level.WARNING, "An error occurred while pruning stale cache directories", e);
         }
     }
 
