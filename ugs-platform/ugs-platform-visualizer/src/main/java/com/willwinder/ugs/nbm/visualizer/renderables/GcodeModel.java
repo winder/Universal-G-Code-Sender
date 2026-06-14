@@ -60,7 +60,7 @@ import java.util.logging.Logger;
  * @author wwinder
  */
 public class GcodeModel extends Renderable implements UGSEventListener {
-    public static final double ARC_SEGMENT_LENGTH = 0.1;
+    public static final double ARC_TOLERANCE = 0.01;
     private static final Logger logger = Logger.getLogger(GcodeModel.class.getName());
     private final GcodeLineColorizer colorizer = new GcodeLineColorizer();
     private final BackendAPI backend;
@@ -266,10 +266,10 @@ public class GcodeModel extends Renderable implements UGSEventListener {
 
     private List<LineSegment> loadModel(GcodeViewParse gcvp) throws IOException, GcodeParserException {
         try (IGcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile), new DefaultCommandCreator())) {
-            return gcvp.toObjFromReader(gsr, ARC_SEGMENT_LENGTH, VisualizerOptions.getDoubleOption(VisualizerOptions.VISUALIZER_OPTION_MIN_SEGMENT_LENGTH_MM, 0));
+            return gcvp.toObjFromReaderWithArcTolerance(gsr, ARC_TOLERANCE, VisualizerOptions.getDoubleOption(VisualizerOptions.VISUALIZER_OPTION_MIN_SEGMENT_LENGTH_MM, 0));
         } catch (GcodeStreamReader.NotGcodeStreamFile e) {
             List<String> linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
-            return gcvp.toObjRedux(linesInFile, ARC_SEGMENT_LENGTH, VisualizerOptions.getDoubleOption(VisualizerOptions.VISUALIZER_OPTION_MIN_SEGMENT_LENGTH_MM, 0));
+            return gcvp.toObjReduxWithArcTolerance(linesInFile, ARC_TOLERANCE, VisualizerOptions.getDoubleOption(VisualizerOptions.VISUALIZER_OPTION_MIN_SEGMENT_LENGTH_MM, 0));
         }
     }
 

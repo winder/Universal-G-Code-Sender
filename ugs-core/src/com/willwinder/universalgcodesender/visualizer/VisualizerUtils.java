@@ -131,11 +131,16 @@ public class VisualizerUtils {
     }
 
     /**
-     * Turns a point segment into one or more LineSegment. Arcs and rotations around axes are expanded
+     * Turns a point segment into one or more LineSegment. Arcs and rotations around axes are expanded.
+     * <p>
+     * If {@code arcToleranceMM} is greater than zero arcs are expanded using a chord tolerance, where
+     * the number of segments is derived from the maximum allowed deviation between the chord and the
+     * true arc. This avoids generating huge amounts of geometry for large arcs while keeping tight
+     * arcs smooth. Otherwise the fixed {@code arcSegmentLength} is used.
      *
      * @throws GcodeParserException if the lines could not be expanded
      */
-    public static void addLinesFromPointSegment(final Position start, final PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret) throws GcodeParserException {
+    public static void addLinesFromPointSegment(final Position start, final PointSegment endSegment, double arcSegmentLength, double arcToleranceMM, List<LineSegment> ret) throws GcodeParserException {
         // For a line segment list ALL arcs must be converted to lines.
         double minArcLength = 0;
         endSegment.convertToMetric();
@@ -145,7 +150,7 @@ public class VisualizerUtils {
             if (start != null) {
                 // Expand arc for graphics.
                 if (endSegment.isArc()) {
-                    expandArc(start, endSegment, arcSegmentLength, ret, minArcLength);
+                    expandArc(start, endSegment, arcSegmentLength, arcToleranceMM, ret, minArcLength);
                 } else if (endSegment.isRotation()) {
                     expandRotationalLineSegment(start, endSegment, ret);
                 } else {
@@ -159,11 +164,18 @@ public class VisualizerUtils {
         }
     }
 
-    private static void expandArc(Position start, PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret, double minArcLength) {
-        List<Position> points =
-                GcodePreprocessorUtils.generatePointsAlongArcBDring(
-                        start, endSegment.point(), endSegment.center(), endSegment.isClockwise(),
-                        endSegment.getRadius(), minArcLength, arcSegmentLength, new PlaneFormatter(endSegment.getPlaneState()));
+    private static void expandArc(Position start, PointSegment endSegment, double arcSegmentLength, double arcToleranceMM, List<LineSegment> ret, double minArcLength) {
+        PlaneFormatter plane = new PlaneFormatter(endSegment.getPlaneState());
+        List<Position> points;
+        if (arcToleranceMM > 0) {
+            points = GcodePreprocessorUtils.generatePointsAlongArcWithTolerance(
+                    start, endSegment.point(), endSegment.center(), endSegment.isClockwise(),
+                    endSegment.getRadius(), arcToleranceMM, plane);
+        } else {
+            points = GcodePreprocessorUtils.generatePointsAlongArcBDring(
+                    start, endSegment.point(), endSegment.center(), endSegment.isClockwise(),
+                    endSegment.getRadius(), minArcLength, arcSegmentLength, plane);
+        }
         // Create line segments from points.
         if (!points.isEmpty()) {
             Position startPoint = start;
