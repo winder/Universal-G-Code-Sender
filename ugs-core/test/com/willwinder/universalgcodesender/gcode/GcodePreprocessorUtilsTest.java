@@ -391,6 +391,71 @@ public class GcodePreprocessorUtilsTest {
     }
 
     @Test
+    public void calculateNumberOfPointsToExpandWithToleranceShouldDeriveCountFromCurvature() {
+        // A half circle with radius 5 mm and a 1 mm chord tolerance only needs a few segments...
+        assertEquals(3, GcodePreprocessorUtils.calculateNumberOfPointsToExpandWithTolerance(5, MM, 1, Math.PI));
+
+        // ...a tighter tolerance produces more segments.
+        assertEquals(8, GcodePreprocessorUtils.calculateNumberOfPointsToExpandWithTolerance(5, MM, 0.1, Math.PI));
+    }
+
+    @Test
+    public void calculateNumberOfPointsToExpandWithToleranceShouldNotExplodeForLargeArcs() {
+        // A large gentle arc (radius 1000 mm, 90 degrees) needs very few segments to stay within
+        // a 0.01 mm tolerance...
+        int withTolerance = GcodePreprocessorUtils.calculateNumberOfPointsToExpandWithTolerance(1000, MM, 0.01, Math.PI / 2);
+        assertEquals(176, withTolerance);
+
+        // ...where a fixed 0.01 mm segment length would generate a huge number of segments.
+        int withFixedSegmentLength = GcodePreprocessorUtils.calculateNumberOfPointsToExpand(1000, MM, 0, 0.01, Math.PI / 2);
+        assertEquals(157080, withFixedSegmentLength);
+        assertTrue("Tolerance based expansion should generate far fewer segments", withTolerance < withFixedSegmentLength);
+    }
+
+    @Test
+    public void calculateNumberOfPointsToExpandWithToleranceShouldHandleEdgeCases() {
+        // Tolerance larger than the radius can be satisfied with a single segment.
+        assertEquals(1, GcodePreprocessorUtils.calculateNumberOfPointsToExpandWithTolerance(5, MM, 10, Math.PI));
+        // No radius or no sweep is a single segment.
+        assertEquals(1, GcodePreprocessorUtils.calculateNumberOfPointsToExpandWithTolerance(0, MM, 0.1, Math.PI));
+        assertEquals(1, GcodePreprocessorUtils.calculateNumberOfPointsToExpandWithTolerance(5, MM, 0.1, 0));
+        // A non-positive tolerance falls back to a single segment instead of dividing by zero.
+        assertEquals(1, GcodePreprocessorUtils.calculateNumberOfPointsToExpandWithTolerance(5, MM, 0, Math.PI));
+        // A negative radius is handled like its absolute value.
+        assertEquals(3, GcodePreprocessorUtils.calculateNumberOfPointsToExpandWithTolerance(-5, MM, 1, Math.PI));
+    }
+
+    @Test
+    public void generatePointsAlongArcWithToleranceShouldGenerateAnArcWithinTolerance() {
+        Position start = new Position(0, 0, 0, MM);
+        Position end = new Position(10, 0, 0, MM);
+        Position center = new Position(5, 0, 0, MM);
+        double radius = 5;
+        double tolerance = 0.1;
+
+        List<Position> points = GcodePreprocessorUtils.generatePointsAlongArcWithTolerance(start, end, center, true, radius, tolerance, new PlaneFormatter(Plane.XY));
+
+        // 8 segments for a half circle plus the explicit end point.
+        assertEquals(9, points.size());
+        assertThatPointsAreWithinBoundary(start, end, radius, points);
+        assertTrue("Coordinates are generated in wrong units", points.stream().allMatch(p -> p.getUnits() == MM));
+
+        // Every generated point lies on the arc.
+        assertTrue("All points should lie on the arc", points.stream()
+                .allMatch(p -> Math.abs(Math.hypot(p.x - center.x, p.y - center.y) - radius) < 0.001));
+
+        // The deviation of each chord from the arc must stay within the requested tolerance.
+        for (int i = 1; i < points.size(); i++) {
+            Position a = points.get(i - 1);
+            Position b = points.get(i);
+            double midX = (a.x + b.x) / 2.0;
+            double midY = (a.y + b.y) / 2.0;
+            double deviation = radius - Math.hypot(midX - center.x, midY - center.y);
+            assertTrue("Chord deviation " + deviation + " should be within tolerance", deviation <= tolerance + 0.001);
+        }
+    }
+
+    @Test
     public void generatePointsAlongArcBDringShouldGenerateAnArcWhenPositionsAreInInches() {
         Position start = new Position(0, 0, 0, UnitUtils.Units.INCH);
         Position end = new Position(10 * UnitUtils.scaleUnits(MM, INCH), 0, 0, UnitUtils.Units.INCH);

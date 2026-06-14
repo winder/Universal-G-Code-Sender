@@ -129,6 +129,26 @@ public class GcodeViewParse {
      */
     public List<LineSegment> toObjFromReader(IGcodeStreamReader reader,
                                              double arcSegmentLength, double minSegmentLength) throws IOException, GcodeParserException {
+        return toObjFromReader(reader, arcSegmentLength, 0, minSegmentLength);
+    }
+
+    /**
+     * Same as {@link #toObjFromReader(IGcodeStreamReader, double, double)} but expands arcs using a
+     * chord tolerance instead of a fixed segment length. The number of segments is derived from the
+     * maximum allowed deviation between the chord and the arc, which avoids generating huge amounts
+     * of geometry for large arcs while keeping tight arcs smooth.
+     *
+     * @param reader           a stream with commands to parse.
+     * @param arcToleranceMM   the maximum allowed deviation between the chord and the arc, in millimeters.
+     * @param minSegmentLength the minimum length before a line is split up.
+     */
+    public List<LineSegment> toObjFromReaderWithArcTolerance(IGcodeStreamReader reader,
+                                                             double arcToleranceMM, double minSegmentLength) throws IOException, GcodeParserException {
+        return toObjFromReader(reader, 0, arcToleranceMM, minSegmentLength);
+    }
+
+    private List<LineSegment> toObjFromReader(IGcodeStreamReader reader,
+                                              double arcSegmentLength, double arcToleranceMM, double minSegmentLength) throws IOException, GcodeParserException {
         lines.clear();
         GcodeParser gp = getParser(minSegmentLength);
 
@@ -142,7 +162,7 @@ public class GcodeViewParse {
                 List<GcodeMeta> points = gp.addCommand(command, commandObject.getCommandNumber());
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
-                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
+                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, arcToleranceMM, lines);
                         start = meta.point.point();
                     }
                 }
@@ -170,6 +190,24 @@ public class GcodeViewParse {
      * @param arcSegmentLength length of line segments when expanding an arc.
      */
     public List<LineSegment> toObjRedux(List<String> gcode, double arcSegmentLength, double minSegmentLength) throws GcodeParserException {
+        return toObjRedux(gcode, arcSegmentLength, 0, minSegmentLength);
+    }
+
+    /**
+     * Same as {@link #toObjRedux(List, double, double)} but expands arcs using a chord tolerance
+     * instead of a fixed segment length. The number of segments is derived from the maximum allowed
+     * deviation between the chord and the arc, which avoids generating huge amounts of geometry for
+     * large arcs while keeping tight arcs smooth.
+     *
+     * @param gcode            commands to visualize.
+     * @param arcToleranceMM   the maximum allowed deviation between the chord and the arc, in millimeters.
+     * @param minSegmentLength the minimum length before a line is split up.
+     */
+    public List<LineSegment> toObjReduxWithArcTolerance(List<String> gcode, double arcToleranceMM, double minSegmentLength) throws GcodeParserException {
+        return toObjRedux(gcode, 0, arcToleranceMM, minSegmentLength);
+    }
+
+    private List<LineSegment> toObjRedux(List<String> gcode, double arcSegmentLength, double arcToleranceMM, double minSegmentLength) throws GcodeParserException {
         GcodeParser gp = getParser(minSegmentLength);
 
         lines.clear();
@@ -183,7 +221,7 @@ public class GcodeViewParse {
                 List<GcodeMeta> points = gp.addCommand(command);
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
-                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
+                        VisualizerUtils.addLinesFromPointSegment(start, meta.point, arcSegmentLength, arcToleranceMM, lines);
 
                         // if the last set point is in a different or unknown unit, crate a new point-instance with the correct unit set
                         if (start.getUnits() != UnitUtils.Units.MM && gp.getCurrentState().isMetric) {

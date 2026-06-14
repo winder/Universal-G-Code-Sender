@@ -522,6 +522,93 @@ public class GcodePreprocessorUtils {
     }
 
     /**
+     * Generates the points along an arc using a chord tolerance instead of a fixed segment length.
+     * <p>
+     * The number of segments is derived from the maximum allowed deviation (sagitta) between the
+     * generated chord and the true arc. This keeps the visual error bounded regardless of the arc
+     * size: large gentle arcs get few segments while small tight arcs stay smooth. It avoids the
+     * huge geometry generated when expanding large arcs with a fixed segment length.
+     *
+     * @param start            start position XYZ and rotations
+     * @param end              end position XYZ and rotations
+     * @param center           center of rotation
+     * @param clockwise        flag indicating clockwise or counter-clockwise
+     * @param radius           radius of the arc in the same units as the given start, end and center position
+     * @param chordToleranceMM the maximum allowed deviation between the chord and the arc, in millimeters
+     * @param plane            helper to select values for arcs across different planes
+     */
+    static public List<Position> generatePointsAlongArcWithTolerance(
+            final Position start,
+            final Position end,
+            final Position center,
+            boolean clockwise,
+            double radius,
+            double chordToleranceMM,
+            PlaneFormatter plane) {
+
+        // Calculate radius if necessary.
+        double r = radius;
+        if (r == 0) {
+            r = Math.sqrt(Math.pow(plane.axis0(start) - plane.axis0(center), 2.0) + Math.pow(plane.axis1(end) - plane.axis1(center), 2.0));
+        }
+
+        double startAngle = GcodePreprocessorUtils.getAngle(center, start, plane);
+        double endAngle = GcodePreprocessorUtils.getAngle(center, end, plane);
+        double sweep = GcodePreprocessorUtils.calculateSweep(startAngle, endAngle, clockwise);
+
+        // If the radius is negative we need invert the angle
+        if (radius < 0) {
+            startAngle = normalizeAngle(startAngle - Math.PI);
+        }
+
+        int numPoints = calculateNumberOfPointsToExpandWithTolerance(r, start.getUnits(), chordToleranceMM, sweep);
+        if (numPoints == 0) {
+            return Collections.emptyList();
+        }
+
+        return GcodePreprocessorUtils.generatePointsAlongArcBDring(start, end, center, clockwise, r, startAngle, sweep, numPoints, plane);
+    }
+
+    /**
+     * Calculates the number of segments an arc should be expanded into so that the chord never
+     * deviates from the arc by more than the given tolerance.
+     * <p>
+     * For a segment spanning an angle of {@code theta} the maximum deviation (sagitta) is
+     * {@code r * (1 - cos(theta / 2))}. Solving for the largest {@code theta} that keeps the
+     * deviation within {@code chordToleranceMM} gives {@code theta = 2 * acos(1 - tolerance / r)},
+     * and the number of segments is {@code ceil(sweep / theta)}.
+     *
+     * @param radius           the radius of the arc
+     * @param radiusUnits      the radius units
+     * @param chordToleranceMM the maximum allowed deviation between the chord and the arc, in millimeters
+     * @param sweep            the angle of the arc in radians
+     * @return the number of segments to split the arc into to stay within the given tolerance
+     */
+    public static int calculateNumberOfPointsToExpandWithTolerance(double radius, UnitUtils.Units radiusUnits, double chordToleranceMM, double sweep) {
+        double radiusMM = Math.abs(radius * UnitUtils.scaleUnits(radiusUnits, UnitUtils.Units.MM));
+        double absSweep = Math.abs(sweep);
+
+        // A degenerate arc (no radius or no sweep) is just a single segment.
+        if (radiusMM == 0 || absSweep == 0) {
+            return 1;
+        }
+
+        // Without a usable tolerance we can't derive a chord based count, just keep the arc as a single segment.
+        if (chordToleranceMM <= 0) {
+            return 1;
+        }
+
+        // The chord deviation can never be larger than the radius, so a single segment is enough.
+        if (chordToleranceMM >= radiusMM) {
+            return 1;
+        }
+
+        // Largest angle per segment that keeps the chord deviation (sagitta) within the tolerance.
+        double maxAnglePerSegment = 2.0 * Math.acos(1.0 - (chordToleranceMM / radiusMM));
+        return Math.max(1, (int) Math.ceil(absSweep / maxAnglePerSegment));
+    }
+
+    /**
      * Calculates the number of points to expand an arc into
      *
      * @param radius             the radius of the arc

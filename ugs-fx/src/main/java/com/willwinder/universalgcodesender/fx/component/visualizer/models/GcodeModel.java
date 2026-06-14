@@ -54,7 +54,7 @@ import java.util.logging.Logger;
 
 public class GcodeModel extends Model {
     private static final Logger LOGGER = Logger.getLogger(GcodeModel.class.getName());
-    public static final double ARC_SEGMENT_LENGTH = 0.8;
+    public static final double ARC_TOLERANCE = 0.02;
     private final GcodeViewParse gcvp;
     private final MeshView meshView;
     private final BackendAPI backendAPI;
@@ -73,11 +73,11 @@ public class GcodeModel extends Model {
 
     private List<LineSegment> loadModel(GcodeViewParse gcvp, String gcodeFile) throws IOException, GcodeParserException {
         try (IGcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile), new DefaultCommandCreator())) {
-            return gcvp.toObjFromReader(gsr, ARC_SEGMENT_LENGTH, 0);
+            return gcvp.toObjFromReaderWithArcTolerance(gsr, ARC_TOLERANCE, 0);
         } catch (GcodeStreamReader.NotGcodeStreamFile e) {
             List<String> linesInFile;
             linesInFile = VisualizerUtils.readFiletoArrayList(gcodeFile);
-            return gcvp.toObjRedux(linesInFile, ARC_SEGMENT_LENGTH, 0);
+            return gcvp.toObjReduxWithArcTolerance(linesInFile, ARC_TOLERANCE, 0);
         }
     }
 

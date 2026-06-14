@@ -127,6 +127,8 @@ public class VisualizationPanel extends JPanel {
 
         p.addGLEventListener(renderer);
 
+        animator.start();
+
         return p;
     }
 }
