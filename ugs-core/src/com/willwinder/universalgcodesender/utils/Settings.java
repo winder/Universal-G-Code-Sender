@@ -75,6 +75,9 @@ public class Settings {
     private boolean verboseOutputEnabled = false;
     private boolean commandTableEnabled = false;
 
+    // Ask for confirmation before resetting the work coordinate zero
+    private boolean confirmResetZero = true;
+
     // Sender Settings
     private WindowSettings mainWindowSettings = new WindowSettings(0, 0, 640, 520);
     private WindowSettings visualizerWindowSettings = new WindowSettings(0, 0, 640, 480);
@@ -314,6 +317,15 @@ public class Settings {
 
     public void setScrollWindowEnabled(boolean scrollWindowEnabled) {
         this.scrollWindowEnabled = scrollWindowEnabled;
+        changed();
+    }
+
+    public boolean isConfirmResetZero() {
+        return confirmResetZero;
+    }
+
+    public void setConfirmResetZero(boolean confirmResetZero) {
+        this.confirmResetZero = confirmResetZero;
         changed();
     }
 
