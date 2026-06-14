@@ -82,6 +82,9 @@ public final class ResetCoordinatesToZeroAction extends AbstractAction implement
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (!ResetZeroConfirmation.confirmResetZero(backend)) {
+            return;
+        }
         try {
             backend.resetCoordinatesToZero();
         } catch (Exception ex) {
