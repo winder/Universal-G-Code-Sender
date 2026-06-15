@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
 import com.willwinder.universalgcodesender.fx.component.dro.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
+import com.willwinder.universalgcodesender.fx.component.visualizer.designer.DesignToolbar;
 import com.willwinder.universalgcodesender.fx.component.visualizer.designer.EntitySettingsPanel;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
@@ -45,32 +46,32 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import javax.swing.UIManager;
 import java.io.File;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main extends Application {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
-    private TabPane leftPane;
     private SplitPane motionSplitPane;
     private SplitPane contentSplitPane;
     private StackPane contentPanel;
+    private Region inspectorPane;
     private SplitPane.Divider contentPaneDivider;
+    private SplitPane.Divider inspectorDivider;
     private SplitPane.Divider leftPaneDivider;
 
     @Override
@@ -106,6 +107,7 @@ public class Main extends Application {
         ToolBarMenu toolBarMenu = new ToolBarMenu();
         createLeftPane();
         createContentPanel();
+        createInspector();
         createContentPane();
         VBox.setVgrow(contentSplitPane, Priority.ALWAYS);
 
@@ -115,7 +117,7 @@ public class Main extends Application {
         ShortcutService.registerListener(scene);
         FontRegistry.registerFonts();
 
-        scene.getStylesheets().add(Main.class.getResource("/styles/root.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(Main.class.getResource("/styles/root.css")).toExternalForm());
         root.getChildren().addAll(toolBarMenu, contentSplitPane);
 
         primaryStage.setTitle("Universal G-code Sender - " + Version.getVersion());
@@ -142,6 +144,7 @@ public class Main extends Application {
         primaryStage.yProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowPositionYProperty().set(newValue.doubleValue()));
         leftPaneDivider.positionProperty().addListener((obs, oldVal, newVal) -> Settings.getInstance().windowDividerLeftProperty().set(newVal.doubleValue()));
         contentPaneDivider.positionProperty().addListener((obs, oldVal, newVal) -> Settings.getInstance().windowDividerContentProperty().set(newVal.doubleValue()));
+        inspectorDivider.positionProperty().addListener((obs, oldVal, newVal) -> Settings.getInstance().windowDividerInspectorProperty().set(newVal.doubleValue()));
     }
 
     private void registerListeners(Stage primaryStage) {
@@ -152,12 +155,14 @@ public class Main extends Application {
             primaryStage.setHeight(Settings.getInstance().windowHeightProperty().get());
             leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
             contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
+            inspectorDivider.setPosition(Settings.getInstance().windowDividerInspectorProperty().get());
 
 
             // Hack to make sure that the window is shown with correct size before setting the dividers
             ThreadHelper.invokeLater(() -> {
                 leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
                 contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
+                inspectorDivider.setPosition(Settings.getInstance().windowDividerInspectorProperty().get());
                 registerLayoutListeners(primaryStage);
             }, 200);
         });
@@ -183,11 +188,15 @@ public class Main extends Application {
         contentSplitPane = new SplitPane();
         contentSplitPane.setMinWidth(200);
         contentSplitPane.setOrientation(Orientation.HORIZONTAL);
-        contentSplitPane.getItems().addAll(leftPane, contentPanel);
+        // The inspector is always docked so selecting a shape never re-lays-out the
+        // viewport or the machine panel; it simply shows a placeholder when empty.
+        contentSplitPane.getItems().addAll(motionSplitPane, contentPanel, inspectorPane);
         SplitPane.setResizableWithParent(contentSplitPane, false);
 
         contentPaneDivider = contentSplitPane.getDividers().get(0);
+        inspectorDivider = contentSplitPane.getDividers().get(1);
         contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
+        inspectorDivider.setPosition(Settings.getInstance().windowDividerInspectorProperty().get());
     }
 
     private void createLeftPane() {
@@ -195,24 +204,22 @@ public class Main extends Application {
 
         motionSplitPane.setOrientation(Orientation.VERTICAL);
         motionSplitPane.getItems().addAll(new MachineStatusPane(), new JogPane());
+        motionSplitPane.setMinWidth(200);
+        SplitPane.setResizableWithParent(motionSplitPane, false);
 
         leftPaneDivider = motionSplitPane.getDividers().get(0);
         leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
+    }
 
+    private void createInspector() {
         ScrollPane entityScroll = new ScrollPane(new EntitySettingsPanel());
+        entityScroll.getStyleClass().add("inspector-scroll");
         entityScroll.setFitToWidth(true);
-
-        Tab motionTab = new Tab("Motion", motionSplitPane);
-        motionTab.setClosable(false);
-
-        Tab editTab = new Tab("Edit", entityScroll);
-        editTab.setClosable(false);
-
-        leftPane = new TabPane(motionTab, editTab);
-        leftPane.setSide(Side.TOP);
-        leftPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        leftPane.setMinWidth(200);
-        SplitPane.setResizableWithParent(leftPane, false);
+        VBox.setVgrow(entityScroll, Priority.ALWAYS);
+        VBox inspector = new VBox(new DesignToolbar(), entityScroll);
+        inspector.setMinWidth(200);
+        SplitPane.setResizableWithParent(inspector, false);
+        inspectorPane = inspector;
     }
 
     private void registerShortCuts(Scene scene) {

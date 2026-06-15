@@ -29,7 +29,7 @@ import com.willwinder.ugs.designer.entities.entities.selection.SelectionListener
 import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.ugs.designer.model.Size;
-import com.willwinder.universalgcodesender.fx.component.BorderedTitledPane;
+import com.willwinder.universalgcodesender.fx.component.CollapsibleTitledPane;
 import com.willwinder.universalgcodesender.fx.component.SettingsRow;
 import com.willwinder.universalgcodesender.fx.control.SwitchButton;
 import com.willwinder.universalgcodesender.fx.control.UnitTextField;
@@ -128,12 +128,12 @@ public class EntitySettingsPanel extends VBox {
 
         VBox transformRows = buildRows(TRANSFORM_KEYS, common, cuttables);
         if (!transformRows.getChildren().isEmpty()) {
-            getChildren().add(new BorderedTitledPane("Transform", transformRows));
+            getChildren().add(new CollapsibleTitledPane("Transform", transformRows));
         }
 
         VBox cutRows = buildRows(CUT_KEYS, common, cuttables);
         if (!cutRows.getChildren().isEmpty()) {
-            getChildren().add(new BorderedTitledPane("Cut", cutRows));
+            getChildren().add(new CollapsibleTitledPane("Cut", cutRows));
         }
     }
 
@@ -332,13 +332,6 @@ public class EntitySettingsPanel extends VBox {
         } finally {
             applyingEdit = false;
         }
-    }
-
-    private static String formatDouble(double value) {
-        if (value == Math.rint(value) && !Double.isInfinite(value)) {
-            return Long.toString((long) value);
-        }
-        return String.format(java.util.Locale.ROOT, "%.3f", value);
     }
 
     @FunctionalInterface

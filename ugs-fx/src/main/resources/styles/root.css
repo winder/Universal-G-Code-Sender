@@ -157,3 +157,30 @@
 .tooltip {
     -fx-font-size: 14px;
 }
+
+/**
+ * Entity inspector (right-docked shape properties)
+ */
+.inspector-pane {
+    -fx-background-color: transparent;
+}
+
+.inspector-pane .inspector-header {
+    -fx-font-weight: bold;
+}
+
+/*
+ * A ScrollPane's border is a two-layer background in modena (border color, then the
+ * inner fill inset by 1px) — not an -fx-border. To get only a top and bottom line we
+ * draw the border color full-bleed, then cover it with a white fill inset 1px on the
+ * top and bottom only (0 on left/right), leaving just those two edges showing.
+ */
+.inspector-scroll {
+    -fx-background-color: -ugs-border-color, white;
+    -fx-background-insets: 0, 1 0 1 0;
+    -fx-padding: 0;
+}
+
+.inspector-scroll > .viewport {
+    -fx-background-color: transparent;
+}

@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.service;
 
+import com.willwinder.universalgcodesender.fx.component.visualizer.DragHandler;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -33,6 +34,7 @@ public class VisualizerService {
 
     private final ObservableList<Model> models = FXCollections.observableArrayList();
     private final List<Consumer<MouseEvent>> backgroundClickHandlers = new CopyOnWriteArrayList<>();
+    private volatile DrawGestureProvider drawGestureProvider;
 
     public static VisualizerService getInstance() {
         return INSTANCE;
@@ -68,5 +70,29 @@ public class VisualizerService {
 
     public void fireBackgroundClick(MouseEvent event) {
         backgroundClickHandlers.forEach(h -> h.accept(event));
+    }
+
+    /**
+     * Registers a provider that can begin a designer "draw" drag gesture. Pass null to
+     * unregister. Used so the generic visualizer can hand off a primary-button press to
+     * the designer when a drawing tool is active, without knowing about designer tools.
+     */
+    public void setDrawGestureProvider(DrawGestureProvider provider) {
+        this.drawGestureProvider = provider;
+    }
+
+    /**
+     * Asks the registered provider (if any) to begin a draw gesture at the given designer
+     * (model mm) coordinates. Returns a {@link DragHandler} driving the gesture, or null
+     * when no drawing tool is active and the press should be handled normally.
+     */
+    public DragHandler beginDrawGesture(double designerX, double designerY) {
+        DrawGestureProvider provider = drawGestureProvider;
+        return provider == null ? null : provider.beginGesture(designerX, designerY);
+    }
+
+    @FunctionalInterface
+    public interface DrawGestureProvider {
+        DragHandler beginGesture(double designerX, double designerY);
     }
 }

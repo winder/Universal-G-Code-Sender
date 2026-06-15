@@ -1,0 +1,24 @@
+@import "root.css";
+
+.collapsible-titled-pane {
+    -fx-spacing: 8;
+}
+
+.collapsible-titled-pane > .header {
+    -fx-spacing: 10;
+    -fx-cursor: hand;
+    -fx-padding: 2 0 2 0;
+}
+
+.collapsible-titled-pane > .header > .title {
+    -fx-font-size: 1.1em;
+    -fx-font-weight: bold;
+    -fx-text-fill: #444444;
+}
+
+.collapsible-titled-pane > .header > .rule {
+    -fx-min-height: 1;
+    -fx-pref-height: 1;
+    -fx-max-height: 1;
+    -fx-background-color: -ugs-border-color;
+}

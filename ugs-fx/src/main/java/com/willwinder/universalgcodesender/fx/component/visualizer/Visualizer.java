@@ -231,6 +231,22 @@ public class Visualizer extends Pane {
         subScene.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
             if (event.getButton() != MouseButton.PRIMARY) return;
 
+            // When a designer drawing tool is active it takes priority over picking:
+            // begin a draw gesture at the designer point under the cursor.
+            Point2D designerPoint = toDesignerPoint(event.getX(), event.getY());
+            if (designerPoint != null) {
+                DragHandler drawHandler = VisualizerService.getInstance()
+                        .beginDrawGesture(designerPoint.getX(), designerPoint.getY());
+                if (drawHandler != null) {
+                    activeDragHandler = drawHandler;
+                    dragStartX = designerPoint.getX();
+                    dragStartY = designerPoint.getY();
+                    drawHandler.onDragStart(dragStartX, dragStartY);
+                    event.consume();
+                    return;
+                }
+            }
+
             Node hit = event.getPickResult().getIntersectedNode();
             while (hit != null) {
                 Object userData = hit.getUserData();

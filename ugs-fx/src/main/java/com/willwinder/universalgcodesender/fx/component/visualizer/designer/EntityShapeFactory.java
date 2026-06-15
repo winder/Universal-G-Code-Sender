@@ -79,6 +79,21 @@ public final class EntityShapeFactory {
         return node;
     }
 
+    /**
+     * Builds a thin outline mesh for a live drawing preview (rubber band) from a raw shape.
+     * Works for open paths (e.g. a line) as well as closed shapes. Returns null for a null shape.
+     */
+    public static MeshView createPreviewBorder(Shape shape) {
+        if (shape == null) {
+            return null;
+        }
+        MeshView border = createBorderMesh(shape, Color.DODGERBLUE);
+        if (border != null) {
+            border.setDepthTest(DepthTest.DISABLE);
+        }
+        return border;
+    }
+
     private static Color getColor(Control control) {
         if (control instanceof ResizeControl) {
             return Color.DODGERBLUE;
