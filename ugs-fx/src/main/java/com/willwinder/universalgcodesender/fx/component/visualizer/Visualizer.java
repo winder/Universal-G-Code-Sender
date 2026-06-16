@@ -56,6 +56,8 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
+import java.util.Objects;
+
 public class Visualizer extends Pane {
     private final PerspectiveCamera perspectiveCamera;
     private final ParallelCamera parallelCamera;
@@ -81,7 +83,7 @@ public class Visualizer extends Pane {
     private final Group root3D;
 
     public Visualizer() {
-        getStylesheets().add(getClass().getResource("/styles/visualizer.css").toExternalForm());
+        getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/visualizer.css")).toExternalForm());
 
         // Rotate group contains 3D objects
         Machine machine = new Machine();

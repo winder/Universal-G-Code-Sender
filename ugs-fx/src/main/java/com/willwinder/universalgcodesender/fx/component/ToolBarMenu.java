@@ -48,6 +48,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ToolBarMenu extends VBox {
@@ -55,7 +56,7 @@ public class ToolBarMenu extends VBox {
     private static final int BUTTON_WIDTH = 110;
 
     public ToolBarMenu() {
-        getStylesheets().add(getClass().getResource("/styles/toolbar-button.css").toExternalForm());
+        getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/toolbar-button.css")).toExternalForm());
 
         List<Node> children = getChildren();
         createButton(ConnectDisconnectAction.class).ifPresent(children::add);

@@ -25,8 +25,7 @@ import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
 import com.willwinder.universalgcodesender.fx.component.dro.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
-import com.willwinder.universalgcodesender.fx.component.visualizer.designer.DesignToolbar;
-import com.willwinder.universalgcodesender.fx.component.visualizer.designer.EntitySettingsPanel;
+import com.willwinder.universalgcodesender.fx.component.visualizer.designer.InspectorPane;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
@@ -47,13 +46,11 @@ import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -69,9 +66,7 @@ public class Main extends Application {
     private SplitPane motionSplitPane;
     private SplitPane contentSplitPane;
     private StackPane contentPanel;
-    private Region inspectorPane;
     private SplitPane.Divider contentPaneDivider;
-    private SplitPane.Divider inspectorDivider;
     private SplitPane.Divider leftPaneDivider;
 
     @Override
@@ -107,7 +102,6 @@ public class Main extends Application {
         ToolBarMenu toolBarMenu = new ToolBarMenu();
         createLeftPane();
         createContentPanel();
-        createInspector();
         createContentPane();
         VBox.setVgrow(contentSplitPane, Priority.ALWAYS);
 
@@ -144,7 +138,6 @@ public class Main extends Application {
         primaryStage.yProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowPositionYProperty().set(newValue.doubleValue()));
         leftPaneDivider.positionProperty().addListener((obs, oldVal, newVal) -> Settings.getInstance().windowDividerLeftProperty().set(newVal.doubleValue()));
         contentPaneDivider.positionProperty().addListener((obs, oldVal, newVal) -> Settings.getInstance().windowDividerContentProperty().set(newVal.doubleValue()));
-        inspectorDivider.positionProperty().addListener((obs, oldVal, newVal) -> Settings.getInstance().windowDividerInspectorProperty().set(newVal.doubleValue()));
     }
 
     private void registerListeners(Stage primaryStage) {
@@ -155,14 +148,12 @@ public class Main extends Application {
             primaryStage.setHeight(Settings.getInstance().windowHeightProperty().get());
             leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
             contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
-            inspectorDivider.setPosition(Settings.getInstance().windowDividerInspectorProperty().get());
 
 
             // Hack to make sure that the window is shown with correct size before setting the dividers
             ThreadHelper.invokeLater(() -> {
                 leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
                 contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
-                inspectorDivider.setPosition(Settings.getInstance().windowDividerInspectorProperty().get());
                 registerLayoutListeners(primaryStage);
             }, 200);
         });
@@ -188,15 +179,14 @@ public class Main extends Application {
         contentSplitPane = new SplitPane();
         contentSplitPane.setMinWidth(200);
         contentSplitPane.setOrientation(Orientation.HORIZONTAL);
-        // The inspector is always docked so selecting a shape never re-lays-out the
-        // viewport or the machine panel; it simply shows a placeholder when empty.
-        contentSplitPane.getItems().addAll(motionSplitPane, contentPanel, inspectorPane);
+        contentSplitPane.getItems().addAll(motionSplitPane, contentPanel);
         SplitPane.setResizableWithParent(contentSplitPane, false);
 
         contentPaneDivider = contentSplitPane.getDividers().get(0);
-        inspectorDivider = contentSplitPane.getDividers().get(1);
         contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
-        inspectorDivider.setPosition(Settings.getInstance().windowDividerInspectorProperty().get());
+
+        // The inspector docks itself into the split pane only while a design workspace is active.
+        new InspectorPane(contentSplitPane);
     }
 
     private void createLeftPane() {
@@ -209,17 +199,6 @@ public class Main extends Application {
 
         leftPaneDivider = motionSplitPane.getDividers().get(0);
         leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
-    }
-
-    private void createInspector() {
-        ScrollPane entityScroll = new ScrollPane(new EntitySettingsPanel());
-        entityScroll.getStyleClass().add("inspector-scroll");
-        entityScroll.setFitToWidth(true);
-        VBox.setVgrow(entityScroll, Priority.ALWAYS);
-        VBox inspector = new VBox(new DesignToolbar(), entityScroll);
-        inspector.setMinWidth(200);
-        SplitPane.setResizableWithParent(inspector, false);
-        inspectorPane = inspector;
     }
 
     private void registerShortCuts(Scene scene) {
