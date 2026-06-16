@@ -24,4 +24,9 @@ public class GcodeWorkspaceContext extends WorkspaceContext {
             throw new IllegalArgumentException("Not a valid gcode file: " + file.getAbsolutePath(), e);
         }
     }
+
+    @Override
+    public String getFileExtension() {
+        return "gcode";
+    }
 }

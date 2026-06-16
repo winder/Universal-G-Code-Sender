@@ -30,6 +30,10 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.scene.Node;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
 import java.io.File;
 import java.util.logging.Level;
@@ -74,6 +78,15 @@ public class SaveAction extends BaseAction {
             return;
         }
 
+        // A design that has never been saved has no file yet - ask the user where to store it.
+        if (workspace.getFile() == null) {
+            File target = promptForSaveLocation(event, workspace);
+            if (target == null) {
+                return;
+            }
+            workspace.setFile(target);
+        }
+
         try {
             Controller controller = ControllerFactory.getController();
 
@@ -86,10 +99,40 @@ public class SaveAction extends BaseAction {
 
             BackendAPI backend = LookupService.lookup(BackendAPI.class);
             backend.setGcodeFile(tempFile);
+            backend.getSettings().setLastWorkingDirectory(workspace.getFile().getParent());
 
             WorkspaceManager.getInstance().markActiveWorkspaceDirty(false);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Could not save design", e);
         }
+    }
+
+    private File promptForSaveLocation(Event event, WorkspaceContext workspace) {
+        String extension = workspace.getFileExtension();
+        BackendAPI backend = LookupService.lookup(BackendAPI.class);
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(Localization.getString("platform.menu.save"));
+        fileChooser.setInitialDirectory(new File(backend.getSettings().getLastWorkingDirectory()));
+        fileChooser.setInitialFileName("design." + extension);
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("UGS design files", "*." + extension));
+
+        File selectedFile = fileChooser.showSaveDialog(resolveWindow(event));
+        if (selectedFile == null) {
+            return null;
+        }
+
+        // The extension filter does not force a suffix on every platform, so make sure it is present.
+        String suffix = "." + extension;
+        if (!selectedFile.getName().toLowerCase().endsWith(suffix)) {
+            selectedFile = new File(selectedFile.getParentFile(), selectedFile.getName() + suffix);
+        }
+        return selectedFile;
+    }
+
+    private static Window resolveWindow(Event event) {
+        if (event != null && event.getSource() instanceof Node node && node.getScene() != null) {
+            return node.getScene().getWindow();
+        }
+        return null;
     }
 }
