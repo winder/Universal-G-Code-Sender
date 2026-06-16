@@ -240,6 +240,7 @@ public class WorkspaceScene extends Model {
         designChangeListener = event -> {
             if (DESIGN_CHANGE_EVENTS.contains(event.getType())) {
                 WorkspaceManager.getInstance().markActiveWorkspaceDirty(true);
+                refreshScene();
             }
         };
         controller.getDrawing().getRootEntity().addListener(designChangeListener);

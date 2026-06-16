@@ -25,6 +25,7 @@ import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.entities.entities.cuttable.CutType;
 import com.willwinder.ugs.designer.entities.entities.cuttable.Direction;
 import com.willwinder.ugs.designer.entities.entities.cuttable.ToolPathDirection;
+import com.willwinder.ugs.designer.actions.UndoableAction;
 import com.willwinder.ugs.designer.entities.entities.selection.SelectionListener;
 import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
@@ -45,11 +46,12 @@ import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
@@ -200,8 +202,8 @@ public class EntitySettingsPanel extends VBox {
     private TextField doubleField(ToDoubleFunction<Cuttable> getter,
                                   CuttableDoubleSetter setter,
                                   List<Cuttable> entities, Unit units) {
-        TextField field = numericField(getter.applyAsDouble(entities.get(0)), entities, getter::applyAsDouble, units);
-        commitOnEdit(field, parsed -> applyToAll(entities, e -> setter.set(e, parsed)));
+        UnitTextField field = numericField(getter.applyAsDouble(entities.get(0)), entities, getter::applyAsDouble, units);
+        bindLivePreviewWithUndo(field, getter, setter, entities);
         return field;
     }
 
@@ -216,7 +218,7 @@ public class EntitySettingsPanel extends VBox {
         return field;
     }
 
-    private TextField numericField(double initial, List<Cuttable> entities, ToDoubleFunction<Cuttable> getter, Unit units) {
+    private UnitTextField numericField(double initial, List<Cuttable> entities, ToDoubleFunction<Cuttable> getter, Unit units) {
         boolean mixed = entities.stream().mapToDouble(getter).distinct().count() > 1;
         UnitTextField field = new UnitTextField(new UnitValue(units, mixed ? 0 : initial), units);
         field.setPromptText(mixed ? "—" : "");
@@ -224,20 +226,77 @@ public class EntitySettingsPanel extends VBox {
         return field;
     }
 
-    private void commitOnEdit(TextField field, DoubleConsumer commit) {
-        Runnable doCommit = () -> {
-            String text = field.getText();
-            if (text == null || text.isBlank()) return;
-            try {
-                commit.accept(Double.parseDouble(text.trim()));
-            } catch (NumberFormatException ignore) {
-                // leave the invalid text in place — user will see and correct
+    /**
+     * Applies a numeric field's value to the whole selection on every valid keystroke so the
+     * change is shown live in the visualizer, but only records a single undoable action when the
+     * edit is committed (the field is blurred, or Enter is pressed). This keeps the undo stack to
+     * one entry per edit instead of one per keystroke.
+     */
+    private void bindLivePreviewWithUndo(UnitTextField field,
+                                         ToDoubleFunction<Cuttable> getter,
+                                         CuttableDoubleSetter setter,
+                                         List<Cuttable> entities) {
+        // The per-entity values captured when the edit session begins; used to build the undo action.
+        Map<Cuttable, Double> originalValues = new HashMap<>();
+
+        // Live preview: push every valid value straight to the entities (no undo entry yet).
+        field.unitValueProperty().addListener((obs, oldVal, newVal) -> {
+            if (applyingEdit || newVal == null) return;
+            applyToAll(entities, e -> setter.set(e, newVal.value().doubleValue()));
+        });
+
+        field.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (Boolean.TRUE.equals(isFocused)) {
+                captureOriginalValues(getter, entities, originalValues);
+            } else {
+                commitEdit(setter, entities, originalValues, field.getValue());
+            }
+        });
+
+        // Enter commits without waiting for the field to lose focus, then starts a fresh session.
+        field.setOnAction(e -> {
+            commitEdit(setter, entities, originalValues, field.getValue());
+            captureOriginalValues(getter, entities, originalValues);
+        });
+    }
+
+    private void captureOriginalValues(ToDoubleFunction<Cuttable> getter,
+                                       List<Cuttable> entities,
+                                       Map<Cuttable, Double> originalValues) {
+        originalValues.clear();
+        entities.forEach(e -> originalValues.put(e, getter.applyAsDouble(e)));
+    }
+
+    private void commitEdit(CuttableDoubleSetter setter,
+                            List<Cuttable> entities,
+                            Map<Cuttable, Double> originalValues,
+                            double finalValue) {
+        if (originalValues.isEmpty()) {
+            return;
+        }
+
+        Map<Cuttable, Double> before = new HashMap<>(originalValues);
+        originalValues.clear();
+
+        boolean changed = before.values().stream().anyMatch(original -> original != finalValue);
+        if (!changed) {
+            return;
+        }
+
+        // The live preview has already applied finalValue, so the action only needs to record how
+        // to redo it and how to revert each entity to the value it had before the edit started.
+        UndoableAction action = new UndoableAction() {
+            @Override
+            public void redo() {
+                entities.forEach(e -> setter.set(e, finalValue));
+            }
+
+            @Override
+            public void undo() {
+                entities.forEach(e -> setter.set(e, before.get(e)));
             }
         };
-        field.setOnAction(e -> doCommit.run());
-        field.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (Boolean.FALSE.equals(newVal)) doCommit.run();
-        });
+        ControllerFactory.getController().getUndoManager().addAction(action);
     }
 
     private void commitOnEditInt(TextField field, IntConsumer commit) {
