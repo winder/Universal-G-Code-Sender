@@ -52,6 +52,7 @@ public class WorkspaceScene extends Model {
     private GcodeModel gcodeModel;
     private Controller designController;
     private EntityListener designChangeListener;
+    private double zoomFactor = 1.0;
 
     public WorkspaceScene() {
         WorkspaceManager.getInstance().addListener(new WorkspaceManager.WorkspaceListener() {
@@ -104,6 +105,7 @@ public class WorkspaceScene extends Model {
             designController = ControllerFactory.getController();
             controlsNode = new ControlsNode(designController.getDrawing(), designController.getSelectionManager(),
                     entityShapesNode::refreshFromController);
+            controlsNode.onZoomChange(zoomFactor);
             entityShapesNode.setOnEntityMoved(controlsNode::refresh);
             entityShapesNode.refreshFromController();
             getChildren().add(entityShapesNode);
@@ -253,7 +255,11 @@ public class WorkspaceScene extends Model {
 
     @Override
     public void onZoomChange(double zoomFactor) {
+        this.zoomFactor = zoomFactor;
         entityShapesNode.onZoomChange(zoomFactor);
+        if (controlsNode != null) {
+            controlsNode.onZoomChange(zoomFactor);
+        }
     }
 
     @Override

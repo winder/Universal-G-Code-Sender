@@ -72,11 +72,28 @@ public final class EntityShapeFactory {
 
         Shape shape = control.getShape();
         if (shape == null) return null;
-        MeshView node = createFillMesh(shape, getColor(control));
+        Color color = getColor(control);
+        MeshView node = createFillMesh(shape, color);
         if (node == null) return null;
         node.setDepthTest(DepthTest.DISABLE);
         node.setUserData(dragHandler);
+        addHoverFeedback(node, color);
         return node;
+    }
+
+    /**
+     * Lightens a handle's colour while the pointer is over it, giving the user feedback that it
+     * can be grabbed. Transparent controls (selection rectangle, model highlight, creation and
+     * vertex overlays) have nothing visible to recolour, so they are left untouched.
+     */
+    private static void addHoverFeedback(MeshView node, Color color) {
+        if (color == null || color.getOpacity() == 0 || !(node.getMaterial() instanceof PhongMaterial material)) {
+            return;
+        }
+
+        Color hoverColor = color.interpolate(Color.WHITE, 0.6);
+        node.setOnMouseEntered(event -> material.setDiffuseColor(hoverColor));
+        node.setOnMouseExited(event -> material.setDiffuseColor(color));
     }
 
     /**
