@@ -9,7 +9,9 @@ import com.willwinder.ugs.designer.model.Design;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 
+import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.util.Optional;
 
 public class UgsdWorkspaceContext extends WorkspaceContext {
     public static final String FILE_EXTENSION = "ugsd";
@@ -50,5 +52,19 @@ public class UgsdWorkspaceContext extends WorkspaceContext {
         } catch (Exception e) {
             throw new IllegalArgumentException("Not a valid design file: " + (file != null ? file.getAbsolutePath() : "untitled"), e);
         }
+    }
+
+    /**
+     * The workspace size is derived from the design drawing itself, i.e. the bounding box of the
+     * drawn entities, rather than from the generated gcode.
+     */
+    @Override
+    public Optional<WorkspaceBounds> getBounds() {
+        Controller controller = ControllerFactory.getController();
+        Rectangle2D bounds = controller.getDrawing().getRootEntity().getBounds();
+        if (bounds == null || bounds.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(new WorkspaceBounds(bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMaxY()));
     }
 }

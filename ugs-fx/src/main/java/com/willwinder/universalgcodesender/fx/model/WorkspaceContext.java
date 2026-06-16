@@ -1,6 +1,7 @@
 package com.willwinder.universalgcodesender.fx.model;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.UUID;
 
 public abstract class WorkspaceContext {
@@ -29,4 +30,13 @@ public abstract class WorkspaceContext {
     public abstract String getFileExtension();
     public boolean isDirty() { return dirty; }
     public void setDirty(boolean dirty) { this.dirty = dirty; }
+
+    /**
+     * Returns the extents of this workspace in work coordinates, if known. The visualizer grid is
+     * sized to these bounds. Returns {@link Optional#empty()} when the size cannot be determined,
+     * in which case the grid keeps its current size.
+     */
+    public Optional<WorkspaceBounds> getBounds() {
+        return Optional.empty();
+    }
 }

@@ -18,8 +18,9 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
+import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
+import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
-import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -308,15 +309,28 @@ public class Ruler extends Model {
         return TICK_DIAMETER / currentZoomFactor;
     }
 
+    /**
+     * Sizes the ruler to the active workspace. The bounds come from the {@link WorkspaceContext} so
+     * the ruler no longer needs to know how the size is determined (gcode bounds, design drawing,
+     * ...). When the workspace cannot report its size the ruler keeps its current extents.
+     */
+    private void updateBoundsFromWorkspace() {
+        WorkspaceManager.getInstance().getActiveWorkspace()
+                .flatMap(WorkspaceContext::getBounds)
+                .ifPresent(bounds -> {
+                    // Anchor the ruler at the origin; only the extent (max) follows the workspace.
+                    minX = 0;
+                    minY = 0;
+                    maxX = Math.max(0, bounds.maxX());
+                    maxY = Math.max(0, bounds.maxY());
+                    regenerate();
+                });
+    }
+
     private void onEvent(UGSEvent event) {
         if (event instanceof FileStateEvent fileStateEvent
                 && fileStateEvent.getFileState() == FileState.FILE_LOADED) {
-            GcodeStats stats = backend.getGcodeStats();
-            minX = stats.getMin().getX();
-            minY = stats.getMin().getY();
-            maxX = stats.getMax().getX();
-            maxY = stats.getMax().getY();
-            regenerate();
+            updateBoundsFromWorkspace();
         } else if (event instanceof SettingChangedEvent) {
             UnitUtils.Units preferred = backend.getSettings().getPreferredUnits();
             if (preferred != activeUnits) {

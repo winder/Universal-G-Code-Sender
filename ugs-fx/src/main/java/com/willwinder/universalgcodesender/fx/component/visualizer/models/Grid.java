@@ -1,7 +1,8 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
+import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
+import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.services.LookupService;
-import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -143,15 +144,28 @@ public class Grid extends Model {
         }
     }
 
+    /**
+     * Sizes the grid to the active workspace. The bounds come from the {@link WorkspaceContext} so
+     * the grid no longer needs to know how the size is determined (gcode bounds, design drawing,
+     * ...). When the workspace cannot report its size the grid keeps its current extents.
+     */
+    private void updateBoundsFromWorkspace() {
+        WorkspaceManager.getInstance().getActiveWorkspace()
+                .flatMap(WorkspaceContext::getBounds)
+                .ifPresent(bounds -> {
+                    // Anchor the grid at the origin; only the extent (max) follows the workspace.
+                    minX.set(0);
+                    minY.set(0);
+                    maxX.set(Math.max(0, bounds.maxX()));
+                    maxY.set(Math.max(0, bounds.maxY()));
+                    regenerateGrid();
+                });
+    }
+
     private void onEvent(UGSEvent ugsEvent) {
         if (ugsEvent instanceof FileStateEvent fileStateEvent) {
             if (fileStateEvent.getFileState() == FileState.FILE_LOADED) {
-                GcodeStats gcodeStats = backend.getGcodeStats();
-                minX.set(gcodeStats.getMin().getX());
-                minY.set(gcodeStats.getMin().getY());
-                maxX.set(gcodeStats.getMax().getX());
-                maxY.set(gcodeStats.getMax().getY());
-                regenerateGrid();
+                updateBoundsFromWorkspace();
             }
         } else if (ugsEvent instanceof SettingChangedEvent) {
             UnitUtils.Units preferred = backend.getSettings().getPreferredUnits();
