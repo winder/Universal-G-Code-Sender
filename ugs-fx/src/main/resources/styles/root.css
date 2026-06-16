@@ -2,6 +2,8 @@
     -fx-focus-border-color: rgb(79, 158, 176);
     -fx-focus-background-color: rgb(199, 216, 225);
     -ugs-border-color: #c2c2c2;
+    -ugs-selected-color: rgb(189, 205, 214);
+    -ugs-blackish-color: #353A40;
 }
 
 .button,

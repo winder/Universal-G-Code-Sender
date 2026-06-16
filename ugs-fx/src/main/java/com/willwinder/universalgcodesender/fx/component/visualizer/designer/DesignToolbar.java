@@ -18,47 +18,31 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
 
-import com.willwinder.ugs.designer.actions.ToolClipartAction;
-import com.willwinder.ugs.designer.actions.ToolDrawCircleAction;
-import com.willwinder.ugs.designer.actions.ToolDrawLineAction;
-import com.willwinder.ugs.designer.actions.ToolDrawPointAction;
-import com.willwinder.ugs.designer.actions.ToolDrawRectangleAction;
-import com.willwinder.ugs.designer.actions.ToolDrawTextAction;
-import com.willwinder.ugs.designer.actions.ToolImportAction;
-import com.willwinder.ugs.designer.actions.ToolSelectAction;
-import com.willwinder.ugs.designer.actions.TraceImageAction;
-import com.willwinder.ugs.designer.logic.Controller;
-import com.willwinder.ugs.designer.logic.ControllerEventType;
-import com.willwinder.ugs.designer.logic.ControllerFactory;
-import com.willwinder.ugs.designer.logic.Tool;
-import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
-import javafx.application.Platform;
+import com.willwinder.universalgcodesender.fx.actions.Action;
+import com.willwinder.universalgcodesender.fx.actions.DesignCircleAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignClipartAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignImportAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignLineAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignPointAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignRectangleAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignSelectAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignTextAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignTraceImageAction;
+import com.willwinder.universalgcodesender.fx.control.ActionButton;
+import com.willwinder.universalgcodesender.fx.control.ToggleActionButton;
+import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBase;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.FlowPane;
-import javafx.util.Duration;
 
-import javax.swing.Action;
-import javax.swing.SwingUtilities;
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.Optional;
 
 /**
  * A toolbox of drawing actions (rectangle, ellipse, point, text, line) and import actions
- * (import file, clipart, trace image) laid out as flowing buttons, mirroring the legacy
- * {@code ToolBox.createToolDropDownButton}. Reuses the legacy Swing actions, dispatching
- * them on the Swing thread, and keeps the active tool button highlighted.
+ * (import file, clipart, trace image) laid out as flowing buttons. Tool actions are rendered
+ * as toggle buttons that stay highlighted while the matching tool is active in the designer.
  */
 public class DesignToolbar extends FlowPane {
     private static final int ICON_SIZE = 24;
-
-    private final Controller controller;
-    private final ToggleGroup toolGroup = new ToggleGroup();
-    private final Map<Tool, ToggleButton> toolButtons = new EnumMap<>(Tool.class);
 
     public DesignToolbar() {
         getStyleClass().add("design-toolbar");
@@ -66,58 +50,29 @@ public class DesignToolbar extends FlowPane {
         setVgap(4);
         setPadding(new Insets(8));
 
-        this.controller = ControllerFactory.getController();
+        addToggleButton(DesignSelectAction.class);
+        addToggleButton(DesignRectangleAction.class);
+        addToggleButton(DesignCircleAction.class);
+        addToggleButton(DesignPointAction.class);
+        addToggleButton(DesignTextAction.class);
+        addToggleButton(DesignLineAction.class);
 
-        addToolButton(Tool.SELECT, new ToolSelectAction(), ToolSelectAction.SMALL_ICON_PATH, "Select and move shapes");
-        addToolButton(Tool.RECTANGLE, new ToolDrawRectangleAction(), ToolDrawRectangleAction.SMALL_ICON_PATH, "Draw rectangle");
-        addToolButton(Tool.CIRCLE, new ToolDrawCircleAction(), ToolDrawCircleAction.ICON_SMALL_PATH, "Draw ellipse");
-        addToolButton(Tool.POINT, new ToolDrawPointAction(), ToolDrawPointAction.SMALL_ICON_PATH, "Draw point");
-        addToolButton(Tool.TEXT, new ToolDrawTextAction(), ToolDrawTextAction.SMALL_ICON_PATH, "Draw text");
-        addToolButton(Tool.LINE, new ToolDrawLineAction(), ToolDrawLineAction.SMALL_ICON_PATH, "Draw line");
-
-        addActionButton(new ToolImportAction(), ToolImportAction.SMALL_ICON_PATH, "Import file");
-        addActionButton(new ToolClipartAction(), ToolClipartAction.SMALL_ICON_PATH, "Insert clipart");
-        addActionButton(new TraceImageAction(), TraceImageAction.SMALL_ICON_PATH, "Trace image");
-
-        controller.addListener(this::onControllerEvent);
-        syncSelectedTool();
+        addButton(DesignImportAction.class);
+        addButton(DesignClipartAction.class);
+        addButton(DesignTraceImageAction.class);
     }
 
-    private void addToolButton(Tool tool, Action action, String iconPath, String tooltip) {
-        ToggleButton button = new ToggleButton();
-        button.setToggleGroup(toolGroup);
-        decorate(button, iconPath, tooltip);
-        button.setOnAction(e -> runAction(action));
-        toolButtons.put(tool, button);
-        getChildren().add(button);
+    private void addToggleButton(Class<? extends Action> actionClass) {
+        getAction(actionClass).ifPresent(action ->
+                getChildren().add(new ToggleActionButton(action, ICON_SIZE, false)));
     }
 
-    private void addActionButton(Action action, String iconPath, String tooltip) {
-        Button button = new Button();
-        decorate(button, iconPath, tooltip);
-        button.setOnAction(e -> runAction(action));
-        getChildren().add(button);
+    private void addButton(Class<? extends Action> actionClass) {
+        getAction(actionClass).ifPresent(action ->
+                getChildren().add(new ActionButton(action, ICON_SIZE, false)));
     }
 
-    private void decorate(ButtonBase button, String iconPath, String tooltip) {
-        SvgLoader.loadImageIcon(iconPath, ICON_SIZE).ifPresent(button::setGraphic);
-        Tooltip tip = new Tooltip(tooltip);
-        tip.setShowDelay(Duration.millis(100));
-        button.setTooltip(tip);
-    }
-
-    private void runAction(Action action) {
-        SwingUtilities.invokeLater(() -> action.actionPerformed(null));
-    }
-
-    private void onControllerEvent(ControllerEventType event) {
-        if (event == ControllerEventType.TOOL_SELECTED) {
-            Platform.runLater(this::syncSelectedTool);
-        }
-    }
-
-    private void syncSelectedTool() {
-        // Null for tools without a button (e.g. ZOOM, VERTEX), which simply clears the selection.
-        toolGroup.selectToggle(toolButtons.get(controller.getTool()));
+    private Optional<Action> getAction(Class<? extends Action> actionClass) {
+        return ActionRegistry.getInstance().getAction(actionClass.getCanonicalName());
     }
 }

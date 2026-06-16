@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Ruler;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Tool;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
+import com.willwinder.universalgcodesender.fx.control.ToggleActionButton;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import javafx.animation.KeyFrame;
@@ -131,12 +132,12 @@ public class Visualizer extends Pane {
         cameraToggle.layoutXProperty().bind(widthProperty().subtract(cameraToggle.widthProperty()).subtract(38));
         cameraToggle.layoutYProperty().bind(orientationCube.sizeProperty().add(10));
 
-        Button gcodeModelToggle = new ActionButton(new ToggleGcodeModelAction(), 32, false, Color.WHITE);
+        ToggleActionButton gcodeModelToggle = new ToggleActionButton(new ToggleGcodeModelAction(), 32, false, Color.WHITE);
         gcodeModelToggle.getStyleClass().add("visualizer-button");
         gcodeModelToggle.layoutXProperty().bind(widthProperty().subtract(gcodeModelToggle.widthProperty()).subtract(38));
         gcodeModelToggle.layoutYProperty().bind(cameraToggle.layoutYProperty().add(cameraToggle.heightProperty()).add(6));
 
-        Button rulerToggle = new ActionButton(new ToggleRulerAction(), 32, false, Color.WHITE);
+        ToggleActionButton rulerToggle = new ToggleActionButton(new ToggleRulerAction(), 32, false, Color.WHITE);
         rulerToggle.getStyleClass().add("visualizer-button");
         rulerToggle.layoutXProperty().bind(widthProperty().subtract(rulerToggle.widthProperty()).subtract(38));
         rulerToggle.layoutYProperty().bind(gcodeModelToggle.layoutYProperty().add(gcodeModelToggle.heightProperty()).add(6));

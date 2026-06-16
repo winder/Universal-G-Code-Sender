@@ -1,8 +1,20 @@
+@import "root.css";
+
+.toggle-button.visualizer-button,
 .visualizer-button {
-    -fx-background-color: #353A40;
+    -fx-background-color: -ugs-blackish-color;
     -fx-border-color: transparent;
 }
 
+.toggle-button.visualizer-button {
+    -fx-opacity: 0.55;
+}
+
+.toggle-button.visualizer-button:selected {
+    -fx-opacity: 1;
+}
+
+.toggle-button.visualizer-button:hover,
 .visualizer-button:hover {
     -fx-background-color: #353A40CC;
     -fx-border-color: transparent;

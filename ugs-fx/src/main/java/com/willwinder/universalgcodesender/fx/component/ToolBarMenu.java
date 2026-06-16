@@ -102,6 +102,7 @@ public class ToolBarMenu extends VBox {
     private static void setShowText(ActionButton actionButton) {
         boolean showText = Settings.getInstance().showToolbarTextProperty().get();
         actionButton.setPrefWidth(showText ? BUTTON_WIDTH : ActionButton.USE_COMPUTED_SIZE);
+        actionButton.setContentDisplay(showText ? ContentDisplay.TOP : ContentDisplay.GRAPHIC_ONLY);
         actionButton.setShowText(showText);
     }
 
@@ -129,6 +130,7 @@ public class ToolBarMenu extends VBox {
     private static void setShowText(ToggleActionButton actionButton) {
         boolean showText = Settings.getInstance().showToolbarTextProperty().get();
         actionButton.setPrefWidth(showText ? BUTTON_WIDTH : ActionButton.USE_COMPUTED_SIZE);
+        actionButton.setContentDisplay(showText ? ContentDisplay.TOP : ContentDisplay.GRAPHIC_ONLY);
         actionButton.setShowText(showText);
     }
 }
