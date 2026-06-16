@@ -1,6 +1,5 @@
 package com.willwinder.universalgcodesender.fx.service;
 
-import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceContextFactory;
 
@@ -56,7 +55,7 @@ public class WorkspaceManager {
         return Optional.ofNullable(activeWorkspace);
     }
 
-    public void setWorkspace(UgsdWorkspaceContext workspace) {
+    public void setWorkspace(WorkspaceContext workspace) {
         activeWorkspace = workspace;
         notifyWorkspaceOpened(workspace);
     }
