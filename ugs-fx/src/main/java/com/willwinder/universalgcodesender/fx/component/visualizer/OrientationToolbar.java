@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
+import com.willwinder.universalgcodesender.fx.actions.CenterCameraAction;
 import com.willwinder.universalgcodesender.fx.actions.ToggleProjectionAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import javafx.geometry.Pos;
@@ -26,7 +27,8 @@ import javafx.scene.paint.Color;
 
 /**
  * A vertical stack of the orientation-related overlay buttons shown beneath the orientation
- * cube in the top-left corner of the {@link Visualizer}, currently the camera projection toggle.
+ * cube in the top-left corner of the {@link Visualizer}: the camera projection toggle and the
+ * center-on-workspace action.
  */
 public class OrientationToolbar extends VBox {
 
@@ -36,7 +38,10 @@ public class OrientationToolbar extends VBox {
         setAlignment(Pos.TOP_CENTER);
         setPickOnBounds(false);
 
-        getChildren().add(VisualizerToolbar.styleButton(
-                new ActionButton(new ToggleProjectionAction(), VisualizerToolbar.BUTTON_SIZE, false, Color.WHITE)));
+        getChildren().addAll(
+                VisualizerToolbar.styleButton(
+                        new ActionButton(new ToggleProjectionAction(), VisualizerToolbar.BUTTON_SIZE, false, Color.WHITE)),
+                VisualizerToolbar.styleButton(
+                        new ActionButton(new CenterCameraAction(), VisualizerToolbar.BUTTON_SIZE, false, Color.WHITE)));
     }
 }

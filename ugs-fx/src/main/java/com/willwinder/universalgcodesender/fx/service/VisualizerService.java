@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.fx.service;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.DragHandler;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
+import com.willwinder.universalgcodesender.fx.model.WorkspaceBounds;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,6 +36,7 @@ public class VisualizerService {
     private final ObservableList<Model> models = FXCollections.observableArrayList();
     private final List<Consumer<MouseEvent>> backgroundClickHandlers = new CopyOnWriteArrayList<>();
     private volatile DrawGestureProvider drawGestureProvider;
+    private volatile Consumer<WorkspaceBounds> centerOnBoundsHandler;
 
     public static VisualizerService getInstance() {
         return INSTANCE;
@@ -70,6 +72,30 @@ public class VisualizerService {
 
     public void fireBackgroundClick(MouseEvent event) {
         backgroundClickHandlers.forEach(h -> h.accept(event));
+    }
+
+    /**
+     * Registers the handler that knows how to recenter/fit the view on a bounding box. Pass null
+     * to unregister. Registered by the {@code Visualizer}; invoked by the center-camera action.
+     */
+    public void setCenterOnBoundsHandler(Consumer<WorkspaceBounds> handler) {
+        this.centerOnBoundsHandler = handler;
+    }
+
+    /**
+     * Asks the visualizer to recenter and fit the view on the given workspace bounds. No-op when
+     * no visualizer is registered.
+     */
+    public void centerOnBounds(WorkspaceBounds bounds) {
+        Consumer<WorkspaceBounds> handler = centerOnBoundsHandler;
+        if (handler == null || bounds == null) {
+            return;
+        }
+        if (Platform.isFxApplicationThread()) {
+            handler.accept(bounds);
+        } else {
+            Platform.runLater(() -> handler.accept(bounds));
+        }
     }
 
     /**

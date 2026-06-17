@@ -318,9 +318,11 @@ public class Ruler extends Model {
         WorkspaceManager.getInstance().getActiveWorkspace()
                 .flatMap(WorkspaceContext::getBounds)
                 .ifPresent(bounds -> {
-                    // Anchor the ruler at the origin; only the extent (max) follows the workspace.
-                    minX = 0;
-                    minY = 0;
+                    // Always include the origin, then extend toward the workspace content. This
+                    // covers content in the negative quadrants (negative bound to zero) as well as
+                    // the positive quadrants (zero to positive bound).
+                    minX = Math.min(0, bounds.minX());
+                    minY = Math.min(0, bounds.minY());
                     maxX = Math.max(0, bounds.maxX());
                     maxY = Math.max(0, bounds.maxY());
                     regenerate();

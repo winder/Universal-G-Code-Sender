@@ -18,15 +18,23 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
+import com.willwinder.universalgcodesender.fx.actions.CenterCameraAction;
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machine;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Axes;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Grid;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Ruler;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Tool;
+import com.willwinder.universalgcodesender.fx.model.WorkspaceBounds;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
+import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.events.FileState;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import javafx.animation.KeyFrame;
+import javafx.event.ActionEvent;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.collections.ListChangeListener;
@@ -50,7 +58,10 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class Visualizer extends Pane {
     private final PerspectiveCamera perspectiveCamera;
@@ -75,6 +86,9 @@ public class Visualizer extends Pane {
     private final Translate cameraTranslate = new Translate(0, 0, -500); // initial zoom
     private final SubScene subScene;
     private final Group root3D;
+
+    // The id of the workspace the view was last auto-centered on, so a load only recenters once.
+    private volatile UUID lastCenteredWorkspaceId;
 
     public Visualizer() {
         getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/visualizer.css")).toExternalForm());
@@ -152,11 +166,98 @@ public class Visualizer extends Pane {
             }
         });
 
+        VisualizerService.getInstance().setCenterOnBoundsHandler(this::centerOnWorkspace);
+
         VisualizerService.getInstance().addModel(new Axes());
         VisualizerService.getInstance().addModel(new Grid());
         VisualizerService.getInstance().addModel(new WorkspaceScene());
         VisualizerService.getInstance().addModel(new Ruler());
         VisualizerService.getInstance().addModel(new Tool());
+
+        // Fit the view to the content the first time a workspace is loaded.
+        CenterCameraAction centerCameraAction = new CenterCameraAction();
+        LookupService.lookup(BackendAPI.class).addUGSEventListener(event -> {
+            if (event instanceof FileStateEvent fileStateEvent
+                    && fileStateEvent.getFileState() == FileState.FILE_LOADED) {
+                WorkspaceManager.getInstance().getActiveWorkspace().ifPresent(workspace -> {
+                    if (!workspace.getId().equals(lastCenteredWorkspaceId)) {
+                        lastCenteredWorkspaceId = workspace.getId();
+                        centerCameraAction.handleAction(new ActionEvent());
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Recenters and zooms the view so the given workspace bounds are framed.
+     */
+    public void centerOnWorkspace(WorkspaceBounds bounds) {
+        double centerX = (bounds.minX() + bounds.maxX()) / 2.0;
+        double centerY = (bounds.minY() + bounds.maxY()) / 2.0;
+        double boundsWidth = Math.max(1e-3, bounds.maxX() - bounds.minX());
+        double boundsHeight = Math.max(1e-3, bounds.maxY() - bounds.minY());
+
+        // With translate applied outside the rotations and the pivot kept at (-tx, ty, 0), a
+        // designer point (px, py) lands at screen (px + tx, 3*ty - py) in the top-down view.
+        // Solving for the bounds center at the screen center (0, 0) gives:
+        double targetTx = -centerX;
+        double targetTy = centerY / 3.0;
+
+        double viewportWidth = Math.max(1.0, subScene.getWidth());
+        double viewportHeight = Math.max(1.0, subScene.getHeight());
+        double aspect = viewportWidth / viewportHeight;
+        double margin = 1.8;
+
+        // Pin the rotation pivot to the final value now so the view never jumps when it settles.
+        setRotationPivot(-targetTx, targetTy, 0);
+
+        List<KeyValue> start = new ArrayList<>(List.of(
+                new KeyValue(rotateX.angleProperty(), rotateX.getAngle()),
+                new KeyValue(rotateY.angleProperty(), rotateY.getAngle()),
+                new KeyValue(rotateZ.angleProperty(), rotateZ.getAngle()),
+                new KeyValue(orientationCubeRotateX.angleProperty(), orientationCubeRotateX.getAngle()),
+                new KeyValue(orientationCubeRotateY.angleProperty(), orientationCubeRotateY.getAngle()),
+                new KeyValue(orientationCubeRotateZ.angleProperty(), orientationCubeRotateZ.getAngle()),
+                new KeyValue(translate.xProperty(), translate.getX()),
+                new KeyValue(translate.yProperty(), translate.getY())));
+
+        List<KeyValue> end = new ArrayList<>(List.of(
+                new KeyValue(rotateX.angleProperty(), 0),
+                new KeyValue(rotateY.angleProperty(), 180),
+                new KeyValue(rotateZ.angleProperty(), 180),
+                new KeyValue(orientationCubeRotateX.angleProperty(), 0),
+                new KeyValue(orientationCubeRotateY.angleProperty(), 180),
+                new KeyValue(orientationCubeRotateZ.angleProperty(), 180),
+                new KeyValue(translate.xProperty(), targetTx),
+                new KeyValue(translate.yProperty(), targetTy)));
+
+        if (camera instanceof PerspectiveCamera pc) {
+            double neededWorldHeight = Math.max(boundsHeight, boundsWidth / aspect) * margin;
+            double distance = neededWorldHeight / (2.0 * Math.tan(Math.toRadians(pc.getFieldOfView()) / 2.0));
+            start.add(new KeyValue(cameraTranslate.zProperty(), cameraTranslate.getZ()));
+            end.add(new KeyValue(cameraTranslate.zProperty(), -distance));
+        } else {
+            double fitScale = Math.min(viewportHeight / (boundsHeight * margin), viewportWidth / (boundsWidth * margin));
+            start.add(new KeyValue(root3D.scaleXProperty(), root3D.getScaleX()));
+            start.add(new KeyValue(root3D.scaleYProperty(), root3D.getScaleY()));
+            end.add(new KeyValue(root3D.scaleXProperty(), fitScale));
+            end.add(new KeyValue(root3D.scaleYProperty(), fitScale));
+        }
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.ZERO, start.toArray(new KeyValue[0])),
+                new KeyFrame(Duration.seconds(1), end.toArray(new KeyValue[0])));
+        timeline.setOnFinished(e -> VisualizerService.getInstance().onZoomChange(getCurrentScale()));
+        timeline.play();
+    }
+
+    private void setRotationPivot(double px, double py, double pz) {
+        for (Rotate rotate : List.of(rotateX, rotateY, rotateZ)) {
+            rotate.setPivotX(px);
+            rotate.setPivotY(py);
+            rotate.setPivotZ(pz);
+        }
     }
 
     private void rotateTo(OrientationCubeFace face) {

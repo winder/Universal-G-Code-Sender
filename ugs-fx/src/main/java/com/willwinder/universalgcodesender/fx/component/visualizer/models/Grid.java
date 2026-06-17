@@ -155,9 +155,11 @@ public class Grid extends Model {
         WorkspaceManager.getInstance().getActiveWorkspace()
                 .flatMap(WorkspaceContext::getBounds)
                 .ifPresent(bounds -> {
-                    // Anchor the grid at the origin; only the extent (max) follows the workspace.
-                    minX.set(0);
-                    minY.set(0);
+                    // Always include the origin, then extend toward the workspace content. This
+                    // covers content in the negative quadrants (negative bound to zero) as well as
+                    // the positive quadrants (zero to positive bound).
+                    minX.set(Math.min(0, bounds.minX()));
+                    minY.set(Math.min(0, bounds.minY()));
                     maxX.set(Math.max(0, bounds.maxX()));
                     maxY.set(Math.max(0, bounds.maxY()));
                     regenerateGrid();
