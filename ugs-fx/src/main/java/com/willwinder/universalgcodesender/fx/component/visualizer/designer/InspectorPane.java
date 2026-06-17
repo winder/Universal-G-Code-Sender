@@ -22,7 +22,7 @@ public class InspectorPane extends VBox {
         entityScroll.setFitToWidth(true);
         VBox.setVgrow(entityScroll, Priority.ALWAYS);
 
-        getChildren().addAll(new DesignToolbar(), entityScroll);
+        getChildren().addAll(new DesignToolbar(), new DesignAlignToolbar(), new DesignOperationToolbar(), entityScroll);
         setMinWidth(200);
         SplitPane.setResizableWithParent(this, false);
 
