@@ -26,12 +26,15 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 
-import javax.swing.SwingUtilities;
-
 /**
  * Base class for the design toolbar actions that activate a drawing {@link Tool}. The
  * {@link #selectedProperty()} mirrors the currently active tool in the designer
  * {@link Controller}, so a bound toggle button stays highlighted while the tool is active.
+ * <p>
+ * Selecting a tool mutates the designer model, so — like the context aware edit actions
+ * (see {@link AbstractDesignEditAction}) and the FX draw-gesture handlers — it is dispatched on
+ * the JavaFX thread that owns the designer model in the FX visualizer. Keeping every model
+ * mutation on the same thread keeps them serialized and race free.
  */
 public abstract class AbstractDesignToolAction extends BaseAction {
 
@@ -58,7 +61,8 @@ public abstract class AbstractDesignToolAction extends BaseAction {
 
     @Override
     public void handleAction(ActionEvent event) {
-        // The designer controller and its drawing are Swing based, dispatch on the Swing thread
-        SwingUtilities.invokeLater(() -> controller.setTool(tool));
+        // Mutate the designer model on the JavaFX thread so it stays serialized with the draw
+        // gesture handlers and the other context aware edit actions
+        Platform.runLater(() -> controller.setTool(tool));
     }
 }

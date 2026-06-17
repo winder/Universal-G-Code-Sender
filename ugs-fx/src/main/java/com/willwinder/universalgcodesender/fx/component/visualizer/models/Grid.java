@@ -10,6 +10,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.DepthTest;
@@ -169,15 +170,17 @@ public class Grid extends Model {
     private void onEvent(UGSEvent ugsEvent) {
         if (ugsEvent instanceof FileStateEvent fileStateEvent) {
             if (fileStateEvent.getFileState() == FileState.FILE_LOADED) {
-                updateBoundsFromWorkspace();
+                Platform.runLater(this::updateBoundsFromWorkspace);
             }
         } else if (ugsEvent instanceof SettingChangedEvent) {
-            UnitUtils.Units preferred = backend.getSettings().getPreferredUnits();
-            if (preferred != activeUnits) {
-                activeUnits = preferred;
-                currentGridStepMm = desiredGridStepForZoom(currentZoomFactor);
-                regenerateGrid();
-            }
+            Platform.runLater(() -> {
+                UnitUtils.Units preferred = backend.getSettings().getPreferredUnits();
+                if (preferred != activeUnits) {
+                    activeUnits = preferred;
+                    currentGridStepMm = desiredGridStepForZoom(currentZoomFactor);
+                    regenerateGrid();
+                }
+            });
         }
     }
 

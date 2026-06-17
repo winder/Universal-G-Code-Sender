@@ -44,6 +44,9 @@ public class DesignPasteAction extends AbstractDesignEditAction {
     @Override
     protected void performAction() {
         Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+        if (contents == null) {
+            return;
+        }
         try {
             String data = (String) contents.getTransferData(DataFlavor.stringFlavor);
             List<Entity> entities = new UgsDesignReader().deserialize(data);

@@ -55,8 +55,9 @@ public class WorkspaceManager {
         return Optional.ofNullable(activeWorkspace);
     }
 
-    public void setWorkspace(WorkspaceContext workspace) {
+    public synchronized void setWorkspace(WorkspaceContext workspace) {
         activeWorkspace = workspace;
+        workspace.open();
         notifyWorkspaceOpened(workspace);
     }
 

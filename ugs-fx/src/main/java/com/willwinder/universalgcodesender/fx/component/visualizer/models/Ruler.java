@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.services.LookupService;
+import javafx.application.Platform;
 import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.SnapshotParameters;
@@ -332,13 +333,15 @@ public class Ruler extends Model {
     private void onEvent(UGSEvent event) {
         if (event instanceof FileStateEvent fileStateEvent
                 && fileStateEvent.getFileState() == FileState.FILE_LOADED) {
-            updateBoundsFromWorkspace();
+            Platform.runLater(this::updateBoundsFromWorkspace);
         } else if (event instanceof SettingChangedEvent) {
-            UnitUtils.Units preferred = backend.getSettings().getPreferredUnits();
-            if (preferred != activeUnits) {
-                activeUnits = preferred;
-                regenerate();
-            }
+            Platform.runLater(() -> {
+                UnitUtils.Units preferred = backend.getSettings().getPreferredUnits();
+                if (preferred != activeUnits) {
+                    activeUnits = preferred;
+                    regenerate();
+                }
+            });
         }
     }
 

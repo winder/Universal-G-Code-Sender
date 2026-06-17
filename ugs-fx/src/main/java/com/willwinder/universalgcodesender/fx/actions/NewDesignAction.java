@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender.fx.actions;
 
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
-import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -60,7 +59,6 @@ public class NewDesignAction extends BaseAction {
         try {
             UgsdWorkspaceContext workspace = new UgsdWorkspaceContext(null);
             WorkspaceManager.getInstance().setWorkspace(workspace);
-            workspace.open();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Could not create a new design", e);
         }

@@ -141,7 +141,6 @@ public class Main extends Application {
         try {
             UgsdWorkspaceContext workspace = new UgsdWorkspaceContext(null);
             WorkspaceManager.getInstance().setWorkspace(workspace);
-            workspace.open();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Could not open the default design workspace", e);
         }

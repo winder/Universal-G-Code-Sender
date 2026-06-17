@@ -24,9 +24,12 @@ import javafx.event.ActionEvent;
 import javax.swing.SwingUtilities;
 
 /**
- * Base class for design toolbar commands that reuse an existing Swing based design action
- * (such as importing a file or inserting clipart). The wrapped action is dispatched on the
- * Swing thread, since it typically opens Swing dialogs and mutates the Swing based drawing.
+ * Base class for design toolbar commands that reuse an existing Swing based design action that
+ * opens a modal Swing dialog (such as importing a file or inserting clipart). Unlike the other
+ * designer actions, which mutate the model on the JavaFX thread (see {@link AbstractDesignEditAction}
+ * and {@link AbstractDesignToolAction}), the wrapped action here must be dispatched on the Swing
+ * event dispatch thread because that is where its dialog has to run. The model mutation that follows
+ * the dialog is serialized behind the modal dialog, so it does not overlap the FX-thread gestures.
  */
 public abstract class AbstractDesignCommandAction extends BaseAction {
 
