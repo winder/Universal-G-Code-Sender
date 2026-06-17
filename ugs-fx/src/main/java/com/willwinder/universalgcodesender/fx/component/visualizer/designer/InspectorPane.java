@@ -1,5 +1,6 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
 
+import com.willwinder.universalgcodesender.fx.helper.SplitPaneDividerPersistence;
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
@@ -15,7 +16,8 @@ import javafx.scene.layout.VBox;
 
 public class InspectorPane extends VBox {
     private final SplitPane parent;
-    private SplitPane.Divider divider;
+    private final SplitPane inspectorSplit;
+    private boolean sectionsDividerPersisted;
 
     public InspectorPane(SplitPane parent) {
         this.parent = parent;
@@ -29,9 +31,8 @@ public class InspectorPane extends VBox {
 
         // The entity tree is scrollable on its own; a vertical split lets the user resize the
         // space between the settings above and the design tree at the bottom.
-        SplitPane inspectorSplit = new SplitPane(settingsSection, treeSection);
+        inspectorSplit = new SplitPane(settingsSection, treeSection);
         inspectorSplit.setOrientation(Orientation.VERTICAL);
-        inspectorSplit.setDividerPositions(0.6);
         VBox.setVgrow(inspectorSplit, Priority.ALWAYS);
 
         getChildren().addAll(new DesignToolbar(), new DesignAlignToolbar(), new DesignOperationToolbar(), inspectorSplit);
@@ -75,13 +76,14 @@ public class InspectorPane extends VBox {
             boolean shown = parent.getItems().contains(this);
             if (docked && !shown) {
                 parent.getItems().add(this);
-                divider = parent.getDividers().get(parent.getDividers().size() - 1);
-                divider.setPosition(Settings.getInstance().windowDividerInspectorProperty().get());
-                divider.positionProperty().addListener((obs, oldVal, newVal) ->
-                        Settings.getInstance().windowDividerInspectorProperty().set(newVal.doubleValue()));
+
+                if (!sectionsDividerPersisted) {
+                    sectionsDividerPersisted = true;
+                    Platform.runLater(() -> SplitPaneDividerPersistence.install(
+                            inspectorSplit, 0, Settings.getInstance().windowDividerInspectorSectionsProperty()));
+                }
             } else if (!docked && shown) {
                 parent.getItems().remove(this);
-                divider = null;
             }
         });
     }

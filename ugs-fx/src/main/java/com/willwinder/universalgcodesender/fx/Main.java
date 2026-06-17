@@ -29,6 +29,7 @@ import com.willwinder.universalgcodesender.fx.component.visualizer.designer.Insp
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
+import com.willwinder.universalgcodesender.fx.helper.SplitPaneDividerPersistence;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.JogActionRegistry;
@@ -67,8 +68,6 @@ public class Main extends Application {
     private SplitPane motionSplitPane;
     private SplitPane contentSplitPane;
     private StackPane contentPanel;
-    private SplitPane.Divider contentPaneDivider;
-    private SplitPane.Divider leftPaneDivider;
 
     @Override
     public void init() throws Exception {
@@ -148,13 +147,11 @@ public class Main extends Application {
         }
     }
 
-    private void registerLayoutListeners(Stage primaryStage) {
+    private void registerWindowBoundsListeners(Stage primaryStage) {
         primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowWidthProperty().set(newValue.doubleValue()));
         primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowHeightProperty().set(newValue.doubleValue()));
         primaryStage.xProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowPositionXProperty().set(newValue.doubleValue()));
         primaryStage.yProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowPositionYProperty().set(newValue.doubleValue()));
-        leftPaneDivider.positionProperty().addListener((obs, oldVal, newVal) -> Settings.getInstance().windowDividerLeftProperty().set(newVal.doubleValue()));
-        contentPaneDivider.positionProperty().addListener((obs, oldVal, newVal) -> Settings.getInstance().windowDividerContentProperty().set(newVal.doubleValue()));
     }
 
     private void registerListeners(Stage primaryStage) {
@@ -163,16 +160,13 @@ public class Main extends Application {
             primaryStage.setY(Settings.getInstance().windowPositionYProperty().get());
             primaryStage.setWidth(Settings.getInstance().windowWidthProperty().get());
             primaryStage.setHeight(Settings.getInstance().windowHeightProperty().get());
-            leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
-            contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
+            registerWindowBoundsListeners(primaryStage);
 
-
-            // Hack to make sure that the window is shown with correct size before setting the dividers
-            ThreadHelper.invokeLater(() -> {
-                leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
-                contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
-                registerLayoutListeners(primaryStage);
-            }, 200);
+            Platform.runLater(() -> {
+                SplitPaneDividerPersistence.install(motionSplitPane, 0, Settings.getInstance().windowDividerLeftProperty());
+                SplitPaneDividerPersistence.install(contentSplitPane, 0, Settings.getInstance().windowDividerContentProperty());
+                SplitPaneDividerPersistence.install(contentSplitPane, 1, Settings.getInstance().windowDividerInspectorProperty());
+            });
         });
 
         primaryStage.setOnCloseRequest(event -> {
@@ -198,11 +192,6 @@ public class Main extends Application {
         contentSplitPane.setOrientation(Orientation.HORIZONTAL);
         contentSplitPane.getItems().addAll(motionSplitPane, contentPanel);
         SplitPane.setResizableWithParent(contentSplitPane, false);
-
-        contentPaneDivider = contentSplitPane.getDividers().get(0);
-        contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
-
-        // The inspector docks itself into the split pane only while a design workspace is active.
         new InspectorPane(contentSplitPane);
     }
 
@@ -213,9 +202,6 @@ public class Main extends Application {
         motionSplitPane.getItems().addAll(new MachineStatusPane(), new JogPane());
         motionSplitPane.setMinWidth(200);
         SplitPane.setResizableWithParent(motionSplitPane, false);
-
-        leftPaneDivider = motionSplitPane.getDividers().get(0);
-        leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
     }
 
     private void registerShortCuts(Scene scene) {

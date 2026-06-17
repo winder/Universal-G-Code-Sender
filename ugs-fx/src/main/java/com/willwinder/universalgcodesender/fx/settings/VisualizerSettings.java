@@ -120,6 +120,7 @@ public class VisualizerSettings {
         rotateMouseButton.addListener((obs, oldVal, newVal) -> saveString(MOUSE_ROTATE_BUTTON, newVal));
         rotateModifierKey.addListener((obs, oldVal, newVal) -> saveString(MOUSE_ROTATE_MODIFIER, newVal));
         useParallelCamera.addListener((obs, oldVal, newVal) -> saveBoolean(USE_PARALLEL_CAMERA, newVal));
+        lineWidth.addListener((obs, oldVal, newVal) -> saveFloat(LINE_WIDTH, newVal.floatValue()));
         showGcodeModel.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_GCODE_MODEL, newVal));
         showRuler.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_RULER, newVal));
         showGrid.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_GRID, newVal));
@@ -260,4 +261,7 @@ public class VisualizerSettings {
         return preferences.getFloat(key, defaultValue);
     }
 
+    private void saveFloat(String key, float value) {
+        preferences.putFloat(key, value);
+    }
 }
