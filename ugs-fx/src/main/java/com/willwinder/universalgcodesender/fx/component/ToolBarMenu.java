@@ -35,7 +35,6 @@ import com.willwinder.universalgcodesender.fx.actions.SaveAction;
 import com.willwinder.universalgcodesender.fx.actions.SoftResetAction;
 import com.willwinder.universalgcodesender.fx.actions.StartAction;
 import com.willwinder.universalgcodesender.fx.actions.StopAction;
-import com.willwinder.universalgcodesender.fx.actions.ToggleMachineVisualizationAction;
 import com.willwinder.universalgcodesender.fx.actions.UnlockAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import com.willwinder.universalgcodesender.fx.control.ToggleActionButton;
@@ -94,8 +93,6 @@ public class ToolBarMenu extends VBox {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         children.add(spacer);
 
-        createToggleButton(ToggleMachineVisualizationAction.class).ifPresent(children::add);
-        children.add(new Separator());
         createButton(OpenSettingsAction.class).ifPresent(children::add);
 
         ToolBar toolBar = new ToolBar();

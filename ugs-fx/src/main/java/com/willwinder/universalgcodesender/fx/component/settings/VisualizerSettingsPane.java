@@ -51,7 +51,7 @@ public class VisualizerSettingsPane extends BorderPane {
         addTitleSection();
         settingsGroup = new VBox(32);
         addMachineCombo();
-        addMouseControls();
+        addCameraSettings();
         addColorSettings();
         addRulerSettings();
         setCenter(settingsGroup);
@@ -118,78 +118,17 @@ public class VisualizerSettingsPane extends BorderPane {
         );
     }
 
-    private void addMouseControls() {
-        VBox mouseControls = new VBox(10);
+    private void addCameraSettings() {
+        VBox cameraControls = new VBox(10);
 
         // Parallel (orthographic) camera
         SwitchButton parallelCamera = new SwitchButton();
         parallelCamera.selectedProperty().bindBidirectional(
                 VisualizerSettings.getInstance().useParallelCameraProperty()
         );
-        mouseControls.getChildren().add(new SettingsRow("Use parallel camera", "Switches between perspective (3D) and parallel (2D) camera projection", parallelCamera));
+        cameraControls.getChildren().add(new SettingsRow("Use parallel camera", "Switches between perspective (3D) and parallel (2D) camera projection", parallelCamera));
 
-        // Invert zoom
-        SwitchButton invertZoom = new SwitchButton();
-        invertZoom.selectedProperty().bindBidirectional(
-                VisualizerSettings.getInstance().invertZoomProperty()
-        );
-        mouseControls.getChildren().add(new SettingsRow("Invert scroll wheel zoom", "Inverts the zoom direction when using the mouse scroll wheel", invertZoom));
-
-        // Pan binding
-        ComboBox<String> panButton =
-                new ComboBox<>(FXCollections.observableArrayList("PRIMARY", "MIDDLE", "SECONDARY"));
-        panButton.valueProperty().bindBidirectional(
-                VisualizerSettings.getInstance().panMouseButtonProperty()
-        );
-        panButton.setValue(
-                VisualizerSettings.getInstance().panMouseButtonProperty().getValue()
-        );
-
-        ComboBox<VisualizerSettings.ModifierKey> panModifier =
-                new ComboBox<>(FXCollections.observableArrayList(VisualizerSettings.ModifierKey.values()));
-        panModifier.valueProperty().addListener((obs, oldVal, newVal) ->
-                VisualizerSettings.getInstance().panModifierKeyProperty()
-                        .set(newVal == null
-                                ? VisualizerSettings.ModifierKey.NONE.name()
-                                : newVal.name())
-        );
-        panModifier.setValue(
-                VisualizerSettings.ModifierKey.fromString(
-                        VisualizerSettings.getInstance().panModifierKeyProperty().getValue(),
-                        VisualizerSettings.ModifierKey.NONE
-                )
-        );
-
-        mouseControls.getChildren().add(new SettingsRow("Pan mouse button", panButton, panModifier));
-
-        // Rotate binding
-        ComboBox<String> rotateButton =
-                new ComboBox<>(FXCollections.observableArrayList("PRIMARY", "MIDDLE", "SECONDARY"));
-        rotateButton.valueProperty().bindBidirectional(
-                VisualizerSettings.getInstance().rotateMouseButtonProperty()
-        );
-        rotateButton.setValue(
-                VisualizerSettings.getInstance().rotateMouseButtonProperty().getValue()
-        );
-
-        ComboBox<VisualizerSettings.ModifierKey> rotateModifier =
-                new ComboBox<>(FXCollections.observableArrayList(VisualizerSettings.ModifierKey.values()));
-        rotateModifier.valueProperty().addListener((obs, oldVal, newVal) ->
-                VisualizerSettings.getInstance().rotateModifierKeyProperty()
-                        .set(newVal == null
-                                ? VisualizerSettings.ModifierKey.NONE.name()
-                                : newVal.name())
-        );
-        rotateModifier.setValue(
-                VisualizerSettings.ModifierKey.fromString(
-                        VisualizerSettings.getInstance().rotateModifierKeyProperty().getValue(),
-                        VisualizerSettings.ModifierKey.NONE
-                )
-        );
-
-        mouseControls.getChildren().add(new SettingsRow("Rotate mouse button", rotateButton, rotateModifier));
-
-        settingsGroup.getChildren().add(new BorderedTitledPane("Mouse settings", mouseControls));
+        settingsGroup.getChildren().add(new BorderedTitledPane("Camera", cameraControls));
     }
 
     private void addTitleSection() {

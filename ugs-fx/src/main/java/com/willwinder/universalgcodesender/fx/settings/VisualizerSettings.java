@@ -52,6 +52,8 @@ public class VisualizerSettings {
     private static final String USE_PARALLEL_CAMERA = "useParallelCamera";
     private static final String SHOW_GCODE_MODEL = "showGcodeModel";
     private static final String SHOW_RULER = "showRuler";
+    private static final String SHOW_GRID = "showGrid";
+    private static final String SHOW_AXES = "showAxes";
 
     public enum ModifierKey {
         NONE, SHIFT, CTRL, ALT, META;
@@ -91,6 +93,8 @@ public class VisualizerSettings {
     private final BooleanProperty useParallelCamera = new SimpleBooleanProperty(loadBoolean(USE_PARALLEL_CAMERA, false));
     private final BooleanProperty showGcodeModel = new SimpleBooleanProperty(loadBoolean(SHOW_GCODE_MODEL, true));
     private final BooleanProperty showRuler = new SimpleBooleanProperty(loadBoolean(SHOW_RULER, true));
+    private final BooleanProperty showGrid = new SimpleBooleanProperty(loadBoolean(SHOW_GRID, true));
+    private final BooleanProperty showAxes = new SimpleBooleanProperty(loadBoolean(SHOW_AXES, true));
 
     VisualizerSettings() {
         showMachine.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_MACHINE_MODEL, newVal));
@@ -114,6 +118,8 @@ public class VisualizerSettings {
         useParallelCamera.addListener((obs, oldVal, newVal) -> saveBoolean(USE_PARALLEL_CAMERA, newVal));
         showGcodeModel.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_GCODE_MODEL, newVal));
         showRuler.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_RULER, newVal));
+        showGrid.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_GRID, newVal));
+        showAxes.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_AXES, newVal));
     }
 
     public static VisualizerSettings getInstance() {
@@ -210,6 +216,14 @@ public class VisualizerSettings {
 
     public BooleanProperty showRulerProperty() {
         return showRuler;
+    }
+
+    public BooleanProperty showGridProperty() {
+        return showGrid;
+    }
+
+    public BooleanProperty showAxesProperty() {
+        return showAxes;
     }
 
     private String loadString(String key, String defaultValue) {

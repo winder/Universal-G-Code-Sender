@@ -237,7 +237,7 @@ public class EntityTreeView extends TreeView<Entity> {
                 return "icons/clipart.svg";
             }
             if (entity instanceof Path) {
-                return "icons/line.svg";
+                return "icons/lines.svg";
             }
             return "icons/cube.svg";
         }

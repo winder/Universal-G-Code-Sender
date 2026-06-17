@@ -18,17 +18,12 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
-import com.willwinder.universalgcodesender.fx.actions.ToggleGcodeModelAction;
-import com.willwinder.universalgcodesender.fx.actions.ToggleProjectionAction;
-import com.willwinder.universalgcodesender.fx.actions.ToggleRulerAction;
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machine;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Axes;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Grid;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Ruler;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Tool;
-import com.willwinder.universalgcodesender.fx.control.ActionButton;
-import com.willwinder.universalgcodesender.fx.control.ToggleActionButton;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import javafx.animation.KeyFrame;
@@ -47,7 +42,6 @@ import javafx.scene.SpotLight;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.SubScene;
-import javafx.scene.control.Button;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -123,28 +117,26 @@ public class Visualizer extends Pane {
 
         setMouseInteraction();
 
+        // Orientation controls: cube in the top-left corner with the projection toggle beneath it.
         OrientationCube orientationCube = new OrientationCube(110);
         orientationCube.setOnFaceClicked(this::rotateTo);
         orientationCube.setRotations(orientationCubeRotateX, orientationCubeRotateY, orientationCubeRotateZ);
-        orientationCube.layoutXProperty().bind(widthProperty().subtract(orientationCube.sizeProperty()).subtract(5));
+        orientationCube.layoutXProperty().set(5);
         orientationCube.layoutYProperty().set(5);
 
-        Button cameraToggle = new ActionButton(new ToggleProjectionAction(), 32, false, Color.WHITE);
-        cameraToggle.getStyleClass().add("visualizer-button");
-        cameraToggle.layoutXProperty().bind(widthProperty().subtract(cameraToggle.widthProperty()).subtract(38));
-        cameraToggle.layoutYProperty().bind(orientationCube.sizeProperty().add(10));
+        OrientationToolbar orientationToolbar = new OrientationToolbar();
+        orientationToolbar.layoutXProperty().bind(orientationCube.layoutXProperty()
+                .add(orientationCube.sizeProperty().divide(2))
+                .subtract(orientationToolbar.widthProperty().divide(2)));
+        orientationToolbar.layoutYProperty().bind(orientationCube.layoutYProperty()
+                .add(orientationCube.sizeProperty()).add(5));
 
-        ToggleActionButton gcodeModelToggle = new ToggleActionButton(new ToggleGcodeModelAction(), 32, false, Color.WHITE);
-        gcodeModelToggle.getStyleClass().add("visualizer-button");
-        gcodeModelToggle.layoutXProperty().bind(widthProperty().subtract(gcodeModelToggle.widthProperty()).subtract(38));
-        gcodeModelToggle.layoutYProperty().bind(cameraToggle.layoutYProperty().add(cameraToggle.heightProperty()).add(6));
+        // Visualizer features in the top-right corner.
+        VisualizerToolbar toolbar = new VisualizerToolbar();
+        toolbar.layoutXProperty().bind(widthProperty().subtract(toolbar.widthProperty()).subtract(10));
+        toolbar.layoutYProperty().set(9);
 
-        ToggleActionButton rulerToggle = new ToggleActionButton(new ToggleRulerAction(), 32, false, Color.WHITE);
-        rulerToggle.getStyleClass().add("visualizer-button");
-        rulerToggle.layoutXProperty().bind(widthProperty().subtract(rulerToggle.widthProperty()).subtract(38));
-        rulerToggle.layoutYProperty().bind(gcodeModelToggle.layoutYProperty().add(gcodeModelToggle.heightProperty()).add(6));
-
-        getChildren().addAll(subScene, orientationCube, cameraToggle, gcodeModelToggle, rulerToggle);
+        getChildren().addAll(subScene, orientationCube, orientationToolbar, toolbar);
 
         // Add new models added through the visualizer service
         VisualizerService.getInstance().getModels().addListener((ListChangeListener<Model>) change -> {

@@ -2,6 +2,7 @@ package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
 import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -68,6 +69,7 @@ public class Grid extends Model {
         activeUnits = backend.getSettings().getPreferredUnits();
         currentGridStepMm = coarseStepMm();
         backend.addUGSEventListener(this::onEvent);
+        visibleProperty().bind(VisualizerSettings.getInstance().showGridProperty());
 
         regenerateGrid();
         getChildren().add(gridGroup);

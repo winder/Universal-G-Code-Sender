@@ -1,5 +1,5 @@
 /*
-    Copyright 2025 Joacim Breiler
+    Copyright 2026 Joacim Breiler
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,18 +22,19 @@ import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import javafx.event.ActionEvent;
 
-public class ToggleMachineVisualizationAction extends BaseAction {
+public class ToggleAxesAction extends BaseAction {
 
-    private static final String ICON_BASE = "icons/cnc.svg";
+    public static final String ICON = "icons/axes.svg";
 
-
-    public ToggleMachineVisualizationAction() {
-        super(Localization.getString("settings.visializer.toggleMachine"), Localization.getString("settings.visializer.toggleMachine"), ICON_BASE);
-        selectedProperty().bindBidirectional(VisualizerSettings.getInstance().showMachineProperty());
+    public ToggleAxesAction() {
+        super(null, Localization.getString("platform.visualizer.toggleAxes"),
+                Localization.getString("actions.category.visualizer"), ICON);
+        selectedProperty().bindBidirectional(VisualizerSettings.getInstance().showAxesProperty());
     }
 
     @Override
     public void handleAction(ActionEvent event) {
-        VisualizerSettings.getInstance().showMachineProperty().set(!VisualizerSettings.getInstance().showMachineProperty().get());
+        VisualizerSettings.getInstance().showAxesProperty().set(
+                !VisualizerSettings.getInstance().showAxesProperty().get());
     }
 }
