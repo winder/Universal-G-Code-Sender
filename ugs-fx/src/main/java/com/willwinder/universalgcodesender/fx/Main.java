@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.fx.component.dro.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
 import com.willwinder.universalgcodesender.fx.component.visualizer.designer.InspectorPane;
+import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
@@ -128,6 +129,22 @@ public class Main extends Application {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            openDefaultWorkspace();
+        }
+    }
+
+    /**
+     * Opens an empty UGSD design workspace when the application is started without a file argument,
+     * so the designer is ready to use straight away.
+     */
+    private void openDefaultWorkspace() {
+        try {
+            UgsdWorkspaceContext workspace = new UgsdWorkspaceContext(null);
+            WorkspaceManager.getInstance().setWorkspace(workspace);
+            workspace.open();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Could not open the default design workspace", e);
         }
     }
 
