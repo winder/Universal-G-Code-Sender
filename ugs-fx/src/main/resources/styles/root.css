@@ -186,3 +186,13 @@
 .inspector-scroll > .viewport {
     -fx-background-color: transparent;
 }
+
+/* Header bar that labels and separates the inspector's stacked sections. */
+.inspector-section-header {
+    -fx-font-weight: bold;
+    -fx-text-fill: #444444;
+    -fx-padding: 6 8 6 8;
+    -fx-background-color: derive(-ugs-border-color, 70%);
+    -fx-border-color: -ugs-border-color;
+    -fx-border-width: 0 0 1 0;
+}

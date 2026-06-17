@@ -5,9 +5,12 @@ import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.Settings;
 import javafx.application.Platform;
+import javafx.geometry.Orientation;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 public class InspectorPane extends VBox {
@@ -20,9 +23,18 @@ public class InspectorPane extends VBox {
         ScrollPane entityScroll = new ScrollPane(new EntitySettingsPanel());
         entityScroll.getStyleClass().add("inspector-scroll");
         entityScroll.setFitToWidth(true);
-        VBox.setVgrow(entityScroll, Priority.ALWAYS);
 
-        getChildren().addAll(new DesignToolbar(), new DesignAlignToolbar(), new DesignOperationToolbar(), entityScroll);
+        VBox settingsSection = section("Object properties", entityScroll);
+        VBox treeSection = section("Objects", new EntityTreeView());
+
+        // The entity tree is scrollable on its own; a vertical split lets the user resize the
+        // space between the settings above and the design tree at the bottom.
+        SplitPane inspectorSplit = new SplitPane(settingsSection, treeSection);
+        inspectorSplit.setOrientation(Orientation.VERTICAL);
+        inspectorSplit.setDividerPositions(0.6);
+        VBox.setVgrow(inspectorSplit, Priority.ALWAYS);
+
+        getChildren().addAll(new DesignToolbar(), new DesignAlignToolbar(), new DesignOperationToolbar(), inspectorSplit);
         setMinWidth(200);
         SplitPane.setResizableWithParent(this, false);
 
@@ -41,6 +53,21 @@ public class InspectorPane extends VBox {
             public void onWorkspaceDirtyStateChanged(WorkspaceContext workspace, boolean dirty) {
             }
         });
+    }
+
+    /**
+     * Wraps a section's content under a labeled header bar so the stacked inspector
+     * sections are visually separated. The content fills the remaining height.
+     */
+    private static VBox section(String title, Region content) {
+        Label header = new Label(title);
+        header.getStyleClass().add("inspector-section-header");
+        header.setMaxWidth(Double.MAX_VALUE);
+
+        VBox.setVgrow(content, Priority.ALWAYS);
+        VBox box = new VBox(header, content);
+        box.setMinHeight(0);
+        return box;
     }
 
     private void setDocked(boolean docked) {
