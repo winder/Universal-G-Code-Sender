@@ -40,4 +40,22 @@ public class EntityShapeFactoryTest {
 
         assertNotNull(csg);
     }
+
+    @Test
+    public void shapeToCSGShouldReturnCSGForSelfIntersectingPath() {
+        // A five-point star traced as a single pentagram crosses itself. The ear-clipping
+        // triangulator inside Extrude.points cannot triangulate such a ring directly and throws
+        // "Unable to find a convex corner"; shapeToCSG must repair it into valid geometry first.
+        Path2D.Double path = new Path2D.Double();
+        path.moveTo(50, 0);
+        path.lineTo(20, 90);
+        path.lineTo(95, 30);
+        path.lineTo(5, 30);
+        path.lineTo(80, 90);
+        path.closePath();
+
+        CSG csg = EntityShapeFactory.shapeToCSG(path, 0.1);
+
+        assertNotNull(csg);
+    }
 }

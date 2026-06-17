@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.PositionAnimatorTimer;
 import com.willwinder.universalgcodesender.fx.component.visualizer.VisualizerUtils;
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -52,6 +53,8 @@ public class Tool extends Model {
         translateXProperty().bind(positionAnimator.posXProperty());
         translateYProperty().bind(positionAnimator.posYProperty());
         translateZProperty().bind(positionAnimator.posZProperty());
+
+        visibleProperty().bind(VisualizerSettings.getInstance().showToolProperty());
     }
 
     private void onEvent(UGSEvent ugsEvent) {

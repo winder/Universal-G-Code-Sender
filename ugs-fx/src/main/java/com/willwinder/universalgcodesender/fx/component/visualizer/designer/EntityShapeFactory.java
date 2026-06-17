@@ -29,9 +29,16 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.CullFace;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
+import javafx.scene.transform.Affine;
 import org.fxyz3d.geometry.Point3D;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.util.GeometryFixer;
 
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +47,7 @@ import java.util.logging.Logger;
 
 public final class EntityShapeFactory {
     private static final Logger LOGGER = Logger.getLogger(EntityShapeFactory.class.getName());
+    private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
     private EntityShapeFactory() {
     }
@@ -59,6 +67,34 @@ public final class EntityShapeFactory {
         MeshView fill = createFillMesh(shape, Color.WHITE);
         MeshView border = createBorderMesh(shape, Color.DODGERBLUE);
         return new EntityNodes(fill, border);
+    }
+
+    /**
+     * Builds the (expensive) extruded fill mesh from a shape. Callers that move/resize/rotate an
+     * entity should build this once from the entity's <em>relative</em> shape and reposition it
+     * with {@link #toFxTransform(AffineTransform)} instead of rebuilding it, since the relative
+     * geometry is unchanged by those operations.
+     */
+    public static MeshView createFill(Shape shape, Color color) {
+        return createFillMesh(shape, color);
+    }
+
+    /**
+     * Builds the (cheap) outline tube mesh from a shape.
+     */
+    public static MeshView createBorder(Shape shape, Color color) {
+        return createBorderMesh(shape, color);
+    }
+
+    /**
+     * Converts an AWT {@link AffineTransform} to a JavaFX 2D {@link Affine}, leaving the extrusion
+     * depth (z) untouched. Lets a cached fill mesh, built in the entity's relative coordinates, be
+     * placed at the entity's current position/rotation/scale without rebuilding it.
+     */
+    public static Affine toFxTransform(AffineTransform t) {
+        return new Affine(
+                t.getScaleX(), t.getShearX(), t.getTranslateX(),
+                t.getShearY(), t.getScaleY(), t.getTranslateY());
     }
 
     static Node createControlNode(Control control, DragHandler dragHandler) {
@@ -150,54 +186,82 @@ public final class EntityShapeFactory {
     public static CSG shapeToCSG(Shape shape, double depth) {
         List<List<Vector3d>> subPaths = collectClosedSubPaths(shape);
         if (subPaths.isEmpty()) return null;
-
-        // Identify outer vs hole by geometric containment instead of winding —
-        // a subpath wrapped by an even number of other subpaths is an outer,
-        // an odd count means it is a hole. This stays correct regardless of
-        // how the path was wound (Extrude.points itself normalizes to CCW).
-        int n = subPaths.size();
-        java.awt.geom.Path2D[] paths = new java.awt.geom.Path2D[n];
-        Vector3d[] centroids = new Vector3d[n];
-        boolean[] isHole = new boolean[n];
-        for (int i = 0; i < n; i++) {
-            paths[i] = toPath2D(subPaths.get(i));
-            centroids[i] = centroid(subPaths.get(i));
+        
+        Geometry filled = null;
+        for (List<Vector3d> ring : subPaths) {
+            Geometry polygon = toValidPolygon(ring);
+            if (polygon == null || polygon.isEmpty()) continue;
+            filled = (filled == null) ? polygon : filled.symDifference(polygon);
         }
-        for (int i = 0; i < n; i++) {
-            int containedBy = 0;
-            for (int j = 0; j < n; j++) {
-                if (i == j) continue;
-                if (paths[j].contains(centroids[i].x, centroids[i].y)) containedBy++;
-            }
-            isHole[i] = (containedBy % 2) == 1;
-        }
+        if (filled == null || filled.isEmpty()) return null;
 
         CSG result = null;
-        for (int i = 0; i < n; i++) {
-            if (isHole[i]) continue;
-
-            CSG solid;
-            try {
-                solid = Extrude.points(new Vector3d(0, 0, depth), subPaths.get(i));
-            } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "CSG extrusion failed for outer boundary", e);
-                continue;
-            }
-
-            for (int j = 0; j < n; j++) {
-                if (!isHole[j]) continue;
-                if (!paths[i].contains(centroids[j].x, centroids[j].y)) continue;
-                try {
-                    solid = solid.difference(Extrude.points(new Vector3d(0, 0, depth), subPaths.get(j)));
-                } catch (Exception e) {
-                    LOGGER.log(Level.WARNING, "CSG hole subtraction failed", e);
-                }
-            }
-
-            result = result == null ? solid : result.dumbUnion(solid);
+        for (int i = 0; i < filled.getNumGeometries(); i++) {
+            if (!(filled.getGeometryN(i) instanceof org.locationtech.jts.geom.Polygon polygon)) continue;
+            CSG solid = extrudePolygon(polygon, depth);
+            if (solid == null) continue;
+            result = (result == null) ? solid : result.dumbUnion(solid);
         }
 
         return result;
+    }
+
+    /**
+     * Extrudes one JTS polygon (its exterior shell minus any interior holes) into a solid.
+     */
+    private static CSG extrudePolygon(org.locationtech.jts.geom.Polygon polygon, double depth) {
+        List<Vector3d> shell = toRing(polygon.getExteriorRing());
+        if (shell.size() < 3) return null;
+
+        CSG solid;
+        try {
+            solid = Extrude.points(new Vector3d(0, 0, depth), shell);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "CSG extrusion failed for outer boundary", e);
+            return null;
+        }
+
+        for (int h = 0; h < polygon.getNumInteriorRing(); h++) {
+            List<Vector3d> hole = toRing(polygon.getInteriorRingN(h));
+            if (hole.size() < 3) continue;
+            try {
+                solid = solid.difference(Extrude.points(new Vector3d(0, 0, depth), hole));
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "CSG hole subtraction failed", e);
+            }
+        }
+
+        return solid;
+    }
+
+    /**
+     * Builds a JTS polygon from a ring, repairing it into valid geometry when the raw outline
+     * self-intersects. {@link GeometryFixer} may return a {@code MultiPolygon} for a figure-eight
+     * style outline, which the caller iterates over.
+     */
+    private static Geometry toValidPolygon(List<Vector3d> ring) {
+        Coordinate[] coords = new Coordinate[ring.size() + 1];
+        for (int i = 0; i < ring.size(); i++) {
+            coords[i] = new Coordinate(ring.get(i).x, ring.get(i).y);
+        }
+        coords[ring.size()] = new Coordinate(ring.get(0).x, ring.get(0).y);
+
+        Geometry polygon = GEOMETRY_FACTORY.createPolygon(coords);
+        return polygon.isValid() ? polygon : GeometryFixer.fix(polygon);
+    }
+
+    /**
+     * Converts a JTS ring back to vertices for {@link Extrude#points}. JTS repeats the first
+     * coordinate as the last to close the ring; Extrude.points closes the ring itself, so the
+     * trailing duplicate is dropped to avoid a zero-length edge.
+     */
+    private static List<Vector3d> toRing(LineString ring) {
+        Coordinate[] coords = ring.getCoordinates();
+        List<Vector3d> points = new ArrayList<>(Math.max(0, coords.length - 1));
+        for (int i = 0; i < coords.length - 1; i++) {
+            points.add(new Vector3d(coords[i].x, coords[i].y, 0));
+        }
+        return points;
     }
 
     private static List<List<Vector3d>> collectClosedSubPaths(Shape shape) {
@@ -215,8 +279,9 @@ public final class EntityShapeFactory {
                 }
                 case PathIterator.SEG_LINETO -> current.add(new Vector3d(coords[0], coords[1], 0));
                 case PathIterator.SEG_CLOSE -> {
-                    if (current.size() >= 3 && Math.abs(signedArea(current)) > 1e-6) {
-                        result.add(new ArrayList<>(current));
+                    List<Vector3d> ring = sanitizeRing(current);
+                    if (ring.size() >= 3 && Math.abs(signedArea(ring)) > 1e-6) {
+                        result.add(ring);
                     }
                     current = new ArrayList<>();
                 }
@@ -224,6 +289,31 @@ public final class EntityShapeFactory {
             it.next();
         }
         return result;
+    }
+
+    /**
+     * Removes zero-length edges from a flattened ring. {@link PathIterator} flattening routinely
+     * emits coincident consecutive vertices — most notably a final {@code SEG_LINETO} that lands
+     * back on the {@code SEG_MOVETO} point right before {@code SEG_CLOSE}. The ear-clipping
+     * triangulator inside {@code Extrude.points} cannot find a convex corner when the ring contains
+     * such duplicates and throws {@code IllegalStateException: Unable to find a convex corner},
+     * so we drop them (including the wrap-around first/last duplicate) before extruding.
+     */
+    private static List<Vector3d> sanitizeRing(List<Vector3d> pts) {
+        List<Vector3d> result = new ArrayList<>(pts.size());
+        for (Vector3d p : pts) {
+            if (result.isEmpty() || !coincident(result.get(result.size() - 1), p)) {
+                result.add(p);
+            }
+        }
+        while (result.size() >= 2 && coincident(result.get(0), result.get(result.size() - 1))) {
+            result.remove(result.size() - 1);
+        }
+        return result;
+    }
+
+    private static boolean coincident(Vector3d a, Vector3d b) {
+        return Math.abs(a.x - b.x) < 1e-6 && Math.abs(a.y - b.y) < 1e-6;
     }
 
     private static double signedArea(List<Vector3d> pts) {
@@ -235,23 +325,6 @@ public final class EntityShapeFactory {
             area += a.x * b.y - b.x * a.y;
         }
         return area * 0.5;
-    }
-
-    private static Vector3d centroid(List<Vector3d> pts) {
-        double cx = 0, cy = 0;
-        for (Vector3d p : pts) {
-            cx += p.x;
-            cy += p.y;
-        }
-        return new Vector3d(cx / pts.size(), cy / pts.size(), 0);
-    }
-
-    private static java.awt.geom.Path2D toPath2D(List<Vector3d> pts) {
-        java.awt.geom.Path2D.Double path = new java.awt.geom.Path2D.Double();
-        path.moveTo(pts.get(0).x, pts.get(0).y);
-        for (int i = 1; i < pts.size(); i++) path.lineTo(pts.get(i).x, pts.get(i).y);
-        path.closePath();
-        return path;
     }
 
     private static MeshView createBorderMesh(Shape shape, Color color) {

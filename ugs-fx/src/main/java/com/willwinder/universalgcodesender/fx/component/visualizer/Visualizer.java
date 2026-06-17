@@ -207,7 +207,7 @@ public class Visualizer extends Pane {
         double viewportWidth = Math.max(1.0, subScene.getWidth());
         double viewportHeight = Math.max(1.0, subScene.getHeight());
         double aspect = viewportWidth / viewportHeight;
-        double margin = 1.8;
+        double margin = 1.2;
 
         // Pin the rotation pivot to the final value now so the view never jumps when it settles.
         setRotationPivot(-targetTx, targetTy, 0);
@@ -425,15 +425,15 @@ public class Visualizer extends Pane {
         // Only react to PRIMARY button so right-click pan/rotate is never intercepted.
         worldGroup.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
             if (event.getButton() != MouseButton.PRIMARY) return;
-            Node current = event.getPickResult().getIntersectedNode();
+            Node intersected = event.getPickResult().getIntersectedNode();
+            Node current = intersected;
             while (current != null) {
                 if (current.getUserData() instanceof DragHandler dh) {
-                    // getIntersectedPoint() is in the hit node's local space; since control nodes
-                    // have no intermediate transforms, this equals worldGroup local (designer) space.
-                    Point3D pt = event.getPickResult().getIntersectedPoint();
+                    Point3D localPt = event.getPickResult().getIntersectedPoint();
+                    Point3D designerPt = worldGroup.sceneToLocal(intersected.localToScene(localPt));
                     activeDragHandler = dh;
-                    dragStartX = pt.getX();
-                    dragStartY = pt.getY();
+                    dragStartX = designerPt.getX();
+                    dragStartY = designerPt.getY();
                     dh.onDragStart(dragStartX, dragStartY);
                     event.consume();
                     return;

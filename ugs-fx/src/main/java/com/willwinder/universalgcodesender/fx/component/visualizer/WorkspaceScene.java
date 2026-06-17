@@ -20,6 +20,7 @@ import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.MeshView;
@@ -108,6 +109,11 @@ public class WorkspaceScene extends Model {
             controlsNode.onZoomChange(zoomFactor);
             entityShapesNode.setOnEntityMoved(controlsNode::refresh);
             entityShapesNode.refreshFromController();
+
+            BooleanProperty showDesign = VisualizerSettings.getInstance().showDesignProperty();
+            entityShapesNode.visibleProperty().bind(showDesign);
+            controlsNode.visibleProperty().bind(showDesign);
+
             getChildren().add(entityShapesNode);
             getChildren().add(controlsNode);
             getChildren().add(drawPreview);

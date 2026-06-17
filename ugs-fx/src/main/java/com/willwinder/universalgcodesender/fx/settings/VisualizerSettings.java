@@ -54,6 +54,8 @@ public class VisualizerSettings {
     private static final String SHOW_RULER = "showRuler";
     private static final String SHOW_GRID = "showGrid";
     private static final String SHOW_AXES = "showAxes";
+    private static final String SHOW_DESIGN = "showDesign";
+    private static final String SHOW_TOOL = "showTool";
 
     public enum ModifierKey {
         NONE, SHIFT, CTRL, ALT, META;
@@ -95,6 +97,8 @@ public class VisualizerSettings {
     private final BooleanProperty showRuler = new SimpleBooleanProperty(loadBoolean(SHOW_RULER, true));
     private final BooleanProperty showGrid = new SimpleBooleanProperty(loadBoolean(SHOW_GRID, true));
     private final BooleanProperty showAxes = new SimpleBooleanProperty(loadBoolean(SHOW_AXES, true));
+    private final BooleanProperty showDesign = new SimpleBooleanProperty(loadBoolean(SHOW_DESIGN, true));
+    private final BooleanProperty showTool = new SimpleBooleanProperty(loadBoolean(SHOW_TOOL, true));
 
     VisualizerSettings() {
         showMachine.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_MACHINE_MODEL, newVal));
@@ -120,6 +124,8 @@ public class VisualizerSettings {
         showRuler.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_RULER, newVal));
         showGrid.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_GRID, newVal));
         showAxes.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_AXES, newVal));
+        showDesign.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_DESIGN, newVal));
+        showTool.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_TOOL, newVal));
     }
 
     public static VisualizerSettings getInstance() {
@@ -224,6 +230,14 @@ public class VisualizerSettings {
 
     public BooleanProperty showAxesProperty() {
         return showAxes;
+    }
+
+    public BooleanProperty showDesignProperty() {
+        return showDesign;
+    }
+
+    public BooleanProperty showToolProperty() {
+        return showTool;
     }
 
     private String loadString(String key, String defaultValue) {
