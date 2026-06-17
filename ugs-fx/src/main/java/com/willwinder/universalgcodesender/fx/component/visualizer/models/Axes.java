@@ -1,5 +1,7 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
+import javafx.scene.DepthTest;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
@@ -15,6 +17,7 @@ public class Axes extends Model {
     private final Cylinder axisZ;
 
     public Axes() {
+        setDepthTest(DepthTest.DISABLE);
         axisX = new Cylinder(RADIUS, 200);
         axisX.getTransforms().addAll(new Rotate(90, Rotate.Z_AXIS), new Translate(0, -100, 0));
         axisX.setMaterial(new PhongMaterial(Color.RED));
@@ -26,6 +29,8 @@ public class Axes extends Model {
         axisZ = new Cylinder(RADIUS, 200);
         axisZ.setMaterial(new PhongMaterial(Color.BLUE));
         axisZ.getTransforms().addAll(new Rotate(90, Rotate.X_AXIS), new Translate(0, 100, 0));
+
+        visibleProperty().bind(VisualizerSettings.getInstance().showAxesProperty());
 
         getChildren().addAll(axisX, axisY, axisZ);
     }

@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.fx.component.settings.GeneralSettings
 import com.willwinder.universalgcodesender.fx.component.settings.KeyboardSettingPane;
 import com.willwinder.universalgcodesender.fx.component.settings.MachineStatusSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.MacroSettingsPane;
+import com.willwinder.universalgcodesender.fx.component.settings.MouseSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.PendantSettingsPane;
 import com.willwinder.universalgcodesender.fx.component.settings.ProcessorConfigPane;
 import com.willwinder.universalgcodesender.fx.component.settings.TerminalSettingsPane;
@@ -85,6 +86,7 @@ public class SettingsStage extends Stage {
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.terminal"), "icons/terminal.svg", new TerminalSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("mainWindow.swing.pendant"), "icons/pendant.svg", new PendantSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.keyboard"), "icons/shortcut.svg", new KeyboardSettingPane()));
+        sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.mouse"), "icons/mouse.svg", new MouseSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("platform.window.visualizer"), "icons/cube.svg", new VisualizerSettingsPane()));
         sectionList.getItems().add(new SettingsListItem(Localization.getString("settings.processor"), "icons/scroll.svg", new ProcessorConfigPane()));
         sectionList.setCellFactory(listView -> new SettingsListCell());

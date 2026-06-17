@@ -23,8 +23,13 @@ public class ToggleActionButton extends ToggleButton {
     private final StringProperty iconColor = new SimpleStringProperty(Colors.BLACKISH.toString());
 
     public ToggleActionButton(Action action, int size, boolean showText) {
+        this(action, size, showText, Colors.BLACKISH);
+    }
+
+    public ToggleActionButton(Action action, int size, boolean showText, Color iconColor) {
         this.action = action;
         this.iconSize.setValue(size);
+        this.iconColor.setValue(iconColor.toString());
 
         setOnAction(event -> {
             if (event != null) {
@@ -50,6 +55,11 @@ public class ToggleActionButton extends ToggleButton {
     public void setShowText(boolean show) {
         showText.set(show);
         setText(show ? action.getTitle() : null);
+    }
+
+    public void setIconColor(Color color) {
+        this.iconColor.set(color.toString());
+        setIcon(action.getIcon());
     }
 
     private void registerPropertyListeners(Action action) {

@@ -29,7 +29,7 @@ public class ToggleMachineVisualizationAction extends BaseAction {
 
     public ToggleMachineVisualizationAction() {
         super(Localization.getString("settings.visializer.toggleMachine"), Localization.getString("settings.visializer.toggleMachine"), ICON_BASE);
-        selectedProperty().set(VisualizerSettings.getInstance().showMachineProperty().get());
+        selectedProperty().bindBidirectional(VisualizerSettings.getInstance().showMachineProperty());
     }
 
     @Override

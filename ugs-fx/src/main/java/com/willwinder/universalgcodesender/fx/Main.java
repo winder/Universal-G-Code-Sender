@@ -25,16 +25,19 @@ import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
 import com.willwinder.universalgcodesender.fx.component.dro.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
+import com.willwinder.universalgcodesender.fx.component.visualizer.designer.InspectorPane;
+import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
+import com.willwinder.universalgcodesender.fx.helper.SplitPaneDividerPersistence;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.JogActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.MacroActionService;
 import com.willwinder.universalgcodesender.fx.service.ShortcutService;
+import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
@@ -56,16 +59,15 @@ import javafx.stage.Stage;
 
 import javax.swing.UIManager;
 import java.io.File;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main extends Application {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
-    private SplitPane leftSplitPane;
+    private SplitPane motionSplitPane;
     private SplitPane contentSplitPane;
     private StackPane contentPanel;
-    private SplitPane.Divider contentPaneDivider;
-    private SplitPane.Divider leftPaneDivider;
 
     @Override
     public void init() throws Exception {
@@ -109,7 +111,7 @@ public class Main extends Application {
         ShortcutService.registerListener(scene);
         FontRegistry.registerFonts();
 
-        scene.getStylesheets().add(Main.class.getResource("/styles/root.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(Main.class.getResource("/styles/root.css")).toExternalForm());
         root.getChildren().addAll(toolBarMenu, contentSplitPane);
 
         primaryStage.setTitle("Universal G-code Sender - " + Version.getVersion());
@@ -120,24 +122,35 @@ public class Main extends Application {
 
         Parameters params = getParameters();
         if (!params.getUnnamed().isEmpty()) {
-            BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
             try {
                 File file = new File(params.getUnnamed().get(0));
-                backendAPI.setGcodeFile(file);
-                backendAPI.getSettings().setLastWorkingDirectory(file.getParent());
+                WorkspaceManager.getInstance().openWorkspace(file);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            openDefaultWorkspace();
         }
     }
 
-    private void registerLayoutListeners(Stage primaryStage) {
+    /**
+     * Opens an empty UGSD design workspace when the application is started without a file argument,
+     * so the designer is ready to use straight away.
+     */
+    private void openDefaultWorkspace() {
+        try {
+            UgsdWorkspaceContext workspace = new UgsdWorkspaceContext(null);
+            WorkspaceManager.getInstance().setWorkspace(workspace);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Could not open the default design workspace", e);
+        }
+    }
+
+    private void registerWindowBoundsListeners(Stage primaryStage) {
         primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowWidthProperty().set(newValue.doubleValue()));
         primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowHeightProperty().set(newValue.doubleValue()));
         primaryStage.xProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowPositionXProperty().set(newValue.doubleValue()));
         primaryStage.yProperty().addListener((observable, oldValue, newValue) -> Settings.getInstance().windowPositionYProperty().set(newValue.doubleValue()));
-        leftPaneDivider.positionProperty().addListener((obs, oldVal, newVal) -> Settings.getInstance().windowDividerLeftProperty().set(newVal.doubleValue()));
-        contentPaneDivider.positionProperty().addListener((obs, oldVal, newVal) -> Settings.getInstance().windowDividerContentProperty().set(newVal.doubleValue()));
     }
 
     private void registerListeners(Stage primaryStage) {
@@ -146,16 +159,13 @@ public class Main extends Application {
             primaryStage.setY(Settings.getInstance().windowPositionYProperty().get());
             primaryStage.setWidth(Settings.getInstance().windowWidthProperty().get());
             primaryStage.setHeight(Settings.getInstance().windowHeightProperty().get());
-            leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
-            contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
+            registerWindowBoundsListeners(primaryStage);
 
-
-            // Hack to make sure that the window is shown with correct size before setting the dividers
-            ThreadHelper.invokeLater(() -> {
-                leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
-                contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
-                registerLayoutListeners(primaryStage);
-            }, 200);
+            Platform.runLater(() -> {
+                SplitPaneDividerPersistence.install(motionSplitPane, 0, Settings.getInstance().windowDividerLeftProperty());
+                SplitPaneDividerPersistence.install(contentSplitPane, 0, Settings.getInstance().windowDividerContentProperty());
+                SplitPaneDividerPersistence.install(contentSplitPane, 1, Settings.getInstance().windowDividerInspectorProperty());
+            });
         });
 
         primaryStage.setOnCloseRequest(event -> {
@@ -179,24 +189,18 @@ public class Main extends Application {
         contentSplitPane = new SplitPane();
         contentSplitPane.setMinWidth(200);
         contentSplitPane.setOrientation(Orientation.HORIZONTAL);
-        contentSplitPane.getItems().addAll(leftSplitPane, contentPanel);
+        contentSplitPane.getItems().addAll(motionSplitPane, contentPanel);
         SplitPane.setResizableWithParent(contentSplitPane, false);
-
-        contentPaneDivider = contentSplitPane.getDividers().get(0);
-        contentPaneDivider.setPosition(Settings.getInstance().windowDividerContentProperty().get());
+        new InspectorPane(contentSplitPane);
     }
 
     private void createLeftPane() {
-        leftSplitPane = new SplitPane();
-        leftSplitPane.setStyle("-fx-border-color: transparent;");
+        motionSplitPane = new SplitPane();
 
-        leftSplitPane.setMinWidth(200);
-        leftSplitPane.setOrientation(Orientation.VERTICAL);
-        leftSplitPane.getItems().addAll(new MachineStatusPane(), new JogPane());
-        SplitPane.setResizableWithParent(leftSplitPane, false);
-
-        leftPaneDivider = leftSplitPane.getDividers().get(0);
-        leftPaneDivider.setPosition(Settings.getInstance().windowDividerLeftProperty().get());
+        motionSplitPane.setOrientation(Orientation.VERTICAL);
+        motionSplitPane.getItems().addAll(new MachineStatusPane(), new JogPane());
+        motionSplitPane.setMinWidth(200);
+        SplitPane.setResizableWithParent(motionSplitPane, false);
     }
 
     private void registerShortCuts(Scene scene) {

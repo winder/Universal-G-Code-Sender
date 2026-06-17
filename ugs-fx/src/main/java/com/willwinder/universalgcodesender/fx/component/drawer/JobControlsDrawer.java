@@ -26,21 +26,23 @@ import com.willwinder.universalgcodesender.fx.actions.PauseAction;
 import com.willwinder.universalgcodesender.fx.actions.StartAction;
 import com.willwinder.universalgcodesender.fx.actions.StopAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
+import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
+import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
-import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
 import com.willwinder.universalgcodesender.model.events.StreamEvent;
 import com.willwinder.universalgcodesender.model.events.StreamEventType;
+
 import static com.willwinder.universalgcodesender.model.events.StreamEventType.STREAM_CANCELED;
 import static com.willwinder.universalgcodesender.model.events.StreamEventType.STREAM_COMPLETE;
 import static com.willwinder.universalgcodesender.model.events.StreamEventType.STREAM_STARTED;
+
 import com.willwinder.universalgcodesender.utils.RefreshThread;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -87,7 +89,7 @@ public class JobControlsDrawer extends Drawer {
         fileNameLabel.getStyleClass().add("job-file-name");
         fileInfoLabel.getStyleClass().add("job-file-info");
 
-        setGcodeStats(0, Position.ZERO, Position.ZERO);
+        setFileInfo(0, 0, 0);
 
         HBox section = new HBox(8);
         Optional<ActionButton> openButton = ActionRegistry.getInstance()
@@ -159,9 +161,18 @@ public class JobControlsDrawer extends Drawer {
                 return;
             }
 
-            fileNameLabel.setText(backendAPI.getGcodeFile().getName());
-            GcodeStats stats = backendAPI.getGcodeStats();
-            setGcodeStats(backendAPI.getNumRows(), stats.getMin(), stats.getMax());
+            String fileName = WorkspaceManager.getInstance()
+                    .getActiveWorkspace()
+                    .map(WorkspaceContext::getDisplayName)
+                    .orElse(backendAPI.getGcodeFile().getName());
+
+            fileNameLabel.setText(fileName);
+            WorkspaceManager.getInstance().getActiveWorkspace()
+                    .flatMap(WorkspaceContext::getBounds)
+                    .ifPresentOrElse(
+                            bounds -> setFileInfo(backendAPI.getNumRows(),
+                                    bounds.maxX() - bounds.minX(), bounds.maxY() - bounds.minY()),
+                            () -> setFileInfo(backendAPI.getNumRows(), 0, 0));
         } else if (event instanceof StreamEvent streamEvent) {
             StreamEventType streamEventType = streamEvent.getType();
             if (streamEventType == STREAM_STARTED) {
@@ -187,12 +198,12 @@ public class JobControlsDrawer extends Drawer {
         }
     }
 
-    private void setGcodeStats(long numberOfLines, Position min, Position max) {
+    private void setFileInfo(long numberOfLines, double width, double height) {
         String info = String.format(
                 "%,d lines · %.1f × %.1f mm",
                 numberOfLines,
-                max.getX() - min.getX(),
-                max.getY() - min.getY()
+                width,
+                height
         );
 
         fileInfoLabel.setText(info);

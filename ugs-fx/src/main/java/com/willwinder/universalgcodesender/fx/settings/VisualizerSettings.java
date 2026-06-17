@@ -41,6 +41,8 @@ public class VisualizerSettings {
     private static final String COLOR_FEED_MAX = "color.feedMax";
     private static final String COLOR_SPINDLE_MIN = "color.spindleMin";
     private static final String COLOR_SPINDLE_MAX = "color.spindleMax";
+    private static final String COLOR_RULER_LINES = "color.rulerLines";
+    private static final String COLOR_RULER_TEXT = "color.rulerText";
 
     private static final String MOUSE_INVERT_ZOOM = "mouse.invertZoom";
     private static final String MOUSE_PAN_BUTTON = "mouse.pan.button";
@@ -48,6 +50,12 @@ public class VisualizerSettings {
     private static final String MOUSE_ROTATE_BUTTON = "mouse.rotate.button";
     private static final String MOUSE_ROTATE_MODIFIER = "mouse.rotate.modifier";
     private static final String USE_PARALLEL_CAMERA = "useParallelCamera";
+    private static final String SHOW_GCODE_MODEL = "showGcodeModel";
+    private static final String SHOW_RULER = "showRuler";
+    private static final String SHOW_GRID = "showGrid";
+    private static final String SHOW_AXES = "showAxes";
+    private static final String SHOW_DESIGN = "showDesign";
+    private static final String SHOW_TOOL = "showTool";
 
     public enum ModifierKey {
         NONE, SHIFT, CTRL, ALT, META;
@@ -75,6 +83,8 @@ public class VisualizerSettings {
     private final StringProperty colorFeedMax = new SimpleStringProperty(loadString(COLOR_FEED_MAX, "#00009EFF"));
     private final StringProperty colorSpindleMin = new SimpleStringProperty(loadString(COLOR_SPINDLE_MIN, "#CCFFFFFF"));
     private final StringProperty colorSpindleMax = new SimpleStringProperty(loadString(COLOR_SPINDLE_MAX, "#00009EFF"));
+    private final StringProperty colorRulerLines = new SimpleStringProperty(loadString(COLOR_RULER_LINES, "#333333FF"));
+    private final StringProperty colorRulerText = new SimpleStringProperty(loadString(COLOR_RULER_TEXT, "#333333FF"));
 
     private final BooleanProperty invertZoom = new SimpleBooleanProperty(loadBoolean(MOUSE_INVERT_ZOOM, false));
     private final StringProperty panMouseButton = new SimpleStringProperty(loadString(MOUSE_PAN_BUTTON, "SECONDARY"));
@@ -83,6 +93,12 @@ public class VisualizerSettings {
     private final StringProperty rotateModifierKey = new SimpleStringProperty(loadString(MOUSE_ROTATE_MODIFIER, ModifierKey.NONE.name()));
     private final FloatProperty lineWidth = new SimpleFloatProperty(loadFloat(LINE_WIDTH, 0.1f));
     private final BooleanProperty useParallelCamera = new SimpleBooleanProperty(loadBoolean(USE_PARALLEL_CAMERA, false));
+    private final BooleanProperty showGcodeModel = new SimpleBooleanProperty(loadBoolean(SHOW_GCODE_MODEL, true));
+    private final BooleanProperty showRuler = new SimpleBooleanProperty(loadBoolean(SHOW_RULER, true));
+    private final BooleanProperty showGrid = new SimpleBooleanProperty(loadBoolean(SHOW_GRID, true));
+    private final BooleanProperty showAxes = new SimpleBooleanProperty(loadBoolean(SHOW_AXES, true));
+    private final BooleanProperty showDesign = new SimpleBooleanProperty(loadBoolean(SHOW_DESIGN, true));
+    private final BooleanProperty showTool = new SimpleBooleanProperty(loadBoolean(SHOW_TOOL, true));
 
     VisualizerSettings() {
         showMachine.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_MACHINE_MODEL, newVal));
@@ -95,6 +111,8 @@ public class VisualizerSettings {
         colorFeedMax.addListener((obs, oldVal, newVal) -> saveString(COLOR_FEED_MAX, newVal));
         colorSpindleMin.addListener((obs, oldVal, newVal) -> saveString(COLOR_SPINDLE_MIN, newVal));
         colorSpindleMax.addListener((obs, oldVal, newVal) -> saveString(COLOR_SPINDLE_MAX, newVal));
+        colorRulerLines.addListener((obs, oldVal, newVal) -> saveString(COLOR_RULER_LINES, newVal));
+        colorRulerText.addListener((obs, oldVal, newVal) -> saveString(COLOR_RULER_TEXT, newVal));
 
         invertZoom.addListener((obs, oldVal, newVal) -> saveBoolean(MOUSE_INVERT_ZOOM, newVal));
         panMouseButton.addListener((obs, oldVal, newVal) -> saveString(MOUSE_PAN_BUTTON, newVal));
@@ -102,6 +120,13 @@ public class VisualizerSettings {
         rotateMouseButton.addListener((obs, oldVal, newVal) -> saveString(MOUSE_ROTATE_BUTTON, newVal));
         rotateModifierKey.addListener((obs, oldVal, newVal) -> saveString(MOUSE_ROTATE_MODIFIER, newVal));
         useParallelCamera.addListener((obs, oldVal, newVal) -> saveBoolean(USE_PARALLEL_CAMERA, newVal));
+        lineWidth.addListener((obs, oldVal, newVal) -> saveFloat(LINE_WIDTH, newVal.floatValue()));
+        showGcodeModel.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_GCODE_MODEL, newVal));
+        showRuler.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_RULER, newVal));
+        showGrid.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_GRID, newVal));
+        showAxes.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_AXES, newVal));
+        showDesign.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_DESIGN, newVal));
+        showTool.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_TOOL, newVal));
     }
 
     public static VisualizerSettings getInstance() {
@@ -152,6 +177,14 @@ public class VisualizerSettings {
         return colorSpindleMax;
     }
 
+    public StringProperty colorRulerLinesProperty() {
+        return colorRulerLines;
+    }
+
+    public StringProperty colorRulerTextProperty() {
+        return colorRulerText;
+    }
+
     public StringProperty machineModelProperty() {
         return machineModel;
     }
@@ -184,6 +217,30 @@ public class VisualizerSettings {
         return useParallelCamera;
     }
 
+    public BooleanProperty showGcodeModelProperty() {
+        return showGcodeModel;
+    }
+
+    public BooleanProperty showRulerProperty() {
+        return showRuler;
+    }
+
+    public BooleanProperty showGridProperty() {
+        return showGrid;
+    }
+
+    public BooleanProperty showAxesProperty() {
+        return showAxes;
+    }
+
+    public BooleanProperty showDesignProperty() {
+        return showDesign;
+    }
+
+    public BooleanProperty showToolProperty() {
+        return showTool;
+    }
+
     private String loadString(String key, String defaultValue) {
         return preferences.get(key, defaultValue);
     }
@@ -204,4 +261,7 @@ public class VisualizerSettings {
         return preferences.getFloat(key, defaultValue);
     }
 
+    private void saveFloat(String key, float value) {
+        preferences.putFloat(key, value);
+    }
 }

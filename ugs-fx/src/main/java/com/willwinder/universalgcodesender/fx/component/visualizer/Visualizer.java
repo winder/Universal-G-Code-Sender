@@ -18,18 +18,23 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
-import com.willwinder.universalgcodesender.fx.actions.ToggleProjectionAction;
+import com.willwinder.universalgcodesender.fx.actions.CenterCameraAction;
 import com.willwinder.universalgcodesender.fx.component.visualizer.machine.Machine;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Axes;
-import com.willwinder.universalgcodesender.fx.component.visualizer.models.GcodeModel;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Grid;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
+import com.willwinder.universalgcodesender.fx.component.visualizer.models.Ruler;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Tool;
-import com.willwinder.universalgcodesender.fx.control.ActionButton;
-import com.willwinder.universalgcodesender.fx.helper.Colors;
+import com.willwinder.universalgcodesender.fx.model.WorkspaceBounds;
 import com.willwinder.universalgcodesender.fx.service.VisualizerService;
+import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.events.FileState;
+import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.services.LookupService;
 import javafx.animation.KeyFrame;
+import javafx.event.ActionEvent;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.collections.ListChangeListener;
@@ -42,8 +47,9 @@ import javafx.scene.ParallelCamera;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SpotLight;
+import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.SubScene;
-import javafx.scene.control.Button;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -52,6 +58,11 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
 public class Visualizer extends Pane {
     private final PerspectiveCamera perspectiveCamera;
     private final ParallelCamera parallelCamera;
@@ -59,6 +70,9 @@ public class Visualizer extends Pane {
     private final Group worldGroup;
     private double mouseOldX;
     private double mouseOldY;
+    private DragHandler activeDragHandler;
+    private double dragStartX;
+    private double dragStartY;
 
     private final Rotate rotateX = new Rotate(0, Rotate.X_AXIS);
     private final Rotate rotateY = new Rotate(180, Rotate.Y_AXIS);
@@ -73,8 +87,11 @@ public class Visualizer extends Pane {
     private final SubScene subScene;
     private final Group root3D;
 
+    // The id of the workspace the view was last auto-centered on, so a load only recenters once.
+    private volatile UUID lastCenteredWorkspaceId;
+
     public Visualizer() {
-        getStylesheets().add(getClass().getResource("/styles/visualizer.css").toExternalForm());
+        getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/visualizer.css")).toExternalForm());
 
         // Rotate group contains 3D objects
         Machine machine = new Machine();
@@ -114,18 +131,26 @@ public class Visualizer extends Pane {
 
         setMouseInteraction();
 
+        // Orientation controls: cube in the top-left corner with the projection toggle beneath it.
         OrientationCube orientationCube = new OrientationCube(110);
         orientationCube.setOnFaceClicked(this::rotateTo);
         orientationCube.setRotations(orientationCubeRotateX, orientationCubeRotateY, orientationCubeRotateZ);
-        orientationCube.layoutXProperty().bind(widthProperty().subtract(orientationCube.sizeProperty()).subtract(5));
+        orientationCube.layoutXProperty().set(5);
         orientationCube.layoutYProperty().set(5);
 
-        Button cameraToggle = new ActionButton(new ToggleProjectionAction(), 32, false, Color.WHITE);
-        cameraToggle.getStyleClass().add("visualizer-button");
-        cameraToggle.layoutXProperty().bind(widthProperty().subtract(cameraToggle.widthProperty()).subtract(38));
-        cameraToggle.layoutYProperty().bind(orientationCube.sizeProperty().add(10));
+        OrientationToolbar orientationToolbar = new OrientationToolbar();
+        orientationToolbar.layoutXProperty().bind(orientationCube.layoutXProperty()
+                .add(orientationCube.sizeProperty().divide(2))
+                .subtract(orientationToolbar.widthProperty().divide(2)));
+        orientationToolbar.layoutYProperty().bind(orientationCube.layoutYProperty()
+                .add(orientationCube.sizeProperty()).add(5));
 
-        getChildren().addAll(subScene, orientationCube, cameraToggle);
+        // Visualizer features in the top-right corner.
+        VisualizerToolbar toolbar = new VisualizerToolbar();
+        toolbar.layoutXProperty().bind(widthProperty().subtract(toolbar.widthProperty()).subtract(10));
+        toolbar.layoutYProperty().set(9);
+
+        getChildren().addAll(subScene, orientationCube, orientationToolbar, toolbar);
 
         // Add new models added through the visualizer service
         VisualizerService.getInstance().getModels().addListener((ListChangeListener<Model>) change -> {
@@ -141,10 +166,98 @@ public class Visualizer extends Pane {
             }
         });
 
+        VisualizerService.getInstance().setCenterOnBoundsHandler(this::centerOnWorkspace);
+
         VisualizerService.getInstance().addModel(new Axes());
-        VisualizerService.getInstance().addModel(new Tool());
         VisualizerService.getInstance().addModel(new Grid());
-        VisualizerService.getInstance().addModel(new GcodeModel());
+        VisualizerService.getInstance().addModel(new WorkspaceScene());
+        VisualizerService.getInstance().addModel(new Ruler());
+        VisualizerService.getInstance().addModel(new Tool());
+
+        // Fit the view to the content the first time a workspace is loaded.
+        CenterCameraAction centerCameraAction = new CenterCameraAction();
+        LookupService.lookup(BackendAPI.class).addUGSEventListener(event -> {
+            if (event instanceof FileStateEvent fileStateEvent
+                    && fileStateEvent.getFileState() == FileState.FILE_LOADED) {
+                WorkspaceManager.getInstance().getActiveWorkspace().ifPresent(workspace -> {
+                    if (!workspace.getId().equals(lastCenteredWorkspaceId)) {
+                        lastCenteredWorkspaceId = workspace.getId();
+                        centerCameraAction.handleAction(new ActionEvent());
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Recenters and zooms the view so the given workspace bounds are framed.
+     */
+    public void centerOnWorkspace(WorkspaceBounds bounds) {
+        double centerX = (bounds.minX() + bounds.maxX()) / 2.0;
+        double centerY = (bounds.minY() + bounds.maxY()) / 2.0;
+        double boundsWidth = Math.max(1e-3, bounds.maxX() - bounds.minX());
+        double boundsHeight = Math.max(1e-3, bounds.maxY() - bounds.minY());
+
+        // With translate applied outside the rotations and the pivot kept at (-tx, ty, 0), a
+        // designer point (px, py) lands at screen (px + tx, 3*ty - py) in the top-down view.
+        // Solving for the bounds center at the screen center (0, 0) gives:
+        double targetTx = -centerX;
+        double targetTy = centerY / 3.0;
+
+        double viewportWidth = Math.max(1.0, subScene.getWidth());
+        double viewportHeight = Math.max(1.0, subScene.getHeight());
+        double aspect = viewportWidth / viewportHeight;
+        double margin = 1.2;
+
+        // Pin the rotation pivot to the final value now so the view never jumps when it settles.
+        setRotationPivot(-targetTx, targetTy, 0);
+
+        List<KeyValue> start = new ArrayList<>(List.of(
+                new KeyValue(rotateX.angleProperty(), rotateX.getAngle()),
+                new KeyValue(rotateY.angleProperty(), rotateY.getAngle()),
+                new KeyValue(rotateZ.angleProperty(), rotateZ.getAngle()),
+                new KeyValue(orientationCubeRotateX.angleProperty(), orientationCubeRotateX.getAngle()),
+                new KeyValue(orientationCubeRotateY.angleProperty(), orientationCubeRotateY.getAngle()),
+                new KeyValue(orientationCubeRotateZ.angleProperty(), orientationCubeRotateZ.getAngle()),
+                new KeyValue(translate.xProperty(), translate.getX()),
+                new KeyValue(translate.yProperty(), translate.getY())));
+
+        List<KeyValue> end = new ArrayList<>(List.of(
+                new KeyValue(rotateX.angleProperty(), 0),
+                new KeyValue(rotateY.angleProperty(), 180),
+                new KeyValue(rotateZ.angleProperty(), 180),
+                new KeyValue(orientationCubeRotateX.angleProperty(), 0),
+                new KeyValue(orientationCubeRotateY.angleProperty(), 180),
+                new KeyValue(orientationCubeRotateZ.angleProperty(), 180),
+                new KeyValue(translate.xProperty(), targetTx),
+                new KeyValue(translate.yProperty(), targetTy)));
+
+        if (camera instanceof PerspectiveCamera pc) {
+            double neededWorldHeight = Math.max(boundsHeight, boundsWidth / aspect) * margin;
+            double distance = neededWorldHeight / (2.0 * Math.tan(Math.toRadians(pc.getFieldOfView()) / 2.0));
+            start.add(new KeyValue(cameraTranslate.zProperty(), cameraTranslate.getZ()));
+            end.add(new KeyValue(cameraTranslate.zProperty(), -distance));
+        } else {
+            double fitScale = Math.min(viewportHeight / (boundsHeight * margin), viewportWidth / (boundsWidth * margin));
+            start.add(new KeyValue(root3D.scaleXProperty(), root3D.getScaleX()));
+            start.add(new KeyValue(root3D.scaleYProperty(), root3D.getScaleY()));
+            end.add(new KeyValue(root3D.scaleXProperty(), fitScale));
+            end.add(new KeyValue(root3D.scaleYProperty(), fitScale));
+        }
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.ZERO, start.toArray(new KeyValue[0])),
+                new KeyFrame(Duration.seconds(1), end.toArray(new KeyValue[0])));
+        timeline.setOnFinished(e -> VisualizerService.getInstance().onZoomChange(getCurrentScale()));
+        timeline.play();
+    }
+
+    private void setRotationPivot(double px, double py, double pz) {
+        for (Rotate rotate : List.of(rotateX, rotateY, rotateZ)) {
+            rotate.setPivotX(px);
+            rotate.setPivotY(py);
+            rotate.setPivotZ(pz);
+        }
     }
 
     private void rotateTo(OrientationCubeFace face) {
@@ -206,8 +319,58 @@ public class Visualizer extends Pane {
             mouseOldY = event.getSceneY();
         });
 
-        // Handle mouse dragged event to implement panning and rotating
+        // Global pick dispatcher: for a primary-button press, walk the picked node's
+        // userData chain. A PickHandler means we hit a selectable entity — invoke it.
+        // A DragHandler-only userData means we hit a control handle — leave it to the
+        // worldGroup drag handler below. No handler found means an empty-space click;
+        // fire a background click so listeners (e.g. the designer) can clear selection.
+        subScene.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            if (event.getButton() != MouseButton.PRIMARY) return;
+
+            // When a designer drawing tool is active it takes priority over picking:
+            // begin a draw gesture at the designer point under the cursor.
+            Point2D designerPoint = toDesignerPoint(event.getX(), event.getY());
+            if (designerPoint != null) {
+                DragHandler drawHandler = VisualizerService.getInstance()
+                        .beginDrawGesture(designerPoint.getX(), designerPoint.getY());
+                if (drawHandler != null) {
+                    activeDragHandler = drawHandler;
+                    dragStartX = designerPoint.getX();
+                    dragStartY = designerPoint.getY();
+                    drawHandler.onDragStart(dragStartX, dragStartY);
+                    event.consume();
+                    return;
+                }
+            }
+
+            Node hit = event.getPickResult().getIntersectedNode();
+            while (hit != null) {
+                Object userData = hit.getUserData();
+                if (userData instanceof PickHandler handler) {
+                    handler.onPicked(event.isShiftDown());
+                    return;
+                }
+                if (userData instanceof DragHandler) {
+                    return;
+                }
+                hit = hit.getParent();
+            }
+
+            VisualizerService.getInstance().fireBackgroundClick(event);
+        });
+
+        // Handle mouse dragged event to implement panning, rotating, and control dragging
         subScene.setOnMouseDragged((MouseEvent event) -> {
+            if (activeDragHandler != null && event.isPrimaryButtonDown()) {
+                Point2D pt = toDesignerPoint(event.getX(), event.getY());
+                if (pt != null) {
+                    activeDragHandler.onDrag(dragStartX, dragStartY, pt.getX(), pt.getY());
+                }
+                mouseOldX = event.getSceneX();
+                mouseOldY = event.getSceneY();
+                return;
+            }
+
             double dx = event.getSceneX() - mouseOldX;
             double dy = event.getSceneY() - mouseOldY;
 
@@ -245,6 +408,38 @@ public class Visualizer extends Pane {
 
             mouseOldX = event.getSceneX();
             mouseOldY = event.getSceneY();
+        });
+
+        subScene.setOnMouseReleased(event -> {
+            DragHandler handler = activeDragHandler;
+            activeDragHandler = null;
+            if (handler != null) {
+                Point2D pt = toDesignerPoint(event.getX(), event.getY());
+                if (pt != null) {
+                    handler.onDragEnd(dragStartX, dragStartY, pt.getX(), pt.getY());
+                }
+            }
+        });
+
+        // Detect drag start on control handles (DragHandler in userData) inside the SubScene.
+        // Only react to PRIMARY button so right-click pan/rotate is never intercepted.
+        worldGroup.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
+            if (event.getButton() != MouseButton.PRIMARY) return;
+            Node intersected = event.getPickResult().getIntersectedNode();
+            Node current = intersected;
+            while (current != null) {
+                if (current.getUserData() instanceof DragHandler dh) {
+                    Point3D localPt = event.getPickResult().getIntersectedPoint();
+                    Point3D designerPt = worldGroup.sceneToLocal(intersected.localToScene(localPt));
+                    activeDragHandler = dh;
+                    dragStartX = designerPt.getX();
+                    dragStartY = designerPt.getY();
+                    dh.onDragStart(dragStartX, dragStartY);
+                    event.consume();
+                    return;
+                }
+                current = current.getParent();
+            }
         });
 
         // Zoom with mouse scroll
@@ -337,6 +532,38 @@ public class Visualizer extends Pane {
         // Ensure SubScene resizes with the parent node
         subScene.setWidth(getWidth());
         subScene.setHeight(getHeight());
+    }
+
+    /**
+     * Converts a SubScene pixel position to designer (worldGroup local) coordinates
+     * by intersecting the camera ray with the Z=0 plane in worldGroup local space.
+     */
+    private Point2D toDesignerPoint(double pixelX, double pixelY) {
+        if (!(camera instanceof PerspectiveCamera pc)) return null;
+
+        double W = subScene.getWidth();
+        double H = subScene.getHeight();
+        double camZ = cameraTranslate.getZ();
+
+        double tanHalf = Math.tan(Math.toRadians(pc.getFieldOfView()) / 2.0);
+        double ndcX = (pixelX - W / 2.0) / (H / 2.0);
+        double ndcY = (pixelY - H / 2.0) / (H / 2.0);
+
+        // Ray origin and a second point along the ray, both in root3D (parent of worldGroup) space
+        Point3D originRoot = new Point3D(0, 0, camZ);
+        Point3D endRoot = new Point3D(ndcX * tanHalf, ndcY * tanHalf, camZ + 1.0);
+
+        // Transform to worldGroup local (designer) space using the inverse of worldGroup's transform
+        Point3D localOrigin = worldGroup.parentToLocal(originRoot);
+        Point3D localEnd = worldGroup.parentToLocal(endRoot);
+        Point3D localDir = localEnd.subtract(localOrigin);
+
+        if (Math.abs(localDir.getZ()) < 1e-9) return null;
+        double t = -localOrigin.getZ() / localDir.getZ();
+        return new Point2D(
+                localOrigin.getX() + t * localDir.getX(),
+                localOrigin.getY() + t * localDir.getY()
+        );
     }
 
     private void updateRotationPivotFromPan() {

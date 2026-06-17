@@ -20,20 +20,33 @@ package com.willwinder.universalgcodesender.fx.component;
 
 import com.willwinder.universalgcodesender.fx.actions.Action;
 import com.willwinder.universalgcodesender.fx.actions.ConnectDisconnectAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignCopyAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignDeleteAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignPasteAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignRedoAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignUndoAction;
 import com.willwinder.universalgcodesender.fx.actions.HomingAction;
+import com.willwinder.universalgcodesender.fx.actions.NewDesignAction;
 import com.willwinder.universalgcodesender.fx.actions.OpenFileAction;
 import com.willwinder.universalgcodesender.fx.actions.OpenSettingsAction;
 import com.willwinder.universalgcodesender.fx.actions.PauseAction;
 import com.willwinder.universalgcodesender.fx.actions.ReturnToZeroAction;
+import com.willwinder.universalgcodesender.fx.actions.SaveAction;
 import com.willwinder.universalgcodesender.fx.actions.SoftResetAction;
 import com.willwinder.universalgcodesender.fx.actions.StartAction;
 import com.willwinder.universalgcodesender.fx.actions.StopAction;
-import com.willwinder.universalgcodesender.fx.actions.ToggleMachineVisualizationAction;
 import com.willwinder.universalgcodesender.fx.actions.UnlockAction;
 import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import com.willwinder.universalgcodesender.fx.control.ToggleActionButton;
+import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
+import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
+import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.Settings;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBase;
@@ -47,19 +60,25 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ToolBarMenu extends VBox {
 
     private static final int BUTTON_WIDTH = 110;
 
+    private final BooleanProperty designerActive = new SimpleBooleanProperty(false);
+
     public ToolBarMenu() {
-        getStylesheets().add(getClass().getResource("/styles/toolbar-button.css").toExternalForm());
+        getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/toolbar-button.css")).toExternalForm());
 
         List<Node> children = getChildren();
         createButton(ConnectDisconnectAction.class).ifPresent(children::add);
         children.add(new Separator());
+        createButton(NewDesignAction.class).ifPresent(children::add);
         createButton(OpenFileAction.class).ifPresent(children::add);
+        createButton(SaveAction.class).ifPresent(children::add);
+        addDesignerGroup(children);
         children.add(new Separator());
         createButton(StartAction.class).ifPresent(children::add);
         createButton(PauseAction.class).ifPresent(children::add);
@@ -74,14 +93,74 @@ public class ToolBarMenu extends VBox {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         children.add(spacer);
 
-        createToggleButton(ToggleMachineVisualizationAction.class).ifPresent(children::add);
-        children.add(new Separator());
         createButton(OpenSettingsAction.class).ifPresent(children::add);
 
         ToolBar toolBar = new ToolBar();
         toolBar.getItems().addAll(children);
 
         getChildren().add(toolBar);
+    }
+
+    /**
+     * Adds the context aware designer actions (undo/redo/copy/paste/delete) as a collapsible group.
+     * The group, including its leading separator, is only visible while a designer ({@code .ugsd})
+     * workspace is active; for a gcode workspace it collapses and takes up no space.
+     */
+    private void addDesignerGroup(List<Node> children) {
+        trackDesignerWorkspace();
+
+        Separator separator = new Separator();
+        bindVisibility(separator, designerActive);
+        children.add(separator);
+
+        addDesignerButton(children, DesignUndoAction.class);
+        addDesignerButton(children, DesignRedoAction.class);
+        addDesignerButton(children, DesignCopyAction.class);
+        addDesignerButton(children, DesignPasteAction.class);
+        addDesignerButton(children, DesignDeleteAction.class);
+    }
+
+    /**
+     * Listens to the active workspace and reflects whether it is a designer workspace into
+     * {@link #designerActive}. Keeping the context-type check here means the {@link WorkspaceManager}
+     * does not need to know about the individual workspace types.
+     */
+    private void trackDesignerWorkspace() {
+        WorkspaceManager manager = WorkspaceManager.getInstance();
+        updateDesignerActive(manager.getActiveWorkspace().orElse(null));
+        manager.addListener(new WorkspaceManager.WorkspaceListener() {
+            @Override
+            public void onWorkspaceOpened(WorkspaceContext workspace) {
+                updateDesignerActive(workspace);
+            }
+
+            @Override
+            public void onWorkspaceClosed() {
+                updateDesignerActive(null);
+            }
+
+            @Override
+            public void onWorkspaceDirtyStateChanged(WorkspaceContext workspace, boolean dirty) {
+                // Visibility does not depend on the dirty state
+            }
+        });
+    }
+
+    private void updateDesignerActive(WorkspaceContext workspace) {
+        boolean isDesigner = workspace instanceof UgsdWorkspaceContext;
+        Platform.runLater(() -> designerActive.set(isDesigner));
+    }
+
+    private void addDesignerButton(List<Node> children, Class<?> actionClass) {
+        createButton(actionClass).ifPresent(node -> {
+            bindVisibility(node, designerActive);
+            children.add(node);
+        });
+    }
+
+    private static void bindVisibility(Node node, ObservableValue<? extends Boolean> visible) {
+        node.visibleProperty().bind(visible);
+        node.managedProperty().bind(visible);
     }
 
     private Optional<Node> createButton(Class<?> actionClass) {
@@ -100,6 +179,7 @@ public class ToolBarMenu extends VBox {
     private static void setShowText(ActionButton actionButton) {
         boolean showText = Settings.getInstance().showToolbarTextProperty().get();
         actionButton.setPrefWidth(showText ? BUTTON_WIDTH : ActionButton.USE_COMPUTED_SIZE);
+        actionButton.setContentDisplay(showText ? ContentDisplay.TOP : ContentDisplay.GRAPHIC_ONLY);
         actionButton.setShowText(showText);
     }
 
@@ -127,6 +207,7 @@ public class ToolBarMenu extends VBox {
     private static void setShowText(ToggleActionButton actionButton) {
         boolean showText = Settings.getInstance().showToolbarTextProperty().get();
         actionButton.setPrefWidth(showText ? BUTTON_WIDTH : ActionButton.USE_COMPUTED_SIZE);
+        actionButton.setContentDisplay(showText ? ContentDisplay.TOP : ContentDisplay.GRAPHIC_ONLY);
         actionButton.setShowText(showText);
     }
 }

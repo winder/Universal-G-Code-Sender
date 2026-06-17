@@ -42,8 +42,8 @@ public class SettingsRow extends HBox {
         label.setPrefHeight(Region.USE_COMPUTED_SIZE);
         label.setMaxHeight(Double.MAX_VALUE);
         label.setAlignment(Pos.CENTER_LEFT);
-        label.setMinWidth(220);
-        label.setPrefWidth(220);
+        label.setMinWidth(160);
+        label.setPrefWidth(160);
         label.setMaxWidth(220);
         label.setTextOverrun(OverrunStyle.CLIP);
 
