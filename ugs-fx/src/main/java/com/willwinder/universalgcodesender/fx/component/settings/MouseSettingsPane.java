@@ -51,6 +51,33 @@ public class MouseSettingsPane extends BorderPane {
         );
         mouseControls.getChildren().add(new SettingsRow("Invert scroll wheel zoom", "Inverts the zoom direction when using the mouse scroll wheel", invertZoom));
 
+        // Primary binding
+        ComboBox<String> primaryButton =
+                new ComboBox<>(FXCollections.observableArrayList("PRIMARY", "MIDDLE", "SECONDARY"));
+        primaryButton.valueProperty().bindBidirectional(
+                VisualizerSettings.getInstance().primaryMouseButtonProperty()
+        );
+        primaryButton.setValue(
+                VisualizerSettings.getInstance().primaryMouseButtonProperty().getValue()
+        );
+
+        ComboBox<VisualizerSettings.ModifierKey> primaryModifier =
+                new ComboBox<>(FXCollections.observableArrayList(VisualizerSettings.ModifierKey.values()));
+        primaryModifier.valueProperty().addListener((obs, oldVal, newVal) ->
+                VisualizerSettings.getInstance().primaryModifierKeyProperty()
+                        .set(newVal == null
+                                ? VisualizerSettings.ModifierKey.NONE.name()
+                                : newVal.name())
+        );
+        primaryModifier.setValue(
+                VisualizerSettings.ModifierKey.fromString(
+                        VisualizerSettings.getInstance().primaryModifierKeyProperty().getValue(),
+                        VisualizerSettings.ModifierKey.NONE
+                )
+        );
+
+        mouseControls.getChildren().add(new SettingsRow("Primary button", primaryButton, primaryModifier));
+
         // Pan binding
         ComboBox<String> panButton =
                 new ComboBox<>(FXCollections.observableArrayList("PRIMARY", "MIDDLE", "SECONDARY"));
