@@ -9,9 +9,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.ControllerStatusEvent;
 import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.Group;
 
@@ -22,10 +20,6 @@ public abstract class MachineModel extends Group {
     private final DoubleProperty machineSizeX = new SimpleDoubleProperty(300);
     private final DoubleProperty machineSizeY = new SimpleDoubleProperty(300);
     private final DoubleProperty machineSizeZ = new SimpleDoubleProperty(100);
-
-    private final BooleanProperty homingInvertX = new SimpleBooleanProperty(false);
-    private final BooleanProperty homingInvertY = new SimpleBooleanProperty(false);
-    private final BooleanProperty homingInvertZ = new SimpleBooleanProperty(false);
 
     private final BackendAPI backend;
 
@@ -58,17 +52,12 @@ public abstract class MachineModel extends Group {
     }
 
     private void updateMachinePosition(Position targetMachinePosition) {
-        if (!homingInvertX.get()) {
-            targetMachinePosition.set(Axis.X, targetMachinePosition.get(Axis.X) + machineSizeX.get());
-        }
-
-        if (!homingInvertY.get()) {
-            targetMachinePosition.set(Axis.Y, targetMachinePosition.get(Axis.Y) + machineSizeY.get());
-        }
-
-        if (!homingInvertZ.get()) {
-            targetMachinePosition.set(Axis.Z, targetMachinePosition.get(Axis.Z) + machineSizeZ.get());
-        }
+        // Standard GRBL keeps the machine origin at the maximum travel corner, so the
+        // reachable envelope is always negative (-machineSize .. 0) regardless of the
+        // homing direction. Shift it into the positive model space (0 .. machineSize).
+        targetMachinePosition.set(Axis.X, targetMachinePosition.get(Axis.X) + machineSizeX.get());
+        targetMachinePosition.set(Axis.Y, targetMachinePosition.get(Axis.Y) + machineSizeY.get());
+        targetMachinePosition.set(Axis.Z, targetMachinePosition.get(Axis.Z) + machineSizeZ.get());
 
         machinePositionAnimator.setTarget(targetMachinePosition);
         machinePositionAnimator.start();
@@ -80,10 +69,6 @@ public abstract class MachineModel extends Group {
         }
 
         try {
-            homingInvertX.set(backend.getController().getFirmwareSettings().isHomingDirectionInverted(Axis.X));
-            homingInvertY.set(backend.getController().getFirmwareSettings().isHomingDirectionInverted(Axis.Y));
-            homingInvertZ.set(backend.getController().getFirmwareSettings().isHomingDirectionInverted(Axis.Z));
-
             machineSizeX.set(backend.getController().getFirmwareSettings().getSoftLimit(Axis.X));
             machineSizeY.set(backend.getController().getFirmwareSettings().getSoftLimit(Axis.Y));
             machineSizeZ.set(backend.getController().getFirmwareSettings().getSoftLimit(Axis.Z));

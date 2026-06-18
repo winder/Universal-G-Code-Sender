@@ -529,8 +529,8 @@ public class Visualizer extends Pane {
 
     private PerspectiveCamera createPerspectiveCamera() {
         PerspectiveCamera camera = new PerspectiveCamera(true);
-        camera.setNearClip(0.1);
-        camera.setFarClip(10000);
+        camera.setNearClip(2);
+        camera.setFarClip(6000);
         camera.getTransforms().add(cameraTranslate);
         return camera;
     }

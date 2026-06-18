@@ -17,7 +17,7 @@ public class Axes extends Model {
     private final Cylinder axisZ;
 
     public Axes() {
-        setDepthTest(DepthTest.DISABLE);
+        setDepthTest(DepthTest.ENABLE);
         axisX = new Cylinder(RADIUS, 200);
         axisX.getTransforms().addAll(new Rotate(90, Rotate.Z_AXIS), new Translate(0, -100, 0));
         axisX.setMaterial(new PhongMaterial(Color.RED));

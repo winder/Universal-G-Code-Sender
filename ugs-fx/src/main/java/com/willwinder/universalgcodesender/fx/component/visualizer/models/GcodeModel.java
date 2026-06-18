@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
+import com.willwinder.universalgcodesender.fx.component.visualizer.DepthLayers;
 import com.willwinder.universalgcodesender.services.LookupService;
 import static com.willwinder.universalgcodesender.fx.helper.Colors.blend;
 import static com.willwinder.universalgcodesender.fx.helper.Colors.interpolate;
@@ -83,7 +84,8 @@ public class GcodeModel extends Model {
         meshView = new MeshView();
         meshView.setCullFace(CullFace.NONE);
         meshView.setMouseTransparent(true);
-        meshView.setDepthTest(DepthTest.DISABLE);
+        meshView.setDepthTest(DepthTest.ENABLE);
+        meshView.setTranslateZ(DepthLayers.GCODE_Z_OFFSET);
 
         getChildren().add(meshView);
         BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
