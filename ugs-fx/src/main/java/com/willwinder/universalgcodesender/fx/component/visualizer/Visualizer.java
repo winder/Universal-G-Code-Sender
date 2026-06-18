@@ -207,7 +207,7 @@ public class Visualizer extends Pane {
         double viewportWidth = Math.max(1.0, subScene.getWidth());
         double viewportHeight = Math.max(1.0, subScene.getHeight());
         double aspect = viewportWidth / viewportHeight;
-        double margin = 1.2;
+        double margin = 1.4;
 
         // Pin the rotation pivot to the final value now so the view never jumps when it settles.
         setRotationPivot(-targetTx, targetTy, 0);
