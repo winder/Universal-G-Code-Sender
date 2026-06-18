@@ -35,6 +35,7 @@ import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DrawerPane extends BorderPane {
 
@@ -44,7 +45,7 @@ public class DrawerPane extends BorderPane {
     private final TranslateTransition slideTransition = new TranslateTransition(Duration.millis(300), this);
 
     public DrawerPane() {
-        getStylesheets().add(getClass().getResource("/styles/drawer-pane.css").toExternalForm());
+        getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/drawer-pane.css")).toExternalForm());
         getStyleClass().add("drawer-pane");
         setMaxWidth(600);
 
