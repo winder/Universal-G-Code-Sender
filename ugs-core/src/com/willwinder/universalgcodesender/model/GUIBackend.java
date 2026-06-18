@@ -40,6 +40,9 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.FileState;
 import com.willwinder.universalgcodesender.model.events.FileStateEvent;
+import com.willwinder.universalgcodesender.services.BackendFileLoader;
+import com.willwinder.universalgcodesender.services.FileLoader;
+import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
@@ -413,7 +416,9 @@ public class GUIBackend implements BackendAPI {
 
         String workspaceDirectory = settings.getWorkspaceDirectory();
         String filename = workspaceDirectory + File.separatorChar + file;
-        setGcodeFile(new File(filename));
+        FileLoader fileLoader = LookupService.lookupOptional(FileLoader.class)
+                .orElseGet(() -> new BackendFileLoader(this));
+        fileLoader.openFile(new File(filename));
     }
 
     @Override

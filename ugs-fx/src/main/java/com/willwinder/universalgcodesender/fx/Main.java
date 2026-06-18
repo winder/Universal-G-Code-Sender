@@ -35,6 +35,7 @@ import com.willwinder.universalgcodesender.fx.service.ActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.JogActionRegistry;
 import com.willwinder.universalgcodesender.fx.service.MacroActionService;
 import com.willwinder.universalgcodesender.fx.service.ShortcutService;
+import com.willwinder.universalgcodesender.fx.service.WorkspaceFileLoader;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -74,6 +75,7 @@ public class Main extends Application {
         GUIBackend backend = new GUIBackend();
         backend.applySettings(SettingsFactory.loadSettings());
         LookupService.register(backend);
+        LookupService.register(new WorkspaceFileLoader());
         Localization.initialize(backend.getSettings().getLanguage());
 
         try {
