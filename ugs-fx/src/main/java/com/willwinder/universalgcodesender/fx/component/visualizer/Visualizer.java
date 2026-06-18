@@ -207,7 +207,7 @@ public class Visualizer extends Pane {
         double viewportWidth = Math.max(1.0, subScene.getWidth());
         double viewportHeight = Math.max(1.0, subScene.getHeight());
         double aspect = viewportWidth / viewportHeight;
-        double margin = 1.2;
+        double margin = 1.4;
 
         // Pin the rotation pivot to the final value now so the view never jumps when it settles.
         setRotationPivot(-targetTx, targetTy, 0);
@@ -292,13 +292,17 @@ public class Visualizer extends Pane {
     }
 
     private static boolean isModifierDown(MouseEvent event, VisualizerSettings.ModifierKey modifier) {
-        if (modifier == null) return true;
+        if (modifier == null || modifier == VisualizerSettings.ModifierKey.NONE) {
+            return !event.isShiftDown() && !event.isControlDown()
+                    && !event.isAltDown() && !event.isMetaDown();
+        }
+
         return switch (modifier) {
-            case NONE -> true;
             case SHIFT -> event.isShiftDown();
             case CTRL -> event.isControlDown();
             case ALT -> event.isAltDown();
             case META -> event.isMetaDown();
+            default -> false;
         };
     }
 
@@ -310,6 +314,36 @@ public class Visualizer extends Pane {
             case SECONDARY -> event.isSecondaryButtonDown();
             default -> false;
         };
+    }
+
+    private static MouseButton getPrimaryButton() {
+        return parseMouseButton(
+                VisualizerSettings.getInstance().primaryMouseButtonProperty().getValue(),
+                MouseButton.PRIMARY
+        );
+    }
+
+    private static VisualizerSettings.ModifierKey getPrimaryModifier() {
+        return VisualizerSettings.ModifierKey.fromString(
+                VisualizerSettings.getInstance().primaryModifierKeyProperty().getValue(),
+                VisualizerSettings.ModifierKey.NONE
+        );
+    }
+
+    /**
+     * Whether a mouse press triggers the designer primary action (click/draw),
+     * based on the configured primary button + modifier.
+     */
+    private static boolean isPrimaryActivation(MouseEvent event) {
+        return event.getButton() == getPrimaryButton() && isModifierDown(event, getPrimaryModifier());
+    }
+
+    /**
+     * Whether the designer primary button is still held during a drag,
+     * based on the configured primary button + modifier.
+     */
+    private static boolean isPrimaryDragActive(MouseEvent event) {
+        return isButtonDown(event, getPrimaryButton()) && isModifierDown(event, getPrimaryModifier());
     }
 
     private void setMouseInteraction() {
@@ -325,7 +359,7 @@ public class Visualizer extends Pane {
         // worldGroup drag handler below. No handler found means an empty-space click;
         // fire a background click so listeners (e.g. the designer) can clear selection.
         subScene.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
-            if (event.getButton() != MouseButton.PRIMARY) return;
+            if (!isPrimaryActivation(event)) return;
 
             // When a designer drawing tool is active it takes priority over picking:
             // begin a draw gesture at the designer point under the cursor.
@@ -361,7 +395,7 @@ public class Visualizer extends Pane {
 
         // Handle mouse dragged event to implement panning, rotating, and control dragging
         subScene.setOnMouseDragged((MouseEvent event) -> {
-            if (activeDragHandler != null && event.isPrimaryButtonDown()) {
+            if (activeDragHandler != null && isPrimaryDragActive(event)) {
                 Point2D pt = toDesignerPoint(event.getX(), event.getY());
                 if (pt != null) {
                     activeDragHandler.onDrag(dragStartX, dragStartY, pt.getX(), pt.getY());
@@ -422,9 +456,8 @@ public class Visualizer extends Pane {
         });
 
         // Detect drag start on control handles (DragHandler in userData) inside the SubScene.
-        // Only react to PRIMARY button so right-click pan/rotate is never intercepted.
         worldGroup.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
-            if (event.getButton() != MouseButton.PRIMARY) return;
+            if (!isPrimaryActivation(event)) return;
             Node intersected = event.getPickResult().getIntersectedNode();
             Node current = intersected;
             while (current != null) {
@@ -496,8 +529,8 @@ public class Visualizer extends Pane {
 
     private PerspectiveCamera createPerspectiveCamera() {
         PerspectiveCamera camera = new PerspectiveCamera(true);
-        camera.setNearClip(0.1);
-        camera.setFarClip(10000);
+        camera.setNearClip(2);
+        camera.setFarClip(6000);
         camera.getTransforms().add(cameraTranslate);
         return camera;
     }

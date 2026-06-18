@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
+import com.willwinder.universalgcodesender.fx.component.visualizer.DepthLayers;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
@@ -57,7 +58,7 @@ public class Ruler extends Model {
     /**
      * Slight Z lift to avoid z-fighting with grid/plane.
      */
-    private static final double Z_OFFSET = 0.002;
+    private static final double Z_OFFSET = DepthLayers.RULER_Z_OFFSET;
 
     /**
      * Target height of label glyphs in world units (mm).
@@ -108,7 +109,7 @@ public class Ruler extends Model {
     private UnitUtils.Units activeUnits = UnitUtils.Units.MM;
 
     public Ruler() {
-        setDepthTest(DepthTest.DISABLE);
+        setDepthTest(DepthTest.ENABLE);
 
         this.backend = LookupService.lookup(BackendAPI.class);
         activeUnits = backend.getSettings().getPreferredUnits();

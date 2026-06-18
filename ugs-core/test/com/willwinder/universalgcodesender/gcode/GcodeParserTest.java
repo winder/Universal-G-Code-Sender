@@ -44,7 +44,10 @@ import com.willwinder.universalgcodesender.utils.IGcodeWriter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.data.Offset;
 import org.junit.Assert;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -63,7 +66,8 @@ import java.util.List;
  * @author wwinder
  */
 public class GcodeParserTest {
-    
+    private static final Offset<Double> TOLERANCE = Offset.offset(0.0001);
+
     private void testCommand(List<GcodeMeta> segments, int numResults, double speed,
             double x, double y, double z,
             boolean fastTraversal, boolean zMovement, boolean arc, boolean clockwise,
@@ -349,6 +353,56 @@ public class GcodeParserTest {
         List<String> result = instance.preprocessCommand(command, instance.getCurrentState());
         assertEquals(1, result.size());
         assertEquals(" G01 X10", result.get(0));
+    }
 
+    @Test
+    public void getBounds_shouldCoverFullArcSweepNotJustEndPoints() throws Exception {
+        // A half circle of radius 0.5" (1" diameter) centered at the origin. The end points alone
+        // would only span (-0.5,0)..(0,-0.5), missing the bulge that reaches +0.5 on both axes.
+        GcodeParser parser = new GcodeParser();
+        parser.addCommand("G17 G20 G90");
+        parser.addCommand("X-0.5 Y0.");
+        parser.addCommand("G1 Z0.");
+
+        parser.addCommand("G2 X0. Y-0.5 I0.5 J0.");
+        parser.addCommand("G2 X-0.5 Y0. I0. J0.5");
+
+        GcodeStats stats = parser.getCurrentStats();
+        // Stats are stored in millimetres: 0.5" = 12.7mm, so the box should be 25.4mm (1") on a side.
+        assertThat(stats.getMin().x).isCloseTo(-12.7, TOLERANCE);
+        assertThat(stats.getMin().y).isCloseTo(-12.7, TOLERANCE);
+        assertThat(stats.getMax().x).isCloseTo(12.7, TOLERANCE);
+        assertThat(stats.getMax().y).isCloseTo(12.7, TOLERANCE);
+    }
+
+    @Test
+    public void getBounds_shouldOnlyCoverEndPointsForStraightMoves() throws Exception {
+        GcodeParser parser = new GcodeParser();
+        parser.addCommand("G21 G90");
+        parser.addCommand("G1 X10 Y5");
+        parser.addCommand("G1 X-3 Y20");
+
+        GcodeStats stats = parser.getCurrentStats();
+        assertThat(stats.getMin().x).isCloseTo(-3, TOLERANCE);
+        assertThat(stats.getMin().y).isCloseTo(5, TOLERANCE);
+        assertThat(stats.getMax().x).isCloseTo(10, TOLERANCE);
+        assertThat(stats.getMax().y).isCloseTo(20, TOLERANCE);
+    }
+
+    @Test
+    public void getBounds_shouldCoverRotationSweepInCartesianSpace() throws Exception {
+        // The tool sits at Z10 (10mm from the X rotation axis) and the A axis rotates 180 degrees.
+        // The wrapped path sweeps a semicircle, reaching Y=10 at 90 degrees, which the start/end
+        // points (Y=0) would miss entirely.
+        GcodeParser parser = new GcodeParser();
+        parser.addCommand("G21 G90");
+        parser.addCommand("G0 X0 Y0 Z10");
+        parser.addCommand("G1 A180");
+
+        GcodeStats stats = parser.getCurrentStats();
+        assertThat(stats.getMin().y).isCloseTo(0, TOLERANCE);
+        assertThat(stats.getMax().y).isCloseTo(10, TOLERANCE);
+        assertThat(stats.getMin().z).isCloseTo(-10, TOLERANCE);
+        assertThat(stats.getMax().z).isCloseTo(10, TOLERANCE);
     }
 }

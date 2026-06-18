@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
+import com.willwinder.universalgcodesender.fx.component.visualizer.DepthLayers;
 import com.willwinder.universalgcodesender.services.LookupService;
 import static com.willwinder.universalgcodesender.fx.helper.Colors.blend;
 import static com.willwinder.universalgcodesender.fx.helper.Colors.interpolate;
@@ -83,7 +84,8 @@ public class GcodeModel extends Model {
         meshView = new MeshView();
         meshView.setCullFace(CullFace.NONE);
         meshView.setMouseTransparent(true);
-        meshView.setDepthTest(DepthTest.DISABLE);
+        meshView.setDepthTest(DepthTest.ENABLE);
+        meshView.setTranslateZ(DepthLayers.GCODE_Z_OFFSET);
 
         getChildren().add(meshView);
         BackendAPI backendAPI = LookupService.lookup(BackendAPI.class);
@@ -163,7 +165,7 @@ public class GcodeModel extends Model {
         float r = lineWidth;
 
         for (int i = 0; i < lineSegments.size(); i++) {
-            LineSegment segment = lineSegments.get(i);
+            LineSegment segment = VisualizerUtils.toCartesian(lineSegments.get(i));
 
             Point3D p1 = toPoint(segment.getStart().getPositionIn(UnitUtils.Units.MM));
             Point3D p2 = toPoint(segment.getEnd().getPositionIn(UnitUtils.Units.MM));
@@ -246,7 +248,11 @@ public class GcodeModel extends Model {
     }
 
     private Point3D toPoint(Position pos) {
-        return new Point3D(pos.getX(), pos.getY(), pos.getZ());
+        return new Point3D(zeroIfNaN(pos.getX()), zeroIfNaN(pos.getY()), zeroIfNaN(pos.getZ()));
+    }
+
+    private static double zeroIfNaN(double value) {
+        return Double.isNaN(value) ? 0 : value;
     }
 
     @Override

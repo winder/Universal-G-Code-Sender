@@ -49,6 +49,8 @@ public class VisualizerSettings {
     private static final String MOUSE_PAN_MODIFIER = "mouse.pan.modifier";
     private static final String MOUSE_ROTATE_BUTTON = "mouse.rotate.button";
     private static final String MOUSE_ROTATE_MODIFIER = "mouse.rotate.modifier";
+    private static final String MOUSE_PRIMARY_BUTTON = "mouse.primary.button";
+    private static final String MOUSE_PRIMARY_MODIFIER = "mouse.primary.modifier";
     private static final String USE_PARALLEL_CAMERA = "useParallelCamera";
     private static final String SHOW_GCODE_MODEL = "showGcodeModel";
     private static final String SHOW_RULER = "showRuler";
@@ -88,9 +90,11 @@ public class VisualizerSettings {
 
     private final BooleanProperty invertZoom = new SimpleBooleanProperty(loadBoolean(MOUSE_INVERT_ZOOM, false));
     private final StringProperty panMouseButton = new SimpleStringProperty(loadString(MOUSE_PAN_BUTTON, "SECONDARY"));
-    private final StringProperty panModifierKey = new SimpleStringProperty(loadString(MOUSE_PAN_MODIFIER, ModifierKey.SHIFT.name()));
+    private final StringProperty panModifierKey = new SimpleStringProperty(loadString(MOUSE_PAN_MODIFIER, ModifierKey.NONE.name()));
     private final StringProperty rotateMouseButton = new SimpleStringProperty(loadString(MOUSE_ROTATE_BUTTON, "SECONDARY"));
-    private final StringProperty rotateModifierKey = new SimpleStringProperty(loadString(MOUSE_ROTATE_MODIFIER, ModifierKey.NONE.name()));
+    private final StringProperty rotateModifierKey = new SimpleStringProperty(loadString(MOUSE_ROTATE_MODIFIER, ModifierKey.SHIFT.name()));
+    private final StringProperty primaryMouseButton = new SimpleStringProperty(loadString(MOUSE_PRIMARY_BUTTON, "PRIMARY"));
+    private final StringProperty primaryModifierKey = new SimpleStringProperty(loadString(MOUSE_PRIMARY_MODIFIER, ModifierKey.NONE.name()));
     private final FloatProperty lineWidth = new SimpleFloatProperty(loadFloat(LINE_WIDTH, 0.1f));
     private final BooleanProperty useParallelCamera = new SimpleBooleanProperty(loadBoolean(USE_PARALLEL_CAMERA, false));
     private final BooleanProperty showGcodeModel = new SimpleBooleanProperty(loadBoolean(SHOW_GCODE_MODEL, true));
@@ -119,6 +123,8 @@ public class VisualizerSettings {
         panModifierKey.addListener((obs, oldVal, newVal) -> saveString(MOUSE_PAN_MODIFIER, newVal));
         rotateMouseButton.addListener((obs, oldVal, newVal) -> saveString(MOUSE_ROTATE_BUTTON, newVal));
         rotateModifierKey.addListener((obs, oldVal, newVal) -> saveString(MOUSE_ROTATE_MODIFIER, newVal));
+        primaryMouseButton.addListener((obs, oldVal, newVal) -> saveString(MOUSE_PRIMARY_BUTTON, newVal));
+        primaryModifierKey.addListener((obs, oldVal, newVal) -> saveString(MOUSE_PRIMARY_MODIFIER, newVal));
         useParallelCamera.addListener((obs, oldVal, newVal) -> saveBoolean(USE_PARALLEL_CAMERA, newVal));
         lineWidth.addListener((obs, oldVal, newVal) -> saveFloat(LINE_WIDTH, newVal.floatValue()));
         showGcodeModel.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_GCODE_MODEL, newVal));
@@ -207,6 +213,14 @@ public class VisualizerSettings {
 
     public StringProperty rotateModifierKeyProperty() {
         return rotateModifierKey;
+    }
+
+    public StringProperty primaryMouseButtonProperty() {
+        return primaryMouseButton;
+    }
+
+    public StringProperty primaryModifierKeyProperty() {
+        return primaryModifierKey;
     }
 
     public FloatProperty lineWidthProperty() {

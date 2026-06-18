@@ -196,3 +196,61 @@
     -fx-border-color: -ugs-border-color;
     -fx-border-width: 0 0 1 0;
 }
+
+/**
+ * Scrollbars
+ */
+.scroll-bar {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.scroll-bar:vertical {
+    -fx-pref-width: 12;
+}
+
+.scroll-bar:horizontal {
+    -fx-pref-height: 12;
+}
+
+.scroll-bar > .track,
+.scroll-bar > .track-background {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.scroll-bar > .thumb {
+    -fx-background-color: -fx-focus-background-color;
+    -fx-background-insets: 2;
+    -fx-background-radius: 6;
+}
+
+.scroll-bar > .thumb:hover {
+    -fx-background-color:  derive(-fx-focus-background-color, -20%);
+}
+
+.scroll-bar > .thumb:pressed {
+    -fx-background-color:  derive(-fx-focus-background-color, -30%);
+}
+
+/* Collapse the increment/decrement arrow buttons so only the thumb remains. */
+.scroll-bar > .increment-button,
+.scroll-bar > .decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar > .increment-button > .increment-arrow,
+.scroll-bar > .decrement-button > .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+/* Where a vertical and horizontal bar meet inside a scroll pane. */
+.scroll-pane > .corner,
+.corner {
+    -fx-background-color: transparent;
+}

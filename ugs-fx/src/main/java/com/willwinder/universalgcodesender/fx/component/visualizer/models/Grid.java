@@ -1,5 +1,6 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.models;
 
+import com.willwinder.universalgcodesender.fx.component.visualizer.DepthLayers;
 import com.willwinder.universalgcodesender.fx.model.WorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
 import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
@@ -44,8 +45,7 @@ public class Grid extends Model {
     /** Visual thickness (diameter) at zoomFactor == 1.0, in world units (mm). */
     private static final double GRID_DIAMETER = 0.08;
 
-    /** Slight Z lift to avoid z-fighting with the plane/model. */
-    private static final double Z_OFFSET = 0.001;
+    private static final double Z_OFFSET = DepthLayers.GRID_Z_OFFSET;
 
     private final BackendAPI backend;
 
@@ -65,7 +65,7 @@ public class Grid extends Model {
     private double currentGridStepMm;
 
     public Grid() {
-        setDepthTest(DepthTest.DISABLE);
+        setDepthTest(DepthTest.ENABLE);
         this.backend = LookupService.lookup(BackendAPI.class);
         activeUnits = backend.getSettings().getPreferredUnits();
         currentGridStepMm = coarseStepMm();

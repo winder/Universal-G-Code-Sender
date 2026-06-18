@@ -20,8 +20,10 @@ package com.willwinder.universalgcodesender.fx.settings;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 import java.util.prefs.Preferences;
 
@@ -37,6 +39,8 @@ public class Settings {
     private static final String PENDANT_AUTOSTART = "pendant.autostart";
     private static final String SHOW_TOOLBAR_TEXT = "window.showToolBarText";
     private static final String SHOW_MACHINE_POSITION = "window.showMachinePosition";
+    private static final String DRAWER_SELECTED_INDEX = "drawer.selectedIndex";
+    private static final String DRAWER_EXPANDED = "drawer.expanded";
 
     private static final Preferences preferences = Preferences.userNodeForPackage(Settings.class);
     private static Settings instance;
@@ -52,6 +56,8 @@ public class Settings {
     private final BooleanProperty pendantAutostart = new SimpleBooleanProperty(loadBoolean(PENDANT_AUTOSTART, false));
     private final BooleanProperty showToolbarText = new SimpleBooleanProperty(loadBoolean(SHOW_TOOLBAR_TEXT, false));
     private final BooleanProperty showMachinePosition = new SimpleBooleanProperty(loadBoolean(SHOW_MACHINE_POSITION, false));
+    private final IntegerProperty drawerSelectedIndex = new SimpleIntegerProperty(loadInt(DRAWER_SELECTED_INDEX, 0));
+    private final BooleanProperty drawerExpanded = new SimpleBooleanProperty(loadBoolean(DRAWER_EXPANDED, true));
 
     public Settings() {
         windowWidth.addListener((obs, oldVal, newVal) -> saveDouble(WINDOW_WIDTH, newVal.doubleValue()));
@@ -65,6 +71,8 @@ public class Settings {
         pendantAutostart.addListener((obs, oldVal, newVal) -> saveBoolean(PENDANT_AUTOSTART, newVal));
         showToolbarText.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_TOOLBAR_TEXT, newVal));
         showMachinePosition.addListener((obs, oldVal, newVal) -> saveBoolean(SHOW_MACHINE_POSITION, newVal));
+        drawerSelectedIndex.addListener((obs, oldVal, newVal) -> saveInt(DRAWER_SELECTED_INDEX, newVal.intValue()));
+        drawerExpanded.addListener((obs, oldVal, newVal) -> saveBoolean(DRAWER_EXPANDED, newVal));
     }
 
     public static Settings getInstance() {
@@ -119,6 +127,14 @@ public class Settings {
         return showMachinePosition;
     }
 
+    public IntegerProperty drawerSelectedIndexProperty() {
+        return drawerSelectedIndex;
+    }
+
+    public BooleanProperty drawerExpandedProperty() {
+        return drawerExpanded;
+    }
+
     private double loadDouble(String key, double defaultVal) {
         return preferences.getDouble(key, defaultVal);
     }
@@ -134,5 +150,13 @@ public class Settings {
 
     private void saveBoolean(String key, boolean value) {
         preferences.putBoolean(key, value);
+    }
+
+    private int loadInt(String key, int defaultVal) {
+        return preferences.getInt(key, defaultVal);
+    }
+
+    private void saveInt(String key, int value) {
+        preferences.putInt(key, value);
     }
 }

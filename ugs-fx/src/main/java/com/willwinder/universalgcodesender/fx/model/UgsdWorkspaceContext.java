@@ -65,6 +65,11 @@ public class UgsdWorkspaceContext extends WorkspaceContext {
         if (bounds == null || bounds.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new WorkspaceBounds(bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMaxY()));
+
+        double minX = Math.min(bounds.getMinX(), 0);
+        double minY = Math.min(bounds.getMinY(), 0);
+        double maxX = Math.max(bounds.getMaxX(), 0);
+        double maxY = Math.max(bounds.getMaxY(), 0);
+        return Optional.of(new WorkspaceBounds(minX, minY, maxX, maxY));
     }
 }

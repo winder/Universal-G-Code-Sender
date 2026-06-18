@@ -1,9 +1,9 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
 
+import com.willwinder.universalgcodesender.fx.component.visualizer.DepthLayers;
 import com.willwinder.ugs.designer.entities.entities.Entity;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
-import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
@@ -15,10 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 public class EntityShapesNode extends Group {
-
-    // Fills go through normal depth testing so they Z-fight predictably when overlapping.
-    // Borders are drawn afterwards with depth testing disabled, so every entity's outline
-    // remains visible through any geometry in front of it.
     private final Group fillsGroup = new Group();
     private final Group bordersGroup = new Group();
     private Runnable onEntityMoved = () -> {};
@@ -37,7 +33,8 @@ public class EntityShapesNode extends Group {
     }
 
     public EntityShapesNode() {
-        bordersGroup.setDepthTest(DepthTest.DISABLE);
+        fillsGroup.setTranslateZ(DepthLayers.DESIGN_Z_OFFSET);
+        bordersGroup.setTranslateZ(DepthLayers.DESIGN_OUTLINE_Z_OFFSET);
         getChildren().addAll(fillsGroup, bordersGroup);
     }
 

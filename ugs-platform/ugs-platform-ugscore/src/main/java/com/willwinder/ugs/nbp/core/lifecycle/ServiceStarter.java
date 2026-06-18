@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.lifecycle;
 
+import com.willwinder.ugs.nbp.core.actions.OpenFileActionLoader;
 import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.core.services.*;
 import com.willwinder.ugs.nbp.core.statusline.SendStatusLineService;
@@ -62,6 +63,8 @@ public class ServiceStarter implements Runnable {
         Lookup.getDefault().lookup(ConsoleNotificationService.class);
         logger.info("Loading FileFilterService...");
         Lookup.getDefault().lookup(FileFilterService.class);
+        logger.info("Registering file loader...");
+        LookupService.register(new OpenFileActionLoader());
         logger.info("Services loaded!");
 
         logger.info("Setting UGP version title.");

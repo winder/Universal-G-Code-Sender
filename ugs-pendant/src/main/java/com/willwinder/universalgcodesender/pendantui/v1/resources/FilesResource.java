@@ -21,6 +21,9 @@ package com.willwinder.universalgcodesender.pendantui.v1.resources;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.v1.model.FileStatus;
 import com.willwinder.universalgcodesender.pendantui.v1.model.WorkspaceFileList;
+import com.willwinder.universalgcodesender.services.BackendFileLoader;
+import com.willwinder.universalgcodesender.services.FileLoader;
+import com.willwinder.universalgcodesender.services.LookupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
@@ -59,7 +62,10 @@ public class FilesResource {
             Files.copy(file.toPath(), renamedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             file.delete();
         }
-        backendAPI.setGcodeFile(renamedFile);
+
+        FileLoader fileLoader = LookupService.lookupOptional(FileLoader.class)
+                .orElseGet(() -> new BackendFileLoader(backendAPI));
+        fileLoader.openFile(renamedFile);
     }
 
     @POST

@@ -20,8 +20,10 @@ package com.willwinder.universalgcodesender.fx.component.drawer;
 
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
+import com.willwinder.universalgcodesender.fx.settings.Settings;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import javafx.animation.TranslateTransition;
+import javafx.beans.binding.DoubleBinding;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
@@ -33,15 +35,17 @@ import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DrawerPane extends BorderPane {
 
     private final ToggleGroup toggleGroup;
     private final VBox buttonBox;
     private final List<Drawer> drawers = new ArrayList<>();
+    private final TranslateTransition slideTransition = new TranslateTransition(Duration.millis(300), this);
 
     public DrawerPane() {
-        getStylesheets().add(getClass().getResource("/styles/drawer-pane.css").toExternalForm());
+        getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/drawer-pane.css")).toExternalForm());
         getStyleClass().add("drawer-pane");
         setMaxWidth(600);
 
@@ -50,25 +54,73 @@ public class DrawerPane extends BorderPane {
 
         toggleGroup = new ToggleGroup();
 
-        JobControlsDrawer jobControlsDrawer = new JobControlsDrawer();
         buttonBox = new VBox(5);
         buttonBox.getStyleClass().add("toggle-group");
-        createAndAddButton(jobControlsDrawer, "icons/run.svg", Localization.getString("platform.window.sendstatus"));
+        createAndAddButton(new JobControlsDrawer(), "icons/run.svg", Localization.getString("platform.window.sendstatus"));
         createAndAddButton(new MacrosDrawer(), "icons/robot.svg", Localization.getString("platform.menu.macros"));
         createAndAddButton(new ProbeDrawer(), "icons/probe.svg",  Localization.getString("settings.probe"));
         createAndAddButton(new TerminalDrawer(), "icons/terminal.svg",  Localization.getString("platform.window.serialconsole"));
 
-        toggleGroup.selectToggle(toggleGroup.getToggles().get(0));
-
-        setCenter(jobControlsDrawer);
         setLeft(buttonBox);
 
         VBox rightBox = new VBox(createCollapseButton());
         rightBox.setPadding(new Insets(5));
         setRight(rightBox);
 
-        toggleGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> toggleDrawer(newToggle != null));
+        restoreState();
+        toggleGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            boolean expanded = newToggle != null;
+            Settings.getInstance().drawerExpandedProperty().set(expanded);
+            if (newToggle != null) {
+                Settings.getInstance().drawerSelectedIndexProperty()
+                        .set(toggleGroup.getToggles().indexOf(newToggle));
+            }
+            updateDrawerOffset(expanded, true);
+        });
+    }
 
+    private void restoreState() {
+        int index = Settings.getInstance().drawerSelectedIndexProperty().get();
+        if (index < 0 || index >= drawers.size()) {
+            index = 0;
+        }
+
+        Drawer drawer = drawers.get(index);
+        setCenter(drawer);
+
+        drawers.forEach(d -> d.setActive(false));
+        boolean expanded = Settings.getInstance().drawerExpandedProperty().get();
+        if (expanded) {
+            drawer.setActive(true);
+            toggleGroup.selectToggle(toggleGroup.getToggles().get(index));
+        } else {
+            updateDrawerOffset(false, false);
+        }
+    }
+
+    private void updateDrawerOffset(boolean expanded, boolean animate) {
+        slideTransition.stop();
+        translateXProperty().unbind();
+
+        if (expanded) {
+            slideOrSet(0, animate, null);
+        } else {
+            DoubleBinding collapsedOffset = widthProperty().subtract(buttonBox.widthProperty());
+            slideOrSet(collapsedOffset.get(), animate, () -> translateXProperty().bind(collapsedOffset));
+        }
+    }
+
+    private void slideOrSet(double targetX, boolean animate, Runnable onFinished) {
+        if (animate) {
+            slideTransition.setToX(targetX);
+            slideTransition.setOnFinished(onFinished == null ? null : event -> onFinished.run());
+            slideTransition.play();
+        } else {
+            setTranslateX(targetX);
+            if (onFinished != null) {
+                onFinished.run();
+            }
+        }
     }
 
     private Button createCollapseButton() {
@@ -79,16 +131,6 @@ public class DrawerPane extends BorderPane {
         tooltip.setShowDelay(Duration.millis(100));
         collapseButton.setTooltip(tooltip);
         return collapseButton;
-    }
-
-    private void toggleDrawer(boolean drawerVisible) {
-        TranslateTransition tt = new TranslateTransition(Duration.millis(300), this);
-        if (drawerVisible) {
-            tt.setToX(0);
-        } else {
-            tt.setToX(getWidth() - this.buttonBox.getWidth());
-        }
-        tt.play();
     }
 
     private void createAndAddButton(Drawer node, String icon, String tooltipText) {
