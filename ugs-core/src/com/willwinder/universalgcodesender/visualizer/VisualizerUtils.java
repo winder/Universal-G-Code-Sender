@@ -234,21 +234,13 @@ public class VisualizerUtils {
         return Double.isNaN(value) ? 0 : value;
     }
 
-    private static double sinIfNotZero(double angle) {
-        return angle == 0 ? 0.0 : Math.sin(Math.toRadians(angle));
-    }
-
-    private static double cosIfNotZero(double angle) {
-        return angle == 0 ? 0.0 : Math.cos(Math.toRadians(angle));
-    }
-
     public static LineSegment toCartesian(LineSegment p) {
         Position start = new Position(p.getStart().x, p.getStart().y, p.getStart().z);
         Position end = new Position(p.getEnd().x, p.getEnd().y, p.getEnd().z);
 
         if (p.getStart().hasRotation() || p.getEnd().hasRotation()) {
-            start = toCartesian(p.getStart());
-            end = toCartesian(p.getEnd());
+            start = p.getStart().getCartesian();
+            end = p.getEnd().getCartesian();
         }
 
         // TODO: Somehow figure out how to optimize the way Position, Point3d, PointSegment and LineSegment are used.
@@ -261,61 +253,6 @@ public class VisualizerUtils {
         next.setSpindleSpeed(p.getSpindleSpeed());
 
         return next;
-    }
-
-    /**
-     * Converts a position with rotations on either X, Y or Z axes to a cartesian coordinate.
-     *
-     * @param position the position to convert
-     * @return the new position
-     */
-    public static Position toCartesian(Position position) {
-        // There are no rotations happening in the position
-        if (!position.hasRotation()) {
-            return position;
-        }
-
-        Position result = new Position(position.x, position.y, position.z, 0, 0, 0, position.getUnits());
-        double sx = position.x;
-        double sy = position.y;
-        double sz = position.z;
-        double sa = defaultZero(position.a);
-        double sb = defaultZero(position.b);
-        double sc = defaultZero(position.c);
-        double sSinA = sinIfNotZero(sa);
-        double sCosA = cosIfNotZero(sa);
-        double sSinB = sinIfNotZero(sb);
-        double sCosB = cosIfNotZero(sb);
-        double sSinC = sinIfNotZero(sc);
-        double sCosC = cosIfNotZero(sc);
-
-        // X-Axis rotation
-        // x1 = x0
-        // y1 = y0cos(u) − z0sin(u)
-        // z1 = y0sin(u) + z0cos(u)
-        if (sa != 0) {
-            result.y = sy * sCosA - sz * sSinA;
-            result.z = sy * sSinA + sz * sCosA;
-        }
-
-        // Y-Axis rotation
-        // x2 = x1cos(v) + z1sin(v)
-        // y2 = y1
-        // z2 = − x1sin(v) + z1cos(v)
-        if (sb != 0) {
-            result.x = sx * sCosB + sz * sSinB;
-            result.z = -1 * sx * sSinB + sz * sCosB;
-        }
-
-        // Z-Axis rotation
-        // x3 = x2cos(w) − y2sin(w)
-        // y3 = x2sin(w) + y2cos(w)
-        // z3 = z2
-        if (sc != 0) {
-            result.x = sx * sCosC - sy * sSinC;
-            result.y = sx * sSinC + sy * sCosC;
-        }
-        return result;
     }
 
     public enum Color {

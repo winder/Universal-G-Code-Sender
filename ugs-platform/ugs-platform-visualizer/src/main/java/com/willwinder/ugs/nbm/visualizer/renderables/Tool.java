@@ -27,7 +27,6 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL_COLOR;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 
 import java.awt.Color;
 
@@ -71,7 +70,7 @@ public final class Tool extends Renderable {
     public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
         GL2 gl = drawable.getGL().getGL2();
 
-        Position position = VisualizerUtils.toCartesian(workCoord);
+        Position position = workCoord.getCartesian();
 
         double scale = 1. / scaleFactor;
         gl.glPushMatrix();

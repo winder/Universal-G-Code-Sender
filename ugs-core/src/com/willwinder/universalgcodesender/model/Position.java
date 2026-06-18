@@ -156,6 +156,72 @@ public class Position extends CNCPoint {
                 (c != 0 && !Double.isNaN(c));
     }
 
+    /**
+     * Returns a copy of this position with any A/B/C axis rotations folded into the X/Y/Z cartesian
+     * coordinates. This is what turns a wrapped/rotary toolpath into the actual position in space.
+     * Undefined (NaN) linear axes are treated as 0 so a rotation can still be calculated for files
+     * that never define a start point on a given axis.
+     *
+     * @return the cartesian position with the rotations applied
+     */
+    public Position getCartesian() {
+        double sx = zeroIfNaN(x);
+        double sy = zeroIfNaN(y);
+        double sz = zeroIfNaN(z);
+
+        if (!hasRotation()) {
+            return new Position(sx, sy, sz, 0, 0, 0, units);
+        }
+
+        // Negate the angles so the unwrapped toolpath matches how the post wrapped it (e.g. +A
+        // maps to +Y); the plain right-hand rotation would wrap the opposite way and mirror it.
+        double sa = -zeroIfNaN(a);
+        double sb = -zeroIfNaN(b);
+        double sc = -zeroIfNaN(c);
+
+        // Apply each axis rotation in turn, feeding the result of one into the next so combined
+        // rotations compose correctly instead of each axis overwriting the others.
+        double px = sx;
+        double py = sy;
+        double pz = sz;
+
+        // X-Axis rotation
+        if (sa != 0) {
+            double sinA = Math.sin(Math.toRadians(sa));
+            double cosA = Math.cos(Math.toRadians(sa));
+            double ny = py * cosA - pz * sinA;
+            double nz = py * sinA + pz * cosA;
+            py = ny;
+            pz = nz;
+        }
+
+        // Y-Axis rotation
+        if (sb != 0) {
+            double sinB = Math.sin(Math.toRadians(sb));
+            double cosB = Math.cos(Math.toRadians(sb));
+            double nx = px * cosB + pz * sinB;
+            double nz = -px * sinB + pz * cosB;
+            px = nx;
+            pz = nz;
+        }
+
+        // Z-Axis rotation
+        if (sc != 0) {
+            double sinC = Math.sin(Math.toRadians(sc));
+            double cosC = Math.cos(Math.toRadians(sc));
+            double nx = px * cosC - py * sinC;
+            double ny = px * sinC + py * cosC;
+            px = nx;
+            py = ny;
+        }
+
+        return new Position(px, py, pz, 0, 0, 0, units);
+    }
+
+    private static double zeroIfNaN(double value) {
+        return Double.isNaN(value) ? 0 : value;
+    }
+
     public void set(Axis axis, double value) {
         switch (axis) {
             case X:

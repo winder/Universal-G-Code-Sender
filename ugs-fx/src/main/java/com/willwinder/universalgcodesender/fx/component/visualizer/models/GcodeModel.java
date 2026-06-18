@@ -163,7 +163,7 @@ public class GcodeModel extends Model {
         float r = lineWidth;
 
         for (int i = 0; i < lineSegments.size(); i++) {
-            LineSegment segment = lineSegments.get(i);
+            LineSegment segment = VisualizerUtils.toCartesian(lineSegments.get(i));
 
             Point3D p1 = toPoint(segment.getStart().getPositionIn(UnitUtils.Units.MM));
             Point3D p2 = toPoint(segment.getEnd().getPositionIn(UnitUtils.Units.MM));

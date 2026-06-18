@@ -388,4 +388,21 @@ public class GcodeParserTest {
         assertThat(stats.getMax().x).isCloseTo(10, TOLERANCE);
         assertThat(stats.getMax().y).isCloseTo(20, TOLERANCE);
     }
+
+    @Test
+    public void getBounds_shouldCoverRotationSweepInCartesianSpace() throws Exception {
+        // The tool sits at Z10 (10mm from the X rotation axis) and the A axis rotates 180 degrees.
+        // The wrapped path sweeps a semicircle, reaching Y=10 at 90 degrees, which the start/end
+        // points (Y=0) would miss entirely.
+        GcodeParser parser = new GcodeParser();
+        parser.addCommand("G21 G90");
+        parser.addCommand("G0 X0 Y0 Z10");
+        parser.addCommand("G1 A180");
+
+        GcodeStats stats = parser.getCurrentStats();
+        assertThat(stats.getMin().y).isCloseTo(0, TOLERANCE);
+        assertThat(stats.getMax().y).isCloseTo(10, TOLERANCE);
+        assertThat(stats.getMin().z).isCloseTo(-10, TOLERANCE);
+        assertThat(stats.getMax().z).isCloseTo(10, TOLERANCE);
+    }
 }

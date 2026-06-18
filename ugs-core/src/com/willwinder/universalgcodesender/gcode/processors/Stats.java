@@ -51,13 +51,18 @@ public class Stats implements CommandProcessor, GcodeStats {
     private long commandCount = 0;
     private Position previous = null;
 
+    /** Step size used when sampling a rotary move so its swept cartesian extents are captured. */
+    private static final double MAX_DEGREES_PER_STEP = 5;
+
     @Override
     public List<String> processCommand(String command, GcodeState state) throws GcodeParserException {
         Position c = state.currentPoint;
         if (c != null) {
-            recordPoint(c.x, c.y, c.z, state.isMetric);
+            record(c, state.isMetric);
             if (isArcMotion(state.currentMotionMode) && previous != null && !isSamePoint(previous, c)) {
                 expandArcBounds(command, state, previous);
+            } else if (previous != null && hasRotationChange(previous, c)) {
+                expandRotationBounds(previous, c, state.isMetric);
             }
 
             // Num commands
@@ -68,15 +73,32 @@ public class Stats implements CommandProcessor, GcodeStats {
         return Collections.singletonList(command);
     }
 
-    /**
-     * Extends the bounding box to cover the full sweep of an arc, not just its end points. An arc
-     * reaches an axis-aligned extreme wherever it crosses one of the cardinal directions (0/90/180/270
-     * degrees) from its center, so we add those crossing points that fall within the swept angle.
-     *
-     * @param command  the gcode command describing the arc
-     * @param endState the parser state after the command, used to re-derive the arc geometry
-     * @param start    the point where the arc starts, in the gcode's units
-     */
+    private void expandRotationBounds(Position start, Position end, boolean metric) {
+        double startA = zeroIfNaN(start.a);
+        double startB = zeroIfNaN(start.b);
+        double startC = zeroIfNaN(start.c);
+        double endA = zeroIfNaN(end.a);
+        double endB = zeroIfNaN(end.b);
+        double endC = zeroIfNaN(end.c);
+        double maxDelta = Math.max(Math.abs(endA - startA), Math.max(Math.abs(endB - startB), Math.abs(endC - startC)));
+        int steps = (int) Math.ceil(maxDelta / MAX_DEGREES_PER_STEP);
+
+        for (int i = 1; i < steps; i++) {
+            double t = (double) i / steps;
+            Position sample = new Position(
+                    lerp(start.x, end.x, t),
+                    lerp(start.y, end.y, t),
+                    lerp(start.z, end.z, t),
+                    lerp(startA, endA, t),
+                    lerp(startB, endB, t),
+                    lerp(startC, endC, t),
+                    metric ? Units.MM : Units.INCH);
+            record(sample, metric);
+        }
+    }
+
+    // An arc only reports its end point, so add the cardinal crossings (0/90/180/270 degrees from
+    // its center) that fall within the swept angle, which is where it reaches its axis extremes.
     private void expandArcBounds(String command, GcodeState endState, Position start) {
         try {
             GcodeState startState = endState.copy();
@@ -106,22 +128,29 @@ public class Stats implements CommandProcessor, GcodeStats {
                 Position extreme = new Position(start);
                 plane.setAxis0(extreme, plane.axis0(center) + radius * Math.cos(cardinal));
                 plane.setAxis1(extreme, plane.axis1(center) + radius * Math.sin(cardinal));
-                recordPoint(extreme.x, extreme.y, extreme.z, endState.isMetric);
+                record(extreme, endState.isMetric);
             }
         } catch (GcodeParserException e) {
             // If the arc can't be parsed, fall back to the start/end points already recorded.
         }
     }
 
-    private void recordPoint(double x, double y, double z, boolean metric) {
-        Position p = new Position(x, y, z, metric ? Units.MM : Units.INCH).getPositionIn(defaultUnits);
+    private void record(Position rawPoint, boolean metric) {
+        Position p = new Position(rawPoint.x, rawPoint.y, rawPoint.z,
+                rawPoint.a, rawPoint.b, rawPoint.c, metric ? Units.MM : Units.INCH)
+                .getPositionIn(defaultUnits);
 
-        // Update min
+        // Only fold rotations into cartesian coordinates when the point actually rotates. Doing it
+        // unconditionally would turn undefined (NaN) axes into 0 and wrongly pull the bounds to the
+        // origin for plain XYZ moves.
+        if (p.hasRotation()) {
+            p = p.getCartesian();
+        }
+
         min.x = getMin(min.x, p.x);
         min.y = getMin(min.y, p.y);
         min.z = getMin(min.z, p.z);
 
-        // Update max
         max.x = getMax(max.x, p.x);
         max.y = getMax(max.y, p.y);
         max.z = getMax(max.z, p.z);
@@ -133,6 +162,20 @@ public class Stats implements CommandProcessor, GcodeStats {
 
     private static boolean isSamePoint(Position a, Position b) {
         return a.x == b.x && a.y == b.y && a.z == b.z;
+    }
+
+    private static boolean hasRotationChange(Position from, Position to) {
+        return zeroIfNaN(from.a) != zeroIfNaN(to.a)
+                || zeroIfNaN(from.b) != zeroIfNaN(to.b)
+                || zeroIfNaN(from.c) != zeroIfNaN(to.c);
+    }
+
+    private static double lerp(double from, double to, double t) {
+        return from + (to - from) * t;
+    }
+
+    private static double zeroIfNaN(double value) {
+        return Double.isNaN(value) ? 0 : value;
     }
 
     private static PointSegment findArc(List<GcodeMeta> commands) {
