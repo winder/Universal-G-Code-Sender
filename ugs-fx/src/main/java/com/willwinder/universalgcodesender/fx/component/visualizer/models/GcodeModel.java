@@ -246,7 +246,11 @@ public class GcodeModel extends Model {
     }
 
     private Point3D toPoint(Position pos) {
-        return new Point3D(pos.getX(), pos.getY(), pos.getZ());
+        return new Point3D(zeroIfNaN(pos.getX()), zeroIfNaN(pos.getY()), zeroIfNaN(pos.getZ()));
+    }
+
+    private static double zeroIfNaN(double value) {
+        return Double.isNaN(value) ? 0 : value;
     }
 
     @Override
