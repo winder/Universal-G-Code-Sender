@@ -13,6 +13,7 @@ import static com.willwinder.ugs.designer.io.gcode.path.SegmentType.LINE;
 import static com.willwinder.ugs.designer.io.gcode.path.SegmentType.MOVE;
 import static com.willwinder.ugs.designer.io.gcode.path.SegmentType.SEAM;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class LaserFillToolPathTest {
 
@@ -42,6 +43,42 @@ public class LaserFillToolPathTest {
         assertSegment(segments.get(2), LINE, 0.8, 0.2);
         assertSegment(segments.get(3), MOVE, 0.2, 0.2);
         assertSegment(segments.get(4), LINE, 0.0, 0.2);
+    }
+
+    @Test
+    public void fillToolPathShouldFillAlongToolPathAngle() {
+        Path path = new Path();
+        path.setPasses(1);
+        path.setToolPathAngle(90);
+        path.moveTo(0, 0);
+        path.lineTo(0, 1);
+        path.lineTo(1, 1);
+        path.lineTo(1, 0);
+        path.lineTo(0, 0);
+        path.close();
+
+        Settings settings = new Settings();
+        settings.setMaxSpindleSpeed(10000);
+
+        LaserFillToolPath toolPath = new LaserFillToolPath(settings, path);
+        toolPath.setStartDepth(0);
+        toolPath.setTargetDepth(0);
+
+        GcodePath gcodePath = toolPath.toGcodePath();
+        List<Segment> segments = gcodePath.getSegments();
+        assertEquals(SEAM, segments.get(0).type);
+
+        List<Segment> lineSegments = segments.stream().filter(s -> s.type == LINE).toList();
+        assertFalse("Expected the fill to produce line segments", lineSegments.isEmpty());
+
+        // A 90 degree angle fills with vertical passes, so every line moves along Y while keeping X constant
+        lineSegments.forEach(segment ->
+                assertEquals(segment.getPoint().getX(), findMovePreceding(segments, segment).getPoint().getX(), 0.01));
+    }
+
+    private Segment findMovePreceding(List<Segment> segments, Segment lineSegment) {
+        int index = segments.indexOf(lineSegment);
+        return segments.get(index - 1);
     }
 
     private void assertSegment(Segment segment, SegmentType segmentType, double x, double y) {
