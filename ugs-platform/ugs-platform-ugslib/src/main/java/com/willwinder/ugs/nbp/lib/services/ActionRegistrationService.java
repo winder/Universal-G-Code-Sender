@@ -118,7 +118,8 @@ public class ActionRegistrationService {
         in.refresh();
 
         FileObject obj = in.getFileObject(id, "instance");
-        if (obj == null) {
+        boolean isNewAction = obj == null;
+        if (isNewAction) {
             obj = in.createData(id, "instance");
         }
         action.putValue(Action.NAME, name);
@@ -143,7 +144,7 @@ public class ActionRegistrationService {
         /////////////////////////
         // Add/Update Shortcut //
         /////////////////////////
-        if (shortcut != null && shortcut.length() > 0) {
+        if (isNewAction && shortcut != null && shortcut.length() > 0) {
             createShortcut(id, category, shortcut);
         }
 
