@@ -1,6 +1,6 @@
 package com.willwinder.ugs.designer.actions;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 

@@ -18,16 +18,16 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
 
-import com.willwinder.ugs.designer.entities.entities.EntityListener;
-import com.willwinder.ugs.designer.entities.entities.EventType;
-import com.willwinder.ugs.designer.entities.entities.EntitySetting;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
-import com.willwinder.ugs.designer.entities.entities.cuttable.CutType;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Direction;
-import com.willwinder.ugs.designer.entities.entities.cuttable.ToolPathDirection;
+import com.willwinder.ugs.designer.entities.EntityListener;
+import com.willwinder.ugs.designer.entities.EventType;
+import com.willwinder.ugs.designer.entities.EntitySetting;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.cuttable.CutType;
+import com.willwinder.ugs.designer.entities.cuttable.Direction;
+import com.willwinder.ugs.designer.entities.cuttable.ToolPathDirection;
 import com.willwinder.ugs.designer.actions.UndoableAction;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionListener;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.entities.selection.SelectionListener;
+import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.ugs.designer.model.Size;
 import com.willwinder.universalgcodesender.fx.component.CollapsibleTitledPane;

@@ -1,6 +1,6 @@
 package com.willwinder.ugs.designer.gui;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.CutType;
+import com.willwinder.ugs.designer.entities.cuttable.CutType;
 import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import javax.swing.ImageIcon;

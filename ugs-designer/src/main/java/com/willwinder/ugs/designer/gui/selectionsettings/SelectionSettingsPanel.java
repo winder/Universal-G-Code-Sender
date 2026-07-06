@@ -18,13 +18,13 @@
  */
 package com.willwinder.ugs.designer.gui.selectionsettings;
 
-import com.willwinder.ugs.designer.entities.entities.EntityEvent;
-import com.willwinder.ugs.designer.entities.entities.EntityListener;
-import com.willwinder.ugs.designer.entities.entities.EntitySetting;
-import com.willwinder.ugs.designer.entities.entities.EventType;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionEvent;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionListener;
+import com.willwinder.ugs.designer.entities.EntityEvent;
+import com.willwinder.ugs.designer.entities.EntityListener;
+import com.willwinder.ugs.designer.entities.EntitySetting;
+import com.willwinder.ugs.designer.entities.EventType;
+import com.willwinder.ugs.designer.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.selection.SelectionEvent;
+import com.willwinder.ugs.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.designer.gui.selectionsettings.models.EntitySettingsModelListener;
 import com.willwinder.ugs.designer.gui.selectionsettings.models.SettingsModelFactory;
 import com.willwinder.ugs.designer.gui.selectionsettings.models.TransformSettingsModel;

@@ -20,7 +20,7 @@ package com.willwinder.ugs.designer.io.ugsd;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.willwinder.ugs.designer.entities.entities.Entity;
+import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.io.AffineTransformDeserializer;
 import com.willwinder.ugs.designer.io.DesignReader;
 import com.willwinder.ugs.designer.io.DesignReaderException;

@@ -20,12 +20,12 @@ package com.willwinder.ugs.designer.gui.selectionsettings.settingspanels;
 
 import com.willwinder.ugs.designer.actions.ChangeEntitySettingsAction;
 import com.willwinder.ugs.designer.actions.UndoableAction;
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.EntitySetting;
-import static com.willwinder.ugs.designer.entities.entities.EntitySetting.CORNER_RADIUS;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
-import com.willwinder.ugs.designer.entities.entities.settings.RectangleSettingsManager;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.EntitySetting;
+import static com.willwinder.ugs.designer.entities.EntitySetting.CORNER_RADIUS;
+import com.willwinder.ugs.designer.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.settings.RectangleSettingsManager;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Unit;

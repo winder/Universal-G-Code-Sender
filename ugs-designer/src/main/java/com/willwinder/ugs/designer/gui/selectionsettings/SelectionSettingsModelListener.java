@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.designer.gui.selectionsettings;
 
-import com.willwinder.ugs.designer.entities.entities.EntitySetting;
+import com.willwinder.ugs.designer.entities.EntitySetting;
 
 public interface SelectionSettingsModelListener {
     void onModelUpdate(EntitySetting entitySetting);

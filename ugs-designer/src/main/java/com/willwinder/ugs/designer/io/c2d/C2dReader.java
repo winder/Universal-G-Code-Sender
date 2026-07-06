@@ -20,11 +20,11 @@ package com.willwinder.ugs.designer.io.c2d;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.willwinder.ugs.designer.entities.entities.Anchor;
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Ellipse;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Path;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.Anchor;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.designer.entities.cuttable.Path;
+import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.io.DesignReader;
 import com.willwinder.ugs.designer.io.DesignReaderException;
 import com.willwinder.ugs.designer.io.c2d.model.C2dFile;

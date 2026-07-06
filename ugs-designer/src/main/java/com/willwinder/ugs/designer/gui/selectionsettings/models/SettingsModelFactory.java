@@ -18,10 +18,10 @@
  */
 package com.willwinder.ugs.designer.gui.selectionsettings.models;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Text;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.cuttable.Text;
 
 /**
  * Factory for creating appropriate settings models based on entity types in selection.

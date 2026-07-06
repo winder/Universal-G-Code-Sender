@@ -1,12 +1,7 @@
 package com.willwinder.ugs.designer.entities;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.EntityEvent;
-import com.willwinder.ugs.designer.entities.entities.EntityGroup;
-import com.willwinder.ugs.designer.entities.entities.EntityListener;
-import com.willwinder.ugs.designer.entities.entities.EventType;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Point;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.cuttable.Point;
+import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.model.Size;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

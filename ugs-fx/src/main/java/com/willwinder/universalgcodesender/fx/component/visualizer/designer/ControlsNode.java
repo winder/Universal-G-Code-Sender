@@ -1,12 +1,12 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
 
-import com.willwinder.ugs.designer.entities.entities.EventType;
-import com.willwinder.ugs.designer.entities.entities.controls.Control;
-import com.willwinder.ugs.designer.entities.entities.controls.MoveControl;
-import com.willwinder.ugs.designer.entities.entities.controls.ResizeControl;
-import com.willwinder.ugs.designer.entities.entities.controls.RotationControl;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionListener;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.entities.EventType;
+import com.willwinder.ugs.designer.entities.controls.Control;
+import com.willwinder.ugs.designer.entities.controls.MoveControl;
+import com.willwinder.ugs.designer.entities.controls.ResizeControl;
+import com.willwinder.ugs.designer.entities.controls.RotationControl;
+import com.willwinder.ugs.designer.entities.selection.SelectionListener;
+import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.gui.Drawing;
 import com.willwinder.ugs.designer.gui.MouseEntityEvent;
 import com.willwinder.universalgcodesender.fx.component.visualizer.DragHandler;

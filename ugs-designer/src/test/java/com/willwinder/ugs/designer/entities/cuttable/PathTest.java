@@ -1,6 +1,5 @@
 package com.willwinder.ugs.designer.entities.cuttable;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.Path;
 import com.willwinder.ugs.designer.model.Size;
 import org.junit.Test;
 

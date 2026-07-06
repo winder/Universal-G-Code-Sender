@@ -19,10 +19,10 @@
 package com.willwinder.ugs.designer.gui.tree;
 
 import com.google.common.collect.Sets;
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.EntityEvent;
-import com.willwinder.ugs.designer.entities.entities.EntityGroup;
-import com.willwinder.ugs.designer.entities.entities.EntityListener;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.EntityEvent;
+import com.willwinder.ugs.designer.entities.EntityGroup;
+import com.willwinder.ugs.designer.entities.EntityListener;
 import com.willwinder.ugs.designer.gui.Drawing;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerEventType;

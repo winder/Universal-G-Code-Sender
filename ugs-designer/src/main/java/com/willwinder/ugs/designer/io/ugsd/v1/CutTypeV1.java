@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.designer.io.ugsd.v1;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.CutType;
+import com.willwinder.ugs.designer.entities.cuttable.CutType;
 
 /**
  * @author Joacim Breiler

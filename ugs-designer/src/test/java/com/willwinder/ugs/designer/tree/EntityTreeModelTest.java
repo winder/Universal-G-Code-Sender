@@ -1,9 +1,9 @@
 package com.willwinder.ugs.designer.tree;
 
 import com.willwinder.ugs.designer.actions.SimpleUndoManager;
-import com.willwinder.ugs.designer.entities.entities.EntityGroup;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.entities.EntityGroup;
+import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.gui.tree.EntityTreeModel;
 import com.willwinder.ugs.designer.logic.Controller;
 import static org.junit.Assert.assertEquals;

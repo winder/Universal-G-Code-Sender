@@ -18,19 +18,19 @@
  */
 package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.EntityGroup;
-import com.willwinder.ugs.designer.entities.entities.EntityListener;
-import com.willwinder.ugs.designer.entities.entities.EventType;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Ellipse;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Path;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Point;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Raster;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Text;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionListener;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.EntityGroup;
+import com.willwinder.ugs.designer.entities.EntityListener;
+import com.willwinder.ugs.designer.entities.EventType;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.designer.entities.cuttable.Path;
+import com.willwinder.ugs.designer.entities.cuttable.Point;
+import com.willwinder.ugs.designer.entities.cuttable.Raster;
+import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.cuttable.Text;
+import com.willwinder.ugs.designer.entities.selection.SelectionListener;
+import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerEventType;
 import com.willwinder.ugs.designer.logic.ControllerFactory;

@@ -23,8 +23,12 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
-import java.awt.Dimension;
-import java.awt.event.MouseAdapter;
+import javax.swing.UIManager;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 
 /**
@@ -65,23 +69,14 @@ public final class DropDownButtonFactory {
     }
 
     private static final class DropDownToggleButton extends JToggleButton {
+        private static final int ARROW_WIDTH = 8;
+        private static final int ARROW_HEIGHT = 4;
+        private static final int ARROW_MARGIN = 4;
         private final JPopupMenu popupMenu;
         private boolean showingPopup;
 
         private DropDownToggleButton(JPopupMenu popupMenu) {
             this.popupMenu = popupMenu;
-
-            addMouseListener(new MouseAdapter() {
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    maybeShowPopup(e);
-                }
-
-                @Override
-                public void mouseReleased(MouseEvent e) {
-                    maybeShowPopup(e);
-                }
-            });
         }
 
         @Override
@@ -106,27 +101,72 @@ public final class DropDownButtonFactory {
         }
 
         @Override
-        public Dimension getPreferredSize() {
-            Dimension size = super.getPreferredSize();
-            size.width += 14; // small room for the dropdown affordance
-            return size;
+        public Insets getInsets() {
+            return withArrowInset(super.getInsets());
         }
 
-        private void maybeShowPopup(MouseEvent e) {
-            if (popupMenu == null || !isEnabled()) {
+        @Override
+        public Insets getInsets(Insets insets) {
+            return withArrowInset(super.getInsets(insets));
+        }
+
+        private Insets withArrowInset(Insets insets) {
+            insets.right += ARROW_WIDTH + ARROW_MARGIN; // room for the dropdown affordance
+            return insets;
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+
+            Graphics2D g2 = (Graphics2D) g.create();
+            try {
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                Color arrowColor = isEnabled()
+                        ? getForeground()
+                        : UIManager.getColor("Button.disabledText");
+                if (arrowColor == null) {
+                    arrowColor = getForeground().darker();
+                }
+                g2.setColor(arrowColor);
+
+                int x = getWidth() - ARROW_WIDTH - ARROW_MARGIN;
+                int y = (getHeight() - ARROW_HEIGHT) / 2;
+                int[] xPoints = {x, x + ARROW_WIDTH, x + (ARROW_WIDTH / 2)};
+                int[] yPoints = {y, y, y + ARROW_HEIGHT};
+                g2.fillPolygon(xPoints, yPoints, 3);
+            } finally {
+                g2.dispose();
+            }
+        }
+
+        @Override
+        protected void processMouseEvent(MouseEvent e) {
+            if (popupMenu != null && isEnabled() && isInArrowZone(e.getX())) {
+                if (e.getID() == MouseEvent.MOUSE_PRESSED) {
+                    showPopup();
+                }
+                // Consume so the button model isn't armed and the action does not fire
+                e.consume();
                 return;
             }
+            super.processMouseEvent(e);
+        }
 
-            if (!e.isPopupTrigger() && e.getSource() == this) {
-                if (showingPopup) {
-                    return;
-                }
-                showingPopup = true;
-                try {
-                    popupMenu.show(this, 0, getHeight());
-                } finally {
-                    showingPopup = false;
-                }
+        private boolean isInArrowZone(int x) {
+            return x >= getWidth() - (ARROW_WIDTH + ARROW_MARGIN * 2);
+        }
+
+        private void showPopup() {
+            if (showingPopup) {
+                return;
+            }
+            showingPopup = true;
+            try {
+                popupMenu.show(this, 0, getHeight());
+            } finally {
+                showingPopup = false;
             }
         }
     }

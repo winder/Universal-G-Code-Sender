@@ -20,11 +20,11 @@ package com.willwinder.ugs.designer.gui.selectionsettings.settingspanels;
 
 import com.willwinder.ugs.designer.actions.ChangeEntitySettingsAction;
 import com.willwinder.ugs.designer.actions.UndoableAction;
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.EntitySetting;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Text;
-import com.willwinder.ugs.designer.entities.entities.settings.TextSettingsManager;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.EntitySetting;
+import com.willwinder.ugs.designer.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.cuttable.Text;
+import com.willwinder.ugs.designer.entities.settings.TextSettingsManager;
 import com.willwinder.ugs.designer.gui.FontCombo;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;

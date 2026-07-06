@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.designer.model;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
+import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
 
 import java.util.Collections;

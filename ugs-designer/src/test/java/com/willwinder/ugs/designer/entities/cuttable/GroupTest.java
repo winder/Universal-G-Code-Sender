@@ -1,14 +1,10 @@
 package com.willwinder.ugs.designer.entities.cuttable;
 
-import com.willwinder.ugs.designer.entities.entities.EntitySetting;
+import com.willwinder.ugs.designer.entities.EntitySetting;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.CutType;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Point;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
 import org.junit.Test;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.DepthLayers;
-import com.willwinder.ugs.designer.entities.entities.Entity;
+import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import javafx.scene.Group;

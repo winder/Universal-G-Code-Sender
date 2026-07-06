@@ -18,8 +18,8 @@
  */
 package com.willwinder.ugs.designer.io.gcode;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.CutType;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.cuttable.CutType;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.io.DesignWriter;
 import com.willwinder.ugs.designer.io.DesignWriterException;
 import com.willwinder.ugs.designer.logic.Controller;

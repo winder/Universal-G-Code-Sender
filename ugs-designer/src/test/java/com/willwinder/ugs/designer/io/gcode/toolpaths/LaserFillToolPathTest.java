@@ -1,6 +1,6 @@
 package com.willwinder.ugs.designer.io.gcode.toolpaths;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.Path;
+import com.willwinder.ugs.designer.entities.cuttable.Path;
 import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.designer.io.gcode.path.SegmentType;

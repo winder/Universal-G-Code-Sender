@@ -1,7 +1,7 @@
 package com.willwinder.ugs.designer;
 
 import com.willwinder.ugs.designer.actions.UndoManager;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.gui.DrawingOverlayContainer;
 import com.willwinder.ugs.designer.gui.DrawingScrollContainer;
 import com.willwinder.ugs.designer.gui.MainMenu;
