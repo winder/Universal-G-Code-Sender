@@ -1,8 +1,8 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.EventType;
-import com.willwinder.ugs.designer.entities.entities.controls.MoveControl;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.EventType;
+import com.willwinder.ugs.designer.entities.controls.MoveControl;
 import com.willwinder.ugs.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.universalgcodesender.fx.component.visualizer.DragHandler;

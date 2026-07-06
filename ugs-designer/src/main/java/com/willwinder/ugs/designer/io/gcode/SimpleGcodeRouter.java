@@ -16,7 +16,7 @@
  */
 package com.willwinder.ugs.designer.io.gcode;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.DrillCenterToolPath;

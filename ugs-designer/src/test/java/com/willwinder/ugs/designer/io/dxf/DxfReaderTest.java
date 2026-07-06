@@ -1,6 +1,6 @@
 package com.willwinder.ugs.designer.io.dxf;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.cuttable.Group;
 import com.willwinder.ugs.designer.model.Design;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.junit.Test;

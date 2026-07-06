@@ -18,8 +18,8 @@
  */
 package com.willwinder.ugs.designer.actions;
 
-import com.willwinder.ugs.designer.entities.entities.EntityException;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Path;
+import com.willwinder.ugs.designer.entities.EntityException;
+import com.willwinder.ugs.designer.entities.cuttable.Path;
 import com.willwinder.ugs.designer.logic.Controller;
 
 import java.awt.geom.AffineTransform;

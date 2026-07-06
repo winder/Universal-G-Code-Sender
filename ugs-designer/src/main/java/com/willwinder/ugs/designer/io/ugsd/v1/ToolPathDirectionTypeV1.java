@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.designer.io.ugsd.v1;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.ToolPathDirection;
+import com.willwinder.ugs.designer.entities.cuttable.ToolPathDirection;
 
 /**
  * @author Joacim Breiler

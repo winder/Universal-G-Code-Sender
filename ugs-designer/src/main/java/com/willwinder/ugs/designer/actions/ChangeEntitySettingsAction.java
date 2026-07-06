@@ -18,9 +18,9 @@
  */
 package com.willwinder.ugs.designer.actions;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.EntitySetting;
-import com.willwinder.ugs.designer.entities.entities.settings.EntitySettingsManager;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.EntitySetting;
+import com.willwinder.ugs.designer.entities.settings.EntitySettingsManager;
 
 import java.util.HashMap;
 import java.util.List;

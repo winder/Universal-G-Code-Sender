@@ -1,6 +1,6 @@
 package com.willwinder.ugs.designer.entities;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.Point;
+import com.willwinder.ugs.designer.entities.cuttable.Point;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

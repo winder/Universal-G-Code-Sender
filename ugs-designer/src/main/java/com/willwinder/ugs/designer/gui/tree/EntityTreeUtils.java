@@ -18,8 +18,8 @@
  */
 package com.willwinder.ugs.designer.gui.tree;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.EntityGroup;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.EntityGroup;
 import com.willwinder.ugs.designer.logic.Controller;
 
 import javax.swing.tree.TreePath;

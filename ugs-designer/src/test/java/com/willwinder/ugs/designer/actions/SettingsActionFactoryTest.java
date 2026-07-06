@@ -18,21 +18,15 @@
  */
 package com.willwinder.ugs.designer.actions;
 
-import com.willwinder.ugs.designer.actions.ChangeEntitySettingsAction;
-import com.willwinder.ugs.designer.actions.MoveAction;
-import com.willwinder.ugs.designer.actions.ResizeAction;
-import com.willwinder.ugs.designer.actions.RotateAction;
-import com.willwinder.ugs.designer.actions.SettingsActionFactory;
-import com.willwinder.ugs.designer.actions.UndoableAction;
-import com.willwinder.ugs.designer.entities.entities.Anchor;
-import com.willwinder.ugs.designer.entities.entities.EntityEvent;
-import com.willwinder.ugs.designer.entities.entities.EntityListener;
-import com.willwinder.ugs.designer.entities.entities.EntitySetting;
-import com.willwinder.ugs.designer.entities.entities.cuttable.CutType;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
-import com.willwinder.ugs.designer.entities.entities.settings.CuttableSettingsManager;
-import com.willwinder.ugs.designer.entities.entities.settings.TransformationEntitySettingsManager;
+import com.willwinder.ugs.designer.entities.Anchor;
+import com.willwinder.ugs.designer.entities.EntityEvent;
+import com.willwinder.ugs.designer.entities.EntityListener;
+import com.willwinder.ugs.designer.entities.EntitySetting;
+import com.willwinder.ugs.designer.entities.cuttable.CutType;
+import com.willwinder.ugs.designer.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.settings.CuttableSettingsManager;
+import com.willwinder.ugs.designer.entities.settings.TransformationEntitySettingsManager;
 import com.willwinder.ugs.designer.model.Size;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

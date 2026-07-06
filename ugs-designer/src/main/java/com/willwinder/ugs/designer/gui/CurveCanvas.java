@@ -1,6 +1,6 @@
 package com.willwinder.ugs.designer.gui;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.MonotoneCubicSpline;
+import com.willwinder.ugs.designer.entities.cuttable.MonotoneCubicSpline;
 
 import javax.swing.JPanel;
 import java.awt.BasicStroke;

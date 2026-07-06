@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.designer.actions;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.Raster;
+import com.willwinder.ugs.designer.entities.cuttable.Raster;
 import com.willwinder.ugs.designer.io.c2d.C2dReader;
 import com.willwinder.ugs.designer.io.dxf.DxfReader;
 import com.willwinder.ugs.designer.io.eagle.EaglePnpReader;

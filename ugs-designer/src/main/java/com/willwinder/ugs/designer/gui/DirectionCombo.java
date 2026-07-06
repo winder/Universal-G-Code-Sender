@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.designer.gui;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.Direction;
+import com.willwinder.ugs.designer.entities.cuttable.Direction;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;

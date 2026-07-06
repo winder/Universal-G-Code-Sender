@@ -18,13 +18,12 @@
  */
 package com.willwinder.ugs.designer.io.gcode.toolpaths;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.Direction;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
-import com.willwinder.ugs.designer.entities.entities.cuttable.ToolPathDirection;
+import com.willwinder.ugs.designer.entities.cuttable.Direction;
+import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.cuttable.ToolPathDirection;
 import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.designer.io.gcode.path.SegmentType;
-import com.willwinder.ugs.designer.io.gcode.toolpaths.SurfaceToolPath;
 import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.model.Size;
 import com.willwinder.universalgcodesender.model.PartialPosition;

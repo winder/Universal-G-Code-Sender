@@ -1,8 +1,7 @@
 package com.willwinder.ugs.designer.entities.selection;
 
-import com.willwinder.ugs.designer.entities.entities.controls.MoveControl;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.entities.controls.MoveControl;
+import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.model.Size;
 import org.junit.Before;

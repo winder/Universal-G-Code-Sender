@@ -19,7 +19,7 @@
 package com.willwinder.ugs.designer.gui;
 
 import com.willwinder.ugs.designer.actions.SimpleUndoManager;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ToolLibraryService;
 import com.willwinder.ugs.designer.model.Settings;

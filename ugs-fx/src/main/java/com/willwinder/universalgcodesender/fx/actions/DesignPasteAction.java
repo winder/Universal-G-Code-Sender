@@ -19,7 +19,7 @@
 package com.willwinder.universalgcodesender.fx.actions;
 
 import com.google.gson.JsonSyntaxException;
-import com.willwinder.ugs.designer.entities.entities.Entity;
+import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.universalgcodesender.i18n.Localization;
 

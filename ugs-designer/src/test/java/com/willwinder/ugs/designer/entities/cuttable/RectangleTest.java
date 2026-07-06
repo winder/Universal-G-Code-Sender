@@ -1,8 +1,7 @@
 package com.willwinder.ugs.designer.entities.cuttable;
 
-import com.willwinder.ugs.designer.entities.entities.EntitySetting;
-import com.willwinder.ugs.designer.entities.entities.EventType;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.EntitySetting;
+import com.willwinder.ugs.designer.entities.EventType;
 import com.willwinder.ugs.designer.model.Size;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

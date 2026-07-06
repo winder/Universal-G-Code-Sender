@@ -19,8 +19,8 @@
 package com.willwinder.ugs.designer.io.ugsd.v1;
 
 import com.google.gson.annotations.Expose;
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 
 import java.awt.geom.AffineTransform;
 

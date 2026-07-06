@@ -18,8 +18,8 @@
  */
 package com.willwinder.ugs.designer.io.ugsd.v1;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Path;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.cuttable.Path;
 
 import java.awt.geom.Point2D;
 import java.util.List;

@@ -1,13 +1,12 @@
 package com.willwinder.ugs.designer.io.gcode.toolpaths;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Direction;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.cuttable.Direction;
+import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.designer.io.gcode.path.SegmentType;
-import com.willwinder.ugs.designer.io.gcode.toolpaths.ToolPathStats;
 import com.willwinder.ugs.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.designer.model.Design;
 import com.willwinder.ugs.designer.model.Settings;

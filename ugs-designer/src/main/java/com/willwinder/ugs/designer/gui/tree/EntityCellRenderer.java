@@ -19,9 +19,9 @@
 package com.willwinder.ugs.designer.gui.tree;
 
 import com.willwinder.ugs.designer.Utils;
-import com.willwinder.ugs.designer.entities.entities.EntityGroup;
-import com.willwinder.ugs.designer.entities.entities.cuttable.CutType;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.EntityGroup;
+import com.willwinder.ugs.designer.entities.cuttable.CutType;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.gui.CutTypeIcon;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UnitUtils;

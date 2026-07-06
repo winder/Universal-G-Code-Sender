@@ -18,11 +18,11 @@
  */
 package com.willwinder.ugs.designer.actions;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionEvent;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionListener;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.selection.SelectionEvent;
+import com.willwinder.ugs.designer.entities.selection.SelectionListener;
+import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 

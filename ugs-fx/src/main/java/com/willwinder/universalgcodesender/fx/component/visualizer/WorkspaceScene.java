@@ -1,8 +1,8 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
-import com.willwinder.ugs.designer.entities.entities.EntityListener;
-import com.willwinder.ugs.designer.entities.entities.EventType;
-import com.willwinder.ugs.designer.entities.entities.controls.Control;
+import com.willwinder.ugs.designer.entities.EntityListener;
+import com.willwinder.ugs.designer.entities.EventType;
+import com.willwinder.ugs.designer.entities.controls.Control;
 import com.willwinder.ugs.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;

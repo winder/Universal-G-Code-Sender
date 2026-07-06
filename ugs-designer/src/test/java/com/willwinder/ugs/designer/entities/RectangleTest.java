@@ -1,7 +1,6 @@
 package com.willwinder.ugs.designer.entities;
 
-import com.willwinder.ugs.designer.entities.entities.EntityGroup;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.model.Size;
 import com.willwinder.ugs.designer.model.path.Segment;
 import com.willwinder.ugs.designer.model.path.SegmentType;

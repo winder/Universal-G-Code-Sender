@@ -18,11 +18,11 @@
  */
 package com.willwinder.ugs.designer.actions;
 
-import com.willwinder.ugs.designer.entities.entities.Anchor;
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.EntityGroup;
-import com.willwinder.ugs.designer.entities.entities.controls.ResizeUtils;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.Anchor;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.EntityGroup;
+import com.willwinder.ugs.designer.entities.controls.ResizeUtils;
+import com.willwinder.ugs.designer.entities.cuttable.Group;
 import com.willwinder.ugs.designer.model.Size;
 
 import java.util.ArrayList;

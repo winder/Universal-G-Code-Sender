@@ -18,9 +18,9 @@
  */
 package com.willwinder.universalgcodesender.fx.actions;
 
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionEvent;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionListener;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.entities.selection.SelectionEvent;
+import com.willwinder.ugs.designer.entities.selection.SelectionListener;
+import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.io.ugsd.UgsDesignWriter;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.services.LookupService;

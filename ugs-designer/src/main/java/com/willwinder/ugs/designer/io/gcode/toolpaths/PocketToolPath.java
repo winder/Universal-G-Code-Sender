@@ -18,8 +18,8 @@
  */
 package com.willwinder.ugs.designer.io.gcode.toolpaths;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Direction;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
 import static com.willwinder.ugs.designer.io.gcode.toolpaths.ToolPathUtils.addGeometriesToCoordinatesList;
 import static com.willwinder.ugs.designer.io.gcode.toolpaths.ToolPathUtils.bufferAndCollectGeometries;

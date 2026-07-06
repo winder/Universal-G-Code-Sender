@@ -1,6 +1,6 @@
 package com.willwinder.ugs.designer.io.kicad;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
+import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.model.Design;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
