@@ -75,6 +75,7 @@ public class Drawing extends JPanel implements ISnapToGridListener {
     private final transient Throttler refreshThrottler;
     private final transient Rectangle2D currentBounds = new Rectangle(0, 0, 8, 8);
     private double scale;
+    private double snapToGrid;
     private Point2D.Double position = new Point2D.Double();
     private Dimension oldMinimumSize;
     private transient DropHandler dropHandler;
@@ -323,10 +324,15 @@ public class Drawing extends JPanel implements ISnapToGridListener {
 
     @Override
     public void snapToGridUpdated(double aNewValue) {
+        this.snapToGrid = aNewValue;
         for (Entity ctrl : this.controlsRoot.getAllChildren()) {
             if (ctrl instanceof ISnapToGridListener iSnapToGridListener) {
                 iSnapToGridListener.snapToGridUpdated(aNewValue);
             }
         }
+    }
+
+    public double getSnapToGrid() {
+        return snapToGrid;
     }
 }

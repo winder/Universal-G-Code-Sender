@@ -18,19 +18,26 @@
  */
 package com.willwinder.ugs.designer.gui;
 
+import com.willwinder.ugs.designer.actions.MoveAction;
+import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.EventType;
 import com.willwinder.ugs.designer.entities.controls.Control;
+import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.logic.Controller;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.geom.Point2D;
+import java.util.List;
 import java.util.Optional;
 
 /**
  * @author Joacim Breiler
  */
 public class KeyboardListener implements KeyListener {
+
+    private static final double DEFAULT_MOVE_STEP = 1.0;
 
     private final Controller controller;
     private final MouseListener mouseListener;
@@ -54,8 +61,47 @@ public class KeyboardListener implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent keyEvent) {
+        if (moveSelection(keyEvent)) {
+            keyEvent.consume();
+            return;
+        }
         mouseListener.getHoveredControls().forEach(control -> control.onEvent(new KeyboardEntityEvent(control, EventType.KEY_PRESSED, keyEvent)));
         updateCursor();
+    }
+
+    private boolean moveSelection(KeyEvent keyEvent) {
+        if (!controller.getDrawing().isFocusOwner()) {
+            return false;
+        }
+
+        SelectionManager selectionManager = controller.getSelectionManager();
+        if (selectionManager.isEmpty()) {
+            return false;
+        }
+
+        double step = controller.getDrawing().getSnapToGrid();
+        if (step <= 0) {
+            step = DEFAULT_MOVE_STEP;
+        }
+
+        Point2D deltaMovement = switch (keyEvent.getKeyCode()) {
+            case KeyEvent.VK_LEFT -> new Point2D.Double(-step, 0);
+            case KeyEvent.VK_RIGHT -> new Point2D.Double(step, 0);
+            case KeyEvent.VK_UP -> new Point2D.Double(0, step);
+            case KeyEvent.VK_DOWN -> new Point2D.Double(0, -step);
+            default -> null;
+        };
+
+        if (deltaMovement == null) {
+            return false;
+        }
+
+        List<Entity> entities = List.copyOf(selectionManager.getSelection());
+        MoveAction moveAction = new MoveAction(entities, deltaMovement);
+        moveAction.execute();
+        controller.getUndoManager().addAction(moveAction);
+        controller.getDrawing().repaint();
+        return true;
     }
 
     @Override
