@@ -34,6 +34,8 @@ public class StartAction extends BaseAction {
 
     public StartAction() {
         super(Localization.getString("mainWindow.swing.sendButton"), Localization.getString("mainWindow.swing.sendButton"), Localization.getString("actions.category.machine"), ICON_BASE);
+        setMenuVisible(true);
+        setMenuOrder(200);
         backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(backend.canSend() || backend.isPaused());

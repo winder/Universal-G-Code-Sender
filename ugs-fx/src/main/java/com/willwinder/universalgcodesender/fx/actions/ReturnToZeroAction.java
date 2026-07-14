@@ -35,6 +35,8 @@ public class ReturnToZeroAction extends BaseAction {
 
     public ReturnToZeroAction() {
         super(Localization.getString("mainWindow.swing.returnToZeroButton"), Localization.getString("mainWindow.swing.returnToZeroButton"), Localization.getString("actions.category.machine"), ICON_BASE);
+        setMenuVisible(true);
+        setMenuOrder(400);
         backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(canExecuteAction());

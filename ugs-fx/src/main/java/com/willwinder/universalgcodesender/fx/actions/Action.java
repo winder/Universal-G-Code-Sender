@@ -51,6 +51,27 @@ public interface Action extends EventHandler<Event> {
      */
     String getCategory();
 
+    /**
+     * The sort order of this action, used both to order actions within a menu category and,
+     * by taking the lowest order in a category, to order the top level menus. Lower values
+     * appear first.
+     *
+     * <p>The order also groups items into visually separated sections by its hundreds digit:
+     * actions with order {@code 100, 110, 120} share a section while {@code 200} starts the next,
+     * with a horizontal separator drawn between sections.
+     *
+     * @return the menu sort order
+     */
+    int getMenuOrder();
+
+    /**
+     * Whether this action should be shown in the main menu bar. Actions without a category
+     * are never shown regardless of this flag.
+     *
+     * @return true if the action should be displayed in the menu
+     */
+    boolean isMenuVisible();
+
     String getIcon();
 
     BooleanProperty enabledProperty();

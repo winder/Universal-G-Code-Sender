@@ -1,0 +1,78 @@
+/*
+ * Flat, FlatLaf-like styling for the main menu bar and its drop-down menus.
+ * Overrides the gradient-based modena defaults with solid fills using the
+ * application palette (see root.css).
+ */
+
+.menu-bar {
+    -fx-background-color: white;
+    -fx-border-color: -ugs-border-color;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 0;
+}
+
+.menu-bar > .container > .menu-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-padding: 4 10 4 10;
+}
+
+.menu-bar > .container > .menu-button:hover,
+.menu-bar > .container > .menu-button:focused,
+.menu-bar > .container > .menu-button:showing {
+    -fx-background-color: -fx-focus-background-color;
+}
+
+.menu-bar > .container > .menu-button > .label {
+    -fx-text-fill: -ugs-blackish-color;
+}
+
+.menu-bar > .container > .menu-button:disabled > .label {
+    -fx-opacity: 0.4;
+}
+
+/*
+ * The drop-down is shown in a separate popup that renders as a .context-menu.
+ */
+.context-menu {
+    -fx-background-color: white;
+    -fx-border-color: -ugs-border-color;
+    -fx-border-width: 1;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-padding: 4;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.18), 10, 0, 0, 2);
+}
+
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 4;
+    -fx-padding: 5 10 5 10;
+}
+
+.menu-item:focused,
+.menu-item:hover {
+    -fx-background-color: -fx-focus-background-color;
+}
+
+.menu-item > .label {
+    -fx-text-fill: -ugs-blackish-color;
+}
+
+.menu-item:focused > .label,
+.menu-item:hover > .label {
+    -fx-text-fill: -ugs-blackish-color;
+}
+
+.menu-item:disabled > .label {
+    -fx-opacity: 0.4;
+}
+
+.context-menu .separator:horizontal {
+    -fx-padding: 5 0 5 0;
+}
+
+.context-menu .separator:horizontal .line {
+    -fx-border-color: derive(-ugs-border-color, 70%) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}

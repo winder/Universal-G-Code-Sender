@@ -34,6 +34,8 @@ public class PauseAction extends BaseAction {
 
     public PauseAction() {
         super(Localization.getString("mainWindow.swing.pauseButton"), Localization.getString("mainWindow.swing.pauseButton"), Localization.getString("actions.category.machine"), ICON_BASE);
+        setMenuVisible(true);
+        setMenuOrder(210);
         backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(canPause());

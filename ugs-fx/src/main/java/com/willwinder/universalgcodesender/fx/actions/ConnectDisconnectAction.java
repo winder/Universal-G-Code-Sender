@@ -39,6 +39,8 @@ public class ConnectDisconnectAction extends BaseAction {
 
     public ConnectDisconnectAction() {
         super(Localization.getString("mainWindow.ui.connect"), Localization.getString("mainWindow.ui.connect"), Localization.getString("actions.category.machine"), ICON_BASE_DISCONNECT);
+        setMenuVisible(true);
+        setMenuOrder(100);
         backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(true);
