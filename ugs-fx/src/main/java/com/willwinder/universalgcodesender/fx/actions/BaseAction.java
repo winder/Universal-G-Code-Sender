@@ -31,12 +31,15 @@ import java.util.logging.Logger;
 
 public abstract class BaseAction implements Action {
     private static final Logger LOGGER = Logger.getLogger(BaseAction.class.getName());
+    private static final int DEFAULT_MENU_ORDER = 100;
     private final BooleanProperty enabled = new SimpleBooleanProperty(true);
     private final BooleanProperty selected = new SimpleBooleanProperty(false);
     private final StringProperty title = new SimpleStringProperty("");
     private final StringProperty label = new SimpleStringProperty("");
     private final StringProperty category = new SimpleStringProperty("");
     private final StringProperty icon = new SimpleStringProperty("");
+    private int menuOrder = DEFAULT_MENU_ORDER;
+    private boolean menuVisible = false;
     private final LongPressMouseEventProxy mouseEventHandler = new LongPressMouseEventProxy(300, this::handleMouseEvent);
 
     public BaseAction() {
@@ -111,6 +114,28 @@ public abstract class BaseAction implements Action {
     @Override
     public StringProperty categoryProperty() {
         return category;
+    }
+
+    protected void setCategory(String category) {
+        this.category.set(category);
+    }
+
+    @Override
+    public int getMenuOrder() {
+        return menuOrder;
+    }
+
+    protected void setMenuOrder(int menuOrder) {
+        this.menuOrder = menuOrder;
+    }
+
+    @Override
+    public boolean isMenuVisible() {
+        return menuVisible;
+    }
+
+    protected void setMenuVisible(boolean menuVisible) {
+        this.menuVisible = menuVisible;
     }
 
     @Override

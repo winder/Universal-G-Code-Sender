@@ -45,7 +45,9 @@ public class SaveAction extends BaseAction {
     private static final String ICON_BASE = "icons/save.svg";
 
     public SaveAction() {
-        super(Localization.getString("platform.menu.save"), Localization.getString("platform.menu.save"), ICON_BASE);
+        super(Localization.getString("platform.menu.save"), Localization.getString("platform.menu.save"), Localization.getString("actions.category.file"), ICON_BASE);
+        setMenuVisible(true);
+        setMenuOrder(120);
         enabledProperty().set(false);
 
         WorkspaceManager.getInstance().addListener(new WorkspaceManager.WorkspaceListener() {

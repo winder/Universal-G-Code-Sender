@@ -34,6 +34,8 @@ public class SoftResetAction extends BaseAction {
 
     public SoftResetAction() {
         super(Localization.getString("mainWindow.swing.softResetMachineControl"), Localization.getString("platform.actions.softreset.tooltip"), Localization.getString("actions.category.machine"), ICON_BASE);
+        setMenuVisible(true);
+        setMenuOrder(320);
         backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(canReset());

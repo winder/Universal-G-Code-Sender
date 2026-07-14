@@ -34,6 +34,8 @@ public class UnlockAction extends BaseAction {
 
     public UnlockAction() {
         super(Localization.getString("mainWindow.swing.alarmLock"), Localization.getString("platform.actions.unlock.tooltip"), Localization.getString("actions.category.machine"), ICON_BASE);
+        setMenuVisible(true);
+        setMenuOrder(310);
         backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(canUnlock());

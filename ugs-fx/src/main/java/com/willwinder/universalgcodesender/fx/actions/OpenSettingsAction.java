@@ -29,7 +29,9 @@ public class OpenSettingsAction extends BaseAction {
     private static final String ICON_BASE = "icons/settings.svg";
 
     public OpenSettingsAction() {
-        super(Localization.getString("actions.openSettings"), Localization.getString("actions.openSettings"), ICON_BASE);
+        super(Localization.getString("actions.openSettings"), Localization.getString("actions.openSettings"), Localization.getString("actions.category.file"), ICON_BASE);
+        setMenuVisible(true);
+        setMenuOrder(200);
     }
 
     @Override

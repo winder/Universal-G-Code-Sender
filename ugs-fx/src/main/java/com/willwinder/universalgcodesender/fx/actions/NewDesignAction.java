@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.fx.actions;
 
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 import com.willwinder.universalgcodesender.fx.service.WorkspaceManager;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
@@ -42,7 +43,9 @@ public class NewDesignAction extends BaseAction {
     private final BackendAPI backend;
 
     public NewDesignAction() {
-        super("New design", "New design", ICON_BASE);
+        super("New design", "New design", Localization.getString("actions.category.file"), ICON_BASE);
+        setMenuVisible(true);
+        setMenuOrder(100);
         backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(!backend.isConnected() || backend.isIdle());
