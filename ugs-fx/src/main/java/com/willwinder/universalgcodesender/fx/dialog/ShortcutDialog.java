@@ -92,6 +92,8 @@ public class ShortcutDialog extends Stage {
         acceptButton.setOnAction(e -> {
             if (newShortcut != null && !newShortcut.isBlank()) {
                 ShortcutService.setShortcut(action.getId(), newShortcut);
+            } else {
+                ShortcutService.removeShortcut(action.getId());
             }
             close();
         });
@@ -99,7 +101,7 @@ public class ShortcutDialog extends Stage {
         clearButton.setOnAction(e -> {
             newShortcut = null;
             shortcutLabel.setText("");
-            acceptButton.setDisable(true);
+            acceptButton.setDisable(false);
             ShortcutService.removeShortcut(action.getId());
         });
 

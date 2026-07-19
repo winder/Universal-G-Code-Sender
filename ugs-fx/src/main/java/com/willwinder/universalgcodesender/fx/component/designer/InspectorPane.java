@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
+package com.willwinder.universalgcodesender.fx.component.designer;
 
 import com.willwinder.universalgcodesender.fx.helper.SplitPaneDividerPersistence;
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;

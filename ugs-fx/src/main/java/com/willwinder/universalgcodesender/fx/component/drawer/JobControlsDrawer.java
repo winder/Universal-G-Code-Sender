@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender.fx.component.drawer;
 
-
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.fx.actions.Action;
 import com.willwinder.universalgcodesender.fx.actions.OpenFileAction;
@@ -54,6 +53,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class JobControlsDrawer extends Drawer {
@@ -71,7 +71,7 @@ public class JobControlsDrawer extends Drawer {
 
         getStyleClass().add("job-card");
         getStylesheets().add(
-                getClass().getResource("/styles/job-controls-pane.css").toExternalForm()
+                Objects.requireNonNull(getClass().getResource("/styles/job-controls-pane.css")).toExternalForm()
         );
 
         backendAPI = LookupService.lookup(BackendAPI.class);
@@ -210,8 +210,13 @@ public class JobControlsDrawer extends Drawer {
     }
 
     private void setProgressBarColor(Color color) {
-        var style = "-fx-background-color: " + toWebHex(color) + ";";
-        progressBar.lookup(".bar").setStyle(style);
+        Platform.runLater(() -> {
+            var style = "-fx-background-color: " + toWebHex(color) + ";";
+            var bar = progressBar.lookup(".bar");
+            if (bar != null) {
+                bar.setStyle(style);
+            }
+        });
     }
 
     public static String toWebHex(Color color) {

@@ -1,6 +1,7 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
 
 
+import com.willwinder.universalgcodesender.fx.component.designer.EntityShapeFactory;
 import eu.mihosoft.vrl.v3d.CSG;
 import org.junit.Test;
 

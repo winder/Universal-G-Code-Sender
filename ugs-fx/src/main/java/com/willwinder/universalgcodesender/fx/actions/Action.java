@@ -23,11 +23,22 @@ import javafx.beans.property.StringProperty;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 
+import java.util.Optional;
+
 public interface Action extends EventHandler<Event> {
 
     String getId();
 
     boolean isEnabled();
+
+    /**
+     * The default keyboard shortcut for this action, already resolved for the current operating
+     * system (e.g. {@code META+S} on macOS, {@code CTRL+S} elsewhere). It is used when the user has
+     * not assigned a shortcut in the settings. Returns empty when the action has no default.
+     *
+     * @return the platform-resolved default shortcut, or empty when there is none
+     */
+    Optional<String> getDefaultShortcut();
 
     /**
      * A title for the action that can be shown in menus

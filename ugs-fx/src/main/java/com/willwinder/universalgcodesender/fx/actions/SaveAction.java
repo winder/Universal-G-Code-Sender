@@ -48,6 +48,7 @@ public class SaveAction extends BaseAction {
         super(Localization.getString("platform.menu.save"), Localization.getString("platform.menu.save"), Localization.getString("actions.category.file"), ICON_BASE);
         setMenuVisible(true);
         setMenuOrder(120);
+        setDefaultShortcut("SHORTCUT+S");
         enabledProperty().set(false);
 
         WorkspaceManager.getInstance().addListener(new WorkspaceManager.WorkspaceListener() {

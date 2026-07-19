@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
+package com.willwinder.universalgcodesender.fx.component.designer;
 
 import java.awt.Color;
 import java.awt.Composite;
