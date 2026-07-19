@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.fx.component.visualizer.designer;
+package com.willwinder.universalgcodesender.fx.component.designer;
 
 import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.controls.Control;

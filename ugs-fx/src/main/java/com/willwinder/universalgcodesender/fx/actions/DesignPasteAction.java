@@ -39,6 +39,7 @@ public class DesignPasteAction extends AbstractDesignEditAction {
 
     public DesignPasteAction() {
         super(Localization.getString("platform.designer.paste"), ICON_BASE);
+        setDefaultShortcut("SHORTCUT+V");
     }
 
     @Override

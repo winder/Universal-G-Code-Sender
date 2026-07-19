@@ -44,6 +44,7 @@ public class NewDesignAction extends BaseAction {
 
     public NewDesignAction() {
         super("New design", "New design", Localization.getString("actions.category.file"), ICON_BASE);
+        setDefaultShortcut("SHORTCUT+N");
         setMenuVisible(true);
         setMenuOrder(100);
         backend = LookupService.lookup(BackendAPI.class);

@@ -49,6 +49,7 @@ public class JogActionRegistry {
         ActionRegistry actionRegistry = ActionRegistry.getInstance();
         Arrays.stream(JogButtonEnum.values()).forEach(jogButtonEnum -> {
             JogAction jogAction = new JogAction(jogButtonEnum);
+            jogButtonEnum.getDefaultShortcut().ifPresent(jogAction::setDefaultShortcut);
             actionRegistry.registerAction(jogAction);
             actions.put(jogButtonEnum, jogAction);
         });

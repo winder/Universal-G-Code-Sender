@@ -34,6 +34,7 @@ public class DesignCopyAction extends AbstractDesignEditAction implements Select
 
     public DesignCopyAction() {
         super(Localization.getString("platform.designer.copy"), ICON_BASE);
+        setDefaultShortcut("SHORTCUT+C");
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);
         enabledProperty().set(!selectionManager.getSelection().isEmpty());
