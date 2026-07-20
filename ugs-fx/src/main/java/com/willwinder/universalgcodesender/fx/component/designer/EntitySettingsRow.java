@@ -25,6 +25,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 
+import static com.willwinder.universalgcodesender.fx.component.designer.EntitySettingsPanel.SPACING;
+
 /**
  * A settings row tailored for the {@link EntitySettingsPanel}. All rows sharing the same
  * {@code labelWidth} property keep their labels the same width, growing to fit the longest
@@ -36,7 +38,7 @@ public class EntitySettingsRow extends HBox {
     private static final double CONTROL_MAX_WIDTH = 160;
 
     public EntitySettingsRow(DoubleProperty labelWidth, String title, Region control) {
-        super(10);
+        super(SPACING);
         setAlignment(Pos.CENTER_LEFT);
         setMinHeight(26);
 

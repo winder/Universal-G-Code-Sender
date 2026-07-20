@@ -23,6 +23,7 @@ import com.willwinder.ugs.designer.entities.EntityListener;
 import com.willwinder.ugs.designer.entities.EventType;
 import com.willwinder.ugs.designer.entities.EntitySetting;
 import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.designer.entities.cuttable.ToolPathDirection;
 import com.willwinder.ugs.designer.entities.selection.SelectionListener;
@@ -44,6 +45,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Pos;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
@@ -53,6 +55,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -60,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.Stream;
 
 /**
  * Floating panel that displays the entity settings common to all selected Cuttable
@@ -91,6 +95,7 @@ public class EntitySettingsPanel extends VBox {
     // rather than a full (and, during a drag, sluggish) structural rebuild.
     private static final EnumSet<EventType> TRANSFORM_EVENTS = EnumSet.of(
             EventType.MOVED, EventType.RESIZED, EventType.ROTATED);
+    public static final int SPACING = 12;
 
     private final SelectionManager selectionManager;
     private final BooleanProperty aspectRatioLocked = new SimpleBooleanProperty(false);
@@ -157,18 +162,30 @@ public class EntitySettingsPanel extends VBox {
             getChildren().add(new CollapsibleTitledPane("Transform", transformRows));
         }
 
-        VBox cutRows = buildRows(CUT_KEYS, common, cuttables, labelWidth);
+        Set<EntitySetting> cutSettings = new LinkedHashSet<>(common);
+        cutSettings.retainAll(commonCutTypeSettings(cuttables));
+        VBox cutRows = buildRows(CUT_KEYS, cutSettings, cuttables, labelWidth);
         if (!cutRows.getChildren().isEmpty()) {
             getChildren().add(new CollapsibleTitledPane("Cut", cutRows));
         }
     }
 
     private static Set<EntitySetting> intersection(List<Cuttable> cuttables) {
-        Set<EntitySetting> common = new LinkedHashSet<>(cuttables.get(0).getSettings());
-        for (int i = 1; i < cuttables.size(); i++) {
-            common.retainAll(cuttables.get(i).getSettings());
-        }
-        return common;
+        return intersect(cuttables.stream().map(Cuttable::getSettings));
+    }
+
+    private static Set<EntitySetting> commonCutTypeSettings(List<Cuttable> cuttables) {
+        return intersect(cuttables.stream().map(cuttable -> cuttable.getCutType().getSettings()));
+    }
+
+    private static Set<EntitySetting> intersect(Stream<? extends Collection<EntitySetting>> settings) {
+        return settings
+                .<Set<EntitySetting>>map(LinkedHashSet::new)
+                .reduce((accumulated, next) -> {
+                    accumulated.retainAll(next);
+                    return accumulated;
+                })
+                .orElseGet(LinkedHashSet::new);
     }
 
     private VBox buildRows(List<EntitySetting> keys, Set<EntitySetting> common, List<Cuttable> cuttables, DoubleProperty labelWidth) {
@@ -177,7 +194,7 @@ public class EntitySettingsPanel extends VBox {
         boolean groupSize = common.contains(EntitySetting.WIDTH) && common.contains(EntitySetting.HEIGHT);
         boolean sizeGroupAdded = false;
 
-        VBox rows = new VBox(6);
+        VBox rows = new VBox(SPACING);
         for (EntitySetting key : keys) {
             if (!common.contains(key)) continue;
 
@@ -361,7 +378,7 @@ public class EntitySettingsPanel extends VBox {
                     (entity, v) -> entity.setSize(new Size(entity.getSize().getWidth(), v)),
                     entities, Unit.MM);
             case ROTATION -> controls.doubleField(Cuttable::getRotation, Cuttable::setRotation, entities, Unit.DEGREE);
-            case CUT_TYPE -> controls.cutTypeCombo(entities);
+            case CUT_TYPE -> cutTypeControl(entities);
             case START_DEPTH -> controls.doubleField(Cuttable::getStartDepth, Cuttable::setStartDepth, entities, Unit.MM);
             case TARGET_DEPTH -> controls.doubleField(Cuttable::getTargetDepth, Cuttable::setTargetDepth, entities, Unit.MM);
             case SPINDLE_SPEED ->
@@ -377,8 +394,29 @@ public class EntitySettingsPanel extends VBox {
                     Cuttable::getDirection, Cuttable::setDirection, entities);
             case TOOL_PATH_DIRECTION -> controls.enumCombo(ToolPathDirection.values(),
                     ToolPathDirection::getLabel, Cuttable::getToolPathDirection, Cuttable::setToolPathDirection, entities);
+            case INCLUDE_IN_EXPORT ->
+                    leftAligned(controls.switchControl(Cuttable::getIncludeInExport, Cuttable::setIncludeInExport, entities));
             default -> null;
         };
+    }
+
+    private static Region leftAligned(Region control) {
+        HBox box = new HBox(control);
+        box.setAlignment(Pos.CENTER_LEFT);
+        return box;
+    }
+
+    private ComboBox<CutType> cutTypeControl(List<Cuttable> entities) {
+        ComboBox<CutType> combo = controls.cutTypeCombo(entities);
+        // The cut type determines which cut settings apply, so rebuild the rows when it changes.
+        // The value is applied by the factory's own listener (under the edit guard, which suppresses
+        // the entity-change rebuild), so we trigger the structural rebuild explicitly here.
+        combo.valueProperty().addListener((obs, oldType, newType) -> {
+            if (newType != null && newType != oldType) {
+                Platform.runLater(this::rebuild);
+            }
+        });
+        return combo;
     }
 
     // Coalesce a burst of transform events (e.g. during a drag) into a single value refresh on the

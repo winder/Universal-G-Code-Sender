@@ -24,6 +24,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+import static com.willwinder.universalgcodesender.fx.component.designer.EntitySettingsPanel.SPACING;
+
 /**
  * Groups several {@link EntitySettingsRow} vertically and places a single trailing component
  * directly to the right of the rows, vertically centered across them. The row box is sized to its
@@ -35,10 +37,10 @@ public class EntitySettingsRowGroup extends HBox {
     private static final double TRAILING_COLUMN_WIDTH = 56;
 
     public EntitySettingsRowGroup(Node trailing, Region... rows) {
-        super(10);
+        super(SPACING);
         setAlignment(Pos.CENTER_LEFT);
 
-        VBox rowBox = new VBox(6, rows);
+        VBox rowBox = new VBox(SPACING, rows);
         getChildren().add(rowBox);
 
         if (trailing != null) {
@@ -47,8 +49,6 @@ public class EntitySettingsRowGroup extends HBox {
             trailingColumn.setMinWidth(TRAILING_COLUMN_WIDTH);
             trailingColumn.setPrefWidth(TRAILING_COLUMN_WIDTH);
             trailingColumn.setMaxWidth(TRAILING_COLUMN_WIDTH);
-            // Fill the full group height so a trailing component that opts in (maxHeight set) can
-            // stretch across all rows; components that keep their own max height stay centered.
             trailingColumn.setMaxHeight(Double.MAX_VALUE);
             getChildren().add(trailingColumn);
         }
