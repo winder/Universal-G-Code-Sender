@@ -57,7 +57,7 @@ public class UnitTextField extends TextField {
 
     private final DecimalFormat displayFormat = new DecimalFormat("0.###", DecimalFormatSymbols.getInstance(Locale.US));
 
-    private boolean allowNegative = true;
+    private final boolean allowNegative = true;
     private boolean updatingTextFromValue = false;
     private boolean updatingValueFromText = false;
 
@@ -99,7 +99,7 @@ public class UnitTextField extends TextField {
         return doubleValue.get();
     }
 
-    protected final void setValue(double value) {
+    public final void setValue(double value) {
         doubleValue.set(value);
     }
 
