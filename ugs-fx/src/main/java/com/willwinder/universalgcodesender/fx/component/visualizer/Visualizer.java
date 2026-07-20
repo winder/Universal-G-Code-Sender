@@ -150,7 +150,12 @@ public class Visualizer extends Pane {
         toolbar.layoutXProperty().bind(widthProperty().subtract(toolbar.widthProperty()).subtract(10));
         toolbar.layoutYProperty().set(9);
 
-        getChildren().addAll(subScene, orientationCube, orientationToolbar, toolbar);
+        // Current tool info in the bottom-left corner (design workspaces only).
+        ToolButton toolButton = new ToolButton();
+        toolButton.layoutXProperty().set(20);
+        toolButton.layoutYProperty().bind(heightProperty().subtract(toolButton.heightProperty()).subtract(20));
+
+        getChildren().addAll(subScene, orientationCube, orientationToolbar, toolbar, toolButton);
 
         // Add new models added through the visualizer service
         VisualizerService.getInstance().getModels().addListener((ListChangeListener<Model>) change -> {
