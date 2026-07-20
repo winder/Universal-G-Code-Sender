@@ -19,6 +19,7 @@ import com.willwinder.ugs.designer.entities.controls.VertexControlSelector;
 import com.willwinder.ugs.designer.entities.controls.ZoomControl;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.universalgcodesender.fx.component.visualizer.DragHandler;
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import eu.mihosoft.vrl.v3d.CSG;
 import eu.mihosoft.vrl.v3d.Extrude;
 import eu.mihosoft.vrl.v3d.Vector3d;
@@ -148,12 +149,13 @@ public final class EntityShapeFactory {
     }
 
     private static Color getColor(Control control) {
+        VisualizerSettings settings = VisualizerSettings.getInstance();
         if (control instanceof ResizeControl) {
-            return Color.DODGERBLUE;
+            return Color.web(settings.colorDesignResizeProperty().get());
         } else if (control instanceof RotationControl) {
-            return Color.DODGERBLUE;
+            return Color.web(settings.colorDesignRotationProperty().get());
         } else if (control instanceof MoveControl) {
-            return Color.BLUE;
+            return Color.web(settings.colorDesignMoveProperty().get());
         } else if (control instanceof SelectionControl) {
             return Color.TRANSPARENT;
         } else if (control instanceof HighlightModelControl) {

@@ -43,6 +43,11 @@ public class VisualizerSettings {
     private static final String COLOR_SPINDLE_MAX = "color.spindleMax";
     private static final String COLOR_RULER_LINES = "color.rulerLines";
     private static final String COLOR_RULER_TEXT = "color.rulerText";
+    private static final String COLOR_DESIGN_RESIZE = "color.design.resize";
+    private static final String COLOR_DESIGN_ROTATION = "color.design.rotation";
+    private static final String COLOR_DESIGN_MOVE = "color.design.move";
+    private static final String COLOR_DESIGN_SHAPE_OUTLINE = "color.design.shapeOutline";
+    private static final String COLOR_DESIGN_SHAPE_BACKGROUND = "color.design.shapeBackground";
 
     private static final String MOUSE_INVERT_ZOOM = "mouse.invertZoom";
     private static final String MOUSE_PAN_BUTTON = "mouse.pan.button";
@@ -87,6 +92,11 @@ public class VisualizerSettings {
     private final StringProperty colorSpindleMax = new SimpleStringProperty(loadString(COLOR_SPINDLE_MAX, "#00009EFF"));
     private final StringProperty colorRulerLines = new SimpleStringProperty(loadString(COLOR_RULER_LINES, "#333333FF"));
     private final StringProperty colorRulerText = new SimpleStringProperty(loadString(COLOR_RULER_TEXT, "#333333FF"));
+    private final StringProperty colorDesignResize = new SimpleStringProperty(loadString(COLOR_DESIGN_RESIZE, "#4F9EB0FF"));
+    private final StringProperty colorDesignRotation = new SimpleStringProperty(loadString(COLOR_DESIGN_ROTATION, "#4F9EB0FF"));
+    private final StringProperty colorDesignMove = new SimpleStringProperty(loadString(COLOR_DESIGN_MOVE, "#4F9EB0FF"));
+    private final StringProperty colorDesignShapeOutline = new SimpleStringProperty(loadString(COLOR_DESIGN_SHAPE_OUTLINE, "#4F9EB0FF"));
+    private final StringProperty colorDesignShapeBackground = new SimpleStringProperty(loadString(COLOR_DESIGN_SHAPE_BACKGROUND, "#FFFFFFFF"));
 
     private final BooleanProperty invertZoom = new SimpleBooleanProperty(loadBoolean(MOUSE_INVERT_ZOOM, false));
     private final StringProperty panMouseButton = new SimpleStringProperty(loadString(MOUSE_PAN_BUTTON, "SECONDARY"));
@@ -117,6 +127,11 @@ public class VisualizerSettings {
         colorSpindleMax.addListener((obs, oldVal, newVal) -> saveString(COLOR_SPINDLE_MAX, newVal));
         colorRulerLines.addListener((obs, oldVal, newVal) -> saveString(COLOR_RULER_LINES, newVal));
         colorRulerText.addListener((obs, oldVal, newVal) -> saveString(COLOR_RULER_TEXT, newVal));
+        colorDesignResize.addListener((obs, oldVal, newVal) -> saveString(COLOR_DESIGN_RESIZE, newVal));
+        colorDesignRotation.addListener((obs, oldVal, newVal) -> saveString(COLOR_DESIGN_ROTATION, newVal));
+        colorDesignMove.addListener((obs, oldVal, newVal) -> saveString(COLOR_DESIGN_MOVE, newVal));
+        colorDesignShapeOutline.addListener((obs, oldVal, newVal) -> saveString(COLOR_DESIGN_SHAPE_OUTLINE, newVal));
+        colorDesignShapeBackground.addListener((obs, oldVal, newVal) -> saveString(COLOR_DESIGN_SHAPE_BACKGROUND, newVal));
 
         invertZoom.addListener((obs, oldVal, newVal) -> saveBoolean(MOUSE_INVERT_ZOOM, newVal));
         panMouseButton.addListener((obs, oldVal, newVal) -> saveString(MOUSE_PAN_BUTTON, newVal));
@@ -189,6 +204,26 @@ public class VisualizerSettings {
 
     public StringProperty colorRulerTextProperty() {
         return colorRulerText;
+    }
+
+    public StringProperty colorDesignResizeProperty() {
+        return colorDesignResize;
+    }
+
+    public StringProperty colorDesignRotationProperty() {
+        return colorDesignRotation;
+    }
+
+    public StringProperty colorDesignMoveProperty() {
+        return colorDesignMove;
+    }
+
+    public StringProperty colorDesignShapeOutlineProperty() {
+        return colorDesignShapeOutline;
+    }
+
+    public StringProperty colorDesignShapeBackgroundProperty() {
+        return colorDesignShapeBackground;
     }
 
     public StringProperty machineModelProperty() {

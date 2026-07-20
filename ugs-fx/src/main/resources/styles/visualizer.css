@@ -19,3 +19,9 @@
     -fx-background-color: #353A40CC;
     -fx-border-color: transparent;
 }
+
+.tool-button {
+    -fx-background-color: #f2f2f2;
+    -fx-font-size: 1.2em;
+    -fx-padding: 6 12 6 6;
+}
