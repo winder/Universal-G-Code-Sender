@@ -20,6 +20,7 @@ package com.willwinder.ugs.designer.entities.cuttable;
 
 import com.willwinder.ugs.designer.entities.EntitySetting;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_ENDMILL_SETTINGS;
+import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_LASER_FILL_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_LASER_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_POCKET_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_SURFACE_SETTINGS;
@@ -38,8 +39,8 @@ public enum CutType {
     INSIDE_PATH("Mill - Inside path", DEFAULT_ENDMILL_SETTINGS, Collections.emptyList()),
     OUTSIDE_PATH("Mill - Outside path", DEFAULT_ENDMILL_SETTINGS, Collections.emptyList()),
     LASER_ON_PATH("Laser - On path", DEFAULT_LASER_SETTINGS, Collections.emptyList()),
-    LASER_FILL("Laser - Fill", DEFAULT_LASER_SETTINGS, Collections.emptyList()),
-    LASER_RASTER("Laser - Raster", DEFAULT_LASER_SETTINGS, Collections.emptyList()),
+    LASER_FILL("Laser - Fill", DEFAULT_LASER_FILL_SETTINGS, Collections.emptyList()),
+    LASER_RASTER("Laser - Raster", DEFAULT_LASER_FILL_SETTINGS, Collections.emptyList()),
     CENTER_DRILL("Center drill", DEFAULT_ENDMILL_SETTINGS, Collections.emptyList()),
     ;
 
