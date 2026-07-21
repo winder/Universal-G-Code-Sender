@@ -72,12 +72,9 @@ public class RasterSettingsManager implements EntitySettingsManager {
 
     private static List<EntitySetting> getRasterSettings() {
         List<EntitySetting> settings = new ArrayList<>();
-        settings.add(EntitySetting.RASTER_BRIGHTNESS);
-        settings.add(EntitySetting.RASTER_CONTRAST);
-        settings.add(EntitySetting.RASTER_GAMMA);
+        settings.add(EntitySetting.RASTER_POWER_CURVE);
         settings.add(EntitySetting.RASTER_LEVELS);
         settings.add(EntitySetting.RASTER_INVERT);
-        settings.add(EntitySetting.RASTER_POWER_CURVE);
         return settings;
     }
 }

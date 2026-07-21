@@ -49,9 +49,6 @@ public enum EntitySetting {
     TOOL_PATH_DIRECTION("Tool path direction"),
     DIRECTION("Tool path direction"),
     CORNER_RADIUS("Corner radius"),
-    RASTER_BRIGHTNESS("Brightness"),
-    RASTER_CONTRAST("Contrast"),
-    RASTER_GAMMA("Gamma"),
     RASTER_INVERT("Invert"),
     RASTER_LEVELS("Levels"),
     RASTER_POWER_CURVE("Power curve");

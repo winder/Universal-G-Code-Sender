@@ -48,12 +48,6 @@ public class Raster extends AbstractCuttable {
     private BufferedImage image;
     private Rectangle2D.Double relativeShape;
 
-    // brightness: -1..+1 (adds to normalized luminance)
-    private double brightness = 0.0;
-    // contrast: 0..3 (multiplies around midpoint 0.5)
-    private double contrast = 1.0;
-    // gamma: 0.1..10 (applied as pow(l, 1/gamma))
-    private double gamma = 1.0;
     // The number of intensities to use
     private int levels = 255;
 
@@ -130,9 +124,6 @@ public class Raster extends AbstractCuttable {
         Raster copy = new Raster(this.image);
         copyPropertiesTo(copy);
 
-        copy.brightness = this.brightness;
-        copy.contrast = this.contrast;
-        copy.gamma = this.gamma;
         copy.invert = this.invert;
         copy.levels = this.levels;
         copy.powerCurveControlPoints = MonotoneCubicSpline.deepClone(this.powerCurveControlPoints);
@@ -146,12 +137,9 @@ public class Raster extends AbstractCuttable {
         List<EntitySetting> settings = super.getSettings();
         settings = new java.util.ArrayList<>(settings);
         settings.addAll(Arrays.asList(
-                EntitySetting.RASTER_BRIGHTNESS,
-                EntitySetting.RASTER_CONTRAST,
-                EntitySetting.RASTER_GAMMA,
-                EntitySetting.RASTER_INVERT,
+                EntitySetting.RASTER_POWER_CURVE,
                 EntitySetting.RASTER_LEVELS,
-                EntitySetting.RASTER_POWER_CURVE
+                EntitySetting.RASTER_INVERT
         ));
         return settings;
     }
@@ -159,9 +147,6 @@ public class Raster extends AbstractCuttable {
     @Override
     public Optional<Object> getEntitySetting(EntitySetting entitySetting) {
         return switch (entitySetting) {
-            case RASTER_BRIGHTNESS -> Optional.of(brightness);
-            case RASTER_CONTRAST -> Optional.of(contrast);
-            case RASTER_GAMMA -> Optional.of(gamma);
             case RASTER_INVERT -> Optional.of(invert);
             case RASTER_LEVELS -> Optional.of(levels);
             case RASTER_POWER_CURVE -> Optional.of(MonotoneCubicSpline.deepClone(powerCurveControlPoints));
@@ -172,41 +157,11 @@ public class Raster extends AbstractCuttable {
     @Override
     public void setEntitySetting(EntitySetting entitySetting, Object value) {
         switch (entitySetting) {
-            case RASTER_BRIGHTNESS -> setBrightness(asDouble(value));
-            case RASTER_CONTRAST -> setContrast(asDouble(value));
-            case RASTER_GAMMA -> setGamma(asDouble(value));
             case RASTER_INVERT -> setInvert(asBoolean(value));
             case RASTER_LEVELS -> setLevels(asInteger(value));
             case RASTER_POWER_CURVE -> setPowerCurveControlPoints(asIntArray2D(value));
             default -> super.setEntitySetting(entitySetting, value);
         }
-    }
-
-    public double getBrightness() {
-        return brightness;
-    }
-
-    public void setBrightness(double rasterBrightness) {
-        this.brightness = clamp(rasterBrightness, -1.0, 1.0);
-        invalidateProcessedCache();
-    }
-
-    public double getContrast() {
-        return contrast;
-    }
-
-    public void setContrast(double rasterContrast) {
-        this.contrast = clamp(rasterContrast, 0.0, 3.0);
-        invalidateProcessedCache();
-    }
-
-    public double getGamma() {
-        return gamma;
-    }
-
-    public void setGamma(double rasterGamma) {
-        this.gamma = clamp(rasterGamma, 0.1, 10.0);
-        invalidateProcessedCache();
     }
 
     public int getLevels() {
@@ -288,8 +243,8 @@ public class Raster extends AbstractCuttable {
         int h = src.getHeight();
 
         // Pre-compute a master LUT: luminance (0–255) → final gray value.
-        // The entire pipeline (brightness, contrast, gamma, invert, levels, power curve)
-        // depends only on the scalar luminance, so it collapses into a single table.
+        // The entire pipeline (invert, levels, power curve) depends only on the
+        // scalar luminance, so it collapses into a single table.
         int[] masterLut = buildMasterLut();
 
         int[] srcPixels = src.getRGB(0, 0, w, h, null, 0, w);
@@ -311,31 +266,24 @@ public class Raster extends AbstractCuttable {
 
     private int[] buildMasterLut() {
         final int[] curveLut = getOrCreatePowerCurveLut();
-        final double invGamma = 1.0 / Math.max(0.0001, gamma);
         int[] masterLut = new int[256];
 
         for (int i = 0; i < 256; i++) {
             double l = i / 255.0;
 
-            l = l + brightness;
-            l = (l - 0.5) * contrast + 0.5;
-            l = clamp(l, 0.0, 1.0);
-
-            l = Math.pow(l, invGamma);
-
             if (invert) {
                 l = 1.0 - l;
             }
 
-            double ql = clamp(l, 0.0, 1.0);
+            int curveInput = (int) Math.round(clamp(l, 0.0, 1.0) * 255.0);
+            double ql = curveLut[Math.max(0, Math.min(255, curveInput))] / 255.0;
+
             if (levels < 255) {
                 double steps = levels - 1;
                 ql = Math.round(ql * steps) / steps;
             }
 
-            int lv = (int) Math.round(ql * 255.0);
-            lv = curveLut[Math.max(0, Math.min(255, lv))];
-            masterLut[i] = lv;
+            masterLut[i] = (int) Math.round(ql * 255.0);
         }
 
         return masterLut;
@@ -425,6 +373,6 @@ public class Raster extends AbstractCuttable {
 
     @Override
     public List<CutType> getAvailableCutTypes() {
-        return List.of(CutType.NONE, CutType.LASER_RASTER, CutType.LASER_ON_PATH, CutType.ON_PATH, CutType.INSIDE_PATH, CutType.OUTSIDE_PATH, CutType.SURFACE);
+        return List.of(CutType.NONE, CutType.LASER_RASTER);
     }
 }

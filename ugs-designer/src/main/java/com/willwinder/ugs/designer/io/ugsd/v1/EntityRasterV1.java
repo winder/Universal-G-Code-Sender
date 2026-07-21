@@ -33,15 +33,6 @@ public class EntityRasterV1 extends CuttableEntityV1 {
     private String image;
 
     @Expose
-    private double brightness;
-
-    @Expose
-    private double contrast;
-
-    @Expose
-    private double gamma;
-
-    @Expose
     private int levels;
 
     @Expose
@@ -56,26 +47,6 @@ public class EntityRasterV1 extends CuttableEntityV1 {
 
     public void setImage(String image) {
         this.image = image;
-    }
-
-    public void setBrightness(double brightness) {
-        this.brightness = brightness;
-    }
-
-    public double getBrightness() {
-        return brightness;
-    }
-
-    public void setContrast(double contrast) {
-        this.contrast = contrast;
-    }
-
-    public void setGamma(double gamma) {
-        this.gamma = gamma;
-    }
-
-    public double getGamma() {
-        return gamma;
     }
 
     public int getLevels() {
@@ -107,9 +78,6 @@ public class EntityRasterV1 extends CuttableEntityV1 {
         try {
             Raster raster = new Raster(ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(image))));
             applyCommonAttributes(raster);
-            raster.setContrast(this.contrast);
-            raster.setBrightness(this.brightness);
-            raster.setGamma(this.gamma);
             raster.setLevels(this.levels);
             raster.setInvert(this.invert);
             if (this.powerCurveControlPoints != null) {

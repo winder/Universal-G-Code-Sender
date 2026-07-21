@@ -22,9 +22,6 @@ import com.willwinder.ugs.designer.actions.ChangeEntitySettingsAction;
 import com.willwinder.ugs.designer.actions.UndoableAction;
 import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.EntitySetting;
-import static com.willwinder.ugs.designer.entities.EntitySetting.RASTER_BRIGHTNESS;
-import static com.willwinder.ugs.designer.entities.EntitySetting.RASTER_CONTRAST;
-import static com.willwinder.ugs.designer.entities.EntitySetting.RASTER_GAMMA;
 import static com.willwinder.ugs.designer.entities.EntitySetting.RASTER_INVERT;
 import static com.willwinder.ugs.designer.entities.EntitySetting.RASTER_LEVELS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.RASTER_POWER_CURVE;
@@ -34,7 +31,6 @@ import com.willwinder.ugs.designer.entities.settings.RasterSettingsManager;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.services.LookupServiceProvider;
-import com.willwinder.universalgcodesender.uielements.components.DoubleSlider;
 import com.willwinder.universalgcodesender.uielements.components.SeparatorLabel;
 import net.miginfocom.swing.MigLayout;
 
@@ -56,9 +52,6 @@ public class RasterSettingsPanel extends JPanel implements EntitySettingsPanel {
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private final RasterSettingsManager settingsManager = new RasterSettingsManager();
     private boolean updating;
-    private DoubleSlider brightnessSlider;
-    private DoubleSlider contrastSlider;
-    private DoubleSlider gammaSlider;
     private JSlider levelSlider;
     private JCheckBox invert;
     private PowerCurvePanel powerCurvePanel;
@@ -72,9 +65,6 @@ public class RasterSettingsPanel extends JPanel implements EntitySettingsPanel {
     }
 
     private void setupListeners() {
-        brightnessSlider.addChangeListener(e -> firePropertyChange(RASTER_BRIGHTNESS, brightnessSlider.getDoubleValue()));
-        contrastSlider.addChangeListener(e -> firePropertyChange(RASTER_CONTRAST, contrastSlider.getDoubleValue()));
-        gammaSlider.addChangeListener(e -> firePropertyChange(RASTER_GAMMA, gammaSlider.getDoubleValue()));
         levelSlider.addChangeListener(e -> firePropertyChange(RASTER_LEVELS, levelSlider.getValue()));
         invert.addActionListener(e -> firePropertyChange(RASTER_INVERT, invert.isSelected()));
         powerCurvePanel.addPropertyChangeListener(PowerCurvePanel.PROPERTY_CURVE_CHANGED,
@@ -90,29 +80,17 @@ public class RasterSettingsPanel extends JPanel implements EntitySettingsPanel {
     private void buildLayout() {
         add(new SeparatorLabel(Localization.getString("designer.panel.shape-settings.raster.title"), SwingConstants.RIGHT), "spanx, growx");
 
-        add(new JLabel(Localization.getString("platform.plugin.designer.raster.brightness"), SwingConstants.RIGHT), LABEL_CONSTRAINTS);
-        add(brightnessSlider, FIELD_CONSTRAINTS);
-
-        add(new JLabel(Localization.getString("platform.plugin.designer.raster.contrast"), SwingConstants.RIGHT), LABEL_CONSTRAINTS);
-        add(contrastSlider, FIELD_CONSTRAINTS);
-
-        add(new JLabel(Localization.getString("platform.plugin.designer.raster.gamma"), SwingConstants.RIGHT), LABEL_CONSTRAINTS);
-        add(gammaSlider, FIELD_CONSTRAINTS);
+        add(new JLabel(Localization.getString("platform.plugin.designer.raster.power-curve"), SwingConstants.RIGHT), LABEL_CONSTRAINTS);
+        add(powerCurvePanel, "grow, w 60:200:300, h 200:200:300");
 
         add(new JLabel(Localization.getString("platform.plugin.designer.raster.levels"), SwingConstants.RIGHT), LABEL_CONSTRAINTS);
         add(levelSlider, FIELD_CONSTRAINTS);
 
         add(new JLabel(Localization.getString("platform.plugin.designer.raster.invert"), SwingConstants.RIGHT), LABEL_CONSTRAINTS);
         add(invert, FIELD_CONSTRAINTS);
-
-        add(new JLabel(Localization.getString("platform.plugin.designer.raster.power-curve"), SwingConstants.RIGHT), LABEL_CONSTRAINTS);
-        add(powerCurvePanel, "grow, w 60:200:300, h 200:200:300");
     }
 
     private void initializeComponents() {
-        brightnessSlider = createDoubleSlider(-1d, 1d, 100);
-        contrastSlider = createDoubleSlider(0d, 3d, 100);
-        gammaSlider = createDoubleSlider(0.1d, 10d, 100);
         levelSlider = createIntegerSlider(2, 255, 255);
         invert = new JCheckBox();
         powerCurvePanel = new PowerCurvePanel();
@@ -140,9 +118,6 @@ public class RasterSettingsPanel extends JPanel implements EntitySettingsPanel {
         if (raster != null) {
             updating = true;
             try {
-                brightnessSlider.setDoubleValue(raster.getBrightness());
-                contrastSlider.setDoubleValue(raster.getContrast());
-                gammaSlider.setDoubleValue(raster.getGamma());
                 levelSlider.setValue(raster.getLevels());
                 invert.setSelected(raster.isInvert());
                 powerCurvePanel.setControlPoints(raster.getPowerCurveControlPoints());
@@ -151,15 +126,6 @@ public class RasterSettingsPanel extends JPanel implements EntitySettingsPanel {
             }
         }
     }
-
-    private DoubleSlider createDoubleSlider(double min, double max, int steps) {
-        DoubleSlider slider = new DoubleSlider(min, max, steps);
-        slider.setPaintLabels(true);
-        slider.setPaintTicks(false);
-        slider.setSnapToTicks(true);
-        return slider;
-    }
-
 
     private JSlider createIntegerSlider(int min, int max, int value) {
         JSlider slider = new JSlider(min, max, value);

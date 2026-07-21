@@ -127,9 +127,6 @@ public class UgsDesignWriter implements DesignWriter {
         EntityRasterV1 entity = new EntityRasterV1();
         entity.setTransform(raster.getTransform());
         entity.setImage(raster.getImageData());
-        entity.setBrightness(raster.getBrightness());
-        entity.setContrast(raster.getContrast());
-        entity.setGamma(raster.getGamma());
         entity.setLevels(raster.getLevels());
         entity.setInvert(raster.isInvert());
         entity.setPowerCurveControlPoints(raster.getPowerCurveControlPoints());
