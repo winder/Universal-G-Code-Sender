@@ -54,7 +54,24 @@ public class VisualizerSettingsPane extends BorderPane {
         addCameraSettings();
         addColorSettings();
         addRulerSettings();
+        addDesignSettings();
         setCenter(settingsGroup);
+    }
+
+    private void addDesignSettings() {
+        SwitchButton showDesign = new SwitchButton();
+        showDesign.selectedProperty().bindBidirectional(VisualizerSettings.getInstance().showDesignProperty());
+
+        settingsGroup.getChildren().add(new BorderedTitledPane("Design",
+                new VBox(10,
+                        new SettingsRow(Localization.getString("platform.visualizer.design"), showDesign),
+                        createColorSetting("Shape outline color", VisualizerSettings.getInstance().colorDesignShapeOutlineProperty()),
+                        createColorSetting("Shape background color", VisualizerSettings.getInstance().colorDesignShapeBackgroundProperty()),
+                        createColorSetting("Resize handle color", VisualizerSettings.getInstance().colorDesignResizeProperty()),
+                        createColorSetting("Rotation handle color", VisualizerSettings.getInstance().colorDesignRotationProperty()),
+                        createColorSetting("Move handle color", VisualizerSettings.getInstance().colorDesignMoveProperty())
+                )
+        ));
     }
 
     private void addColorSettings() {

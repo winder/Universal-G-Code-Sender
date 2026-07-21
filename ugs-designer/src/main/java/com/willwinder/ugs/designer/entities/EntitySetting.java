@@ -96,6 +96,13 @@ public enum EntitySetting {
 
     public static final List<EntitySetting> DEFAULT_LASER_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
+            EntitySetting.SPINDLE_SPEED,
+            EntitySetting.PASSES,
+            EntitySetting.FEED_RATE,
+            EntitySetting.INCLUDE_IN_EXPORT);
+
+    public static final List<EntitySetting> DEFAULT_LASER_FILL_SETTINGS = List.of(
+            EntitySetting.CUT_TYPE,
             EntitySetting.TOOL_PATH_ANGLE,
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.PASSES,

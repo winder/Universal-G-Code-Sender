@@ -34,6 +34,7 @@ public class DesignDeleteAction extends AbstractDesignEditAction implements Sele
 
     public DesignDeleteAction() {
         super(Localization.getString("platform.designer.delete"), ICON_BASE);
+        setDefaultShortcut("DELETE");
         SelectionManager selectionManager = controller.getSelectionManager();
         selectionManager.addSelectionListener(this);
         enabledProperty().set(!selectionManager.getChildren().isEmpty());

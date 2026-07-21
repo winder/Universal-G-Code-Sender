@@ -1,6 +1,7 @@
 package com.willwinder.universalgcodesender.fx.component.designer;
 
 import com.willwinder.universalgcodesender.fx.component.visualizer.DepthLayers;
+import com.willwinder.universalgcodesender.fx.settings.VisualizerSettings;
 import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
@@ -42,6 +43,15 @@ public class EntityShapesNode extends Group {
         this.onEntityMoved = onEntityMoved != null ? onEntityMoved : () -> {};
     }
 
+    /**
+     * Rebuilds every shape from scratch, discarding the cached fill meshes so a changed
+     * outline/background color is picked up (the fill cache is keyed on geometry, not color).
+     */
+    public void refreshColors() {
+        fillCache.clear();
+        refreshFromController();
+    }
+
     public void refreshFromController() {
         Controller controller = ControllerFactory.getController();
         Runnable onMoved = () -> {
@@ -63,7 +73,8 @@ public class EntityShapesNode extends Group {
                 fills.add(fill);
             }
 
-            MeshView border = EntityShapeFactory.createBorder(entity.getShape(), Color.DODGERBLUE);
+            MeshView border = EntityShapeFactory.createBorder(entity.getShape(),
+                    Color.web(VisualizerSettings.getInstance().colorDesignShapeOutlineProperty().get()));
             if (border != null) {
                 border.setUserData(handler);
                 borders.add(border);
@@ -86,7 +97,8 @@ public class EntityShapesNode extends Group {
         CachedFill cached = fillCache.get(entity);
         MeshView fill = (cached != null && cached.relativeShape() == relativeShape)
                 ? cached.mesh()
-                : EntityShapeFactory.createFill(relativeShape, Color.WHITE);
+                : EntityShapeFactory.createFill(relativeShape,
+                        Color.web(VisualizerSettings.getInstance().colorDesignShapeBackgroundProperty().get()));
         nextCache.put(entity, new CachedFill(relativeShape, fill));
         return fill;
     }

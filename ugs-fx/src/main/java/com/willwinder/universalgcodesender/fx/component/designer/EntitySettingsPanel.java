@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.fx.component.designer;
 
+import com.willwinder.ugs.designer.entities.Anchor;
 import com.willwinder.ugs.designer.entities.EntityListener;
 import com.willwinder.ugs.designer.entities.EventType;
 import com.willwinder.ugs.designer.entities.EntitySetting;
@@ -25,36 +26,44 @@ import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.designer.entities.cuttable.ToolPathDirection;
-import com.willwinder.ugs.designer.actions.UndoableAction;
 import com.willwinder.ugs.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.ugs.designer.model.Size;
+import com.willwinder.universalgcodesender.fx.actions.Action;
+import com.willwinder.universalgcodesender.fx.actions.DesignFlipHorizontalAction;
+import com.willwinder.universalgcodesender.fx.actions.DesignFlipVerticalAction;
 import com.willwinder.universalgcodesender.fx.component.CollapsibleTitledPane;
-import com.willwinder.universalgcodesender.fx.component.SettingsRow;
-import com.willwinder.universalgcodesender.fx.control.SwitchButton;
+import com.willwinder.universalgcodesender.fx.control.ActionButton;
 import com.willwinder.universalgcodesender.fx.control.UnitTextField;
+import com.willwinder.universalgcodesender.fx.helper.Colors;
+import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.model.Unit;
-import com.willwinder.universalgcodesender.model.UnitValue;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.util.StringConverter;
+import javafx.util.Duration;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.IntConsumer;
 import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
+import java.util.stream.Stream;
 
 /**
  * Floating panel that displays the entity settings common to all selected Cuttable
@@ -82,14 +91,30 @@ public class EntitySettingsPanel extends VBox {
             EntitySetting.TOOL_PATH_DIRECTION,
             EntitySetting.INCLUDE_IN_EXPORT);
 
-    // Entity-property events that should refresh field values without rebuilding the UI.
-    private static final EnumSet<EventType> VALUE_REFRESH_EVENTS = EnumSet.of(
-            EventType.MOVED, EventType.RESIZED, EventType.ROTATED, EventType.SETTINGS_CHANGED);
+    // Pure transforms never change the set of controls, so they only need a cheap value refresh
+    // rather than a full (and, during a drag, sluggish) structural rebuild.
+    private static final EnumSet<EventType> TRANSFORM_EVENTS = EnumSet.of(
+            EventType.MOVED, EventType.RESIZED, EventType.ROTATED);
+    public static final int SPACING = 12;
 
     private final SelectionManager selectionManager;
-    private final SelectionListener selectionListener;
-    private final EntityListener entityListener;
-    private boolean applyingEdit = false;
+    private final BooleanProperty aspectRatioLocked = new SimpleBooleanProperty(false);
+    private final Map<Cuttable, Double> aspectRatios = new HashMap<>();
+    /**
+     * Shared across all rows so every label grows to the width of the longest label. Kept for the
+     * lifetime of the panel (not per rebuild) so labels don't collapse and re-grow on every event.
+     */
+    private final DoubleProperty labelWidth = new SimpleDoubleProperty(0);
+
+    /**
+     * Per-field updaters that re-read the current entity values into the existing controls, rebuilt
+     * alongside the rows. Used to refresh values during transforms without recreating the UI.
+     */
+    private final List<Runnable> valueRefreshers = new ArrayList<>();
+    private final EditGuard editGuard = new EditGuard();
+    private final EntitySettingsControlFactory controls = new EntitySettingsControlFactory(editGuard, valueRefreshers::add);
+    private Anchor positionAnchor = Anchor.BOTTOM_LEFT;
+    private boolean valueRefreshScheduled = false;
 
     public EntitySettingsPanel() {
         getStyleClass().add("entity-settings-panel");
@@ -97,17 +122,20 @@ public class EntitySettingsPanel extends VBox {
         setPadding(new javafx.geometry.Insets(12));
 
         this.selectionManager = ControllerFactory.getController().getSelectionManager();
-        this.selectionListener = event -> Platform.runLater(this::rebuild);
+        SelectionListener selectionListener = event -> Platform.runLater(this::rebuild);
         selectionManager.addSelectionListener(selectionListener);
 
         // Refresh values (not structure) when the entities themselves change.
-        this.entityListener = event -> {
-            if (applyingEdit) return;
-            if (VALUE_REFRESH_EVENTS.contains(event.getType())) {
+        EntityListener entityListener = event -> {
+            if (editGuard.isActive()) return;
+            if (TRANSFORM_EVENTS.contains(event.getType())) {
+                scheduleValueRefresh();
+            } else if (event.getType() == EventType.SETTINGS_CHANGED) {
                 Platform.runLater(this::rebuild);
             }
         };
         ControllerFactory.getController().getDrawing().getRootEntity().addListener(entityListener);
+        selectionManager.addListener(entityListener);
 
         rebuild();
     }
@@ -119,6 +147,7 @@ public class EntitySettingsPanel extends VBox {
                 .toList();
 
         getChildren().clear();
+        valueRefreshers.clear();
         if (cuttables.isEmpty()) {
             Label placeholder = new Label("Select a shape to edit its properties.");
             placeholder.setWrapText(true);
@@ -128,278 +157,278 @@ public class EntitySettingsPanel extends VBox {
 
         Set<EntitySetting> common = intersection(cuttables);
 
-        VBox transformRows = buildRows(TRANSFORM_KEYS, common, cuttables);
+        VBox transformRows = buildRows(TRANSFORM_KEYS, common, cuttables, labelWidth);
         if (!transformRows.getChildren().isEmpty()) {
             getChildren().add(new CollapsibleTitledPane("Transform", transformRows));
         }
 
-        VBox cutRows = buildRows(CUT_KEYS, common, cuttables);
+        Set<EntitySetting> cutSettings = new LinkedHashSet<>(common);
+        cutSettings.retainAll(commonCutTypeSettings(cuttables));
+        VBox cutRows = buildRows(CUT_KEYS, cutSettings, cuttables, labelWidth);
         if (!cutRows.getChildren().isEmpty()) {
             getChildren().add(new CollapsibleTitledPane("Cut", cutRows));
         }
     }
 
     private static Set<EntitySetting> intersection(List<Cuttable> cuttables) {
-        Set<EntitySetting> common = new LinkedHashSet<>(cuttables.get(0).getSettings());
-        for (int i = 1; i < cuttables.size(); i++) {
-            common.retainAll(cuttables.get(i).getSettings());
-        }
-        return common;
+        return intersect(cuttables.stream().map(Cuttable::getSettings));
     }
 
-    private VBox buildRows(List<EntitySetting> keys, Set<EntitySetting> common, List<Cuttable> cuttables) {
-        VBox rows = new VBox(6);
+    private static Set<EntitySetting> commonCutTypeSettings(List<Cuttable> cuttables) {
+        return intersect(cuttables.stream().map(cuttable -> cuttable.getCutType().getSettings()));
+    }
+
+    private static Set<EntitySetting> intersect(Stream<? extends Collection<EntitySetting>> settings) {
+        return settings
+                .<Set<EntitySetting>>map(LinkedHashSet::new)
+                .reduce((accumulated, next) -> {
+                    accumulated.retainAll(next);
+                    return accumulated;
+                })
+                .orElseGet(LinkedHashSet::new);
+    }
+
+    private VBox buildRows(List<EntitySetting> keys, Set<EntitySetting> common, List<Cuttable> cuttables, DoubleProperty labelWidth) {
+        boolean groupPosition = common.contains(EntitySetting.POSITION_X) && common.contains(EntitySetting.POSITION_Y);
+        boolean positionGroupAdded = false;
+        boolean groupSize = common.contains(EntitySetting.WIDTH) && common.contains(EntitySetting.HEIGHT);
+        boolean sizeGroupAdded = false;
+
+        VBox rows = new VBox(SPACING);
         for (EntitySetting key : keys) {
             if (!common.contains(key)) continue;
+
+            // Group X and Y into a single block so the anchor selector can sit to the right of both
+            // rows. The block takes the position of whichever key comes first.
+            if (groupPosition && (key == EntitySetting.POSITION_X || key == EntitySetting.POSITION_Y)) {
+                if (!positionGroupAdded) {
+                    rows.getChildren().add(buildPositionGroup(cuttables, labelWidth));
+                    positionGroupAdded = true;
+                }
+                continue;
+            }
+
+            // Group width and height into a single block so the aspect-ratio lock can sit to the
+            // right of both rows. The block takes the position of whichever key comes first.
+            if (groupSize && (key == EntitySetting.WIDTH || key == EntitySetting.HEIGHT)) {
+                if (!sizeGroupAdded) {
+                    rows.getChildren().add(buildSizeGroup(cuttables, labelWidth));
+                    sizeGroupAdded = true;
+                }
+                continue;
+            }
+
+            // Put the flip buttons to the right of the rotation field.
+            if (key == EntitySetting.ROTATION) {
+                rows.getChildren().add(buildRotationGroup(cuttables, labelWidth));
+                continue;
+            }
+
             Region control = buildControl(key, cuttables);
             if (control != null) {
-                rows.getChildren().add(new SettingsRow(key.getLabel(), control));
+                rows.getChildren().add(new EntitySettingsRow(labelWidth, key.getLabel(), control));
             }
         }
         return rows;
     }
 
+    private EntitySettingsRowGroup buildPositionGroup(List<Cuttable> entities, DoubleProperty labelWidth) {
+        UnitTextField xField = controls.doubleField(
+                e -> e.getPosition(positionAnchor).getX(),
+                (entity, v) -> entity.setPosition(positionAnchor,
+                        new java.awt.geom.Point2D.Double(v, entity.getPosition(positionAnchor).getY())),
+                entities, Unit.MM);
+
+        UnitTextField yField = controls.doubleField(
+                e -> e.getPosition(positionAnchor).getY(),
+                (entity, v) -> entity.setPosition(positionAnchor,
+                        new java.awt.geom.Point2D.Double(entity.getPosition(positionAnchor).getX(), v)),
+                entities, Unit.MM);
+
+        // Changing the anchor only changes which point X/Y refer to; the entity does not move, so
+        // just refresh the displayed values to the new reference point.
+        AnchorSelector anchorSelector = new AnchorSelector();
+        anchorSelector.setAnchor(positionAnchor);
+        anchorSelector.anchorProperty().addListener((obs, oldAnchor, newAnchor) -> {
+            positionAnchor = newAnchor;
+            refreshFieldValue(xField, entities, e -> e.getPosition(newAnchor).getX());
+            refreshFieldValue(yField, entities, e -> e.getPosition(newAnchor).getY());
+        });
+
+        EntitySettingsRow xRow = new EntitySettingsRow(labelWidth, EntitySetting.POSITION_X.getLabel(), xField);
+        EntitySettingsRow yRow = new EntitySettingsRow(labelWidth, EntitySetting.POSITION_Y.getLabel(), yField);
+        return new EntitySettingsRowGroup(anchorSelector, xRow, yRow);
+    }
+
+    private EntitySettingsRowGroup buildRotationGroup(List<Cuttable> entities, DoubleProperty labelWidth) {
+        UnitTextField rotationField = controls.doubleField(Cuttable::getRotation, Cuttable::setRotation, entities, Unit.DEGREE);
+        EntitySettingsRow rotationRow = new EntitySettingsRow(labelWidth, EntitySetting.ROTATION.getLabel(), rotationField);
+
+        HBox flipButtons = new HBox(4,
+                createFlipButton(new DesignFlipHorizontalAction()),
+                createFlipButton(new DesignFlipVerticalAction()));
+        flipButtons.setAlignment(Pos.CENTER_LEFT);
+        return new EntitySettingsRowGroup(flipButtons, rotationRow);
+    }
+
+    private ActionButton createFlipButton(Action action) {
+        ActionButton button = new ActionButton(action, 16, false);
+        button.getStyleClass().add("flip-button");
+        return button;
+    }
+
+    private void refreshFieldValue(UnitTextField field, List<Cuttable> entities, ToDoubleFunction<Cuttable> getter) {
+        editGuard.run(() -> field.setValue(getter.applyAsDouble(entities.get(0))));
+    }
+
+    private EntitySettingsRowGroup buildSizeGroup(List<Cuttable> entities, DoubleProperty labelWidth) {
+        captureAspectRatios(entities);
+
+        UnitTextField widthField = controls.doubleField(
+                e -> e.getSize().getWidth(),
+                (entity, v) -> applySize(entity, v, true),
+                entities, Unit.MM);
+
+        UnitTextField heightField = controls.doubleField(
+                e -> e.getSize().getHeight(),
+                (entity, v) -> applySize(entity, v, false),
+                entities, Unit.MM);
+
+        // When locked, editing one dimension resizes the other in the model. Mirror that change in
+        // the sibling field so its displayed value stays correct while typing.
+        widthField.unitValueProperty().addListener((obs, oldVal, newVal) ->
+                syncSibling(heightField, e -> e.getSize().getHeight(), entities));
+        heightField.unitValueProperty().addListener((obs, oldVal, newVal) ->
+                syncSibling(widthField, e -> e.getSize().getWidth(), entities));
+
+        EntitySettingsRow widthRow = new EntitySettingsRow(labelWidth, EntitySetting.WIDTH.getLabel(), widthField);
+        EntitySettingsRow heightRow = new EntitySettingsRow(labelWidth, EntitySetting.HEIGHT.getLabel(), heightField);
+        return new EntitySettingsRowGroup(createAspectRatioLock(entities), widthRow, heightRow);
+    }
+
+    private ToggleButton createAspectRatioLock(List<Cuttable> entities) {
+        ToggleButton toggle = new ToggleButton();
+        toggle.getStyleClass().add("aspect-ratio-lock");
+        toggle.setMaxHeight(Double.MAX_VALUE);
+        SvgLoader.loadImageIcon("icons/lock.svg", 16, Colors.BLACKISH).ifPresent(toggle::setGraphic);
+
+        Tooltip tooltip = new Tooltip("Lock aspect ratio");
+        tooltip.setShowDelay(Duration.millis(100));
+        toggle.setTooltip(tooltip);
+
+        // The toggle is recreated on every rebuild, so keep the on/off state on the panel and just
+        // reflect it here. A one-way listener (living on the toggle, not the panel property) avoids
+        // leaking listeners across rebuilds. Re-capture the ratios whenever it is switched on so it
+        // uses the sizes as they currently are.
+        toggle.setSelected(aspectRatioLocked.get());
+        toggle.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+            aspectRatioLocked.set(isSelected);
+            if (isSelected) {
+                captureAspectRatios(entities);
+            }
+        });
+        return toggle;
+    }
+
+    private void captureAspectRatios(List<Cuttable> entities) {
+        aspectRatios.clear();
+        for (Cuttable entity : entities) {
+            double width = entity.getSize().getWidth();
+            if (width > 0) {
+                aspectRatios.put(entity, entity.getSize().getHeight() / width);
+            }
+        }
+    }
+
+    private void applySize(Cuttable entity, double value, boolean isWidth) {
+        Size size = entity.getSize();
+        Double ratio = aspectRatios.get(entity);
+        if (aspectRatioLocked.get() && ratio != null && ratio > 0) {
+            entity.setSize(isWidth ? new Size(value, value * ratio) : new Size(value / ratio, value));
+        } else if (isWidth) {
+            entity.setSize(new Size(value, size.getHeight()));
+        } else {
+            entity.setSize(new Size(size.getWidth(), value));
+        }
+    }
+
+    private void syncSibling(UnitTextField sibling, ToDoubleFunction<Cuttable> getter, List<Cuttable> entities) {
+        if (editGuard.isActive() || !aspectRatioLocked.get()) {
+            return;
+        }
+        editGuard.run(() -> sibling.setValue(getter.applyAsDouble(entities.get(0))));
+    }
+
     private Region buildControl(EntitySetting key, List<Cuttable> entities) {
         return switch (key) {
-            case POSITION_X -> doubleField(
+            case POSITION_X -> controls.doubleField(
                     e -> e.getPosition().getX(),
                     (entity, v) -> entity.setPosition(new java.awt.geom.Point2D.Double(v, entity.getPosition().getY())),
                     entities, Unit.MM);
-            case POSITION_Y -> doubleField(
+            case POSITION_Y -> controls.doubleField(
                     e -> e.getPosition().getY(),
                     (entity, v) -> entity.setPosition(new java.awt.geom.Point2D.Double(entity.getPosition().getX(), v)),
                     entities, Unit.MM);
-            case WIDTH -> doubleField(
+            case WIDTH -> controls.doubleField(
                     e -> e.getSize().getWidth(),
                     (entity, v) -> entity.setSize(new Size(v, entity.getSize().getHeight())),
                     entities, Unit.MM);
-            case HEIGHT -> doubleField(
+            case HEIGHT -> controls.doubleField(
                     e -> e.getSize().getHeight(),
                     (entity, v) -> entity.setSize(new Size(entity.getSize().getWidth(), v)),
                     entities, Unit.MM);
-            case ROTATION -> doubleField(Cuttable::getRotation, Cuttable::setRotation, entities, Unit.DEGREE);
-            case CUT_TYPE -> cutTypeCombo(entities);
-            case START_DEPTH -> doubleField(Cuttable::getStartDepth, Cuttable::setStartDepth, entities, Unit.MM);
-            case TARGET_DEPTH -> doubleField(Cuttable::getTargetDepth, Cuttable::setTargetDepth, entities, Unit.MM);
+            case ROTATION -> controls.doubleField(Cuttable::getRotation, Cuttable::setRotation, entities, Unit.DEGREE);
+            case CUT_TYPE -> cutTypeControl(entities);
+            case START_DEPTH -> controls.doubleField(Cuttable::getStartDepth, Cuttable::setStartDepth, entities, Unit.MM);
+            case TARGET_DEPTH -> controls.doubleField(Cuttable::getTargetDepth, Cuttable::setTargetDepth, entities, Unit.MM);
             case SPINDLE_SPEED ->
-                    intField(Cuttable::getSpindleSpeed, Cuttable::setSpindleSpeed, entities, Unit.PERCENT);
-            case FEED_RATE -> intField(Cuttable::getFeedRate, Cuttable::setFeedRate, entities, Unit.METERS_PER_SECOND);
-            case PASSES -> intField(Cuttable::getPasses, Cuttable::setPasses, entities, Unit.TIMES);
+                    controls.intField(Cuttable::getSpindleSpeed, Cuttable::setSpindleSpeed, entities, Unit.PERCENT);
+            case FEED_RATE ->
+                    controls.intField(Cuttable::getFeedRate, Cuttable::setFeedRate, entities, Unit.METERS_PER_SECOND);
+            case PASSES -> controls.intField(Cuttable::getPasses, Cuttable::setPasses, entities, Unit.TIMES);
             case LEAD_IN_PERCENT ->
-                    intField(Cuttable::getLeadInPercent, Cuttable::setLeadInPercent, entities, Unit.PERCENT);
+                    controls.intField(Cuttable::getLeadInPercent, Cuttable::setLeadInPercent, entities, Unit.PERCENT);
             case TOOL_PATH_ANGLE ->
-                    doubleField(Cuttable::getToolPathAngle, Cuttable::setToolPathAngle, entities, Unit.DEGREE);
-            case DIRECTION -> enumCombo(Direction.values(), Direction::getLabel,
+                    controls.doubleField(Cuttable::getToolPathAngle, Cuttable::setToolPathAngle, entities, Unit.DEGREE);
+            case DIRECTION -> controls.enumCombo(Direction.values(), Direction::getLabel,
                     Cuttable::getDirection, Cuttable::setDirection, entities);
-            case TOOL_PATH_DIRECTION -> enumCombo(ToolPathDirection.values(),
+            case TOOL_PATH_DIRECTION -> controls.enumCombo(ToolPathDirection.values(),
                     ToolPathDirection::getLabel, Cuttable::getToolPathDirection, Cuttable::setToolPathDirection, entities);
             case INCLUDE_IN_EXPORT ->
-                    switchControl(Cuttable::getIncludeInExport, Cuttable::setIncludeInExport, entities);
+                    leftAligned(controls.switchControl(Cuttable::getIncludeInExport, Cuttable::setIncludeInExport, entities));
             default -> null;
         };
     }
 
-    private TextField doubleField(ToDoubleFunction<Cuttable> getter,
-                                  CuttableDoubleSetter setter,
-                                  List<Cuttable> entities, Unit units) {
-        UnitTextField field = numericField(getter.applyAsDouble(entities.get(0)), entities, getter::applyAsDouble, units);
-        bindLivePreviewWithUndo(field, getter, setter, entities);
-        return field;
+    private static Region leftAligned(Region control) {
+        HBox box = new HBox(control);
+        box.setAlignment(Pos.CENTER_LEFT);
+        return box;
     }
 
-    private TextField intField(ToIntFunction<Cuttable> getter,
-                               CuttableIntSetter setter,
-                               List<Cuttable> entities, Unit units) {
-        boolean mixed = entities.stream().mapToInt(getter).distinct().count() > 1;
-        UnitTextField field = new UnitTextField(new UnitValue(units, mixed ? 0 : getter.applyAsInt(entities.get(0))), units);
-        field.setPromptText(mixed ? "—" : "");
-        field.setPrefWidth(120);
-        commitOnEditInt(field, parsed -> applyToAll(entities, e -> setter.set(e, parsed)));
-        return field;
-    }
-
-    private UnitTextField numericField(double initial, List<Cuttable> entities, ToDoubleFunction<Cuttable> getter, Unit units) {
-        boolean mixed = entities.stream().mapToDouble(getter).distinct().count() > 1;
-        UnitTextField field = new UnitTextField(new UnitValue(units, mixed ? 0 : initial), units);
-        field.setPromptText(mixed ? "—" : "");
-        field.setPrefWidth(120);
-        return field;
-    }
-
-    /**
-     * Applies a numeric field's value to the whole selection on every valid keystroke so the
-     * change is shown live in the visualizer, but only records a single undoable action when the
-     * edit is committed (the field is blurred, or Enter is pressed). This keeps the undo stack to
-     * one entry per edit instead of one per keystroke.
-     */
-    private void bindLivePreviewWithUndo(UnitTextField field,
-                                         ToDoubleFunction<Cuttable> getter,
-                                         CuttableDoubleSetter setter,
-                                         List<Cuttable> entities) {
-        // The per-entity values captured when the edit session begins; used to build the undo action.
-        Map<Cuttable, Double> originalValues = new HashMap<>();
-
-        // Live preview: push every valid value straight to the entities (no undo entry yet).
-        field.unitValueProperty().addListener((obs, oldVal, newVal) -> {
-            if (applyingEdit || newVal == null) return;
-            applyToAll(entities, e -> setter.set(e, newVal.value().doubleValue()));
-        });
-
-        field.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
-            if (Boolean.TRUE.equals(isFocused)) {
-                captureOriginalValues(getter, entities, originalValues);
-            } else {
-                commitEdit(setter, entities, originalValues, field.getValue());
-            }
-        });
-
-        // Enter commits without waiting for the field to lose focus, then starts a fresh session.
-        field.setOnAction(e -> {
-            commitEdit(setter, entities, originalValues, field.getValue());
-            captureOriginalValues(getter, entities, originalValues);
-        });
-    }
-
-    private void captureOriginalValues(ToDoubleFunction<Cuttable> getter,
-                                       List<Cuttable> entities,
-                                       Map<Cuttable, Double> originalValues) {
-        originalValues.clear();
-        entities.forEach(e -> originalValues.put(e, getter.applyAsDouble(e)));
-    }
-
-    private void commitEdit(CuttableDoubleSetter setter,
-                            List<Cuttable> entities,
-                            Map<Cuttable, Double> originalValues,
-                            double finalValue) {
-        if (originalValues.isEmpty()) {
-            return;
-        }
-
-        Map<Cuttable, Double> before = new HashMap<>(originalValues);
-        originalValues.clear();
-
-        boolean changed = before.values().stream().anyMatch(original -> original != finalValue);
-        if (!changed) {
-            return;
-        }
-
-        // The live preview has already applied finalValue, so the action only needs to record how
-        // to redo it and how to revert each entity to the value it had before the edit started.
-        UndoableAction action = new UndoableAction() {
-            @Override
-            public void redo() {
-                entities.forEach(e -> setter.set(e, finalValue));
-            }
-
-            @Override
-            public void undo() {
-                entities.forEach(e -> setter.set(e, before.get(e)));
-            }
-        };
-        ControllerFactory.getController().getUndoManager().addAction(action);
-    }
-
-    private void commitOnEditInt(TextField field, IntConsumer commit) {
-        Runnable doCommit = () -> {
-            String text = field.getText();
-            if (text == null || text.isBlank()) return;
-            try {
-                commit.accept(Integer.parseInt(text.trim()));
-            } catch (NumberFormatException ignore) {
-            }
-        };
-        field.setOnAction(e -> doCommit.run());
-        field.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (Boolean.FALSE.equals(newVal)) doCommit.run();
-        });
-    }
-
-    private ComboBox<CutType> cutTypeCombo(List<Cuttable> entities) {
-        // Show the intersection of available cut types so we never set an invalid value.
-        Set<CutType> available = new LinkedHashSet<>(entities.get(0).getAvailableCutTypes());
-        for (int i = 1; i < entities.size(); i++) {
-            available.retainAll(entities.get(i).getAvailableCutTypes());
-        }
-
-        ComboBox<CutType> combo = new ComboBox<>(FXCollections.observableArrayList(available));
-        boolean mixed = entities.stream().map(Cuttable::getCutType).distinct().count() > 1;
-        combo.setValue(mixed ? null : entities.get(0).getCutType());
-        combo.setPromptText(mixed ? "—" : "");
-        combo.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(CutType value) {
-                return value == null ? "" : value.getName();
-            }
-
-            @Override
-            public CutType fromString(String s) {
-                return null;
-            }
-        });
-        combo.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null && newVal != oldVal) {
-                applyToAll(entities, e -> e.setCutType(newVal));
+    private ComboBox<CutType> cutTypeControl(List<Cuttable> entities) {
+        ComboBox<CutType> combo = controls.cutTypeCombo(entities);
+        // The cut type determines which cut settings apply, so rebuild the rows when it changes.
+        // The value is applied by the factory's own listener (under the edit guard, which suppresses
+        // the entity-change rebuild), so we trigger the structural rebuild explicitly here.
+        combo.valueProperty().addListener((obs, oldType, newType) -> {
+            if (newType != null && newType != oldType) {
+                Platform.runLater(this::rebuild);
             }
         });
         return combo;
     }
 
-    private <E extends Enum<E>> ComboBox<E> enumCombo(E[] values,
-                                                      java.util.function.Function<E, String> labelFn,
-                                                      java.util.function.Function<Cuttable, E> getter,
-                                                      java.util.function.BiConsumer<Cuttable, E> setter,
-                                                      List<Cuttable> entities) {
-        ComboBox<E> combo = new ComboBox<>(FXCollections.observableArrayList(values));
-        boolean mixed = entities.stream().map(getter).distinct().count() > 1;
-        combo.setValue(mixed ? null : getter.apply(entities.get(0)));
-        combo.setPromptText(mixed ? "—" : "");
-        combo.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(E value) {
-                return value == null ? "" : labelFn.apply(value);
-            }
-
-            @Override
-            public E fromString(String s) {
-                return null;
-            }
-        });
-        combo.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null && newVal != oldVal) {
-                applyToAll(entities, e -> setter.accept(e, newVal));
-            }
-        });
-        return combo;
-    }
-
-    private SwitchButton switchControl(java.util.function.Function<Cuttable, Boolean> getter,
-                                       java.util.function.BiConsumer<Cuttable, Boolean> setter,
-                                       List<Cuttable> entities) {
-        SwitchButton sw = new SwitchButton();
-        boolean mixed = entities.stream().map(getter).distinct().count() > 1;
-        // SwitchButton has no tri-state; show as off when mixed.
-        sw.selectedProperty().set(!mixed && getter.apply(entities.get(0)));
-        sw.selectedProperty().addListener((obs, oldVal, newVal) ->
-                applyToAll(entities, e -> setter.accept(e, newVal)));
-        return sw;
-    }
-
-    private void applyToAll(List<Cuttable> entities, Consumer<Cuttable> action) {
-        applyingEdit = true;
-        try {
-            entities.forEach(action);
-        } finally {
-            applyingEdit = false;
+    // Coalesce a burst of transform events (e.g. during a drag) into a single value refresh on the
+    // next pulse, so we update the fields at most once per frame instead of once per event.
+    private void scheduleValueRefresh() {
+        if (valueRefreshScheduled) {
+            return;
         }
-    }
-
-    @FunctionalInterface
-    private interface CuttableDoubleSetter {
-        void set(Cuttable entity, double value);
-    }
-
-    @FunctionalInterface
-    private interface CuttableIntSetter {
-        void set(Cuttable entity, int value);
+        valueRefreshScheduled = true;
+        Platform.runLater(() -> {
+            valueRefreshScheduled = false;
+            valueRefreshers.forEach(Runnable::run);
+        });
     }
 }

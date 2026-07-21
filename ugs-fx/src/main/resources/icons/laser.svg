@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <rect width="256" height="256" fill="none"/>
+  <!-- laser module body -->
+  <rect x="64" y="28" width="128" height="72" rx="12"/>
+  <!-- beam converging to a focal point -->
+  <path d="M100 100h56l-18 60h-20z"/>
+  <!-- focal dot -->
+  <circle cx="128" cy="196" r="16"/>
+</svg>

@@ -1,7 +1,9 @@
 package com.willwinder.ugs.designer.actions;
 
 import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.EntityEvent;
 import com.willwinder.ugs.designer.entities.EntityGroup;
+import com.willwinder.ugs.designer.entities.EventType;
 import com.willwinder.ugs.designer.entities.selection.SelectionEvent;
 import com.willwinder.ugs.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.designer.entities.selection.SelectionManager;
@@ -56,26 +58,28 @@ public class FlipVerticallyAction extends AbstractDesignAction implements Select
     private record UndoableFlipVerticallyAction(Drawing drawing, Entity entity) implements UndoableAction, DrawAction {
 
         @Override
-            public void redo() {
-                Point2D position = entity.getPosition();
-                entity.applyTransform(AffineTransform.getScaleInstance(1d, -1d));
-                entity.setPosition(position);
-                drawing.repaint();
-            }
-
-            @Override
-            public void undo() {
-                redo();
-            }
-
-            @Override
-            public void execute() {
-                redo();
-            }
-
-            @Override
-            public String toString() {
-                return "flip vertically";
-            }
+        public void redo() {
+            Point2D position = entity.getPosition();
+            entity.applyTransform(AffineTransform.getScaleInstance(1d, -1d));
+            entity.setPosition(position);
+            EntityGroup rootEntity = drawing.getRootEntity();
+            rootEntity.notifyEvent(new EntityEvent(rootEntity, EventType.ROTATED));
+            drawing.repaint();
         }
+
+        @Override
+        public void undo() {
+            redo();
+        }
+
+        @Override
+        public void execute() {
+            redo();
+        }
+
+        @Override
+        public String toString() {
+            return "flip vertically";
+        }
+    }
 }
