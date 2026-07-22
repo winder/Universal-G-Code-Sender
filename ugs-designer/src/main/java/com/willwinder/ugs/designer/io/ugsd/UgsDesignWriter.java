@@ -129,6 +129,14 @@ public class UgsDesignWriter implements DesignWriter {
         entity.setImage(raster.getImageData());
         entity.setLevels(raster.getLevels());
         entity.setInvert(raster.isInvert());
+        entity.setRoughing(raster.isRoughing());
+        entity.setStockToLeave(raster.getStockToLeave());
+        entity.setDepthMapping(raster.isDepthMapping());
+        entity.setDepthDetail(raster.getDepthDetail());
+        entity.setDepthSmoothing(raster.getDepthSmoothing());
+        entity.setDepthContrast(raster.getDepthContrast());
+        entity.setDepthEmphasis(raster.getDepthEmphasis());
+        entity.setRawDepthData(raster.getRawDepthData());
         entity.setPowerCurveControlPoints(raster.getPowerCurveControlPoints());
         return entity;
     }

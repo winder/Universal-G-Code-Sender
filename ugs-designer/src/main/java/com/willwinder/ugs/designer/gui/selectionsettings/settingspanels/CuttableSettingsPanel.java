@@ -77,6 +77,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
     private UnitSpinner toolPathAngleSpinner;
     private DirectionCombo directionCombo;
     private ToolPathDirectionCombo toolPathDirectionCombo;
+    private JCheckBox roughingCheckBox;
+    private UnitSpinner stockToLeaveSpinner;
 
     private final Map<EntitySetting, List<JComponent>> settingToComponentMap = new EnumMap<>(EntitySetting.class);
 
@@ -105,6 +107,10 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
 
         includeInExport = new JCheckBox();
         includeInExport.setSelected(true);
+
+        roughingCheckBox = new JCheckBox();
+        roughingCheckBox.setSelected(true);
+        stockToLeaveSpinner = new UnitSpinner(0.2, Unit.MM, 0d, 10000d, 0.1d);
     }
 
     private JSlider createSlider(int min, int max, int value, int minorTick, int majorTick) {
@@ -130,6 +136,8 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         addLabeledSlider(EntitySetting.LEAD_IN_PERCENT, "Lead In/Out %", leadInPercentSlider);
         addLabeledComponent(EntitySetting.TOOL_PATH_ANGLE, "Tool Path Angle", toolPathAngleSpinner);
         addLabeledComponent(EntitySetting.TOOL_PATH_DIRECTION, "Tool Path Direction", toolPathDirectionCombo);
+        addLabeledComponent(EntitySetting.ROUGHING, "Roughing", roughingCheckBox);
+        addLabeledComponent(EntitySetting.STOCK_TO_LEAVE, "Stock to Leave", stockToLeaveSpinner);
         addLabeledComponent(EntitySetting.INCLUDE_IN_EXPORT, "Include in Export", includeInExport);
     }
 
@@ -161,6 +169,12 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         leadInPercentSlider.addChangeListener(e -> firePropertyChange(EntitySetting.LEAD_IN_PERCENT, leadInPercentSlider.getValue()));
         toolPathAngleSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.TOOL_PATH_ANGLE, toolPathAngleSpinner.getValue()));
         includeInExport.addActionListener(e -> firePropertyChange(EntitySetting.INCLUDE_IN_EXPORT, includeInExport.isSelected()));
+        roughingCheckBox.addActionListener(e -> {
+            firePropertyChange(EntitySetting.ROUGHING, roughingCheckBox.isSelected());
+            // Show or hide the stock to leave setting depending on the roughing state
+            setEnabled(isEnabled());
+        });
+        stockToLeaveSpinner.addChangeListener(e -> firePropertyChange(EntitySetting.STOCK_TO_LEAVE, stockToLeaveSpinner.getValue()));
         directionCombo.addActionListener(e -> firePropertyChange(EntitySetting.DIRECTION, directionCombo.getSelectedDirection()));
         toolPathDirectionCombo.addActionListener(e -> firePropertyChange(EntitySetting.TOOL_PATH_DIRECTION, toolPathDirectionCombo.getSelectedDirection()));
     }
@@ -189,6 +203,10 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
 
         // Add only the components that are relevant for the selected cut type
         selectedCutType.getSettings().forEach(setting -> {
+            if (setting == EntitySetting.STOCK_TO_LEAVE && !roughingCheckBox.isSelected()) {
+                return;
+            }
+
             List<JComponent> components = settingToComponentMap.getOrDefault(setting, Collections.emptyList());
             if (!components.isEmpty()) {
                 JLabel label = (JLabel) components.get(0);
@@ -249,10 +267,14 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
                 toolPathAngleSpinner.setValue(firstCuttable.getToolPathAngle());
                 directionCombo.setSelectedItem(firstCuttable.getDirection());
                 toolPathDirectionCombo.setSelectedItem(firstCuttable.getToolPathDirection());
+                roughingCheckBox.setSelected((Boolean) firstCuttable.getEntitySetting(EntitySetting.ROUGHING).orElse(Boolean.TRUE));
+                stockToLeaveSpinner.setValue(((Number) firstCuttable.getEntitySetting(EntitySetting.STOCK_TO_LEAVE).orElse(0.0)).doubleValue());
                 updateLabelsForCutType(firstCuttable.getCutType());
             } finally {
                 updating = false;
             }
+            // Rebuild the layout so the stock to leave setting matches the loaded roughing state
+            setEnabled(isEnabled());
         }
     }
 
@@ -296,6 +318,10 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
             cuttable.setDirection((Direction) newValue);
         } else if (EntitySetting.TOOL_PATH_DIRECTION.equals(setting)) {
             cuttable.setToolPathDirection((ToolPathDirection) newValue);
+        } else if (EntitySetting.ROUGHING.equals(setting)) {
+            cuttable.setEntitySetting(EntitySetting.ROUGHING, newValue);
+        } else if (EntitySetting.STOCK_TO_LEAVE.equals(setting)) {
+            cuttable.setEntitySetting(EntitySetting.STOCK_TO_LEAVE, newValue);
         }
     }
 

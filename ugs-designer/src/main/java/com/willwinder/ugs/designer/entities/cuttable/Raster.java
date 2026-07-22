@@ -23,6 +23,8 @@ import com.willwinder.ugs.designer.entities.EntityEvent;
 import com.willwinder.ugs.designer.entities.EntitySetting;
 import com.willwinder.ugs.designer.entities.EventType;
 import com.willwinder.ugs.designer.gui.Drawing;
+import com.willwinder.ugs.designer.utils.DepthMapGenerator;
+import com.willwinder.ugs.designer.utils.DepthMapParameters;
 import com.willwinder.universalgcodesender.utils.MathUtils;
 import static com.willwinder.universalgcodesender.utils.MathUtils.clamp;
 
@@ -34,16 +36,30 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import javax.swing.SwingUtilities;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Raster extends AbstractCuttable {
+
+    private static final Logger LOGGER = Logger.getLogger(Raster.class.getSimpleName());
+
+    private static final ExecutorService DEPTH_MAP_EXECUTOR = Executors.newSingleThreadExecutor(runnable -> {
+        Thread thread = new Thread(runnable, "depth-map-generator");
+        thread.setDaemon(true);
+        return thread;
+    });
 
     private BufferedImage image;
     private Rectangle2D.Double relativeShape;
@@ -52,6 +68,15 @@ public class Raster extends AbstractCuttable {
     private int levels = 255;
 
     private boolean invert = false;
+
+    private boolean roughing = true;
+    private double stockToLeave = 0.2;
+
+    private boolean depthMapping = false;
+    private DepthMapParameters depthMapParameters = new DepthMapParameters();
+    private transient volatile float[][] rawDepth;
+    private transient volatile BufferedImage depthMap;
+    private transient volatile boolean generatingDepthMap;
 
     // Power curve control points: array of [x, y] pairs mapping brightness→power
     private int[][] powerCurveControlPoints = MonotoneCubicSpline.defaultControlPoints();
@@ -92,23 +117,24 @@ public class Raster extends AbstractCuttable {
         }
 
         if (image != null) {
-            BufferedImage inkMask = getOrCreateProcessedInkMask();
+            // With depth mapping on we preview the actual grayscale height field, otherwise the laser ink mask
+            BufferedImage preview = depthMapping ? getOrCreateProcessedGray() : getOrCreateProcessedInkMask();
 
             double targetW = Math.max(0.0001, relativeShape.getWidth());
             double targetH = Math.max(0.0001, relativeShape.getHeight());
 
-            double sx = targetW / (double) inkMask.getWidth();
-            double sy = targetH / (double) inkMask.getHeight();
+            double sx = targetW / (double) preview.getWidth();
+            double sy = targetH / (double) preview.getHeight();
 
             // Drawing world is Y-up; images are Y-down => flip Y to show right-side-up
             AffineTransform imgLocal = new AffineTransform();
             imgLocal.scale(sx, -sy);
-            imgLocal.translate(0, -inkMask.getHeight());
+            imgLocal.translate(0, -preview.getHeight());
 
             AffineTransform tx = new AffineTransform(getTransform());
             tx.concatenate(imgLocal);
 
-            graphics.drawImage(inkMask, tx, null);
+            graphics.drawImage(preview, tx, null);
         }
 
         super.render(graphics, drawing);
@@ -126,6 +152,12 @@ public class Raster extends AbstractCuttable {
 
         copy.invert = this.invert;
         copy.levels = this.levels;
+        copy.roughing = this.roughing;
+        copy.stockToLeave = this.stockToLeave;
+        copy.depthMapping = this.depthMapping;
+        copy.depthMapParameters = this.depthMapParameters.copy();
+        copy.rawDepth = this.rawDepth;
+        copy.depthMap = this.depthMap;
         copy.powerCurveControlPoints = MonotoneCubicSpline.deepClone(this.powerCurveControlPoints);
         copy.invalidateProcessedCache();
 
@@ -139,7 +171,12 @@ public class Raster extends AbstractCuttable {
         settings.addAll(Arrays.asList(
                 EntitySetting.RASTER_POWER_CURVE,
                 EntitySetting.RASTER_LEVELS,
-                EntitySetting.RASTER_INVERT
+                EntitySetting.RASTER_INVERT,
+                EntitySetting.RASTER_DEPTH_MAPPING,
+                EntitySetting.RASTER_DEPTH_DETAIL,
+                EntitySetting.RASTER_DEPTH_SMOOTHING,
+                EntitySetting.RASTER_DEPTH_CONTRAST,
+                EntitySetting.RASTER_DEPTH_EMPHASIS
         ));
         return settings;
     }
@@ -150,6 +187,13 @@ public class Raster extends AbstractCuttable {
             case RASTER_INVERT -> Optional.of(invert);
             case RASTER_LEVELS -> Optional.of(levels);
             case RASTER_POWER_CURVE -> Optional.of(MonotoneCubicSpline.deepClone(powerCurveControlPoints));
+            case ROUGHING -> Optional.of(roughing);
+            case STOCK_TO_LEAVE -> Optional.of(stockToLeave);
+            case RASTER_DEPTH_MAPPING -> Optional.of(depthMapping);
+            case RASTER_DEPTH_DETAIL -> Optional.of(depthMapParameters.getDetail());
+            case RASTER_DEPTH_SMOOTHING -> Optional.of(depthMapParameters.getSmoothing());
+            case RASTER_DEPTH_CONTRAST -> Optional.of(depthMapParameters.getContrast());
+            case RASTER_DEPTH_EMPHASIS -> Optional.of(depthMapParameters.getEmphasis());
             default -> super.getEntitySetting(entitySetting);
         };
     }
@@ -160,6 +204,13 @@ public class Raster extends AbstractCuttable {
             case RASTER_INVERT -> setInvert(asBoolean(value));
             case RASTER_LEVELS -> setLevels(asInteger(value));
             case RASTER_POWER_CURVE -> setPowerCurveControlPoints(asIntArray2D(value));
+            case ROUGHING -> setRoughing(asBoolean(value));
+            case STOCK_TO_LEAVE -> setStockToLeave(asDouble(value));
+            case RASTER_DEPTH_MAPPING -> setDepthMapping(asBoolean(value));
+            case RASTER_DEPTH_DETAIL -> setDepthDetail(asDouble(value));
+            case RASTER_DEPTH_SMOOTHING -> setDepthSmoothing(asDouble(value));
+            case RASTER_DEPTH_CONTRAST -> setDepthContrast(asDouble(value));
+            case RASTER_DEPTH_EMPHASIS -> setDepthEmphasis(asDouble(value));
             default -> super.setEntitySetting(entitySetting, value);
         }
     }
@@ -180,6 +231,72 @@ public class Raster extends AbstractCuttable {
     public void setInvert(boolean invert) {
         this.invert = invert;
         invalidateProcessedCache();
+    }
+
+    public boolean isRoughing() {
+        return roughing;
+    }
+
+    public void setRoughing(boolean roughing) {
+        this.roughing = roughing;
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    public double getStockToLeave() {
+        return stockToLeave;
+    }
+
+    public void setStockToLeave(double stockToLeave) {
+        this.stockToLeave = Math.max(0, stockToLeave);
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    public boolean isDepthMapping() {
+        return depthMapping;
+    }
+
+    public void setDepthMapping(boolean depthMapping) {
+        this.depthMapping = depthMapping;
+        invalidateProcessedCache();
+        if (depthMapping) {
+            requestDepthMapAsync();
+        }
+    }
+
+    public double getDepthDetail() {
+        return depthMapParameters.getDetail();
+    }
+
+    public void setDepthDetail(double detail) {
+        depthMapParameters.setDetail(detail);
+        onDepthMapParameterChanged();
+    }
+
+    public double getDepthSmoothing() {
+        return depthMapParameters.getSmoothing();
+    }
+
+    public void setDepthSmoothing(double smoothing) {
+        depthMapParameters.setSmoothing(smoothing);
+        onDepthMapParameterChanged();
+    }
+
+    public double getDepthContrast() {
+        return depthMapParameters.getContrast();
+    }
+
+    public void setDepthContrast(double contrast) {
+        depthMapParameters.setContrast(contrast);
+        onDepthMapParameterChanged();
+    }
+
+    public double getDepthEmphasis() {
+        return depthMapParameters.getEmphasis();
+    }
+
+    public void setDepthEmphasis(double emphasis) {
+        depthMapParameters.setEmphasis(emphasis);
+        onDepthMapParameterChanged();
     }
 
     public int[][] getPowerCurveControlPoints() {
@@ -210,6 +327,206 @@ public class Raster extends AbstractCuttable {
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 
+    private BufferedImage getSourceImage() {
+        if (depthMapping && image != null) {
+            BufferedImage generated = depthMap;
+            if (generated != null) {
+                return generated;
+            }
+            // Not ready yet: kick off background generation and show the original image meanwhile
+            requestDepthMapAsync();
+        }
+        return image;
+    }
+
+    private void requestDepthMapAsync() {
+        if (image == null || depthMap != null || generatingDepthMap) {
+            return;
+        }
+        generatingDepthMap = true;
+        BufferedImage sourceSnapshot = image;
+        float[][] rawSnapshot = rawDepth;
+        DepthMapParameters parametersSnapshot = depthMapParameters.copy();
+
+        DEPTH_MAP_EXECUTOR.submit(() -> {
+            float[][] computedRaw = rawSnapshot;
+            BufferedImage result = null;
+            try {
+                DepthMapGenerator generator = new DepthMapGenerator();
+                // The model is only needed to compute the raw estimate; a cached raw estimate can be
+                // post-processed without it, so a reopened design never re-runs the model.
+                if (computedRaw == null) {
+                    if (generator.isModelAvailable()) {
+                        computedRaw = generator.estimateDepth(sourceSnapshot);
+                    } else {
+                        LOGGER.warning("Depth model not available at " + generator.getModelPath()
+                                + "; falling back to the original image");
+                    }
+                }
+                if (computedRaw != null) {
+                    result = generator.toDepthMap(computedRaw, sourceSnapshot, parametersSnapshot);
+                }
+            } catch (RuntimeException e) {
+                LOGGER.log(Level.WARNING, "Failed to generate depth map, falling back to the original image", e);
+            }
+            depthMapGenerated(sourceSnapshot, parametersSnapshot, computedRaw, result);
+        });
+    }
+
+    private void depthMapGenerated(BufferedImage source, DepthMapParameters parameters, float[][] computedRaw, BufferedImage result) {
+        Runnable finish = () -> {
+            generatingDepthMap = false;
+
+            // Discard results computed from an image that has since changed
+            if (source != image) {
+                if (depthMapping) {
+                    requestDepthMapAsync();
+                }
+                return;
+            }
+
+            if (computedRaw != null) {
+                rawDepth = computedRaw;
+            }
+
+            // Parameters changed while generating: keep the raw estimate and re-run the cheap pass
+            if (!parameters.equals(depthMapParameters)) {
+                if (depthMapping) {
+                    requestDepthMapAsync();
+                }
+                return;
+            }
+
+            if (result != null) {
+                depthMap = result;
+                invalidateProcessedCache();
+            }
+        };
+
+        if (SwingUtilities.isEventDispatchThread()) {
+            finish.run();
+        } else {
+            SwingUtilities.invokeLater(finish);
+        }
+    }
+
+    /**
+     * Ensures the depth map is generated synchronously so gcode generation samples the height field
+     * instead of the original image. Blocks the calling thread while the model runs; a no-op unless
+     * depth mapping is enabled.
+     */
+    public void awaitDepthMap() {
+        if (!depthMapping || image == null || depthMap != null) {
+            return;
+        }
+
+        try {
+            DepthMapGenerator generator = new DepthMapGenerator();
+
+            float[][] raw = rawDepth;
+            if (raw == null) {
+                if (!generator.isModelAvailable()) {
+                    LOGGER.warning("Depth model not available at " + generator.getModelPath()
+                            + "; falling back to the original image");
+                    return;
+                }
+                raw = generator.estimateDepth(image);
+                rawDepth = raw;
+            }
+            depthMap = generator.toDepthMap(raw, image, depthMapParameters.copy());
+            processedGray = null;
+            processedInkMask = null;
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.WARNING, "Failed to generate depth map, falling back to the original image", e);
+        }
+    }
+
+    private void onDepthMapParameterChanged() {
+        depthMap = null; // keep the cached raw estimate; only the cheap post-processing changed
+        if (depthMapping) {
+            requestDepthMapAsync();
+        }
+        invalidateProcessedCache();
+    }
+
+    /**
+     * Returns the cached raw depth estimate as a Base64-encoded 16-bit grayscale PNG, or {@code null}
+     * if it has not been generated yet. Persisting this lets a reopened design skip the expensive model
+     * inference. The pipeline is scale-invariant, so the values are min-max normalized for storage.
+     *
+     * @return the cached raw depth as a base64 PNG, or {@code null}
+     */
+    public String getRawDepthData() {
+        float[][] raw = rawDepth;
+        if (raw == null) {
+            return null;
+        }
+
+        int h = raw.length;
+        int w = raw[0].length;
+        float min = Float.POSITIVE_INFINITY;
+        float max = Float.NEGATIVE_INFINITY;
+        for (float[] row : raw) {
+            for (float v : row) {
+                min = Math.min(min, v);
+                max = Math.max(max, v);
+            }
+        }
+        float range = max - min;
+        if (range <= 0) {
+            range = 1f;
+        }
+
+        BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_USHORT_GRAY);
+        var wr = img.getRaster();
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                int value = Math.round((raw[y][x] - min) / range * 65535f);
+                wr.setSample(x, y, 0, Math.max(0, Math.min(65535, value)));
+            }
+        }
+
+        try {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageIO.write(img, "png", os);
+            return Base64.getEncoder().encodeToString(os.toByteArray());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * Restores a previously cached raw depth estimate (see {@link #getRawDepthData()}) so the model does
+     * not have to run again. Ignored if the cache does not match the current image dimensions.
+     *
+     * @param data a base64 16-bit grayscale PNG, or {@code null}
+     */
+    public void setRawDepthData(String data) {
+        if (data == null || data.isBlank() || image == null) {
+            return;
+        }
+
+        try {
+            BufferedImage img = ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(data)));
+            if (img == null || img.getWidth() != image.getWidth() || img.getHeight() != image.getHeight()) {
+                return; // stale cache for a different image
+            }
+
+            int w = img.getWidth();
+            int h = img.getHeight();
+            var rd = img.getRaster();
+            float[][] raw = new float[h][w];
+            for (int y = 0; y < h; y++) {
+                for (int x = 0; x < w; x++) {
+                    raw[y][x] = rd.getSample(x, y, 0) / 65535f;
+                }
+            }
+            this.rawDepth = raw;
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Failed to read cached depth data", e);
+        }
+    }
+
     private BufferedImage getOrCreateProcessedInkMask() {
         if (processedInkMask != null) {
             return processedInkMask;
@@ -238,7 +555,7 @@ public class Raster extends AbstractCuttable {
             return processedGray;
         }
 
-        BufferedImage src = image;
+        BufferedImage src = getSourceImage();
         int w = src.getWidth();
         int h = src.getHeight();
 
@@ -373,6 +690,6 @@ public class Raster extends AbstractCuttable {
 
     @Override
     public List<CutType> getAvailableCutTypes() {
-        return List.of(CutType.NONE, CutType.LASER_RASTER);
+        return List.of(CutType.NONE, CutType.LASER_RASTER, CutType.HEIGHT_MAP);
     }
 }

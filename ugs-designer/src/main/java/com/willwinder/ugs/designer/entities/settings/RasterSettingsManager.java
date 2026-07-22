@@ -75,6 +75,11 @@ public class RasterSettingsManager implements EntitySettingsManager {
         settings.add(EntitySetting.RASTER_POWER_CURVE);
         settings.add(EntitySetting.RASTER_LEVELS);
         settings.add(EntitySetting.RASTER_INVERT);
+        settings.add(EntitySetting.RASTER_DEPTH_MAPPING);
+        settings.add(EntitySetting.RASTER_DEPTH_DETAIL);
+        settings.add(EntitySetting.RASTER_DEPTH_SMOOTHING);
+        settings.add(EntitySetting.RASTER_DEPTH_CONTRAST);
+        settings.add(EntitySetting.RASTER_DEPTH_EMPHASIS);
         return settings;
     }
 }

@@ -200,7 +200,7 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
             if (getDirection() == Direction.BOTH) {
                 drawArrow(drawing, graphics, cx, cy, angleDeg + 180, arrowLength);
             }
-        } else if (getCutType() == CutType.INSIDE_PATH || getCutType() == CutType.ON_PATH || getCutType() == CutType.OUTSIDE_PATH) {
+        } else if (getCutType() == CutType.INSIDE_PATH || getCutType() == CutType.ON_PATH || getCutType() == CutType.OUTSIDE_PATH || getCutType() == CutType.HEIGHT_MAP) {
             drawShape(graphics, new BasicStroke(strokeWidth), getCutColor(), shape);
         } else if (getCutType() == CutType.LASER_ON_PATH) {
             drawShape(graphics, new BasicStroke(strokeWidth), getLaserCutColor(), shape);
