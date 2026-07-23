@@ -47,6 +47,8 @@ import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.GcodeFileWriter;
+import com.willwinder.universalgcodesender.services.interceptor.CommandInterceptorService;
+import com.willwinder.universalgcodesender.services.interceptor.ToolChangeInterceptor;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
 import com.willwinder.universalgcodesender.utils.IGcodeWriter;
@@ -93,12 +95,21 @@ public class GUIBackend implements BackendAPI {
      */
     private GcodeStreamReader gcodeStream;
 
+    private final CommandInterceptorService interceptorService;
+
     public GUIBackend() {
         this(new UGSEventDispatcher());
     }
 
     public GUIBackend(UGSEventDispatcher eventDispatcher) {
         this.eventDispatcher = eventDispatcher;
+        this.interceptorService = new CommandInterceptorService(this, eventDispatcher);
+        this.interceptorService.register(new ToolChangeInterceptor());
+        eventDispatcher.addListener(interceptorService);
+    }
+
+    public CommandInterceptorService getInterceptorService() {
+        return interceptorService;
     }
 
     /////////////
@@ -499,7 +510,7 @@ public class GUIBackend implements BackendAPI {
             // This will throw an exception and prevent that other stuff from
             // happening (clearing the table before it is ready for clearing.
             controller.isReadyToStreamFile();
-            controller.queueStream(gcodeStream);
+            controller.queueStream(interceptorService.beginJob(gcodeStream));
             controller.beginStreaming();
         } catch (Exception e) {
             logger.log(Level.SEVERE, Localization.getString("mainWindow.error.startingStream"), e);

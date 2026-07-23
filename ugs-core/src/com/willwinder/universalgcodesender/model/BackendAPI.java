@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.MessageType;
+import com.willwinder.universalgcodesender.services.interceptor.CommandInterceptorService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 
@@ -170,6 +171,14 @@ public interface BackendAPI extends BackendAPIReadOnly {
     void requestParserState() throws Exception;
 
     IController getController();
+
+    /**
+     * Returns the service responsible for intercepting commands during a running stream, allowing custom
+     * routines (such as tool changes or probing) to take control before certain commands are sent.
+     *
+     * @return the command interceptor service
+     */
+    CommandInterceptorService getInterceptorService();
 
     /**
      * Returns the current controller state. If no controller is loaded or if it
