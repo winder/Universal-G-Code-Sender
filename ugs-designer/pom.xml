@@ -35,6 +35,13 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- For running ONNX models -->
+        <dependency>
+            <groupId>com.microsoft.onnxruntime</groupId>
+            <artifactId>onnxruntime</artifactId>
+            <version>1.18.0</version>
+        </dependency>
+
         <!-- For reading SVG (deprecated, please move to jsvg)  -->
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>

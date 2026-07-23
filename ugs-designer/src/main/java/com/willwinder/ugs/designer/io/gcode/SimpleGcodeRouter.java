@@ -20,6 +20,7 @@ import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.DrillCenterToolPath;
+import com.willwinder.ugs.designer.io.gcode.toolpaths.HeightMapToolPath;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.LaserFillToolPath;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.LaserOutlineToolPath;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.LaserRasterToolPath;
@@ -115,6 +116,12 @@ public class SimpleGcodeRouter {
                     case LASER_RASTER:
                         LaserRasterToolPath laserRasterToolPath = new LaserRasterToolPath(settings, cuttable);
                         laserRasterToolPath.appendGcodePath(gcodePath, settings);
+                        break;
+                    case HEIGHT_MAP:
+                        HeightMapToolPath heightMapToolPath = new HeightMapToolPath(settings, cuttable);
+                        heightMapToolPath.setStartDepth(cuttable.getStartDepth());
+                        heightMapToolPath.setTargetDepth(cuttable.getTargetDepth());
+                        heightMapToolPath.appendGcodePath(gcodePath, settings);
                         break;
                     default:
                 }

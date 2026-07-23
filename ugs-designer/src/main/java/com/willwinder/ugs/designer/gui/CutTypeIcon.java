@@ -53,6 +53,7 @@ public class CutTypeIcon extends ImageIcon {
             case SURFACE:
             case LASER_FILL:
             case LASER_RASTER:
+            case HEIGHT_MAP:
                 icon = SvgIconLoader.loadImageIcon("img/cutfill.svg", size.value).orElse(null);
                 setDescription(cutType.getName());
                 break;

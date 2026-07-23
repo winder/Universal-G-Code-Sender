@@ -49,12 +49,16 @@ public enum EntitySetting {
     TOOL_PATH_DIRECTION("Tool path direction"),
     DIRECTION("Tool path direction"),
     CORNER_RADIUS("Corner radius"),
-    RASTER_BRIGHTNESS("Brightness"),
-    RASTER_CONTRAST("Contrast"),
-    RASTER_GAMMA("Gamma"),
     RASTER_INVERT("Invert"),
     RASTER_LEVELS("Levels"),
-    RASTER_POWER_CURVE("Power curve");
+    RASTER_POWER_CURVE("Power curve"),
+    RASTER_DEPTH_MAPPING("Depth mapping"),
+    RASTER_DEPTH_DETAIL("Detail"),
+    RASTER_DEPTH_SMOOTHING("Smoothing"),
+    RASTER_DEPTH_CONTRAST("Contrast"),
+    RASTER_DEPTH_EMPHASIS("Subject emphasis"),
+    ROUGHING("Roughing"),
+    STOCK_TO_LEAVE("Stock to leave");
 
     public static final List<EntitySetting> TRANSFORMATION_SETTINGS = List.of(
             EntitySetting.POSITION_X,
@@ -107,6 +111,17 @@ public enum EntitySetting {
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.PASSES,
             EntitySetting.FEED_RATE,
+            EntitySetting.INCLUDE_IN_EXPORT);
+
+    public static final List<EntitySetting> DEFAULT_HEIGHT_MAP_SETTINGS = List.of(
+            EntitySetting.CUT_TYPE,
+            EntitySetting.TOOL_PATH_ANGLE,
+            EntitySetting.START_DEPTH,
+            EntitySetting.TARGET_DEPTH,
+            EntitySetting.SPINDLE_SPEED,
+            EntitySetting.FEED_RATE,
+            EntitySetting.ROUGHING,
+            EntitySetting.STOCK_TO_LEAVE,
             EntitySetting.INCLUDE_IN_EXPORT);
 
     private final String label;
