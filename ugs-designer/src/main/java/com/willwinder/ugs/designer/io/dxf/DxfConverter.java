@@ -1,10 +1,10 @@
 package com.willwinder.ugs.designer.io.dxf;
 
-import com.willwinder.ugs.designer.entities.entities.Anchor;
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Ellipse;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Path;
+import com.willwinder.ugs.designer.entities.Anchor;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.designer.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.cuttable.Path;
 import static com.willwinder.ugs.designer.io.dxf.DxfReader.MILLIMETERS_PER_INCH;
 import com.willwinder.ugs.designer.model.Size;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -106,7 +106,7 @@ public class DxfConverter {
     }
 
     public Entity convertPoint(DXFPoint point) {
-        return new com.willwinder.ugs.designer.entities.entities.cuttable.Point(convertCoordinate(point.getX()),
+        return new com.willwinder.ugs.designer.entities.cuttable.Point(convertCoordinate(point.getX()),
                 convertCoordinate(point.getY()));
     }
 

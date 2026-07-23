@@ -20,7 +20,7 @@ package com.willwinder.ugs.designer.io.ugsd;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.willwinder.ugs.designer.entities.entities.Entity;
+import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.io.AffineTransformDeserializer;
 import com.willwinder.ugs.designer.io.DesignReader;
 import com.willwinder.ugs.designer.io.DesignReaderException;
@@ -46,7 +46,9 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -113,7 +115,12 @@ public class UgsDesignReader implements DesignReader {
 
     public List<Entity> deserialize(String entities) {
         Gson gson = getParser();
-        return Arrays.stream(gson.fromJson(entities, EntityV1[].class))
+        EntityV1[] entityV1s = gson.fromJson(entities, EntityV1[].class);
+        if (Objects.isNull(entityV1s)) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(entityV1s)
                 .map(EntityV1::toInternal)
                 .collect(Collectors.toList());
     }

@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.designer.gui.clipart;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 
 import java.awt.*;
 

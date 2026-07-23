@@ -143,7 +143,8 @@
 .unit-text-field .unit-label {
     -fx-text-fill: -fx-text-inner-color;
     -fx-opacity: 0.4;
-    -fx-padding: 0 6 0 6; /* a bit of breathing room */
+    -fx-padding: 0 2 0 2; /* a bit of breathing room */
+    -fx-font-size: 0.7em;
 }
 
 /**
@@ -247,6 +248,31 @@
 .scroll-bar > .decrement-button > .decrement-arrow {
     -fx-shape: " ";
     -fx-padding: 0;
+}
+
+/* Aspect-ratio lock next to the width/height rows. */
+.aspect-ratio-lock {
+    -fx-padding: 3;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+}
+
+/* Flip buttons next to the rotation row. */
+.flip-button {
+    -fx-padding: 2;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+}
+
+/* 3x3 anchor (origin) selector next to the X/Y rows. */
+.anchor-selector .anchor-cell {
+    -fx-padding: 0;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+}
+
+.anchor-selector .anchor-cell:selected {
+    -fx-background-color: #4F9EB0FF;
 }
 
 /* Where a vertical and horizontal bar meet inside a scroll pane. */

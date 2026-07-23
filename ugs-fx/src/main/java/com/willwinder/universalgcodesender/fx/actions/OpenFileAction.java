@@ -38,7 +38,10 @@ public class OpenFileAction extends BaseAction {
     private final BackendAPI backend;
 
     public OpenFileAction() {
-        super(Localization.getString("platform.menu.open"), Localization.getString("platform.menu.open"), ICON_BASE);
+        super(Localization.getString("platform.menu.open"), Localization.getString("platform.menu.open"), Localization.getString("actions.category.file"), ICON_BASE);
+        setMenuVisible(true);
+        setMenuOrder(110);
+        setDefaultShortcut("SHORTCUT+O");
         backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(!backend.isConnected() || backend.isIdle());

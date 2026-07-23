@@ -1,15 +1,15 @@
 package com.willwinder.ugs.designer.gui.anchor;
 
-import com.willwinder.ugs.designer.entities.entities.Anchor;
-import static com.willwinder.ugs.designer.entities.entities.Anchor.BOTTOM_CENTER;
-import static com.willwinder.ugs.designer.entities.entities.Anchor.BOTTOM_LEFT;
-import static com.willwinder.ugs.designer.entities.entities.Anchor.BOTTOM_RIGHT;
-import static com.willwinder.ugs.designer.entities.entities.Anchor.CENTER;
-import static com.willwinder.ugs.designer.entities.entities.Anchor.LEFT_CENTER;
-import static com.willwinder.ugs.designer.entities.entities.Anchor.RIGHT_CENTER;
-import static com.willwinder.ugs.designer.entities.entities.Anchor.TOP_CENTER;
-import static com.willwinder.ugs.designer.entities.entities.Anchor.TOP_LEFT;
-import static com.willwinder.ugs.designer.entities.entities.Anchor.TOP_RIGHT;
+import com.willwinder.ugs.designer.entities.Anchor;
+import static com.willwinder.ugs.designer.entities.Anchor.BOTTOM_CENTER;
+import static com.willwinder.ugs.designer.entities.Anchor.BOTTOM_LEFT;
+import static com.willwinder.ugs.designer.entities.Anchor.BOTTOM_RIGHT;
+import static com.willwinder.ugs.designer.entities.Anchor.CENTER;
+import static com.willwinder.ugs.designer.entities.Anchor.LEFT_CENTER;
+import static com.willwinder.ugs.designer.entities.Anchor.RIGHT_CENTER;
+import static com.willwinder.ugs.designer.entities.Anchor.TOP_CENTER;
+import static com.willwinder.ugs.designer.entities.Anchor.TOP_LEFT;
+import static com.willwinder.ugs.designer.entities.Anchor.TOP_RIGHT;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.BorderFactory;

@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.designer.actions;
 
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.io.DesignReader;
 import com.willwinder.ugs.designer.io.c2d.C2dReader;
 import com.willwinder.ugs.designer.io.gerber.GerberReader;

@@ -18,11 +18,10 @@
  */
 package com.willwinder.ugs.designer.io.gerber;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Ellipse;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Path;
-import com.willwinder.ugs.designer.io.gerber.GerberReader;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.designer.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.cuttable.Path;
 import com.willwinder.ugs.designer.model.Design;
 import org.apache.commons.io.IOUtils;
 import static org.junit.Assert.assertEquals;

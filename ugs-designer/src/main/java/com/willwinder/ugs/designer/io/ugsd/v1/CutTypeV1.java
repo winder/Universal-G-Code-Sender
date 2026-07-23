@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.designer.io.ugsd.v1;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.CutType;
+import com.willwinder.ugs.designer.entities.cuttable.CutType;
 
 /**
  * @author Joacim Breiler
@@ -33,7 +33,8 @@ public enum CutTypeV1 {
     CENTER_DRILL,
     LASER_ON_PATH,
     LASER_FILL,
-    LASER_RASTER;
+    LASER_RASTER,
+    HEIGHT_MAP;
 
     public static CutTypeV1 fromCutType(CutType cutType) {
         return switch (cutType) {
@@ -46,6 +47,7 @@ public enum CutTypeV1 {
             case LASER_ON_PATH -> LASER_ON_PATH;
             case LASER_FILL -> LASER_FILL;
             case LASER_RASTER -> LASER_RASTER;
+            case HEIGHT_MAP -> HEIGHT_MAP;
             case CENTER_DRILL -> CENTER_DRILL;
         };
     }
@@ -62,6 +64,7 @@ public enum CutTypeV1 {
             case LASER_ON_PATH -> CutType.LASER_ON_PATH;
             case LASER_FILL ->CutType.LASER_FILL;
             case LASER_RASTER -> CutType.LASER_RASTER;
+            case HEIGHT_MAP -> CutType.HEIGHT_MAP;
         };
     }
 }

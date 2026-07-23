@@ -20,12 +20,13 @@ package com.willwinder.universalgcodesender.fx;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.willwinder.universalgcodesender.fx.actions.StartAction;
+import com.willwinder.universalgcodesender.fx.component.MainMenuBar;
 import com.willwinder.universalgcodesender.fx.component.ToolBarMenu;
 import com.willwinder.universalgcodesender.fx.component.drawer.DrawerPane;
 import com.willwinder.universalgcodesender.fx.component.dro.MachineStatusPane;
 import com.willwinder.universalgcodesender.fx.component.jog.JogPane;
 import com.willwinder.universalgcodesender.fx.component.visualizer.Visualizer;
-import com.willwinder.universalgcodesender.fx.component.visualizer.designer.InspectorPane;
+import com.willwinder.universalgcodesender.fx.component.designer.InspectorPane;
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
 import com.willwinder.universalgcodesender.services.LookupService;
 import com.willwinder.universalgcodesender.fx.helper.FontRegistry;
@@ -101,6 +102,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         registerListeners(primaryStage);
 
+        MainMenuBar mainMenuBar = new MainMenuBar();
         ToolBarMenu toolBarMenu = new ToolBarMenu();
         createLeftPane();
         createContentPanel();
@@ -114,7 +116,8 @@ public class Main extends Application {
         FontRegistry.registerFonts();
 
         scene.getStylesheets().add(Objects.requireNonNull(Main.class.getResource("/styles/root.css")).toExternalForm());
-        root.getChildren().addAll(toolBarMenu, contentSplitPane);
+        scene.getStylesheets().add(Objects.requireNonNull(Main.class.getResource("/styles/menu-bar.css")).toExternalForm());
+        root.getChildren().addAll(mainMenuBar, toolBarMenu, contentSplitPane);
 
         primaryStage.setTitle("Universal G-code Sender - " + Version.getVersion());
         SvgLoader.loadIcon("icons/ugs.svg", 128).ifPresent(icon -> primaryStage.getIcons().add(icon));

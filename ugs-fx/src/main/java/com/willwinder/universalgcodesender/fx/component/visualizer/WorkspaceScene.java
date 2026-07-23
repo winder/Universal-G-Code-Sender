@@ -1,15 +1,15 @@
 package com.willwinder.universalgcodesender.fx.component.visualizer;
 
-import com.willwinder.ugs.designer.entities.entities.EntityListener;
-import com.willwinder.ugs.designer.entities.entities.EventType;
-import com.willwinder.ugs.designer.entities.entities.controls.Control;
+import com.willwinder.ugs.designer.entities.EntityListener;
+import com.willwinder.ugs.designer.entities.EventType;
+import com.willwinder.ugs.designer.entities.controls.Control;
 import com.willwinder.ugs.designer.gui.MouseEntityEvent;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 import com.willwinder.ugs.designer.logic.Tool;
-import com.willwinder.universalgcodesender.fx.component.visualizer.designer.ControlsNode;
-import com.willwinder.universalgcodesender.fx.component.visualizer.designer.EntityShapeFactory;
-import com.willwinder.universalgcodesender.fx.component.visualizer.designer.EntityShapesNode;
+import com.willwinder.universalgcodesender.fx.component.designer.ControlsNode;
+import com.willwinder.universalgcodesender.fx.component.designer.EntityShapeFactory;
+import com.willwinder.universalgcodesender.fx.component.designer.EntityShapesNode;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.GcodeModel;
 import com.willwinder.universalgcodesender.fx.component.visualizer.models.Model;
 import com.willwinder.universalgcodesender.fx.model.UgsdWorkspaceContext;
@@ -21,6 +21,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.LookupService;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.MeshView;
@@ -72,6 +73,30 @@ public class WorkspaceScene extends Model {
                 Platform.runLater(() -> onDirtyStateChanged(dirty));
             }
         });
+
+        // Re-render the design elements when their configured colors change so the change is visible
+        // immediately, without needing to reselect the entity.
+        VisualizerSettings settings = VisualizerSettings.getInstance();
+        ChangeListener<String> refreshHandles =
+                (obs, oldVal, newVal) -> Platform.runLater(this::refreshControlHandles);
+        settings.colorDesignResizeProperty().addListener(refreshHandles);
+        settings.colorDesignRotationProperty().addListener(refreshHandles);
+        settings.colorDesignMoveProperty().addListener(refreshHandles);
+
+        ChangeListener<String> refreshShapes =
+                (obs, oldVal, newVal) -> Platform.runLater(this::refreshShapeColors);
+        settings.colorDesignShapeOutlineProperty().addListener(refreshShapes);
+        settings.colorDesignShapeBackgroundProperty().addListener(refreshShapes);
+    }
+
+    private void refreshControlHandles() {
+        if (controlsNode != null) {
+            controlsNode.refresh();
+        }
+    }
+
+    private void refreshShapeColors() {
+        entityShapesNode.refreshColors();
     }
 
     private void onBackgroundClick(MouseEvent event) {

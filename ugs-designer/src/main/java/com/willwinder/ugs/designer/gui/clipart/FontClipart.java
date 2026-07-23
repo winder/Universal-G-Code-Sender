@@ -18,8 +18,8 @@
  */
 package com.willwinder.ugs.designer.gui.clipart;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.Cuttable;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Path;
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.cuttable.Path;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 
 import javax.swing.JLabel;

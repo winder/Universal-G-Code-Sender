@@ -36,6 +36,8 @@ public class HomingAction extends BaseAction {
 
     public HomingAction() {
         super(Localization.getString("mainWindow.swing.homeMachine"), Localization.getString("mainWindow.swing.homeMachine"), Localization.getString("actions.category.machine"), ICON_BASE);
+        setMenuVisible(true);
+        setMenuOrder(300);
         backend = LookupService.lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         enabledProperty().set(canHome());

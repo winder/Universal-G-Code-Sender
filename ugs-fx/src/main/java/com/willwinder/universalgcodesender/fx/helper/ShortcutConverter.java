@@ -22,11 +22,43 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ShortcutConverter {
+
+    /**
+     * Platform-independent modifier token used in default shortcuts. It resolves to the platform
+     * menu-shortcut modifier so a single default definition works across operating systems.
+     */
+    public static final String PLATFORM_MODIFIER_TOKEN = "SHORTCUT";
+
+    /**
+     * The platform menu-shortcut modifier: {@code META} (the Command key) on macOS and
+     * {@code CTRL} on Windows and Linux.
+     */
+    public static String getPlatformModifier() {
+        return SystemUtils.IS_OS_MAC ? "META" : "CTRL";
+    }
+
+    /**
+     * Resolves the {@link #PLATFORM_MODIFIER_TOKEN} in a shortcut string to the platform
+     * menu-shortcut modifier, turning e.g. {@code "SHORTCUT+S"} into {@code "META+S"} on macOS and
+     * {@code "CTRL+S"} on Windows and Linux. Other parts are passed through untouched (upper-cased).
+     */
+    public static String resolvePlatformShortcut(String shortcut) {
+        if (shortcut == null || shortcut.isBlank()) {
+            return shortcut;
+        }
+
+        return Arrays.stream(shortcut.split("\\+"))
+                .map(part -> part.equalsIgnoreCase(PLATFORM_MODIFIER_TOKEN) ? getPlatformModifier() : part.toUpperCase())
+                .collect(Collectors.joining("+"));
+    }
 
     /**
      * Parses a shortcut string like "CTRL+SHIFT+S" into a KeyCodeCombination.

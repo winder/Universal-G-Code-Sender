@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.designer.io.gerber;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
+import com.willwinder.ugs.designer.entities.Entity;
 
 public record GerberEntity(Polarity polarity, Entity entity) {
 

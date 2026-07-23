@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.designer.actions;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.Text;
+import com.willwinder.ugs.designer.entities.cuttable.Text;
 
 public class ChangeTextAction implements UndoableAction {
 

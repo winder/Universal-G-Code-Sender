@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.designer.gui.tree;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
+import com.willwinder.ugs.designer.entities.Entity;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;

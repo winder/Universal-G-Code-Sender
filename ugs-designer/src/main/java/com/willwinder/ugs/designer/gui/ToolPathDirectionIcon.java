@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.designer.gui;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.ToolPathDirection;
+import com.willwinder.ugs.designer.entities.cuttable.ToolPathDirection;
 import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import javax.swing.ImageIcon;

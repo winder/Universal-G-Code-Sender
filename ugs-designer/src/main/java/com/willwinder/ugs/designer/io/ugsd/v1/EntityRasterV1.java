@@ -19,8 +19,8 @@
 package com.willwinder.ugs.designer.io.ugsd.v1;
 
 import com.google.gson.annotations.Expose;
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Raster;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.cuttable.Raster;
 
 import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
@@ -33,15 +33,6 @@ public class EntityRasterV1 extends CuttableEntityV1 {
     private String image;
 
     @Expose
-    private double brightness;
-
-    @Expose
-    private double contrast;
-
-    @Expose
-    private double gamma;
-
-    @Expose
     private int levels;
 
     @Expose
@@ -50,32 +41,36 @@ public class EntityRasterV1 extends CuttableEntityV1 {
     @Expose
     private int[][] powerCurveControlPoints;
 
+    @Expose
+    private boolean roughing = true;
+
+    @Expose
+    private double stockToLeave;
+
+    @Expose
+    private boolean depthMapping;
+
+    @Expose
+    private double depthDetail = 0.6;
+
+    @Expose
+    private double depthSmoothing = 0.3;
+
+    @Expose
+    private double depthContrast = 0.1;
+
+    @Expose
+    private double depthEmphasis = 0.33;
+
+    @Expose
+    private String rawDepthData;
+
     public EntityRasterV1() {
         super(EntityTypeV1.RASTER);
     }
 
     public void setImage(String image) {
         this.image = image;
-    }
-
-    public void setBrightness(double brightness) {
-        this.brightness = brightness;
-    }
-
-    public double getBrightness() {
-        return brightness;
-    }
-
-    public void setContrast(double contrast) {
-        this.contrast = contrast;
-    }
-
-    public void setGamma(double gamma) {
-        this.gamma = gamma;
-    }
-
-    public double getGamma() {
-        return gamma;
     }
 
     public int getLevels() {
@@ -102,16 +97,89 @@ public class EntityRasterV1 extends CuttableEntityV1 {
         this.powerCurveControlPoints = powerCurveControlPoints;
     }
 
+    public boolean isRoughing() {
+        return roughing;
+    }
+
+    public void setRoughing(boolean roughing) {
+        this.roughing = roughing;
+    }
+
+    public double getStockToLeave() {
+        return stockToLeave;
+    }
+
+    public void setStockToLeave(double stockToLeave) {
+        this.stockToLeave = stockToLeave;
+    }
+
+    public boolean isDepthMapping() {
+        return depthMapping;
+    }
+
+    public void setDepthMapping(boolean depthMapping) {
+        this.depthMapping = depthMapping;
+    }
+
+    public double getDepthDetail() {
+        return depthDetail;
+    }
+
+    public void setDepthDetail(double depthDetail) {
+        this.depthDetail = depthDetail;
+    }
+
+    public double getDepthSmoothing() {
+        return depthSmoothing;
+    }
+
+    public void setDepthSmoothing(double depthSmoothing) {
+        this.depthSmoothing = depthSmoothing;
+    }
+
+    public double getDepthContrast() {
+        return depthContrast;
+    }
+
+    public void setDepthContrast(double depthContrast) {
+        this.depthContrast = depthContrast;
+    }
+
+    public double getDepthEmphasis() {
+        return depthEmphasis;
+    }
+
+    public void setDepthEmphasis(double depthEmphasis) {
+        this.depthEmphasis = depthEmphasis;
+    }
+
+    public String getRawDepthData() {
+        return rawDepthData;
+    }
+
+    public void setRawDepthData(String rawDepthData) {
+        this.rawDepthData = rawDepthData;
+    }
+
     @Override
     public Entity toInternal() {
         try {
             Raster raster = new Raster(ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(image))));
             applyCommonAttributes(raster);
-            raster.setContrast(this.contrast);
-            raster.setBrightness(this.brightness);
-            raster.setGamma(this.gamma);
             raster.setLevels(this.levels);
             raster.setInvert(this.invert);
+            raster.setRoughing(this.roughing);
+            raster.setStockToLeave(this.stockToLeave);
+
+            // Restore the tuning and the cached raw depth before enabling depth mapping, so the first
+            // generation reuses the cached estimate instead of re-running the model.
+            raster.setDepthDetail(this.depthDetail);
+            raster.setDepthSmoothing(this.depthSmoothing);
+            raster.setDepthContrast(this.depthContrast);
+            raster.setDepthEmphasis(this.depthEmphasis);
+            raster.setRawDepthData(this.rawDepthData);
+            raster.setDepthMapping(this.depthMapping);
+
             if (this.powerCurveControlPoints != null) {
                 raster.setPowerCurveControlPoints(this.powerCurveControlPoints);
             }

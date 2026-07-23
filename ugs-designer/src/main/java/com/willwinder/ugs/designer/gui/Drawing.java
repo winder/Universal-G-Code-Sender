@@ -19,24 +19,24 @@
 package com.willwinder.ugs.designer.gui;
 
 import com.willwinder.ugs.designer.Throttler;
-import com.willwinder.ugs.designer.entities.entities.Entity;
-import com.willwinder.ugs.designer.entities.entities.EntityGroup;
-import com.willwinder.ugs.designer.entities.entities.controls.Control;
-import com.willwinder.ugs.designer.entities.entities.controls.CreateEllipseControl;
-import com.willwinder.ugs.designer.entities.entities.controls.CreateLineControl;
-import com.willwinder.ugs.designer.entities.entities.controls.CreatePointControl;
-import com.willwinder.ugs.designer.entities.entities.controls.CreateRectangleControl;
-import com.willwinder.ugs.designer.entities.entities.controls.CreateTextControl;
-import com.willwinder.ugs.designer.entities.entities.controls.EditTextControl;
-import com.willwinder.ugs.designer.entities.entities.controls.GridControl;
-import com.willwinder.ugs.designer.entities.entities.controls.HighlightModelControl;
-import com.willwinder.ugs.designer.entities.entities.controls.ISnapToGridListener;
-import com.willwinder.ugs.designer.entities.entities.controls.MoveControl;
-import com.willwinder.ugs.designer.entities.entities.controls.ResizeControlGroup;
-import com.willwinder.ugs.designer.entities.entities.controls.RotationControl;
-import com.willwinder.ugs.designer.entities.entities.controls.SelectionControl;
-import com.willwinder.ugs.designer.entities.entities.controls.VertexControlGroup;
-import com.willwinder.ugs.designer.entities.entities.controls.ZoomControl;
+import com.willwinder.ugs.designer.entities.Entity;
+import com.willwinder.ugs.designer.entities.EntityGroup;
+import com.willwinder.ugs.designer.entities.controls.Control;
+import com.willwinder.ugs.designer.entities.controls.CreateEllipseControl;
+import com.willwinder.ugs.designer.entities.controls.CreateLineControl;
+import com.willwinder.ugs.designer.entities.controls.CreatePointControl;
+import com.willwinder.ugs.designer.entities.controls.CreateRectangleControl;
+import com.willwinder.ugs.designer.entities.controls.CreateTextControl;
+import com.willwinder.ugs.designer.entities.controls.EditTextControl;
+import com.willwinder.ugs.designer.entities.controls.GridControl;
+import com.willwinder.ugs.designer.entities.controls.HighlightModelControl;
+import com.willwinder.ugs.designer.entities.controls.ISnapToGridListener;
+import com.willwinder.ugs.designer.entities.controls.MoveControl;
+import com.willwinder.ugs.designer.entities.controls.ResizeControlGroup;
+import com.willwinder.ugs.designer.entities.controls.RotationControl;
+import com.willwinder.ugs.designer.entities.controls.SelectionControl;
+import com.willwinder.ugs.designer.entities.controls.VertexControlGroup;
+import com.willwinder.ugs.designer.entities.controls.ZoomControl;
 import com.willwinder.ugs.designer.logic.Controller;
 import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
 import static java.awt.RenderingHints.KEY_ANTIALIASING;
@@ -75,6 +75,7 @@ public class Drawing extends JPanel implements ISnapToGridListener {
     private final transient Throttler refreshThrottler;
     private final transient Rectangle2D currentBounds = new Rectangle(0, 0, 8, 8);
     private double scale;
+    private double snapToGrid;
     private Point2D.Double position = new Point2D.Double();
     private Dimension oldMinimumSize;
     private transient DropHandler dropHandler;
@@ -323,10 +324,15 @@ public class Drawing extends JPanel implements ISnapToGridListener {
 
     @Override
     public void snapToGridUpdated(double aNewValue) {
+        this.snapToGrid = aNewValue;
         for (Entity ctrl : this.controlsRoot.getAllChildren()) {
             if (ctrl instanceof ISnapToGridListener iSnapToGridListener) {
                 iSnapToGridListener.snapToGridUpdated(aNewValue);
             }
         }
+    }
+
+    public double getSnapToGrid() {
+        return snapToGrid;
     }
 }

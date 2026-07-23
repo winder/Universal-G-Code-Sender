@@ -1,6 +1,6 @@
 package com.willwinder.ugs.designer.gui;
 
-import com.willwinder.ugs.designer.entities.entities.cuttable.CutType;
+import com.willwinder.ugs.designer.entities.cuttable.CutType;
 import com.willwinder.universalgcodesender.utils.SvgIconLoader;
 
 import javax.swing.ImageIcon;
@@ -53,6 +53,7 @@ public class CutTypeIcon extends ImageIcon {
             case SURFACE:
             case LASER_FILL:
             case LASER_RASTER:
+            case HEIGHT_MAP:
                 icon = SvgIconLoader.loadImageIcon("img/cutfill.svg", size.value).orElse(null);
                 setDescription(cutType.getName());
                 break;

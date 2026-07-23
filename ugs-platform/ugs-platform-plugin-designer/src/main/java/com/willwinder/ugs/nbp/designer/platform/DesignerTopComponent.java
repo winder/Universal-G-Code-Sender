@@ -19,8 +19,8 @@
 package com.willwinder.ugs.nbp.designer.platform;
 
 import com.willwinder.ugs.designer.actions.UndoManagerListener;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionEvent;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionListener;
+import com.willwinder.ugs.designer.entities.selection.SelectionEvent;
+import com.willwinder.ugs.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.designer.gui.DrawingOverlayContainer;
 import com.willwinder.ugs.designer.gui.DrawingScrollContainer;
 import com.willwinder.ugs.designer.gui.PopupMenuFactory;

@@ -19,8 +19,8 @@
 package com.willwinder.ugs.designer.gui;
 
 import com.google.common.collect.Sets;
-import com.willwinder.ugs.designer.entities.entities.EventType;
-import com.willwinder.ugs.designer.entities.entities.controls.Control;
+import com.willwinder.ugs.designer.entities.EventType;
+import com.willwinder.ugs.designer.entities.controls.Control;
 import com.willwinder.ugs.designer.logic.Controller;
 
 import java.awt.*;

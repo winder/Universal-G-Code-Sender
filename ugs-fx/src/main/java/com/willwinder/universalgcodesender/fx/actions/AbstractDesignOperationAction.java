@@ -19,8 +19,8 @@
 package com.willwinder.universalgcodesender.fx.actions;
 
 import com.willwinder.ugs.designer.actions.AbstractDesignAction;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionEvent;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionListener;
+import com.willwinder.ugs.designer.entities.selection.SelectionEvent;
+import com.willwinder.ugs.designer.entities.selection.SelectionListener;
 
 /**
  * Base class for the design operation actions, both the alignment actions (align left, top, ...)

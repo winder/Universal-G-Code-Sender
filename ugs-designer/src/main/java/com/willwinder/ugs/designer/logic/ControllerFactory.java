@@ -20,7 +20,7 @@ package com.willwinder.ugs.designer.logic;
 
 import com.willwinder.ugs.designer.actions.SimpleUndoManager;
 import com.willwinder.ugs.designer.actions.UndoManager;
-import com.willwinder.ugs.designer.entities.entities.selection.SelectionManager;
+import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 
 /**
  * Creates and keeps a singleton instance of the design controller.

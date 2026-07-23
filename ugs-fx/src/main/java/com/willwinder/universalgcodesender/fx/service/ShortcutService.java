@@ -51,9 +51,14 @@ public class ShortcutService {
     private static void loadFromPreferences() {
         shortcuts.clear();
 
-        ActionRegistry.getInstance().getActions().forEach(action ->
-                Optional.ofNullable(preferences.get(action.getId(), null))
-                        .ifPresent(shortcut -> shortcuts.put(action.getId(), shortcut)));
+        ActionRegistry.getInstance().getActions().forEach(action -> {
+            String stored = preferences.get(action.getId(), null);
+            if (stored == null) {
+                action.getDefaultShortcut().ifPresent(shortcut -> shortcuts.put(action.getId(), shortcut));
+            } else if (!stored.isEmpty()) {
+                shortcuts.put(action.getId(), stored);
+            }
+        });
     }
 
     public static ObservableMap<String, String> getShortcuts() {
@@ -70,8 +75,11 @@ public class ShortcutService {
     }
 
     public static void removeShortcut(String id) {
+        // Persist an explicit "cleared" marker (empty string) so the default shortcut is not
+        // restored on the next start. This distinguishes a user-cleared shortcut from one that
+        // was never assigned.
+        preferences.put(id, "");
         shortcuts.remove(id);
-        preferences.remove(id);
     }
 
     public static Optional<String> getActionId(String shortcut) {

@@ -1,6 +1,6 @@
 package com.willwinder.ugs.designer.io.ugsd.v1;
 
-import com.willwinder.ugs.designer.entities.entities.Entity;
+import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.io.ugsd.common.UgsDesign;
 import com.willwinder.ugs.designer.model.Design;
 import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;

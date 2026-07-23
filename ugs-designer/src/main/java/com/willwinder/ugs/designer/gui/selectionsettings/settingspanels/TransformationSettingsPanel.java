@@ -20,10 +20,10 @@ package com.willwinder.ugs.designer.gui.selectionsettings.settingspanels;
 
 import com.willwinder.ugs.designer.actions.SettingsActionFactory;
 import com.willwinder.ugs.designer.actions.UndoableAction;
-import com.willwinder.ugs.designer.entities.entities.Anchor;
-import com.willwinder.ugs.designer.entities.entities.EntitySetting;
-import com.willwinder.ugs.designer.entities.entities.cuttable.Group;
-import com.willwinder.ugs.designer.entities.entities.settings.TransformationEntitySettingsManager;
+import com.willwinder.ugs.designer.entities.Anchor;
+import com.willwinder.ugs.designer.entities.EntitySetting;
+import com.willwinder.ugs.designer.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.settings.TransformationEntitySettingsManager;
 import com.willwinder.ugs.designer.gui.anchor.AnchorSelectorPanel;
 import com.willwinder.ugs.designer.gui.expression.ExpressionAwareTextFieldFormatter;
 import com.willwinder.ugs.designer.logic.Controller;

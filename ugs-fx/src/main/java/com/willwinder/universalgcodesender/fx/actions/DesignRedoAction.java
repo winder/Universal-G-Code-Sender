@@ -29,6 +29,7 @@ public class DesignRedoAction extends AbstractDesignEditAction implements UndoMa
 
     public DesignRedoAction() {
         super(Localization.getString("platform.designer.redo"), ICON_BASE);
+        setDefaultShortcut("SHORTCUT+R");
         this.undoManager = controller.getUndoManager();
         undoManager.addListener(this);
         enabledProperty().set(undoManager.canRedo());
