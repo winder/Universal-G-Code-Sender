@@ -36,14 +36,14 @@ public class InterceptorStateEvent implements UGSEvent {
     private final InterceptorState previousState;
     private final transient CommandInterceptor interceptor;
     private final transient GcodeCommand triggerCommand;
-    private final String message;
+    private final transient InterceptorPrompt prompt;
 
-    public InterceptorStateEvent(InterceptorState state, InterceptorState previousState, CommandInterceptor interceptor, GcodeCommand triggerCommand, String message) {
+    public InterceptorStateEvent(InterceptorState state, InterceptorState previousState, CommandInterceptor interceptor, GcodeCommand triggerCommand, InterceptorPrompt prompt) {
         this.state = state;
         this.previousState = previousState;
         this.interceptor = interceptor;
         this.triggerCommand = triggerCommand;
-        this.message = message;
+        this.prompt = prompt;
     }
 
     public InterceptorState getState() {
@@ -62,7 +62,7 @@ public class InterceptorStateEvent implements UGSEvent {
         return Optional.ofNullable(triggerCommand);
     }
 
-    public Optional<String> getMessage() {
-        return Optional.ofNullable(message);
+    public Optional<InterceptorPrompt> getPrompt() {
+        return Optional.ofNullable(prompt);
     }
 }

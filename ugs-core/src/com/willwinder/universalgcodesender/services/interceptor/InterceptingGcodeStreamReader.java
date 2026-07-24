@@ -38,6 +38,9 @@ public class InterceptingGcodeStreamReader implements IGcodeStreamReader {
     private final CommandInterceptorService service;
     private volatile boolean gated = false;
 
+    private GcodeCommand pendingCommand;
+    private CommandInterceptor pendingInterceptor;
+
     public InterceptingGcodeStreamReader(IGcodeStreamReader delegate, CommandInterceptorService service) {
         this.delegate = delegate;
         this.service = service;
@@ -45,7 +48,12 @@ public class InterceptingGcodeStreamReader implements IGcodeStreamReader {
 
     @Override
     public boolean ready() {
-        return !gated && delegate.ready();
+        if (gated) {
+            return false;
+        }
+        // While a trigger is pending we still need to be polled (so it can be released once the active
+        // commands have responded), even if the delegate has no more rows.
+        return pendingCommand != null || delegate.ready();
     }
 
     @Override
@@ -64,19 +72,38 @@ public class InterceptingGcodeStreamReader implements IGcodeStreamReader {
             return null;
         }
 
-        GcodeCommand next = delegate.getNextCommand();
-        if (next == null) {
+        if (pendingCommand == null) {
+            GcodeCommand next = delegate.getNextCommand();
+            if (next == null) {
+                return null;
+            }
+
+            Optional<CommandInterceptor> interceptor = service.findInterceptor(next);
+            if (interceptor.isEmpty()) {
+                return next;
+            }
+
+            pendingCommand = next;
+            pendingInterceptor = interceptor.get();
+        }
+
+        // Do not trigger the interception until every command that was already sent has received a response
+        // from the controller. Otherwise an error in the buffer (leaving the machine in a hold state) would
+        // race with the interception. This method is re-invoked as each active command completes.
+        if (service.hasActiveCommands()) {
             return null;
         }
 
-        Optional<CommandInterceptor> interceptor = service.findInterceptor(next);
-        if (interceptor.isPresent()) {
-            gated = true;
-            service.onTriggerReached(interceptor.get(), next, this);
-            return null;
-        }
+        GcodeCommand triggerCommand = pendingCommand;
+        CommandInterceptor interceptor = pendingInterceptor;
+        pendingCommand = null;
+        pendingInterceptor = null;
 
-        return next;
+        gated = true;
+        service.onTriggerReached(interceptor, triggerCommand, this);
+        // Replace the intercepted command with a blank line so it is not executed by the controller, but is
+        // still streamed and counted as a row so the stream progress and completion stay correct.
+        return new GcodeCommand("", triggerCommand.getOriginalCommandString(), triggerCommand.getComment(), triggerCommand.getCommandNumber());
     }
 
     public void ungate() {

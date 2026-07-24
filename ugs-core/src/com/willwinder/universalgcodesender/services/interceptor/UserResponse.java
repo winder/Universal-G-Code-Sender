@@ -30,6 +30,11 @@ public enum UserResponse {
     CONTINUE,
 
     /**
+     * The operator wants to skip the current optional step of the interceptor routine.
+     */
+    SKIP,
+
+    /**
      * The operator wants to abort the interceptor routine and cancel the running stream.
      */
     ABORT

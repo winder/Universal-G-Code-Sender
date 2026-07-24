@@ -19,16 +19,21 @@
 package com.willwinder.universalgcodesender.services.interceptor;
 
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UGSEventDispatcher;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -52,6 +57,14 @@ import java.util.logging.Logger;
 public class CommandInterceptorService implements UGSEventListener {
     private static final Logger LOGGER = Logger.getLogger(CommandInterceptorService.class.getName());
 
+    private static final Duration RESTORE_TIMEOUT = Duration.ofMinutes(2);
+
+    /**
+     * Time to wait after the machine becomes idle so the asynchronously updated gcode parser state has been
+     * applied for all commands executed before the interception.
+     */
+    private static final Duration GCODE_STATE_SETTLE_TIME = Duration.ofMillis(250);
+
     private final BackendAPI backend;
     private final UGSEventDispatcher eventDispatcher;
     private final List<CommandInterceptor> interceptors = new CopyOnWriteArrayList<>();
@@ -69,6 +82,7 @@ public class CommandInterceptorService implements UGSEventListener {
     private volatile GcodeCommand triggerCommand;
     private volatile Future<?> routineTask;
     private volatile CompletableFuture<UserResponse> userResponseFuture;
+    private volatile InterceptorPrompt currentPrompt;
 
     public CommandInterceptorService(BackendAPI backend, UGSEventDispatcher eventDispatcher) {
         this.backend = backend;
@@ -110,7 +124,7 @@ public class CommandInterceptorService implements UGSEventListener {
         if (!enabled || interceptors.isEmpty()) {
             return delegate;
         }
-        setState(InterceptorState.INACTIVE, null);
+        setState(InterceptorState.INACTIVE);
         InterceptingGcodeStreamReader reader = new InterceptingGcodeStreamReader(delegate, this);
         this.activeReader = reader;
         return reader;
@@ -126,6 +140,15 @@ public class CommandInterceptorService implements UGSEventListener {
     }
 
     /**
+     * @return true if the communicator still has commands that have been sent but not yet acknowledged by
+     * the controller.
+     */
+    boolean hasActiveCommands() {
+        IController controller = backend.getController();
+        return controller != null && controller.getCommunicator().hasCommandsAwaitingResponse();
+    }
+
+    /**
      * Called by the {@link InterceptingGcodeStreamReader} on the streaming thread when a trigger command has
      * been reached. Must return quickly without blocking; the routine is executed on a background thread.
      */
@@ -133,48 +156,57 @@ public class CommandInterceptorService implements UGSEventListener {
         this.activeReader = reader;
         this.activeInterceptor = interceptor;
         this.triggerCommand = command;
-        setState(InterceptorState.PENDING, "Reached " + command.getCommandString());
+        setState(InterceptorState.PENDING);
         routineTask = executor.submit(this::runRoutine);
     }
 
     private void runRoutine() {
         IController controller = backend.getController();
-        try {
-            ControllerUtils.waitOnActiveCommands(controller);
 
-            setState(InterceptorState.RUNNING, null);
+        try {
+            // Wait for the machine to settle to idle before capturing the state to restore afterwards.
+            ControllerUtils.waitForState(controller, ControllerState.IDLE);
+
+            // The gcode parser state is updated asynchronously as command responses are processed. Give the
+            // event dispatcher a moment to apply the updates for the commands executed before the interception,
+            // otherwise the captured state (coordinates and modal state) may still hold an earlier value.
+            Thread.sleep(GCODE_STATE_SETTLE_TIME.toMillis());
+            GcodeState stateBeforeInterception = controller.getCurrentGcodeState().copy();
+
+            setState(InterceptorState.RUNNING);
             InterceptContext context = new InterceptContext(backend, triggerCommand, this);
             activeInterceptor.execute(context);
 
-            setState(InterceptorState.RESUMING, null);
-            controller.restoreParserModalState();
+            setState(InterceptorState.RESUMING);
+            restoreState(controller, stateBeforeInterception);
             activeReader.ungate();
+            controller.getCommunicator().queueStreamForComm(activeReader);
             controller.getCommunicator().streamCommands();
 
-            setState(InterceptorState.INACTIVE, null);
+            setState(InterceptorState.INACTIVE);
         } catch (InterceptAbortedException e) {
             LOGGER.log(Level.INFO, "Interceptor routine aborted by operator");
             cancelStream(controller);
-            setState(InterceptorState.INACTIVE, null);
+            setState(InterceptorState.INACTIVE);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             cancelStream(controller);
-            setState(InterceptorState.INACTIVE, null);
+            setState(InterceptorState.INACTIVE);
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Interceptor routine failed, leaving stream paused", e);
-            setState(InterceptorState.FAILED, e.getMessage());
+            setState(InterceptorState.FAILED);
         }
     }
 
-    void awaitUserConfirmation(String message) throws InterceptAbortedException {
+    UserResponse awaitUserPrompt(InterceptorPrompt prompt) throws InterceptAbortedException {
         CompletableFuture<UserResponse> future = new CompletableFuture<>();
         this.userResponseFuture = future;
-        setState(InterceptorState.WAITING_FOR_USER, message);
+        this.currentPrompt = prompt;
+        setState(InterceptorState.WAITING_FOR_USER);
+
+        UserResponse response;
         try {
-            UserResponse response = future.get();
-            if (response == UserResponse.ABORT) {
-                throw new InterceptAbortedException("Operator aborted the interceptor routine");
-            }
+            response = future.get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new InterceptAbortedException("Interceptor routine was interrupted");
@@ -182,8 +214,15 @@ public class CommandInterceptorService implements UGSEventListener {
             throw new InterceptAbortedException("Interceptor routine failed while waiting for the operator");
         } finally {
             this.userResponseFuture = null;
+            this.currentPrompt = null;
         }
-        setState(InterceptorState.RUNNING, null);
+
+        if (response == UserResponse.ABORT) {
+            throw new InterceptAbortedException("Operator aborted the interceptor routine");
+        }
+
+        setState(InterceptorState.RUNNING);
+        return response;
     }
 
     /**
@@ -209,13 +248,50 @@ public class CommandInterceptorService implements UGSEventListener {
         }
 
         Future<?> task = this.routineTask;
-        if (task != null) {
+        if (task != null && !task.isDone()) {
             task.cancel(true);
+            return;
+        }
+
+        if (isActive()) {
+            cancelStream(backend.getController());
+            setState(InterceptorState.INACTIVE);
         }
     }
 
-    void publishMessage(String message) {
-        eventDispatcher.sendUGSEvent(new InterceptorStateEvent(state, state, activeInterceptor, triggerCommand, message));
+    /**
+     * Restores the gcode state that was captured before the interceptor took control. This re-applies the
+     * modal state, spindle, coolant and feed rate and moves the machine back to the position the program was
+     * at when it was intercepted, so the stream can continue from where it left off.
+     */
+    private void restoreState(IController controller, GcodeState state) throws Exception {
+        String unitsCode = state.getUnits() == UnitUtils.Units.INCH ? "G20" : "G21";
+        sendRestoreCommand(controller, unitsCode + " G90");
+        sendRestoreCommand(controller, state.toAccessoriesCode());
+
+        Position point = state.currentPoint;
+        if (point != null) {
+            String horizontalMove = PartialPosition.builder(point.getUnits()).setX(point.getX()).setY(point.getY()).build().getFormattedGCode();
+            if (!horizontalMove.isEmpty()) {
+                sendRestoreCommand(controller, "G90 G0" + horizontalMove);
+            }
+
+            String verticalMove = PartialPosition.builder(point.getUnits()).setZ(point.getZ()).build().getFormattedGCode();
+            if (!verticalMove.isEmpty()) {
+                sendRestoreCommand(controller, "G90 G0" + verticalMove);
+            }
+        }
+
+        sendRestoreCommand(controller, state.machineStateCode());
+    }
+
+    private void sendRestoreCommand(IController controller, String gcode) throws Exception {
+        if (gcode == null || gcode.trim().isEmpty()) {
+            return;
+        }
+        GcodeCommand command = controller.createCommand(gcode);
+        command.setTemporaryParserModalChange(true);
+        ControllerUtils.sendAndWaitForCompletion(controller, command, RESTORE_TIMEOUT);
     }
 
     private void cancelStream(IController controller) {
@@ -226,10 +302,10 @@ public class CommandInterceptorService implements UGSEventListener {
         }
     }
 
-    private synchronized void setState(InterceptorState newState, String message) {
+    private synchronized void setState(InterceptorState newState) {
         InterceptorState previous = this.state;
         this.state = newState;
-        eventDispatcher.sendUGSEvent(new InterceptorStateEvent(newState, previous, activeInterceptor, triggerCommand, message));
+        eventDispatcher.sendUGSEvent(new InterceptorStateEvent(newState, previous, activeInterceptor, triggerCommand, currentPrompt));
 
         if (newState == InterceptorState.INACTIVE || newState == InterceptorState.FAILED) {
             this.activeInterceptor = null;
@@ -255,6 +331,6 @@ public class CommandInterceptorService implements UGSEventListener {
         if (task != null) {
             task.cancel(true);
         }
-        setState(InterceptorState.INACTIVE, null);
+        setState(InterceptorState.INACTIVE);
     }
 }

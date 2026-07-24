@@ -22,10 +22,6 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * The context that is handed to a {@link CommandInterceptor} while it is executing. It provides access to
  * the controller, the command that triggered the interception and a way to block for operator input.
@@ -33,8 +29,6 @@ import java.util.regex.Pattern;
  * @author Joacim Breiler
  */
 public class InterceptContext {
-    private static final Pattern TOOL_PATTERN = Pattern.compile("(?:^|\\s)T(\\d+)");
-
     private final BackendAPI backend;
     private final GcodeCommand triggerCommand;
     private final CommandInterceptorService service;
@@ -58,35 +52,14 @@ public class InterceptContext {
     }
 
     /**
-     * The requested tool number parsed from the trigger command (e.g. {@code T3} in {@code T3 M6}), if present.
+     * Blocks the interceptor routine until the operator responds to the given prompt. While blocked the
+     * service is in the {@link InterceptorState#WAITING_FOR_USER} state.
      *
-     * @return the tool number or an empty optional
-     */
-    public Optional<Integer> getRequestedTool() {
-        Matcher matcher = TOOL_PATTERN.matcher(triggerCommand.getOriginalCommandString());
-        if (matcher.find()) {
-            return Optional.of(Integer.parseInt(matcher.group(1)));
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * Blocks the interceptor routine until the operator responds. While blocked the service is in the
-     * {@link InterceptorState#WAITING_FOR_USER} state.
-     *
-     * @param message a message describing what the operator should do
+     * @param prompt the prompt describing the step, message and the available responses
+     * @return the operator response, which is either {@link UserResponse#CONTINUE} or {@link UserResponse#SKIP}
      * @throws InterceptAbortedException if the operator chose to abort
      */
-    public void awaitUserConfirmation(String message) throws InterceptAbortedException {
-        service.awaitUserConfirmation(message);
-    }
-
-    /**
-     * Publishes an informational message describing the current step of the routine.
-     *
-     * @param message the message to publish
-     */
-    public void log(String message) {
-        service.publishMessage(message);
+    public UserResponse awaitUserPrompt(InterceptorPrompt prompt) throws InterceptAbortedException {
+        return service.awaitUserPrompt(prompt);
     }
 }

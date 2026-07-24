@@ -19,6 +19,8 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
+                        <package>com.willwinder.ugs.nbp.jog.*</package>
+                        <package>icons.*</package>
                     </publicPackages>
                 </configuration>
             </plugin>

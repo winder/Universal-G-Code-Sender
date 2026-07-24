@@ -185,6 +185,27 @@ public class GcodeParserTest {
     }
 
     @Test
+    public void addCommand_shouldParseToolNumber() throws Exception {
+        GcodeParser instance = new GcodeParser();
+
+        instance.addCommand("T3 M6");
+        GcodeState state = instance.getCurrentState();
+
+        assertEquals(3, state.toolNumber);
+    }
+
+    @Test
+    public void addCommand_shouldKeepPreviousToolNumberWhenNotSpecified() throws Exception {
+        GcodeParser instance = new GcodeParser();
+
+        instance.addCommand("T5 M6");
+        instance.addCommand("G0 X10");
+        GcodeState state = instance.getCurrentState();
+
+        assertEquals(5, state.toolNumber);
+    }
+
+    @Test
     public void testGetCurrentStateWithG38_2() throws Exception {
         GcodeParser instance = new GcodeParser();
 

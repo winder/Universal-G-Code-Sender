@@ -104,7 +104,7 @@ public class GUIBackend implements BackendAPI {
     public GUIBackend(UGSEventDispatcher eventDispatcher) {
         this.eventDispatcher = eventDispatcher;
         this.interceptorService = new CommandInterceptorService(this, eventDispatcher);
-        this.interceptorService.register(new ToolChangeInterceptor());
+        this.interceptorService.register(new ToolChangeInterceptor(() -> settings != null && settings.isHandleToolChanges()));
         eventDispatcher.addListener(interceptorService);
     }
 

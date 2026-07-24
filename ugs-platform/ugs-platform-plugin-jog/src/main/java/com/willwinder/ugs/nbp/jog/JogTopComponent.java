@@ -31,7 +31,6 @@ import com.willwinder.universalgcodesender.model.events.ControllerStateEvent;
 import com.willwinder.universalgcodesender.model.events.SettingChangedEvent;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.services.LookupService;
-import com.willwinder.universalgcodesender.utils.ContinuousJogWorker;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.awt.ActionID;
@@ -72,14 +71,12 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     private final BackendAPI backend;
     private final JogPanel jogPanel;
     private final JogService jogService;
-    private final ContinuousJogWorker continuousJogWorker;
-
-    private boolean ignoreLongClick = false;
+    private final JogButtonHandler jogButtonHandler;
 
     public JogTopComponent() {
         backend = LookupService.lookup(BackendAPI.class);
         jogService = LookupService.lookup(JogService.class);
-        continuousJogWorker = new ContinuousJogWorker(backend, jogService);
+        jogButtonHandler = new JogButtonHandler(backend, jogService);
         UseSeparateStepSizeAction separateStepSizeAction = Lookup.getDefault().lookup(UseSeparateStepSizeAction.class);
         ShowABCStepSizeAction showABCStepSizeAction = Lookup.getDefault().lookup(ShowABCStepSizeAction.class);
 
@@ -109,7 +106,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     protected void componentClosed() {
         super.componentClosed();
         backend.removeUGSEventListener(this);
-        continuousJogWorker.destroy();
+        jogButtonHandler.destroy();
     }
 
     @Override
@@ -120,7 +117,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         updateControls();
         updateSettings();
         backend.addUGSEventListener(this);
-        continuousJogWorker.init();
+        jogButtonHandler.init();
     }
 
     @Override
@@ -155,80 +152,17 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
 
     @Override
     public void onJogButtonClicked(JogPanelButtonEnum button) {
-        // Ignore the "click" event when a long button press is released
-        if (ignoreLongClick) {
-            ignoreLongClick = false;
-            return;
-        }
-
-        switch (button) {
-            case BUTTON_XNEG:
-                jogService.adjustManualLocationXY(-1, 0);
-                break;
-            case BUTTON_XPOS:
-                jogService.adjustManualLocationXY(1, 0);
-                break;
-            case BUTTON_YNEG:
-                jogService.adjustManualLocationXY(0, -1);
-                break;
-            case BUTTON_YPOS:
-                jogService.adjustManualLocationXY(0, 1);
-                break;
-            case BUTTON_DIAG_XNEG_YNEG:
-                jogService.adjustManualLocationXY(-1, -1);
-                break;
-            case BUTTON_DIAG_XNEG_YPOS:
-                jogService.adjustManualLocationXY(-1, 1);
-                break;
-            case BUTTON_DIAG_XPOS_YNEG:
-                jogService.adjustManualLocationXY(1, -1);
-                break;
-            case BUTTON_DIAG_XPOS_YPOS:
-                jogService.adjustManualLocationXY(1, 1);
-                break;
-            case BUTTON_ZNEG:
-                jogService.adjustManualLocationZ(-1);
-                break;
-            case BUTTON_ZPOS:
-                jogService.adjustManualLocationZ(1);
-                break;
-            case BUTTON_ANEG:
-                jogService.adjustManualLocationABC(-1, 0, 0);
-                break;
-            case BUTTON_APOS:
-                jogService.adjustManualLocationABC(1, 0, 0);
-                break;
-            case BUTTON_BNEG:
-                jogService.adjustManualLocationABC(0, -1, 0);
-                break;
-            case BUTTON_BPOS:
-                jogService.adjustManualLocationABC(0, 1, 0);
-                break;
-            case BUTTON_CNEG:
-                jogService.adjustManualLocationABC(0, 0, -1);
-                break;
-            case BUTTON_CPOS:
-                jogService.adjustManualLocationABC(0, 0, 1);
-                break;
-            default:
-        }
+        jogButtonHandler.onJogButtonClicked(button);
     }
 
     @Override
     public void onJogButtonLongPressed(JogPanelButtonEnum button) {
-        if (backend.getController().getCapabilities().hasContinuousJogging()) {
-            // set flag so when we release the long press we don't add
-            // an extra jog step through the click event
-            ignoreLongClick = true;
-
-            continuousJogWorker.setDirection(button.getX(), button.getY(), button.getZ(), button.getA(), button.getB(), button.getC());
-            continuousJogWorker.start();
-        }
+        jogButtonHandler.onJogButtonLongPressed(button);
     }
 
     @Override
     public void onJogButtonLongReleased(JogPanelButtonEnum button) {
-        continuousJogWorker.stop();
+        jogButtonHandler.onJogButtonLongReleased();
     }
 
     @Override

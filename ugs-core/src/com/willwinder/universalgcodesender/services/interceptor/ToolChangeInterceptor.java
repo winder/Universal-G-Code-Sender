@@ -19,18 +19,16 @@
 package com.willwinder.universalgcodesender.services.interceptor;
 
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.Unit;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import com.willwinder.universalgcodesender.model.UnitValue;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.types.ProbeGcodeCommand;
 import com.willwinder.universalgcodesender.utils.ControllerUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Duration;
-import java.util.Optional;
+import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
 
 /**
@@ -38,30 +36,34 @@ import java.util.regex.Pattern;
  * machine to a safe height and to a tool change location, waits for the operator to change the tool and
  * optionally runs a tool length probe before the stream is resumed.
  *
- * <p>The offsets from the probe are not applied automatically since that depends on the machine setup
- * (tool setter position, reference tool datum). The probed position is published through the context so
- * that machine specific handling can be added on top.
+ * <p>The {@code M6} word is stripped from the triggering command, but any tool selection ({@code T2}) is
+ * issued directly to the controller so the gcode state reflects the requested tool, which is used to tell
+ * the operator which tool to change to.
  *
  * @author Joacim Breiler
  */
 public class ToolChangeInterceptor implements CommandInterceptor {
-    private static final Pattern TOOL_CHANGE_PATTERN = Pattern.compile("(?:^|\\s)M0?6(?:\\s|$)");
-    private static final Duration MOVE_TIMEOUT = Duration.ofMinutes(2);
+    public static final String STEP_CHANGE_TOOL = "toolChange.changeTool";
+    public static final String STEP_CONTINUE = "toolChange.continue";
 
-    private boolean probeEnabled = false;
-    private double safeHeightMm = -1;
-    private double toolChangeX = 0;
-    private double toolChangeY = 0;
-    private double probeDistanceMm = 30;
-    private double probeFeedMmPerMin = 100;
+    // Matches an M6/M06 tool change word. It is not preceded by a letter (so it is a word on its own and not
+    // part of e.g. a comment) and not followed by a digit (so M60, M61, ... are not treated as tool changes).
+    // The word may be directly followed by another word such as a tool selection, as in "M6T1" or "M06T1".
+    private static final Pattern TOOL_CHANGE_PATTERN = Pattern.compile("(?i)(?<![A-Z])M0?6(?![0-9])");
+    private static final Duration COMMAND_TIMEOUT = Duration.ofMinutes(2);
 
-    @Override
-    public String getName() {
-        return "Tool change";
+    private final BooleanSupplier enabled;
+
+    public ToolChangeInterceptor(BooleanSupplier enabled) {
+        this.enabled = enabled;
     }
 
     @Override
     public boolean matches(GcodeCommand command) {
+        if (!enabled.getAsBoolean()) {
+            return false;
+        }
+
         return TOOL_CHANGE_PATTERN.matcher(command.getCommandString()).find()
                 || TOOL_CHANGE_PATTERN.matcher(command.getOriginalCommandString()).find();
     }
@@ -69,23 +71,32 @@ public class ToolChangeInterceptor implements CommandInterceptor {
     @Override
     public void execute(InterceptContext context) throws InterceptException {
         IController controller = context.getController();
+
         try {
-            context.log("Retracting to safe height");
-            sendAndWait(controller, "G53 G0 Z" + formatCoordinate(safeHeightMm));
+            BackendAPI backend = context.getBackend();
 
-            context.log("Moving to tool change location");
-            sendAndWait(controller, "G53 G0 X" + formatCoordinate(toolChangeX) + " Y" + formatCoordinate(toolChangeY));
-
-            Optional<Integer> tool = context.getRequestedTool();
-            context.awaitUserConfirmation(tool
-                    .map(t -> "Insert tool " + t + " and continue")
-                    .orElse("Change the tool and continue"));
-
-            if (probeEnabled) {
-                probeToolLength(context, controller);
-                context.log("Retracting to safe height");
-                sendAndWait(controller, "G53 G0 Z" + formatCoordinate(safeHeightMm));
+            // Issue any tool selection (e.g. "T2") with the M6 stripped so the gcode state reflects the
+            // requested tool, which is used to tell the operator which tool to change to.
+            String toolCommand = stripToolChangeWord(context.getTriggerCommand().getCommandString());
+            if (!StringUtils.isBlank(toolCommand)) {
+                sendAndWait(controller, toolCommand);
             }
+
+            // Move to a safe height and turn of spindle
+            String safeZCommand = "G90 G0 " + PartialPosition.builder(UnitUtils.Units.MM).setZ(backend.getGcodeStats().getMax().getZ()).build().getFormattedGCode();
+            sendAndWait(controller, safeZCommand);
+            sendAndWait(controller, "M5");
+
+            context.awaitUserPrompt(new InterceptorPrompt(
+                    STEP_CHANGE_TOOL,
+                    List.of(UserResponse.CONTINUE, UserResponse.ABORT)));
+
+            context.awaitUserPrompt(new InterceptorPrompt(
+                    STEP_CONTINUE,
+                    List.of(UserResponse.CONTINUE, UserResponse.ABORT)));
+
+            // Move to safe height again and resume stream
+            sendAndWait(controller, safeZCommand);
         } catch (InterceptAbortedException e) {
             throw e;
         } catch (InterruptedException e) {
@@ -96,76 +107,16 @@ public class ToolChangeInterceptor implements CommandInterceptor {
         }
     }
 
-    private void probeToolLength(InterceptContext context, IController controller) throws Exception {
-        context.log("Probing tool length");
-        PartialPosition distance = PartialPosition.from(Axis.Z, -probeDistanceMm, UnitUtils.Units.MM);
-        UnitValue feedRate = new UnitValue(Unit.MM, probeFeedMmPerMin);
-        ProbeGcodeCommand command = controller.createProbeCommand(distance, feedRate);
-        ControllerUtils.sendAndWaitForCompletion(controller, command, MOVE_TIMEOUT);
-
-        Optional<Position> probedPosition = command.getProbedPosition();
-        probedPosition.ifPresentOrElse(
-                position -> context.log("Probed tool length at Z" + formatCoordinate(position.get(Axis.Z))),
-                () -> context.log("Probe did not trigger"));
+    private static String stripToolChangeWord(String command) {
+        String stripped = TOOL_CHANGE_PATTERN.matcher(command).replaceAll(" ");
+        return stripped.replaceAll("\\s+", " ").trim();
     }
 
     private void sendAndWait(IController controller, String gcode) throws Exception {
         GcodeCommand command = controller.createCommand(gcode);
-        ControllerUtils.sendAndWaitForCompletion(controller, command, MOVE_TIMEOUT);
+        ControllerUtils.sendAndWaitForCompletion(controller, command, COMMAND_TIMEOUT);
         if (command.isError()) {
             throw new InterceptException("Controller rejected command: " + gcode);
         }
-    }
-
-    private static String formatCoordinate(double value) {
-        return String.format(java.util.Locale.ROOT, "%.3f", value);
-    }
-
-    public boolean isProbeEnabled() {
-        return probeEnabled;
-    }
-
-    public void setProbeEnabled(boolean probeEnabled) {
-        this.probeEnabled = probeEnabled;
-    }
-
-    public double getSafeHeightMm() {
-        return safeHeightMm;
-    }
-
-    public void setSafeHeightMm(double safeHeightMm) {
-        this.safeHeightMm = safeHeightMm;
-    }
-
-    public double getToolChangeX() {
-        return toolChangeX;
-    }
-
-    public void setToolChangeX(double toolChangeX) {
-        this.toolChangeX = toolChangeX;
-    }
-
-    public double getToolChangeY() {
-        return toolChangeY;
-    }
-
-    public void setToolChangeY(double toolChangeY) {
-        this.toolChangeY = toolChangeY;
-    }
-
-    public double getProbeDistanceMm() {
-        return probeDistanceMm;
-    }
-
-    public void setProbeDistanceMm(double probeDistanceMm) {
-        this.probeDistanceMm = probeDistanceMm;
-    }
-
-    public double getProbeFeedMmPerMin() {
-        return probeFeedMmPerMin;
-    }
-
-    public void setProbeFeedMmPerMin(double probeFeedMmPerMin) {
-        this.probeFeedMmPerMin = probeFeedMmPerMin;
     }
 }

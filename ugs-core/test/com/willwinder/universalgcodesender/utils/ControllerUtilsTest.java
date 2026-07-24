@@ -37,12 +37,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -82,6 +84,42 @@ public class ControllerUtilsTest {
         IController controller = mock(IController.class);
         GcodeCommand command = new GcodeCommand("blah");
         assertThrows("The command \"blah\" has timed out as it wasn't finished within 100ms", InterruptedException.class, () -> ControllerUtils.sendAndWaitForCompletion(controller, command, 100));
+    }
+
+    @Test
+    public void waitForState_shouldReturnWhenControllerIsInState() throws Exception {
+        IController controller = mock(IController.class);
+        ControllerStatus status = mock(ControllerStatus.class);
+        when(status.getState()).thenReturn(ControllerState.IDLE);
+        when(controller.getControllerStatus()).thenReturn(status);
+
+        ControllerUtils.waitForState(controller, ControllerState.IDLE, Duration.ofSeconds(1));
+
+        verify(controller, atLeastOnce()).getControllerStatus();
+    }
+
+    @Test
+    public void waitForState_shouldBlockUntilControllerReachesState() throws Exception {
+        IController controller = mock(IController.class);
+        ControllerStatus runningStatus = mock(ControllerStatus.class);
+        when(runningStatus.getState()).thenReturn(ControllerState.RUN);
+        ControllerStatus idleStatus = mock(ControllerStatus.class);
+        when(idleStatus.getState()).thenReturn(ControllerState.IDLE);
+        when(controller.getControllerStatus()).thenReturn(runningStatus, runningStatus, idleStatus);
+
+        ControllerUtils.waitForState(controller, ControllerState.IDLE, Duration.ofSeconds(1));
+
+        verify(controller, atLeastOnce()).getControllerStatus();
+    }
+
+    @Test
+    public void waitForState_shouldThrowWhenStateIsNotReachedWithinTimeout() {
+        IController controller = mock(IController.class);
+        ControllerStatus status = mock(ControllerStatus.class);
+        when(status.getState()).thenReturn(ControllerState.RUN);
+        when(controller.getControllerStatus()).thenReturn(status);
+
+        assertThrows(InterruptedException.class, () -> ControllerUtils.waitForState(controller, ControllerState.IDLE, Duration.ofMillis(100)));
     }
 
     @Test

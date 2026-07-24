@@ -20,6 +20,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
+                        <package>com.willwinder.ugs.platform.probe.*</package>
                     </publicPackages>
                 </configuration>
             </plugin>

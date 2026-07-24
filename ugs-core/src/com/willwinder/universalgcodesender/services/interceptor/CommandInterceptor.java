@@ -29,13 +29,6 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 public interface CommandInterceptor {
 
     /**
-     * A human readable name of the interceptor, used in the UI and logs.
-     *
-     * @return the name of the interceptor
-     */
-    String getName();
-
-    /**
      * Determines if this interceptor should take control before the given command is streamed to the
      * controller. This is evaluated on the streaming thread and must be fast and free of side effects.
      *
@@ -47,8 +40,7 @@ public interface CommandInterceptor {
     /**
      * Executes the interceptor routine. This is called on a dedicated background thread after the commands
      * already sent to the controller have finished executing and the machine is idle. Implementations may
-     * block, send commands through {@link InterceptContext#getController()} and wait for user input through
-     * {@link InterceptContext#awaitUserConfirmation(String)}.
+     * block, send commands through {@link InterceptContext#getController()} and wait for user inputs
      *
      * @param context the context giving access to the controller and to user interaction
      * @throws InterceptException if the routine could not be completed

@@ -65,6 +65,9 @@ public class GcodeState {
     // coolant state
     public Code coolant = M9;
 
+    // tool state
+    public int toolNumber = 0;
+
     // Misc
     public double spindleSpeed = 0;
     public Position currentPoint = null;
@@ -107,6 +110,8 @@ public class GcodeState {
         ret.spindle = spindle;
 
         ret.coolant = coolant;
+
+        ret.toolNumber = toolNumber;
 
         if (currentPoint != null) {
             ret.currentPoint = new Position(currentPoint.x, currentPoint.y, currentPoint.z, currentPoint.a, currentPoint.b, currentPoint.c, getUnits());
@@ -162,9 +167,9 @@ public class GcodeState {
 
     @Override
     public String toString() {
-      String pattern = "metric: %b, motionMode: %s, plane: %s, absoluteMode: %b, ijkMode: %b, feed: %f, spindle speed: %f, spindle state: %s, coolant state: %s, point: %s";
+      String pattern = "metric: %b, motionMode: %s, plane: %s, absoluteMode: %b, ijkMode: %b, feed: %f, spindle speed: %f, spindle state: %s, coolant state: %s, tool: %d, point: %s";
       return String.format(pattern,
-              isMetric, currentMotionMode, plane, inAbsoluteMode, inAbsoluteIJKMode, feedRate, spindleSpeed, spindle, coolant, currentPoint);
+              isMetric, currentMotionMode, plane, inAbsoluteMode, inAbsoluteIJKMode, feedRate, spindleSpeed, spindle, coolant, toolNumber, currentPoint);
 
     }
 }

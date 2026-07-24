@@ -137,17 +137,18 @@ public final class StateTopComponent extends TopComponent implements UGSEventLis
     codes.put(G95, Localization.getString("gcode.g95"));
   }
 
-  private JComboBox<String> motionBox = new JComboBox<>(new String[]{
+  private final JComboBox<String> motionBox = new JComboBox<>(new String[]{
     "G0", "G1", "G2", "G3", "G38_2", "G38_3", "G38_4", "G38_5", "G80"});
-  private JComboBox<String> unitBox = new JComboBox<>(new String[]{get(G20), get(G21)});
-  private JComboBox<String> feedModeBox = new JComboBox<>(new String[]{get(G93), get(G94), get(G95)});
-  private JComboBox<String> distanceModeBox = new JComboBox<>(new String[]{get(G90), get(G91)});
-  private JComboBox<String> workOffsetBox = new JComboBox<>(new String[]{
+  private final JComboBox<String> unitBox = new JComboBox<>(new String[]{get(G20), get(G21)});
+  private final JComboBox<String> feedModeBox = new JComboBox<>(new String[]{get(G93), get(G94), get(G95)});
+  private final JComboBox<String> distanceModeBox = new JComboBox<>(new String[]{get(G90), get(G91)});
+  private final JComboBox<String> workOffsetBox = new JComboBox<>(new String[]{
       get(G54), get(G55), get(G56), get(G57), get(G58), get(G59), get(G59_1), get(G59_2), get(G59_3)});
-  private JComboBox<String> planeBox = new JComboBox<>(new String[]{get(G17), get(G18), get(G19), get(G17_1), get(G18_1), get(G19_1)});
+  private final JComboBox<String> planeBox = new JComboBox<>(new String[]{get(G17), get(G18), get(G19), get(G17_1), get(G18_1), get(G19_1)});
 
-  private JTextField feedBox = new JTextField("0");
-  private JTextField speedBox = new JTextField("0");
+  private final JTextField feedBox = new JTextField("0");
+  private final JTextField speedBox = new JTextField("0");
+  private final JTextField toolBox = new JTextField("0");
 
   private volatile boolean loading = true;
 
@@ -187,6 +188,10 @@ public final class StateTopComponent extends TopComponent implements UGSEventLis
 
     add(new JLabel(Localization.getString("overrides.spindle.short")));
     add(speedBox, "growx");
+
+    add(new JLabel(Localization.getString("gcode.tool")));
+    add(toolBox, "growx");
+    toolBox.setEditable(false);
 
     ItemListener codeComboListener = (ItemEvent ie) -> {
       // Only interested in the new item, don't fire when programatically setting selection.
@@ -284,6 +289,8 @@ public final class StateTopComponent extends TopComponent implements UGSEventLis
           distanceModeBox.setSelectedItem(get(state.distanceMode));
           workOffsetBox.setSelectedItem(get(state.offset));
           planeBox.setSelectedItem(get(state.plane.code));
+
+          toolBox.setText(Integer.toString(state.toolNumber));
 
           this.setFeedAndSpeed(state.feedRate, state.spindleSpeed);
         } finally {

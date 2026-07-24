@@ -89,6 +89,12 @@ public class GcodeCommand {
 
     private boolean isTemporaryParserModalChange = false;
 
+    /**
+     * If the command was sent immediately (out of band) rather than as part of a gcode stream. Used to
+     * exclude injected commands (jog, settings, interceptor moves) from the stream progress accounting.
+     */
+    private boolean isImmediate = false;
+
     public GcodeCommand(String command) {
         this(command, -1);
     }
@@ -237,6 +243,20 @@ public class GcodeCommand {
      */
     public void setTemporaryParserModalChange(boolean isGUICommand) {
         this.isTemporaryParserModalChange = isGUICommand;
+    }
+
+    /**
+     * True if the command was sent immediately (out of band) rather than as part of a gcode stream.
+     */
+    public boolean isImmediate() {
+        return isImmediate;
+    }
+
+    /**
+     * Marks the command as sent immediately (out of band) rather than as part of a gcode stream.
+     */
+    public void setImmediate(boolean isImmediate) {
+        this.isImmediate = isImmediate;
     }
 
     public void setDone(boolean isDone) {

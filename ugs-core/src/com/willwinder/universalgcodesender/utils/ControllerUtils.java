@@ -46,6 +46,7 @@ public class ControllerUtils {
     }
 
     private static final int MAX_EXECUTION_TIME = 2000;
+    private static final Duration DEFAULT_WAIT_FOR_STATUS_TIMEOUT = Duration.ofMinutes(1);
 
     /**
      * Sends a command and blocks the thread until the command is done - either with an ok or error.
@@ -109,6 +110,38 @@ public class ControllerUtils {
         while (controller.getActiveCommand().isPresent()) {
             if (startTime + maxExecutionTime < System.currentTimeMillis()) {
                 throw new InterruptedException("The command \"" + controller.getActiveCommand().get().getCommandString() + "\" has timed out as it wasn't finished within " + maxExecutionTime + "ms");
+            }
+
+            Thread.sleep(10);
+        }
+    }
+
+    /**
+     * Blocks the thread until the controller reports the given state or the default timeout of one minute is
+     * reached.
+     *
+     * @param controller the controller to check the state of
+     * @param state      the state to wait for
+     * @throws InterruptedException if the state wasn't reached within the timeout
+     */
+    public static void waitForState(IController controller, ControllerState state) throws InterruptedException {
+        waitForState(controller, state, DEFAULT_WAIT_FOR_STATUS_TIMEOUT);
+    }
+
+    /**
+     * Blocks the thread until the controller reports the given state or the given timeout is reached.
+     *
+     * @param controller       the controller to check the state of
+     * @param state            the state to wait for
+     * @param maxExecutionTime the maximum time to wait before throwing a timeout error
+     * @throws InterruptedException if the state wasn't reached within the timeout
+     */
+    public static void waitForState(IController controller, ControllerState state, Duration maxExecutionTime) throws InterruptedException {
+        long timeoutMillis = maxExecutionTime.toMillis();
+        long startTime = System.currentTimeMillis();
+        while (controller.getControllerStatus().getState() != state) {
+            if (System.currentTimeMillis() > startTime + timeoutMillis) {
+                throw new InterruptedException("Timed out waiting for the controller to reach the state " + state + " within " + timeoutMillis + "ms");
             }
 
             Thread.sleep(10);

@@ -80,6 +80,17 @@ public interface ICommunicator {
     boolean areActiveCommands();
 
     /**
+     * Returns if there are commands that have been sent to the controller but have not yet received a
+     * response. Unlike {@link #areActiveCommands()} this does not include commands that are still waiting in
+     * a stream or buffer to be sent.
+     *
+     * @return true if there are sent commands awaiting a response
+     */
+    default boolean hasCommandsAwaitingResponse() {
+        return false;
+    }
+
+    /**
      * Streams anything in the command buffer to the hardware.
      */
     void streamCommands();

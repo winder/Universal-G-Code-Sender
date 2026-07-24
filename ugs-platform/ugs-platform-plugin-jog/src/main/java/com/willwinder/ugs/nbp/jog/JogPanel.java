@@ -26,7 +26,6 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
 import com.willwinder.universalgcodesender.uielements.jog.StepSizeSpinner;
 import com.willwinder.universalgcodesender.utils.FontUtils;
-import com.willwinder.universalgcodesender.listeners.LongPressMouseListener;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 
@@ -35,7 +34,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Dimension;
@@ -288,44 +286,19 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         sizer.addListener(this);
 
 
-        LongPressMouseListener longPressMouseListener = new LongPressMouseListener(LONG_PRESS_DELAY) {
-            @Override
-            protected void onMouseClicked(MouseEvent e) {
-                if (!SwingUtilities.isLeftMouseButton(e)) {
-                    return; // ignore RMB
-                }
-                JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
-                listeners.forEach(a -> a.onJogButtonClicked(buttonEnum));
-            }
-
-            @Override
-            protected void onMousePressed(MouseEvent e) {
-                // Not needed
-            }
-
-            @Override
-            protected void onMouseRelease(MouseEvent e) {
-                // Not needed
-            }
-
-            @Override
-            protected void onMouseLongPressed(MouseEvent e) {
-                if (!SwingUtilities.isLeftMouseButton(e)) {
-                    return; // ignore RMB
-                }
-                JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
-                listeners.forEach(a -> a.onJogButtonLongPressed(buttonEnum));
-            }
-
-            @Override
-            protected void onMouseLongRelease(MouseEvent e) {
-                if (!SwingUtilities.isLeftMouseButton(e)) {
-                    return; // ignore RMB
-                }
-                JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
-                listeners.forEach(a -> a.onJogButtonLongReleased(buttonEnum));
-            }
-        };
+        JogButtonMouseListener longPressMouseListener = new JogButtonMouseListener(LONG_PRESS_DELAY,
+                e -> {
+                    JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
+                    listeners.forEach(a -> a.onJogButtonClicked(buttonEnum));
+                },
+                e -> {
+                    JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
+                    listeners.forEach(a -> a.onJogButtonLongPressed(buttonEnum));
+                },
+                e -> {
+                    JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
+                    listeners.forEach(a -> a.onJogButtonLongReleased(buttonEnum));
+                });
 
         jogButtons.values().forEach(button -> button.addMouseListener(longPressMouseListener));
 

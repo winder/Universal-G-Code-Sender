@@ -82,6 +82,7 @@ public class Settings {
     private WindowSettings mainWindowSettings = new WindowSettings(0, 0, 640, 520);
     private WindowSettings visualizerWindowSettings = new WindowSettings(0, 0, 640, 480);
     private boolean singleStepMode = false;
+    private boolean handleToolChanges = true;
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
     private Units preferredUnits = Units.MM;
@@ -371,6 +372,15 @@ public class Settings {
 
     public void setSingleStepMode(boolean singleStepMode) {
         this.singleStepMode = singleStepMode;
+        changed();
+    }
+
+    public boolean isHandleToolChanges() {
+        return handleToolChanges;
+    }
+
+    public void setHandleToolChanges(boolean handleToolChanges) {
+        this.handleToolChanges = handleToolChanges;
         changed();
     }
 

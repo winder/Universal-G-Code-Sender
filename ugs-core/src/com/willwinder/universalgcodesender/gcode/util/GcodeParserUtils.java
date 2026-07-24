@@ -122,6 +122,15 @@ public class GcodeParserUtils {
             }
         }
 
+        List<String> tCodes = GcodePreprocessorUtils.parseCodes(args, 'T');
+        if (!tCodes.isEmpty()) {
+            try {
+                state.toolNumber = Integer.parseInt(Iterables.getOnlyElement(tCodes).trim());
+            } catch (IllegalArgumentException e) {
+                throw new GcodeParserException("Multiple T-codes on one line.");
+            }
+        }
+
         // Gather G codes.
         Set<Code> gCodes = GcodePreprocessorUtils.getGCodes(args);
 

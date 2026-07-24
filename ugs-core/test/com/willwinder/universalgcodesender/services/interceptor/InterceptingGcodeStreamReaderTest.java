@@ -28,6 +28,7 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,7 +58,7 @@ public class InterceptingGcodeStreamReaderTest {
     }
 
     @Test
-    public void getNextCommand_shouldGateAndConsumeMatchingCommand() throws IOException {
+    public void getNextCommand_shouldGateAndReplaceMatchingCommandWithBlankLine() throws IOException {
         GcodeCommand toolChange = new GcodeCommand("M6");
         CommandInterceptor interceptor = mock(CommandInterceptor.class);
         when(delegate.getNextCommand()).thenReturn(toolChange);
@@ -66,9 +67,44 @@ public class InterceptingGcodeStreamReaderTest {
 
         GcodeCommand result = reader.getNextCommand();
 
-        assertThat(result).isNull();
+        assertThat(result.getCommandString()).isEmpty();
         assertThat(reader.isGated()).isTrue();
         verify(service).onTriggerReached(interceptor, toolChange, reader);
+    }
+
+    @Test
+    public void getNextCommand_shouldNotTriggerWhileThereAreActiveCommands() throws IOException {
+        GcodeCommand toolChange = new GcodeCommand("M6");
+        CommandInterceptor interceptor = mock(CommandInterceptor.class);
+        when(delegate.getNextCommand()).thenReturn(toolChange);
+        when(service.findInterceptor(toolChange)).thenReturn(java.util.Optional.of(interceptor));
+        when(service.hasActiveCommands()).thenReturn(true);
+        InterceptingGcodeStreamReader reader = new InterceptingGcodeStreamReader(delegate, service);
+
+        GcodeCommand result = reader.getNextCommand();
+
+        assertThat(result).isNull();
+        assertThat(reader.isGated()).isFalse();
+        verify(service, never()).onTriggerReached(any(), any(), any());
+    }
+
+    @Test
+    public void getNextCommand_shouldTriggerOnceActiveCommandsHaveResponded() throws IOException {
+        GcodeCommand toolChange = new GcodeCommand("M6");
+        CommandInterceptor interceptor = mock(CommandInterceptor.class);
+        when(delegate.getNextCommand()).thenReturn(toolChange);
+        when(service.findInterceptor(toolChange)).thenReturn(java.util.Optional.of(interceptor));
+        when(service.hasActiveCommands()).thenReturn(true, true, false);
+        InterceptingGcodeStreamReader reader = new InterceptingGcodeStreamReader(delegate, service);
+
+        assertThat(reader.getNextCommand()).isNull();
+        assertThat(reader.getNextCommand()).isNull();
+        GcodeCommand result = reader.getNextCommand();
+
+        assertThat(result.getCommandString()).isEmpty();
+        assertThat(reader.isGated()).isTrue();
+        verify(service).onTriggerReached(interceptor, toolChange, reader);
+        verify(delegate, times(1)).getNextCommand();
     }
 
     @Test

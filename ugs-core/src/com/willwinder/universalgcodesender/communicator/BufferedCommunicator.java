@@ -118,6 +118,11 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     }
 
     @Override
+    public boolean hasCommandsAwaitingResponse() {
+        return !activeCommandList.isEmpty();
+    }
+
+    @Override
     public int numActiveCommands() {
         int streamingCount =
                 commandStream == null ? 0 : commandStream.getNumRowsRemaining();
@@ -264,7 +269,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         if (activeCommand.isError() &&
                 (activeCommandList.size() > 1   // No more commands (except for the one being popped further down)
                     || (commandStream != null && commandStream.getNumRowsRemaining() > 0) // No more rows in stream
-                    || (commandBuffer != null && commandBuffer.size() > 0))) { // No commands in buffer
+                    || (commandBuffer != null && !commandBuffer.isEmpty()))) { // No commands in buffer
 
             pauseSend();
             getEventDispatcher().communicatorPausedOnError();

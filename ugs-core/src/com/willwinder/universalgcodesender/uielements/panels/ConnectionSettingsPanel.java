@@ -45,6 +45,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
             Localization.getString("sender.step.separateZ"));
     private final Checkbox singleStepMode = new Checkbox(
             Localization.getString("sender.singlestep"));
+    private final Checkbox handleToolChanges = new Checkbox(
+            Localization.getString("sender.handle-tool-changes"));
     private final Checkbox statusPollingEnabled = new Checkbox(
             Localization.getString("sender.status"));
     private final Spinner statusPollRate = new Spinner(
@@ -79,6 +81,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
     public String getHelpMessage() {
         return Localization.getString("sender.help.verbose.console") + "\n\n" +
                 Localization.getString("sender.help.singlestep") + "\n\n" +
+                Localization.getString("sender.help.handle-tool-changes") + "\n\n" +
                 Localization.getString("sender.help.status") + "\n\n" +
                 Localization.getString("sender.help.status.rate") + "\n\n" +
                 Localization.getString("sender.help.state") + "\n\n";
@@ -89,6 +92,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         settings.setVerboseOutputEnabled(verboseConsoleOutput.getValue());
         settings.setUseZStepSize(useZStepSize.getValue());
         settings.setSingleStepMode(singleStepMode.getValue());
+        settings.setHandleToolChanges(handleToolChanges.getValue());
         settings.setSafetyHeight((int) safetyHeight.getValue());
         settings.setStatusUpdatesEnabled(statusPollingEnabled.getValue());
         settings.setStatusUpdateRate((int) statusPollRate.getValue());
@@ -123,6 +127,9 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
         singleStepMode.setSelected(s.isSingleStepMode());
         add(singleStepMode, "spanx, wrap");
+
+        handleToolChanges.setSelected(s.isHandleToolChanges());
+        add(handleToolChanges, "spanx, wrap");
 
         statusPollingEnabled.setSelected(s.isStatusUpdatesEnabled());
         add(statusPollingEnabled, "spanx, wrap");

@@ -492,6 +492,9 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
             throw new ControllerException("Cannot send command(s), comm port is not open.");
         }
 
+        // Commands sent this way are not part of a gcode stream, so they must not count towards the stream
+        // progress or cause the stream to be considered finished.
+        command.setImmediate(true);
         this.setCurrentState(CommunicatorState.COMM_SENDING);
         this.comm.queueCommand(command);
         this.comm.streamCommands();
@@ -677,7 +680,7 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
 
     @Override
     public void commandSent(GcodeCommand command) {
-        if (this.isStreaming()) {
+        if (this.isStreaming() && !command.isImmediate()) {
             numCommandsSent.incrementAndGet();
         }
 
@@ -772,7 +775,9 @@ public abstract class AbstractController implements ICommunicatorListener, ICont
         GcodeCommand command = activeCommands.pollFirst();
         updateParserModalState(command);
 
-        numCommandsCompleted.incrementAndGet();
+        if (!command.isImmediate()) {
+            numCommandsCompleted.incrementAndGet();
+        }
 
         if (activeCommands.isEmpty()) {
             setCurrentState(COMM_IDLE);

@@ -159,5 +159,6 @@
     <module>ugs-platform-plugin-filebrowser</module>
     <module>ugs-platform-plugin-console</module>
     <module>Surfacer</module>
+    <module>ugs-platform-plugin-interceptor</module>
   </modules>
 </project>

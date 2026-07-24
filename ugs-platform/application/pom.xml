@@ -135,6 +135,11 @@
             <artifactId>Surfacer</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ugs-platform-plugin-interceptor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
