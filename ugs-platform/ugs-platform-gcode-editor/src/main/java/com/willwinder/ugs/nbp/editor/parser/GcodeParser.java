@@ -66,6 +66,7 @@ public class GcodeParser extends Parser {
         errorParserList.add(new InvalidGcodeErrorParser(fileObject));
         errorParserList.add(new UnitsMissingErrorParser(fileObject));
         errorParserList.add(new ReturnToHomeGcodeErrorParser(fileObject));
+        errorParserList.add(new ToolChangeErrorParser(fileObject));
 
         TokenSequence<?> tokenSequence = snapshot.getTokenHierarchy().tokenSequence();
         tokenSequence.moveStart();

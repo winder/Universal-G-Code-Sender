@@ -47,7 +47,7 @@ public class InvalidGrblCommandErrorParser implements ErrorParser {
             "G10", "L20", "G28", "G30", "G28.1", "G30.1", "G53", "G92", "G92.1",
             "G61"
     );
-    private static final Pattern VALID_PATTERN = Pattern.compile("G0?[0-4]|L0?2|M0?[0-5]|M0?[7-9]|\\$[a-zA-Z0-9=]+", Pattern.CASE_INSENSITIVE);
+    private static final Pattern VALID_PATTERN = Pattern.compile("G0?[0-4]|L0?2|M0?[0-9]|\\$[a-zA-Z0-9=]+", Pattern.CASE_INSENSITIVE);
     private final FileObject fileObject;
     private final BackendAPI backend;
     private final List<GcodeError> errorList = new ArrayList<>();

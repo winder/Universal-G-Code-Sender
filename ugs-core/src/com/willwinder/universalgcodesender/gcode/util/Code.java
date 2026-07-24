@@ -140,7 +140,7 @@ public enum Code {
     M3(Spindle),
     M4(Spindle),
     M5(Spindle),
-
+    M6(Units),
     M7(Coolant),
     M8(Coolant),
     M9(Coolant),

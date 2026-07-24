@@ -45,8 +45,7 @@ public class InvalidGrblCommandErrorParserTest {
         parser.handleToken(generateToken(GcodeTokenId.MACHINE, "M6"), 0);
         parser.handleToken(generateToken(GcodeTokenId.MACHINE, "M06"), 0);
 
-        assertEquals(2, parser.getErrors().size());
-        assertEquals(Severity.WARNING, parser.getErrors().get(0).getSeverity());
+        assertEquals(0, parser.getErrors().size());
     }
 
     @Test
