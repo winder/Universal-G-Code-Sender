@@ -239,6 +239,11 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
     }
 
     @Override
+    public void refreshFromTransform(Group selectionGroup) {
+        setFromSelection(selectionGroup);
+    }
+
+    @Override
     public void applyChangeToSelection(EntitySetting setting, Object newValue, Group selectionGroup) {
         switch (Objects.requireNonNull(setting)) {
             case POSITION_X -> {

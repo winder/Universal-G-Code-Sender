@@ -32,6 +32,7 @@ import com.willwinder.ugs.designer.gui.selectionsettings.settingspanels.Componen
 import com.willwinder.ugs.designer.gui.selectionsettings.settingspanels.EntitySettingsPanel;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.universalgcodesender.services.LookupService;
+import com.willwinder.universalgcodesender.utils.Debouncer;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JComponent;
@@ -42,15 +43,31 @@ import java.awt.Container;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
 public class SelectionSettingsPanel extends JPanel implements SelectionListener, EntityListener, EntitySettingsModelListener {
+
+    /**
+     * Pure transforms never change which panels apply, so they only need a cheap value refresh
+     * rather than a full (and, during a drag, sluggish) rebuild of the mounted panels.
+     */
+    private static final EnumSet<EventType> TRANSFORM_EVENTS = EnumSet.of(
+            EventType.MOVED, EventType.RESIZED, EventType.ROTATED);
+
     private transient Controller controller;
     private final JPanel contentPanel;
     private final List<EntitySettingsPanel> availableComponents = new LinkedList<>();
     private final List<ComponentWithListener> activeComponents = new LinkedList<>();
+
+    /**
+     * Coalesce bursts of entity events (e.g. while dragging a shape) so the panels are updated at
+     * most once per event dispatch instead of once per event.
+     */
+    private final transient Debouncer componentsRefresh = new Debouncer(SwingUtilities::invokeLater, this::refreshComponents);
+    private final transient Debouncer valueRefresh = new Debouncer(SwingUtilities::invokeLater, this::refreshValues);
 
     // New layered model architecture
     private TransformSettingsModel currentModel;
@@ -79,7 +96,7 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         // DesignerTopComponent re-opens this pane via invokeLater on selection,
         // so the SelectionEvent has already fired by the time we're constructed.
         // Seed from the current selection so the panel reflects an already-selected shape.
-        onEvent(new EntityEvent(controller.getSelectionManager(), EventType.SELECTED));
+        refreshComponents();
     }
 
     @Override
@@ -104,11 +121,19 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
 
     @Override
     public void onSelectionEvent(SelectionEvent selectionEvent) {
-        onEvent(new EntityEvent(controller.getSelectionManager(), EventType.SELECTED));
+        componentsRefresh.call();
     }
 
     @Override
     public void onEvent(EntityEvent entityEvent) {
+        if (TRANSFORM_EVENTS.contains(entityEvent.getType())) {
+            valueRefresh.call();
+        } else {
+            componentsRefresh.call();
+        }
+    }
+
+    private void refreshComponents() {
         Group selectionGroup = controller.getSelectionManager().getSelectionGroup();
         if (selectionGroup.getChildren().isEmpty()) {
             clearAllComponents();
@@ -120,6 +145,15 @@ public class SelectionSettingsPanel extends JPanel implements SelectionListener,
         updateActiveComponents(selectionGroup);
         updateLayeredModel(selectionGroup);
         controller.getDrawing().invalidate();
+    }
+
+    private void refreshValues() {
+        Group selectionGroup = controller.getSelectionManager().getSelectionGroup();
+        if (selectionGroup.getChildren().isEmpty()) {
+            return;
+        }
+
+        activeComponents.forEach(activeComponent -> activeComponent.component().refreshFromTransform(selectionGroup));
     }
 
     /**
