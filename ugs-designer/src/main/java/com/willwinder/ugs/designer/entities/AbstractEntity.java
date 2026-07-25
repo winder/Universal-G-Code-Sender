@@ -27,8 +27,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Collections;
-import java.util.List;
+import java.util.EnumSet;
 import java.util.Set;
 
 /**
@@ -309,8 +308,8 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
-    public List<EntitySetting> getSettings() {
-        return Collections.emptyList();
+    public EnumSet<EntitySetting> getSettings() {
+        return EnumSet.noneOf(EntitySetting.class);
     }
 
     @Override

@@ -25,7 +25,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.List;
+import java.util.EnumSet;
 
 /**
  * An entity is something that can be drawn in a {@link Drawing} which has a position, rotation and size.
@@ -266,11 +266,11 @@ public interface Entity {
     void setDescription(String description);
 
     /**
-     * Return a list of possible settings for this entity
+     * Return a set of available settings for this entity
      *
-     * @return a list of settings
+     * @return a set of settings
      */
-    List<EntitySetting> getSettings();
+    EnumSet<EntitySetting> getSettings();
 
     default void setWidth(double width) {
         Size currentSize = getSize();

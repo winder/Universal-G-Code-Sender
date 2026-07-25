@@ -121,10 +121,8 @@ public class SelectionManager extends AbstractEntity implements EntityListener {
     }
 
     public void removeSelection(List<Entity> nodes) {
-        nodes.forEach(e -> {
-            entityGroup.removeChild(e);
-            e.removeListener(this);
-        });
+        entityGroup.removeAll(nodes);
+        nodes.forEach(e -> e.removeListener(this));
         fireSelectionEvent(new SelectionEvent());
     }
 

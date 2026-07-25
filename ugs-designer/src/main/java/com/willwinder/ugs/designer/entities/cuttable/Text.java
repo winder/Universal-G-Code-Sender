@@ -31,7 +31,7 @@ import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -106,8 +106,8 @@ public class Text extends AbstractCuttable {
     }
 
     @Override
-    public List<EntitySetting> getSettings() {
-        List<EntitySetting> entitySettings = new ArrayList<>(super.getSettings());
+    public EnumSet<EntitySetting> getSettings() {
+        EnumSet<EntitySetting> entitySettings = super.getSettings();
         entitySettings.add(EntitySetting.TEXT);
         entitySettings.add(EntitySetting.FONT_FAMILY);
         return entitySettings;

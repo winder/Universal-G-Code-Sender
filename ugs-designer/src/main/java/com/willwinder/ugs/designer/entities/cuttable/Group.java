@@ -22,10 +22,15 @@ import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.EntityGroup;
 import com.willwinder.ugs.designer.entities.EntitySetting;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -269,66 +274,66 @@ public class Group extends EntityGroup implements Cuttable {
     }
 
     @Override
-    public List<EntitySetting> getSettings() {
-        List<List<EntitySetting>> list = getCuttableStream()
-                .map(Entity::getSettings)
-                .toList();
-        if (list.isEmpty() || list.get(0).isEmpty()) {
-            return List.of();
+    public EnumSet<EntitySetting> getSettings() {
+        List<Cuttable> cuttables = getCuttableStream().toList();
+        if (cuttables.isEmpty()) {
+            return EnumSet.noneOf(EntitySetting.class);
         }
 
-        List<EntitySetting> result = new ArrayList<>(list.get(0));
-        for (List<EntitySetting> settings : list) {
-            result.retainAll(settings);
+        EnumSet<EntitySetting> sharedSettings = cuttables.get(0).getSettings();
+        if (sharedSettings.isEmpty()) {
+            return EnumSet.noneOf(EntitySetting.class);
         }
 
-        // Remove cut type if it has different values
-        if (getCuttableStream().map(Cuttable::getCutType).distinct().toList().size() > 1) {
-            result = new ArrayList<>(result);
-            result.remove(EntitySetting.CUT_TYPE);
-        }
+        removeSettingsMissingInAny(cuttables, sharedSettings);
+        removeSettingsWithDifferentValues(cuttables, sharedSettings);
+        return EnumSet.copyOf(sharedSettings.stream()
+                .filter(sharedSettings::contains)
+                .toList());
+    }
 
-        if (getCuttableStream().map(Cuttable::getStartDepth).distinct().toList().size() > 1) {
-            result = new ArrayList<>(result);
-            result.remove(EntitySetting.START_DEPTH);
-        }
+    private static void removeSettingsMissingInAny(List<Cuttable> cuttables, Set<EntitySetting> sharedSettings) {
+        for (int i = 1; i < cuttables.size() && !sharedSettings.isEmpty(); i++) {
+            EnumSet<EntitySetting> settings = cuttables.get(i).getSettings();
+            if (settings.isEmpty()) {
+                sharedSettings.clear();
+                return;
+            }
 
-        if (getCuttableStream().map(Cuttable::getTargetDepth).distinct().toList().size() > 1) {
-            result = new ArrayList<>(result);
-            result.remove(EntitySetting.TARGET_DEPTH);
+            sharedSettings.retainAll(settings);
         }
+    }
 
-        if (getCuttableStream().map(Cuttable::getSpindleSpeed).distinct().toList().size() > 1) {
-            result = new ArrayList<>(result);
-            result.remove(EntitySetting.SPINDLE_SPEED);
+    /**
+     * Removes any setting where the entities have differing values. Settings that don't expose a
+     * value are considered shared.
+     */
+    private static void removeSettingsWithDifferentValues(List<Cuttable> cuttables, Set<EntitySetting> sharedSettings) {
+        Map<EntitySetting, Object> valuesToCompare = getComparableValues(cuttables.get(0), sharedSettings);
+
+        for (int i = 1; i < cuttables.size() && !valuesToCompare.isEmpty(); i++) {
+            Cuttable cuttable = cuttables.get(i);
+            Iterator<Map.Entry<EntitySetting, Object>> iterator = valuesToCompare.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<EntitySetting, Object> valueToCompare = iterator.next();
+                if (!hasSameValue(cuttable, valueToCompare)) {
+                    sharedSettings.remove(valueToCompare.getKey());
+                    iterator.remove();
+                }
+            }
         }
+    }
 
-        if (getCuttableStream().map(Cuttable::getFeedRate).distinct().toList().size() > 1) {
-            result = new ArrayList<>(result);
-            result.remove(EntitySetting.FEED_RATE);
-        }
+    private static Map<EntitySetting, Object> getComparableValues(Cuttable cuttable, Set<EntitySetting> settings) {
+        Map<EntitySetting, Object> values = new EnumMap<>(EntitySetting.class);
+        settings.forEach(setting -> cuttable.getEntitySetting(setting)
+                .ifPresent(value -> values.put(setting, value)));
+        return values;
+    }
 
-        if (getCuttableStream().map(Cuttable::getLeadInPercent).distinct().toList().size() > 1) {
-            result = new ArrayList<>(result);
-            result.remove(EntitySetting.LEAD_IN_PERCENT);
-        }
-
-        if (getCuttableStream().map(Cuttable::getIncludeInExport).distinct().toList().size() > 1) {
-            result = new ArrayList<>(result);
-            result.remove(EntitySetting.INCLUDE_IN_EXPORT);
-        }
-
-        if (getCuttableStream().map(Cuttable::getToolPathAngle).distinct().toList().size() > 1) {
-            result = new ArrayList<>(result);
-            result.remove(EntitySetting.TOOL_PATH_ANGLE);
-        }
-
-        if (getCuttableStream().map(Cuttable::getDirection).distinct().toList().size() > 1) {
-            result = new ArrayList<>(result);
-            result.remove(EntitySetting.DIRECTION);
-        }
-
-        return result;
+    private static boolean hasSameValue(Cuttable cuttable, Map.Entry<EntitySetting, Object> valueToCompare) {
+        Object value = cuttable.getEntitySetting(valueToCompare.getKey()).orElse(null);
+        return Objects.deepEquals(valueToCompare.getValue(), value);
     }
 
     @Override

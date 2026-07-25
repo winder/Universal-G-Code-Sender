@@ -27,7 +27,7 @@ import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
 
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
-import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -72,8 +72,8 @@ public class Rectangle extends AbstractCuttable {
     }
 
     @Override
-    public List<EntitySetting> getSettings() {
-        List<EntitySetting> settings = new ArrayList<>(super.getSettings());
+    public EnumSet<EntitySetting> getSettings() {
+        EnumSet<EntitySetting> settings = super.getSettings();
         settings.add(EntitySetting.CORNER_RADIUS);
         return settings;
     }

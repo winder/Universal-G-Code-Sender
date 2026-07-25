@@ -44,6 +44,7 @@ import java.io.UncheckedIOException;
 import javax.swing.SwingUtilities;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -165,9 +166,8 @@ public class Raster extends AbstractCuttable {
     }
 
     @Override
-    public List<EntitySetting> getSettings() {
-        List<EntitySetting> settings = super.getSettings();
-        settings = new java.util.ArrayList<>(settings);
+    public EnumSet<EntitySetting> getSettings() {
+        EnumSet<EntitySetting> settings = super.getSettings();
         settings.addAll(Arrays.asList(
                 EntitySetting.RASTER_POWER_CURVE,
                 EntitySetting.RASTER_LEVELS,

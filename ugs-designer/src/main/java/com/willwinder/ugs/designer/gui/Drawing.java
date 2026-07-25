@@ -236,7 +236,7 @@ public class Drawing extends JPanel implements ISnapToGridListener {
             }
         });
 
-        entities.forEach(parent::removeChild);
+        parent.removeAll(entities);
     }
 
     /**

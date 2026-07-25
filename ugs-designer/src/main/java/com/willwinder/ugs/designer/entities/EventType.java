@@ -39,5 +39,18 @@ public enum EventType {
     KEY_RELEASED,
     CHILD_REMOVED,
     CHILD_ADDED,
+
+    /**
+     * Several children were added to the target group in one batch. Listeners should refresh the
+     * whole group instead of expecting one event per added child.
+     */
+    CHILDREN_ADDED,
+
+    /**
+     * Several children were removed from the target group in one batch. The children are already
+     * removed when this is emitted, so listeners should refresh the whole group instead of
+     * expecting one event per removed child.
+     */
+    CHILDREN_REMOVED,
     PATH_CHANGED
 }

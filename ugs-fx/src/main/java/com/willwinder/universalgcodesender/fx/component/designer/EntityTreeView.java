@@ -104,7 +104,8 @@ public class EntityTreeView extends TreeView<Entity> {
     }
 
     private void onEntityEvent(EventType type) {
-        if (type == EventType.CHILD_ADDED || type == EventType.CHILD_REMOVED) {
+        if (type == EventType.CHILD_ADDED || type == EventType.CHILDREN_ADDED
+                || type == EventType.CHILD_REMOVED || type == EventType.CHILDREN_REMOVED) {
             rebuild();
         } else if (REFRESH_EVENTS.contains(type)) {
             refresh();

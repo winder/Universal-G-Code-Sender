@@ -43,7 +43,9 @@ public class WorkspaceScene extends Model {
             EventType.ROTATED,
             EventType.PATH_CHANGED,
             EventType.CHILD_ADDED,
+            EventType.CHILDREN_ADDED,
             EventType.CHILD_REMOVED,
+            EventType.CHILDREN_REMOVED,
             EventType.SETTINGS_CHANGED
     );
 

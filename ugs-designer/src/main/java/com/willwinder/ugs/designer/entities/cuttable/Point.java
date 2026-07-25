@@ -24,7 +24,7 @@ import com.willwinder.ugs.designer.model.Size;
 
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
-import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
 public class Point extends AbstractCuttable {
@@ -80,8 +80,8 @@ public class Point extends AbstractCuttable {
     }
 
     @Override
-    public List<EntitySetting> getSettings() {
-        return Arrays.asList(
+    public EnumSet<EntitySetting> getSettings() {
+        return EnumSet.of(
                 EntitySetting.POSITION_X,
                 EntitySetting.POSITION_Y,
                 EntitySetting.CUT_TYPE,
