@@ -10,7 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -408,33 +410,6 @@ public class EntityGroupTest {
     }
 
     @Test
-    public void removeAllShouldShouldNotifyListeners() {
-        EntityGroup parent = new EntityGroup();
-        Rectangle child1 = new Rectangle();
-        parent.addChild(child1);
-
-        Rectangle child2 = new Rectangle();
-        parent.addChild(child2);
-
-
-        EntityListener entityListener = mock(EntityListener.class);
-        parent.addListener(entityListener);
-
-        parent.removeAll();
-
-        verify(entityListener, times(2)).onEvent(entityEventCaptor.capture());
-        assertEquals(2, entityEventCaptor.getAllValues().size());
-
-        assertEquals(parent, entityEventCaptor.getAllValues().get(0).getParent().orElse(null));
-        assertEquals(child1, entityEventCaptor.getAllValues().get(0).getTarget());
-        assertEquals(EventType.CHILD_REMOVED, entityEventCaptor.getAllValues().get(0).getType());
-
-        assertEquals(parent, entityEventCaptor.getAllValues().get(1).getParent().orElse(null));
-        assertEquals(child2, entityEventCaptor.getAllValues().get(1).getTarget());
-        assertEquals(EventType.CHILD_REMOVED, entityEventCaptor.getAllValues().get(1).getType());
-    }
-
-    @Test
     public void removeChildShouldPropagateEventsToRootParent() {
         EntityGroup root = new EntityGroup();
         EntityGroup parent = new EntityGroup();
@@ -488,23 +463,143 @@ public class EntityGroupTest {
     }
 
     @Test
-    public void addAllShouldNotifyEventListeners() {
+    public void addAllShouldNotifyListenersWithOneEventForTheWholeBatch() {
         EntityGroup parent = new EntityGroup();
         EntityListener entityListener = mock(EntityListener.class);
         parent.addListener(entityListener);
 
+        parent.addAll(List.of(new Rectangle(), new Rectangle()));
+
+        verify(entityListener, times(1)).onEvent(entityEventCaptor.capture());
+        assertEquals(EventType.CHILDREN_ADDED, entityEventCaptor.getValue().getType());
+        assertEquals(parent, entityEventCaptor.getValue().getTarget());
+        assertEquals(parent, entityEventCaptor.getValue().getParent().orElse(null));
+    }
+
+    @Test
+    public void addAllShouldNotNotifyListenersWhenNothingWasAdded() {
+        EntityGroup parent = new EntityGroup();
+        Rectangle child = new Rectangle();
+        parent.addAll(List.of(child));
+        EntityListener entityListener = mock(EntityListener.class);
+        parent.addListener(entityListener);
+
+        parent.addAll(List.of(child));
+
+        verify(entityListener, never()).onEvent(any());
+        assertEquals(1, parent.getChildren().size());
+    }
+
+    @Test
+    public void addAllShouldNotAddEntitiesThatAreAlreadyGrandChildren() {
+        EntityGroup parent = new EntityGroup();
+        EntityGroup childGroup = new EntityGroup();
+        Rectangle grandChild = new Rectangle();
+        childGroup.addChild(grandChild);
+        parent.addChild(childGroup);
+
+        parent.addAll(List.of(grandChild, new Rectangle()));
+
+        assertEquals(2, parent.getChildren().size());
+        assertFalse(parent.getChildren().contains(grandChild));
+    }
+
+    @Test
+    public void addAllShouldOnlyAddDuplicatedEntitiesOnce() {
+        EntityGroup parent = new EntityGroup();
+        Rectangle child = new Rectangle();
+
+        parent.addAll(List.of(child, child));
+
+        assertEquals(1, parent.getChildren().size());
+    }
+
+    @Test
+    public void removeAllShouldNotifyListenersWithOneEventForTheWholeBatch() {
+        EntityGroup parent = new EntityGroup();
+        parent.addAll(List.of(new Rectangle(), new Rectangle()));
+        EntityListener entityListener = mock(EntityListener.class);
+        parent.addListener(entityListener);
+
+        parent.removeAll();
+
+        verify(entityListener, times(1)).onEvent(entityEventCaptor.capture());
+        assertEquals(EventType.CHILDREN_REMOVED, entityEventCaptor.getValue().getType());
+        assertEquals(parent, entityEventCaptor.getValue().getTarget());
+        assertTrue(parent.getChildren().isEmpty());
+    }
+
+    @Test
+    public void removeAllWithEntitiesShouldOnlyRemoveTheGivenChildren() {
+        EntityGroup parent = new EntityGroup();
         Rectangle child1 = new Rectangle();
         Rectangle child2 = new Rectangle();
-        parent.addAll(List.of(child1, child2));
+        Rectangle child3 = new Rectangle();
+        parent.addAll(List.of(child1, child2, child3));
+        EntityListener entityListener = mock(EntityListener.class);
+        parent.addListener(entityListener);
+
+        parent.removeAll(List.of(child1, child3));
+
+        verify(entityListener, times(1)).onEvent(entityEventCaptor.capture());
+        assertEquals(EventType.CHILDREN_REMOVED, entityEventCaptor.getValue().getType());
+        assertEquals(List.of(child2), parent.getChildren());
+    }
+
+    @Test
+    public void removeAllWithEntitiesShouldNotNotifyListenersWhenNothingWasRemoved() {
+        EntityGroup parent = new EntityGroup();
+        Rectangle child = new Rectangle();
+        parent.addAll(List.of(child));
+        EntityListener entityListener = mock(EntityListener.class);
+        parent.addListener(entityListener);
+
+        parent.removeAll(List.of(new Rectangle()));
+
+        verify(entityListener, never()).onEvent(any());
+        assertEquals(List.of(child), parent.getChildren());
+    }
+
+    @Test
+    public void removeAllWithEntitiesShouldLeaveGrandChildrenAlone() {
+        EntityGroup parent = new EntityGroup();
+        EntityGroup childGroup = new EntityGroup();
+        Rectangle grandChild = new Rectangle();
+        childGroup.addChild(grandChild);
+        parent.addChild(childGroup);
+
+        parent.removeAll(List.of(grandChild));
+
+        assertEquals(List.of(childGroup), parent.getChildren());
+        assertEquals(List.of(grandChild), childGroup.getChildren());
+    }
+
+    @Test
+    public void removeAllWithEntitiesShouldStopListeningOnRemovedChildren() {
+        EntityGroup parent = new EntityGroup();
+        Rectangle child = new Rectangle();
+        parent.addAll(List.of(child));
+        EntityListener entityListener = mock(EntityListener.class);
+        parent.addListener(entityListener);
+        parent.removeAll(List.of(child));
+
+        child.notifyEvent(new EntityEvent(child, EventType.MOVED));
+
+        verify(entityListener, times(1)).onEvent(entityEventCaptor.capture());
+        assertEquals(EventType.CHILDREN_REMOVED, entityEventCaptor.getValue().getType());
+    }
+
+    @Test
+    public void addAllShouldRegisterTheGroupAsListenerOnAddedChildren() {
+        EntityGroup parent = new EntityGroup();
+        EntityListener entityListener = mock(EntityListener.class);
+        parent.addListener(entityListener);
+        Rectangle child = new Rectangle();
+        parent.addAll(List.of(child));
+
+        child.notifyEvent(new EntityEvent(child, EventType.MOVED));
 
         verify(entityListener, times(2)).onEvent(entityEventCaptor.capture());
-        assertEquals(2, entityEventCaptor.getAllValues().size());
-        assertEquals(parent, entityEventCaptor.getAllValues().get(0).getParent().orElse(null));
-        assertEquals(child1, entityEventCaptor.getAllValues().get(0).getTarget());
-        assertEquals(EventType.CHILD_ADDED, entityEventCaptor.getAllValues().get(0).getType());
-
-        assertEquals(parent, entityEventCaptor.getAllValues().get(1).getParent().orElse(null));
-        assertEquals(child2, entityEventCaptor.getAllValues().get(1).getTarget());
-        assertEquals(EventType.CHILD_ADDED, entityEventCaptor.getAllValues().get(1).getType());
+        assertEquals(EventType.MOVED, entityEventCaptor.getValue().getType());
     }
 }

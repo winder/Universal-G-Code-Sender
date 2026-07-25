@@ -23,6 +23,7 @@ import com.willwinder.ugs.designer.entities.cuttable.Group;
 import com.willwinder.ugs.designer.entities.cuttable.Text;
 
 import java.awt.*;
+import java.util.EnumSet;
 
 /**
  * Model for text-specific properties (text content, font family)
@@ -66,14 +67,15 @@ public class TextSettingsModel extends CuttableSettingsModel {
     public void updateFromGroup(Group selectionGroup) {
         super.updateFromGroup(selectionGroup); // Update entity and cuttable properties
 
-        if (selectionGroup.getSettings().contains(EntitySetting.TEXT)) {
+        EnumSet<EntitySetting> settings = selectionGroup.getSettings();
+        if (settings.contains(EntitySetting.TEXT) || settings.contains(EntitySetting.FONT_FAMILY)) {
             Text textEntity = (Text) selectionGroup.getChildren().get(0);
-            setText(textEntity.getText());
-        }
-
-        if (selectionGroup.getSettings().contains(EntitySetting.FONT_FAMILY)) {
-            Text textEntity = (Text) selectionGroup.getChildren().get(0);
-            setFontFamily(textEntity.getFontFamily());
+            if (settings.contains(EntitySetting.TEXT)) {
+                setText(textEntity.getText());
+            }
+            if (settings.contains(EntitySetting.FONT_FAMILY)) {
+                setFontFamily(textEntity.getFontFamily());
+            }
         }
     }
 

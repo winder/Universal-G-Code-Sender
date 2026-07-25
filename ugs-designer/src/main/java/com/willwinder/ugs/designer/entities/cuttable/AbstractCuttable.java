@@ -36,8 +36,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Arrays;
-import java.util.List;
+import java.util.EnumSet;
 import java.util.Optional;
 
 /**
@@ -303,8 +302,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     }
 
     @Override
-    public List<EntitySetting> getSettings() {
-        return Arrays.asList(
+    public EnumSet<EntitySetting> getSettings() {
+        return EnumSet.of(
                 EntitySetting.ANCHOR,
                 EntitySetting.POSITION_X,
                 EntitySetting.POSITION_Y,

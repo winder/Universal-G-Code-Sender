@@ -24,6 +24,8 @@ import com.willwinder.ugs.designer.entities.cuttable.Group;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ControllerFactory;
 
+import java.util.EnumSet;
+
 /**
  * Model for cuttable-specific properties (cutting parameters, depths, speeds, etc.)
  * Extends EntitySettingsModel to include transformation properties.
@@ -156,35 +158,36 @@ public class CuttableSettingsModel extends TransformSettingsModel {
     public void updateFromGroup(Group selectionGroup) {
         super.updateFromGroup(selectionGroup); // Update entity properties
 
-        if (selectionGroup.getSettings().contains(EntitySetting.START_DEPTH)) {
+        EnumSet<EntitySetting> settings = selectionGroup.getSettings();
+        if (settings.contains(EntitySetting.START_DEPTH)) {
             setStartDepth(selectionGroup.getStartDepth());
         }
 
-        if (selectionGroup.getSettings().contains(EntitySetting.TARGET_DEPTH)) {
+        if (settings.contains(EntitySetting.TARGET_DEPTH)) {
             setTargetDepth(selectionGroup.getTargetDepth());
         }
 
-        if (selectionGroup.getSettings().contains(EntitySetting.CUT_TYPE)) {
+        if (settings.contains(EntitySetting.CUT_TYPE)) {
             setCutType(selectionGroup.getCutType());
         }
 
-        if (selectionGroup.getSettings().contains(EntitySetting.SPINDLE_SPEED)) {
+        if (settings.contains(EntitySetting.SPINDLE_SPEED)) {
             setSpindleSpeed(selectionGroup.getSpindleSpeed());
         }
 
-        if (selectionGroup.getSettings().contains(EntitySetting.PASSES)) {
+        if (settings.contains(EntitySetting.PASSES)) {
             setPasses(selectionGroup.getPasses());
         }
 
-        if (selectionGroup.getSettings().contains(EntitySetting.FEED_RATE)) {
+        if (settings.contains(EntitySetting.FEED_RATE)) {
             setFeedRate(selectionGroup.getFeedRate());
         }
 
-        if (selectionGroup.getSettings().contains(EntitySetting.LEAD_IN_PERCENT)) {
+        if (settings.contains(EntitySetting.LEAD_IN_PERCENT)) {
             setLeadInPercent(selectionGroup.getLeadInPercent());
         }
 
-        if (selectionGroup.getSettings().contains(EntitySetting.INCLUDE_IN_EXPORT)) {
+        if (settings.contains(EntitySetting.INCLUDE_IN_EXPORT)) {
             setIncludeInExport(selectionGroup.getIncludeInExport());
         }
     }

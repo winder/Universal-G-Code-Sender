@@ -20,6 +20,44 @@ public class PathTest {
     }
 
     @Test
+    public void isClosedShouldReturnFalseForExplicitlyClosedPathNotEndingAtTheStartPoint() {
+        Path path = new Path();
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+        path.lineTo(10, 10);
+        path.close();
+
+        boolean closed = path.isClosed();
+
+        assertFalse(closed);
+    }
+
+    @Test
+    public void isClosedShouldReturnTrueWhenLastPointIsAtTheStartPoint() {
+        Path path = new Path();
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+        path.lineTo(10, 10);
+        path.lineTo(0, 0);
+
+        boolean closed = path.isClosed();
+
+        assertTrue(closed);
+    }
+
+    @Test
+    public void isClosedShouldReturnFalseWhenLastPointIsNotAtTheStartPoint() {
+        Path path = new Path();
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+        path.lineTo(10, 10);
+
+        boolean closed = path.isClosed();
+
+        assertFalse(closed);
+    }
+
+    @Test
     public void pathInOnlyOneDimensionShouldReturnCorrectHeight() {
         Path path = new Path();
         path.moveTo(0, 10);

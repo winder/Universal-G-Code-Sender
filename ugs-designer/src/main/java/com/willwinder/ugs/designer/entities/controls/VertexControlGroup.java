@@ -38,8 +38,8 @@ public class VertexControlGroup extends ControlGroup implements Control {
     }
 
     public void removeVertexControls() {
-        getChildren().stream()
-                .filter(child -> child instanceof VertexControl)
-                .forEach(this::removeChild);
+        removeAll(getChildren().stream()
+                .filter(VertexControl.class::isInstance)
+                .toList());
     }
 }

@@ -82,17 +82,50 @@ public class Segment {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Segment)) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Segment other)) {
             return false;
         }
-        return hashCode() == obj.hashCode();
+        return type == other.type &&
+                hasSamePosition(startPoint, other.startPoint) &&
+                hasSamePosition(lastPoint, other.lastPoint) &&
+                hasSamePositions(points, other.points);
     }
 
+    private static boolean hasSamePositions(Point2D[] points, Point2D[] otherPoints) {
+        if (points.length != otherPoints.length) {
+            return false;
+        }
+
+        for (int i = 0; i < points.length; i++) {
+            if (!hasSamePosition(points[i], otherPoints[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean hasSamePosition(Point2D point, Point2D otherPoint) {
+        return PathUtils.quantize(point.getX()) == PathUtils.quantize(otherPoint.getX()) &&
+                PathUtils.quantize(point.getY()) == PathUtils.quantize(otherPoint.getY());
+    }
+
+    /**
+     * The hash is generated from the points instead of the path, as the path is generated from the
+     * same points but is more expensive to traverse. Points are rounded to account for precision
+     * errors.
+     */
     @Override
     public int hashCode() {
-        return PathUtils.hashCode(startPoint) +
-                PathUtils.hashCode(lastPoint) +
-                PathUtils.hashCode(path);
+        int hash = 31 + type.ordinal();
+        hash = 31 * hash + PathUtils.hashCode(startPoint);
+        hash = 31 * hash + PathUtils.hashCode(lastPoint);
+        for (Point2D point : points) {
+            hash = 31 * hash + PathUtils.hashCode(point);
+        }
+        return hash;
     }
 
     public void setPosition(int pointIndex, Point2D position) {

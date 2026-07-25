@@ -39,6 +39,7 @@ import com.willwinder.universalgcodesender.fx.control.UnitTextField;
 import com.willwinder.universalgcodesender.fx.helper.Colors;
 import com.willwinder.universalgcodesender.fx.helper.SvgLoader;
 import com.willwinder.universalgcodesender.model.Unit;
+import com.willwinder.universalgcodesender.utils.Debouncer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -113,8 +114,13 @@ public class EntitySettingsPanel extends VBox {
     private final List<Runnable> valueRefreshers = new ArrayList<>();
     private final EditGuard editGuard = new EditGuard();
     private final EntitySettingsControlFactory controls = new EntitySettingsControlFactory(editGuard, valueRefreshers::add);
+
+    /**
+     * Coalesce a burst of transform events (e.g. during a drag) into a single value refresh on the
+     * next pulse, so we update the fields at most once per frame instead of once per event.
+     */
+    private final Debouncer valueRefresh = new Debouncer(Platform::runLater, () -> valueRefreshers.forEach(Runnable::run));
     private Anchor positionAnchor = Anchor.BOTTOM_LEFT;
-    private boolean valueRefreshScheduled = false;
 
     public EntitySettingsPanel() {
         getStyleClass().add("entity-settings-panel");
@@ -129,7 +135,7 @@ public class EntitySettingsPanel extends VBox {
         EntityListener entityListener = event -> {
             if (editGuard.isActive()) return;
             if (TRANSFORM_EVENTS.contains(event.getType())) {
-                scheduleValueRefresh();
+                valueRefresh.call();
             } else if (event.getType() == EventType.SETTINGS_CHANGED) {
                 Platform.runLater(this::rebuild);
             }
@@ -417,18 +423,5 @@ public class EntitySettingsPanel extends VBox {
             }
         });
         return combo;
-    }
-
-    // Coalesce a burst of transform events (e.g. during a drag) into a single value refresh on the
-    // next pulse, so we update the fields at most once per frame instead of once per event.
-    private void scheduleValueRefresh() {
-        if (valueRefreshScheduled) {
-            return;
-        }
-        valueRefreshScheduled = true;
-        Platform.runLater(() -> {
-            valueRefreshScheduled = false;
-            valueRefreshers.forEach(Runnable::run);
-        });
     }
 }

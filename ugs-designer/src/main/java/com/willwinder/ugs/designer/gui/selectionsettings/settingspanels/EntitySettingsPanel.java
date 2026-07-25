@@ -48,6 +48,16 @@ public interface EntitySettingsPanel {
     void setFromSelection(Group selectionGroup);
 
     /**
+     * Sync the UI from the current selection after the entities have been moved, resized or
+     * rotated. This is called for every transform (repeatedly while dragging), so implementations
+     * should only refresh the values that a transform can change. Panels unaffected by transforms
+     * should keep the default no-op.
+     */
+    default void refreshFromTransform(Group selectionGroup) {
+        // Nothing to refresh
+    }
+
+    /**
      * Apply a change originating from this component to the selection.
      * This avoids leaking entity-specific logic into the container.
      */

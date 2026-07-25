@@ -136,6 +136,8 @@ public class EntityTreeModel implements TreeModel, ControllerListener, EntityLis
                     .map(p -> (EntityGroup) p)
                     .ifPresent(parent -> fireChildAdded(entityEvent.getTarget(), parent.getChildren().indexOf(entityEvent.getTarget())));
 
+            case CHILDREN_ADDED, CHILDREN_REMOVED -> fireFullReload();
+
             case CHILD_REMOVED -> entityEvent.getParent()
                     .filter(p -> p instanceof EntityGroup)
                     .map(p -> (EntityGroup) p)

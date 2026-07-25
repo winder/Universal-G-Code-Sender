@@ -27,10 +27,13 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
@@ -136,15 +139,33 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         cachedBounds = null;
     }
 
+    /**
+     * Adds all given entities that aren't already a child or grand child of this group. Only one
+     * {@link EventType#CHILDREN_ADDED} event is emitted for the entire batch.
+     *
+     * @param entities the entities to add
+     */
     public void addAll(Collection<? extends Entity> entities) {
-        entities.forEach(entity -> {
-            if (!containsChild(entity)) {
-                children.add(entity);
-                notifyEvent(new EntityEvent(entity, this, EventType.CHILD_ADDED));
-                entity.addListener(this);
-            }
-        });
+        List<Entity> addedEntities = getEntitiesToAdd(entities);
+        if (addedEntities.isEmpty()) {
+            return;
+        }
+
+        children.addAll(addedEntities);
+        addedEntities.forEach(entity -> entity.addListener(this));
         invalidateBounds();
+        notifyEvent(new EntityEvent(this, this, EventType.CHILDREN_ADDED));
+    }
+
+    private List<Entity> getEntitiesToAdd(Collection<? extends Entity> entities) {
+        Set<Entity> existingEntities = new HashSet<>(getAllChildren());
+        List<Entity> entitiesToAdd = new ArrayList<>(entities.size());
+        for (Entity entity : entities) {
+            if (existingEntities.add(entity)) {
+                entitiesToAdd.add(entity);
+            }
+        }
+        return entitiesToAdd;
     }
 
     @Override
@@ -227,19 +248,46 @@ public class EntityGroup extends AbstractEntity implements EntityListener {
         invalidateBounds();
     }
 
+    /**
+     * Removes all given entities that are direct children of this group. Only one
+     * {@link EventType#CHILDREN_REMOVED} event is emitted for the entire batch.
+     *
+     * @param entities the entities to remove
+     */
+    public void removeAll(Collection<? extends Entity> entities) {
+        Set<Entity> entitiesToRemove = new HashSet<>(entities);
+        List<Entity> removedEntities = children.stream()
+                .filter(entitiesToRemove::contains)
+                .toList();
+        if (removedEntities.isEmpty()) {
+            return;
+        }
+
+        children.removeAll(entitiesToRemove);
+        removedEntities.forEach(entity -> entity.removeListener(this));
+        invalidateBounds();
+        notifyEvent(new EntityEvent(this, this, EventType.CHILDREN_REMOVED));
+    }
+
     @Override
     public void destroy() {
         super.destroy();
-        this.children.forEach(entity -> notifyEvent(new EntityEvent(entity, this, EventType.CHILD_REMOVED)));
+        if (!children.isEmpty()) {
+            notifyEvent(new EntityEvent(this, this, EventType.CHILDREN_REMOVED));
+        }
         children.forEach(Entity::destroy);
     }
 
     public void removeAll() {
         this.groupRotation = 0;
-        this.children.forEach(entity -> notifyEvent(new EntityEvent(entity, this, EventType.CHILD_REMOVED)));
-        this.children.forEach(entity -> entity.removeListener(this));
+        List<Entity> removedEntities = List.copyOf(children);
         this.children.clear();
+        removedEntities.forEach(entity -> entity.removeListener(this));
         invalidateBounds();
+
+        if (!removedEntities.isEmpty()) {
+            notifyEvent(new EntityEvent(this, this, EventType.CHILDREN_REMOVED));
+        }
     }
 
     public List<Entity> getChildrenAt(Point2D p) {
