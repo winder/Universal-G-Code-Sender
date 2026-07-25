@@ -32,10 +32,8 @@ import com.willwinder.universalgcodesender.utils.KDTree;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -125,7 +123,7 @@ public class StitchPathUtils {
     }
 
     protected static List<Path2D> stitchSegments(Set<Segment> segments) {
-        Deque<Segment> availableSegments = new ArrayDeque<>(removeBacktrackingDuplicates(segments));
+        Set<Segment> availableSegments = new LinkedHashSet<>(removeBacktrackingDuplicates(segments));
         KDTree<SegmentEndpoint> tree = createKdTree(availableSegments);
 
         List<List<Path2D>> result = new ArrayList<>();
@@ -143,7 +141,7 @@ public class StitchPathUtils {
                 segmentPath = reversePath(segmentPath);
             }
             path.add(segmentPath);
-            availableSegments.removeIf(startSegmentEndpoint.segment()::equals);
+            availableSegments.remove(startSegmentEndpoint.segment());
 
             stitch(startSegmentEndpoint, path, availableSegments, tree, true);
             stitch(startSegmentEndpoint, path, availableSegments, tree, false);
@@ -169,7 +167,7 @@ public class StitchPathUtils {
     private static void stitch(
             SegmentEndpoint startSegmentEndpoint,
             List<Path2D> path,
-            Deque<Segment> availableSegments,
+            Set<Segment> availableSegments,
             KDTree<SegmentEndpoint> tree,
             boolean forward
     ) {
@@ -190,7 +188,7 @@ public class StitchPathUtils {
             }
 
             current = next.get();
-            availableSegments.removeIf(current.segment()::equals);
+            availableSegments.remove(current.segment());
 
             Path2D segmentPath = current.segment().path();
             if (!forward || !current.isStart()) {

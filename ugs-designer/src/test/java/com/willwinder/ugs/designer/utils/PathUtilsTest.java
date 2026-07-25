@@ -28,6 +28,152 @@ public class PathUtilsTest {
     }
 
     @Test
+    public void isClosedWithEmptyPathShouldNotBeClosed() {
+        assertFalse(PathUtils.isClosed(new Path2D.Double()));
+    }
+
+    @Test
+    public void isClosedWithExplicitlyClosedSubPathShouldNotBeClosed() {
+        Path2D path = new Path2D.Double();
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+        path.lineTo(10, 10);
+        path.closePath();
+
+        assertFalse(PathUtils.isClosed(path));
+    }
+
+    @Test
+    public void isClosedWithExplicitlyClosedPathShouldNotBeClosed() {
+        Path2D path = new Path2D.Double();
+        path.moveTo(-1.541622047244094, -4.57409842519685);
+        path.lineTo(-1.5415666398366867, -4.574095897346165);
+        path.closePath();
+
+        assertFalse(PathUtils.isClosed(path));
+    }
+
+    @Test
+    public void isClosedWithSubPathEndingAtItsStartPointShouldBeClosed() {
+        Path2D path = new Path2D.Double();
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+        path.lineTo(0, 0);
+
+        assertTrue(PathUtils.isClosed(path));
+    }
+
+    @Test
+    public void isClosedWithOpenSubPathShouldNotBeClosed() {
+        Path2D path = new Path2D.Double();
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+
+        assertFalse(PathUtils.isClosed(path));
+    }
+
+    @Test
+    public void isClosedWithAllSubPathsEndingAtTheirStartPointShouldBeClosed() {
+        Path2D path = new Path2D.Double();
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+        path.lineTo(0, 0);
+        path.moveTo(20, 0);
+        path.lineTo(30, 0);
+        path.lineTo(20, 0);
+
+        assertTrue(PathUtils.isClosed(path));
+    }
+
+    @Test
+    public void isClosedWithAllSubPathsExplicitlyClosedShouldNotBeClosed() {
+        Path2D path = new Path2D.Double();
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+        path.closePath();
+        path.moveTo(20, 0);
+        path.lineTo(30, 0);
+        path.closePath();
+
+        assertFalse(PathUtils.isClosed(path));
+    }
+
+    @Test
+    public void isClosedWithAllSubPathsOpenShouldNotBeClosed() {
+        Path2D path = new Path2D.Double();
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+        path.moveTo(20, 0);
+        path.lineTo(30, 0);
+
+        assertFalse(PathUtils.isClosed(path));
+    }
+
+    @Test
+    public void isClosedWithAClosedSubPathFollowedByAnOpenShouldNotBeClosed() {
+        Path2D path = new Path2D.Double();
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+        path.lineTo(10, 10);
+        path.closePath();
+        path.moveTo(20, 0);
+        path.lineTo(30, 0);
+
+        assertFalse(PathUtils.isClosed(path));
+    }
+
+    @Test
+    public void isClosedWithAnOpenSubPathFollowedByAClosedShouldNotBeClosed() {
+        Path2D path = new Path2D.Double();
+        path.moveTo(20, 0);
+        path.lineTo(30, 0);
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+        path.lineTo(10, 10);
+        path.closePath();
+
+        assertFalse(PathUtils.isClosed(path));
+    }
+
+    @Test
+    public void isClosedWithAnOpenSubPathFollowedByAnImplicitlyClosedShouldNotBeClosed() {
+        Path2D path = new Path2D.Double();
+        path.moveTo(20, 0);
+        path.lineTo(30, 0);
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+        path.lineTo(0, 0);
+
+        assertFalse(PathUtils.isClosed(path));
+    }
+
+    @Test
+    public void isClosedWithSegmentsAfterAClosedSubPathShouldNotBeClosed() {
+        Path2D path = new Path2D.Double();
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+        path.lineTo(10, 10);
+        path.closePath();
+        path.lineTo(30, 30);
+
+        assertFalse(PathUtils.isClosed(path));
+    }
+
+    @Test
+    public void isClosedWithCurvedSubPathsShouldCheckTheirEndPoints() {
+        Path2D closed = new Path2D.Double();
+        closed.moveTo(0, 0);
+        closed.curveTo(5, 5, 10, 5, 0, 0);
+
+        Path2D open = new Path2D.Double();
+        open.moveTo(0, 0);
+        open.quadTo(5, 5, 10, 10);
+
+        assertTrue(PathUtils.isClosed(closed));
+        assertFalse(PathUtils.isClosed(open));
+    }
+
+    @Test
     public void joinPathsWithEmptyListShouldReturnEmptyPath() {
         List<Path2D> paths = new ArrayList<>();
         assertTrue(PathUtils.joinPaths(paths, PathUtils.EPS).isEmpty());

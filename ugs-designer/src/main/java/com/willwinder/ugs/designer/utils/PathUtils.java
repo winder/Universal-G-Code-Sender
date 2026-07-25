@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class PathUtils {
-    public static final double EPS = 1e-4;
+    public static final double EPS = 1e-5;
 
     /**
      * Creates a Path2D from a path iterator
@@ -409,34 +409,61 @@ public class PathUtils {
         return Math.round(v / PathUtils.EPS);
     }
 
+    /**
+     * Returns if the shape is closed, requiring every sub path to end at the exact same point as it
+     * started. A sub path that is explicitly closed is not considered closed unless its last point
+     * is at the start point.
+     *
+     * @param shape the shape to check
+     * @return true if the shape has sub paths and all of them start and end at the same point
+     */
     public static boolean isClosed(Shape shape) {
         PathIterator it = shape.getPathIterator(null);
-        double[] c = new double[6];
+        double[] coords = new double[6];
 
-        Point2D start = null;
-        Point2D last = null;
+        boolean hasSubPath = false;
+        double startX = 0;
+        double startY = 0;
+        double lastX = 0;
+        double lastY = 0;
 
         while (!it.isDone()) {
-            int type = it.currentSegment(c);
-            if (type == PathIterator.SEG_CLOSE) {
-                return true;
-            }
-
+            int type = it.currentSegment(coords);
             switch (type) {
                 case PathIterator.SEG_MOVETO -> {
-                    start = new Point2D.Double(c[0], c[1]);
-                    last = start;
+                    if (hasSubPath && !isSamePosition(startX, startY, lastX, lastY)) {
+                        return false;
+                    }
+
+                    startX = lastX = coords[0];
+                    startY = lastY = coords[1];
+                    hasSubPath = true;
                 }
-                case PathIterator.SEG_LINETO -> last = new Point2D.Double(c[0], c[1]);
-                case PathIterator.SEG_QUADTO -> last = new Point2D.Double(c[2], c[3]);
-                case PathIterator.SEG_CUBICTO -> last = new Point2D.Double(c[4], c[5]);
+                case PathIterator.SEG_LINETO -> {
+                    lastX = coords[0];
+                    lastY = coords[1];
+                }
+                case PathIterator.SEG_QUADTO -> {
+                    lastX = coords[2];
+                    lastY = coords[3];
+                }
+                case PathIterator.SEG_CUBICTO -> {
+                    lastX = coords[4];
+                    lastY = coords[5];
+                }
+                case PathIterator.SEG_CLOSE -> {
+                    // Ignored, the sub path must end at the start point to be considered closed
+                }
                 default -> throw new IllegalStateException("Unexpected value: " + type);
             }
 
             it.next();
         }
 
-        // Implicit closure check
-        return start != null && last != null && isEqual(start, last, EPS);
+        return hasSubPath && isSamePosition(startX, startY, lastX, lastY);
+    }
+
+    private static boolean isSamePosition(double x, double y, double otherX, double otherY) {
+        return x == otherX && y == otherY;
     }
 }

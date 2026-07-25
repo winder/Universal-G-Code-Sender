@@ -22,6 +22,7 @@ import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.EntityEvent;
 import com.willwinder.ugs.designer.entities.EntityException;
 import com.willwinder.ugs.designer.entities.EventType;
+import com.willwinder.ugs.designer.utils.PathUtils;
 
 import java.awt.Shape;
 import java.awt.geom.NoninvertibleTransformException;
@@ -55,6 +56,16 @@ public class Path extends AbstractCuttable {
     @Override
     public Shape getRelativeShape() {
         return shape;
+    }
+
+    /**
+     * Returns if the path is closed, either explicitly closed or by having its last point at the
+     * same position as its start point.
+     *
+     * @return true if the path is closed
+     */
+    public boolean isClosed() {
+        return PathUtils.isClosed(shape);
     }
 
     public void moveTo(double x, double y) {

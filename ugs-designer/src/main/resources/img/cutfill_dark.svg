@@ -5,38 +5,36 @@
    id="svg832"
    width="16"
    height="16"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-&gt;
+   xmlns="http://www.w3.org/2000/svg">
   <defs
-   id="defs836" />
-<!-- Font Awesome Free 5.15.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) -->
-<rect
-   style="fill:none;stroke:#afb1b3;stroke-width:0.999997;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:5.3863;stroke-opacity:1;paint-order:markers fill stroke"
-   id="rect1451"
-   width="11.000003"
-   height="11.000003"
-   x="2.499999"
-   y="2.499999"
-   ry="0.99180347" />
-<path
-   id="rect1451-5-2"
-   style="fill:none;stroke:#ff970b;stroke-width:0.826583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
-   d="m 11.293962,11.33507 -6.6734317,2e-6" />
-<path
-   id="rect1451-5-2-3"
-   style="fill:none;stroke:#ff970b;stroke-width:0.826583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
-   d="m 11.293962,9.6756917 -6.6734317,7e-7" />
-<path
-   id="rect1451-5-2-3-6"
-   style="fill:none;stroke:#ff970b;stroke-width:0.826583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
-   d="m 11.293962,8.0163093 -6.6734317,8e-7" />
-<path
-   id="rect1451-5-2-3-7"
-   style="fill:none;stroke:#ff970b;stroke-width:0.826583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
-   d="m 11.293962,6.3569267 -6.6734317,1e-6" />
-<path
-   id="rect1451-5-2-3-5"
-   style="fill:none;stroke:#ff970b;stroke-width:0.826583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
-   d="m 11.293962,4.6975445 -6.6734317,1e-6" />
+     id="defs836" />
+  <!-- Font Awesome Free 5.15.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) -->
+  <rect
+     style="fill:none;stroke:#afb1b3;stroke-width:0.999997;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:5.3863;stroke-opacity:1;paint-order:markers fill stroke"
+     id="rect1451"
+     width="11.000003"
+     height="11.000003"
+     x="2.499999"
+     y="2.499999"
+     ry="0.99180347" />
+  <path
+     id="rect1451-5-2"
+     style="fill:none;stroke:#ff970b;stroke-width:0.826583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+     d="m 11.293962,11.33507 -6.6734317,2e-6" />
+  <path
+     id="rect1451-5-2-3"
+     style="fill:none;stroke:#ff970b;stroke-width:0.826583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+     d="m 11.293962,9.6756917 -6.6734317,7e-7" />
+  <path
+     id="rect1451-5-2-3-6"
+     style="fill:none;stroke:#ff970b;stroke-width:0.826583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+     d="m 11.293962,8.0163093 -6.6734317,8e-7" />
+  <path
+     id="rect1451-5-2-3-7"
+     style="fill:none;stroke:#ff970b;stroke-width:0.826583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+     d="m 11.293962,6.3569267 -6.6734317,1e-6" />
+  <path
+     id="rect1451-5-2-3-5"
+     style="fill:none;stroke:#ff970b;stroke-width:0.826583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+     d="m 11.293962,4.6975445 -6.6734317,1e-6" />
 </svg>
