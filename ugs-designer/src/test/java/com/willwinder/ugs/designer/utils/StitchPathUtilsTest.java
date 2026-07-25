@@ -111,8 +111,8 @@ public class StitchPathUtilsTest {
 
     @Test
     public void compareTest() {
-        Segment segment1 = createLineSegment(new Point2D.Double(0, 0), new Point2D.Double(10.00001, 10));
-        Segment segment2 = createLineSegment(new Point2D.Double(0, 0.00001), new Point2D.Double(10, 10));
+        Segment segment1 = createLineSegment(new Point2D.Double(0, 0), new Point2D.Double(10.000001, 10));
+        Segment segment2 = createLineSegment(new Point2D.Double(0, 0.000001), new Point2D.Double(10, 10));
         assertEquals(segment1, segment2);
     }
 
