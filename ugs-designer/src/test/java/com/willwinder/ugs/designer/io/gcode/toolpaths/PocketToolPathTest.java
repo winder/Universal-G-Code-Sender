@@ -3,6 +3,7 @@ package com.willwinder.ugs.designer.io.gcode.toolpaths;
 import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.entities.cuttable.Direction;
+import com.willwinder.ugs.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
@@ -109,10 +110,9 @@ public class PocketToolPathTest {
         assertSegment(segmentList.get(2), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).build(), null);
         assertSegment(segmentList.get(3), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build(), null);
         assertSegment(segmentList.get(4), SegmentType.POINT, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build(), null);
-        assertSegment(segmentList.get(5), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build(), 1000);
-        assertSegment(segmentList.get(6), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(7.5).setZ(-0d).build(), 1000);
-        assertSegment(segmentList.get(7), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(7.5).setZ(-0d).build(), 1000);
-        assertSegment(segmentList.get(8), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(2.5).setZ(-0d).build(), 1000);
+        assertSegment(segmentList.get(5), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(7.5).setZ(-0d).build(), 1000);
+        assertSegment(segmentList.get(6), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(7.5).setZ(-0d).build(), 1000);
+        assertSegment(segmentList.get(7), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(2.5).setZ(-0d).build(), 1000);
     }
 
     @Test
@@ -145,10 +145,9 @@ public class PocketToolPathTest {
         assertSegment(segmentList.get(2), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).build(), null);
         assertSegment(segmentList.get(3), SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setZ(1d).build(), null);
         assertSegment(segmentList.get(4), SegmentType.POINT, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build(), null);
-        assertSegment(segmentList.get(5), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(2.5).setZ(-0d).build(), 2000);
-        assertSegment(segmentList.get(6), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(2.5).setZ(-0d).build(), 2000);
-        assertSegment(segmentList.get(7), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(7.5).setZ(-0d).build(), 2000);
-        assertSegment(segmentList.get(8), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(7.5).setZ(-0d).build(), 2000);
+        assertSegment(segmentList.get(5), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(2.5).setZ(-0d).build(), 2000);
+        assertSegment(segmentList.get(6), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(7.5d).setY(7.5).setZ(-0d).build(), 2000);
+        assertSegment(segmentList.get(7), SegmentType.LINE, PartialPosition.builder(UnitUtils.Units.MM).setX(2.5d).setY(7.5).setZ(-0d).build(), 2000);
     }
 
 
@@ -251,5 +250,26 @@ public class PocketToolPathTest {
 
         assertTrue("The tool path was " + Math.round(totalLength) + "mm long but should have been shorter", totalLength < 22144);
         assertTrue("The tool path rapids was " + Math.round(totalRapidLength) + "mm long but should have been shorter", totalRapidLength < 730);
+    }
+
+    @Test
+    public void toGcodePath_shouldFollowCurvesCloserForFinerCurvePrecision() {
+        Settings coarseSettings = new Settings();
+        coarseSettings.setFlatnessPrecision(0.1);
+        Settings fineSettings = new Settings();
+        fineSettings.setFlatnessPrecision(0.005);
+
+        int coarseSegments = pocketOfCircle(coarseSettings).getSize();
+
+        assertTrue("A finer curve precision should keep more of the points describing the curve",
+                coarseSegments < pocketOfCircle(fineSettings).getSize());
+    }
+
+    private static GcodePath pocketOfCircle(Settings settings) {
+        Ellipse circle = new Ellipse(0, 0, 40, 40);
+        com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath pocket =
+                new com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath(settings, circle);
+        pocket.setTargetDepth(1);
+        return pocket.toGcodePath();
     }
 }

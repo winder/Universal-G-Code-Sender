@@ -20,14 +20,16 @@ package com.willwinder.ugs.designer.io.gcode.writer;
 
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.designer.io.gcode.path.SegmentType;
-import com.willwinder.ugs.designer.io.gcode.writer.GrblGcodeWriter;
 import com.willwinder.ugs.designer.model.Settings;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -258,30 +260,99 @@ public class GrblGcodeWriterTest {
     }
 
     @Test
-    public void arcCommandsShouldBeWrittenWithFeedOnlyOncePerRun() throws IOException {
+    public void writeSegment_shouldWriteArcWithIncrementalOffsetsToCenter() throws IOException {
         StringWriter result = new StringWriter();
         GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+        writer.writeSegment(new Segment(SegmentType.MOVE, position(10d, 0d)));
 
-        writer.writeSegment(new Segment(
-                SegmentType.CWARC,
-                PartialPosition.builder(UnitUtils.Units.MM).setX(0d).setY(0d).build(),
-                null,
-                null,
-                900
-        ));
-
-        writer.writeSegment(new Segment(
-                SegmentType.CCWARC,
-                PartialPosition.builder(UnitUtils.Units.MM).setX(1d).setY(1d).build(),
-                null,
-                null,
-                900
-        ));
+        writer.writeSegment(Segment.arc(SegmentType.CWARC, position(0d, 10d), new Point2D.Double(0, 0), 1_000));
 
         String[] lines = result.toString().split("\n");
         assertEquals(2, lines.length);
-        assertEquals("G2 F900 X0Y0", lines[0]);
-        assertEquals("G3 X1Y1", lines[1]);
+        assertEquals("G0 X10Y0", lines[0]);
+        assertEquals("G2 F1000 X0Y10I-10J0", lines[1]);
+    }
+
+    @Test
+    public void writeSegment_shouldWriteArcOffsetsRelativeToEndOfPreviousArc() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+        writer.writeSegment(new Segment(SegmentType.MOVE, position(10d, 0d)));
+
+        writer.writeSegment(Segment.arc(SegmentType.CWARC, position(0d, 10d), new Point2D.Double(0, 0), 900));
+        writer.writeSegment(Segment.arc(SegmentType.CCWARC, position(-10d, 0d), new Point2D.Double(0, 0), 900));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(3, lines.length);
+        assertEquals("G2 F900 X0Y10I-10J0", lines[1]);
+        assertEquals("G3 X-10Y0I0J-10", lines[2]);
+    }
+
+    @Test
+    public void writeSegment_shouldWriteArcOffsetsUsingCoordinatesFromEarlierSegments() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+        writer.writeSegment(new Segment(SegmentType.MOVE, position(10d, 0d)));
+        writer.writeSegment(new Segment(SegmentType.MOVE, PartialPosition.from(Axis.Z, -1d, UnitUtils.Units.MM)));
+
+        writer.writeSegment(Segment.arc(SegmentType.CWARC, position(0d, 10d), new Point2D.Double(0, 0), 1_000));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(3, lines.length);
+        assertEquals("G0 Z-1", lines[1]);
+        assertEquals("G2 F1000 X0Y10I-10J0", lines[2]);
+    }
+
+    @Test
+    public void writeSegment_shouldWriteCoordinatesForArcEndingWhereItStarted() throws IOException {
+        // Grbl rejects an arc that carries no axis words with "error:26", so the coordinates have
+        // to be written even though they have not changed
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+        writer.writeSegment(new Segment(SegmentType.MOVE, position(10d, 0d)));
+
+        writer.writeSegment(Segment.arc(SegmentType.CWARC, position(10d, 0d), new Point2D.Double(0, 0), 1_000));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals(2, lines.length);
+        assertEquals("G2 F1000 X10Y0I-10J0", lines[1]);
+    }
+
+    @Test
+    public void writeSegment_shouldWriteUnchangedCoordinateForArc() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+        writer.writeSegment(new Segment(SegmentType.MOVE, position(10d, 0d)));
+
+        writer.writeSegment(Segment.arc(SegmentType.CCWARC, position(10d, 5d), new Point2D.Double(10, 2.5), 1_000));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals("G3 F1000 X10Y5I0J2.5", lines[1]);
+    }
+
+    @Test
+    public void writeSegment_shouldNotWriteUnchangedCoordinateForLine() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+        writer.writeSegment(new Segment(SegmentType.MOVE, position(10d, 0d)));
+
+        writer.writeSegment(new Segment(SegmentType.LINE, position(10d, 5d), null, null, 1_000));
+
+        String[] lines = result.toString().split("\n");
+        assertEquals("G1 F1000 Y5", lines[1]);
+    }
+
+    @Test
+    public void writeSegment_shouldFailForArcWithoutKnownStartPosition() {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+        Segment arc = Segment.arc(SegmentType.CWARC, position(0d, 10d), new Point2D.Double(0, 0), 1_000);
+
+        assertThrows(IllegalStateException.class, () -> writer.writeSegment(arc));
+    }
+
+    private static PartialPosition position(Double x, Double y) {
+        return PartialPosition.builder(UnitUtils.Units.MM).setX(x).setY(y).build();
     }
 
     @Test

@@ -1,6 +1,6 @@
 package com.willwinder.ugs.nbp.designer.platform;
 /*
-    Copyright 2024 Will Winder
+    Copyright 2026 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -40,6 +40,7 @@ public class SettingsAdapter {
     private static final String STOCK_THICKNESS = "stockThickness";
     private static final String SPINDLE_DIRECTION = "spindleDirection";
     private static final String FLATNESS_PRECISION = "flatnessPrecision";
+    private static final String ARC_FITTING = "arcFitting";
 
     private SettingsAdapter() {}
 
@@ -56,7 +57,8 @@ public class SettingsAdapter {
         settings.setToolStepOver(preferences.getDouble(TOOL_STEP_OVER, 0.3));
         settings.setStockThickness(preferences.getDouble(STOCK_THICKNESS, 10));
         settings.setSpindleDirection(preferences.get(SPINDLE_DIRECTION, "M3"));
-        settings.setFlatnessPrecision(preferences.getDouble(FLATNESS_PRECISION, 0.1d));
+        settings.setFlatnessPrecision(preferences.getDouble(FLATNESS_PRECISION, 0.02d));
+        settings.setArcFitting(preferences.getBoolean(ARC_FITTING, false));
         return settings;
     }
 
@@ -73,5 +75,6 @@ public class SettingsAdapter {
         preferences.putDouble(STOCK_THICKNESS, settings.getStockThickness());
         preferences.put(SPINDLE_DIRECTION, settings.getSpindleDirection());
         preferences.putDouble(FLATNESS_PRECISION, settings.getFlatnessPrecision());
+        preferences.putBoolean(ARC_FITTING, settings.getArcFitting());
     }
 }

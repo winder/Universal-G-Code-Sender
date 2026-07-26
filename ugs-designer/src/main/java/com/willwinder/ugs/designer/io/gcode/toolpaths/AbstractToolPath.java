@@ -19,6 +19,7 @@
 package com.willwinder.ugs.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.io.gcode.path.ArcFitter;
 import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.designer.io.gcode.path.PathGenerator;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
@@ -95,18 +96,36 @@ public abstract class AbstractToolPath implements PathGenerator {
             if (source.getSpindleSpeed() > 0) {
                 gcodePath.addSegment(new Segment(SegmentType.SEAM, null, null, (int) Math.round(settings.getMaxSpindleSpeed() * (source.getSpindleSpeed() / 100d)), null));
             }
-            
+
             coordinateList.forEach(cl -> {
                 if (!cl.isEmpty()) {
                     addSafeHeightSegmentTo(gcodePath, cl.get(0), coordinateList.get(0) == cl);
-                            
+
                     gcodePath.addSegment(SegmentType.POINT, cl.get(0));
-                    cl.forEach(c -> gcodePath.addSegment(SegmentType.LINE, c, source.getFeedRate()));
+                    toMotionSegments(cl, source.getFeedRate()).forEach(gcodePath::addSegment);
                 }
             });
 
             addSafeHeightSegment(gcodePath, null,true);
         }
+    }
+
+    /**
+     * Converts the coordinates of a single run into the segments cutting it. The first coordinate is
+     * left out, since it has already been reached by plunging down to it.
+     */
+    private List<Segment> toMotionSegments(List<PartialPosition> coordinates, int feedRate) {
+        if (settings.getArcFitting() && settings.getFlatnessPrecision() > 0) {
+            // Arcs are held to the same precision the geometry was flattened with, so that a single
+            // setting describes how far the tool path may stray from the design
+            double precision = settings.getFlatnessPrecision();
+            return new ArcFitter(precision, precision).fit(coordinates, feedRate);
+        }
+
+        return coordinates.stream()
+                .skip(1)
+                .map(coordinate -> new Segment(SegmentType.LINE, coordinate, null, null, feedRate))
+                .toList();
     }
 
 

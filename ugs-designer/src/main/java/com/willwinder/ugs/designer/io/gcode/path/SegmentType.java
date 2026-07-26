@@ -60,4 +60,8 @@ public enum SegmentType {
     SegmentType(String gc) {
         gcode = gc;
     }
+
+    public boolean isArc() {
+        return this == CWARC || this == CCWARC;
+    }
 }

@@ -21,6 +21,7 @@ package com.willwinder.ugs.designer.model;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
 /**
@@ -51,6 +52,14 @@ public class SettingsBackwardCompatTest {
         assertEquals(1.0, settings.getDepthPerPass(), 1e-9);
         assertEquals(255, settings.getMaxSpindleSpeed());
         assertEquals("M3", settings.getSpindleDirection());
+    }
+
+    @Test
+    public void arcFittingIsOffByDefault() {
+        // Turning arc fitting on changes the generated gcode from lines into G2/G3 moves, so it
+        // stays opt-in for existing users until they ask for it.
+        Settings settings = new Settings();
+        assertFalse(settings.getArcFitting());
     }
 
     @Test

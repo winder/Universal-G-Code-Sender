@@ -28,11 +28,19 @@ import static com.willwinder.universalgcodesender.utils.MathUtils.isEqual;
 import com.willwinder.universalgcodesender.utils.Version;
 import org.apache.commons.lang3.StringUtils;
 
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.EnumSet;
+import java.util.Set;
 
 public class GrblGcodeWriter implements GcodeWriter {
     private static final String HEADER = "; This file was generated with \"Universal Gcode Sender " + Version.getVersionString() + "\"\n\n";
+
+    /**
+     * The axes of the plane that arcs are cut in, which is always XY since the header selects G17
+     */
+    private static final Set<Axis> PLANE_AXES = EnumSet.of(Axis.X, Axis.Y);
 
     private final Settings settings;
     private final Writer writer;
@@ -106,22 +114,63 @@ public class GrblGcodeWriter implements GcodeWriter {
                     hasFeedRateSet = true;
                 }
 
-                writer.write(getPointFormattedGCode(segment) + "\n");
+                // The arc offsets are relative to the start of the arc, so they need to be
+                // formatted before the current position is advanced to the end of the arc
+                String arcOffsets = segment.type.isArc() ? getArcOffsetFormattedGCode(segment) : "";
+                writer.write(getPointFormattedGCode(segment, segment.type.isArc()) + arcOffsets + "\n");
             }
         }
     }
 
     private String getPointFormattedGCode(Segment segment) {
+        return getPointFormattedGCode(segment, false);
+    }
+
+    /**
+     * @param alwaysWritePlaneAxes writes the axes of the current plane even when they have not
+     *                             changed. Grbl rejects an arc that carries no axis words, which
+     *                             happens when an arc ends where it started.
+     */
+    private String getPointFormattedGCode(Segment segment, boolean alwaysWritePlaneAxes) {
         StringBuilder result = new StringBuilder();
         PartialPosition newPoint = segment.getPoint();
 
         for (Axis axis : Axis.values()) {
-            if (newPoint.hasAxis(axis) && (currentPoint == null || !currentPoint.hasAxis(axis) || !isEqual(newPoint.getAxis(axis), currentPoint.getAxis(axis), 0.0001))) {
+            if (!newPoint.hasAxis(axis)) {
+                continue;
+            }
+
+            boolean isChanged = currentPoint == null || !currentPoint.hasAxis(axis) || !isEqual(newPoint.getAxis(axis), currentPoint.getAxis(axis), 0.0001);
+            if (isChanged || (alwaysWritePlaneAxes && PLANE_AXES.contains(axis))) {
                 result.append(axis.name()).append(Utils.formatter.format(newPoint.getAxis(axis)));
             }
         }
-        currentPoint = segment.point;
+        currentPoint = advanceCurrentPoint(newPoint);
         return result.toString();
+    }
+
+    /**
+     * Grbl only supports incremental arc offsets, so the absolute arc center is converted to an
+     * offset from the position where the arc starts.
+     */
+    private String getArcOffsetFormattedGCode(Segment segment) {
+        if (currentPoint == null || !currentPoint.hasX() || !currentPoint.hasY()) {
+            throw new IllegalStateException("An arc segment must be preceded by a position with a known X and Y");
+        }
+
+        Point2D arcCenter = segment.getArcCenter();
+        return "I" + Utils.formatter.format(arcCenter.getX() - currentPoint.getX())
+                + "J" + Utils.formatter.format(arcCenter.getY() - currentPoint.getY());
+    }
+
+    private PartialPosition advanceCurrentPoint(PartialPosition newPoint) {
+        if (currentPoint == null) {
+            return newPoint;
+        }
+
+        PartialPosition.Builder builder = PartialPosition.builder(currentPoint);
+        newPoint.getPositionIn(currentPoint.getUnits()).getAll().forEach(builder::setValue);
+        return builder.build();
     }
 
     @Override

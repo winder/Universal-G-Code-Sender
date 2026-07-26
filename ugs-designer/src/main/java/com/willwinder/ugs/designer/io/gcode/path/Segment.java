@@ -18,6 +18,8 @@ package com.willwinder.ugs.designer.io.gcode.path;
 
 import com.willwinder.universalgcodesender.model.PartialPosition;
 
+import java.awt.geom.Point2D;
+
 /**
  * Path segment
  *
@@ -50,12 +52,51 @@ public final class Segment {
      */
     private final Integer feedSpeed;
 
-    public Segment(SegmentType type, PartialPosition point, String label, Integer spindleSpeed, Integer feedSpeed) {
+    /**
+     * The absolute center of the arc for {@link SegmentType#CWARC} and {@link SegmentType#CCWARC}
+     * segments, null for all other segment types. It is stored as an absolute position instead of
+     * as incremental I/J offsets so that the segment stays valid no matter which position precedes
+     * it, leaving the conversion to the gcode writer.
+     */
+    private final Point2D arcCenter;
+
+    public Segment(SegmentType type, PartialPosition point, String label, Integer spindleSpeed, Integer feedSpeed, Point2D arcCenter) {
+        if (type.isArc() && arcCenter == null) {
+            throw new IllegalArgumentException("A " + type + " segment requires an arc center");
+        }
+        if (!type.isArc() && arcCenter != null) {
+            throw new IllegalArgumentException("A " + type + " segment can not have an arc center");
+        }
+        if (type.isArc() && (point == null || !point.hasX() || !point.hasY())) {
+            throw new IllegalArgumentException("A " + type + " segment requires a point with an X and Y, as an arc can not be written without them");
+        }
+
         this.type = type;
         this.point = point;
         this.label = label;
         this.spindleSpeed = spindleSpeed;
         this.feedSpeed = feedSpeed;
+        this.arcCenter = arcCenter == null ? null : new Point2D.Double(arcCenter.getX(), arcCenter.getY());
+    }
+
+    public Segment(SegmentType type, PartialPosition point, String label, Integer spindleSpeed, Integer feedSpeed) {
+        this(type, point, label, spindleSpeed, feedSpeed, null);
+    }
+
+    /**
+     * Creates an arc segment ending at the given point, curving around the given absolute center.
+     *
+     * @param type      either {@link SegmentType#CWARC} or {@link SegmentType#CCWARC}
+     * @param point     the position where the arc ends
+     * @param arcCenter the absolute center that the arc curves around
+     * @param feedSpeed the feed rate to cut the arc with
+     */
+    public static Segment arc(SegmentType type, PartialPosition point, Point2D arcCenter, Integer feedSpeed) {
+        if (!type.isArc()) {
+            throw new IllegalArgumentException("A " + type + " segment is not an arc");
+        }
+
+        return new Segment(type, point, null, null, feedSpeed, arcCenter);
     }
 
     public Segment(SegmentType type, PartialPosition point) {
@@ -98,6 +139,15 @@ public final class Segment {
             throw new NullPointerException(type + " segment has no point!");
 
         return point;
+    }
+
+    /**
+     * Get the absolute center that an arc segment curves around
+     *
+     * @return the arc center, or null if this is not an arc segment
+     */
+    public Point2D getArcCenter() {
+        return arcCenter == null ? null : new Point2D.Double(arcCenter.getX(), arcCenter.getY());
     }
 
     public Integer getSpindleSpeed() {
