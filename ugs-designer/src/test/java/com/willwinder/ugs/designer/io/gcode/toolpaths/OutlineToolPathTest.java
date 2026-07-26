@@ -613,6 +613,7 @@ public class OutlineToolPathTest {
     public void toGcodePath_shouldGenerateOnlyLinesForCircleWhenArcFittingIsDisabled() {
         Ellipse circle = new Ellipse(0, 0, 40, 40);
         Settings settings = new Settings();
+        settings.setArcFitting(false);
 
         GcodePath gcodePath = outlineOf(circle, settings);
 
@@ -624,10 +625,15 @@ public class OutlineToolPathTest {
         Ellipse circle = new Ellipse(0, 0, 40, 40);
         Settings fittedSettings = new Settings();
         fittedSettings.setArcFitting(true);
+        fittedSettings.setFlatnessPrecision(0.2);
 
         GcodePath fitted = outlineOf(circle, fittedSettings);
 
-        assertTrue(fitted.getSize() < outlineOf(circle, new Settings()).getSize());
+        Settings unfittedSettings = new Settings();
+        fittedSettings.setArcFitting(false);
+        fittedSettings.setFlatnessPrecision(0.2);
+        GcodePath outline = outlineOf(circle, unfittedSettings);
+        assertTrue("Expected fitted size " + fitted.getSize() + " to be smaller " + outline.getSize(), fitted.getSize() < outline.getSize());
     }
 
     @Test

@@ -21,8 +21,8 @@ package com.willwinder.ugs.designer.model;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Guards the invariants existing users rely on: a fresh {@link Settings} looks exactly like it
@@ -55,11 +55,9 @@ public class SettingsBackwardCompatTest {
     }
 
     @Test
-    public void arcFittingIsOffByDefault() {
-        // Turning arc fitting on changes the generated gcode from lines into G2/G3 moves, so it
-        // stays opt-in for existing users until they ask for it.
+    public void arcFittingIsOnByDefault() {
         Settings settings = new Settings();
-        assertFalse(settings.getArcFitting());
+        assertTrue(settings.getArcFitting());
     }
 
     @Test
