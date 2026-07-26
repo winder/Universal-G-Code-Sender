@@ -41,7 +41,7 @@ public class Settings {
     private boolean detectMaxSpindleSpeed = true;
     private String spindleDirection = "M3";
     private double flatnessPrecision = 0.1;
-    private boolean arcFitting = false;
+    private boolean arcFitting = true;
     private String currentToolId;
     private ToolDefinition currentToolSnapshot;
 
