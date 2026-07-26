@@ -47,6 +47,7 @@ public class SimpleGcodeRouterArcTest {
     @Test
     public void toGcode_shouldNotWriteArcsWhenArcFittingIsDisabled() throws IOException {
         Settings settings = new Settings();
+        settings.setArcFitting(false);
 
         String gcode = routeCircle(settings);
 
