@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Guards the invariants existing users rely on: a fresh {@link Settings} looks exactly like it
@@ -51,6 +52,12 @@ public class SettingsBackwardCompatTest {
         assertEquals(1.0, settings.getDepthPerPass(), 1e-9);
         assertEquals(255, settings.getMaxSpindleSpeed());
         assertEquals("M3", settings.getSpindleDirection());
+    }
+
+    @Test
+    public void arcFittingIsOnByDefault() {
+        Settings settings = new Settings();
+        assertTrue(settings.getArcFitting());
     }
 
     @Test

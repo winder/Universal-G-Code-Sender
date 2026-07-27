@@ -59,6 +59,7 @@ public class ToolSettingsStage extends Stage {
     private final UnitTextField laserDiameter;
     private final ComboBox<String> spindleDirection;
     private final UnitTextField flatnessPrecision;
+    private final SwitchButton arcFitting;
 
     public ToolSettingsStage(Window owner, Controller controller) {
         this.controller = controller;
@@ -81,6 +82,8 @@ public class ToolSettingsStage extends Stage {
         spindleDirection.setValue(settings.getSpindleDirection());
         spindleDirection.setMaxWidth(Double.MAX_VALUE);
         flatnessPrecision = numericField(Unit.MM, settings.getFlatnessPrecision());
+        arcFitting = new SwitchButton();
+        arcFitting.selectedProperty().set(settings.getArcFitting());
 
         setScene(createScene());
         setWidth(380);
@@ -105,7 +108,8 @@ public class ToolSettingsStage extends Stage {
                 new SettingsRow("Spindle start command", spindleDirection),
                 new Separator(),
                 new SettingsRow("Laser diameter", laserDiameter),
-                new SettingsRow("Arc precision", flatnessPrecision));
+                new SettingsRow("Curve precision", flatnessPrecision),
+                new SettingsRow("Generate arcs", arcFitting));
         form.setPadding(new Insets(16));
 
         ScrollPane scroll = new ScrollPane(form);
@@ -144,6 +148,7 @@ public class ToolSettingsStage extends Stage {
         settings.setLaserDiameter(laserDiameter.getValue());
         settings.setSpindleDirection(spindleDirection.getValue());
         settings.setFlatnessPrecision(flatnessPrecision.getValue());
+        settings.setArcFitting(arcFitting.selectedProperty().get());
 
         ChangeToolSettingsAction action = new ChangeToolSettingsAction(controller, settings);
         action.actionPerformed(null);

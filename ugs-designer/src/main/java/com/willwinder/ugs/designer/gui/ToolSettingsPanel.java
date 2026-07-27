@@ -71,6 +71,7 @@ public class ToolSettingsPanel extends JPanel {
     private TextFieldWithUnit maxSpindleSpeed;
     private JComboBox<String> spindleDirection;
     private TextFieldWithUnit flatnessPrecision;
+    private JCheckBox arcFitting;
 
     private transient ToolDefinition librarySnapshot;
 
@@ -157,9 +158,13 @@ public class ToolSettingsPanel extends JPanel {
         spindleDirection.setSelectedItem(controller.getSettings().getSpindleDirection());
         add(spindleDirection, TOOL_FIELD_CONSTRAINT);
 
-        add(new JLabel("Arc precision"));
+        add(new JLabel("Curve precision"));
         flatnessPrecision = new TextFieldWithUnit(Unit.MM, 3, controller.getSettings().getFlatnessPrecision());
         add(flatnessPrecision, TOOL_FIELD_CONSTRAINT);
+
+        add(new JLabel("Generate arcs"));
+        arcFitting = new JCheckBox("", controller.getSettings().getArcFitting());
+        add(arcFitting, TOOL_FIELD_CONSTRAINT);
     }
 
     private void rebuildDiameterField(UnitUtils.Units unit, double valueInFieldUnit) {
@@ -365,6 +370,7 @@ public class ToolSettingsPanel extends JPanel {
         }
     }
 
+
     public Settings getSettings() {
         Settings settings = new Settings();
         settings.applySettings(controller.getSettings());
@@ -379,6 +385,7 @@ public class ToolSettingsPanel extends JPanel {
         settings.setDetectMaxSpindleSpeed(getDetectMaxSpindleSpeed());
         settings.setSpindleDirection(getSpindleDirection());
         settings.setFlatnessPrecision(getFlatnessPrecision());
+        settings.setArcFitting(arcFitting.isSelected());
         if (librarySnapshot != null) {
             settings.setCurrentToolId(librarySnapshot.getId());
             settings.setCurrentToolSnapshot(new ToolDefinition(librarySnapshot));

@@ -45,8 +45,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class ToolPathUtils {
-    public static final double DISTANCE_TOLERANCE = 0.1;
-
     public static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
     private ToolPathUtils() {
@@ -199,14 +197,23 @@ public class ToolPathUtils {
         return new ToolPathStats(totalFeedLength, totalRapidLength);
     }
 
-    public static List<Geometry> bufferAndCollectGeometries(Geometry geometry, double toolDiameter, double stepOver) {
+    /**
+     * Offsets the geometry inwards repeatedly to produce the rings clearing out a pocket.
+     *
+     * @param geometry          the geometry to clear out
+     * @param toolDiameter      the diameter of the tool doing the clearing
+     * @param stepOver          how much of the tool diameter to move between each ring
+     * @param simplifyTolerance how far the rings may be moved when dropping points that are not
+     *                          needed to describe them
+     */
+    public static List<Geometry> bufferAndCollectGeometries(Geometry geometry, double toolDiameter, double stepOver, double simplifyTolerance) {
         double buffer = toolDiameter / 2d;
-        List<Geometry> geometries = ToolPathUtils.bufferAndCollectGeometries(geometry, buffer, toolDiameter, stepOver);
+        List<Geometry> geometries = ToolPathUtils.bufferAndCollectGeometries(geometry, buffer, toolDiameter, stepOver, simplifyTolerance);
         geometries.sort(new GeometrySizeComparator());
         return geometries;
     }
 
-    public static List<Geometry> bufferAndCollectGeometries(Geometry geometry, double buffer, double toolDiameter, double stepOver) {
+    public static List<Geometry> bufferAndCollectGeometries(Geometry geometry, double buffer, double toolDiameter, double stepOver, double simplifyTolerance) {
         Geometry bufferedGeometry = geometry.buffer(-buffer);
         if (bufferedGeometry.getNumGeometries() <= 0 || bufferedGeometry.isEmpty()) {
             return Collections.emptyList();
@@ -215,15 +222,15 @@ public class ToolPathUtils {
         List<Geometry> result = new ArrayList<>();
         for (int i = 0; i < bufferedGeometry.getNumGeometries(); i++) {
             Geometry geom = bufferedGeometry.getGeometryN(i);
-            result.addAll(bufferAndCollectGeometries(geom, toolDiameter * stepOver, toolDiameter, stepOver));
+            result.addAll(bufferAndCollectGeometries(geom, toolDiameter * stepOver, toolDiameter, stepOver, simplifyTolerance));
 
             if (geom instanceof Polygon polygon) {
-                result.add(DouglasPeuckerSimplifier.simplify(polygon.getExteriorRing(), DISTANCE_TOLERANCE));
+                result.add(DouglasPeuckerSimplifier.simplify(polygon.getExteriorRing(), simplifyTolerance));
                 for (int j = 0; j < polygon.getNumInteriorRing(); j++) {
-                    result.add(DouglasPeuckerSimplifier.simplify(polygon.getInteriorRingN(j), DISTANCE_TOLERANCE));
+                    result.add(DouglasPeuckerSimplifier.simplify(polygon.getInteriorRingN(j), simplifyTolerance));
                 }
             } else {
-                result.add(DouglasPeuckerSimplifier.simplify(geom, DISTANCE_TOLERANCE));
+                result.add(DouglasPeuckerSimplifier.simplify(geom, simplifyTolerance));
             }
         }
 

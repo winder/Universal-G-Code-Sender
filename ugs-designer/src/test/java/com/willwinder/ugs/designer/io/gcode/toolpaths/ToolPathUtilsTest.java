@@ -30,7 +30,7 @@ public class ToolPathUtilsTest {
 
         Geometry geometryCollection = convertAreaToGeometry(new Area(design.getEntities().get(0).getShape()), new GeometryFactory(), 0.1);
         Geometry shell = geometryCollection.buffer(-toolDiameter / 2d);
-        List<Geometry> geometries = bufferAndCollectGeometries(geometryCollection, toolDiameter, 1);
+        List<Geometry> geometries = bufferAndCollectGeometries(geometryCollection, toolDiameter, 1, 0.1);
         assertEquals(4, geometries.size());
 
         List<List<PartialPosition>> coordinateList = new ArrayList<>();

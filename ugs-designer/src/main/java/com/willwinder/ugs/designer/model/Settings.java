@@ -41,6 +41,7 @@ public class Settings {
     private boolean detectMaxSpindleSpeed = true;
     private String spindleDirection = "M3";
     private double flatnessPrecision = 0.1;
+    private boolean arcFitting = true;
     private String currentToolId;
     private ToolDefinition currentToolSnapshot;
 
@@ -204,6 +205,7 @@ public class Settings {
         setDetectMaxSpindleSpeed(settings.getDetectMaxSpindleSpeed());
         setSpindleDirection(settings.getSpindleDirection());
         setFlatnessPrecision(settings.getFlatnessPrecision());
+        setArcFitting(settings.getArcFitting());
         setCurrentToolId(settings.getCurrentToolId());
         ToolDefinition snapshot = settings.getCurrentToolSnapshot();
         setCurrentToolSnapshot(snapshot == null ? null : new ToolDefinition(snapshot));
@@ -245,6 +247,20 @@ public class Settings {
 
     public void setFlatnessPrecision(double flatnessPrecision) {
         this.flatnessPrecision = flatnessPrecision;
+        notifyListeners();
+    }
+
+    /**
+     * Returns whether runs of straight lines in generated tool paths should be replaced by arcs
+     * where the lines follow a circle. The arcs are held to the same precision as
+     * {@link #getFlatnessPrecision()}.
+     */
+    public boolean getArcFitting() {
+        return arcFitting;
+    }
+
+    public void setArcFitting(boolean arcFitting) {
+        this.arcFitting = arcFitting;
         notifyListeners();
     }
 

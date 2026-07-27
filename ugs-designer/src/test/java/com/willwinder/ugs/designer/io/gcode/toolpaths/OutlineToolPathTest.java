@@ -18,6 +18,8 @@
  */
 package com.willwinder.ugs.designer.io.gcode.toolpaths;
 
+import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.entities.cuttable.Ellipse;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
@@ -80,13 +82,6 @@ public class OutlineToolPathTest {
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
         assertEquals(0, segment.point.getX(), 0.01);
-        assertEquals(0, segment.point.getY(), 0.01);
-        assertEquals(-1, segment.point.getZ(), 0.01);
-        assertEquals(2000, segment.getFeedSpeed(), 0.01);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        assertEquals(0, segment.point.getX(), 0.01);
         assertEquals(10, segment.point.getY(), 0.01);
         assertEquals(-1, segment.point.getZ(), 0.01);
         assertEquals(2000, segment.getFeedSpeed(), 0.01);
@@ -119,7 +114,7 @@ public class OutlineToolPathTest {
         assertFalse(segment.point.hasY());
         assertEquals(10, segment.point.getZ(), 0.01);
 
-        assertEquals(11, segments.size());
+        assertEquals(10, segments.size());
     }
 
     @Test
@@ -168,12 +163,6 @@ public class OutlineToolPathTest {
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
         assertEquals(0, segment.point.getX(), 0.01);
-        assertEquals(0, segment.point.getY(), 0.01);
-        assertEquals(-1, segment.point.getZ(), 0.01);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        assertEquals(0, segment.point.getX(), 0.01);
         assertEquals(10, segment.point.getY(), 0.01);
         assertEquals(-1, segment.point.getZ(), 0.01);
 
@@ -202,7 +191,7 @@ public class OutlineToolPathTest {
         assertFalse(segment.point.hasY());
         assertEquals(0, segment.point.getZ(), 0.01);
 
-        assertEquals(11, segments.size());
+        assertEquals(10, segments.size());
     }
 
 
@@ -252,12 +241,6 @@ public class OutlineToolPathTest {
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
         assertEquals(0, segment.point.getX(), 0.01);
-        assertEquals(0, segment.point.getY(), 0.01);
-        assertEquals(15, segment.point.getZ(), 0.01);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        assertEquals(0, segment.point.getX(), 0.01);
         assertEquals(10, segment.point.getY(), 0.01);
         assertEquals(15, segment.point.getZ(), 0.01);
 
@@ -286,7 +269,7 @@ public class OutlineToolPathTest {
         assertFalse(segment.point.hasY());
         assertEquals(15, segment.point.getZ(), 0.01);
 
-        assertEquals(11, segments.size());
+        assertEquals(10, segments.size());
     }
 
     @Test
@@ -341,12 +324,6 @@ public class OutlineToolPathTest {
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
         assertEquals(0, segment.point.getX(), 0.01);
-        assertEquals(0, segment.point.getY(), 0.01);
-        assertEquals(15, segment.point.getZ(), 0.01);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        assertEquals(0, segment.point.getX(), 0.01);
         assertEquals(10, segment.point.getY(), 0.01);
         assertEquals(15, segment.point.getZ(), 0.01);
 
@@ -375,7 +352,7 @@ public class OutlineToolPathTest {
         assertFalse(segment.point.hasY());
         assertEquals(25, segment.point.getZ(), 0.01);
 
-        assertEquals(11, segments.size());
+        assertEquals(10, segments.size());
     }
 
     @Test
@@ -392,7 +369,7 @@ public class OutlineToolPathTest {
         GcodePath gcodePath = toolPath.toGcodePath();
 
         List<Segment> segments = gcodePath.getSegments();
-        assertEquals(20, segments.size());
+        assertEquals(18, segments.size());
 
         int segmentIndex = 0;
 
@@ -428,12 +405,6 @@ public class OutlineToolPathTest {
         assertEquals(SegmentType.POINT, segment.type);
         assertTrue(segment.point.hasX());
         assertTrue(segment.point.hasY());
-        assertEquals(10, segment.point.getZ(), 0.01);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        assertEquals(0, segment.point.getX(), 0.01);
-        assertEquals(0, segment.point.getY(), 0.01);
         assertEquals(10, segment.point.getZ(), 0.01);
 
         segment = segments.get(segmentIndex++);
@@ -486,12 +457,6 @@ public class OutlineToolPathTest {
         assertEquals(SegmentType.POINT, segment.type);
         assertTrue(segment.point.hasX());
         assertTrue(segment.point.hasY());
-        assertEquals(9, segment.point.getZ(), 0.01);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        assertEquals(0, segment.point.getX(), 0.01);
-        assertEquals(0, segment.point.getY(), 0.01);
         assertEquals(9, segment.point.getZ(), 0.01);
 
         segment = segments.get(segmentIndex++);
@@ -573,13 +538,6 @@ public class OutlineToolPathTest {
         segment = segments.get(segmentIndex++);
         assertEquals(SegmentType.LINE, segment.type);
         assertEquals(0, segment.point.getX(), 0.01);
-        assertEquals(0, segment.point.getY(), 0.01);
-        assertEquals(-1, segment.point.getZ(), 0.01);
-        assertEquals(100, segment.getFeedSpeed(), 0.01);
-
-        segment = segments.get(segmentIndex++);
-        assertEquals(SegmentType.LINE, segment.type);
-        assertEquals(0, segment.point.getX(), 0.01);
         assertEquals(10, segment.point.getY(), 0.01);
         assertEquals(-1, segment.point.getZ(), 0.01);
 
@@ -608,7 +566,7 @@ public class OutlineToolPathTest {
         assertFalse(segment.point.hasY());
         assertEquals(10, segment.point.getZ(), 0.01);
 
-        assertEquals(11, segments.size());
+        assertEquals(10, segments.size());
     }
 
     @Test
@@ -635,6 +593,64 @@ public class OutlineToolPathTest {
         assertNull(segment.point);
         assertEquals(10000, segment.getSpindleSpeed(), 0.01);
 
-        assertEquals(11, segments.size());
+        assertEquals(10, segments.size());
+    }
+
+    @Test
+    public void toGcodePath_shouldGenerateArcsForCircleWhenArcFittingIsEnabled() {
+        Ellipse circle = new Ellipse(0, 0, 40, 40);
+        Settings settings = new Settings();
+        settings.setArcFitting(true);
+
+        GcodePath gcodePath = outlineOf(circle, settings);
+
+        List<Segment> arcs = gcodePath.getSegments().stream().filter(s -> s.getType().isArc()).toList();
+        assertFalse(arcs.isEmpty());
+        arcs.forEach(arc -> assertNotNull(arc.getArcCenter()));
+    }
+
+    @Test
+    public void toGcodePath_shouldGenerateOnlyLinesForCircleWhenArcFittingIsDisabled() {
+        Ellipse circle = new Ellipse(0, 0, 40, 40);
+        Settings settings = new Settings();
+        settings.setArcFitting(false);
+
+        GcodePath gcodePath = outlineOf(circle, settings);
+
+        assertTrue(gcodePath.getSegments().stream().noneMatch(s -> s.getType().isArc()));
+    }
+
+    @Test
+    public void toGcodePath_shouldGenerateFewerSegmentsForCircleWhenArcFittingIsEnabled() {
+        Ellipse circle = new Ellipse(0, 0, 40, 40);
+        Settings fittedSettings = new Settings();
+        fittedSettings.setArcFitting(true);
+        fittedSettings.setFlatnessPrecision(0.2);
+
+        GcodePath fitted = outlineOf(circle, fittedSettings);
+
+        Settings unfittedSettings = new Settings();
+        fittedSettings.setArcFitting(false);
+        fittedSettings.setFlatnessPrecision(0.2);
+        GcodePath outline = outlineOf(circle, unfittedSettings);
+        assertTrue("Expected fitted size " + fitted.getSize() + " to be smaller " + outline.getSize(), fitted.getSize() < outline.getSize());
+    }
+
+    @Test
+    public void toGcodePath_shouldKeepStraightEdgesAsLinesWhenArcFittingIsEnabled() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setSize(new Size(30, 20));
+        Settings settings = new Settings();
+        settings.setArcFitting(true);
+
+        GcodePath gcodePath = outlineOf(rectangle, settings);
+
+        assertTrue(gcodePath.getSegments().stream().noneMatch(s -> s.getType().isArc()));
+    }
+
+    private static GcodePath outlineOf(Cuttable source, Settings settings) {
+        OutlineToolPath toolPath = new OutlineToolPath(settings, source);
+        toolPath.setTargetDepth(1);
+        return toolPath.toGcodePath();
     }
 }
