@@ -25,6 +25,7 @@ import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_LASER_F
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_LASER_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_POCKET_SETTINGS;
 import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_SURFACE_SETTINGS;
+import static com.willwinder.ugs.designer.entities.EntitySetting.DEFAULT_VCARVE_SETTINGS;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.List;
 public enum CutType {
     NONE("None", List.of(EntitySetting.CUT_TYPE), Collections.emptyList()),
     POCKET("Mill - Pocket", DEFAULT_POCKET_SETTINGS, List.of(Direction.CLIMB, Direction.CONVENTIONAL)),
+    VCARVE("Mill - V-carve", DEFAULT_VCARVE_SETTINGS, List.of(Direction.CLIMB, Direction.CONVENTIONAL)),
     SURFACE("Mill - Surface", DEFAULT_SURFACE_SETTINGS, List.of(Direction.CLIMB, Direction.CONVENTIONAL, Direction.BOTH)),
     ON_PATH("Mill - On path", DEFAULT_ENDMILL_SETTINGS, Collections.emptyList()),
     INSIDE_PATH("Mill - Inside path", DEFAULT_ENDMILL_SETTINGS, Collections.emptyList()),

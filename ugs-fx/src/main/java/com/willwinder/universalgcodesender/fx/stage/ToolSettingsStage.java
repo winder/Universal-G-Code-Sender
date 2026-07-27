@@ -50,6 +50,7 @@ public class ToolSettingsStage extends Stage {
 
     private final UnitTextField toolDiameter;
     private final UnitTextField stepOver;
+    private final UnitTextField vBitAngle;
     private final UnitTextField feedSpeed;
     private final UnitTextField plungeSpeed;
     private final UnitTextField depthPerPass;
@@ -70,6 +71,7 @@ public class ToolSettingsStage extends Stage {
         Settings settings = controller.getSettings();
         toolDiameter = numericField(Unit.MM, settings.getToolDiameter());
         stepOver = numericField(Unit.PERCENT, settings.getToolStepOver());
+        vBitAngle = numericField(Unit.DEGREE, settings.getVBitAngle());
         feedSpeed = numericField(Unit.MM_PER_MINUTE, settings.getFeedSpeed());
         plungeSpeed = numericField(Unit.MM_PER_MINUTE, settings.getPlungeSpeed());
         depthPerPass = numericField(Unit.MM, settings.getDepthPerPass());
@@ -97,6 +99,7 @@ public class ToolSettingsStage extends Stage {
         VBox form = new VBox(4,
                 new SettingsRow("Tool diameter", toolDiameter),
                 new SettingsRow("Tool step over", stepOver),
+                new SettingsRow("V-bit angle", vBitAngle),
                 new Separator(),
                 new SettingsRow("Default feed speed", feedSpeed),
                 new SettingsRow("Plunge speed", plungeSpeed),
@@ -139,6 +142,7 @@ public class ToolSettingsStage extends Stage {
         settings.applySettings(controller.getSettings());
         settings.setToolDiameter(toolDiameter.getValue());
         settings.setToolStepOver(stepOver.getValue());
+        settings.setVBitAngle(vBitAngle.getValue());
         settings.setFeedSpeed((int) Math.round(feedSpeed.getValue()));
         settings.setPlungeSpeed((int) Math.round(plungeSpeed.getValue()));
         settings.setDepthPerPass(depthPerPass.getValue());

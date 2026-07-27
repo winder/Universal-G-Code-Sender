@@ -101,7 +101,7 @@ public class ToolButton extends Button {
     private static boolean isMillOperation(Cuttable c) {
         return c.getCutType() == CutType.ON_PATH || c.getCutType() == CutType.CENTER_DRILL
                 || c.getCutType() == CutType.INSIDE_PATH || c.getCutType() == CutType.OUTSIDE_PATH
-                || c.getCutType() == CutType.POCKET;
+                || c.getCutType() == CutType.POCKET || c.getCutType() == CutType.VCARVE;
     }
 
     private static boolean isLaserOperation(Cuttable c) {

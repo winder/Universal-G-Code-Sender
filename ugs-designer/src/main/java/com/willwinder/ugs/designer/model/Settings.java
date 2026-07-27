@@ -35,6 +35,7 @@ public class Settings {
     private double safeHeight = 5;
     private UnitUtils.Units preferredUnits = UnitUtils.Units.MM;
     private double toolStepOver = 0.3;
+    private double vBitAngle = 60;
     private double depthPerPass = 1;
     private double laserDiameter = 0.2;
     private int maxSpindleSpeed = 255;
@@ -169,6 +170,27 @@ public class Settings {
         notifyListeners();
     }
 
+    /**
+     * Returns the included angle of the V-shaped bit in degrees. This is what decides how much
+     * wider a carved line gets for every millimeter the tool is lowered.
+     *
+     * @return the included angle in degrees
+     */
+    public double getVBitAngle() {
+        return vBitAngle;
+    }
+
+    /**
+     * Sets the included angle of the V-shaped bit given a value between 1 and 179 degrees. Angles
+     * outside that range would either never widen the cut or never reach any depth.
+     *
+     * @param vBitAngle the included angle in degrees
+     */
+    public void setVBitAngle(double vBitAngle) {
+        this.vBitAngle = Math.min(Math.max(1, Math.abs(vBitAngle)), 179);
+        notifyListeners();
+    }
+
     public String getStockSizeDescription() {
         double scale = UnitUtils.scaleUnits(UnitUtils.Units.MM, getPreferredUnits());
         return Utils.formatter.format(getStockThickness() * scale) + " " + getPreferredUnits().abbreviation;
@@ -198,6 +220,7 @@ public class Settings {
         setStockThickness(settings.getStockThickness());
         setToolDiameter(settings.getToolDiameter());
         setToolStepOver(settings.getToolStepOver());
+        setVBitAngle(settings.getVBitAngle());
         setPreferredUnits(settings.getPreferredUnits());
         setSafeHeight(settings.getSafeHeight());
         setLaserDiameter(settings.getLaserDiameter());
