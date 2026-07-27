@@ -41,6 +41,7 @@ import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -52,6 +53,8 @@ import java.util.List;
  * persisted by the service.
  */
 public class ToolLibraryDialog extends JDialog {
+    private static final int MINIMUM_HEIGHT = 400;
+
     private final ToolLibraryService service;
     private final UnitUtils.Units preferredUnits;
     private final DefaultListModel<ToolDefinition> listModel = new DefaultListModel<>();
@@ -75,7 +78,7 @@ public class ToolLibraryDialog extends JDialog {
     }
 
     private void initComponents() {
-        setLayout(new MigLayout("fill", "[250!][grow]", "[grow][]"));
+        setLayout(new MigLayout("fill", "[::400][grow]", "[grow][]"));
         setPreferredSize(new Dimension(780, 520));
 
         toolList = new JList<>(listModel);
@@ -119,8 +122,12 @@ public class ToolLibraryDialog extends JDialog {
         editorPanel = new ToolEditorPanel(preferredUnits);
         editorPanel.setChangeListener(this::onEditorChanged);
 
+        JScrollPane editorScrollPane = new JScrollPane(editorPanel,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        editorScrollPane.setMinimumSize(minimumScrollPaneSize(editorScrollPane));
+
         add(leftPanel, "grow");
-        add(new JScrollPane(editorPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), "grow, wrap");
+        add(editorScrollPane, "grow, wrap");
 
         JPanel bottom = new JPanel(new BorderLayout());
         closeButton = new JButton("Close");
@@ -135,8 +142,21 @@ public class ToolLibraryDialog extends JDialog {
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         setSize(getPreferredSize());
-        setMinimumSize(new Dimension(620, 400));
+        setMinimumSize(minimumDialogSize());
         setLocationRelativeTo(getOwner());
+    }
+
+    private Dimension minimumScrollPaneSize(JScrollPane scrollPane) {
+        Insets insets = scrollPane.getInsets();
+        int width = editorPanel.getMinimumSize().width
+                + scrollPane.getVerticalScrollBar().getPreferredSize().width
+                + insets.left + insets.right;
+        return new Dimension(width, 0);
+    }
+
+    private Dimension minimumDialogSize() {
+        Dimension contentMinimum = getContentPane().getMinimumSize();
+        return new Dimension(contentMinimum.width, Math.max(MINIMUM_HEIGHT, contentMinimum.height));
     }
 
     private void refreshList(String preferredSelectionId) {
