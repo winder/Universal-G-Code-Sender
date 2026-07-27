@@ -184,11 +184,15 @@ public class ToolDefinition {
      * Copies this tool's library-managed fields onto a {@link Settings} instance while leaving
      * project/session-level fields (safe height, stock thickness, laser diameter, flatness,
      * preferredUnits, detectMaxSpindleSpeed) untouched. Diameter is converted to mm; feed, plunge
-     * and depth are already stored in mm / mm-per-minute.
+     * and depth are already stored in mm / mm-per-minute. Tools that are not V-shaped carry no
+     * angle, and leave the previously configured one alone.
      */
     public Settings applyToSettings(Settings base) {
         Settings result = new Settings(base);
         result.setToolDiameter(getDiameterInMm());
+        if (vBitAngleDegrees != null) {
+            result.setVBitAngle(vBitAngleDegrees);
+        }
         result.setFeedSpeed(feedSpeed);
         result.setPlungeSpeed(plungeSpeed);
         result.setDepthPerPass(depthPerPass);

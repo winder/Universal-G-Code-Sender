@@ -33,6 +33,10 @@ public class CutTypeIcon extends ImageIcon {
                 icon = SvgIconLoader.loadImageIcon("img/cutpocket.svg", size.value).orElse(null);
                 setDescription(cutType.getName());
                 break;
+            case VCARVE:
+                icon = SvgIconLoader.loadImageIcon("img/cutvcarve.svg", size.value).orElse(null);
+                setDescription(cutType.getName());
+                break;
             case OUTSIDE_PATH:
                 icon = SvgIconLoader.loadImageIcon("img/cutoutside.svg", size.value).orElse(null);
                 setDescription(cutType.getName());

@@ -87,6 +87,15 @@ public enum EntitySetting {
             EntitySetting.FEED_RATE,
             EntitySetting.INCLUDE_IN_EXPORT);
 
+    public static final List<EntitySetting> DEFAULT_VCARVE_SETTINGS = List.of(
+            EntitySetting.CUT_TYPE,
+            EntitySetting.DIRECTION,
+            EntitySetting.START_DEPTH,
+            EntitySetting.TARGET_DEPTH,
+            EntitySetting.SPINDLE_SPEED,
+            EntitySetting.FEED_RATE,
+            EntitySetting.INCLUDE_IN_EXPORT);
+
     public static final List<EntitySetting> DEFAULT_SURFACE_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
             EntitySetting.DIRECTION,

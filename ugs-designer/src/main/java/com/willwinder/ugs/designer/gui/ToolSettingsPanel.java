@@ -65,6 +65,7 @@ public class ToolSettingsPanel extends JPanel {
     private TextFieldWithUnit plungeSpeed;
     private TextFieldWithUnit depthPerPass;
     private TextFieldWithUnit stepOver;
+    private TextFieldWithUnit vBitAngle;
     private JTextField safeHeight;
     private JCheckBox detectMaxSpindleSpeed;
     private TextFieldWithUnit laserDiameter;
@@ -116,6 +117,10 @@ public class ToolSettingsPanel extends JPanel {
         stepOver = new TextFieldWithUnit(Unit.PERCENT, 2,
                 controller.getSettings().getToolStepOver());
         add(stepOver, TOOL_FIELD_CONSTRAINT);
+
+        add(new JLabel("V-bit angle (" + Unit.DEGREE.getAbbreviation() + ")"));
+        vBitAngle = new TextFieldWithUnit(Unit.DEGREE, 1, controller.getSettings().getVBitAngle());
+        add(vBitAngle, TOOL_FIELD_CONSTRAINT);
 
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2");
 
@@ -232,6 +237,8 @@ public class ToolSettingsPanel extends JPanel {
                 () -> librarySnapshot == null ? null : librarySnapshot.getDepthPerPass());
         DeviationHighlighter.attachDouble(stepOver,
                 () -> librarySnapshot == null ? null : librarySnapshot.getStepOverPercent());
+        DeviationHighlighter.attachDouble(vBitAngle,
+                () -> librarySnapshot == null ? null : librarySnapshot.getVBitAngleDegrees());
         DeviationHighlighter.attachCombo(spindleDirection,
                 () -> librarySnapshot == null ? null : librarySnapshot.getSpindleDirection());
     }
@@ -275,6 +282,9 @@ public class ToolSettingsPanel extends JPanel {
                 plungeSpeed.setDoubleValue(librarySnapshot.getPlungeSpeed());
                 depthPerPass.setDoubleValue(librarySnapshot.getDepthPerPass());
                 stepOver.setDoubleValue(librarySnapshot.getStepOverPercent());
+                if (librarySnapshot.getVBitAngleDegrees() != null) {
+                    vBitAngle.setDoubleValue(librarySnapshot.getVBitAngleDegrees());
+                }
                 maxSpindleSpeed.setDoubleValue(librarySnapshot.getMaxSpindleSpeed());
                 spindleDirection.setSelectedItem(librarySnapshot.getSpindleDirection());
             } catch (RuntimeException ignored) {
@@ -304,6 +314,10 @@ public class ToolSettingsPanel extends JPanel {
 
     public double getStepOver() {
         return stepOver.getDoubleValue();
+    }
+
+    public double getVBitAngle() {
+        return vBitAngle.getDoubleValue();
     }
 
     public double getDepthPerPass() {
@@ -379,6 +393,7 @@ public class ToolSettingsPanel extends JPanel {
         settings.setFeedSpeed(getFeedSpeed());
         settings.setToolDiameter(getToolDiameter());
         settings.setToolStepOver(getStepOver());
+        settings.setVBitAngle(getVBitAngle());
         settings.setPlungeSpeed(getPlungeSpeed());
         settings.setLaserDiameter(getLaserDiameter());
         settings.setMaxSpindleSpeed((int) getMaxSpindleSpeed());

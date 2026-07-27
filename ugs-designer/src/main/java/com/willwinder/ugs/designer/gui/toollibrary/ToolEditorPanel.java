@@ -32,7 +32,6 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import java.awt.Dimension;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.function.Consumer;
@@ -71,7 +70,6 @@ public class ToolEditorPanel extends JPanel {
     private JLabel errorLabel;
 
     private ToolDefinition current;
-    private boolean readOnly;
     private boolean suppressEvents;
     private Consumer<ToolDefinition> changeListener = t -> {};
 
@@ -87,9 +85,7 @@ public class ToolEditorPanel extends JPanel {
     }
 
     private void initComponents() {
-        setLayout(new MigLayout("fillx, wrap 2", "[pref!][grow,fill]"));
-        setPreferredSize(new Dimension(420, 420));
-        setMinimumSize(new Dimension(420, 420));
+        setLayout(new MigLayout("fillx, wrap 2", "[pref!][grow,fill,120:250]"));
 
         add(new JLabel("Name"));
         nameField = new JTextField();
@@ -180,7 +176,6 @@ public class ToolEditorPanel extends JPanel {
 
     public void setTool(ToolDefinition tool, boolean readOnly) {
         this.current = tool;
-        this.readOnly = readOnly;
         suppressEvents = true;
         try {
             boolean enabled = tool != null && !readOnly && !tool.isCustomSentinel();

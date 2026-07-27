@@ -29,6 +29,7 @@ import com.willwinder.ugs.designer.io.gcode.toolpaths.PocketToolPath;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.SurfaceToolPath;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.ToolPathStats;
 import com.willwinder.ugs.designer.io.gcode.toolpaths.ToolPathUtils;
+import com.willwinder.ugs.designer.io.gcode.toolpaths.VCarveToolPath;
 import com.willwinder.ugs.designer.io.gcode.writer.GrblGcodeWriter;
 import com.willwinder.ugs.designer.model.Settings;
 
@@ -72,6 +73,12 @@ public class SimpleGcodeRouter {
                         simplePocket.setStartDepth(cuttable.getStartDepth());
                         simplePocket.setTargetDepth(cuttable.getTargetDepth());
                         simplePocket.appendGcodePath(gcodePath, settings);
+                        break;
+                    case VCARVE:
+                        VCarveToolPath vCarveToolPath = new VCarveToolPath(settings, cuttable);
+                        vCarveToolPath.setStartDepth(cuttable.getStartDepth());
+                        vCarveToolPath.setTargetDepth(cuttable.getTargetDepth());
+                        vCarveToolPath.appendGcodePath(gcodePath, settings);
                         break;
                     case SURFACE:
                         SurfaceToolPath surfaceToolPath = new SurfaceToolPath(settings, cuttable);

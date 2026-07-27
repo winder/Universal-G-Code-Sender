@@ -26,6 +26,7 @@ import com.willwinder.ugs.designer.entities.cuttable.CutType;
 public enum CutTypeV1 {
     NONE,
     POCKET,
+    VCARVE,
     SURFACE,
     ON_PATH,
     INSIDE_PATH,
@@ -40,6 +41,7 @@ public enum CutTypeV1 {
         return switch (cutType) {
             case NONE -> NONE;
             case POCKET -> POCKET;
+            case VCARVE -> VCARVE;
             case SURFACE -> SURFACE;
             case ON_PATH -> ON_PATH;
             case INSIDE_PATH -> INSIDE_PATH;
@@ -56,6 +58,7 @@ public enum CutTypeV1 {
         return switch (cutType) {
             case NONE -> CutType.NONE;
             case POCKET -> CutType.POCKET;
+            case VCARVE -> CutType.VCARVE;
             case SURFACE -> CutType.SURFACE;
             case ON_PATH -> CutType.ON_PATH;
             case INSIDE_PATH -> CutType.INSIDE_PATH;
