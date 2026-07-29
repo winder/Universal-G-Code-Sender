@@ -214,7 +214,8 @@ public class HeightMapToolPathTest {
 
         List<Segment> segments = toolPath.toGcodePath().getSegments();
 
-        assertEquals("A 6mm tool must not descend into a 1mm wide slot", 0, deepestZ(segments), 0.01);
+        assertTrue("A 6mm tool must not descend into a 1mm wide slot (deepest was " + deepestZ(segments) + ")",
+                deepestZ(segments) >= -0.01);
     }
 
     @Test

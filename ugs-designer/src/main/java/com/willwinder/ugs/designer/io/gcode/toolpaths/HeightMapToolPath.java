@@ -295,10 +295,10 @@ public class HeightMapToolPath extends AbstractToolPath {
     }
 
     private double requiredRoughDepth(double x, double y) {
-        // Roughing follows the true surface at this point (not the radius-compensated one) so it clears
-        // material right up to the edges, leaving only the stock-to-leave for the finishing tool. The
-        // finishing pass stays radius compensated to avoid gouging the final surface.
-        return clamp(surfaceDepthAt(x, y) - source.getStockToLeave(), getStartDepth(), getRoughingTargetDepth());
+        // Radius compensated like the finishing pass: the tool cannot remove material it does not fit
+        // into, so a feature narrower than the tool must be left standing rather than plunged through.
+        // Roughing only differs in stopping short of the final surface by the stock-to-leave amount.
+        return clamp(footprintSurfaceDepth(x, y) - source.getStockToLeave(), getStartDepth(), getRoughingTargetDepth());
     }
 
     /**
