@@ -131,15 +131,19 @@ public class DepthMapGenerator {
         h = detailBlend(h, luma, parameters.detailBlendAmount(), DETAIL_SCALE);
         clamp01(h);
 
-        return toByteGray(h, originalWidth, originalHeight);
+        return toGrayscale(h, originalWidth, originalHeight);
     }
 
-    private static BufferedImage toByteGray(float[][] map, int width, int height) {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+    /**
+     * The height field is kept at 16 bits so the carved depth resolution is limited by the estimate
+     * rather than by the 256 steps an 8-bit image would allow.
+     */
+    private static BufferedImage toGrayscale(float[][] map, int width, int height) {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_USHORT_GRAY);
         var raster = image.getRaster();
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int value = Math.round(Math.max(0f, Math.min(1f, map[y][x])) * 255f);
+                int value = Math.round(Math.max(0f, Math.min(1f, map[y][x])) * 65535f);
                 raster.setSample(x, y, 0, value);
             }
         }
