@@ -108,8 +108,23 @@ public class HeightMapToolPathTest {
         int roughingSegments = roughingToolPath.toGcodePath().getSegments().size();
         int finishingSegments = finishingToolPath.toGcodePath().getSegments().size();
 
-        assertTrue("Roughing should add clearing passes before the finishing pass",
+        assertTrue("Roughing should produce several clearing layers instead of one contour pass",
                 roughingSegments > finishingSegments);
+    }
+
+    @Test
+    public void appendGcodePath_ShouldStopRoughingStockToLeaveAboveTargetDepth() {
+        Raster raster = new Raster(createImage(Color.BLACK));
+        raster.setRoughing(true);
+        raster.setStockToLeave(0.5);
+        HeightMapToolPath toolPath = new HeightMapToolPath(createSettings(), raster);
+        toolPath.setStartDepth(0);
+        toolPath.setTargetDepth(3);
+
+        GcodePath gcodePath = toolPath.toGcodePath();
+
+        assertEquals("Roughing should leave material for the finishing tool path",
+                -2.5, minZ(gcodePath.getSegments()), 0.01);
     }
 
     @Test

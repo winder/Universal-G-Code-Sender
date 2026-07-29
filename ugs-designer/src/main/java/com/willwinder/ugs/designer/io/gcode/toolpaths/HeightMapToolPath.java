@@ -35,16 +35,15 @@ import org.locationtech.jts.geom.LineString;
 
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Carves a relief from a {@link Raster} by treating its grayscale as a height map: brighter pixels
  * stay at the stock surface and darker pixels are cut deeper, down to the target depth.
  * <p>
- * When roughing is enabled the material is first cleared in flat step-down layers (leaving a small
- * amount of stock above the surface), followed by a single finishing pass that follows the surface
- * contour exactly.
+ * When roughing is enabled the material is cleared in flat step-down layers, stopping the stock-to-leave
+ * amount above the surface so a separate finishing tool path can cut the final contour. With roughing
+ * disabled a single finishing pass follows the surface contour exactly.
  *
  * @author Joacim Breiler
  */
@@ -96,16 +95,17 @@ public class HeightMapToolPath extends AbstractToolPath {
 
             if (source.isRoughing()) {
                 double depthPerPass = Math.max(0.01, settings.getDepthPerPass());
+                double roughingTargetDepth = getRoughingTargetDepth();
                 double previousLayer = getStartDepth();
                 double layerDepth = getStartDepth();
-                while (layerDepth < getTargetDepth()) {
-                    layerDepth = Math.min(getTargetDepth(), layerDepth + depthPerPass);
+                while (layerDepth < roughingTargetDepth) {
+                    layerDepth = Math.min(roughingTargetDepth, layerDepth + depthPerPass);
                     generateRoughingPass(gcodePath, envelope, lineSpacing, layerDepth, previousLayer);
                     previousLayer = layerDepth;
                 }
+            } else {
+                generateFinishingPass(gcodePath, envelope, lineSpacing);
             }
-
-            generateFinishingPass(gcodePath, envelope, lineSpacing);
         }
     }
 
@@ -294,10 +294,18 @@ public class HeightMapToolPath extends AbstractToolPath {
     }
 
     private double requiredRoughDepth(double x, double y) {
-        // Radius compensated like the finishing pass: the tool cannot remove material it does not fit
-        // into, so a feature narrower than the tool must be left standing rather than plunged through.
-        // Roughing only differs in stopping short of the final surface by the stock-to-leave amount.
-        return clamp(footprintSurfaceDepth(x, y) - source.getStockToLeave(), getStartDepth(), getTargetDepth());
+        // Roughing follows the true surface at this point (not the radius-compensated one) so it clears
+        // material right up to the edges, leaving only the stock-to-leave for the finishing tool. The
+        // finishing pass stays radius compensated to avoid gouging the final surface.
+        return clamp(surfaceDepthAt(x, y) - source.getStockToLeave(), getStartDepth(), getRoughingTargetDepth());
+    }
+
+    /**
+     * Roughing stops the stock-to-leave amount above the target depth so the finishing tool path always
+     * has material left to cut.
+     */
+    private double getRoughingTargetDepth() {
+        return Math.max(getStartDepth(), getTargetDepth() - source.getStockToLeave());
     }
 
     private double surfaceDepthAt(double x, double y) {

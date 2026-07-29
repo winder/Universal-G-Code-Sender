@@ -42,7 +42,7 @@ public class EntityRasterV1 extends CuttableEntityV1 {
     private int[][] powerCurveControlPoints;
 
     @Expose
-    private boolean roughing = true;
+    private boolean roughing = false;
 
     @Expose
     private double stockToLeave;

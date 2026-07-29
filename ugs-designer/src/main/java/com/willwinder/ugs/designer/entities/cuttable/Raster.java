@@ -74,7 +74,7 @@ public class Raster extends AbstractCuttable {
 
     private boolean invert = false;
 
-    private boolean roughing = true;
+    private boolean roughing = false;
     private double stockToLeave = 0.2;
 
     private boolean depthMapping = false;
