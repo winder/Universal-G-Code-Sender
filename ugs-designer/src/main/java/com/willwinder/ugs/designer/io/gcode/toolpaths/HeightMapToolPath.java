@@ -35,6 +35,7 @@ import org.locationtech.jts.geom.LineString;
 
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,9 +50,14 @@ import java.util.List;
  */
 public class HeightMapToolPath extends AbstractToolPath {
     private static final double EPSILON = 1e-6;
+    private static final int FOOTPRINT_RINGS = 8;
+    private static final double MAX_FOOTPRINT_SAMPLE_SPACING = 0.5;
 
     private final Raster source;
     private final double toolPathAngle;
+
+    private double[][] footprintOffsets;
+    private double footprintOffsetsRadius = Double.NaN;
 
     public HeightMapToolPath(Settings settings, Cuttable source) {
         super(settings);
@@ -218,12 +224,14 @@ public class HeightMapToolPath extends AbstractToolPath {
 
         double[] xs = new double[steps + 1];
         double[] ys = new double[steps + 1];
+        double[] required = new double[steps + 1];
         int firstEngaged = -1;
         int lastEngaged = -1;
         for (int i = 0; i <= steps; i++) {
             xs[i] = c0.x + sx * i;
             ys[i] = c0.y + sy * i;
-            if (requiredRoughDepth(xs[i], ys[i]) > previousLayer + EPSILON) {
+            required[i] = requiredRoughDepth(xs[i], ys[i]);
+            if (required[i] > previousLayer + EPSILON) {
                 if (firstEngaged < 0) {
                     firstEngaged = i;
                 }
@@ -240,16 +248,15 @@ public class HeightMapToolPath extends AbstractToolPath {
         // material within the span, ride over it at the previous cleared height instead of lifting to
         // safe height and plunging again.
         gcodePath.addSegment(new Segment(SegmentType.MOVE, PartialPosition.builder(UnitUtils.Units.MM).setX(xs[firstEngaged]).setY(ys[firstEngaged]).build(), null, null, null));
-        gcodePath.addSegment(new Segment(SegmentType.POINT, roughPosition(xs[firstEngaged], ys[firstEngaged], layerDepth, previousLayer), null, null, source.getFeedRate()));
+        gcodePath.addSegment(new Segment(SegmentType.POINT, roughPosition(xs[firstEngaged], ys[firstEngaged], required[firstEngaged], layerDepth, previousLayer), null, null, source.getFeedRate()));
         for (int i = firstEngaged + 1; i <= lastEngaged; i++) {
-            gcodePath.addSegment(new Segment(SegmentType.LINE, roughPosition(xs[i], ys[i], layerDepth, previousLayer), null, null, source.getFeedRate()));
+            gcodePath.addSegment(new Segment(SegmentType.LINE, roughPosition(xs[i], ys[i], required[i], layerDepth, previousLayer), null, null, source.getFeedRate()));
         }
 
         addSafeHeightSegment(gcodePath, null, true);
     }
 
-    private PartialPosition roughPosition(double x, double y, double layerDepth, double previousLayer) {
-        double required = requiredRoughDepth(x, y);
+    private PartialPosition roughPosition(double x, double y, double required, double layerDepth, double previousLayer) {
         double depth = required > previousLayer + EPSILON
                 ? Math.min(layerDepth, required)
                 : Math.min(previousLayer, required);
@@ -287,10 +294,10 @@ public class HeightMapToolPath extends AbstractToolPath {
     }
 
     private double requiredRoughDepth(double x, double y) {
-        // Roughing follows the true surface at this point (not the radius-compensated one) so it clears
-        // material right up to the edges, leaving only the stock-to-leave for the finishing tool. The
-        // finishing pass stays radius compensated to avoid gouging the final surface.
-        return clamp(surfaceDepthAt(x, y) - source.getStockToLeave(), getStartDepth(), getTargetDepth());
+        // Radius compensated like the finishing pass: the tool cannot remove material it does not fit
+        // into, so a feature narrower than the tool must be left standing rather than plunged through.
+        // Roughing only differs in stopping short of the final surface by the stock-to-leave amount.
+        return clamp(footprintSurfaceDepth(x, y) - source.getStockToLeave(), getStartDepth(), getTargetDepth());
     }
 
     private double surfaceDepthAt(double x, double y) {
@@ -300,28 +307,51 @@ public class HeightMapToolPath extends AbstractToolPath {
     }
 
     /**
-     * Returns the shallowest surface depth under the tool footprint at {@code (x, y)}, sampled on two
-     * concentric rings plus the centre. The tool cannot cut below this without gouging material that
-     * should remain, so it is the deepest the tool may safely descend at this position.
+     * Returns the shallowest surface depth under the tool footprint at {@code (x, y)}. The tool cannot
+     * cut below this without gouging material that should remain, so it is the deepest the tool may
+     * safely descend at this position.
      */
     private double footprintSurfaceDepth(double x, double y) {
         double radius = settings.getToolDiameter() / 2.0;
-        double minDepth = surfaceDepthAt(x, y);
         if (radius <= 0) {
-            return minDepth;
+            return surfaceDepthAt(x, y);
         }
 
-        int directions = 8;
-        double[] radii = {radius * 0.5, radius};
-        for (double r : radii) {
-            for (int i = 0; i < directions; i++) {
-                double angle = (2.0 * Math.PI * i) / directions;
-                double sx = x + r * Math.cos(angle);
-                double sy = y + r * Math.sin(angle);
-                minDepth = Math.min(minDepth, surfaceDepthAt(sx, sy));
-            }
+        double minDepth = Double.POSITIVE_INFINITY;
+        for (double[] offset : footprintOffsets(radius)) {
+            minDepth = Math.min(minDepth, surfaceDepthAt(x + offset[0], y + offset[1]));
         }
         return minDepth;
+    }
+
+    /**
+     * Sample offsets covering the whole tool disc, on a grid rather than a few rays so that a feature
+     * narrower than the tool cannot slip between samples and be plunged through. Spacing is at most
+     * {@link #MAX_FOOTPRINT_SAMPLE_SPACING}, so every feature wider than that is seen by at least one
+     * sample; larger tools get a proportionally denser grid but also produce far fewer tool-path points,
+     * which keeps the total sampling cost roughly flat.
+     */
+    private double[][] footprintOffsets(double radius) {
+        if (footprintOffsets != null && footprintOffsetsRadius == radius) {
+            return footprintOffsets;
+        }
+
+        double spacing = Math.min(radius / FOOTPRINT_RINGS, MAX_FOOTPRINT_SAMPLE_SPACING);
+        int extent = (int) Math.ceil(radius / spacing);
+        List<double[]> offsets = new ArrayList<>();
+        for (int iy = -extent; iy <= extent; iy++) {
+            for (int ix = -extent; ix <= extent; ix++) {
+                double ox = ix * spacing;
+                double oy = iy * spacing;
+                if (ox * ox + oy * oy <= radius * radius + EPSILON) {
+                    offsets.add(new double[]{ox, oy});
+                }
+            }
+        }
+
+        footprintOffsetsRadius = radius;
+        footprintOffsets = offsets.toArray(new double[0][]);
+        return footprintOffsets;
     }
 
     private PartialPosition position(double x, double y, double depth) {
