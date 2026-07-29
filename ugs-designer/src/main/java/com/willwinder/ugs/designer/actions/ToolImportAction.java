@@ -25,6 +25,7 @@ import com.willwinder.ugs.designer.io.eagle.EaglePnpReader;
 import com.willwinder.ugs.designer.io.excellon.ExcellonReader;
 import com.willwinder.ugs.designer.io.gerber.GerberReader;
 import com.willwinder.ugs.designer.io.kicad.KiCadPosReader;
+import com.willwinder.ugs.designer.io.stl.StlReader;
 import com.willwinder.ugs.designer.io.svg.SvgReader;
 import com.willwinder.ugs.designer.io.ugsd.UgsDesignReader;
 import com.willwinder.ugs.designer.logic.Controller;
@@ -54,7 +55,7 @@ public class ToolImportAction extends AbstractDesignAction {
     private static final Logger LOGGER = Logger.getLogger(ToolImportAction.class.getName());
 
     public static final FileNameExtensionFilter[] FILE_NAME_EXTENSION_FILTERS = new FileNameExtensionFilter[]{
-            new FileNameExtensionFilter("All supported formats", "svg", "dxf", "c2d", "mnt", "mnb", "drl", "pos", "gbr", "ugsd", "png", "jpg", "jpeg"),
+            new FileNameExtensionFilter("All supported formats", "svg", "dxf", "c2d", "mnt", "mnb", "drl", "pos", "gbr", "ugsd", "stl", "png", "jpg", "jpeg"),
             new FileNameExtensionFilter("Scalable Vector Graphics (.svg)", "svg"),
             new FileNameExtensionFilter("Autodesk CAD (.dxf)", "dxf"),
             new FileNameExtensionFilter("Carbide Create (.c2d)", "c2d"),
@@ -63,6 +64,7 @@ public class ToolImportAction extends AbstractDesignAction {
             new FileNameExtensionFilter("KiCad (.pos)", "pos"),
             new FileNameExtensionFilter("Gerber (.gbr)", "gbr"),
             new FileNameExtensionFilter("UGS design (.ugsd)", "ugsd"),
+            new FileNameExtensionFilter("Stereolithography (.stl)", "stl"),
             new FileNameExtensionFilter("Portable Network Graphics (.png)", "png"),
             new FileNameExtensionFilter("JPEG (.jpg)", "jpg", "jpeg"),
             new FileNameExtensionFilter("Bitmap (.bmp)", "bmp"),
@@ -111,6 +113,9 @@ public class ToolImportAction extends AbstractDesignAction {
             optionalDesign = reader.read(f);
         } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".drl")) {
             ExcellonReader reader = new ExcellonReader();
+            optionalDesign = reader.read(f);
+        } else if (StringUtils.endsWithIgnoreCase(f.getName(), ".stl")) {
+            StlReader reader = new StlReader();
             optionalDesign = reader.read(f);
         }
 

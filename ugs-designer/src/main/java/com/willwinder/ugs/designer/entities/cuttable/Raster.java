@@ -36,6 +36,7 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -55,6 +56,9 @@ import java.util.logging.Logger;
 public class Raster extends AbstractCuttable {
 
     private static final Logger LOGGER = Logger.getLogger(Raster.class.getSimpleName());
+
+    private static final int MAX_8BIT = 255;
+    private static final int MAX_16BIT = 65535;
 
     private static final ExecutorService DEPTH_MAP_EXECUTOR = Executors.newSingleThreadExecutor(runnable -> {
         Thread thread = new Thread(runnable, "depth-map-generator");
@@ -535,14 +539,19 @@ public class Raster extends AbstractCuttable {
         BufferedImage gray = getOrCreateProcessedGray();
         int w = gray.getWidth();
         int h = gray.getHeight();
-        byte[] grayData = ((java.awt.image.DataBufferByte) gray.getRaster().getDataBuffer()).getData();
+        int maxValue = maxSampleValue(gray);
+        WritableRaster grayRaster = gray.getRaster();
 
         BufferedImage mask = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
         int[] maskData = ((java.awt.image.DataBufferInt) mask.getRaster().getDataBuffer()).getData();
 
-        for (int i = 0; i < grayData.length; i++) {
-            int v = grayData[i] & 0xFF;
-            maskData[i] = (255 - v) << 24; // white → transparent, black → opaque
+        int[] row = new int[w];
+        for (int y = 0; y < h; y++) {
+            grayRaster.getSamples(0, y, w, 1, 0, row);
+            for (int x = 0; x < w; x++) {
+                int v = row[x] * MAX_8BIT / maxValue;
+                maskData[y * w + x] = (MAX_8BIT - v) << 24; // white → transparent, black → opaque
+            }
         }
 
         processedInkMask = mask;
@@ -550,6 +559,10 @@ public class Raster extends AbstractCuttable {
     }
 
 
+    /**
+     * The processed grayscale keeps the bit depth of the source, so a 16-bit height field is carved at
+     * its full resolution instead of being flattened to 256 height steps.
+     */
     private BufferedImage getOrCreateProcessedGray() {
         if (processedGray != null) {
             return processedGray;
@@ -559,15 +572,26 @@ public class Raster extends AbstractCuttable {
         int w = src.getWidth();
         int h = src.getHeight();
 
+        if (src.getType() == BufferedImage.TYPE_USHORT_GRAY) {
+            processedGray = mapSamples(src, BufferedImage.TYPE_USHORT_GRAY, buildMasterLut(MAX_16BIT), MAX_16BIT);
+            return processedGray;
+        }
+
         // Pre-compute a master LUT: luminance (0–255) → final gray value.
         // The entire pipeline (invert, levels, power curve) depends only on the
         // scalar luminance, so it collapses into a single table.
-        int[] masterLut = buildMasterLut();
+        int[] masterLut = buildMasterLut(MAX_8BIT);
 
-        int[] srcPixels = src.getRGB(0, 0, w, h, null, 0, w);
+        if (src.getType() == BufferedImage.TYPE_BYTE_GRAY) {
+            // Reading a gray image through getRGB would convert it from linear gray to sRGB and
+            // brighten it, so the stored intensities are taken verbatim instead
+            processedGray = mapSamples(src, BufferedImage.TYPE_BYTE_GRAY, masterLut, MAX_8BIT);
+            return processedGray;
+        }
+
         BufferedImage dst = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
         byte[] dstData = ((java.awt.image.DataBufferByte) dst.getRaster().getDataBuffer()).getData();
-
+        int[] srcPixels = src.getRGB(0, 0, w, h, null, 0, w);
         for (int i = 0; i < srcPixels.length; i++) {
             int argb = srcPixels[i];
             int r = (argb >> 16) & 0xFF;
@@ -581,29 +605,65 @@ public class Raster extends AbstractCuttable {
         return processedGray;
     }
 
-    private int[] buildMasterLut() {
-        final int[] curveLut = getOrCreatePowerCurveLut();
-        int[] masterLut = new int[256];
+    private static BufferedImage mapSamples(BufferedImage src, int type, int[] lut, int maxValue) {
+        int w = src.getWidth();
+        int h = src.getHeight();
+        BufferedImage dst = new BufferedImage(w, h, type);
+        WritableRaster srcRaster = src.getRaster();
+        WritableRaster dstRaster = dst.getRaster();
 
-        for (int i = 0; i < 256; i++) {
-            double l = i / 255.0;
+        int[] row = new int[w];
+        for (int y = 0; y < h; y++) {
+            srcRaster.getSamples(0, y, w, 1, 0, row);
+            for (int x = 0; x < w; x++) {
+                row[x] = lut[MathUtils.clamp(row[x], 0, maxValue)];
+            }
+            dstRaster.setSamples(0, y, w, 1, 0, row);
+        }
+        return dst;
+    }
+
+    private static int maxSampleValue(BufferedImage image) {
+        return image.getType() == BufferedImage.TYPE_USHORT_GRAY ? MAX_16BIT : MAX_8BIT;
+    }
+
+    private int[] buildMasterLut(int maxValue) {
+        final int[] curveLut = getOrCreatePowerCurveLut();
+        int[] masterLut = new int[maxValue + 1];
+
+        for (int i = 0; i <= maxValue; i++) {
+            double l = (double) i / maxValue;
 
             if (invert) {
                 l = 1.0 - l;
             }
 
-            int curveInput = (int) Math.round(clamp(l, 0.0, 1.0) * 255.0);
-            double ql = curveLut[Math.max(0, Math.min(255, curveInput))] / 255.0;
+            double ql = samplePowerCurve(curveLut, clamp(l, 0.0, 1.0));
 
-            if (levels < 255) {
+            if (levels < MAX_8BIT) {
                 double steps = levels - 1;
                 ql = Math.round(ql * steps) / steps;
             }
 
-            masterLut[i] = (int) Math.round(ql * 255.0);
+            masterLut[i] = (int) Math.round(ql * maxValue);
         }
 
         return masterLut;
+    }
+
+    /**
+     * Samples the 8-bit power curve at a normalized position. The curve is interpolated so that a
+     * 16-bit height field is not quantized down to the 256 entries of the curve table.
+     */
+    private static double samplePowerCurve(int[] curveLut, double normalized) {
+        double position = normalized * (curveLut.length - 1);
+        int index = (int) Math.floor(position);
+        if (index >= curveLut.length - 1) {
+            return curveLut[curveLut.length - 1] / (double) MAX_8BIT;
+        }
+
+        double fraction = position - index;
+        return (curveLut[index] + (curveLut[index + 1] - curveLut[index]) * fraction) / MAX_8BIT;
     }
 
 
@@ -682,10 +742,8 @@ public class Raster extends AbstractCuttable {
             return 1;
         }
 
-        int argb = gray.getRGB(px, py);
-        int v = argb & 0xFF; // gray value
-
-        return v / 255.0;
+        // Sampled rather than read via getRGB, which would convert the linear gray to sRGB
+        return gray.getRaster().getSample(px, py, 0) / (double) maxSampleValue(gray);
     }
 
     @Override

@@ -185,6 +185,74 @@ public class HeightMapToolPathTest {
                 distanceToCorner(angledSegments, cornerX, cornerY) < 1.0);
     }
 
+    @Test
+    public void appendGcodePath_ShouldNotCutPocketNarrowerThanTheTool() {
+        // A 1mm wide slot in an otherwise untouched surface. A 6mm tool does not fit into it, so nothing
+        // may be removed anywhere - cutting the slot would carve a 6mm wide trench through the surface.
+        Raster raster = new Raster(createSlotImage(20, 20, 8, 1));
+        raster.setRoughing(true);
+        Settings settings = createSettings();
+        settings.setToolDiameter(6);
+        HeightMapToolPath toolPath = new HeightMapToolPath(settings, raster);
+        toolPath.setStartDepth(0);
+        toolPath.setTargetDepth(3);
+
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        assertEquals("A 6mm tool must not descend into a 1mm wide slot", 0, deepestZ(segments), 0.01);
+    }
+
+    @Test
+    public void appendGcodePath_ShouldNotMachineAwayIslandNarrowerThanTheTool() {
+        // A 1mm wide raised island surrounded by material to be cut 3mm deep. A 6mm tool cannot cut
+        // anywhere within its radius of the island without machining the island away.
+        Raster raster = new Raster(createIslandImage(20, 20, 8, 1));
+        raster.setRoughing(true);
+        Settings settings = createSettings();
+        settings.setToolDiameter(6);
+        HeightMapToolPath toolPath = new HeightMapToolPath(settings, raster);
+        toolPath.setStartDepth(0);
+        toolPath.setTargetDepth(3);
+
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        assertEquals("The tool must stay clear of a raised island it cannot machine around",
+                0, deepestZBetween(segments, 5.5, 11.5), 0.01);
+    }
+
+    /**
+     * All white (surface) except a dark vertical slot {@code widthPx} wide starting at {@code slotX}.
+     */
+    private static BufferedImage createSlotImage(int width, int height, int slotX, int widthPx) {
+        return createColumnImage(width, height, slotX, widthPx, Color.BLACK, Color.WHITE);
+    }
+
+    /**
+     * All black (cut to target depth) except a raised white island {@code widthPx} wide at {@code islandX}.
+     */
+    private static BufferedImage createIslandImage(int width, int height, int islandX, int widthPx) {
+        return createColumnImage(width, height, islandX, widthPx, Color.WHITE, Color.BLACK);
+    }
+
+    private static BufferedImage createColumnImage(int width, int height, int columnX, int widthPx, Color column, Color background) {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                boolean inColumn = x >= columnX && x < columnX + widthPx;
+                image.setRGB(x, y, (inColumn ? column : background).getRGB());
+            }
+        }
+        return image;
+    }
+
+    private static double deepestZ(List<Segment> segments) {
+        return segments.stream()
+                .filter(s -> s.point != null && s.point.hasZ())
+                .mapToDouble(s -> s.point.getZ())
+                .min()
+                .orElse(Double.NaN);
+    }
+
     private static double maxCoordinate(List<Segment> segments, boolean useX) {
         return segments.stream()
                 .filter(s -> s.point != null && s.point.hasX() && s.point.hasY())
