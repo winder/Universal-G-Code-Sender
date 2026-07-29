@@ -109,7 +109,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
         includeInExport.setSelected(true);
 
         roughingCheckBox = new JCheckBox();
-        roughingCheckBox.setSelected(true);
+        roughingCheckBox.setSelected(false);
         stockToLeaveSpinner = new UnitSpinner(0.2, Unit.MM, 0d, 10000d, 0.1d);
     }
 
@@ -267,7 +267,7 @@ public class CuttableSettingsPanel extends JPanel implements EntitySettingsPanel
                 toolPathAngleSpinner.setValue(firstCuttable.getToolPathAngle());
                 directionCombo.setSelectedItem(firstCuttable.getDirection());
                 toolPathDirectionCombo.setSelectedItem(firstCuttable.getToolPathDirection());
-                roughingCheckBox.setSelected((Boolean) firstCuttable.getEntitySetting(EntitySetting.ROUGHING).orElse(Boolean.TRUE));
+                roughingCheckBox.setSelected((Boolean) firstCuttable.getEntitySetting(EntitySetting.ROUGHING).orElse(Boolean.FALSE));
                 stockToLeaveSpinner.setValue(((Number) firstCuttable.getEntitySetting(EntitySetting.STOCK_TO_LEAVE).orElse(0.0)).doubleValue());
                 updateLabelsForCutType(firstCuttable.getCutType());
             } finally {

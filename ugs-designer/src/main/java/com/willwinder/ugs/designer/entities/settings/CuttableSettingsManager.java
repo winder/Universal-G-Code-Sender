@@ -77,7 +77,7 @@ public class CuttableSettingsManager implements EntitySettingsManager {
             case DIRECTION -> cuttable.getDirection();
             case TOOL_PATH_ANGLE -> cuttable.getToolPathAngle();
             case TOOL_PATH_DIRECTION -> cuttable.getToolPathDirection();
-            case ROUGHING -> cuttable.getEntitySetting(EntitySetting.ROUGHING).orElse(Boolean.TRUE);
+            case ROUGHING -> cuttable.getEntitySetting(EntitySetting.ROUGHING).orElse(Boolean.FALSE);
             case STOCK_TO_LEAVE -> cuttable.getEntitySetting(EntitySetting.STOCK_TO_LEAVE).orElse(0.0);
             default -> null;
         };
