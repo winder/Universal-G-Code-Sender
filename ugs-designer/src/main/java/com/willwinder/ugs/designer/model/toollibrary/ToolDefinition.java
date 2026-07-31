@@ -190,6 +190,7 @@ public class ToolDefinition {
     public Settings applyToSettings(Settings base) {
         Settings result = new Settings(base);
         result.setToolDiameter(getDiameterInMm());
+        result.setToolShape(getShape());
         if (vBitAngleDegrees != null) {
             result.setVBitAngle(vBitAngleDegrees);
         }

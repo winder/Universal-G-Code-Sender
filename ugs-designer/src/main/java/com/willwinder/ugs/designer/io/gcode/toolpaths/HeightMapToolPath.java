@@ -52,6 +52,7 @@ public class HeightMapToolPath extends AbstractToolPath {
     private static final double EPSILON = 1e-6;
     private static final int FOOTPRINT_RINGS = 8;
     private static final double MAX_FOOTPRINT_SAMPLE_SPACING = 0.5;
+    private static final int EDGE_STEP_OVER_DIVISOR = 4;
 
     private final Raster source;
     private final double toolPathAngle;
@@ -180,27 +181,52 @@ public class HeightMapToolPath extends AbstractToolPath {
      * A roughing layer only machines where material still remains above {@code layerDepth}. Within an
      * engaged run the tool rides over regions the previous, shallower layers already cleared at that
      * cleared height, so it descends and retracts once per run instead of plunging repeatedly.
+     * <p>
+     * Passes are distributed evenly so the first and the last one land exactly on the edges of the area,
+     * and wherever the tool starts or stops engaging the material the step over is refined so roughing
+     * closes in on that boundary instead of leaving up to a full step over of stock behind.
      */
     private void generateRoughingPass(GcodePath gcodePath, Envelope envelope, double lineSpacing, double layerDepth, double previousLayer) {
         addSafeHeightSegment(gcodePath, null, true);
 
-        boolean reverse = false;
         double[] offsetRange = offsetRange(envelope, toolPathAngle);
-        double offset = offsetRange[0];
-        while (offset <= offsetRange[1] + 1e-9) {
-            addRoughingLine(gcodePath, envelope, offset, reverse, layerDepth, previousLayer);
+        int passes = Math.max(1, (int) Math.ceil((offsetRange[1] - offsetRange[0]) / lineSpacing));
+        double stepOver = (offsetRange[1] - offsetRange[0]) / passes;
+        double edgeStepOver = stepOver / EDGE_STEP_OVER_DIVISOR;
+
+        boolean reverse = false;
+        boolean previousEngaged = false;
+        double previousOffset = offsetRange[0];
+        for (int pass = 0; pass <= passes; pass++) {
+            double offset = offsetRange[0] + stepOver * pass;
+            boolean engaged = addRoughingLine(gcodePath, envelope, offset, reverse, layerDepth, previousLayer);
             reverse = !reverse;
-            offset += lineSpacing;
+
+            // The tool only engages once its whole footprint clears the material it has to leave standing,
+            // so the boundary of the engaged region falls somewhere inside the step over that crossed it.
+            // Fill that step over in with finer passes to get closer to the boundary.
+            if (pass > 0 && engaged != previousEngaged && edgeStepOver > EPSILON) {
+                for (double edgeOffset = previousOffset + edgeStepOver; edgeOffset < offset - EPSILON; edgeOffset += edgeStepOver) {
+                    addRoughingLine(gcodePath, envelope, edgeOffset, reverse, layerDepth, previousLayer);
+                    reverse = !reverse;
+                }
+            }
+
+            previousEngaged = engaged;
+            previousOffset = offset;
         }
 
         addSafeHeightSegment(gcodePath, null, true);
     }
 
-    private void addRoughingLine(GcodePath gcodePath, Envelope envelope, double offset, boolean reverse,
-                                 double layerDepth, double previousLayer) {
+    /**
+     * @return true if the tool engaged the material anywhere along the line
+     */
+    private boolean addRoughingLine(GcodePath gcodePath, Envelope envelope, double offset, boolean reverse,
+                                    double layerDepth, double previousLayer) {
         LineString lineString = generateLineString(envelope, offset, toolPathAngle);
         if (lineString == null) {
-            return;
+            return false;
         }
 
         Coordinate c0 = lineString.getCoordinateN(0);
@@ -215,7 +241,7 @@ public class HeightMapToolPath extends AbstractToolPath {
         double dy = c1.y - c0.y;
         double length = Math.hypot(dx, dy);
         if (length <= 0) {
-            return;
+            return false;
         }
 
         double maxStep = Math.max(0.1, settings.getToolDiameter() * 0.25);
@@ -242,7 +268,7 @@ public class HeightMapToolPath extends AbstractToolPath {
 
         // Nothing left above this layer on the whole line, so skip it entirely.
         if (firstEngaged < 0) {
-            return;
+            return false;
         }
 
         // Plunge once at the start of the engaged span. Where the surface dips into already-cleared
@@ -255,6 +281,7 @@ public class HeightMapToolPath extends AbstractToolPath {
         }
 
         addSafeHeightSegment(gcodePath, null, true);
+        return true;
     }
 
     private PartialPosition roughPosition(double x, double y, double required, double layerDepth, double previousLayer) {

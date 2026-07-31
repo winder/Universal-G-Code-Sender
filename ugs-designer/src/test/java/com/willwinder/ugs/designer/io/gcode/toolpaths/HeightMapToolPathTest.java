@@ -26,7 +26,11 @@ public class HeightMapToolPathTest {
     }
 
     private static BufferedImage createImage(Color color) {
-        BufferedImage image = new BufferedImage(8, 8, BufferedImage.TYPE_INT_RGB);
+        return createImage(color, 8);
+    }
+
+    private static BufferedImage createImage(Color color, int size) {
+        BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
                 image.setRGB(x, y, color.getRGB());
@@ -234,6 +238,37 @@ public class HeightMapToolPathTest {
 
         assertEquals("The tool must stay clear of a raised island it cannot machine around",
                 0, deepestZBetween(segments, 5.5, 11.5), 0.01);
+    }
+
+    @Test
+    public void appendGcodePath_ShouldRefineStepOverWhereRoughingStartsEngaging() {
+        // A 40x40mm area cut 3mm deep with a 6mm tool at 40% step over. The tool centre cannot come closer
+        // than its 3mm radius to the edge without gouging the untouched stock outside the area, and on a
+        // plain 2.4mm step over grid the first engaged pass would sit a whole step over past that.
+        Raster raster = new Raster(createImage(Color.BLACK, 40));
+        raster.setRoughing(true);
+        Settings settings = createSettings();
+        settings.setToolDiameter(6);
+        settings.setToolStepOver(0.4);
+        HeightMapToolPath toolPath = new HeightMapToolPath(settings, raster);
+        toolPath.setStartDepth(0);
+        toolPath.setTargetDepth(3);
+
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        double firstCuttingY = segments.stream()
+                .filter(s -> s.point != null && s.point.hasY() && s.point.hasZ())
+                .filter(s -> s.point.getZ() < -0.01)
+                .mapToDouble(s -> s.point.getY())
+                .min()
+                .orElse(Double.NaN);
+        double toolRadius = 3;
+        double edgeStepOver = 6 * 0.4 / 4;
+        assertTrue("Roughing must not cut closer to the edge than the tool radius (was " + firstCuttingY + ")",
+                firstCuttingY >= toolRadius - 0.01);
+        assertTrue("Roughing should close in on the edge within a refined step over (was " + firstCuttingY
+                        + ", the tool fits from " + toolRadius + ")",
+                firstCuttingY <= toolRadius + edgeStepOver);
     }
 
     /**

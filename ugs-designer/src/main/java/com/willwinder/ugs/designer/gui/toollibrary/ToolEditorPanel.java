@@ -41,7 +41,7 @@ import java.util.function.Consumer;
  * {@link #setTool(ToolDefinition, boolean)} to bind a tool and {@link #getTool()} to read the
  * current edited values back. Any change fires the configured {@link #setChangeListener} so
  * callers can debounce-persist.
- *
+ * <p/>
  * Units:
  *   - Diameter is displayed in the tool's native unit (mm or inch). Toggling the unit selector
  *     converts the numeric value.
@@ -137,17 +137,17 @@ public class ToolEditorPanel extends JPanel {
 
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx 2, growx, hmin 2");
 
-        add(new JLabel("Feed speed (" + feedUnit.getAbbreviation() + ")"));
+        add(new JLabel("Feed speed"));
         feedField = new TextFieldWithUnit(feedUnit, 0, 0);
         feedField.addPropertyChangeListener("value", e -> { if (!suppressEvents) fireChange(); });
         add(feedField, "growx");
 
-        add(new JLabel("Plunge speed (" + feedUnit.getAbbreviation() + ")"));
+        add(new JLabel("Plunge speed"));
         plungeField = new TextFieldWithUnit(feedUnit, 0, 0);
         plungeField.addPropertyChangeListener("value", e -> { if (!suppressEvents) fireChange(); });
         add(plungeField, "growx");
 
-        add(new JLabel("Depth per pass (" + depthUnit.getAbbreviation() + ")"));
+        add(new JLabel("Depth per pass"));
         depthField = new TextFieldWithUnit(depthUnit, 3, 0);
         depthField.addPropertyChangeListener("value", e -> { if (!suppressEvents) fireChange(); });
         add(depthField, "growx");

@@ -20,10 +20,12 @@
 package com.willwinder.ugs.designer.gui;
 
 import com.willwinder.ugs.designer.gui.toollibrary.DeviationHighlighter;
+import com.willwinder.ugs.designer.gui.toollibrary.EndmillShapeCombo;
 import com.willwinder.ugs.designer.gui.toollibrary.ToolLibraryPickerDialog;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ToolLibraryService;
 import com.willwinder.ugs.designer.model.Settings;
+import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
 import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.Unit;
@@ -56,6 +58,7 @@ public class ToolSettingsPanel extends JPanel {
 
     private JButton pickFromLibraryButton;
     private JLabel selectedToolLabel;
+    private EndmillShapeCombo endmillShape;
     private JPanel diameterSlot;
     private TextFieldWithUnit toolDiameter;
     private JComboBox<UnitUtils.Units> diameterUnitCombo;
@@ -65,6 +68,7 @@ public class ToolSettingsPanel extends JPanel {
     private TextFieldWithUnit plungeSpeed;
     private TextFieldWithUnit depthPerPass;
     private TextFieldWithUnit stepOver;
+    private JLabel vBitAngleLabel;
     private TextFieldWithUnit vBitAngle;
     private JTextField safeHeight;
     private JCheckBox detectMaxSpindleSpeed;
@@ -82,12 +86,12 @@ public class ToolSettingsPanel extends JPanel {
         initComponents();
         setMinimumSize(new Dimension(360, 480));
         setPreferredSize(new Dimension(360, 480));
-        initialiseLibrarySnapshot();
+        restoreLibraryBinding();
         attachDeviationHighlighters();
     }
 
     private void initComponents() {
-        setLayout(new MigLayout("fill", "[pref!][grow,fill]"));
+        setLayout(new MigLayout("fill, hidemode 3", "[pref!][grow,fill]"));
 
         pickFromLibraryButton = new JButton("Pick from Library…");
         pickFromLibraryButton.addActionListener(e -> onPickFromLibrary());
@@ -96,6 +100,16 @@ public class ToolSettingsPanel extends JPanel {
         add(selectedToolLabel, "wrap, growx");
 
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2");
+
+        add(new JLabel("Tool shape"));
+        endmillShape = new EndmillShapeCombo();
+        endmillShape.setSelectedItem(controller.getSettings().getToolShape());
+        endmillShape.addItemListener(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+                updateVBitAngleVisibility();
+            }
+        });
+        add(endmillShape, TOOL_FIELD_CONSTRAINT);
 
         add(new JLabel("Tool diameter"));
         JPanel diameterRow = new JPanel(new MigLayout("insets 0, fillx", "[grow][]"));
@@ -113,30 +127,32 @@ public class ToolSettingsPanel extends JPanel {
         rebuildDiameterField(UnitUtils.Units.MM, controller.getSettings().getToolDiameter());
         add(diameterRow, TOOL_FIELD_CONSTRAINT);
 
-        add(new JLabel("Tool step over (%)"));
+        add(new JLabel("Tool step over"));
         stepOver = new TextFieldWithUnit(Unit.PERCENT, 2,
                 controller.getSettings().getToolStepOver());
         add(stepOver, TOOL_FIELD_CONSTRAINT);
 
-        add(new JLabel("V-bit angle (" + Unit.DEGREE.getAbbreviation() + ")"));
+        vBitAngleLabel = new JLabel("V-bit angle");
+        add(vBitAngleLabel);
         vBitAngle = new TextFieldWithUnit(Unit.DEGREE, 1, controller.getSettings().getVBitAngle());
         add(vBitAngle, TOOL_FIELD_CONSTRAINT);
+        updateVBitAngleVisibility();
 
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2");
 
-        add(new JLabel("Default feed speed (" + Unit.MM_PER_MINUTE.getAbbreviation() + ")"));
+        add(new JLabel("Default feed speed"));
         feedSpeed = new TextFieldWithUnit(Unit.MM_PER_MINUTE, 0, controller.getSettings().getFeedSpeed());
         add(feedSpeed, TOOL_FIELD_CONSTRAINT);
 
-        add(new JLabel("Plunge speed (" + Unit.MM_PER_MINUTE.getAbbreviation() + ")"));
+        add(new JLabel("Plunge speed"));
         plungeSpeed = new TextFieldWithUnit(Unit.MM_PER_MINUTE, 0, controller.getSettings().getPlungeSpeed());
         add(plungeSpeed, TOOL_FIELD_CONSTRAINT);
 
-        add(new JLabel("Depth per pass (" + Unit.MM.getAbbreviation() + ")"));
+        add(new JLabel("Depth per pass"));
         depthPerPass = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getDepthPerPass());
         add(depthPerPass, TOOL_FIELD_CONSTRAINT);
 
-        add(new JLabel("Safe height (" + Unit.MM.getAbbreviation() + ")"));
+        add(new JLabel("Safe height"));
         safeHeight = new TextFieldWithUnit(Unit.MM, 2, controller.getSettings().getSafeHeight());
         add(safeHeight, TOOL_FIELD_CONSTRAINT);
 
@@ -172,6 +188,18 @@ public class ToolSettingsPanel extends JPanel {
         add(arcFitting, TOOL_FIELD_CONSTRAINT);
     }
 
+    /**
+     * The angle only describes the geometry of a V-shaped bit, so it is hidden for every other
+     * shape. The value is kept in the hidden field so it survives a temporary shape change.
+     */
+    private void updateVBitAngleVisibility() {
+        boolean isVBit = endmillShape.getSelectedShape().requiresAngle();
+        vBitAngleLabel.setVisible(isVBit);
+        vBitAngle.setVisible(isVBit);
+        revalidate();
+        repaint();
+    }
+
     private void rebuildDiameterField(UnitUtils.Units unit, double valueInFieldUnit) {
         diameterDisplayUnit = unit == null ? UnitUtils.Units.MM : unit;
         Unit fieldUnit = diameterDisplayUnit == UnitUtils.Units.INCH ? Unit.INCH : Unit.MM;
@@ -201,14 +229,20 @@ public class ToolSettingsPanel extends JPanel {
                 : valueInDisplayUnit(librarySnapshot.getDiameterInMm()));
     }
 
-    private void initialiseLibrarySnapshot() {
+    /**
+     * Restores which library tool the design is bound to, without touching any of the fields. The
+     * values shown are always the ones stored in the design, so user edits to a library tool
+     * survive reopening the dialog. The binding is only used for the tool name and for
+     * highlighting fields that deviate from the library definition.
+     */
+    private void restoreLibraryBinding() {
         Settings settings = controller.getSettings();
         String activeId = settings.getCurrentToolId();
         if (activeId != null && libraryService != null) {
             Optional<ToolDefinition> tool = libraryService.getById(activeId);
             if (tool.isPresent() && !tool.get().isCustomSentinel()) {
                 librarySnapshot = tool.get();
-                SwingUtilities.invokeLater(() -> applyLibrarySnapshotToFields(false));
+                updateSelectedToolLabel();
                 return;
             }
         }
@@ -241,6 +275,8 @@ public class ToolSettingsPanel extends JPanel {
                 () -> librarySnapshot == null ? null : librarySnapshot.getVBitAngleDegrees());
         DeviationHighlighter.attachCombo(spindleDirection,
                 () -> librarySnapshot == null ? null : librarySnapshot.getSpindleDirection());
+        DeviationHighlighter.attachCombo(endmillShape,
+                () -> librarySnapshot == null ? null : librarySnapshot.getShape());
     }
 
     private Double valueInDisplayUnit(double mm) {
@@ -266,30 +302,29 @@ public class ToolSettingsPanel extends JPanel {
             updateSelectedToolLabel();
         } else {
             librarySnapshot = tool;
-            applyLibrarySnapshotToFields(true);
+            applyLibrarySnapshotToFields();
         }
     }
 
-    private void applyLibrarySnapshotToFields(boolean populateAll) {
+    private void applyLibrarySnapshotToFields() {
         if (librarySnapshot == null) return;
         rebuildDiameterField(librarySnapshot.getDiameterUnit(), librarySnapshot.getDiameter());
         // Re-attach highlighter to the new field
         DeviationHighlighter.attachDouble(toolDiameter, () -> librarySnapshot == null ? null
                 : valueInDisplayUnit(librarySnapshot.getDiameterInMm()));
-        if (populateAll) {
-            try {
-                feedSpeed.setDoubleValue(librarySnapshot.getFeedSpeed());
-                plungeSpeed.setDoubleValue(librarySnapshot.getPlungeSpeed());
-                depthPerPass.setDoubleValue(librarySnapshot.getDepthPerPass());
-                stepOver.setDoubleValue(librarySnapshot.getStepOverPercent());
-                if (librarySnapshot.getVBitAngleDegrees() != null) {
-                    vBitAngle.setDoubleValue(librarySnapshot.getVBitAngleDegrees());
-                }
-                maxSpindleSpeed.setDoubleValue(librarySnapshot.getMaxSpindleSpeed());
-                spindleDirection.setSelectedItem(librarySnapshot.getSpindleDirection());
-            } catch (RuntimeException ignored) {
-                // Bad format — leave field as-is
+        try {
+            feedSpeed.setDoubleValue(librarySnapshot.getFeedSpeed());
+            plungeSpeed.setDoubleValue(librarySnapshot.getPlungeSpeed());
+            depthPerPass.setDoubleValue(librarySnapshot.getDepthPerPass());
+            stepOver.setDoubleValue(librarySnapshot.getStepOverPercent());
+            if (librarySnapshot.getVBitAngleDegrees() != null) {
+                vBitAngle.setDoubleValue(librarySnapshot.getVBitAngleDegrees());
             }
+            maxSpindleSpeed.setDoubleValue(librarySnapshot.getMaxSpindleSpeed());
+            spindleDirection.setSelectedItem(librarySnapshot.getSpindleDirection());
+            endmillShape.setSelectedItem(librarySnapshot.getShape());
+        } catch (RuntimeException ignored) {
+            // Bad format — leave field as-is
         }
         updateSelectedToolLabel();
     }
@@ -384,6 +419,9 @@ public class ToolSettingsPanel extends JPanel {
         }
     }
 
+    public EndmillShape getEndmillShape() {
+        return endmillShape.getSelectedShape();
+    }
 
     public Settings getSettings() {
         Settings settings = new Settings();
@@ -392,6 +430,7 @@ public class ToolSettingsPanel extends JPanel {
         settings.setDepthPerPass(getDepthPerPass());
         settings.setFeedSpeed(getFeedSpeed());
         settings.setToolDiameter(getToolDiameter());
+        settings.setToolShape(getEndmillShape());
         settings.setToolStepOver(getStepOver());
         settings.setVBitAngle(getVBitAngle());
         settings.setPlungeSpeed(getPlungeSpeed());
