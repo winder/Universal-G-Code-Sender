@@ -30,27 +30,44 @@ public class PanelButton extends JButton {
     public static final float TEXT_SCALE = 1.0f;
     private final JLabel textLabel;
     private final JLabel titleLabel;
+    private final JLabel iconLabel;
 
     public PanelButton(String title, String text) {
         super();
         setLayout(new BorderLayout());
         setMaximumSize(new Dimension(100, 100));
+
+        iconLabel = new JLabel();
+        iconLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 6));
+        iconLabel.setVisible(false);
+        add(iconLabel, BorderLayout.WEST);
+
+        JPanel textPanel = new JPanel(new BorderLayout());
+        textPanel.setOpaque(false);
+        add(textPanel, BorderLayout.CENTER);
+
         titleLabel = new JLabel(title);
         Font font = titleLabel.getFont();
         font = font.deriveFont(font.getSize() * TITLE_SCALE);
         titleLabel.setFont(font);
-        add(titleLabel, BorderLayout.NORTH);
+        textPanel.add(titleLabel, BorderLayout.NORTH);
 
         textLabel = new JLabel(text);
         font = textLabel.getFont();
         font = font.deriveFont(font.getSize() * TEXT_SCALE);
         textLabel.setFont(font);
-        add(textLabel, BorderLayout.CENTER);
+        textPanel.add(textLabel, BorderLayout.CENTER);
     }
 
     @Override
     public void setText(String text) {
         this.textLabel.setText(text);
+    }
+
+    @Override
+    public void setIcon(Icon icon) {
+        this.iconLabel.setIcon(icon);
+        this.iconLabel.setVisible(icon != null);
     }
 
     public void setTitle(String title) {

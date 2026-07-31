@@ -19,6 +19,7 @@ package com.willwinder.ugs.nbp.designer.platform;
  */
 
 import com.willwinder.ugs.designer.model.Settings;
+import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
 import org.openide.util.NbPreferences;
 
 import java.util.prefs.Preferences;
@@ -34,6 +35,7 @@ public class SettingsAdapter {
     private static final String FEED_SPEED = "feedSpeed";
     private static final String PLUNGE_SPEED = "plungeSpeed";
     private static final String TOOL_DIAMETER = "toolDiameter";
+    private static final String TOOL_SHAPE = "toolShape";
     private static final String SAFE_HEIGHT = "safeHeight";
     private static final String TOOL_STEP_OVER = "toolStepOver";
     private static final String V_BIT_ANGLE = "vBitAngle";
@@ -54,6 +56,7 @@ public class SettingsAdapter {
         settings.setFeedSpeed(preferences.getInt(FEED_SPEED, 1000));
         settings.setPlungeSpeed(preferences.getInt(PLUNGE_SPEED, 400));
         settings.setToolDiameter(preferences.getDouble(TOOL_DIAMETER, 3d));
+        settings.setToolShape(readToolShape());
         settings.setSafeHeight(preferences.getDouble(SAFE_HEIGHT, 5d));
         settings.setToolStepOver(preferences.getDouble(TOOL_STEP_OVER, 0.3));
         settings.setVBitAngle(preferences.getDouble(V_BIT_ANGLE, 60d));
@@ -72,6 +75,7 @@ public class SettingsAdapter {
         preferences.putInt(FEED_SPEED, settings.getFeedSpeed());
         preferences.putInt(PLUNGE_SPEED, settings.getPlungeSpeed());
         preferences.putDouble(TOOL_DIAMETER, settings.getToolDiameter());
+        preferences.put(TOOL_SHAPE, settings.getToolShape().name());
         preferences.putDouble(SAFE_HEIGHT, settings.getSafeHeight());
         preferences.putDouble(TOOL_STEP_OVER, settings.getToolStepOver());
         preferences.putDouble(V_BIT_ANGLE, settings.getVBitAngle());
@@ -79,5 +83,14 @@ public class SettingsAdapter {
         preferences.put(SPINDLE_DIRECTION, settings.getSpindleDirection());
         preferences.putDouble(FLATNESS_PRECISION, settings.getFlatnessPrecision());
         preferences.putBoolean(ARC_FITTING, settings.getArcFitting());
+    }
+
+    private static EndmillShape readToolShape() {
+        String stored = preferences.get(TOOL_SHAPE, EndmillShape.UPCUT.name());
+        try {
+            return EndmillShape.valueOf(stored);
+        } catch (IllegalArgumentException e) {
+            return EndmillShape.UPCUT;
+        }
     }
 }

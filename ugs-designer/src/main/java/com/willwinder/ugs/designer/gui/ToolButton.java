@@ -20,9 +20,16 @@ package com.willwinder.ugs.designer.gui;
 
 import com.willwinder.ugs.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
+import com.willwinder.ugs.designer.gui.toollibrary.ToolShapeIcon;
 import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.utils.SvgIconLoader;
+
+import javax.swing.Icon;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * A button that displays the currently used tool in the design
@@ -30,7 +37,12 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
  * @author Joacim Breiler
  */
 public class ToolButton extends PanelButton {
+    static final String LASER_ICON_PATH = "img/tool-laser.svg";
+    private static final Icon LASER_ICON = SvgIconLoader
+            .loadImageIcon(LASER_ICON_PATH, SvgIconLoader.SIZE_MEDIUM).orElse(null);
+
     private final transient Controller controller;
+    private final transient Map<EndmillShape, Icon> millIcons = new EnumMap<>(EndmillShape.class);
 
     public ToolButton(Controller controller) {
         super("", "");
@@ -65,11 +77,19 @@ public class ToolButton extends PanelButton {
 
         if (hasMixedOperations) {
             setText("Mixed");
+            setIcon(getMillIcon());
         } else if (hasLaserOperations) {
             setText("Laser");
+            setIcon(LASER_ICON);
         } else {
             setText(getMillToolDescription());
+            setIcon(getMillIcon());
         }
+    }
+
+    private Icon getMillIcon() {
+        return millIcons.computeIfAbsent(controller.getSettings().getToolShape(),
+                shape -> new ToolShapeIcon(shape, SvgIconLoader.SIZE_MEDIUM));
     }
 
     public String getMillToolDescription() {

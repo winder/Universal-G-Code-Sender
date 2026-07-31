@@ -20,6 +20,7 @@ package com.willwinder.ugs.designer.model;
 
 import com.google.common.collect.Sets;
 import com.willwinder.ugs.designer.logic.SettingsListener;
+import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
 import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -31,6 +32,7 @@ public class Settings {
     private int feedSpeed = 1000;
     private int plungeSpeed = 400;
     private double toolDiameter = 3d;
+    private EndmillShape toolShape = EndmillShape.UPCUT;
     private double stockThickness = 10;
     private double safeHeight = 5;
     private UnitUtils.Units preferredUnits = UnitUtils.Units.MM;
@@ -91,6 +93,20 @@ public class Settings {
 
     public void setToolDiameter(double toolDiameter) {
         this.toolDiameter = Math.abs(toolDiameter);
+        notifyListeners();
+    }
+
+    /**
+     * Returns the shape of the currently configured tool
+     *
+     * @return the tool shape, never {@code null}
+     */
+    public EndmillShape getToolShape() {
+        return toolShape == null ? EndmillShape.UPCUT : toolShape;
+    }
+
+    public void setToolShape(EndmillShape toolShape) {
+        this.toolShape = toolShape;
         notifyListeners();
     }
 
@@ -219,6 +235,7 @@ public class Settings {
         setPlungeSpeed(settings.getPlungeSpeed());
         setStockThickness(settings.getStockThickness());
         setToolDiameter(settings.getToolDiameter());
+        setToolShape(settings.getToolShape());
         setToolStepOver(settings.getToolStepOver());
         setVBitAngle(settings.getVBitAngle());
         setPreferredUnits(settings.getPreferredUnits());
