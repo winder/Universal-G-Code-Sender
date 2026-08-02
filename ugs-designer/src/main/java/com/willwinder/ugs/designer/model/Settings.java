@@ -45,6 +45,8 @@ public class Settings {
     private String spindleDirection = "M3";
     private double flatnessPrecision = 0.1;
     private boolean arcFitting = true;
+    private boolean useToolChanges = false;
+    private int toolNumber = ToolDefinition.UNASSIGNED_TOOL_NUMBER;
     private String currentToolId;
     private ToolDefinition currentToolSnapshot;
 
@@ -246,6 +248,8 @@ public class Settings {
         setSpindleDirection(settings.getSpindleDirection());
         setFlatnessPrecision(settings.getFlatnessPrecision());
         setArcFitting(settings.getArcFitting());
+        setUseToolChanges(settings.getUseToolChanges());
+        setToolNumber(settings.getToolNumber());
         setCurrentToolId(settings.getCurrentToolId());
         ToolDefinition snapshot = settings.getCurrentToolSnapshot();
         setCurrentToolSnapshot(snapshot == null ? null : new ToolDefinition(snapshot));
@@ -302,6 +306,37 @@ public class Settings {
     public void setArcFitting(boolean arcFitting) {
         this.arcFitting = arcFitting;
         notifyListeners();
+    }
+
+    /**
+     * Returns whether generated programs should carry a tool change. Off by default — most hobby
+     * machines have a single spindle with no changer, and an unexpected {@code M6} either halts
+     * the job or is rejected outright.
+     */
+    public boolean getUseToolChanges() {
+        return useToolChanges;
+    }
+
+    public void setUseToolChanges(boolean useToolChanges) {
+        this.useToolChanges = useToolChanges;
+        notifyListeners();
+    }
+
+    /**
+     * Returns the physical tool slot of the active tool, emitted as the T word of a tool change.
+     * {@link ToolDefinition#UNASSIGNED_TOOL_NUMBER} means no tool change should be written.
+     */
+    public int getToolNumber() {
+        return toolNumber;
+    }
+
+    public void setToolNumber(int toolNumber) {
+        this.toolNumber = Math.max(ToolDefinition.UNASSIGNED_TOOL_NUMBER, toolNumber);
+        notifyListeners();
+    }
+
+    public boolean hasToolNumber() {
+        return toolNumber > ToolDefinition.UNASSIGNED_TOOL_NUMBER;
     }
 
     public String getCurrentToolId() {

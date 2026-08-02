@@ -44,6 +44,7 @@ public class SettingsAdapter {
     private static final String SPINDLE_DIRECTION = "spindleDirection";
     private static final String FLATNESS_PRECISION = "flatnessPrecision";
     private static final String ARC_FITTING = "arcFitting";
+    private static final String USE_TOOL_CHANGES = "useToolChanges";
 
     private SettingsAdapter() {}
 
@@ -64,6 +65,7 @@ public class SettingsAdapter {
         settings.setSpindleDirection(preferences.get(SPINDLE_DIRECTION, "M3"));
         settings.setFlatnessPrecision(preferences.getDouble(FLATNESS_PRECISION, 0.02d));
         settings.setArcFitting(preferences.getBoolean(ARC_FITTING, false));
+        settings.setUseToolChanges(preferences.getBoolean(USE_TOOL_CHANGES, false));
         return settings;
     }
 
@@ -83,6 +85,7 @@ public class SettingsAdapter {
         preferences.put(SPINDLE_DIRECTION, settings.getSpindleDirection());
         preferences.putDouble(FLATNESS_PRECISION, settings.getFlatnessPrecision());
         preferences.putBoolean(ARC_FITTING, settings.getArcFitting());
+        preferences.putBoolean(USE_TOOL_CHANGES, settings.getUseToolChanges());
     }
 
     private static EndmillShape readToolShape() {

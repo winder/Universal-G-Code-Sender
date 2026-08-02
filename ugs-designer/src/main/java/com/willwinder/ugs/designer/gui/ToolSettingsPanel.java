@@ -21,7 +21,8 @@ package com.willwinder.ugs.designer.gui;
 
 import com.willwinder.ugs.designer.gui.toollibrary.DeviationHighlighter;
 import com.willwinder.ugs.designer.gui.toollibrary.EndmillShapeCombo;
-import com.willwinder.ugs.designer.gui.toollibrary.ToolLibraryPickerDialog;
+import com.willwinder.ugs.designer.gui.toollibrary.ToolLabels;
+import com.willwinder.ugs.designer.gui.toollibrary.ToolLibraryDialog;
 import com.willwinder.ugs.designer.logic.Controller;
 import com.willwinder.ugs.designer.logic.ToolLibraryService;
 import com.willwinder.ugs.designer.model.Settings;
@@ -77,6 +78,7 @@ public class ToolSettingsPanel extends JPanel {
     private JComboBox<String> spindleDirection;
     private TextFieldWithUnit flatnessPrecision;
     private JCheckBox arcFitting;
+    private JCheckBox useToolChanges;
 
     private transient ToolDefinition librarySnapshot;
 
@@ -84,8 +86,8 @@ public class ToolSettingsPanel extends JPanel {
         this.controller = controller;
         this.libraryService = LookupService.lookupOptional(ToolLibraryService.class).orElse(null);
         initComponents();
-        setMinimumSize(new Dimension(360, 480));
-        setPreferredSize(new Dimension(360, 480));
+        setMinimumSize(new Dimension(360, 500));
+        setPreferredSize(new Dimension(360, 500));
         restoreLibraryBinding();
         attachDeviationHighlighters();
     }
@@ -137,6 +139,11 @@ public class ToolSettingsPanel extends JPanel {
         vBitAngle = new TextFieldWithUnit(Unit.DEGREE, 1, controller.getSettings().getVBitAngle());
         add(vBitAngle, TOOL_FIELD_CONSTRAINT);
         updateVBitAngleVisibility();
+
+        add(new JLabel("Generate tool changes"));
+        useToolChanges = new JCheckBox("", controller.getSettings().getUseToolChanges());
+        useToolChanges.setToolTipText("Writes \"M6 T<n>\" for tools that have a tool number assigned.");
+        add(useToolChanges, TOOL_FIELD_CONSTRAINT);
 
         add(new JSeparator(SwingConstants.HORIZONTAL), "spanx, grow, wrap, hmin 2");
 
@@ -290,9 +297,10 @@ public class ToolSettingsPanel extends JPanel {
         if (libraryService == null) {
             return;
         }
-        Optional<ToolDefinition> picked = ToolLibraryPickerDialog.pick(
+        Optional<ToolDefinition> picked = ToolLibraryDialog.pick(
                 SwingUtilities.getWindowAncestor(this),
-                controller.getSettings().getPreferredUnits());
+                controller.getSettings().getPreferredUnits(),
+                librarySnapshot == null ? null : librarySnapshot.getId());
         picked.ifPresent(this::selectTool);
     }
 
@@ -330,11 +338,10 @@ public class ToolSettingsPanel extends JPanel {
     }
 
     private void updateSelectedToolLabel() {
-        if (librarySnapshot == null) {
+        if (librarySnapshot == null || librarySnapshot.getName() == null) {
             selectedToolLabel.setText("— Custom —");
         } else {
-            selectedToolLabel.setText(librarySnapshot.getName() == null
-                    ? "— Custom —" : librarySnapshot.getName());
+            selectedToolLabel.setText(ToolLabels.describe(librarySnapshot));
         }
     }
 
@@ -440,12 +447,15 @@ public class ToolSettingsPanel extends JPanel {
         settings.setSpindleDirection(getSpindleDirection());
         settings.setFlatnessPrecision(getFlatnessPrecision());
         settings.setArcFitting(arcFitting.isSelected());
+        settings.setUseToolChanges(useToolChanges.isSelected());
         if (librarySnapshot != null) {
             settings.setCurrentToolId(librarySnapshot.getId());
             settings.setCurrentToolSnapshot(new ToolDefinition(librarySnapshot));
+            settings.setToolNumber(librarySnapshot.getToolNumber());
         } else {
             settings.setCurrentToolId(null);
             settings.setCurrentToolSnapshot(null);
+            settings.setToolNumber(ToolDefinition.UNASSIGNED_TOOL_NUMBER);
         }
         return settings;
     }

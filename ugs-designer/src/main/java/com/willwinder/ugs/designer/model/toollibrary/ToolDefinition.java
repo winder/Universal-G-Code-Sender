@@ -25,8 +25,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class ToolDefinition {
+    /**
+     * Tool number reserved for "no slot assigned" — such a tool emits no T word.
+     */
+    public static final int UNASSIGNED_TOOL_NUMBER = 0;
+
     private String id;
     private String name;
+    private int toolNumber;
     private EndmillShape shape;
     private Double vBitAngleDegrees;
     private double diameter;
@@ -50,6 +56,7 @@ public class ToolDefinition {
     public ToolDefinition(ToolDefinition other) {
         this.id = other.id;
         this.name = other.name;
+        this.toolNumber = other.toolNumber;
         this.shape = other.shape;
         this.vBitAngleDegrees = other.vBitAngleDegrees;
         this.diameter = other.diameter;
@@ -78,6 +85,22 @@ public class ToolDefinition {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * The physical tool slot this tool occupies, used as the T word in a tool change such as
+     * {@code M6 T2}. {@link #UNASSIGNED_TOOL_NUMBER} means the tool has no slot.
+     */
+    public int getToolNumber() {
+        return toolNumber;
+    }
+
+    public void setToolNumber(int toolNumber) {
+        this.toolNumber = Math.max(UNASSIGNED_TOOL_NUMBER, toolNumber);
+    }
+
+    public boolean hasToolNumber() {
+        return toolNumber > UNASSIGNED_TOOL_NUMBER;
     }
 
     public EndmillShape getShape() {
@@ -200,6 +223,7 @@ public class ToolDefinition {
         result.setToolStepOver(stepOverPercent);
         result.setMaxSpindleSpeed(maxSpindleSpeed);
         result.setSpindleDirection(getSpindleDirection());
+        result.setToolNumber(toolNumber);
         result.setCurrentToolId(id);
         result.setCurrentToolSnapshot(new ToolDefinition(this));
         return result;
@@ -212,6 +236,7 @@ public class ToolDefinition {
     public boolean matchesValues(ToolDefinition other) {
         if (other == null) return false;
         return Objects.equals(name, other.name)
+                && toolNumber == other.toolNumber
                 && shape == other.shape
                 && Objects.equals(vBitAngleDegrees, other.vBitAngleDegrees)
                 && Double.compare(diameter, other.diameter) == 0

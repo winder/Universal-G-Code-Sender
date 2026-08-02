@@ -83,6 +83,55 @@ public class ToolDefinitionTest {
     }
 
     @Test
+    public void defaultToolHasNoToolNumber() {
+        ToolDefinition tool = new ToolDefinition();
+
+        assertFalse(tool.hasToolNumber());
+        assertEquals(ToolDefinition.UNASSIGNED_TOOL_NUMBER, tool.getToolNumber());
+    }
+
+    @Test
+    public void setToolNumberClampsNegativeToUnassigned() {
+        ToolDefinition tool = new ToolDefinition();
+
+        tool.setToolNumber(-3);
+
+        assertEquals(ToolDefinition.UNASSIGNED_TOOL_NUMBER, tool.getToolNumber());
+        assertFalse(tool.hasToolNumber());
+    }
+
+    @Test
+    public void copyConstructorCarriesToolNumber() {
+        ToolDefinition original = quarterInchUpcut();
+        original.setToolNumber(4);
+
+        ToolDefinition copy = new ToolDefinition(original);
+
+        assertEquals(4, copy.getToolNumber());
+    }
+
+    @Test
+    public void applyToSettingsCopiesToolNumber() {
+        ToolDefinition quarter = quarterInchUpcut();
+        quarter.setToolNumber(7);
+
+        Settings applied = quarter.applyToSettings(new Settings());
+
+        assertEquals(7, applied.getToolNumber());
+        assertTrue(applied.hasToolNumber());
+    }
+
+    @Test
+    public void matchesValuesDetectsToolNumberDivergence() {
+        ToolDefinition a = quarterInchUpcut();
+        a.setToolNumber(1);
+        ToolDefinition b = new ToolDefinition(a);
+        b.setToolNumber(2);
+
+        assertFalse(a.matchesValues(b));
+    }
+
+    @Test
     public void matchesValuesIgnoresBuiltInFlag() {
         ToolDefinition a = quarterInchUpcut();
         ToolDefinition b = new ToolDefinition(a);
