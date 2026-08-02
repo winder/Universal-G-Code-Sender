@@ -26,7 +26,6 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.LookupService;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -38,14 +37,15 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Master-detail manager dialog for the Tool Library. Left list shows all tools; right side edits
@@ -55,8 +55,23 @@ import java.util.List;
 public class ToolLibraryDialog extends JDialog {
     private static final int MINIMUM_HEIGHT = 400;
 
+    /**
+     * Cancelling a pick abandons the selection, not the edits — those are already persisted.
+     */
+    enum Mode {
+        MANAGE("Tool Library"),
+        PICK("Select Tool");
+
+        private final String title;
+
+        Mode(String title) {
+            this.title = title;
+        }
+    }
+
     private final ToolLibraryService service;
     private final UnitUtils.Units preferredUnits;
+    private final Mode mode;
     private final DefaultListModel<ToolDefinition> listModel = new DefaultListModel<>();
     private JList<ToolDefinition> toolList;
     private ToolEditorPanel editorPanel;
@@ -64,16 +79,25 @@ public class ToolLibraryDialog extends JDialog {
     private JButton duplicateButton;
     private JButton deleteButton;
     private JButton revertButton;
-    private JButton closeButton;
     private final ToolLibraryListener libraryListener = this::onLibraryChangedExternally;
     private int pendingSelfTriggeredEvents = 0;
+    private ToolDefinition result;
 
     public ToolLibraryDialog(Window owner, ToolLibraryService service, UnitUtils.Units preferredUnits) {
-        super(owner, "Tool Library", ModalityType.APPLICATION_MODAL);
+        this(owner, service, preferredUnits, Mode.MANAGE, null);
+    }
+
+    /**
+     * @param selectedToolId the tool to open on, or {@code null} to open on the first tool
+     */
+    ToolLibraryDialog(Window owner, ToolLibraryService service, UnitUtils.Units preferredUnits,
+                      Mode mode, String selectedToolId) {
+        super(owner, mode.title, ModalityType.APPLICATION_MODAL);
         this.service = service;
         this.preferredUnits = preferredUnits;
+        this.mode = mode;
         initComponents();
-        refreshList(null);
+        refreshList(selectedToolId);
         service.addListener(libraryListener);
     }
 
@@ -83,23 +107,22 @@ public class ToolLibraryDialog extends JDialog {
 
         toolList = new JList<>(listModel);
         toolList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        toolList.setCellRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof ToolDefinition t) {
-                    EndmillShape shape = t.getShape() == null ? EndmillShape.CUSTOM : t.getShape();
-                    setIcon(new ToolShapeIcon(shape, 16));
-                    setText(t.getName() == null ? t.getId() : t.getName());
-                }
-                return this;
-            }
-        });
+        toolList.setCellRenderer(new ToolListCellRenderer());
         toolList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 onSelectionChanged();
             }
         });
+        if (mode == Mode.PICK) {
+            toolList.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getClickCount() == 2 && toolList.getSelectedValue() != null) {
+                        acceptAndClose();
+                    }
+                }
+            });
+        }
 
         JPanel leftPanel = new JPanel(new MigLayout("fill, insets 4", "[grow]", "[grow][]"));
         leftPanel.add(new JScrollPane(toolList), "grow, wrap");
@@ -129,21 +152,52 @@ public class ToolLibraryDialog extends JDialog {
         add(leftPanel, "grow");
         add(editorScrollPane, "grow, wrap");
 
-        JPanel bottom = new JPanel(new BorderLayout());
-        closeButton = new JButton("Close");
-        closeButton.addActionListener(e -> dispose());
-        JPanel closeWrapper = new JPanel(new MigLayout("insets 4, align right"));
-        closeWrapper.add(closeButton);
-        bottom.add(closeWrapper, BorderLayout.EAST);
-        add(bottom, "spanx 2, growx");
+        add(createBottomBar(), "spanx 2, growx");
 
-        getRootPane().registerKeyboardAction(e -> dispose(),
+        getRootPane().registerKeyboardAction(e -> cancelAndClose(),
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         setSize(getPreferredSize());
         setMinimumSize(minimumDialogSize());
         setLocationRelativeTo(getOwner());
+    }
+
+    private JPanel createBottomBar() {
+        JPanel bottom = new JPanel(new MigLayout("insets 4, fillx", "[grow][][]"));
+        if (mode == Mode.PICK) {
+            JButton selectButton = new JButton("Select");
+            selectButton.addActionListener(e -> acceptAndClose());
+            JButton cancelButton = new JButton("Cancel");
+            cancelButton.addActionListener(e -> cancelAndClose());
+            bottom.add(selectButton, "skip 1, tag ok");
+            bottom.add(cancelButton, "tag cancel");
+        } else {
+            JButton closeButton = new JButton("Close");
+            closeButton.addActionListener(e -> cancelAndClose());
+            bottom.add(closeButton, "skip 2, tag ok");
+        }
+        return bottom;
+    }
+
+    private void acceptAndClose() {
+        ToolDefinition selected = toolList.getSelectedValue();
+        // Read back through the service so a just-committed edit is included in the returned tool.
+        result = selected == null ? null : service.getById(selected.getId()).orElse(selected);
+        dispose();
+    }
+
+    private void cancelAndClose() {
+        result = null;
+        dispose();
+    }
+
+    /**
+     * The tool the user picked, or empty when the dialog was cancelled or opened to manage the
+     * library. Edits made while the dialog was open are persisted either way.
+     */
+    public Optional<ToolDefinition> getResult() {
+        return Optional.ofNullable(result);
     }
 
     private Dimension minimumScrollPaneSize(JScrollPane scrollPane) {
@@ -192,7 +246,7 @@ public class ToolLibraryDialog extends JDialog {
         boolean isBuiltIn = hasSelection && selected.isBuiltIn();
         boolean isCustom = hasSelection && selected.isCustomSentinel();
         duplicateButton.setEnabled(hasSelection && !isCustom);
-        deleteButton.setEnabled(hasSelection && !isBuiltIn);
+        deleteButton.setEnabled(hasSelection && !isCustom);
         revertButton.setEnabled(isBuiltIn && !isCustom);
     }
 
@@ -201,14 +255,39 @@ public class ToolLibraryDialog extends JDialog {
         pendingSelfTriggeredEvents++;
         try {
             service.updateTool(edited);
-            int index = toolList.getSelectedIndex();
-            if (index >= 0) {
-                listModel.set(index, edited);
-            }
+            replaceInList(edited);
         } catch (RuntimeException ex) {
             pendingSelfTriggeredEvents--;
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Tool Library", JOptionPane.WARNING_MESSAGE);
+            restoreEditorFromLibrary(edited.getId());
         }
+    }
+
+    /**
+     * Replaces a tool's row by id rather than at the selected index. An edit can be delivered
+     * after the selection has moved on, and must never be written onto another tool's row.
+     */
+    private void replaceInList(ToolDefinition tool) {
+        for (int i = 0; i < listModel.size(); i++) {
+            if (tool.getId().equals(listModel.get(i).getId())) {
+                listModel.set(i, tool);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Puts the stored values back in the editor after a rejected edit so the panel never shows a
+     * value the library did not accept. The editor is only reset while it still shows that tool.
+     */
+    private void restoreEditorFromLibrary(String id) {
+        service.getById(id).ifPresent(stored -> {
+            replaceInList(stored);
+            ToolDefinition selected = toolList.getSelectedValue();
+            if (selected != null && id.equals(selected.getId())) {
+                editorPanel.setTool(stored, false);
+            }
+        });
     }
 
     private void onAdd(ActionEvent e) {
@@ -222,6 +301,7 @@ public class ToolLibraryDialog extends JDialog {
         newTool.setDepthPerPass(1.0);
         newTool.setStepOverPercent(0.4);
         newTool.setMaxSpindleSpeed(18000);
+        newTool.setToolNumber(service.nextAvailableToolNumber());
         ToolDefinition added = service.addTool(newTool);
         refreshList(added.getId());
     }
@@ -236,11 +316,6 @@ public class ToolLibraryDialog extends JDialog {
     private void onDelete(ActionEvent e) {
         ToolDefinition selected = toolList.getSelectedValue();
         if (selected == null) return;
-        if (selected.isBuiltIn()) {
-            JOptionPane.showMessageDialog(this, "Built-in tools cannot be deleted. Use Revert to restore defaults.",
-                    "Tool Library", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
         int answer = JOptionPane.showConfirmDialog(this,
                 "Delete tool \"" + selected.getName() + "\"?",
                 "Delete tool", JOptionPane.YES_NO_OPTION);
@@ -277,9 +352,30 @@ public class ToolLibraryDialog extends JDialog {
         super.dispose();
     }
 
-    public static void show(Window owner, UnitUtils.Units preferredUnits) {
+    /**
+     * Opens the library for management. Nothing is returned — edits persist as they are made.
+     *
+     * @param selectedToolId the tool to open on, or {@code null} to open on the first tool
+     */
+    public static void show(Window owner, UnitUtils.Units preferredUnits, String selectedToolId) {
+        open(owner, preferredUnits, Mode.MANAGE, selectedToolId);
+    }
+
+    /**
+     * Opens the library to choose a tool, returning the chosen tool or empty if cancelled. The
+     * tools stay editable, so the user can adjust one and select it in the same visit.
+     *
+     * @param selectedToolId the tool to open on, or {@code null} to open on the first tool
+     */
+    public static Optional<ToolDefinition> pick(Window owner, UnitUtils.Units preferredUnits, String selectedToolId) {
+        return open(owner, preferredUnits, Mode.PICK, selectedToolId);
+    }
+
+    private static Optional<ToolDefinition> open(Window owner, UnitUtils.Units preferredUnits, Mode mode,
+                                                 String selectedToolId) {
         ToolLibraryService service = LookupService.lookup(ToolLibraryService.class);
-        ToolLibraryDialog dialog = new ToolLibraryDialog(owner, service, preferredUnits);
+        ToolLibraryDialog dialog = new ToolLibraryDialog(owner, service, preferredUnits, mode, selectedToolId);
         dialog.setVisible(true);
+        return dialog.getResult();
     }
 }

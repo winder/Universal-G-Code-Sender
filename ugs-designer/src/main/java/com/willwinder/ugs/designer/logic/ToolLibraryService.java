@@ -91,14 +91,19 @@ public class ToolLibraryService {
                 return;
             }
             tools.clear();
+            Set<Integer> claimedToolNumbers = new HashSet<>();
             for (ToolDefinition tool : file.getTools()) {
                 if (tool == null) continue;
                 if (tool.getId() == null || tool.getId().isBlank()) {
                     tool.setId(UUID.randomUUID().toString());
                 }
+                if (tool.hasToolNumber() && !claimedToolNumbers.add(tool.getToolNumber())) {
+                    LOGGER.warning("Tool number " + tool.getToolNumber() + " claimed more than once, "
+                            + "clearing it on " + tool.getName());
+                    tool.setToolNumber(ToolDefinition.UNASSIGNED_TOOL_NUMBER);
+                }
                 tools.put(tool.getId(), tool);
             }
-            injectMissingBuiltIns();
         }
     }
 
@@ -133,25 +138,6 @@ public class ToolLibraryService {
         }
     }
 
-    /**
-     * Ensures every built-in id produced by {@link DefaultToolSeeds} is present. User-added tools
-     * are untouched. Built-ins the user has already edited keep their edits — we only reinject
-     * entries that are completely missing.
-     */
-    private void injectMissingBuiltIns() {
-        List<ToolDefinition> seeds = DefaultToolSeeds.create();
-        boolean changed = false;
-        for (ToolDefinition seed : seeds) {
-            if (!tools.containsKey(seed.getId())) {
-                tools.put(seed.getId(), seed);
-                changed = true;
-            }
-        }
-        if (changed) {
-            scheduleSave();
-        }
-    }
-
     public Path getLibraryPath() {
         return libraryPath;
     }
@@ -174,6 +160,57 @@ public class ToolLibraryService {
         }
     }
 
+    /**
+     * Finds the tool occupying a physical slot, for resolving a T word back to a tool.
+     */
+    public Optional<ToolDefinition> getByToolNumber(int toolNumber) {
+        if (toolNumber <= ToolDefinition.UNASSIGNED_TOOL_NUMBER) return Optional.empty();
+        synchronized (mutationLock) {
+            return tools.values().stream()
+                    .filter(t -> t.getToolNumber() == toolNumber)
+                    .findFirst()
+                    .map(ToolDefinition::new);
+        }
+    }
+
+    /**
+     * The lowest slot number not already claimed by another tool.
+     */
+    public int nextAvailableToolNumber() {
+        synchronized (mutationLock) {
+            Set<Integer> claimed = collectToolNumbers(null);
+            int candidate = 1;
+            while (claimed.contains(candidate)) {
+                candidate++;
+            }
+            return candidate;
+        }
+    }
+
+    private Set<Integer> collectToolNumbers(String excludedId) {
+        Set<Integer> claimed = new HashSet<>();
+        for (ToolDefinition tool : tools.values()) {
+            if (tool.hasToolNumber() && !tool.getId().equals(excludedId)) {
+                claimed.add(tool.getToolNumber());
+            }
+        }
+        return claimed;
+    }
+
+    private void requireFreeToolNumber(ToolDefinition tool) {
+        if (!tool.hasToolNumber()) {
+            return;
+        }
+        tools.values().stream()
+                .filter(other -> !other.getId().equals(tool.getId()))
+                .filter(other -> other.getToolNumber() == tool.getToolNumber())
+                .findFirst()
+                .ifPresent(clash -> {
+                    throw new IllegalArgumentException("Tool number " + tool.getToolNumber()
+                            + " is already used by \"" + clash.getName() + "\"");
+                });
+    }
+
     public ToolDefinition addTool(ToolDefinition tool) {
         Objects.requireNonNull(tool, "tool");
         synchronized (mutationLock) {
@@ -184,6 +221,7 @@ public class ToolLibraryService {
             if (tools.containsKey(copy.getId())) {
                 throw new IllegalArgumentException("Duplicate tool id: " + copy.getId());
             }
+            requireFreeToolNumber(copy);
             tools.put(copy.getId(), copy);
             scheduleSave();
             notifyListeners();
@@ -199,6 +237,7 @@ public class ToolLibraryService {
                 throw new IllegalArgumentException("Unknown tool id: " + tool.getId());
             }
             ToolDefinition copy = new ToolDefinition(tool);
+            requireFreeToolNumber(copy);
             tools.put(copy.getId(), copy);
             scheduleSave();
             notifyListeners();
@@ -212,9 +251,6 @@ public class ToolLibraryService {
             ToolDefinition existing = tools.get(id);
             if (existing == null) {
                 return;
-            }
-            if (existing.isBuiltIn()) {
-                throw new IllegalStateException("Built-in tools cannot be deleted");
             }
             tools.remove(id);
             scheduleSave();
@@ -234,6 +270,8 @@ public class ToolLibraryService {
             copy.setBuiltIn(false);
             copy.setCustomSentinel(false);
             copy.setName(suffixCopy(source.getName()));
+            // Two tools cannot sit in the same physical slot — the copy starts out unassigned.
+            copy.setToolNumber(ToolDefinition.UNASSIGNED_TOOL_NUMBER);
             tools.put(copy.getId(), copy);
             scheduleSave();
             notifyListeners();
@@ -261,6 +299,7 @@ public class ToolLibraryService {
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException("Built-in seed missing: " + id));
             seed.setName(current.getName());
+            seed.setToolNumber(current.getToolNumber());
             tools.put(id, seed);
             scheduleSave();
             notifyListeners();
@@ -270,7 +309,9 @@ public class ToolLibraryService {
 
     /**
      * Imports a tool that came from a project file. If the id already exists and differs,
-     * a new id is assigned so user data isn't clobbered.
+     * a new id is assigned so user data isn't clobbered. A tool number that is already claimed
+     * by a library tool is dropped rather than rejected — the project describes someone else's
+     * machine, and the local slot assignment wins.
      */
     public ToolDefinition importFromProject(ToolDefinition tool) {
         Objects.requireNonNull(tool, "tool");
@@ -280,6 +321,9 @@ public class ToolLibraryService {
             copy.setCustomSentinel(false);
             if (copy.getId() == null || copy.getId().isBlank() || tools.containsKey(copy.getId())) {
                 copy.setId(UUID.randomUUID().toString());
+            }
+            if (collectToolNumbers(copy.getId()).contains(copy.getToolNumber())) {
+                copy.setToolNumber(ToolDefinition.UNASSIGNED_TOOL_NUMBER);
             }
             tools.put(copy.getId(), copy);
             scheduleSave();

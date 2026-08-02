@@ -36,6 +36,7 @@ public class OpenToolLibraryAction implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Window parent = DialogUtils.getParentWindow(controller.getDrawing());
-        ToolLibraryDialog.show(parent, controller.getSettings().getPreferredUnits());
+        ToolLibraryDialog.show(parent, controller.getSettings().getPreferredUnits(),
+                controller.getSettings().getCurrentToolId());
     }
 }

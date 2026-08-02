@@ -27,11 +27,15 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.text.DefaultFormatter;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.function.Consumer;
@@ -49,11 +53,14 @@ import java.util.function.Consumer;
  *     the unit abbreviation.
  */
 public class ToolEditorPanel extends JPanel {
+    private static final int MAX_TOOL_NUMBER = 999;
+
     private final UnitUtils.Units preferredUnits;
     private final Unit feedUnit;
     private final Unit depthUnit;
 
     private JTextField nameField;
+    private JSpinner toolNumberSpinner;
     private EndmillShapeCombo shapeCombo;
     private JLabel angleLabel;
     private TextFieldWithUnit angleField;
@@ -97,6 +104,14 @@ public class ToolEditorPanel extends JPanel {
             }
         });
         add(nameField, "growx");
+
+        add(new JLabel("Tool number"));
+        toolNumberSpinner = new JSpinner(new SpinnerNumberModel(
+                ToolDefinition.UNASSIGNED_TOOL_NUMBER, ToolDefinition.UNASSIGNED_TOOL_NUMBER, MAX_TOOL_NUMBER, 1));
+        toolNumberSpinner.setToolTipText("The tool slot used in a tool change, for example \"M6 T2\". 0 means none.");
+        toolNumberSpinner.setEditor(commitAsYouTypeEditor(toolNumberSpinner));
+        toolNumberSpinner.addChangeListener(e -> { if (!suppressEvents) fireChange(); });
+        add(toolNumberSpinner, "growx");
 
         add(new JLabel("Shape"));
         shapeCombo = new EndmillShapeCombo();
@@ -174,6 +189,29 @@ public class ToolEditorPanel extends JPanel {
         add(errorLabel, "spanx 2, growx");
     }
 
+    private static JSpinner.NumberEditor commitAsYouTypeEditor(JSpinner spinner) {
+        JSpinner.NumberEditor editor = new JSpinner.NumberEditor(spinner, "0");
+        if (editor.getTextField().getFormatter() instanceof DefaultFormatter formatter) {
+            formatter.setCommitsOnValidEdit(true);
+        }
+        editor.getTextField().setHorizontalAlignment(JTextField.LEFT);
+        return editor;
+    }
+
+    private static void bindValue(TextFieldWithUnit field, double value) {
+        field.setValue(value);
+    }
+
+    private void setToolNumber(int toolNumber) {
+        int clamped = Math.min(Math.max(toolNumber, ToolDefinition.UNASSIGNED_TOOL_NUMBER), MAX_TOOL_NUMBER);
+        toolNumberSpinner.setValue(clamped);
+        getToolNumberField().setValue(clamped);
+    }
+
+    private JFormattedTextField getToolNumberField() {
+        return ((JSpinner.DefaultEditor) toolNumberSpinner.getEditor()).getTextField();
+    }
+
     public void setTool(ToolDefinition tool, boolean readOnly) {
         this.current = tool;
         suppressEvents = true;
@@ -184,20 +222,21 @@ public class ToolEditorPanel extends JPanel {
                 return;
             }
             nameField.setText(tool.getName() == null ? "" : tool.getName());
+            setToolNumber(tool.getToolNumber());
             shapeCombo.setSelectedItem(tool.getShape());
             if (tool.getVBitAngleDegrees() != null) {
-                angleField.setDoubleValue(tool.getVBitAngleDegrees());
+                bindValue(angleField, tool.getVBitAngleDegrees());
             } else {
-                angleField.setDoubleValue(60);
+                bindValue(angleField, 60);
             }
             rebuildDiameterField(tool.getDiameterUnit());
-            diameterField.setDoubleValue(tool.getDiameter());
+            bindValue(diameterField, tool.getDiameter());
             diameterUnitCombo.setSelectedItem(tool.getDiameterUnit());
-            feedField.setDoubleValue(convertFeedFromMmPerMin(tool.getFeedSpeed()));
-            plungeField.setDoubleValue(convertFeedFromMmPerMin(tool.getPlungeSpeed()));
-            depthField.setDoubleValue(convertDepthFromMm(tool.getDepthPerPass()));
-            stepOverField.setDoubleValue(tool.getStepOverPercent());
-            spindleSpeedField.setDoubleValue(tool.getMaxSpindleSpeed());
+            bindValue(feedField, convertFeedFromMmPerMin(tool.getFeedSpeed()));
+            bindValue(plungeField, convertFeedFromMmPerMin(tool.getPlungeSpeed()));
+            bindValue(depthField, convertDepthFromMm(tool.getDepthPerPass()));
+            bindValue(stepOverField, tool.getStepOverPercent());
+            bindValue(spindleSpeedField, tool.getMaxSpindleSpeed());
             spindleDirectionCombo.setSelectedItem(tool.getSpindleDirection());
             updateAngleVisibility();
             validateAndReportError();
@@ -208,6 +247,7 @@ public class ToolEditorPanel extends JPanel {
 
     private void setFieldsEnabled(boolean enabled) {
         nameField.setEnabled(enabled);
+        toolNumberSpinner.setEnabled(enabled);
         shapeCombo.setEnabled(enabled);
         angleField.setEnabled(enabled);
         diameterField.setEnabled(enabled);
@@ -220,11 +260,19 @@ public class ToolEditorPanel extends JPanel {
         spindleDirectionCombo.setEnabled(enabled);
     }
 
+    /**
+     * Swaps in a field configured for the given unit. The replacement inherits the enabled state
+     * of the field it replaces — a new component is enabled by default, which would otherwise undo
+     * the {@link #setFieldsEnabled(boolean)} call that precedes the rebuild in
+     * {@link #setTool(ToolDefinition, boolean)}.
+     */
     private void rebuildDiameterField(UnitUtils.Units unit) {
         Unit fieldUnit = unit == UnitUtils.Units.INCH ? Unit.INCH : Unit.MM;
         int decimals = unit == UnitUtils.Units.INCH ? 4 : 3;
+        boolean enabled = diameterField == null || diameterField.isEnabled();
         diameterSlot.removeAll();
         diameterField = new TextFieldWithUnit(fieldUnit, decimals, 0);
+        diameterField.setEnabled(enabled);
         diameterField.addPropertyChangeListener("value", e -> { if (!suppressEvents) fireChange(); });
         diameterSlot.add(diameterField, "grow");
         diameterSlot.revalidate();
@@ -243,7 +291,7 @@ public class ToolEditorPanel extends JPanel {
         suppressEvents = true;
         try {
             rebuildDiameterField(newUnit);
-            diameterField.setDoubleValue(converted);
+            bindValue(diameterField, converted);
         } finally {
             suppressEvents = false;
         }
@@ -288,6 +336,7 @@ public class ToolEditorPanel extends JPanel {
         if (current == null) return null;
         ToolDefinition edited = new ToolDefinition(current);
         edited.setName(nameField.getText());
+        edited.setToolNumber(((Number) toolNumberSpinner.getValue()).intValue());
         edited.setShape(shapeCombo.getSelectedShape());
         edited.setVBitAngleDegrees(edited.getShape() == EndmillShape.V_BIT
                 ? angleField.getDoubleValue() : null);

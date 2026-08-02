@@ -20,6 +20,7 @@ package com.willwinder.ugs.designer.io.gcode.writer;
 
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.designer.model.Settings;
+import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.model.Axis;
@@ -63,13 +64,45 @@ public class GrblGcodeWriter implements GcodeWriter {
         writer.write(Code.G17.name() + " ; XY plane\n");
         writer.write(Code.G94.name() + " ; units per minute feed rate mode\n");
         writer.write("\n");
-        writer.write("; Tool: " + settings.getToolDiameter() + "mm\n");
         writer.write("; Depth per pass: " + settings.getDepthPerPass() + "mm\n");
         writer.write("; Plunge speed: " + settings.getPlungeSpeed() + "mm/min\n");
         writer.write("; Safe height: " + settings.getSafeHeight() + "mm\n");
         writer.write("; Tool step over: " + settings.getToolStepOver() + "mm\n");
         writer.write("; Spindle start command: " + settings.getSpindleDirection() + "\n");
         writer.write("; Max spindle speed: " + settings.getMaxSpindleSpeed() + "\n");
+        writeToolHeader();
+    }
+
+    /**
+     * Records which cutter the program was posted for, followed by the tool change that selects it.
+     * Tool changes are opt-in, and a tool with no slot assigned in the tool library has nothing to
+     * select — either way the comment is written, since a {@code T} word only names a slot.
+     */
+    private void writeToolHeader() throws IOException {
+        if (!settings.getUseToolChanges() || !settings.hasToolNumber()) {
+            writer.write("; Tool: " + describeTool() + "\n");
+            return;
+        }
+        writer.write("\n" + Code.M6.name() + " T" + settings.getToolNumber() + " ; Tool: " + describeTool() + "\n");
+    }
+
+    /**
+     * The library name of the active tool, which already identifies it well enough to review a
+     * program by — "1/4" Upcut". A design that is not bound to a library tool has no name, so the
+     * description is built from what the settings do carry: "6mm Ball", or "6mm V-bit 60°".
+     */
+    private String describeTool() {
+        ToolDefinition tool = settings.getCurrentToolSnapshot();
+        if (tool != null && StringUtils.isNotBlank(tool.getName())) {
+            return tool.getName();
+        }
+
+        StringBuilder description = new StringBuilder(Utils.formatter.format(settings.getToolDiameter()));
+        description.append("mm ").append(settings.getToolShape().getDisplayName());
+        if (settings.getToolShape().requiresAngle()) {
+            description.append(" ").append(Utils.formatter.format(settings.getVBitAngle())).append("°");
+        }
+        return description.toString();
     }
 
     @Override

@@ -18,9 +18,9 @@
  */
 package com.willwinder.ugs.designer.model;
 
-import com.willwinder.ugs.designer.model.Settings;
 import com.willwinder.ugs.designer.logic.SettingsListener;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
@@ -80,5 +80,23 @@ public class SettingsTest {
         settings.addListener(listener);
         settings.setDepthPerPass(0.1);
         verify(listener, times(1)).onSettingsChanged();
+    }
+
+    @Test
+    public void getUseToolChanges_ShouldDefaultToOff() {
+        Settings settings = new Settings();
+
+        assertFalse(settings.getUseToolChanges());
+    }
+
+    @Test
+    public void applySettings_ShouldCopyUseToolChanges() {
+        Settings source = new Settings();
+        source.setUseToolChanges(true);
+
+        Settings target = new Settings();
+        target.applySettings(source);
+
+        assertTrue(target.getUseToolChanges());
     }
 }

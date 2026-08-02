@@ -21,10 +21,13 @@ package com.willwinder.ugs.designer.io.gcode.writer;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
 import com.willwinder.ugs.designer.io.gcode.path.SegmentType;
 import com.willwinder.ugs.designer.model.Settings;
+import com.willwinder.ugs.designer.model.toollibrary.EndmillShape;
+import com.willwinder.ugs.designer.model.toollibrary.ToolDefinition;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -47,13 +50,129 @@ public class GrblGcodeWriterTest {
         assertTrue(lines[3].startsWith("G90"));
         assertTrue(lines[4].startsWith("G17"));
         assertTrue(lines[5].startsWith("G94"));
-        assertTrue(lines[7].startsWith("; Tool"));
-        assertTrue(lines[8].startsWith("; Depth per pass"));
-        assertTrue(lines[9].startsWith("; Plunge speed"));
-        assertTrue(lines[10].startsWith("; Safe height"));
-        assertTrue(lines[11].startsWith("; Tool step over"));
-        assertTrue(lines[12].startsWith("; Spindle start command"));
-        assertTrue(lines[13].startsWith("; Max spindle speed"));
+        assertTrue(lines[7].startsWith("; Depth per pass"));
+        assertTrue(lines[8].startsWith("; Plunge speed"));
+        assertTrue(lines[9].startsWith("; Safe height"));
+        assertTrue(lines[10].startsWith("; Tool step over"));
+        assertTrue(lines[11].startsWith("; Spindle start command"));
+        assertTrue(lines[12].startsWith("; Max spindle speed"));
+        assertTrue(lines[13].startsWith("; Tool"));
+    }
+
+    @Test
+    public void beginShouldWriteToolChangeForNumberedTool() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setUseToolChanges(true);
+        settings.setToolNumber(2);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.begin();
+
+        assertTrue(result.toString().contains("M6 T2 ; Tool: "));
+    }
+
+    @Test
+    public void beginShouldNotWriteToolChangeWhenToolHasNoNumber() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setUseToolChanges(true);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.begin();
+
+        assertFalse(result.toString().contains("M6"));
+    }
+
+    @Test
+    public void beginShouldNotWriteToolChangeWhenTheSettingIsOff() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setToolNumber(2);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.begin();
+
+        assertFalse(result.toString().contains("M6"));
+    }
+
+    @Test
+    public void beginShouldNotWriteToolChangeByDefault() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+
+        writer.begin();
+
+        assertFalse(result.toString().contains("M6"));
+    }
+
+    @Test
+    public void beginShouldCommentTheToolDiameterWhenNoToolChangeIsWritten() throws IOException {
+        StringWriter result = new StringWriter();
+        GrblGcodeWriter writer = new GrblGcodeWriter(new Settings(), result);
+
+        writer.begin();
+
+        assertTrue(result.toString().contains("; Tool: "));
+    }
+
+    @Test
+    public void beginShouldCommentTheToolAlongsideTheToolChange() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setUseToolChanges(true);
+        settings.setToolNumber(2);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.begin();
+
+        assertTrue(result.toString().contains("M6 T2 ; Tool:"));
+    }
+
+    @Test
+    public void beginShouldDescribeTheToolByShapeWhenNotBoundToTheLibrary() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setToolDiameter(6);
+        settings.setToolShape(EndmillShape.BALL);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.begin();
+
+        assertTrue(result.toString().contains("; Tool: 6mm Ball"));
+    }
+
+    @Test
+    public void beginShouldDescribeTheToolByItsLibraryName() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setToolDiameter(6.35);
+        settings.setCurrentToolSnapshot(namedTool("1/4\" Upcut"));
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.begin();
+
+        assertTrue(result.toString().contains("; Tool: 1/4\" Upcut"));
+    }
+
+    @Test
+    public void beginShouldIncludeTheAngleForAnUnnamedVBit() throws IOException {
+        StringWriter result = new StringWriter();
+        Settings settings = new Settings();
+        settings.setToolDiameter(6);
+        settings.setToolShape(EndmillShape.V_BIT);
+        settings.setVBitAngle(60);
+        GrblGcodeWriter writer = new GrblGcodeWriter(settings, result);
+
+        writer.begin();
+
+        assertTrue(result.toString().contains("; Tool: 6mm V-bit 60°"));
+    }
+
+    private static ToolDefinition namedTool(String name) {
+        ToolDefinition tool = new ToolDefinition();
+        tool.setName(name);
+        return tool;
     }
 
     @Test
