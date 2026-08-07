@@ -45,9 +45,6 @@ public class EntityRasterV1 extends CuttableEntityV1 {
     private boolean roughing = false;
 
     @Expose
-    private double stockToLeave;
-
-    @Expose
     private boolean depthMapping;
 
     @Expose
@@ -103,14 +100,6 @@ public class EntityRasterV1 extends CuttableEntityV1 {
 
     public void setRoughing(boolean roughing) {
         this.roughing = roughing;
-    }
-
-    public double getStockToLeave() {
-        return stockToLeave;
-    }
-
-    public void setStockToLeave(double stockToLeave) {
-        this.stockToLeave = stockToLeave;
     }
 
     public boolean isDepthMapping() {
@@ -169,7 +158,6 @@ public class EntityRasterV1 extends CuttableEntityV1 {
             raster.setLevels(this.levels);
             raster.setInvert(this.invert);
             raster.setRoughing(this.roughing);
-            raster.setStockToLeave(this.stockToLeave);
 
             // Restore the tuning and the cached raw depth before enabling depth mapping, so the first
             // generation reuses the cached estimate instead of re-running the model.

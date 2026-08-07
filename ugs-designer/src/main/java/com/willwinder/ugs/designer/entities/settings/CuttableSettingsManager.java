@@ -78,7 +78,8 @@ public class CuttableSettingsManager implements EntitySettingsManager {
             case TOOL_PATH_ANGLE -> cuttable.getToolPathAngle();
             case TOOL_PATH_DIRECTION -> cuttable.getToolPathDirection();
             case ROUGHING -> cuttable.getEntitySetting(EntitySetting.ROUGHING).orElse(Boolean.FALSE);
-            case STOCK_TO_LEAVE -> cuttable.getEntitySetting(EntitySetting.STOCK_TO_LEAVE).orElse(0.0);
+            case FINISHING_PASS -> cuttable.isFinishingPass();
+            case STOCK_TO_LEAVE -> cuttable.getStockToLeave();
             default -> null;
         };
     }
@@ -150,9 +151,14 @@ public class CuttableSettingsManager implements EntitySettingsManager {
                     cuttable.setEntitySetting(EntitySetting.ROUGHING, roughing);
                 }
             }
+            case FINISHING_PASS -> {
+                if (value instanceof Boolean finishingPass) {
+                    cuttable.setFinishingPass(finishingPass);
+                }
+            }
             case STOCK_TO_LEAVE -> {
                 if (value instanceof Double stockToLeave) {
-                    cuttable.setEntitySetting(EntitySetting.STOCK_TO_LEAVE, stockToLeave);
+                    cuttable.setStockToLeave(stockToLeave);
                 }
             }
             default -> LOGGER.info("Do not know how to set " + setting + " to " + value);
@@ -178,6 +184,7 @@ public class CuttableSettingsManager implements EntitySettingsManager {
         settings.add(EntitySetting.LEAD_IN_PERCENT);
         settings.add(EntitySetting.INCLUDE_IN_EXPORT);
         settings.add(EntitySetting.ROUGHING);
+        settings.add(EntitySetting.FINISHING_PASS);
         settings.add(EntitySetting.STOCK_TO_LEAVE);
         return settings;
     }

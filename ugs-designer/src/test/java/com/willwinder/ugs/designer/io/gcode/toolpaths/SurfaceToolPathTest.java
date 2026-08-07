@@ -574,6 +574,143 @@ public class SurfaceToolPathTest {
         assertZPoint(segment.point, 10);
     }
 
+    @Test
+    public void toGcodePathShouldStopRoughingPassesAtStockToLeaveAndAddFinishingPass() {
+        Rectangle rectangle = createSurfaceRectangle();
+        rectangle.setFinishingPass(true);
+        rectangle.setStockToLeave(0.2);
+
+        SurfaceToolPath toolPath = new SurfaceToolPath(createSurfaceSettings(), rectangle);
+        toolPath.setStartDepth(0);
+        toolPath.setTargetDepth(2);
+
+        List<Double> depths = getCuttingDepths(toolPath.toGcodePath(), 10);
+        assertEquals(4, depths.size());
+        assertEquals(0d, depths.get(0), 0.001);
+        assertEquals(-1d, depths.get(1), 0.001);
+        assertEquals(-1.8d, depths.get(2), 0.001);
+        assertEquals(-2d, depths.get(3), 0.001);
+    }
+
+    @Test
+    public void toGcodePathShouldCutToTargetDepthWithoutFinishingPass() {
+        Rectangle rectangle = createSurfaceRectangle();
+        rectangle.setFinishingPass(false);
+        rectangle.setStockToLeave(0.2);
+
+        SurfaceToolPath toolPath = new SurfaceToolPath(createSurfaceSettings(), rectangle);
+        toolPath.setStartDepth(0);
+        toolPath.setTargetDepth(2);
+
+        List<Double> depths = getCuttingDepths(toolPath.toGcodePath(), 10);
+        assertEquals(3, depths.size());
+        assertEquals(0d, depths.get(0), 0.001);
+        assertEquals(-1d, depths.get(1), 0.001);
+        assertEquals(-2d, depths.get(2), 0.001);
+    }
+
+    @Test
+    public void toGcodePathShouldAddFinishingPassWhenStartDepthIsTheTargetDepth() {
+        Rectangle rectangle = createSurfaceRectangle();
+        rectangle.setFinishingPass(true);
+        rectangle.setStockToLeave(0.2);
+
+        SurfaceToolPath toolPath = new SurfaceToolPath(createSurfaceSettings(), rectangle);
+        toolPath.setStartDepth(1);
+        toolPath.setTargetDepth(1);
+
+        // The single pass must be raised so that there is stock left for the finishing pass
+        List<Double> depths = getCuttingDepths(toolPath.toGcodePath(), 9);
+        assertEquals(2, depths.size());
+        assertEquals(-0.8d, depths.get(0), 0.001);
+        assertEquals(-1d, depths.get(1), 0.001);
+    }
+
+    @Test
+    public void toGcodePathShouldAddFinishingPassWhenStartDepthIsBelowTheStockToLeave() {
+        Rectangle rectangle = createSurfaceRectangle();
+        rectangle.setFinishingPass(true);
+        rectangle.setStockToLeave(0.2);
+
+        SurfaceToolPath toolPath = new SurfaceToolPath(createSurfaceSettings(), rectangle);
+        toolPath.setStartDepth(1.9);
+        toolPath.setTargetDepth(2);
+
+        List<Double> depths = getCuttingDepths(toolPath.toGcodePath(), 8.1);
+        assertEquals(2, depths.size());
+        assertEquals(-1.8d, depths.get(0), 0.001);
+        assertEquals(-2d, depths.get(1), 0.001);
+    }
+
+    @Test
+    public void toGcodePathShouldAddFinishingPassWhenStartDepthIsNegative() {
+        Rectangle rectangle = createSurfaceRectangle();
+        rectangle.setFinishingPass(true);
+        rectangle.setStockToLeave(0.2);
+
+        SurfaceToolPath toolPath = new SurfaceToolPath(createSurfaceSettings(), rectangle);
+        toolPath.setStartDepth(-1);
+        toolPath.setTargetDepth(-1);
+
+        List<Double> depths = getCuttingDepths(toolPath.toGcodePath(), 11);
+        assertEquals(2, depths.size());
+        assertEquals(1.2d, depths.get(0), 0.001);
+        assertEquals(1d, depths.get(1), 0.001);
+    }
+
+    @Test
+    public void toGcodePathShouldAddFinishingPassWhenStockToLeaveExceedsTheCutDepth() {
+        Rectangle rectangle = createSurfaceRectangle();
+        rectangle.setFinishingPass(true);
+        rectangle.setStockToLeave(10);
+
+        SurfaceToolPath toolPath = new SurfaceToolPath(createSurfaceSettings(), rectangle);
+        toolPath.setStartDepth(0);
+        toolPath.setTargetDepth(2);
+
+        // The roughing pass ends up above the material, but the target depth must still be cut
+        List<Double> depths = getCuttingDepths(toolPath.toGcodePath(), 10);
+        assertEquals(2, depths.size());
+        assertEquals(-2d, depths.get(1), 0.001);
+    }
+
+    @Test
+    public void toGcodePathShouldDefaultToLeavingTwoTenthsOfAMillimeter() {
+        assertEquals(0.2, new Rectangle(0, 0).getStockToLeave(), 0.001);
+    }
+
+    private static Rectangle createSurfaceRectangle() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setLeadInPercent(0);
+        return rectangle;
+    }
+
+    private static Settings createSurfaceSettings() {
+        Settings settings = new Settings();
+        settings.setToolDiameter(5);
+        settings.setToolStepOver(1);
+        settings.setSafeHeight(10);
+        settings.setDepthPerPass(1);
+        return settings;
+    }
+
+    /**
+     * Returns the Z position of each depth pass in the tool path. Every line in a pass plunges to the
+     * same depth, so the plunges are deduplicated, and the moves to the safe height are skipped.
+     */
+    private static List<Double> getCuttingDepths(GcodePath gcodePath, double safeHeight) {
+        List<Segment> segments = gcodePath.getSegments();
+        // The last segment is the final retract which is done to the absolute safe height
+        return segments.subList(0, segments.size() - 1).stream()
+                .map(segment -> segment.point)
+                .filter(point -> point != null && point.hasZ() && !point.hasX() && !point.hasY())
+                .map(PartialPosition::getZ)
+                .filter(z -> Math.abs(z - safeHeight) > 0.001)
+                .distinct()
+                .toList();
+    }
+
     private static void assertXYPoint(PartialPosition point, double expectedX, double expectedY) {
         assertEquals("Expected another X", expectedX, point.getX(), 0.01);
         assertEquals("Expected another Y", expectedY, point.getY(), 0.01);

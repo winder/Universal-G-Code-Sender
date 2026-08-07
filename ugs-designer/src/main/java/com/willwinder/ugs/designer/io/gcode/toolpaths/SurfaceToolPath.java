@@ -80,19 +80,55 @@ public class SurfaceToolPath extends AbstractToolPath {
         Envelope envelope = getEnvelope();
         List<Double> offsets = getPassOffsets(maxStepOver);
 
-        double currentDepth = getStartDepth();
+        double roughingTargetDepth = getRoughingTargetDepth();
+        double currentDepth = getFirstPassDepth();
         addGeometriesToGcodePath(gcodePath, settings, envelope, currentDepth, offsets);
 
-        while (currentDepth < getTargetDepth()) {
+        while (currentDepth < roughingTargetDepth) {
             currentDepth += settings.getDepthPerPass();
-            if (currentDepth > getTargetDepth()) {
-                currentDepth = getTargetDepth();
+            if (currentDepth > roughingTargetDepth) {
+                currentDepth = roughingTargetDepth;
             }
 
             addGeometriesToGcodePath(gcodePath, settings, envelope, currentDepth, offsets);
         }
 
+        // The finishing pass
+        if (currentDepth < getTargetDepth()) {
+            addGeometriesToGcodePath(gcodePath, settings, envelope, getTargetDepth(), offsets);
+        }
+
         addSafeHeightSegment(gcodePath, null, true);
+    }
+
+    /**
+     * Returns the depth that the passes should be cut down to before the finishing pass. When no
+     * finishing pass is requested this is the target depth, otherwise it stops the stock to leave
+     * amount above the target depth.
+     *
+     * @return the depth to cut down to before the finishing pass
+     */
+    private double getRoughingTargetDepth() {
+        if (!source.isFinishingPass()) {
+            return getTargetDepth();
+        }
+
+        return getTargetDepth() - source.getStockToLeave();
+    }
+
+    /**
+     * Returns the depth of the first pass which is normally cut at the start depth. When a finishing
+     * pass should be made the first pass is raised to the roughing target depth if the start depth
+     * would already have cut away the stock that the finishing pass is supposed to remove.
+     *
+     * @return the depth of the first pass
+     */
+    private double getFirstPassDepth() {
+        if (!source.isFinishingPass()) {
+            return getStartDepth();
+        }
+
+        return Math.min(getStartDepth(), getRoughingTargetDepth());
     }
 
     private void addGeometriesToGcodePath(GcodePath gcodePath, Settings settings, Envelope envelope, double currentDepth, List<Double> offsets) {

@@ -58,6 +58,7 @@ public enum EntitySetting {
     RASTER_DEPTH_CONTRAST("Contrast"),
     RASTER_DEPTH_EMPHASIS("Subject emphasis"),
     ROUGHING("Roughing"),
+    FINISHING_PASS("Finishing pass"),
     STOCK_TO_LEAVE("Stock to leave");
 
     public static final List<EntitySetting> TRANSFORMATION_SETTINGS = List.of(
@@ -105,6 +106,8 @@ public enum EntitySetting {
             EntitySetting.SPINDLE_SPEED,
             EntitySetting.FEED_RATE,
             EntitySetting.LEAD_IN_PERCENT,
+            EntitySetting.FINISHING_PASS,
+            EntitySetting.STOCK_TO_LEAVE,
             EntitySetting.INCLUDE_IN_EXPORT);
 
     public static final List<EntitySetting> DEFAULT_LASER_SETTINGS = List.of(
