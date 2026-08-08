@@ -119,6 +119,8 @@ public class UgsDesignWriter implements DesignWriter {
             cuttableEntity.setToolPathAngle(cuttable.getToolPathAngle());
             cuttableEntity.setDirection(DirectionTypeV1.fromDirection(cuttable.getDirection()));
             cuttableEntity.setToolPathDirection(ToolPathDirectionTypeV1.fromDirection(cuttable.getToolPathDirection()));
+            cuttableEntity.setFinishingPass(cuttable.isFinishingPass());
+            cuttableEntity.setStockToLeave(cuttable.getStockToLeave());
         }
         return result;
     }
@@ -130,7 +132,6 @@ public class UgsDesignWriter implements DesignWriter {
         entity.setLevels(raster.getLevels());
         entity.setInvert(raster.isInvert());
         entity.setRoughing(raster.isRoughing());
-        entity.setStockToLeave(raster.getStockToLeave());
         entity.setDepthMapping(raster.isDepthMapping());
         entity.setDepthDetail(raster.getDepthDetail());
         entity.setDepthSmoothing(raster.getDepthSmoothing());

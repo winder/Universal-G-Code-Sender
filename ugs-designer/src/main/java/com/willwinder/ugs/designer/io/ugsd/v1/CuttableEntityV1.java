@@ -66,6 +66,12 @@ public class CuttableEntityV1 extends EntityV1 {
     private DirectionTypeV1 direction;
 
     @Expose
+    private boolean finishingPass;
+
+    @Expose
+    private double stockToLeave = Cuttable.DEFAULT_STOCK_TO_LEAVE;
+
+    @Expose
     private AffineTransform transform;
 
     public CuttableEntityV1(EntityTypeV1 type) {
@@ -132,6 +138,14 @@ public class CuttableEntityV1 extends EntityV1 {
         this.pathDirection = pathDirection;
     }
 
+    public void setFinishingPass(boolean finishingPass) {
+        this.finishingPass = finishingPass;
+    }
+
+    public void setStockToLeave(double stockToLeave) {
+        this.stockToLeave = stockToLeave;
+    }
+
     @Override
     protected void applyCommonAttributes(Entity entity) {
         super.applyCommonAttributes(entity);
@@ -151,6 +165,8 @@ public class CuttableEntityV1 extends EntityV1 {
             cuttable.setToolPathAngle(toolPathDirection);
             cuttable.setDirection(DirectionTypeV1.toDirection(direction));
             cuttable.setToolPathDirection(ToolPathDirectionTypeV1.toDirection(pathDirection));
+            cuttable.setFinishingPass(finishingPass);
+            cuttable.setStockToLeave(stockToLeave);
         }
     }
 

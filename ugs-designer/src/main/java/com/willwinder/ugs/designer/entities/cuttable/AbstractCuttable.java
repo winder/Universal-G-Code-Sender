@@ -56,6 +56,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     private double toolPathAngle;
     private Direction direction = Direction.CLIMB;
     private ToolPathDirection toolPathDirection = ToolPathDirection.HORIZONTAL;
+    private boolean finishingPass = false;
+    private double stockToLeave = DEFAULT_STOCK_TO_LEAVE;
 
     protected AbstractCuttable() {
         this(0, 0);
@@ -358,6 +360,8 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
         copy.setIncludeInExport(getIncludeInExport());
         copy.setDirection(getDirection());
         copy.setToolPathAngle(getToolPathAngle());
+        copy.setFinishingPass(isFinishingPass());
+        copy.setStockToLeave(getStockToLeave());
     }
 
     @Override
@@ -412,5 +416,27 @@ public abstract class AbstractCuttable extends AbstractEntity implements Cuttabl
     @Override
     public ToolPathDirection getToolPathDirection() {
         return toolPathDirection;
+    }
+
+    @Override
+    public void setFinishingPass(boolean finishingPass) {
+        this.finishingPass = finishingPass;
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public boolean isFinishingPass() {
+        return finishingPass;
+    }
+
+    @Override
+    public void setStockToLeave(double stockToLeave) {
+        this.stockToLeave = Math.max(0, stockToLeave);
+        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
+    }
+
+    @Override
+    public double getStockToLeave() {
+        return stockToLeave;
     }
 }

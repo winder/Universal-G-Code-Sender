@@ -400,6 +400,10 @@ public class EntitySettingsPanel extends VBox {
                     Cuttable::getDirection, Cuttable::setDirection, entities);
             case TOOL_PATH_DIRECTION -> controls.enumCombo(ToolPathDirection.values(),
                     ToolPathDirection::getLabel, Cuttable::getToolPathDirection, Cuttable::setToolPathDirection, entities);
+            case FINISHING_PASS ->
+                    leftAligned(controls.switchControl(Cuttable::isFinishingPass, Cuttable::setFinishingPass, entities));
+            case STOCK_TO_LEAVE ->
+                    controls.doubleField(Cuttable::getStockToLeave, Cuttable::setStockToLeave, entities, Unit.MM);
             case INCLUDE_IN_EXPORT ->
                     leftAligned(controls.switchControl(Cuttable::getIncludeInExport, Cuttable::setIncludeInExport, entities));
             default -> null;

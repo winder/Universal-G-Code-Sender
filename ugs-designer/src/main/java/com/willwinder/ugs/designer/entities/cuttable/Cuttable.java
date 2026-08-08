@@ -31,6 +31,11 @@ import java.util.Optional;
  */
 public interface Cuttable extends Entity {
     /**
+     * The default amount of material in millimeters to leave for a finishing pass
+     */
+    double DEFAULT_STOCK_TO_LEAVE = 0.2;
+
+    /**
      * Returns the desired cut operation use to cut the entity.
      *
      * @return the cut type to use.
@@ -198,6 +203,38 @@ public interface Cuttable extends Entity {
      * @return a list of cut types
      */
     List<CutType> getAvailableCutTypes();
+
+    /**
+     * Sets if a separate finishing pass should be made. When enabled the roughing passes will stop
+     * {@link #getStockToLeave()} millimeters above the target depth and a final pass will cut to the
+     * target depth.
+     *
+     * @param finishingPass true if a finishing pass should be made
+     */
+    void setFinishingPass(boolean finishingPass);
+
+    /**
+     * Returns if a separate finishing pass should be made.
+     *
+     * @return true if a finishing pass should be made
+     */
+    boolean isFinishingPass();
+
+    /**
+     * Sets the amount of material in millimeters that the roughing passes should leave for the
+     * finishing pass.
+     *
+     * @param stockToLeave a positive number of millimeters to leave
+     */
+    void setStockToLeave(double stockToLeave);
+
+    /**
+     * Returns the amount of material in millimeters that the roughing passes should leave for the
+     * finishing pass.
+     *
+     * @return the number of millimeters to leave
+     */
+    double getStockToLeave();
 
     /**
      * Some tool paths allow setting a direction. This differs from the tool path angle which can be set arbitrarily.

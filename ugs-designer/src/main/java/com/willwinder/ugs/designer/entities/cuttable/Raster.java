@@ -75,7 +75,6 @@ public class Raster extends AbstractCuttable {
     private boolean invert = false;
 
     private boolean roughing = false;
-    private double stockToLeave = 0.2;
 
     private boolean depthMapping = false;
     private DepthMapParameters depthMapParameters = new DepthMapParameters();
@@ -158,7 +157,6 @@ public class Raster extends AbstractCuttable {
         copy.invert = this.invert;
         copy.levels = this.levels;
         copy.roughing = this.roughing;
-        copy.stockToLeave = this.stockToLeave;
         copy.depthMapping = this.depthMapping;
         copy.depthMapParameters = this.depthMapParameters.copy();
         copy.rawDepth = this.rawDepth;
@@ -192,7 +190,6 @@ public class Raster extends AbstractCuttable {
             case RASTER_LEVELS -> Optional.of(levels);
             case RASTER_POWER_CURVE -> Optional.of(MonotoneCubicSpline.deepClone(powerCurveControlPoints));
             case ROUGHING -> Optional.of(roughing);
-            case STOCK_TO_LEAVE -> Optional.of(stockToLeave);
             case RASTER_DEPTH_MAPPING -> Optional.of(depthMapping);
             case RASTER_DEPTH_DETAIL -> Optional.of(depthMapParameters.getDetail());
             case RASTER_DEPTH_SMOOTHING -> Optional.of(depthMapParameters.getSmoothing());
@@ -209,7 +206,6 @@ public class Raster extends AbstractCuttable {
             case RASTER_LEVELS -> setLevels(asInteger(value));
             case RASTER_POWER_CURVE -> setPowerCurveControlPoints(asIntArray2D(value));
             case ROUGHING -> setRoughing(asBoolean(value));
-            case STOCK_TO_LEAVE -> setStockToLeave(asDouble(value));
             case RASTER_DEPTH_MAPPING -> setDepthMapping(asBoolean(value));
             case RASTER_DEPTH_DETAIL -> setDepthDetail(asDouble(value));
             case RASTER_DEPTH_SMOOTHING -> setDepthSmoothing(asDouble(value));
@@ -243,15 +239,6 @@ public class Raster extends AbstractCuttable {
 
     public void setRoughing(boolean roughing) {
         this.roughing = roughing;
-        notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
-    }
-
-    public double getStockToLeave() {
-        return stockToLeave;
-    }
-
-    public void setStockToLeave(double stockToLeave) {
-        this.stockToLeave = Math.max(0, stockToLeave);
         notifyEvent(new EntityEvent(this, EventType.SETTINGS_CHANGED));
     }
 

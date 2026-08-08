@@ -360,4 +360,38 @@ public class Group extends EntityGroup implements Cuttable {
                 .map(Cuttable::getToolPathDirection)
                 .orElse(ToolPathDirection.HORIZONTAL);
     }
+
+    @Override
+    public void setFinishingPass(boolean finishingPass) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setFinishingPass(finishingPass);
+            }
+        });
+    }
+
+    @Override
+    public boolean isFinishingPass() {
+        return getCuttableStream()
+                .findFirst()
+                .map(Cuttable::isFinishingPass)
+                .orElse(false);
+    }
+
+    @Override
+    public void setStockToLeave(double stockToLeave) {
+        getChildren().forEach(child -> {
+            if (child instanceof Cuttable cuttable) {
+                cuttable.setStockToLeave(stockToLeave);
+            }
+        });
+    }
+
+    @Override
+    public double getStockToLeave() {
+        return getCuttableStream()
+                .findFirst()
+                .map(Cuttable::getStockToLeave)
+                .orElse(DEFAULT_STOCK_TO_LEAVE);
+    }
 }
