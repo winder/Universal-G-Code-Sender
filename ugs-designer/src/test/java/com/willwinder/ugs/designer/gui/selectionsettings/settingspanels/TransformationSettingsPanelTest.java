@@ -18,7 +18,14 @@
  */
 package com.willwinder.ugs.designer.gui.selectionsettings.settingspanels;
 
+import com.willwinder.ugs.designer.entities.Anchor;
+import com.willwinder.ugs.designer.entities.EntitySetting;
+import com.willwinder.ugs.designer.entities.cuttable.Group;
+import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
+import com.willwinder.ugs.designer.entities.selection.SelectionManager;
 import com.willwinder.ugs.designer.gui.expression.ExpressionAwareTextFieldFormatter;
+import com.willwinder.ugs.designer.logic.Controller;
+import com.willwinder.ugs.designer.actions.SimpleUndoManager;
 import com.willwinder.universalgcodesender.uielements.TextFieldWithUnit;
 import org.junit.Assume;
 import org.junit.Before;
@@ -27,6 +34,7 @@ import org.junit.Test;
 import javax.swing.JFormattedTextField;
 import java.awt.GraphicsEnvironment;
 import java.lang.reflect.Field;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -103,6 +111,36 @@ public class TransformationSettingsPanelTest {
         posX.commitEdit();
 
         assertEquals(42.0, ((Number) posX.getValue()).doubleValue(), 1e-9);
+    }
+
+    @Test
+    public void createAndExecuteUndoableAction_shouldUpdatePositionFieldsWhenAnchorChanges() throws Exception {
+        Controller controller = new Controller(new SelectionManager(), new SimpleUndoManager());
+        Group selectionGroup = new Group(List.of(new Rectangle(10, 20, 30, 40)));
+        panel.setFromSelection(selectionGroup);
+
+        panel.createAndExecuteUndoableAction(EntitySetting.ANCHOR, Anchor.TOP_RIGHT, selectionGroup, controller);
+
+        assertEquals(40.0, readDoubleValue("posXTextField"), 1e-9);
+        assertEquals(60.0, readDoubleValue("posYTextField"), 1e-9);
+    }
+
+    @Test
+    public void setFromSelection_shouldKeepUsingTheSelectedAnchor() throws Exception {
+        Controller controller = new Controller(new SelectionManager(), new SimpleUndoManager());
+        Group selectionGroup = new Group(List.of(new Rectangle(10, 20, 30, 40)));
+        panel.setFromSelection(selectionGroup);
+        panel.createAndExecuteUndoableAction(EntitySetting.ANCHOR, Anchor.BOTTOM_LEFT, selectionGroup, controller);
+
+        panel.setFromSelection(selectionGroup);
+
+        assertEquals(10.0, readDoubleValue("posXTextField"), 1e-9);
+        assertEquals(20.0, readDoubleValue("posYTextField"), 1e-9);
+    }
+
+    private double readDoubleValue(String name) throws Exception {
+        TextFieldWithUnit field = readField(name);
+        return ((Number) field.getValue()).doubleValue();
     }
 
     @SuppressWarnings("unchecked")
