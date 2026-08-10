@@ -174,10 +174,7 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
 
         rotationTextField.addPropertyChangeListener("value", evt -> firePropertyChange(EntitySetting.ROTATION.name(), evt.getNewValue()));
 
-        anchorSelector.addListener(anchor -> {
-            currentAnchor = anchor;
-            firePropertyChange(EntitySetting.ANCHOR.name(), anchor);
-        });
+        anchorSelector.addListener(anchor -> firePropertyChange(EntitySetting.ANCHOR.name(), anchor));
 
         lockRatioButton.addActionListener(e -> {
             lockRatio = lockRatioButton.isSelected();
@@ -312,6 +309,12 @@ public class TransformationSettingsPanel extends JPanel implements EntitySetting
             action.redo();
             controller.getUndoManager().addAction(action);
         });
+
+        if (setting == EntitySetting.ANCHOR && newValue instanceof Anchor anchor) {
+            currentAnchor = anchor;
+            selectionGroup.setPivotPoint(anchor);
+            updatePositionFieldsForAnchor(selectionGroup);
+        }
     }
 
     private Optional<UndoableAction> createGroupAction(EntitySetting propertyName, Object newValue, Group selectionGroup) {
