@@ -420,6 +420,35 @@ public class PocketToolPathTest {
         path.close();
     }
 
+    @Test
+    public void toGcodePath_shouldCutEveryDepthOfCutInTheSameDirection() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setSize(new Size(20, 20));
+        rectangle.setDirection(Direction.CONVENTIONAL);
+
+        Settings settings = new Settings();
+        settings.setToolDiameter(5);
+        settings.setToolStepOver(0.4);
+        settings.setDepthPerPass(1);
+        settings.setArcFitting(false);
+
+        PocketToolPath pocket = new PocketToolPath(settings, rectangle);
+        pocket.setTargetDepth(2);
+        List<Segment> segments = pocket.toGcodePath().getSegments();
+
+        // Every pass clears the same area, so they all cut the same positions in the same order
+        assertEquals(positionsAtDepth(segments, 0), positionsAtDepth(segments, -1));
+        assertEquals(positionsAtDepth(segments, 0), positionsAtDepth(segments, -2));
+    }
+
+    private static List<String> positionsAtDepth(List<Segment> segments, double depth) {
+        return segments.stream()
+                .filter(segment -> segment.point != null && segment.point.hasX() && segment.point.hasZ())
+                .filter(segment -> Math.abs(segment.point.getZ() - depth) < 0.001)
+                .map(segment -> Math.round(segment.point.getX() * 100) + "," + Math.round(segment.point.getY() * 100))
+                .toList();
+    }
+
     private static void assertPlungeInSquare(Segment segment, double x, double y) {
         assertEquals(x + 5, segment.point.getAxis(Axis.X), 5);
         assertEquals(y + 5, segment.point.getAxis(Axis.Y), 5);

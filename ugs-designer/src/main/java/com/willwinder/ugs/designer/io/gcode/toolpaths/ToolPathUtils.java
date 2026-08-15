@@ -84,7 +84,7 @@ public class ToolPathUtils {
     }
 
     public static List<PartialPosition> geometryToCoordinates(Geometry geometry, double depth, boolean clockwise) {
-        org.locationtech.jts.geom.Coordinate[] coordinates = geometry.getCoordinates();
+        Coordinate[] coordinates = geometry.getCoordinates().clone();
         if (!clockwise) {
             ArrayUtils.reverse(coordinates);
         }
