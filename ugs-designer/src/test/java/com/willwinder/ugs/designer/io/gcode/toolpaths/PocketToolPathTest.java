@@ -4,6 +4,7 @@ import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.entities.cuttable.Direction;
 import com.willwinder.ugs.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.designer.entities.cuttable.PlungeType;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
@@ -263,6 +264,54 @@ public class PocketToolPathTest {
 
         assertTrue("A finer curve precision should keep more of the points describing the curve",
                 coarseSegments < pocketOfCircle(fineSettings).getSize());
+    }
+
+    @Test
+    public void toGcodePath_shouldRampIntoMaterialForEveryDepthOfCutWhenPlungeTypeIsLinearRamp() {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setDirection(Direction.CLIMB);
+        rectangle.setPlungeType(PlungeType.LINEAR_RAMP);
+
+        Settings settings = new Settings();
+        settings.setToolStepOver(1);
+        settings.setToolDiameter(5);
+        settings.setDepthPerPass(1);
+
+        PocketToolPath pocket = new PocketToolPath(settings, rectangle);
+        pocket.setTargetDepth(2);
+        List<Segment> segments = pocket.toGcodePath().getSegments();
+
+        assertTrue("No pass should move straight down into the material",
+                segments.stream()
+                        .filter(segment -> segment.type == SegmentType.POINT)
+                        .allMatch(segment -> segment.point.getZ() == 0));
+
+        // Both of the passes removing material descend along the first edge of the pocket ring,
+        // which starts in the lower left corner and continues along the Y axis
+        assertRampsDownTo(segments, -1);
+        assertRampsDownTo(segments, -2);
+    }
+
+    private static void assertRampsDownTo(List<Segment> segments, double depth) {
+        List<Segment> pass = segments.stream()
+                .filter(segment -> segment.type == SegmentType.LINE)
+                .filter(segment -> Math.abs(segment.point.getAxis(Axis.Z) - depth) < 0.01)
+                .toList();
+
+        // The descent ends at the ramp angle along the first edge of the ring
+        assertSegmentAt(pass.get(0), 2.5, 6.23, depth);
+
+        // And the ring is cut from there and back over the ramp again to clear it out
+        assertSegmentAt(pass.get(pass.size() - 1), 2.5, 6.23, depth);
+        assertSegmentAt(pass.get(pass.size() - 2), 2.5, 2.5, depth);
+    }
+
+    private static void assertSegmentAt(Segment segment, double x, double y, double z) {
+        assertEquals(SegmentType.LINE, segment.type);
+        assertEquals(x, segment.point.getAxis(Axis.X), 0.01);
+        assertEquals(y, segment.point.getAxis(Axis.Y), 0.01);
+        assertEquals(z, segment.point.getAxis(Axis.Z), 0.01);
     }
 
     private static GcodePath pocketOfCircle(Settings settings) {

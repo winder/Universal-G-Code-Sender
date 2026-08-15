@@ -23,6 +23,7 @@ import com.willwinder.ugs.designer.entities.Entity;
 import com.willwinder.ugs.designer.entities.EntitySetting;
 import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.entities.cuttable.Direction;
+import com.willwinder.ugs.designer.entities.cuttable.PlungeType;
 import com.willwinder.ugs.designer.entities.cuttable.ToolPathDirection;
 import com.willwinder.universalgcodesender.services.LookupServiceProvider;
 
@@ -75,6 +76,7 @@ public class CuttableSettingsManager implements EntitySettingsManager {
             case LEAD_IN_PERCENT -> cuttable.getLeadInPercent();
             case INCLUDE_IN_EXPORT -> cuttable.getIncludeInExport();
             case DIRECTION -> cuttable.getDirection();
+            case PLUNGE_TYPE -> cuttable.getPlungeType();
             case TOOL_PATH_ANGLE -> cuttable.getToolPathAngle();
             case TOOL_PATH_DIRECTION -> cuttable.getToolPathDirection();
             case ROUGHING -> cuttable.getEntitySetting(EntitySetting.ROUGHING).orElse(Boolean.FALSE);
@@ -146,6 +148,11 @@ public class CuttableSettingsManager implements EntitySettingsManager {
                     cuttable.setDirection(direction);
                 }
             }
+            case PLUNGE_TYPE -> {
+                if (value instanceof PlungeType plungeType) {
+                    cuttable.setPlungeType(plungeType);
+                }
+            }
             case ROUGHING -> {
                 if (value instanceof Boolean roughing) {
                     cuttable.setEntitySetting(EntitySetting.ROUGHING, roughing);
@@ -182,6 +189,7 @@ public class CuttableSettingsManager implements EntitySettingsManager {
         settings.add(EntitySetting.PASSES);
         settings.add(EntitySetting.FEED_RATE);
         settings.add(EntitySetting.LEAD_IN_PERCENT);
+        settings.add(EntitySetting.PLUNGE_TYPE);
         settings.add(EntitySetting.INCLUDE_IN_EXPORT);
         settings.add(EntitySetting.ROUGHING);
         settings.add(EntitySetting.FINISHING_PASS);

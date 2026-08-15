@@ -56,11 +56,14 @@ public class OutlineToolPath extends AbstractToolPath {
 
     @Override
     protected void addSafeHeightSegment(GcodePath gcodePath, PartialPosition coordinate, boolean isFirst) {
-        if (isFirst) {
-            super.addSafeHeightSegment(gcodePath, coordinate, true);
+        // Outline paths often start and end in the same spot, so when the tool only needs to be lifted
+        // in place it is worthwhile to climb a smaller amount. Going anywhere else takes the tool over
+        // material that has not been cut away and needs the full safe height.
+        if (isFirst || isMovingOverMaterial(coordinate)) {
+            super.addSafeHeightSegment(gcodePath, coordinate, isFirst);
         } else {
-            // Outline Paths always Start and end in the same spot so its worthwhile to only climb a smaller amount
-            double safeHeightToUse = settings.getSafeHeight() + (coordinate != null && coordinate.hasZ() ? coordinate.getZ() : -getStartDepth());
+            double nextDepth = coordinate.hasZ() ? coordinate.getZ() : -getStartDepth();
+            double safeHeightToUse = Math.max(-getStartDepth(), settings.getSafeHeight() + nextDepth);
             PartialPosition safeHeightCoordinate = PartialPosition.from(Axis.Z, safeHeightToUse, UnitUtils.Units.MM);
             gcodePath.addSegment(SegmentType.MOVE, safeHeightCoordinate);
         }

@@ -20,6 +20,8 @@ package com.willwinder.ugs.designer.io.gcode.toolpaths;
 
 import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.entities.cuttable.Ellipse;
+import com.willwinder.ugs.designer.entities.cuttable.Path;
+import com.willwinder.ugs.designer.entities.cuttable.PlungeType;
 import com.willwinder.ugs.designer.entities.cuttable.Rectangle;
 import com.willwinder.ugs.designer.io.gcode.path.GcodePath;
 import com.willwinder.ugs.designer.io.gcode.path.Segment;
@@ -646,6 +648,188 @@ public class OutlineToolPathTest {
         GcodePath gcodePath = outlineOf(rectangle, settings);
 
         assertTrue(gcodePath.getSegments().stream().noneMatch(s -> s.getType().isArc()));
+    }
+
+    @Test
+    public void toGcodePath_shouldRampIntoMaterialWhenPlungeTypeIsLinearRamp() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setFeedRate(2000);
+        rectangle.setPlungeType(PlungeType.LINEAR_RAMP);
+        Settings settings = new Settings();
+        settings.setSafeHeight(10);
+        settings.setDepthPerPass(1);
+
+        OutlineToolPath toolPath = new OutlineToolPath(settings, rectangle);
+        toolPath.setTargetDepth(1);
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        // The first pass cuts at the surface, so there is nothing to ramp into yet
+        Segment segment = segments.get(4);
+        assertEquals(SegmentType.POINT, segment.type);
+        assertEquals(0, segment.point.getZ(), 0.01);
+
+        // Rapid down to the surface that the previous pass left before engaging the material
+        segment = segments.get(11);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertEquals(0, segment.point.getZ(), 0.01);
+
+        // Descend to the full depth of cut along the first edge of the rectangle
+        segment = segments.get(13);
+        assertEquals(SegmentType.LINE, segment.type);
+        assertEquals(0, segment.point.getX(), 0.01);
+        assertEquals(3.73, segment.point.getY(), 0.01);
+        assertEquals(-1, segment.point.getZ(), 0.01);
+        assertEquals(Integer.valueOf(2000), segment.getFeedSpeed());
+
+        // Continue cutting the outline from where the ramp ended
+        assertSegment(segments.get(14), 0, 10, -1);
+        assertSegment(segments.get(15), 10, 10, -1);
+        assertSegment(segments.get(16), 10, 0, -1);
+        assertSegment(segments.get(17), 0, 0, -1);
+
+        // And clear out the material that the ramp left behind
+        assertSegment(segments.get(18), 0, 3.73, -1);
+
+        // Retract to safe height
+        assertEquals(SegmentType.MOVE, segments.get(19).type);
+        assertEquals(10, segments.get(19).point.getZ(), 0.01);
+        assertEquals(20, segments.size());
+    }
+
+    @Test
+    public void toGcodePath_shouldNotPlungeToFullDepthWhenPlungeTypeIsLinearRamp() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setPlungeType(PlungeType.LINEAR_RAMP);
+        Settings settings = new Settings();
+        settings.setDepthPerPass(1);
+
+        OutlineToolPath toolPath = new OutlineToolPath(settings, rectangle);
+        toolPath.setTargetDepth(3);
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        assertTrue("No pass should move straight down into the material",
+                segments.stream()
+                        .filter(s -> s.type == SegmentType.POINT)
+                        .allMatch(s -> s.point.getZ() == 0));
+    }
+
+    @Test
+    public void toGcodePath_shouldRampTowardsTheStartOfAnOpenPath() {
+        Path path = new Path();
+        path.moveTo(0, 0);
+        path.lineTo(0, 10);
+        path.setPlungeType(PlungeType.LINEAR_RAMP);
+        Settings settings = new Settings();
+        settings.setSafeHeight(10);
+        settings.setDepthPerPass(1);
+
+        OutlineToolPath toolPath = new OutlineToolPath(settings, path);
+        toolPath.setTargetDepth(1);
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        // An open path can not be extended to clear out the ramp, so the tool moves a bit into the
+        // path and descends back towards its start
+        Segment segment = segments.get(7);
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertEquals(0, segment.point.getX(), 0.01);
+        assertEquals(3.73, segment.point.getY(), 0.01);
+
+        // Descend back to the start of the path
+        assertSegment(segments.get(10), 0, 0, -1);
+
+        // The path is then cut in its entirety, clearing out the ramp as it goes
+        assertSegment(segments.get(11), 0, 10, -1);
+    }
+
+    @Test
+    public void toGcodePath_shouldNotRapidIntoMaterialWhenDepthPerPassIsDeeperThanSafeHeight() {
+        Ellipse ellipse = new Ellipse(0, 0);
+        ellipse.setSize(new Size(23, 19.8));
+        Settings settings = new Settings();
+        settings.setSafeHeight(5);
+        settings.setDepthPerPass(8);
+
+        OutlineToolPath toolPath = new OutlineToolPath(settings, ellipse);
+        toolPath.setTargetDepth(8);
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        assertTrue("A rapid must never move down into the material",
+                segments.stream()
+                        .filter(s -> s.type == SegmentType.MOVE && s.point.hasZ())
+                        .allMatch(s -> s.point.getZ() >= 0));
+    }
+
+    @Test
+    public void toGcodePath_shouldRetractToSafeHeightWhenTheNextPassStartsSomewhereElse() {
+        Rectangle rectangle = new Rectangle(0, 0);
+        rectangle.setSize(new Size(10, 10));
+        rectangle.setPlungeType(PlungeType.LINEAR_RAMP);
+        Settings settings = new Settings();
+        settings.setSafeHeight(5);
+        settings.setDepthPerPass(1);
+
+        OutlineToolPath toolPath = new OutlineToolPath(settings, rectangle);
+        toolPath.setTargetDepth(3);
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        // The second pass starts where the first one ended, so the tool is only lifted in place
+        assertRetract(segments.get(9), 4);
+
+        // The pass after that starts back where the ramp began, which takes the tool over material
+        // that has not been cut away yet, so it is lifted all the way to the safe height first
+        assertRetract(segments.get(19), 5);
+        assertEquals(SegmentType.MOVE, segments.get(20).type);
+        assertEquals(0, segments.get(20).point.getX(), 0.01);
+        assertEquals(0, segments.get(20).point.getY(), 0.01);
+        assertFalse(segments.get(20).point.hasZ());
+    }
+
+    @Test
+    public void toGcodePath_shouldRetractToSafeHeightWhenMovingBetweenShapes() {
+        Path path = new Path();
+        path.moveTo(0, 0);
+        path.lineTo(0, 10);
+        path.lineTo(10, 10);
+        path.lineTo(10, 0);
+        path.close();
+        path.moveTo(50, 0);
+        path.lineTo(50, 10);
+        path.lineTo(60, 10);
+        path.lineTo(60, 0);
+        path.close();
+
+        Settings settings = new Settings();
+        settings.setSafeHeight(5);
+        settings.setDepthPerPass(1);
+
+        OutlineToolPath toolPath = new OutlineToolPath(settings, path);
+        toolPath.setTargetDepth(2);
+        List<Segment> segments = toolPath.toGcodePath().getSegments();
+
+        // Every pass of the first shape starts where the previous one ended
+        assertRetract(segments.get(9), 4);
+        assertRetract(segments.get(17), 3);
+
+        // Moving on to the second shape takes the tool over material that has not been cut away
+        assertRetract(segments.get(25), 5);
+        assertEquals(SegmentType.MOVE, segments.get(26).type);
+        assertEquals(50, segments.get(26).point.getX(), 0.01);
+        assertEquals(0, segments.get(26).point.getY(), 0.01);
+    }
+
+    private static void assertRetract(Segment segment, double z) {
+        assertEquals(SegmentType.MOVE, segment.type);
+        assertFalse(segment.point.hasX());
+        assertEquals(z, segment.point.getZ(), 0.01);
+    }
+
+    private static void assertSegment(Segment segment, double x, double y, double z) {
+        assertEquals(SegmentType.LINE, segment.type);
+        assertEquals(x, segment.point.getX(), 0.01);
+        assertEquals(y, segment.point.getY(), 0.01);
+        assertEquals(z, segment.point.getZ(), 0.01);
     }
 
     private static GcodePath outlineOf(Cuttable source, Settings settings) {

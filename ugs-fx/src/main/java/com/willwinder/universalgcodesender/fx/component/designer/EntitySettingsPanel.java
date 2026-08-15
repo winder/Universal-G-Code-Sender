@@ -25,6 +25,7 @@ import com.willwinder.ugs.designer.entities.EntitySetting;
 import com.willwinder.ugs.designer.entities.cuttable.Cuttable;
 import com.willwinder.ugs.designer.entities.cuttable.CutType;
 import com.willwinder.ugs.designer.entities.cuttable.Direction;
+import com.willwinder.ugs.designer.entities.cuttable.PlungeType;
 import com.willwinder.ugs.designer.entities.cuttable.ToolPathDirection;
 import com.willwinder.ugs.designer.entities.selection.SelectionListener;
 import com.willwinder.ugs.designer.entities.selection.SelectionManager;
@@ -90,6 +91,7 @@ public class EntitySettingsPanel extends VBox {
             EntitySetting.TOOL_PATH_ANGLE,
             EntitySetting.DIRECTION,
             EntitySetting.TOOL_PATH_DIRECTION,
+            EntitySetting.PLUNGE_TYPE,
             EntitySetting.INCLUDE_IN_EXPORT);
 
     // Pure transforms never change the set of controls, so they only need a cheap value refresh
@@ -400,6 +402,8 @@ public class EntitySettingsPanel extends VBox {
                     Cuttable::getDirection, Cuttable::setDirection, entities);
             case TOOL_PATH_DIRECTION -> controls.enumCombo(ToolPathDirection.values(),
                     ToolPathDirection::getLabel, Cuttable::getToolPathDirection, Cuttable::setToolPathDirection, entities);
+            case PLUNGE_TYPE -> controls.enumCombo(availablePlungeTypes(entities), PlungeType::getLabel,
+                    Cuttable::getPlungeType, Cuttable::setPlungeType, entities);
             case FINISHING_PASS ->
                     leftAligned(controls.switchControl(Cuttable::isFinishingPass, Cuttable::setFinishingPass, entities));
             case STOCK_TO_LEAVE ->
@@ -408,6 +412,16 @@ public class EntitySettingsPanel extends VBox {
                     leftAligned(controls.switchControl(Cuttable::getIncludeInExport, Cuttable::setIncludeInExport, entities));
             default -> null;
         };
+    }
+
+    /**
+     * The plunge types supported by every selected entity, so we never set one that the cut type of
+     * an entity can not be cut with.
+     */
+    private static PlungeType[] availablePlungeTypes(List<Cuttable> entities) {
+        Set<PlungeType> available = new LinkedHashSet<>(entities.get(0).getCutType().getPlungeTypes());
+        entities.forEach(entity -> available.retainAll(entity.getCutType().getPlungeTypes()));
+        return available.toArray(new PlungeType[0]);
     }
 
     private static Region leftAligned(Region control) {

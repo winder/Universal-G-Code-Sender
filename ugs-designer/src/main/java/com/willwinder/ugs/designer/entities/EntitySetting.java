@@ -48,6 +48,7 @@ public enum EntitySetting {
     TOOL_PATH_ANGLE("Tool path angle"),
     TOOL_PATH_DIRECTION("Tool path direction"),
     DIRECTION("Tool path direction"),
+    PLUNGE_TYPE("Plunge type"),
     CORNER_RADIUS("Corner radius"),
     RASTER_INVERT("Invert"),
     RASTER_LEVELS("Levels"),
@@ -79,9 +80,22 @@ public enum EntitySetting {
             EntitySetting.FEED_RATE,
             EntitySetting.INCLUDE_IN_EXPORT);
 
+    /**
+     * The settings for the cut operations following the outline of a shape with an endmill
+     */
+    public static final List<EntitySetting> DEFAULT_PROFILE_SETTINGS = List.of(
+            EntitySetting.CUT_TYPE,
+            EntitySetting.PLUNGE_TYPE,
+            EntitySetting.START_DEPTH,
+            EntitySetting.TARGET_DEPTH,
+            EntitySetting.SPINDLE_SPEED,
+            EntitySetting.FEED_RATE,
+            EntitySetting.INCLUDE_IN_EXPORT);
+
     public static final List<EntitySetting> DEFAULT_POCKET_SETTINGS = List.of(
             EntitySetting.CUT_TYPE,
             EntitySetting.DIRECTION,
+            EntitySetting.PLUNGE_TYPE,
             EntitySetting.START_DEPTH,
             EntitySetting.TARGET_DEPTH,
             EntitySetting.SPINDLE_SPEED,
